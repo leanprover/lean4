@@ -70,7 +70,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Json_HasToJson() {
+static lean_object* _init_l_Lean_Json_HasToJson() {
 _start:
 {
 lean_object* x_1; 
@@ -78,7 +78,7 @@ x_1 = l_Nat_HasOfNat___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_JsonNumber_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_JsonNumber_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -86,7 +86,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Json_getNum_x3f___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_JsonNumber_hasFromJson() {
+static lean_object* _init_l_Lean_JsonNumber_hasFromJson() {
 _start:
 {
 lean_object* x_1; 
@@ -103,7 +103,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Bool_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_Bool_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -111,7 +111,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Json_getBool_x3f___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Bool_hasFromJson() {
+static lean_object* _init_l_Lean_Bool_hasFromJson() {
 _start:
 {
 lean_object* x_1; 
@@ -138,7 +138,7 @@ x_3 = l_Lean_Bool_hasToJson(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Nat_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_Nat_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -146,7 +146,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Json_getNat_x3f___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Nat_hasFromJson() {
+static lean_object* _init_l_Lean_Nat_hasFromJson() {
 _start:
 {
 lean_object* x_1; 
@@ -164,7 +164,7 @@ lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Int_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_Int_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -172,7 +172,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Json_getInt_x3f___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Int_hasFromJson() {
+static lean_object* _init_l_Lean_Int_hasFromJson() {
 _start:
 {
 lean_object* x_1; 
@@ -193,7 +193,7 @@ lean_ctor_set(x_4, 0, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_String_hasFromJson___closed__1() {
+static lean_object* _init_l_Lean_String_hasFromJson___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -201,7 +201,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Json_getStr_x3f___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_String_hasFromJson() {
+static lean_object* _init_l_Lean_String_hasFromJson() {
 _start:
 {
 lean_object* x_1; 

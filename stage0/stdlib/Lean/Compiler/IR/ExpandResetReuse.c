@@ -632,7 +632,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1() {
+static lean_object* _init_l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3366,7 +3366,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_IR_ExpandResetReuse_searchAndExpand___main___closed__1() {
+static lean_object* _init_l_Lean_IR_ExpandResetReuse_searchAndExpand___main___closed__1() {
 _start:
 {
 lean_object* x_1; 

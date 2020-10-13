@@ -709,7 +709,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_getConstInfo___rarg), 6, 0);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -717,7 +717,7 @@ x_1 = lean_mk_string("' is not a inductive type");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -727,7 +727,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -828,7 +828,7 @@ lean_dec(x_2);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_getConstInfoCtor___rarg___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_getConstInfoCtor___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -836,7 +836,7 @@ x_1 = lean_mk_string("' is not a constructor");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -846,7 +846,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_getConstInfoCtor___rarg___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_getConstInfoCtor___rarg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -947,7 +947,7 @@ lean_dec(x_2);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_getConstInfoRec___rarg___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_getConstInfoRec___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -955,7 +955,7 @@ x_1 = lean_mk_string("' is not a recursor");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_getConstInfoRec___rarg___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_getConstInfoRec___rarg___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -965,7 +965,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_getConstInfoRec___rarg___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_getConstInfoRec___rarg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

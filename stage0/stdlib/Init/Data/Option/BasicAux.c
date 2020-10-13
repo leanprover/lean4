@@ -21,7 +21,7 @@ lean_object* l_Option_get_x21___rarg___closed__1;
 lean_object* l_Option_get_x21___rarg(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Option_get_x21(lean_object*);
-lean_object* _init_l_Option_get_x21___rarg___closed__1() {
+static lean_object* _init_l_Option_get_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -29,7 +29,7 @@ x_1 = lean_mk_string("Init.Data.Option.BasicAux");
 return x_1;
 }
 }
-lean_object* _init_l_Option_get_x21___rarg___closed__2() {
+static lean_object* _init_l_Option_get_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -37,7 +37,7 @@ x_1 = lean_mk_string("value is none");
 return x_1;
 }
 }
-lean_object* _init_l_Option_get_x21___rarg___closed__3() {
+static lean_object* _init_l_Option_get_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 

@@ -717,7 +717,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_Server_findOpenDocument___closed__1() {
+static lean_object* _init_l_Lean_Server_findOpenDocument___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3420,7 +3420,7 @@ x_6 = l_Lean_Lsp_writeLspNotification___at_Lean_Server_clearDiagnostics___spec__
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Server_clearDiagnostics___closed__1() {
+static lean_object* _init_l_Lean_Server_clearDiagnostics___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4347,7 +4347,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Server_handleDidChange___spec__1___closed__1() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Server_handleDidChange___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4355,7 +4355,7 @@ x_1 = lean_mk_string("TODO impl computing the diff of two sources.");
 return x_1;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Server_handleDidChange___spec__1___closed__2() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Server_handleDidChange___spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4564,7 +4564,7 @@ return x_47;
 }
 }
 }
-lean_object* _init_l_Lean_Server_handleDidChange___closed__1() {
+static lean_object* _init_l_Lean_Server_handleDidChange___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4572,7 +4572,7 @@ x_1 = lean_mk_string("expected version number");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_handleDidChange___closed__2() {
+static lean_object* _init_l_Lean_Server_handleDidChange___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4582,7 +4582,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Server_handleDidChange___closed__3() {
+static lean_object* _init_l_Lean_Server_handleDidChange___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -4590,7 +4590,7 @@ x_1 = lean_mk_string("got outdated version number");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_handleDidChange___closed__4() {
+static lean_object* _init_l_Lean_Server_handleDidChange___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5021,7 +5021,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Server_parseParams___rarg___closed__1() {
+static lean_object* _init_l_Lean_Server_parseParams___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5029,7 +5029,7 @@ x_1 = lean_mk_string("got param with wrong structure");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_parseParams___rarg___closed__2() {
+static lean_object* _init_l_Lean_Server_parseParams___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5189,7 +5189,7 @@ return x_9;
 }
 }
 }
-lean_object* _init_l_Lean_Server_handleNotification___closed__1() {
+static lean_object* _init_l_Lean_Server_handleNotification___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5197,7 +5197,7 @@ x_1 = lean_mk_string("textDocument/didOpen");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_handleNotification___closed__2() {
+static lean_object* _init_l_Lean_Server_handleNotification___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -5205,7 +5205,7 @@ x_1 = lean_mk_string("textDocument/didChange");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_handleNotification___closed__3() {
+static lean_object* _init_l_Lean_Server_handleNotification___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -5213,7 +5213,7 @@ x_1 = lean_mk_string("textDocument/didClose");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_handleNotification___closed__4() {
+static lean_object* _init_l_Lean_Server_handleNotification___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -5221,7 +5221,7 @@ x_1 = lean_mk_string("$/cancelRequest");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_handleNotification___closed__5() {
+static lean_object* _init_l_Lean_Server_handleNotification___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -5229,7 +5229,7 @@ x_1 = lean_mk_string("got unsupported notification method");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_handleNotification___closed__6() {
+static lean_object* _init_l_Lean_Server_handleNotification___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5516,7 +5516,7 @@ x_6 = l_Lean_Lsp_writeLspResponse___at_Lean_Server_handleRequest___spec__3(x_5, 
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Server_handleRequest___closed__1() {
+static lean_object* _init_l_Lean_Server_handleRequest___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5524,7 +5524,7 @@ x_1 = lean_mk_string("textDocument/hover");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_handleRequest___closed__2() {
+static lean_object* _init_l_Lean_Server_handleRequest___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -5532,7 +5532,7 @@ x_1 = lean_mk_string("got unsupported request: ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_handleRequest___closed__3() {
+static lean_object* _init_l_Lean_Server_handleRequest___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -5627,7 +5627,7 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Server_mainLoop___main___rarg___closed__1() {
+static lean_object* _init_l_Lean_Server_mainLoop___main___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5635,7 +5635,7 @@ x_1 = lean_mk_string("shutdown");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_mainLoop___main___rarg___closed__2() {
+static lean_object* _init_l_Lean_Server_mainLoop___main___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -5643,7 +5643,7 @@ x_1 = lean_mk_string("got invalid JSON-RPC message");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_mainLoop___main___rarg___closed__3() {
+static lean_object* _init_l_Lean_Server_mainLoop___main___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6187,7 +6187,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Server_mkLeanServerCapabilities___closed__1() {
+static lean_object* _init_l_Lean_Server_mkLeanServerCapabilities___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; uint8_t x_3; uint8_t x_4; lean_object* x_5; 
@@ -6204,7 +6204,7 @@ lean_ctor_set_uint8(x_5, sizeof(void*)*1 + 3, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Server_mkLeanServerCapabilities___closed__2() {
+static lean_object* _init_l_Lean_Server_mkLeanServerCapabilities___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6214,7 +6214,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Server_mkLeanServerCapabilities___closed__3() {
+static lean_object* _init_l_Lean_Server_mkLeanServerCapabilities___closed__3() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -6226,7 +6226,7 @@ lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Server_mkLeanServerCapabilities() {
+static lean_object* _init_l_Lean_Server_mkLeanServerCapabilities() {
 _start:
 {
 lean_object* x_1; 
@@ -7174,7 +7174,7 @@ x_5 = l_Lean_Lsp_readLspNotificationAs___at_Lean_Server_initAndRunServer___spec_
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Server_initAndRunServer___closed__1() {
+static lean_object* _init_l_Lean_Server_initAndRunServer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7182,7 +7182,7 @@ x_1 = lean_mk_string("0.0.1");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_initAndRunServer___closed__2() {
+static lean_object* _init_l_Lean_Server_initAndRunServer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7192,7 +7192,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Server_initAndRunServer___closed__3() {
+static lean_object* _init_l_Lean_Server_initAndRunServer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7204,7 +7204,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Server_initAndRunServer___closed__4() {
+static lean_object* _init_l_Lean_Server_initAndRunServer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7214,7 +7214,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Server_initAndRunServer___closed__5() {
+static lean_object* _init_l_Lean_Server_initAndRunServer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7226,7 +7226,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Server_initAndRunServer___closed__6() {
+static lean_object* _init_l_Lean_Server_initAndRunServer___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -7234,7 +7234,7 @@ x_1 = lean_mk_string("initialized");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_initAndRunServer___closed__7() {
+static lean_object* _init_l_Lean_Server_initAndRunServer___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -7242,7 +7242,7 @@ x_1 = lean_mk_string("Expected an Exit Notification.");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Server_initAndRunServer___closed__8() {
+static lean_object* _init_l_Lean_Server_initAndRunServer___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

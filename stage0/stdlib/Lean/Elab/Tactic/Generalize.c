@@ -786,7 +786,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_throwError___at___private_Lean_Elab_Tact
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralizeWithEq___lambda__1___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralizeWithEq___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -794,7 +794,7 @@ x_1 = lean_mk_string("unexpected type after generalize");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralizeWithEq___lambda__1___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralizeWithEq___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -804,7 +804,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralizeWithEq___lambda__1___closed__3() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralizeWithEq___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1956,7 +1956,7 @@ lean_dec(x_1);
 return x_11;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1966,7 +1966,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__2() {
 _start:
 {
 lean_object* x_1; 

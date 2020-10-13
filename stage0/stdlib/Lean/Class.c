@@ -295,7 +295,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1() {
+static lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1() {
 _start:
 {
 lean_object* x_1; 
@@ -311,7 +311,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__2___closed__1() {
+static lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__2___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -320,7 +320,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__2___closed__2() {
+static lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__2___closed__2() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -334,7 +334,7 @@ lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__2() {
+static lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__2() {
 _start:
 {
 lean_object* x_1; 
@@ -350,7 +350,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__4___closed__1() {
+static lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__4___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -359,7 +359,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__4___closed__2() {
+static lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__4___closed__2() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -373,7 +373,7 @@ lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__4() {
+static lean_object* _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__4() {
 _start:
 {
 lean_object* x_1; 
@@ -381,7 +381,7 @@ x_1 = l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__4___closed__2;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ClassState_Inhabited___closed__1() {
+static lean_object* _init_l_Lean_ClassState_Inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -395,7 +395,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_ClassState_Inhabited() {
+static lean_object* _init_l_Lean_ClassState_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -2909,7 +2909,7 @@ x_5 = l_Lean_ClassState_switch(x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_mkClassExtension___closed__1() {
+static lean_object* _init_l_Lean_mkClassExtension___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2917,7 +2917,7 @@ x_1 = lean_mk_string("classExt");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkClassExtension___closed__2() {
+static lean_object* _init_l_Lean_mkClassExtension___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2927,7 +2927,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_mkClassExtension___closed__3() {
+static lean_object* _init_l_Lean_mkClassExtension___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2935,7 +2935,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_ClassState_addEntry), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkClassExtension___closed__4() {
+static lean_object* _init_l_Lean_mkClassExtension___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -2943,7 +2943,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkClassExtension___lambda__1___boxed), 1
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkClassExtension___closed__5() {
+static lean_object* _init_l_Lean_mkClassExtension___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -3061,7 +3061,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_classExtension___elambda__4___rarg), 1, 
 return x_3;
 }
 }
-lean_object* _init_l_Lean_classExtension___closed__1() {
+static lean_object* _init_l_Lean_classExtension___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3069,7 +3069,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_classExtension___elambda__4___boxed), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_classExtension___closed__2() {
+static lean_object* _init_l_Lean_classExtension___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -3077,7 +3077,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_classExtension___elambda__3___boxed), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_classExtension___closed__3() {
+static lean_object* _init_l_Lean_classExtension___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -3085,7 +3085,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_classExtension___elambda__2___boxed), 1,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_classExtension___closed__4() {
+static lean_object* _init_l_Lean_classExtension___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -3093,7 +3093,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_classExtension___elambda__1___boxed), 1,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_classExtension___closed__5() {
+static lean_object* _init_l_Lean_classExtension___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -3889,7 +3889,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_isOutParam___closed__1() {
+static lean_object* _init_l_Lean_isOutParam___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3897,7 +3897,7 @@ x_1 = lean_mk_string("outParam");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_isOutParam___closed__2() {
+static lean_object* _init_l_Lean_isOutParam___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4128,7 +4128,7 @@ return x_50;
 }
 }
 }
-lean_object* _init_l___private_Lean_Class_1__checkOutParam___main___closed__1() {
+static lean_object* _init_l___private_Lean_Class_1__checkOutParam___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4136,7 +4136,7 @@ x_1 = lean_mk_string("invalid class, parameter #");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Class_1__checkOutParam___main___closed__2() {
+static lean_object* _init_l___private_Lean_Class_1__checkOutParam___main___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -4144,7 +4144,7 @@ x_1 = lean_mk_string(" depends on `outParam`, but it is not an `outParam`");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Class_1__checkOutParam___main___closed__3() {
+static lean_object* _init_l___private_Lean_Class_1__checkOutParam___main___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -4152,7 +4152,7 @@ x_1 = lean_mk_string("_fvar");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Class_1__checkOutParam___main___closed__4() {
+static lean_object* _init_l___private_Lean_Class_1__checkOutParam___main___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4298,7 +4298,7 @@ x_4 = l___private_Lean_Class_1__checkOutParam___main(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_addClass___closed__1() {
+static lean_object* _init_l_Lean_addClass___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4306,7 +4306,7 @@ x_1 = lean_mk_string("unknown declaration '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_addClass___closed__2() {
+static lean_object* _init_l_Lean_addClass___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -4314,7 +4314,7 @@ x_1 = lean_mk_string("invalid 'class', declaration '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_addClass___closed__3() {
+static lean_object* _init_l_Lean_addClass___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -4322,7 +4322,7 @@ x_1 = lean_mk_string("' must be inductive datatype or structure");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_addClass___closed__4() {
+static lean_object* _init_l_Lean_addClass___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -4714,7 +4714,7 @@ return x_11;
 }
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4722,7 +4722,7 @@ x_1 = lean_mk_string("invalid attribute 'class', must be persistent");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4732,7 +4732,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4742,7 +4742,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -4750,7 +4750,7 @@ x_1 = lean_mk_string("invalid attribute 'class', unexpected argument");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4760,7 +4760,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_registerClassAttr___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4886,7 +4886,7 @@ return x_27;
 }
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___closed__1() {
+static lean_object* _init_l_Lean_registerClassAttr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4894,7 +4894,7 @@ x_1 = lean_mk_string("class");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___closed__2() {
+static lean_object* _init_l_Lean_registerClassAttr___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4904,7 +4904,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___closed__3() {
+static lean_object* _init_l_Lean_registerClassAttr___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -4912,7 +4912,7 @@ x_1 = lean_mk_string("type class");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___closed__4() {
+static lean_object* _init_l_Lean_registerClassAttr___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -4920,7 +4920,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_registerClassAttr___lambda__1___boxed), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_registerClassAttr___closed__5() {
+static lean_object* _init_l_Lean_registerClassAttr___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
@@ -4971,7 +4971,7 @@ lean_dec(x_2);
 return x_9;
 }
 }
-lean_object* _init_l_Lean_addGlobalInstanceOld___closed__1() {
+static lean_object* _init_l_Lean_addGlobalInstanceOld___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4979,7 +4979,7 @@ x_1 = lean_mk_string("invalid instance '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_addGlobalInstanceOld___closed__2() {
+static lean_object* _init_l_Lean_addGlobalInstanceOld___closed__2() {
 _start:
 {
 lean_object* x_1; 

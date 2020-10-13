@@ -438,7 +438,7 @@ x_7 = l_Lean_PrettyPrinter_ppTerm(x_1, x_4, x_5, x_6);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_ppExpr___closed__1() {
+static lean_object* _init_l_Lean_PrettyPrinter_ppExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -658,7 +658,7 @@ return x_1;
 }
 }
 }
-lean_object* _init_l___private_Lean_PrettyPrinter_2__withoutContext___rarg___closed__1() {
+static lean_object* _init_l___private_Lean_PrettyPrinter_2__withoutContext___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -968,7 +968,7 @@ x_6 = l_Lean_PPContext_runCoreM___rarg(x_1, x_5, x_3);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_registerPPExt___closed__1() {
+static lean_object* _init_l_Lean_PrettyPrinter_registerPPExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -976,7 +976,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_registerPPExt___lambda__1)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_registerPPExt___closed__2() {
+static lean_object* _init_l_Lean_PrettyPrinter_registerPPExt___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -984,7 +984,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_registerPPExt___lambda__2_
 return x_1;
 }
 }
-lean_object* _init_l_Lean_PrettyPrinter_registerPPExt___closed__3() {
+static lean_object* _init_l_Lean_PrettyPrinter_registerPPExt___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

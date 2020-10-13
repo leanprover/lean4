@@ -359,7 +359,7 @@ lean_object* l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main(lean_objec
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_cases___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_6__hasIndepIndices___spec__35___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_1__throwInductiveTypeExpected___rarg___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_1__throwInductiveTypeExpected___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -367,7 +367,7 @@ x_1 = lean_mk_string("failed to compile pattern matching, inductive type expecte
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_1__throwInductiveTypeExpected___rarg___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_1__throwInductiveTypeExpected___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -377,7 +377,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_1__throwInductiveTypeExpected___rarg___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_1__throwInductiveTypeExpected___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -935,7 +935,7 @@ x_18 = l___private_Lean_Meta_Tactic_Cases_3__withNewIndexEqsAux___main___rarg(x_
 return x_18;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_3__withNewIndexEqsAux___main___rarg___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_3__withNewIndexEqsAux___main___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -943,7 +943,7 @@ x_1 = lean_mk_string("h");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_3__withNewIndexEqsAux___main___rarg___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_3__withNewIndexEqsAux___main___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1582,7 +1582,7 @@ x_19 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_InferType_22__isTypeFo
 return x_19;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__1() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1590,7 +1590,7 @@ x_1 = lean_mk_string("indexed inductive type expected");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__2() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1600,7 +1600,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__3() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1610,7 +1610,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__4() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1618,7 +1618,7 @@ x_1 = lean_mk_string("ill-formed inductive datatype");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__5() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1628,7 +1628,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__6() {
+static lean_object* _init_l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1907,7 +1907,7 @@ return x_72;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_generalizeIndices___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_generalizeIndices___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1915,7 +1915,7 @@ x_1 = lean_mk_string("generalizeIndices");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_generalizeIndices___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_generalizeIndices___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12379,7 +12379,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -12387,7 +12387,7 @@ x_1 = lean_mk_string("unifyEqs [");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12397,7 +12397,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12407,7 +12407,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__4() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -12415,7 +12415,7 @@ x_1 = lean_mk_string("] ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__5() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12425,7 +12425,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__6() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12465,7 +12465,7 @@ lean_ctor_set(x_16, 1, x_15);
 return x_16;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__2___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -12473,7 +12473,7 @@ x_1 = lean_mk_string("cases");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__2___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16345,7 +16345,7 @@ return x_840;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__3___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -16353,7 +16353,7 @@ x_1 = lean_mk_string("unifyEqs ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__3___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -16363,7 +16363,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__3___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -16389,7 +16389,7 @@ lean_ctor_set(x_7, 1, x_5);
 return x_7;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_9__unifyEqsAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -17119,7 +17119,7 @@ x_12 = l___private_Lean_Meta_Tactic_Cases_11__inductionCasesOn(x_1, x_2, x_3, x_
 return x_12;
 }
 }
-lean_object* _init_l_Lean_Meta_Cases_cases___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -17127,7 +17127,7 @@ x_1 = lean_mk_string("after generalizeIndices");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_Cases_cases___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -17137,7 +17137,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_Cases_cases___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -17147,7 +17147,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_Cases_cases___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -17174,7 +17174,7 @@ lean_ctor_set(x_6, 1, x_4);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__1() {
+static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -17182,7 +17182,7 @@ x_1 = lean_mk_string("not applicable to the given hypothesis");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__2() {
+static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -17192,7 +17192,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__3() {
+static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

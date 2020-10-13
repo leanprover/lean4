@@ -63,7 +63,7 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_String_Hashable___closed__1() {
+static lean_object* _init_l_String_Hashable___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -71,7 +71,7 @@ x_1 = lean_alloc_closure((void*)(l_String_hash___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_String_Hashable() {
+static lean_object* _init_l_String_Hashable() {
 _start:
 {
 lean_object* x_1; 
@@ -97,7 +97,7 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Nat_Hashable___closed__1() {
+static lean_object* _init_l_Nat_Hashable___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -105,7 +105,7 @@ x_1 = lean_alloc_closure((void*)(l_Nat_hash___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_Hashable() {
+static lean_object* _init_l_Nat_Hashable() {
 _start:
 {
 lean_object* x_1; 

@@ -315,7 +315,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_IR_LogEntry_Lean_HasFormat___closed__1() {
+static lean_object* _init_l_Lean_IR_LogEntry_Lean_HasFormat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -323,7 +323,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_LogEntry_fmt), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_LogEntry_Lean_HasFormat() {
+static lean_object* _init_l_Lean_IR_LogEntry_Lean_HasFormat() {
 _start:
 {
 lean_object* x_1; 
@@ -452,7 +452,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__1() {
+static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -460,7 +460,7 @@ x_1 = lean_mk_string("compiler");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__2() {
+static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -470,7 +470,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__3() {
+static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -478,7 +478,7 @@ x_1 = lean_mk_string("ir");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__4() {
+static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -488,7 +488,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_IR_tracePrefixOptionName() {
+static lean_object* _init_l_Lean_IR_tracePrefixOptionName() {
 _start:
 {
 lean_object* x_1; 
@@ -1138,7 +1138,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_CompilerM_4__mkEntryArray___closed__1() {
+static lean_object* _init_l___private_Lean_Compiler_IR_CompilerM_4__mkEntryArray___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2188,7 +2188,7 @@ x_5 = l_Lean_SMap_switch___at_Lean_IR_mkDeclMapExtension___spec__9(x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__1() {
+static lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2196,7 +2196,7 @@ x_1 = lean_mk_string("IRDecls");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__2() {
+static lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2206,7 +2206,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__3() {
+static lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2214,7 +2214,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_mkDeclMapExtension___lambda__1), 2, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__4() {
+static lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -2222,7 +2222,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_mkDeclMapExtension___lambda__2___boxe
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__5() {
+static lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -2230,7 +2230,7 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_CompilerM_4__mkEnt
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__6() {
+static lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -2373,7 +2373,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_IR_declMapExt___elambda__4___rarg), 1, 0
 return x_3;
 }
 }
-lean_object* _init_l_Lean_IR_declMapExt___closed__1() {
+static lean_object* _init_l_Lean_IR_declMapExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2381,7 +2381,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_declMapExt___elambda__4___boxed), 2, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_declMapExt___closed__2() {
+static lean_object* _init_l_Lean_IR_declMapExt___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2389,7 +2389,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_declMapExt___elambda__3___boxed), 2, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_declMapExt___closed__3() {
+static lean_object* _init_l_Lean_IR_declMapExt___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2397,7 +2397,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_declMapExt___elambda__2___boxed), 1, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_declMapExt___closed__4() {
+static lean_object* _init_l_Lean_IR_declMapExt___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -2405,7 +2405,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_declMapExt___elambda__1___boxed), 1, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_declMapExt___closed__5() {
+static lean_object* _init_l_Lean_IR_declMapExt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 

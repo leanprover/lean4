@@ -399,7 +399,7 @@ lean_object* l_Lean_HasRepr_hasEval(lean_object*);
 lean_object* l_IO_mkRef___at_IO_FS_withIsolatedStreams___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_IO_setStdout___boxed(lean_object*, lean_object*);
-lean_object* _init_l_monadExceptAdapter___closed__1() {
+static lean_object* _init_l_monadExceptAdapter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -475,7 +475,7 @@ x_2 = l_EST_Monad___closed__1;
 return x_2;
 }
 }
-lean_object* _init_l_EIO_MonadFinally___closed__1() {
+static lean_object* _init_l_EIO_MonadFinally___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -530,7 +530,7 @@ x_3 = lean_alloc_closure((void*)(l_MonadExcept_orelse___at_EIO_HasOrelse___spec_
 return x_3;
 }
 }
-lean_object* _init_l_EIO_HasOrelse___closed__1() {
+static lean_object* _init_l_EIO_HasOrelse___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1206,7 +1206,7 @@ x_3 = lean_alloc_closure((void*)(l_IO_Prim_iterate___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__1() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1214,7 +1214,7 @@ x_1 = lean_mk_string("r");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__2() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1222,7 +1222,7 @@ x_1 = lean_mk_string("t");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__3() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1232,7 +1232,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__4() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1240,7 +1240,7 @@ x_1 = lean_mk_string("b");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__5() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1250,7 +1250,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__6() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -1258,7 +1258,7 @@ x_1 = lean_mk_string("w");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__7() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1268,7 +1268,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__8() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1278,7 +1278,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__9() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -1286,7 +1286,7 @@ x_1 = lean_mk_string("r+");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__10() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1296,7 +1296,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__11() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1306,7 +1306,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__12() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -1314,7 +1314,7 @@ x_1 = lean_mk_string("a");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__13() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1324,7 +1324,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_Prim_fopenFlags___closed__14() {
+static lean_object* _init_l_IO_Prim_fopenFlags___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2147,7 +2147,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_getStdin___rarg___closed__1() {
+static lean_object* _init_l_IO_getStdin___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2181,7 +2181,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_getStdout___rarg___closed__1() {
+static lean_object* _init_l_IO_getStdout___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2215,7 +2215,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_getStderr___rarg___closed__1() {
+static lean_object* _init_l_IO_getStderr___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2820,7 +2820,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_appPath___rarg___closed__1() {
+static lean_object* _init_l_IO_appPath___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2887,7 +2887,7 @@ x_2 = lean_alloc_closure((void*)(l_IO_appDir___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* _init_l_IO_currentDir___rarg___closed__1() {
+static lean_object* _init_l_IO_currentDir___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3798,7 +3798,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l_IO_Process_run___closed__1() {
+static lean_object* _init_l_IO_Process_run___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3806,7 +3806,7 @@ x_1 = lean_mk_string("process '");
 return x_1;
 }
 }
-lean_object* _init_l_IO_Process_run___closed__2() {
+static lean_object* _init_l_IO_Process_run___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -3937,7 +3937,7 @@ return x_39;
 }
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__1() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__1() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; 
@@ -3946,7 +3946,7 @@ x_2 = x_1 | x_1;
 return x_2;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__2() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__2() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -3956,7 +3956,7 @@ x_3 = x_1 | x_2;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__3() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__3() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -3966,7 +3966,7 @@ x_3 = x_1 | x_2;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__4() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__4() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -3976,7 +3976,7 @@ x_3 = x_1 | x_2;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__5() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__5() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -3986,7 +3986,7 @@ x_3 = x_2 | x_1;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__6() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__6() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -3996,7 +3996,7 @@ x_3 = x_1 | x_2;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__7() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__7() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -4006,7 +4006,7 @@ x_3 = x_1 | x_2;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__8() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__8() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -4016,7 +4016,7 @@ x_3 = x_1 | x_2;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__9() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__9() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -4026,7 +4026,7 @@ x_3 = x_1 | x_2;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__10() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__10() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -4036,7 +4036,7 @@ x_3 = x_1 | x_2;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__11() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__11() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -4046,7 +4046,7 @@ x_3 = x_1 | x_2;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__12() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__12() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -4056,7 +4056,7 @@ x_3 = x_1 | x_2;
 return x_3;
 }
 }
-uint32_t _init_l_IO_AccessRight_flags___closed__13() {
+static uint32_t _init_l_IO_AccessRight_flags___closed__13() {
 _start:
 {
 uint32_t x_1; uint32_t x_2; uint32_t x_3; 
@@ -5007,7 +5007,7 @@ return x_7;
 }
 }
 }
-lean_object* _init_l_IO_FS_Stream_ofBuffer___closed__1() {
+static lean_object* _init_l_IO_FS_Stream_ofBuffer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5758,7 +5758,7 @@ lean_ctor_set(x_4, 1, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_IO_FS_withIsolatedStreams___rarg___closed__1() {
+static lean_object* _init_l_IO_FS_withIsolatedStreams___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5770,7 +5770,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_IO_FS_withIsolatedStreams___rarg___closed__2() {
+static lean_object* _init_l_IO_FS_withIsolatedStreams___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -5778,7 +5778,7 @@ x_1 = lean_alloc_closure((void*)(l_IO_FS_withIsolatedStreams___rarg___lambda__1)
 return x_1;
 }
 }
-lean_object* _init_l_IO_FS_withIsolatedStreams___rarg___closed__3() {
+static lean_object* _init_l_IO_FS_withIsolatedStreams___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 

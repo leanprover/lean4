@@ -379,7 +379,7 @@ x_2 = lean_string_mk(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_String_HasLess() {
+static lean_object* _init_l_String_HasLess() {
 _start:
 {
 lean_object* x_1; 
@@ -1255,7 +1255,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l_String_splitAux___main___closed__1() {
+static lean_object* _init_l_String_splitAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1551,7 +1551,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_String_Inhabited() {
+static lean_object* _init_l_String_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -1559,7 +1559,7 @@ x_1 = l_String_splitAux___main___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_String_HasSizeof___closed__1() {
+static lean_object* _init_l_String_HasSizeof___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1567,7 +1567,7 @@ x_1 = lean_alloc_closure((void*)(l_String_length___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_String_HasSizeof() {
+static lean_object* _init_l_String_HasSizeof() {
 _start:
 {
 lean_object* x_1; 
@@ -1575,7 +1575,7 @@ x_1 = l_String_HasSizeof___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_String_HasAppend___closed__1() {
+static lean_object* _init_l_String_HasAppend___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1583,7 +1583,7 @@ x_1 = lean_alloc_closure((void*)(l_String_append___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_String_HasAppend() {
+static lean_object* _init_l_String_HasAppend() {
 _start:
 {
 lean_object* x_1; 
@@ -3580,7 +3580,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Substring_extract___closed__1() {
+static lean_object* _init_l_Substring_extract___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -3669,7 +3669,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Substring_splitOnAux___main___closed__1() {
+static lean_object* _init_l_Substring_splitOnAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3678,7 +3678,7 @@ x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Substring_splitOnAux___main___closed__2() {
+static lean_object* _init_l_Substring_splitOnAux___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -4660,7 +4660,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Substring_hasBeq___closed__1() {
+static lean_object* _init_l_Substring_hasBeq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4668,7 +4668,7 @@ x_1 = lean_alloc_closure((void*)(l_Substring_beq___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Substring_hasBeq() {
+static lean_object* _init_l_Substring_hasBeq() {
 _start:
 {
 lean_object* x_1; 

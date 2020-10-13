@@ -1973,7 +1973,7 @@ x_15 = l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_
 return x_15;
 }
 }
-lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____lambda__1___closed__1() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1982,7 +1982,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____lambda__1___closed__2() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____lambda__1___closed__2() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -2007,7 +2007,7 @@ x_5 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____sp
 return x_5;
 }
 }
-lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__1() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2015,7 +2015,7 @@ x_1 = lean_mk_string("aliasesExt");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__2() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2025,7 +2025,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__3() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2033,7 +2033,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_addAliasEntry), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__4() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -2041,7 +2041,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_initFn____x40_Lean_ResolveName___hyg_53_
 return x_1;
 }
 }
-lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__5() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -2159,7 +2159,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_aliasExtension___elambda__4___rarg), 1, 
 return x_3;
 }
 }
-lean_object* _init_l_Lean_aliasExtension___closed__1() {
+static lean_object* _init_l_Lean_aliasExtension___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2167,7 +2167,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_aliasExtension___elambda__4___boxed), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_aliasExtension___closed__2() {
+static lean_object* _init_l_Lean_aliasExtension___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2175,7 +2175,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_aliasExtension___elambda__3___boxed), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_aliasExtension___closed__3() {
+static lean_object* _init_l_Lean_aliasExtension___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2183,7 +2183,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_aliasExtension___elambda__2___boxed), 1,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_aliasExtension___closed__4() {
+static lean_object* _init_l_Lean_aliasExtension___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -2191,7 +2191,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_aliasExtension___elambda__1___boxed), 1,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_aliasExtension___closed__5() {
+static lean_object* _init_l_Lean_aliasExtension___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -3853,7 +3853,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_ResolveName_resolveNamespaceUsingScope_m
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__1() {
+static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3861,7 +3861,7 @@ x_1 = lean_mk_string("Lean.ResolveName");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__2() {
+static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -3869,7 +3869,7 @@ x_1 = lean_mk_string("Lean.ResolveName.resolveNamespaceUsingScope");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3() {
+static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -3877,7 +3877,7 @@ x_1 = lean_mk_string("unreachable code has been reached");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__4() {
+static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -4367,7 +4367,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_resolveNamespace_match__1___rarg), 3, 0)
 return x_2;
 }
 }
-lean_object* _init_l_Lean_resolveNamespace___rarg___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_resolveNamespace___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4913,7 +4913,7 @@ return x_8;
 }
 }
 }
-lean_object* _init_l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4921,7 +4921,7 @@ x_1 = lean_mk_string("ambiguous identifier '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 

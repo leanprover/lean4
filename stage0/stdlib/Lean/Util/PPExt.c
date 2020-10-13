@@ -62,7 +62,7 @@ lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_objec
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_sanitizeNamesOption___closed__2;
 lean_object* l_Lean_mkPPExt___closed__1;
-lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__1() {
+static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -70,7 +70,7 @@ x_1 = lean_mk_string("syntaxMaxDepth");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__2() {
+static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -80,7 +80,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__3() {
+static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -90,7 +90,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__4() {
+static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -98,7 +98,7 @@ x_1 = lean_mk_string("maximum depth when displaying syntax objects in messages")
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__5() {
+static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -112,7 +112,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__6() {
+static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -120,7 +120,7 @@ x_1 = lean_mk_string("raw");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__7() {
+static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -130,7 +130,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__8() {
+static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__8() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
@@ -140,7 +140,7 @@ lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__9() {
+static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -148,7 +148,7 @@ x_1 = lean_mk_string("(pretty printer) print raw expression/syntax tree");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__10() {
+static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -243,7 +243,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_PPFns_inhabited___closed__1() {
+static lean_object* _init_l_Lean_PPFns_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -254,7 +254,7 @@ lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_PPFns_inhabited() {
+static lean_object* _init_l_Lean_PPFns_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -317,7 +317,7 @@ lean_ctor_set(x_10, 1, x_3);
 return x_10;
 }
 }
-lean_object* _init_l_Lean_mkPPFnsRef___closed__1() {
+static lean_object* _init_l_Lean_mkPPFnsRef___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -325,7 +325,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkPPFnsRef___lambda__1___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkPPFnsRef___closed__2() {
+static lean_object* _init_l_Lean_mkPPFnsRef___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -333,7 +333,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkPPFnsRef___lambda__2___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkPPFnsRef___closed__3() {
+static lean_object* _init_l_Lean_mkPPFnsRef___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -399,7 +399,7 @@ return x_7;
 }
 }
 }
-lean_object* _init_l_Lean_mkPPExt___closed__1() {
+static lean_object* _init_l_Lean_mkPPExt___closed__1() {
 _start:
 {
 lean_object* x_1; 

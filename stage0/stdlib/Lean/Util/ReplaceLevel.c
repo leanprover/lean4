@@ -132,7 +132,7 @@ x_3 = l_Lean_Level_replace___main(x_1, x_2);
 return x_3;
 }
 }
-size_t _init_l_Lean_Expr_ReplaceLevelImpl_cacheSize() {
+static size_t _init_l_Lean_Expr_ReplaceLevelImpl_cacheSize() {
 _start:
 {
 size_t x_1; 
@@ -171,7 +171,7 @@ x_6 = l_Lean_Expr_ReplaceLevelImpl_cache(x_5, x_2, x_3, x_4);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__1() {
+static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -180,7 +180,7 @@ x_2 = l_StateT_Monad___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__2() {
+static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -712,7 +712,7 @@ x_6 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1() {
+static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -722,7 +722,7 @@ x_3 = lean_mk_array(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2() {
+static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -732,7 +732,7 @@ x_3 = lean_mk_array(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3() {
+static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -744,7 +744,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache() {
+static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache() {
 _start:
 {
 lean_object* x_1; 

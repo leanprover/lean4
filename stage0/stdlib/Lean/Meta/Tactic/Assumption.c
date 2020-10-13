@@ -958,7 +958,7 @@ return x_40;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_assumptionAux___closed__1() {
+static lean_object* _init_l_Lean_Meta_assumptionAux___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -966,7 +966,7 @@ x_1 = lean_mk_string("assumption");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_assumptionAux___closed__2() {
+static lean_object* _init_l_Lean_Meta_assumptionAux___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1058,7 +1058,7 @@ lean_dec(x_2);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Meta_assumption___closed__1() {
+static lean_object* _init_l_Lean_Meta_assumption___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

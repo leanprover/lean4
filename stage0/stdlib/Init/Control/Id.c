@@ -103,7 +103,7 @@ x_3 = lean_alloc_closure((void*)(l_Id_map___rarg), 2, 0);
 return x_3;
 }
 }
-lean_object* _init_l_Id_HasBind___closed__1() {
+static lean_object* _init_l_Id_HasBind___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -111,7 +111,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_bind), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Id_HasBind() {
+static lean_object* _init_l_Id_HasBind() {
 _start:
 {
 lean_object* x_1; 
@@ -148,7 +148,7 @@ lean_inc(x_3);
 return x_3;
 }
 }
-lean_object* _init_l_Id_Monad___closed__1() {
+static lean_object* _init_l_Id_Monad___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -156,7 +156,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_map), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Id_Monad___closed__2() {
+static lean_object* _init_l_Id_Monad___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -164,7 +164,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_Monad___lambda__1___boxed), 4, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Id_Monad___closed__3() {
+static lean_object* _init_l_Id_Monad___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -176,7 +176,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Id_Monad___closed__4() {
+static lean_object* _init_l_Id_Monad___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -184,7 +184,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_pure), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Id_Monad___closed__5() {
+static lean_object* _init_l_Id_Monad___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -192,7 +192,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_Monad___lambda__2), 4, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Id_Monad___closed__6() {
+static lean_object* _init_l_Id_Monad___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -200,7 +200,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_Monad___lambda__3___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Id_Monad___closed__7() {
+static lean_object* _init_l_Id_Monad___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -208,7 +208,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_Monad___lambda__4___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Id_Monad___closed__8() {
+static lean_object* _init_l_Id_Monad___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -226,7 +226,7 @@ lean_ctor_set(x_6, 4, x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Id_Monad___closed__9() {
+static lean_object* _init_l_Id_Monad___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -238,7 +238,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Id_Monad() {
+static lean_object* _init_l_Id_Monad() {
 _start:
 {
 lean_object* x_1; 
@@ -324,7 +324,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Id_MonadRun___closed__1() {
+static lean_object* _init_l_Id_MonadRun___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -332,7 +332,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_run), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Id_MonadRun() {
+static lean_object* _init_l_Id_MonadRun() {
 _start:
 {
 lean_object* x_1; 

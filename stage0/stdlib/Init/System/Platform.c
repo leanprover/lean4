@@ -51,7 +51,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_System_Platform_numBits___closed__1() {
+static lean_object* _init_l_System_Platform_numBits___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -60,7 +60,7 @@ x_2 = lean_system_platform_nbits(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_System_Platform_numBits() {
+static lean_object* _init_l_System_Platform_numBits() {
 _start:
 {
 lean_object* x_1; 
@@ -68,7 +68,7 @@ x_1 = l_System_Platform_numBits___closed__1;
 return x_1;
 }
 }
-uint8_t _init_l_System_Platform_isWindows___closed__1() {
+static uint8_t _init_l_System_Platform_isWindows___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; 
@@ -77,7 +77,7 @@ x_2 = lean_system_platform_windows(x_1);
 return x_2;
 }
 }
-uint8_t _init_l_System_Platform_isWindows() {
+static uint8_t _init_l_System_Platform_isWindows() {
 _start:
 {
 uint8_t x_1; 
@@ -85,7 +85,7 @@ x_1 = l_System_Platform_isWindows___closed__1;
 return x_1;
 }
 }
-uint8_t _init_l_System_Platform_isOSX___closed__1() {
+static uint8_t _init_l_System_Platform_isOSX___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; 
@@ -94,7 +94,7 @@ x_2 = lean_system_platform_osx(x_1);
 return x_2;
 }
 }
-uint8_t _init_l_System_Platform_isOSX() {
+static uint8_t _init_l_System_Platform_isOSX() {
 _start:
 {
 uint8_t x_1; 

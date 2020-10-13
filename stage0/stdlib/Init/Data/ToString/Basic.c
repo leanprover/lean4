@@ -657,7 +657,7 @@ return x_10;
 }
 }
 }
-lean_object* _init_l_addParenHeuristic___closed__1() {
+static lean_object* _init_l_addParenHeuristic___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -665,7 +665,7 @@ x_1 = lean_mk_string("{");
 return x_1;
 }
 }
-lean_object* _init_l_addParenHeuristic___closed__2() {
+static lean_object* _init_l_addParenHeuristic___closed__2() {
 _start:
 {
 lean_object* x_1; 

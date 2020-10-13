@@ -154,7 +154,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitBoxing_visitVDeclExpr___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_IRType_isScalar(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__2;
-lean_object* _init_l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1() {
+static lean_object* _init_l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1906,7 +1906,7 @@ return x_9;
 }
 }
 }
-lean_object* _init_l_Lean_IR_ExplicitBoxing_mkCast___closed__1() {
+static lean_object* _init_l_Lean_IR_ExplicitBoxing_mkCast___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1916,7 +1916,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_ExplicitBoxing_mkCast___closed__2() {
+static lean_object* _init_l_Lean_IR_ExplicitBoxing_mkCast___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1926,7 +1926,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_ExplicitBoxing_mkCast___closed__3() {
+static lean_object* _init_l_Lean_IR_ExplicitBoxing_mkCast___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1934,7 +1934,7 @@ x_1 = lean_mk_string("_boxed_const");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_IR_ExplicitBoxing_mkCast___closed__4() {
+static lean_object* _init_l_Lean_IR_ExplicitBoxing_mkCast___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2956,7 +2956,7 @@ return x_122;
 }
 }
 }
-lean_object* _init_l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__1() {
+static lean_object* _init_l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2965,7 +2965,7 @@ x_2 = l_StateT_Monad___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__2() {
+static lean_object* _init_l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

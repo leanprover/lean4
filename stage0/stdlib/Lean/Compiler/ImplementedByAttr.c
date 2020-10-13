@@ -562,7 +562,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__9___closed__1() {
+static lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__9___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1103,7 +1103,7 @@ lean_dec(x_6);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__6___closed__1() {
+static lean_object* _init_l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__6___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1234,7 +1234,7 @@ return x_32;
 }
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1242,7 +1242,7 @@ x_1 = lean_mk_string("expected identifier");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1252,7 +1252,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1262,7 +1262,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1270,7 +1270,7 @@ x_1 = lean_mk_string("invalid function '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1280,7 +1280,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1290,7 +1290,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__7() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -1298,7 +1298,7 @@ x_1 = lean_mk_string("' type mismatch");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__8() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1308,7 +1308,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__9() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1531,7 +1531,7 @@ lean_ctor_set(x_8, 1, x_6);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___closed__1() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1539,7 +1539,7 @@ x_1 = lean_mk_string("implementedBy");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___closed__2() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1549,7 +1549,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___closed__3() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1557,7 +1557,7 @@ x_1 = lean_mk_string("name of the Lean (probably unsafe) function that implement
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___closed__4() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1565,7 +1565,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_mkImplementedByAttr___lambda__1
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___closed__5() {
+static lean_object* _init_l_Lean_Compiler_mkImplementedByAttr___closed__5() {
 _start:
 {
 lean_object* x_1; 

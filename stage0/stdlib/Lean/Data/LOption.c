@@ -40,7 +40,7 @@ x_2 = lean_box(0);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_LOption_HasToString___rarg___closed__1() {
+static lean_object* _init_l_Lean_LOption_HasToString___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

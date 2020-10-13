@@ -85,7 +85,7 @@ lean_object* l_ST_Ref_modify(lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Ref_modify___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Ref_take___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_runST___rarg(lean_object*);
-lean_object* _init_l_EST_Monad___closed__1() {
+static lean_object* _init_l_EST_Monad___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -101,7 +101,7 @@ x_3 = l_EST_Monad___closed__1;
 return x_3;
 }
 }
-lean_object* _init_l_EST_MonadExceptOf___closed__1() {
+static lean_object* _init_l_EST_MonadExceptOf___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -109,7 +109,7 @@ x_1 = l_EStateM_nonBacktrackable(lean_box(0));
 return x_1;
 }
 }
-lean_object* _init_l_EST_MonadExceptOf___closed__2() {
+static lean_object* _init_l_EST_MonadExceptOf___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -266,7 +266,7 @@ x_4 = lean_alloc_closure((void*)(l_st2est___rarg), 2, 0);
 return x_4;
 }
 }
-lean_object* _init_l_ST_RefPointed() {
+static lean_object* _init_l_ST_RefPointed() {
 _start:
 {
 lean_object* x_1; 

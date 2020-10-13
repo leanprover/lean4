@@ -21,7 +21,7 @@ lean_object* l_Lean_Elab_WFRecursion___rarg___closed__1;
 lean_object* l_Lean_Elab_WFRecursion___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_WFRecursion___rarg___closed__2;
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* _init_l_Lean_Elab_WFRecursion___rarg___closed__1() {
+static lean_object* _init_l_Lean_Elab_WFRecursion___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -29,7 +29,7 @@ x_1 = lean_mk_string("well founded recursion has not been implemented yet");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_WFRecursion___rarg___closed__2() {
+static lean_object* _init_l_Lean_Elab_WFRecursion___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -39,7 +39,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_WFRecursion___rarg___closed__3() {
+static lean_object* _init_l_Lean_Elab_WFRecursion___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

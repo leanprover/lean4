@@ -339,7 +339,7 @@ lean_object* l_Lean_Compiler_foldNatDecEq___boxed(lean_object*, lean_object*, le
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_boolFoldFns___closed__10;
 lean_object* l_Lean_Compiler_toDecidableExpr___closed__2;
-lean_object* _init_l_Lean_Compiler_mkUIntTypeName___closed__1() {
+static lean_object* _init_l_Lean_Compiler_mkUIntTypeName___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -360,7 +360,7 @@ x_6 = lean_name_mk_string(x_5, x_4);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__1() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -369,7 +369,7 @@ x_2 = l_Lean_Compiler_mkUIntTypeName(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__2() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -379,7 +379,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__3() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -387,7 +387,7 @@ x_1 = lean_mk_string("toNat");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__4() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -397,7 +397,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__5() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -415,7 +415,7 @@ lean_ctor_set(x_6, 4, x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__6() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -424,7 +424,7 @@ x_2 = l_Lean_Compiler_mkUIntTypeName(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__7() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -434,7 +434,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__8() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -444,7 +444,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__9() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -462,7 +462,7 @@ lean_ctor_set(x_6, 4, x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__10() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -471,7 +471,7 @@ x_2 = l_Lean_Compiler_mkUIntTypeName(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__11() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -481,7 +481,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__12() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -491,7 +491,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__13() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -509,7 +509,7 @@ lean_ctor_set(x_6, 4, x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__14() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -518,7 +518,7 @@ x_2 = l_Lean_Compiler_mkUIntTypeName(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__15() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -528,7 +528,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__16() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -538,7 +538,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__17() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -556,7 +556,7 @@ lean_ctor_set(x_6, 4, x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__18() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__18() {
 _start:
 {
 lean_object* x_1; 
@@ -564,7 +564,7 @@ x_1 = lean_mk_string("USize");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__19() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -574,7 +574,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__20() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -584,7 +584,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__21() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -594,7 +594,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__22() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -612,7 +612,7 @@ lean_ctor_set(x_6, 4, x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__23() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -624,7 +624,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__24() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -636,7 +636,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__25() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -648,7 +648,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__26() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__26() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -660,7 +660,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__27() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes___closed__27() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -672,7 +672,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_numScalarTypes() {
+static lean_object* _init_l_Lean_Compiler_numScalarTypes() {
 _start:
 {
 lean_object* x_1; 
@@ -1127,7 +1127,7 @@ x_5 = lean_nat_add(x_3, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldUIntAdd___closed__1() {
+static lean_object* _init_l_Lean_Compiler_foldUIntAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1177,7 +1177,7 @@ x_5 = lean_nat_mul(x_3, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldUIntMul___closed__1() {
+static lean_object* _init_l_Lean_Compiler_foldUIntMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1227,7 +1227,7 @@ x_5 = lean_nat_div(x_3, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldUIntDiv___closed__1() {
+static lean_object* _init_l_Lean_Compiler_foldUIntDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1277,7 +1277,7 @@ x_5 = lean_nat_mod(x_3, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldUIntMod___closed__1() {
+static lean_object* _init_l_Lean_Compiler_foldUIntMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1330,7 +1330,7 @@ lean_dec(x_6);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldUIntSub___closed__1() {
+static lean_object* _init_l_Lean_Compiler_foldUIntSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1372,7 +1372,7 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__1() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1380,7 +1380,7 @@ x_1 = lean_mk_string("add");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__2() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1390,7 +1390,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__3() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1398,7 +1398,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldUIntAdd___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__4() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1410,7 +1410,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__5() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1418,7 +1418,7 @@ x_1 = lean_mk_string("mul");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__6() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1428,7 +1428,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__7() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -1436,7 +1436,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldUIntMul___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__8() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1448,7 +1448,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__9() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -1456,7 +1456,7 @@ x_1 = lean_mk_string("div");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__10() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1466,7 +1466,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__11() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -1474,7 +1474,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldUIntDiv___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__12() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1486,7 +1486,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__13() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -1494,7 +1494,7 @@ x_1 = lean_mk_string("mod");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__14() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1504,7 +1504,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__15() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -1512,7 +1512,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldUIntMod___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__16() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1524,7 +1524,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__17() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__17() {
 _start:
 {
 lean_object* x_1; 
@@ -1532,7 +1532,7 @@ x_1 = lean_mk_string("sub");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__18() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1542,7 +1542,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__19() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__19() {
 _start:
 {
 lean_object* x_1; 
@@ -1550,7 +1550,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldUIntSub___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__20() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1562,7 +1562,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__21() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1574,7 +1574,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__22() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1586,7 +1586,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__23() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1598,7 +1598,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__24() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1610,7 +1610,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__25() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1622,7 +1622,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns() {
+static lean_object* _init_l_Lean_Compiler_preUIntBinFoldFns() {
 _start:
 {
 lean_object* x_1; 
@@ -1737,7 +1737,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_Compiler_uintBinFoldFns___closed__1() {
+static lean_object* _init_l_Lean_Compiler_uintBinFoldFns___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1747,7 +1747,7 @@ x_3 = l_List_foldl___main___at_Lean_Compiler_uintBinFoldFns___spec__2(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_uintBinFoldFns() {
+static lean_object* _init_l_Lean_Compiler_uintBinFoldFns() {
 _start:
 {
 lean_object* x_1; 
@@ -1987,7 +1987,7 @@ x_3 = l_Lean_Compiler_foldNatMod(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natPowThreshold() {
+static lean_object* _init_l_Lean_Compiler_natPowThreshold() {
 _start:
 {
 lean_object* x_1; 
@@ -2110,7 +2110,7 @@ x_3 = l_Lean_Compiler_foldNatPow(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatEq___closed__1() {
+static lean_object* _init_l_Lean_Compiler_mkNatEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2118,7 +2118,7 @@ x_1 = lean_mk_string("Eq");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatEq___closed__2() {
+static lean_object* _init_l_Lean_Compiler_mkNatEq___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2128,7 +2128,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatEq___closed__3() {
+static lean_object* _init_l_Lean_Compiler_mkNatEq___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2140,7 +2140,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatEq___closed__4() {
+static lean_object* _init_l_Lean_Compiler_mkNatEq___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2150,7 +2150,7 @@ x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatEq___closed__5() {
+static lean_object* _init_l_Lean_Compiler_mkNatEq___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2160,7 +2160,7 @@ x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatEq___closed__6() {
+static lean_object* _init_l_Lean_Compiler_mkNatEq___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2169,7 +2169,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatEq___closed__7() {
+static lean_object* _init_l_Lean_Compiler_mkNatEq___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2193,7 +2193,7 @@ lean_dec(x_5);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLt___closed__1() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2201,7 +2201,7 @@ x_1 = lean_mk_string("HasLt");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLt___closed__2() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2211,7 +2211,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLt___closed__3() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2219,7 +2219,7 @@ x_1 = lean_mk_string("lt");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLt___closed__4() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2229,7 +2229,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLt___closed__5() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2241,7 +2241,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLt___closed__6() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2251,7 +2251,7 @@ x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLt___closed__7() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2261,7 +2261,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLt___closed__8() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2271,7 +2271,7 @@ x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLt___closed__9() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2281,7 +2281,7 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLt___closed__10() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2305,7 +2305,7 @@ lean_dec(x_5);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLe___closed__1() {
+static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2313,7 +2313,7 @@ x_1 = lean_mk_string("le");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLe___closed__2() {
+static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2323,7 +2323,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLe___closed__3() {
+static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2333,7 +2333,7 @@ x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLe___closed__4() {
+static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -2341,7 +2341,7 @@ x_1 = lean_mk_string("HasLe");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLe___closed__5() {
+static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2351,7 +2351,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLe___closed__6() {
+static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2361,7 +2361,7 @@ x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkNatLe___closed__7() {
+static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2385,7 +2385,7 @@ lean_dec(x_5);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__1() {
+static lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2394,7 +2394,7 @@ x_2 = l_Lean_mkDecIsFalse(x_1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__2() {
+static lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2533,7 +2533,7 @@ x_7 = l_Lean_Compiler_foldNatBinPred(x_1, x_2, x_6, x_4, x_5);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldNatDecEq___closed__1() {
+static lean_object* _init_l_Lean_Compiler_foldNatDecEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2541,7 +2541,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_mkNatEq), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldNatDecEq___closed__2() {
+static lean_object* _init_l_Lean_Compiler_foldNatDecEq___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2569,7 +2569,7 @@ x_5 = l_Lean_Compiler_foldNatDecEq(x_4, x_2, x_3);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldNatDecLt___closed__1() {
+static lean_object* _init_l_Lean_Compiler_foldNatDecLt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2577,7 +2577,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_mkNatLt), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldNatDecLt___closed__2() {
+static lean_object* _init_l_Lean_Compiler_foldNatDecLt___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2605,7 +2605,7 @@ x_5 = l_Lean_Compiler_foldNatDecLt(x_4, x_2, x_3);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldNatDecLe___closed__1() {
+static lean_object* _init_l_Lean_Compiler_foldNatDecLe___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2613,7 +2613,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_mkNatLe), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldNatDecLe___closed__2() {
+static lean_object* _init_l_Lean_Compiler_foldNatDecLe___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2641,7 +2641,7 @@ x_5 = l_Lean_Compiler_foldNatDecLe(x_4, x_2, x_3);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__1() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2651,7 +2651,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__2() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2659,7 +2659,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldNatAdd___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__3() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2671,7 +2671,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__4() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2681,7 +2681,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__5() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -2689,7 +2689,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldNatMul___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__6() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2701,7 +2701,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__7() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2711,7 +2711,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__8() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -2719,7 +2719,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldNatDiv___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__9() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2731,7 +2731,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__10() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2741,7 +2741,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__11() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -2749,7 +2749,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldNatMod___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__12() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2761,7 +2761,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__13() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -2769,7 +2769,7 @@ x_1 = lean_mk_string("pow");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__14() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2779,7 +2779,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__15() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -2787,7 +2787,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldNatPow___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__16() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2799,7 +2799,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__17() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__17() {
 _start:
 {
 lean_object* x_1; 
@@ -2807,7 +2807,7 @@ x_1 = lean_mk_string("_main");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__18() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2817,7 +2817,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__19() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2829,7 +2829,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__20() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__20() {
 _start:
 {
 lean_object* x_1; 
@@ -2837,7 +2837,7 @@ x_1 = lean_mk_string("decEq");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__21() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2847,7 +2847,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__22() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__22() {
 _start:
 {
 lean_object* x_1; 
@@ -2855,7 +2855,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldNatDecEq___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__23() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2867,7 +2867,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__24() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__24() {
 _start:
 {
 lean_object* x_1; 
@@ -2875,7 +2875,7 @@ x_1 = lean_mk_string("decLt");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__25() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2885,7 +2885,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__26() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__26() {
 _start:
 {
 lean_object* x_1; 
@@ -2893,7 +2893,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldNatDecLt___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__27() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__27() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2905,7 +2905,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__28() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__28() {
 _start:
 {
 lean_object* x_1; 
@@ -2913,7 +2913,7 @@ x_1 = lean_mk_string("decLe");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__29() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__29() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2923,7 +2923,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__30() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__30() {
 _start:
 {
 lean_object* x_1; 
@@ -2931,7 +2931,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldNatDecLe___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__31() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__31() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2943,7 +2943,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__32() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__32() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2955,7 +2955,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__33() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__33() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2967,7 +2967,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__34() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__34() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2979,7 +2979,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__35() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__35() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2991,7 +2991,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__36() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__36() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3003,7 +3003,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__37() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__37() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3015,7 +3015,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__38() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__38() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3027,7 +3027,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__39() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__39() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3039,7 +3039,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns___closed__40() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns___closed__40() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3051,7 +3051,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_natFoldFns() {
+static lean_object* _init_l_Lean_Compiler_natFoldFns() {
 _start:
 {
 lean_object* x_1; 
@@ -3059,7 +3059,7 @@ x_1 = l_Lean_Compiler_natFoldFns___closed__40;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_getBoolLit___closed__1() {
+static lean_object* _init_l_Lean_Compiler_getBoolLit___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3067,7 +3067,7 @@ x_1 = lean_mk_string("Bool");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_getBoolLit___closed__2() {
+static lean_object* _init_l_Lean_Compiler_getBoolLit___closed__2() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -3078,7 +3078,7 @@ lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_getBoolLit___closed__3() {
+static lean_object* _init_l_Lean_Compiler_getBoolLit___closed__3() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -3458,7 +3458,7 @@ x_3 = l_Lean_Compiler_foldStrictOr(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__1() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3466,7 +3466,7 @@ x_1 = lean_mk_string("strictOr");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__2() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3476,7 +3476,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__3() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -3484,7 +3484,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldStrictOr___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__4() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3496,7 +3496,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__5() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -3504,7 +3504,7 @@ x_1 = lean_mk_string("strictAnd");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__6() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3514,7 +3514,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__7() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -3522,7 +3522,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldStrictAnd___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__8() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3534,7 +3534,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__9() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3546,7 +3546,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__10() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3558,7 +3558,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_boolFoldFns() {
+static lean_object* _init_l_Lean_Compiler_boolFoldFns() {
 _start:
 {
 lean_object* x_1; 
@@ -3566,7 +3566,7 @@ x_1 = l_Lean_Compiler_boolFoldFns___closed__10;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_binFoldFns___closed__1() {
+static lean_object* _init_l_Lean_Compiler_binFoldFns___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3576,7 +3576,7 @@ x_3 = l_List_append___rarg(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_binFoldFns___closed__2() {
+static lean_object* _init_l_Lean_Compiler_binFoldFns___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3586,7 +3586,7 @@ x_3 = l_List_append___rarg(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_binFoldFns() {
+static lean_object* _init_l_Lean_Compiler_binFoldFns() {
 _start:
 {
 lean_object* x_1; 
@@ -3664,7 +3664,7 @@ x_3 = l_Lean_Compiler_foldNatSucc(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldCharOfNat___closed__1() {
+static lean_object* _init_l_Lean_Compiler_foldCharOfNat___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3673,7 +3673,7 @@ x_2 = l_Lean_Compiler_mkUInt32Lit(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Compiler_foldCharOfNat___closed__2() {
+static lean_object* _init_l_Lean_Compiler_foldCharOfNat___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3891,7 +3891,7 @@ x_3 = l_Lean_Compiler_foldToNat(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_List_foldl___main___at_Lean_Compiler_uintFoldToNatFns___spec__1___closed__1() {
+static lean_object* _init_l_List_foldl___main___at_Lean_Compiler_uintFoldToNatFns___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3953,7 +3953,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_Compiler_uintFoldToNatFns___closed__1() {
+static lean_object* _init_l_Lean_Compiler_uintFoldToNatFns___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3963,7 +3963,7 @@ x_3 = l_List_foldl___main___at_Lean_Compiler_uintFoldToNatFns___spec__1(x_1, x_2
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_uintFoldToNatFns() {
+static lean_object* _init_l_Lean_Compiler_uintFoldToNatFns() {
 _start:
 {
 lean_object* x_1; 
@@ -3971,7 +3971,7 @@ x_1 = l_Lean_Compiler_uintFoldToNatFns___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_unFoldFns___closed__1() {
+static lean_object* _init_l_Lean_Compiler_unFoldFns___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3979,7 +3979,7 @@ x_1 = lean_mk_string("succ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_unFoldFns___closed__2() {
+static lean_object* _init_l_Lean_Compiler_unFoldFns___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3989,7 +3989,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_unFoldFns___closed__3() {
+static lean_object* _init_l_Lean_Compiler_unFoldFns___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -3997,7 +3997,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldNatSucc___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_unFoldFns___closed__4() {
+static lean_object* _init_l_Lean_Compiler_unFoldFns___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4009,7 +4009,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_unFoldFns___closed__5() {
+static lean_object* _init_l_Lean_Compiler_unFoldFns___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -4017,7 +4017,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_foldCharOfNat___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_unFoldFns___closed__6() {
+static lean_object* _init_l_Lean_Compiler_unFoldFns___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4029,7 +4029,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_unFoldFns___closed__7() {
+static lean_object* _init_l_Lean_Compiler_unFoldFns___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4041,7 +4041,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_unFoldFns___closed__8() {
+static lean_object* _init_l_Lean_Compiler_unFoldFns___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4053,7 +4053,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_unFoldFns___closed__9() {
+static lean_object* _init_l_Lean_Compiler_unFoldFns___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4063,7 +4063,7 @@ x_3 = l_List_append___rarg(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_unFoldFns() {
+static lean_object* _init_l_Lean_Compiler_unFoldFns() {
 _start:
 {
 lean_object* x_1; 

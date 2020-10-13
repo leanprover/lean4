@@ -288,7 +288,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__1() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -298,7 +298,7 @@ x_3 = l_Lean_Name_append___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__2() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -306,7 +306,7 @@ x_1 = lean_mk_string("elim_dead_branches");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__3() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -316,7 +316,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__4() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -326,7 +326,7 @@ x_3 = l_Lean_Name_append___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__5() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -334,7 +334,7 @@ x_1 = lean_mk_string("push_proj");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__6() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -344,7 +344,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__7() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -354,7 +354,7 @@ x_3 = l_Lean_Name_append___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__8() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -362,7 +362,7 @@ x_1 = lean_mk_string("reset_reuse");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__9() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -372,7 +372,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__10() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -382,7 +382,7 @@ x_3 = l_Lean_Name_append___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__11() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -390,7 +390,7 @@ x_1 = lean_mk_string("elim_dead");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__12() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -400,7 +400,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__13() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -410,7 +410,7 @@ x_3 = l_Lean_Name_append___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__14() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__14() {
 _start:
 {
 lean_object* x_1; 
@@ -418,7 +418,7 @@ x_1 = lean_mk_string("simp_case");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__15() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -428,7 +428,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__16() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -438,7 +438,7 @@ x_3 = l_Lean_Name_append___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__17() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__17() {
 _start:
 {
 lean_object* x_1; 
@@ -446,7 +446,7 @@ x_1 = lean_mk_string("borrow");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__18() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -456,7 +456,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__19() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -466,7 +466,7 @@ x_3 = l_Lean_Name_append___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__20() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__20() {
 _start:
 {
 lean_object* x_1; 
@@ -474,7 +474,7 @@ x_1 = lean_mk_string("boxing");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__21() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -484,7 +484,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__22() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -494,7 +494,7 @@ x_3 = l_Lean_Name_append___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__23() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__23() {
 _start:
 {
 lean_object* x_1; 
@@ -502,7 +502,7 @@ x_1 = lean_mk_string("rc");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__24() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -512,7 +512,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__25() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -522,7 +522,7 @@ x_3 = l_Lean_Name_append___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__26() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__26() {
 _start:
 {
 lean_object* x_1; 
@@ -530,7 +530,7 @@ x_1 = lean_mk_string("expand_reset_reuse");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__27() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__27() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -540,7 +540,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__28() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__28() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -550,7 +550,7 @@ x_3 = l_Lean_Name_append___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__29() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__29() {
 _start:
 {
 lean_object* x_1; 
@@ -558,7 +558,7 @@ x_1 = lean_mk_string("result");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__30() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__30() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -568,7 +568,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__31() {
+static lean_object* _init_l___private_Lean_Compiler_IR_1__compileAux___closed__31() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

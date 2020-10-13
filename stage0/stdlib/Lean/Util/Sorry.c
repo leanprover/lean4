@@ -50,7 +50,7 @@ uint8_t l_Lean_MessageData_hasSorry(lean_object*);
 uint8_t l_Lean_Expr_isSorry(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l_Lean_Expr_isSorry___closed__1() {
+static lean_object* _init_l_Lean_Expr_isSorry___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -131,7 +131,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Expr_isSyntheticSorry___closed__1() {
+static lean_object* _init_l_Lean_Expr_isSyntheticSorry___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -281,7 +281,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Expr_hasSorry___main___closed__1() {
+static lean_object* _init_l_Lean_Expr_hasSorry___main___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

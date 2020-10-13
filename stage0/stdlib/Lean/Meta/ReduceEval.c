@@ -488,7 +488,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_reduceEval___rarg), 7, 0);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_Nat_hasReduceEval___closed__1() {
+static lean_object* _init_l_Lean_Meta_Nat_hasReduceEval___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -496,7 +496,7 @@ x_1 = lean_mk_string("reduceEval: failed to evaluate argument: ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_Nat_hasReduceEval___closed__2() {
+static lean_object* _init_l_Lean_Meta_Nat_hasReduceEval___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -506,7 +506,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_Nat_hasReduceEval___closed__3() {
+static lean_object* _init_l_Lean_Meta_Nat_hasReduceEval___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3311,7 +3311,7 @@ return x_15;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3321,7 +3321,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -3329,7 +3329,7 @@ x_1 = lean_mk_string("num");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3339,7 +3339,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__4() {
+static lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -3347,7 +3347,7 @@ x_1 = lean_mk_string("str");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__5() {
+static lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3357,7 +3357,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__6() {
+static lean_object* _init_l___private_Lean_Meta_ReduceEval_1__evalName___main___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4137,7 +4137,7 @@ x_7 = l___private_Lean_Meta_ReduceEval_1__evalName___main(x_1, x_2, x_3, x_4, x_
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Meta_Name_hasReduceEval___closed__1() {
+static lean_object* _init_l_Lean_Meta_Name_hasReduceEval___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4145,7 +4145,7 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_ReduceEval_1__evalName), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_Name_hasReduceEval() {
+static lean_object* _init_l_Lean_Meta_Name_hasReduceEval() {
 _start:
 {
 lean_object* x_1; 

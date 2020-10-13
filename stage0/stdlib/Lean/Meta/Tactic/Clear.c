@@ -148,7 +148,7 @@ return x_25;
 }
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__1() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -156,7 +156,7 @@ x_1 = lean_mk_string("variable '");
 return x_1;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__2() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -166,7 +166,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__3() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -176,7 +176,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__4() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -184,7 +184,7 @@ x_1 = lean_mk_string("' depends on '");
 return x_1;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__5() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -194,7 +194,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__6() {
+static lean_object* _init_l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -575,7 +575,7 @@ return x_14;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -583,7 +583,7 @@ x_1 = lean_mk_string("taget depends on '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -593,7 +593,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -603,7 +603,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -611,7 +611,7 @@ x_1 = lean_mk_string("unknown variable '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -621,7 +621,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_Meta_clear___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -963,7 +963,7 @@ return x_82;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_clear___closed__1() {
+static lean_object* _init_l_Lean_Meta_clear___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -971,7 +971,7 @@ x_1 = lean_mk_string("clear");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_clear___closed__2() {
+static lean_object* _init_l_Lean_Meta_clear___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

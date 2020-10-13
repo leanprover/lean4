@@ -205,7 +205,7 @@ return x_11;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -213,7 +213,7 @@ x_1 = lean_alloc_closure((void*)(l_ReaderT_read___at_Lean_Elab_Level_Lean_Elab_L
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -221,7 +221,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Level_Lean_Elab_Level___instance__1
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -233,7 +233,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__4() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -241,7 +241,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Level_Lean_Elab_Level___instance__1
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__5() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -253,7 +253,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__1() {
 _start:
 {
 lean_object* x_1; 
@@ -336,7 +336,7 @@ return x_11;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__1() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -344,7 +344,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Level_Lean_Elab_Level___instance__3
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__2() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -356,7 +356,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__3() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -364,7 +364,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Level_Lean_Elab_Level___instance__3
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__4() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -376,7 +376,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3() {
+static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3() {
 _start:
 {
 lean_object* x_1; 
@@ -825,7 +825,7 @@ return x_21;
 }
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__1() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -833,7 +833,7 @@ x_1 = lean_mk_string("Level");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__2() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -843,7 +843,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__3() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -853,7 +853,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__4() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -863,7 +863,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__5() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -873,7 +873,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__6() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -883,7 +883,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__7() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -891,7 +891,7 @@ x_1 = lean_mk_string("addLit");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__8() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -901,7 +901,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__9() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -909,7 +909,7 @@ x_1 = lean_mk_string("unexpected universe level syntax kind");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__10() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -919,7 +919,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__11() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -929,7 +929,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__12() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -937,7 +937,7 @@ x_1 = lean_mk_string("unknown universe level ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__13() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -947,7 +947,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__14() {
+static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

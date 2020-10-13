@@ -398,7 +398,7 @@ lean_dec(x_2);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Meta_getMVarsImp___closed__1() {
+static lean_object* _init_l_Lean_Meta_getMVarsImp___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

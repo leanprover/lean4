@@ -1732,7 +1732,7 @@ lean_object* l_Lean_Parser_Tactic_rewrite_formatter___closed__8;
 lean_object* l_Lean_Parser_andthenFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Tactic_paren_formatter(lean_object*);
 extern lean_object* l_Lean_Parser_Term_syntheticHole;
-lean_object* _init_l_Lean_Parser_Tactic_underscoreFn___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_underscoreFn___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1742,7 +1742,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_underscoreFn___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_underscoreFn___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1752,7 +1752,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_underscoreFn___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_underscoreFn___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1839,7 +1839,7 @@ return x_12;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_underscore___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_underscore___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1847,7 +1847,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_underscoreFn), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_underscore___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_underscore___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1859,7 +1859,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_underscore() {
+static lean_object* _init_l_Lean_Parser_Tactic_underscore() {
 _start:
 {
 lean_object* x_1; 
@@ -1977,7 +1977,7 @@ return x_14;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_ident_x27___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_ident_x27___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1989,7 +1989,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_ident_x27___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_ident_x27___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1997,7 +1997,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_ident_x27___elambda__1), 2
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_ident_x27___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_ident_x27___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2009,7 +2009,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_ident_x27() {
+static lean_object* _init_l_Lean_Parser_Tactic_ident_x27() {
 _start:
 {
 lean_object* x_1; 
@@ -2017,7 +2017,7 @@ x_1 = l_Lean_Parser_Tactic_ident_x27___closed__3;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_manyAux___main___at_Lean_Parser_Tactic_intro___elambda__1___spec__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_manyAux___main___at_Lean_Parser_Tactic_intro___elambda__1___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2166,7 +2166,7 @@ return x_22;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2174,7 +2174,7 @@ x_1 = lean_mk_string("intro");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2184,7 +2184,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2194,7 +2194,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -2205,7 +2205,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -2213,7 +2213,7 @@ x_1 = lean_mk_string("intro ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2222,7 +2222,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -2230,7 +2230,7 @@ x_1 = lean_mk_string("|");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2239,7 +2239,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2249,7 +2249,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2259,7 +2259,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2269,7 +2269,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__12() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2279,7 +2279,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__13() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___elambda__1___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2636,7 +2636,7 @@ return x_108;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -2646,7 +2646,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -2658,7 +2658,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2667,7 +2667,7 @@ x_2 = l_Lean_Parser_noFirstTokenInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2677,7 +2677,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2687,7 +2687,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2697,7 +2697,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2707,7 +2707,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -2719,7 +2719,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -2727,7 +2727,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_intro___elambda__1), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2739,7 +2739,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro() {
 _start:
 {
 lean_object* x_1; 
@@ -2760,7 +2760,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -2775,7 +2775,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2785,7 +2785,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2795,7 +2795,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2805,7 +2805,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2817,7 +2817,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2827,7 +2827,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2839,7 +2839,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2851,7 +2851,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_formatter___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -2875,7 +2875,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_intro_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_intro_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2894,7 +2894,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -2907,7 +2907,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2917,7 +2917,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2929,7 +2929,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2939,7 +2939,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2951,7 +2951,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2963,7 +2963,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_intro_parenthesizer___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -2987,7 +2987,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_intro_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_intro_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3145,7 +3145,7 @@ return x_20;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3153,7 +3153,7 @@ x_1 = lean_mk_string("intros");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3163,7 +3163,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3173,7 +3173,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -3184,7 +3184,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -3192,7 +3192,7 @@ x_1 = lean_mk_string("intros ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3201,7 +3201,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3211,7 +3211,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3389,7 +3389,7 @@ return x_56;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -3399,7 +3399,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -3411,7 +3411,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3420,7 +3420,7 @@ x_2 = l_Lean_Parser_noFirstTokenInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3430,7 +3430,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3440,7 +3440,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3450,7 +3450,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -3462,7 +3462,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -3470,7 +3470,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_intros___elambda__1), 2, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3482,7 +3482,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros() {
 _start:
 {
 lean_object* x_1; 
@@ -3503,7 +3503,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_ident_x27_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_ident_x27_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3521,7 +3521,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -3536,7 +3536,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3546,7 +3546,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -3554,7 +3554,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_ident_x27_formatter), 5, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3566,7 +3566,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3576,7 +3576,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3588,7 +3588,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_formatter___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -3612,7 +3612,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_intros_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_intros_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3631,7 +3631,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_ident_x27_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_ident_x27_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3649,7 +3649,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -3662,7 +3662,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -3670,7 +3670,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_ident_x27_parenthesizer), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3682,7 +3682,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3692,7 +3692,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3704,7 +3704,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_intros_parenthesizer___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -3728,7 +3728,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_intros_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_intros_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3886,7 +3886,7 @@ return x_20;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3894,7 +3894,7 @@ x_1 = lean_mk_string("revert");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3904,7 +3904,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3914,7 +3914,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -3925,7 +3925,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -3933,7 +3933,7 @@ x_1 = lean_mk_string("revert ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3942,7 +3942,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3952,7 +3952,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4306,7 +4306,7 @@ return x_108;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -4316,7 +4316,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -4328,7 +4328,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4338,7 +4338,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4348,7 +4348,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4358,7 +4358,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -4370,7 +4370,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -4378,7 +4378,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_revert___elambda__1), 2, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4390,7 +4390,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert() {
 _start:
 {
 lean_object* x_1; 
@@ -4411,7 +4411,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -4426,7 +4426,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4436,7 +4436,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4448,7 +4448,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4458,7 +4458,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4470,7 +4470,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -4494,7 +4494,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_revert_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_revert_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4513,7 +4513,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -4526,7 +4526,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4538,7 +4538,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4548,7 +4548,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4560,7 +4560,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_revert_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_revert_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -4584,7 +4584,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_revert_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_revert_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4603,7 +4603,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4611,7 +4611,7 @@ x_1 = lean_mk_string("clear");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4621,7 +4621,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4631,7 +4631,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -4642,7 +4642,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -4650,7 +4650,7 @@ x_1 = lean_mk_string("clear ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4659,7 +4659,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4669,7 +4669,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5023,7 +5023,7 @@ return x_108;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -5033,7 +5033,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5043,7 +5043,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5053,7 +5053,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5063,7 +5063,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -5075,7 +5075,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -5083,7 +5083,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_clear___elambda__1), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5095,7 +5095,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear() {
 _start:
 {
 lean_object* x_1; 
@@ -5116,7 +5116,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -5131,7 +5131,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5141,7 +5141,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5153,7 +5153,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -5177,7 +5177,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_clear_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_clear_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5196,7 +5196,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -5209,7 +5209,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_clear_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_clear_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -5233,7 +5233,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_clear_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_clear_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5252,7 +5252,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5262,7 +5262,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5272,7 +5272,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -5283,7 +5283,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -5291,7 +5291,7 @@ x_1 = lean_mk_string("subst ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5300,7 +5300,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5310,7 +5310,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5664,7 +5664,7 @@ return x_108;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -5674,7 +5674,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5684,7 +5684,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5694,7 +5694,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5704,7 +5704,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -5716,7 +5716,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -5724,7 +5724,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_subst___elambda__1), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5736,7 +5736,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst() {
 _start:
 {
 lean_object* x_1; 
@@ -5757,7 +5757,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -5772,7 +5772,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5782,7 +5782,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5794,7 +5794,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -5818,7 +5818,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_subst_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_subst_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5837,7 +5837,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -5850,7 +5850,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_subst_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_subst_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -5874,7 +5874,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_subst_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_subst_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5893,7 +5893,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5901,7 +5901,7 @@ x_1 = lean_mk_string("assumption");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5911,7 +5911,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5921,7 +5921,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -5932,7 +5932,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5941,7 +5941,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5951,7 +5951,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6080,7 +6080,7 @@ return x_38;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -6090,7 +6090,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6100,7 +6100,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6110,7 +6110,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -6122,7 +6122,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -6130,7 +6130,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_assumption___elambda__1), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6142,7 +6142,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption() {
 _start:
 {
 lean_object* x_1; 
@@ -6163,7 +6163,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -6178,7 +6178,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6188,7 +6188,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -6212,7 +6212,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_assumption_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_assumption_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -6231,7 +6231,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -6244,7 +6244,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_assumption_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_assumption_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -6268,7 +6268,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_assumption_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_assumption_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -6287,7 +6287,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -6295,7 +6295,7 @@ x_1 = lean_mk_string("apply");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6305,7 +6305,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6315,7 +6315,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -6326,7 +6326,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -6334,7 +6334,7 @@ x_1 = lean_mk_string("apply ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6343,7 +6343,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6353,7 +6353,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6523,7 +6523,7 @@ return x_52;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -6533,7 +6533,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -6545,7 +6545,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6555,7 +6555,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6565,7 +6565,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -6577,7 +6577,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -6585,7 +6585,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_apply___elambda__1), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6597,7 +6597,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply() {
 _start:
 {
 lean_object* x_1; 
@@ -6618,7 +6618,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -6633,7 +6633,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6643,7 +6643,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6655,7 +6655,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -6679,7 +6679,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_apply_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_apply_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -6698,7 +6698,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -6711,7 +6711,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6723,7 +6723,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_apply_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_apply_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -6747,7 +6747,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_apply_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_apply_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -6766,7 +6766,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -6774,7 +6774,7 @@ x_1 = lean_mk_string("exact");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6784,7 +6784,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6794,7 +6794,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -6805,7 +6805,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -6813,7 +6813,7 @@ x_1 = lean_mk_string("exact ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6822,7 +6822,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -6832,7 +6832,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7002,7 +7002,7 @@ return x_52;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -7012,7 +7012,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7024,7 +7024,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7034,7 +7034,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7044,7 +7044,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7056,7 +7056,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -7064,7 +7064,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_exact___elambda__1), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7076,7 +7076,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact() {
 _start:
 {
 lean_object* x_1; 
@@ -7097,7 +7097,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -7112,7 +7112,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7122,7 +7122,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7134,7 +7134,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7158,7 +7158,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_exact_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_exact_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7177,7 +7177,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -7190,7 +7190,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_exact_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_exact_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7214,7 +7214,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_exact_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_exact_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7233,7 +7233,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7241,7 +7241,7 @@ x_1 = lean_mk_string("refine");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7251,7 +7251,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7261,7 +7261,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -7272,7 +7272,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -7280,7 +7280,7 @@ x_1 = lean_mk_string("refine ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7289,7 +7289,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7299,7 +7299,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7469,7 +7469,7 @@ return x_52;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -7479,7 +7479,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7491,7 +7491,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7501,7 +7501,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7511,7 +7511,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7523,7 +7523,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -7531,7 +7531,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_refine___elambda__1), 2, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7543,7 +7543,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine() {
 _start:
 {
 lean_object* x_1; 
@@ -7564,7 +7564,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -7579,7 +7579,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7589,7 +7589,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7601,7 +7601,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7625,7 +7625,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_refine_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_refine_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7644,7 +7644,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -7657,7 +7657,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7681,7 +7681,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_refine_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_refine_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7700,7 +7700,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7708,7 +7708,7 @@ x_1 = lean_mk_string("refine!");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7718,7 +7718,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7728,7 +7728,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -7739,7 +7739,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -7747,7 +7747,7 @@ x_1 = lean_mk_string("refine! ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7756,7 +7756,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7766,7 +7766,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7936,7 +7936,7 @@ return x_52;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -7946,7 +7946,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7958,7 +7958,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7968,7 +7968,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -7978,7 +7978,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7990,7 +7990,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -7998,7 +7998,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_refine_x21___elambda__1), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8010,7 +8010,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21() {
 _start:
 {
 lean_object* x_1; 
@@ -8031,7 +8031,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -8046,7 +8046,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -8056,7 +8056,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8068,7 +8068,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -8092,7 +8092,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_refine_x21_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_refine_x21_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -8111,7 +8111,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -8124,7 +8124,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_refine_x21_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_refine_x21_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -8148,7 +8148,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_refine_x21_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_refine_x21_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -8167,7 +8167,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -8175,7 +8175,7 @@ x_1 = lean_mk_string("case");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8185,7 +8185,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -8195,7 +8195,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -8206,7 +8206,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -8215,7 +8215,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8225,7 +8225,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8478,7 +8478,7 @@ return x_70;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -8488,7 +8488,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -8502,7 +8502,7 @@ x_5 = l_Lean_Parser_andthenInfo(x_2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -8514,7 +8514,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8524,7 +8524,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8534,7 +8534,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8544,7 +8544,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -8556,7 +8556,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -8564,7 +8564,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_case___elambda__1), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_case___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8576,7 +8576,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case() {
+static lean_object* _init_l_Lean_Parser_Tactic_case() {
 _start:
 {
 lean_object* x_1; 
@@ -8597,7 +8597,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -8612,7 +8612,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -8622,7 +8622,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8634,7 +8634,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8646,7 +8646,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8658,7 +8658,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -8682,7 +8682,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_case_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_case_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -8701,7 +8701,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -8714,7 +8714,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8726,7 +8726,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8738,7 +8738,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8750,7 +8750,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_case_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_case_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -8774,7 +8774,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_case_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_case_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -8793,7 +8793,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -8801,7 +8801,7 @@ x_1 = lean_mk_string("allGoals");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8811,7 +8811,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -8821,7 +8821,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -8832,7 +8832,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -8840,7 +8840,7 @@ x_1 = lean_mk_string("allGoals ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -8849,7 +8849,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8859,7 +8859,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9034,7 +9034,7 @@ return x_50;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -9044,7 +9044,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -9056,7 +9056,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9066,7 +9066,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9076,7 +9076,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -9088,7 +9088,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -9096,7 +9096,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_allGoals___elambda__1), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9108,7 +9108,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals() {
 _start:
 {
 lean_object* x_1; 
@@ -9129,7 +9129,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -9144,7 +9144,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -9154,7 +9154,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9166,7 +9166,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -9190,7 +9190,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_allGoals_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_allGoals_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -9209,7 +9209,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -9222,7 +9222,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9234,7 +9234,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_allGoals_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_allGoals_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -9258,7 +9258,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_allGoals_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_allGoals_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -9277,7 +9277,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -9285,7 +9285,7 @@ x_1 = lean_mk_string("focus");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9295,7 +9295,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -9305,7 +9305,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -9316,7 +9316,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -9324,7 +9324,7 @@ x_1 = lean_mk_string("focus ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -9333,7 +9333,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9343,7 +9343,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9518,7 +9518,7 @@ return x_50;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -9528,7 +9528,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -9540,7 +9540,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9550,7 +9550,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9560,7 +9560,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -9572,7 +9572,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -9580,7 +9580,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_focus___elambda__1), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9592,7 +9592,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus() {
 _start:
 {
 lean_object* x_1; 
@@ -9613,7 +9613,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -9628,7 +9628,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -9638,7 +9638,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9650,7 +9650,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -9674,7 +9674,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_focus_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_focus_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -9693,7 +9693,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -9706,7 +9706,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_focus_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_focus_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -9730,7 +9730,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_focus_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_focus_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -9749,7 +9749,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -9757,7 +9757,7 @@ x_1 = lean_mk_string("skip");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9767,7 +9767,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -9777,7 +9777,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -9788,7 +9788,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -9797,7 +9797,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9807,7 +9807,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9936,7 +9936,7 @@ return x_38;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -9946,7 +9946,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9956,7 +9956,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9966,7 +9966,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -9978,7 +9978,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -9986,7 +9986,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_skip___elambda__1), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9998,7 +9998,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip() {
 _start:
 {
 lean_object* x_1; 
@@ -10019,7 +10019,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -10034,7 +10034,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10044,7 +10044,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -10068,7 +10068,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_skip_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_skip_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10087,7 +10087,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -10100,7 +10100,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_skip_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_skip_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -10124,7 +10124,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_skip_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_skip_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10143,7 +10143,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10151,7 +10151,7 @@ x_1 = lean_mk_string("done");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10161,7 +10161,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10171,7 +10171,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -10182,7 +10182,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10191,7 +10191,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10201,7 +10201,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10330,7 +10330,7 @@ return x_38;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -10340,7 +10340,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10350,7 +10350,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10360,7 +10360,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -10372,7 +10372,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -10380,7 +10380,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_done___elambda__1), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_done___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10392,7 +10392,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done() {
+static lean_object* _init_l_Lean_Parser_Tactic_done() {
 _start:
 {
 lean_object* x_1; 
@@ -10413,7 +10413,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_done_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -10428,7 +10428,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_done_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10438,7 +10438,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_done_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -10462,7 +10462,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_done_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_done_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10481,7 +10481,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_done_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -10494,7 +10494,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_done_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_done_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -10518,7 +10518,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_done_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_done_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10537,7 +10537,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10545,7 +10545,7 @@ x_1 = lean_mk_string("admit");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10555,7 +10555,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10565,7 +10565,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -10576,7 +10576,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10585,7 +10585,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10595,7 +10595,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10724,7 +10724,7 @@ return x_38;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -10734,7 +10734,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10744,7 +10744,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10754,7 +10754,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -10766,7 +10766,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -10774,7 +10774,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_admit___elambda__1), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10786,7 +10786,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit() {
 _start:
 {
 lean_object* x_1; 
@@ -10807,7 +10807,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -10822,7 +10822,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10832,7 +10832,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -10856,7 +10856,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_admit_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_admit_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10875,7 +10875,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -10888,7 +10888,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_admit_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_admit_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -10912,7 +10912,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_admit_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_admit_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10931,7 +10931,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -10939,7 +10939,7 @@ x_1 = lean_mk_string("traceState");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10949,7 +10949,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10959,7 +10959,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -10970,7 +10970,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10979,7 +10979,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -10989,7 +10989,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11118,7 +11118,7 @@ return x_38;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -11128,7 +11128,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11138,7 +11138,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11148,7 +11148,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -11160,7 +11160,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -11168,7 +11168,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_traceState___elambda__1), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11180,7 +11180,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState() {
 _start:
 {
 lean_object* x_1; 
@@ -11201,7 +11201,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -11216,7 +11216,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -11226,7 +11226,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -11250,7 +11250,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_traceState_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_traceState_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -11269,7 +11269,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -11282,7 +11282,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_traceState_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_traceState_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -11306,7 +11306,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_traceState_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_traceState_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -11325,7 +11325,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -11333,7 +11333,7 @@ x_1 = lean_mk_string("failIfSuccess");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11343,7 +11343,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -11353,7 +11353,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -11364,7 +11364,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -11372,7 +11372,7 @@ x_1 = lean_mk_string("failIfSuccess ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -11381,7 +11381,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11391,7 +11391,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11566,7 +11566,7 @@ return x_50;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -11576,7 +11576,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -11588,7 +11588,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11598,7 +11598,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11608,7 +11608,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -11620,7 +11620,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -11628,7 +11628,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_failIfSuccess___elambda__1
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11640,7 +11640,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess() {
 _start:
 {
 lean_object* x_1; 
@@ -11661,7 +11661,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -11676,7 +11676,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -11686,7 +11686,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11698,7 +11698,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -11722,7 +11722,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_failIfSuccess_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_failIfSuccess_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -11741,7 +11741,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -11754,7 +11754,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_failIfSuccess_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -11778,7 +11778,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_failIfSuccess_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_failIfSuccess_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -11797,7 +11797,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -11805,7 +11805,7 @@ x_1 = lean_mk_string("generalize");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11815,7 +11815,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -11825,7 +11825,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -11836,7 +11836,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -11844,7 +11844,7 @@ x_1 = lean_mk_string("generalize ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -11853,7 +11853,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -11862,7 +11862,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11872,7 +11872,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11882,7 +11882,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11894,7 +11894,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -11904,7 +11904,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__12() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12685,7 +12685,7 @@ return x_234;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -12695,7 +12695,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -12707,7 +12707,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12716,7 +12716,7 @@ x_2 = l_Lean_Parser_optionaInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12726,7 +12726,7 @@ x_3 = l_Lean_Parser_categoryParser(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12735,7 +12735,7 @@ x_2 = l_Lean_Parser_symbolInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -12747,7 +12747,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -12759,7 +12759,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12769,7 +12769,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12779,7 +12779,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12789,7 +12789,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12799,7 +12799,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__12() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -12811,7 +12811,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__13() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -12819,7 +12819,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_generalize___elambda__1), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__14() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12831,7 +12831,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize() {
 _start:
 {
 lean_object* x_1; 
@@ -12852,7 +12852,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -12867,7 +12867,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12877,7 +12877,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12889,7 +12889,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12899,7 +12899,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12909,7 +12909,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12919,7 +12919,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12931,7 +12931,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12943,7 +12943,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12955,7 +12955,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -12967,7 +12967,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_formatter___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -12991,7 +12991,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_generalize_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_generalize_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -13010,7 +13010,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -13023,7 +13023,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13035,7 +13035,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13045,7 +13045,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13055,7 +13055,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13065,7 +13065,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13077,7 +13077,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13089,7 +13089,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13101,7 +13101,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13113,7 +13113,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalize_parenthesizer___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -13137,7 +13137,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_generalize_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_generalize_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -13156,7 +13156,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -13164,7 +13164,7 @@ x_1 = lean_mk_string("locationWildcard");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13174,7 +13174,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13184,7 +13184,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -13195,7 +13195,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13205,7 +13205,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13215,7 +13215,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13463,7 +13463,7 @@ return x_78;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13473,7 +13473,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13483,7 +13483,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -13495,7 +13495,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -13503,7 +13503,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_locationWildcard___elambda
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13515,7 +13515,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard() {
 _start:
 {
 lean_object* x_1; 
@@ -13523,7 +13523,7 @@ x_1 = l_Lean_Parser_Tactic_locationWildcard___closed__5;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -13531,7 +13531,7 @@ x_1 = lean_mk_string("locationTarget");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13541,7 +13541,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13551,7 +13551,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -13562,7 +13562,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13571,7 +13571,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -13579,7 +13579,7 @@ x_1 = lean_mk_string("|-");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13588,7 +13588,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13598,7 +13598,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13608,7 +13608,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13618,7 +13618,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13628,7 +13628,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__12() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13761,7 +13761,7 @@ return x_40;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13771,7 +13771,7 @@ x_3 = l_Lean_Parser_unicodeSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13781,7 +13781,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13791,7 +13791,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -13803,7 +13803,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -13811,7 +13811,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_locationTarget___elambda__
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13823,7 +13823,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget() {
 _start:
 {
 lean_object* x_1; 
@@ -13893,7 +13893,7 @@ return x_15;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -13901,7 +13901,7 @@ x_1 = lean_mk_string("locationHyp");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13911,7 +13911,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13921,7 +13921,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -14096,7 +14096,7 @@ return x_52;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -14108,7 +14108,7 @@ x_4 = l_Lean_Parser_nodeInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14118,7 +14118,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -14130,7 +14130,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -14138,7 +14138,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_locationHyp___elambda__1),
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14150,7 +14150,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp() {
 _start:
 {
 lean_object* x_1; 
@@ -14158,7 +14158,7 @@ x_1 = l_Lean_Parser_Tactic_locationHyp___closed__5;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -14166,7 +14166,7 @@ x_1 = lean_mk_string("location");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14176,7 +14176,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14186,7 +14186,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -14197,7 +14197,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -14205,7 +14205,7 @@ x_1 = lean_mk_string("at ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14214,7 +14214,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14224,7 +14224,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14234,7 +14234,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___elambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14731,7 +14731,7 @@ return x_143;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14740,7 +14740,7 @@ x_2 = l_Lean_Parser_symbolInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -14754,7 +14754,7 @@ x_5 = l_Lean_Parser_orelseInfo(x_2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -14766,7 +14766,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14776,7 +14776,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14786,7 +14786,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14796,7 +14796,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -14808,7 +14808,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -14816,7 +14816,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_location___elambda__1), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_location___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14828,7 +14828,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location() {
+static lean_object* _init_l_Lean_Parser_Tactic_location() {
 _start:
 {
 lean_object* x_1; 
@@ -14836,7 +14836,7 @@ x_1 = l_Lean_Parser_Tactic_location___closed__9;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -14844,7 +14844,7 @@ x_1 = lean_mk_string("change");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14854,7 +14854,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14864,7 +14864,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -14875,7 +14875,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -14883,7 +14883,7 @@ x_1 = lean_mk_string("change ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14892,7 +14892,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14902,7 +14902,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15203,7 +15203,7 @@ return x_100;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -15213,7 +15213,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15224,7 +15224,7 @@ x_3 = l_Lean_Parser_optionaInfo(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15236,7 +15236,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15246,7 +15246,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15256,7 +15256,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15266,7 +15266,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15278,7 +15278,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -15286,7 +15286,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_change___elambda__1), 2, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_change___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15298,7 +15298,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change() {
+static lean_object* _init_l_Lean_Parser_Tactic_change() {
 _start:
 {
 lean_object* x_1; 
@@ -15319,7 +15319,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -15334,7 +15334,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15358,7 +15358,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -15373,7 +15373,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15385,7 +15385,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15409,7 +15409,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -15424,7 +15424,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -15434,7 +15434,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15458,7 +15458,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -15473,7 +15473,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -15483,7 +15483,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -15491,7 +15491,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_locationTarget_formatter),
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -15499,7 +15499,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_locationHyp_formatter), 5,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15511,7 +15511,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -15519,7 +15519,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_locationWildcard_formatter
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15531,7 +15531,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15543,7 +15543,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_formatter___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15567,7 +15567,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -15582,7 +15582,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -15592,7 +15592,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -15600,7 +15600,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_location_formatter), 5, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -15610,7 +15610,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15622,7 +15622,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15634,7 +15634,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_formatter___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15658,7 +15658,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_change_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_change_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -15677,7 +15677,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -15690,7 +15690,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationWildcard_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationWildcard_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15714,7 +15714,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -15727,7 +15727,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationTarget_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationTarget_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15751,7 +15751,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -15764,7 +15764,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -15774,7 +15774,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_locationHyp_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15798,7 +15798,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -15811,7 +15811,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -15819,7 +15819,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_locationTarget_parenthesiz
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -15827,7 +15827,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_locationHyp_parenthesizer)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15839,7 +15839,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -15847,7 +15847,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_locationWildcard_parenthes
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15859,7 +15859,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15871,7 +15871,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_location_parenthesizer___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15895,7 +15895,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -15908,7 +15908,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -15916,7 +15916,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_location_parenthesizer), 5
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -15926,7 +15926,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15938,7 +15938,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -15950,7 +15950,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_change_parenthesizer___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -15974,7 +15974,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_change_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_change_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -15993,7 +15993,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -16001,7 +16001,7 @@ x_1 = lean_mk_string("changeWith");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16011,7 +16011,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -16021,7 +16021,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -16517,7 +16517,7 @@ return x_154;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16527,7 +16527,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -16539,7 +16539,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16549,7 +16549,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16559,7 +16559,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16569,7 +16569,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -16581,7 +16581,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -16589,7 +16589,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_changeWith___elambda__1), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16601,7 +16601,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith() {
 _start:
 {
 lean_object* x_1; 
@@ -16622,7 +16622,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -16637,7 +16637,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16649,7 +16649,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16661,7 +16661,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16673,7 +16673,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -16697,7 +16697,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_changeWith_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_changeWith_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -16716,7 +16716,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -16729,7 +16729,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16741,7 +16741,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16753,7 +16753,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16765,7 +16765,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_changeWith_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_changeWith_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -16789,7 +16789,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_changeWith_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_changeWith_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -16808,7 +16808,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -16816,7 +16816,7 @@ x_1 = lean_mk_string("rwRule");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16826,7 +16826,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -16836,7 +16836,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -16847,7 +16847,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -16855,7 +16855,7 @@ x_1 = lean_mk_string("←");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -16864,7 +16864,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -16872,7 +16872,7 @@ x_1 = lean_mk_string("<-");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -16881,7 +16881,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16891,7 +16891,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16901,7 +16901,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16911,7 +16911,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__12() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16921,7 +16921,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__13() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___elambda__1___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -17265,7 +17265,7 @@ return x_116;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -17275,7 +17275,7 @@ x_3 = l_Lean_Parser_unicodeSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -17284,7 +17284,7 @@ x_2 = l_Lean_Parser_optionaInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -17296,7 +17296,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -17306,7 +17306,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -17316,7 +17316,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -17328,7 +17328,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -17336,7 +17336,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_rwRule___elambda__1), 2, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -17348,7 +17348,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule() {
 _start:
 {
 lean_object* x_1; 
@@ -17522,7 +17522,7 @@ x_7 = l___private_Lean_Parser_Basic_2__sepByFnAux___main___at_Lean_Parser_Tactic
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -17530,7 +17530,7 @@ x_1 = lean_mk_string("rwRuleSeq");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -17540,7 +17540,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -17550,7 +17550,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -17984,7 +17984,7 @@ return x_125;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -17996,7 +17996,7 @@ x_4 = l_Lean_Parser_sepBy1Info(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18006,7 +18006,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18016,7 +18016,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18026,7 +18026,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18036,7 +18036,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -18048,7 +18048,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -18056,7 +18056,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_rwRuleSeq___elambda__1), 2
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18068,7 +18068,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq() {
 _start:
 {
 lean_object* x_1; 
@@ -18098,7 +18098,7 @@ x_5 = l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Tactic_rwRuleSeq___elambda__1___sp
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -18106,7 +18106,7 @@ x_1 = lean_mk_string("rewrite");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18116,7 +18116,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -18126,7 +18126,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -18137,7 +18137,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -18146,7 +18146,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -18154,7 +18154,7 @@ x_1 = lean_mk_string("rw");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -18163,7 +18163,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18173,7 +18173,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18183,7 +18183,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18193,7 +18193,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___elambda__1___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18799,7 +18799,7 @@ return x_180;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -18809,7 +18809,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__2() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -18819,7 +18819,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18829,7 +18829,7 @@ x_3 = l_Lean_Parser_orelseInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -18841,7 +18841,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18851,7 +18851,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18861,7 +18861,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18871,7 +18871,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18881,7 +18881,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -18893,7 +18893,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -18901,7 +18901,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_rewrite___elambda__1), 2, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18913,7 +18913,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite() {
 _start:
 {
 lean_object* x_1; 
@@ -18934,7 +18934,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -18949,7 +18949,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18961,7 +18961,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -18971,7 +18971,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18983,7 +18983,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -19007,7 +19007,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -19022,7 +19022,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -19032,7 +19032,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -19042,7 +19042,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19054,7 +19054,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -19064,7 +19064,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -19072,7 +19072,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_rwRule_formatter), 5, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19084,7 +19084,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19096,7 +19096,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19108,7 +19108,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_formatter___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -19132,7 +19132,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_rewrite_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_rewrite_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -19151,7 +19151,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -19164,7 +19164,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -19174,7 +19174,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19186,7 +19186,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRule_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -19210,7 +19210,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -19223,7 +19223,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -19234,7 +19234,7 @@ lean_closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -19242,7 +19242,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_rwRule_parenthesizer), 5, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19254,7 +19254,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19266,7 +19266,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19278,7 +19278,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewrite_parenthesizer___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -19302,7 +19302,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_rewrite_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_rewrite_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -19321,7 +19321,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -19329,7 +19329,7 @@ x_1 = lean_mk_string("rewriteSeq");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19339,7 +19339,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -19349,7 +19349,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -19741,7 +19741,7 @@ return x_122;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -19753,7 +19753,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19763,7 +19763,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19773,7 +19773,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19783,7 +19783,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -19795,7 +19795,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -19803,7 +19803,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_rewriteSeq___elambda__1), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19815,7 +19815,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq() {
 _start:
 {
 lean_object* x_1; 
@@ -19836,7 +19836,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -19851,7 +19851,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19863,7 +19863,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19875,7 +19875,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19887,7 +19887,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -19911,7 +19911,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -19926,7 +19926,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -19934,7 +19934,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_rwRuleSeq_formatter), 5, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19946,7 +19946,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -19958,7 +19958,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -19982,7 +19982,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_rewriteSeq_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_rewriteSeq_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -20001,7 +20001,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -20014,7 +20014,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -20026,7 +20026,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -20038,7 +20038,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -20050,7 +20050,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -20074,7 +20074,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -20087,7 +20087,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -20095,7 +20095,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_rwRuleSeq_parenthesizer), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -20107,7 +20107,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -20119,7 +20119,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -20143,7 +20143,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -20162,7 +20162,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -20170,7 +20170,7 @@ x_1 = lean_mk_string("majorPremise");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -20180,7 +20180,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -20190,7 +20190,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -20813,7 +20813,7 @@ return x_188;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -20825,7 +20825,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -20835,7 +20835,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -20845,7 +20845,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -20857,7 +20857,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -20865,7 +20865,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_majorPremise___elambda__1)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -20877,7 +20877,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise() {
 _start:
 {
 lean_object* x_1; 
@@ -20994,7 +20994,7 @@ return x_29;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_altRHS___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_altRHS___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -21008,7 +21008,7 @@ x_5 = l_Lean_Parser_orelseInfo(x_2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_altRHS___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_altRHS___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -21020,7 +21020,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_altRHS___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_altRHS___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -21028,7 +21028,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_altRHS___elambda__1), 2, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_altRHS___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_altRHS___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21040,7 +21040,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_altRHS() {
+static lean_object* _init_l_Lean_Parser_Tactic_altRHS() {
 _start:
 {
 lean_object* x_1; 
@@ -21048,7 +21048,7 @@ x_1 = l_Lean_Parser_Tactic_altRHS___closed__4;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -21056,7 +21056,7 @@ x_1 = lean_mk_string("inductionAlt");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21066,7 +21066,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21077,7 +21077,7 @@ x_3 = l_Lean_Parser_noFirstTokenInfo(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -21087,7 +21087,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -21101,7 +21101,7 @@ x_5 = l_Lean_Parser_andthenInfo(x_2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21113,7 +21113,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21123,7 +21123,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21135,7 +21135,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -21147,7 +21147,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21159,7 +21159,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21171,7 +21171,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__12() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -21182,7 +21182,7 @@ x_4 = l_Lean_Parser_nodeWithAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt() {
 _start:
 {
 lean_object* x_1; 
@@ -21588,7 +21588,7 @@ return x_50;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -21597,7 +21597,7 @@ x_2 = l_Lean_Parser_symbolInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21607,7 +21607,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -21619,7 +21619,7 @@ x_4 = l_Lean_Parser_sepBy1Info(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21629,7 +21629,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -21637,7 +21637,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_inductionAlts___elambda__1
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21649,7 +21649,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts() {
 _start:
 {
 lean_object* x_1; 
@@ -21819,7 +21819,7 @@ return x_25;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withAlts___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_withAlts___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -21831,7 +21831,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withAlts___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_withAlts___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -21840,7 +21840,7 @@ x_2 = l_Lean_Parser_optionaInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withAlts___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_withAlts___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -21848,7 +21848,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_withAlts___elambda__1), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withAlts___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_withAlts___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21860,7 +21860,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withAlts() {
+static lean_object* _init_l_Lean_Parser_Tactic_withAlts() {
 _start:
 {
 lean_object* x_1; 
@@ -21868,7 +21868,7 @@ x_1 = l_Lean_Parser_Tactic_withAlts___closed__4;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -21876,7 +21876,7 @@ x_1 = lean_mk_string(" using ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -21885,7 +21885,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21895,7 +21895,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -21905,7 +21905,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22057,7 +22057,7 @@ return x_25;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -22066,7 +22066,7 @@ x_2 = l_Lean_Parser_symbolInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -22078,7 +22078,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -22087,7 +22087,7 @@ x_2 = l_Lean_Parser_optionaInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -22095,7 +22095,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_usingRec___elambda__1), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22107,7 +22107,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec() {
 _start:
 {
 lean_object* x_1; 
@@ -22115,7 +22115,7 @@ x_1 = l_Lean_Parser_Tactic_usingRec___closed__5;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -22123,7 +22123,7 @@ x_1 = lean_mk_string(" generalizing ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -22132,7 +22132,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22142,7 +22142,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22152,7 +22152,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22355,7 +22355,7 @@ return x_37;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -22364,7 +22364,7 @@ x_2 = l_Lean_Parser_symbolInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -22376,7 +22376,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -22385,7 +22385,7 @@ x_2 = l_Lean_Parser_optionaInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -22393,7 +22393,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_generalizingVars___elambda
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22405,7 +22405,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars() {
 _start:
 {
 lean_object* x_1; 
@@ -22413,7 +22413,7 @@ x_1 = l_Lean_Parser_Tactic_generalizingVars___closed__5;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -22421,7 +22421,7 @@ x_1 = lean_mk_string("induction");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22431,7 +22431,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -22441,7 +22441,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -22452,7 +22452,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -22460,7 +22460,7 @@ x_1 = lean_mk_string("induction ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -22469,7 +22469,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22479,7 +22479,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22756,7 +22756,7 @@ return x_78;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -22766,7 +22766,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -22780,7 +22780,7 @@ x_5 = l_Lean_Parser_andthenInfo(x_2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -22792,7 +22792,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -22804,7 +22804,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22814,7 +22814,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22824,7 +22824,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22834,7 +22834,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -22846,7 +22846,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -22854,7 +22854,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_induction___elambda__1), 2
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22866,7 +22866,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction() {
 _start:
 {
 lean_object* x_1; 
@@ -22887,7 +22887,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -22902,7 +22902,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22914,7 +22914,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -22938,7 +22938,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -22948,7 +22948,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_usingRec_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_usingRec_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -22969,7 +22969,7 @@ x_7 = l_Lean_PrettyPrinter_Formatter_concatArgs(x_6, x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -22979,7 +22979,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23000,7 +23000,7 @@ x_7 = l_Lean_PrettyPrinter_Formatter_concatArgs(x_6, x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_altRHS_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_altRHS_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23022,7 +23022,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -23032,7 +23032,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -23040,7 +23040,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_altRHS_formatter), 5, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23052,7 +23052,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23064,7 +23064,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23087,7 +23087,7 @@ x_9 = l_Lean_Parser_nodeWithAntiquot_formatter(x_6, x_7, x_8, x_1, x_2, x_3, x_4
 return x_9;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23099,7 +23099,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -23107,7 +23107,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_inductionAlt_formatter), 5
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23129,7 +23129,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_andthen_formatter(x_6, x_7, x_1, x_2, x_3, 
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withAlts_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_withAlts_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -23137,7 +23137,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_inductionAlts_formatter), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withAlts_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_withAlts_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23158,7 +23158,7 @@ x_7 = l_Lean_PrettyPrinter_Formatter_concatArgs(x_6, x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -23173,7 +23173,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -23183,7 +23183,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -23191,7 +23191,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_generalizingVars_formatter
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -23199,7 +23199,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_withAlts_formatter), 5, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23211,7 +23211,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -23219,7 +23219,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_usingRec_formatter), 5, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23231,7 +23231,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -23239,7 +23239,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_majorPremise_formatter), 5
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23251,7 +23251,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23263,7 +23263,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_formatter___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -23287,7 +23287,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_induction_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_induction_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -23306,7 +23306,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -23319,7 +23319,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23331,7 +23331,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_majorPremise_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_majorPremise_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -23364,7 +23364,7 @@ x_7 = l_Lean_PrettyPrinter_Parenthesizer_visitArgs(x_6, x_1, x_2, x_3, x_4, x_5)
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_generalizingVars_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_generalizingVars_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23385,7 +23385,7 @@ x_7 = l_Lean_PrettyPrinter_Parenthesizer_visitArgs(x_6, x_1, x_2, x_3, x_4, x_5)
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_altRHS_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_altRHS_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23407,7 +23407,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -23417,7 +23417,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -23425,7 +23425,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_altRHS_parenthesizer), 5, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23437,7 +23437,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23449,7 +23449,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlt_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23471,7 +23471,7 @@ x_8 = l_Lean_Parser_nodeWithAntiquot_parenthesizer___rarg(x_6, x_7, x_1, x_2, x_
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -23479,7 +23479,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_inductionAlt_parenthesizer
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_inductionAlts_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23501,7 +23501,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer(x_6, x_7, x_1, x_
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withAlts_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_withAlts_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -23509,7 +23509,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_inductionAlts_parenthesize
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withAlts_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_withAlts_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23530,7 +23530,7 @@ x_7 = l_Lean_PrettyPrinter_Parenthesizer_visitArgs(x_6, x_1, x_2, x_3, x_4, x_5)
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -23543,7 +23543,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -23551,7 +23551,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_generalizingVars_parenthes
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -23559,7 +23559,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_withAlts_parenthesizer), 5
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23571,7 +23571,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -23579,7 +23579,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_usingRec_parenthesizer), 5
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23591,7 +23591,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -23599,7 +23599,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_majorPremise_parenthesizer
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23611,7 +23611,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23623,7 +23623,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_induction_parenthesizer___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -23647,7 +23647,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_induction_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_induction_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -23666,7 +23666,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -23674,7 +23674,7 @@ x_1 = lean_mk_string("cases");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23684,7 +23684,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -23694,7 +23694,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -23705,7 +23705,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -23713,7 +23713,7 @@ x_1 = lean_mk_string("cases ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -23722,7 +23722,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23732,7 +23732,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23935,7 +23935,7 @@ return x_58;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -23945,7 +23945,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -23959,7 +23959,7 @@ x_5 = l_Lean_Parser_andthenInfo(x_2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23969,7 +23969,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23979,7 +23979,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -23989,7 +23989,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -24001,7 +24001,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -24009,7 +24009,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_cases___elambda__1), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -24021,7 +24021,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases() {
 _start:
 {
 lean_object* x_1; 
@@ -24042,7 +24042,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -24057,7 +24057,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -24067,7 +24067,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -24079,7 +24079,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -24091,7 +24091,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -24115,7 +24115,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_cases_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_cases_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -24134,7 +24134,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -24147,7 +24147,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -24159,7 +24159,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -24171,7 +24171,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_cases_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_cases_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -24195,7 +24195,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_cases_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_cases_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -24214,7 +24214,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -24224,7 +24224,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -24234,7 +24234,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -24436,7 +24436,7 @@ return x_56;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -24446,7 +24446,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -24456,7 +24456,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -24466,7 +24466,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -24478,7 +24478,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -24486,7 +24486,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_matchAlt___elambda__1), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -24498,7 +24498,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt() {
 _start:
 {
 lean_object* x_1; 
@@ -25091,7 +25091,7 @@ return x_88;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25101,7 +25101,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -25113,7 +25113,7 @@ x_4 = l_Lean_Parser_sepBy1Info(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25123,7 +25123,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25133,7 +25133,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -25141,7 +25141,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_matchAlts___elambda__1), 2
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25153,7 +25153,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts() {
 _start:
 {
 lean_object* x_1; 
@@ -25183,7 +25183,7 @@ x_5 = l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Tactic_matchAlts___elambda__1___sp
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25193,7 +25193,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -25203,7 +25203,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -25577,7 +25577,7 @@ return x_116;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -25587,7 +25587,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -25599,7 +25599,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -25611,7 +25611,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25621,7 +25621,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25631,7 +25631,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25641,7 +25641,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25651,7 +25651,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -25663,7 +25663,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -25671,7 +25671,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_match___elambda__1), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_match___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25683,7 +25683,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match() {
+static lean_object* _init_l_Lean_Parser_Tactic_match() {
 _start:
 {
 lean_object* x_1; 
@@ -25704,7 +25704,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -25719,7 +25719,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25731,7 +25731,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -25755,7 +25755,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -25763,7 +25763,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_matchAlt_formatter), 5, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25775,7 +25775,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25787,7 +25787,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -25807,7 +25807,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_node_formatter(x_6, x_7, x_1, x_2, x_3, x_4
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -25822,7 +25822,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -25832,7 +25832,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -25840,7 +25840,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_matchAlts_formatter), 5, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25852,7 +25852,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25864,7 +25864,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25876,7 +25876,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25888,7 +25888,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -25912,7 +25912,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_match_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_match_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -25931,7 +25931,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -25944,7 +25944,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -25956,7 +25956,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlt_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlt_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -25980,7 +25980,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -25988,7 +25988,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_matchAlt_parenthesizer), 5
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26000,7 +26000,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26012,7 +26012,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_matchAlts_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_matchAlts_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -26032,7 +26032,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_node_parenthesizer(x_6, x_7, x_1, x_2, 
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -26045,7 +26045,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -26053,7 +26053,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_matchAlts_parenthesizer), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26065,7 +26065,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26077,7 +26077,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26089,7 +26089,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26101,7 +26101,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_match_parenthesizer___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -26125,7 +26125,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_match_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_match_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -26144,7 +26144,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -26152,7 +26152,7 @@ x_1 = lean_mk_string("introMatch");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26162,7 +26162,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -26172,7 +26172,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -26339,7 +26339,7 @@ return x_48;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -26351,7 +26351,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26361,7 +26361,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26371,7 +26371,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -26383,7 +26383,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -26391,7 +26391,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_introMatch___elambda__1), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26403,7 +26403,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch() {
 _start:
 {
 lean_object* x_1; 
@@ -26424,7 +26424,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -26439,7 +26439,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26451,7 +26451,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -26475,7 +26475,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_introMatch_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_introMatch_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -26494,7 +26494,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -26507,7 +26507,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26519,7 +26519,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_introMatch_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_introMatch_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -26543,7 +26543,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_introMatch_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_introMatch_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -26815,7 +26815,7 @@ return x_37;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withIds___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_withIds___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -26827,7 +26827,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withIds___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_withIds___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -26836,7 +26836,7 @@ x_2 = l_Lean_Parser_optionaInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withIds___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_withIds___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -26844,7 +26844,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_withIds___elambda__1), 2, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withIds___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_withIds___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26856,7 +26856,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withIds() {
+static lean_object* _init_l_Lean_Parser_Tactic_withIds() {
 _start:
 {
 lean_object* x_1; 
@@ -26864,7 +26864,7 @@ x_1 = l_Lean_Parser_Tactic_withIds___closed__4;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -26872,7 +26872,7 @@ x_1 = lean_mk_string("injection");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26882,7 +26882,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -26892,7 +26892,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -26903,7 +26903,7 @@ x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -26911,7 +26911,7 @@ x_1 = lean_mk_string("injection ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -26920,7 +26920,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -26930,7 +26930,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27137,7 +27137,7 @@ return x_62;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -27147,7 +27147,7 @@ x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -27161,7 +27161,7 @@ x_5 = l_Lean_Parser_andthenInfo(x_2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27171,7 +27171,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27181,7 +27181,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27191,7 +27191,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -27203,7 +27203,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -27211,7 +27211,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_injection___elambda__1), 2
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27223,7 +27223,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection() {
 _start:
 {
 lean_object* x_1; 
@@ -27244,7 +27244,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withIds_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_withIds_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -27254,7 +27254,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withIds_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_withIds_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27275,7 +27275,7 @@ x_7 = l_Lean_PrettyPrinter_Formatter_concatArgs(x_6, x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -27290,7 +27290,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -27300,7 +27300,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -27308,7 +27308,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_withIds_formatter), 5, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27320,7 +27320,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27332,7 +27332,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_formatter___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -27356,7 +27356,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_injection_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_injection_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -27375,7 +27375,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withIds_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_withIds_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -27385,7 +27385,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_withIds_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_withIds_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27406,7 +27406,7 @@ x_7 = l_Lean_PrettyPrinter_Parenthesizer_visitArgs(x_6, x_1, x_2, x_3, x_4, x_5)
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -27419,7 +27419,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -27427,7 +27427,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_withIds_parenthesizer), 5,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27439,7 +27439,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27451,7 +27451,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_injection_parenthesizer___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_injection_parenthesizer___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -27475,7 +27475,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_injection_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_injection_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -27494,7 +27494,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -27504,7 +27504,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -27941,7 +27941,7 @@ return x_128;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -27953,7 +27953,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27963,7 +27963,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27973,7 +27973,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -27983,7 +27983,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -27995,7 +27995,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -28003,7 +28003,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_paren___elambda__1), 2, 0)
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28015,7 +28015,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren() {
 _start:
 {
 lean_object* x_1; 
@@ -28036,7 +28036,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -28051,7 +28051,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28063,7 +28063,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28075,7 +28075,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren_formatter___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -28099,7 +28099,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_paren_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_paren_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -28118,7 +28118,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -28131,7 +28131,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28143,7 +28143,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren_parenthesizer___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren_parenthesizer___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28155,7 +28155,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_paren_parenthesizer___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_paren_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -28179,7 +28179,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_paren_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_paren_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -28198,7 +28198,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_nestedTactic() {
+static lean_object* _init_l_Lean_Parser_Tactic_nestedTactic() {
 _start:
 {
 lean_object* x_1; 
@@ -28206,7 +28206,7 @@ x_1 = l_Lean_Parser_Tactic_tacticSeqBracketed;
 return x_1;
 }
 }
-lean_object* _init_l___regBuiltinParser_Lean_Parser_Tactic_nestedTactic___closed__1() {
+static lean_object* _init_l___regBuiltinParser_Lean_Parser_Tactic_nestedTactic___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -28214,7 +28214,7 @@ x_1 = lean_mk_string("nestedTactic");
 return x_1;
 }
 }
-lean_object* _init_l___regBuiltinParser_Lean_Parser_Tactic_nestedTactic___closed__2() {
+static lean_object* _init_l___regBuiltinParser_Lean_Parser_Tactic_nestedTactic___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28245,7 +28245,7 @@ x_6 = l_Lean_Parser_Tactic_tacticSeqBracketed_formatter(x_1, x_2, x_3, x_4, x_5)
 return x_6;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nestedTactic_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nestedTactic_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -28272,7 +28272,7 @@ x_6 = l_Lean_Parser_Tactic_tacticSeqBracketed_parenthesizer(x_1, x_2, x_3, x_4, 
 return x_6;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nestedTactic_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nestedTactic_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -28291,7 +28291,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28301,7 +28301,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -28310,7 +28310,7 @@ x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28320,7 +28320,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___elambda__1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28330,7 +28330,7 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___elambda__1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28449,7 +28449,7 @@ return x_4;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -28458,7 +28458,7 @@ x_2 = l_Lean_Parser_symbolInfo(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28468,7 +28468,7 @@ x_3 = l_Lean_Parser_categoryParser(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -28480,7 +28480,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28490,7 +28490,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28500,7 +28500,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -28508,7 +28508,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_orelse___elambda__1), 2, 0
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28520,7 +28520,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse() {
 _start:
 {
 lean_object* x_1; 
@@ -28541,7 +28541,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -28551,7 +28551,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28574,7 +28574,7 @@ x_9 = l_Lean_PrettyPrinter_Formatter_trailingNode_formatter(x_6, x_7, x_8, x_1, 
 return x_9;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_orelse_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_orelse_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -28593,7 +28593,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -28603,7 +28603,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_orelse_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_orelse_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28626,7 +28626,7 @@ x_9 = l_Lean_PrettyPrinter_Parenthesizer_trailingNode_parenthesizer(x_6, x_7, x_
 return x_9;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_orelse_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_orelse_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -28645,7 +28645,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_have___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28655,7 +28655,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_have___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -28665,7 +28665,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_have___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -28944,7 +28944,7 @@ return x_74;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_have___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28954,7 +28954,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_have___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28964,7 +28964,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_have___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -28976,7 +28976,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_have___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -28984,7 +28984,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_have___elambda__1), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_have___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -28996,7 +28996,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have() {
+static lean_object* _init_l_Lean_Parser_Tactic_have() {
 _start:
 {
 lean_object* x_1; 
@@ -29017,7 +29017,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_have_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -29032,7 +29032,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_have_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -29056,7 +29056,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_have_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_have_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -29075,7 +29075,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_have_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -29088,7 +29088,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_have_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_have_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -29112,7 +29112,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_have_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_have_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -29131,7 +29131,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -29141,7 +29141,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -29151,7 +29151,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -29430,7 +29430,7 @@ return x_74;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -29440,7 +29440,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -29450,7 +29450,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -29462,7 +29462,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -29470,7 +29470,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_suffices___elambda__1), 2,
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -29482,7 +29482,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices() {
 _start:
 {
 lean_object* x_1; 
@@ -29503,7 +29503,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -29518,7 +29518,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -29542,7 +29542,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_suffices_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_suffices_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -29561,7 +29561,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -29574,7 +29574,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_suffices_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_suffices_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -29598,7 +29598,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_suffices_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_suffices_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -29617,7 +29617,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_show___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -29627,7 +29627,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_show___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -29637,7 +29637,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_show___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -29920,7 +29920,7 @@ return x_78;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_show___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -29932,7 +29932,7 @@ x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_show___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -29942,7 +29942,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_show___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -29952,7 +29952,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_show___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -29964,7 +29964,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_show___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -29972,7 +29972,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_show___elambda__1), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_show___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -29984,7 +29984,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show() {
+static lean_object* _init_l_Lean_Parser_Tactic_show() {
 _start:
 {
 lean_object* x_1; 
@@ -30005,7 +30005,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_show_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -30020,7 +30020,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_show_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -30032,7 +30032,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show_formatter___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_show_formatter___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -30056,7 +30056,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_show_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_show_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -30075,7 +30075,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_show_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -30088,7 +30088,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_show_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_show_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -30112,7 +30112,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_show_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_show_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -30131,7 +30131,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_let___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -30141,7 +30141,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_let___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -30151,7 +30151,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_let___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -30439,7 +30439,7 @@ return x_76;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_let___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -30449,7 +30449,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_let___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -30459,7 +30459,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_let___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -30471,7 +30471,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_let___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -30479,7 +30479,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_let___elambda__1), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_let___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -30491,7 +30491,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let() {
+static lean_object* _init_l_Lean_Parser_Tactic_let() {
 _start:
 {
 lean_object* x_1; 
@@ -30512,7 +30512,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -30527,7 +30527,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -30551,7 +30551,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_let_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_let_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -30570,7 +30570,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -30583,7 +30583,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -30607,7 +30607,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_let_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_let_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -30626,7 +30626,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21___elambda__1___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -30636,7 +30636,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21___elambda__1___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -30646,7 +30646,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21___elambda__1___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -30934,7 +30934,7 @@ return x_76;
 }
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -30944,7 +30944,7 @@ x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -30954,7 +30954,7 @@ x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21___closed__3() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -30966,7 +30966,7 @@ x_4 = l_Lean_Parser_orelseInfo(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -30974,7 +30974,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Tactic_let_x21___elambda__1), 2, 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -30986,7 +30986,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21() {
 _start:
 {
 lean_object* x_1; 
@@ -31007,7 +31007,7 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21_formatter___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -31022,7 +31022,7 @@ lean_closure_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21_formatter___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -31046,7 +31046,7 @@ x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_let_x21_formatter___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_let_x21_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -31065,7 +31065,7 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21_parenthesizer___closed__1() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -31078,7 +31078,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Parser_Tactic_let_x21_parenthesizer___closed__2() {
+static lean_object* _init_l_Lean_Parser_Tactic_let_x21_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -31102,7 +31102,7 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2
 return x_8;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_let_x21_parenthesizer___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_let_x21_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; 

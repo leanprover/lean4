@@ -493,7 +493,7 @@ lean_dec(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_MonadCacheT_run___rarg___closed__1() {
+static lean_object* _init_l_Lean_MonadCacheT_run___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -576,7 +576,7 @@ lean_dec(x_5);
 return x_9;
 }
 }
-lean_object* _init_l_Lean_MonadCacheT_MonadLift___closed__1() {
+static lean_object* _init_l_Lean_MonadCacheT_MonadLift___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -802,7 +802,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_WithHashMapCache_stateAdapter___rarg___closed__1() {
+static lean_object* _init_l_Lean_WithHashMapCache_stateAdapter___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -917,7 +917,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_WithHashMapCache_estateAdapter___rarg___closed__1() {
+static lean_object* _init_l_Lean_WithHashMapCache_estateAdapter___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

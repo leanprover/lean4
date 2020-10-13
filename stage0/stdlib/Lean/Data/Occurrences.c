@@ -27,7 +27,7 @@ lean_object* l_List_elem___main___at_Lean_Occurrences_contains___spec__1___boxed
 lean_object* l_Lean_Occurrences_isAll___boxed(lean_object*);
 uint8_t l_Lean_Occurrences_isAll(lean_object*);
 lean_object* l_List_beq___main___at_Lean_Occurrences_beq___spec__1___boxed(lean_object*, lean_object*);
-lean_object* _init_l_Lean_Occurrences_Inhabited() {
+static lean_object* _init_l_Lean_Occurrences_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -279,7 +279,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Occurrences_HasBeq___closed__1() {
+static lean_object* _init_l_Lean_Occurrences_HasBeq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -287,7 +287,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Occurrences_beq___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Occurrences_HasBeq() {
+static lean_object* _init_l_Lean_Occurrences_HasBeq() {
 _start:
 {
 lean_object* x_1; 

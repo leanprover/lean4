@@ -42,7 +42,7 @@ lean_object* l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main__
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1() {
+static lean_object* _init_l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -50,7 +50,7 @@ x_1 = lean_mk_string("_u");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2() {
+static lean_object* _init_l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -58,7 +58,7 @@ x_1 = lean_mk_string("_x");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3() {
+static lean_object* _init_l___private_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -296,7 +296,7 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_mkModuleInitializationFunctionName___closed__1() {
+static lean_object* _init_l_Lean_mkModuleInitializationFunctionName___closed__1() {
 _start:
 {
 lean_object* x_1; 

@@ -48,7 +48,7 @@ lean_object* l_Lean_Meta_mkForallFVars___at___private_Lean_Meta_InferType_6__inf
 lean_object* l_Array_findMAux___main___at___private_Lean_Elab_PreDefinition_MkInhabitant_2__findAssumption_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -56,7 +56,7 @@ x_1 = lean_mk_string("arbitrary");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_MkInhabitant_1__mkInhabitant_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -556,7 +556,7 @@ x_9 = l___private_Lean_Elab_PreDefinition_MkInhabitant_3__mkFnInhabitantAux_x3f_
 return x_9;
 }
 }
-lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__1() {
+static lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -564,7 +564,7 @@ x_1 = lean_mk_string("failed to compile partial definition '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__2() {
+static lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -574,7 +574,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__3() {
+static lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -584,7 +584,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__4() {
+static lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -592,7 +592,7 @@ x_1 = lean_mk_string("', failed to show that type is inhabited");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__5() {
+static lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -602,7 +602,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__6() {
+static lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

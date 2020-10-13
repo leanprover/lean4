@@ -142,7 +142,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_optional___rarg___closed__1() {
+static lean_object* _init_l_optional___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 

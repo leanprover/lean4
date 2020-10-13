@@ -31,7 +31,7 @@ x_2 = lean_get_stdin(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_main___boxed__const__1() {
+static lean_object* _init_l_main___boxed__const__1() {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 

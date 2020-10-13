@@ -112,7 +112,7 @@ lean_object* l_Lean_TODELETE_pushScopeCore___boxed(lean_object*, lean_object*, l
 lean_object* lean_get_scope_header(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_regScopeManagerExtension___closed__5;
-lean_object* _init_l_Lean_TODELETE_ScopeManagerState_Inhabited___closed__1() {
+static lean_object* _init_l_Lean_TODELETE_ScopeManagerState_Inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -126,7 +126,7 @@ lean_ctor_set(x_3, 3, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_TODELETE_ScopeManagerState_Inhabited() {
+static lean_object* _init_l_Lean_TODELETE_ScopeManagerState_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -621,7 +621,7 @@ x_4 = l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___s
 return x_4;
 }
 }
-lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__1() {
+static lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -629,7 +629,7 @@ x_1 = lean_mk_string("scopes");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__2() {
+static lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -639,7 +639,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__3() {
+static lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -647,7 +647,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_regScopeManagerExtension___lamb
 return x_1;
 }
 }
-lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__4() {
+static lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -655,7 +655,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_regScopeManagerExtension___lamb
 return x_1;
 }
 }
-lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__5() {
+static lean_object* _init_l_Lean_TODELETE_regScopeManagerExtension___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -773,7 +773,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_TODELETE_scopeManagerExt___elambda__4___
 return x_3;
 }
 }
-lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__1() {
+static lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -781,7 +781,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_scopeManagerExt___elambda__4___
 return x_1;
 }
 }
-lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__2() {
+static lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -789,7 +789,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_scopeManagerExt___elambda__3___
 return x_1;
 }
 }
-lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__3() {
+static lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -797,7 +797,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_scopeManagerExt___elambda__2___
 return x_1;
 }
 }
-lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__4() {
+static lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -805,7 +805,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_TODELETE_scopeManagerExt___elambda__1___
 return x_1;
 }
 }
-lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__5() {
+static lean_object* _init_l_Lean_TODELETE_scopeManagerExt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -1344,7 +1344,7 @@ return x_16;
 }
 }
 }
-lean_object* _init_l_Lean_TODELETE_popScopeCore___closed__1() {
+static lean_object* _init_l_Lean_TODELETE_popScopeCore___closed__1() {
 _start:
 {
 lean_object* x_1; 

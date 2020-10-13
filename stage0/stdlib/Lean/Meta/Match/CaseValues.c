@@ -115,7 +115,7 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAppOptM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__5___closed__5;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l_Lean_Meta_CaseValueSubgoal_inhabited___closed__1() {
+static lean_object* _init_l_Lean_Meta_CaseValueSubgoal_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -128,7 +128,7 @@ lean_ctor_set(x_3, 2, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_CaseValueSubgoal_inhabited() {
+static lean_object* _init_l_Lean_Meta_CaseValueSubgoal_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -989,7 +989,7 @@ return x_212;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -997,7 +997,7 @@ x_1 = lean_mk_string("subst domain: ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1007,7 +1007,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1034,7 +1034,7 @@ lean_ctor_set(x_8, 1, x_6);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__2___closed__1() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1042,7 +1042,7 @@ x_1 = lean_mk_string("searching for decl");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__2___closed__2() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1052,7 +1052,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__2___closed__3() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1070,7 +1070,7 @@ x_2 = l_Lean_Meta_caseValueAux___lambda__2___closed__3;
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__3___closed__1() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1078,7 +1078,7 @@ x_1 = lean_mk_string("found decl");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__3___closed__2() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1088,7 +1088,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__3___closed__3() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1106,7 +1106,7 @@ x_2 = l_Lean_Meta_caseValueAux___lambda__3___closed__3;
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__4___closed__1() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1114,7 +1114,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Meta_caseValueAux___lambda__2___boxed), 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__4___closed__2() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__4___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1174,7 +1174,7 @@ return x_22;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__1() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1182,7 +1182,7 @@ x_1 = lean_mk_string("caseValue");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__2() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1192,7 +1192,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__3() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1200,7 +1200,7 @@ x_1 = lean_mk_string("Not");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__4() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1210,7 +1210,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__5() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1220,7 +1220,7 @@ x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__6() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -1228,7 +1228,7 @@ x_1 = lean_mk_string("dite");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__7() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1238,7 +1238,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__8() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1247,7 +1247,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__9() {
+static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__5___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1872,7 +1872,7 @@ lean_dec(x_1);
 return x_10;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValue___closed__1() {
+static lean_object* _init_l_Lean_Meta_caseValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1880,7 +1880,7 @@ x_1 = lean_mk_string("h");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValue___closed__2() {
+static lean_object* _init_l_Lean_Meta_caseValue___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1890,7 +1890,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValue___closed__3() {
+static lean_object* _init_l_Lean_Meta_caseValue___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1898,7 +1898,7 @@ x_1 = lean_mk_string("thenBranch");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValue___closed__4() {
+static lean_object* _init_l_Lean_Meta_caseValue___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1908,7 +1908,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValue___closed__5() {
+static lean_object* _init_l_Lean_Meta_caseValue___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1916,7 +1916,7 @@ x_1 = lean_mk_string("elseBranch");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_caseValue___closed__6() {
+static lean_object* _init_l_Lean_Meta_caseValue___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2073,7 +2073,7 @@ return x_38;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_CaseValueSubgoals_inhabited___closed__1() {
+static lean_object* _init_l_Lean_Meta_CaseValueSubgoals_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -2087,7 +2087,7 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Meta_CaseValueSubgoals_inhabited() {
+static lean_object* _init_l_Lean_Meta_CaseValueSubgoals_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -2185,7 +2185,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2193,7 +2193,7 @@ x_1 = lean_mk_string("caseValues");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2203,7 +2203,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__3() {
+static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2211,7 +2211,7 @@ x_1 = lean_mk_string("list of values must not be empty");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__4() {
+static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2221,7 +2221,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__5() {
+static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2231,7 +2231,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__6() {
+static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -2239,7 +2239,7 @@ x_1 = lean_mk_string("case");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__7() {
+static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_1__caseValuesAux___main___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

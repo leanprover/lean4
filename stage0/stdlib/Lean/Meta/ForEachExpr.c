@@ -89,7 +89,7 @@ x_13 = l___private_Lean_Meta_ForEachExpr_1__visitBinder___main(x_2, x_12, x_3, x
 return x_13;
 }
 }
-lean_object* _init_l___private_Lean_Meta_ForEachExpr_1__visitBinder___main___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_ForEachExpr_1__visitBinder___main___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -98,7 +98,7 @@ x_2 = l_ReaderT_Monad___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Meta_ForEachExpr_1__visitBinder___main___closed__2() {
+static lean_object* _init_l___private_Lean_Meta_ForEachExpr_1__visitBinder___main___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1792,7 +1792,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_forEachExprImp_x27___closed__1() {
+static lean_object* _init_l_Lean_Meta_forEachExprImp_x27___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

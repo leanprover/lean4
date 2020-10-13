@@ -44,7 +44,7 @@ lean_ctor_set(x_7, 1, x_5);
 return x_7;
 }
 }
-lean_object* _init_l_Lean_mkNeverExtractAttr___closed__1() {
+static lean_object* _init_l_Lean_mkNeverExtractAttr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -52,7 +52,7 @@ x_1 = lean_mk_string("neverExtract");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkNeverExtractAttr___closed__2() {
+static lean_object* _init_l_Lean_mkNeverExtractAttr___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -62,7 +62,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_mkNeverExtractAttr___closed__3() {
+static lean_object* _init_l_Lean_mkNeverExtractAttr___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -70,7 +70,7 @@ x_1 = lean_mk_string("instruct the compiler that function applications using the
 return x_1;
 }
 }
-lean_object* _init_l_Lean_mkNeverExtractAttr___closed__4() {
+static lean_object* _init_l_Lean_mkNeverExtractAttr___closed__4() {
 _start:
 {
 lean_object* x_1; 

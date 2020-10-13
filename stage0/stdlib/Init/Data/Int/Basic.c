@@ -124,7 +124,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Int_zero___closed__1() {
+static lean_object* _init_l_Int_zero___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -133,7 +133,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Int_zero() {
+static lean_object* _init_l_Int_zero() {
 _start:
 {
 lean_object* x_1; 
@@ -141,7 +141,7 @@ x_1 = l_Int_zero___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Int_one___closed__1() {
+static lean_object* _init_l_Int_one___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -150,7 +150,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Int_one() {
+static lean_object* _init_l_Int_one() {
 _start:
 {
 lean_object* x_1; 
@@ -158,7 +158,7 @@ x_1 = l_Int_one___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasZero() {
+static lean_object* _init_l_Int_HasZero() {
 _start:
 {
 lean_object* x_1; 
@@ -166,7 +166,7 @@ x_1 = l_Int_zero;
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasOne() {
+static lean_object* _init_l_Int_HasOne() {
 _start:
 {
 lean_object* x_1; 
@@ -174,7 +174,7 @@ x_1 = l_Int_one;
 return x_1;
 }
 }
-lean_object* _init_l_Int_Inhabited() {
+static lean_object* _init_l_Int_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -278,7 +278,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Int_HasNeg___closed__1() {
+static lean_object* _init_l_Int_HasNeg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -286,7 +286,7 @@ x_1 = lean_alloc_closure((void*)(l_Int_neg___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasNeg() {
+static lean_object* _init_l_Int_HasNeg() {
 _start:
 {
 lean_object* x_1; 
@@ -294,7 +294,7 @@ x_1 = l_Int_HasNeg___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasAdd___closed__1() {
+static lean_object* _init_l_Int_HasAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -302,7 +302,7 @@ x_1 = lean_alloc_closure((void*)(l_Int_add___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasAdd() {
+static lean_object* _init_l_Int_HasAdd() {
 _start:
 {
 lean_object* x_1; 
@@ -310,7 +310,7 @@ x_1 = l_Int_HasAdd___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasMul___closed__1() {
+static lean_object* _init_l_Int_HasMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -318,7 +318,7 @@ x_1 = lean_alloc_closure((void*)(l_Int_mul___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasMul() {
+static lean_object* _init_l_Int_HasMul() {
 _start:
 {
 lean_object* x_1; 
@@ -336,7 +336,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Int_HasSub___closed__1() {
+static lean_object* _init_l_Int_HasSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -344,7 +344,7 @@ x_1 = lean_alloc_closure((void*)(l_Int_sub___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasSub() {
+static lean_object* _init_l_Int_HasSub() {
 _start:
 {
 lean_object* x_1; 
@@ -352,7 +352,7 @@ x_1 = l_Int_HasSub___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasLessEq() {
+static lean_object* _init_l_Int_HasLessEq() {
 _start:
 {
 lean_object* x_1; 
@@ -360,7 +360,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasLess() {
+static lean_object* _init_l_Int_HasLess() {
 _start:
 {
 lean_object* x_1; 
@@ -439,7 +439,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Int_repr___closed__1() {
+static lean_object* _init_l_Int_repr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -486,7 +486,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Int_HasRepr___closed__1() {
+static lean_object* _init_l_Int_HasRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -494,7 +494,7 @@ x_1 = lean_alloc_closure((void*)(l_Int_repr___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasRepr() {
+static lean_object* _init_l_Int_HasRepr() {
 _start:
 {
 lean_object* x_1; 
@@ -502,7 +502,7 @@ x_1 = l_Int_HasRepr___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasToString() {
+static lean_object* _init_l_Int_HasToString() {
 _start:
 {
 lean_object* x_1; 
@@ -538,7 +538,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Int_HasDiv___closed__1() {
+static lean_object* _init_l_Int_HasDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -546,7 +546,7 @@ x_1 = lean_alloc_closure((void*)(l_Int_div___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasDiv() {
+static lean_object* _init_l_Int_HasDiv() {
 _start:
 {
 lean_object* x_1; 
@@ -554,7 +554,7 @@ x_1 = l_Int_HasDiv___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasMod___closed__1() {
+static lean_object* _init_l_Int_HasMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -562,7 +562,7 @@ x_1 = lean_alloc_closure((void*)(l_Int_mod___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Int_HasMod() {
+static lean_object* _init_l_Int_HasMod() {
 _start:
 {
 lean_object* x_1; 
@@ -764,7 +764,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_String_toInt_x21___closed__1() {
+static lean_object* _init_l_String_toInt_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -772,7 +772,7 @@ x_1 = lean_mk_string("Init.Data.Int.Basic");
 return x_1;
 }
 }
-lean_object* _init_l_String_toInt_x21___closed__2() {
+static lean_object* _init_l_String_toInt_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -780,7 +780,7 @@ x_1 = lean_mk_string("Int expected");
 return x_1;
 }
 }
-lean_object* _init_l_String_toInt_x21___closed__3() {
+static lean_object* _init_l_String_toInt_x21___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 

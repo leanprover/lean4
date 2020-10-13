@@ -362,7 +362,7 @@ x_3 = lean_alloc_closure((void*)(l_Legacy_coeToLift___rarg), 1, 0);
 return x_3;
 }
 }
-lean_object* _init_l_Legacy_coeBoolToProp() {
+static lean_object* _init_l_Legacy_coeBoolToProp() {
 _start:
 {
 return lean_box(0);

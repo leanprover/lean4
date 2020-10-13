@@ -98,7 +98,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_ByteArray_empty___closed__1() {
+static lean_object* _init_l_ByteArray_empty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -107,7 +107,7 @@ x_2 = lean_mk_empty_byte_array(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_ByteArray_empty() {
+static lean_object* _init_l_ByteArray_empty() {
 _start:
 {
 lean_object* x_1; 
@@ -115,7 +115,7 @@ x_1 = l_ByteArray_empty___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_ByteArray_Inhabited() {
+static lean_object* _init_l_ByteArray_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -239,7 +239,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_ByteArray_HasAppend___closed__1() {
+static lean_object* _init_l_ByteArray_HasAppend___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -247,7 +247,7 @@ x_1 = lean_alloc_closure((void*)(l_ByteArray_append___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_ByteArray_HasAppend() {
+static lean_object* _init_l_ByteArray_HasAppend() {
 _start:
 {
 lean_object* x_1; 

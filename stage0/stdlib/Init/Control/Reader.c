@@ -167,7 +167,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_ReaderT_MonadLift___closed__1() {
+static lean_object* _init_l_ReaderT_MonadLift___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -919,7 +919,7 @@ x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
 }
-lean_object* _init_l_ReaderT_monadControl___closed__1() {
+static lean_object* _init_l_ReaderT_monadControl___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -927,7 +927,7 @@ x_1 = lean_alloc_closure((void*)(l_ReaderT_monadControl___lambda__2), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_ReaderT_monadControl___closed__2() {
+static lean_object* _init_l_ReaderT_monadControl___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

@@ -164,7 +164,7 @@ lean_object* l_Std_RBNode_find___main___at_Lean_NameMap_contains___spec__1(lean_
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* _init_l_Lean_stringToName___closed__1() {
+static lean_object* _init_l_Lean_stringToName___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -172,7 +172,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_mkNameSimple), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_stringToName() {
+static lean_object* _init_l_Lean_stringToName() {
 _start:
 {
 lean_object* x_1; 
@@ -1055,7 +1055,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Name_hasLtQuick() {
+static lean_object* _init_l_Lean_Name_hasLtQuick() {
 _start:
 {
 lean_object* x_1; 
@@ -6413,7 +6413,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_NameSet_empty() {
+static lean_object* _init_l_Lean_NameSet_empty() {
 _start:
 {
 lean_object* x_1; 
@@ -6421,7 +6421,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_NameSet_HasEmptyc() {
+static lean_object* _init_l_Lean_NameSet_HasEmptyc() {
 _start:
 {
 lean_object* x_1; 
@@ -6429,7 +6429,7 @@ x_1 = l_Lean_NameSet_empty;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_NameSet_Inhabited() {
+static lean_object* _init_l_Lean_NameSet_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -8943,7 +8943,7 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_NameHashSet_empty___closed__1() {
+static lean_object* _init_l_Lean_NameHashSet_empty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -8952,7 +8952,7 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_NameHashSet_empty() {
+static lean_object* _init_l_Lean_NameHashSet_empty() {
 _start:
 {
 lean_object* x_1; 
@@ -8960,7 +8960,7 @@ x_1 = l_Lean_NameHashSet_empty___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_NameHashSet_HasEmptyc() {
+static lean_object* _init_l_Lean_NameHashSet_HasEmptyc() {
 _start:
 {
 lean_object* x_1; 
@@ -8968,7 +8968,7 @@ x_1 = l_Std_HashSet_Inhabited___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_NameHashSet_Inhabited() {
+static lean_object* _init_l_Lean_NameHashSet_Inhabited() {
 _start:
 {
 lean_object* x_1; 

@@ -69,7 +69,7 @@ lean_object* l_Lean_LocalDecl_applyFVarSubst(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___at_Lean_Meta_FVarSubst_apply___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_ReplaceImpl_initCache;
 lean_object* l_Lean_Expr_applyFVarSubst(lean_object*, lean_object*);
-lean_object* _init_l_Lean_Meta_FVarSubst_empty() {
+static lean_object* _init_l_Lean_Meta_FVarSubst_empty() {
 _start:
 {
 lean_object* x_1; 

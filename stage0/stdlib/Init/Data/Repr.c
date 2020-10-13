@@ -166,7 +166,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Bool_HasRepr___closed__1() {
+static lean_object* _init_l_Bool_HasRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -174,7 +174,7 @@ x_1 = lean_mk_string("false");
 return x_1;
 }
 }
-lean_object* _init_l_Bool_HasRepr___closed__2() {
+static lean_object* _init_l_Bool_HasRepr___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -268,7 +268,7 @@ x_3 = l_Decidable_HasRepr___rarg(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_List_reprAux___main___rarg___closed__1() {
+static lean_object* _init_l_List_reprAux___main___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -379,7 +379,7 @@ x_5 = l_List_reprAux___rarg(x_1, x_4, x_3);
 return x_5;
 }
 }
-lean_object* _init_l_List_repr___rarg___closed__1() {
+static lean_object* _init_l_List_repr___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -387,7 +387,7 @@ x_1 = lean_mk_string("[]");
 return x_1;
 }
 }
-lean_object* _init_l_List_repr___rarg___closed__2() {
+static lean_object* _init_l_List_repr___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -395,7 +395,7 @@ x_1 = lean_mk_string("[");
 return x_1;
 }
 }
-lean_object* _init_l_List_repr___rarg___closed__3() {
+static lean_object* _init_l_List_repr___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -452,7 +452,7 @@ x_2 = lean_alloc_closure((void*)(l_List_HasRepr___rarg), 1, 0);
 return x_2;
 }
 }
-lean_object* _init_l_PUnit_HasRepr___closed__1() {
+static lean_object* _init_l_PUnit_HasRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -477,7 +477,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_ULift_HasRepr___rarg___closed__1() {
+static lean_object* _init_l_ULift_HasRepr___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -485,7 +485,7 @@ x_1 = lean_mk_string("ULift.up (");
 return x_1;
 }
 }
-lean_object* _init_l_ULift_HasRepr___rarg___closed__2() {
+static lean_object* _init_l_ULift_HasRepr___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -514,7 +514,7 @@ x_2 = lean_alloc_closure((void*)(l_ULift_HasRepr___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* _init_l_Unit_HasRepr___closed__1() {
+static lean_object* _init_l_Unit_HasRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -539,7 +539,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Option_HasRepr___rarg___closed__1() {
+static lean_object* _init_l_Option_HasRepr___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -547,7 +547,7 @@ x_1 = lean_mk_string("none");
 return x_1;
 }
 }
-lean_object* _init_l_Option_HasRepr___rarg___closed__2() {
+static lean_object* _init_l_Option_HasRepr___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -589,7 +589,7 @@ x_2 = lean_alloc_closure((void*)(l_Option_HasRepr___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* _init_l_Sum_HasRepr___rarg___closed__1() {
+static lean_object* _init_l_Sum_HasRepr___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -597,7 +597,7 @@ x_1 = lean_mk_string("(inl ");
 return x_1;
 }
 }
-lean_object* _init_l_Sum_HasRepr___rarg___closed__2() {
+static lean_object* _init_l_Sum_HasRepr___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -648,7 +648,7 @@ x_3 = lean_alloc_closure((void*)(l_Sum_HasRepr___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* _init_l_Prod_HasRepr___rarg___closed__1() {
+static lean_object* _init_l_Prod_HasRepr___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -687,7 +687,7 @@ x_3 = lean_alloc_closure((void*)(l_Prod_HasRepr___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* _init_l_Sigma_HasRepr___rarg___closed__1() {
+static lean_object* _init_l_Sigma_HasRepr___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -695,7 +695,7 @@ x_1 = lean_mk_string("⟨");
 return x_1;
 }
 }
-lean_object* _init_l_Sigma_HasRepr___rarg___closed__2() {
+static lean_object* _init_l_Sigma_HasRepr___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1266,7 +1266,7 @@ x_3 = lean_string_mk(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Nat_HasRepr___closed__1() {
+static lean_object* _init_l_Nat_HasRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1274,7 +1274,7 @@ x_1 = lean_alloc_closure((void*)(l_Nat_repr), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasRepr() {
+static lean_object* _init_l_Nat_HasRepr() {
 _start:
 {
 lean_object* x_1; 
@@ -1329,7 +1329,7 @@ x_3 = l_charToHex(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Char_quoteCore___closed__1() {
+static lean_object* _init_l_Char_quoteCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1337,7 +1337,7 @@ x_1 = lean_mk_string("\\x");
 return x_1;
 }
 }
-lean_object* _init_l_Char_quoteCore___closed__2() {
+static lean_object* _init_l_Char_quoteCore___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1345,7 +1345,7 @@ x_1 = lean_mk_string("\\\"");
 return x_1;
 }
 }
-lean_object* _init_l_Char_quoteCore___closed__3() {
+static lean_object* _init_l_Char_quoteCore___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1353,7 +1353,7 @@ x_1 = lean_mk_string("\\\\");
 return x_1;
 }
 }
-lean_object* _init_l_Char_quoteCore___closed__4() {
+static lean_object* _init_l_Char_quoteCore___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1361,7 +1361,7 @@ x_1 = lean_mk_string("\\t");
 return x_1;
 }
 }
-lean_object* _init_l_Char_quoteCore___closed__5() {
+static lean_object* _init_l_Char_quoteCore___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1468,7 +1468,7 @@ x_3 = l_Char_quoteCore(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Char_HasRepr___closed__1() {
+static lean_object* _init_l_Char_HasRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1533,7 +1533,7 @@ x_2 = l_String_quoteAux___main(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_String_quote___closed__1() {
+static lean_object* _init_l_String_quote___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1541,7 +1541,7 @@ x_1 = lean_mk_string("\"");
 return x_1;
 }
 }
-lean_object* _init_l_String_quote___closed__2() {
+static lean_object* _init_l_String_quote___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1574,7 +1574,7 @@ return x_8;
 }
 }
 }
-lean_object* _init_l_String_HasRepr___closed__1() {
+static lean_object* _init_l_String_HasRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1582,7 +1582,7 @@ x_1 = lean_alloc_closure((void*)(l_String_quote), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_String_HasRepr() {
+static lean_object* _init_l_String_HasRepr() {
 _start:
 {
 lean_object* x_1; 
@@ -1590,7 +1590,7 @@ x_1 = l_String_HasRepr___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Substring_HasRepr___closed__1() {
+static lean_object* _init_l_Substring_HasRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1621,7 +1621,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_String_Iterator_HasRepr___closed__1() {
+static lean_object* _init_l_String_Iterator_HasRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1629,7 +1629,7 @@ x_1 = lean_mk_string("(String.Iterator.mk ");
 return x_1;
 }
 }
-lean_object* _init_l_String_Iterator_HasRepr___closed__2() {
+static lean_object* _init_l_String_Iterator_HasRepr___closed__2() {
 _start:
 {
 lean_object* x_1; 

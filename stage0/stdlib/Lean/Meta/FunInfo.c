@@ -2925,7 +2925,7 @@ return x_25;
 }
 }
 }
-lean_object* _init_l___private_Lean_Meta_FunInfo_6__getFunInfoAux___closed__1() {
+static lean_object* _init_l___private_Lean_Meta_FunInfo_6__getFunInfoAux___closed__1() {
 _start:
 {
 lean_object* x_1; 

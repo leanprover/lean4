@@ -263,7 +263,7 @@ x_7 = l___private_Lean_Meta_AppBuilder_10__mkEqSymmImp(x_1, x_2, x_3, x_4, x_5, 
 return x_7;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -271,7 +271,7 @@ x_1 = lean_mk_string("equality of iff proof expected");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -281,7 +281,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -291,7 +291,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -299,7 +299,7 @@ x_1 = lean_mk_string("_a");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -309,7 +309,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -317,7 +317,7 @@ x_1 = lean_mk_string("motive is not type correct");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__7() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -327,7 +327,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__8() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -337,7 +337,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__9() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -345,7 +345,7 @@ x_1 = lean_mk_string("did not find instance of the pattern in the target express
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__10() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -355,7 +355,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__11() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -365,7 +365,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__12() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -373,7 +373,7 @@ x_1 = lean_mk_string("pattern is a metavariable ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__13() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -383,7 +383,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__14() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -393,7 +393,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__15() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -401,7 +401,7 @@ x_1 = lean_mk_string("from equation");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__16() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -411,7 +411,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__17() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -421,7 +421,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__18() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__18() {
 _start:
 {
 lean_object* x_1; 
@@ -429,7 +429,7 @@ x_1 = lean_mk_string("propext");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__19() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -439,7 +439,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__20() {
+static lean_object* _init_l_Lean_Meta_rewrite___lambda__1___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2750,7 +2750,7 @@ return x_499;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___closed__1() {
+static lean_object* _init_l_Lean_Meta_rewrite___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2758,7 +2758,7 @@ x_1 = lean_mk_string("rewrite");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_rewrite___closed__2() {
+static lean_object* _init_l_Lean_Meta_rewrite___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 

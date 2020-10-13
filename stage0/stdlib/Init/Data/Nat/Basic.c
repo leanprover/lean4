@@ -132,7 +132,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Nat_HasLessEq() {
+static lean_object* _init_l_Nat_HasLessEq() {
 _start:
 {
 lean_object* x_1; 
@@ -140,7 +140,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasLess() {
+static lean_object* _init_l_Nat_HasLess() {
 _start:
 {
 lean_object* x_1; 
@@ -176,7 +176,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Nat_HasSub___closed__1() {
+static lean_object* _init_l_Nat_HasSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -184,7 +184,7 @@ x_1 = lean_alloc_closure((void*)(l_Nat_sub___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasSub() {
+static lean_object* _init_l_Nat_HasSub() {
 _start:
 {
 lean_object* x_1; 
@@ -192,7 +192,7 @@ x_1 = l_Nat_HasSub___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasMul___closed__1() {
+static lean_object* _init_l_Nat_HasMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -200,7 +200,7 @@ x_1 = lean_alloc_closure((void*)(l_Nat_mul___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasMul() {
+static lean_object* _init_l_Nat_HasMul() {
 _start:
 {
 lean_object* x_1; 
@@ -607,7 +607,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Nat_HasPow___closed__1() {
+static lean_object* _init_l_Nat_HasPow___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -615,7 +615,7 @@ x_1 = lean_alloc_closure((void*)(l_Nat_pow___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Nat_HasPow() {
+static lean_object* _init_l_Nat_HasPow() {
 _start:
 {
 lean_object* x_1; 

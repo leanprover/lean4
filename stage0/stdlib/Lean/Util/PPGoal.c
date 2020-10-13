@@ -76,7 +76,7 @@ lean_object* l_Lean_ppGoal___closed__1;
 lean_object* l_Lean_LocalContext_sanitizeNames(lean_object*, lean_object*);
 lean_object* l_Lean_Format_joinSep___main___at_Lean_ppGoal___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-uint8_t _init_l_Lean_ppAuxDeclsDefault() {
+static uint8_t _init_l_Lean_ppAuxDeclsDefault() {
 _start:
 {
 uint8_t x_1; 
@@ -84,7 +84,7 @@ x_1 = 0;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ppAuxDeclsOption___closed__1() {
+static lean_object* _init_l_Lean_ppAuxDeclsOption___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -92,7 +92,7 @@ x_1 = lean_mk_string("auxDecls");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ppAuxDeclsOption___closed__2() {
+static lean_object* _init_l_Lean_ppAuxDeclsOption___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -102,7 +102,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_ppAuxDeclsOption___closed__3() {
+static lean_object* _init_l_Lean_ppAuxDeclsOption___closed__3() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
@@ -112,7 +112,7 @@ lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ppAuxDeclsOption___closed__4() {
+static lean_object* _init_l_Lean_ppAuxDeclsOption___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -120,7 +120,7 @@ x_1 = lean_mk_string("display auxiliary declarations used to compile recursive f
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ppAuxDeclsOption___closed__5() {
+static lean_object* _init_l_Lean_ppAuxDeclsOption___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -285,7 +285,7 @@ return x_22;
 }
 }
 }
-lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__1() {
+static lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -295,7 +295,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__2() {
+static lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -303,7 +303,7 @@ x_1 = lean_mk_string(" :");
 return x_1;
 }
 }
-lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__3() {
+static lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -313,7 +313,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__4() {
+static lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -322,7 +322,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__5() {
+static lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -330,7 +330,7 @@ x_1 = lean_mk_string(" : ");
 return x_1;
 }
 }
-lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6() {
+static lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -340,7 +340,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__7() {
+static lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -348,7 +348,7 @@ x_1 = lean_mk_string(" :=");
 return x_1;
 }
 }
-lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__8() {
+static lean_object* _init_l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -8073,7 +8073,7 @@ x_8 = l_Std_PersistentArray_foldlM___at_Lean_ppGoal___spec__3(x_1, x_2, x_3, x_7
 return x_8;
 }
 }
-lean_object* _init_l_Lean_ppGoal___closed__1() {
+static lean_object* _init_l_Lean_ppGoal___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -8081,7 +8081,7 @@ x_1 = lean_mk_string("unknown goal");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ppGoal___closed__2() {
+static lean_object* _init_l_Lean_ppGoal___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -8091,7 +8091,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ppGoal___closed__3() {
+static lean_object* _init_l_Lean_ppGoal___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8103,7 +8103,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_ppGoal___closed__4() {
+static lean_object* _init_l_Lean_ppGoal___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -8115,7 +8115,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_ppGoal___closed__5() {
+static lean_object* _init_l_Lean_ppGoal___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -8123,7 +8123,7 @@ x_1 = lean_mk_string("⊢");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ppGoal___closed__6() {
+static lean_object* _init_l_Lean_ppGoal___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -8133,7 +8133,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_ppGoal___closed__7() {
+static lean_object* _init_l_Lean_ppGoal___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -8141,7 +8141,7 @@ x_1 = lean_mk_string("case ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_ppGoal___closed__8() {
+static lean_object* _init_l_Lean_ppGoal___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

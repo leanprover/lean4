@@ -101,7 +101,7 @@ lean_object* l_List_map___main___at_Lean_setOptionFromString___spec__1(lean_obje
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_verboseOption(lean_object*);
 lean_object* l_Lean_timeoutOption___closed__5;
-lean_object* _init_l_Lean_Options_empty() {
+static lean_object* _init_l_Lean_Options_empty() {
 _start:
 {
 lean_object* x_1; 
@@ -109,7 +109,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Options_Inhabited() {
+static lean_object* _init_l_Lean_Options_Inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -117,7 +117,7 @@ x_1 = l_Lean_Options_empty;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Options_HasToString___closed__1() {
+static lean_object* _init_l_Lean_Options_HasToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -125,7 +125,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_KVMap_HasToString), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Options_HasToString() {
+static lean_object* _init_l_Lean_Options_HasToString() {
 _start:
 {
 lean_object* x_1; 
@@ -133,7 +133,7 @@ x_1 = l_Lean_Options_HasToString___closed__1;
 return x_1;
 }
 }
-lean_object* _init_l_Lean_OptionDecls_inhabited() {
+static lean_object* _init_l_Lean_OptionDecls_inhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -175,7 +175,7 @@ x_3 = l_IO_mkRef___at___private_Lean_Data_Options_1__initOptionDeclsRef___spec__
 return x_3;
 }
 }
-lean_object* _init_l_Lean_registerOption___closed__1() {
+static lean_object* _init_l_Lean_registerOption___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -183,7 +183,7 @@ x_1 = lean_mk_string("invalid option declaration '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_registerOption___closed__2() {
+static lean_object* _init_l_Lean_registerOption___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -444,7 +444,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_getOptionDecl___closed__1() {
+static lean_object* _init_l_Lean_getOptionDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -707,7 +707,7 @@ return x_12;
 }
 }
 }
-lean_object* _init_l_Lean_setOptionFromString___closed__1() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -715,7 +715,7 @@ x_1 = lean_mk_string("=");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_setOptionFromString___closed__2() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -723,7 +723,7 @@ x_1 = lean_mk_string("invalid configuration option entry, it must be of the form
 return x_1;
 }
 }
-lean_object* _init_l_Lean_setOptionFromString___closed__3() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -733,7 +733,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_setOptionFromString___closed__4() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -741,7 +741,7 @@ x_1 = lean_mk_string("invalid Bool option value '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_setOptionFromString___closed__5() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -749,7 +749,7 @@ x_1 = lean_mk_string("invalid Nat option value '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_setOptionFromString___closed__6() {
+static lean_object* _init_l_Lean_setOptionFromString___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -1204,7 +1204,7 @@ return x_135;
 }
 }
 }
-lean_object* _init_l_Lean_verboseOption___closed__1() {
+static lean_object* _init_l_Lean_verboseOption___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1212,7 +1212,7 @@ x_1 = lean_mk_string("verbose");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_verboseOption___closed__2() {
+static lean_object* _init_l_Lean_verboseOption___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1222,7 +1222,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_verboseOption___closed__3() {
+static lean_object* _init_l_Lean_verboseOption___closed__3() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
@@ -1232,7 +1232,7 @@ lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_verboseOption___closed__4() {
+static lean_object* _init_l_Lean_verboseOption___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1240,7 +1240,7 @@ x_1 = lean_mk_string("disable/enable verbose messages");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_verboseOption___closed__5() {
+static lean_object* _init_l_Lean_verboseOption___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1264,7 +1264,7 @@ x_4 = lean_register_option(x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_timeoutOption___closed__1() {
+static lean_object* _init_l_Lean_timeoutOption___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1272,7 +1272,7 @@ x_1 = lean_mk_string("timeout");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_timeoutOption___closed__2() {
+static lean_object* _init_l_Lean_timeoutOption___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1282,7 +1282,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_timeoutOption___closed__3() {
+static lean_object* _init_l_Lean_timeoutOption___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1292,7 +1292,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_timeoutOption___closed__4() {
+static lean_object* _init_l_Lean_timeoutOption___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1300,7 +1300,7 @@ x_1 = lean_mk_string("the (deterministic) timeout is measured as the maximum of 
 return x_1;
 }
 }
-lean_object* _init_l_Lean_timeoutOption___closed__5() {
+static lean_object* _init_l_Lean_timeoutOption___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1324,7 +1324,7 @@ x_4 = lean_register_option(x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_maxMemoryOption___closed__1() {
+static lean_object* _init_l_Lean_maxMemoryOption___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1332,7 +1332,7 @@ x_1 = lean_mk_string("maxMemory");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_maxMemoryOption___closed__2() {
+static lean_object* _init_l_Lean_maxMemoryOption___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1342,7 +1342,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_maxMemoryOption___closed__3() {
+static lean_object* _init_l_Lean_maxMemoryOption___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1352,7 +1352,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_maxMemoryOption___closed__4() {
+static lean_object* _init_l_Lean_maxMemoryOption___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1360,7 +1360,7 @@ x_1 = lean_mk_string("maximum amount of memory available for Lean in megabytes")
 return x_1;
 }
 }
-lean_object* _init_l_Lean_maxMemoryOption___closed__5() {
+static lean_object* _init_l_Lean_maxMemoryOption___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 

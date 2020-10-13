@@ -72,7 +72,7 @@ lean_object* l_List_get_x21___main___rarg___closed__2;
 lean_object* l_List_getD(lean_object*);
 lean_object* l_List_getLast___rarg(lean_object*, lean_object*);
 lean_object* l_List_getLastD___rarg(lean_object*, lean_object*);
-lean_object* _init_l_List_get_x21___main___rarg___closed__1() {
+static lean_object* _init_l_List_get_x21___main___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -80,7 +80,7 @@ x_1 = lean_mk_string("Init.Data.List.BasicAux");
 return x_1;
 }
 }
-lean_object* _init_l_List_get_x21___main___rarg___closed__2() {
+static lean_object* _init_l_List_get_x21___main___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -88,7 +88,7 @@ x_1 = lean_mk_string("invalid index");
 return x_1;
 }
 }
-lean_object* _init_l_List_get_x21___main___rarg___closed__3() {
+static lean_object* _init_l_List_get_x21___main___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -319,7 +319,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l_List_head_x21___rarg___closed__1() {
+static lean_object* _init_l_List_head_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -327,7 +327,7 @@ x_1 = lean_mk_string("empty list");
 return x_1;
 }
 }
-lean_object* _init_l_List_head_x21___rarg___closed__2() {
+static lean_object* _init_l_List_head_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -448,7 +448,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_List_tail_x21___rarg___closed__1() {
+static lean_object* _init_l_List_tail_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -631,7 +631,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_List_getLast_x21___rarg___closed__1() {
+static lean_object* _init_l_List_getLast_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 

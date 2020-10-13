@@ -717,7 +717,7 @@ x_4 = lean_mk_array(x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Array_empty___closed__1() {
+static lean_object* _init_l_Array_empty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1075,7 +1075,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__1() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1083,7 +1083,7 @@ x_1 = lean_mk_string("index ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__2() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1091,7 +1091,7 @@ x_1 = lean_mk_string(" out of bounds");
 return x_1;
 }
 }
-lean_object* _init_l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__3() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -3028,7 +3028,7 @@ x_3 = lean_alloc_closure((void*)(l_Array_findSomeMAux___main___at_Array_findSome
 return x_3;
 }
 }
-lean_object* _init_l_Array_findSome_x21___rarg___closed__1() {
+static lean_object* _init_l_Array_findSome_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3036,7 +3036,7 @@ x_1 = lean_mk_string("failed to find element");
 return x_1;
 }
 }
-lean_object* _init_l_Array_findSome_x21___rarg___closed__2() {
+static lean_object* _init_l_Array_findSome_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -3225,7 +3225,7 @@ x_3 = lean_alloc_closure((void*)(l_Array_findSomeRevMAux___main___at_Array_findS
 return x_3;
 }
 }
-lean_object* _init_l_Array_findSomeRev_x21___rarg___closed__1() {
+static lean_object* _init_l_Array_findSomeRev_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -3520,7 +3520,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Array_findIdx_x21___rarg___closed__1() {
+static lean_object* _init_l_Array_findIdx_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -5911,7 +5911,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Array_HasRepr___rarg___closed__1() {
+static lean_object* _init_l_Array_HasRepr___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -6946,7 +6946,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Array_HasAppend___closed__1() {
+static lean_object* _init_l_Array_HasAppend___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -8240,7 +8240,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Array_insertAt___rarg___closed__1() {
+static lean_object* _init_l_Array_insertAt___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -8248,7 +8248,7 @@ x_1 = lean_mk_string("invalid index");
 return x_1;
 }
 }
-lean_object* _init_l_Array_insertAt___rarg___closed__2() {
+static lean_object* _init_l_Array_insertAt___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 

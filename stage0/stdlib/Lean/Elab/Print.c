@@ -215,7 +215,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -223,7 +223,7 @@ x_1 = lean_mk_string(".{");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -233,7 +233,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__3() {
+static lean_object* _init_l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -243,7 +243,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__4() {
+static lean_object* _init_l___private_Lean_Elab_Print_2__lparamsToMessageData___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -301,7 +301,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -309,7 +309,7 @@ x_1 = lean_mk_string("private ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -319,7 +319,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__3() {
+static lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -329,7 +329,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__4() {
+static lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -337,7 +337,7 @@ x_1 = lean_mk_string("protected ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__5() {
+static lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -347,7 +347,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__6() {
+static lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -357,7 +357,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__7() {
+static lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -365,7 +365,7 @@ x_1 = lean_mk_string("unsafe ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__8() {
+static lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -375,7 +375,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__9() {
+static lean_object* _init_l___private_Lean_Elab_Print_3__mkHeader___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -796,7 +796,7 @@ lean_dec(x_3);
 return x_10;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_4__printDefLike___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Print_4__printDefLike___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -875,7 +875,7 @@ lean_dec(x_3);
 return x_10;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_6__printQuot___rarg___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Print_6__printQuot___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1099,7 +1099,7 @@ return x_25;
 }
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_7__printInduct___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Print_7__printInduct___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1107,7 +1107,7 @@ x_1 = lean_mk_string("inductive");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_7__printInduct___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_Print_7__printInduct___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1115,7 +1115,7 @@ x_1 = lean_mk_string("constructors:");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_7__printInduct___closed__3() {
+static lean_object* _init_l___private_Lean_Elab_Print_7__printInduct___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1125,7 +1125,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_7__printInduct___closed__4() {
+static lean_object* _init_l___private_Lean_Elab_Print_7__printInduct___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1230,7 +1230,7 @@ lean_dec(x_2);
 return x_12;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1238,7 +1238,7 @@ x_1 = lean_mk_string("axiom");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1246,7 +1246,7 @@ x_1 = lean_mk_string("def");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__3() {
+static lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1254,7 +1254,7 @@ x_1 = lean_mk_string("theorem");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__4() {
+static lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1262,7 +1262,7 @@ x_1 = lean_mk_string("constant");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__5() {
+static lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1270,7 +1270,7 @@ x_1 = lean_mk_string("constructor");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__6() {
+static lean_object* _init_l___private_Lean_Elab_Print_8__printIdCore___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -1830,7 +1830,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__1() {
+static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1838,7 +1838,7 @@ x_1 = lean_mk_string("invalid #print command");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__2() {
+static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1848,7 +1848,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__3() {
+static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1858,7 +1858,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__4() {
+static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1866,7 +1866,7 @@ x_1 = lean_mk_string("WIP");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__5() {
+static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1876,7 +1876,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__6() {
+static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1956,7 +1956,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrint___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrint___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1964,7 +1964,7 @@ x_1 = lean_mk_string("print");
 return x_1;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrint___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrint___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1974,7 +1974,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrint___closed__3() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrint___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2438,7 +2438,7 @@ x_4 = l_Lean_Elab_Command_CollectAxioms_collect___main(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2450,7 +2450,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2458,7 +2458,7 @@ x_1 = lean_mk_string("' depends on axioms: ");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__3() {
+static lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2468,7 +2468,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__4() {
+static lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2478,7 +2478,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__5() {
+static lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -2486,7 +2486,7 @@ x_1 = lean_mk_string("' does not depend on any axioms");
 return x_1;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__6() {
+static lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2496,7 +2496,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__7() {
+static lean_object* _init_l___private_Lean_Elab_Print_10__printAxiomsOf___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2683,7 +2683,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrintAxioms___closed__1() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrintAxioms___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2691,7 +2691,7 @@ x_1 = lean_mk_string("printAxioms");
 return x_1;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrintAxioms___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrintAxioms___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2701,7 +2701,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrintAxioms___closed__3() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrintAxioms___closed__3() {
 _start:
 {
 lean_object* x_1; 

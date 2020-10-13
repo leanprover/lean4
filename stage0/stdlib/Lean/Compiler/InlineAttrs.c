@@ -141,7 +141,7 @@ lean_object* l_Lean_Compiler_InlineAttributeKind_beq___boxed(lean_object*, lean_
 lean_object* l_List_map___main___at_Lean_Compiler_mkInlineAttrs___spec__8___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-uint8_t _init_l_Lean_Compiler_InlineAttributeKind_Inhabited() {
+static uint8_t _init_l_Lean_Compiler_InlineAttributeKind_Inhabited() {
 _start:
 {
 uint8_t x_1; 
@@ -241,7 +241,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_Lean_Compiler_InlineAttributeKind_HasBeq___closed__1() {
+static lean_object* _init_l_Lean_Compiler_InlineAttributeKind_HasBeq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -249,7 +249,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_InlineAttributeKind_beq___boxed
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_InlineAttributeKind_HasBeq() {
+static lean_object* _init_l_Lean_Compiler_InlineAttributeKind_HasBeq() {
 _start:
 {
 lean_object* x_1; 
@@ -311,7 +311,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__5___closed__1() {
+static lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__5___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -1124,7 +1124,7 @@ lean_dec(x_6);
 return x_8;
 }
 }
-lean_object* _init_l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__2___closed__1() {
+static lean_object* _init_l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1132,7 +1132,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_registerEnumAttributes___at_Lean_Compile
 return x_1;
 }
 }
-lean_object* _init_l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__2___closed__2() {
+static lean_object* _init_l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1269,7 +1269,7 @@ lean_dec(x_11);
 return x_12;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__1() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1277,7 +1277,7 @@ x_1 = lean_mk_string("inlineAttrs");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__2() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1287,7 +1287,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__3() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1295,7 +1295,7 @@ x_1 = lean_mk_string("inline");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__4() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1305,7 +1305,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__5() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1313,7 +1313,7 @@ x_1 = lean_mk_string("mark definition to always be inlined");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__6() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__6() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -1326,7 +1326,7 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__7() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1338,7 +1338,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__8() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -1346,7 +1346,7 @@ x_1 = lean_mk_string("inlineIfReduce");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__9() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1356,7 +1356,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__10() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -1364,7 +1364,7 @@ x_1 = lean_mk_string("mark definition to be inlined when resultant term after re
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__11() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__11() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -1377,7 +1377,7 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__12() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1389,7 +1389,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__13() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -1397,7 +1397,7 @@ x_1 = lean_mk_string("noinline");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__14() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1407,7 +1407,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__15() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -1415,7 +1415,7 @@ x_1 = lean_mk_string("mark definition to never be inlined");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__16() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__16() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -1428,7 +1428,7 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__17() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1440,7 +1440,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__18() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__18() {
 _start:
 {
 lean_object* x_1; 
@@ -1448,7 +1448,7 @@ x_1 = lean_mk_string("macroInline");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__19() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1458,7 +1458,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__20() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__20() {
 _start:
 {
 lean_object* x_1; 
@@ -1466,7 +1466,7 @@ x_1 = lean_mk_string("mark definition to always be inlined before ANF conversion
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__21() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__21() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
@@ -1479,7 +1479,7 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__22() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1491,7 +1491,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__23() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1503,7 +1503,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__24() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1515,7 +1515,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__25() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1527,7 +1527,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__26() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__26() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1539,7 +1539,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__27() {
+static lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__27() {
 _start:
 {
 lean_object* x_1; 

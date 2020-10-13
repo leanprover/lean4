@@ -381,7 +381,7 @@ return x_25;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -389,7 +389,7 @@ x_1 = lean_mk_string("substituting ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -399,7 +399,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -409,7 +409,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -417,7 +417,7 @@ x_1 = lean_mk_string(" (id: ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -427,7 +427,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -437,7 +437,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__7() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -445,7 +445,7 @@ x_1 = lean_mk_string(") with ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__8() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -455,7 +455,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__9() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -496,7 +496,7 @@ lean_ctor_set(x_15, 1, x_14);
 return x_15;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__2___closed__1() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -504,7 +504,7 @@ x_1 = lean_mk_string("reverted variables ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__2___closed__2() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -514,7 +514,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__2___closed__3() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -604,7 +604,7 @@ return x_21;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__4___closed__1() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -612,7 +612,7 @@ x_1 = lean_mk_string("_h");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__4___closed__2() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__4___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2446,7 +2446,7 @@ return x_368;
 }
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__1() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2454,7 +2454,7 @@ x_1 = lean_mk_string("subst");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__2() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2464,7 +2464,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__3() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2472,7 +2472,7 @@ x_1 = lean_mk_string("argument must be an equality proof");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__4() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2482,7 +2482,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__5() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2492,7 +2492,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__6() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -2500,7 +2500,7 @@ x_1 = lean_mk_string("invalid equality proof, it is not of the form ");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__7() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2510,7 +2510,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__8() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2520,7 +2520,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__9() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -2528,7 +2528,7 @@ x_1 = lean_mk_string("after WHNF, variable expected, but obtained");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__10() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2538,7 +2538,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__11() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2548,7 +2548,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__12() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -2556,7 +2556,7 @@ x_1 = lean_mk_string("(x = t)");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__13() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2566,7 +2566,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__14() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2576,7 +2576,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__15() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2588,7 +2588,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__16() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -2596,7 +2596,7 @@ x_1 = lean_mk_string("(t = x)");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__17() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2606,7 +2606,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__18() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2616,7 +2616,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__19() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2628,7 +2628,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__20() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2638,7 +2638,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__21() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__21() {
 _start:
 {
 lean_object* x_1; 
@@ -2646,7 +2646,7 @@ x_1 = lean_mk_string("' occurs at");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__22() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2656,7 +2656,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__23() {
+static lean_object* _init_l_Lean_Meta_substCore___lambda__5___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5170,7 +5170,7 @@ x_10 = l_Std_PersistentArray_findSomeM_x3f___at_Lean_Meta_subst___spec__2(x_1, x
 return x_10;
 }
 }
-lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5178,7 +5178,7 @@ x_1 = lean_mk_string("did not find equation for eliminating '");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5188,7 +5188,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5198,7 +5198,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -5206,7 +5206,7 @@ x_1 = lean_mk_string("invalid equality proof, it is not of the form (x = t) or (
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5216,7 +5216,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_Meta_subst___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 

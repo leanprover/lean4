@@ -278,7 +278,10 @@ fun stx =>
 fun stx =>
   let arg  := stx.getArg 1;
   let body := stx.getArg 3;
-  `(dbgTrace (toString $arg) fun _ => $body)
+  if arg.getKind == interpolatedStrKind then
+    `(dbgTrace (s! $arg) fun _ => $body)
+  else
+    `(dbgTrace (toString $arg) fun _ => $body)
 
 @[builtinMacro Lean.Parser.Term.«sorry»]  def expandSorry : Macro :=
 fun _ => `(sorryAx _ false)

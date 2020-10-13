@@ -103,3 +103,26 @@ when (curr == max) $ throwError maxRecDepthErrorMessage;
 MonadRecDepth.withRecDepth (curr+1) x
 
 end Lean
+
+new_frontend
+
+namespace Lean
+
+syntax "throwError! " ((interpolatedStr term) <|> term) : term
+syntax "throwErrorAt! " term:max ((interpolatedStr term) <|> term) : term
+
+macro_rules
+| `(throwError! $msg) =>
+  if msg.getKind == interpolatedStrKind then
+    `(throwError (msg! $msg))
+  else
+    `(throwError $msg)
+
+macro_rules
+| `(throwErrorAt! $ref $msg) =>
+  if msg.getKind == interpolatedStrKind then
+    `(throwErrorAt $ref (msg! $msg))
+  else
+    `(throwErrorAt $ref $msg)
+
+end Lean

@@ -258,7 +258,7 @@ stx.isAntiquot || stx.isIdent
 
 @[builtinTermParser] def panic       := parser!:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := parser!:leadPrec "unreachable!"
-@[builtinTermParser] def dbgTrace    := parser!:leadPrec withPosition ("dbgTrace! " >> termParser) >> optSemicolon termParser
+@[builtinTermParser] def dbgTrace    := parser!:leadPrec withPosition ("dbgTrace! " >> ((interpolatedStr termParser) <|> termParser)) >> optSemicolon termParser
 @[builtinTermParser] def assert      := parser!:leadPrec withPosition ("assert! " >> termParser) >> optSemicolon termParser
 
 end Term

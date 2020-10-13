@@ -39,8 +39,12 @@ let startPos := s.pos
 if input.atEnd startPos then
   s.mkEOIError
 else
-  let s := s.next input startPos
-  parse startPos c s
+  let curr  := input.get s.pos;
+  if curr != '\"' then
+    s.mkError "interpolated string"
+  else
+    let s := s.next input startPos
+    parse startPos c s
 
 @[inline] def interpolatedStrNoAntiquot (p : Parser) : Parser :=
 { fn   := interpolatedStrFn p.fn,

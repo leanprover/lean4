@@ -20,7 +20,7 @@ def goalsToMessageData (goals : List MVarId) : MessageData :=
 MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
 
 def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit := do
-throwError msg!"unsolved goals\n{goalsToMessageData goals}"
+throwError! "unsolved goals\n{goalsToMessageData goals}"
 
 namespace Tactic
 
@@ -93,7 +93,7 @@ mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tac
 
 private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List Tactic) : TacticM Unit := do
 let rec loop : List Tactic → TacticM Unit
-  | []              => throwErrorAt stx msg!"unexpected syntax {indentD stx}"
+  | []              => throwErrorAt! stx "unexpected syntax {indentD stx}"
   | evalFn::evalFns => do
     try
       evalFn stx
@@ -117,7 +117,7 @@ mutual
 
 partial def expandTacticMacroFns (stx : Syntax) (macros : List Macro) : TacticM Unit :=
 let rec loop : List Macro → TacticM Unit
-  | []    => throwErrorAt stx msg!"tactic '{stx.getKind}' has not been implemented"
+  | []    => throwErrorAt! stx "tactic '{stx.getKind}' has not been implemented"
   | m::ms => do
     let scp ← getCurrMacroScope
     try
@@ -177,7 +177,7 @@ let e ← instantiateMVars e
 let pendingMVars ← getMVars e
 Term.logUnassignedUsingErrorInfos pendingMVars
 if e.hasExprMVar then
-  throwError msg!"tactic failed, resulting expression contains metavariables{indentExpr e}"
+  throwError! "tactic failed, resulting expression contains metavariables{indentExpr e}"
 
 def withMainMVarContext {α} (x : TacticM α) : TacticM α := do
 let (mvarId, _) ← getMainGoal
@@ -286,7 +286,7 @@ fun stx => pure ()
 fun stx => do
   let tactic := stx.getArg 1
   if (← do try evalTactic tactic; pure true catch _ => pure false) then
-    throwError ("tactic succeeded")
+    throwError "tactic succeeded"
 
 @[builtinTactic traceState] def evalTraceState : Tactic :=
 fun stx => do
@@ -345,7 +345,7 @@ withRef id do
 let fvar? ← liftTermElabM $ Term.isLocalIdent? id;
 match fvar? with
 | some fvar => pure fvar.fvarId!
-| none      => throwError msg!"unknown variable '{id.getId}'"
+| none      => throwError! "unknown variable '{id.getId}'"
 
 def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
 withMainMVarContext $ ids.mapM getFVarId

@@ -85,11 +85,11 @@ let rec loop (i : Nat) : MetaM α := do
         let indIndices := indArgs.extract indInfo.nparams indArgs.size
         if !indIndices.all Expr.isFVar then
           orelseMergeErrors
-            (throwError msg!"argument #{i+1} was not used because its type is an inductive family and indices are not variables{indentExpr xType}")
+            (throwError! "argument #{i+1} was not used because its type is an inductive family and indices are not variables{indentExpr xType}")
             (loop (i+1))
         else if !indIndices.allDiff then
           orelseMergeErrors
-            (throwError msg!"argument #{i+1} was not used because its type is an inductive family and indices are not pairwise distinct{indentExpr xType}")
+            (throwError! "argument #{i+1} was not used because its type is an inductive family and indices are not pairwise distinct{indentExpr xType}")
             (loop (i+1))
         else
           let indexMinPos := getIndexMinPos xs indIndices
@@ -99,13 +99,13 @@ let rec loop (i : Nat) : MetaM α := do
           match ← hasBadIndexDep? ys indIndices with
           | some (index, y) =>
             orelseMergeErrors
-              (throwError msg!"argument #{i+1} was not used because its type is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}")
+              (throwError! "argument #{i+1} was not used because its type is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}")
               (loop (i+1))
           | none =>
             match ← hasBadParamDep? ys indParams with
             | some (indParam, y) =>
               orelseMergeErrors
-                (throwError msg!"argument #{i+1} was not used because its type is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}")
+                (throwError! "argument #{i+1} was not used because its type is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}")
                 (loop (i+1))
             | none =>
               let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
@@ -129,7 +129,7 @@ private def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
 if containsRecFn recFnName e then
   Meta.forEachExpr e fun e => do
     if e.isAppOf recFnName then
-      throwError msg!"unexpected occurrence of recursive application{indentExpr e}"
+      throwError! "unexpected occurrence of recursive application{indentExpr e}"
   pure e
 else
   pure e
@@ -141,7 +141,7 @@ throwError "toBelow failed"
 private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Expr
 | belowDict, arg, F => do
   belowDict ← whnf belowDict
-  trace[Elab.definition.structural]! msg!"belowDict: {belowDict}, arg: {arg}"
+  trace[Elab.definition.structural]! "belowDict: {belowDict}, arg: {arg}"
   match belowDict with
   | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
     (do toBelowAux C d1 arg (← mkAppM `PProd.fst #[F]))
@@ -167,10 +167,10 @@ private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Exp
 /- See toBelow -/
 private def withBelowDict {α} (below : Expr) (numIndParams : Nat) (k : Expr → Expr → MetaM α) : MetaM α := do
 let belowType ← inferType below
-trace[Elab.definition.structural]! msg!"belowType: {belowType}"
+trace[Elab.definition.structural]! "belowType: {belowType}"
 belowType.withApp fun f args => do
   let motivePos := numIndParams + 1
-  unless motivePos < args.size do throwError msg!"unexpected 'below' type{indentExpr belowType}"
+  unless motivePos < args.size do throwError! "unexpected 'below' type{indentExpr belowType}"
   let pre := mkAppN f (args.extract 0 numIndParams)
   let preType ← inferType pre
   forallBoundedTelescope preType (some 1) fun x _ => do
@@ -225,9 +225,9 @@ let rec loop : Expr → Expr → MetaM Expr
           let numFixed  := recArgInfo.fixedParams.size
           let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos
           if recArgPos >= args.size then
-            throwError msg!"insufficient number of parameters at recursive application {indentExpr e}"
+            throwError! "insufficient number of parameters at recursive application {indentExpr e}"
           let recArg := args[recArgPos]
-          let f ← try toBelow below recArgInfo.indParams.size recArg catch  _ => throwError msg!"failed to eliminate recursive application{indentExpr e}"
+          let f ← try toBelow below recArgInfo.indParams.size recArg catch  _ => throwError! "failed to eliminate recursive application{indentExpr e}"
           -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
           let argsNonFixed := args.extract numFixed args.size
           -- The function `f` does not explicitly take `recArg` and its indices as arguments. So, we skip them too.
@@ -279,9 +279,9 @@ let rec loop : Expr → Expr → MetaM Expr
         do let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do
-              trace[Elab.definition.structural]! msg!"altNumParams: {numParams}, xs: {xs}"
+              trace[Elab.definition.structural]! "altNumParams: {numParams}, xs: {xs}"
               unless xs.size >= numParams do
-                throwError msg!"unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+                throwError! "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let belowForAlt := xs[numParams - 1]
               mkLambdaFVars xs (← loop belowForAlt altBody)
            pure { matcherApp with alts := altsNew }.toExpr
@@ -295,12 +295,12 @@ let major := recArgInfo.ys[recArgInfo.pos]
 let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
 let motive ← mkForallFVars otherArgs type
 let brecOnUniv ← getLevel motive
-trace[Elab.definition.structural]! msg!"brecOn univ: {brecOnUniv}"
+trace[Elab.definition.structural]! "brecOn univ: {brecOnUniv}"
 let useBInductionOn := recArgInfo.reflexive && brecOnUniv == levelZero
 if recArgInfo.reflexive && brecOnUniv != levelZero then
   brecOnUniv ← decLevel brecOnUniv
 let motive ← mkLambdaFVars (recArgInfo.indIndices.push major) motive
-trace[Elab.definition.structural]! msg!"brecOn motive: {motive}"
+trace[Elab.definition.structural]! "brecOn motive: {motive}"
 let brecOn :=
   if useBInductionOn then
     Lean.mkConst (mkBInductionOnFor recArgInfo.indName) recArgInfo.indLevels
@@ -312,8 +312,8 @@ let brecOn := mkAppN brecOn recArgInfo.indIndices
 let brecOn := mkApp brecOn major
 check brecOn
 let brecOnType ← inferType brecOn
-trace[Elab.definition.structural]! msg!"brecOn     {brecOn}"
-trace[Elab.definition.structural]! msg!"brecOnType {brecOnType}"
+trace[Elab.definition.structural]! "brecOn     {brecOn}"
+trace[Elab.definition.structural]! "brecOnType {brecOnType}"
 forallBoundedTelescope brecOnType (some 1) fun F _ => do
   let F := F[0]
   let FType ← inferType F
@@ -334,13 +334,13 @@ forallBoundedTelescope brecOnType (some 1) fun F _ => do
 private def elimRecursion (preDef : PreDefinition) : MetaM PreDefinition :=
 withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
   addAsAxiom preDef
-  trace[Elab.definition.structural]! msg!"{preDef.declName} {xs} :=\n{value}"
+  trace[Elab.definition.structural]! "{preDef.declName} {xs} :=\n{value}"
   let numFixed := getFixedPrefix preDef.declName xs value
   findRecArg numFixed xs fun recArgInfo => do
     -- when (recArgInfo.indName == `Nat) throwStructuralFailed -- HACK to skip Nat argument
     let valueNew ← mkBRecOn preDef.declName recArgInfo value
     let valueNew ← mkLambdaFVars xs valueNew
-    trace[Elab.definition.structural]! msg!"result: {valueNew}"
+    trace[Elab.definition.structural]! "result: {valueNew}"
     -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)
     let valueNew ← ensureNoRecFn preDef.declName valueNew
     pure { preDef with value := valueNew }

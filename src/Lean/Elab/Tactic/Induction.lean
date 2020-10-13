@@ -96,9 +96,9 @@ private def getAltRHS (alt : Syntax) : Syntax := alt.getArg 3
 private def checkAltCtorNames (alts : Array Syntax) (ctorNames : List Name) : TacticM Unit := do
 for alt in alts do
   let n := getAltName alt
-  withRef alt $ trace[Elab.checkAlt]! msg!"{n} , {alt}"
+  withRef alt $ trace[Elab.checkAlt]! "{n} , {alt}"
   unless n == `_ || ctorNames.any (fun ctorName => n.isSuffixOf ctorName) do
-    throwErrorAt (alt.getArg 0) msg!"invalid constructor name '{n}'"
+    throwErrorAt! (alt.getArg 0) "invalid constructor name '{n}'"
 
 structure RecInfo :=
 (recName : Name)
@@ -143,7 +143,7 @@ match ← getRecFromUsingLoop baseRecName (← inferType major) with
   try
     liftMetaMAtMain fun _ => Meta.mkRecursorInfo recName
   catch _ =>
-    throwError msg!"invalid recursor name '{baseRecName}'"
+    throwError! "invalid recursor name '{baseRecName}'"
 
 /- Create `RecInfo` assuming builtin recursor -/
 private def getRecInfoDefault (major : Expr) (withAlts : Syntax) (allowMissingAlts : Bool) : TacticM (RecInfo × Array Name) := do
@@ -183,7 +183,7 @@ else
               altVars := altVars.push []
               altRHSs := altRHSs.push Syntax.missing
             else
-              throwError msg!"alternative for constructor '{ctorName}' is missing"
+              throwError! "alternative for constructor '{ctorName}' is missing"
   unless remainingAlts.isEmpty do
     throwErrorAt remainingAlts[0] "unused alternative"
   pure ({ recName := recName, altVars := altVars, altRHSs := altRHSs }, ctorNames.toArray)
@@ -238,7 +238,7 @@ else
               altVars := altVars.push (getAltVarNames alt).toList
               altRHSs := altRHSs.push (getAltRHS alt)
             | none     =>
-              throwError msg!"alternative for minor premise '{paramName}' is missing"
+              throwError! "alternative for minor premise '{paramName}' is missing"
     unless remainingAlts.isEmpty do
       throwErrorAt remainingAlts[0] "unused alternative"
     pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
@@ -252,7 +252,7 @@ if altRHSs.isEmpty then
   setGoals $ result.toList.map fun s => s.mvarId
 else
   unless altRHSs.size == result.size do
-    throwError msg!"mistmatch on the number of subgoals produced ({result.size}) and alternatives provided ({altRHSs.size})"
+    throwError! "mistmatch on the number of subgoals produced ({result.size}) and alternatives provided ({altRHSs.size})"
   let gs := []
   for i in [:result.size] do
     let subgoal := result[i]
@@ -299,12 +299,12 @@ let rec loop (i j : Nat) : TacticM Unit :=
         if ctorName == subgoal.ctorName then
           loop (i+1) (j+1)
         else
-          throwError msg!"alternative for '{subgoal.ctorName}' has not been provided"
+          throwError! "alternative for '{subgoal.ctorName}' has not been provided"
       else
-        throwError msg!"alternative for '{ctorName}' is not needed"
+        throwError! "alternative for '{ctorName}' is not needed"
   else if h : i < casesResult.size then
     let subgoal := casesResult.get ⟨i, h⟩
-    throwError msg!"alternative for '{subgoal.ctorName}' has not been provided"
+    throwError! "alternative for '{subgoal.ctorName}' has not been provided"
   else
     pure ()
 unless altRHSs.isEmpty do

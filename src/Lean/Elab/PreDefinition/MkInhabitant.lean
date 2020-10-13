@@ -39,6 +39,6 @@ match ← findAssumption? xs type with
 | none   =>
 match ← mkFnInhabitant? xs type with
 | some val => pure val
-| none => throwError msg!"failed to compile partial definition '{declName}', failed to show that type is inhabited"
+| none => throwError! "failed to compile partial definition '{declName}', failed to show that type is inhabited"
 
 end Lean.Elab

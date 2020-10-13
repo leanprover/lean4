@@ -8,6 +8,8 @@ import Lean.Elab.Tactic.Basic
 
 namespace Lean
 namespace Elab
+namespace Tactic end Tactic -- hack for old frontend
+
 namespace Term
 
 open Tactic (TacticM evalTactic getUnsolvedGoals)

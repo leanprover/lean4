@@ -1070,7 +1070,7 @@ structure Context :=
 abbrev M := ReaderT Context TermElabM
 
 @[inline] def withNewVars {α} (newVars : Array Name) (x : M α) : M α :=
-adaptReader (fun (ctx : Context) => { ctx with varSet := insertVars ctx.varSet newVars }) x
+withReader (fun ctx => { ctx with varSet := insertVars ctx.varSet newVars }) x
 
 def checkReassignable (xs : Array Name) : M Unit := do
 ctx ← read;
@@ -1082,7 +1082,7 @@ xs.forM fun x =>
     | _ => throwError ("'" ++ x.simpMacroScopes ++ "' cannot be reassigned")
 
 @[inline] def withFor {α} (x : M α) : M α :=
-adaptReader (fun (ctx : Context) => { ctx with insideFor := true }) x
+withReader (fun ctx => { ctx with insideFor := true }) x
 
 structure ToForInTermResult :=
 (uvars      : Array Name)

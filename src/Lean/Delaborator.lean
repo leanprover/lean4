@@ -184,7 +184,7 @@ Because `childIdx < 3` in the case of `Expr`, we can injectively map a path
 Note that `pos` is initialized to `1` (case `childIdxs == []`).
 -/
 def descend {α} (child : Expr) (childIdx : Nat) (d : DelabM α) : DelabM α :=
-adaptReader (fun (cfg : Context) => { cfg with expr := child, pos := cfg.pos * 3 + childIdx }) d
+withReader (fun cfg => { cfg with expr := child, pos := cfg.pos * 3 + childIdx }) d
 
 def withAppFn {α} (d : DelabM α) : DelabM α := do
 Expr.app fn _ _ ← getExpr | unreachable!;

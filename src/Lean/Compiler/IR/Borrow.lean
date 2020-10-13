@@ -270,7 +270,7 @@ def updateParamSet (ctx : BorrowInfCtx) (ps : Array Param) : BorrowInfCtx :=
 
 partial def collectFnBody : FnBody → M Unit
 | FnBody.jdecl j ys v b => do
-  adaptReader (fun ctx => updateParamSet ctx ys) (collectFnBody v);
+  withReader (fun ctx => updateParamSet ctx ys) (collectFnBody v);
   ctx ← read;
   updateParamMap (ParamMap.Key.jp ctx.currFn j);
   collectFnBody b
@@ -285,7 +285,7 @@ partial def collectFnBody : FnBody → M Unit
 
 partial def collectDecl : Decl → M Unit
 | Decl.fdecl f ys _ b   =>
-  adaptReader (fun ctx => let ctx := updateParamSet ctx ys; { ctx with currFn := f }) $ do
+  withReader (fun ctx => let ctx := updateParamSet ctx ys; { ctx with currFn := f }) $ do
     collectFnBody b;
     updateParamMap (ParamMap.Key.decl f)
 | _ => pure ()

@@ -14,7 +14,7 @@ pure s
 #eval (f "hello").run' 10 true
 
 def g : M Nat :=
-let a : M Nat := adaptTheReader Bool not f
-adaptReader (fun s => s ++ " world") a
+let a : M Nat := withTheReader Bool not f
+withReader (fun s => s ++ " world") a
 
 #eval (g "hello").run' 10 true

@@ -112,7 +112,6 @@ instance monadReaderTrans {ρ : Type u} {m : Type u → Type v} {n : Type u → 
 instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (ReaderT ρ m) :=
 ⟨ReaderT.read⟩
 
-
 /-- Adapt a Monad stack, changing the Type of its top-most environment.
 
     This class is comparable to [Control.Lens.Magnify](https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Magnify), but does not use lenses (why would it), and is derived automatically for any transformer implementing `MonadFunctor`.
@@ -173,3 +172,27 @@ instance ReaderT.monadControl (ρ : Type u) (m : Type u → Type v) : MonadContr
 
 instance ReaderT.finally {m : Type u → Type v} {ρ : Type u} [MonadFinally m] [Monad m] : MonadFinally (ReaderT ρ m) :=
 { finally' := fun α β x h ctx => finally' (x ctx) (fun a? => h a? ctx) }
+
+class MonadWithReaderOf (ρ : Type u) (m : Type u → Type v) :=
+(withReader {α : Type u} : (ρ → ρ) → m α → m α)
+
+@[inline] def withTheReader (ρ : Type u) {m : Type u → Type v} [MonadWithReaderOf ρ m] {α : Type u} (f : ρ → ρ) (x : m α) : m α :=
+MonadWithReaderOf.withReader f x
+
+class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) :=
+(withReader {α : Type u} : (ρ → ρ) → m α → m α)
+
+export MonadWithReader (withReader)
+
+instance MonadWithReaderOf.isMonadWithReader (ρ : Type u) (m : Type u → Type v) [MonadWithReaderOf ρ m] : MonadWithReader ρ m :=
+⟨fun α => withTheReader ρ⟩
+
+section
+variables {ρ : Type u} {m : Type u → Type v}
+
+instance monadWithReaderOfTrans {n : Type u → Type v} [MonadWithReaderOf ρ m] [MonadFunctor m m n n] : MonadWithReaderOf ρ n :=
+⟨fun α f => monadMap fun β => (withTheReader ρ f : m β → m β)⟩
+
+instance ReaderT.monadWithReaderOf [Monad m] : MonadWithReaderOf ρ (ReaderT ρ m) :=
+⟨fun α f x ctx => x (f ctx)⟩
+end

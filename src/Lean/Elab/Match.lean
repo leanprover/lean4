@@ -702,7 +702,7 @@ localDecls ← s.localDecls.mapM fun d => instantiateLocalDeclMVars d;
 lctx ← getLCtx;
 let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.erase d.fvarId) lctx;
 let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.addDecl d) lctx;
-adaptTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ k localDecls patterns
+withTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) $ k localDecls patterns
 
 private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr)
   (k : AltLHS → Expr → TermElabM α) : TermElabM α := do

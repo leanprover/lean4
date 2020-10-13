@@ -35,7 +35,7 @@ instance CoreM.inhabited {α} : Inhabited (CoreM α) :=
 
 instance : Ref CoreM :=
 { getRef     := do ctx ← read; pure ctx.ref,
-  withRef    := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x }
+  withRef    := fun α ref x => withReader (fun ctx => { ctx with ref := ref }) x }
 
 instance : MonadEnv CoreM :=
 { getEnv    := do s ← get; pure s.env,
@@ -52,7 +52,7 @@ instance : MonadNameGenerator CoreM :=
   setNGen := fun ngen => modify fun s => { s with ngen := ngen } }
 
 instance : MonadRecDepth CoreM :=
-{ withRecDepth   := fun α d x => adaptReader (fun (ctx : Context) => { ctx with currRecDepth := d }) x,
+{ withRecDepth   := fun α d x => withReader (fun ctx => { ctx with currRecDepth := d }) x,
   getRecDepth    := do ctx ← read; pure ctx.currRecDepth,
   getMaxRecDepth := do ctx ← read; pure ctx.maxRecDepth }
 

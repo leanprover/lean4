@@ -40,8 +40,8 @@ do traceCtx `module $ do {
    trace! `slow ("slow message: " ++ toString (slow b))
 
 def run (x : M Unit) : M Unit :=
-adaptReader
-  (fun (ctx : Core.Context) =>
+withReader
+  (fun ctx =>
     -- Try commeting/uncommeting the following `setBool`s
     let opts := ctx.options;
     let opts := opts.setBool `trace.module true;

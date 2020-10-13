@@ -71,7 +71,7 @@ instance : AddMessageContext CommandElabM :=
 
 instance : Ref CommandElabM :=
 { getRef     := Command.getRef,
-  withRef    := fun α ref x => adaptReader (fun (ctx : Context) => { ctx with ref := ref }) x }
+  withRef    := fun α ref x => withReader (fun ctx => { ctx with ref := ref }) x }
 
 instance : AddErrorMessageContext CommandElabM :=
 { add := fun ref msg => do
@@ -138,7 +138,7 @@ protected def getMainModule     : CommandElabM Name := do env ← getEnv; pure e
 
 @[inline] protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
 fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
-adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
+withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
 instance CommandElabM.MonadQuotation : MonadQuotation CommandElabM := {
   getCurrMacroScope   := Command.getCurrMacroScope,
@@ -158,7 +158,7 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
-adaptReader (fun (ctx : Context) => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter CommandElabM :=
 { getCurrMacroScope := getCurrMacroScope,
@@ -166,7 +166,7 @@ instance : MonadMacroAdapter CommandElabM :=
   setNextMacroScope := fun next => modify $ fun s => { s with nextMacroScope := next } }
 
 instance : MonadRecDepth CommandElabM :=
-{ withRecDepth   := fun α d x => adaptReader (fun (ctx : Context) => { ctx with currRecDepth := d }) x,
+{ withRecDepth   := fun α d x => withReader (fun ctx => { ctx with currRecDepth := d }) x,
   getRecDepth    := do ctx ← read; pure ctx.currRecDepth,
   getMaxRecDepth := do s ← get; pure s.maxRecDepth }
 

@@ -104,7 +104,7 @@ lambdaLetTelescope e $ fun xs e => do
 @[inline] private def withLocalDecl {α} (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α :=
 savingCache $ do
   fvarId ← mkFreshId;
-  adaptReader (fun (ctx : Context) => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) $
+  withReader (fun ctx => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) $
     x (mkFVar fvarId)
 
 def throwUnknownMVar {α} (mvarId : MVarId) : MetaM α :=

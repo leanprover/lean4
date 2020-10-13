@@ -217,7 +217,7 @@ private partial def isDefEqBindingAux : LocalContext → Array Expr → Expr →
   | Expr.forallE n d₁ b₁ _, Expr.forallE _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
   | Expr.lam     n d₁ b₁ _, Expr.lam     _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
   | _,                      _                      =>
-    adaptReader (fun (ctx : Context) => { ctx with lctx := lctx }) $
+    withReader (fun ctx => { ctx with lctx := lctx }) $
       isDefEqBindingDomain fvars ds₂ 0 $
         Meta.isExprDefEqAux (e₁.instantiateRev fvars) (e₂.instantiateRev fvars)
 

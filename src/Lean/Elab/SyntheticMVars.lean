@@ -39,7 +39,7 @@ ensureAssignmentHasNoMVars mvarId
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=
 -- Remark: if `ctx.errToSorry` is already false, then we don't enable it. Recall tactics disable `errToSorry`
-adaptReader (fun ctx => { ctx with errToSorry := ctx.errToSorry && errToSorry }) $
+withReader (fun ctx => { ctx with errToSorry := ctx.errToSorry && errToSorry }) do
   elabTerm stx expectedType? false
 
 /--
@@ -50,7 +50,7 @@ private def resumePostponed (macroStack : MacroStack) (declName? : Option Name) 
 withRef stx $ withMVarContext mvarId do
   let s ← get
   try
-    adaptReader (m := TermElabM) (fun ctx => { ctx with macroStack := macroStack, declName? := declName? }) do -- TODO: remove (m := TermElabM)
+    withReader (fun ctx => { ctx with macroStack := macroStack, declName? := declName? }) do
       let mvarDecl     ← getMVarDecl mvarId
       let expectedType ← instantiateMVars mvarDecl.type
       let result       ← resumeElabTerm stx expectedType (!postponeOnError)
@@ -104,7 +104,7 @@ pure $ !val.getAppFn.isMVar
 
 /-- Try to synthesize the given pending synthetic metavariable. -/
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
-withRef mvarSyntheticDecl.stx $
+withRef mvarSyntheticDecl.stx do
 match mvarSyntheticDecl.kind with
 | SyntheticMVarKind.typeClass                           => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
 | SyntheticMVarKind.coe header? expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? expectedType eType e f?
@@ -112,7 +112,7 @@ match mvarSyntheticDecl.kind with
 | SyntheticMVarKind.withDefault _                       => checkWithDefault mvarSyntheticDecl.mvarId
 | SyntheticMVarKind.postponed macroStack declName?      => resumePostponed macroStack declName? mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
 | SyntheticMVarKind.tactic declName? tacticCode         =>
-  adaptReader (m := TermElabM) (fun (ctx : Context) => { ctx with declName? := declName? }) do -- TODO: remove (m := TermElabM)
+  withReader (fun ctx => { ctx with declName? := declName? }) do
     if runTactics then
       runTactic mvarSyntheticDecl.mvarId tacticCode
       pure true

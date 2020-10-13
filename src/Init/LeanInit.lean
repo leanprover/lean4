@@ -454,13 +454,12 @@ throw $ Exception.error ref msg
 
 @[inline] protected def withFreshMacroScope {α} (x : MacroM α) : MacroM α := do
 fresh ← modifyGet (fun s => (s, s+1));
-adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
+withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α := do
 ctx ← read;
 when (ctx.currRecDepth == ctx.maxRecDepth) $ throw $ Exception.error ref maxRecDepthErrorMessage;
-adaptReader (fun (ctx : Context) => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
-
+withReader (fun ctx => { ctx with currRecDepth := ctx.currRecDepth + 1 }) x
 instance monadQuotation : MonadQuotation MacroM :=
 { getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,
   getMainModule       := fun ctx => pure ctx.mainModule,

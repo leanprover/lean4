@@ -275,7 +275,7 @@ def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer :=
 orelse.parenthesizer antiP p
 
 def parenthesizeCategoryCore (cat : Name) (prec : Nat) : Parenthesizer :=
-adaptReader (fun (ctx : Context) => { ctx with cat := cat }) do
+withReader (fun ctx => { ctx with cat := cat }) do
   stx ← getCur;
   if stx.getKind == `choice then
     visitArgs $ stx.getArgs.size.forM $ fun _ => do

@@ -742,7 +742,7 @@ def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Array Name
 tryToSynthesizeDefaultAux structs allStructNames maxDistance fieldName mvarId 0 0
 
 partial def step : Struct → M Unit
-| struct => unlessM isRoundDone $ adaptReader (fun (ctx : Context) => { ctx with structs := ctx.structs.push struct }) $ do
+| struct => unlessM isRoundDone $ withReader (fun ctx => { ctx with structs := ctx.structs.push struct }) $ do
   struct.fields.forM $ fun field =>
     match field.val with
     | FieldVal.nested struct => step struct
@@ -764,7 +764,7 @@ partial def propagateLoop (hierarchyDepth : Nat) : Nat → Struct → M Unit
   | some field =>
     if d > hierarchyDepth then
       throwErrorAt field.ref ("field '" ++ getFieldName field ++ "' is missing")
-    else adaptReader (fun (ctx : Context) => { ctx with maxDistance := d }) $ do
+    else withReader (fun ctx => { ctx with maxDistance := d }) $ do
       modify $ fun (s : State) => { s with progress := false };
       step struct;
       s ← get;

@@ -151,13 +151,13 @@ match findEnvDecl' ctx.env fid ctx.decls with
 | none      => pure (arbitrary _) -- unreachable if well-formed
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
-adaptReader (fun (ctx : BoxingContext) => { ctx with localCtx := ctx.localCtx.addParams xs }) k
+withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addParams xs }) k
 
 @[inline] def withVDecl {α : Type} (x : VarId) (ty : IRType) (v : Expr) (k : M α) : M α :=
-adaptReader (fun (ctx : BoxingContext) => { ctx with localCtx := ctx.localCtx.addLocal x ty v }) k
+withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addLocal x ty v }) k
 
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
-adaptReader (fun (ctx : BoxingContext) => { ctx with localCtx := ctx.localCtx.addJP j xs v }) k
+withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j xs v }) k
 
 /- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
    and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/

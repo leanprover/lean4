@@ -61,7 +61,7 @@ private def shareCommon (preDefs : Array PreDefinition) : Array PreDefinition :=
 let result : Std.ShareCommonM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
     pure { preDef with type := (← Std.withShareCommon preDef.type), value := (← Std.withShareCommon preDef.value) }
-result.run (m := Id) -- TODO: remove (m := Id)
+result.run
 
 def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (Array PreDefinition) := do
 let preDefs := shareCommon preDefs

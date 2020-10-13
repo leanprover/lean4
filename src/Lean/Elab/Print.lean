@@ -5,39 +5,39 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.FoldConsts
 import Lean.Elab.Command
-
+new_frontend
 namespace Lean
 namespace Elab
 namespace Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
-throwError ("unknown identifier '" ++ toString id ++ "'")
+throwError! "unknown identifier '{id}'"
 
 private def lparamsToMessageData (lparams : List Name) : MessageData :=
 match lparams with
 | []    => ""
-| u::us =>
-  let m : MessageData := ".{" ++ u;
-  let m := us.foldl (fun (s : MessageData) u => s ++ ", " ++ u) m;
-  m ++ "}"
+| u::us => do
+  let m : MessageData := ".{" ++ u
+  for u in us do
+    m := m ++ ", " ++ u
+  return m ++ "}"
 
 private def mkHeader (kind : String) (id : Name) (lparams : List Name) (type : Expr) (isUnsafe : Bool) : CommandElabM MessageData := do
-let m : MessageData := if isUnsafe then "unsafe " else "";
-env ← getEnv;
-let m := if isProtected env id then m ++ "protected " else m;
+let m : MessageData := if isUnsafe then "unsafe " else ""
+let m := if isProtected (← getEnv) id then m ++ "protected " else m
 let (m, id) := match privateToUserName? id : _ → MessageData × Name with
   | some id => (m ++ "private ", id)
-  | none    => (m, id);
-let m := m ++ kind ++ " " ++ id ++ lparamsToMessageData lparams ++ " : " ++ type;
+  | none    => (m, id)
+let m := m ++ kind ++ " " ++ id ++ lparamsToMessageData lparams ++ " : " ++ type
 pure m
 
 private def printDefLike (kind : String) (id : Name) (lparams : List Name) (type : Expr) (value : Expr) (isUnsafe := false) : CommandElabM Unit := do
-m ← mkHeader kind id lparams type isUnsafe;
-let m := m ++ " :=" ++ Format.line ++ value;
+let m ← mkHeader kind id lparams type isUnsafe
+let m := m ++ " :=" ++ Format.line ++ value
 logInfo m
 
 private def printAxiomLike (kind : String) (id : Name) (lparams : List Name) (type : Expr) (isUnsafe := false) : CommandElabM Unit := do
-m ← mkHeader kind id lparams type isUnsafe;
+let m ← mkHeader kind id lparams type isUnsafe
 logInfo m
 
 private def printQuot (kind : QuotKind) (id : Name) (lparams : List Name) (type : Expr) : CommandElabM Unit := do
@@ -45,19 +45,15 @@ printAxiomLike "Quotient primitive" id lparams type
 
 private def printInduct (id : Name) (lparams : List Name) (nparams : Nat) (nindices : Nat) (type : Expr)
     (ctors : List Name) (isUnsafe : Bool) : CommandElabM Unit := do
-env ← getEnv;
-m ← mkHeader "inductive" id lparams type isUnsafe;
-let m := m ++ Format.line ++ "constructors:";
-m ← ctors.foldlM
-  (fun (m : MessageData) ctor => do
-    cinfo ← getConstInfo ctor;
-    pure $ m ++ Format.line ++ ctor ++ " : " ++ cinfo.type)
-  m;
+let m ← mkHeader "inductive" id lparams type isUnsafe
+let m := m ++ Format.line ++ "constructors:"
+for ctor in ctors do
+  let cinfo ← getConstInfo ctor
+  m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
 logInfo m
 
 private def printIdCore (id : Name) : CommandElabM Unit := do
-env ← getEnv;
-match env.find? id with
+match (← getEnv).find? id with
 | ConstantInfo.axiomInfo { lparams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
 | ConstantInfo.defnInfo  { lparams := us, type := t, value := v, isUnsafe := u, .. } => printDefLike "def" id us t v u
 | ConstantInfo.thmInfo  { lparams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
@@ -70,14 +66,14 @@ match env.find? id with
 | none => throwUnknownId id
 
 private def printId (id : Name) : CommandElabM Unit := do
-cs ← resolveGlobalConst id;
+let cs ← resolveGlobalConst id
 cs.forM printIdCore
 
 @[builtinCommandElab «print»] def elabPrint : CommandElab :=
 fun stx =>
-  let numArgs := stx.getNumArgs;
+  let numArgs := stx.getNumArgs
   if numArgs == 2 then
-    let arg := stx.getArg 1;
+    let arg := stx.getArg 1
     if arg.isIdent then
       printId arg.getId
     else match arg.isStrLit? with
@@ -89,18 +85,18 @@ fun stx =>
 namespace CollectAxioms
 
 structure State :=
-(visited : NameSet := {})
+(visited : NameSet    := {})
 (axioms  : Array Name := #[])
 
 abbrev M := ReaderT Environment $ StateM State
 
 partial def collect : Name → M Unit
 | c => do
-  let collectExpr (e : Expr) : M Unit := e.getUsedConstants.forM collect;
-  s ← get;
-  unless (s.visited.contains c) do
-    modify fun s => { s with visited := s.visited.insert c };
-    env ← read;
+  let collectExpr (e : Expr) : M Unit := e.getUsedConstants.forM collect
+  let s ← get
+  unless s.visited.contains c do
+    modify fun s => { s with visited := s.visited.insert c }
+    let env ← read
     match env.find? c with
     | some (ConstantInfo.axiomInfo _)  => modify fun s => { s with axioms := s.axioms.push c }
     | some (ConstantInfo.defnInfo v)   => collectExpr v.type *> collectExpr v.value
@@ -115,19 +111,17 @@ partial def collect : Name → M Unit
 end CollectAxioms
 
 private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
-env ← getEnv;
-let (_, s) := ((CollectAxioms.collect constName).run env).run {};
+let env ← getEnv
+let (_, s) := ((CollectAxioms.collect constName).run env).run {}
 if s.axioms.isEmpty then
-  logInfo ("'" ++ constName ++ "' does not depend on any axioms")
+  logInfo msg!"'{constName}' does not depend on any axioms"
 else
-  logInfo ("'" ++ constName ++ "' depends on axioms: " ++ toString s.axioms.toList)
+  logInfo msg!"'{constName}' depends on axioms: {s.axioms.toList}"
 
 @[builtinCommandElab «printAxioms»] def elabPrintAxioms : CommandElab :=
 fun stx => do
-  let id := (stx.getArg 2).getId;
-  cs ← resolveGlobalConst id;
+  let id := (stx.getArg 2).getId
+  let cs ← resolveGlobalConst id
   cs.forM printAxiomsOf
 
-end Command
-end Elab
-end Lean
+end Lean.Elab.Command

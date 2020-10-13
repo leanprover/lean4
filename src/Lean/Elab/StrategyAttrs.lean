@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Attributes
+new_frontend
 
 namespace Lean
 /-
@@ -17,14 +18,11 @@ inductive ElaboratorStrategy
 instance ElaboratorStrategy.inhabited : Inhabited ElaboratorStrategy :=
 ⟨ElaboratorStrategy.withExpectedType⟩
 
-def mkElaboratorStrategyAttrs : IO (EnumAttributes ElaboratorStrategy) :=
-registerEnumAttributes `elaboratorStrategy
-  [(`elabWithExpectedType, "instructs elaborator that the arguments of the function application (f ...) should be elaborated using information about the expected type", ElaboratorStrategy.withExpectedType),
-   (`elabSimple, "instructs elaborator that the arguments of the function application (f ...) should be elaborated from left to right, and without propagating information from the expected type to its arguments", ElaboratorStrategy.simple),
-   (`elabAsEliminator, "instructs elaborator that the arguments of the function application (f ...) should be elaborated as f were an eliminator", ElaboratorStrategy.asEliminator)]
-
-@[init mkElaboratorStrategyAttrs]
-constant elaboratorStrategyAttrs : EnumAttributes ElaboratorStrategy := arbitrary _
+initialize elaboratorStrategyAttrs : EnumAttributes ElaboratorStrategy ←
+  registerEnumAttributes `elaboratorStrategy
+    [(`elabWithExpectedType, "instructs elaborator that the arguments of the function application (f ...) should be elaborated using information about the expected type", ElaboratorStrategy.withExpectedType),
+     (`elabSimple, "instructs elaborator that the arguments of the function application (f ...) should be elaborated from left to right, and without propagating information from the expected type to its arguments", ElaboratorStrategy.simple),
+     (`elabAsEliminator, "instructs elaborator that the arguments of the function application (f ...) should be elaborated as f were an eliminator", ElaboratorStrategy.asEliminator)]
 
 @[export lean_get_elaborator_strategy]
 def getElaboratorStrategy (env : Environment) (n : Name) : Option ElaboratorStrategy :=

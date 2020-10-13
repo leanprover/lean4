@@ -45,14 +45,11 @@ preDefs.mapM fun preDef => do
 def levelMVarToParamPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
 (levelMVarToParamPreDeclsAux preDefs).run' 1
 
-private def collectLevelParamsExpr (e : Expr) : StateM CollectLevelParams.State Unit := do
-modify (collectLevelParams · e)
-
-private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) :=
-let (_, s) := StateT.run (s := {}) do
-  preDefs.forM fun preDef => do -- TODO for-in doesn't work here
-    collectLevelParamsExpr preDef.type
-    collectLevelParamsExpr preDef.value
+private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) := do
+let s : CollectLevelParams.State := {}
+for preDef in preDefs do
+  s := collectLevelParams s preDef.type
+  s := collectLevelParams s preDef.value
 match sortDeclLevelParams scopeLevelNames allUserLevelNames s.params with
 | Except.error msg      => throwError msg
 | Except.ok levelParams => pure levelParams

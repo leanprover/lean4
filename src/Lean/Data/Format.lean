@@ -145,20 +145,22 @@ private partial def be (w : Nat) : List WorkGroup → StateM State Unit
         pushNewline i.indent.toNat;
         be (gs' is)
     | FlattenBehavior.fill => do
+      let breakHere := do {
+        pushNewline i.indent.toNat;
+        -- make new `fill` group and recurse
+        pushGroup FlattenBehavior.fill is gs w >>= be
+      };
       -- if preceding fill item fit in a single line, try to fit next one too
-      flattened ← pure g.flatten <&&> do {
+      if g.flatten then do
         gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs (w - " ".length)
           | unreachable!;
-        when g'.flatten do {
+        if g'.flatten then do
           pushOutput " ";
           be gs'  -- TODO: use `return`
-        };
-        pure g'.flatten
-      };
-      unless flattened do
-        -- else break and make new `fill` group
-        pushNewline i.indent.toNat;
-        pushGroup FlattenBehavior.fill is gs w >>= be
+        else
+          breakHere
+      else
+        breakHere
   | group f flb => if g.flatten then
       -- flatten (group f) = flatten f
       be (gs' ({ i with f := f }::is))

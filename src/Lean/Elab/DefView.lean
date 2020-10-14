@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -11,8 +12,6 @@ import Lean.Elab.Command
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Binders
 import Lean.Elab.DeclUtil
-new_frontend
-
 namespace Lean.Elab
 
 inductive DefKind

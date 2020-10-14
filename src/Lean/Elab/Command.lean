@@ -182,7 +182,7 @@ catch x
         logError ("internal exception " ++ toString idName))
 
 partial def elabCommand : Syntax → CommandElabM Unit
-| stx => withRef stx $ withIncRecDepth $ withFreshMacroScope $ withLogging $ match stx with
+| stx => withLogging $ withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
   | Syntax.node k args =>
     if k == nullKind then
       -- list of commands => elaborate in order

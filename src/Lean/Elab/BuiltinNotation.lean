@@ -293,6 +293,4 @@ TODO
 @[builtinTermElab] def elabsubst : TermElab := expandInfixOp infixR " ▸ " 75
 -/
 
-end Term
-end Elab
-end Lean
+end Lean.Elab.Term

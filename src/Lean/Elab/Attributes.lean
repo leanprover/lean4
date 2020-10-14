@@ -6,9 +6,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Parser.Basic
 import Lean.Attributes
 import Lean.MonadEnv
-
-namespace Lean
-namespace Elab
+new_frontend
+namespace Lean.Elab
 
 structure Attribute :=
 (name : Name) (args : Syntax := Syntax.missing)
@@ -20,29 +19,27 @@ instance Attribute.inhabited : Inhabited Attribute := ⟨{ name := arbitrary _ }
 
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m Attribute := do
 -- rawIdent >> many attrArg
-let nameStx := stx.getArg 0;
-attrName ← match nameStx.isIdOrAtom? with
+let nameStx := stx[0]
+let attrName ← match nameStx.isIdOrAtom? with
   | none     => withRef nameStx $ throwError "identifier expected"
-  | some str => pure $ mkNameSimple str;
-env ← getEnv;
-unless (isAttribute env attrName) $
-  throwError ("unknown attribute [" ++ attrName ++ "]");
-let args := stx.getArg 1;
+  | some str => pure $ mkNameSimple str
+unless isAttribute (← getEnv) attrName do
+  throwError! "unknown attribute [{attrName}]"
+let args := stx[1]
 -- the old frontend passes Syntax.missing for empty args, for reasons
-let args := if args.getNumArgs == 0 then Syntax.missing else args;
+if args.getNumArgs == 0 then
+  args := Syntax.missing
 pure { name := attrName, args := args }
 
 -- sepBy1 attrInstance ", "
-def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
-stx.foldSepArgsM
-  (fun stx attrs => do
-    attr ← elabAttr stx;
-    pure $ attrs.push attr)
-  #[]
+def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) := do
+let attrs := #[]
+for attr in stx.getSepArgs do
+  attrs := attrs.push (← elabAttr attr)
+return attrs
 
 -- parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
-elabAttrs (stx.getArg 1)
+elabAttrs stx[1]
 
-end Elab
-end Lean
+end Lean.Elab

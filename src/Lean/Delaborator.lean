@@ -416,14 +416,19 @@ match e with
 | Expr.forallE _ _ e'@(Expr.forallE _ _ _ _) _ => go e'
 | _ => pure false
 
+private def getUnusedName (suggestion : Name) : DelabM Name := do
+-- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
+let suggestion := if suggestion.isAnonymous then `a else suggestion;
+lctx ← getLCtx;
+pure $ lctx.getUnusedName suggestion
+
 private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab) : optParam (Array Syntax) #[] → Delab
 -- Accumulate names (`Syntax.ident`s with position information) of the current, unfinished
 -- binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
 -- inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
 | curNames => do
-  lctx ← liftMetaM $ getLCtx;
   e ← getExpr;
-  let n := lctx.getUnusedName e.bindingName!;
+  n ← getUnusedName e.bindingName!;
   stxN ← annotateCurPos (mkIdent n);
   let curNames := curNames.push stxN;
   condM shouldGroupWithNext
@@ -486,8 +491,7 @@ delabBinders $ fun curNames stxBody => do
 @[builtinDelab letE]
 def delabLetE : Delab := do
 Expr.letE n t v b _ ← getExpr | unreachable!;
-lctx ← getLCtx;
-let n := lctx.getUnusedName n;
+n ← getUnusedName n;
 stxT ← descend t 0 delab;
 stxV ← descend v 1 delab;
 stxB ← withLetDecl n t v (fun fvar =>

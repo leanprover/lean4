@@ -9,3 +9,4 @@ def test (e : Expr) : MetaM Unit :=
 PrettyPrinter.ppExpr Name.anonymous [] e >>= IO.println
 
 #eval test (mkBVar 0)
+#eval test (mkLambda Name.anonymous BinderInfo.default (mkSort levelZero) (mkBVar 0))

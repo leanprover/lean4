@@ -196,71 +196,22 @@ fun stx _ =>
   elabBinders #[binder] fun xs => do
     mkForallFVars xs (← elabType term)
 
-/-- Main loop `getFunBinderIds?` -/
-private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → TermElabM (Option (Array Syntax))
-| idOnly, stx, acc =>
+/--
+  Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into `#[id_1, ..., id_m]`
+  It is used at `expandFunBinders`. -/
+private partial def getFunBinderIds? (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
+let rec loop (idOnly : Bool) (stx : Syntax) (acc : Array Syntax) :=
   match_syntax stx with
   | `($f $a) => do
      if idOnly then
        pure none
      else
-       let (some acc) ← getFunBinderIdsAux? false f acc | pure none
-       getFunBinderIdsAux? true a acc
+       let (some acc) ← loop false f acc | pure none
+       loop true a acc
   | `(_) => do let ident ← mkFreshIdent stx; pure (some (acc.push ident))
   | `($id:ident) => pure (some (acc.push id))
   | _ => pure none
-
-/--
-  Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into `#[id_1, ..., id_m]`
-  It is used at `expandFunBinders`. -/
-private def getFunBinderIds? (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
-getFunBinderIdsAux? false stx #[]
-
-/--
-  Main loop for `expandFunBinders`.
-
-  The resulting `Bool` is true if a pattern was found. We use it to "mark" a macro expansion. -/
-private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Nat → Array Syntax → TermElabM (Array Syntax × Syntax × Bool)
-| body, i, newBinders => do
-  if h : i < binders.size then
-    let binder := binders.get ⟨i, h⟩
-    let processAsPattern : Unit → TermElabM (Array Syntax × Syntax × Bool) := fun _ => do
-      let pattern := binder
-      let major ← mkFreshIdent binder
-      let (binders, newBody, _) ← expandFunBindersAux binders body (i+1) (newBinders.push $ mkExplicitBinder major (mkHole binder))
-      let newBody ← `(match $major:ident with | $pattern => $newBody)
-      pure (binders, newBody, true)
-    match binder with
-    | Syntax.node `Lean.Parser.Term.implicitBinder _ => expandFunBindersAux binders body (i+1) (newBinders.push binder)
-    | Syntax.node `Lean.Parser.Term.instBinder _     => expandFunBindersAux binders body (i+1) (newBinders.push binder)
-    | Syntax.node `Lean.Parser.Term.explicitBinder _ => expandFunBindersAux binders body (i+1) (newBinders.push binder)
-    | Syntax.node `Lean.Parser.Term.hole _ =>
-      let ident ← mkFreshIdent binder
-      let type := binder
-      expandFunBindersAux binders body (i+1) (newBinders.push $ mkExplicitBinder ident type)
-    | Syntax.node `Lean.Parser.Term.paren args =>
-      -- `(` (termParser >> parenSpecial)? `)`
-      -- parenSpecial := (tupleTail <|> typeAscription)?
-      let binderBody := binder[1]
-      if binderBody.isNone then processAsPattern ()
-      else
-        let idents  := binderBody[0]
-        let special := binderBody[1]
-        if special.isNone then processAsPattern ()
-        else if special[0].getKind != `Lean.Parser.Term.typeAscription then
-          processAsPattern ()
-        else
-          -- typeAscription := `:` term
-          let type := special[0][1]
-          match (← getFunBinderIds? idents) with
-          | some idents => expandFunBindersAux binders body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
-          | none        => processAsPattern ()
-    | Syntax.ident _ _ _ _ =>
-      let type  := mkHole binder
-      expandFunBindersAux binders body (i+1) (newBinders.push $ mkExplicitBinder binder type)
-    | _ => processAsPattern ()
-  else
-    pure (newBinders, body, false)
+loop false stx #[]
 
 /--
   Auxiliary function for expanding `fun` notation binders. Recall that `fun` parser is defined as
@@ -279,8 +230,48 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
   See local function `processAsPattern` at `expandFunBindersAux`.
 
   The resulting `Bool` is true if a pattern was found. We use it "mark" a macro expansion. -/
-def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax × Bool) :=
-expandFunBindersAux binders body 0 #[]
+partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax × Bool) :=
+let rec loop (body : Syntax) (i : Nat) (newBinders : Array Syntax) := do
+  if h : i < binders.size then
+    let binder := binders.get ⟨i, h⟩
+    let processAsPattern : Unit → TermElabM (Array Syntax × Syntax × Bool) := fun _ => do
+      let pattern := binder
+      let major ← mkFreshIdent binder
+      let (binders, newBody, _) ← loop body (i+1) (newBinders.push $ mkExplicitBinder major (mkHole binder))
+      let newBody ← `(match $major:ident with | $pattern => $newBody)
+      pure (binders, newBody, true)
+    match binder with
+    | Syntax.node `Lean.Parser.Term.implicitBinder _ => loop body (i+1) (newBinders.push binder)
+    | Syntax.node `Lean.Parser.Term.instBinder _     => loop body (i+1) (newBinders.push binder)
+    | Syntax.node `Lean.Parser.Term.explicitBinder _ => loop body (i+1) (newBinders.push binder)
+    | Syntax.node `Lean.Parser.Term.hole _ =>
+      let ident ← mkFreshIdent binder
+      let type := binder
+      loop body (i+1) (newBinders.push $ mkExplicitBinder ident type)
+    | Syntax.node `Lean.Parser.Term.paren args =>
+      -- `(` (termParser >> parenSpecial)? `)`
+      -- parenSpecial := (tupleTail <|> typeAscription)?
+      let binderBody := binder[1]
+      if binderBody.isNone then processAsPattern ()
+      else
+        let idents  := binderBody[0]
+        let special := binderBody[1]
+        if special.isNone then processAsPattern ()
+        else if special[0].getKind != `Lean.Parser.Term.typeAscription then
+          processAsPattern ()
+        else
+          -- typeAscription := `:` term
+          let type := special[0][1]
+          match (← getFunBinderIds? idents) with
+          | some idents => loop body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
+          | none        => processAsPattern ()
+    | Syntax.ident _ _ _ _ =>
+      let type  := mkHole binder
+      loop body (i+1) (newBinders.push $ mkExplicitBinder binder type)
+    | _ => processAsPattern ()
+  else
+    pure (newBinders, body, false)
+loop body 0 #[]
 
 namespace FunBinders
 
@@ -291,7 +282,7 @@ structure State :=
 (expectedType? : Option Expr := none)
 
 private def checkNoOptAutoParam (type : Expr) : TermElabM Unit := do
-type ← instantiateMVars type
+let type ← instantiateMVars type
 if type.isOptParam then
   throwError "optParam is not allowed at 'fun/λ' binders"
 if type.isAutoParam then
@@ -301,7 +292,7 @@ private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : 
 match s.expectedType? with
 | none              => pure s
 | some expectedType =>
-  expectedType ← whnfForall expectedType
+  let expectedType ← whnfForall expectedType
   match expectedType with
   | Expr.forallE _ d b _ =>
     isDefEq fvarType d

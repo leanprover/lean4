@@ -197,12 +197,13 @@ ys.size.foldM
   false
 
 private partial def resetNestedJPParams : FnBody → M Unit
-| FnBody.jdecl _ ys _ _ => do
+| FnBody.jdecl _ ys b k => do
   ctx ← read;
   let currFnIdx := ctx.currFnIdx;
-  ys.forM resetParamAssignment
+  ys.forM resetParamAssignment;
   /- Remark we don't need to reset the parameters of joint-points
-    nested on this one since they will be reset if this JP is used. -/
+    nested in `b` since they will be reset if this JP is used. -/
+  resetNestedJPParams k
 | FnBody.case _ _ _ alts =>
   alts.forM fun alt => match alt with
     | Alt.ctor _ b  => resetNestedJPParams b

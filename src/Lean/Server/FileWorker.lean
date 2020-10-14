@@ -242,7 +242,7 @@ let h := (fun paramType [HasFromJson paramType] (handler : paramType → ServerM
   parseParams paramType params >>= handler);
 match method with
 | "textDocument/didChange" => h DidChangeTextDocumentParams handleDidChange
-| "$/cancelRequest"        => pure () -- TODO(MH)
+| "$/cancelRequest"        => h CancelParams handleCancelRequest
 | _                        => throwServerError $ "Got unsupported notification method: " ++ method
 
 def queueRequest {α : Type*} (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α) 

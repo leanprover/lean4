@@ -45,6 +45,7 @@ lean_object* l_Lean_IR_explicitBoxing___boxed(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_IR_ExplicitBoxing_mkFresh(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_boxArgsIfNeeded___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_requiresBoxedVersion___boxed(lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Data_Format_11__be___main___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_castArgIfNeeded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_addBoxedVersions___boxed(lean_object*, lean_object*);
@@ -98,7 +99,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_IR_ExplicitBoxing_visitVDeclEx
 lean_object* l_Array_iterateMAux___main___at_Array_append___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_ExplicitBoxing_addBoxedVersions___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_withJDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Id_Monad;
 lean_object* l_Lean_IR_ExplicitBoxing_withVDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitBoxing_boxArgsIfNeeded___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_visitVDeclExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -111,7 +111,6 @@ lean_object* l_Lean_IR_ExplicitBoxing_castResultIfNeeded(lean_object*, lean_obje
 lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_ExplicitBoxing_castArgsIfNeeded___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateT_Monad___rarg(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_getLocalContext___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_visitFnBody(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_ExplicitBoxing_isBoxedName(lean_object*);
@@ -153,7 +152,6 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitBoxing_visitVDeclExpr___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_IRType_isScalar(lean_object*);
-lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__2;
 static lean_object* _init_l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1() {
 _start:
 {
@@ -2960,16 +2958,7 @@ static lean_object* _init_l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_Monad;
-x_2 = l_StateT_Monad___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__1;
+x_1 = l___private_Lean_Data_Format_11__be___main___closed__1;
 x_2 = l_ReaderT_Monad___rarg(x_1);
 return x_2;
 }
@@ -2980,7 +2969,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_5 = lean_alloc_closure((void*)(l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___lambda__1___boxed), 6, 1);
 lean_closure_set(x_5, 0, x_2);
-x_6 = l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__2;
+x_6 = l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__1;
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = l_Lean_importModules___closed__1;
 x_9 = l_Array_iterateMAux___main___rarg(x_6, lean_box(0), x_1, x_5, x_7, x_8);
@@ -7418,8 +7407,6 @@ l_Lean_IR_ExplicitBoxing_mkCast___closed__4 = _init_l_Lean_IR_ExplicitBoxing_mkC
 lean_mark_persistent(l_Lean_IR_ExplicitBoxing_mkCast___closed__4);
 l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__1 = _init_l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__1();
 lean_mark_persistent(l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__1);
-l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__2 = _init_l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__2();
-lean_mark_persistent(l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

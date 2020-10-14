@@ -31,7 +31,6 @@ lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___at_Lean_Meta_MVarRe
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MVarRenaming_find_x21___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___at_Lean_Meta_MVarRenaming_apply___spec__1(lean_object*, size_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__2;
 lean_object* l_Std_RBNode_find___main___at_Lean_Meta_MVarRenaming_find_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MVarRenaming_find_x3f___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,6 +45,7 @@ lean_object* l_Lean_Meta_MVarRenaming_find_x21(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1;
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_ReplaceImpl_initCache;
 uint8_t l_Lean_Meta_MVarRenaming_isEmpty(lean_object* x_1) {
@@ -638,7 +638,7 @@ case 12:
 {
 lean_object* x_154; lean_object* x_155; lean_object* x_156; 
 lean_dec(x_3);
-x_154 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__2;
+x_154 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1;
 x_155 = l_unreachable_x21___rarg(x_154);
 x_156 = lean_apply_1(x_155, x_4);
 return x_156;

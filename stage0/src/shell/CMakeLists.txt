@@ -13,8 +13,6 @@ install(TARGETS lean DESTINATION bin)
 # use executable of current stage for tests
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
-# add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_BINARY_DIR}/bin/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
-# add_test(lean_export ${CMAKE_BINARY_DIR}/bin/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")
 add_test(lean_help1    "${CMAKE_BINARY_DIR}/bin/lean" --help)
 add_test(lean_help2    "${CMAKE_BINARY_DIR}/bin/lean" -h)
 add_test(lean_version1 "${CMAKE_BINARY_DIR}/bin/lean" --version)

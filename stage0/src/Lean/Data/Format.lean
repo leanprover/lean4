@@ -56,9 +56,10 @@ def isNil : Format → Bool
 | nil => true
 | _   => false
 
-structure SpaceResult :=
-(foundLine := false)
-(space     := 0)
+private structure SpaceResult :=
+(foundLine              := false)
+(foundFlattenedHardLine := false)
+(space                  := 0)
 
 instance SpaceResult.inhabited : Inhabited SpaceResult :=
 ⟨{}⟩
@@ -69,79 +70,102 @@ else
   let r₂ := r₂ (w - r₁.space);
   { r₂ with space := r₁.space + r₂.space }
 
-def spaceUptoLine : Format → Bool → Nat → SpaceResult
+private def spaceUptoLine : Format → Bool → Nat → SpaceResult
 | nil,          flatten, w => {}
 | line,         flatten, w => if flatten then { space := 1 } else { foundLine := true }
 | text s,       flatten, w =>
   let p := s.posOf '\n';
   let off := s.offsetOfPos p;
-  { foundLine := p != s.bsize, space := off }
+  { foundLine := p != s.bsize, foundFlattenedHardLine := flatten && p != s.bsize, space := off }
 | append f₁ f₂, flatten, w => merge w (spaceUptoLine f₁ flatten w) (spaceUptoLine f₂ flatten)
 | nest _ f,     flatten, w => spaceUptoLine f flatten w
 | group f _,    _,       w => spaceUptoLine f true w
 
-structure WorkItem :=
+private structure WorkItem :=
 (f : Format)
 (indent : Int)
 
-structure WorkGroup :=
+private structure WorkGroup :=
 (flatten : Bool)
 (flb     : FlattenBehavior)
 (items   : List WorkItem)
 
-partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
+private partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
 | [],                           w => {}
 |   { items := [],    .. }::gs, w => spaceUptoLine' gs w
 | g@{ items := i::is, .. }::gs, w => merge w (spaceUptoLine i.f g.flatten w) (spaceUptoLine' ({ g with items := is }::gs))
 
-private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat) : List WorkGroup :=
--- Flatten group if it fits in the remaining space. For `fill`, measure only up to the next (ungrouped) line break.
-let g : WorkGroup := { flatten := flb == FlattenBehavior.allOrNone, flb := flb, items := items };
-let r := spaceUptoLine' (g::gs) w;
-{ g with flatten := r.space <= w }::gs
+private structure State :=
+(out    : String := "")
+(column : Nat    := 0)
 
-partial def be (w : Nat) : Nat → String → List WorkGroup → String
-| k, out, []                           => out
-| k, out,   { items := [],    .. }::gs => be k out gs
-| k, out, g@{ items := i::is, .. }::gs =>
+private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat) : StateM State (List WorkGroup) := do
+k ← State.column <$> get;
+-- Flatten group if it + the remainder (gs) fits in the remaining space. For `fill`, measure only up to the next (ungrouped) line break.
+let g : WorkGroup := { flatten := flb == FlattenBehavior.allOrNone, flb := flb, items := items };
+let r := spaceUptoLine' [g] (w-k);
+let r' := merge (w-k) r (spaceUptoLine' gs);
+-- Prevent flattening if any item contains a hard line break, except within `fill` if it is ungrouped (=> unflattened)
+pure $ { g with flatten := !r.foundFlattenedHardLine && r'.space <= w-k }::gs
+
+private def pushOutput (s : String) : StateM State Unit :=
+modify fun st => { st with out := st.out ++ s, column := st.column + s.length }
+
+private def pushNewline (indent : Nat) : StateM State Unit :=
+modify fun st => { st with out := st.out ++ "\n".pushn ' ' indent, column := indent }
+
+private partial def be (w : Nat) : List WorkGroup → StateM State Unit
+| []                           => pure ()
+|   { items := [],    .. }::gs => be gs
+| g@{ items := i::is, .. }::gs =>
   let gs' (is' : List WorkItem) := { g with items := is' }::gs;
   match i.f with
-  | nil => be k out (gs' is)
-  | append f₁ f₂ => be k out (gs' ({ i with f := f₁ }::{ i with f := f₂ }::is))
-  | nest n f => be k out (gs' ({ i with f := f, indent := i.indent + n }::is))
+  | nil => be (gs' is)
+  | append f₁ f₂ => be (gs' ({ i with f := f₁ }::{ i with f := f₂ }::is))
+  | nest n f => be (gs' ({ i with f := f, indent := i.indent + n }::is))
   | text s =>
     let p := s.posOf '\n';
-    if p == s.bsize then be (k + s.length) (out ++ s) (gs' is)
-    else
-      let out := out ++ s.extract 0 p ++ "\n".pushn ' ' i.indent.toNat;
-      let k := i.indent.toNat;
+    if p == s.bsize then do
+      pushOutput s;
+      be (gs' is)
+    else do
+      pushOutput (s.extract 0 p);
+      pushNewline i.indent.toNat;
       let is := { i with f := s.extract (s.next p) s.bsize }::is;
       -- after a hard line break, re-evaluate whether to flatten the remaining group
-      let gs := pushGroup g.flb is gs (w-k);
-      be k out gs
-  | line =>
-    let g' := { g with items := is };
-    let (flatten, g') := match g.flb : _ → Bool × WorkGroup with
-      | FlattenBehavior.allOrNone => (g.flatten, g')
-      | FlattenBehavior.fill =>
-        let r := spaceUptoLine' ({ g' with flatten := false }::gs) (w-k);
-        -- if preceding fill item fit in a single line, try to fit next one too
-        if g.flatten && r.space <= w-k then (true, { g' with flatten := true })
+      pushGroup g.flb is gs w >>= be
+  | line => do
+    match g.flb with
+    | FlattenBehavior.allOrNone =>
+      if g.flatten then do
+        -- flatten line = text " "
+        pushOutput " ";
+        be (gs' is)
+      else do
+        pushNewline i.indent.toNat;
+        be (gs' is)
+    | FlattenBehavior.fill => do
+      let breakHere := do {
+        pushNewline i.indent.toNat;
+        -- make new `fill` group and recurse
+        pushGroup FlattenBehavior.fill is gs w >>= be
+      };
+      -- if preceding fill item fit in a single line, try to fit next one too
+      if g.flatten then do
+        gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs (w - " ".length)
+          | unreachable!;
+        if g'.flatten then do
+          pushOutput " ";
+          be gs'  -- TODO: use `return`
         else
-          -- else, try to fit it in a separate line
-          let r := spaceUptoLine' ({ g' with flatten := false }::gs) w;
-          (false, { g' with flatten := r.space <= w });
-    if flatten then
-      -- flatten line = text " "
-      be (k + 1) (out ++ " ") (g'::gs)
-    else
-      be i.indent.toNat ((out ++ "\n").pushn ' ' i.indent.toNat) (g'::gs)
+          breakHere
+      else
+        breakHere
   | group f flb => if g.flatten then
       -- flatten (group f) = flatten f
-      be k out (gs' ({ i with f := f }::is))
+      be (gs' ({ i with f := f }::is))
     else
-      let gs := pushGroup flb [{ i with f := f }] (gs' is) (w-k);
-      be k out gs
+      pushGroup flb [{ i with f := f }] (gs' is) w >>= be
 
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
 group (nest l.length $ l ++ f ++ r)
@@ -169,7 +193,8 @@ registerOption `format.width { defValue := defWidth, group := "format", descr :=
 
 @[export lean_format_pretty]
 def prettyAux (f : Format) (w : Nat := defWidth) : String :=
-be w 0 "" [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent := 0 }] }]
+let (_, st) := be w [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent := 0 }] }] {};
+st.out
 
 def pretty (f : Format) (o : Options := {}) : String :=
 prettyAux f (getWidth o)

@@ -26,6 +26,7 @@ lean_object* l_Lean_Expr_ReplaceLevelImpl_cache(size_t, lean_object*, lean_objec
 lean_object* l_List_map___main___rarg(lean_object*, lean_object*);
 size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__1;
+extern lean_object* l___private_Lean_Data_Format_11__be___main___closed__1;
 lean_object* l_Lean_mkLevelIMax(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited___closed__1;
 lean_object* l_Lean_mkLevelMax(lean_object*, lean_object*);
@@ -34,7 +35,6 @@ lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
 lean_object* l_Lean_Expr_replaceLevel___main(lean_object*, lean_object*);
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
-extern lean_object* l_Id_Monad;
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 lean_object* l_Lean_Level_replace(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_cache___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44,10 +44,8 @@ lean_object* l_Lean_Expr_replaceLevel(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelSucc(lean_object*);
 lean_object* lean_expr_update_sort(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM(lean_object*, size_t, lean_object*, lean_object*);
-lean_object* l_StateT_Monad___rarg(lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache;
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__2;
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Expr_replaceLevel___main___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited;
@@ -174,17 +172,8 @@ return x_6;
 static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_Monad;
-x_2 = l_StateT_Monad___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__1;
+x_1 = l___private_Lean_Data_Format_11__be___main___closed__1;
 x_2 = l_Lean_Expr_Inhabited;
 x_3 = l_monadInhabited___rarg(x_1, x_2);
 return x_3;
@@ -650,7 +639,7 @@ lean_object* x_174; lean_object* x_175; lean_object* x_176;
 lean_dec(x_7);
 lean_dec(x_3);
 lean_dec(x_1);
-x_174 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__2;
+x_174 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__1;
 x_175 = l_unreachable_x21___rarg(x_174);
 x_176 = lean_apply_1(x_175, x_4);
 return x_176;
@@ -942,8 +931,6 @@ lean_dec_ref(res);
 l_Lean_Expr_ReplaceLevelImpl_cacheSize = _init_l_Lean_Expr_ReplaceLevelImpl_cacheSize();
 l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__1 = _init_l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__1();
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__1);
-l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__2 = _init_l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__2();
-lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___main___closed__2);
 l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1();
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1);
 l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2();

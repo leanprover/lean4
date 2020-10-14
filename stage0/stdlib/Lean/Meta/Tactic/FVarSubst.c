@@ -37,7 +37,6 @@ lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___at_Lean_Meta_FVarSu
 uint8_t l_Std_AssocList_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_get___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_insert___lambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__2;
 uint8_t l_Lean_Meta_FVarSubst_contains(lean_object*, lean_object*);
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
@@ -59,6 +58,7 @@ lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_o
 lean_object* l_Std_AssocList_erase___main___at_Lean_Meta_FVarSubst_erase___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Meta_FVarSubst_find_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_erase___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1;
 uint8_t l_Std_AssocList_contains___main___at_Lean_Meta_FVarSubst_contains___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_erase___main___at_Lean_Meta_FVarSubst_erase___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___main___at_Lean_Meta_FVarSubst_contains___spec__1___boxed(lean_object*, lean_object*);
@@ -831,7 +831,7 @@ case 12:
 {
 lean_object* x_154; lean_object* x_155; lean_object* x_156; 
 lean_dec(x_3);
-x_154 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__2;
+x_154 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1;
 x_155 = l_unreachable_x21___rarg(x_154);
 x_156 = lean_apply_1(x_155, x_4);
 return x_156;

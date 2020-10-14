@@ -442,6 +442,7 @@ lean_object* l_Lean_Parser_nameLit___closed__2;
 lean_object* l_Lean_Parser_strLitNoAntiquot___closed__1;
 lean_object* l_Lean_Parser_sepByFn(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_fieldIdx___closed__2;
+lean_object* l_Lean_Parser_ppIndent(lean_object*);
 lean_object* l_Lean_Parser_satisfyFn___at_Lean_Parser_chFn___spec__1(uint32_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_many1Unbox___lambda__1(lean_object*);
 lean_object* l_Lean_Parser_rawCh___boxed(lean_object*, lean_object*);
@@ -520,6 +521,7 @@ lean_object* l_Lean_Parser_whitespace(lean_object*, lean_object*);
 lean_object* l_List_redLength___main___rarg(lean_object*);
 lean_object* l_Lean_Parser_rawCh(uint32_t, uint8_t);
 lean_object* l_Lean_Parser_sepByInfo___elambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Parser_ppIndent___boxed(lean_object*);
 lean_object* l_Lean_Parser_quotedCharCoreFn___closed__1;
 lean_object* l_Array_findRevMAux___main___at___private_Lean_Parser_Basic_9__pickNonNone___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_restore___boxed(lean_object*, lean_object*, lean_object*);
@@ -28043,6 +28045,22 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Parser_ppGroup(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Parser_ppIndent(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_Lean_Parser_ppIndent___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Parser_ppIndent(x_1);
 lean_dec(x_1);
 return x_2;
 }

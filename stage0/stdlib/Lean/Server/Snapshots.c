@@ -462,7 +462,6 @@ lean_ctor_set(x_44, 4, x_40);
 lean_ctor_set(x_44, 5, x_42);
 lean_ctor_set(x_44, 6, x_43);
 lean_inc(x_22);
-lean_inc(x_44);
 x_45 = l_Lean_Elab_Command_elabCommand___main(x_11, x_44, x_22, x_23);
 if (lean_obj_tag(x_45) == 0)
 {
@@ -646,7 +645,6 @@ lean_ctor_set(x_94, 4, x_90);
 lean_ctor_set(x_94, 5, x_92);
 lean_ctor_set(x_94, 6, x_93);
 lean_inc(x_76);
-lean_inc(x_94);
 x_95 = l_Lean_Elab_Command_elabCommand___main(x_11, x_94, x_76, x_77);
 if (lean_obj_tag(x_95) == 0)
 {

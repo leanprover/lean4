@@ -81,14 +81,13 @@ partial def parseCommand (env : Environment) (inputCtx : InputContext) : ModuleP
   if inputCtx.input.atEnd pos then
     (mkEOI pos, s, messages)
   else
-    let c  := mkParserContext env inputCtx;
-    let s  := { cache := initCacheForInput c.input, pos := pos : ParserState };
-    let s  := whitespace c s;
-    let s  := topLevelCommandParserFn c s;
+    let c   := mkParserContext env inputCtx;
+    let s   := { cache := initCacheForInput c.input, pos := pos : ParserState };
+    let s   := whitespace c s;
+    let s   := topLevelCommandParserFn c s;
+    let stx := s.stxStack.back;
     match s.errorMsg with
-    | none =>
-      let stx := s.stxStack.back;
-      (stx, { pos := s.pos }, messages)
+    | none => (stx, { pos := s.pos }, messages)
     | some errorMsg =>
       -- advance at least one token to prevent infinite loops
       let pos := if s.pos == pos then consumeInput c s.pos else s.pos;
@@ -97,7 +96,11 @@ partial def parseCommand (env : Environment) (inputCtx : InputContext) : ModuleP
       else
         let msg      := mkErrorMessage c s.pos (toString errorMsg);
         let messages := messages.add msg;
+        -- We should replace the following line with commented one if we want to elaborate commands containing Syntax errors.
+        -- This is useful for implementing features such as autocompletion.
+        -- Right now, it is disabled since `match_syntax` fails on "partial" `Syntax` objects.
         parseCommand { pos := pos, recovering := true } messages
+        -- (stx, { pos := pos, recovering := true }, messages)
 
 private partial def testModuleParserAux (env : Environment) (inputCtx : InputContext) (displayStx : Bool) : ModuleParserState → MessageLog → IO Bool
 | s, messages =>

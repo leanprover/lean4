@@ -131,10 +131,7 @@ setStack $ (stack.shrink sp).push f
 
 /-- Execute `x` and concatenate generated Format objects. -/
 def concat (x : FormatterM Unit) : FormatterM Unit := do
-fold (Array.foldl (fun acc f => f ++ acc) Format.nil) x
-
-def concatArgs (x : FormatterM Unit) : FormatterM Unit :=
-concat (visitArgs x)
+fold (Array.foldl (fun acc f => if acc.isNil then f else f ++ acc) Format.nil) x
 
 def indent (x : Formatter) (indent : Option Int := none) : Formatter := do
 concat x;
@@ -144,7 +141,7 @@ modify fun st => { st with stack := st.stack.pop.push (Format.nest indent st.sta
 
 def group (x : Formatter) : Formatter := do
 concat x;
-modify fun st => { st with stack := st.stack.pop.push (Format.group st.stack.back) }
+modify fun st => { st with stack := st.stack.pop.push (Format.fill st.stack.back) }
 
 @[combinatorFormatter Lean.Parser.orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
 -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
@@ -220,12 +217,12 @@ when (k != stx.getKind) $ do {
 @[combinatorFormatter Lean.Parser.node]
 def node.formatter (k : SyntaxNodeKind) (p : Formatter) : Formatter := do
 checkKind k;
-concatArgs p
+visitArgs p
 
 @[combinatorFormatter Lean.Parser.trailingNode]
 def trailingNode.formatter (k : SyntaxNodeKind) (_ : Nat) (p : Formatter) : Formatter := do
 checkKind k;
-concatArgs do
+visitArgs do
   p;
   -- leading term, not actually produced by `p`
   categoryParser.formatter `foo
@@ -338,14 +335,14 @@ goLeft
 @[combinatorFormatter many]
 def many.formatter (p : Formatter) : Formatter := do
 stx ← getCur;
-concatArgs $ stx.getArgs.size.forM fun _ => p
+visitArgs $ stx.getArgs.size.forM fun _ => p
 
 @[combinatorFormatter many1] def many1.formatter (p : Formatter) : Formatter :=
 many.formatter p
 
 @[combinatorFormatter Parser.optional]
 def optional.formatter (p : Formatter) : Formatter := do
-concatArgs p
+visitArgs p
 
 @[combinatorFormatter Parser.many1Unbox]
 def many1Unbox.formatter (p : Formatter) : Formatter := do
@@ -358,7 +355,7 @@ else
 @[combinatorFormatter sepBy]
 def sepBy.formatter (p pSep : Formatter) : Formatter := do
 stx ← getCur;
-concatArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 then p else pSep
+visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 then p else pSep
 
 @[combinatorFormatter sepBy1] def sepBy1.formatter := sepBy.formatter
 
@@ -403,6 +400,7 @@ when (st.leadWord != "") $
 @[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := pushLine
 @[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := push "\n"
 @[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := group $ indent p
+@[combinatorFormatter Lean.Parser.ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := indent p
 @[combinatorFormatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
 opts ← getOptions;
 indent p (some (-(Format.getIndent opts)))
@@ -412,7 +410,7 @@ indent p (some (-(Format.getIndent opts)))
 -- TODO: delete with old frontend
 @[combinatorFormatter quotedSymbol] def quotedSymbol.formatter : Formatter := do
 checkKind quotedSymbolKind;
-concatArgs do
+visitArgs do
   push "`"; goLeft;
   visitAtom Name.anonymous;
   push "`"; goLeft
@@ -434,8 +432,8 @@ options ← getOptions;
 table ← Parser.builtinTokenTable.get;
 catchInternalId backtrackExceptionId
   (do
-    (_, st) ← (formatter { table := table, options := options }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
-    pure $ Format.group $ st.stack.get! 0)
+    (_, st) ← (concat formatter { table := table, options := options }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
+    pure $ Format.fill $ st.stack.get! 0)
   (fun _ => throwError "format: uncaught backtrack exception")
 
 def formatTerm := format $ categoryParser.formatter `term

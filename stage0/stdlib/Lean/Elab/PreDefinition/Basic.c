@@ -91,7 +91,6 @@ lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux___closed__1;
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_levelMVarToParamExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getMaxHeight(lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__2;
 lean_object* l_Lean_Elab_abstractNestedProofs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_sortDeclLevelParams(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwKernelException___at_Lean_Elab_addAsAxiom___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -137,6 +136,7 @@ lean_object* l_Lean_addDecl___at___private_Lean_Elab_PreDefinition_Basic_0__Lean
 lean_object* l_Lean_Elab_instantiateMVarsAtPreDecls(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_levelMVarToParamExpr_match__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
+extern lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1;
 lean_object* l_Lean_Meta_instantiateMVars___at_Lean_Elab_Term_ensureAssignmentHasNoMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_getLevelParamsPreDecls(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_PreDefinition_inhabited___closed__1;
@@ -1477,7 +1477,7 @@ case 12:
 lean_object* x_156; lean_object* x_157; lean_object* x_158; 
 lean_dec(x_5);
 lean_dec(x_3);
-x_156 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__2;
+x_156 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1;
 x_157 = l_unreachable_x21___rarg(x_156);
 x_158 = lean_apply_1(x_157, x_6);
 return x_158;
@@ -1966,7 +1966,7 @@ case 12:
 lean_object* x_156; lean_object* x_157; lean_object* x_158; 
 lean_dec(x_5);
 lean_dec(x_3);
-x_156 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__2;
+x_156 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1;
 x_157 = l_unreachable_x21___rarg(x_156);
 x_158 = lean_apply_1(x_157, x_6);
 return x_158;
@@ -4395,7 +4395,7 @@ case 12:
 {
 lean_object* x_154; lean_object* x_155; lean_object* x_156; 
 lean_dec(x_3);
-x_154 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__2;
+x_154 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1;
 x_155 = l_unreachable_x21___rarg(x_154);
 x_156 = lean_apply_1(x_155, x_4);
 return x_156;

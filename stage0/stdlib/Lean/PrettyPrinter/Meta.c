@@ -17,6 +17,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_strLitNoAntiquot_formatter___boxed(l
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__15___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___closed__3;
+lean_object* l_Lean_PrettyPrinter_Formatter_visitArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_categoryParser_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__4___rarg(lean_object*);
@@ -60,7 +61,6 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___el
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___closed__9;
 lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__16(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_concatArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_parenthesizerAttribute;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__13___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___main___elambda__13___closed__2;
@@ -1854,7 +1854,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___main___elambd
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Lean_PrettyPrinter_Formatter_concatArgs(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_PrettyPrinter_Formatter_visitArgs(x_1, x_2, x_3, x_4, x_5, x_6);
 return x_7;
 }
 }

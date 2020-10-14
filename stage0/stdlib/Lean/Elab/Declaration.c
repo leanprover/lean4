@@ -9664,6 +9664,7 @@ lean_ctor_set(x_63, 0, x_62);
 lean_ctor_set(x_63, 1, x_61);
 lean_ctor_set(x_2, 4, x_63);
 x_64 = l_Lean_Elab_Command_elabCommand___main(x_59, x_2, x_3, x_43);
+lean_dec(x_2);
 return x_64;
 }
 else
@@ -9700,6 +9701,7 @@ lean_ctor_set(x_74, 4, x_73);
 lean_ctor_set(x_74, 5, x_70);
 lean_ctor_set(x_74, 6, x_71);
 x_75 = l_Lean_Elab_Command_elabCommand___main(x_59, x_74, x_3, x_43);
+lean_dec(x_74);
 return x_75;
 }
 }

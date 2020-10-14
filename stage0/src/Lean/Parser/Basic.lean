@@ -1723,6 +1723,8 @@ withAntiquot (mkAntiquot "fieldIdx" `fieldIdx)
   No-op parser combinator that advises the pretty printer to group and indent the given syntax.
   By default, only syntax categories are grouped. -/
 @[inline] def ppGroup : Parser → Parser := id
+/-- No-op parser combinator that advises the pretty printer to indent the given syntax without grouping it. -/
+@[inline] def ppIndent : Parser → Parser := id
 /--
   No-op parser combinator that advises the pretty printer to dedent the given syntax.
   Dedenting can in particular be used to counteract automatic indentation. -/

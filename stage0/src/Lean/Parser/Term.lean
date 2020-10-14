@@ -126,13 +126,13 @@ def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall" >> many1 (ppSpace >> (simpleBinder <|> bracketedBinder)) >> ", " >> termParser
 
 def matchAlt : Parser :=
-nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $ ppGroup $
-  ppGroup (sepBy1 termParser ", " >> darrow) >> termParser
+nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
+  sepBy1 termParser ", " >> darrow >> termParser
 
 def matchAlts (optionalFirstBar := true) : Parser :=
 parser! ppDedent $ withPosition $
   ppLine >> (if optionalFirstBar then optional "| " else "| ") >>
-  sepBy1 matchAlt (ppLine >> checkColGe "alternatives must be indented" >> "| ")
+  sepBy1 (ppIndent matchAlt) (ppLine >> checkColGe "alternatives must be indented" >> "| ")
 
 def matchDiscr := parser! optional (try (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 

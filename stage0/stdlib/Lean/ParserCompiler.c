@@ -172,7 +172,6 @@ lean_object* l_Lean_ParserCompiler_compileParserBody___main___rarg___lambda__15_
 lean_object* l_Lean_ParserCompiler_compileParserBody___main___rarg___closed__11;
 lean_object* l___private_Lean_Meta_WHNF_12__whnfEasyCases___main___at___private_Lean_Meta_WHNF_17__whnfCoreImp___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___main___spec__13(lean_object*);
-extern lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__2;
 extern lean_object* l_Lean_mkSimpleThunk___closed__1;
 lean_object* l_Lean_ofExcept___at_Lean_ParserCompiler_interpretParser___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -270,6 +269,7 @@ lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compilePa
 lean_object* lean_mk_syntax_ident(lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_ParserCompiler_compileParserBody___main___rarg___lambda__28___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1;
 lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___main___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___main___spec__34___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___main___spec__9(lean_object*);
@@ -747,7 +747,7 @@ case 12:
 {
 lean_object* x_159; lean_object* x_160; lean_object* x_161; 
 lean_dec(x_3);
-x_159 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__2;
+x_159 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM___main___closed__1;
 x_160 = l_unreachable_x21___rarg(x_159);
 x_161 = lean_apply_1(x_160, x_4);
 return x_161;

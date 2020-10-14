@@ -354,19 +354,21 @@ lean_dec(x_3);
 x_6 = l_Lean_Syntax_isNone(x_5);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; 
-x_7 = l_Lean_Syntax_getIdAt(x_5, x_4);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = l_Lean_Syntax_getArg(x_5, x_4);
 lean_dec(x_5);
-x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_7);
-return x_8;
+x_8 = l_Lean_Syntax_getId(x_7);
+lean_dec(x_7);
+x_9 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_9, 0, x_8);
+return x_9;
 }
 else
 {
-lean_object* x_9; 
+lean_object* x_10; 
 lean_dec(x_5);
-x_9 = lean_box(0);
-return x_9;
+x_10 = lean_box(0);
+return x_10;
 }
 }
 }

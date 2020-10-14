@@ -421,6 +421,7 @@ lean_object* l_Lean_mkStxLit(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_toNat(lean_object*);
 lean_object* l_Lean_mkOptionalNode___closed__2;
+lean_object* l_Lean_Syntax_getOp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getOptional_x3f___boxed(lean_object*);
 lean_object* l_Lean_mkCIdentFrom___closed__2;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
@@ -464,6 +465,7 @@ lean_object* l___private_Init_LeanInit_3__assembleParts___main(lean_object*, lea
 lean_object* l_Lean_defaultMaxRecDepth;
 lean_object* l_Lean_Syntax_decodeStrLitAux(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getOp(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l___private_Init_LeanInit_9__decodeHexDigit___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeStrLitAux___main(lean_object*, lean_object*, lean_object*);
@@ -2152,6 +2154,24 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_Syntax_getOp(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Syntax_getArg(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Syntax_getOp___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Syntax_getOp(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

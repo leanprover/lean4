@@ -249,22 +249,22 @@ modifyMCtx fun mctx => do
   pure mctx
 
 @[builtinTactic seq1] def evalSeq1 : Tactic :=
-fun stx => (stx.getArg 0).forSepArgsM evalTactic
+fun stx => stx[0].forSepArgsM evalTactic
 
 @[builtinTactic paren] def evalParen : Tactic :=
-fun stx => evalSeq1 (stx.getArg 1)
+fun stx => evalSeq1 stx[1]
 
 @[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic :=
-fun stx => stx.getArg 0 $.forArgsM fun seqElem => evalTactic (seqElem.getArg 0)
+fun stx => stx[0].forArgsM fun seqElem => evalTactic seqElem[0]
 
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic :=
-fun stx => withRef (stx.getArg 2) $ focus $ stx.getArg 1 $.forArgsM fun seqElem => evalTactic (seqElem.getArg 0)
+fun stx => withRef stx[2] $ focus $ stx[1].forArgsM fun seqElem => evalTactic seqElem[0]
 
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic :=
-fun stx => focus $ evalTactic (stx.getArg 1)
+fun stx => focus $ evalTactic stx[1]
 
 @[builtinTactic tacticSeq] def evalTacticSeq : Tactic :=
-fun stx => evalTactic (stx.getArg 0)
+fun stx => evalTactic stx[0]
 
 partial def evalChoiceAux (tactics : Array Syntax) : Nat → TacticM Unit
 | i =>
@@ -284,7 +284,7 @@ fun stx => pure ()
 
 @[builtinTactic failIfSuccess] def evalFailIfSuccess : Tactic :=
 fun stx => do
-  let tactic := stx.getArg 1
+  let tactic := stx[1]
   if (← do try evalTactic tactic; pure true catch _ => pure false) then
     throwError "tactic succeeded"
 
@@ -318,7 +318,7 @@ fun stx => match_syntax stx with
 
 @[builtinTactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic :=
 fun stx => do
-  let matchAlts := stx.getArg 1
+  let matchAlts := stx[1]
   let stxNew ← liftMacroM $ Term.expandMatchAltsIntoMatchTactic stx matchAlts
   withMacroExpansion stx stxNew $ evalTactic stxNew
 

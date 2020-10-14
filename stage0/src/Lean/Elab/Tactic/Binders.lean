@@ -24,7 +24,7 @@ fun stx => do
 
 @[builtinMacro Lean.Parser.Tactic.show] def expandShowTactic : Macro :=
 fun stx =>
-  let type := stx.getArg 1
+  let type := stx[1]
   `(tactic| refine (show $type from ?_))
 
 end Lean.Elab.Tactic

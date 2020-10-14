@@ -15,11 +15,11 @@ structure AuxMatchTermState :=
 (cases   : Array Syntax := #[])
 
 private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : StateT AuxMatchTermState MacroM Syntax := do
-let matchAlts := matchTac.getArg 4
-let alts      := matchAlts.getArg 1 $.getArgs
+let matchAlts := matchTac[4]
+let alts      := matchAlts[1].getArgs
 let newAlts ← alts.mapSepElemsM fun alt => do
   let alt    := alt.updateKind `Lean.Parser.Term.matchAlt
-  let holeOrTacticSeq := alt.getArg 2
+  let holeOrTacticSeq := alt[2]
   if holeOrTacticSeq.isOfKind `Lean.Parser.Term.syntheticHole then
     pure alt
   else if holeOrTacticSeq.isOfKind `Lean.Parser.Term.hole then
@@ -30,7 +30,7 @@ let newAlts ← alts.mapSepElemsM fun alt => do
     pure $ alt.setArg 2 newHole
   else withFreshMacroScope do
     let newHole ← `(?rhs)
-    let newHoleId := newHole.getArg 1
+    let newHoleId := newHole[1]
     let newCase ← `(tactic| case $newHoleId => $holeOrTacticSeq:tacticSeq )
     modify fun s => { s with cases := s.cases.push newCase }
     pure $ alt.setArg 2 newHole

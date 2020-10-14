@@ -248,6 +248,10 @@ match stx with
 | Syntax.node _ args => args.get! i
 | _                  => Syntax.missing -- panic! "Syntax.getArg: not a node"
 
+-- Add `stx[i]` as sugar for `stx.getArg i`
+@[inline] def getOp (self : Syntax) (idx : Nat) : Syntax :=
+self.getArg idx
+
 def getArgs (stx : Syntax) : Array Syntax :=
 match stx with
 | Syntax.node _ args => args

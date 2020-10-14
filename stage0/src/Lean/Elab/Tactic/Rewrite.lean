@@ -14,8 +14,8 @@ open Meta
 
 @[builtinMacro Lean.Parser.Tactic.rewriteSeq] def expandRewriteTactic : Macro :=
 fun stx =>
-  let seq := ((stx.getArg 1).getArg 1).getSepArgs
-  let loc := stx.getArg 2
+  let seq := stx[1][1].getSepArgs
+  let loc := stx[2]
   pure $ mkNullNode $ seq.map fun rwRule => Syntax.node `Lean.Parser.Tactic.rewrite #[mkAtomFrom rwRule "rewrite ", rwRule, loc]
 
 def rewriteTarget (stx : Syntax) (symm : Bool) : TacticM Unit := do
@@ -59,10 +59,10 @@ def «rewrite» := parser! "rewrite" >> rwRule >> optional location
 -/
 @[builtinTactic Lean.Parser.Tactic.rewrite] def evalRewrite : Tactic :=
 fun stx => do
-  let rule := stx.getArg 1
-  let symm := !(rule.getArg 0).isNone
-  let term := rule.getArg 1
-  let loc  := expandOptLocation $ stx.getArg 2
+  let rule := stx[1]
+  let symm := !rule[0].isNone
+  let term := rule[1]
+  let loc  := expandOptLocation stx[2]
   match loc with
   | Location.target => rewriteTarget term symm
   | Location.localDecls userNames => userNames.forM (rewriteLocalDecl term symm)

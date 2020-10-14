@@ -17,13 +17,13 @@ open Meta
 -- Recall that
 -- majorPremise := parser! optional (try (ident >> " : ")) >> termParser
 private def getAuxHypothesisName (stx : Syntax) : Option Name :=
-if stx.getArg 1 $.getArg 0 $.isNone then
+if stx[1][0].isNone then
   none
 else
-  some $ stx.getArg 1 $.getArg 0 $.getIdAt 0
+  some stx[1][0][0].getId
 
 private def getMajor (stx : Syntax) : Syntax :=
-stx.getArg 1 $.getArg 1
+stx[1][1]
 
 private def elabMajor (h? : Option Name) (major : Syntax) : TacticM Expr := do
 match h? with
@@ -57,12 +57,12 @@ match major with
   `stx` is syntax for `induction`. -/
 private def getGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :=
 withRef stx $
-let generalizingStx := stx.getArg 3
+let generalizingStx := stx[3]
 if generalizingStx.isNone then
   pure #[]
 else withMainMVarContext do
   trace `Elab.induction fun _ => generalizingStx
-  let vars := (generalizingStx.getArg 1).getArgs
+  let vars := generalizingStx[1].getArgs
   getFVarIds vars
 
 -- process `generalizingVars` subterm of induction Syntax `stx`.
@@ -75,16 +75,16 @@ liftMetaTacticAux fun mvarId => do
   pure (fvarIds.size, [mvarId'])
 
 private def getAlts (withAlts : Syntax) : Array Syntax :=
-withAlts.getArg 2 $.getSepArgs
+withAlts[2].getSepArgs
 
 /-
   Given an `inductionAlt` of the form
   ```
   nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> termParser
   ``` -/
-private def getAltName (alt : Syntax) : Name := (alt.getArg 0).getId.eraseMacroScopes
-private def getAltVarNames (alt : Syntax) : Array Name := (alt.getArg 1).getArgs.map Syntax.getId
-private def getAltRHS (alt : Syntax) : Syntax := alt.getArg 3
+private def getAltName (alt : Syntax) : Name := alt[0].getId.eraseMacroScopes
+private def getAltVarNames (alt : Syntax) : Array Name := alt[1].getArgs.map Syntax.getId
+private def getAltRHS (alt : Syntax) : Syntax := alt[3]
 
 /-
   Given alts of the form
@@ -98,7 +98,7 @@ for alt in alts do
   let n := getAltName alt
   withRef alt $ trace[Elab.checkAlt]! "{n} , {alt}"
   unless n == `_ || ctorNames.any (fun ctorName => n.isSuffixOf ctorName) do
-    throwErrorAt! (alt.getArg 0) "invalid constructor name '{n}'"
+    throwErrorAt! alt[0] "invalid constructor name '{n}'"
 
 structure RecInfo :=
 (recName : Name)
@@ -199,8 +199,8 @@ else
   ``` -/
 private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo :=
 withRef stx do
-let usingRecStx := stx.getArg 2
-let withAlts    := stx.getArg 4
+let usingRecStx := stx[2]
+let withAlts    := stx[4]
 if usingRecStx.isNone then
   let (rinfo, _) ← getRecInfoDefault major withAlts false
   pure rinfo
@@ -317,7 +317,7 @@ fun stx => focusAux do
   let major ← elabMajor h? (getMajor stx)
   let major ← generalizeMajor major
   let (mvarId, _) ← getMainGoal
-  let withAlts := stx.getArg 2
+  let withAlts := stx[2]
   let (recInfo, ctorNames) ← getRecInfoDefault major withAlts true
   let result ← Meta.cases mvarId major.fvarId! recInfo.altVars
   checkCasesResult result ctorNames recInfo.altRHSs

@@ -7,11 +7,8 @@ import Lean.Elab.Attributes
 import Lean.Elab.Binders
 import Lean.Elab.DeclModifiers
 import Lean.Elab.SyntheticMVars
-
-namespace Lean
-namespace Elab
-namespace Term
-
+new_frontend
+namespace Lean.Elab.Term
 open Meta
 
 structure LetRecDeclView :=
@@ -30,32 +27,31 @@ structure LetRecView :=
 
 /-  group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser -/
 private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
-decls ← (letRec.getArg 1).getSepArgs.mapM fun attrDeclStx => do {
-  let attrOptStx := attrDeclStx.getArg 0;
-  attrs ← if attrOptStx.isNone then pure #[] else elabDeclAttrs (attrOptStx.getArg 0);
-  let decl := (attrDeclStx.getArg 1).getArg 0;
+let decls ← letRec[1].getSepArgs.mapM fun (attrDeclStx : Syntax) => do
+  let attrOptStx := attrDeclStx[0]
+  let attrs ← if attrOptStx.isNone then pure #[] else elabDeclAttrs attrOptStx[0]
+  let decl := attrDeclStx[1][0]
   if decl.isOfKind `Lean.Parser.Term.letPatDecl then
     throwErrorAt decl "patterns are not allowed in 'let rec' expressions"
-  else if decl.isOfKind `Lean.Parser.Term.letIdDecl || decl.isOfKind `Lean.Parser.Term.letEqnsDecl then do
-    let shortDeclName := decl.getIdAt 0;
-    currDeclName? ← getDeclName?;
-    let declName := currDeclName?.getD Name.anonymous ++ shortDeclName;
-    checkNotAlreadyDeclared declName;
-    applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration;
-    let binders := (decl.getArg 1).getArgs;
-    let typeStx := expandOptType decl (decl.getArg 2);
-    (type, numParams) ← elabBinders binders fun xs => do {
-        type ← elabType typeStx;
-        registerCustomErrorIfMVar type typeStx "failed to infer 'let rec' declaration type";
-        type ← mkForallFVars xs type;
+  else if decl.isOfKind `Lean.Parser.Term.letIdDecl || decl.isOfKind `Lean.Parser.Term.letEqnsDecl then
+    let shortDeclName := decl[0].getId
+    let currDeclName? ← getDeclName?
+    let declName := currDeclName?.getD Name.anonymous ++ shortDeclName
+    checkNotAlreadyDeclared declName
+    applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
+    let binders := decl[1].getArgs
+    let typeStx := expandOptType decl decl[2]
+    let (type, numParams) ← elabBinders binders fun xs => do
+        let type ← elabType typeStx
+        registerCustomErrorIfMVar type typeStx "failed to infer 'let rec' declaration type"
+        let type ← mkForallFVars xs type
         pure (type, xs.size)
-    };
-    mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque;
-    valStx ←
+    let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
+    let valStx ←
       if decl.isOfKind `Lean.Parser.Term.letIdDecl then
-        pure $ decl.getArg 4
+        pure decl[4]
       else
-        liftMacroM $ expandMatchAltsIntoMatch decl (decl.getArg 3);
+        liftMacroM $ expandMatchAltsIntoMatch decl decl[3]
     pure {
       ref           := decl,
       attrs         := attrs,
@@ -68,58 +64,55 @@ decls ← (letRec.getArg 1).getSepArgs.mapM fun attrDeclStx => do {
       : LetRecDeclView }
   else
     throwUnsupportedSyntax
-};
 pure {
   decls := decls,
-  body  := letRec.getArg 3
+  body  := letRec[3]
 }
 
-private partial def withAuxLocalDeclsAux {α} (views : Array LetRecDeclView) (k : Array Expr → TermElabM α) : Nat → Array Expr → TermElabM α
-| i, fvars =>
+private partial def withAuxLocalDecls {α} (views : Array LetRecDeclView) (k : Array Expr → TermElabM α) : TermElabM α :=
+let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α :=
   if h : i < views.size then
-    let view := views.get ⟨i, h⟩;
-    withLetDecl view.shortDeclName view.type view.mvar fun fvar => withAuxLocalDeclsAux (i+1) (fvars.push fvar)
+    let view := views.get ⟨i, h⟩
+    withLetDecl view.shortDeclName view.type view.mvar fun fvar => loop (i+1) (fvars.push fvar)
   else
     k fvars
-
-private def withAuxLocalDecls {α} (views : Array LetRecDeclView) (k : Array Expr → TermElabM α) : TermElabM α :=
-withAuxLocalDeclsAux views k 0 #[]
+loop 0 #[]
 
 private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
 view.decls.mapM fun view => do
   forallBoundedTelescope view.type view.numParams fun xs type =>
      withDeclName view.declName do
-       value ← elabTermEnsuringType view.valStx type;
+       let value ← elabTermEnsuringType view.valStx type
        mkLambdaFVars xs value
 
 private def abortIfContainsSyntheticSorry (e : Expr) : TermElabM Unit := do
-e ← instantiateMVars e;
-when e.hasSyntheticSorry $ throwAbort
+let e ← instantiateMVars e
+if e.hasSyntheticSorry then throwAbort
 
 private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array Expr) (values : Array Expr) : TermElabM Unit := do
-lctx ← getLCtx;
-localInsts ← getLocalInstances;
+let lctx ← getLCtx
+let localInsts ← getLocalInstances
 let toLift := views.mapIdx fun i view => {
   ref            := view.ref,
-  fvarId         := (fvars.get! i).fvarId!,
+  fvarId         := fvars[i].fvarId!,
   attrs          := view.attrs,
   shortDeclName  := view.shortDeclName,
   declName       := view.declName,
   lctx           := lctx,
   localInstances := localInsts,
   type           := view.type,
-  val            := values.get! i,
+  val            := values[i],
   mvarId         := view.mvar.mvarId!
-  : LetRecToLift };
+  : LetRecToLift }
 modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }
 
 @[builtinTermElab «letrec»] def elabLetRec : TermElab :=
 fun stx expectedType? => do
-  view ← mkLetRecDeclView stx;
+  let view ← mkLetRecDeclView stx
   withAuxLocalDecls view.decls fun fvars => do
-    values ← elabLetRecDeclValues view;
-    body ← elabTermEnsuringType view.body expectedType?;
-    registerLetRecsToLift view.decls fvars values;
+    let values ← elabLetRecDeclValues view
+    let body ← elabTermEnsuringType view.body expectedType?
+    registerLetRecsToLift view.decls fvars values
     mkLetFVars fvars body
 
 end Term

@@ -344,9 +344,10 @@ bool test_module_parser(environment const & env, std::string const & input, std:
     return get_io_scalar_result<bool>(lean_test_module_parser(env.to_obj_arg(), mk_string(input), mk_string(filename), false, io_mk_world()));
 }
 
-extern "C" object * lean_run_frontend(object * env, object * input, object * filename, object * opts, object * w);
-optional<environment> run_new_frontend(environment const & env, std::string const & input, std::string const & filename, options const & opts) {
-    return get_io_result<option_ref<environment>>(lean_run_frontend(env.to_obj_arg(), mk_string(input), mk_string(filename), opts.to_obj_arg(), io_mk_world())).get();
+typedef list_ref<object_ref> messages;
+extern "C" object * lean_run_frontend(object * env, object * input, object * opts, object * filename, object * w);
+pair_ref<environment, messages> run_new_frontend(environment const & env, std::string const & input, options const & opts, std::string const & file_name) {
+    return get_io_result<pair_ref<environment, messages>>(lean_run_frontend(env.to_obj_arg(), mk_string(input), opts.to_obj_arg(), mk_string(file_name), io_mk_world()));
 }
 
 extern "C" object* lean_init_search_path(object* opt_path, object* w);
@@ -385,6 +386,11 @@ extern "C" object* lean_environment_free_regions(object * env, object * w);
 void environment_free_regions(environment && env) {
     consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
 }
+
+pos_info get_message_pos(object_ref const & msg);
+message_severity get_message_severity(object_ref const & msg);
+std::string get_message_string(object_ref const & msg);
+
 }
 
 void check_optarg(char const * option_name) {
@@ -624,11 +630,29 @@ int main(int argc, char ** argv) {
 
         bool ok = true;
         if (new_frontend) {
-            optional<environment> new_env = run_new_frontend(env, contents, mod_fn, opts);
-            if (!new_env)
-                ok = false;
-            else
-                env = *new_env;
+            pair_ref<environment, messages> r = run_new_frontend(env, contents, opts, mod_fn);
+            env = r.fst();
+            buffer<message> cpp_msgs;
+            // HACK: convert Lean Message into C++ message
+            for (auto msg : r.snd()) {
+                pos_info pos = get_message_pos(msg);
+                message_severity sev = get_message_severity(msg);
+                if (sev == message_severity::ERROR)
+                    ok = false;
+                std::string str = get_message_string(msg);
+                cpp_msgs.push_back(message(mod_fn, pos, sev, str));
+            }
+            if (json_output) {
+#if defined(LEAN_JSON)
+                for (auto msg : cpp_msgs) {
+                    print_json(std::cout, msg);
+#endif
+                }
+            } else {
+                for (auto msg : cpp_msgs) {
+                    std::cout << msg;
+                }
+            }
         } else {
             scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
             simple_pos_info_provider pip(mod_fn.c_str());

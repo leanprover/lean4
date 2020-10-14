@@ -87,23 +87,14 @@ def processExport (env : Environment) (input : String) (opts : Options) (fileNam
 (env, messages) ← process input env opts fileName;
 pure (env, messages.toList)
 
-def runFrontend (env : Environment) (input : String) (opts : Options := {}) (fileName : Option String := none) : IO (Environment × MessageLog) := do
-let fileName := fileName.getD "<input>";
+@[export lean_run_frontend]
+def runFrontend (env : Environment) (input : String) (opts : Options) (fileName : String) : IO (Environment × List Message) := do
 let inputCtx := Parser.mkInputContext input fileName;
 match Parser.parseHeader env inputCtx with
 | (header, parserState, messages) => do
   (env, messages) ← processHeader header messages inputCtx;
   cmdState ← IO.processCommands inputCtx parserState (Command.mkState env messages opts);
-  pure (cmdState.env, cmdState.messages)
-
-@[export lean_run_frontend]
-def runFrontendExport (env : Environment) (input : String) (fileName : String) (opts : Options) : IO (Option Environment) := do
-(env, messages) ← runFrontend env input opts (some fileName);
-messages.forM fun msg => msg.toString >>= IO.println;
-if messages.hasErrors then
-  pure none
-else
-  pure (some env)
+  pure (cmdState.env, cmdState.messages.toList)
 
 end Elab
 end Lean

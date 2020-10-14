@@ -2122,16 +2122,16 @@ extern "C" object * lean_message_pos(object * msg);
 extern "C" uint8 lean_message_severity(object * msg);
 extern "C" object * lean_message_string(object * msg);
 
-static pos_info get_message_pos(object_ref const & msg) {
+pos_info get_message_pos(object_ref const & msg) {
     auto p = pair_ref<nat, nat>(lean_message_pos(msg.to_obj_arg()));
     return pos_info(p.fst().get_small_value(), p.snd().get_small_value());
 }
 
-static message_severity get_message_severity(object_ref const & msg) {
+message_severity get_message_severity(object_ref const & msg) {
     return static_cast<message_severity>(lean_message_severity(msg.to_obj_arg()));
 }
 
-static std::string get_message_string(object_ref const & msg) {
+std::string get_message_string(object_ref const & msg) {
     string_ref r(lean_message_string(msg.to_obj_arg()));
     return r.to_std_string();
 }

@@ -502,17 +502,6 @@ install(FILES ${LEAN_SOURCE_DIR}/bin/leanmake
 
 add_subdirectory(shell)
 
-# Include style check
-if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND PYTHONINTERP_FOUND)
-include(StyleCheck)
-file(GLOB_RECURSE LEAN_SOURCES
-  "${LEAN_SOURCE_DIR}"
-  "${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp"
-  "${LEAN_SOURCE_DIR}/[A-Za-z]*.h")
-add_style_check_target(style "${LEAN_SOURCES}")
-add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
-endif()
-
 add_custom_target(clean-stdlib
   COMMAND rm -rf "${CMAKE_BINARY_DIR}/lib" || true)
 

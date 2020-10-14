@@ -15,7 +15,7 @@ import Lean.Util.PPGoal
 
 namespace Lean
 def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : String :=
-fileName ++ ":" ++ toString line ++ ":" ++ toString col ++ " " ++ toString msg
+fileName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ toString msg
 
 inductive MessageSeverity
 | information | warning | error

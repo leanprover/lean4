@@ -604,6 +604,24 @@ int main(int argc, char ** argv) {
             main_module_name = module_name_of_file(mod_fn, root_dir, /* optional */ !olean_fn && !c_output);
         }
 
+        // Quick and dirty `#lang` support
+        // TODO: make it extensible, and add `lean4md`
+        if (contents.compare(0, 5, "#lang") == 0) {
+            auto end_line_pos = contents.find("\n");
+            // TODO: trim
+            auto lang_id      = contents.substr(6, end_line_pos - 6);
+            if (lang_id == "lean4") {
+                new_frontend = true;
+            } else if (lang_id == "lean4old") {
+                new_frontend = false;
+            } else {
+                std::cerr << "unknown language '" << lang_id << "'\n";
+                return 1;
+            }
+            // Remove up to `\n`
+            contents.erase(0, end_line_pos);
+        }
+
         bool ok = true;
         if (new_frontend) {
             optional<environment> new_env = run_new_frontend(env, contents, mod_fn, opts);

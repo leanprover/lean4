@@ -5650,31 +5650,38 @@ lean_object* x_4;
 switch (lean_obj_tag(x_1)) {
 case 1:
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
+x_12 = lean_ctor_get(x_1, 3);
+lean_inc(x_12);
 lean_dec(x_1);
-x_12 = lean_unsigned_to_nat(0u);
-x_13 = l_Array_forMAux___main___at___private_Lean_Compiler_IR_ElimDeadBranches_1__resetNestedJPParams___main___spec__1(x_11, x_12, x_2, x_3);
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = l_Array_forMAux___main___at___private_Lean_Compiler_IR_ElimDeadBranches_1__resetNestedJPParams___main___spec__1(x_11, x_13, x_2, x_3);
 lean_dec(x_11);
-return x_13;
+x_15 = lean_ctor_get(x_14, 1);
+lean_inc(x_15);
+lean_dec(x_14);
+x_1 = x_12;
+x_3 = x_15;
+goto _start;
 }
 case 10:
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_ctor_get(x_1, 3);
-lean_inc(x_14);
+lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_17 = lean_ctor_get(x_1, 3);
+lean_inc(x_17);
 lean_dec(x_1);
-x_15 = lean_unsigned_to_nat(0u);
-x_16 = l_Array_forMAux___main___at___private_Lean_Compiler_IR_ElimDeadBranches_1__resetNestedJPParams___main___spec__2(x_14, x_15, x_2, x_3);
-lean_dec(x_14);
-return x_16;
+x_18 = lean_unsigned_to_nat(0u);
+x_19 = l_Array_forMAux___main___at___private_Lean_Compiler_IR_ElimDeadBranches_1__resetNestedJPParams___main___spec__2(x_17, x_18, x_2, x_3);
+lean_dec(x_17);
+return x_19;
 }
 default: 
 {
-lean_object* x_17; 
-x_17 = lean_box(0);
-x_4 = x_17;
+lean_object* x_20; 
+x_20 = lean_box(0);
+x_4 = x_20;
 goto block_10;
 }
 }

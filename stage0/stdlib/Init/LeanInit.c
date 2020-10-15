@@ -207,6 +207,7 @@ lean_object* l___private_Init_LeanInit_15__quoteOption___rarg___closed__2;
 lean_object* l_Lean_Syntax_isFieldIdx_x3f(lean_object*);
 lean_object* l_Lean_Macro_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo(lean_object*);
+lean_object* l_Lean_String_HasQuote___boxed(lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks_match__1(lean_object*);
 lean_object* l_Lean_Macro_withIncRecDepth___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*);
@@ -329,6 +330,7 @@ lean_object* l___private_Init_LeanInit_6__extractMacroScopesAux___main(lean_obje
 lean_object* l_Lean_mkHole(lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
+lean_object* l_Lean_mkStxStrLit___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_4__extractImported(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_withIncRecDepth(lean_object*);
 lean_object* l_Lean_SourceInfo_inhabited___closed__1;
@@ -4737,6 +4739,15 @@ x_5 = l_Lean_mkStxLit(x_4, x_3, x_2);
 return x_5;
 }
 }
+lean_object* l_Lean_mkStxStrLit___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_mkStxStrLit(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 lean_object* l_Lean_mkStxNumLit(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -6736,6 +6747,7 @@ lean_dec(x_1);
 x_4 = l_System_FilePath_dirName___closed__1;
 x_5 = l_Lean_Name_toStringWithSep___main(x_4, x_3);
 x_6 = l_Lean_mkStxStrLit(x_5, x_2);
+lean_dec(x_5);
 return x_6;
 }
 else
@@ -7205,6 +7217,15 @@ x_3 = l_Lean_mkStxStrLit(x_1, x_2);
 return x_3;
 }
 }
+lean_object* l_Lean_String_HasQuote___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_String_HasQuote(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Nat_HasQuote(lean_object* x_1) {
 _start:
 {
@@ -7262,6 +7283,7 @@ x_4 = lean_ctor_get(x_1, 2);
 x_5 = lean_string_utf8_extract(x_2, x_3, x_4);
 x_6 = l_Lean_SourceInfo_inhabited___closed__1;
 x_7 = l_Lean_mkStxStrLit(x_5, x_6);
+lean_dec(x_5);
 x_8 = l_Lean_mkOptionalNode___closed__2;
 x_9 = lean_array_push(x_8, x_7);
 x_10 = l_Lean_Substring_HasQuote___closed__4;
@@ -7358,6 +7380,7 @@ lean_dec(x_1);
 x_12 = l___private_Init_LeanInit_13__quoteName___main(x_10);
 x_13 = l_Lean_SourceInfo_inhabited___closed__1;
 x_14 = l_Lean_mkStxStrLit(x_11, x_13);
+lean_dec(x_11);
 x_15 = l_Lean_mkAppStx___closed__9;
 x_16 = lean_array_push(x_15, x_12);
 x_17 = lean_array_push(x_16, x_14);
@@ -8827,6 +8850,7 @@ lean_inc(x_34);
 lean_dec(x_15);
 x_35 = l_Lean_SourceInfo_inhabited___closed__1;
 x_36 = l_Lean_mkStxStrLit(x_34, x_35);
+lean_dec(x_34);
 lean_inc(x_3);
 lean_inc(x_7);
 x_37 = lean_apply_3(x_3, x_36, x_7, x_8);

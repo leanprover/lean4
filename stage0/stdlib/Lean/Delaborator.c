@@ -16767,6 +16767,7 @@ lean_inc(x_26);
 lean_dec(x_9);
 x_27 = l_Lean_SourceInfo_inhabited___closed__1;
 x_28 = l_Lean_mkStxStrLit(x_26, x_27);
+lean_dec(x_26);
 lean_ctor_set(x_7, 0, x_28);
 return x_7;
 }
@@ -16781,6 +16782,7 @@ lean_inc(x_30);
 lean_dec(x_9);
 x_31 = l_Lean_SourceInfo_inhabited___closed__1;
 x_32 = l_Lean_mkStxStrLit(x_30, x_31);
+lean_dec(x_30);
 x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_29);

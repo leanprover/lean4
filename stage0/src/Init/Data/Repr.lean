@@ -154,13 +154,9 @@ else String.singleton c
 instance : HasRepr Char :=
 ⟨fun c => "'" ++ Char.quoteCore c ++ "'"⟩
 
-def String.quoteAux : List Char → String
-| []    => ""
-| x::xs => Char.quoteCore x ++ String.quoteAux xs
-
 def String.quote (s : String) : String :=
 if s.isEmpty = true then "\"\""
-else "\"" ++ String.quoteAux s.toList ++ "\""
+else s.foldl (fun s c => s ++ c.quoteCore) "\"" ++ "\""
 
 instance : HasRepr String :=
 ⟨String.quote⟩

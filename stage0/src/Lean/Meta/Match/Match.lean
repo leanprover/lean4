@@ -220,9 +220,8 @@ def toMessageData (p : Problem) : MetaM MessageData :=
 withGoalOf p do
   alts ← p.alts.mapM Alt.toMessageData;
   vars : List MessageData ← p.vars.mapM fun x => do { xType ← inferType x; pure (x ++ ":(" ++ xType ++ ")" : MessageData) };
-  pure $ "vars " ++ vars
-    -- ++ Format.line ++ "var ids " ++ toString (p.vars.map (fun x => match x with | Expr.fvar id _ => toString id | _ => "[nonvar]"))
-    ++ Format.line ++ MessageData.joinSep alts Format.line
+  pure $ "remaining variables: " ++ vars
+    ++ Format.line ++ "alternatives:" ++ indentD (MessageData.joinSep alts Format.line)
     ++ Format.line ++ "examples: " ++ examplesToMessageData p.examples
     ++ Format.line
 end Problem
@@ -716,9 +715,10 @@ liftM (trace! `Meta.Match.match (msg ++ " step") : MetaM Unit)
 private def traceState (p : Problem) : MetaM Unit :=
 withGoalOf p (traceM `Meta.Match.match p.toMessageData)
 
-private def throwNonSupported (p : Problem) : MetaM Unit := do
-msg ← p.toMessageData;
-throwError ("not implement yet " ++ msg)
+private def throwNonSupported (p : Problem) : MetaM Unit :=
+withGoalOf p do
+  msg ← p.toMessageData;
+  throwError ("failed to compile pattern matching, stuck at" ++ (indentD msg))
 
 def isCurrVarInductive (p : Problem) : MetaM Bool := do
 match p.vars with

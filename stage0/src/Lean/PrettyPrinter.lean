@@ -31,6 +31,10 @@ Meta.withLCtx lctx #[] $ do
   stx ← delab currNamespace openDecls e;
   liftM $ ppTerm stx
 
+@[export lean_pp_expr]
+def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
+Prod.fst <$> ((ppExpr Name.anonymous [] e).run' { lctx := lctx } { mctx := mctx }).toIO { options := opts } { env := env }
+
 def ppCommand (stx : Syntax) : CoreM Format :=
 parenthesizeCommand stx >>= formatCommand
 

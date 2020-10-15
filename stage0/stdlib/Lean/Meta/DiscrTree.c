@@ -607,6 +607,7 @@ x_9 = lean_ctor_get(x_6, 0);
 lean_inc(x_9);
 lean_dec(x_6);
 x_10 = l_String_quote(x_9);
+lean_dec(x_9);
 x_11 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 return x_11;

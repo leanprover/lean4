@@ -3753,6 +3753,7 @@ lean_dec(x_40);
 lean_dec(x_39);
 lean_dec(x_38);
 x_42 = l_String_quote(x_41);
+lean_dec(x_41);
 x_43 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_43, 0, x_42);
 x_44 = l___private_Lean_Syntax_6__formatInfo___closed__1;
@@ -3831,6 +3832,7 @@ lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
 x_18 = l_String_quote(x_17);
+lean_dec(x_17);
 x_19 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 x_20 = l___private_Lean_Syntax_6__formatInfo___closed__1;
@@ -4536,6 +4538,7 @@ x_108 = lean_ctor_get(x_4, 1);
 lean_inc(x_108);
 lean_dec(x_4);
 x_109 = l_String_quote(x_108);
+lean_dec(x_108);
 x_110 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_110, 0, x_109);
 x_111 = l___private_Lean_Syntax_6__formatInfo(x_2, x_107, x_110);
@@ -5753,6 +5756,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_SourceInfo_inhabited___closed__1;
 x_3 = l_Lean_mkStxStrLit(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }

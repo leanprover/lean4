@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_string_data(lean_object*);
 lean_object* l_UInt32_HasRepr(uint32_t);
 lean_object* l_List_repr___rarg(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
@@ -47,15 +46,17 @@ lean_object* l_Sum_HasRepr(lean_object*, lean_object*);
 lean_object* l_Unit_HasRepr___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Nat_toSuperDigitsAux(lean_object*, lean_object*);
-lean_object* l_String_quoteAux(lean_object*);
 lean_object* l_id_HasRepr___rarg___boxed(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_String_quote___closed__1;
 lean_object* l_List_repr___rarg___closed__3;
 lean_object* l_PUnit_HasRepr___closed__1;
+lean_object* l_String_quote___boxed(lean_object*);
 lean_object* l_PUnit_HasRepr___boxed(lean_object*);
+lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Fin_HasRepr(lean_object*);
+lean_object* l_String_foldlAux___main___at_String_quote___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Sigma_HasRepr___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Sum_HasRepr___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_UInt64_HasRepr(uint64_t);
@@ -64,6 +65,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Char_quoteCore___closed__1;
 lean_object* l_Char_quoteCore___boxed(lean_object*);
 lean_object* l_Nat_digitChar___boxed(lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_Char_quoteCore___closed__2;
 lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_UInt64_HasRepr___boxed(lean_object*);
@@ -87,8 +89,8 @@ lean_object* l_List_reprAux___main___rarg___boxed(lean_object*, lean_object*, le
 lean_object* l_Id_HasRepr___rarg(lean_object*);
 lean_object* l_id_HasRepr(lean_object*);
 lean_object* l_Nat_toSuperscriptString(lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint32_t l_Nat_digitChar(lean_object*);
-lean_object* l_String_quoteAux___main(lean_object*);
 lean_object* l_Substring_HasRepr(lean_object*);
 lean_object* l_String_Iterator_HasRepr___closed__2;
 uint32_t l_Nat_superDigitChar(lean_object*);
@@ -139,6 +141,7 @@ lean_object* l_Decidable_HasRepr___rarg___boxed(lean_object*);
 lean_object* l_Prod_HasRepr___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Char_quoteCore(uint32_t);
 lean_object* lean_uint32_to_nat(uint32_t);
+lean_object* l_String_foldlAux___main___at_String_quote___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_mk(lean_object*);
 lean_object* l_charToHex___boxed(lean_object*);
 lean_object* l_String_Iterator_HasRepr___closed__1;
@@ -1498,39 +1501,29 @@ x_3 = l_Char_HasRepr(x_2);
 return x_3;
 }
 }
-lean_object* l_String_quoteAux___main(lean_object* x_1) {
+lean_object* l_String_foldlAux___main___at_String_quote___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+uint8_t x_5; 
+x_5 = lean_nat_dec_eq(x_3, x_2);
+if (x_5 == 0)
 {
-lean_object* x_2; 
-x_2 = l_String_splitAux___main___closed__1;
-return x_2;
+lean_object* x_6; uint32_t x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_string_utf8_next(x_1, x_3);
+x_7 = lean_string_utf8_get(x_1, x_3);
+lean_dec(x_3);
+x_8 = l_Char_quoteCore(x_7);
+x_9 = lean_string_append(x_4, x_8);
+lean_dec(x_8);
+x_3 = x_6;
+x_4 = x_9;
+goto _start;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; uint32_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_unbox_uint32(x_3);
 lean_dec(x_3);
-x_6 = l_Char_quoteCore(x_5);
-x_7 = l_String_quoteAux___main(x_4);
-x_8 = lean_string_append(x_6, x_7);
-lean_dec(x_7);
-return x_8;
+return x_4;
 }
-}
-}
-lean_object* l_String_quoteAux(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_String_quoteAux___main(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_String_quote___closed__1() {
@@ -1557,28 +1550,46 @@ x_2 = l_String_isEmpty(x_1);
 if (x_2 == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = lean_string_data(x_1);
-x_4 = l_String_quoteAux___main(x_3);
+x_3 = lean_string_utf8_byte_size(x_1);
+x_4 = lean_unsigned_to_nat(0u);
 x_5 = l_String_quote___closed__1;
-x_6 = lean_string_append(x_5, x_4);
-lean_dec(x_4);
+x_6 = l_String_foldlAux___main___at_String_quote___spec__1(x_1, x_3, x_4, x_5);
+lean_dec(x_3);
 x_7 = lean_string_append(x_6, x_5);
 return x_7;
 }
 else
 {
 lean_object* x_8; 
-lean_dec(x_1);
 x_8 = l_String_quote___closed__2;
 return x_8;
 }
+}
+}
+lean_object* l_String_foldlAux___main___at_String_quote___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_String_foldlAux___main___at_String_quote___spec__1(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_5;
+}
+}
+lean_object* l_String_quote___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_String_quote(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_String_HasRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_quote), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_String_quote___boxed), 1, 0);
 return x_1;
 }
 }
@@ -1607,6 +1618,7 @@ x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_1, 2);
 x_5 = lean_string_utf8_extract(x_2, x_3, x_4);
 x_6 = l_String_quote(x_5);
+lean_dec(x_5);
 x_7 = l_Substring_HasRepr___closed__1;
 x_8 = lean_string_append(x_6, x_7);
 return x_8;
@@ -1647,6 +1659,7 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l_String_quote(x_2);
+lean_dec(x_2);
 x_5 = l_String_Iterator_HasRepr___closed__1;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);

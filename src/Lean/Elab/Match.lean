@@ -729,7 +729,28 @@ let (discrs, matchType, altViews) ← elabMatchTypeAndDiscrs discrStxs matchOptT
 let matchAlts ← liftMacroM $ expandMacrosInPatterns altViews
 trace[Elab.match]! "matchType: {matchType}"
 let alts ← matchAlts.mapM $ fun alt => elabMatchAltView alt matchType
-synthesizeSyntheticMVarsNoPostponing
+/-
+ We should not use `synthesizeSyntheticMVarsNoPostponing` here. Otherwise, we will not be
+ able to elaborate examples such as:
+ ```
+ def f (x : Nat) : Option Nat := none
+
+ def g (xs : List (Nat × Nat)) : IO Unit :=
+ xs.forM fun x =>
+   match f x.fst with
+   | _ => pure ()
+ ```
+ If `synthesizeSyntheticMVarsNoPostponing`, the example above fails at `x.fst` because
+ the type of `x` is only available adfer we proces the last argument of `List.forM`.
+-/
+synthesizeSyntheticMVars
+/-
+ We apply pending default types to make sure we can process examples such as
+ ```
+ let (a, b) := (0, 0)
+ ```
+-/
+synthesizeUsingDefault
 -- TODO report error if matchType or altLHSS.toList have metavars
 let rhss := alts.map Prod.snd
 let altLHSS := alts.map Prod.fst
@@ -797,6 +818,7 @@ if getMatchOptType matchStx $.isNone then
     | none   => throwErrorAt discr "unexpected discriminant" -- see `expandNonAtomicDiscrs?
     | some d =>
       let dType ← inferType d
+      trace[Elab.match]! "discr {d} : {dType}"
       tryPostponeIfMVar dType
 
 /-

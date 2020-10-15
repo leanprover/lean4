@@ -143,8 +143,10 @@ let remainingSyntheticMVars ← syntheticMVars.filterRevM fun mvarDecl => do
 modify fun s => { s with syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars }
 pure $ numSyntheticMVars != remainingSyntheticMVars.length
 
-/-- Apply default value to any pending synthetic metavariable of kind `SyntheticMVarKind.withDefault` -/
-private def synthesizeUsingDefault : TermElabM Bool := do
+/--
+  Apply default value to any pending synthetic metavariable of kind `SyntheticMVarKind.withDefault`
+  Return true if something was synthesized. -/
+def synthesizeUsingDefault : TermElabM Bool := do
 let s ← get
 let len := s.syntheticMVars.length
 let newSyntheticMVars ← s.syntheticMVars.filterM fun mvarDecl =>

@@ -386,7 +386,8 @@ class erase_irrelevant_fn {
             expr t     = instantiate_rev(let_type(e), curr_fvars.size(), curr_fvars.data());
             expr v     = instantiate_rev(let_value(e), curr_fvars.size(), curr_fvars.data());
             name n     = let_name(e);
-            if (is_internal_name(n) && !is_join_point_name(n)) {
+            /* Pseudo "do" joinpoints are used to implement a temporary HACK. See `visit_let` method at `lcnf.cpp` */
+            if (is_internal_name(n) && !is_join_point_name(n) && !is_pseudo_do_join_point_name(n)) {
                 n = next_name();
             }
             expr fvar  = m_lctx.mk_local_decl(ngen(), n, t, v);

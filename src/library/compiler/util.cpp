@@ -224,6 +224,10 @@ bool is_join_point_name(name const & n) {
     return !n.is_atomic() && n.is_string() && strncmp(n.get_string().data(), "_join", 5) == 0;
 }
 
+bool is_pseudo_do_join_point_name(name const & n) {
+    return !n.is_atomic() && n.is_string() && strncmp(n.get_string().data(), "_do_jp", 6) == 0;
+}
+
 bool has_fvar(expr const & e, expr const & fvar) {
     if (!has_fvar(e)) return false;
     bool found = false;

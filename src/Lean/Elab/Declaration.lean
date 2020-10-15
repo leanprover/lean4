@@ -226,7 +226,7 @@ fun stx => do
   let elemsNew := #[]
   let modified := false
   for elem in stx[1].getArgs do
-    match (← expandMacro? elem) with
+    match (← Lean.expandMacro? elem) with -- TODO: remove workaround
     | some elemNew => elemsNew := elemsNew.push elemNew; modified := true
     | none         => elemsNew := elemsNew.push elem
   if modified then

@@ -131,7 +131,7 @@ else if declKind == `Lean.Parser.Command.«example» then
 else
   throwError "unexpected kind of definition"
 
-@[init] private def regTraceClasses : IO Unit := do
+@[init] private def regTraceClasses_1 : IO Unit := do -- TODO: remove _1
 registerTraceClass `Elab.definition
 
 end Command

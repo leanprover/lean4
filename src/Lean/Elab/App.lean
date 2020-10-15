@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -7,7 +8,6 @@ import Lean.Util.FindMVar
 import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
-new_frontend
 
 namespace Lean.Elab.Term
 open Meta

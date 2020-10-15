@@ -26,12 +26,10 @@ catch e =>
   pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
 
 def parseImports (input : String) (fileName : Option String := none) : IO (List Import × Position × MessageLog) := do
-let env ← mkEmptyEnvironment
 let fileName := fileName.getD "<input>"
 let inputCtx := Parser.mkInputContext input fileName
-match Parser.parseHeader env inputCtx with
-| (header, parserState, messages) =>
-  pure (headerToImports header, inputCtx.fileMap.toPosition parserState.pos, messages)
+let (header, parserState, messages) ← Parser.parseHeader inputCtx
+pure (headerToImports header, inputCtx.fileMap.toPosition parserState.pos, messages)
 
 @[export lean_parse_imports]
 def parseImportsExport (input : String) (fileName : Option String) : IO (List Import × Position × List Message) := do

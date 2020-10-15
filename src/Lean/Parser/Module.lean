@@ -39,8 +39,9 @@ private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : St
 let pos := c.fileMap.toPosition pos;
 { fileName := c.fileName, pos := pos, data := errorMsg }
 
-def parseHeader (env : Environment) (inputCtx : InputContext) : Syntax × ModuleParserState × MessageLog :=
-let ctx := mkParserContext env inputCtx;
+def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × MessageLog) := do
+dummyEnv ← mkEmptyEnvironment;
+let ctx := mkParserContext dummyEnv inputCtx;
 let ctx := Module.updateTokens ctx;
 let s   := mkParserState ctx.input;
 let s   := whitespace ctx s;
@@ -49,9 +50,9 @@ let stx := s.stxStack.back;
 match s.errorMsg with
 | some errorMsg =>
   let msg := mkErrorMessage ctx s.pos (toString errorMsg);
-  (stx, { pos := s.pos, recovering := true }, { : MessageLog }.add msg)
+  pure (stx, { pos := s.pos, recovering := true }, { : MessageLog }.add msg)
 | none =>
-  (stx, { pos := s.pos }, {})
+  pure (stx, { pos := s.pos }, {})
 
 private def mkEOI (pos : String.Pos) : Syntax :=
 let atom := mkAtom { pos := pos, trailing := "".toSubstring, leading := "".toSubstring } "";
@@ -117,7 +118,7 @@ private partial def testModuleParserAux (env : Environment) (inputCtx : InputCon
 def testModuleParser (env : Environment) (input : String) (fileName := "<input>") (displayStx := false) : IO Bool :=
 timeit (fileName ++ " parser") $ do
   let inputCtx           := mkInputContext input fileName;
-  let (stx, s, messages) := parseHeader env inputCtx;
+  (stx, s, messages) ← parseHeader inputCtx;
   when displayStx (IO.println stx);
   testModuleParserAux env inputCtx displayStx s messages
 
@@ -137,7 +138,7 @@ partial def parseModuleAux (env : Environment) (inputCtx : InputContext) : Modul
 def parseModule (env : Environment) (fname contents : String) : IO Syntax := do
 fname ← IO.realPath fname;
 let inputCtx := mkInputContext contents fname;
-let (header, state, messages) := parseHeader env inputCtx;
+(header, state, messages) ← parseHeader inputCtx;
 cmds ← parseModuleAux env inputCtx state messages #[];
 let stx := Syntax.node `Lean.Parser.Module.module #[header, mkListNode cmds];
 pure stx.updateLeading

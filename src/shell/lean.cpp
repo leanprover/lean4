@@ -628,6 +628,10 @@ int main(int argc, char ** argv) {
             contents.erase(0, end_line_pos);
         }
 
+        // Temporary HACK until we add support for `--deps` using the new frontend
+        if (only_deps)
+            new_frontend = false;
+
         bool ok = true;
         if (new_frontend) {
             pair_ref<environment, messages> r = run_new_frontend(env, contents, opts, mod_fn);

@@ -113,8 +113,8 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
 
 extern "C" object * lean_mk_projections(object * env, object * struct_name, object * proj_infos, uint8 inst_implicit) {
     environment new_env(env);
-    name n(struct_name, true);
-    list_ref<object_ref> ps(proj_infos, true);
+    name n(struct_name);
+    list_ref<object_ref> ps(proj_infos);
     buffer<name> proj_names;
     buffer<implicit_infer_kind> infer_kinds;
     for (auto p : ps) {

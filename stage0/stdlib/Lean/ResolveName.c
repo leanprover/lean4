@@ -42,7 +42,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 lean_object* l_Array_iterateMAux___main___at_Lean_getRevAliases___spec__7(lean_object*);
-lean_object* l_Lean_resolveGlobalConst___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveUsingNamespace_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_resolveGlobalConstNoOverload___spec__1(lean_object*, lean_object*);
@@ -247,7 +246,6 @@ lean_object* l_List_map___main___at_Lean_resolveGlobalConst___spec__2(lean_objec
 lean_object* l_Lean_SMap_find_x3f___at_Lean_addAliasEntry___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveOpenDecls(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_getRevAliases___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_resolveGlobalConst___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -276,7 +274,7 @@ lean_object* l_Lean_getAliases_match__1___rarg(lean_object*, lean_object*, lean_
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_addAliasEntry___spec__10(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Lean_resolveGlobalConst___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_resolveGlobalConst___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addAliasEntry_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -4642,15 +4640,6 @@ return x_12;
 lean_object* l_Lean_resolveGlobalConst___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_List_map___main___at_Lean_resolveGlobalConst___spec__2(x_1);
-x_5 = lean_apply_2(x_2, lean_box(0), x_4);
-return x_5;
-}
-}
-lean_object* l_Lean_resolveGlobalConst___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
@@ -4663,45 +4652,43 @@ x_7 = lean_apply_2(x_5, lean_box(0), x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_resolveGlobalConst___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_resolveGlobalConst___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_8 = lean_box(0);
 x_9 = l_List_filterAux___main___at_Lean_resolveGlobalConst___spec__1(x_7, x_8);
-x_10 = l_List_isEmpty___rarg(x_9);
-if (x_10 == 0)
+lean_inc(x_9);
+lean_inc(x_1);
+x_10 = lean_alloc_closure((void*)(l_Lean_resolveGlobalConst___rarg___lambda__1___boxed), 3, 2);
+lean_closure_set(x_10, 0, x_1);
+lean_closure_set(x_10, 1, x_9);
+x_11 = l_List_isEmpty___rarg(x_9);
+lean_dec(x_9);
+if (x_11 == 0)
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc(x_11);
+x_12 = lean_ctor_get(x_1, 0);
+lean_inc(x_12);
 lean_dec(x_1);
-x_12 = lean_ctor_get(x_11, 1);
-lean_inc(x_12);
-lean_dec(x_11);
-x_13 = lean_box(0);
-lean_inc(x_12);
-x_14 = lean_apply_2(x_12, lean_box(0), x_13);
-x_15 = lean_alloc_closure((void*)(l_Lean_resolveGlobalConst___rarg___lambda__1___boxed), 3, 2);
-lean_closure_set(x_15, 0, x_9);
-lean_closure_set(x_15, 1, x_12);
-x_16 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_14, x_15);
+x_13 = lean_ctor_get(x_12, 1);
+lean_inc(x_13);
+lean_dec(x_12);
+x_14 = lean_box(0);
+x_15 = lean_apply_2(x_13, lean_box(0), x_14);
+x_16 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_15, x_10);
 return x_16;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_inc(x_1);
+lean_object* x_17; lean_object* x_18; 
 x_17 = l_Lean_throwUnknownConstant___rarg(x_1, x_3, x_4, x_5, lean_box(0), x_6);
-x_18 = lean_alloc_closure((void*)(l_Lean_resolveGlobalConst___rarg___lambda__2___boxed), 3, 2);
-lean_closure_set(x_18, 0, x_1);
-lean_closure_set(x_18, 1, x_9);
-x_19 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_17, x_18);
-return x_19;
+x_18 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_17, x_10);
+return x_18;
 }
 }
 }
@@ -4715,7 +4702,7 @@ lean_inc(x_7);
 lean_inc(x_1);
 x_9 = l_Lean_resolveGlobalName___rarg(x_1, x_2, x_3, x_7);
 lean_inc(x_8);
-x_10 = lean_alloc_closure((void*)(l_Lean_resolveGlobalConst___rarg___lambda__3), 7, 6);
+x_10 = lean_alloc_closure((void*)(l_Lean_resolveGlobalConst___rarg___lambda__2), 7, 6);
 lean_closure_set(x_10, 0, x_1);
 lean_closure_set(x_10, 1, x_8);
 lean_closure_set(x_10, 2, x_4);
@@ -4739,15 +4726,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_resolveGlobalConst___rarg___lambda__1(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Lean_resolveGlobalConst___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_resolveGlobalConst___rarg___lambda__2(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
 }

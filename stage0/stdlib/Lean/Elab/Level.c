@@ -95,6 +95,7 @@ lean_object* l_Lean_Elab_Level___instance__3___lambda__1(lean_object*, lean_obje
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level___instance__1___closed__4;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Level_elabLevel___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level___instance__1___closed__1;
 lean_object* l_Lean_Elab_Level___instance__3___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
@@ -104,6 +105,7 @@ lean_object* l_Lean_Elab_Level___instance__1___closed__2;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__13;
+lean_object* l_Lean_Elab_Level_elabLevel___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_read___at_Lean_Elab_Level___instance__1___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -825,6 +827,17 @@ return x_21;
 }
 }
 }
+lean_object* l_Lean_Elab_Level_elabLevel___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = l_Lean_mkLevelParam(x_1);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_4);
+return x_6;
+}
+}
 static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__1() {
 _start:
 {
@@ -1161,11 +1174,9 @@ return x_59;
 else
 {
 lean_object* x_60; lean_object* x_61; 
+x_60 = lean_box(0);
+x_61 = l_Lean_Elab_Level_elabLevel___lambda__1(x_50, x_60, x_2, x_3);
 lean_dec(x_2);
-x_60 = l_Lean_mkLevelParam(x_50);
-x_61 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_61, 0, x_60);
-lean_ctor_set(x_61, 1, x_3);
 return x_61;
 }
 }
@@ -1617,11 +1628,9 @@ return x_171;
 else
 {
 lean_object* x_172; lean_object* x_173; 
+x_172 = lean_box(0);
+x_173 = l_Lean_Elab_Level_elabLevel___lambda__1(x_162, x_172, x_130, x_3);
 lean_dec(x_130);
-x_172 = l_Lean_mkLevelParam(x_162);
-x_173 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_173, 0, x_172);
-lean_ctor_set(x_173, 1, x_3);
 return x_173;
 }
 }
@@ -1950,6 +1959,16 @@ lean_dec(x_3);
 x_9 = l_Subarray_forInUnsafe_loop___at_Lean_Elab_Level_elabLevel___spec__4(x_1, x_7, x_8, x_4, x_5, x_6);
 lean_dec(x_1);
 return x_9;
+}
+}
+lean_object* l_Lean_Elab_Level_elabLevel___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Elab_Level_elabLevel___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
 }
 }
 lean_object* initialize_Init(lean_object*);

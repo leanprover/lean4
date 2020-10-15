@@ -220,6 +220,7 @@ lean_object* l___private_Lean_Meta_Basic_4__mkFreshExprMVarImpl(lean_object*, ui
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__22;
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoop___main___closed__2;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_initFn____x40___hyg_907____closed__1;
 lean_object* l_List_foldlM___main___at___private_Lean_Elab_StructInst_12__mkFieldMap___spec__10___closed__1;
 lean_object* l___private_Lean_Elab_StructInst_24__elabStruct___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_formatStruct(lean_object*);
@@ -581,7 +582,6 @@ lean_object* l___private_Lean_Elab_StructInst_4__elabModifyOp___closed__17;
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_getFieldValue_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_formatField___closed__3;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_907____closed__1;
 lean_object* l___private_Lean_Elab_StructInst_4__elabModifyOp___closed__27;
 lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
@@ -2136,7 +2136,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_4__elabModifyOp___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_907____closed__1;
+x_1 = l_Lean_Elab_initFn____x40___hyg_907____closed__1;
 x_2 = l___private_Lean_Elab_StructInst_4__elabModifyOp___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

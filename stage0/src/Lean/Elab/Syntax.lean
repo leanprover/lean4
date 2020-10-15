@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -5,7 +6,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Command
 import Lean.Elab.Quotation
-new_frontend
+
 namespace Lean.Elab.Term
 /-
 Expand `optional «precedence»` where
@@ -162,7 +163,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     let d₂ ← withoutLeftRec $ toParserDescrAux stx[2]
     `(ParserDescr.orelse $d₁ $d₂)
   else
-    let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
+    let stxNew? ← liftM (liftMacroM (Lean.expandMacro? stx) : TermElabM _) -- TODO: Remove `Lean.` from `Lean.expandMacro?`
     match stxNew? with
     | some stxNew => toParserDescrAux stxNew
     | none => throwErrorAt! stx "unexpected syntax kind of category `syntax`: {kind}"

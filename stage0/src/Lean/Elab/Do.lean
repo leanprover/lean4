@@ -1458,7 +1458,7 @@ partial def doSeqToCode : List Syntax → M CodeBlock
       else
         mkSeq term <$> doSeqToCode doElems
     else
-      match (← liftMacroM $ expandMacro? doElem) with
+      match (← liftMacroM $ Lean.expandMacro? doElem) with -- TODO: remove Lean.
       | some doElem => doSeqToCode (doElem::doElems)
       | none => throwError! "unexpected do-element\n{doElem}"
 

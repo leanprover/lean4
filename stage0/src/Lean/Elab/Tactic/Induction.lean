@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -9,7 +10,6 @@ import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Cases
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Generalize
-new_frontend
 
 namespace Lean.Elab.Tactic
 open Meta

@@ -3673,7 +3673,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_umapMAux___main___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_findRecArg_loop___spec__4___closed__1;
 x_2 = l_Array_umapMAux___main___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_findRecArg_loop___spec__4___closed__2;
-x_3 = lean_unsigned_to_nat(101u);
+x_3 = lean_unsigned_to_nat(111u);
 x_4 = lean_unsigned_to_nat(117u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

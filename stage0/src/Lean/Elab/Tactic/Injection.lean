@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -5,7 +6,6 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.Injection
 import Lean.Elab.Tactic.ElabTerm
-new_frontend
 namespace Lean.Elab.Tactic
 
 -- optional (" with " >> many1 ident')

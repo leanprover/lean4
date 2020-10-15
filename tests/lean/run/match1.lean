@@ -127,3 +127,8 @@ def Bla.isNat2? (b : Bla) : Option { x : Nat // optional? b = some x } :=
 match h:foo b with
 | some y => some ⟨y, Eq.trans (fooEq b).symm h⟩
 | none   => none
+
+def foo2 (x : Nat) : Nat :=
+match x, rfl : (y : Nat) → x = y → Nat with
+| 0,   h => 0
+| x+1, h => 1

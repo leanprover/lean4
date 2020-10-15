@@ -41,7 +41,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Elab_Match_40__elabMatchAux___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__1___rarg(lean_object*);
-extern lean_object* l___private_Lean_Elab_Binders_17__expandMatchAltsIntoMatchAux___main___closed__14;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -51,7 +50,6 @@ lean_object* l_Lean_Elab_Tactic_evalMatch_match__1(lean_object*);
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacro_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapSepElemsM___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Elab_Binders_12__expandFunBindersAux___main___closed__2;
 lean_object* l_Lean_Elab_Term_getCurrMacroScope(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTerm___closed__1;
 lean_object* l___private_Init_LeanInit_17__mapSepElemsMAux___main___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,7 +63,6 @@ lean_object* l___private_Init_LeanInit_17__mapSepElemsMAux___main___at___private
 extern lean_object* l_Lean_Elab_Tactic_evalRefine___closed__1;
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalMatch_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Elab_Binders_12__expandFunBindersAux___main___closed__18;
 extern lean_object* l_Lean_Elab_Tactic_evalRefine___closed__2;
 lean_object* l_Lean_Syntax_setArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
@@ -76,12 +73,15 @@ extern lean_object* l___private_Lean_Elab_Quotation_8__letBindRhss___main___clos
 lean_object* l_Lean_Elab_Tactic_evalMatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__2;
+extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__18;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkHole___closed__2;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_0__Lean_Elab_Term_expandMatchAltsIntoMatchAux___closed__14;
 extern lean_object* l___regBuiltin_Lean_Elab_Term_elabSyntheticHole___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___lambda__1___closed__4;
 lean_object* l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTerm(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -263,7 +263,7 @@ lean_object* l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryM
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_6 = l___private_Lean_Elab_Binders_12__expandFunBindersAux___main___closed__18;
+x_6 = l_Lean_Elab_Term_expandFunBinders_loop___closed__18;
 x_7 = l_Lean_Syntax_updateKind(x_2, x_6);
 x_8 = lean_unsigned_to_nat(2u);
 x_9 = l_Lean_Syntax_getArg(x_7, x_8);
@@ -458,7 +458,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_16 = lean_ctor_get(x_14, 0);
-x_17 = l___private_Lean_Elab_Binders_12__expandFunBindersAux___main___closed__2;
+x_17 = l_Lean_Elab_Term_expandFunBinders_loop___closed__2;
 x_18 = l_Lean_Syntax_updateKind(x_2, x_17);
 x_19 = l_Lean_nullKind;
 x_20 = lean_alloc_ctor(1, 2, 0);
@@ -477,7 +477,7 @@ x_24 = lean_ctor_get(x_14, 1);
 lean_inc(x_24);
 lean_inc(x_23);
 lean_dec(x_14);
-x_25 = l___private_Lean_Elab_Binders_12__expandFunBindersAux___main___closed__2;
+x_25 = l_Lean_Elab_Term_expandFunBinders_loop___closed__2;
 x_26 = l_Lean_Syntax_updateKind(x_2, x_25);
 x_27 = l_Lean_nullKind;
 x_28 = lean_alloc_ctor(1, 2, 0);
@@ -512,7 +512,7 @@ if (lean_is_exclusive(x_32)) {
  lean_dec_ref(x_32);
  x_36 = lean_box(0);
 }
-x_37 = l___private_Lean_Elab_Binders_12__expandFunBindersAux___main___closed__2;
+x_37 = l_Lean_Elab_Term_expandFunBinders_loop___closed__2;
 x_38 = l_Lean_Syntax_updateKind(x_2, x_37);
 x_39 = l_Lean_nullKind;
 x_40 = lean_alloc_ctor(1, 2, 0);
@@ -1124,7 +1124,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Tactic_tacticElabAttribute;
-x_3 = l___private_Lean_Elab_Binders_17__expandMatchAltsIntoMatchAux___main___closed__14;
+x_3 = l___private_0__Lean_Elab_Term_expandMatchAltsIntoMatchAux___closed__14;
 x_4 = l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

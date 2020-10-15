@@ -191,6 +191,10 @@ st ← get;
 let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset);
 categoryParser.formatter stx.getId
 
+@[combinatorFormatter Lean.Parser.error]
+def error.formatter (msg : String) : Formatter :=
+pure ()
+
 @[combinatorFormatter Lean.Parser.try]
 def try.formatter (p : Formatter) : Formatter :=
 p

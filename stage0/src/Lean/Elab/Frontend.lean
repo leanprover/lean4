@@ -80,12 +80,12 @@ let (env, messages) ← process input env opts fileName
 pure (env, messages.toList)
 
 @[export lean_run_frontend]
-def runFrontend (env : Environment) (input : String) (opts : Options) (fileName : String) : IO (Environment × List Message) := do
+def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) : IO (Environment × List Message) := do
 let inputCtx := Parser.mkInputContext input fileName
-match Parser.parseHeader env inputCtx with
-| (header, parserState, messages) =>
-  let (env, messages) ← processHeader header messages inputCtx
-  let cmdState ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
-  pure (cmdState.env, cmdState.messages.toList)
+let (header, parserState, messages) ← Parser.parseHeader inputCtx
+let (env, messages) ← processHeader header messages inputCtx
+let env := env.setMainModule mainModuleName
+let cmdState ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
+pure (cmdState.env, cmdState.messages.toList)
 
 end Lean.Elab

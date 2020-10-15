@@ -173,7 +173,6 @@ lean_object* l_Lean_Elab_logTrace___at_Lean_Elab_Command_elabSyntax___spec__2___
 lean_object* l_Lean_Elab_Command_elabSyntax___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_elabKindPrio___closed__5;
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_registerUnsupportedSyntaxId___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_checkLeftRec___closed__8;
 lean_object* lean_array_get_size(lean_object*);
@@ -201,6 +200,7 @@ lean_object* l_Lean_Elab_Command_expandMacro___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__101;
 lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__27;
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_withNotFirst(lean_object*);
+extern lean_object* l_Lean_Elab_initFn____x40___hyg_17____closed__1;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__79;
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Syntax_0__Lean_Elab_Command_elabKindPrio___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabMatchSyntax___closed__1;
@@ -14913,7 +14913,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_elabMacroRulesAux___closed__32;
-x_2 = l_Lean_Elab_registerUnsupportedSyntaxId___closed__1;
+x_2 = l_Lean_Elab_initFn____x40___hyg_17____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

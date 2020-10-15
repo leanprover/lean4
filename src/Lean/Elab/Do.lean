@@ -226,10 +226,10 @@ let rec loop : Code → MacroM Code
   | Code.ite ref x? h c t e    => do Code.ite ref x? h c (← loop t) (← loop e)
   | Code.«match» ref ds t alts => do Code.«match» ref ds t (← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) })
   | Code.action e              => mkAuxDeclFor e fun y =>
-    let ref := e;
+    let ref := e
     -- We jump to `jp` with xs **and** y
-    let jmpArgs := xs.map $ mkIdentFrom ref;
-    let jmpArgs := jmpArgs.push y;
+    let jmpArgs := xs.map $ mkIdentFrom ref
+    let jmpArgs := jmpArgs.push y
     pure $ Code.jmp ref jp jmpArgs
   | c                          => pure c
 loop code
@@ -631,9 +631,9 @@ else
   let doElse := doElseIfs.foldr
     (fun doElseIf doElse =>
       let ifAtom := doElseIf[0][1]
-      let doIfArgs := (doElseIf.getArgs).set! 0 ifAtom;
-      let doIfArgs := doIfArgs.push mkNullNode;
-      let doIfArgs := doIfArgs.push doElse;
+      let doIfArgs := (doElseIf.getArgs).set! 0 ifAtom
+      let doIfArgs := doIfArgs.push mkNullNode
+      let doIfArgs := doIfArgs.push doElse
       mkNullNode #[mkAtomFrom doElseIf "else",
                    mkSingletonDoSeq $ mkNode `Lean.Parser.Term.doIf doIfArgs])
     doElse
@@ -664,7 +664,7 @@ else if elems.size == 1 then
 else
   (elems.extract 0 (elems.size - 1)).foldrM
     (fun elem tuple => do
-      let tuple ← `(($elem, $tuple));
+      let tuple ← `(($elem, $tuple))
       pure $ tuple.copyInfo ref)
     (elems.back)
 
@@ -866,7 +866,7 @@ let r ← seqToTermCore action k
 pure $ r.copyInfo action
 
 def declToTermCore (decl : Syntax) (k : Syntax) : M Syntax := withFreshMacroScope do
-let kind := decl.getKind;
+let kind := decl.getKind
 if kind == `Lean.Parser.Term.doLet then
   let letDecl := decl[1]
   `(let $letDecl:letDecl; $k)
@@ -876,7 +876,7 @@ else if kind == `Lean.Parser.Term.doLetRec then
   pure $ mkNode `Lean.Parser.Term.letrec #[letRecToken, letRecDecls, mkNullNode, k]
 else if kind == `Lean.Parser.Term.doLetArrow then
   let arg := decl[1]
-  let ref := arg;
+  let ref := arg
   if arg.getKind == `Lean.Parser.Term.doIdDecl then
     let id     := arg[0]
     let type   := expandOptType ref arg[1]
@@ -890,7 +890,7 @@ else if kind == `Lean.Parser.Term.doLetArrow then
 else if kind == `Lean.Parser.Term.doHave then
   -- The `have` term is of the form  `"have " >> haveDecl >> optSemicolon termParser`
   let args := decl.getArgs
-  let args := args ++ #[mkNullNode /- optional ';' -/, k];
+  let args := args ++ #[mkNullNode /- optional ';' -/, k]
   pure $ mkNode `Lean.Parser.Term.«have» args
 else
   liftM $ Macro.throwError decl "unexpected kind of 'do' declaration"
@@ -914,7 +914,7 @@ if kind == `Lean.Parser.Term.doReassign then
     `(let $letDecl:letDecl; $k)
   else
     -- TODO: ensure the types did not change
-    let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg];
+    let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg]
     `(let $letDecl:letDecl; $k)
 else
   -- Note that `doReassignArrow` is expanded by `doReassignArrowToCode
@@ -1127,7 +1127,7 @@ private partial def expandLiftMethodAux : Syntax → StateT (List Syntax) MacroM
     modify fun s => s ++ [auxDoElem]
     `(a)
   else do
-    let args ← args.mapM expandLiftMethodAux;
+    let args ← args.mapM expandLiftMethodAux
     pure $ Syntax.node k args
 | stx => pure stx
 
@@ -1147,7 +1147,7 @@ match doElems with
   liftM $ concat c ref none k
 
 def checkLetArrowRHS (doElem : Syntax) : M Unit := do
-let kind := doElem.getKind;
+let kind := doElem.getKind
 if kind == `Lean.Parser.Term.doLetArrow ||
    kind == `Lean.Parser.Term.doLet ||
    kind == `Lean.Parser.Term.doLetRec ||
@@ -1186,7 +1186,7 @@ else if decl.getKind == `Lean.Parser.Term.doPatDecl then
   let doElem  := decl[2]
   let optElse := decl[3]
   if optElse.isNone then withFreshMacroScope do
-    let auxDo ← `(do let discr ← $doElem; let $pattern:term := discr);
+    let auxDo ← `(do let discr ← $doElem; let $pattern:term := discr)
     doSeqToCode $ getDoSeqElems (getDoSeq auxDo) ++ doElems
   else
     let contSeq := mkDoSeq doElems.toArray
@@ -1259,9 +1259,8 @@ let ref       := doFor
 let x         := doFor[1]
 let xs        := doFor[3]
 let forElems  := getDoSeqElems doFor[5]
-let newVars   := if x.isIdent then #[x.getId] else #[];
+let newVars   := if x.isIdent then #[x.getId] else #[]
 let forInBodyCodeBlock  ← withNewVars newVars $ withFor (doSeqToCode forElems)
--- trace! `Elab.do forInBodyCodeBlock.toMessageData;
 let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
 let uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref))
 if hasReturn forInBodyCodeBlock.code then

@@ -25,7 +25,7 @@ match lparams with
 private def mkHeader (kind : String) (id : Name) (lparams : List Name) (type : Expr) (isUnsafe : Bool) : CommandElabM MessageData := do
 let m : MessageData := if isUnsafe then "unsafe " else ""
 let m := if isProtected (← getEnv) id then m ++ "protected " else m
-let (m, id) := match privateToUserName? id : _ → MessageData × Name with
+let (m, id) := match privateToUserName? id with
   | some id => (m ++ "private ", id)
   | none    => (m, id)
 let m := m ++ kind ++ " " ++ id ++ lparamsToMessageData lparams ++ " : " ++ type

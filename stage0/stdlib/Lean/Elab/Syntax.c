@@ -33,7 +33,7 @@ lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Term_toParserDescrAux___sp
 lean_object* l_Lean_Elab_logTrace___at_Lean_Elab_Command_elabSyntax___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__124;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
-lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
+lean_object* lean_erase_macro_scopes(lean_object*);
 extern lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabMatchSyntax___closed__2;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__134;
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_elabKindPrio___closed__8;
@@ -1631,8 +1631,7 @@ x_15 = lean_unsigned_to_nat(0u);
 x_16 = l_Lean_Syntax_getArg(x_1, x_15);
 x_17 = l_Lean_Syntax_getId(x_16);
 lean_dec(x_16);
-x_18 = l_Lean_Name_eraseMacroScopes(x_17);
-lean_dec(x_17);
+x_18 = lean_erase_macro_scopes(x_17);
 x_19 = lean_ctor_get(x_2, 0);
 x_20 = lean_name_eq(x_18, x_19);
 if (x_20 == 0)
@@ -9563,8 +9562,7 @@ x_1196 = lean_unsigned_to_nat(0u);
 x_1197 = l_Lean_Syntax_getArg(x_1, x_1196);
 x_1198 = l_Lean_Syntax_getId(x_1197);
 lean_dec(x_1197);
-x_1199 = l_Lean_Name_eraseMacroScopes(x_1198);
-lean_dec(x_1198);
+x_1199 = lean_erase_macro_scopes(x_1198);
 x_1341 = lean_ctor_get_uint8(x_2, sizeof(void*)*1);
 if (x_1341 == 0)
 {
@@ -12959,8 +12957,7 @@ lean_dec(x_6);
 x_9 = lean_unsigned_to_nat(5u);
 x_10 = l_Lean_Syntax_getArg(x_1, x_9);
 x_11 = l_Lean_Syntax_getId(x_10);
-x_12 = l_Lean_Name_eraseMacroScopes(x_11);
-lean_dec(x_11);
+x_12 = lean_erase_macro_scopes(x_11);
 x_13 = l_Lean_Parser_isParserCategory(x_8, x_12);
 lean_dec(x_8);
 if (x_13 == 0)
@@ -19990,8 +19987,7 @@ lean_dec(x_10);
 x_12 = lean_unsigned_to_nat(5u);
 x_13 = l_Lean_Syntax_getArg(x_1, x_12);
 x_14 = l_Lean_Syntax_getId(x_13);
-x_15 = l_Lean_Name_eraseMacroScopes(x_14);
-lean_dec(x_14);
+x_15 = lean_erase_macro_scopes(x_14);
 lean_inc(x_2);
 x_16 = l_Lean_Elab_Command_Macro_mkFreshKind(x_15, x_2, x_3);
 x_17 = lean_ctor_get(x_16, 0);
@@ -21346,7 +21342,8 @@ x_15 = l_Lean_Syntax_getArg(x_1, x_14);
 x_16 = lean_unsigned_to_nat(8u);
 x_17 = l_Lean_Syntax_getArg(x_1, x_16);
 x_18 = l_Lean_Syntax_getId(x_13);
-x_19 = l_Lean_Name_eraseMacroScopes(x_18);
+lean_inc(x_18);
+x_19 = lean_erase_macro_scopes(x_18);
 lean_inc(x_2);
 x_20 = l_Lean_Elab_Command_Macro_mkFreshKind(x_19, x_2, x_3);
 x_21 = lean_ctor_get(x_20, 0);

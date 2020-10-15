@@ -21,7 +21,7 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_checkCas
 size_t l_USize_add(size_t, size_t);
 lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_checkAltCtorNames___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_generalizeVars___lambda__1___closed__3;
-lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
+lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_checkCasesResult_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getGeneralizingFVarIds___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1691,8 +1691,7 @@ x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
 x_4 = l_Lean_Syntax_getId(x_3);
 lean_dec(x_3);
-x_5 = l_Lean_Name_eraseMacroScopes(x_4);
-lean_dec(x_4);
+x_5 = lean_erase_macro_scopes(x_4);
 return x_5;
 }
 }
@@ -7384,8 +7383,7 @@ lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25;
 x_22 = lean_unsigned_to_nat(1u);
 x_23 = l_Lean_Syntax_getIdAt(x_13, x_22);
 lean_dec(x_13);
-x_24 = l_Lean_Name_eraseMacroScopes(x_23);
-lean_dec(x_23);
+x_24 = lean_erase_macro_scopes(x_23);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -8401,8 +8399,7 @@ lean_object* x_221; lean_object* x_222; lean_object* x_223; lean_object* x_224;
 x_221 = lean_unsigned_to_nat(1u);
 x_222 = l_Lean_Syntax_getIdAt(x_13, x_221);
 lean_dec(x_13);
-x_223 = l_Lean_Name_eraseMacroScopes(x_222);
-lean_dec(x_222);
+x_223 = lean_erase_macro_scopes(x_222);
 lean_inc(x_10);
 lean_inc(x_220);
 lean_inc(x_8);

@@ -250,7 +250,10 @@ let ps ←
     pure #[(y, false)]
   else
     pure ps
-let name ← mkFreshUserName `jp
+-- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
+-- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
+-- We will remove this hack when we re-implement the compiler frontend in Lean.
+let name ← mkFreshUserName `_do_jp
 pure { name := name, params := ps, body := body }
 
 def mkFreshJP' (xs : Array Name) (body : Code) : TermElabM JPDecl :=

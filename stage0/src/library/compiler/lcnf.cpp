@@ -22,6 +22,20 @@ Author: Leonardo de Moura
 #include "library/compiler/implemented_by_attribute.h"
 
 namespace lean {
+/*
+@[export lean_erase_macro_scopes]
+def Name.eraseMacroScopes (n : Name) : Name :=
+*/
+extern "C" object* lean_erase_macro_scopes(object *n);
+name erase_macro_scopes(name const & n) {
+    return name(lean_erase_macro_scopes(n.to_obj_arg()));
+}
+// This is a big HACK for detecting joinpoints created by the do notation
+bool is_do_notation_joinpoint(name const & n) {
+    name n2 = erase_macro_scopes(n);
+    return n2 != n && "do!jp";
+}
+
 class to_lcnf_fn {
     typedef rb_expr_map<expr> cache;
     type_checker::state m_st;
@@ -51,6 +65,12 @@ public:
         return is_app_of(e, get_lc_proof_name());
     }
 
+    name next_name() {
+        name r = m_x.append_after(m_next_idx);
+        m_next_idx++;
+        return r;
+    }
+
     expr mk_let_decl(expr const & e, bool root) {
         if (root) {
             return e;
@@ -59,8 +79,7 @@ public:
             /* Remark: we use `m_x.append_after(m_next_idx)` instead of `name(m_x, m_next_idx)`
                because the resulting name is confusing during debugging: it looks like a projection application.
                We should replace it with `name(m_x, m_next_idx)` when the compiler code gets more stable. */
-            expr fvar = m_lctx.mk_local_decl(ngen(), m_x.append_after(m_next_idx), type, e);
-            m_next_idx++;
+            expr fvar = m_lctx.mk_local_decl(ngen(), next_name(), type, e);
             m_fvars.push_back(fvar);
             return fvar;
         }
@@ -501,10 +520,27 @@ public:
     expr visit_let(expr e, bool root) {
         buffer<expr> let_fvars;
         while (is_let(e)) {
-            expr new_type = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
-            expr new_val  = visit(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()), false);
-            if (should_create_let_decl(new_val, new_type)) {
-                expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), new_type, new_val);
+            expr new_type    = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
+            bool val_as_root = is_lambda(let_value(e));
+            expr new_val     = visit(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()), val_as_root);
+            name n = let_name(e);
+            /* HACK:
+               The `do` notation create "joinpoint". They are not real joinpoints since they may be
+               nested in `HasBind.bind` applications.
+               Moreover, the compiler currently inlines all local functions, and this creates
+               a performance problem if we have a nontrivial number of "joinpoints" created by the
+               `do` notation.
+               The new compiler to be implemented in Lean itself will not use this naive inlining policy.
+               In the meantime, we use the following HACK to control code size explosion.
+               1- We use `is_do_notation_joinpoint` to detect a joinpoint created by the `do` notation.
+               2- We encode them in the compiler as "pseudo joinpoints".
+               3- We disable inlining of "pseudo joinpoints" at `csimp`.
+            */
+            if (is_do_notation_joinpoint(n) || should_create_let_decl(new_val, new_type)) {
+                if (is_do_notation_joinpoint(n)) {
+                    n = mk_pseudo_do_join_point_name(next_name());
+                }
+                expr new_fvar = m_lctx.mk_local_decl(ngen(), n, new_type, new_val);
                 let_fvars.push_back(new_fvar);
                 m_fvars.push_back(new_fvar);
             } else {

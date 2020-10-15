@@ -23,7 +23,7 @@ lean_object* l_Lean_LocalContext_mkLambda___boxed(lean_object*, lean_object*, le
 size_t l_USize_add(size_t, size_t);
 extern lean_object* l_Std_PersistentHashMap_empty___rarg___closed__2;
 lean_object* l_Lean_LocalDecl_updateBinderInfo___closed__2;
-lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
+lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Lean_LocalDecl_userName___boxed(lean_object*);
 lean_object* l_Std_PersistentHashMap_isEmpty___at_Lean_LocalContext_isEmpty___spec__1___boxed(lean_object*);
 lean_object* l_Array_findSomeRevMAux___main___at_Lean_LocalContext_findDeclRev_x3f___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3871,8 +3871,7 @@ lean_object* lean_local_ctx_get_unused_name(lean_object* x_1, lean_object* x_2) 
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_Name_eraseMacroScopes(x_2);
-lean_dec(x_2);
+x_3 = lean_erase_macro_scopes(x_2);
 lean_inc(x_3);
 lean_inc(x_1);
 x_4 = lean_local_ctx_uses_user_name(x_1, x_3);

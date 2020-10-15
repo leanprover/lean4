@@ -17,7 +17,7 @@ lean_object* l_Lean_Meta_throwTacticEx___rarg___closed__5;
 lean_object* l_Lean_Meta_setMVarTag___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
-lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
+lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Lean_Meta_appendTagSuffix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_mkSorry___rarg___lambda__1___closed__3;
 extern lean_object* l_Lean_MessageData_ofList___closed__3;
@@ -62,7 +62,6 @@ lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar___boxed(lean_object*, le
 lean_object* l_Lean_Meta_appendTagSuffix___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_admit___closed__2;
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_appendTag___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MacroScopesView_review(lean_object*);
 lean_object* l_Lean_Meta_admit(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -255,7 +254,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_3, 0);
-x_6 = l_Lean_Name_eraseMacroScopes(x_2);
+x_6 = lean_erase_macro_scopes(x_2);
 x_7 = l_Lean_Name_append___main(x_5, x_6);
 lean_dec(x_5);
 lean_ctor_set(x_3, 0, x_7);
@@ -274,7 +273,7 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_dec(x_3);
-x_13 = l_Lean_Name_eraseMacroScopes(x_2);
+x_13 = lean_erase_macro_scopes(x_2);
 x_14 = l_Lean_Name_append___main(x_9, x_13);
 lean_dec(x_9);
 x_15 = lean_alloc_ctor(0, 4, 0);
@@ -285,15 +284,6 @@ lean_ctor_set(x_15, 3, x_12);
 x_16 = l_Lean_MacroScopesView_review(x_15);
 return x_16;
 }
-}
-}
-lean_object* l_Lean_Meta_appendTag___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Meta_appendTag(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* l_Lean_Meta_appendTagSuffix(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -317,6 +307,7 @@ return x_12;
 else
 {
 uint8_t x_13; 
+lean_dec(x_2);
 lean_dec(x_1);
 x_13 = !lean_is_exclusive(x_8);
 if (x_13 == 0)
@@ -348,7 +339,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_8;
 }
 }

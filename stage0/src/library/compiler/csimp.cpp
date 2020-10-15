@@ -190,10 +190,14 @@ class csimp_fn {
         if (is_fvar(e)) {
             if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
                 if (optional<expr> v = decl->get_value()) {
-                    if (!is_join_point_name(decl->get_user_name()))
-                        return find(*v, skip_mdata, use_expr2ctor);
-                    else if (is_small_join_point(*v))
-                        return find(*v, skip_mdata, use_expr2ctor);
+                    /* Pseudo "do" joinpoints are used to implement a temporary HACK. See `visit_let` method at `lcnf.cpp`.
+                       Remark: the condition `is_lambda(*v)` will be false after we perform lambda lifting. */
+                    if (!is_pseudo_do_join_point_name(decl->get_user_name()) || !is_lambda(*v)) {
+                        if (!is_join_point_name(decl->get_user_name()))
+                            return find(*v, skip_mdata, use_expr2ctor);
+                        else if (is_small_join_point(*v))
+                            return find(*v, skip_mdata, use_expr2ctor);
+                    }
                 }
             }
         } else if (is_mdata(e) && skip_mdata) {
@@ -1107,6 +1111,8 @@ class csimp_fn {
         if (is_internal_name(n)) {
             if (is_join_point_name(n))
                 return next_jp_name();
+            else if (is_pseudo_do_join_point_name(n))
+                return n;
             else
                 return next_name();
         } else {
@@ -1119,7 +1125,7 @@ class csimp_fn {
         while (is_let(e)) {
             expr new_type = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
             expr new_val  = visit(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()), true);
-            if (is_lcnf_atom(new_val)) {
+            if (!is_pseudo_do_join_point_name(let_name(e)) && is_lcnf_atom(new_val)) {
                 let_fvars.push_back(new_val);
             } else {
                 name n = mk_let_name(let_name(e));

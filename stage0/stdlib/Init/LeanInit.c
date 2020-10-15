@@ -33,7 +33,7 @@ lean_object* l___private_Init_LeanInit_10__decodeHexLitAux___main(lean_object*, 
 lean_object* l_Substring_takeWhileAux___main___at___private_Init_LeanInit_12__decodeNameLitAux___main___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1;
 lean_object* l_Lean_Macro_monadQuotation___lambda__1___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
+lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_Syntax_decodeInterpStrQuotedChar_match__1(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -45,7 +45,6 @@ lean_object* l_Lean_Name_HasAppend;
 lean_object* l_Lean_Syntax_getSepArgs___boxed(lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Syntax_getSepArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_12__decodeNameLitAux___main(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_identToAtom___boxed(lean_object*);
 lean_object* l_Lean_Macro_throwUnsupported___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_10__decodeHexLitAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_identKind___closed__1;
@@ -428,7 +427,6 @@ lean_object* l_Lean_Syntax_getOptional_x3f___boxed(lean_object*);
 lean_object* l_Lean_mkCIdentFrom___closed__2;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Lean_interpolatedStrKind___closed__1;
-lean_object* l_Lean_Name_eraseMacroScopes___boxed(lean_object*);
 lean_object* l___private_Init_LeanInit_2__simpMacroScopesAux(lean_object*);
 lean_object* l___private_Init_LeanInit_11__decodeDecimalLitAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_monadQuotationTrans___rarg(lean_object*, lean_object*, lean_object*);
@@ -2471,31 +2469,22 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_Name_eraseMacroScopes(lean_object* x_1) {
+lean_object* lean_erase_macro_scopes(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
 x_2 = l_Lean_Name_hasMacroScopes___main(x_1);
 if (x_2 == 0)
 {
-lean_inc(x_1);
 return x_1;
 }
 else
 {
 lean_object* x_3; 
 x_3 = l___private_Init_LeanInit_1__eraseMacroScopesAux___main(x_1);
+lean_dec(x_1);
 return x_3;
 }
-}
-}
-lean_object* l_Lean_Name_eraseMacroScopes___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Name_eraseMacroScopes(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l___private_Init_LeanInit_2__simpMacroScopesAux___main(lean_object* x_1) {
@@ -4356,11 +4345,13 @@ if (lean_obj_tag(x_1) == 3)
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 2);
-x_4 = l_Lean_Name_eraseMacroScopes(x_3);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = lean_erase_macro_scopes(x_3);
 x_5 = l_System_FilePath_dirName___closed__1;
 x_6 = l_Lean_Name_toStringWithSep___main(x_5, x_4);
-lean_inc(x_2);
 x_7 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_7, 0, x_2);
 lean_ctor_set(x_7, 1, x_6);
@@ -4368,18 +4359,8 @@ return x_7;
 }
 else
 {
-lean_inc(x_1);
 return x_1;
 }
-}
-}
-lean_object* l_Lean_Syntax_identToAtom___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Syntax_identToAtom(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* lean_mk_syntax_ident(lean_object* x_1) {

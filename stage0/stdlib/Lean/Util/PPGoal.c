@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
-lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
+lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__3;
 lean_object* l_Lean_MetavarContext_instantiateMVars(lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
@@ -8308,8 +8308,7 @@ block_60:
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
 lean_dec(x_50);
-x_51 = l_Lean_Name_eraseMacroScopes(x_49);
-lean_dec(x_49);
+x_51 = lean_erase_macro_scopes(x_49);
 x_52 = l_System_FilePath_dirName___closed__1;
 x_53 = l_Lean_Name_toStringWithSep___main(x_52, x_51);
 x_54 = lean_alloc_ctor(2, 1, 0);
@@ -8414,8 +8413,7 @@ block_87:
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
 lean_dec(x_77);
-x_78 = l_Lean_Name_eraseMacroScopes(x_76);
-lean_dec(x_76);
+x_78 = lean_erase_macro_scopes(x_76);
 x_79 = l_System_FilePath_dirName___closed__1;
 x_80 = l_Lean_Name_toStringWithSep___main(x_79, x_78);
 x_81 = lean_alloc_ctor(2, 1, 0);
@@ -8534,8 +8532,7 @@ block_118:
 {
 lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; 
 lean_dec(x_108);
-x_109 = l_Lean_Name_eraseMacroScopes(x_107);
-lean_dec(x_107);
+x_109 = lean_erase_macro_scopes(x_107);
 x_110 = l_System_FilePath_dirName___closed__1;
 x_111 = l_Lean_Name_toStringWithSep___main(x_110, x_109);
 x_112 = lean_alloc_ctor(2, 1, 0);
@@ -8640,8 +8637,7 @@ block_145:
 {
 lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; 
 lean_dec(x_135);
-x_136 = l_Lean_Name_eraseMacroScopes(x_134);
-lean_dec(x_134);
+x_136 = lean_erase_macro_scopes(x_134);
 x_137 = l_System_FilePath_dirName___closed__1;
 x_138 = l_Lean_Name_toStringWithSep___main(x_137, x_136);
 x_139 = lean_alloc_ctor(2, 1, 0);
@@ -8794,8 +8790,7 @@ block_191:
 {
 lean_object* x_182; lean_object* x_183; lean_object* x_184; lean_object* x_185; lean_object* x_186; lean_object* x_187; lean_object* x_188; lean_object* x_189; lean_object* x_190; 
 lean_dec(x_181);
-x_182 = l_Lean_Name_eraseMacroScopes(x_180);
-lean_dec(x_180);
+x_182 = lean_erase_macro_scopes(x_180);
 x_183 = l_System_FilePath_dirName___closed__1;
 x_184 = l_Lean_Name_toStringWithSep___main(x_183, x_182);
 x_185 = lean_alloc_ctor(2, 1, 0);
@@ -8898,8 +8893,7 @@ block_216:
 {
 lean_object* x_207; lean_object* x_208; lean_object* x_209; lean_object* x_210; lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; lean_object* x_215; 
 lean_dec(x_206);
-x_207 = l_Lean_Name_eraseMacroScopes(x_205);
-lean_dec(x_205);
+x_207 = lean_erase_macro_scopes(x_205);
 x_208 = l_System_FilePath_dirName___closed__1;
 x_209 = l_Lean_Name_toStringWithSep___main(x_208, x_207);
 x_210 = lean_alloc_ctor(2, 1, 0);
@@ -9043,8 +9037,7 @@ block_259:
 {
 lean_object* x_250; lean_object* x_251; lean_object* x_252; lean_object* x_253; lean_object* x_254; lean_object* x_255; lean_object* x_256; lean_object* x_257; lean_object* x_258; 
 lean_dec(x_249);
-x_250 = l_Lean_Name_eraseMacroScopes(x_248);
-lean_dec(x_248);
+x_250 = lean_erase_macro_scopes(x_248);
 x_251 = l_System_FilePath_dirName___closed__1;
 x_252 = l_Lean_Name_toStringWithSep___main(x_251, x_250);
 x_253 = lean_alloc_ctor(2, 1, 0);
@@ -9149,8 +9142,7 @@ block_285:
 {
 lean_object* x_276; lean_object* x_277; lean_object* x_278; lean_object* x_279; lean_object* x_280; lean_object* x_281; lean_object* x_282; lean_object* x_283; lean_object* x_284; 
 lean_dec(x_275);
-x_276 = l_Lean_Name_eraseMacroScopes(x_274);
-lean_dec(x_274);
+x_276 = lean_erase_macro_scopes(x_274);
 x_277 = l_System_FilePath_dirName___closed__1;
 x_278 = l_Lean_Name_toStringWithSep___main(x_277, x_276);
 x_279 = lean_alloc_ctor(2, 1, 0);
@@ -9294,8 +9286,7 @@ block_320:
 {
 lean_object* x_310; lean_object* x_311; lean_object* x_312; lean_object* x_313; lean_object* x_314; lean_object* x_315; lean_object* x_316; lean_object* x_317; lean_object* x_318; lean_object* x_319; 
 lean_dec(x_309);
-x_310 = l_Lean_Name_eraseMacroScopes(x_308);
-lean_dec(x_308);
+x_310 = lean_erase_macro_scopes(x_308);
 x_311 = l_System_FilePath_dirName___closed__1;
 x_312 = l_Lean_Name_toStringWithSep___main(x_311, x_310);
 x_313 = lean_alloc_ctor(2, 1, 0);
@@ -9408,8 +9399,7 @@ block_350:
 {
 lean_object* x_340; lean_object* x_341; lean_object* x_342; lean_object* x_343; lean_object* x_344; lean_object* x_345; lean_object* x_346; lean_object* x_347; lean_object* x_348; lean_object* x_349; 
 lean_dec(x_339);
-x_340 = l_Lean_Name_eraseMacroScopes(x_338);
-lean_dec(x_338);
+x_340 = lean_erase_macro_scopes(x_338);
 x_341 = l_System_FilePath_dirName___closed__1;
 x_342 = l_Lean_Name_toStringWithSep___main(x_341, x_340);
 x_343 = lean_alloc_ctor(2, 1, 0);
@@ -9563,8 +9553,7 @@ block_397:
 {
 lean_object* x_388; lean_object* x_389; lean_object* x_390; lean_object* x_391; lean_object* x_392; lean_object* x_393; lean_object* x_394; lean_object* x_395; lean_object* x_396; 
 lean_dec(x_387);
-x_388 = l_Lean_Name_eraseMacroScopes(x_386);
-lean_dec(x_386);
+x_388 = lean_erase_macro_scopes(x_386);
 x_389 = l_System_FilePath_dirName___closed__1;
 x_390 = l_Lean_Name_toStringWithSep___main(x_389, x_388);
 x_391 = lean_alloc_ctor(2, 1, 0);
@@ -9667,8 +9656,7 @@ block_422:
 {
 lean_object* x_413; lean_object* x_414; lean_object* x_415; lean_object* x_416; lean_object* x_417; lean_object* x_418; lean_object* x_419; lean_object* x_420; lean_object* x_421; 
 lean_dec(x_412);
-x_413 = l_Lean_Name_eraseMacroScopes(x_411);
-lean_dec(x_411);
+x_413 = lean_erase_macro_scopes(x_411);
 x_414 = l_System_FilePath_dirName___closed__1;
 x_415 = l_Lean_Name_toStringWithSep___main(x_414, x_413);
 x_416 = lean_alloc_ctor(2, 1, 0);
@@ -9813,8 +9801,7 @@ block_466:
 {
 lean_object* x_457; lean_object* x_458; lean_object* x_459; lean_object* x_460; lean_object* x_461; lean_object* x_462; lean_object* x_463; lean_object* x_464; lean_object* x_465; 
 lean_dec(x_456);
-x_457 = l_Lean_Name_eraseMacroScopes(x_455);
-lean_dec(x_455);
+x_457 = lean_erase_macro_scopes(x_455);
 x_458 = l_System_FilePath_dirName___closed__1;
 x_459 = l_Lean_Name_toStringWithSep___main(x_458, x_457);
 x_460 = lean_alloc_ctor(2, 1, 0);
@@ -9919,8 +9906,7 @@ block_492:
 {
 lean_object* x_483; lean_object* x_484; lean_object* x_485; lean_object* x_486; lean_object* x_487; lean_object* x_488; lean_object* x_489; lean_object* x_490; lean_object* x_491; 
 lean_dec(x_482);
-x_483 = l_Lean_Name_eraseMacroScopes(x_481);
-lean_dec(x_481);
+x_483 = lean_erase_macro_scopes(x_481);
 x_484 = l_System_FilePath_dirName___closed__1;
 x_485 = l_Lean_Name_toStringWithSep___main(x_484, x_483);
 x_486 = lean_alloc_ctor(2, 1, 0);
@@ -10071,8 +10057,7 @@ block_529:
 {
 lean_object* x_520; lean_object* x_521; lean_object* x_522; lean_object* x_523; lean_object* x_524; lean_object* x_525; lean_object* x_526; lean_object* x_527; lean_object* x_528; 
 lean_dec(x_519);
-x_520 = l_Lean_Name_eraseMacroScopes(x_518);
-lean_dec(x_518);
+x_520 = lean_erase_macro_scopes(x_518);
 x_521 = l_System_FilePath_dirName___closed__1;
 x_522 = l_Lean_Name_toStringWithSep___main(x_521, x_520);
 x_523 = lean_alloc_ctor(2, 1, 0);
@@ -10177,8 +10162,7 @@ block_557:
 {
 lean_object* x_547; lean_object* x_548; lean_object* x_549; lean_object* x_550; lean_object* x_551; lean_object* x_552; lean_object* x_553; lean_object* x_554; lean_object* x_555; lean_object* x_556; 
 lean_dec(x_546);
-x_547 = l_Lean_Name_eraseMacroScopes(x_545);
-lean_dec(x_545);
+x_547 = lean_erase_macro_scopes(x_545);
 x_548 = l_System_FilePath_dirName___closed__1;
 x_549 = l_Lean_Name_toStringWithSep___main(x_548, x_547);
 x_550 = lean_alloc_ctor(2, 1, 0);
@@ -10324,8 +10308,7 @@ block_596:
 {
 lean_object* x_587; lean_object* x_588; lean_object* x_589; lean_object* x_590; lean_object* x_591; lean_object* x_592; lean_object* x_593; lean_object* x_594; lean_object* x_595; 
 lean_dec(x_586);
-x_587 = l_Lean_Name_eraseMacroScopes(x_585);
-lean_dec(x_585);
+x_587 = lean_erase_macro_scopes(x_585);
 x_588 = l_System_FilePath_dirName___closed__1;
 x_589 = l_Lean_Name_toStringWithSep___main(x_588, x_587);
 x_590 = lean_alloc_ctor(2, 1, 0);
@@ -10432,8 +10415,7 @@ block_624:
 {
 lean_object* x_615; lean_object* x_616; lean_object* x_617; lean_object* x_618; lean_object* x_619; lean_object* x_620; lean_object* x_621; lean_object* x_622; lean_object* x_623; 
 lean_dec(x_614);
-x_615 = l_Lean_Name_eraseMacroScopes(x_613);
-lean_dec(x_613);
+x_615 = lean_erase_macro_scopes(x_613);
 x_616 = l_System_FilePath_dirName___closed__1;
 x_617 = l_Lean_Name_toStringWithSep___main(x_616, x_615);
 x_618 = lean_alloc_ctor(2, 1, 0);
@@ -10554,8 +10536,7 @@ block_656:
 {
 lean_object* x_647; lean_object* x_648; lean_object* x_649; lean_object* x_650; lean_object* x_651; lean_object* x_652; lean_object* x_653; lean_object* x_654; lean_object* x_655; 
 lean_dec(x_646);
-x_647 = l_Lean_Name_eraseMacroScopes(x_645);
-lean_dec(x_645);
+x_647 = lean_erase_macro_scopes(x_645);
 x_648 = l_System_FilePath_dirName___closed__1;
 x_649 = l_Lean_Name_toStringWithSep___main(x_648, x_647);
 x_650 = lean_alloc_ctor(2, 1, 0);
@@ -10662,8 +10643,7 @@ block_684:
 {
 lean_object* x_675; lean_object* x_676; lean_object* x_677; lean_object* x_678; lean_object* x_679; lean_object* x_680; lean_object* x_681; lean_object* x_682; lean_object* x_683; 
 lean_dec(x_674);
-x_675 = l_Lean_Name_eraseMacroScopes(x_673);
-lean_dec(x_673);
+x_675 = lean_erase_macro_scopes(x_673);
 x_676 = l_System_FilePath_dirName___closed__1;
 x_677 = l_Lean_Name_toStringWithSep___main(x_676, x_675);
 x_678 = lean_alloc_ctor(2, 1, 0);
@@ -10828,8 +10808,7 @@ block_731:
 {
 lean_object* x_722; lean_object* x_723; lean_object* x_724; lean_object* x_725; lean_object* x_726; lean_object* x_727; lean_object* x_728; lean_object* x_729; lean_object* x_730; 
 lean_dec(x_721);
-x_722 = l_Lean_Name_eraseMacroScopes(x_720);
-lean_dec(x_720);
+x_722 = lean_erase_macro_scopes(x_720);
 x_723 = l_System_FilePath_dirName___closed__1;
 x_724 = l_Lean_Name_toStringWithSep___main(x_723, x_722);
 x_725 = lean_alloc_ctor(2, 1, 0);
@@ -10940,8 +10919,7 @@ block_757:
 {
 lean_object* x_748; lean_object* x_749; lean_object* x_750; lean_object* x_751; lean_object* x_752; lean_object* x_753; lean_object* x_754; lean_object* x_755; lean_object* x_756; 
 lean_dec(x_747);
-x_748 = l_Lean_Name_eraseMacroScopes(x_746);
-lean_dec(x_746);
+x_748 = lean_erase_macro_scopes(x_746);
 x_749 = l_System_FilePath_dirName___closed__1;
 x_750 = l_Lean_Name_toStringWithSep___main(x_749, x_748);
 x_751 = lean_alloc_ctor(2, 1, 0);
@@ -11088,8 +11066,7 @@ block_792:
 {
 lean_object* x_782; lean_object* x_783; lean_object* x_784; lean_object* x_785; lean_object* x_786; lean_object* x_787; lean_object* x_788; lean_object* x_789; lean_object* x_790; lean_object* x_791; 
 lean_dec(x_781);
-x_782 = l_Lean_Name_eraseMacroScopes(x_780);
-lean_dec(x_780);
+x_782 = lean_erase_macro_scopes(x_780);
 x_783 = l_System_FilePath_dirName___closed__1;
 x_784 = l_Lean_Name_toStringWithSep___main(x_783, x_782);
 x_785 = lean_alloc_ctor(2, 1, 0);
@@ -11204,8 +11181,7 @@ block_823:
 {
 lean_object* x_813; lean_object* x_814; lean_object* x_815; lean_object* x_816; lean_object* x_817; lean_object* x_818; lean_object* x_819; lean_object* x_820; lean_object* x_821; lean_object* x_822; 
 lean_dec(x_812);
-x_813 = l_Lean_Name_eraseMacroScopes(x_811);
-lean_dec(x_811);
+x_813 = lean_erase_macro_scopes(x_811);
 x_814 = l_System_FilePath_dirName___closed__1;
 x_815 = l_Lean_Name_toStringWithSep___main(x_814, x_813);
 x_816 = lean_alloc_ctor(2, 1, 0);
@@ -11371,8 +11347,7 @@ block_871:
 {
 lean_object* x_862; lean_object* x_863; lean_object* x_864; lean_object* x_865; lean_object* x_866; lean_object* x_867; lean_object* x_868; lean_object* x_869; lean_object* x_870; 
 lean_dec(x_861);
-x_862 = l_Lean_Name_eraseMacroScopes(x_860);
-lean_dec(x_860);
+x_862 = lean_erase_macro_scopes(x_860);
 x_863 = l_System_FilePath_dirName___closed__1;
 x_864 = l_Lean_Name_toStringWithSep___main(x_863, x_862);
 x_865 = lean_alloc_ctor(2, 1, 0);
@@ -11483,8 +11458,7 @@ block_897:
 {
 lean_object* x_888; lean_object* x_889; lean_object* x_890; lean_object* x_891; lean_object* x_892; lean_object* x_893; lean_object* x_894; lean_object* x_895; lean_object* x_896; 
 lean_dec(x_887);
-x_888 = l_Lean_Name_eraseMacroScopes(x_886);
-lean_dec(x_886);
+x_888 = lean_erase_macro_scopes(x_886);
 x_889 = l_System_FilePath_dirName___closed__1;
 x_890 = l_Lean_Name_toStringWithSep___main(x_889, x_888);
 x_891 = lean_alloc_ctor(2, 1, 0);
@@ -11638,8 +11612,7 @@ block_934:
 {
 lean_object* x_925; lean_object* x_926; lean_object* x_927; lean_object* x_928; lean_object* x_929; lean_object* x_930; lean_object* x_931; lean_object* x_932; lean_object* x_933; 
 lean_dec(x_924);
-x_925 = l_Lean_Name_eraseMacroScopes(x_923);
-lean_dec(x_923);
+x_925 = lean_erase_macro_scopes(x_923);
 x_926 = l_System_FilePath_dirName___closed__1;
 x_927 = l_Lean_Name_toStringWithSep___main(x_926, x_925);
 x_928 = lean_alloc_ctor(2, 1, 0);
@@ -11746,8 +11719,7 @@ block_963:
 {
 lean_object* x_953; lean_object* x_954; lean_object* x_955; lean_object* x_956; lean_object* x_957; lean_object* x_958; lean_object* x_959; lean_object* x_960; lean_object* x_961; lean_object* x_962; 
 lean_dec(x_952);
-x_953 = l_Lean_Name_eraseMacroScopes(x_951);
-lean_dec(x_951);
+x_953 = lean_erase_macro_scopes(x_951);
 x_954 = l_System_FilePath_dirName___closed__1;
 x_955 = l_Lean_Name_toStringWithSep___main(x_954, x_953);
 x_956 = lean_alloc_ctor(2, 1, 0);
@@ -11999,8 +11971,7 @@ block_1028:
 {
 lean_object* x_1019; lean_object* x_1020; lean_object* x_1021; lean_object* x_1022; lean_object* x_1023; lean_object* x_1024; lean_object* x_1025; lean_object* x_1026; lean_object* x_1027; 
 lean_dec(x_1018);
-x_1019 = l_Lean_Name_eraseMacroScopes(x_1017);
-lean_dec(x_1017);
+x_1019 = lean_erase_macro_scopes(x_1017);
 x_1020 = l_System_FilePath_dirName___closed__1;
 x_1021 = l_Lean_Name_toStringWithSep___main(x_1020, x_1019);
 x_1022 = lean_alloc_ctor(2, 1, 0);
@@ -12113,8 +12084,7 @@ block_1056:
 {
 lean_object* x_1047; lean_object* x_1048; lean_object* x_1049; lean_object* x_1050; lean_object* x_1051; lean_object* x_1052; lean_object* x_1053; lean_object* x_1054; lean_object* x_1055; 
 lean_dec(x_1046);
-x_1047 = l_Lean_Name_eraseMacroScopes(x_1045);
-lean_dec(x_1045);
+x_1047 = lean_erase_macro_scopes(x_1045);
 x_1048 = l_System_FilePath_dirName___closed__1;
 x_1049 = l_Lean_Name_toStringWithSep___main(x_1048, x_1047);
 x_1050 = lean_alloc_ctor(2, 1, 0);
@@ -12241,8 +12211,7 @@ block_1088:
 {
 lean_object* x_1079; lean_object* x_1080; lean_object* x_1081; lean_object* x_1082; lean_object* x_1083; lean_object* x_1084; lean_object* x_1085; lean_object* x_1086; lean_object* x_1087; 
 lean_dec(x_1078);
-x_1079 = l_Lean_Name_eraseMacroScopes(x_1077);
-lean_dec(x_1077);
+x_1079 = lean_erase_macro_scopes(x_1077);
 x_1080 = l_System_FilePath_dirName___closed__1;
 x_1081 = l_Lean_Name_toStringWithSep___main(x_1080, x_1079);
 x_1082 = lean_alloc_ctor(2, 1, 0);
@@ -12355,8 +12324,7 @@ block_1116:
 {
 lean_object* x_1107; lean_object* x_1108; lean_object* x_1109; lean_object* x_1110; lean_object* x_1111; lean_object* x_1112; lean_object* x_1113; lean_object* x_1114; lean_object* x_1115; 
 lean_dec(x_1106);
-x_1107 = l_Lean_Name_eraseMacroScopes(x_1105);
-lean_dec(x_1105);
+x_1107 = lean_erase_macro_scopes(x_1105);
 x_1108 = l_System_FilePath_dirName___closed__1;
 x_1109 = l_Lean_Name_toStringWithSep___main(x_1108, x_1107);
 x_1110 = lean_alloc_ctor(2, 1, 0);
@@ -12523,8 +12491,7 @@ block_1163:
 {
 lean_object* x_1154; lean_object* x_1155; lean_object* x_1156; lean_object* x_1157; lean_object* x_1158; lean_object* x_1159; lean_object* x_1160; lean_object* x_1161; lean_object* x_1162; 
 lean_dec(x_1153);
-x_1154 = l_Lean_Name_eraseMacroScopes(x_1152);
-lean_dec(x_1152);
+x_1154 = lean_erase_macro_scopes(x_1152);
 x_1155 = l_System_FilePath_dirName___closed__1;
 x_1156 = l_Lean_Name_toStringWithSep___main(x_1155, x_1154);
 x_1157 = lean_alloc_ctor(2, 1, 0);
@@ -12635,8 +12602,7 @@ block_1189:
 {
 lean_object* x_1180; lean_object* x_1181; lean_object* x_1182; lean_object* x_1183; lean_object* x_1184; lean_object* x_1185; lean_object* x_1186; lean_object* x_1187; lean_object* x_1188; 
 lean_dec(x_1179);
-x_1180 = l_Lean_Name_eraseMacroScopes(x_1178);
-lean_dec(x_1178);
+x_1180 = lean_erase_macro_scopes(x_1178);
 x_1181 = l_System_FilePath_dirName___closed__1;
 x_1182 = l_Lean_Name_toStringWithSep___main(x_1181, x_1180);
 x_1183 = lean_alloc_ctor(2, 1, 0);
@@ -12788,8 +12754,7 @@ block_1224:
 {
 lean_object* x_1214; lean_object* x_1215; lean_object* x_1216; lean_object* x_1217; lean_object* x_1218; lean_object* x_1219; lean_object* x_1220; lean_object* x_1221; lean_object* x_1222; lean_object* x_1223; 
 lean_dec(x_1213);
-x_1214 = l_Lean_Name_eraseMacroScopes(x_1212);
-lean_dec(x_1212);
+x_1214 = lean_erase_macro_scopes(x_1212);
 x_1215 = l_System_FilePath_dirName___closed__1;
 x_1216 = l_Lean_Name_toStringWithSep___main(x_1215, x_1214);
 x_1217 = lean_alloc_ctor(2, 1, 0);
@@ -12910,8 +12875,7 @@ block_1255:
 {
 lean_object* x_1245; lean_object* x_1246; lean_object* x_1247; lean_object* x_1248; lean_object* x_1249; lean_object* x_1250; lean_object* x_1251; lean_object* x_1252; lean_object* x_1253; lean_object* x_1254; 
 lean_dec(x_1244);
-x_1245 = l_Lean_Name_eraseMacroScopes(x_1243);
-lean_dec(x_1243);
+x_1245 = lean_erase_macro_scopes(x_1243);
 x_1246 = l_System_FilePath_dirName___closed__1;
 x_1247 = l_Lean_Name_toStringWithSep___main(x_1246, x_1245);
 x_1248 = lean_alloc_ctor(2, 1, 0);
@@ -13079,8 +13043,7 @@ block_1303:
 {
 lean_object* x_1294; lean_object* x_1295; lean_object* x_1296; lean_object* x_1297; lean_object* x_1298; lean_object* x_1299; lean_object* x_1300; lean_object* x_1301; lean_object* x_1302; 
 lean_dec(x_1293);
-x_1294 = l_Lean_Name_eraseMacroScopes(x_1292);
-lean_dec(x_1292);
+x_1294 = lean_erase_macro_scopes(x_1292);
 x_1295 = l_System_FilePath_dirName___closed__1;
 x_1296 = l_Lean_Name_toStringWithSep___main(x_1295, x_1294);
 x_1297 = lean_alloc_ctor(2, 1, 0);
@@ -13191,8 +13154,7 @@ block_1329:
 {
 lean_object* x_1320; lean_object* x_1321; lean_object* x_1322; lean_object* x_1323; lean_object* x_1324; lean_object* x_1325; lean_object* x_1326; lean_object* x_1327; lean_object* x_1328; 
 lean_dec(x_1319);
-x_1320 = l_Lean_Name_eraseMacroScopes(x_1318);
-lean_dec(x_1318);
+x_1320 = lean_erase_macro_scopes(x_1318);
 x_1321 = l_System_FilePath_dirName___closed__1;
 x_1322 = l_Lean_Name_toStringWithSep___main(x_1321, x_1320);
 x_1323 = lean_alloc_ctor(2, 1, 0);
@@ -13351,8 +13313,7 @@ block_1366:
 {
 lean_object* x_1357; lean_object* x_1358; lean_object* x_1359; lean_object* x_1360; lean_object* x_1361; lean_object* x_1362; lean_object* x_1363; lean_object* x_1364; lean_object* x_1365; 
 lean_dec(x_1356);
-x_1357 = l_Lean_Name_eraseMacroScopes(x_1355);
-lean_dec(x_1355);
+x_1357 = lean_erase_macro_scopes(x_1355);
 x_1358 = l_System_FilePath_dirName___closed__1;
 x_1359 = l_Lean_Name_toStringWithSep___main(x_1358, x_1357);
 x_1360 = lean_alloc_ctor(2, 1, 0);
@@ -13465,8 +13426,7 @@ block_1395:
 {
 lean_object* x_1385; lean_object* x_1386; lean_object* x_1387; lean_object* x_1388; lean_object* x_1389; lean_object* x_1390; lean_object* x_1391; lean_object* x_1392; lean_object* x_1393; lean_object* x_1394; 
 lean_dec(x_1384);
-x_1385 = l_Lean_Name_eraseMacroScopes(x_1383);
-lean_dec(x_1383);
+x_1385 = lean_erase_macro_scopes(x_1383);
 x_1386 = l_System_FilePath_dirName___closed__1;
 x_1387 = l_Lean_Name_toStringWithSep___main(x_1386, x_1385);
 x_1388 = lean_alloc_ctor(2, 1, 0);

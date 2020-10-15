@@ -17,7 +17,7 @@ lean_object* l_Lean_sanitizeSyntax(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___main___at_Lean_sanitizeName___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation___closed__3;
-lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
+lean_object* lean_erase_macro_scopes(lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 uint8_t l_Lean_Format_getUnicode(lean_object*);
 lean_object* l___private_Lean_Hygiene_4__sanitizeSyntaxAux(lean_object*, lean_object*);
@@ -705,7 +705,8 @@ lean_object* l_Lean_sanitizeName(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lean_Name_eraseMacroScopes(x_1);
+lean_inc(x_1);
+x_3 = lean_erase_macro_scopes(x_1);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 x_5 = l_Std_RBNode_find___main___at_Lean_sanitizeName___spec__1(x_4, x_3);

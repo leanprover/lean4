@@ -190,6 +190,8 @@ environment compile(environment const & env, options const & opts, names cs) {
 
     comp_decls ds = to_comp_decls(env, cs);
     csimp_cfg cfg(opts);
+    // Use the following line to see compiler intermediate steps
+    // scope_traces_as_string trace_scope;
     auto simp  = [&](environment const & env, expr const & e) { return csimp(env, e, cfg); };
     auto esimp = [&](environment const & env, expr const & e) { return cesimp(env, e, cfg); };
     trace_compiler(name({"compiler", "input"}), ds);
@@ -197,11 +199,14 @@ environment compile(environment const & env, options const & opts, names cs) {
     trace_compiler(name({"compiler", "eta_expand"}), ds);
     ds = apply(to_lcnf, env, ds);
     ds = apply(find_jp, env, ds);
+    // trace(ds);
     trace_compiler(name({"compiler", "lcnf"}), ds);
+    // trace(ds);
     ds = apply(cce, env, ds);
     trace_compiler(name({"compiler", "cce"}), ds);
     ds = apply(simp, env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
+    // trace(ds);
     environment new_env = env;
     std::tie(new_env, ds) = eager_lambda_lifting(new_env, ds, cfg);
     trace_compiler(name({"compiler", "eager_lambda_lifting"}), ds);
@@ -223,6 +228,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     trace_compiler(name({"compiler", "reduce_arity"}), ds);
     std::tie(new_env, ds) = lambda_lifting(new_env, ds);
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);
+    // trace(ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     new_env = cache_stage2(new_env, ds);
@@ -240,6 +246,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     ds = apply(ecse, new_env, ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "simp_app_args"}), ds);
+    // std::cout << trace_scope.get_string() << "\n";
     /* compile IR. */
     return compile_ir(new_env, opts, ds);
 }

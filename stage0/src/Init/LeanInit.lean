@@ -334,6 +334,7 @@ private def eraseMacroScopesAux : Name → Name
 | Name.num p _ _   => eraseMacroScopesAux p
 | Name.anonymous   => unreachable!
 
+@[export lean_erase_macro_scopes]
 def Name.eraseMacroScopes (n : Name) : Name :=
 if n.hasMacroScopes then eraseMacroScopesAux n else n
 

@@ -2312,7 +2312,6 @@ lean_inc(x_3);
 x_30 = l_Lean_Name_appendIndexAfter(x_29, x_3);
 lean_inc(x_26);
 x_31 = l_Lean_Meta_appendTagSuffix(x_26, x_30, x_8, x_9, x_10, x_11, x_24);
-lean_dec(x_30);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
@@ -2361,7 +2360,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_45);
 if (lean_obj_tag(x_46) == 0)
 {
 uint8_t x_47; 

@@ -900,7 +900,6 @@ lean_inc(x_31);
 lean_dec(x_29);
 lean_inc(x_3);
 x_32 = l_Lean_Meta_appendTag(x_3, x_30);
-lean_dec(x_30);
 x_33 = l_Lean_Meta_setMVarTag(x_19, x_32, x_6, x_7, x_8, x_9, x_31);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);

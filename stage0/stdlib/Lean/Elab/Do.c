@@ -7746,7 +7746,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_mkFreshJP___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("jp");
+x_1 = lean_mk_string("_do_jp");
 return x_1;
 }
 }
@@ -18866,7 +18866,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_toStringWithSep___main___closed__1;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__17;
-x_3 = lean_unsigned_to_nat(795u);
+x_3 = lean_unsigned_to_nat(798u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -20423,7 +20423,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_toStringWithSep___main___closed__1;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_continueToTermCore___closed__1;
-x_3 = lean_unsigned_to_nat(808u);
+x_3 = lean_unsigned_to_nat(811u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -20600,7 +20600,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_toStringWithSep___main___closed__1;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_continueToTermCore___closed__1;
-x_3 = lean_unsigned_to_nat(812u);
+x_3 = lean_unsigned_to_nat(815u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -21787,7 +21787,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_toStringWithSep___main___closed__1;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_breakToTermCore___closed__1;
-x_3 = lean_unsigned_to_nat(824u);
+x_3 = lean_unsigned_to_nat(827u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -21873,7 +21873,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_toStringWithSep___main___closed__1;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_breakToTermCore___closed__1;
-x_3 = lean_unsigned_to_nat(828u);
+x_3 = lean_unsigned_to_nat(831u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -23138,7 +23138,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_toStringWithSep___main___closed__1;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTermCore___closed__8;
-x_3 = lean_unsigned_to_nat(844u);
+x_3 = lean_unsigned_to_nat(847u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -28904,7 +28904,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_toStringWithSep___main___closed__1;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_mkNestedKind___closed__1;
-x_3 = lean_unsigned_to_nat(1013u);
+x_3 = lean_unsigned_to_nat(1016u);
 x_4 = lean_unsigned_to_nat(25u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -29217,7 +29217,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_toStringWithSep___main___closed__1;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_matchNestedTermResult___closed__3;
-x_3 = lean_unsigned_to_nat(1069u);
+x_3 = lean_unsigned_to_nat(1072u);
 x_4 = lean_unsigned_to_nat(25u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

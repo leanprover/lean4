@@ -54,7 +54,7 @@ for discrStx in discrStxs do
   matchType ← whnf matchType
   match matchType with
   | Expr.forallE _ d b _ =>
-    let discr ← fullApproxDefEq $ elabTermEnsuringType discrStx d
+    let discr ← fullApproxDefEq $ elabTermEnsuringType discrStx[1] d
     trace[Elab.match]! "discr #{i} {discr} : {d}"
     matchType ← b.instantiate1 discr
     discrs := discrs.push discr

@@ -163,7 +163,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     let d₂ ← withoutLeftRec $ toParserDescrAux stx[2]
     `(ParserDescr.orelse $d₁ $d₂)
   else
-    let stxNew? ← liftM (liftMacroM (Lean.expandMacro? stx) : TermElabM _) -- TODO: Remove `Lean.` from `Lean.expandMacro?`
+    let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
     match stxNew? with
     | some stxNew => toParserDescrAux stxNew
     | none => throwErrorAt! stx "unexpected syntax kind of category `syntax`: {kind}"

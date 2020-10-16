@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 namespace lean {
 expr mk_borrowed(expr const & e);
 bool is_borrowed(expr const & e);
-expr const & get_borrowed_arg(expr const & e);
+expr get_borrowed_arg(expr const & e);
 void initialize_borrowed_annotation();
 void finalize_borrowed_annotation();
 }

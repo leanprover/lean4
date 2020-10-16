@@ -95,6 +95,7 @@ Note that parser priorities would not solve this problem since the `doIf` parser
 parser is succeeding.
 -/
 @[builtinDoElemParser] def doExpr   := parser! notFollowedByRedefinedTermToken >> termParser
+@[builtinDoElemParser] def doNested := parser! "do " >> doSeq
 
 @[builtinTermParser] def «do»  := parser!:maxPrec "do " >> doSeq
 

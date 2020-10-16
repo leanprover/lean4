@@ -36,14 +36,15 @@ fun stx expectedType? => match_syntax stx with
   tryPostponeIfNoneOrMVar expectedType?
   match expectedType? with
   | some expectedType =>
-    let expectedType ← instantiateMVars expectedType
-    let expectedType := expectedType.consumeMData
     let expectedType ← whnf expectedType
-    matchConstStruct expectedType.getAppFn
-      (fun _ => throwError! "invalid constructor ⟨...⟩, expected type must be a structure {indentExpr expectedType}")
-      (fun val _ ctor => do
-        let newStx ← `($(mkCIdentFrom stx ctor.name) $(args.getSepElems)*)
-        withMacroExpansion stx newStx $ elabTerm newStx expectedType?)
+    matchConstInduct expectedType.getAppFn
+      (fun _ => throwError! "invalid constructor ⟨...⟩, expected type must be an inductive type {indentExpr expectedType}")
+      (fun ival us => do
+        match ival.ctors with
+        | [ctor] =>
+          let newStx ← `($(mkCIdentFrom stx ctor) $(args.getSepElems)*)
+          withMacroExpansion stx newStx $ elabTerm newStx expectedType?
+        | _ => throwError! "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
   | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
 | _ => throwUnsupportedSyntax
 

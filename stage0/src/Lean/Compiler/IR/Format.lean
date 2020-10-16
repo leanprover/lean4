@@ -1,9 +1,10 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Data.Format
+import Lean.Data.FormatMacro
 import Lean.Compiler.IR.Basic
 
 namespace Lean
@@ -25,10 +26,12 @@ private def formatLitVal : LitVal → Format
 instance litValHasFormat : HasFormat LitVal := ⟨formatLitVal⟩
 
 private def formatCtorInfo : CtorInfo → Format
-| { name := name, cidx := cidx, usize := usize, ssize := ssize, .. } =>
-  let r := format "ctor_" ++ format cidx;
-  let r := if usize > 0 || ssize > 0 then r ++ "." ++ format usize ++ "." ++ format ssize else r;
-  let r := if name != Name.anonymous then r ++ "[" ++ format name ++ "]" else r;
+| { name := name, cidx := cidx, usize := usize, ssize := ssize, .. } => do
+  let r := f!"ctor_{cidx}"
+  if usize > 0 || ssize > 0 then
+    r := f!"{r}.{usize}.{ssize}"
+  if name != Name.anonymous then
+    r := f!"{r}[{name}]"
   r
 
 instance ctorInfoHasFormat : HasFormat CtorInfo := ⟨formatCtorInfo⟩
@@ -97,27 +100,30 @@ def formatFnBodyHead : FnBody → Format
 | FnBody.ret x               => "ret " ++ format x
 | FnBody.unreachable         => "⊥"
 
-partial def formatFnBody (indent : Nat := 2) : FnBody → Format
-| FnBody.vdecl x ty e b      => "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.jdecl j xs v b      => format j ++ formatParams xs ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.set x i y b         => "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.uset x i y b        => "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.sset x i o y ty b   => "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.setTag x cidx b     => "setTag " ++ format x ++ " := " ++ format cidx ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.inc x n c _ b       => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.dec x n c _ b       => "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.del x b             => "del " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.mdata d b           => "mdata " ++ format d ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.case tid x xType cs => "case " ++ format x ++ " : " ++ format xType ++ " of" ++ cs.foldl (fun r c => r ++ Format.line ++ formatAlt formatFnBody indent c) Format.nil
-| FnBody.jmp j ys            => "jmp " ++ format j ++ formatArray ys
-| FnBody.ret x               => "ret " ++ format x
-| FnBody.unreachable         => "⊥"
+partial def formatFnBody (fnBody : FnBody) (indent : Nat := 2) : Format :=
+let rec loop : FnBody → Format
+  | FnBody.vdecl x ty e b      => "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e ++ ";" ++ Format.line ++ loop b
+  | FnBody.jdecl j xs v b      => format j ++ formatParams xs ++ " :=" ++ Format.nest indent (Format.line ++ loop v) ++ ";" ++ Format.line ++ loop b
+  | FnBody.set x i y b         => "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ loop b
+  | FnBody.uset x i y b        => "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ loop b
+  | FnBody.sset x i o y ty b   => "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y ++ ";" ++ Format.line ++ loop b
+  | FnBody.setTag x cidx b     => "setTag " ++ format x ++ " := " ++ format cidx ++ ";" ++ Format.line ++ loop b
+  | FnBody.inc x n c _ b       => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ loop b
+  | FnBody.dec x n c _ b       => "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ loop b
+  | FnBody.del x b             => "del " ++ format x ++ ";" ++ Format.line ++ loop b
+  | FnBody.mdata d b           => "mdata " ++ format d ++ ";" ++ Format.line ++ loop b
+  | FnBody.case tid x xType cs => "case " ++ format x ++ " : " ++ format xType ++ " of" ++ cs.foldl (fun r c => r ++ Format.line ++ formatAlt loop indent c) Format.nil
+  | FnBody.jmp j ys            => "jmp " ++ format j ++ formatArray ys
+  | FnBody.ret x               => "ret " ++ format x
+  | FnBody.unreachable         => "⊥"
+loop fnBody
 
 instance fnBodyHasFormat : HasFormat FnBody := ⟨formatFnBody⟩
 instance fnBodyHasToString : HasToString FnBody := ⟨fun b => (format b).pretty⟩
 
-def formatDecl (indent : Nat := 2) : Decl → Format
-| Decl.fdecl f xs ty b  => "def " ++ format f ++ formatParams xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)
+def formatDecl (decl : Decl) (indent : Nat := 2) : Format :=
+match decl with
+| Decl.fdecl f xs ty b  => "def " ++ format f ++ formatParams xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody b indent)
 | Decl.extern f xs ty _ => "extern " ++ format f ++ formatParams xs ++ format " : " ++ format ty
 
 instance declHasFormat : HasFormat Decl := ⟨formatDecl⟩
@@ -128,5 +134,4 @@ def declToString (d : Decl) : String :=
 
 instance declHasToString : HasToString Decl := ⟨declToString⟩
 
-end IR
-end Lean
+end Lean.IR

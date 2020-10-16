@@ -242,7 +242,7 @@ x_9 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_9, 0, x_4);
 lean_ctor_set(x_9, 1, x_8);
 x_10 = lean_unsigned_to_nat(2u);
-x_11 = l_Lean_IR_formatDecl(x_10, x_7);
+x_11 = l_Lean_IR_formatDecl(x_7, x_10);
 x_12 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_12, 0, x_9);
 lean_ctor_set(x_12, 1, x_11);

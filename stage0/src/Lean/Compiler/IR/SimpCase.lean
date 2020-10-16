@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -6,8 +7,7 @@ Authors: Leonardo de Moura
 import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.Format
 
-namespace Lean
-namespace IR
+namespace Lean.IR
 
 def ensureHasDefault (alts : Array Alt) : Array Alt :=
 if alts.any Alt.isDefault then alts
@@ -49,10 +49,10 @@ else
 partial def FnBody.simpCase : FnBody → FnBody
 | b =>
   let (bs, term) := b.flatten;
-  let bs         := modifyJPs bs FnBody.simpCase;
+  let bs         := modifyJPs bs simpCase;
   match term with
   | FnBody.case tid x xType alts =>
-    let alts := alts.map $ fun alt => alt.modifyBody FnBody.simpCase;
+    let alts := alts.map $ fun alt => alt.modifyBody simpCase;
     reshape bs (mkSimpCase tid x xType alts)
   | other => reshape bs term
 
@@ -64,5 +64,4 @@ def Decl.simpCase : Decl → Decl
 | Decl.fdecl f xs t b => Decl.fdecl f xs t b.simpCase
 | other               => other
 
-end IR
-end Lean
+end Lean.IR

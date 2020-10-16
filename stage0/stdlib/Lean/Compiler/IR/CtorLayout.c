@@ -15,17 +15,17 @@ extern "C" {
 #endif
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
 lean_object* l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(lean_object*);
-extern lean_object* l___private_Lean_Compiler_IR_Format_1__formatArg___closed__2;
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
 lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1(lean_object*);
 extern lean_object* l___private_Lean_Syntax_6__formatInfo___closed__1;
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
+extern lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatArg___closed__2;
 lean_object* l_Lean_IR_CtorFieldInfo_Lean_HasFormat___closed__1;
 lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
-lean_object* l___private_Lean_Compiler_IR_Format_5__formatIRType___main(lean_object*);
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__1;
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__8;
+lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType(lean_object*);
 lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1___boxed(lean_object*);
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
@@ -36,7 +36,7 @@ lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1(lean_object*
 _start:
 {
 lean_object* x_2; 
-x_2 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_1);
+x_2 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType(x_1);
 return x_2;
 }
 }
@@ -119,7 +119,7 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_2; 
-x_2 = l___private_Lean_Compiler_IR_Format_1__formatArg___closed__2;
+x_2 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatArg___closed__2;
 return x_2;
 }
 case 1:
@@ -175,7 +175,7 @@ x_21 = l___private_Lean_Syntax_6__formatInfo___closed__1;
 x_22 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l___private_Lean_Compiler_IR_Format_5__formatIRType___main(x_13);
+x_23 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType(x_13);
 lean_dec(x_13);
 x_24 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_24, 0, x_22);

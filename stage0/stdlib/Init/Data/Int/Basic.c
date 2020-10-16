@@ -67,6 +67,7 @@ lean_object* l_Int_HasDiv;
 lean_object* l_Int_negOfNat___boxed(lean_object*);
 lean_object* l_Int_HasAdd___closed__1;
 lean_object* l_Int_natMod___boxed(lean_object*, lean_object*);
+lean_object* l_Int_Coe(lean_object*);
 lean_object* l_Int_toNat(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* l_Int_one___closed__1;
@@ -117,6 +118,14 @@ return x_2;
 }
 }
 lean_object* l_Int_HasCoe(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+lean_object* l_Int_Coe(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -785,7 +794,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_String_toInt_x21___closed__1;
-x_2 = lean_unsigned_to_nat(177u);
+x_2 = lean_unsigned_to_nat(178u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_String_toInt_x21___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);

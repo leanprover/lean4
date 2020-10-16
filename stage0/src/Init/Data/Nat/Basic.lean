@@ -86,15 +86,15 @@ instance : HasMul Nat :=
 | 0,      a => a
 | succ n, a => foldAux n (f (s - (succ n)) a)
 
-@[inline] def fold {α : Type u} (f : Nat → α → α) (n : Nat) (a : α) : α :=
-foldAux f n n a
+@[inline] def fold {α : Type u} (f : Nat → α → α) (n : Nat) (init : α) : α :=
+foldAux f n n init
 
 @[specialize] def foldRevAux {α : Type u} (f : Nat → α → α) : Nat → α → α
 | 0,      a => a
 | succ n, a => foldRevAux n (f n a)
 
-@[inline] def foldRev {α : Type u} (f : Nat → α → α) (n : Nat) (a : α) : α :=
-foldRevAux f n a
+@[inline] def foldRev {α : Type u} (f : Nat → α → α) (n : Nat) (init : α) : α :=
+foldRevAux f n init
 
 @[specialize] def anyAux (f : Nat → Bool) (s : Nat) : Nat → Bool
 | 0      => false

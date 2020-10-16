@@ -129,7 +129,6 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_expandMutualNamespa
 lean_object* l_Lean_Elab_Command_expandDeclNamespace_x3f_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView___spec__1___lambda__2___closed__3;
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_applyVisibility___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__8(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandInitialize___closed__6;
 lean_object* l_Lean_Elab_Command_expandMutualPreamble_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -272,6 +271,7 @@ lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyn
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_MacroScopesView_review(lean_object*);
+lean_object* l_Lean_Elab_applyVisibility___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__7(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_applyAttributes(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandDeclNamespace_x3f___closed__4;
 lean_object* l_Lean_Elab_Command_expandMutualPreamble___closed__5;
@@ -2298,7 +2298,7 @@ lean_object* x_20; lean_object* x_21;
 x_20 = lean_ctor_get(x_5, 6);
 lean_dec(x_20);
 lean_ctor_set(x_5, 6, x_18);
-x_21 = l_Lean_Elab_applyVisibility___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__8(x_14, x_12, x_5, x_6, x_17);
+x_21 = l_Lean_Elab_applyVisibility___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__7(x_14, x_12, x_5, x_6, x_17);
 if (lean_obj_tag(x_21) == 0)
 {
 uint8_t x_22; 
@@ -2463,7 +2463,7 @@ lean_ctor_set(x_66, 3, x_63);
 lean_ctor_set(x_66, 4, x_64);
 lean_ctor_set(x_66, 5, x_65);
 lean_ctor_set(x_66, 6, x_18);
-x_67 = l_Lean_Elab_applyVisibility___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__8(x_14, x_12, x_66, x_6, x_17);
+x_67 = l_Lean_Elab_applyVisibility___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__7(x_14, x_12, x_66, x_6, x_17);
 if (lean_obj_tag(x_67) == 0)
 {
 lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 

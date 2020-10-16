@@ -25,7 +25,8 @@ def doSeqIndent    := parser! many1Indent $ group (doElemParser >> optional "; "
 def doSeqBracketed := parser! "{" >> withoutPosition (many1 (group (doElemParser >> optional "; "))) >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
-def notFollowedByRedefinedTermToken := notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!")
+def notFollowedByRedefinedTermToken :=
+  notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!") "token at 'do' element"
 
 @[builtinDoElemParser] def doLet      := parser! "let " >> letDecl
 @[builtinDoElemParser] def doLetRec   := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
@@ -94,6 +95,7 @@ Note that parser priorities would not solve this problem since the `doIf` parser
 parser is succeeding.
 -/
 @[builtinDoElemParser] def doExpr   := parser! notFollowedByRedefinedTermToken >> termParser
+@[builtinDoElemParser] def doNested := parser! "do " >> doSeq
 
 @[builtinTermParser] def «do»  := parser!:maxPrec "do " >> doSeq
 

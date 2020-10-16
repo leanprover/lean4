@@ -320,6 +320,10 @@ def level.parenthesizer : CategoryParenthesizer | prec => do
 maybeParenthesize `level (fun stx => Unhygienic.run `(level|($stx))) prec $
   parenthesizeCategoryCore `level prec
 
+@[combinatorParenthesizer Lean.Parser.error]
+def error.parenthesizer (msg : String) : Parenthesizer :=
+pure ()
+
 @[combinatorParenthesizer Lean.Parser.try]
 def try.parenthesizer (p : Parenthesizer) : Parenthesizer :=
 p

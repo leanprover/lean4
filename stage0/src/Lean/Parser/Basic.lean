@@ -488,7 +488,7 @@ fun c s =>
 { info := p.info,
   fn   := lookaheadFn p.fn }
 
-@[inline] def notFollowedByFn (p : ParserFn) : ParserFn :=
+@[inline] def notFollowedByFn (p : ParserFn) (msg : String) : ParserFn :=
 fun c s =>
   let iniSz  := s.stackSize;
   let iniPos := s.pos;
@@ -497,10 +497,10 @@ fun c s =>
     s.restore iniSz iniPos
   else
     let s := s.restore iniSz iniPos;
-    s.mkError "notFollowedBy"
+    s.mkUnexpectedError ("unexpected " ++ msg)
 
-@[inline] def notFollowedBy (p : Parser) : Parser :=
-{ fn := notFollowedByFn p.fn }
+@[inline] def notFollowedBy (p : Parser) (msg : String) : Parser :=
+{ fn := notFollowedByFn p.fn msg }
 
 @[specialize] partial def manyAux (p : ParserFn) : ParserFn
 | c, s =>
@@ -1034,6 +1034,9 @@ symbolFnAux sym ("'" ++ sym ++ "'")
 let sym := sym.trim;
 { info := symbolInfo sym,
   fn   := symbolFn sym }
+
+abbrev notSymbol (s : String) : Parser :=
+notFollowedBy (symbol s) s
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have

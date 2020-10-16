@@ -203,7 +203,7 @@ partial def compileParserDescr (env : Environment) (categories : ParserCategorie
 | ParserDescr.optional d                          => optional <$> compileParserDescr d
 | ParserDescr.lookahead d                         => lookahead <$> compileParserDescr d
 | ParserDescr.try d                               => try <$> compileParserDescr d
-| ParserDescr.notFollowedBy d                     => notFollowedBy <$> compileParserDescr d
+| ParserDescr.notFollowedBy d                     => do p ← compileParserDescr d; pure $ notFollowedBy p "element" -- TODO allow user to set msg at ParserDescr
 | ParserDescr.many d                              => many <$> compileParserDescr d
 | ParserDescr.many1 d                             => many1 <$> compileParserDescr d
 | ParserDescr.sepBy d₁ d₂                         => sepBy <$> compileParserDescr d₁ <*> compileParserDescr d₂
@@ -487,7 +487,7 @@ fun ctx s =>
     | some (Syntax.atom _ sym) =>
       if ctx.insideQuot && sym == "$" then s
       else match cat.tables.leadingTable.find? (mkNameSimple sym) with
-      | some _ => s.mkError "notFollowedByCategoryToken"
+      | some _ => s.mkUnexpectedError (toString catName)
       | _      => s
     | _ => s
 

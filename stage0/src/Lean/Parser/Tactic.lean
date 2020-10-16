@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Parser.Term
+import Lean.Parser.Command
 
 namespace Lean
 namespace Parser
@@ -25,7 +26,7 @@ fun c s =>
 
 def ident' : Parser := ident <|> underscore
 
-@[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> notFollowedBy "|" >> many (checkColGt >> termParser maxPrec)
+@[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> notSymbol "|" >> many (checkColGt >> termParser maxPrec)
 @[builtinTacticParser] def «intros»     := parser! nonReservedSymbol "intros " >> many (checkColGt >> ident')
 @[builtinTacticParser] def «revert»     := parser! nonReservedSymbol "revert " >> many1 (checkColGt >> ident)
 @[builtinTacticParser] def «clear»      := parser! nonReservedSymbol "clear " >> many1 (checkColGt >> ident)
@@ -55,7 +56,7 @@ def location         := parser! "at " >> (locationWildcard <|> locationTarget <|
 
 def rwRule    := parser! optional (unicodeSymbol "←" "<-") >> termParser
 def rwRuleSeq := parser! "[" >> sepBy1 rwRule ", " true >> "]"
-@[builtinTacticParser] def «rewrite»    := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> notFollowedBy "[" >> rwRule >> optional location
+@[builtinTacticParser] def «rewrite»    := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> notSymbol "[" >> rwRule >> optional location
 @[builtinTacticParser] def «rewriteSeq» := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRuleSeq >> optional location
 
 def majorPremise := parser! optional (try (ident >> " : ")) >> termParser

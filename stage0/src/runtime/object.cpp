@@ -1586,7 +1586,7 @@ static std::string list_as_string(b_obj_arg lst) {
     std::string s;
     b_obj_arg o = lst;
     while (!lean_is_scalar(o)) {
-        push_unicode_scalar(s, lean_unbox(lean_ctor_get(o, 0)));
+        push_unicode_scalar(s, lean_unbox_uint32(lean_ctor_get(o, 0)));
         o = lean_ctor_get(o, 1);
     }
     return s;
@@ -1597,12 +1597,12 @@ static obj_res string_to_list_core(std::string const & s, bool reverse = false) 
     utf8_decode(s, tmp);
     if (reverse)
         std::reverse(tmp.begin(), tmp.end());
-    obj_res  r = lean_box(0);
+    obj_res  r = lean_box_uint32(0);
     unsigned i = tmp.size();
     while (i > 0) {
         --i;
         obj_res new_r = lean_alloc_ctor(1, 2, 0);
-        lean_ctor_set(new_r, 0, lean_box(tmp[i]));
+        lean_ctor_set(new_r, 0, lean_box_uint32(tmp[i]));
         lean_ctor_set(new_r, 1, r);
         r = new_r;
     }

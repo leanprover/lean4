@@ -564,8 +564,11 @@ match getPathToBaseStructure? env baseStructName structName with
 /- Auxiliary method for field notation. It tries to add `e` to `args` as the first explicit parameter
    which takes an element of type `(C ...)` where `C` is `baseName`.
    `fullName` is the name of the resolved "field" access function. It is used for reporting errors -/
-private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) : Nat → Array NamedArg → Expr → TermElabM (Array Arg)
-| i, namedArgs, Expr.forallE n d b c =>
+private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (i : Nat) (namedArgs : Array NamedArg) (fType : Expr)
+    : TermElabM (Array Arg) :=
+let throwFailed := throwError! "invalid field notation, function '{fullName}' does not have explicit argument with type ({baseName} ...)"
+match fType with
+| Expr.forallE n d b c =>
   if !c.binderInfo.isExplicit then
     addLValArg baseName fullName e args i namedArgs b
   else
@@ -580,9 +583,8 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
       else if i < args.size then
         addLValArg baseName fullName e args  (i+1) namedArgs b
       else
-        throwError! "invalid field notation, insufficient number of arguments for '{fullName}'"
-| _, _, fType =>
-  throwError! "invalid field notation, function '{fullName}' does not have explicit argument with type ({baseName} ...)"
+        throwFailed
+| _ => throwFailed
 
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=

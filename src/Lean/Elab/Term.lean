@@ -1345,7 +1345,7 @@ instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (TermElabM α) :=
     s ← get;
     liftIO $ s.messages.forM fun msg => msg.toString >>= IO.println
   };
-  MetaHasEval.eval env opts $ x.run' mkSomeContext⟩
+  MetaHasEval.eval env opts (x.run' mkSomeContext true⟩
 
 end Term
 

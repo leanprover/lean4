@@ -141,7 +141,7 @@ Prod.fst <$> x.run ctx s
 pure (a, sCore, s)
 
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
-⟨fun env opts x _ => MetaHasEval.eval env opts $ x.run'⟩
+⟨fun env opts x _ => MetaHasEval.eval env opts x.run' true⟩
 
 protected def throwIsDefEqStuck {α} : DefEqM α :=
 throw $ Exception.internal isDefEqStuckExceptionId

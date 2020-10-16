@@ -1,9 +1,9 @@
 [Elab.step] #check fun x => m x
+fun (x : ?m) (x_1 : ?m x) => x : (x : ?m) → ?m x → ?m
 [Elab.step] none fun x => m x
-[Elab.step] Sort _ _
+[Elab.step] some Sort.{?_uniq.328} _
 [Elab.step] none m x
 [Elab.step] none fun x✝ => x
-[Elab.step] Sort _ _
+[Elab.step] some Sort.{?_uniq.331} _
 [Elab.step] none x
-fun (x : ?m) (x_1 : ?m x) => x : (x : ?m) → ?m x → ?m
 [Elab.step] end 

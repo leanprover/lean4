@@ -108,14 +108,14 @@ def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m 
 filterMapMAux f as.reverse []
 
 @[specialize]
-def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (s → α → m s) → s → List α → m s
+def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : forall (f : s → α → m s) (init : s), List α → m s
 | f, s, [] => pure s
 | f, s, h :: r   => do
   s' ← f s h;
   foldlM f s' r
 
 @[specialize]
-def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (α → s → m s) → s → List α → m s
+def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : forall (f : α → s → m s) (init : s), List α → m s
 | f, s, [] => pure s
 | f, s, h :: r   => do
   s' ← foldrM f s r;

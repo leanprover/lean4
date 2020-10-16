@@ -168,13 +168,13 @@ self.find? idx
 match m with
 | ⟨ m, _ ⟩ => m.contains a
 
-@[inline] def foldM {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (d : δ) (h : HashMap α β) : m δ :=
+@[inline] def foldM {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (init : δ) (h : HashMap α β) : m δ :=
 match h with
-| ⟨ h, _ ⟩ => h.foldM f d
+| ⟨ h, _ ⟩ => h.foldM f init
 
-@[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMap α β) : δ :=
+@[inline] def fold {δ : Type w} (f : δ → α → β → δ) (init : δ) (m : HashMap α β) : δ :=
 match m with
-| ⟨ m, _ ⟩ => m.fold f d
+| ⟨ m, _ ⟩ => m.fold f init
 
 @[inline] def size (m : HashMap α β) : Nat :=
 match m with

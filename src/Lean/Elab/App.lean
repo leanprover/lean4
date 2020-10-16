@@ -795,20 +795,17 @@ let (args, ellipsis) :=
     (args, false)
 unless pattern || !ellipsis do
   throwErrorAt args.back "'..' is only allowed in patterns"
-let (namedArgs, args) ← args.foldlM
-  (fun (acc : Array NamedArg × Array Arg) (stx : Syntax) => do
-    let (namedArgs, args) := acc
-    if stx.getKind == `Lean.Parser.Term.namedArgument then
-      -- tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
-      let name := stx[1].getId.eraseMacroScopes
-      let val  := stx[3]
-      let namedArgs ← addNamedArg namedArgs { name := name, val := Arg.stx val }
-      pure (namedArgs, args)
-    else if stx.getKind == `Lean.Parser.Term.ellipsis then
-      throwErrorAt stx "unexpected '..'"
-    else
-      pure (namedArgs, args.push $ Arg.stx stx))
-  (#[], #[])
+let (namedArgs, args) ← args.foldlM (init := (#[], #[])) fun (namedArgs, args) stx => do
+  if stx.getKind == `Lean.Parser.Term.namedArgument then
+    -- tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
+    let name := stx[1].getId.eraseMacroScopes
+    let val  := stx[3]
+    let namedArgs ← addNamedArg namedArgs { name := name, val := Arg.stx val }
+    pure (namedArgs, args)
+  else if stx.getKind == `Lean.Parser.Term.ellipsis then
+    throwErrorAt stx "unexpected '..'"
+  else
+    pure (namedArgs, args.push $ Arg.stx stx)
 pure (f, namedArgs, args, ellipsis)
 
 @[builtinTermElab app] def elabApp : TermElab :=

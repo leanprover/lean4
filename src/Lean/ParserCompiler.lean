@@ -33,7 +33,7 @@ section
 open Meta
 
 -- translate an expression of type `Parser` into one of type `tyName`
-partial def compileParserBody {α} (ctx : Context α) : Expr → MetaM Expr | e => do
+partial def compileParserBody {α} (ctx : Context α) : Expr → optParam Bool false → MetaM Expr | e, force => do
 e ← whnfCore e;
 match e with
 | e@(Expr.lam _ _ _ _)     => lambdaLetTelescope e fun xs b => compileParserBody b >>= mkLambdaFVars xs
@@ -68,8 +68,8 @@ match e with
       -- synthesize a new `[combinatorAttr c]`
       some value ← pure cinfo.value?
         | throwError $ "don't know how to generate " ++ ctx.varName ++ " for non-definition '" ++ toString e ++ "'";
-      none ← pure $ env.getModuleIdxFor? c
-        | throwError $ "refusing to generate code for imported parser declaration '" ++ c ++ "'; use `@[runParserAttributeHooks]` on its definition instead.";
+      unless ((env.getModuleIdxFor? c).isNone || force) $
+        throwError $ "refusing to generate code for imported parser declaration '" ++ c ++ "'; use `@[runParserAttributeHooks]` on its definition instead.";
       value ← compileParserBody $ preprocessParserBody ctx value;
       ty ← forallTelescope cinfo.type fun params _ =>
         params.foldrM (fun param ty => do
@@ -98,12 +98,12 @@ end
 open Core
 
 /-- Compile the given declaration into a `[(builtin)runtimeAttr declName]` -/
-def compileParser {α} (ctx : Context α) (declName : Name) (builtin : Bool) : AttrM Unit := do
+def compileParser {α} (ctx : Context α) (declName : Name) (builtin : Bool) (force := false) : AttrM Unit := do
 -- This will also tag the declaration as a `[combinatorParenthesizer declName]` in case the parser is used by other parsers.
 -- Note that simply having `[(builtin)Parenthesizer]` imply `[combinatorParenthesizer]` is not ideal since builtin
 -- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
 -- call them at compile time but only reference them).
-(Expr.const c' _ _) ← liftM $ (compileParserBody ctx (mkConst declName)).run'
+(Expr.const c' _ _) ← liftM $ (compileParserBody ctx (mkConst declName) force).run'
   | unreachable!;
 -- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
 -- using `parser!` or `syntax`.
@@ -112,14 +112,14 @@ addAttribute c' (if builtin then ctx.runtimeAttr.defn.builtinName else ctx.runti
 -- When called from `interpretParserDescr`, `declName` might not be a tagged parser, so ignore "not a valid syntax kind" failures
 <|> pure ()
 
-unsafe def interpretParser {α} (ctx : Context α) (constName : Name) : AttrM α := do
+unsafe def interpretParser {α} (ctx : Context α) (constName : Name) (force := false) : AttrM α := do
 info ← getConstInfo constName;
 env ← getEnv;
 if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then
   match ctx.runtimeAttr.getValues env constName with
   | p::_ => pure p
   | _    => do
-    compileParser ctx constName /- builtin -/ false;
+    compileParser ctx constName /- builtin -/ false force;
     evalConst α (constName ++ ctx.varName)
 else do
   d ← evalConst TrailingParserDescr constName;
@@ -128,10 +128,11 @@ else do
 unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
 Parser.registerParserAttributeHook {
   postAdd := fun catName declName builtin =>
+    -- force compilation of parser even if imported, which can be the case with `[runBuiltinParserAttributeHooks]`
     if builtin then
-      compileParser ctx declName builtin
+      compileParser ctx declName builtin /- force -/ true
     else do
-      p ← interpretParser ctx declName;
+      p ← interpretParser ctx declName /- force -/ true;
       -- Register `p` without exporting it to the .olean file. It will be re-interpreted and registered
       -- when the parser is imported.
       env ← getEnv;

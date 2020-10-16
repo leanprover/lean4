@@ -401,15 +401,6 @@ when (st.leadWord != "") $
 @[combinatorFormatter Lean.Parser.checkOutsideQuot] def checkOutsideQuot.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.skip] def skip.formatter : Formatter := pure ()
 
-@[combinatorFormatter Lean.Parser.ppHardSpace] def ppHardSpace.formatter : Formatter := push " "
-@[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := pushLine
-@[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := push "\n"
-@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := group $ indent p
-@[combinatorFormatter Lean.Parser.ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := indent p
-@[combinatorFormatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
-opts ← getOptions;
-indent p (some (-(Format.getIndent opts)))
-
 @[combinatorFormatter pushNone] def pushNone.formatter : Formatter := goLeft
 
 -- TODO: delete with old frontend

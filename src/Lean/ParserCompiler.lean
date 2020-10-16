@@ -68,6 +68,8 @@ match e with
       -- synthesize a new `[combinatorAttr c]`
       some value ← pure cinfo.value?
         | throwError $ "don't know how to generate " ++ ctx.varName ++ " for non-definition '" ++ toString e ++ "'";
+      none ← pure $ env.getModuleIdxFor? c
+        | throwError $ "refusing to generate code for imported parser declaration '" ++ c ++ "'; use `@[runParserAttributeHooks]` on its definition instead.";
       value ← compileParserBody $ preprocessParserBody ctx value;
       ty ← forallTelescope cinfo.type fun params _ =>
         params.foldrM (fun param ty => do

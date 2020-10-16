@@ -564,27 +564,31 @@ match getPathToBaseStructure? env baseStructName structName with
 /- Auxiliary method for field notation. It tries to add `e` to `args` as the first explicit parameter
    which takes an element of type `(C ...)` where `C` is `baseName`.
    `fullName` is the name of the resolved "field" access function. It is used for reporting errors -/
-private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (i : Nat) (namedArgs : Array NamedArg) (fType : Expr)
+private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (fType : Expr)
     : TermElabM (Array Arg) :=
-let throwFailed := throwError! "invalid field notation, function '{fullName}' does not have explicit argument with type ({baseName} ...)"
-match fType with
-| Expr.forallE n d b c =>
-  if !c.binderInfo.isExplicit then
-    addLValArg baseName fullName e args i namedArgs b
-  else
-    /- If there is named argument with name `n`, then we should skip. -/
-    match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
-    | some idx => do
-      let namedArgs := namedArgs.eraseIdx idx
-      addLValArg baseName fullName e args  i namedArgs b
-    | none => do
-      if d.consumeMData.isAppOf baseName then
-        pure $ args.insertAt i (Arg.expr e)
-      else if i < args.size then
-        addLValArg baseName fullName e args  (i+1) namedArgs b
-      else
-        throwFailed
-| _ => throwFailed
+forallTelescopeReducing fType fun xs _ => do
+  let i := 0
+  for x in xs do
+    let xDecl ← getLocalDecl x.fvarId!
+    if xDecl.binderInfo.isExplicit then
+      /- If there is named argument with name `xDecl.userName`, then we skip it. -/
+      match namedArgs.findIdx? (fun namedArg => namedArg.name == xDecl.userName) with
+      | some idx => namedArgs := namedArgs.eraseIdx idx
+      | none =>
+        let type := xDecl.type
+        if type.consumeMData.isAppOf baseName then
+          -- found it
+          return args.insertAt i (Arg.expr e)
+        -- normalize type and try again
+        let type ← withReducible $ whnf type
+        if type.consumeMData.isAppOf baseName then
+          -- found it
+          return args.insertAt i (Arg.expr e)
+        if i < args.size then
+          i := i + 1
+        else
+          throwError! "invalid field notation, function '{fullName}' does not have explicit argument with type ({baseName} ...)"
+  return args
 
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
@@ -610,7 +614,7 @@ let rec loop : Expr → List LVal → TermElabM Expr
     let projFn ← mkConst constName
     if lvals.isEmpty then
       let projFnType ← inferType projFn
-      let args ← addLValArg baseStructName constName f args 0 namedArgs projFnType
+      let args ← addLValArg baseStructName constName f args namedArgs projFnType
       elabAppArgs projFn namedArgs args expectedType? explicit
     else
       let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false)
@@ -618,7 +622,7 @@ let rec loop : Expr → List LVal → TermElabM Expr
   | LValResolution.localRec baseName fullName fvar =>
     if lvals.isEmpty then
       let fvarType ← inferType fvar
-      let args ← addLValArg baseName fullName f args 0 namedArgs fvarType
+      let args ← addLValArg baseName fullName f args namedArgs fvarType
       elabAppArgs fvar namedArgs args expectedType? explicit
     else
       let f ← elabAppArgs fvar #[] #[Arg.expr f] (expectedType? := none) (explicit := false)

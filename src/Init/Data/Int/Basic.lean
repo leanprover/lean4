@@ -22,6 +22,7 @@ attribute [extern "lean_nat_to_int"] Int.ofNat
 attribute [extern "lean_int_neg_succ_of_nat"] Int.negSucc
 
 instance : HasCoe Nat Int := ⟨Int.ofNat⟩
+instance : Coe Nat Int := ⟨Int.ofNat⟩
 
 namespace Int
 protected def zero : Int := ofNat 0

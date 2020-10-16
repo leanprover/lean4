@@ -91,7 +91,7 @@ match e with
 instance hasEval {α} [MetaHasEval α] : MetaHasEval (CoreM α) :=
 ⟨fun env opts x _ => do
    (a, s) ← (finally x printTraces).toIO { maxRecDepth := getMaxRecDepth opts, options := opts } { env := env};
-   MetaHasEval.eval s.env opts a⟩
+   MetaHasEval.eval s.env opts a true /- hideUnit -/⟩
 
 end Core
 

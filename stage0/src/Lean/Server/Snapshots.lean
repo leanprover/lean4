@@ -15,6 +15,7 @@ each command. Importantly, we allow (re)starting compilation from any
 snapshot/position in the file for interactive editing purposes. -/
 
 namespace Lean
+namespace Elab end Elab -- Hack for old frontend
 namespace Server
 namespace Snapshots
 

@@ -45,9 +45,9 @@ lean_object* l_Lean_Parser_parseCommand___main(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Elab_runFrontend_match__2(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Command_elabCommand___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_updateCmdPos(lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
+lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_setCommandState(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommand(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_updateCmdPos___rarg___boxed(lean_object*, lean_object*);
@@ -367,7 +367,7 @@ x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
 lean_inc(x_18);
-x_20 = l_Lean_Elab_Command_elabCommand___main(x_1, x_15, x_18, x_19);
+x_20 = l_Lean_Elab_Command_elabCommand(x_1, x_15, x_18, x_19);
 lean_dec(x_15);
 if (lean_obj_tag(x_20) == 0)
 {

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -8,8 +9,7 @@ import Lean.Compiler.IR.CompilerM
 
 /- Helper functions for backend code generators -/
 
-namespace Lean
-namespace IR
+namespace Lean.IR
 /- Return true iff `b` is of the form `let x := g ys; ret x` -/
 def isTailCallTo (g : Name) (b : FnBody) : Bool :=
 match b with
@@ -34,10 +34,10 @@ partial def collectFnBody : FnBody → M Unit
   | other        => collectFnBody b
 | FnBody.jdecl _ _ v b   => collectFnBody v *> collectFnBody b
 | FnBody.case _ _ _ alts => alts.forM $ fun alt => collectFnBody alt.body
-| e => unless e.isTerminal $ collectFnBody e.body
+| e => do unless e.isTerminal do collectFnBody e.body
 
 def collectInitDecl (fn : Name) : M Unit := do
-env ← read;
+let env ← read
 match getInitFnNameFor env fn with
 | some initFn => collect initFn
 | _           => pure ()

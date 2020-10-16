@@ -25,7 +25,8 @@ def doSeqIndent    := parser! many1Indent $ group (doElemParser >> optional "; "
 def doSeqBracketed := parser! "{" >> withoutPosition (many1 (group (doElemParser >> optional "; "))) >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
-def notFollowedByRedefinedTermToken := notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!")
+def notFollowedByRedefinedTermToken :=
+  notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!") "token at 'do' element"
 
 @[builtinDoElemParser] def doLet      := parser! "let " >> letDecl
 @[builtinDoElemParser] def doLetRec   := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls

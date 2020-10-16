@@ -29,15 +29,15 @@ forRevMAux f n
 | 0,   a => pure a
 | i+1, a => f (n-i-1) a >>= foldMAux i
 
-@[inline] def foldM {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (a : α) (n : Nat) : m α :=
-foldMAux f n n a
+@[inline] def foldM {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (init : α) (n : Nat) : m α :=
+foldMAux f n n init
 
 @[specialize] def foldRevMAux {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) : Nat → α → m α
 | 0,   a => pure a
 | i+1, a => f i a >>= foldRevMAux i
 
-@[inline] def foldRevM {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (a : α) (n : Nat) : m α :=
-foldRevMAux f n a
+@[inline] def foldRevM {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (init : α) (n : Nat) : m α :=
+foldRevMAux f n init
 
 @[specialize] def allMAux {m} [Monad m] (p : Nat → m Bool) (n : Nat) : Nat → m Bool
 | 0   => pure true

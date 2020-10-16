@@ -17,8 +17,22 @@ namespace lean {
 static name * g_borrowed = nullptr;
 
 expr mk_borrowed(expr const & e) { return mk_annotation(*g_borrowed, e); }
-bool is_borrowed(expr const & e) { return is_annotation(e, *g_borrowed); }
-expr const & get_borrowed_arg(expr const & e) { lean_assert(is_borrowed(e)); return get_annotation_arg(e); }
+
+/*
+The new and old frontend use different approaches more annotating expressions.
+We use the following hacks to make sure we recognize both of them at `is_borrowed`.
+*/
+extern "C" uint8 lean_is_marked_borrowed(lean_object * o);
+
+bool is_borrowed(expr const & e) {
+    expr e2 = unwrap_pos(e);
+    return is_annotation(e2, *g_borrowed) || lean_is_marked_borrowed(e2.to_obj_arg());
+}
+expr get_borrowed_arg(expr const & e) {
+    lean_assert(is_borrowed(e));
+    expr e2 = unwrap_pos(e);
+    return mdata_expr(e2);
+}
 
 void initialize_borrowed_annotation() {
     g_borrowed = new name("borrowed");

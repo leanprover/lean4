@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Init.Data.ToString
+import Lean.Compiler.BorrowedAnnotation
 import Lean.Elab.Term
 import Lean.Elab.Quotation
 import Lean.Elab.SyntheticMVars
@@ -47,6 +48,11 @@ fun stx expectedType? => match_syntax stx with
         | _ => throwError! "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
   | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
 | _ => throwUnsupportedSyntax
+
+@[builtinTermElab borrowed] def elabBorrowed : TermElab :=
+fun stx expectedType? => match_syntax stx with
+  | `(@& $e) => do return markBorrowed (← elabTerm e expectedType?)
+  | _ => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Term.show] def expandShow : Macro :=
 fun stx => match_syntax stx with

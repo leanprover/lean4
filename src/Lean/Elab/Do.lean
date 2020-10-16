@@ -1451,6 +1451,9 @@ partial def doSeqToCode : List Syntax → M CodeBlock
       mkSeq doElem <$> doSeqToCode doElems
     else if k == `Lean.Parser.Term.doAssert then
       mkSeq doElem <$> doSeqToCode doElems
+    else if k == `Lean.Parser.Term.doNested then
+      let nestedDoSeq := doElem[1]
+      doSeqToCode (getDoSeqElems nestedDoSeq ++ doElems)
     else if k == `Lean.Parser.Term.doExpr then
       let term := doElem[0]
       if doElems.isEmpty then

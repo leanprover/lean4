@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -7,11 +8,8 @@ import Lean.Attributes
 
 namespace Lean
 
-def mkMatchPatternAttr : IO TagAttribute :=
+initialize matchPatternAttr : TagAttribute ←
 registerTagAttribute `matchPattern "mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)"
-
-@[init mkMatchPatternAttr]
-constant matchPatternAttr : TagAttribute := arbitrary _
 
 @[export lean_has_match_pattern_attribute]
 def hasMatchPatternAttribute (env : Environment) (n : Name) : Bool :=

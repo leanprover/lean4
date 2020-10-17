@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -33,7 +34,7 @@ abbrev M := ReaderT Context (EStateM String String)
 def getEnv : M Environment := Context.env <$> read
 def getModName : M Name := Context.modName <$> read
 def getDecl (n : Name) : M Decl := do
-env ← getEnv;
+let env ← getEnv;
 match findEnvDecl env n with
 | some d => pure d
 | none   => throw ("unknown declaration '" ++ toString n ++ "'")
@@ -72,7 +73,7 @@ def throwInvalidExportName {α : Type} (n : Name) : M α :=
 throw ("invalid export name '" ++ toString n ++ "'")
 
 def toCName (n : Name) : M String := do
-env ← getEnv;
+let env ← getEnv;
 -- TODO: we should support simple export names only
 match getExportNameFor env n with
 | some (Name.str Name.anonymous s _) => pure s
@@ -83,7 +84,7 @@ def emitCName (n : Name) : M Unit :=
 toCName n >>= emit
 
 def toCInitName (n : Name) : M String := do
-env ← getEnv;
+let env ← getEnv;
 -- TODO: we should support simple export names only
 match getExportNameFor env n with
 | some (Name.str Name.anonymous s _) => pure $ "_init_" ++ s
@@ -95,10 +96,10 @@ toCInitName n >>= emit
 
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Bool) : M Unit := do
 let ps := decl.params;
-env ← getEnv;
+let env ← getEnv;
 when (ps.isEmpty && addExternForConsts) (emit "extern ");
 emit (toCType decl.resultType ++ " " ++ cppBaseName);
-unless (ps.isEmpty) $ do {
+unless (ps.isEmpty) do {
   emit "(";
   -- We omit irrelevant parameters for extern constants
   let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isIrrelevant) else ps;
@@ -114,33 +115,33 @@ unless (ps.isEmpty) $ do {
 emitLn ";"
 
 def emitFnDecl (decl : Decl) (addExternForConsts : Bool) : M Unit := do
-cppBaseName ← toCName decl.name;
+let cppBaseName ← toCName decl.name;
 emitFnDeclAux decl cppBaseName addExternForConsts
 
 def emitExternDeclAux (decl : Decl) (cNameStr : String) : M Unit := do
 let cName := mkNameSimple cNameStr;
-env ← getEnv;
+let env ← getEnv;
 let extC := isExternC env decl.name;
 emitFnDeclAux decl cNameStr (!extC)
 
 def emitFnDecls : M Unit := do
-env ← getEnv;
+let env ← getEnv;
 let decls := getDecls env;
 let modDecls  : NameSet := decls.foldl (fun s d => s.insert d.name) {};
 let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {};
 let usedDecls := usedDecls.toList;
 usedDecls.forM $ fun n => do
-  decl ← getDecl n;
+  let decl ← getDecl n;
   match getExternNameFor env `c decl.name with
   | some cName => emitExternDeclAux decl cName
   | none       => emitFnDecl decl (!modDecls.contains n)
 
 def emitMainFn : M Unit := do
-d ← getDecl `main;
+let d ← getDecl `main;
 match d with
 | Decl.fdecl f xs t b => do
-  unless (xs.size == 2 || xs.size == 1) (throw "invalid main function, incorrect arity when generating code");
-  env ← getEnv;
+  unless xs.size == 2 || xs.size == 1 do (throw "invalid main function, incorrect arity when generating code");
+  let env ← getEnv;
   let usesLeanAPI := usesModuleFrom env `Lean;
   if usesLeanAPI then
      emitLn "void lean_initialize();"
@@ -160,7 +161,7 @@ lean_object* in; lean_object* res;";
     emitLn "lean_initialize();"
   else
     emitLn "lean_initialize_runtime_module();";
-  modName ← getModName;
+  let modName ← getModName;
   emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(lean_io_mk_world());");
   emitLns ["lean_io_mark_end_initialization();",
            "if (lean_io_result_is_ok(res)) {",
@@ -193,7 +194,7 @@ lean_object* in; lean_object* res;";
 | other => throw "function declaration expected"
 
 def hasMainFn : M Bool := do
-env ← getEnv;
+let env ← getEnv;
 let decls := getDecls env;
 pure $ decls.any (fun d => d.name == `main)
 
@@ -201,8 +202,8 @@ def emitMainFnIfNeeded : M Unit :=
 whenM hasMainFn emitMainFn
 
 def emitFileHeader : M Unit := do
-env ← getEnv;
-modName ← getModName;
+let env ← getEnv;
+let modName ← getModName;
 emitLn "// Lean compiler output";
 emitLn ("// Module: " ++ toString modName);
 emit "// Imports:";
@@ -234,7 +235,7 @@ def throwUnknownVar {α : Type} (x : VarId) : M α :=
 throw ("unknown variable '" ++ toString x ++ "'")
 
 def getJPParams (j : JoinPointId) : M (Array Param) := do
-ctx ← read;
+let ctx ← read;
 match ctx.jpMap.find? j with
 | some ps => pure ps
 | none    => throw "unknown join point"
@@ -247,7 +248,7 @@ ps.forM $ fun p => declareVar p.x p.ty
 
 partial def declareVars : FnBody → Bool → M Bool
 | e@(FnBody.vdecl x t _ b), d => do
-  ctx ← read;
+  let ctx ← read;
   if isTailCallTo ctx.mainFn e then
     pure d
   else
@@ -328,8 +329,8 @@ match t with
 emit "("; emit x; emit ", "; emitOffset n offset; emit ", "; emit y; emitLn ");"
 
 def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit := do
-ps ← getJPParams j;
-unless (xs.size == ps.size) (throw "invalid goto");
+let ps ← getJPParams j;
+unless xs.size == ps.size do throw "invalid goto";
 xs.size.forM $ fun i => do {
   let p := ps.get! i;
   let x := xs.get! i;
@@ -413,7 +414,7 @@ _ ← ys.size.foldM
     if (ps.get! i).ty.isIrrelevant then
       pure first
     else do
-      unless first (emit ", ");
+      unless first do emit ", ";
       emitArg (ys.get! i);
       pure false)
   true;
@@ -429,13 +430,13 @@ match getExternEntryFor extData `c with
 
 def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
 emitLhs z;
-decl ← getDecl f;
+let decl ← getDecl f;
 match decl with
 | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
 | _ => do emitCName f; when (ys.size > 0) (do emit "("; emitArgs ys; emit ")"); emitLn ";"
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
-decl ← getDecl f;
+let decl ← getDecl f;
 let arity := decl.params.size;
 emitLhs z; emit "lean_alloc_closure((void*)("; emitCName f; emit "), "; emit arity; emit ", "; emit ys.size; emitLn ");";
 ys.size.forM $ fun i => do {
@@ -528,7 +529,7 @@ match v with
 | Expr.lit v          => emitLit z t v
 
 def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool := do
-ctx ← read;
+let ctx ← read;
 match v, b with
 | Expr.fap f _, FnBody.ret (Arg.var y) => pure $ f == ctx.mainFn && x == y
 | _, _ => pure false
@@ -562,72 +563,72 @@ n.any $ fun i =>
 def emitTailCall (v : Expr) : M Unit :=
 match v with
 | Expr.fap _ ys => do
-  ctx ← read;
+  let ctx ← read;
   let ps := ctx.mainParams;
-  unless (ps.size == ys.size) (throw "invalid tail call");
+  unless ps.size == ys.size do throw "invalid tail call"
   if overwriteParam ps ys then do {
     emitLn "{";
     ps.size.forM $ fun i => do {
       let p := ps.get! i;
       let y := ys.get! i;
-      unless (paramEqArg p y) $ do {
+      unless paramEqArg p y do {
         emit (toCType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
       }
     };
     ps.size.forM $ fun i => do {
       let p := ps.get! i;
       let y := ys.get! i;
-      unless (paramEqArg p y) (do emit p.x; emit " = _tmp_"; emit i; emitLn ";")
+      unless paramEqArg p y do emit p.x; emit " = _tmp_"; emit i; emitLn ";"
     };
     emitLn "}"
   } else do {
     ys.size.forM $ fun i => do {
       let p := ps.get! i;
       let y := ys.get! i;
-      unless (paramEqArg p y) (do emit p.x; emit " = "; emitArg y; emitLn ";")
+      unless paramEqArg p y do emit p.x; emit " = "; emitArg y; emitLn ";"
     }
   };
   emitLn "goto _start;"
 | _ => throw "bug at emitTailCall"
 
 partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
-| FnBody.jdecl j xs v b      => emitBlock b
+| FnBody.jdecl j xs v b      => emitBlock emitBody b
 | d@(FnBody.vdecl x t v b)   =>
-  do ctx ← read; if isTailCallTo ctx.mainFn d then emitTailCall v else emitVDecl x t v *> emitBlock b
-| FnBody.inc x n c p b       => unless p (emitInc x n c) *> emitBlock b
-| FnBody.dec x n c p b       => unless p (emitDec x n c) *> emitBlock b
-| FnBody.del x b             => emitDel x *> emitBlock b
-| FnBody.setTag x i b        => emitSetTag x i *> emitBlock b
-| FnBody.set x i y b         => emitSet x i y *> emitBlock b
-| FnBody.uset x i y b        => emitUSet x i y *> emitBlock b
-| FnBody.sset x i o y t b    => emitSSet x i o y t *> emitBlock b
-| FnBody.mdata _ b           => emitBlock b
+  do let ctx ← read; if isTailCallTo ctx.mainFn d then emitTailCall v else emitVDecl x t v *> emitBlock emitBody b
+| FnBody.inc x n c p b       => «unless» p (emitInc x n c) *> emitBlock emitBody b
+| FnBody.dec x n c p b       => «unless» p (emitDec x n c) *> emitBlock emitBody b
+| FnBody.del x b             => emitDel x *> emitBlock emitBody b
+| FnBody.setTag x i b        => emitSetTag x i *> emitBlock emitBody b
+| FnBody.set x i y b         => emitSet x i y *> emitBlock emitBody b
+| FnBody.uset x i y b        => emitUSet x i y *> emitBlock emitBody b
+| FnBody.sset x i o y t b    => emitSSet x i o y t *> emitBlock emitBody b
+| FnBody.mdata _ b           => emitBlock emitBody b
 | FnBody.ret x               => emit "return " *> emitArg x *> emitLn ";"
 | FnBody.case _ x xType alts => emitCase emitBody x xType alts
 | FnBody.jmp j xs            => emitJmp j xs
 | FnBody.unreachable         => emitLn "lean_panic_unreachable();"
 
 partial def emitJPs (emitBody : FnBody → M Unit) : FnBody → M Unit
-| FnBody.jdecl j xs v b => do emit j; emitLn ":"; emitBody v; emitJPs b
-| e                     => unless e.isTerminal (emitJPs e.body)
+| FnBody.jdecl j xs v b => do emit j; emitLn ":"; emitBody v; emitJPs emitBody b
+| e                     => do unless e.isTerminal do emitJPs emitBody e.body
 
 partial def emitFnBody : FnBody → M Unit
 | b => do
 emitLn "{";
-declared ← declareVars b false;
+let declared ← declareVars b false;
 when declared (emitLn "");
 emitBlock emitFnBody b;
 emitJPs emitFnBody b;
 emitLn "}"
 
 def emitDeclAux (d : Decl) : M Unit := do
-env ← getEnv;
+let env ← getEnv;
 let (vMap, jpMap) := mkVarJPMaps d;
 withReader (fun ctx => { ctx with jpMap := jpMap }) $ do
-unless (hasInitAttr env d.name) $
+unless hasInitAttr env d.name do
   match d with
-  | Decl.fdecl f xs t b => do
-    baseName ← toCName f;
+  | Decl.fdecl f xs t b =>
+    let baseName ← toCName f;
     when (xs.size == 0) do {
       emit "static "
     };
@@ -658,14 +659,15 @@ unless (hasInitAttr env d.name) $
     emitLn "}"
   | _ => pure ()
 
-def emitDecl (d : Decl) : M Unit :=
+def emitDecl (d : Decl) : M Unit := do
 let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices
-catch
-  (emitDeclAux d)
-  (fun err => throw (err ++ "\ncompiling:\n" ++ toString d))
+try
+  emitDeclAux d
+catch err =>
+  throw (err ++ "\ncompiling:\n" ++ toString d)
 
 def emitFns : M Unit := do
-env ← getEnv;
+let env ← getEnv;
 let decls := getDecls env;
 decls.reverse.forM emitDecl
 
@@ -675,7 +677,7 @@ when d.resultType.isObj $ do {
 }
 
 def emitDeclInit (d : Decl) : M Unit := do
-env ← getEnv;
+let env ← getEnv;
 let n := d.name;
 if isIOUnitInitFn env n then do {
   emit "res = "; emitCName n; emitLn "(lean_io_mk_world());";
@@ -693,8 +695,8 @@ if isIOUnitInitFn env n then do {
   | _ => do { emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n }
 
 def emitInitFn : M Unit := do
-env ← getEnv;
-modName ← getModName;
+let env ← getEnv;
+let modName ← getModName;
 env.imports.forM $ fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(lean_object*);");
 emitLns [
   "static bool _G_initialized = false;",

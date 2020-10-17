@@ -270,13 +270,13 @@ emit $
   if checkRef then (if n == 1 then "lean_inc" else "lean_inc_n")
   else (if n == 1 then "lean_inc_ref" else "lean_inc_ref_n");
 emit "(" *> emit x;
-when (n != 1) (emit ", " *> emit n);
+if n != 1 then emit ", " *> emit n
 emitLn ");"
 
 def emitDec (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do
 emit (if checkRef then "lean_dec" else "lean_dec_ref");
 emit "("; emit x;
-when (n != 1) (do emit ", "; emit n);
+if n != 1 then emit ", "; emit n
 emitLn ");"
 
 def emitDel (x : VarId) : M Unit := do
@@ -288,10 +288,10 @@ emit "lean_ctor_set_tag("; emit x; emit ", "; emit i; emitLn ");"
 def emitSet (x : VarId) (i : Nat) (y : Arg) : M Unit := do
 emit "lean_ctor_set("; emit x; emit ", "; emit i; emit ", "; emitArg y; emitLn ");"
 
-def emitOffset (n : Nat) (offset : Nat) : M Unit :=
-if n > 0 then do
+def emitOffset (n : Nat) (offset : Nat) : M Unit := do
+if n > 0 then
   emit "sizeof(void*)*"; emit n;
-  when (offset > 0) (emit " + " *> emit offset)
+  if offset > 0 then emit " + " *> emit offset
 else
   emit offset
 
@@ -360,7 +360,7 @@ emit "if (lean_is_scalar("; emit x; emitLn ")) {";
 emit " "; emitLhs z; emitAllocCtor c;
 emitLn "} else {";
 emit " "; emitLhs z; emit x; emitLn ";";
-when updtHeader (do emit " lean_ctor_set_tag("; emit z; emit ", "; emit c.cidx; emitLn ");");
+if updtHeader then emit " lean_ctor_set_tag("; emit z; emit ", "; emit c.cidx; emitLn ");"
 emitLn "}";
 emitCtorSetArgs z ys
 
@@ -392,7 +392,7 @@ ys.size.foldM
     if ps[i].ty.isIrrelevant then
       pure first
     else do
-      unless first do emit ", ";
+      unless first do emit ", "
       emitArg ys[i]
       pure false)
   true
@@ -407,14 +407,17 @@ match getExternEntryFor extData `c with
 | _ => throw ("failed to emit extern application '" ++ toString f ++ "'")
 
 def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
-emitLhs z;
-let decl ← getDecl f;
+emitLhs z
+let decl ← getDecl f
 match decl with
 | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
-| _ => do emitCName f; when (ys.size > 0) (do emit "("; emitArgs ys; emit ")"); emitLn ";"
+| _ =>
+  emitCName f
+  if ys.size > 0 then emit "("; emitArgs ys; emit ")"
+  emitLn ";"
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
-let decl ← getDecl f;
+let decl ← getDecl f
 let arity := decl.params.size;
 emitLhs z; emit "lean_alloc_closure((void*)("; emitCName f; emit "), "; emit arity; emit ", "; emit ys.size; emitLn ");";
 ys.size.forM fun i => do
@@ -603,21 +606,20 @@ partial def emitJPs : FnBody → M Unit
 | FnBody.jdecl j xs v b => do emit j; emitLn ":"; emitFnBody v; emitJPs b
 | e                     => do unless e.isTerminal do emitJPs e.body
 
-partial def emitFnBody : FnBody → M Unit
-| b => do
-emitLn "{";
-let declared ← declareVars b false;
-when declared (emitLn "");
-emitBlock b;
-emitJPs b;
+partial def emitFnBody (b : FnBody) : M Unit := do
+emitLn "{"
+let declared ← declareVars b false
+if declared then emitLn ""
+emitBlock b
+emitJPs b
 emitLn "}"
 
 end
 
 def emitDeclAux (d : Decl) : M Unit := do
-let env ← getEnv;
-let (vMap, jpMap) := mkVarJPMaps d;
-withReader (fun ctx => { ctx with jpMap := jpMap }) $ do
+let env ← getEnv
+let (vMap, jpMap) := mkVarJPMaps d
+withReader (fun ctx => { ctx with jpMap := jpMap }) do
 unless hasInitAttr env d.name do
   match d with
   | Decl.fdecl f xs t b =>
@@ -660,28 +662,29 @@ let env ← getEnv;
 let decls := getDecls env;
 decls.reverse.forM emitDecl
 
-def emitMarkPersistent (d : Decl) (n : Name) : M Unit :=
-when d.resultType.isObj $ do {
-  emit "lean_mark_persistent("; emitCName n; emitLn ");"
-}
+def emitMarkPersistent (d : Decl) (n : Name) : M Unit := do
+if d.resultType.isObj then
+  emit "lean_mark_persistent("
+  emitCName n
+  emitLn ");"
 
 def emitDeclInit (d : Decl) : M Unit := do
-let env ← getEnv;
-let n := d.name;
-if isIOUnitInitFn env n then do {
-  emit "res = "; emitCName n; emitLn "(lean_io_mk_world());";
-  emitLn "if (lean_io_result_is_error(res)) return res;";
+let env ← getEnv
+let n := d.name
+if isIOUnitInitFn env n then
+  emit "res = "; emitCName n; emitLn "(lean_io_mk_world());"
+  emitLn "if (lean_io_result_is_error(res)) return res;"
   emitLn "lean_dec_ref(res);"
-} else when (d.params.size == 0) $
+else if d.params.size == 0 then
   match getInitFnNameFor env d.name with
-  | some initFn => do {
-    emit "res = "; emitCName initFn; emitLn "(lean_io_mk_world());";
-    emitLn "if (lean_io_result_is_error(res)) return res;";
-    emitCName n; emitLn " = lean_io_result_get_value(res);";
-    emitMarkPersistent d n;
+  | some initFn =>
+    emit "res = "; emitCName initFn; emitLn "(lean_io_mk_world());"
+    emitLn "if (lean_io_result_is_error(res)) return res;"
+    emitCName n; emitLn " = lean_io_result_get_value(res);"
+    emitMarkPersistent d n
     emitLn "lean_dec_ref(res);"
-    }
-  | _ => do { emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n }
+  | _ =>
+    emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
 
 def emitInitFn : M Unit := do
 let env ← getEnv

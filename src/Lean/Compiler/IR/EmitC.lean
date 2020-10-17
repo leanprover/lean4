@@ -14,11 +14,8 @@ import Lean.Compiler.IR.NormIds
 import Lean.Compiler.IR.SimpCase
 import Lean.Compiler.IR.Boxing
 
-namespace Lean
-namespace IR
-namespace ExplicitBoxing end ExplicitBoxing -- Hack for old frontend
+namespace Lean.IR.EmitC
 open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)
-namespace EmitC
 
 def leanMainFn := "_lean_main"
 
@@ -34,16 +31,16 @@ abbrev M := ReaderT Context (EStateM String String)
 def getEnv : M Environment := Context.env <$> read
 def getModName : M Name := Context.modName <$> read
 def getDecl (n : Name) : M Decl := do
-let env ← getEnv;
+let env ← getEnv
 match findEnvDecl env n with
 | some d => pure d
-| none   => throw ("unknown declaration '" ++ toString n ++ "'")
+| none   => throw s!"unknown declaration '{n}'"
 
 @[inline] def emit {α : Type} [HasToString α] (a : α) : M Unit :=
 modify fun out => out ++ toString a
 
-@[inline] def emitLn {α : Type} [HasToString α] (a : α) : M Unit :=
-emit a *> emit "\n"
+@[inline] def emitLn {α : Type} [HasToString α] (a : α) : M Unit := do
+emit a; emit "\n"
 
 def emitLns {α : Type} [HasToString α] (as : List α) : M Unit :=
 as.forM fun a => emitLn a
@@ -70,7 +67,7 @@ def toCType : IRType → String
 | IRType.union _ _  => panic! "not implemented yet"
 
 def throwInvalidExportName {α : Type} (n : Name) : M α :=
-throw ("invalid export name '" ++ toString n ++ "'")
+throw s!"invalid export name '{n}'"
 
 def toCName (n : Name) : M String := do
 let env ← getEnv;
@@ -138,7 +135,7 @@ def emitMainFn : M Unit := do
 let d ← getDecl `main
 match d with
 | Decl.fdecl f xs t b => do
-  unless xs.size == 2 || xs.size == 1 do (throw "invalid main function, incorrect arity when generating code")
+  unless xs.size == 2 || xs.size == 1 do throw "invalid main function, incorrect arity when generating code"
   let env ← getEnv
   let usesLeanAPI := usesModuleFrom env `Lean
   if usesLeanAPI then
@@ -249,8 +246,8 @@ partial def declareVars : FnBody → Bool → M Bool
   if isTailCallTo ctx.mainFn e then
     pure d
   else
-    declareVar x t *> declareVars b true
-| FnBody.jdecl j xs _ b,    d => declareParams xs *> declareVars b (d || xs.size > 0)
+    declareVar x t; declareVars b true
+| FnBody.jdecl j xs _ b,    d => do declareParams xs; declareVars b (d || xs.size > 0)
 | e,                        d => if e.isTerminal then pure d else declareVars e.body d
 
 def emitTag (x : VarId) (xType : IRType) : M Unit := do
@@ -268,9 +265,9 @@ else match alts[0] with
 def emitInc (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do
 emit $
   if checkRef then (if n == 1 then "lean_inc" else "lean_inc_n")
-  else (if n == 1 then "lean_inc_ref" else "lean_inc_ref_n");
-emit "(" *> emit x;
-if n != 1 then emit ", " *> emit n
+  else (if n == 1 then "lean_inc_ref" else "lean_inc_ref_n")
+emit "("; emit x
+if n != 1 then emit ", "; emit n
 emitLn ");"
 
 def emitDec (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do
@@ -291,7 +288,7 @@ emit "lean_ctor_set("; emit x; emit ", "; emit i; emit ", "; emitArg y; emitLn "
 def emitOffset (n : Nat) (offset : Nat) : M Unit := do
 if n > 0 then
   emit "sizeof(void*)*"; emit n;
-  if offset > 0 then emit " + " *> emit offset
+  if offset > 0 then emit " + "; emit offset
 else
   emit offset
 
@@ -309,8 +306,8 @@ match t with
 emit "("; emit x; emit ", "; emitOffset n offset; emit ", "; emit y; emitLn ");"
 
 def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit := do
-let ps ← getJPParams j;
-unless xs.size == ps.size do throw "invalid goto";
+let ps ← getJPParams j
+unless xs.size == ps.size do throw "invalid goto"
 xs.size.forM fun i => do
   let p := ps[i]
   let x := xs[i]
@@ -325,10 +322,10 @@ ys.size.forM fun i => do
   if i > 0 then emit ", "
   emitArg ys[i]
 
-def emitCtorScalarSize (usize : Nat) (ssize : Nat) : M Unit :=
+def emitCtorScalarSize (usize : Nat) (ssize : Nat) : M Unit := do
 if usize == 0 then emit ssize
-else if ssize == 0 then emit "sizeof(size_t)*" *> emit usize
-else emit "sizeof(size_t)*" *> emit usize *> emit " + " *> emit ssize
+else if ssize == 0 then emit "sizeof(size_t)*"; emit usize
+else emit "sizeof(size_t)*"; emit usize; emit " + "; emit ssize
 
 def emitAllocCtor (c : CtorInfo) : M Unit := do
 emit "lean_alloc_ctor("; emit c.cidx; emit ", "; emit c.size; emit ", ";
@@ -378,7 +375,7 @@ match t with
 | IRType.uint16 => emit "lean_ctor_get_uint16"
 | IRType.uint32 => emit "lean_ctor_get_uint32"
 | IRType.uint64 => emit "lean_ctor_get_uint64"
-| _             => throw "invalid instruction";
+| _             => throw "invalid instruction"
 emit "("; emit x; emit ", "; emitOffset n offset; emitLn ");"
 
 def toStringArgs (ys : Array Arg) : List String :=
@@ -404,7 +401,7 @@ match getExternEntryFor extData `c with
 | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall extFn ps ys
 | some (ExternEntry.inline _ pat)     => do emit (expandExternPattern pat (toStringArgs ys)); emitLn ";"
 | some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall extFn ps ys
-| _ => throw ("failed to emit extern application '" ++ toString f ++ "'")
+| _ => throw s!"failed to emit extern application '{f}'"
 
 def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
 emitLhs z
@@ -476,20 +473,20 @@ let q := s.foldl
   q;
 q ++ "\""
 
-def emitNumLit (t : IRType) (v : Nat) : M Unit :=
-if t.isObj then do
+def emitNumLit (t : IRType) (v : Nat) : M Unit := do
+if t.isObj then
   if v < uint32Sz then
-    emit "lean_unsigned_to_nat(" *> emit v *> emit "u)"
+    emit "lean_unsigned_to_nat("; emit v; emit "u)"
   else
-    emit "lean_cstr_to_nat(\"" *> emit v *> emit "\")"
+    emit "lean_cstr_to_nat(\""; emit v; emit "\")"
 else
   emit v
 
-def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit :=
-emitLhs z *>
+def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit := do
+emitLhs z;
 match v with
-| LitVal.num v => emitNumLit t v *> emitLn ";"
-| LitVal.str v => do emit "lean_mk_string("; emit (quoteString v); emitLn ");"
+| LitVal.num v => emitNumLit t v; emitLn ";"
+| LitVal.str v => emit "lean_mk_string("; emit (quoteString v); emitLn ");"
 
 def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
 match v with
@@ -580,24 +577,35 @@ match isIf alts with
 | _ => do
   emit "switch ("; emitTag x xType; emitLn ") {";
   let alts := ensureHasDefault alts;
-  alts.forM fun alt => match alt with
-    | Alt.ctor c b  => emit "case " *> emit c.cidx *> emitLn ":" *> emitFnBody b
-    | Alt.default b => emitLn "default: " *> emitFnBody b;
+  alts.forM fun alt => do
+    match alt with
+    | Alt.ctor c b  => emit "case "; emit c.cidx; emitLn ":"; emitFnBody b
+    | Alt.default b => emitLn "default: "; emitFnBody b
   emitLn "}"
 
-partial def emitBlock : FnBody → M Unit
+partial def emitBlock (b : FnBody) : M Unit := do
+match b with
 | FnBody.jdecl j xs v b      => emitBlock b
 | d@(FnBody.vdecl x t v b)   =>
-  do let ctx ← read; if isTailCallTo ctx.mainFn d then emitTailCall v else emitVDecl x t v *> emitBlock b
-| FnBody.inc x n c p b       => «unless» p (emitInc x n c) *> emitBlock b
-| FnBody.dec x n c p b       => «unless» p (emitDec x n c) *> emitBlock b
-| FnBody.del x b             => emitDel x *> emitBlock b
-| FnBody.setTag x i b        => emitSetTag x i *> emitBlock b
-| FnBody.set x i y b         => emitSet x i y *> emitBlock b
-| FnBody.uset x i y b        => emitUSet x i y *> emitBlock b
-| FnBody.sset x i o y t b    => emitSSet x i o y t *> emitBlock b
+  let ctx ← read
+  if isTailCallTo ctx.mainFn d then
+    emitTailCall v
+  else
+    emitVDecl x t v
+    emitBlock b
+| FnBody.inc x n c p b       =>
+  unless p do emitInc x n c
+  emitBlock b
+| FnBody.dec x n c p b       =>
+  unless p do emitDec x n c
+  emitBlock b
+| FnBody.del x b             => emitDel x; emitBlock b
+| FnBody.setTag x i b        => emitSetTag x i; emitBlock b
+| FnBody.set x i y b         => emitSet x i y; emitBlock b
+| FnBody.uset x i y b        => emitUSet x i y; emitBlock b
+| FnBody.sset x i o y t b    => emitSSet x i o y t; emitBlock b
 | FnBody.mdata _ b           => emitBlock b
-| FnBody.ret x               => emit "return " *> emitArg x *> emitLn ";"
+| FnBody.ret x               => emit "return "; emitArg x; emitLn ";"
 | FnBody.case _ x xType alts => emitCase x xType alts
 | FnBody.jmp j xs            => emitJmp j xs
 | FnBody.unreachable         => emitLn "lean_panic_unreachable();"
@@ -655,7 +663,7 @@ let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices
 try
   emitDeclAux d
 catch err =>
-  throw (err ++ "\ncompiling:\n" ++ toString d)
+  throw s!"{err}\ncompiling:\n{d}"
 
 def emitFns : M Unit := do
 let env ← getEnv;
@@ -706,11 +714,11 @@ decls.reverse.forM emitDeclInit
 emitLns ["return lean_io_result_mk_ok(lean_box(0));", "}"]
 
 def main : M Unit := do
-emitFileHeader;
-emitFnDecls;
-emitFns;
-emitInitFn;
-emitMainFnIfNeeded;
+emitFileHeader
+emitFnDecls
+emitFns
+emitInitFn
+emitMainFnIfNeeded
 emitFileFooter
 
 end EmitC
@@ -721,5 +729,4 @@ match (EmitC.main { env := env, modName := modName }).run "" with
 | EStateM.Result.ok    _   s => Except.ok s
 | EStateM.Result.error err _ => Except.error err
 
-end IR
-end Lean
+end Lean.IR

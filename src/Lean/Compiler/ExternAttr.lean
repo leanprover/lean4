@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -40,19 +41,19 @@ instance ExternAttrData.inhabited : Inhabited ExternAttrData := ⟨{ entries := 
 private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List ExternEntry → Except String (List ExternEntry)
 | i, entries =>
   if i == a.size then Except.ok entries
-  else match a.get! i with
+  else match a[i] with
     | Syntax.ident _ _ backend _ =>
-      let i := i + 1;
+      let i := i + 1
       if i == a.size then Except.error "string or identifier expected"
-      else match (a.get! i).isIdOrAtom? with
-        | some "adhoc"  => syntaxToExternEntries (i+1) (ExternEntry.adhoc backend :: entries)
+      else match a[i].isIdOrAtom? with
+        | some "adhoc"  => syntaxToExternEntries a (i+1) (ExternEntry.adhoc backend :: entries)
         | some "inline" =>
-          let i := i + 1;
-          match (a.get! i).isStrLit? with
-          | some pattern => syntaxToExternEntries (i+1) (ExternEntry.inline backend pattern :: entries)
+          let i := i + 1
+          match a[i].isStrLit? with
+          | some pattern => syntaxToExternEntries a (i+1) (ExternEntry.inline backend pattern :: entries)
           | none => Except.error "string literal expected"
-        | _ => match (a.get! i).isStrLit? with
-          | some fn => syntaxToExternEntries (i+1) (ExternEntry.standard backend fn :: entries)
+        | _ => match a[i].isStrLit? with
+          | some fn => syntaxToExternEntries a (i+1) (ExternEntry.standard backend fn :: entries)
           | none => Except.error "string literal expected"
     | _ => Except.error "identifier expected"
 
@@ -62,10 +63,10 @@ match s with
 | Syntax.node _ args =>
   if args.size == 0 then Except.error "unexpected kind of argument"
   else
-    let (arity, i) : Option Nat × Nat := match (args.get! 0).isNatLit? with
+    let (arity, i) : Option Nat × Nat := match args[0].isNatLit? with
       | some arity => (some arity, 1)
-      | none       => (none, 0);
-    match (args.get! i).isStrLit? with
+      | none       => (none, 0)
+    match args[i].isStrLit? with
     | some str =>
       if args.size == i+1 then
         Except.ok { arity? := arity, entries := [ ExternEntry.standard `all str ] }
@@ -79,19 +80,16 @@ match s with
 @[extern "lean_add_extern"]
 constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment := arbitrary _
 
-def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=
+initialize externAttr : ParametricAttribute ExternAttrData ←
 registerParametricAttribute `extern "builtin and foreign functions"
   (fun _ stx => ofExcept $ syntaxToExternAttrData stx)
   (fun declName _ => do
-    env ← getEnv;
+    let env ← getEnv
     if env.isProjectionFn declName || env.isConstructor declName then do
-      env ← ofExcept $ addExtern env declName;
+      env ← ofExcept $ addExtern env declName
       setEnv env
     else
       pure ())
-
-@[init mkExternAttr]
-constant externAttr : ParametricAttribute ExternAttrData := arbitrary _
 
 @[export lean_get_extern_attr_data]
 def getExternAttrData (env : Environment) (n : Name) : Option ExternAttrData :=
@@ -102,7 +100,7 @@ private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator ×
 | n+1, it, r =>
   if !it.hasNext then (it, r)
   else
-    let c := it.curr;
+    let c := it.curr
     if '0' <= c && c <= '9'
     then parseOptNum n it.next (r*10 + (c.toNat - '0'.toNat))
     else (it, r)
@@ -111,13 +109,13 @@ def expandExternPatternAux (args : List String) : Nat → String.Iterator → St
 | 0,   it, r => r
 | i+1, it, r =>
   if ¬ it.hasNext then r
-  else let c := it.curr;
-    if c ≠ '#' then expandExternPatternAux i it.next (r.push c)
+  else let c := it.curr
+    if c ≠ '#' then expandExternPatternAux args i it.next (r.push c)
     else
-      let it      := it.next;
-      let (it, j) := parseOptNum it.remainingBytes it 0;
-      let j       := j-1;
-      expandExternPatternAux i it (r ++ args.getD j "")
+      let it      := it.next
+      let (it, j) := parseOptNum it.remainingBytes it 0
+      let j       := j-1
+      expandExternPatternAux args i it (r ++ args.getD j "")
 
 def expandExternPattern (pattern : String) (args : List String) : String :=
 expandExternPatternAux args pattern.length pattern.mkIterator ""
@@ -136,7 +134,7 @@ def getExternEntryForAux (backend : Name) : List ExternEntry → Option ExternEn
 | e::es =>
   if e.backend == `all then some e
   else if e.backend == backend then some e
-  else getExternEntryForAux es
+  else getExternEntryForAux backend es
 
 def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry :=
 getExternEntryForAux backend d.entries
@@ -152,28 +150,30 @@ match getExternAttrData env fn with
 | _ => false
 
 def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String := do
-data ← getExternAttrData env fn;
-entry ← getExternEntryFor data backend;
+let data ← getExternAttrData env fn
+let entry ← getExternEntryFor data backend
 match entry with
 | ExternEntry.standard _ n => pure n
 | ExternEntry.foreign _ n  => pure n
 | _ => failure
 
 def getExternConstArity (declName : Name) : CoreM (Option Nat) := do
-env ← getEnv;
+let env ← getEnv
 match getExternAttrData env declName with
 | none      => pure none
 | some data => match data.arity? with
   | some arity => pure arity
-  | none       => do
-    cinfo ← getConstInfo declName;
-    (arity, _) ← (Meta.forallTelescopeReducing cinfo.type fun xs _ => pure xs.size : MetaM Nat).run;
+  | none       =>
+    let cinfo ← getConstInfo declName
+    let (arity, _) ← (Meta.forallTelescopeReducing cinfo.type fun xs _ => pure xs.size : MetaM Nat).run
     pure (some arity)
 
 @[export lean_get_extern_const_arity]
-def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) :=
-catch
-  (do (arity?, _) ← (getExternConstArity declName).toIO {} { env := env }; pure arity?)
-  (fun _ => pure none)
+def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) := do
+try
+  let (arity?, _) ← (getExternConstArity declName).toIO {} { env := env }
+  pure arity?
+catch _ =>
+  pure none
 
 end Lean

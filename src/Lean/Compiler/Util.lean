@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -5,8 +6,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Environment
 
-namespace Lean
-namespace Compiler
+namespace Lean.Compiler
 
 def neutralExpr : Expr       := mkConst `_neutral
 def unreachableExpr : Expr   := mkConst `_unreachable
@@ -38,20 +38,21 @@ instance : HasAndthen Visitor :=
 
 def visit (x : Name) : Expr → Visitor
 | Expr.fvar y _        => visitFVar y x
-| Expr.app f a _       => visit a >> visit f
-| Expr.lam _ d b _     => visit d >> visit b
-| Expr.forallE _ d b _ => visit d >> visit b
-| Expr.letE _ t v b _  => visit t >> visit v >> visit b
-| Expr.mdata _ e _     => visit e
-| Expr.proj _ _ e _    => visit e
+| Expr.app f a _       => visit x a >> visit x f
+| Expr.lam _ d b _     => visit x d >> visit x b
+| Expr.forallE _ d b _ => visit x d >> visit x b
+| Expr.letE _ t v b _  => visit x t >> visit x v >> visit x b
+| Expr.mdata _ e _     => visit x e
+| Expr.proj _ _ e _    => visit x e
 | _                    => skip
 
 end atMostOnce
 
+open atMostOnce (visit) in
 /-- Return true iff the free variable with id `x` occurs at most once in `e` -/
 @[export lean_at_most_once]
 def atMostOnce (e : Expr) (x : Name) : Bool :=
-let {result := result, ..} := atMostOnce.visit x e {found := false, result := true};
+let {result := result, ..} := visit x e {found := false, result := true};
 result
 
 /- Helper functions for creating auxiliary names used in compiler passes. -/
@@ -72,7 +73,7 @@ def isEagerLambdaLiftingName : Name → Bool
 @[export lean_get_decl_names_for_code_gen]
 private def getDeclNamesForCodeGen : Declaration → List Name
 | Declaration.defnDecl { name := n, .. }   => [n]
-| Declaration.mutualDefnDecl defs          => defs.map $ fun d => d.name
+| Declaration.mutualDefnDecl defs          => defs.map fun d => d.name
 | Declaration.opaqueDecl { name := n, .. } => [n]
 | _                                        => []
 
@@ -80,8 +81,8 @@ def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
 match env.find? n with
 | (some (ConstantInfo.defnInfo _))   => Except.ok ()
 | (some (ConstantInfo.opaqueInfo _)) => Except.ok ()
-| none => Except.error ("unknow declaration '" ++ toString n ++ "'")
-| _    => Except.error ("declaration is not a definition '" ++ toString n ++ "'")
+| none => Except.error s!"unknow declaration '{n}'"
+| _    => Except.error s!"declaration is not a definition '{n}'"
 
 /--
   We generate auxiliary unsafe definitions for regular recursive definitions.
@@ -97,5 +98,4 @@ def isUnsafeRecName? : Name → Option Name
 | Name.str n "_unsafe_rec" _ => some n
 | _ => none
 
-end Compiler
-end Lean
+end Lean.Compiler

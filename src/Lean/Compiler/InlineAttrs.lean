@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -6,8 +7,7 @@ Authors: Leonardo de Moura
 import Lean.Attributes
 import Lean.Compiler.Util
 
-namespace Lean
-namespace Compiler
+namespace Lean.Compiler
 
 inductive InlineAttributeKind
 | inline | noinline | macroInline | inlineIfReduce
@@ -27,18 +27,15 @@ instance : HasBeq InlineAttributeKind := ⟨InlineAttributeKind.beq⟩
 
 end InlineAttributeKind
 
-def mkInlineAttrs : IO (EnumAttributes InlineAttributeKind) :=
+initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
 registerEnumAttributes `inlineAttrs
   [(`inline, "mark definition to always be inlined", InlineAttributeKind.inline),
    (`inlineIfReduce, "mark definition to be inlined when resultant term after reduction is not a `cases_on` application", InlineAttributeKind.inlineIfReduce),
    (`noinline, "mark definition to never be inlined", InlineAttributeKind.noinline),
    (`macroInline, "mark definition to always be inlined before ANF conversion", InlineAttributeKind.macroInline)]
   (fun declName _ => do
-    env ← getEnv;
+    let env ← getEnv
     ofExcept $ checkIsDefinition env declName)
-
-@[init mkInlineAttrs]
-constant inlineAttrs : EnumAttributes InlineAttributeKind := arbitrary _
 
 private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttributeKind) : Name → Bool
 | n =>
@@ -46,7 +43,7 @@ private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttribute
   if isEagerLambdaLiftingName n then false
   else match inlineAttrs.getValue env n with
     | some k => kind == k
-    | none   => if n.isInternal then hasInlineAttrAux n.getPrefix else false
+    | none   => if n.isInternal then hasInlineAttrAux env kind n.getPrefix else false
 
 @[export lean_has_inline_attribute]
 def hasInlineAttribute (env : Environment) (n : Name) : Bool :=
@@ -67,5 +64,4 @@ hasInlineAttrAux env InlineAttributeKind.macroInline n
 def setInlineAttribute (env : Environment) (declName : Name) (kind : InlineAttributeKind) : Except String Environment :=
 inlineAttrs.setValue env declName kind
 
-end Compiler
-end Lean
+end Lean.Compiler

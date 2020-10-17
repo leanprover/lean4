@@ -243,7 +243,6 @@ extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_Lean_Elab_Command_expandInitialize___closed__19;
 lean_object* l_Lean_Elab_Command_expandMutualElement(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualElement(lean_object*);
-extern lean_object* l___private_Lean_Meta_Match_Match_40__process___main___closed__1;
 lean_object* l_Lean_Elab_Command_expandInitialize___closed__36;
 lean_object* l_Lean_Elab_Term_resetMessageLog(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandMutualPreamble___closed__2;
@@ -338,6 +337,7 @@ lean_object* l_Lean_Elab_Command_elabAttr(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_Elab_Command_expandInitialize___closed__20;
 lean_object* l_Lean_Elab_Command_elabDeclaration___closed__1;
 lean_object* l_Lean_Elab_Command_expandDeclIdNamespace_x3f_match__2(lean_object*);
+extern lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process___closed__1;
 lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabAttr___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDeclaration___closed__3;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_expandMutualNamespace___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -3955,7 +3955,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
-x_2 = l___private_Lean_Meta_Match_Match_40__process___main___closed__1;
+x_2 = l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

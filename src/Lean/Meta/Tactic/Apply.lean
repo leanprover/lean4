@@ -63,7 +63,7 @@ otherMVars.anyM fun otherMVar =>
     pure $ (otherMVarType.findMVar? fun mvarId => mvarId == mvar.mvarId!).isSome
 
 private def reorderNonDependentFirst (newMVars : Array Expr) : MetaM (List MVarId) := do
-let (nonDeps, deps) ← newMVars.foldlM (init := (#[], #[])) fun (nonDeps, deps) (mvar : Expr) => do
+let (nonDeps, deps) ← newMVars.foldlM (init := (#[], #[])) fun (nonDeps, deps) mvar => do
   let currMVarId := mvar.mvarId!
   if (← dependsOnOthers mvar newMVars) then
     pure (nonDeps, deps.push currMVarId)

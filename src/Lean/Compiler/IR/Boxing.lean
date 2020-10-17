@@ -316,7 +316,7 @@ partial def visitFnBody : FnBody → M FnBody
 
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
 let ctx : BoxingContext := { decls := decls, env := env }
-let decls := decls.foldl (init := #[]) fun (newDecls : Array Decl) (decl : Decl) =>
+let decls := decls.foldl (init := #[]) fun newDecls decl =>
   match decl with
   | Decl.fdecl f xs t b =>
     let nextIdx  := decl.maxIndex + 1

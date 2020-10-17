@@ -166,15 +166,13 @@ else
 private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
 let indicesFVarIds := s₁.indicesFVarIds
 s₂.mapM fun s => do
-  indicesFVarIds.foldlM
-    (fun s indexFVarId =>
-      match s.subst.get indexFVarId with
-      | Expr.fvar indexFVarId' _ =>
-        (do let mvarId ← clear s.mvarId indexFVarId'; pure { s with mvarId := mvarId, subst := s.subst.erase indexFVarId })
-        <|>
-        (pure s)
-      | _ => pure s)
-    s
+  indicesFVarIds.foldlM (init := s) fun s indexFVarId =>
+    match s.subst.get indexFVarId with
+    | Expr.fvar indexFVarId' _ =>
+      (do let mvarId ← clear s.mvarId indexFVarId'; pure { s with mvarId := mvarId, subst := s.subst.erase indexFVarId })
+      <|>
+      (pure s)
+    | _ => pure s
 
 /-
   Convert `s` into an array of `CasesSubgoal`, by attaching the corresponding constructor name,

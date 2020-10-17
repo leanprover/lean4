@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -9,7 +10,7 @@ namespace Lean
 
 abbrev ClosedTermCache := SMap Expr Name
 
-def mkClosedTermCacheExtension : IO (SimplePersistentEnvExtension (Expr × Name) ClosedTermCache) :=
+initialize closedTermCacheExt : SimplePersistentEnvExtension (Expr × Name) ClosedTermCache ←
 registerSimplePersistentEnvExtension {
   name       := `closedTermCache,
   addImportedFn := fun as =>
@@ -17,9 +18,6 @@ registerSimplePersistentEnvExtension {
     cache.switch,
   addEntryFn := fun s ⟨e, n⟩ => s.insert e n
 }
-
-@[init mkClosedTermCacheExtension]
-constant closedTermCacheExt : SimplePersistentEnvExtension (Expr × Name) ClosedTermCache := arbitrary _
 
 @[export lean_cache_closed_term_name]
 def cacheClosedTermName (env : Environment) (e : Expr) (n : Name) : Environment :=

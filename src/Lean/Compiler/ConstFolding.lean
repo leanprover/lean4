@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -8,8 +9,7 @@ import Lean.Compiler.Util
 
 /- Constant folding for primitives that have special runtime support. -/
 
-namespace Lean
-namespace Compiler
+namespace Lean.Compiler
 
 def BinFoldFn := Bool → Expr → Expr → Option Expr
 def UnFoldFn  := Bool → Expr → Option Expr
@@ -38,7 +38,7 @@ def getInfoFromFn (fn : Name) : List NumScalarTypeInfo → Option NumScalarTypeI
 | []          => none
 | info::infos =>
   if info.ofNatFn == fn then some info
-  else getInfoFromFn infos
+  else getInfoFromFn fn infos
 
 def getInfoFromVal : Expr → Option NumScalarTypeInfo
 | Expr.app (Expr.const fn _ _) _ _ => getInfoFromFn fn numScalarTypes
@@ -57,9 +57,9 @@ def mkUInt32Lit (n : Nat) : Expr :=
 mkUIntLit {nbits := 32} n
 
 def foldBinUInt (fn : NumScalarTypeInfo → Bool → Nat → Nat → Nat) (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr := do
-n₁   ← getNumLit a₁;
-n₂   ← getNumLit a₂;
-info ← getInfoFromVal a₁;
+let n₁   ← getNumLit a₁
+let n₂   ← getNumLit a₂
+let info ← getInfoFromVal a₁
 pure $ mkUIntLit info (fn info beforeErasure n₁ n₂)
 
 def foldUIntAdd := foldBinUInt $ fun _ _ => HasAdd.add
@@ -76,8 +76,8 @@ def uintBinFoldFns : List (Name × BinFoldFn) :=
 numScalarTypes.foldl (fun r info => r ++ (preUIntBinFoldFns.map (fun ⟨suffix, fn⟩ => (info.id ++ suffix, fn)))) []
 
 def foldNatBinOp (fn : Nat → Nat → Nat) (a₁ a₂ : Expr) : Option Expr := do
-n₁   ← getNumLit a₁;
-n₂   ← getNumLit a₂;
+let n₁   ← getNumLit a₁
+let n₂   ← getNumLit a₂
 pure $ mkNatLit (fn n₁ n₂)
 
 def foldNatAdd (_ : Bool) := foldNatBinOp HasAdd.add
@@ -89,8 +89,8 @@ def foldNatMod (_ : Bool) := foldNatBinOp HasMod.mod
 def natPowThreshold := 256
 
 def foldNatPow (_ : Bool) (a₁ a₂ : Expr) : Option Expr := do
-n₁   ← getNumLit a₁;
-n₂   ← getNumLit a₂;
+let n₁   ← getNumLit a₁
+let n₂   ← getNumLit a₂
 if n₂ < natPowThreshold then pure $ mkNatLit (n₁ ^ n₂) else none
 
 def mkNatEq (a b : Expr) : Expr :=
@@ -111,8 +111,8 @@ match beforeErasure, r with
 
 def foldNatBinPred (mkPred : Expr → Expr → Expr) (fn : Nat → Nat → Bool)
     (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr := do
-n₁   ← getNumLit a₁;
-n₂   ← getNumLit a₂;
+let n₁   ← getNumLit a₁
+let n₂   ← getNumLit a₂
 pure $ toDecidableExpr beforeErasure (mkPred a₁ a₂) (fn n₁ n₂)
 
 def foldNatDecEq := foldNatBinPred mkNatEq (fun a b => a = b)
@@ -136,8 +136,8 @@ def getBoolLit : Expr → Option Bool
 | _                          => none
 
 def foldStrictAnd (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
-let v₁ := getBoolLit a₁;
-let v₂ := getBoolLit a₂;
+let v₁ := getBoolLit a₁
+let v₂ := getBoolLit a₂
 match v₁, v₂ with
 | some true,  _ => a₂
 | some false, _ => a₁
@@ -146,8 +146,8 @@ match v₁, v₂ with
 | _, _          => none
 
 def foldStrictOr (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
-let v₁ := getBoolLit a₁;
-let v₂ := getBoolLit a₂;
+let v₁ := getBoolLit a₁
+let v₂ := getBoolLit a₂
 match v₁, v₂ with
 | some true,  _ => a₁
 | some false, _ => a₂
@@ -162,18 +162,18 @@ def binFoldFns : List (Name × BinFoldFn) :=
 boolFoldFns ++ uintBinFoldFns ++ natFoldFns
 
 def foldNatSucc (_ : Bool) (a : Expr) : Option Expr := do
-n ← getNumLit a;
+let n ← getNumLit a
 pure $ mkNatLit (n+1)
 
 def foldCharOfNat (beforeErasure : Bool) (a : Expr) : Option Expr := do
-guard (!beforeErasure);
-n ← getNumLit a;
+guard (!beforeErasure)
+let n ← getNumLit a
 pure $
   if isValidChar n.toUInt32 then mkUInt32Lit n
   else mkUInt32Lit 0
 
 def foldToNat (_ : Bool) (a : Expr) : Option Expr := do
-n ← getNumLit a;
+let n ← getNumLit a
 pure $ mkNatLit n
 
 def uintFoldToNatFns : List (Name × UnFoldFn) :=
@@ -191,20 +191,19 @@ def findUnFoldFn (fn : Name) : Option UnFoldFn :=
 unFoldFns.lookup fn
 
 @[export lean_fold_bin_op]
-def foldBinOp (beforeErasure : Bool) (f : Expr) (a : Expr) (b : Expr) : Option Expr :=
+def foldBinOp (beforeErasure : Bool) (f : Expr) (a : Expr) (b : Expr) : Option Expr := do
 match f with
-| Expr.const fn _ _ => do
-   foldFn ← findBinFoldFn fn;
+| Expr.const fn _ _ =>
+   let foldFn ← findBinFoldFn fn
    foldFn beforeErasure a b
 | _ => none
 
 @[export lean_fold_un_op]
-def foldUnOp (beforeErasure : Bool) (f : Expr) (a : Expr) : Option Expr :=
+def foldUnOp (beforeErasure : Bool) (f : Expr) (a : Expr) : Option Expr := do
 match f with
-| Expr.const fn _ _ => do
-   foldFn ← findUnFoldFn fn;
+| Expr.const fn _ _ =>
+   let foldFn ← findUnFoldFn fn
    foldFn beforeErasure a
 | _ => none
 
-end Compiler
-end Lean
+end Lean.Compiler

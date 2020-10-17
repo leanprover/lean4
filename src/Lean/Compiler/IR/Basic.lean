@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -15,8 +16,7 @@ The Lean to IR transformation produces λPure code, and
 this part is implemented in C++. The procedures described in the paper
 above are implemented in Lean.
 -/
-namespace Lean
-namespace IR
+namespace Lean.IR
 
 /- Function identifier -/
 abbrev FunId := Name
@@ -240,8 +240,8 @@ instance paramInh : Inhabited Param := ⟨{ x := { idx := 0 }, borrow := false, 
 @[export lean_ir_mk_param] def mkParam (x : VarId) (borrow : Bool) (ty : IRType) : Param := ⟨x, borrow, ty⟩
 
 inductive AltCore (FnBody : Type) : Type
-| ctor (info : CtorInfo) (b : FnBody) : AltCore
-| default (b : FnBody) : AltCore
+| ctor (info : CtorInfo) (b : FnBody) : AltCore FnBody
+| default (b : FnBody) : AltCore FnBody
 
 inductive FnBody
 /- `let x : ty := e; b` -/
@@ -332,8 +332,8 @@ b.setBody FnBody.nil
 /- If b is a non terminal, then return a pair `(c, b')` s.t. `b == c <;> b'`,
    and c.body == FnBody.nil -/
 @[inline] def FnBody.split (b : FnBody) : FnBody × FnBody :=
-let b' := b.body;
-let c  := b.resetBody;
+let b' := b.body
+let c  := b.resetBody
 (c, b')
 
 def AltCore.body : Alt → FnBody
@@ -357,7 +357,7 @@ def Alt.isDefault : Alt → Bool
 | Alt.default _ => true
 
 def push (bs : Array FnBody) (b : FnBody) : Array FnBody :=
-let b := b.resetBody;
+let b := b.resetBody
 bs.push b
 
 partial def flattenAux : FnBody → Array FnBody → (Array FnBody) × FnBody
@@ -372,22 +372,22 @@ partial def reshapeAux : Array FnBody → Nat → FnBody → FnBody
 | a, i, b =>
   if i == 0 then b
   else
-    let i         := i - 1;
-    let (curr, a) := a.swapAt! i (arbitrary _);
-    let b         := curr.setBody b;
+    let i         := i - 1
+    let (curr, a) := a.swapAt! i (arbitrary _)
+    let b         := curr.setBody b
     reshapeAux a i b
 
 def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 reshapeAux bs bs.size term
 
 @[inline] def modifyJPs (bs : Array FnBody) (f : FnBody → FnBody) : Array FnBody :=
-bs.map $ fun b => match b with
+bs.map fun b => match b with
   | FnBody.jdecl j xs v k => FnBody.jdecl j xs (f v) k
   | other                 => other
 
 @[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
-bs.mapM $ fun b => match b with
-  | FnBody.jdecl j xs v k => do v ← f v; pure $ FnBody.jdecl j xs v k
+bs.mapM fun b => match b with
+  | FnBody.jdecl j xs v k => do let v ← f v; pure $ FnBody.jdecl j xs v k
   | other                 => pure other
 
 @[export lean_ir_mk_alt] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt := Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
@@ -478,7 +478,7 @@ match ctx.find? idx with
 | other => false
 
 def LocalContext.contains (ctx : LocalContext) (idx : Index) : Bool :=
-ctx.contains idx
+Std.RBMap.contains ctx idx
 
 def LocalContext.eraseJoinPointDecl (ctx : LocalContext) (j : JoinPointId) : LocalContext :=
 ctx.erase j.idx
@@ -548,26 +548,26 @@ else none
 
 def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option IndexRenaming :=
 if ps₁.size != ps₂.size then none
-else Array.foldl₂ (fun ρ p₁ p₂ => do ρ ← ρ; addParamRename ρ p₁ p₂) (some ρ) ps₁ ps₂
+else Array.foldl₂ (fun ρ p₁ p₂ => do let ρ ← ρ; addParamRename ρ p₁ p₂) (some ρ) ps₁ ps₂
 
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
-| ρ, FnBody.vdecl x₁ t₁ v₁ b₁,      FnBody.vdecl x₂ t₂ v₂ b₂      => t₁ == t₂ && aeqv ρ v₁ v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
+| ρ, FnBody.vdecl x₁ t₁ v₁ b₁,      FnBody.vdecl x₂ t₂ v₂ b₂      => t₁ == t₂ && aeqv ρ v₁ v₂ && alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
 | ρ, FnBody.jdecl j₁ ys₁ v₁ b₁,  FnBody.jdecl j₂ ys₂ v₂ b₂        => match addParamsRename ρ ys₁ ys₂ with
-  | some ρ' => FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
+  | some ρ' => alphaEqv ρ' v₁ v₂ && alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
   | none    => false
-| ρ, FnBody.set x₁ i₁ y₁ b₁,        FnBody.set x₂ i₂ y₂ b₂        => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.uset x₁ i₁ y₁ b₁,       FnBody.uset x₂ i₂ y₂ b₂       => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ, FnBody.set x₁ i₁ y₁ b₁,        FnBody.set x₂ i₂ y₂ b₂        => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && alphaEqv ρ b₁ b₂
+| ρ, FnBody.uset x₁ i₁ y₁ b₁,       FnBody.uset x₂ i₂ y₂ b₂       => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && alphaEqv ρ b₁ b₂
 | ρ, FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁, FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂ =>
-  aeqv ρ x₁ x₂ && i₁ = i₂ && o₁ = o₂ && aeqv ρ y₁ y₂ && t₁ == t₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.setTag x₁ i₁ b₁,        FnBody.setTag x₂ i₂ b₂        => aeqv ρ x₁ x₂ && i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.inc x₁ n₁ c₁ p₁ b₁,     FnBody.inc x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.dec x₁ n₁ c₁ p₁ b₁,     FnBody.dec x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.del x₁ b₁,              FnBody.del x₂ b₂              => aeqv ρ x₁ x₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.mdata m₁ b₁,            FnBody.mdata m₂ b₂            => m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
+  aeqv ρ x₁ x₂ && i₁ = i₂ && o₁ = o₂ && aeqv ρ y₁ y₂ && t₁ == t₂ && alphaEqv ρ b₁ b₂
+| ρ, FnBody.setTag x₁ i₁ b₁,        FnBody.setTag x₂ i₂ b₂        => aeqv ρ x₁ x₂ && i₁ == i₂ && alphaEqv ρ b₁ b₂
+| ρ, FnBody.inc x₁ n₁ c₁ p₁ b₁,     FnBody.inc x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && alphaEqv ρ b₁ b₂
+| ρ, FnBody.dec x₁ n₁ c₁ p₁ b₁,     FnBody.dec x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && alphaEqv ρ b₁ b₂
+| ρ, FnBody.del x₁ b₁,              FnBody.del x₂ b₂              => aeqv ρ x₁ x₂ && alphaEqv ρ b₁ b₂
+| ρ, FnBody.mdata m₁ b₁,            FnBody.mdata m₂ b₂            => m₁ == m₂ && alphaEqv ρ b₁ b₂
 | ρ, FnBody.case n₁ x₁ _ alts₁,     FnBody.case n₂ x₂ _ alts₂     => n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>
    match alt₁, alt₂ with
-   | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ => i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
-   | Alt.default b₁, Alt.default b₂ => FnBody.alphaEqv ρ b₁ b₂
+   | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ => i₁ == i₂ && alphaEqv ρ b₁ b₂
+   | Alt.default b₁, Alt.default b₂ => alphaEqv ρ b₁ b₂
    | _,              _              => false)
 | ρ, FnBody.jmp j₁ ys₁,             FnBody.jmp j₂ ys₂             => j₁ == j₂ && aeqv ρ ys₁ ys₂
 | ρ, FnBody.ret x₁,                 FnBody.ret x₂                 => aeqv ρ x₁ x₂
@@ -590,5 +590,4 @@ FnBody.case `Bool x IRType.uint8 #[
   Alt.ctor {name := `Bool.true, cidx := 1, size := 0, usize := 0, ssize := 0} t
 ]
 
-end IR
-end Lean
+end Lean.IR

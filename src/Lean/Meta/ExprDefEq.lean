@@ -394,6 +394,9 @@ traceCtx `Meta.isDefEq.assign.checkTypes $ do
      how many metavariable arguments are representing dependencies.
 -/
 
+def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (numScopeArgs : Nat := 0) : DefEqM Expr := do
+mkFreshExprMVarAt lctx localInsts type MetavarKind.natural Name.anonymous numScopeArgs
+
 namespace CheckAssignment
 
 def registerCheckAssignmentId : IO InternalExceptionId :=
@@ -455,9 +458,6 @@ else do
       traceM `Meta.isDefEq.assign.outOfScopeFVar $ addAssignmentInfo fvar;
       throwOutOfScopeFVar
 
-def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (numScopeArgs : Nat := 0) : CheckAssignmentM Expr := do
-mkFreshExprMVarAt lctx localInsts type MetavarKind.natural Name.anonymous numScopeArgs
-
 @[specialize] def checkMVar (check : Expr → CheckAssignmentM Expr) (mvar : Expr) : CheckAssignmentM Expr := do
 let mvarId := mvar.mvarId!;
 ctx  ← read;
@@ -486,7 +486,7 @@ else match mctx.getExprAssignment? mvarId with
           /- Create an auxiliary metavariable with a smaller context and "checked" type.
              Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
              a metavariable that we also need to reduce the context. -/
-          newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType mvarDecl.numScopeArgs;
+          newMVar ← liftM $ mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType mvarDecl.numScopeArgs;
           modifyThe Meta.State (fun s => { s with mctx := s.mctx.assignExpr mvarId newMVar });
           pure newMVar
         else
@@ -534,7 +534,7 @@ partial def check : Expr → CheckAssignmentM Expr
           /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
                Note that `mvarType` may be different from `eType`. -/
           ctx ← read;
-          newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
+          newMVar ← liftM $ mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
           condM (liftM $ assignToConstFun f args.size newMVar)
             (pure newMVar)
             (throw ex))
@@ -673,6 +673,17 @@ private def simpAssignmentArg (arg : Expr) : DefEqM Expr := do
 arg ← if arg.getAppFn.hasExprMVar then instantiateMVars arg else pure arg;
 simpAssignmentArgAux arg
 
+/- Assign `mvar := fun a_1 ... a_{numArgs} => v`.
+   We use it at `processConstApprox` and `isDefEqMVarSelf` -/
+private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : DefEqM Bool := do
+mvarDecl ← getMVarDecl mvar.mvarId!;
+forallBoundedTelescope mvarDecl.type numArgs $ fun xs _ =>
+  if xs.size != numArgs then pure false
+  else do
+    v ← mkLambdaFVars xs v;
+    trace! `Meta.isDefEq.constApprox (mvar ++ " := " ++ v);
+    checkTypesAndAssign mvar v
+
 private def processConstApprox (mvar : Expr) (numArgs : Nat) (v : Expr) : DefEqM Bool := do
 cfg ← getConfig;
 let mvarId := mvar.mvarId!;
@@ -681,13 +692,7 @@ if mvarDecl.numScopeArgs == numArgs || cfg.constApprox then do
   v? ← checkAssignment mvarId #[] v;
   match v? with
   | none   => pure false
-  | some v => do
-    forallBoundedTelescope mvarDecl.type numArgs $ fun xs _ =>
-      if xs.size != numArgs then pure false
-      else do
-        v ← mkLambdaFVars xs v;
-        trace! `Meta.isDefEq.constApprox (mvar ++ " := " ++ v);
-        checkTypesAndAssign mvar v
+  | some v => assignConst mvar numArgs v
 else
   pure false
 
@@ -967,6 +972,26 @@ match status with
     (do sType ← inferType s; toLBoolM $ Meta.isExprDefEqAux tType sType)
     (pure LBool.undef)
 
+/- Try to solve constraint of the form `?m args₁ =?= ?m args₂`.
+   - First try to unify `args₁` and `args₂`, and return true if successful
+   - Otherwise, try to assign `?m` to a constant function of the form `fun x_1 ... x_n => ?n`
+     where `?n` is a fresh metavariable. See `processConstApprox`. -/
+private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : DefEqM Bool :=
+if args₁.size != args₂.size then
+  pure false
+else
+  condM (isDefEqArgs mvar args₁ args₂) (pure true) $
+  condM (not <$> isAssignable mvar) (pure false) do
+    cfg ← getConfig;
+    let mvarId := mvar.mvarId!;
+    mvarDecl ← getMVarDecl mvarId;
+    if mvarDecl.numScopeArgs == args₁.size || cfg.constApprox then do
+      type ← inferType (mkAppN mvar args₁);
+      auxMVar ← mkAuxMVar mvarDecl.lctx mvarDecl.localInstances type;
+      assignConst mvar args₁.size auxMVar
+    else
+      pure false
+
 /- Remove unnecessary let-decls -/
 private def consumeLet : Expr → Expr
 | e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
@@ -998,7 +1023,8 @@ private partial def isDefEqQuick : Expr → Expr → DefEqM LBool
     condM (isDelayedAssignedHead tFn t) (do t ← instantiateMVars t; isDefEqQuick t s) $
     condM (isDelayedAssignedHead sFn s) (do s ← instantiateMVars s; isDefEqQuick t s) $
     condM (isSynthetic tFn <&&> trySynthPending tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
-    condM (isSynthetic sFn <&&> trySynthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
+    condM (isSynthetic sFn <&&> trySynthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $
+    cond (tFn.isMVar && sFn.isMVar && tFn == sFn) (Bool.toLBool <$> isDefEqMVarSelf tFn t.getAppArgs s.getAppArgs) do
     tAssign? ← isAssignable tFn;
     sAssign? ← isAssignable sFn;
     trace! `Meta.isDefEq

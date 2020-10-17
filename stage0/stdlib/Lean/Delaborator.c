@@ -259,6 +259,7 @@ extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_301____c
 lean_object* l_Lean_Delaborator_delabAndThen___closed__1;
 lean_object* l_Lean_Delaborator_liftMetaM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_DelabM_monadQuotation___closed__1;
+lean_object* l_Std_AssocList_find_x3f___at_Lean_Delaborator_delabFor___main___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabAnd___lambda__1___closed__1;
 lean_object* l_Lean_getPPFullNames___closed__1;
 lean_object* l_Lean_Delaborator_delabEq___lambda__1___closed__3;
@@ -554,6 +555,7 @@ lean_object* l_Lean_Delaborator_delabModN___lambda__1___closed__2;
 uint8_t l_Lean_Name_isAtomic(lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabMul(lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabModN___closed__4;
+lean_object* l_Std_AssocList_find_x3f___at_Lean_Delaborator_delabFor___main___spec__6(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_expandArrayLit___closed__11;
 extern lean_object* l_Lean_Expr_iff_x3f___closed__1;
 lean_object* l_Lean_Delaborator_delabForall___closed__1;
@@ -584,8 +586,6 @@ lean_object* l_Lean_Delaborator_delabEq___lambda__1___boxed(lean_object*, lean_o
 lean_object* l___regBuiltin_Lean_Delaborator_delabOrElse___closed__1;
 lean_object* l_Lean_getRevAliases(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabOrElse___closed__2;
-lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Delaborator_delabFor___main___spec__6___boxed(lean_object*, lean_object*);
-lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Delaborator_delabFor___main___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabNe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabAndM___closed__2;
 lean_object* l_Lean_getPPStructureInstances___closed__2;
@@ -7687,7 +7687,7 @@ x_5 = l_Std_PersistentHashMap_findAux___main___at_Lean_Delaborator_delabFor___ma
 return x_5;
 }
 }
-lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Delaborator_delabFor___main___spec__6(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_AssocList_find_x3f___at_Lean_Delaborator_delabFor___main___spec__6(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -7729,7 +7729,7 @@ x_5 = l_Lean_Name_hash(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);
-x_8 = l_Std_AssocList_find_x3f___main___at_Lean_Delaborator_delabFor___main___spec__6(x_2, x_7);
+x_8 = l_Std_AssocList_find_x3f___at_Lean_Delaborator_delabFor___main___spec__6(x_2, x_7);
 lean_dec(x_7);
 return x_8;
 }
@@ -8129,11 +8129,11 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Std_AssocList_find_x3f___main___at_Lean_Delaborator_delabFor___main___spec__6___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_AssocList_find_x3f___at_Lean_Delaborator_delabFor___main___spec__6___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_AssocList_find_x3f___main___at_Lean_Delaborator_delabFor___main___spec__6(x_1, x_2);
+x_3 = l_Std_AssocList_find_x3f___at_Lean_Delaborator_delabFor___main___spec__6(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

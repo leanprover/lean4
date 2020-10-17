@@ -181,6 +181,7 @@ lean_object* l_Lean_IR_EmitC_emitCtorSetArgs(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_IR_EmitC_emitUnbox___closed__1;
 uint8_t l_Lean_IR_IRType_isObj(lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_IR_EmitC_emitDeclAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFnDeclAux___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFnDecls(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitBlock___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -237,7 +238,6 @@ lean_object* l_Lean_IR_EmitC_emitDeclAux___lambda__2(lean_object*, lean_object*,
 lean_object* l_Lean_IR_EmitC_toCInitName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_overwriteParam___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitTailCall___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_find_x3f___main___at_Lean_IR_EmitC_getJPParams___spec__2(lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_IR_EmitC_emitTailCall___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitTag___closed__1;
 lean_object* l_Lean_IR_EmitC_emitTailCall(lean_object*, lean_object*, lean_object*);
@@ -281,7 +281,6 @@ lean_object* l_Lean_IR_EmitC_emitMainFnIfNeeded(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__13;
 lean_object* l_Lean_IR_EmitC_hasMainFn(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitOffset___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_find_x3f___main___at_Lean_IR_EmitC_getJPParams___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitTailCall___lambda__2___closed__1;
@@ -361,6 +360,7 @@ lean_object* l_Lean_IR_EmitC_emitCase_match__2(lean_object*);
 lean_object* l_Lean_IR_EmitC_declareVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_toCType___closed__9;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
+lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitTailCall_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitIsShared___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitInitFn___closed__1;
@@ -4541,7 +4541,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_IR_EmitC_getJPParams_match__1___rarg), 3
 return x_2;
 }
 }
-lean_object* l_Std_AssocList_find_x3f___main___at_Lean_IR_EmitC_getJPParams___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -4583,7 +4583,7 @@ x_5 = lean_usize_of_nat(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);
-x_8 = l_Std_AssocList_find_x3f___main___at_Lean_IR_EmitC_getJPParams___spec__2(x_2, x_7);
+x_8 = l_Std_AssocList_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__2(x_2, x_7);
 lean_dec(x_7);
 return x_8;
 }
@@ -4624,11 +4624,11 @@ return x_9;
 }
 }
 }
-lean_object* l_Std_AssocList_find_x3f___main___at_Lean_IR_EmitC_getJPParams___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_AssocList_find_x3f___main___at_Lean_IR_EmitC_getJPParams___spec__2(x_1, x_2);
+x_3 = l_Std_AssocList_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__2(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

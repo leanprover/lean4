@@ -18,7 +18,6 @@ extern lean_object* l_Std_PersistentHashMap_empty___rarg___closed__2;
 lean_object* l_Lean_SMap_fold(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_foldStage2___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
-lean_object* l_Std_AssocList_foldlM___main___at_Lean_SMap_fold___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_SMap_foldStage2___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_SMap_fold___spec__3___rarg(lean_object*, lean_object*, lean_object*);
@@ -29,6 +28,7 @@ lean_object* l_Lean_SMap_find_x3f_x27(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_fold___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Std_AssocList_foldlM___at_Lean_SMap_fold___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_foldStage2(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_SMap_fold___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -62,10 +62,10 @@ lean_object* l_Array_iterateMAux___main___at_Lean_SMap_fold___spec__6(lean_objec
 lean_object* l_Lean_SMap_numBuckets___rarg___boxed(lean_object*);
 lean_object* l_Lean_SMap_empty___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes___rarg___boxed(lean_object*);
+lean_object* l_Std_AssocList_foldlM___at_Lean_SMap_fold___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_contains(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_fold___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_foldlM___main___at_Lean_SMap_fold___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_switch___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4___rarg(lean_object*, lean_object*, lean_object*);
@@ -778,7 +778,7 @@ lean_dec(x_1);
 return x_7;
 }
 }
-lean_object* l_Std_AssocList_foldlM___main___at_Lean_SMap_fold___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_AssocList_foldlM___at_Lean_SMap_fold___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -804,11 +804,11 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_AssocList_foldlM___main___at_Lean_SMap_fold___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_AssocList_foldlM___at_Lean_SMap_fold___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_AssocList_foldlM___main___at_Lean_SMap_fold___spec__1___rarg), 3, 0);
+x_4 = lean_alloc_closure((void*)(l_Std_AssocList_foldlM___at_Lean_SMap_fold___spec__1___rarg), 3, 0);
 return x_4;
 }
 }
@@ -830,7 +830,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_array_fget(x_3, x_4);
 lean_inc(x_1);
-x_9 = l_Std_AssocList_foldlM___main___at_Lean_SMap_fold___spec__1___rarg(x_1, x_5, x_8);
+x_9 = l_Std_AssocList_foldlM___at_Lean_SMap_fold___spec__1___rarg(x_1, x_5, x_8);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_add(x_4, x_10);
 lean_dec(x_4);

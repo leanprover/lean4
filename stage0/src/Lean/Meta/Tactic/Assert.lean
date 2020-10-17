@@ -74,7 +74,7 @@ withMVarContext mvarId $ do
   let xs   := fvarIds.map mkFVar
   let targetNew ← mkForallFVars xs target
   let targetNew := Lean.mkForall userName BinderInfo.default type targetNew
-  let lctxNew := fvarIds.foldl (fun (lctxNew : LocalContext) fvarId => lctxNew.erase fvarId) lctx
+  let lctxNew := fvarIds.foldl (init := lctx) fun lctxNew fvarId => lctxNew.erase fvarId
   let localInstsNew := localInsts.filter fun inst => fvarIds.contains inst.fvar.fvarId!
   let mvarNew ← mkFreshExprMVarAt lctxNew localInstsNew targetNew MetavarKind.syntheticOpaque tag
   let args := (fvarIds.filter fun fvarId => !(lctx.get! fvarId).isLet).map mkFVar

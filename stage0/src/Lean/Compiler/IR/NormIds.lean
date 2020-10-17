@@ -86,7 +86,7 @@ fun m => do
 
 @[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α :=
 fun m => do
-  let m ← ps.foldlM (init := m) fun (m : IndexRenaming) p => do
+  let m ← ps.foldlM (init := m) fun m p => do
     let n ← getModify fun n => n + 1
     pure $ m.insert p.x.idx n
   let ps := ps.map fun p => { p with x := normVar p.x m }

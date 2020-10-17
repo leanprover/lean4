@@ -214,7 +214,8 @@ let liveVars := liveVars.erase z
 (b, liveVars)
 
 def updateVarInfoWithParams (ctx : Context) (ps : Array Param) : Context :=
-let m := ps.foldl (fun (m : VarMap) p => m.insert p.x { ref := p.ty.isObj, consume := !p.borrow }) ctx.varMap
+let m := ps.foldl (init := ctx.varMap) fun m p =>
+  m.insert p.x { ref := p.ty.isObj, consume := !p.borrow }
 { ctx with varMap := m }
 
 partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)

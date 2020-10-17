@@ -22,6 +22,7 @@ lean_object* l_Lean_IR_ExplicitBoxing_addBoxedVersions(lean_object*, lean_object
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_ExplicitBoxing_boxArgsIfNeeded___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1;
+lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_ExplicitBoxing_mkCast___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_Boxing_0__Lean_IR_ExplicitBoxing_isExpensiveConstantValueBoxing_match__3(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedName(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_ExplicitBoxing_boxArgsIfNeeded___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,7 +83,6 @@ lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeeded(lean_object*, lean_object
 lean_object* l_Lean_IR_ExplicitBoxing_mkCast___closed__4;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux_match__2(lean_object*);
-lean_object* l_Std_AssocList_find_x3f___main___at_Lean_IR_ExplicitBoxing_mkCast___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkCast___closed__2;
 lean_object* l___private_Lean_Compiler_IR_Boxing_0__Lean_IR_ExplicitBoxing_isExpensiveConstantValueBoxing_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_getScrutineeType_match__2___rarg(uint8_t, lean_object*, lean_object*);
@@ -2345,7 +2345,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_IR_ExplicitBoxing_mkCast_match__2___rarg
 return x_2;
 }
 }
-lean_object* l_Std_AssocList_find_x3f___main___at_Lean_IR_ExplicitBoxing_mkCast___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_ExplicitBoxing_mkCast___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -2533,7 +2533,7 @@ x_32 = lean_ctor_get(x_20, 3);
 lean_inc(x_32);
 lean_inc(x_31);
 lean_inc(x_28);
-x_33 = l_Std_AssocList_find_x3f___main___at_Lean_IR_ExplicitBoxing_mkCast___spec__1(x_28, x_31);
+x_33 = l_Std_AssocList_find_x3f___at_Lean_IR_ExplicitBoxing_mkCast___spec__1(x_28, x_31);
 if (lean_obj_tag(x_33) == 0)
 {
 uint8_t x_34; 
@@ -2670,7 +2670,7 @@ x_72 = lean_ctor_get(x_61, 3);
 lean_inc(x_72);
 lean_inc(x_71);
 lean_inc(x_68);
-x_73 = l_Std_AssocList_find_x3f___main___at_Lean_IR_ExplicitBoxing_mkCast___spec__1(x_68, x_71);
+x_73 = l_Std_AssocList_find_x3f___at_Lean_IR_ExplicitBoxing_mkCast___spec__1(x_68, x_71);
 if (lean_obj_tag(x_73) == 0)
 {
 lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 

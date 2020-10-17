@@ -18,6 +18,7 @@ lean_object* l_Lean_Elab_Term_removeUnused(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Elab_Term_0__Lean_Elab_Term_tryLiftAndCoe___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
 lean_object* l_Lean_MetavarContext_instantiateMVars(lean_object*, lean_object*);
+lean_object* l_Lean_CollectFVars_main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_collectUsedFVarsAtFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_erase(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -41,7 +42,6 @@ lean_object* l_Lean_Elab_Term_collectUsedFVars___boxed(lean_object*, lean_object
 extern lean_object* l_Lean_Meta_inferTypeRef;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_LocalInstances_erase(lean_object*, lean_object*);
-lean_object* l_Lean_CollectFVars_main___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLocalInstances___at_Lean_Elab_Term_removeUnused___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_collectUsedFVarsAtFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_removeUnused_match__3(lean_object*);
@@ -176,7 +176,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = l_Lean_CollectFVars_main___main(x_11, x_14);
+x_16 = l_Lean_CollectFVars_main(x_11, x_14);
 x_17 = lean_st_ref_set(x_2, x_16, x_15);
 x_18 = !lean_is_exclusive(x_17);
 if (x_18 == 0)

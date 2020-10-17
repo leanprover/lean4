@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -10,23 +11,22 @@ import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Assert
 
-namespace Lean
-namespace Meta
+namespace Lean.Meta
 
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- targetNew` using an equality proof `eqProof : target = targetNew`.
   It assumes `eqProof` has type `target = targetNew` -/
 def replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqProof : Expr) : MetaM MVarId :=
 withMVarContext mvarId do
-  checkNotAssigned mvarId `replaceTarget;
-  tag      ← getMVarTag mvarId;
-  mvarNew  ← mkFreshExprSyntheticOpaqueMVar targetNew tag;
-  target   ← getMVarType mvarId;
-  u        ← getLevel target;
-  eq       ← mkEq target targetNew;
-  newProof ← mkExpectedTypeHint eqProof eq;
-  let val  := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, eqProof, mvarNew];
-  assignExprMVar mvarId val;
+  checkNotAssigned mvarId `replaceTarget
+  let tag      ← getMVarTag mvarId
+  let mvarNew  ← mkFreshExprSyntheticOpaqueMVar targetNew tag
+  let target   ← getMVarType mvarId
+  let u        ← getLevel target
+  let eq       ← mkEq target targetNew
+  let newProof ← mkExpectedTypeHint eqProof eq
+  let val  := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, eqProof, mvarNew]
+  assignExprMVar mvarId val
   pure mvarNew.mvarId!
 
 /--
@@ -38,14 +38,14 @@ withMVarContext mvarId do
   to create a checkpoint. -/
 def replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
 withMVarContext mvarId do
-  checkNotAssigned mvarId `change;
-  target  ← getMVarType mvarId;
+  checkNotAssigned mvarId `change
+  let target  ← getMVarType mvarId
   if target == targetNew then pure mvarId
-  else do
-    tag     ← getMVarTag mvarId;
-    mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag;
-    newVal  ← mkExpectedTypeHint mvarNew target;
-    assignExprMVar mvarId mvarNew;
+  else
+    let tag     ← getMVarTag mvarId
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
+    let newVal  ← mkExpectedTypeHint mvarNew target
+    assignExprMVar mvarId mvarNew
     pure mvarNew.mvarId!
 
 /--
@@ -56,40 +56,37 @@ withMVarContext mvarId do
   Remark: the new declaration is added immediately after `fvarId`.
   `typeNew` must be well-formed at `fvarId`, but `eqProof` may contain variables declared after `fvarId`. -/
 def replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult := do
-withMVarContext mvarId $ do
-  localDecl ← getLocalDecl fvarId;
-  typeNewPr ← mkEqMP eqProof (mkFVar fvarId);
-  result ← assertAfter mvarId localDecl.fvarId localDecl.userName typeNew typeNewPr;
-  (do mvarIdNew ← clear result.mvarId fvarId; pure { result with mvarId := mvarIdNew }) <|> pure result
+withMVarContext mvarId do
+  let localDecl ← getLocalDecl fvarId
+  let typeNewPr ← mkEqMP eqProof (mkFVar fvarId)
+  let result ← assertAfter mvarId localDecl.fvarId localDecl.userName typeNew typeNewPr
+  (do let mvarIdNew ← clear result.mvarId fvarId
+      pure { result with mvarId := mvarIdNew })
+  <|> pure result
 
 def change (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
 withMVarContext mvarId do
-  target ← getMVarType mvarId;
-  unlessM (isDefEq target targetNew) $
-    throwTacticEx `change mvarId
-      ("given type" ++ indentExpr targetNew ++ Format.line ++ "is not definitionally equal to" ++ indentExpr target);
+  let target ← getMVarType mvarId
+  unless (← isDefEq target targetNew) do
+    throwTacticEx `change mvarId msg!"given type{indentExpr targetNew}\nis not definitionally equal to{indentExpr target}"
   replaceTargetDefEq mvarId targetNew
 
 def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM MVarId := do
-checkNotAssigned mvarId `changeLocalDecl;
-(xs, mvarId) ← revert mvarId #[fvarId] true;
+checkNotAssigned mvarId `changeLocalDecl
+let (xs, mvarId) ← revert mvarId #[fvarId] true
 withMVarContext mvarId do
-  let numReverted := xs.size;
-  target ← getMVarType mvarId;
-  let checkDefEq (typeOld : Expr) : MetaM Unit := do {
-    unlessM (isDefEq typeNew typeOld) $
-      throwTacticEx `changeHypothesis mvarId
-        ("given type" ++ indentExpr typeNew ++ Format.line ++ "is not definitionally equal to" ++ indentExpr typeOld)
-  };
-  let finalize (targetNew : Expr) : MetaM MVarId := do {
-    mvarId ← replaceTargetDefEq mvarId targetNew;
-    (_, mvarId) ← introNP mvarId (numReverted-1);
+  let numReverted := xs.size
+  let target ← getMVarType mvarId
+  let checkDefEq (typeOld : Expr) : MetaM Unit := do
+    unless (← isDefEq typeNew typeOld) do
+      throwTacticEx `changeHypothesis mvarId msg!"given type{indentExpr typeNew}\nis not definitionally equal to{indentExpr typeOld}"
+  let finalize (targetNew : Expr) : MetaM MVarId := do
+    let mvarId ← replaceTargetDefEq mvarId targetNew
+    let (_, mvarId) ← introNP mvarId (numReverted-1)
     pure mvarId
-  };
   match target with
   | Expr.forallE n d b c => do checkDefEq d; finalize (mkForall n c.binderInfo typeNew b)
   | Expr.letE n t v b _  => do checkDefEq t; finalize (mkLet n typeNew v b)
   | _ => throwTacticEx `changeHypothesis mvarId "unexpected auxiliary target"
 
-end Meta
-end Lean
+end Lean.Meta

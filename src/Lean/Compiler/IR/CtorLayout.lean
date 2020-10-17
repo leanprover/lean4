@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -19,9 +20,9 @@ namespace CtorFieldInfo
 
 def format : CtorFieldInfo → Format
 | irrelevant => "◾"
-| object i   => "obj@" ++ fmt i
-| usize i    => "usize@" ++ fmt i
-| scalar sz offset type => "scalar#" ++ fmt sz ++ "@" ++ fmt offset ++ ":" ++ fmt type
+| object i   => f!"obj@{i}"
+| usize i    => f!"usize@{i}"
+| scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
 
 instance : HasFormat CtorFieldInfo := ⟨format⟩
 

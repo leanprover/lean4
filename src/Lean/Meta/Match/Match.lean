@@ -29,13 +29,13 @@ namespace Pattern
 instance : Inhabited Pattern := ⟨Pattern.inaccessible (arbitrary _)⟩
 
 partial def toMessageData : Pattern → MessageData
-| inaccessible e         => ".(" ++ e ++ ")"
+| inaccessible e         => msg!".({e})"
 | var varId              => mkFVar varId
 | ctor ctorName _ _ []   => ctorName
-| ctor ctorName _ _ pats => "(" ++ ctorName ++ pats.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil ++ ")"
+| ctor ctorName _ _ pats => msg!"({ctorName}{pats.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil})"
 | val e                  => e
-| arrayLit _ pats        => "#[" ++ MessageData.joinSep (pats.map toMessageData) ", " ++ "]"
-| as varId p             => mkFVar varId ++ "@" ++toMessageData p
+| arrayLit _ pats        => msg!"#[{MessageData.joinSep (pats.map toMessageData) ", "}]"
+| as varId p             => msg!"{mkFVar varId}@{toMessageData p}"
 
 partial def toExpr : Pattern → MetaM Expr
 | inaccessible e                 => pure e
@@ -151,10 +151,10 @@ match alt.fvarDecls.find? fun (fvarDecl : LocalDecl) => fvarDecl.fvarId == fvarI
 | none          => throwErrorAt alt.ref "unknown free pattern variable"
 | some fvarDecl => do
   let vType ← inferType v
-  unlessM (isDefEqGuarded fvarDecl.type vType) $
-    withExistingLocalDecls alt.fvarDecls $ throwErrorAt alt.ref $
-      "type mismatch during dependent match-elimination at pattern variable '" ++ mkFVar fvarDecl.fvarId ++ "' with type" ++ indentExpr fvarDecl.type ++
-      Format.line ++ "expected type" ++ indentExpr vType
+  unless (← isDefEqGuarded fvarDecl.type vType) do
+    withExistingLocalDecls alt.fvarDecls do
+      throwErrorAt alt.ref $
+        msg!"type mismatch during dependent match-elimination at pattern variable '{mkFVar fvarDecl.fvarId}' with type{indentExpr fvarDecl.type}\nexpected type{indentExpr vType}"
   pure $ replaceFVarId fvarId v alt
 
 end Alt
@@ -239,9 +239,9 @@ structure MatcherResult :=
 (unusedAltIdxs   : List Nat)
 
 /- The number of patterns in each AltLHS must be equal to majors.length -/
-private def checkNumPatterns (majors : Array Expr) (lhss : List AltLHS) : MetaM Unit :=
+private def checkNumPatterns (majors : Array Expr) (lhss : List AltLHS) : MetaM Unit := do
 let num := majors.size
-when (lhss.any (fun lhs => lhs.patterns.length != num)) $
+if lhss.any fun lhs => lhs.patterns.length != num then
   throwError "incorrect number of patterns"
 
 private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt → Array (Expr × Nat) → (List Alt → Array (Expr × Nat) → MetaM α) → MetaM α
@@ -390,7 +390,7 @@ match p.vars with
 
 private def throwInductiveTypeExpected {α} (e : Expr) : MetaM α := do
 let t ← inferType e
-throwError ("failed to compile pattern matching, inductive type expected" ++ indentExpr e ++ Format.line ++ "has type" ++ indentExpr t)
+throwError! "failed to compile pattern matching, inductive type expected{indentExpr e}\nhas type{indentExpr t}"
 
 private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool :=
 localDecls.any fun d => d.fvarId == fvarId
@@ -525,9 +525,7 @@ match alt.patterns with
         pure $ some { alt with patterns := fields ++ ps }
       else
         pure none
-    | _ => throwErrorAt alt.ref $
-      "dependent match elimination failed, inaccessible pattern found " ++ indentD p.toMessageData ++
-      Format.line ++ "constructor expected"
+    | _ => throwErrorAt! alt.ref "dependent match elimination failed, inaccessible pattern found{indentD p.toMessageData}\nconstructor expected"
 | _ => unreachable!
 
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
@@ -591,20 +589,17 @@ match p.vars with
         else
           pure $ some { alt with patterns := fields ++ ps }
       | Pattern.inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
-      | p :: _  => throwError ("failed to compile pattern matching, inaccessible pattern or constructor expected" ++ indentD p.toMessageData)
+      | p :: _  => throwError! "failed to compile pattern matching, inaccessible pattern or constructor expected{indentD p.toMessageData}"
       | _       => unreachable!
     let xFields := xArgs.extract ctorVal.nparams xArgs.size
     pure { p with alts := alts, vars := xFields.toList ++ xs }
-  | none =>
-    throwError ("failed to compile pattern matching, constructor expected" ++ indentExpr x)
+  | none => throwError! "failed to compile pattern matching, constructor expected{indentExpr x}"
 
 private def collectValues (p : Problem) : Array Expr :=
-p.alts.foldl
-  (fun (values : Array Expr) alt =>
-    match alt.patterns with
-    | Pattern.val v :: _ => if values.contains v then values else values.push v
-    | _                  => values)
-  #[]
+p.alts.foldl (init := #[]) fun values alt =>
+  match alt.patterns with
+  | Pattern.val v :: _ => if values.contains v then values else values.push v
+  | _                  => values
 
 private def isFirstPatternVar (alt : Alt) : Bool :=
 match alt.patterns with
@@ -612,7 +607,7 @@ match alt.patterns with
 | _                  => false
 
 private def processValue (p : Problem) : MetaM (Array Problem) := do
-trace! `Meta.Match.match ("value step")
+trace[Meta.Match.match]! "value step"
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
@@ -644,12 +639,10 @@ match p.vars with
       pure { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
 private def collectArraySizes (p : Problem) : Array Nat :=
-p.alts.foldl
-  (fun (sizes : Array Nat) alt =>
-    match alt.patterns with
-    | Pattern.arrayLit _ ps :: _ => let sz := ps.length; if sizes.contains sz then sizes else sizes.push sz
-    | _                          => sizes)
-  #[]
+p.alts.foldl (init := #[]) fun sizes alt =>
+  match alt.patterns with
+  | Pattern.arrayLit _ ps :: _ => let sz := ps.length; if sizes.contains sz then sizes else sizes.push sz
+  | _                          => sizes
 
 private def expandVarIntoArrayLit (alt : Alt) (fvarId : FVarId) (arrayElemType : Expr) (arraySize : Nat) : MetaM Alt :=
 withExistingLocalDecls alt.fvarDecls do
@@ -715,7 +708,7 @@ withGoalOf p (traceM `Meta.Match.match p.toMessageData)
 private def throwNonSupported (p : Problem) : MetaM Unit :=
 withGoalOf p do
   let msg ← p.toMessageData
-  throwError ("failed to compile pattern matching, stuck at" ++ (indentD msg))
+  throwError! "failed to compile pattern matching, stuck at{indentD msg}"
 
 def isCurrVarInductive (p : Problem) : MetaM Bool := do
 match p.vars with
@@ -942,7 +935,7 @@ def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
 lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
   unless motiveArgs.size == matcherApp.discrs.size do
     -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
-    throwError ("unexpected matcher application, motive must be lambda expression with #" ++ toString matcherApp.discrs.size ++ " arguments")
+    throwError! "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
   let eType ← inferType e
   let eTypeAbst ← matcherApp.discrs.size.foldRevM
     (fun i eTypeAbst => do
@@ -965,7 +958,7 @@ lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
   let aux := mkAppN aux matcherApp.discrs
   trace! `Meta.debug aux
   check aux
-  unlessM (isTypeCorrect aux) $
+  unless (← isTypeCorrect aux) do
     throwError "failed to add argument to matcher application, type error when constructing the new motive"
   let auxType ← inferType aux
   let (altNumParams, alts) ← updateAlts auxType matcherApp.altNumParams matcherApp.alts 0
@@ -981,6 +974,4 @@ initialize
   registerTraceClass `Meta.Match.debug
   registerTraceClass `Meta.Match.unify
 
-
-end Meta
-end Lean
+end Lean.Meta

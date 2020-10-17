@@ -15,7 +15,7 @@ match1.lean:82:0: error: type mismatch during dependent match-elimination at pat
 expected type
   VecPred P tail✝
 [false, true, true]
-match1.lean:113:0: error: dependent match elimination failed, inaccessible pattern found 
+match1.lean:113:0: error: dependent match elimination failed, inaccessible pattern found
   .(j + j)
 constructor expected
 [false, true, true]

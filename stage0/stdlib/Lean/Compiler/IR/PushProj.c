@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_IR_FnBody_pushProj_match__1(lean_object*);
+extern lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__11;
 lean_object* l_Array_umapMAux___main___at_Lean_IR_pushProjs___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_pushProj___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_pushProj_match__1___rarg(lean_object*, lean_object*);
@@ -26,7 +27,6 @@ lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_pushProj___spec__2(lean
 lean_object* l_Lean_IR_FnBody_pushProj_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_pushProjs_match__1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-extern lean_object* l_Lean_IR_Inhabited;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_pushProjs___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -238,7 +238,7 @@ x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_sub(x_2, x_3);
 lean_dec(x_2);
-x_5 = l_Lean_IR_Inhabited;
+x_5 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__11;
 x_6 = lean_array_get(x_5, x_1, x_4);
 lean_dec(x_4);
 return x_6;

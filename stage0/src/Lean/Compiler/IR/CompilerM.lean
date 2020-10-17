@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -7,8 +8,7 @@ import Lean.Environment
 import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.Format
 
-namespace Lean
-namespace IR
+namespace Lean.IR
 
 inductive LogEntry
 | step (cls : Name) (decls : Array Decl)
@@ -25,7 +25,8 @@ end LogEntry
 abbrev Log := Array LogEntry
 
 def Log.format (log : Log) : Format :=
-log.foldl (fun fmt entry => fmt ++ Format.line ++ format entry) Format.nil
+log.foldl (init := Format.nil) fun fmt entry =>
+  f!"{fmt}{Format.line}{entry}"
 
 @[export lean_ir_log_to_string]
 def Log.toString (log : Log) : String :=
@@ -47,15 +48,17 @@ match opts.find optName with
 | other => opts.getBool tracePrefixOptionName
 
 private def logDeclsAux (optName : Name) (cls : Name) (decls : Array Decl) : CompilerM Unit := do
-opts ← read;
-when (isLogEnabledFor opts optName) $ log (LogEntry.step cls decls)
+let opts ← read
+if isLogEnabledFor opts optName then
+  log (LogEntry.step cls decls)
 
 @[inline] def logDecls (cls : Name) (decl : Array Decl) : CompilerM Unit :=
 logDeclsAux (tracePrefixOptionName ++ cls) cls decl
 
 private def logMessageIfAux {α : Type} [HasFormat α] (optName : Name) (a : α) : CompilerM Unit := do
-opts ← read;
-when (isLogEnabledFor opts optName) $ log (LogEntry.message (format a))
+let opts ← read
+if isLogEnabledFor opts optName then
+  log (LogEntry.message (format a))
 
 @[inline] def logMessageIf {α : Type} [HasFormat α] (cls : Name) (a : α) : CompilerM Unit :=
 logMessageIfAux (tracePrefixOptionName ++ cls) a
@@ -64,7 +67,7 @@ logMessageIfAux (tracePrefixOptionName ++ cls) a
 logMessageIfAux tracePrefixOptionName a
 
 @[inline] def modifyEnv (f : Environment → Environment) : CompilerM Unit :=
-modify $ fun s => { s with env := f s.env }
+modify fun s => { s with env := f s.env }
 
 open Std (HashMap)
 
@@ -74,37 +77,34 @@ abbrev DeclMap := SMap Name Decl
    `decls` may contain duplicate entries, but we assume the one that occurs last is the most recent one. -/
 private def mkEntryArray (decls : List Decl) : Array Decl :=
 /- Remove duplicates by adding decls into a map -/
-let map : HashMap Name Decl := {};
-let map := decls.foldl (fun (map : HashMap Name Decl) decl => map.insert decl.name decl) map;
+let map : HashMap Name Decl := {}
+let map := decls.foldl (init := map) fun map decl => map.insert decl.name decl
 map.fold (fun a k v => a.push v) #[]
 
-def mkDeclMapExtension : IO (SimplePersistentEnvExtension Decl DeclMap) :=
-registerSimplePersistentEnvExtension {
-  name       := `IRDecls,
-  addImportedFn := fun as =>
-     let m : DeclMap := mkStateFromImportedEntries (fun s (d : Decl) => s.insert d.name d) {} as;
-     m.switch,
-  addEntryFn := fun s d => s.insert d.name d,
-  toArrayFn  := mkEntryArray
-}
-
-@[init mkDeclMapExtension]
-constant declMapExt : SimplePersistentEnvExtension Decl DeclMap := arbitrary _
+initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
+  registerSimplePersistentEnvExtension {
+    name       := `IRDecls,
+    addImportedFn := fun as =>
+       let m : DeclMap := mkStateFromImportedEntries (fun s (d : Decl) => s.insert d.name d) {} as
+       m.switch,
+    addEntryFn := fun s d => s.insert d.name d,
+    toArrayFn  := mkEntryArray
+  }
 
 @[export lean_ir_find_env_decl]
 def findEnvDecl (env : Environment) (n : Name) : Option Decl :=
 (declMapExt.getState env).find? n
 
 def findDecl (n : Name) : CompilerM (Option Decl) := do
-s ← get;
+let s ← get
 pure $ findEnvDecl s.env n
 
 def containsDecl (n : Name) : CompilerM Bool := do
-s ← get;
+let s ← get
 pure $ (declMapExt.getState s.env).contains n
 
 def getDecl (n : Name) : CompilerM Decl := do
-(some decl) ← findDecl n | throw ("unknown declaration '" ++ toString n ++ "'");
+let (some decl) ← findDecl n | throw s!"unknown declaration '{n}'"
 pure decl
 
 @[export lean_ir_add_decl]
@@ -115,10 +115,10 @@ def getDecls (env : Environment) : List Decl :=
 declMapExt.getEntries env
 
 def getEnv : CompilerM Environment := do
-s ← get; pure s.env
+let s ← get; pure s.env
 
 def addDecl (decl : Decl) : CompilerM Unit :=
-modifyEnv (fun env => declMapExt.addEntry env decl)
+modifyEnv fun env => declMapExt.addEntry env decl
 
 def addDecls (decls : Array Decl) : CompilerM Unit :=
 decls.forM addDecl
@@ -129,16 +129,16 @@ match decls.find? (fun decl => decl.name == n) with
 | none      => (declMapExt.getState env).find? n
 
 def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) := do
-s ← get; pure $ findEnvDecl' s.env n decls
+let s ← get; pure $ findEnvDecl' s.env n decls
 
 def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool :=
 if decls.any (fun decl => decl.name == n) then pure true
 else do
-  s ← get;
+  let s ← get
   pure $ (declMapExt.getState s.env).contains n
 
 def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
-(some decl) ← findDecl' n decls | throw ("unknown declaration '" ++ toString n ++ "'");
+let (some decl) ← findDecl' n decls | throw s!"unknown declaration '{n}'"
 pure decl
 
 end IR

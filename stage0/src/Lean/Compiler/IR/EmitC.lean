@@ -15,6 +15,7 @@ import Lean.Compiler.IR.Boxing
 
 namespace Lean
 namespace IR
+namespace ExplicitBoxing end ExplicitBoxing -- Hack for old frontend
 open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)
 namespace EmitC
 

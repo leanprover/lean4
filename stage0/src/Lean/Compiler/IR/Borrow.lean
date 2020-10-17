@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -23,9 +24,10 @@ def getHash : Key → USize
 instance : Hashable Key := ⟨getHash⟩
 end OwnedSet
 
-abbrev OwnedSet := Std.HashMap OwnedSet.Key Unit
-def OwnedSet.insert (s : OwnedSet) (k : OwnedSet.Key) : OwnedSet := s.insert k ()
-def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool := s.contains k
+open OwnedSet (Key) in
+abbrev OwnedSet := Std.HashMap Key Unit
+def OwnedSet.insert (s : OwnedSet) (k : OwnedSet.Key) : OwnedSet := Std.HashMap.insert s k ()
+def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := Std.HashMap.contains s k
 
 /- We perform borrow inference in a block of mutually recursive functions.
    Join points are viewed as local functions, and are identified using
@@ -51,15 +53,16 @@ def getHash : Key → USize
 instance : Hashable Key := ⟨getHash⟩
 end ParamMap
 
-abbrev ParamMap := Std.HashMap ParamMap.Key (Array Param)
+open ParamMap (Key)
+abbrev ParamMap := Std.HashMap Key (Array Param)
 
 def ParamMap.fmt (map : ParamMap) : Format :=
 let fmts := map.fold (fun fmt k ps =>
   let k := match k with
     | ParamMap.Key.decl n  => format n
-    | ParamMap.Key.jp n id => format n ++ ":" ++ format id;
+    | ParamMap.Key.jp n id => format n ++ ":" ++ format id
   fmt ++ Format.line ++ k ++ " -> " ++ formatParams ps)
- Format.nil;
+ Format.nil
 "{" ++ (Format.nest 1 fmts) ++ "}"
 
 instance : HasFormat ParamMap := ⟨ParamMap.fmt⟩
@@ -82,20 +85,20 @@ if exported then ps else initBorrow ps
 
 partial def visitFnBody (fnid : FunId) : FnBody → StateM ParamMap Unit
 | FnBody.jdecl j xs v b  => do
-  modify $ fun m => m.insert (ParamMap.Key.jp fnid j) (initBorrow xs);
-  visitFnBody v;
-  visitFnBody b
-| FnBody.case _ _ _ alts => alts.forM $ fun alt => visitFnBody alt.body
-| e =>
-  unless (e.isTerminal) $ do
-    let (instr, b) := e.split;
-    visitFnBody b
+  modify fun m => m.insert (ParamMap.Key.jp fnid j) (initBorrow xs)
+  visitFnBody fnid v
+  visitFnBody fnid b
+| FnBody.case _ _ _ alts => alts.forM fun alt => visitFnBody fnid alt.body
+| e => do
+  unless e.isTerminal do
+    let (instr, b) := e.split
+    visitFnBody fnid b
 
 def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :=
-decls.forM $ fun decl => match decl with
+decls.forM fun decl => match decl with
   | Decl.fdecl f xs _ b => do
-    let exported := isExport env f;
-    modify $ fun m => m.insert (ParamMap.Key.decl f) (initBorrowIfNotExported exported xs);
+    let exported := isExport env f
+    modify fun m => m.insert (ParamMap.Key.decl f) (initBorrowIfNotExported exported xs)
     visitFnBody f b
   | _ => pure ()
 end InitParamMap
@@ -109,24 +112,24 @@ namespace ApplyParamMap
 
 partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
 | FnBody.jdecl j xs v b =>
-  let v := visitFnBody v;
-  let b := visitFnBody b;
+  let v := visitFnBody fn paramMap v
+  let b := visitFnBody fn paramMap b
   match paramMap.find? (ParamMap.Key.jp fn j) with
   | some ys => FnBody.jdecl j ys v b
   | none    => unreachable!
 | FnBody.case tid x xType alts =>
-  FnBody.case tid x xType $ alts.map $ fun alt => alt.modifyBody visitFnBody
+  FnBody.case tid x xType $ alts.map $ fun alt => alt.modifyBody (visitFnBody fn paramMap)
 | e =>
   if e.isTerminal then e
   else
-    let (instr, b) := e.split;
-    let b := visitFnBody b;
+    let (instr, b) := e.split
+    let b := visitFnBody fn paramMap b
     instr.setBody b
 
 def visitDecls (decls : Array Decl) (paramMap : ParamMap) : Array Decl :=
-decls.map $ fun decl => match decl with
+decls.map fun decl => match decl with
   | Decl.fdecl f xs ty b =>
-    let b := visitFnBody f paramMap b;
+    let b := visitFnBody f paramMap b
     match paramMap.find? (ParamMap.Key.decl f) with
     | some xs => Decl.fdecl f xs ty b
     | none    => unreachable!
@@ -152,7 +155,7 @@ structure BorrowInfState :=
 abbrev M := ReaderT BorrowInfCtx (StateM BorrowInfState)
 
 def getCurrFn : M FunId := do
-ctx ← read;
+let ctx ← read
 pure ctx.currFn
 
 def markModified : M Unit :=
@@ -160,8 +163,8 @@ modify $ fun s => { s with modified := true }
 
 def ownVar (x : VarId) : M Unit := do
 -- dbgTrace ("ownVar " ++ toString x) $ fun _ =>
-currFn ← getCurrFn;
-modify $ fun s =>
+let currFn ← getCurrFn
+modify fun s =>
   if s.owned.contains (currFn, x.idx) then s
   else { s with owned := s.owned.insert (currFn, x.idx), modified := true }
 
@@ -174,32 +177,34 @@ def ownArgs (xs : Array Arg) : M Unit :=
 xs.forM ownArg
 
 def isOwned (x : VarId) : M Bool := do
-currFn ← getCurrFn;
-s      ← get;
+let currFn ← getCurrFn
+let s      ← get
 pure $ s.owned.contains (currFn, x.idx)
 
 /- Updates `map[k]` using the current set of `owned` variables. -/
 def updateParamMap (k : ParamMap.Key) : M Unit := do
-currFn ← getCurrFn;
-s ← get;
+let currFn ← getCurrFn
+let s ← get
 match s.paramMap.find? k with
 | some ps => do
-  ps ← ps.mapM $ fun (p : Param) =>
-   if !p.borrow then pure p
-   else condM (isOwned p.x)
-     (do markModified; pure { p with borrow := false })
-     (pure p);
-  modify $ fun s => { s with paramMap := s.paramMap.insert k ps }
+  let ps ← ps.mapM fun (p : Param) => do
+    if !p.borrow then pure p
+    else if (← isOwned p.x) then
+      markModified
+      pure { p with borrow := false }
+    else
+      pure p
+  modify fun s => { s with paramMap := s.paramMap.insert k ps }
 | none    => pure ()
 
 def getParamInfo (k : ParamMap.Key) : M (Array Param) := do
-s ← get;
+let s ← get
 match s.paramMap.find? k with
 | some ps => pure ps
 | none    =>
   match k with
   | ParamMap.Key.decl fn => do
-    ctx ← read;
+    let ctx ← read
     match findEnvDecl ctx.env fn with
     | some decl => pure decl.params
     | none      => unreachable!
@@ -207,10 +212,10 @@ match s.paramMap.find? k with
 
 /- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
-xs.size.forM $ fun i => do
-  let x := xs.get! i;
-  let p := ps.get! i;
-  unless p.borrow $ ownArg x
+xs.size.forM fun i => do
+  let x := xs[i]
+  let p := ps[i]
+  unless p.borrow do ownArg x
 
 /- For each xs[i], if xs[i] is owned, then mark ps[i] as owned.
    We use this action to preserve tail calls. That is, if we have
@@ -218,11 +223,11 @@ xs.size.forM $ fun i => do
    we would have to insert a `dec xs[i]` after `f xs` and consequently
    "break" the tail call. -/
 def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
-xs.size.forM $ fun i => do
-  let x := xs.get! i;
-  let p := ps.get! i;
+xs.size.forM fun i => do
+  let x := xs[i]
+  let p := ps[i]
   match x with
-  | Arg.var x => whenM (isOwned x) $ ownVar p.x
+  | Arg.var x => if (← isOwned x) then ownVar p.x
   | _         => pure ()
 
 /- Mark `xs[i]` as owned if it is one of the parameters `ps`.
@@ -235,10 +240,10 @@ xs.size.forM $ fun i => do
    ret z
    ``` -/
 def ownArgsIfParam (xs : Array Arg) : M Unit := do
-ctx ← read;
-xs.forM $ fun x =>
+let ctx ← read
+xs.forM fun x => do
   match x with
-  | Arg.var x => when (ctx.paramSet.contains x.idx) $ ownVar x
+  | Arg.var x => if ctx.paramSet.contains x.idx then ownVar x
   | _ => pure ()
 
 def collectExpr (z : VarId) : Expr → M Unit
@@ -246,22 +251,22 @@ def collectExpr (z : VarId) : Expr → M Unit
 | Expr.reuse x _ _ ys => ownVar z *> ownVar x *> ownArgsIfParam ys
 | Expr.ctor _ xs      => ownVar z *> ownArgsIfParam xs
 | Expr.proj _ x       => do
-  whenM (isOwned x) $ ownVar z;
-  whenM (isOwned z) $ ownVar x
-| Expr.fap g xs       => do ps ← getParamInfo (ParamMap.Key.decl g);
-  -- dbgTrace ("collectExpr: " ++ toString g ++ " " ++ toString (formatParams ps)) $ fun _ =>
+  if (← isOwned x) then ownVar z
+  if (← isOwned z) then ownVar x
+| Expr.fap g xs       => do
+  let ps ← getParamInfo (ParamMap.Key.decl g)
   ownVar z *> ownArgsUsingParams xs ps
 | Expr.ap x ys        => ownVar z *> ownVar x *> ownArgs ys
 | Expr.pap _ xs       => ownVar z *> ownArgs xs
 | other               => pure ()
 
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
-ctx ← read;
+let ctx ← read
 match v, b with
 | (Expr.fap g ys), (FnBody.ret (Arg.var z)) =>
-  when (ctx.currFn == g && x == z) $ do
+  if ctx.currFn == g && x == z then
     -- dbgTrace ("preserveTailCall " ++ toString b) $ fun _ => do
-    ps ← getParamInfo (ParamMap.Key.decl g);
+    let ps ← getParamInfo (ParamMap.Key.decl g)
     ownParamsUsingArgs ys ps
 | _, _ => pure ()
 
@@ -270,53 +275,49 @@ def updateParamSet (ctx : BorrowInfCtx) (ps : Array Param) : BorrowInfCtx :=
 
 partial def collectFnBody : FnBody → M Unit
 | FnBody.jdecl j ys v b => do
-  withReader (fun ctx => updateParamSet ctx ys) (collectFnBody v);
-  ctx ← read;
-  updateParamMap (ParamMap.Key.jp ctx.currFn j);
+  withReader (fun ctx => updateParamSet ctx ys) (collectFnBody v)
+  let ctx ← read
+  updateParamMap (ParamMap.Key.jp ctx.currFn j)
   collectFnBody b
 | FnBody.vdecl x _ v b => collectFnBody b *> collectExpr x v *> preserveTailCall x v b
 | FnBody.jmp j ys      => do
-  ctx ← read;
-  ps ← getParamInfo (ParamMap.Key.jp ctx.currFn j);
-  ownArgsUsingParams ys ps; -- for making sure the join point can reuse
+  let ctx ← read
+  let ps ← getParamInfo (ParamMap.Key.jp ctx.currFn j)
+  ownArgsUsingParams ys ps -- for making sure the join point can reuse
   ownParamsUsingArgs ys ps  -- for making sure the tail call is preserved
-| FnBody.case _ _ _ alts => alts.forM $ fun alt => collectFnBody alt.body
-| e                      => unless (e.isTerminal) $ collectFnBody e.body
+| FnBody.case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
+| e                      => do unless e.isTerminal do collectFnBody e.body
 
 partial def collectDecl : Decl → M Unit
 | Decl.fdecl f ys _ b   =>
-  withReader (fun ctx => let ctx := updateParamSet ctx ys; { ctx with currFn := f }) $ do
-    collectFnBody b;
+  withReader (fun ctx => let ctx := updateParamSet ctx ys; { ctx with currFn := f }) do
+    collectFnBody b
     updateParamMap (ParamMap.Key.decl f)
 | _ => pure ()
 
-@[specialize] partial def whileModifingAux (x : M Unit) : Unit → M Unit
-| _ => do
-  modify $ fun s => { s with modified := false };
-  -- s ← get;
-  -- dbgTrace (toString s.map) $ fun _ => do
-  x;
-  s ← get;
-  if s.modified then whileModifingAux ()
-  else pure ()
-
 /- Keep executing `x` until it reaches a fixpoint -/
-@[inline] def whileModifing (x : M Unit) : M Unit :=
-whileModifingAux x ()
+@[inline] partial def whileModifing (x : M Unit) : M Unit := do
+modify fun s => { s with modified := false }
+x
+let s ← get
+if s.modified then
+  whileModifing x
+else
+  pure ()
 
 def collectDecls (decls : Array Decl) : M ParamMap := do
-whileModifing (decls.forM collectDecl);
-s ← get;
+whileModifing (decls.forM collectDecl)
+let s ← get
 pure s.paramMap
 
 def infer (env : Environment) (decls : Array Decl) : ParamMap :=
-(collectDecls decls { env := env }).run' { paramMap := mkInitParamMap env decls }
+collectDecls decls { env := env } $.run' { paramMap := mkInitParamMap env decls }
 
 end Borrow
 
 def inferBorrow (decls : Array Decl) : CompilerM (Array Decl) := do
-env ← getEnv;
-let paramMap := Borrow.infer env decls;
+let env ← getEnv
+let paramMap := Borrow.infer env decls
 pure (Borrow.applyParamMap decls paramMap)
 
 end IR

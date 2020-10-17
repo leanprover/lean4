@@ -95,14 +95,14 @@ def emitCInitName (n : Name) : M Unit :=
 toCInitName n >>= emit
 
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Bool) : M Unit := do
-let ps := decl.params;
-let env ← getEnv;
-when (ps.isEmpty && addExternForConsts) (emit "extern ");
-emit (toCType decl.resultType ++ " " ++ cppBaseName);
-unless (ps.isEmpty) do {
-  emit "(";
+let ps := decl.params
+let env ← getEnv
+if ps.isEmpty && addExternForConsts then emit "extern "
+emit (toCType decl.resultType ++ " " ++ cppBaseName)
+unless ps.isEmpty do
+  emit "("
   -- We omit irrelevant parameters for extern constants
-  let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isIrrelevant) else ps;
+  let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isIrrelevant) else ps
   if ps.size > closureMaxArgs && isBoxedName decl.name then
     emit "lean_object**"
   else
@@ -110,25 +110,24 @@ unless (ps.isEmpty) do {
       if i > 0 then emit ", "
       emit (toCType ps[i].ty)
   emit ")"
-};
 emitLn ";"
 
 def emitFnDecl (decl : Decl) (addExternForConsts : Bool) : M Unit := do
-let cppBaseName ← toCName decl.name;
+let cppBaseName ← toCName decl.name
 emitFnDeclAux decl cppBaseName addExternForConsts
 
 def emitExternDeclAux (decl : Decl) (cNameStr : String) : M Unit := do
-let cName := mkNameSimple cNameStr;
-let env ← getEnv;
-let extC := isExternC env decl.name;
+let cName := mkNameSimple cNameStr
+let env ← getEnv
+let extC := isExternC env decl.name
 emitFnDeclAux decl cNameStr (!extC)
 
 def emitFnDecls : M Unit := do
-let env ← getEnv;
-let decls := getDecls env;
-let modDecls  : NameSet := decls.foldl (fun s d => s.insert d.name) {};
-let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {};
-let usedDecls := usedDecls.toList;
+let env ← getEnv
+let decls := getDecls env
+let modDecls  : NameSet := decls.foldl (fun s d => s.insert d.name) {}
+let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {}
+let usedDecls := usedDecls.toList
 usedDecls.forM fun n => do
   let decl ← getDecl n;
   match getExternNameFor env `c decl.name with
@@ -136,12 +135,12 @@ usedDecls.forM fun n => do
   | none       => emitFnDecl decl (!modDecls.contains n)
 
 def emitMainFn : M Unit := do
-let d ← getDecl `main;
+let d ← getDecl `main
 match d with
 | Decl.fdecl f xs t b => do
-  unless xs.size == 2 || xs.size == 1 do (throw "invalid main function, incorrect arity when generating code");
-  let env ← getEnv;
-  let usesLeanAPI := usesModuleFrom env `Lean;
+  unless xs.size == 2 || xs.size == 1 do (throw "invalid main function, incorrect arity when generating code")
+  let env ← getEnv
+  let usesLeanAPI := usesModuleFrom env `Lean
   if usesLeanAPI then
      emitLn "void lean_initialize();"
   else
@@ -159,14 +158,14 @@ lean_object* in; lean_object* res;";
   if usesLeanAPI then
     emitLn "lean_initialize();"
   else
-    emitLn "lean_initialize_runtime_module();";
-  let modName ← getModName;
-  emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(lean_io_mk_world());");
+    emitLn "lean_initialize_runtime_module();"
+  let modName ← getModName
+  emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(lean_io_mk_world());")
   emitLns ["lean_io_mark_end_initialization();",
            "if (lean_io_result_is_ok(res)) {",
            "lean_dec_ref(res);",
            "lean_init_task_manager();"];
-  if xs.size == 2 then do {
+  if xs.size == 2 then
     emitLns ["in = lean_box(0);",
              "int i = argc;",
              "while (i > 1) {",
@@ -174,12 +173,11 @@ lean_object* in; lean_object* res;";
              " i--;",
              " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
              " in = n;",
-            "}"];
+            "}"]
     emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
-  } else do {
+  else
     emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
-  };
-  emitLn "}";
+  emitLn "}"
   emitLns ["if (lean_io_result_is_ok(res)) {",
            "  int ret = lean_unbox(lean_io_result_get_value(res));",
            "  lean_dec_ref(res);",
@@ -188,27 +186,27 @@ lean_object* in; lean_object* res;";
            "  lean_io_result_show_error(res);",
            "  lean_dec_ref(res);",
            "  return 1;",
-           "}"];
+           "}"]
   emitLn "}"
 | other => throw "function declaration expected"
 
 def hasMainFn : M Bool := do
-let env ← getEnv;
-let decls := getDecls env;
+let env ← getEnv
+let decls := getDecls env
 pure $ decls.any (fun d => d.name == `main)
 
-def emitMainFnIfNeeded : M Unit :=
-whenM hasMainFn emitMainFn
+def emitMainFnIfNeeded : M Unit := do
+if (← hasMainFn) then emitMainFn
 
 def emitFileHeader : M Unit := do
-let env ← getEnv;
-let modName ← getModName;
-emitLn "// Lean compiler output";
-emitLn ("// Module: " ++ toString modName);
-emit "// Imports:";
-env.imports.forM fun m => emit (" " ++ toString m);
-emitLn "";
-emitLn "#include <lean/lean.h>";
+let env ← getEnv
+let modName ← getModName
+emitLn "// Lean compiler output"
+emitLn ("// Module: " ++ toString modName)
+emit "// Imports:"
+env.imports.forM fun m => emit (" " ++ toString m)
+emitLn ""
+emitLn "#include <lean/lean.h>"
 emitLns [
   "#if defined(__clang__)",
   "#pragma clang diagnostic ignored \"-Wunused-parameter\"",
@@ -231,7 +229,7 @@ emitLns [
 ]
 
 def throwUnknownVar {α : Type} (x : VarId) : M α :=
-throw ("unknown variable '" ++ toString x ++ "'")
+throw s!"unknown variable '{x}'"
 
 def getJPParams (j : JoinPointId) : M (Array Param) := do
 let ctx ← read;
@@ -247,7 +245,7 @@ ps.forM fun p => declareVar p.x p.ty
 
 partial def declareVars : FnBody → Bool → M Bool
 | e@(FnBody.vdecl x t _ b), d => do
-  let ctx ← read;
+  let ctx ← read
   if isTailCallTo ctx.mainFn e then
     pure d
   else
@@ -263,8 +261,8 @@ else
 
 def isIf (alts : Array Alt) : Option (Nat × FnBody × FnBody) :=
 if alts.size != 2 then none
-else match alts.get! 0 with
-  | Alt.ctor c b => some (c.cidx, b, (alts.get! 1).body)
+else match alts[0] with
+  | Alt.ctor c b => some (c.cidx, b, alts[1].body)
   | _            => none
 
 def emitInc (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do
@@ -338,7 +336,7 @@ emitCtorScalarSize c.usize c.ssize; emitLn ");"
 
 def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
 ys.size.forM fun i => do
-  emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg (ys.get! i); emitLn ");"
+  emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]; emitLn ");"
 
 def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit := do
 emitLhs z;
@@ -387,18 +385,18 @@ def toStringArgs (ys : Array Arg) : List String :=
 ys.toList.map argToCString
 
 def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M Unit := do
-emit f; emit "(";
+emit f; emit "("
 -- We must remove irrelevant arguments to extern calls.
-_ ← ys.size.foldM
+ys.size.foldM
   (fun i (first : Bool) =>
-    if (ps.get! i).ty.isIrrelevant then
+    if ps[i].ty.isIrrelevant then
       pure first
     else do
       unless first do emit ", ";
-      emitArg (ys.get! i);
+      emitArg ys[i]
       pure false)
-  true;
-emitLn ");";
+  true
+emitLn ");"
 pure ()
 
 def emitExternCall (f : FunId) (ps : Array Param) (extData : ExternAttrData) (ys : Array Arg) : M Unit :=
@@ -536,8 +534,8 @@ That is, we have
 def overwriteParam (ps : Array Param) (ys : Array Arg) : Bool :=
 let n := ps.size;
 n.any $ fun i =>
-  let p := ps.get! i;
-  (i+1, n).anyI $ fun j => paramEqArg p (ys.get! j)
+  let p := ps[i]
+  (i+1, n).anyI fun j => paramEqArg p ys[j]
 
 def emitTailCall (v : Expr) : M Unit :=
 match v with
@@ -635,7 +633,7 @@ unless hasInitAttr env d.name do
       else
         xs.size.forM fun i => do
           if i > 0 then emit ", "
-          let x := xs.get! i;
+          let x := xs[i]
           emit (toCType x.ty); emit " "; emit x.x
       emit ")"
     else

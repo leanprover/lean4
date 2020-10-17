@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -6,8 +7,7 @@ Authors: Leonardo de Moura
 import Lean.Attributes
 import Lean.Compiler.Util
 
-namespace Lean
-namespace Compiler
+namespace Lean.Compiler
 
 inductive SpecializeAttributeKind
 | specialize | nospecialize
@@ -25,7 +25,7 @@ instance : HasBeq SpecializeAttributeKind := ⟨SpecializeAttributeKind.beq⟩
 
 end SpecializeAttributeKind
 
-def mkSpecializeAttrs : IO (EnumAttributes SpecializeAttributeKind) :=
+initialize specializeAttrs : EnumAttributes SpecializeAttributeKind ←
 registerEnumAttributes `specializeAttrs
   [(`specialize, "mark definition to always be specialized", SpecializeAttributeKind.specialize),
    (`nospecialize, "mark definition to never be specialized", SpecializeAttributeKind.nospecialize) ]
@@ -41,13 +41,10 @@ registerEnumAttributes `specializeAttrs
   (fun declName _ => pure ())
   AttributeApplicationTime.beforeElaboration
 
-@[init mkSpecializeAttrs]
-constant specializeAttrs : EnumAttributes SpecializeAttributeKind := arbitrary _
-
 private partial def hasSpecializeAttrAux (env : Environment) (kind : SpecializeAttributeKind) : Name → Bool
 | n => match specializeAttrs.getValue env n with
   | some k => kind == k
-  | none   => if n.isInternal then hasSpecializeAttrAux n.getPrefix else false
+  | none   => if n.isInternal then hasSpecializeAttrAux env kind n.getPrefix else false
 
 @[export lean_has_specialize_attribute]
 def hasSpecializeAttribute (env : Environment) (n : Name) : Bool :=
@@ -89,15 +86,12 @@ def switch : SpecState → SpecState
 
 end SpecState
 
-def mkSpecExtension : IO (SimplePersistentEnvExtension SpecEntry SpecState) :=
+initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecState ←
 registerSimplePersistentEnvExtension {
   name          := `specialize,
   addEntryFn    := SpecState.addEntry,
   addImportedFn := fun es => (mkStateFromImportedEntries SpecState.addEntry {} es).switch
 }
-
-@[init mkSpecExtension]
-constant specExtension : SimplePersistentEnvExtension SpecEntry SpecState := arbitrary _
 
 @[export lean_add_specialization_info]
 def addSpecializationInfo (env : Environment) (fn : Name) (info : SpecInfo) : Environment :=
@@ -115,5 +109,4 @@ specExtension.addEntry env (SpecEntry.cache e fn)
 def getCachedSpecialization (env : Environment) (e : Expr) : Option Name :=
 (specExtension.getState env).cache.find? e
 
-end Compiler
-end Lean
+end Lean.Compiler

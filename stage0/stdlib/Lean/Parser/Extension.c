@@ -161,6 +161,7 @@ lean_object* l_Lean_Parser_declareTrailingBuiltinParser___closed__2;
 lean_object* l_Lean_Parser_initCacheForInput(lean_object*);
 lean_object* l_Lean_Parser_addSyntaxNodeKind(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Trie_HasEmptyc___closed__1;
+lean_object* l_Lean_getConstInfo___at_Lean_KeyedDeclsAttribute_init___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Extension_11__BuiltinParserAttribute_add___closed__3;
 lean_object* l_Lean_Parser_mkParserAttributeImpl___elambda__1(lean_object*);
@@ -350,7 +351,6 @@ lean_object* l___private_Lean_Parser_Extension_13__registerParserAttributeImplBu
 extern lean_object* l_Lean_registerTagAttribute___lambda__4___closed__9;
 lean_object* l___private_Lean_Parser_Extension_5__ParserExtension_mkInitial(lean_object*);
 lean_object* l___private_Lean_Parser_Extension_13__registerParserAttributeImplBuilder___lambda__1___closed__1;
-lean_object* l_Lean_getConstInfo___at_Lean_mkInitAttr___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Extension_10__ParserExtension_addImported___boxed(lean_object*, lean_object*, lean_object*);
@@ -7998,7 +7998,7 @@ block_103:
 {
 lean_object* x_15; 
 lean_inc(x_3);
-x_15 = l_Lean_getConstInfo___at_Lean_mkInitAttr___spec__1(x_3, x_6, x_7, x_8, x_14);
+x_15 = l_Lean_getConstInfo___at_Lean_KeyedDeclsAttribute_init___spec__5(x_3, x_6, x_7, x_8, x_14);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_34; 

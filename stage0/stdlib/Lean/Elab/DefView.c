@@ -42,6 +42,7 @@ lean_object* l_Lean_Elab_Command_mkDefViewOfConstant(lean_object*, lean_object*,
 lean_object* l_Lean_Elab_Command_mkDefViewOfDef(lean_object*, lean_object*);
 uint8_t l_Lean_Elab_DefKind_isExample(uint8_t);
 lean_object* l_Lean_Elab_Command_mkDefView___closed__3;
+extern lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__4;
 extern lean_object* l_Lean_mkAppStx___closed__8;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__2;
@@ -86,7 +87,6 @@ lean_object* l_Lean_Elab_Command_mkDefViewOfExample_match__1___rarg(lean_object*
 lean_object* l_Lean_Elab_DefKind_isTheorem_match__1(lean_object*);
 extern lean_object* l_Lean_mkReducibilityAttrs___closed__4;
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
-extern lean_object* l_Lean_Compiler_mkInlineAttrs___closed__4;
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__14;
 lean_object* l_Lean_Elab_Command_mkDefViewOfTheorem_match__1(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfInstance_match__2(lean_object*);
@@ -409,7 +409,7 @@ static lean_object* _init_l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_mkInlineAttrs___closed__4;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__4;
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -16,16 +17,13 @@ private def isValidCppName : Name → Bool
 | Name.str p s _              => isValidCppId s && isValidCppName p
 | _                           => false
 
-def mkExportAttr : IO (ParametricAttribute Name) :=
+initialize exportAttr : ParametricAttribute Name ←
 registerParametricAttribute `export "name to be used by code generators" $ fun _ stx =>
   match attrParamSyntaxToIdentifier stx with
   | some exportName =>
     if isValidCppName exportName then pure exportName
     else throwError "invalid 'export' function name, is not a valid C++ identifier"
   | _ => throwError "unexpected kind of argument"
-
-@[init mkExportAttr]
-constant exportAttr : ParametricAttribute Name := arbitrary _
 
 @[export lean_get_export_name_for]
 def getExportNameFor (env : Environment) (n : Name) : Option Name :=

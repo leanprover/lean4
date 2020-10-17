@@ -63,7 +63,7 @@ partial def applyFVarSubst (s : FVarSubst) : Pattern → Pattern
   | some _ => applyFVarSubst s p
 
 def replaceFVarId (fvarId : FVarId) (v : Expr) (p : Pattern) : Pattern :=
-let s : FVarSubst := {};
+let s : FVarSubst := {}
 p.applyFVarSubst (s.insert fvarId v)
 
 end Pattern
@@ -86,8 +86,8 @@ instance : Inhabited Alt := ⟨⟨arbitrary _, 0, arbitrary _, [], []⟩⟩
 
 partial def toMessageData (alt : Alt) : MetaM MessageData := do
 withExistingLocalDecls alt.fvarDecls do
-  let msg : List MessageData := alt.fvarDecls.map fun d => d.toExpr ++ ":(" ++ d.type ++ ")";
-  let msg : MessageData := msg ++ " |- " ++ (alt.patterns.map Pattern.toMessageData) ++ " => " ++ alt.rhs;
+  let msg : List MessageData := alt.fvarDecls.map fun d => d.toExpr ++ ":(" ++ d.type ++ ")"
+  let msg : MessageData := msg ++ " |- " ++ (alt.patterns.map Pattern.toMessageData) ++ " => " ++ alt.rhs
   addMessageContext msg
 
 def applyFVarSubst (s : FVarSubst) (alt : Alt) : Alt :=
@@ -100,7 +100,7 @@ def replaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : Alt :=
 { alt with
   patterns  := alt.patterns.map fun p => p.replaceFVarId fvarId v,
   fvarDecls :=
-    let decls := alt.fvarDecls.filter fun d => d.fvarId != fvarId;
+    let decls := alt.fvarDecls.filter fun d => d.fvarId != fvarId
     decls.map $ replaceFVarIdAtLocalDecl fvarId v,
   rhs       := alt.rhs.replaceFVarId fvarId v }
 
@@ -150,11 +150,11 @@ def checkAndReplaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : MetaM Alt :
 match alt.fvarDecls.find? fun (fvarDecl : LocalDecl) => fvarDecl.fvarId == fvarId with
 | none          => throwErrorAt alt.ref "unknown free pattern variable"
 | some fvarDecl => do
-  let vType ← inferType v;
+  let vType ← inferType v
   unlessM (isDefEqGuarded fvarDecl.type vType) $
     withExistingLocalDecls alt.fvarDecls $ throwErrorAt alt.ref $
       "type mismatch during dependent match-elimination at pattern variable '" ++ mkFVar fvarDecl.fvarId ++ "' with type" ++ indentExpr fvarDecl.type ++
-      Format.line ++ "expected type" ++ indentExpr vType;
+      Format.line ++ "expected type" ++ indentExpr vType
   pure $ replaceFVarId fvarId v alt
 
 end Alt
@@ -217,8 +217,8 @@ instance : Inhabited Problem := ⟨{ mvarId := arbitrary _, vars := [], alts := 
 
 def toMessageData (p : Problem) : MetaM MessageData :=
 withGoalOf p do
-  let alts ← p.alts.mapM Alt.toMessageData;
-  let vars : List MessageData ← p.vars.mapM fun x => do { let xType ← inferType x; pure (x ++ ":(" ++ xType ++ ")" : MessageData) };
+  let alts ← p.alts.mapM Alt.toMessageData
+  let vars : List MessageData ← p.vars.mapM fun x => do let xType ← inferType x; pure (x ++ ":(" ++ xType ++ ")" : MessageData)
   pure $ "remaining variables: " ++ vars
     ++ Format.line ++ "alternatives:" ++ indentD (MessageData.joinSep alts Format.line)
     ++ Format.line ++ "examples: " ++ examplesToMessageData p.examples
@@ -240,28 +240,27 @@ structure MatcherResult :=
 
 /- The number of patterns in each AltLHS must be equal to majors.length -/
 private def checkNumPatterns (majors : Array Expr) (lhss : List AltLHS) : MetaM Unit :=
-let num := majors.size;
+let num := majors.size
 when (lhss.any (fun lhs => lhs.patterns.length != num)) $
   throwError "incorrect number of patterns"
 
 private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt → Array (Expr × Nat) → (List Alt → Array (Expr × Nat) → MetaM α) → MetaM α
 | [],        alts, minors, k => k alts.reverse minors
 | lhs::lhss, alts, minors, k => do
-  let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr;
-  let minorType ← withExistingLocalDecls lhs.fvarDecls do {
-    let args ← lhs.patterns.toArray.mapM Pattern.toExpr;
-    let minorType := mkAppN motive args;
+  let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
+  let minorType ← withExistingLocalDecls lhs.fvarDecls do
+    let args ← lhs.patterns.toArray.mapM Pattern.toExpr
+    let minorType := mkAppN motive args
     mkForallFVars xs minorType
-  };
-  let (minorType, minorNumParams) := if !xs.isEmpty then (minorType, xs.size) else (mkSimpleThunkType minorType, 1);
-  let idx       := alts.length;
-  let minorName := (`h).appendIndexAfter (idx+1);
-  trace! `Meta.Match.debug ("minor premise " ++ minorName ++ " : " ++ minorType);
+  let (minorType, minorNumParams) := if !xs.isEmpty then (minorType, xs.size) else (mkSimpleThunkType minorType, 1)
+  let idx       := alts.length
+  let minorName := (`h).appendIndexAfter (idx+1)
+  trace! `Meta.Match.debug ("minor premise " ++ minorName ++ " : " ++ minorType)
   withLocalDeclD minorName minorType fun minor => do
-    let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs;
-    let minors := minors.push (minor, minorNumParams);
-    let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars;
-    let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns : Alt } :: alts;
+    let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs
+    let minors := minors.push (minor, minorNumParams)
+    let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
+    let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns : Alt } :: alts
     withAltsAux motive lhss alts minors k
 
 /- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
@@ -357,17 +356,17 @@ match p.vars with
 | x :: xs => do
   let alts := p.alts.map fun alt => match alt.patterns with
     | Pattern.inaccessible _ :: ps => { alt with patterns := ps }
-    | _       => unreachable!;
+    | _       => unreachable!
   { p with alts := alts, vars := xs }
 
 private def processLeaf (p : Problem) : StateRefT State MetaM Unit :=
 match p.alts with
 | []       => do
-  liftM $ admit p.mvarId;
+  liftM $ admit p.mvarId
   modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
 | alt :: _ => do
   -- TODO: check whether we have unassigned metavars in rhs
-  liftM $ assignGoalOf p alt.rhs;
+  liftM $ assignGoalOf p alt.rhs
   modify fun s => { s with used := s.used.insert alt.idx }
 
 private def processAsPattern (p : Problem) : MetaM Problem :=
@@ -376,7 +375,7 @@ match p.vars with
 | x :: xs => withGoalOf p do
   let alts ← p.alts.mapM fun alt => match alt.patterns with
     | Pattern.as fvarId p :: ps => { alt with patterns := p :: ps }.checkAndReplaceFVarId fvarId x
-    | _                         => pure alt;
+    | _                         => pure alt
   pure { p with alts := alts }
 
 private def processVariable (p : Problem) : MetaM Problem :=
@@ -386,11 +385,11 @@ match p.vars with
   let alts ← p.alts.mapM fun alt => match alt.patterns with
     | Pattern.inaccessible _ :: ps => pure { alt with patterns := ps }
     | Pattern.var fvarId :: ps     => { alt with patterns := ps }.checkAndReplaceFVarId fvarId x
-    | _                            => unreachable!;
+    | _                            => unreachable!
   pure { p with alts := alts, vars := xs }
 
 private def throwInductiveTypeExpected {α} (e : Expr) : MetaM α := do
-let t ← inferType e;
+let t ← inferType e
 throwError ("failed to compile pattern matching, inductive type expected" ++ indentExpr e ++ Format.line ++ "has type" ++ indentExpr t)
 
 private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool :=
@@ -407,7 +406,7 @@ structure State :=
 abbrev M := ReaderT Context $ StateRefT State MetaM
 
 def isAltVar (fvarId : FVarId) : M Bool := do
-let ctx ← read;
+let ctx ← read
 pure $ inLocalDecls ctx.altFVarDecls fvarId
 
 def expandIfVar (e : Expr) : M Expr := do
@@ -420,26 +419,26 @@ def occurs (fvarId : FVarId) (v : Expr) : Bool :=
    | Expr.fvar fvarId' _ => fvarId == fvarId'
    | _=> false).isSome
 
-def assign (fvarId : FVarId) (v : Expr) : M Bool :=
-if occurs fvarId v then do
-  trace! `Meta.Match.unify ("assign occurs check failed, " ++ mkFVar fvarId ++ " := " ++ v);
+def assign (fvarId : FVarId) (v : Expr) : M Bool := do
+if occurs fvarId v then
+  trace[Meta.Match.unify]! "assign occurs check failed, {mkFVar fvarId} := {v}"
   pure false
-else do
-  let ctx ← read;
-  condM (isAltVar fvarId)
-    (do
-      trace! `Meta.Match.unify (mkFVar fvarId ++ " := " ++ v);
-      modify fun s => { s with fvarSubst := s.fvarSubst.insert fvarId v }; pure true)
-    (do
-      trace! `Meta.Match.unify ("assign failed variable is not local, " ++ mkFVar fvarId ++ " := " ++ v);
-      pure false)
+else
+  let ctx ← read
+  if (← isAltVar fvarId) then
+    trace[Meta.Match.unify]! "{mkFVar fvarId} := {v}"
+    modify fun s => { s with fvarSubst := s.fvarSubst.insert fvarId v }
+    pure true
+  else
+    trace! `Meta.Match.unify ("assign failed variable is not local, " ++ mkFVar fvarId ++ " := " ++ v)
+    pure false
 
 partial def unify : Expr → Expr → M Bool
 | a, b => do
-  trace! `Meta.Match.unify (a ++ " =?= " ++ b);
+  trace! `Meta.Match.unify (a ++ " =?= " ++ b)
   condM (isDefEq a b) (pure true) do
-  let a' ← expandIfVar a;
-  let b' ← expandIfVar b;
+  let a' ← expandIfVar a
+  let b' ← expandIfVar b
   if a != a' || b != b' then unify a' b'
   else match a, b with
     | Expr.mdata _ a _, b                      => unify a b
@@ -449,57 +448,57 @@ partial def unify : Expr → Expr → M Bool
     | a, Expr.fvar bFVarId _ => assign bFVarId a
     | Expr.app aFn aArg _, Expr.app bFn bArg _ => unify aFn bFn <&&> unify aArg bArg
     | _, _ => do
-      trace! `Meta.Match.unify ("unify failed @" ++ a ++ " =?= " ++ b);
+      trace! `Meta.Match.unify ("unify failed @" ++ a ++ " =?= " ++ b)
       pure false
 
 end Unify
 
 private def unify? (altFVarDecls : List LocalDecl) (a b : Expr) : MetaM (Option FVarSubst) := do
-let a ← instantiateMVars a;
-let b ← instantiateMVars b;
-let (b, s) ← (Unify.unify a b { altFVarDecls := altFVarDecls}).run {};
+let a ← instantiateMVars a
+let b ← instantiateMVars b
+let (b, s) ← (Unify.unify a b { altFVarDecls := altFVarDecls}).run {}
 if b then pure s.fvarSubst else pure none
 
 private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) : MetaM (Option Alt) :=
 withExistingLocalDecls alt.fvarDecls do
-  let env ← getEnv;
-  let ldecl ← getLocalDecl fvarId;
-  let expectedType ← inferType (mkFVar fvarId);
-  let expectedType ← whnfD expectedType;
-  let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType;
-  let ctor := mkAppN (mkConst ctorName ctorLevels) ctorParams;
-  let ctorType ← inferType ctor;
+  let env ← getEnv
+  let ldecl ← getLocalDecl fvarId
+  let expectedType ← inferType (mkFVar fvarId)
+  let expectedType ← whnfD expectedType
+  let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
+  let ctor := mkAppN (mkConst ctorName ctorLevels) ctorParams
+  let ctorType ← inferType ctor
   forallTelescopeReducing ctorType fun ctorFields resultType => do
-    let ctor := mkAppN ctor ctorFields;
-    let alt  := alt.replaceFVarId fvarId ctor;
-    let ctorFieldDecls ← ctorFields.mapM fun ctorField => getLocalDecl ctorField.fvarId!;
-    let newAltDecls := ctorFieldDecls.toList ++ alt.fvarDecls;
-    let subst? ← unify? newAltDecls resultType expectedType;
+    let ctor := mkAppN ctor ctorFields
+    let alt  := alt.replaceFVarId fvarId ctor
+    let ctorFieldDecls ← ctorFields.mapM fun ctorField => getLocalDecl ctorField.fvarId!
+    let newAltDecls := ctorFieldDecls.toList ++ alt.fvarDecls
+    let subst? ← unify? newAltDecls resultType expectedType
     match subst? with
     | none       => pure none
     | some subst => do
-      let newAltDecls := newAltDecls.filter fun d => !subst.contains d.fvarId; -- remove declarations that were assigned
-      let newAltDecls := newAltDecls.map fun d => d.applyFVarSubst subst; -- apply substitution to remaining declaration types
-      let patterns    := alt.patterns.map fun p => p.applyFVarSubst subst;
-      let rhs         := subst.apply alt.rhs;
+      let newAltDecls := newAltDecls.filter fun d => !subst.contains d.fvarId -- remove declarations that were assigned
+      let newAltDecls := newAltDecls.map fun d => d.applyFVarSubst subst -- apply substitution to remaining declaration types
+      let patterns    := alt.patterns.map fun p => p.applyFVarSubst subst
+      let rhs         := subst.apply alt.rhs
       let ctorFieldPatterns := ctorFields.toList.map fun ctorField => match subst.get ctorField.fvarId! with
         | e@(Expr.fvar fvarId _) => if inLocalDecls newAltDecls fvarId then Pattern.var fvarId else Pattern.inaccessible e
-        | e                      => Pattern.inaccessible e;
+        | e                      => Pattern.inaccessible e
       pure $ some { alt with fvarDecls := newAltDecls, rhs := rhs, patterns := ctorFieldPatterns ++ patterns }
 
 private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
-let xType ← inferType x;
-let xType ← whnfD xType;
+let xType ← inferType x
+let xType ← whnfD xType
 match xType.getAppFn with
 | Expr.const constName _ _ => do
-  let cinfo ← getConstInfo constName;
+  let cinfo ← getConstInfo constName
   match cinfo with
   | ConstantInfo.inductInfo val => pure (some val)
   | _ => pure none
 | _ => pure none
 
 private def hasRecursiveType (x : Expr) : MetaM Bool := do
-let val? ← getInductiveVal? x;
+let val? ← getInductiveVal? x
 match val? with
 | some val => pure val.isRec
 | _        => pure false
@@ -511,18 +510,18 @@ match val? with
    update the next patterns with the fields of the constructor.
    Otherwise, return none. -/
 def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt) := do
-let env ← getEnv;
+let env ← getEnv
 match alt.patterns with
 | p@(Pattern.inaccessible e) :: ps => do
-  trace! `Meta.Match.match ("inaccessible in ctor step " ++ e);
+  trace! `Meta.Match.match ("inaccessible in ctor step " ++ e)
   withExistingLocalDecls alt.fvarDecls do
     -- Try to push inaccessible annotations.
-    let e ← whnfD e;
+    let e ← whnfD e
     match e.constructorApp? env with
     | some (ctorVal, ctorArgs) => do
       if ctorVal.name == ctorName then
-        let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size;
-        let fields := fields.toList.map Pattern.inaccessible;
+        let fields := ctorArgs.extract ctorVal.nparams ctorArgs.size
+        let fields := fields.toList.map Pattern.inaccessible
         pure $ some { alt with patterns := fields ++ ps }
       else
         pure none
@@ -532,58 +531,57 @@ match alt.patterns with
 | _ => unreachable!
 
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
-trace! `Meta.Match.match ("constructor step");
-let env ← getEnv;
+trace! `Meta.Match.match ("constructor step")
+let env ← getEnv
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
-  let subgoals? ← commitWhenSome? do {
-     let subgoals ← cases p.mvarId x.fvarId!;
+  let subgoals? ← commitWhenSome? do
+     let subgoals ← cases p.mvarId x.fvarId!
      if subgoals.isEmpty then
        /- Easy case: we have solved problem `p` since there are no subgoals -/
        pure (some #[])
      else if !p.alts.isEmpty then
        pure (some subgoals)
      else do
-       let isRec ← withGoalOf p $ hasRecursiveType x;
+       let isRec ← withGoalOf p $ hasRecursiveType x
         /- If there are no alternatives and the type of the current variable is recursive, we do NOT consider
           a constructor-transition to avoid nontermination.
           TODO: implement a more general approach if this is not sufficient in practice -/
        if isRec then pure none
        else pure (some subgoals)
-  };
   match subgoals? with
   | none          => pure #[{ p with vars := xs }]
   | some subgoals =>
     subgoals.mapM fun subgoal => withMVarContext subgoal.mvarId do
-      let subst    := subgoal.subst;
-      let fields   := subgoal.fields.toList;
-      let newVars  := fields ++ xs;
-      let newVars  := newVars.map fun x => x.applyFVarSubst subst;
+      let subst    := subgoal.subst
+      let fields   := subgoal.fields.toList
+      let newVars  := fields ++ xs
+      let newVars  := newVars.map fun x => x.applyFVarSubst subst
       let subex    := Example.ctor subgoal.ctorName $ fields.map fun field => match field with
         | Expr.fvar fvarId _ => Example.var fvarId
-        | _                  => Example.underscore; -- This case can happen due to dependent elimination
-      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
-      let examples := examples.map $ Example.applyFVarSubst subst;
+        | _                  => Example.underscore -- This case can happen due to dependent elimination
+      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex
+      let examples := examples.map $ Example.applyFVarSubst subst
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
         | Pattern.ctor n _ _ _ :: _    => n == subgoal.ctorName
         | Pattern.var _ :: _           => true
         | Pattern.inaccessible _ :: _  => true
-        | _                            => false;
-      let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst;
+        | _                            => false
+      let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts ← newAlts.filterMapM fun alt => match alt.patterns with
         | Pattern.ctor _ _ _ fields :: ps  => pure $ some { alt with patterns := fields ++ ps }
         | Pattern.var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
         | Pattern.inaccessible _ :: _      => processInaccessibleAsCtor alt subgoal.ctorName
-        | _                                => unreachable!;
+        | _                                => unreachable!
       pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
 
 private def processNonVariable (p : Problem) : MetaM Problem :=
 match p.vars with
 | []      => unreachable!
 | x :: xs => withGoalOf p do
-  let x ← whnfD x;
-  let env ← getEnv;
+  let x ← whnfD x
+  let env ← getEnv
   match x.constructorApp? env with
   | some (ctorVal, xArgs) => do
     let alts ← p.alts.filterMapM fun alt => match alt.patterns with
@@ -594,8 +592,8 @@ match p.vars with
           pure $ some { alt with patterns := fields ++ ps }
       | Pattern.inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
       | p :: _  => throwError ("failed to compile pattern matching, inaccessible pattern or constructor expected" ++ indentD p.toMessageData)
-      | _       => unreachable!;
-    let xFields := xArgs.extract ctorVal.nparams xArgs.size;
+      | _       => unreachable!
+    let xFields := xArgs.extract ctorVal.nparams xArgs.size
     pure { p with alts := alts, vars := xFields.toList ++ xs }
   | none =>
     throwError ("failed to compile pattern matching, constructor expected" ++ indentExpr x)
@@ -614,35 +612,35 @@ match alt.patterns with
 | _                  => false
 
 private def processValue (p : Problem) : MetaM (Array Problem) := do
-trace! `Meta.Match.match ("value step");
+trace! `Meta.Match.match ("value step")
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
-  let values := collectValues p;
-  let subgoals ← caseValues p.mvarId x.fvarId! values;
+  let values := collectValues p
+  let subgoals ← caseValues p.mvarId x.fvarId! values
   subgoals.mapIdxM fun i subgoal =>
     if h : i < values.size then do
-      let value := values.get ⟨i, h⟩;
+      let value := values.get ⟨i, h⟩
       -- (x = value) branch
-      let subst := subgoal.subst;
-      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! (Example.val value);
-      let examples := examples.map $ Example.applyFVarSubst subst;
+      let subst := subgoal.subst
+      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! (Example.val value)
+      let examples := examples.map $ Example.applyFVarSubst subst
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
         | Pattern.val v :: _ => v == value
         | Pattern.var _ :: _ => true
-        | _                  => false;
-      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
+        | _                  => false
+      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts := newAlts.map fun alt => match alt.patterns with
         | Pattern.val _ :: ps      => { alt with patterns := ps }
         | Pattern.var fvarId :: ps => do
-          let alt := { alt with patterns := ps };
+          let alt := { alt with patterns := ps }
           alt.replaceFVarId fvarId value
-        | _  => unreachable!;
-      let newVars := xs.map fun x => x.applyFVarSubst subst;
+        | _  => unreachable!
+      let newVars := xs.map fun x => x.applyFVarSubst subst
       pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
     else do
       -- else branch
-      let newAlts := p.alts.filter isFirstPatternVar;
+      let newAlts := p.alts.filter isFirstPatternVar
       pure { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
 private def collectArraySizes (p : Problem) : Array Nat :=
@@ -662,50 +660,50 @@ withExistingLocalDecls alt.fvarDecls do
     withLocalDeclD (varNamePrefix.appendIndexAfter (n+1)) arrayElemType fun x =>
       loop n (newVars.push x)
   | 0, newVars => do
-    let arrayLit ← mkArrayLit arrayElemType newVars.toList;
-    let alt := alt.replaceFVarId fvarId arrayLit;
-    let newDecls ← newVars.toList.mapM fun newVar => getLocalDecl newVar.fvarId!;
-    let newPatterns := newVars.toList.map fun newVar => Pattern.var newVar.fvarId!;
+    let arrayLit ← mkArrayLit arrayElemType newVars.toList
+    let alt := alt.replaceFVarId fvarId arrayLit
+    let newDecls ← newVars.toList.mapM fun newVar => getLocalDecl newVar.fvarId!
+    let newPatterns := newVars.toList.map fun newVar => Pattern.var newVar.fvarId!
     pure { alt with fvarDecls := newDecls ++ alt.fvarDecls, patterns := newPatterns ++ alt.patterns }
   loop arraySize #[]
 
 private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
-trace! `Meta.Match.match ("array literal step");
+trace! `Meta.Match.match ("array literal step")
 match p.vars with
 | []      => unreachable!
 | x :: xs => do
-  let sizes := collectArraySizes p;
-  let subgoals ← caseArraySizes p.mvarId x.fvarId! sizes;
+  let sizes := collectArraySizes p
+  let subgoals ← caseArraySizes p.mvarId x.fvarId! sizes
   subgoals.mapIdxM fun i subgoal =>
     if h : i < sizes.size then do
-      let size     := sizes.get! i;
-      let subst    := subgoal.subst;
-      let elems    := subgoal.elems.toList;
-      let newVars  := elems.map mkFVar ++ xs;
-      let newVars  := newVars.map fun x => x.applyFVarSubst subst;
-      let subex    := Example.arrayLit $ elems.map Example.var;
-      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex;
-      let examples := examples.map $ Example.applyFVarSubst subst;
+      let size     := sizes.get! i
+      let subst    := subgoal.subst
+      let elems    := subgoal.elems.toList
+      let newVars  := elems.map mkFVar ++ xs
+      let newVars  := newVars.map fun x => x.applyFVarSubst subst
+      let subex    := Example.arrayLit $ elems.map Example.var
+      let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex
+      let examples := examples.map $ Example.applyFVarSubst subst
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
         | Pattern.arrayLit _ ps :: _ => ps.length == size
         | Pattern.var _ :: _         => true
-        | _                          => false;
-      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst;
+        | _                          => false
+      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       newAlts ← newAlts.mapM fun alt => match alt.patterns with
         | Pattern.arrayLit _ pats :: ps => pure { alt with patterns := pats ++ ps }
         | Pattern.var fvarId :: ps      => do let α ← getArrayArgType x; expandVarIntoArrayLit { alt with patterns := ps } fvarId α size
-        | _  => unreachable!;
+        | _  => unreachable!
       pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
     else do
       -- else branch
-      let newAlts := p.alts.filter isFirstPatternVar;
+      let newAlts := p.alts.filter isFirstPatternVar
       pure { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
 private def expandNatValuePattern (p : Problem) : Problem := do
 let alts := p.alts.map fun alt => match alt.patterns with
   | Pattern.val (Expr.lit (Literal.natVal 0) _) :: ps     => { alt with patterns := Pattern.ctor `Nat.zero [] [] [] :: ps }
   | Pattern.val (Expr.lit (Literal.natVal (n+1)) _) :: ps => { alt with patterns := Pattern.ctor `Nat.succ [] [] [Pattern.val (mkNatLit n)] :: ps }
-  | _                                                     => alt;
+  | _                                                     => alt
 { p with alts := alts }
 
 private def traceStep (msg : String) : StateRefT State MetaM Unit :=
@@ -716,45 +714,45 @@ withGoalOf p (traceM `Meta.Match.match p.toMessageData)
 
 private def throwNonSupported (p : Problem) : MetaM Unit :=
 withGoalOf p do
-  let msg ← p.toMessageData;
+  let msg ← p.toMessageData
   throwError ("failed to compile pattern matching, stuck at" ++ (indentD msg))
 
 def isCurrVarInductive (p : Problem) : MetaM Bool := do
 match p.vars with
 | []   => pure false
 | x::_ => withGoalOf p do
-  let val? ← getInductiveVal? x;
+  let val? ← getInductiveVal? x
   pure val?.isSome
 
 private partial def process : Problem → StateRefT State MetaM Unit
 | p => withIncRecDepth do
-  liftM $ traceState p;
-  let isInductive ← liftM $ isCurrVarInductive p;
+  liftM $ traceState p
+  let isInductive ← liftM $ isCurrVarInductive p
   if isDone p then
     processLeaf p
   else if hasAsPattern p then do
-    traceStep ("as-pattern");
-    let p ← liftM $ processAsPattern p;
+    traceStep ("as-pattern")
+    let p ← liftM $ processAsPattern p
     process p
   else if isNatValueTransition p then do
-    traceStep ("nat value to constructor");
+    traceStep ("nat value to constructor")
     process (expandNatValuePattern p)
   else if !isNextVar p then do
-    traceStep ("non variable");
-    let p ← liftM $ processNonVariable p;
+    traceStep ("non variable")
+    let p ← liftM $ processNonVariable p
     process p
   else if isInductive && isConstructorTransition p then do
-    let ps ← liftM $ processConstructor p;
+    let ps ← liftM $ processConstructor p
     ps.forM process
   else if isVariableTransition p then do
-    traceStep ("variable");
-    let p ← liftM $ processVariable p;
+    traceStep ("variable")
+    let p ← liftM $ processVariable p
     process p
   else if isValueTransition p then do
-    let ps ← liftM $ processValue p;
+    let ps ← liftM $ processValue p
     ps.forM process
   else if isArrayLitTransition p then do
-    let ps ← liftM $ processArrayLit p;
+    let ps ← liftM $ processArrayLit p
     ps.forM process
   else
     liftM $ throwNonSupported p
@@ -828,36 +826,36 @@ where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition.
 -/
 def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM MatcherResult :=
 forallBoundedTelescope matchType numDiscrs fun majors matchTypeBody => do
-checkNumPatterns majors lhss;
+checkNumPatterns majors lhss
 /- We generate an matcher that can eliminate using different motives with different universe levels.
    `uElim` is the universe level the caller wants to eliminate to.
    If it is not levelZero, we create a matcher that can eliminate in any universe level.
    This is useful for implementing `MatcherApp.addArg` because it may have to change the universe level. -/
-let uElim ← getLevel matchTypeBody;
-let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar;
-let motiveType ← mkForallFVars majors (mkSort uElimGen);
+let uElim ← getLevel matchTypeBody
+let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
+let motiveType ← mkForallFVars majors (mkSort uElimGen)
 withLocalDeclD `motive motiveType fun motive => do
-trace! `Meta.Match.debug ("motiveType: " ++ motiveType);
-let mvarType  := mkAppN motive majors;
-trace! `Meta.Match.debug ("target: " ++ mvarType);
+trace! `Meta.Match.debug ("motiveType: " ++ motiveType)
+let mvarType  := mkAppN motive majors
+trace! `Meta.Match.debug ("target: " ++ mvarType)
 withAlts motive lhss fun alts minors => do
-  let mvar ← mkFreshExprMVar mvarType;
-  let examples := majors.toList.map fun major => Example.var major.fvarId!;
-  let (_, s) ← (process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples }).run {};
-  let args := #[motive] ++ majors ++ minors.map Prod.fst;
-  let type ← mkForallFVars args mvarType;
-  let val  ← mkLambdaFVars args mvar;
-  trace! `Meta.Match.debug ("matcher value: " ++ val ++ "\ntype: " ++ type);
-  let matcher ← mkAuxDefinition matcherName type val;
-  trace! `Meta.Match.debug ("matcher levels: " ++ toString matcher.getAppFn.constLevels! ++ ", uElim: " ++ toString uElimGen);
-  let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen;
-  isLevelDefEq uElimGen uElim;
-  addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := numDiscrs, altNumParams := minors.map Prod.snd, uElimPos? := uElimPos? };
-  setInlineAttribute matcherName;
-  trace! `Meta.Match.debug ("matcher: " ++ matcher);
+  let mvar ← mkFreshExprMVar mvarType
+  let examples := majors.toList.map fun major => Example.var major.fvarId!
+  let (_, s) ← (process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples }).run {}
+  let args := #[motive] ++ majors ++ minors.map Prod.fst
+  let type ← mkForallFVars args mvarType
+  let val  ← mkLambdaFVars args mvar
+  trace! `Meta.Match.debug ("matcher value: " ++ val ++ "\ntype: " ++ type)
+  let matcher ← mkAuxDefinition matcherName type val
+  trace! `Meta.Match.debug ("matcher levels: " ++ toString matcher.getAppFn.constLevels! ++ ", uElim: " ++ toString uElimGen)
+  let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
+  isLevelDefEq uElimGen uElim
+  addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := numDiscrs, altNumParams := minors.map Prod.snd, uElimPos? := uElimPos? }
+  setInlineAttribute matcherName
+  trace! `Meta.Match.debug ("matcher: " ++ matcher)
   let unusedAltIdxs : List Nat := lhss.length.fold
     (fun i r => if s.used.contains i then r else i::r)
-    [];
+    []
   pure { matcher := matcher, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
 
 end Match
@@ -865,11 +863,11 @@ end Match
 export Match (MatcherInfo)
 
 def getMatcherInfo? (declName : Name) : MetaM (Option MatcherInfo) := do
-let env ← getEnv;
+let env ← getEnv
 pure $ Match.Extension.getMatcherInfo? env declName
 
 def isMatcher (declName : Name) : MetaM Bool := do
-let info? ← getMatcherInfo? declName;
+let info? ← getMatcherInfo? declName
 pure info?.isSome
 
 structure MatcherApp :=
@@ -886,8 +884,8 @@ structure MatcherApp :=
 def matchMatcherApp? (e : Expr) : MetaM (Option MatcherApp) :=
 match e.getAppFn with
 | Expr.const declName declLevels _ => do
-  let some info ← getMatcherInfo? declName | pure none;
-  let args := e.getAppArgs;
+  let some info ← getMatcherInfo? declName | pure none
+  let args := e.getAppArgs
   if args.size < info.numParams + 1 + info.numDiscrs + info.numAlts then pure none
   else
     pure $ some {
@@ -904,26 +902,26 @@ match e.getAppFn with
 | _ => pure none
 
 def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=
-let result := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels.toList) matcherApp.params;
-let result := mkApp result matcherApp.motive;
-let result := mkAppN result matcherApp.discrs;
-let result := mkAppN result matcherApp.alts;
+let result := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels.toList) matcherApp.params
+let result := mkApp result matcherApp.motive
+let result := mkAppN result matcherApp.discrs
+let result := mkAppN result matcherApp.alts
 mkAppN result matcherApp.remaining
 
 /- Auxiliary function for MatcherApp.addArg -/
 private partial def updateAlts : Expr → Array Nat → Array Expr → Nat → MetaM (Array Nat × Array Expr)
 | typeNew, altNumParams, alts, i =>
   if h : i < alts.size then do
-    let alt       := alts.get ⟨i, h⟩;
-    let numParams := altNumParams.get! i;
-    let typeNew ← whnfD typeNew;
+    let alt       := alts.get ⟨i, h⟩
+    let numParams := altNumParams.get! i
+    let typeNew ← whnfD typeNew
     match typeNew with
     | Expr.forallE n d b _ => do
       let alt ← forallBoundedTelescope d (some numParams) fun xs d => do
         let alt ← try instantiateLambda alt xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
         forallBoundedTelescope d (some 1) fun x d => do
-          let alt ← mkLambdaFVars x alt; -- x is the new argument we are adding to the alternative
-          let alt ← mkLambdaFVars xs alt;
+          let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
+          let alt ← mkLambdaFVars xs alt
           pure alt
       updateAlts (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set ⟨i, h⟩ alt) (i+1)
     | _ => throwError "unexpected type at MatcherApp.addArg"
@@ -944,34 +942,33 @@ def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
 lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
   unless motiveArgs.size == matcherApp.discrs.size do
     -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
-    throwError ("unexpected matcher application, motive must be lambda expression with #" ++ toString matcherApp.discrs.size ++ " arguments");
-  let eType ← inferType e;
+    throwError ("unexpected matcher application, motive must be lambda expression with #" ++ toString matcherApp.discrs.size ++ " arguments")
+  let eType ← inferType e
   let eTypeAbst ← matcherApp.discrs.size.foldRevM
     (fun i eTypeAbst => do
-      let motiveArg := motiveArgs.get! i;
-      let discr     := matcherApp.discrs.get! i;
-      eTypeAbst ← kabstract eTypeAbst discr;
+      let motiveArg := motiveArgs.get! i
+      let discr     := matcherApp.discrs.get! i
+      eTypeAbst ← kabstract eTypeAbst discr
       pure $ eTypeAbst.instantiate1 motiveArg)
-    eType;
-  let motiveBody ← mkArrow eTypeAbst motiveBody;
+    eType
+  let motiveBody ← mkArrow eTypeAbst motiveBody
   let matcherLevels ← match matcherApp.uElimPos? with
     | none     => pure matcherApp.matcherLevels
-    | some pos => do {
-      let uElim ← getLevel motiveBody;
+    | some pos => do
+      let uElim ← getLevel motiveBody
       pure $ matcherApp.matcherLevels.set! pos uElim
-    };
-  let motive ← mkLambdaFVars motiveArgs motiveBody;
+  let motive ← mkLambdaFVars motiveArgs motiveBody
   -- Construct `aux` `match_i As (fun xs => B[xs] → motive[xs]) discrs`, and infer its type `auxType`.
   -- We use `auxType` to infer the type `B[C_i[ys_i]]` of the new argument in each alternative.
-  let aux := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) matcherApp.params;
-  let aux := mkApp aux motive;
-  let aux := mkAppN aux matcherApp.discrs;
-  trace! `Meta.debug aux;
-  check aux;
+  let aux := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) matcherApp.params
+  let aux := mkApp aux motive
+  let aux := mkAppN aux matcherApp.discrs
+  trace! `Meta.debug aux
+  check aux
   unlessM (isTypeCorrect aux) $
-    throwError "failed to add argument to matcher application, type error when constructing the new motive";
-  let auxType ← inferType aux;
-  let (altNumParams, alts) ← updateAlts auxType matcherApp.altNumParams matcherApp.alts 0;
+    throwError "failed to add argument to matcher application, type error when constructing the new motive"
+  let auxType ← inferType aux
+  let (altNumParams, alts) ← updateAlts auxType matcherApp.altNumParams matcherApp.alts 0
   pure { matcherApp with
          matcherLevels := matcherLevels,
          motive        := motive,

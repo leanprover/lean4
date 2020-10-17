@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -8,8 +9,7 @@ import Lean.Expr
 import Lean.LocalContext
 import Lean.Util.ReplaceExpr
 
-namespace Lean
-namespace Meta
+namespace Lean.Meta
 /-
   Some tactics substitute hypotheses with expressions.
   We track these substitutions using `FVarSubst`.

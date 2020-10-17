@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -6,25 +7,23 @@ Authors: Leonardo de Moura
 import Lean.Meta.KAbstract
 import Lean.Meta.Tactic.Util
 
-namespace Lean
-namespace Meta
+namespace Lean.Meta
 
 def generalize (mvarId : MVarId) (e : Expr) (x : Name) (failIfNotInTarget : Bool := true) : MetaM MVarId := do
-withMVarContext mvarId $ do
-  checkNotAssigned mvarId `generalize;
-  tag ← getMVarTag mvarId;
-  target ← getMVarType mvarId;
-  target ← instantiateMVars target;
-  targetAbst ← kabstract target e;
-  when (failIfNotInTarget && !targetAbst.hasLooseBVars) $
-    throwTacticEx `generalize mvarId ("failed to find expression in the target");
-  eType ← inferType e;
-  let targetNew := Lean.mkForall x BinderInfo.default eType targetAbst;
-  unlessM (isTypeCorrect targetNew) $
-    throwTacticEx `generalize mvarId ("result is not type correct");
-  mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag;
-  assignExprMVar mvarId (mkApp mvarNew e);
+withMVarContext mvarId do
+  checkNotAssigned mvarId `generalize
+  let tag ← getMVarTag mvarId
+  let target ← getMVarType mvarId
+  let target ← instantiateMVars target
+  let targetAbst ← kabstract target e
+  if failIfNotInTarget && !targetAbst.hasLooseBVars then
+    throwTacticEx `generalize mvarId "failed to find expression in the target"
+  let eType ← inferType e
+  let targetNew := Lean.mkForall x BinderInfo.default eType targetAbst
+  unless (← isTypeCorrect targetNew) do
+    throwTacticEx `generalize mvarId "result is not type correct"
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
+  assignExprMVar mvarId (mkApp mvarNew e)
   pure mvarNew.mvarId!
 
-end Meta
-end Lean
+end Lean.Meta

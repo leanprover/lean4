@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -5,35 +6,33 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.Util
 
-namespace Lean
-namespace Meta
+namespace Lean.Meta
 
 def clear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId :=
-withMVarContext mvarId $ do
-  checkNotAssigned mvarId `clear;
-  lctx ← getLCtx;
-  unless (lctx.contains fvarId) $
-    throwTacticEx `clear mvarId ("unknown variable '" ++ mkFVar fvarId ++ "'");
-  tag ← getMVarTag mvarId;
-  mctx ← getMCtx;
-  lctx.forM $ fun localDecl =>
-    unless (localDecl.fvarId == fvarId) $
-      when (mctx.localDeclDependsOn localDecl fvarId) $
-        throwTacticEx `clear mvarId ("variable '" ++ localDecl.toExpr ++ "' depends on '" ++ mkFVar fvarId ++ "'");
-  mvarDecl ← getMVarDecl mvarId;
-  when (mctx.exprDependsOn mvarDecl.type fvarId) $
-    throwTacticEx `clear mvarId ("taget depends on '" ++ mkFVar fvarId ++ "'");
-  let lctx := lctx.erase fvarId;
-  localInsts ← getLocalInstances;
+withMVarContext mvarId do
+  checkNotAssigned mvarId `clear
+  let lctx ← getLCtx
+  unless lctx.contains fvarId do
+    throwTacticEx `clear mvarId msg!"unknown variable '{mkFVar fvarId}'"
+  let tag ← getMVarTag mvarId
+  let mctx ← getMCtx
+  lctx.forM fun localDecl => do
+    unless localDecl.fvarId == fvarId do
+      if mctx.localDeclDependsOn localDecl fvarId then
+        throwTacticEx `clear mvarId msg!"variable '{localDecl.toExpr}' depends on '{mkFVar fvarId}'"
+  let mvarDecl ← getMVarDecl mvarId
+  if mctx.exprDependsOn mvarDecl.type fvarId then
+    throwTacticEx `clear mvarId msg!"taget depends on '{mkFVar fvarId}'"
+  let lctx := lctx.erase fvarId
+  let localInsts ← getLocalInstances
   let localInsts := match localInsts.findIdx? $ fun localInst => localInst.fvar.fvarId! == fvarId with
     | none => localInsts
-    | some idx => localInsts.eraseIdx idx;
-  newMVar ← mkFreshExprMVarAt lctx localInsts mvarDecl.type MetavarKind.syntheticOpaque tag;
-  assignExprMVar mvarId newMVar;
+    | some idx => localInsts.eraseIdx idx
+  let newMVar ← mkFreshExprMVarAt lctx localInsts mvarDecl.type MetavarKind.syntheticOpaque tag
+  assignExprMVar mvarId newMVar
   pure newMVar.mvarId!
 
 def tryClear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId :=
 clear mvarId fvarId <|> pure mvarId
 
-end Meta
-end Lean
+end Lean.Meta

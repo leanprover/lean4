@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -6,8 +7,7 @@ Authors: Leonardo de Moura
 import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.FreeVars
 
-namespace Lean
-namespace IR
+namespace Lean.IR
 
 /- Remark: in the paper "Counting Immutable Beans" the concepts of
    free and live variables coincide because the paper does *not* consider
@@ -44,29 +44,28 @@ abbrev M := StateM LocalContext
 @[inline] def visitExpr (w : Index) (e : Expr) : M Bool := pure (HasIndex.visitExpr w e)
 
 partial def visitFnBody (w : Index) : FnBody → M Bool
-| FnBody.vdecl x _ v b    => visitExpr w v <||> visitFnBody b
-| FnBody.jdecl j ys v b   => visitFnBody v <||> visitFnBody b
-| FnBody.set x _ y b      => visitVar w x <||> visitArg w y <||> visitFnBody b
-| FnBody.uset x _ y b     => visitVar w x <||> visitVar w y <||> visitFnBody b
-| FnBody.sset x _ _ y _ b => visitVar w x <||> visitVar w y <||> visitFnBody b
-| FnBody.setTag x _ b     => visitVar w x <||> visitFnBody b
-| FnBody.inc x _ _ _ b    => visitVar w x <||> visitFnBody b
-| FnBody.dec x _ _ _ b    => visitVar w x <||> visitFnBody b
-| FnBody.del x b          => visitVar w x <||> visitFnBody b
-| FnBody.mdata _ b        => visitFnBody b
-| FnBody.jmp j ys         => visitArgs w ys <||> do {
-    ctx ← get;
+| FnBody.vdecl x _ v b    => visitExpr w v <||> visitFnBody w b
+| FnBody.jdecl j ys v b   => visitFnBody w v <||> visitFnBody w b
+| FnBody.set x _ y b      => visitVar w x <||> visitArg w y <||> visitFnBody w b
+| FnBody.uset x _ y b     => visitVar w x <||> visitVar w y <||> visitFnBody w b
+| FnBody.sset x _ _ y _ b => visitVar w x <||> visitVar w y <||> visitFnBody w b
+| FnBody.setTag x _ b     => visitVar w x <||> visitFnBody w b
+| FnBody.inc x _ _ _ b    => visitVar w x <||> visitFnBody w b
+| FnBody.dec x _ _ _ b    => visitVar w x <||> visitFnBody w b
+| FnBody.del x b          => visitVar w x <||> visitFnBody w b
+| FnBody.mdata _ b        => visitFnBody w b
+| FnBody.jmp j ys         => visitArgs w ys <||> do
+    let ctx ← get
     match ctx.getJPBody j with
     | some b =>
       -- `j` is not a local join point since we assume we cannot shadow join point declarations.
       -- Instead of marking the join points that we have already been visited, we permanently remove `j` from the context.
-      set (ctx.eraseJoinPointDecl j) *> visitFnBody b
+      set (ctx.eraseJoinPointDecl j) *> visitFnBody w b
     | none   =>
       -- `j` must be a local join point. So do nothing since we have already visite its body.
       pure false
-  }
 | FnBody.ret x            => visitArg w x
-| FnBody.case _ x _ alts  => visitVar w x <||> alts.anyM (fun alt => visitFnBody alt.body)
+| FnBody.case _ x _ alts  => visitVar w x <||> alts.anyM (fun alt => visitFnBody w alt.body)
 | FnBody.unreachable      => pure false
 
 end IsLive
@@ -161,5 +160,4 @@ LiveVars.collectFnBody b m v
 
 export LiveVars (updateJPLiveVarMap)
 
-end IR
-end Lean
+end Lean.IR

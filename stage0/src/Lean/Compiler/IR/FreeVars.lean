@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -5,8 +6,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.IR.Basic
 
-namespace Lean
-namespace IR
+namespace Lean.IR
 
 namespace MaxIndex
 /- Compute the maximum index `M` used in a declaration.
@@ -210,19 +210,19 @@ def visitExpr (w : Index) : Expr → Bool
 | Expr.isTaggedPtr x  => visitVar w x
 
 partial def visitFnBody (w : Index) : FnBody → Bool
-| FnBody.vdecl x _ v b    => visitExpr w v || visitFnBody b
-| FnBody.jdecl j ys v b   => visitFnBody v || visitFnBody b
-| FnBody.set x _ y b      => visitVar w x || visitArg w y || visitFnBody b
-| FnBody.uset x _ y b     => visitVar w x || visitVar w y || visitFnBody b
-| FnBody.sset x _ _ y _ b => visitVar w x || visitVar w y || visitFnBody b
-| FnBody.setTag x _ b     => visitVar w x || visitFnBody b
-| FnBody.inc x _ _ _ b    => visitVar w x || visitFnBody b
-| FnBody.dec x _ _ _ b    => visitVar w x || visitFnBody b
-| FnBody.del x b          => visitVar w x || visitFnBody b
-| FnBody.mdata _ b        => visitFnBody b
+| FnBody.vdecl x _ v b    => visitExpr w v || visitFnBody w b
+| FnBody.jdecl j ys v b   => visitFnBody w v || visitFnBody w b
+| FnBody.set x _ y b      => visitVar w x || visitArg w y || visitFnBody w b
+| FnBody.uset x _ y b     => visitVar w x || visitVar w y || visitFnBody w b
+| FnBody.sset x _ _ y _ b => visitVar w x || visitVar w y || visitFnBody w b
+| FnBody.setTag x _ b     => visitVar w x || visitFnBody w b
+| FnBody.inc x _ _ _ b    => visitVar w x || visitFnBody w b
+| FnBody.dec x _ _ _ b    => visitVar w x || visitFnBody w b
+| FnBody.del x b          => visitVar w x || visitFnBody w b
+| FnBody.mdata _ b        => visitFnBody w b
 | FnBody.jmp j ys         => visitJP w j || visitArgs w ys
 | FnBody.ret x            => visitArg w x
-| FnBody.case _ x _ alts  => visitVar w x || alts.any (fun alt => visitFnBody alt.body)
+| FnBody.case _ x _ alts  => visitVar w x || alts.any (fun alt => visitFnBody w alt.body)
 | FnBody.unreachable      => false
 
 end HasIndex
@@ -231,5 +231,4 @@ def Arg.hasFreeVar (arg : Arg) (x : VarId) : Bool := HasIndex.visitArg x.idx arg
 def Expr.hasFreeVar (e : Expr) (x : VarId) : Bool := HasIndex.visitExpr x.idx e
 def FnBody.hasFreeVar (b : FnBody) (x : VarId) : Bool := HasIndex.visitFnBody x.idx b
 
-end IR
-end Lean
+end Lean.IR

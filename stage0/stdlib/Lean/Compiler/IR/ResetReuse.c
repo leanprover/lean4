@@ -24,7 +24,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ResetReuse_R_match__1(lean_object*);
-uint8_t l_Lean_IR_HasIndex_visitFnBody___main(lean_object*, lean_object*);
 uint8_t l_Lean_IR_CtorInfo_isScalar(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -70,6 +69,7 @@ lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mayRe
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_hasLiveVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ResetReuse_R_match__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_IR_HasIndex_visitFnBody(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 lean_object* l_Lean_IR_ResetReuse_R(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -1785,7 +1785,7 @@ lean_object* x_108; lean_object* x_109; uint8_t x_110;
 x_108 = lean_ctor_get(x_101, 0);
 x_109 = lean_ctor_get(x_101, 1);
 lean_dec(x_109);
-x_110 = l_Lean_IR_HasIndex_visitFnBody___main(x_1, x_98);
+x_110 = l_Lean_IR_HasIndex_visitFnBody(x_1, x_98);
 if (x_110 == 0)
 {
 lean_object* x_111; 
@@ -1845,7 +1845,7 @@ lean_object* x_125; uint8_t x_126;
 x_125 = lean_ctor_get(x_101, 0);
 lean_inc(x_125);
 lean_dec(x_101);
-x_126 = l_Lean_IR_HasIndex_visitFnBody___main(x_1, x_98);
+x_126 = l_Lean_IR_HasIndex_visitFnBody(x_1, x_98);
 if (x_126 == 0)
 {
 lean_object* x_127; lean_object* x_128; 
@@ -1912,7 +1912,7 @@ if (lean_is_exclusive(x_101)) {
  lean_dec_ref(x_101);
  x_140 = lean_box(0);
 }
-x_141 = l_Lean_IR_HasIndex_visitFnBody___main(x_1, x_98);
+x_141 = l_Lean_IR_HasIndex_visitFnBody(x_1, x_98);
 if (x_141 == 0)
 {
 lean_object* x_142; lean_object* x_143; lean_object* x_144; 

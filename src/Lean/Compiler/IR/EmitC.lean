@@ -268,23 +268,6 @@ else match alts.get! 0 with
   | Alt.ctor c b => some (c.cidx, b, (alts.get! 1).body)
   | _            => none
 
-def emitIf (emitBody : FnBody → M Unit) (x : VarId) (xType : IRType) (tag : Nat) (t : FnBody) (e : FnBody) : M Unit := do
-emit "if ("; emitTag x xType; emit " == "; emit tag; emitLn ")";
-emitBody t;
-emitLn "else";
-emitBody e
-
-def emitCase (emitBody : FnBody → M Unit) (x : VarId) (xType : IRType) (alts : Array Alt) : M Unit :=
-match isIf alts with
-| some (tag, t, e) => emitIf emitBody x xType tag t e
-| _ => do
-  emit "switch ("; emitTag x xType; emitLn ") {";
-  let alts := ensureHasDefault alts;
-  alts.forM $ fun alt => match alt with
-    | Alt.ctor c b  => emit "case " *> emit c.cidx *> emitLn ":" *> emitBody b
-    | Alt.default b => emitLn "default: " *> emitBody b;
-  emitLn "}"
-
 def emitInc (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do
 emit $
   if checkRef then (if n == 1 then "lean_inc" else "lean_inc_n")
@@ -591,35 +574,56 @@ match v with
   emitLn "goto _start;"
 | _ => throw "bug at emitTailCall"
 
-partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
-| FnBody.jdecl j xs v b      => emitBlock emitBody b
+mutual
+
+partial def emitIf (x : VarId) (xType : IRType) (tag : Nat) (t : FnBody) (e : FnBody) : M Unit := do
+emit "if ("; emitTag x xType; emit " == "; emit tag; emitLn ")";
+emitFnBody t;
+emitLn "else";
+emitFnBody e
+
+partial def emitCase (x : VarId) (xType : IRType) (alts : Array Alt) : M Unit :=
+match isIf alts with
+| some (tag, t, e) => emitIf x xType tag t e
+| _ => do
+  emit "switch ("; emitTag x xType; emitLn ") {";
+  let alts := ensureHasDefault alts;
+  alts.forM $ fun alt => match alt with
+    | Alt.ctor c b  => emit "case " *> emit c.cidx *> emitLn ":" *> emitFnBody b
+    | Alt.default b => emitLn "default: " *> emitFnBody b;
+  emitLn "}"
+
+partial def emitBlock : FnBody → M Unit
+| FnBody.jdecl j xs v b      => emitBlock b
 | d@(FnBody.vdecl x t v b)   =>
-  do let ctx ← read; if isTailCallTo ctx.mainFn d then emitTailCall v else emitVDecl x t v *> emitBlock emitBody b
-| FnBody.inc x n c p b       => «unless» p (emitInc x n c) *> emitBlock emitBody b
-| FnBody.dec x n c p b       => «unless» p (emitDec x n c) *> emitBlock emitBody b
-| FnBody.del x b             => emitDel x *> emitBlock emitBody b
-| FnBody.setTag x i b        => emitSetTag x i *> emitBlock emitBody b
-| FnBody.set x i y b         => emitSet x i y *> emitBlock emitBody b
-| FnBody.uset x i y b        => emitUSet x i y *> emitBlock emitBody b
-| FnBody.sset x i o y t b    => emitSSet x i o y t *> emitBlock emitBody b
-| FnBody.mdata _ b           => emitBlock emitBody b
+  do let ctx ← read; if isTailCallTo ctx.mainFn d then emitTailCall v else emitVDecl x t v *> emitBlock b
+| FnBody.inc x n c p b       => «unless» p (emitInc x n c) *> emitBlock b
+| FnBody.dec x n c p b       => «unless» p (emitDec x n c) *> emitBlock b
+| FnBody.del x b             => emitDel x *> emitBlock b
+| FnBody.setTag x i b        => emitSetTag x i *> emitBlock b
+| FnBody.set x i y b         => emitSet x i y *> emitBlock b
+| FnBody.uset x i y b        => emitUSet x i y *> emitBlock b
+| FnBody.sset x i o y t b    => emitSSet x i o y t *> emitBlock b
+| FnBody.mdata _ b           => emitBlock b
 | FnBody.ret x               => emit "return " *> emitArg x *> emitLn ";"
-| FnBody.case _ x xType alts => emitCase emitBody x xType alts
+| FnBody.case _ x xType alts => emitCase x xType alts
 | FnBody.jmp j xs            => emitJmp j xs
 | FnBody.unreachable         => emitLn "lean_panic_unreachable();"
 
-partial def emitJPs (emitBody : FnBody → M Unit) : FnBody → M Unit
-| FnBody.jdecl j xs v b => do emit j; emitLn ":"; emitBody v; emitJPs emitBody b
-| e                     => do unless e.isTerminal do emitJPs emitBody e.body
+partial def emitJPs : FnBody → M Unit
+| FnBody.jdecl j xs v b => do emit j; emitLn ":"; emitFnBody v; emitJPs b
+| e                     => do unless e.isTerminal do emitJPs e.body
 
 partial def emitFnBody : FnBody → M Unit
 | b => do
 emitLn "{";
 let declared ← declareVars b false;
 when declared (emitLn "");
-emitBlock emitFnBody b;
-emitJPs emitFnBody b;
+emitBlock b;
+emitJPs b;
 emitLn "}"
+
+end
 
 def emitDeclAux (d : Decl) : M Unit := do
 let env ← getEnv;

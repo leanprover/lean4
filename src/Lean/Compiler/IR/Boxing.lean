@@ -43,7 +43,7 @@ private def N.mkFresh : N VarId :=
 modifyGet fun n => ({ idx := n }, n + 1)
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
-let ps := decl.params;
+let ps := decl.params
 (ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow) || isExtern env decl.name))
 || ps.size > closureMaxArgs
 
@@ -56,7 +56,7 @@ let (newVDecls, xs) ← qs.size.foldM (init := (#[], #[])) fun i (newVDecls, xs)
   if !p.ty.isScalar then
     pure (newVDecls, xs.push (Arg.var q.x))
   else
-    let x ← N.mkFresh;
+    let x ← N.mkFresh
     pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) (arbitrary _)), xs.push (Arg.var x))
 let r ← N.mkFresh
 let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) (arbitrary _))
@@ -88,7 +88,7 @@ let isScalar :=
 match isScalar with
 | false => IRType.object
 | true  =>
-  let n := alts.size;
+  let n := alts.size
   if n < 256 then IRType.uint8
   else if n < 65536 then IRType.uint16
   else if n < 4294967296 then IRType.uint32
@@ -189,7 +189,7 @@ match (← isExpensiveConstantValueBoxing x xType) with
   let body : FnBody :=
     FnBody.vdecl { idx := 1 } xType v $
     FnBody.vdecl { idx := 2 } expectedType (Expr.box xType { idx := 1 }) $
-    FnBody.ret (mkVarArg { idx := 2 });
+    FnBody.ret (mkVarArg { idx := 2 })
   match s.auxDeclCache.find? body with
   | some v => pure v
   | none   => do
@@ -228,13 +228,13 @@ xs.iterateM (#[], #[]) fun i (x : Arg) (r : Array Arg × Array FnBody) => do
     let xType ← getVarType x
     if eqvTypes xType expected then pure (xs.push (Arg.var x), bs)
     else
-      let y ← M.mkFresh;
-      let v ← mkCast x xType expected;
-      let b := FnBody.vdecl y expected v FnBody.nil;
+      let y ← M.mkFresh
+      let v ← mkCast x xType expected
+      let b := FnBody.vdecl y expected v FnBody.nil
       pure (xs.push (Arg.var y), bs.push b)
 
 @[inline] def castArgsIfNeeded (xs : Array Arg) (ps : Array Param) (k : Array Arg → M FnBody) : M FnBody := do
-let (ys, bs) ← castArgsIfNeededAux xs fun i => (ps.get! i).ty
+let (ys, bs) ← castArgsIfNeededAux xs fun i => ps[i].ty
 let b ← k ys
 pure (reshape bs b)
 
@@ -264,18 +264,18 @@ match e with
   if c.isScalar && ty.isScalar then
     pure $ FnBody.vdecl x ty (Expr.lit (LitVal.num c.cidx)) b
   else
-    boxArgsIfNeeded ys $ fun ys => pure $ FnBody.vdecl x ty (Expr.ctor c ys) b
+    boxArgsIfNeeded ys fun ys => pure $ FnBody.vdecl x ty (Expr.ctor c ys) b
 | Expr.reuse w c u ys =>
-  boxArgsIfNeeded ys $ fun ys => pure $ FnBody.vdecl x ty (Expr.reuse w c u ys) b
+  boxArgsIfNeeded ys fun ys => pure $ FnBody.vdecl x ty (Expr.reuse w c u ys) b
 | Expr.fap f ys => do
-  let decl ← getDecl f;
-  castArgsIfNeeded ys decl.params $ fun ys =>
+  let decl ← getDecl f
+  castArgsIfNeeded ys decl.params fun ys =>
   castResultIfNeeded x ty (Expr.fap f ys) decl.resultType b
 | Expr.pap f ys => do
-  let env ← getEnv;
-  let decl ← getDecl f;
-  let f := if requiresBoxedVersion env decl then mkBoxedName f else f;
-  boxArgsIfNeeded ys $ fun ys => pure $ FnBody.vdecl x ty (Expr.pap f ys) b
+  let env ← getEnv
+  let decl ← getDecl f
+  let f := if requiresBoxedVersion env decl then mkBoxedName f else f
+  boxArgsIfNeeded ys fun ys => pure $ FnBody.vdecl x ty (Expr.pap f ys) b
 | Expr.ap f ys =>
   boxArgsIfNeeded ys fun ys =>
   unboxResultIfNeeded x ty (Expr.ap f ys) b
@@ -284,55 +284,54 @@ match e with
 
 partial def visitFnBody : FnBody → M FnBody
 | FnBody.vdecl x t v b     => do
-  let b ← withVDecl x t v (visitFnBody b);
+  let b ← withVDecl x t v (visitFnBody b)
   visitVDeclExpr x t v b
 | FnBody.jdecl j xs v b    => do
-  let v ← withParams xs (visitFnBody v);
-  let b ← withJDecl j xs v (visitFnBody b);
+  let v ← withParams xs (visitFnBody v)
+  let b ← withJDecl j xs v (visitFnBody b)
   pure $ FnBody.jdecl j xs v b
 | FnBody.uset x i y b      => do
-  let b ← visitFnBody b;
-  castVarIfNeeded y IRType.usize $ fun y =>
+  let b ← visitFnBody b
+  castVarIfNeeded y IRType.usize fun y =>
     pure $ FnBody.uset x i y b
 | FnBody.sset x i o y ty b => do
-  let b ← visitFnBody b;
-  castVarIfNeeded y ty $ fun y =>
+  let b ← visitFnBody b
+  castVarIfNeeded y ty fun y =>
     pure $ FnBody.sset x i o y ty b
 | FnBody.mdata d b         =>
   FnBody.mdata d <$> visitFnBody b
 | FnBody.case tid x _ alts   => do
-  let expected := getScrutineeType alts;
-  let alts ← alts.mapM $ fun alt => alt.mmodifyBody visitFnBody;
-  castVarIfNeeded x expected $ fun x => do
+  let expected := getScrutineeType alts
+  let alts ← alts.mapM fun alt => alt.mmodifyBody visitFnBody
+  castVarIfNeeded x expected fun x => do
     pure $ FnBody.case tid x expected alts
 | FnBody.ret x             => do
-  let expected ← getResultType;
+  let expected ← getResultType
   castArgIfNeeded x expected (fun x => pure $ FnBody.ret x)
 | FnBody.jmp j ys          => do
-  let ps ← getJPParams j;
-  castArgsIfNeeded ys ps (fun ys => pure $ FnBody.jmp j ys)
+  let ps ← getJPParams j
+  castArgsIfNeeded ys ps fun ys => pure $ FnBody.jmp j ys
 | other                    =>
   pure other
 
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
-let ctx : BoxingContext := { decls := decls, env := env };
-let decls := decls.foldl (fun (newDecls : Array Decl) (decl : Decl) =>
+let ctx : BoxingContext := { decls := decls, env := env }
+let decls := decls.foldl (init := #[]) fun (newDecls : Array Decl) (decl : Decl) =>
   match decl with
   | Decl.fdecl f xs t b =>
-    let nextIdx  := decl.maxIndex + 1;
-    let (b, s)   := (withParams xs (visitFnBody b) { ctx with f := f, resultType := t }).run { nextIdx := nextIdx };
-    let newDecls := newDecls ++ s.auxDecls;
-    let newDecl  := Decl.fdecl f xs t b;
-    let newDecl  := newDecl.elimDead;
+    let nextIdx  := decl.maxIndex + 1
+    let (b, s)   := (withParams xs (visitFnBody b) { ctx with f := f, resultType := t }).run { nextIdx := nextIdx }
+    let newDecls := newDecls ++ s.auxDecls
+    let newDecl  := Decl.fdecl f xs t b
+    let newDecl  := newDecl.elimDead
     newDecls.push newDecl
-  | d => newDecls.push d)
-  #[];
+  | d => newDecls.push d
 addBoxedVersions env decls
 
 end ExplicitBoxing
 
 def explicitBoxing (decls : Array Decl) : CompilerM (Array Decl) := do
-let env ← getEnv;
+let env ← getEnv
 pure $ ExplicitBoxing.run env decls
 
 end Lean.IR

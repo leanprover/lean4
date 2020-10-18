@@ -135,7 +135,8 @@ modify fun s => { s with syntheticMVars := [] }
 -- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
 -- It would not be incorrect to use `filterM`.
 let remainingSyntheticMVars ← syntheticMVars.filterRevM fun mvarDecl => do
-   trace[Elab.postpone]! "resuming ?{mvarDecl.mvarId}"
+   -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
+   traceM `Elab.postpone (withMVarContext mvarDecl.mvarId do addMessageContext msg!"resuming {mkMVar mvarDecl.mvarId}")
    let succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError runTactics
    trace[Elab.postpone]! if succeeded then fmt "succeeded" else fmt "not ready yet"
    pure !succeeded

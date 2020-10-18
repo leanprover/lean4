@@ -62,6 +62,9 @@ structure ParamInfo :=
 
 instance ParamInfo.inhabited : Inhabited ParamInfo := ⟨{}⟩
 
+def ParamInfo.isExplicit (p : ParamInfo) : Bool :=
+!p.implicit && p.instImplicit
+
 structure FunInfo :=
 (paramInfo  : Array ParamInfo := #[])
 (resultDeps : Array Nat       := #[])

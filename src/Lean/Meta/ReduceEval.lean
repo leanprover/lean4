@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -8,8 +9,7 @@ Authors: Sebastian Ullrich
 
 import Lean.Meta.Offset
 
-namespace Lean
-namespace Meta
+namespace Lean.Meta
 
 class HasReduceEval (α : Type) :=
 (reduceEval : Expr → MetaM α)
@@ -18,44 +18,45 @@ def reduceEval {α : Type} [HasReduceEval α] (e : Expr) : MetaM α :=
 withAtLeastTransparency TransparencyMode.default $
 HasReduceEval.reduceEval e
 
-instance Nat.hasReduceEval : HasReduceEval Nat := ⟨fun e => do
-e ← whnf e;
-some n ← pure $ evalNat e
-  | throwError $ "reduceEval: failed to evaluate argument: " ++ toString e;
-pure n⟩
+private def throwFailedToEval {α} (e : Expr) : MetaM α :=
+throwError! "reduceEval: failed to evaluate argument{indentExpr e}"
 
-instance Option.hasReduceEval {α : Type} [HasReduceEval α] : HasReduceEval (Option α) := ⟨fun e => do
-e ← whnf e;
-Expr.const c _ _ ← pure e.getAppFn
-  | throwError $ "reduceEval: failed to evaluate argument: " ++ toString e;
-let nargs := e.getAppNumArgs;
-if      c == `Option.none && nargs == 0 then pure none
-else if c == `Option.some && nargs == 1 then some <$> reduceEval e.appArg!
-else throwError $ "reduceEval: failed to evaluate argument: " ++ toString e⟩
+instance : HasReduceEval Nat :=
+⟨fun e => do
+  let e ← whnf e
+  let some n ← pure $ evalNat e | throwFailedToEval e
+  pure n⟩
 
-instance String.hasReduceEval : HasReduceEval String := ⟨fun e => do
-Expr.lit (Literal.strVal s) _ ← whnf e
-  | throwError $ "reduceEval: failed to evaluate argument: " ++ toString e;
-pure s⟩
+instance {α : Type} [HasReduceEval α] : HasReduceEval (Option α) :=
+⟨fun e => do
+  let e ← whnf e
+  let Expr.const c .. ← pure e.getAppFn | throwFailedToEval e
+  let nargs := e.getAppNumArgs
+  if      c == `Option.none && nargs == 0 then pure none
+  else if c == `Option.some && nargs == 1 then some <$> reduceEval e.appArg!
+  else throwFailedToEval e⟩
 
-private partial def evalName : Expr → MetaM Name | e => do
-e ← whnf e;
-Expr.const c _ _ ← pure e.getAppFn
-  | throwError $ "reduceEval: failed to evaluate argument: " ++ toString e;
-let nargs := e.getAppNumArgs;
+instance : HasReduceEval String :=
+⟨fun e => do
+  let Expr.lit (Literal.strVal s) _ ← whnf e | throwFailedToEval e
+  pure s⟩
+
+private partial def evalName (e : Expr) : MetaM Name := do
+let e ← whnf e
+let Expr.const c _ _ ← pure e.getAppFn | throwFailedToEval e
+let nargs := e.getAppNumArgs
 if      c == `Lean.Name.anonymous && nargs == 0 then pure Name.anonymous
 else if c == `Lean.Name.str && nargs == 3 then do
-  n ← evalName $ e.getArg! 0;
-  s ← reduceEval $ e.getArg! 1;
+  let n ← evalName $ e.getArg! 0
+  let s ← reduceEval $ e.getArg! 1
   pure $ mkNameStr n s
 else if c == `Lean.Name.num && nargs == 3 then do
-  n ← evalName $ e.getArg! 0;
-  u ← reduceEval $ e.getArg! 1;
+  let n ← evalName $ e.getArg! 0
+  let u ← reduceEval $ e.getArg! 1
   pure $ mkNameNum n u
 else
-  throwError $ "reduceEval: failed to evaluate argument: " ++ toString e
+  throwFailedToEval e
 
-instance Name.hasReduceEval : HasReduceEval Name := ⟨evalName⟩
+instance : HasReduceEval Name := ⟨evalName⟩
 
-end Meta
-end Lean
+end Lean.Meta

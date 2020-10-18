@@ -31,6 +31,7 @@ lean_object* l_Lean_monadEnvFromLift___rarg___lambda__1(lean_object*, lean_objec
 lean_object* l_Lean_SimplePersistentEnvExtension_setState___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_numBuckets___at_Lean_Environment_displayStats___spec__5(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l_Std_PersistentArray_foldlMAux___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp___elambda__5___boxed(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Environment_10__setImportedEntries___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -438,7 +439,6 @@ lean_object* l_Lean_EnvExtensionState_inhabited;
 lean_object* l_Lean_EnvExtensionInterfaceImp___elambda__2___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterface_inhabited___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Environment_10__setImportedEntries___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentArray_foldlMAux___main___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___boxed(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_mkModuleData___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Environment_addAux___spec__5(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4931,7 +4931,7 @@ lean_object* l_Lean_mkStateFromImportedEntries___rarg___lambda__1(lean_object* x
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_alloc_closure((void*)(l_Std_PersistentArray_foldlMAux___main___rarg___lambda__2___boxed), 4, 1);
+x_5 = lean_alloc_closure((void*)(l_Std_PersistentArray_foldlMAux___rarg___lambda__2___boxed), 4, 1);
 lean_closure_set(x_5, 0, x_1);
 x_6 = l_Id_Monad;
 x_7 = lean_unsigned_to_nat(0u);

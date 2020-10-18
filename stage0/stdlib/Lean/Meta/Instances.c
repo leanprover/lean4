@@ -45,6 +45,7 @@ extern lean_object* l_Lean_Meta_DiscrTree_Key_inhabited;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_DiscrTree_Trie_inhabited___closed__1;
 lean_object* l_Lean_Meta_addGlobalInstance___at_Lean_Meta_registerInstanceAttr___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_PersistentArray_empty___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_addInstanceEntry___spec__8(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_MonadLCtx___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewMCtxDepth___at___private_Lean_Meta_Instances_1__mkInstanceKey___spec__2(lean_object*);
@@ -143,7 +144,6 @@ lean_object* l_Lean_Meta_registerInstanceAttr___lambda__1___boxed(lean_object*, 
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_Meta_addInstanceEntry___spec__14___boxed(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
-extern lean_object* l_Std_PersistentArray_empty___closed__3;
 extern lean_object* l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1;
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 lean_object* l_Lean_Environment_getGlobalInstances(lean_object*);
@@ -2359,7 +2359,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_LocalContext_Inhabited___closed__1;
-x_2 = l_Std_PersistentArray_empty___closed__3;
+x_2 = l_Std_PersistentArray_empty___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

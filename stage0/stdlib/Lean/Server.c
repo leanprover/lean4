@@ -111,11 +111,11 @@ lean_object* l_Lean_Server_writeLspNotification(lean_object*);
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__7;
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__3;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentArray_mapMAux___at_Lean_Server_sendDiagnostics___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_writeLspNotification___at_Lean_Server_clearDiagnostics___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_TextDocumentPositionParams_hasFromJson___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balRight___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isBlack___rarg(lean_object*);
-lean_object* l_Std_PersistentArray_mapMAux___main___at_Lean_Server_sendDiagnostics___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_handleDidChange___closed__4;
 lean_object* l_Lean_Server_Snapshots_compileHeader(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAux___main___at_Lean_Server_EditableDocument_updateDocument___spec__1(lean_object*, lean_object*, lean_object*);
@@ -3473,7 +3473,7 @@ x_12 = lean_array_fset(x_3, x_2, x_11);
 x_13 = x_10;
 lean_inc(x_4);
 lean_inc(x_1);
-x_14 = l_Std_PersistentArray_mapMAux___main___at_Lean_Server_sendDiagnostics___spec__2(x_1, x_13, x_4, x_5);
+x_14 = l_Std_PersistentArray_mapMAux___at_Lean_Server_sendDiagnostics___spec__2(x_1, x_13, x_4, x_5);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -3592,7 +3592,7 @@ return x_26;
 }
 }
 }
-lean_object* l_Std_PersistentArray_mapMAux___main___at_Lean_Server_sendDiagnostics___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Std_PersistentArray_mapMAux___at_Lean_Server_sendDiagnostics___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -3948,7 +3948,7 @@ x_8 = lean_ctor_get(x_2, 2);
 x_9 = lean_ctor_get(x_2, 3);
 lean_inc(x_3);
 lean_inc(x_1);
-x_10 = l_Std_PersistentArray_mapMAux___main___at_Lean_Server_sendDiagnostics___spec__2(x_1, x_6, x_3, x_4);
+x_10 = l_Std_PersistentArray_mapMAux___at_Lean_Server_sendDiagnostics___spec__2(x_1, x_6, x_3, x_4);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
@@ -4065,7 +4065,7 @@ lean_inc(x_31);
 lean_dec(x_2);
 lean_inc(x_3);
 lean_inc(x_1);
-x_36 = l_Std_PersistentArray_mapMAux___main___at_Lean_Server_sendDiagnostics___spec__2(x_1, x_31, x_3, x_4);
+x_36 = l_Std_PersistentArray_mapMAux___at_Lean_Server_sendDiagnostics___spec__2(x_1, x_31, x_3, x_4);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 

@@ -43,6 +43,7 @@ lean_object* l_Lean_catchInternalIds___rarg___lambda__1___boxed(lean_object*, le
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Core_hasEval___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_MonadTrace___closed__3;
+lean_object* l_Std_PersistentArray_forMAux___at_Lean_Core_hasEval___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_catchInternalIds___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__2;
 lean_object* l_Lean_Core_Lean_MonadNameGenerator___closed__1;
@@ -55,7 +56,6 @@ extern lean_object* l_Lean_Exception_inhabited___closed__1;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Core_CoreM_run_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_catchInternalIds(lean_object*, lean_object*);
-lean_object* l_Std_PersistentArray_forMAux___main___at_Lean_Core_hasEval___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkEmptyEnvironment___closed__1;
 lean_object* l_Lean_Core_Lean_MonadTrace___closed__4;
 lean_object* l_Lean_Core_Lean_MonadEnv___closed__1;
@@ -138,7 +138,6 @@ lean_object* l_Lean_Core_Lean_MonadEnv___lambda__1___boxed(lean_object*, lean_ob
 lean_object* l_Lean_Core_Lean_MonadTrace___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
 lean_object* l_Lean_Core_CoreM_run_x27(lean_object*);
-lean_object* l_Std_PersistentArray_forMAux___main___at_Lean_Core_hasEval___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_mkFreshUserName(lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Core_hasEval___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_MonadNameGenerator___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -146,6 +145,7 @@ lean_object* l_Lean_Core_MonadIO___closed__1;
 lean_object* l_Lean_catchInternalId___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_MonadEnv;
 lean_object* l_Lean_Core_Lean_MonadNameGenerator___closed__3;
+lean_object* l_Std_PersistentArray_forMAux___at_Lean_Core_hasEval___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_MonadRecDepth___closed__2;
 lean_object* l_Lean_Core_CoreM_toIO___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_liftIOCore___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1824,7 +1824,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_array_fget(x_1, x_2);
-x_11 = l_Std_PersistentArray_forMAux___main___at_Lean_Core_hasEval___spec__3(x_10, x_3, x_4, x_5);
+x_11 = l_Std_PersistentArray_forMAux___at_Lean_Core_hasEval___spec__3(x_10, x_3, x_4, x_5);
 lean_dec(x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -2005,7 +2005,7 @@ return x_46;
 }
 }
 }
-lean_object* l_Std_PersistentArray_forMAux___main___at_Lean_Core_hasEval___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Std_PersistentArray_forMAux___at_Lean_Core_hasEval___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -2032,7 +2032,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
-x_7 = l_Std_PersistentArray_forMAux___main___at_Lean_Core_hasEval___spec__3(x_5, x_2, x_3, x_4);
+x_7 = l_Std_PersistentArray_forMAux___at_Lean_Core_hasEval___spec__3(x_5, x_2, x_3, x_4);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -2324,11 +2324,11 @@ lean_dec(x_1);
 return x_6;
 }
 }
-lean_object* l_Std_PersistentArray_forMAux___main___at_Lean_Core_hasEval___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Std_PersistentArray_forMAux___at_Lean_Core_hasEval___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_PersistentArray_forMAux___main___at_Lean_Core_hasEval___spec__3(x_1, x_2, x_3, x_4);
+x_5 = l_Std_PersistentArray_forMAux___at_Lean_Core_hasEval___spec__3(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);

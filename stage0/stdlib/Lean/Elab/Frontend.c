@@ -28,6 +28,7 @@ lean_object* l_Lean_Elab_Frontend_setCommandState___boxed(lean_object*, lean_obj
 lean_object* l_Lean_Elab_Frontend_getCommandState___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM___closed__2;
+extern lean_object* l_Std_PersistentArray_empty___closed__1;
 lean_object* l_Lean_Elab_Frontend_runCommandElabM___closed__1;
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,7 +53,6 @@ lean_object* l_Lean_Elab_Frontend_setCommandState(lean_object*, lean_object*, le
 lean_object* l_Lean_Elab_Frontend_processCommand(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_updateCmdPos___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_PersistentArray_empty___closed__3;
 lean_object* l_Lean_Elab_Frontend_processCommand___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Parser_isExitCommand(lean_object*);
 lean_object* l_Lean_Elab_Frontend_getInputContext(lean_object*, lean_object*, lean_object*);
@@ -1386,7 +1386,7 @@ lean_object* l_Lean_Elab_process(lean_object* x_1, lean_object* x_2, lean_object
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Std_PersistentArray_empty___closed__3;
+x_6 = l_Std_PersistentArray_empty___closed__1;
 x_7 = l_Lean_Elab_Command_mkState(x_2, x_6, x_3);
 if (lean_obj_tag(x_4) == 0)
 {

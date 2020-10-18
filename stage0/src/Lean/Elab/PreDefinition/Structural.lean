@@ -231,8 +231,12 @@ let rec loop : Expr → Expr → MetaM Expr
           -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
           let argsNonFixed := args.extract numFixed args.size
           -- The function `f` does not explicitly take `recArg` and its indices as arguments. So, we skip them too.
-          let fArgs := argsNonFixed.iterate #[] fun i a fArgs =>
-            if recArgInfo.pos == i.val || recArgInfo.indicesPos.contains i.val then fArgs else fArgs.push a
+          let fArgs := #[]
+          for i in [:argsNonFixed.size] do
+            if recArgInfo.pos != i && !recArgInfo.indicesPos.contains i then
+              let arg := argsNonFixed[i]
+              let arg ← replaceRecApps recFnName recArgInfo below arg
+              fArgs := fArgs.push arg
           pure $ mkAppN f fArgs
         else
           pure $ mkAppN (← loop below f) (← args.mapM (loop below))

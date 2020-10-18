@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -8,8 +9,8 @@ universes u v w
 namespace Std
 
 inductive PersistentArrayNode (α : Type u)
-| node (cs : Array PersistentArrayNode) : PersistentArrayNode
-| leaf (vs : Array α)                   : PersistentArrayNode
+| node (cs : Array (PersistentArrayNode α)) : PersistentArrayNode α
+| leaf (vs : Array α)                       : PersistentArrayNode α
 
 namespace PersistentArrayNode
 
@@ -72,9 +73,9 @@ self.get! idx
 
 partial def setAux : PersistentArrayNode α → USize → USize → α → PersistentArrayNode α
 | node cs, i, shift, a =>
-  let j     := div2Shift i shift;
-  let i     := mod2Shift i shift;
-  let shift := shift - initShift;
+  let j     := div2Shift i shift
+  let i     := mod2Shift i shift
+  let shift := shift - initShift
   node $ cs.modify j.toNat $ fun c => setAux c i shift a
 | leaf cs, i, _,     a => leaf (cs.set! i.toNat a)
 
@@ -86,10 +87,10 @@ else
 
 @[specialize] partial def modifyAux [Inhabited α] (f : α → α) : PersistentArrayNode α → USize → USize → PersistentArrayNode α
 | node cs, i, shift =>
-  let j     := div2Shift i shift;
-  let i     := mod2Shift i shift;
-  let shift := shift - initShift;
-  node $ cs.modify j.toNat $ fun c => modifyAux c i shift
+  let j     := div2Shift i shift
+  let i     := mod2Shift i shift
+  let shift := shift - initShift
+  node $ cs.modify j.toNat $ fun c => modifyAux f c i shift
 | leaf cs, i, _     => leaf (cs.modify i.toNat f)
 
 @[specialize] def modify [Inhabited α] (t : PersistentArray α) (i : Nat) (f : α → α) : PersistentArray α :=
@@ -110,11 +111,11 @@ partial def insertNewLeaf : PersistentArrayNode α → USize → USize → Array
   if i < branching then
     node (cs.push (leaf a))
   else
-    let j     := div2Shift i shift;
-    let i     := mod2Shift i shift;
-    let shift := shift - initShift;
+    let j     := div2Shift i shift
+    let i     := mod2Shift i shift
+    let shift := shift - initShift
     if j.toNat < cs.size then
-       node $ cs.modify j.toNat $ fun c => insertNewLeaf c i shift a
+       node $ cs.modify j.toNat fun c => insertNewLeaf c i shift a
     else
        node $ cs.push $ mkNewPath shift a
 | n, _, _, _ => n -- unreachable
@@ -135,7 +136,7 @@ else
 def tooBig : Nat := usizeSz / 8
 
 def push (t : PersistentArray α) (a : α) : PersistentArray α :=
-let r := { t with tail := t.tail.push a, size := t.size + 1 };
+let r := { t with tail := t.tail.push a, size := t.size + 1 }
 if r.tail.size < branching.toNat || t.size >= tooBig then
   r
 else
@@ -147,14 +148,14 @@ Array.mkEmpty PersistentArray.branching.toNat
 partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (PersistentArrayNode α)
 | n@(node cs) =>
   if h : cs.size ≠ 0 then
-    let idx : Fin cs.size := ⟨cs.size - 1, Nat.predLt h⟩;
-    let last := cs.get idx;
-    let cs   := cs.set idx (arbitrary _);
+    let idx : Fin cs.size := ⟨cs.size - 1, Nat.predLt h⟩
+    let last := cs.get idx
+    let cs   := cs.set idx (arbitrary _)
     match popLeaf last with
     | (none,   _)       => (none, emptyArray)
     | (some l, newLast) =>
       if newLast.size == 0 then
-        let cs := cs.pop;
+        let cs := cs.pop
         if cs.isEmpty then (some l, emptyArray) else (some l, cs)
       else
         (some l, cs.set idx (node newLast))
@@ -169,9 +170,9 @@ else
   match popLeaf t.root with
   | (none, _) => t
   | (some last, newRoots) =>
-    let last       := last.pop;
-    let newSize    := t.size - 1;
-    let newTailOff := newSize - last.size;
+    let last       := last.pop
+    let newSize    := t.size - 1
+    let newTailOff := newSize - last.size
     if newRoots.size == 1 && (newRoots.get! 0).isNode then
       { root    := newRoots.get! 0,
         shift   := t.shift - initShift,
@@ -190,48 +191,49 @@ variables {m : Type v → Type w} [Monad m]
 variable {β : Type v}
 
 @[specialize] partial def foldlMAux (f : β → α → m β) : PersistentArrayNode α → β → m β
-| node cs, b => cs.foldlM (fun b c => foldlMAux c b) b
+| node cs, b => cs.foldlM (fun b c => foldlMAux f c b) b
 | leaf vs, b => vs.foldlM f b
 
-@[specialize] def foldlM (t : PersistentArray α) (f : β → α → m β) (b : β) : m β := do
-b ← foldlMAux f t.root b; t.tail.foldlM f b
+@[specialize] def foldlM (t : PersistentArray α) (f : β → α → m β) (init : β) : m β := do
+let b ← foldlMAux f t.root init
+t.tail.foldlM f b
 
 @[specialize] partial def findSomeMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
-| node cs => cs.findSomeM? (fun c => findSomeMAux c)
+| node cs => cs.findSomeM? (fun c => findSomeMAux f c)
 | leaf vs => vs.findSomeM? f
 
 @[specialize] def findSomeM? (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) := do
-b ← findSomeMAux f t.root;
+let b ← findSomeMAux f t.root
 match b with
 | none   => t.tail.findSomeM? f
 | some b => pure (some b)
 
 @[specialize] partial def findSomeRevMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
-| node cs => cs.findSomeRevM? (fun c => findSomeRevMAux c)
+| node cs => cs.findSomeRevM? (fun c => findSomeRevMAux f c)
 | leaf vs => vs.findSomeRevM? f
 
 @[specialize] def findSomeRevM? (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) := do
-b ← t.tail.findSomeRevM? f;
+let b ← t.tail.findSomeRevM? f
 match b with
 | none   => findSomeRevMAux f t.root
 | some b => pure (some b)
 
 partial def foldlFromMAux (f : β → α → m β) : PersistentArrayNode α → USize → USize → β → m β
 | node cs, i, shift, b => do
-  let j    := (div2Shift i shift).toNat;
-  b ← foldlFromMAux (cs.get! j) (mod2Shift i shift) (shift - initShift) b;
+  let j    := (div2Shift i shift).toNat
+  let b ← foldlFromMAux f (cs.get! j) (mod2Shift i shift) (shift - initShift) b
   cs.foldlFromM (fun b c => foldlMAux f c b) b (j+1)
 | leaf vs, i, _, b => vs.foldlFromM f b i.toNat
 
-def foldlFromM (t : PersistentArray α) (f : β → α → m β) (b : β) (ini : Nat) : m β :=
-if ini >= t.tailOff then
-  t.tail.foldlFromM f b (ini - t.tailOff)
+def foldlFromM (t : PersistentArray α) (f : β → α → m β) (init : β) (start : Nat) : m β :=
+if start >= t.tailOff then
+  t.tail.foldlFromM f init (start - t.tailOff)
 else do
-  b ← foldlFromMAux f t.root (USize.ofNat ini) t.shift b;
+  let b ← foldlFromMAux f t.root (USize.ofNat start) t.shift init;
   t.tail.foldlM f b
 
 @[specialize] partial def forMAux (f : α → m PUnit) : PersistentArrayNode α → m PUnit
-| node cs => cs.forM (fun c => forMAux c)
+| node cs => cs.forM (fun c => forMAux f c)
 | leaf vs => vs.forM f
 
 @[specialize] def forM (t : PersistentArray α) (f : α → m PUnit) : m PUnit :=
@@ -269,14 +271,15 @@ def toList (t : PersistentArray α) : List α :=
 section
 variables {m : Type → Type w} [Monad m]
 @[specialize] partial def anyMAux (p : α → m Bool) : PersistentArrayNode α → m Bool
-| node cs => cs.anyM (fun c => anyMAux c)
+| node cs => cs.anyM fun c => anyMAux p c
 | leaf vs => vs.anyM p
 
 @[specialize] def anyM (t : PersistentArray α) (p : α → m Bool) : m Bool :=
 anyMAux p t.root <||> t.tail.anyM p
 
 @[inline] def allM (a : PersistentArray α) (p : α → m Bool) : m Bool := do
-b ← anyM a (fun v => do b ← p v; pure (not b)); pure (not b)
+let b ← anyM a (fun v => do let b ← p v; pure (not b))
+pure (not b)
 
 end
 
@@ -291,12 +294,12 @@ variables {m : Type u → Type v} [Monad m]
 variable {β : Type u}
 
 @[specialize] partial def mapMAux (f : α → m β) : PersistentArrayNode α → m (PersistentArrayNode β)
-| node cs => node <$> cs.mapM (fun c => mapMAux c)
+| node cs => node <$> cs.mapM (fun c => mapMAux f c)
 | leaf vs => leaf <$> vs.mapM f
 
 @[specialize] def mapM (f : α → m β) (t : PersistentArray α) : m (PersistentArray β) := do
-root ← mapMAux f t.root;
-tail ← t.tail.mapM f;
+let root ← mapMAux f t.root
+let tail ← t.tail.mapM f
 pure { t with tail := tail, root := root }
 
 end
@@ -318,7 +321,7 @@ def stats (r : PersistentArray α) : Stats :=
 collectStats r.root { numNodes := 0, depth := 0, tailSize := r.tail.size } 0
 
 def Stats.toString (s : Stats) : String :=
-"{nodes := " ++ toString s.numNodes ++ ", depth := " ++ toString s.depth  ++ ", tail size := " ++ toString s.tailSize ++ "}"
+s!"\{nodes := {s.numNodes}, depth := {s.depth}, tail size := {s.tailSize}}"
 
 instance : HasToString Stats := ⟨Stats.toString⟩
 
@@ -336,7 +339,7 @@ open Std (PersistentArray PersistentArray.empty)
 
 def List.toPersistentArrayAux {α : Type u} : List α → PersistentArray α → PersistentArray α
 | [],    t => t
-| x::xs, t => List.toPersistentArrayAux xs (t.push x)
+| x::xs, t => toPersistentArrayAux xs (t.push x)
 
 def List.toPersistentArray {α : Type u} (xs : List α) : PersistentArray α :=
 xs.toPersistentArrayAux {}

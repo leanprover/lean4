@@ -51,7 +51,7 @@ partial def main : Expr → Visitor
 partial def State.getUnusedLevelParam (s : CollectLevelParams.State) (pre : Name := `v) : Level :=
 let v := mkLevelParam pre;
 if s.visitedLevel.contains v then
-  let rec loop (i : Nat) : Level :=
+  let rec loop (i : Nat) :=
     let v := mkLevelParam (pre.appendIndexAfter i);
     if s.visitedLevel.contains v then loop (i+1) else v
   loop 1

@@ -50,6 +50,17 @@ inductive MessageData
 
 namespace MessageData
 
+def nil : MessageData :=
+ofFormat Format.nil
+
+def isNil : MessageData → Bool
+| ofFormat Format.nil => true
+| _                   => false
+
+def isNest : MessageData → Bool
+| nest _ _ => true
+| _        => false
+
 instance : Inhabited MessageData := ⟨MessageData.ofFormat (arbitrary _)⟩
 
 def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=

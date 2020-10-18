@@ -10,8 +10,6 @@ open A
 open B
 
 set_option trace.Meta.synthInstance true
-set_option trace.Meta.isDefEq true
-set_option trace.Elab true
 -- `foo` is overloaded, the case `A.foo` is discarded because we don't have an instance `[HasAdd String]`.
 -- However, we still want to see the trace since we used trace.Meta.synthInstance
 #check foo "hello"

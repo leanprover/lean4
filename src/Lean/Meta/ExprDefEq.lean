@@ -1082,7 +1082,7 @@ private def isDefEqProj : Expr → Expr → DefEqM Bool
 partial def isExprDefEqAuxImpl : Expr → Expr → DefEqM Bool
 | t, s => do
   trace `Meta.isDefEq.step $ fun _ => t ++ " =?= " ++ s;
-  traceCtx `Meta.isDefEq.step do
+  withNestedTraces do
   whenUndefDo (isDefEqQuick t s) $
   whenUndefDo (isDefEqProofIrrel t s) do
   t' ← whnfCore t;

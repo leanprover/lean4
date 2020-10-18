@@ -955,7 +955,7 @@ private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) :
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
 | stx => withFreshMacroScope $ withIncRecDepth do
   trace[Elab.step]! "expected type: {expectedType?}, term\n{stx}"
-  traceCtx `Elab.step do
+  withNestedTraces do
   let env ← getEnv
   let stxNew? ← catchInternalId unsupportedSyntaxExceptionId
     (do let newStx ← adaptMacro (getMacros env) stx; pure (some newStx))

@@ -281,13 +281,6 @@ structure State :=
 (localInsts    : LocalInstances)
 (expectedType? : Option Expr := none)
 
-private def checkNoOptAutoParam (type : Expr) : TermElabM Unit := do
-let type ← instantiateMVars type
-if type.isOptParam then
-  throwError "optParam is not allowed at 'fun/λ' binders"
-if type.isAutoParam then
-  throwError "autoParam is not allowed at 'fun/λ' binders"
-
 private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : TermElabM State := do
 match s.expectedType? with
 | none              => pure s
@@ -296,7 +289,6 @@ match s.expectedType? with
   match expectedType with
   | Expr.forallE _ d b _ =>
     isDefEq fvarType d
-    checkNoOptAutoParam fvarType
     let b := b.instantiate1 fvar
     pure { s with expectedType? := some b }
   | _ => pure { s with expectedType? := none }
@@ -308,7 +300,6 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) : Nat �
     withRef binderView.type $ withLCtx s.lctx s.localInsts $ do
       let type       ← elabType binderView.type
       registerFailedToInferBinderTypeInfo type binderView.type
-      checkNoOptAutoParam type
       let fvarId ← mkFreshFVarId
       let fvar  := mkFVar fvarId
       let s     := { s with fvars := s.fvars.push fvar }

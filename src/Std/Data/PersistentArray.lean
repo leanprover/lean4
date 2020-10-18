@@ -241,8 +241,8 @@ forMAux f t.root *> t.tail.forM f
 
 end
 
-@[inline] def foldl {β} (t : PersistentArray α) (f : β → α → β) (b : β) : β :=
-Id.run (t.foldlM f b)
+@[inline] def foldl {β} (t : PersistentArray α) (f : β → α → β) (init : β) : β :=
+Id.run (t.foldlM f init)
 
 @[inline] def filter (as : PersistentArray α) (p : α → Bool) : PersistentArray α :=
 as.foldl (fun asNew a => if p a then asNew.push a else asNew) {}

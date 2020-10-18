@@ -58,7 +58,6 @@ lean_object* l_Lean_Meta_MatcherApp_addArg(lean_object*, lean_object*, lean_obje
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_mkBRecOn___closed__2;
 lean_object* l_Lean_hasConst___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_findRecArg_loop___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
-lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_generalizeIndices___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_ensureNoRecFn___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_toBelowAux___closed__16;
@@ -71,6 +70,7 @@ lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_elimRec
 lean_object* l_Array_filterAux___main___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_mkBRecOn___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Expr_withAppAux___main___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_replaceRecApps_loop___spec__3___lambda__2___closed__1;
+lean_object* l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_hasBadParamDep_x3f_match__1(lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_substCore___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7014,7 +7014,7 @@ x_25 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structural
 lean_closure_set(x_25, 0, x_3);
 lean_closure_set(x_25, 1, x_4);
 lean_closure_set(x_25, 2, x_1);
-x_26 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_generalizeIndices___spec__1___rarg(x_11, x_25, x_5, x_6, x_7, x_8, x_13);
+x_26 = l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__5___rarg(x_11, x_25, x_5, x_6, x_7, x_8, x_13);
 return x_26;
 }
 else
@@ -7408,7 +7408,7 @@ x_113 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structura
 lean_closure_set(x_113, 0, x_3);
 lean_closure_set(x_113, 1, x_4);
 lean_closure_set(x_113, 2, x_1);
-x_114 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_generalizeIndices___spec__1___rarg(x_11, x_113, x_5, x_6, x_7, x_8, x_13);
+x_114 = l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__5___rarg(x_11, x_113, x_5, x_6, x_7, x_8, x_13);
 return x_114;
 }
 }
@@ -7421,7 +7421,7 @@ x_115 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structura
 lean_closure_set(x_115, 0, x_3);
 lean_closure_set(x_115, 1, x_4);
 lean_closure_set(x_115, 2, x_1);
-x_116 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_generalizeIndices___spec__1___rarg(x_11, x_115, x_5, x_6, x_7, x_8, x_13);
+x_116 = l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__5___rarg(x_11, x_115, x_5, x_6, x_7, x_8, x_13);
 return x_116;
 }
 }
@@ -7434,7 +7434,7 @@ x_117 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structura
 lean_closure_set(x_117, 0, x_3);
 lean_closure_set(x_117, 1, x_4);
 lean_closure_set(x_117, 2, x_1);
-x_118 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_generalizeIndices___spec__1___rarg(x_11, x_117, x_5, x_6, x_7, x_8, x_13);
+x_118 = l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__5___rarg(x_11, x_117, x_5, x_6, x_7, x_8, x_13);
 return x_118;
 }
 }
@@ -7446,7 +7446,7 @@ x_119 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structura
 lean_closure_set(x_119, 0, x_3);
 lean_closure_set(x_119, 1, x_4);
 lean_closure_set(x_119, 2, x_1);
-x_120 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_generalizeIndices___spec__1___rarg(x_11, x_119, x_5, x_6, x_7, x_8, x_13);
+x_120 = l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__5___rarg(x_11, x_119, x_5, x_6, x_7, x_8, x_13);
 return x_120;
 }
 }
@@ -7457,7 +7457,7 @@ x_121 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structura
 lean_closure_set(x_121, 0, x_3);
 lean_closure_set(x_121, 1, x_4);
 lean_closure_set(x_121, 2, x_1);
-x_122 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_generalizeIndices___spec__1___rarg(x_11, x_121, x_5, x_6, x_7, x_8, x_13);
+x_122 = l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__5___rarg(x_11, x_121, x_5, x_6, x_7, x_8, x_13);
 return x_122;
 }
 }

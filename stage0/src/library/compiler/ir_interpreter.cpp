@@ -937,8 +937,9 @@ uint32 run_main(environment const & env, int argv, char * argc[]) {
     return interpreter(env).run_main(argv, argc);
 }
 
-extern "C" object * lean_eval_const(object * env, object * c) {
+extern "C" object * lean_eval_const(object * env, object * /* opts */, object * c) {
     try {
+        // TODO: Kha use `opts`
         return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(name, c), 0, 0)).steal();
     } catch (exception & ex) {
         return mk_cnstr(0, string_ref(ex.what())).steal();

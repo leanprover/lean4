@@ -101,29 +101,30 @@ private def AttributeExtension.mkInitial : IO AttributeExtensionState := do
 map ← attributeMapRef.get;
 pure { map := map }
 
-unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (declName : Name) : Except String AttributeImpl :=
+unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl :=
 match env.find? declName with
 | none      => throw ("unknow constant '" ++ toString declName ++ "'")
 | some info =>
   match info.type with
-  | Expr.const `Lean.AttributeImpl _ _ => env.evalConst AttributeImpl declName
+  | Expr.const `Lean.AttributeImpl _ _ => env.evalConst AttributeImpl opts declName
   | _ => throw ("unexpected attribute implementation type at '" ++ toString declName ++ "' (`AttributeImpl` expected")
 
 @[implementedBy mkAttributeImplOfConstantUnsafe]
-constant mkAttributeImplOfConstant (env : Environment) (declName : Name) : Except String AttributeImpl := arbitrary _
+constant mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl := arbitrary _
 
-def mkAttributeImplOfEntry (env : Environment) (e : AttributeExtensionOLeanEntry) : IO AttributeImpl :=
+def mkAttributeImplOfEntry (env : Environment) (opts : Options) (e : AttributeExtensionOLeanEntry) : IO AttributeImpl :=
 match e with
-| AttributeExtensionOLeanEntry.decl declName          => IO.ofExcept $ mkAttributeImplOfConstant env declName
+| AttributeExtensionOLeanEntry.decl declName          => IO.ofExcept $ mkAttributeImplOfConstant env opts declName
 | AttributeExtensionOLeanEntry.builder builderId args => mkAttributeImplOfBuilder builderId args
 
-private def AttributeExtension.addImported (env : Environment) (es : Array (Array AttributeExtensionOLeanEntry)) : IO AttributeExtensionState := do
+private def AttributeExtension.addImported (es : Array (Array AttributeExtensionOLeanEntry)) : ImportM AttributeExtensionState := do
+ctx ← read;
 map ← attributeMapRef.get;
 map ← es.foldlM
   (fun map entries =>
     entries.foldlM
       (fun (map : PersistentHashMap Name AttributeImpl) entry => do
-        attrImpl ← mkAttributeImplOfEntry env entry;
+        attrImpl ← liftM $ mkAttributeImplOfEntry ctx.env ctx.opts entry;
         pure $ map.insert attrImpl.name attrImpl)
       map)
   map;
@@ -178,8 +179,8 @@ match m.find? attrName with
 | some attr => pure attr
 | none      => throw ("unknown attribute '" ++ toString attrName ++ "'")
 
-def registerAttributeOfDecl (env : Environment) (attrDeclName : Name) : Except String Environment := do
-attrImpl ← mkAttributeImplOfConstant env attrDeclName;
+def registerAttributeOfDecl (env : Environment) (opts : Options) (attrDeclName : Name) : Except String Environment := do
+attrImpl ← mkAttributeImplOfConstant env opts attrDeclName;
 if isAttribute env attrImpl.name then
   throw ("invalid builtin attribute declaration, '" ++ toString attrImpl.name ++ "' has already been used")
 else

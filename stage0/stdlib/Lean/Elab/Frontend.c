@@ -33,7 +33,7 @@ lean_object* l_Lean_Elab_Frontend_runCommandElabM___closed__1;
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_runCommandElabM(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommand_match__1(lean_object*);
-lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
+lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
 extern lean_object* l_Lean_Elab_parseImports___closed__1;
 lean_object* l_Lean_Elab_runFrontend_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_toList(lean_object*);
@@ -1729,7 +1729,8 @@ x_13 = lean_ctor_get(x_9, 1);
 lean_inc(x_13);
 lean_dec(x_9);
 x_14 = 0;
-x_15 = l_Lean_Elab_processHeader(x_11, x_13, x_6, x_14, x_10);
+lean_inc(x_2);
+x_15 = l_Lean_Elab_processHeader(x_11, x_2, x_13, x_6, x_14, x_10);
 lean_dec(x_11);
 if (lean_obj_tag(x_15) == 0)
 {

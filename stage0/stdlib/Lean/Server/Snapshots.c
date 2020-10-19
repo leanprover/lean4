@@ -22,7 +22,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_toCmdState(lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileCmdsAfter(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
+lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
 extern lean_object* l_Lean_Elab_parseImports___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_env___boxed(lean_object*);
@@ -190,7 +190,8 @@ x_12 = lean_ctor_get(x_8, 1);
 lean_inc(x_12);
 lean_dec(x_8);
 x_13 = 0;
-x_14 = l_Lean_Elab_processHeader(x_10, x_12, x_5, x_13, x_9);
+lean_inc(x_2);
+x_14 = l_Lean_Elab_processHeader(x_10, x_2, x_12, x_5, x_13, x_9);
 lean_dec(x_5);
 lean_dec(x_10);
 if (lean_obj_tag(x_14) == 0)

@@ -118,10 +118,9 @@ if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.
   | p::_ => pure p
   | _    => do
     compileParser ctx constName /- builtin -/ false;
-    env ← getEnv;
-    ofExcept $ env.evalConst α (constName ++ ctx.varName)
+    evalConst α (constName ++ ctx.varName)
 else do
-  d ← ofExcept $ env.evalConst TrailingParserDescr constName;
+  d ← evalConst TrailingParserDescr constName;
   ctx.interpretParserDescr d
 
 unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do

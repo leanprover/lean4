@@ -83,13 +83,14 @@ private def mkInitial {γ} (tableRef : IO.Ref (Table γ)) : IO (ExtensionState �
 table ← tableRef.get;
 pure { table := table }
 
-private unsafe def addImported {γ} (df : Def γ) (tableRef : IO.Ref (Table γ)) (env : Environment) (es : Array (Array OLeanEntry)) : IO (ExtensionState γ) := do
+private unsafe def addImported {γ} (df : Def γ) (tableRef : IO.Ref (Table γ)) (es : Array (Array OLeanEntry)) : ImportM (ExtensionState γ) := do
+ctx ← read;
 table ← tableRef.get;
 table ← es.foldlM
   (fun table entries =>
     entries.foldlM
       (fun (table : Table γ) entry =>
-        match env.evalConstCheck γ df.valueTypeName entry.decl with
+        match ctx.env.evalConstCheck γ ctx.opts df.valueTypeName entry.decl with
         | Except.ok f     => pure $ table.insert entry.key f
         | Except.error ex => throw (IO.userError ex))
       table)
@@ -152,8 +153,8 @@ registerBuiltinAttribute {
   descr           := df.descr,
   add             := fun constName arg persistent => do
     key ← df.evalKey false arg;
+    val ← evalConstCheck γ df.valueTypeName constName;
     env ← getEnv;
-    val ← ofExcept $ env.evalConstCheck γ df.valueTypeName constName;
     setEnv $ ext.addEntry env { key := key, decl := constName, value := val },
   applicationTime := AttributeApplicationTime.afterCompilation
 };

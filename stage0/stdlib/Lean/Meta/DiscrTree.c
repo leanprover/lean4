@@ -21,7 +21,6 @@ lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_Meta_DiscrTree_getUnify___
 lean_object* l___private_Lean_Meta_DiscrTree_12__getKeyArgs(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_fmt___at_Lean_Meta_DiscrTree_Trie_format___main___spec__1(lean_object*);
-extern lean_object* l_Std_PersistentHashMap_empty___rarg___closed__2;
 lean_object* l_Lean_fmt___at_Lean_Meta_DiscrTree_Trie_format___main___spec__4___rarg(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_DiscrTree_17__getUnifyAux___main___spec__6(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Trie_inhabited(lean_object*);
@@ -68,7 +67,6 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_getMatch(lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_DiscrTree_17__getUnifyAux___main___spec__4(lean_object*);
-extern lean_object* l_Lean_Meta_DiscrTree_Key_inhabited;
 lean_object* l_Lean_Meta_DiscrTree_Key_format___closed__2;
 lean_object* l_Lean_Meta_DiscrTree_Trie_inhabited___closed__1;
 lean_object* l_Std_PersistentHashMap_insertAux___main___at_Lean_Meta_DiscrTree_insertCore___spec__9___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -136,6 +134,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_Meta_DiscrTree_getUnify___spec
 lean_object* l_Std_PersistentHashMap_insertAux___main___at_Lean_Meta_DiscrTree_insertCore___spec__9___rarg(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_Meta_DiscrTree_getUnify___spec__2(lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_getUnify___spec__1___rarg___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
 lean_object* l___private_Lean_Meta_DiscrTree_2__tmpStar;
 lean_object* l_Array_binSearchAux___main___at___private_Lean_Meta_DiscrTree_15__getMatchAux___main___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_6__shouldAddAsStar___closed__1;
@@ -237,7 +236,6 @@ lean_object* l___private_Lean_Meta_DiscrTree_9__createNodes___main___rarg___boxe
 lean_object* l_Array_back___at___private_Lean_Meta_DiscrTree_11__insertAux___main___spec__2(lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Trie_format___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_DiscrTree_empty___closed__1;
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_Meta_DiscrTree_insertCore___spec__4(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_DiscrTree_insertCore___spec__11(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -327,6 +325,7 @@ lean_object* l_Lean_Meta_DiscrTree_Trie_format___main___rarg___boxed(lean_object
 lean_object* l___private_Lean_Meta_DiscrTree_3__ignoreArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_DiscrTree_Lean_Meta_DiscrTreeTypes___instance__1;
 lean_object* l_Lean_Meta_DiscrTree_Key_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -699,23 +698,11 @@ x_2 = l_Lean_Meta_DiscrTree_Trie_inhabited___closed__1;
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_empty___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_PersistentHashMap_empty___rarg___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_Meta_DiscrTree_empty(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Meta_DiscrTree_empty___closed__1;
+x_2 = l_Lean_Meta_DiscrTree_root___default___closed__1;
 return x_2;
 }
 }
@@ -766,7 +753,7 @@ lean_object* l_Lean_Meta_DiscrTree_Inhabited(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Meta_DiscrTree_empty___closed__1;
+x_2 = l_Lean_Meta_DiscrTree_root___default___closed__1;
 return x_2;
 }
 }
@@ -2706,7 +2693,7 @@ static lean_object* _init_l_Array_back___at___private_Lean_Meta_DiscrTree_11__in
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_DiscrTree_Key_inhabited;
+x_1 = l_Lean_Meta_DiscrTree_Lean_Meta_DiscrTreeTypes___instance__1;
 x_2 = l_Array_back___at___private_Lean_Meta_DiscrTree_11__insertAux___main___spec__2___rarg___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -4455,7 +4442,7 @@ x_5 = l_Array_isEmpty___rarg(x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = l_Lean_Meta_DiscrTree_Key_inhabited;
+x_6 = l_Lean_Meta_DiscrTree_Lean_Meta_DiscrTreeTypes___instance__1;
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_get(x_6, x_3, x_7);
 lean_inc(x_2);
@@ -13226,8 +13213,6 @@ l_Lean_Meta_DiscrTree_Key_hasFormat = _init_l_Lean_Meta_DiscrTree_Key_hasFormat(
 lean_mark_persistent(l_Lean_Meta_DiscrTree_Key_hasFormat);
 l_Lean_Meta_DiscrTree_Trie_inhabited___closed__1 = _init_l_Lean_Meta_DiscrTree_Trie_inhabited___closed__1();
 lean_mark_persistent(l_Lean_Meta_DiscrTree_Trie_inhabited___closed__1);
-l_Lean_Meta_DiscrTree_empty___closed__1 = _init_l_Lean_Meta_DiscrTree_empty___closed__1();
-lean_mark_persistent(l_Lean_Meta_DiscrTree_empty___closed__1);
 l___private_Lean_Meta_DiscrTree_1__tmpMVarId___closed__1 = _init_l___private_Lean_Meta_DiscrTree_1__tmpMVarId___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_DiscrTree_1__tmpMVarId___closed__1);
 l___private_Lean_Meta_DiscrTree_1__tmpMVarId___closed__2 = _init_l___private_Lean_Meta_DiscrTree_1__tmpMVarId___closed__2();

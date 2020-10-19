@@ -339,14 +339,8 @@ match e with
 @[inline] def unfoldDefinition? (e : Expr) : m (Option Expr) :=
 liftMetaM $ unfoldDefinitionImp? e
 
-unsafe def reduceNativeConst (α : Type) (typeName : Name) (constName : Name) : MetaM α := do
-env ← getEnv;
-match env.evalConstCheck α typeName constName with
-| Except.error ex => throwError ex
-| Except.ok v     => pure v
-
-unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := reduceNativeConst Bool `Bool constName
-unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := reduceNativeConst Nat `Nat constName
+unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := evalConstCheck Bool `Bool constName
+unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstCheck Nat `Nat constName
 @[implementedBy reduceBoolNativeUnsafe] constant reduceBoolNative (constName : Name) : MetaM Bool := arbitrary _
 @[implementedBy reduceNatNativeUnsafe] constant reduceNatNative (constName : Name) : MetaM Nat := arbitrary _
 

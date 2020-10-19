@@ -68,7 +68,7 @@ KeyedDeclsAttribute.init {
       else throwError ("invalid [formatter] argument, unknown syntax kind '" ++ toString id ++ "'")
     | none    => throwError "invalid [formatter] argument, expected identifier"
 } `Lean.PrettyPrinter.formatterAttribute
-@[init mkFormatterAttribute] constant formatterAttribute : KeyedDeclsAttribute Formatter := arbitrary _
+@[builtinInit mkFormatterAttribute] constant formatterAttribute : KeyedDeclsAttribute Formatter := arbitrary _
 
 unsafe def mkCombinatorFormatterAttribute : IO ParserCompiler.CombinatorAttribute :=
 ParserCompiler.registerCombinatorAttribute
@@ -79,7 +79,7 @@ ParserCompiler.registerCombinatorAttribute
 Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.
 The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
 with `Formatter` in the parameter types."
-@[init mkCombinatorFormatterAttribute] constant combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute := arbitrary _
+@[builtinInit mkCombinatorFormatterAttribute] constant combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute := arbitrary _
 
 namespace Formatter
 
@@ -444,7 +444,7 @@ catchInternalId backtrackExceptionId
 def formatTerm := format $ categoryParser.formatter `term
 def formatCommand := format $ categoryParser.formatter `command
 
-@[init] private def regTraceClasses : IO Unit := do
+@[builtinInit] private def regTraceClasses : IO Unit := do
 registerTraceClass `PrettyPrinter.format;
 pure ()
 

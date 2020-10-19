@@ -9,7 +9,7 @@ import Lean.Data.OpenDecl
 
 namespace Lean
 
-@[init] private def registerOptions : IO Unit := do
+@[builtinInit] private def registerOptions : IO Unit := do
 registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "maximum depth when displaying syntax objects in messages" };
 registerOption `pp.raw { defValue := false, group := "pp", descr := "(pretty printer) print raw expression/syntax tree" }
 
@@ -37,12 +37,12 @@ def mkPPFnsRef : IO (IO.Ref PPFns) := IO.mkRef {
   ppExpr := fun ctx e   => pure $ format (toString e),
   ppTerm := fun ctx stx => pure $ stx.formatStx (getSyntaxMaxDepth ctx.opts),
 }
-@[init mkPPFnsRef] def ppFnsRef : IO.Ref PPFns := arbitrary _
+@[builtinInit mkPPFnsRef] def ppFnsRef : IO.Ref PPFns := arbitrary _
 
 def mkPPExt : IO (EnvExtension PPFns) :=
 registerEnvExtension $ ppFnsRef.get
 
-@[init mkPPExt]
+@[builtinInit mkPPExt]
 constant ppExt : EnvExtension PPFns := arbitrary _
 def ppExpr (ctx : PPContext) (e : Expr) : IO Format :=
 let e := (ctx.mctx.instantiateMVars e).1;

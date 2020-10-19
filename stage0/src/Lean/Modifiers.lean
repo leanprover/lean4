@@ -10,7 +10,7 @@ namespace Lean
 def mkProtectedExtension : IO TagDeclarationExtension :=
 mkTagDeclarationExtension `protected
 
-@[init mkProtectedExtension]
+@[builtinInit mkProtectedExtension]
 constant protectedExt : TagDeclarationExtension := arbitrary _
 
 @[export lean_add_protected]
@@ -24,7 +24,7 @@ protectedExt.isTagged env n
 def mkPrivateExtension : IO (EnvExtension Nat) :=
 registerEnvExtension (pure 1)
 
-@[init mkPrivateExtension]
+@[builtinInit mkPrivateExtension]
 constant privateExt : EnvExtension Nat := arbitrary _
 
 /- Private name support.

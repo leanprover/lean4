@@ -10,7 +10,7 @@ namespace Lean
 def getMaxRecDepth (opts : Options) : Nat :=
 opts.getNat `maxRecDepth defaultMaxRecDepth
 
-@[init] def maxRecDepth : IO Unit :=
+@[builtinInit] def maxRecDepth : IO Unit :=
 registerOption `maxRecDepth { defValue := defaultMaxRecDepth, group := "", descr := "maximum recursion depth for many Lean procedures" }
 
 end Lean

@@ -134,7 +134,7 @@ withMVarContext mvarId do
       | throwTacticEx `subst mvarId msg!"did not find equation for eliminating '{mkFVar hFVarId}'"
     (·.2) <$> substCore mvarId fvarId symm
 
-@[init] private def regTraceClasses : IO Unit :=
+@[builtinInit] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta.Tactic.subst
 
 end Meta

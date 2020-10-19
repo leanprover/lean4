@@ -61,7 +61,7 @@ def isInaccessibleUserName : Name → Bool
 | _                => false
 
 def sanitizeNamesDefault := true
-@[init] def sanitizeNamesOption : IO Unit :=
+@[builtinInit] def sanitizeNamesOption : IO Unit :=
 registerOption `pp.sanitizeNames { defValue := sanitizeNamesDefault, group := "pp", descr := "add suffix '_{<idx>}' to shadowed/inaccessible variables when pretty printing" }
 def getSanitizeNames (o : Options) : Bool:= o.get `pp.sanitizeNames sanitizeNamesDefault
 

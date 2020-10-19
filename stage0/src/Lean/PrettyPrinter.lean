@@ -52,13 +52,13 @@ adaptExcept (fun ex => match ex with
   | e                       => e)
   x
 
-@[init] def registerPPExt : IO Unit := do
+@[builtinInit] def registerPPExt : IO Unit := do
 ppFnsRef.set {
   ppExpr := fun ctx e   => ctx.runMetaM $ withoutContext $ ppExpr ctx.currNamespace ctx.openDecls e,
   ppTerm := fun ctx stx => ctx.runCoreM $ withoutContext $ ppTerm stx,
 }
 
-@[init] private def regTraceClasses : IO Unit := do
+@[builtinInit] private def regTraceClasses : IO Unit := do
 registerTraceClass `PrettyPrinter;
 pure ()
 

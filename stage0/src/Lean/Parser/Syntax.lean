@@ -9,11 +9,11 @@ import Lean.Parser.Tactic
 namespace Lean
 namespace Parser
 
-@[init] def regBuiltinSyntaxParserAttr : IO Unit :=
+@[builtinInit] def regBuiltinSyntaxParserAttr : IO Unit :=
 let leadingIdentAsSymbol := true;
 registerBuiltinParserAttribute `builtinSyntaxParser `stx leadingIdentAsSymbol
 
-@[init] def regSyntaxParserAttribute : IO Unit :=
+@[builtinInit] def regSyntaxParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `stxParser `stx
 
 @[inline] def syntaxParser (rbp : Nat := 0) : Parser :=

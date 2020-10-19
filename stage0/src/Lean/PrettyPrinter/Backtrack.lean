@@ -11,7 +11,7 @@ namespace PrettyPrinter
 /- Auxiliary internal exception for backtracking the pretty printer.
    See `orelse.parenthesizer` for example -/
 def registerBacktrackId : IO InternalExceptionId := registerInternalExceptionId `backtrackFormatter
-@[init registerBacktrackId] constant backtrackExceptionId : InternalExceptionId := arbitrary _
+@[builtinInit registerBacktrackId] constant backtrackExceptionId : InternalExceptionId := arbitrary _
 
 end PrettyPrinter
 end Lean

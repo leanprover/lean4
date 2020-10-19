@@ -246,7 +246,7 @@ isExprDefEqGuarded t s
 def isDefEqNoConstantApprox (t s : Expr) : m Bool := liftMetaM do
 approxDefEq $ isDefEq t s
 
-@[init] private def regTraceClasses : IO Unit := do
+@[builtinInit] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.isLevelDefEq;
 registerTraceClass `Meta.isLevelDefEq.step;
 registerTraceClass `Meta.isLevelDefEq.postponed

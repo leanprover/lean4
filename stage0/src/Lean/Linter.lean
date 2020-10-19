@@ -16,7 +16,7 @@ IO.mkRef #[]
 
 /- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the
    environment (which only contains `import`ed objects). -/
-@[init mkLintersRef, export lean_linters_ref]
+@[builtinInit mkLintersRef, export lean_linters_ref]
 constant lintersRef : IO.Ref (Array Linter) := arbitrary _
 
 def addLinter (l : Linter) : IO Unit := do

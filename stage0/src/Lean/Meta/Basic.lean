@@ -32,7 +32,7 @@ namespace Meta
 def registerIsDefEqStuckId : IO InternalExceptionId :=
 registerInternalExceptionId `isDefEqStuck
 
-@[init registerIsDefEqStuckId]
+@[builtinInit registerIsDefEqStuckId]
 constant isDefEqStuckExceptionId : InternalExceptionId := arbitrary _
 
 structure Config :=
@@ -154,7 +154,7 @@ instance hasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
 protected def throwIsDefEqStuck {α} : DefEqM α :=
 throw $ Exception.internal isDefEqStuckExceptionId
 
-@[init] private def regTraceClasses : IO Unit := do
+@[builtinInit] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta;
 registerTraceClass `Meta.debug
 
@@ -185,22 +185,22 @@ def getZetaFVarIds : m NameSet := liftMetaM do s ← get; pure s.zetaFVarIds
 def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throwError "whnf implementation was not set"
 
-@[init mkWHNFRef] def whnfRef : IO.Ref (Expr → MetaM Expr) := arbitrary _
+@[builtinInit mkWHNFRef] def whnfRef : IO.Ref (Expr → MetaM Expr) := arbitrary _
 
 def mkInferTypeRef : IO (IO.Ref (Expr → MetaM Expr)) :=
 IO.mkRef $ fun _ => throwError "inferType implementation was not set"
 
-@[init mkInferTypeRef] def inferTypeRef : IO.Ref (Expr → MetaM Expr) := arbitrary _
+@[builtinInit mkInferTypeRef] def inferTypeRef : IO.Ref (Expr → MetaM Expr) := arbitrary _
 
 def mkIsExprDefEqAuxRef : IO (IO.Ref (Expr → Expr → DefEqM Bool)) :=
 IO.mkRef $ fun _ _ => throwError "isDefEq implementation was not set"
 
-@[init mkIsExprDefEqAuxRef] def isExprDefEqAuxRef : IO.Ref (Expr → Expr → DefEqM Bool) := arbitrary _
+@[builtinInit mkIsExprDefEqAuxRef] def isExprDefEqAuxRef : IO.Ref (Expr → Expr → DefEqM Bool) := arbitrary _
 
 def mkSynthPendingRef : IO (IO.Ref (MVarId → MetaM Bool)) :=
 IO.mkRef $ fun _ => pure false
 
-@[init mkSynthPendingRef] def synthPendingRef : IO.Ref (MVarId → MetaM Bool) := arbitrary _
+@[builtinInit mkSynthPendingRef] def synthPendingRef : IO.Ref (MVarId → MetaM Bool) := arbitrary _
 
 def whnf (e : Expr) : m Expr :=
 liftMetaM $ withIncRecDepth do

@@ -38,7 +38,7 @@ registerSimplePersistentEnvExtension {
   addEntryFn      := fun s n => { s with allNamespaces := s.allNamespaces.insert n },
 }
 
-@[init regScopeManagerExtension]
+@[builtinInit regScopeManagerExtension]
 constant scopeManagerExt : SimplePersistentEnvExtension Name ScopeManagerState := arbitrary _
 
 @[export lean_get_namespaces]

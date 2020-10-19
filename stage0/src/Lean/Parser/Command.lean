@@ -89,6 +89,7 @@ def openSimple       := parser! many1 ident
 
 @[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 (notSymbol "end" >> commandParser) >> "end"
 @[builtinCommandParser] def «initialize» := parser! "initialize " >> optional («try» (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
+@[builtinCommandParser] def «builtin_initialize» := parser! "builtin_initialize " >> optional («try» (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 
 @[builtinCommandParser] def «in»  := tparser! " in " >> commandParser
 

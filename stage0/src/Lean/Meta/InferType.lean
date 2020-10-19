@@ -144,7 +144,7 @@ private partial def inferTypeAux : Expr → MetaM Expr
 def inferTypeImp (e : Expr) : MetaM Expr :=
 withTransparency TransparencyMode.default (inferTypeAux e)
 
-@[init] def setInferTypeRef : IO Unit :=
+@[builtinInit] def setInferTypeRef : IO Unit :=
 inferTypeRef.set inferTypeImp
 
 /--

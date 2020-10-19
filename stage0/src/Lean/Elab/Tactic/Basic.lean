@@ -89,7 +89,7 @@ protected def getMainModule     : TacticM Name       := do pure (← getEnv).mai
 
 unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
 mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
-@[init mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic := arbitrary _
+@[builtinInit mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic := arbitrary _
 
 private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List Tactic) : TacticM Unit := do
 let rec loop : List Tactic → TacticM Unit
@@ -428,7 +428,7 @@ fun stx => match_syntax stx with
   | `(tactic| $tac1 <|> $tac2) => evalTactic tac1 <|> evalTactic tac2
   | _                          => throwUnsupportedSyntax
 
-@[init] private def regTraceClasses : IO Unit := do
+@[builtinInit] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.tactic;
 pure ()
 

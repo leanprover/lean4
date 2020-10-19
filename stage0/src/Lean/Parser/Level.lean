@@ -12,7 +12,7 @@ import Lean.PrettyPrinter.Formatter
 namespace Lean
 namespace Parser
 
-@[init] def regBuiltinLevelParserAttr : IO Unit :=
+@[builtinInit] def regBuiltinLevelParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinLevelParser `level
 
 @[inline] def levelParser (rbp : Nat := 0) : Parser :=

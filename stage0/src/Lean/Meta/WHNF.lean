@@ -440,7 +440,7 @@ partial def whnfImp : Expr → MetaM Expr
         | some e => whnfImp e
         | none   => cache useCache e e'
 
-@[init] def setWHNFRef : IO Unit :=
+@[builtinInit] def setWHNFRef : IO Unit :=
 whnfRef.set whnfImp
 
 /- Given an expression `e`, compute its WHNF and if the result is a constructor, return field #i. -/

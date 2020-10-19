@@ -46,6 +46,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_CollectMaps_collectParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* lean_get_init_fn_name_for(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectFnBody_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectVar_match__1(lean_object*);
@@ -84,7 +85,6 @@ lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_IR_CollectMaps_collec
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_IR_CollectMaps_collectVar___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___at_Lean_IR_CollectMaps_collectJP___spec__2___boxed(lean_object*, lean_object*);
-lean_object* lean_get_init_fn_name_for(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_allImportedModuleNames(lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectDecl(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);

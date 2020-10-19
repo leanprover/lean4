@@ -372,7 +372,7 @@ let decl := Declaration.defnDecl { name := name, lparams := [], type := type, va
 match env.addAndCompile {} decl with
 -- TODO: pretty print error
 | Except.error _ => throw (IO.userError ("failed to emit registration code for builtin parser '" ++ toString declName ++ "'"))
-| Except.ok env  => IO.ofExcept (setInitAttr env name)
+| Except.ok env  => IO.ofExcept (setBuiltinInitAttr env name)
 
 def declareLeadingBuiltinParser (env : Environment) (catName : Name) (declName : Name) (prio : Nat) : IO Environment := -- TODO: use CoreM?
 declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParser catName declName prio

@@ -230,6 +230,7 @@ lean_object* l_Lean_IR_EmitC_emitFnDeclAux___lambda__2(lean_object*, lean_object
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitInc___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_isIf___boxed(lean_object*);
+lean_object* lean_get_init_fn_name_for(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitCtorScalarSize___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitCtorScalarSize___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -368,6 +369,7 @@ extern lean_object* l_String_Iterator_HasRepr___closed__2;
 lean_object* l_Lean_IR_EmitC_emitIsTaggedPtr___closed__1;
 lean_object* l_Nat_forMAux___main___at_Lean_IR_EmitC_emitReset___spec__1___closed__1;
 lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getInitFnNameForCore_x3f___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitBoxFn___closed__2;
 lean_object* l_Lean_IR_EmitC_toCType___closed__4;
 lean_object* l_Lean_IR_EmitC_emitProj___closed__1;
@@ -464,7 +466,6 @@ lean_object* l_Lean_IR_EmitC_emitNumLit___boxed(lean_object*, lean_object*, lean
 lean_object* l_Lean_IR_EmitC_emitUSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitInitFn___closed__3;
 lean_object* l_Lean_IR_EmitC_emitBoxFn___closed__1;
-lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_isIOUnitInitFn___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitInc___closed__4;
 lean_object* l_Lean_IR_EmitC_emitFnDecls_match__1(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitDeclAux___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -519,7 +520,6 @@ lean_object* l_Lean_IR_EmitC_emitBoxFn(lean_object*, lean_object*, lean_object*)
 lean_object* l_Lean_IR_EmitC_isTailCall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_throwInvalidExportName___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFileFooter___boxed(lean_object*, lean_object*);
-lean_object* lean_get_init_fn_name_for(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFnDeclAux___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFnDeclAux___lambda__3___closed__1;
 lean_object* l_Lean_IR_EmitC_throwInvalidExportName___rarg___closed__1;
@@ -1588,7 +1588,7 @@ x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = l_Lean_exportAttr;
 lean_inc(x_1);
-x_9 = l_Lean_ParametricAttribute_getParam___at_Lean_isIOUnitInitFn___spec__1(x_8, x_6, x_1);
+x_9 = l_Lean_ParametricAttribute_getParam___at_Lean_getInitFnNameForCore_x3f___spec__1(x_8, x_6, x_1);
 lean_dec(x_6);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -1663,7 +1663,7 @@ lean_inc(x_20);
 lean_dec(x_4);
 x_22 = l_Lean_exportAttr;
 lean_inc(x_1);
-x_23 = l_Lean_ParametricAttribute_getParam___at_Lean_isIOUnitInitFn___spec__1(x_22, x_20, x_1);
+x_23 = l_Lean_ParametricAttribute_getParam___at_Lean_getInitFnNameForCore_x3f___spec__1(x_22, x_20, x_1);
 lean_dec(x_20);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -1898,7 +1898,7 @@ x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = l_Lean_exportAttr;
 lean_inc(x_1);
-x_9 = l_Lean_ParametricAttribute_getParam___at_Lean_isIOUnitInitFn___spec__1(x_8, x_6, x_1);
+x_9 = l_Lean_ParametricAttribute_getParam___at_Lean_getInitFnNameForCore_x3f___spec__1(x_8, x_6, x_1);
 lean_dec(x_6);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -1965,7 +1965,7 @@ lean_inc(x_21);
 lean_dec(x_4);
 x_23 = l_Lean_exportAttr;
 lean_inc(x_1);
-x_24 = l_Lean_ParametricAttribute_getParam___at_Lean_isIOUnitInitFn___spec__1(x_23, x_21, x_1);
+x_24 = l_Lean_ParametricAttribute_getParam___at_Lean_getInitFnNameForCore_x3f___spec__1(x_23, x_21, x_1);
 lean_dec(x_21);
 if (lean_obj_tag(x_24) == 0)
 {

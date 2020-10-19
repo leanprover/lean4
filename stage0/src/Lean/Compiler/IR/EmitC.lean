@@ -684,7 +684,7 @@ if isIOUnitInitFn env n then
   emitLn "if (lean_io_result_is_error(res)) return res;"
   emitLn "lean_dec_ref(res);"
 else if d.params.size == 0 then
-  match getInitFnNameFor env d.name with
+  match getInitFnNameFor? env d.name with
   | some initFn =>
     emit "res = "; emitCName initFn; emitLn "(lean_io_mk_world());"
     emitLn "if (lean_io_result_is_error(res)) return res;"

@@ -659,6 +659,16 @@ pure {
   thenBranch := doIf[4],
   elseBranch := doIf[6][1] }
 
+/-
+We use `MProd` instead of `Prod` to group values when expanding the
+`do` notation. `MProd` is a universe monomorphic product.
+The motivation is to generate simpler universe constraints in code
+that was not written by the user.
+Note that we are not restricting the macro power since the
+`HasBind.bind` combinator already forces values computed by monadic
+actions to be in the same universe.
+-/
+
 private def mkTuple (ref : Syntax) (elems : Array Syntax) : MacroM Syntax := do
 if elems.size == 0 then
   mkUnit ref
@@ -667,7 +677,7 @@ else if elems.size == 1 then
 else
   (elems.extract 0 (elems.size - 1)).foldrM
     (fun elem tuple => do
-      let tuple ← `(($elem, $tuple))
+      let tuple ← `(MProd.mk $elem $tuple)
       pure $ tuple.copyInfo ref)
     (elems.back)
 
@@ -792,9 +802,9 @@ def returnToTermCore (ref : Syntax) (val : Syntax) : M Syntax := do
 let ctx ← read
 let u ← mkUVarTuple ref
 match ctx.kind with
-| Kind.regular         => if ctx.uvars.isEmpty then `(HasPure.pure $val) else `(HasPure.pure ($val, $u))
+| Kind.regular         => if ctx.uvars.isEmpty then `(HasPure.pure $val) else `(HasPure.pure (MProd.mk $val $u))
 | Kind.forIn           => `(HasPure.pure (ForInStep.done $u))
-| Kind.forInWithReturn => `(HasPure.pure (ForInStep.done (some $val, $u)))
+| Kind.forInWithReturn => `(HasPure.pure (ForInStep.done (MProd.mk (some $val) $u)))
 | Kind.nestedBC        => unreachable!
 | Kind.nestedPR        => `(HasPure.pure (DoResultPR.«return» $val $u))
 | Kind.nestedSBC       => `(HasPure.pure (DoResultSBC.«pureReturn» $val $u))
@@ -810,7 +820,7 @@ let u ← mkUVarTuple ref
 match ctx.kind with
 | Kind.regular         => unreachable!
 | Kind.forIn           => `(HasPure.pure (ForInStep.yield $u))
-| Kind.forInWithReturn => `(HasPure.pure (ForInStep.yield (none, $u)))
+| Kind.forInWithReturn => `(HasPure.pure (ForInStep.yield (MProd.mk none $u)))
 | Kind.nestedBC        => `(HasPure.pure (DoResultBC.«continue» $u))
 | Kind.nestedPR        => unreachable!
 | Kind.nestedSBC       => `(HasPure.pure (DoResultSBC.«continue» $u))
@@ -826,7 +836,7 @@ let u ← mkUVarTuple ref
 match ctx.kind with
 | Kind.regular         => unreachable!
 | Kind.forIn           => `(HasPure.pure (ForInStep.done $u))
-| Kind.forInWithReturn => `(HasPure.pure (ForInStep.done (none, $u)))
+| Kind.forInWithReturn => `(HasPure.pure (ForInStep.done (MProd.mk none $u)))
 | Kind.nestedBC        => `(HasPure.pure (DoResultBC.«break» $u))
 | Kind.nestedPR        => unreachable!
 | Kind.nestedSBC       => `(HasPure.pure (DoResultSBC.«break» $u))
@@ -841,9 +851,9 @@ let ref := action
 let ctx ← read
 let u ← mkUVarTuple ref
 match ctx.kind with
-| Kind.regular         => if ctx.uvars.isEmpty then pure action else `(HasBind.bind $action fun y => HasPure.pure (y, $u))
+| Kind.regular         => if ctx.uvars.isEmpty then pure action else `(HasBind.bind $action fun y => HasPure.pure (MProd.mk y $u))
 | Kind.forIn           => `(HasBind.bind $action fun (_ : PUnit) => HasPure.pure (ForInStep.yield $u))
-| Kind.forInWithReturn => `(HasBind.bind $action fun (_ : PUnit) => HasPure.pure (ForInStep.yield (none, $u)))
+| Kind.forInWithReturn => `(HasBind.bind $action fun (_ : PUnit) => HasPure.pure (ForInStep.yield (MProd.mk none $u)))
 | Kind.nestedBC        => unreachable!
 | Kind.nestedPR        => `(HasBind.bind $action fun y => (HasPure.pure (DoResultPR.«pure» y $u)))
 | Kind.nestedSBC       => `(HasBind.bind $action fun y => (HasPure.pure (DoResultSBC.«pureReturn» y $u)))
@@ -1267,7 +1277,7 @@ let forInBodyCodeBlock  ← withNewVars newVars $ withFor (doSeqToCode forElems)
 let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
 let uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref))
 if hasReturn forInBodyCodeBlock.code then
-  let forInTerm ← `($(xs).forIn (none, $uvarsTuple) fun $x (_, $uvarsTuple) => $forInBody)
+  let forInTerm ← `($(xs).forIn (MProd.mk none $uvarsTuple) fun $x (MProd.mk _ $uvarsTuple) => $forInBody)
   let auxDo ← `(do let r ← $forInTerm:term;
                    $uvarsTuple:term := r.2;
                    match r.1 with

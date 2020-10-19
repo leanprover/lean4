@@ -196,9 +196,13 @@ structure Prod (α : Type u) (β : Type v) :=
 
 attribute [unbox] Prod
 
-/-- Similar to `Prod`, but α and β can be propositions.
+/-- Similar to `Prod`, but `α` and `β` can be propositions.
    We use this Type internally to automatically generate the brecOn recursor. -/
 structure PProd (α : Sort u) (β : Sort v) :=
+(fst : α) (snd : β)
+
+/-- Similar to `Prod`, but `α` and `β` are in the same universe. -/
+structure MProd (α β : Type u) :=
 (fst : α) (snd : β)
 
 structure And (a b : Prop) : Prop :=

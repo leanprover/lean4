@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -5,8 +6,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.KAbstract
 
-namespace Lean
-namespace Meta
+namespace Lean.Meta
 namespace GeneralizeTelescope
 
 structure Entry :=
@@ -14,40 +14,40 @@ structure Entry :=
 (type     : Expr)
 (modified : Bool)
 
-partial def updateTypes (e newE : Expr) : Array Entry → Nat → MetaM (Array Entry)
+partial def updateTypes (e eNew : Expr) : Array Entry → Nat → MetaM (Array Entry)
 | entries, i =>
   if h : i < entries.size then
-    let entry := entries.get ⟨i, h⟩;
+    let entry := entries.get ⟨i, h⟩
     match entry with
     | ⟨_, type, _⟩ => do
-      typeAbst ← kabstract type e;
+      let typeAbst ← kabstract type e
       if typeAbst.hasLooseBVars then do
-        let typeNew := typeAbst.instantiate1 newE;
-        let entries := entries.set ⟨i, h⟩ { entry with type := typeNew, modified := true };
-        updateTypes entries (i+1)
+        let typeNew := typeAbst.instantiate1 eNew
+        let entries := entries.set ⟨i, h⟩ { entry with type := typeNew, modified := true }
+        updateTypes e eNew entries (i+1)
       else
-        updateTypes entries (i+1)
+        updateTypes e eNew entries (i+1)
   else
     pure entries
 
 partial def generalizeTelescopeAux {α} (prefixForNewVars : Name) (k : Array Expr → MetaM α) : Array Entry → Nat → Nat → Array Expr → MetaM α
-| entries, i, nextVarIdx, fvars =>
+| entries, i, nextVarIdx, fvars => do
   if h : i < entries.size then
-    let replace (e : Expr) (type : Expr) : MetaM α := do {
-      let userName := prefixForNewVars.appendIndexAfter nextVarIdx;
-      withLocalDeclD userName type $ fun x => do
-        entries ← updateTypes e x entries (i+1);
-        generalizeTelescopeAux entries (i+1) (nextVarIdx+1) (fvars.push x)
-    };
+    let replace (e : Expr) (type : Expr) : MetaM α := do
+      let userName := prefixForNewVars.appendIndexAfter nextVarIdx
+      withLocalDeclD userName type fun x => do
+        entries ← updateTypes e x entries (i+1)
+        generalizeTelescopeAux prefixForNewVars k entries (i+1) (nextVarIdx+1) (fvars.push x)
     match entries.get ⟨i, h⟩ with
-    | ⟨e@(Expr.fvar fvarId _), type, false⟩ => do
-      localDecl ← getLocalDecl fvarId;
+    | ⟨e@(Expr.fvar fvarId _), type, false⟩ =>
+      let localDecl ← getLocalDecl fvarId
       match localDecl with
-      | LocalDecl.cdecl _ _ _ _ _   => generalizeTelescopeAux entries (i+1) nextVarIdx (fvars.push e)
-      | LocalDecl.ldecl _ _ _ _ _ _ => replace e type
-    | ⟨e, type, modified⟩ => do
-      when modified $ unlessM (isTypeCorrect type) $
-        throwError $ "failed to create telescope generalizing " ++ (entries.map Entry.expr);
+      | LocalDecl.cdecl .. => generalizeTelescopeAux prefixForNewVars k entries (i+1) nextVarIdx (fvars.push e)
+      | LocalDecl.ldecl .. => replace e type
+    | ⟨e, type, modified⟩ =>
+      if modified then
+        unless (← isTypeCorrect type) do
+          throwError! "failed to create telescope generalizing {entries.map Entry.expr}"
       replace e type
   else
     k fvars
@@ -88,12 +88,10 @@ open GeneralizeTelescope
   ```
   and the type for the new variable abstracting `h` is `xs = aux_2` which is not type correct. -/
 def generalizeTelescope {α} (es : Array Expr) (prefixForNewVars : Name) (k : Array Expr → MetaM α) : MetaM α := do
-es ← es.mapM $ fun e => do {
-  type ← inferType e;
-  type ← instantiateMVars type;
+let es ← es.mapM fun e => do
+  let type ← inferType e
+  let type ← instantiateMVars type
   pure { expr := e, type := type, modified := false : Entry }
-};
 generalizeTelescopeAux prefixForNewVars k es 0 1 #[]
 
-end Meta
-end Lean
+end Lean.Meta

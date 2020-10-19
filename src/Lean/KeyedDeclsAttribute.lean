@@ -117,7 +117,7 @@ match env.addAndCompile {} decl with
 | Except.error e => do
   msg ← (e.toMessageData {}).toString;
   throw (IO.userError ("failed to emit registration code for builtin '" ++ toString declName ++ "': " ++ msg))
-| Except.ok env  => IO.ofExcept (setInitAttr env name)
+| Except.ok env  => IO.ofExcept (setBuiltinInitAttr env name)
 
 /- TODO: add support for scoped attributes -/
 protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDeclsAttribute γ) := do

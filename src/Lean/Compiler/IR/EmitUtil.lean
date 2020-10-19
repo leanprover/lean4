@@ -38,7 +38,7 @@ partial def collectFnBody : FnBody → M Unit
 
 def collectInitDecl (fn : Name) : M Unit := do
 let env ← read
-match getInitFnNameFor env fn with
+match getInitFnNameFor? env fn with
 | some initFn => collect initFn
 | _           => pure ()
 

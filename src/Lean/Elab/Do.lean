@@ -613,14 +613,15 @@ mkDoSeq #[doElem]
   >> many (group (" else " >> " if ") >> optIdent >> termParser >> " then " >> doSeq)
   >> optional (" else " >> doSeq)
   ```
-
-  Given a `doIf`, return an equivalente `doIf` that has no `else if`s and the `else` is not none.  -/
-private def expandDoIf (doIf : Syntax) : MacroM Syntax := do
-let ref       := doIf
+  If the given syntax is a `doIf`, return an equivalente `doIf` that has no `else if`s and the `else` is not none.  -/
+private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := do
+if stx.getKind != `Lean.Parser.Term.doIf then pure none else
+let doIf      := stx
+let ref       := stx
 let doElseIfs := doIf[5].getArgs
 let doElse    := doIf[6]
 if doElseIfs.isEmpty && !doElse.isNone then
-  pure doIf
+  pure none
 else
   let doElse ←
     if doElse.isNone then
@@ -641,7 +642,7 @@ else
                    mkSingletonDoSeq $ mkNode `Lean.Parser.Term.doIf doIfArgs])
     doElse
   let doIf := doIf.setArg 6 doElse
-  pure $ doIf.setArg 5 mkNullNode -- remove else-ifs
+  pure $ some $ doIf.setArg 5 mkNullNode -- remove else-ifs
 
 structure DoIfView :=
 (ref        : Syntax)
@@ -650,8 +651,8 @@ structure DoIfView :=
 (thenBranch : Syntax)
 (elseBranch : Syntax)
 
+/- This method assumes `expandDoIf?` is not applicable. -/
 private def mkDoIfView (doIf : Syntax) : MacroM DoIfView := do
-let doIf ← expandDoIf doIf
 pure {
   ref        := doIf,
   optIdent   := doIf[1],
@@ -1413,6 +1414,9 @@ partial def doSeqToCode : List Syntax → M CodeBlock
 | [] => do let ctx ← read; liftMacroM $ mkPureUnitAction ctx.ref
 | doElem::doElems => withRef doElem do
   match (← liftMacroM $ expandMacro? doElem) with
+  | some doElem => doSeqToCode (doElem::doElems)
+  | none =>
+  match (← liftMacroM $ expandDoIf? doElem) with
   | some doElem => doSeqToCode (doElem::doElems)
   | none =>
     let (liftedDoElems, doElem) ← liftM (liftMacroM $ expandLiftMethod doElem : TermElabM _)

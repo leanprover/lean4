@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -7,46 +8,50 @@ import Lean.Expr
 import Lean.Util.MonadCache
 import Lean.Meta.Basic
 
-namespace Lean
-namespace Meta
+namespace Lean.Meta
 namespace ForEachExpr
 abbrev M := MonadCacheT Expr Unit MetaM
 
-@[specialize] private partial def visitBinder (visit : Expr → M Unit) : Array Expr → Nat → Expr → M Unit
+mutual
+
+private partial def visitBinder (fn : Expr → MetaM Bool) : Array Expr → Nat → Expr → M Unit
 | fvars, j, Expr.lam n d b c => do
   let d := d.instantiateRevRange j fvars.size fvars;
-  visit d;
+  visit fn d;
   withLocalDecl n c.binderInfo d fun x =>
-    visitBinder (fvars.push x) j b
+    visitBinder fn (fvars.push x) j b
 | fvars, j, Expr.forallE n d b c => do
   let d := d.instantiateRevRange j fvars.size fvars;
-  visit d;
+  visit fn d;
   withLocalDecl n c.binderInfo d fun x =>
-    visitBinder (fvars.push x) j b
+    visitBinder fn (fvars.push x) j b
 | fvars, j, Expr.letE n t v b _ => do
   let t := t.instantiateRevRange j fvars.size fvars;
-  visit t;
+  visit fn t;
   let v := v.instantiateRevRange j fvars.size fvars;
-  visit v;
+  visit fn v;
   withLetDecl n t v fun x =>
-    visitBinder (fvars.push x) j b
-| fvars, j, e => visit $ e.instantiateRevRange j fvars.size fvars
+    visitBinder fn (fvars.push x) j b
+| fvars, j, e => visit fn $ e.instantiateRevRange j fvars.size fvars
 
-partial def visit (f : Expr → MetaM Bool) : Expr → M Unit
-| e => checkCache e fun e =>
-  condM (not <$> liftM (f e)) (pure ()) do
+partial def visit (fn : Expr → MetaM Bool) (e : Expr) : M Unit :=
+checkCache e fun e => do
+  if (← liftM (fn e)) then
     match e with
-    | Expr.forallE _ _ _ _   => visitBinder visit #[] 0 e
-    | Expr.lam _ _ _ _       => visitBinder visit #[] 0 e
-    | Expr.letE _ _ _ _ _    => visitBinder visit #[] 0 e
-    | Expr.app f a _         => do visit f; visit a
-    | Expr.mdata _ b _       => visit b
-    | Expr.proj _ _ b _      => visit b
+    | Expr.forallE _ _ _ _   => visitBinder fn #[] 0 e
+    | Expr.lam _ _ _ _       => visitBinder fn #[] 0 e
+    | Expr.letE _ _ _ _ _    => visitBinder fn #[] 0 e
+    | Expr.app f a _         => do visit fn f; visit fn a
+    | Expr.mdata _ b _       => visit fn b
+    | Expr.proj _ _ b _      => visit fn b
     | _                      => pure ()
+
+end
+
 end ForEachExpr
 
 def forEachExprImp' (e : Expr) (f : Expr → MetaM Bool) : MetaM Unit :=
-(ForEachExpr.visit f e).run
+ForEachExpr.visit f e $.run
 
 /-- Similar to `Expr.forEach'`, but creates free variables whenever going inside of a binder. -/
 def forEachExpr' {m} [MonadLiftT MetaM m] (e : Expr) (f : Expr → MetaM Bool) : m Unit :=
@@ -54,7 +59,8 @@ liftM $ forEachExprImp' e f
 
 /-- Similar to `Expr.forEach`, but creates free variables whenever going inside of a binder. -/
 def forEachExpr {m} [MonadLiftT MetaM m] (e : Expr) (f : Expr → MetaM Unit) : m Unit :=
-forEachExpr' e (fun e => do f e; pure true)
+forEachExpr' e fun e => do
+  f e
+  pure true
 
-end Meta
-end Lean
+end Lean.Meta

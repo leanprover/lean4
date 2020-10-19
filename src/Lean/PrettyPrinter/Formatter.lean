@@ -392,6 +392,7 @@ when (st.leadWord != "") $
 @[combinatorFormatter checkTailWs] def checkTailWs.formatter : Formatter := pure ()
 @[combinatorFormatter checkColGe] def checkColGe.formatter : Formatter := pure ()
 @[combinatorFormatter checkColGt] def checkColGt.formatter : Formatter := pure ()
+@[combinatorFormatter checkLineEq] def checkLineEq.formatter : Formatter := pure ()
 
 @[combinatorFormatter eoi] def eoi.formatter : Formatter := pure ()
 @[combinatorFormatter notFollowedByCategoryToken] def notFollowedByCategoryToken.formatter : Formatter := pure ()

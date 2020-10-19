@@ -65,9 +65,10 @@ else if c_2 then
        action_3
 ```
 -/
+def elseIf := «try» (group (withPosition (" else " >> checkLineEq >> " if ")))
 @[builtinDoElemParser] def doIf := parser! withPosition $
   "if " >> optIdent >> termParser >> " then " >> doSeq
-  >> many (checkColGe "'else if' in 'do' must be indented" >> group («try» (group (" else " >> " if ")) >> optIdent >> termParser >> " then " >> doSeq))
+  >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> optIdent >> termParser >> " then " >> doSeq))
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
 @[builtinDoElemParser] def doUnless := parser! "unless " >> withForbidden "do" termParser >> "do " >> doSeq
 @[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> withForbidden "do" termParser >> "do " >> doSeq

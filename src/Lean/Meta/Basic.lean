@@ -11,7 +11,6 @@ import Lean.Util.Trace
 import Lean.Util.RecDepth
 import Lean.Util.PPExt
 import Lean.Compiler.InlineAttrs
-import Lean.Meta.Exception
 import Lean.Meta.TransparencyMode
 import Lean.Meta.DiscrTreeTypes
 import Lean.Eval
@@ -29,6 +28,12 @@ They are packed into the MetaM monad.
 
 namespace Lean
 namespace Meta
+
+def registerIsDefEqStuckId : IO InternalExceptionId :=
+registerInternalExceptionId `isDefEqStuck
+
+@[init registerIsDefEqStuckId]
+constant isDefEqStuckExceptionId : InternalExceptionId := arbitrary _
 
 structure Config :=
 (foApprox           : Bool := false)

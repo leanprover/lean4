@@ -87,9 +87,12 @@ modifyTraceState $ fun s => { s with traces := f s.traces }
 modifyTraceState $ fun _ => s
 
 private def addNode (oldTraces : PersistentArray TraceElem) (cls : Name) (ref : Syntax) : m Unit :=
-modifyTraces $ fun traces =>
-  let d := MessageData.tagged cls (MessageData.node (traces.toArray.map fun elem => elem.msg));
-  oldTraces.push { ref := ref, msg := d }
+modifyTraces fun traces =>
+  if traces.isEmpty then
+    oldTraces
+  else
+    let d := MessageData.tagged cls (MessageData.node (traces.toArray.map fun elem => elem.msg));
+    oldTraces.push { ref := ref, msg := d }
 
 private def getResetTraces : m (PersistentArray TraceElem) := do
 oldTraces ← getTraces;
@@ -143,5 +146,28 @@ macro_rules
     `(Lean.trace $(quote id.getId) fun _ => msg! $s)
   else
     `(Lean.trace $(quote id.getId) fun _ => ($s : MessageData))
+
+variables {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions m] [Ref m]
+
+def withNestedTraces [MonadFinally m] (x : m α) : m α := do
+let s ← getTraceState
+if !s.enabled then
+  x
+else
+  let currTraces ← getTraces
+  modifyTraces fun _ => {}
+  let ref ← getRef
+  try
+    x
+  finally
+    modifyTraces fun traces =>
+      if traces.size == 0 then
+        currTraces
+      else if traces.size == 1 && traces[0].msg.isNest then
+        currTraces ++ traces -- No nest of nest
+      else
+        let d := traces.foldl (init := MessageData.nil) fun d elem =>
+          if d.isNil then elem.msg else msg!"{d}\n{elem.msg}"
+        currTraces.push { ref := ref, msg := MessageData.nestD d }
 
 end Lean

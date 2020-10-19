@@ -171,6 +171,7 @@ lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__2___boxed(lean_object*, l
 lean_object* l_Array_findSomeMAux___main___at___private_Lean_Meta_AppBuilder_25__mkProjectionImp___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLe___rarg___closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_24__mkNoConfusionImp___closed__6;
+extern lean_object* l_Lean_MessageData_nil___closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_19__mkAppMAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkDecIsTrue___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -332,7 +333,6 @@ lean_object* l___private_Lean_Meta_AppBuilder_25__mkProjectionImp___main___close
 lean_object* l_Lean_Meta_mkListLit(lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Lean_Meta_AppBuilder_18__mkAppMFinal___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-extern lean_object* l_Lean_MessageData_Inhabited___closed__1;
 lean_object* l_Lean_Meta_mkEqOfHEq(lean_object*);
 lean_object* l_Lean_Meta_mkAppOptM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_16__mkCongrFunImp___closed__2;
@@ -4873,7 +4873,7 @@ lean_dec(x_58);
 x_62 = lean_unsigned_to_nat(0u);
 x_63 = l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(x_4, x_4, x_62, x_1);
 lean_dec(x_4);
-x_64 = l_Lean_MessageData_Inhabited___closed__1;
+x_64 = l_Lean_MessageData_nil___closed__1;
 x_65 = l_Lean_Meta_throwAppTypeMismatch___at___private_Lean_Meta_AppBuilder_19__mkAppMAux___main___spec__1(x_63, x_54, x_64, x_8, x_9, x_10, x_11, x_61);
 return x_65;
 }
@@ -6447,7 +6447,7 @@ lean_dec(x_82);
 x_86 = lean_unsigned_to_nat(0u);
 x_87 = l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(x_4, x_4, x_86, x_1);
 lean_dec(x_4);
-x_88 = l_Lean_MessageData_Inhabited___closed__1;
+x_88 = l_Lean_MessageData_nil___closed__1;
 x_89 = l_Lean_Meta_throwAppTypeMismatch___at___private_Lean_Meta_AppBuilder_19__mkAppMAux___main___spec__1(x_87, x_78, x_88, x_8, x_9, x_10, x_11, x_85);
 return x_89;
 }

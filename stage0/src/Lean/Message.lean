@@ -50,6 +50,17 @@ inductive MessageData
 
 namespace MessageData
 
+def nil : MessageData :=
+ofFormat Format.nil
+
+def isNil : MessageData → Bool
+| ofFormat Format.nil => true
+| _                   => false
+
+def isNest : MessageData → Bool
+| nest _ _ => true
+| _        => false
+
 instance : Inhabited MessageData := ⟨MessageData.ofFormat (arbitrary _)⟩
 
 def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
@@ -287,13 +298,13 @@ let lines := lines.map (MessageData.ofFormat ∘ fmt)
 MessageData.joinSep lines (MessageData.ofFormat Format.line)
 
 instance {α} [HasFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ fmt⟩
-instance : ToMessageData Expr        := ⟨MessageData.ofExpr⟩
-instance : ToMessageData Level       := ⟨MessageData.ofLevel⟩
-instance : ToMessageData Name        := ⟨MessageData.ofName⟩
-instance : ToMessageData String      := ⟨stringToMessageData⟩
-instance : ToMessageData Syntax      := ⟨MessageData.ofSyntax⟩
-instance : ToMessageData Format      := ⟨MessageData.ofFormat⟩
-instance : ToMessageData MessageData := ⟨id⟩
+instance : ToMessageData Expr          := ⟨MessageData.ofExpr⟩
+instance : ToMessageData Level         := ⟨MessageData.ofLevel⟩
+instance : ToMessageData Name          := ⟨MessageData.ofName⟩
+instance : ToMessageData String        := ⟨stringToMessageData⟩
+instance : ToMessageData Syntax        := ⟨MessageData.ofSyntax⟩
+instance : ToMessageData Format        := ⟨MessageData.ofFormat⟩
+instance : ToMessageData MessageData   := ⟨id⟩
 instance {α} [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList $ as.map toMessageData⟩
 instance {α} [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
 
@@ -304,5 +315,10 @@ macro_rules
   let chunks := interpStr.getArgs
   let r ← Lean.Syntax.expandInterpolatedStrChunks chunks (fun a b => `($a ++ $b)) (fun a => `(toMessageData $a))
   `(($r : MessageData))
+
+-- TODO: interpreter should not compiled code when building stdlib.
+-- The following instances cannot be defined before `syntax` because it would change the internal syntax node kinds and break the build.
+instance {α} [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some ({toMessageData e})"⟩
+instance : ToMessageData (Option Expr) := ⟨fun | none => "<not-available>" | some e => toMessageData e⟩
 
 end Lean

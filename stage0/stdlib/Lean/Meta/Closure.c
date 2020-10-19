@@ -57,6 +57,7 @@ lean_object* l_Nat_foldRevAux___main___at_Lean_Meta_Closure_mkBinding___spec__2_
 lean_object* l_Lean_Meta_mkAuxDefinitionFor(lean_object*);
 lean_object* l_Lean_Meta_Closure_pickNextToProcess_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+extern lean_object* l_Lean_Level_LevelToFormat_toResult___main___closed__3;
 lean_object* l_Lean_Meta_mkAuxDefinition(lean_object*);
 extern lean_object* l_Lean_Level_updateMax_x21___closed__2;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_Closure_visitLevel___spec__2(lean_object*, lean_object*);
@@ -67,7 +68,6 @@ lean_object* l_Nat_foldRevAux___main___at_Lean_Meta_Closure_mkForall___spec__1(l
 uint32_t l_UInt32_add(uint32_t, uint32_t);
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_Closure_mkBinding___spec__1(lean_object*, lean_object*);
 uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Closure_mkNewLevelParam___closed__1;
 uint8_t l_Lean_Environment_hasUnsafe(lean_object*, lean_object*);
 lean_object* lean_expr_lower_loose_bvars(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_visitExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -146,7 +146,6 @@ lean_object* l_Lean_Meta_Closure_preprocess___boxed(lean_object*, lean_object*, 
 lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_Lean_replaceFVarIdAtLocalDecl(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Closure_mkNewLevelParam___closed__2;
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_Closure_visitExpr___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLocalDecl___at_Lean_Meta_Closure_collectExprAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1520,24 +1519,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_Closure_mkNewLevelParam___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("u");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Closure_mkNewLevelParam___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Closure_mkNewLevelParam___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_Meta_Closure_mkNewLevelParam(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -1551,7 +1532,7 @@ lean_dec(x_9);
 x_12 = lean_ctor_get(x_10, 3);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = l_Lean_Meta_Closure_mkNewLevelParam___closed__2;
+x_13 = l_Lean_Level_LevelToFormat_toResult___main___closed__3;
 x_14 = l_Lean_Name_appendIndexAfter(x_13, x_12);
 x_15 = lean_st_ref_take(x_3, x_11);
 x_16 = lean_ctor_get(x_15, 0);
@@ -11318,10 +11299,6 @@ l_Lean_Meta_Closure_ToProcessElement_inhabited___closed__1 = _init_l_Lean_Meta_C
 lean_mark_persistent(l_Lean_Meta_Closure_ToProcessElement_inhabited___closed__1);
 l_Lean_Meta_Closure_ToProcessElement_inhabited = _init_l_Lean_Meta_Closure_ToProcessElement_inhabited();
 lean_mark_persistent(l_Lean_Meta_Closure_ToProcessElement_inhabited);
-l_Lean_Meta_Closure_mkNewLevelParam___closed__1 = _init_l_Lean_Meta_Closure_mkNewLevelParam___closed__1();
-lean_mark_persistent(l_Lean_Meta_Closure_mkNewLevelParam___closed__1);
-l_Lean_Meta_Closure_mkNewLevelParam___closed__2 = _init_l_Lean_Meta_Closure_mkNewLevelParam___closed__2();
-lean_mark_persistent(l_Lean_Meta_Closure_mkNewLevelParam___closed__2);
 l_Lean_Meta_Closure_mkNextUserName___rarg___closed__1 = _init_l_Lean_Meta_Closure_mkNextUserName___rarg___closed__1();
 lean_mark_persistent(l_Lean_Meta_Closure_mkNextUserName___rarg___closed__1);
 l_Lean_Meta_Closure_mkNextUserName___rarg___closed__2 = _init_l_Lean_Meta_Closure_mkNextUserName___rarg___closed__2();

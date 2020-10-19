@@ -536,7 +536,6 @@ lean_object* l_Lean_Parser_strLit___closed__3;
 lean_object* l_Lean_Parser_ParserState_popSyntax(lean_object*);
 lean_object* l_Lean_Parser_termParser(lean_object*);
 lean_object* l_Lean_Parser_sepByFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_FirstTokens_toStr___closed__3;
 lean_object* l_Lean_Parser_manyAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_checkInsideQuotFn___closed__1;
 lean_object* l_Lean_Parser_mkAntiquot___closed__7;
@@ -800,6 +799,7 @@ lean_object* l_Lean_Parser_withResultOfInfo___elambda__1(lean_object*, lean_obje
 lean_object* l_List_toStringAux___main___at_Lean_Parser_FirstTokens_toStr___spec__2(uint8_t, lean_object*);
 lean_object* l_List_toArrayAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_andthen(lean_object*, lean_object*);
+extern lean_object* l_Lean_Level_LevelToFormat_toResult___main___closed__4;
 lean_object* l_Lean_Parser_node(lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_forArgsM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3490,14 +3490,6 @@ x_1 = lean_mk_string("unknown");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_FirstTokens_toStr___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("?");
-return x_1;
-}
-}
 lean_object* l_Lean_Parser_FirstTokens_toStr(lean_object* x_1) {
 _start:
 {
@@ -3530,7 +3522,7 @@ x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec(x_1);
 x_7 = l_List_toString___at_Lean_Parser_FirstTokens_toStr___spec__1(x_6);
-x_8 = l_Lean_Parser_FirstTokens_toStr___closed__3;
+x_8 = l_Lean_Level_LevelToFormat_toResult___main___closed__4;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
 return x_9;
@@ -29052,8 +29044,6 @@ l_Lean_Parser_FirstTokens_toStr___closed__1 = _init_l_Lean_Parser_FirstTokens_to
 lean_mark_persistent(l_Lean_Parser_FirstTokens_toStr___closed__1);
 l_Lean_Parser_FirstTokens_toStr___closed__2 = _init_l_Lean_Parser_FirstTokens_toStr___closed__2();
 lean_mark_persistent(l_Lean_Parser_FirstTokens_toStr___closed__2);
-l_Lean_Parser_FirstTokens_toStr___closed__3 = _init_l_Lean_Parser_FirstTokens_toStr___closed__3();
-lean_mark_persistent(l_Lean_Parser_FirstTokens_toStr___closed__3);
 l_Lean_Parser_FirstTokens_HasToString___closed__1 = _init_l_Lean_Parser_FirstTokens_HasToString___closed__1();
 lean_mark_persistent(l_Lean_Parser_FirstTokens_HasToString___closed__1);
 l_Lean_Parser_FirstTokens_HasToString = _init_l_Lean_Parser_FirstTokens_HasToString();

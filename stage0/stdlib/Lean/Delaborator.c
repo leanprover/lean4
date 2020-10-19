@@ -642,7 +642,6 @@ lean_object* l_Lean_Delaborator_delabDiv___lambda__1(uint8_t, lean_object*, lean
 lean_object* l___regBuiltin_Lean_Delaborator_delabMap___closed__3;
 lean_object* l___regBuiltin_Lean_Delaborator_delabGE___closed__2;
 lean_object* l_Lean_Delaborator_delabModN___lambda__1___closed__1;
-extern lean_object* l_Lean_Parser_FirstTokens_toStr___closed__3;
 lean_object* l_Lean_Delaborator_delabAppExplicit___closed__4;
 lean_object* l_Lean_getPPCoercions___closed__2;
 lean_object* l___regBuiltin_Lean_Delaborator_delabseq___closed__2;
@@ -982,6 +981,7 @@ extern lean_object* l_Lean_Meta_mkLe___rarg___closed__3;
 lean_object* l_Lean_Level_quote___main___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabAppend___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabGE___lambda__1___closed__4;
+extern lean_object* l_Lean_Level_LevelToFormat_toResult___main___closed__4;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Delaborator_delabMapRev___lambda__1___closed__2;
 lean_object* l_Lean_Delaborator_delabOrElse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8612,7 +8612,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_SourceInfo_inhabited___closed__1;
-x_2 = l_Lean_Parser_FirstTokens_toStr___closed__3;
+x_2 = l_Lean_Level_LevelToFormat_toResult___main___closed__4;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

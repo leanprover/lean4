@@ -182,6 +182,8 @@ catch ex => match ex with
       let idName ← liftIO $ id.getName;
       logError msg!"internal exception {idName}"
 
+initialize registerTraceClass `Elab.command
+
 partial def elabCommand : Syntax → CommandElabM Unit
 | stx => withLogging $ withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
   | Syntax.node k args =>
@@ -190,7 +192,7 @@ partial def elabCommand : Syntax → CommandElabM Unit
       -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
       args.forM elabCommand
     else do
-      trace `Elab.step fun _ => stx;
+      trace `Elab.command fun _ => stx;
       let s ← get
       let stxNew? ← catchInternalId unsupportedSyntaxExceptionId
         (do let newStx ← adaptMacro (getMacros s.env) stx; pure (some newStx))

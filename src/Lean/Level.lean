@@ -407,7 +407,9 @@ def toResult : Level → Result
 | max l₁ l₂ _  => Result.max (toResult l₁) (toResult l₂)
 | imax l₁ l₂ _ => Result.imax (toResult l₁) (toResult l₂)
 | param n _    => Result.leaf (fmt n)
-| mvar n _     => Result.leaf (fmt n)
+| mvar n _     =>
+ let n := n.replacePrefix `_uniq `u;
+ Result.leaf ("?" ++ fmt n)
 
 end LevelToFormat
 

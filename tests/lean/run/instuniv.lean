@@ -3,7 +3,7 @@ new_frontend
 open Lean
 
 unsafe def tst : IO Unit :=
-withImportModules [{module := `Init.Data.Array}] 0 fun env =>
+withImportModules [{module := `Init.Data.Array}] {} 0 fun env =>
    match env.find? `Array.foldl with
    | some info => do
      IO.println (info.instantiateTypeLevelParams [levelZero, levelZero]);

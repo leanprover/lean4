@@ -4,17 +4,17 @@ open Lean
 open Lean.Meta
 
 unsafe def tstInferType (mods : List Name) (e : Expr) : IO Unit :=
-withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
+withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
    let (type, _, _) ← (inferType e : MetaM _).toIO {} { env := env } {} {};
    IO.println (toString e ++ " : " ++ toString type)
 
 unsafe def tstWHNF (mods : List Name) (e : Expr) (t := TransparencyMode.default) : IO Unit :=
-withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
+withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
    let (s, _, _) ← (whnf e : MetaM _).toIO {} { env := env };
    IO.println (toString e ++ " ==> " ++ toString s)
 
 unsafe def tstIsProp (mods : List Name) (e : Expr) : IO Unit :=
-withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
+withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
   let (b, _, _) ← (isProp e : MetaM _).toIO {} { env := env };
   IO.println (toString e ++ ", isProp: " ++ toString b)
 

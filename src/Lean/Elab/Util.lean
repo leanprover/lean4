@@ -96,13 +96,11 @@ match attrParamSyntaxToIdentifier arg with
   throwError! "invalid syntax node kind '{k}'"
 | none   => throwError "syntax node kind is missing"
 
-private unsafe def evalSyntaxConstantUnsafe (env : Environment) (constName : Name) : ExceptT String Id Syntax :=
-env.evalConstCheck Syntax `Lean.Syntax constName
+private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
+env.evalConstCheck Syntax opts `Lean.Syntax constName
 
 @[implementedBy evalSyntaxConstantUnsafe]
-constant evalSyntaxConstant (env : Environment) (constName : Name) : ExceptT String Id Syntax := throw ""
-
-private constant evalConstant (γ : Type) (env : Environment) (typeName : Name) (constName : Name) : ExceptT String Id γ := throw ""
+constant evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
 unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String)
     : IO (KeyedDeclsAttribute γ) :=

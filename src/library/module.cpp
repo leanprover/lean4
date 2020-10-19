@@ -208,10 +208,10 @@ void write_module(environment const & env, std::string const & olean_fn) {
     consume_io_result(lean_write_module(env.to_obj_arg(), mk_string(olean_fn), io_mk_world()));
 }
 
-extern "C" object * lean_import_modules(object * imports, uint32 trust_level, object * w);
+extern "C" object * lean_import_modules(object * imports, object * opts, uint32 trust_level, object * w);
 
-environment import_modules(unsigned trust_lvl, object_ref const & imports) {
-    return get_io_result<environment>(lean_import_modules(imports.to_obj_arg(), trust_lvl, io_mk_world()));
+environment import_modules(unsigned trust_lvl, options const & opts, object_ref const & imports) {
+    return get_io_result<environment>(lean_import_modules(imports.to_obj_arg(), opts.to_obj_arg(), trust_lvl, io_mk_world()));
 }
 
 extern "C" object * lean_environment_add_modification(object * env, object * mod);

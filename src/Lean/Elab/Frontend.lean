@@ -83,7 +83,7 @@ pure (env, messages.toList)
 def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) : IO (Environment × List Message) := do
 let inputCtx := Parser.mkInputContext input fileName
 let (header, parserState, messages) ← Parser.parseHeader inputCtx
-let (env, messages) ← processHeader header messages inputCtx
+let (env, messages) ← processHeader header opts messages inputCtx
 let env := env.setMainModule mainModuleName
 let cmdState ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
 pure (cmdState.env, cmdState.messages.toList)

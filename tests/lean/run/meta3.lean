@@ -22,7 +22,7 @@ do let v? ← getExprMVarAssignment? m.mvarId!;
    | none   => throwError "metavariable is not assigned")
 
 unsafe def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
-withImportModules (mods.map $ fun m => {module := m}) 0 fun env => do
+withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
    let x : MetaM Unit := do { x; printTraces };
    x.toIO { options := opts } { env := env };
    pure ()

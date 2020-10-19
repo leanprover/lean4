@@ -15,9 +15,10 @@ imports ++ header[1].getArgs.toList.map fun stx =>
   let id      := stx[2].getId
   { module := id, runtimeOnly := runtime }
 
-def processHeader (header : Syntax) (messages : MessageLog) (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) := do
+def processHeader (header : Syntax) (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0)
+    : IO (Environment × MessageLog) := do
 try
-  let env ← importModules (headerToImports header) trustLevel
+  let env ← importModules (headerToImports header) opts trustLevel
   pure (env, messages)
 catch e =>
   let env ← mkEmptyEnvironment

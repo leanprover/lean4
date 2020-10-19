@@ -323,7 +323,8 @@ match s.args with
   | false, some defVal, _  => addNewArg defVal; k ()
   | false, _, some (Expr.const tacticDecl _ _) =>
     let env ← getEnv
-    match evalSyntaxConstant env tacticDecl with
+    let opts ← getOptions
+    match evalSyntaxConstant env opts tacticDecl with
     | Except.error err       => throwError err
     | Except.ok tacticSyntax =>
       let tacticBlock ← `(by { $(tacticSyntax.getArgs)* })

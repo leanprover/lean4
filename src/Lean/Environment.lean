@@ -271,6 +271,12 @@ structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
 (importedEntries : Array (Array α))  -- entries per imported module
 (state : σ)
 
+structure ImportM.Context :=
+(env  : Environment)
+(opts : Options)
+
+abbrev ImportM := ReaderT ImportM.Context IO
+
 /- An environment extension with support for storing/retrieving entries from a .olean file.
    - α is the type of the entries that are stored in .olean files.
    - β is the type of values used to update the state.
@@ -290,7 +296,7 @@ structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
 structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) :=
 (toEnvExtension  : EnvExtension (PersistentEnvExtensionState α σ))
 (name            : Name)
-(addImportedFn   : Environment → Array (Array α) → IO σ)
+(addImportedFn   : Array (Array α) → ImportM σ)
 (addEntryFn      : σ → β → σ)
 (exportEntriesFn : σ → Array α)
 (statsFn         : σ → Format)
@@ -306,7 +312,7 @@ instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited σ] : Inhabite
 instance PersistentEnvExtension.inhabited {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) :=
 ⟨{ toEnvExtension := arbitrary _,
    name := arbitrary _,
-   addImportedFn := fun _ _ => arbitrary _,
+   addImportedFn := fun _ => arbitrary _,
    addEntryFn := fun s _ => s,
    exportEntriesFn := fun _ => #[],
    statsFn := fun _ => Format.nil }⟩
@@ -341,7 +347,7 @@ private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtens
 structure PersistentEnvExtensionDescr (α β σ : Type) :=
 (name            : Name)
 (mkInitial       : IO σ)
-(addImportedFn   : Environment → Array (Array α) → IO σ)
+(addImportedFn   : Array (Array α) → ImportM σ)
 (addEntryFn      : σ → β → σ)
 (exportEntriesFn : σ → Array α)
 (statsFn         : σ → Format := fun _ => Format.nil)
@@ -388,7 +394,7 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
 registerPersistentEnvExtension {
   name            := descr.name,
   mkInitial       := pure ([], descr.addImportedFn #[]),
-  addImportedFn   := fun _ as => pure ([], descr.addImportedFn as),
+  addImportedFn   := fun as => pure ([], descr.addImportedFn as),
   addEntryFn      := fun s e => match s with
     | (entries, s) => (e::entries, descr.addEntryFn s e),
   exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
@@ -558,21 +564,21 @@ private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Ar
 
 private def setImportedEntries (env : Environment) (mods : Array ModuleData) : IO Environment := do
 pExtDescrs ← persistentEnvExtensionsRef.get;
-pure $ mods.iterate env $ fun _ mod env =>
-  pExtDescrs.iterate env $ fun _ extDescr env =>
+pure $ mods.iterate env fun _ mod env =>
+  pExtDescrs.iterate env fun _ extDescr env =>
     let entries := getEntriesFor mod extDescr.name 0;
     extDescr.toEnvExtension.modifyState env $ fun s =>
       { s with importedEntries := s.importedEntries.push entries }
 
-private def finalizePersistentExtensions (env : Environment) : IO Environment := do
+private def finalizePersistentExtensions (env : Environment) (opts : Options) : IO Environment := do
 pExtDescrs ← persistentEnvExtensionsRef.get;
-pExtDescrs.iterateM env $ fun _ extDescr env => do
+pExtDescrs.iterateM env fun _ extDescr env => do
   let s := extDescr.toEnvExtension.getState env;
-  newState ← extDescr.addImportedFn env s.importedEntries;
+  newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts };
   pure $ extDescr.toEnvExtension.setState env { s with state := newState }
 
 @[export lean_import_modules]
-def importModules (imports : List Import) (trustLevel : UInt32 := 0) : IO Environment := do
+def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := do
 (moduleNames, mods, regions) ← importModulesAux imports ({}, #[], #[]);
 let const2ModIdx := mods.iterate {} $ fun (modIdx) (mod : ModuleData) (m : HashMap Name ModuleIdx) =>
   mod.constants.iterate m $ fun _ cinfo m =>
@@ -597,15 +603,15 @@ let env : Environment := {
   }
 };
 env ← setImportedEntries env mods;
-env ← finalizePersistentExtensions env;
+env ← finalizePersistentExtensions env opts;
 env ← mods.iterateM env $ fun _ mod env => performModifications env mod.serialized;
 pure env
 
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the
   environment object or imported objects may exist after `act` finishes. -/
-unsafe def withImportModules {α : Type} (imports : List Import) (trustLevel : UInt32 := 0) (x : Environment → IO α) : IO α := do
-env ← importModules imports trustLevel;
+unsafe def withImportModules {α : Type} (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) (x : Environment → IO α) : IO α := do
+env ← importModules imports opts trustLevel;
 finally (x env) env.freeRegions
 
 def regNamespacesExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
@@ -666,21 +672,21 @@ pExtDescrs.forM $ fun extDescr => do {
 pure ()
 
 @[extern "lean_eval_const"]
-unsafe constant evalConst (α) (env : @& Environment) (constName : @& Name) : Except String α := arbitrary _
+unsafe constant evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α := arbitrary _
 
 private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : ExceptT String Id α :=
 throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
 
 /-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.
     This function is still unsafe because it cannot guarantee that `typeName` is in fact the name of the type `α`. -/
-unsafe def evalConstCheck (α) (env : Environment) (typeName : Name) (constName : Name) : ExceptT String Id α :=
+unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : Name) (constName : Name) : ExceptT String Id α :=
 match env.find? constName with
 | none      => throw ("unknow constant '" ++ toString constName ++ "'")
 | some info =>
   match info.type with
   | Expr.const c _ _ =>
     if c != typeName then throwUnexpectedType typeName constName
-    else env.evalConst α constName
+    else env.evalConst α opts constName
   | _ => throwUnexpectedType typeName constName
 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=

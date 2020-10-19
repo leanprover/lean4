@@ -17,7 +17,7 @@ IO.println (toExpr a);
 (match env.addAndCompile {} decl with
 | Except.error _ => throwError "addDecl failed"
 | Except.ok env  =>
-  match env.evalConst α auxName with
+  match env.evalConst α {} auxName with
   | Except.error ex => throwError ex
   | Except.ok b => do
     IO.println b;

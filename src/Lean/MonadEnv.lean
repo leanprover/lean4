@@ -119,15 +119,17 @@ def addAndCompile [MonadOptions m] (decl : Declaration) : m Unit := do
 addDecl decl;
 compileDecl decl
 
-variables [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+variables [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] [MonadOptions m]
 
 unsafe def evalConst (α) (constName : Name) : m α := do
 env ← getEnv;
-ofExcept $ env.evalConst α constName
+opts ← getOptions;
+ofExcept $ env.evalConst α opts constName
 
 unsafe def evalConstCheck (α) (typeName : Name) (constName : Name) : m α := do
 env ← getEnv;
-ofExcept $ env.evalConstCheck α typeName constName
+opts ← getOptions;
+ofExcept $ env.evalConstCheck α opts typeName constName
 
 end
 

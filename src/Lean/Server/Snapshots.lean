@@ -61,7 +61,7 @@ end Snapshot
 def compileHeader (contents : String) (opts : Options := {}) : IO Snapshot := do
 let inputCtx := Parser.mkInputContext contents "<input>";
 (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx;
-(headerEnv, msgLog) ← Elab.processHeader headerStx msgLog inputCtx;
+(headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx;
 pure { beginPos := 0,
        mpState := headerParserState,
        data := SnapshotData.headerData headerEnv msgLog opts

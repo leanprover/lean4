@@ -688,9 +688,9 @@ int main(int argc, char ** argv) {
 
                 if (stats) {
                     timeit timer(std::cout, "import");
-                    env = import_modules(trust_lvl, imports);
+                    env = import_modules(trust_lvl, opts, imports);
                 } else {
-                    env = import_modules(trust_lvl, imports);
+                    env = import_modules(trust_lvl, opts, imports);
                 }
                 if (main_module_name) {
                     env.set_main_module(*main_module_name);

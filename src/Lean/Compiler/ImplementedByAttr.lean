@@ -9,7 +9,7 @@ import Lean.MonadEnv
 
 namespace Lean.Compiler
 
-initialize implementedByAttr : ParametricAttribute Name ←
+builtin_initialize implementedByAttr : ParametricAttribute Name ←
 registerParametricAttribute `implementedBy "name of the Lean (probably unsafe) function that implements opaque constant" fun declName stx => do
   let decl ← getConstInfo declName
   match attrParamSyntaxToIdentifier stx with

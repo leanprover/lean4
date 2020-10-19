@@ -17,7 +17,7 @@ abbrev Instances := DiscrTree Expr
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
 d.insertCore e.keys e.val
 
-initialize instanceExtension : SimplePersistentEnvExtension InstanceEntry Instances ←
+builtin_initialize instanceExtension : SimplePersistentEnvExtension InstanceEntry Instances ←
 registerSimplePersistentEnvExtension {
   name          := `instanceExt,
   addEntryFn    := addInstanceEntry,
@@ -44,7 +44,7 @@ let env ← getEnv
 let env ← liftIO $ Meta.addGlobalInstanceImp env declName
 setEnv env
 
-initialize
+builtin_initialize
 registerBuiltinAttribute {
   name  := `instance,
   descr := "type class instance",

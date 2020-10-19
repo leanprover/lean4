@@ -284,6 +284,6 @@ end Cases
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) : MetaM (Array CasesSubgoal) :=
 Cases.cases mvarId majorFVarId givenNames useUnusedNames
 
-initialize registerTraceClass `Meta.Tactic.cases
+builtin_initialize registerTraceClass `Meta.Tactic.cases
 
 end Lean.Meta

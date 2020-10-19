@@ -17,7 +17,7 @@ private def isValidCppName : Name → Bool
 | Name.str p s _              => isValidCppId s && isValidCppName p
 | _                           => false
 
-initialize exportAttr : ParametricAttribute Name ←
+builtin_initialize exportAttr : ParametricAttribute Name ←
 registerParametricAttribute `export "name to be used by code generators" $ fun _ stx =>
   match attrParamSyntaxToIdentifier stx with
   | some exportName =>

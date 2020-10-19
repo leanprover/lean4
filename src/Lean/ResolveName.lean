@@ -22,7 +22,7 @@ match s.find? e.1 with
 | none    => s.insert e.1 [e.2]
 | some es => if es.elem e.2 then s else s.insert e.1 (e.2 :: es)
 
-initialize aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState ←
+builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState ←
   registerSimplePersistentEnvExtension {
     name          := `aliasesExt,
     addEntryFn    := addAliasEntry,

@@ -263,7 +263,7 @@ mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `ter
 @[implementedBy mkTermElabAttributeUnsafe]
 constant mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
 
-initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute
+builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute
 
 /--
   Auxiliary datatatype for presenting a Lean lvalue modifier.
@@ -1341,7 +1341,7 @@ instance {α} [MetaHasEval α] : MetaHasEval (TermElabM α) :=
 
 end Term
 
-initialize
+builtin_initialize
   registerTraceClass `Elab.postpone
   registerTraceClass `Elab.coe
   registerTraceClass `Elab.debug

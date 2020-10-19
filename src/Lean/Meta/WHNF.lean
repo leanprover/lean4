@@ -472,6 +472,6 @@ let e ← whnfHeadPredImp e (fun e => pure $ !e.isAppOf declName)
 if e.isAppOf declName then pure e
 else pure none
 
-initialize registerTraceClass `Meta.whnf
+builtin_initialize registerTraceClass `Meta.whnf
 
 end Lean.Meta

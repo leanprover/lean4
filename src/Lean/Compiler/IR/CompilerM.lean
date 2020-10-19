@@ -81,7 +81,7 @@ let map : HashMap Name Decl := {}
 let map := decls.foldl (init := map) fun map decl => map.insert decl.name decl
 map.fold (fun a k v => a.push v) #[]
 
-initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
+builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
   registerSimplePersistentEnvExtension {
     name       := `IRDecls,
     addImportedFn := fun as =>

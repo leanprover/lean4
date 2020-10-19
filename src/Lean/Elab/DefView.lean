@@ -131,7 +131,7 @@ else if declKind == `Lean.Parser.Command.«example» then
 else
   throwError "unexpected kind of definition"
 
-initialize registerTraceClass `Elab.definition
+builtin_initialize registerTraceClass `Elab.definition
 
 end Command
 end Lean.Elab

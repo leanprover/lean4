@@ -27,7 +27,7 @@ instance : HasBeq InlineAttributeKind := ⟨InlineAttributeKind.beq⟩
 
 end InlineAttributeKind
 
-initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
+builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
 registerEnumAttributes `inlineAttrs
   [(`inline, "mark definition to always be inlined", InlineAttributeKind.inline),
    (`inlineIfReduce, "mark definition to be inlined when resultant term after reduction is not a `cases_on` application", InlineAttributeKind.inlineIfReduce),

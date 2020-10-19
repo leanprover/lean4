@@ -44,7 +44,7 @@ match ref.getPos with
 def ppMacroStackDefault := false
 def getMacroStackOption (o : Options) : Bool:= o.get `pp.macroStack ppMacroStackDefault
 def setMacroStackOption (o : Options) (flag : Bool) : Options := o.setBool `pp.macroStack flag
-initialize
+builtin_initialize
   registerOption `pp.macroStack { defValue := ppMacroStackDefault, group := "pp", descr := "dispaly macro expansion stack" }
 
 def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroStack : MacroStack) : m MessageData := do
@@ -118,7 +118,7 @@ mkElabAttribute Macro `Lean.Elab.macroAttribute `builtinMacro `macro Name.anonym
 @[implementedBy mkMacroAttributeUnsafe]
 constant mkMacroAttribute : IO (KeyedDeclsAttribute Macro) := arbitrary _
 
-initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute
+builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute
 
 private def expandMacroFns (stx : Syntax) : List Macro → MacroM Syntax
 | []    => throw Macro.Exception.unsupportedSyntax
@@ -171,7 +171,7 @@ match x { macroEnv       := Macro.mkMacroEnv (expandMacro? env),
     [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (x : Macro) (stx : Syntax) : m Syntax :=
 liftMacroM (x stx)
 
-initialize
+builtin_initialize
   registerTraceClass `Elab
   registerTraceClass `Elab.step
 

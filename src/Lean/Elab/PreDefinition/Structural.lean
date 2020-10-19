@@ -357,7 +357,7 @@ else do
   addNonRec preDefNonRec
   addAndCompileUnsafeRec preDefs
 
-initialize
+builtin_initialize
   registerTraceClass `Elab.definition.structural
 
 end Lean.Elab

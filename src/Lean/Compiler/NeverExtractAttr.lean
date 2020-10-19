@@ -9,7 +9,7 @@ import Lean.Attributes
 
 namespace Lean
 
-initialize neverExtractAttr : TagAttribute ←
+builtin_initialize neverExtractAttr : TagAttribute ←
 registerTagAttribute `neverExtract "instruct the compiler that function applications using the tagged declaration should not be extracted when they are closed terms, nor common subexpression should be performed. This is useful for declarations that have implicit effects."
 
 private partial def hasNeverExtractAttributeAux (env : Environment) : Name → Bool

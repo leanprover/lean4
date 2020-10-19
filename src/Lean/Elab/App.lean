@@ -838,7 +838,7 @@ fun stx expectedType? => match_syntax stx with
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabAtom
 
-initialize
+builtin_initialize
   registerTraceClass `Elab.app
 
 end Lean.Elab.Term

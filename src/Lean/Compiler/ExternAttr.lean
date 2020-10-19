@@ -80,7 +80,7 @@ match s with
 @[extern "lean_add_extern"]
 constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment := arbitrary _
 
-initialize externAttr : ParametricAttribute ExternAttrData ←
+builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
 registerParametricAttribute `extern "builtin and foreign functions"
   (fun _ stx => ofExcept $ syntaxToExternAttrData stx)
   (fun declName _ => do

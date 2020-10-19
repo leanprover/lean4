@@ -40,8 +40,8 @@ registerParametricAttribute attrName "initialization procedure for global refere
       else throwError "initialization function must have type `IO Unit`"
     | _ => throwError "unexpected kind of argument"
 
-initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init
-initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit
+builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init
+builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit
 
 def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Option Name :=
 match attr.getParam env fn with

@@ -780,6 +780,6 @@ fun stx expectedType? => do
     | some _,        _                        => throwError "invalid {...} notation, explicit source is required when using '[<index>] := <value>'"
     | _,             _                        => elabStructInstAux stx expectedType? sourceView
 
-initialize registerTraceClass `Elab.struct
+builtin_initialize registerTraceClass `Elab.struct
 
 end Lean.Elab.Term.StructInst

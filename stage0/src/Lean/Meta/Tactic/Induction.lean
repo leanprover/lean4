@@ -195,6 +195,6 @@ withMVarContext mvarId do
         | _ =>
          throwTacticEx `induction mvarId "major premise is not of the form (C ...)"
 
-initialize registerTraceClass `Meta.Tactic.induction
+builtin_initialize registerTraceClass `Meta.Tactic.induction
 
 end Lean.Meta

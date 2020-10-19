@@ -533,6 +533,6 @@ fun stx expectedType? => elabLetDeclCore stx expectedType? false false
 @[builtinTermElab «let*»] def elabLetStarDecl : TermElab :=
 fun stx expectedType? => elabLetDeclCore stx expectedType? true true
 
-initialize registerTraceClass `Elab.let
+builtin_initialize registerTraceClass `Elab.let
 
 end Lean.Elab.Term

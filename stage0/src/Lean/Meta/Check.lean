@@ -110,7 +110,7 @@ catch ex =>
   trace[Meta.typeError]! ex.toMessageData
   pure false
 
-initialize
+builtin_initialize
   registerTraceClass `Meta.check
   registerTraceClass `Meta.typeError
 

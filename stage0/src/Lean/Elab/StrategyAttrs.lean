@@ -18,7 +18,7 @@ inductive ElaboratorStrategy
 instance ElaboratorStrategy.inhabited : Inhabited ElaboratorStrategy :=
 ⟨ElaboratorStrategy.withExpectedType⟩
 
-initialize elaboratorStrategyAttrs : EnumAttributes ElaboratorStrategy ←
+builtin_initialize elaboratorStrategyAttrs : EnumAttributes ElaboratorStrategy ←
   registerEnumAttributes `elaboratorStrategy
     [(`elabWithExpectedType, "instructs elaborator that the arguments of the function application (f ...) should be elaborated using information about the expected type", ElaboratorStrategy.withExpectedType),
      (`elabSimple, "instructs elaborator that the arguments of the function application (f ...) should be elaborated from left to right, and without propagating information from the expected type to its arguments", ElaboratorStrategy.simple),

@@ -25,7 +25,7 @@ instance : HasBeq SpecializeAttributeKind := ⟨SpecializeAttributeKind.beq⟩
 
 end SpecializeAttributeKind
 
-initialize specializeAttrs : EnumAttributes SpecializeAttributeKind ←
+builtin_initialize specializeAttrs : EnumAttributes SpecializeAttributeKind ←
 registerEnumAttributes `specializeAttrs
   [(`specialize, "mark definition to always be specialized", SpecializeAttributeKind.specialize),
    (`nospecialize, "mark definition to never be specialized", SpecializeAttributeKind.nospecialize) ]
@@ -86,7 +86,7 @@ def switch : SpecState → SpecState
 
 end SpecState
 
-initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecState ←
+builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecState ←
 registerSimplePersistentEnvExtension {
   name          := `specialize,
   addEntryFn    := SpecState.addEntry,

@@ -11,6 +11,6 @@ import Lean.Meta.Match.CaseArraySizes
 
 namespace Lean
 
-initialize registerTraceClass `Meta.Match
+builtin_initialize registerTraceClass `Meta.Match
 
 end Lean

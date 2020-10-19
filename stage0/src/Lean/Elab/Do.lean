@@ -1508,7 +1508,7 @@ fun stx expectedType? => do
 
 end Do
 
-initialize registerTraceClass `Elab.do
+builtin_initialize registerTraceClass `Elab.do
 
 end Term
 end Elab

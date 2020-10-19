@@ -147,7 +147,7 @@ mkElabAttribute CommandElab `Lean.Elab.Command.commandElabAttribute `builtinComm
 @[implementedBy mkCommandElabAttributeUnsafe]
 constant mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab)
 
-initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute
+builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute
 
 private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → CommandElabM Unit
 | []                => throwError! "unexpected syntax{indentD stx}"
@@ -182,7 +182,7 @@ catch ex => match ex with
       let idName ← liftIO $ id.getName;
       logError msg!"internal exception {idName}"
 
-initialize registerTraceClass `Elab.command
+builtin_initialize registerTraceClass `Elab.command
 
 partial def elabCommand : Syntax → CommandElabM Unit
 | stx => withLogging $ withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with

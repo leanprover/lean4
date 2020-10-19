@@ -10,7 +10,7 @@ namespace Lean
 
 abbrev ClosedTermCache := SMap Expr Name
 
-initialize closedTermCacheExt : SimplePersistentEnvExtension (Expr × Name) ClosedTermCache ←
+builtin_initialize closedTermCacheExt : SimplePersistentEnvExtension (Expr × Name) ClosedTermCache ←
 registerSimplePersistentEnvExtension {
   name       := `closedTermCache,
   addImportedFn := fun as =>

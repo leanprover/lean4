@@ -62,7 +62,7 @@ def getHygienicIntro : MetaM Bool := do
 let o ← getOptions
 pure $ o.get `hygienicIntro hygienicIntroDefault
 
-initialize registerOption `hygienicIntro { defValue := hygienicIntroDefault, group := "tactic", descr := "make sure 'intro'-like tactics are hygienic" }
+builtin_initialize registerOption `hygienicIntro { defValue := hygienicIntroDefault, group := "tactic", descr := "make sure 'intro'-like tactics are hygienic" }
 
 private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (lctx : LocalContext) (binderName : Name) : List Name → MetaM (Name × List Name)
 | []         => do

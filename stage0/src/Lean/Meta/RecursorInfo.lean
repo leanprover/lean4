@@ -268,7 +268,7 @@ match cinfo with
 | ConstantInfo.recInfo val => mkRecursorInfoForKernelRec declName val
 | _                        => mkRecursorInfoAux cinfo majorPos?
 
-initialize recursorAttribute : ParametricAttribute Nat ←
+builtin_initialize recursorAttribute : ParametricAttribute Nat ←
   registerParametricAttribute `recursor "user defined recursor, numerical parameter specifies position of the major premise"
     (fun _ stx => ofExcept $ syntaxToMajorPos stx)
     (fun declName majorPos => do

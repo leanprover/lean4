@@ -44,7 +44,7 @@ pure mvarDecl.type
 def ppGoal (mvarId : MVarId) : MetaM Format := do
 liftIO $ Lean.ppGoal { env := (← getEnv), mctx := (← getMCtx), opts := (← getOptions) } mvarId
 
-initialize registerTraceClass `Meta.Tactic
+builtin_initialize registerTraceClass `Meta.Tactic
 
 /-- Assign `mvarId` to `sorryAx` -/
 def admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=

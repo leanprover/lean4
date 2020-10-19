@@ -969,7 +969,7 @@ lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
          altNumParams  := altNumParams,
          remaining     := #[e] ++ matcherApp.remaining }
 
-initialize
+builtin_initialize
   registerTraceClass `Meta.Match.match
   registerTraceClass `Meta.Match.debug
   registerTraceClass `Meta.Match.unify

@@ -8,9 +8,9 @@ import Lean.InternalExceptionId
 import Lean.Meta.Basic
 
 namespace Lean.Elab
-initialize postponeExceptionId : InternalExceptionId ← registerInternalExceptionId `postpone
-initialize unsupportedSyntaxExceptionId : InternalExceptionId ← registerInternalExceptionId `unsupportedSyntax
-initialize abortExceptionId : InternalExceptionId ← registerInternalExceptionId `abortElab
+builtin_initialize postponeExceptionId : InternalExceptionId ← registerInternalExceptionId `postpone
+builtin_initialize unsupportedSyntaxExceptionId : InternalExceptionId ← registerInternalExceptionId `unsupportedSyntax
+builtin_initialize abortExceptionId : InternalExceptionId ← registerInternalExceptionId `abortElab
 
 def throwPostpone {α m} [MonadExceptOf Exception m] : m α :=
 throw $ Exception.internal postponeExceptionId

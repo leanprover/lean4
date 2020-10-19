@@ -35,6 +35,9 @@ def Literal.lt : Literal → Literal → Bool
 
 instance Literal.hasLess : HasLess Literal := ⟨fun a b => a.lt b⟩
 
+instance Literal.decLess (a b : Literal) : Decidable (a < b) :=
+inferInstanceAs (Decidable (a.lt b))
+
 inductive BinderInfo
 | default | implicit | strictImplicit | instImplicit | auxDecl
 

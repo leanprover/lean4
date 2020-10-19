@@ -1412,68 +1412,69 @@ pure $ mkReturn ref arg
 partial def doSeqToCode : List Syntax → M CodeBlock
 | [] => do let ctx ← read; liftMacroM $ mkPureUnitAction ctx.ref
 | doElem::doElems => withRef doElem do
-  let (liftedDoElems, doElem) ← liftM (liftMacroM $ expandLiftMethod doElem : TermElabM _)
-  if !liftedDoElems.isEmpty then
-    doSeqToCode (liftedDoElems ++ [doElem] ++ doElems)
-  else
-    let ref := doElem
-    let concatWithRest (c : CodeBlock) : M CodeBlock := concatWith doSeqToCode c doElems
-    let k := doElem.getKind
-    if k == `Lean.Parser.Term.doLet then
-      let vars ← getDoLetVars doElem
-      mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
-    else if k == `Lean.Parser.Term.doHave then
-      let var := getDoHaveVar doElem
-      mkVarDeclCore #[var] doElem <$> withNewVars #[var] (doSeqToCode doElems)
-    else if k == `Lean.Parser.Term.doLetRec then
-      let vars ← getDoLetRecVars doElem
-      mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
-    else if k == `Lean.Parser.Term.doReassign then
-      let vars ← liftM $ getDoReassignVars doElem
-      checkReassignable vars
-      let k ← doSeqToCode doElems
-      mkReassignCore vars doElem k
-    else if k == `Lean.Parser.Term.doLetArrow then
-      doLetArrowToCode doSeqToCode doElem doElems
-    else if k == `Lean.Parser.Term.doReassignArrow then
-      doReassignArrowToCode doSeqToCode doElem doElems
-    else if k == `Lean.Parser.Term.doIf then
-      doIfToCode doSeqToCode doElem doElems
-    else if k == `Lean.Parser.Term.doUnless then
-      doUnlessToCode doSeqToCode doElem doElems
-    else if k == `Lean.Parser.Term.doFor then withFreshMacroScope do
-      doForToCode doSeqToCode doElem doElems
-    else if k == `Lean.Parser.Term.doMatch then
-      doMatchToCode doSeqToCode doElem doElems
-    else if k == `Lean.Parser.Term.doTry then
-      doTryToCode doSeqToCode doElem doElems
-    else if k == `Lean.Parser.Term.doBreak then
-      ensureInsideFor
-      ensureEOS doElems
-      pure $ mkBreak ref
-    else if k == `Lean.Parser.Term.doContinue then
-      ensureInsideFor
-      ensureEOS doElems
-      pure $ mkContinue ref
-    else if k == `Lean.Parser.Term.doReturn then
-      doReturnToCode doElem doElems
-    else if k == `Lean.Parser.Term.doDbgTrace then
-      mkSeq doElem <$> doSeqToCode doElems
-    else if k == `Lean.Parser.Term.doAssert then
-      mkSeq doElem <$> doSeqToCode doElems
-    else if k == `Lean.Parser.Term.doNested then
-      let nestedDoSeq := doElem[1]
-      doSeqToCode (getDoSeqElems nestedDoSeq ++ doElems)
-    else if k == `Lean.Parser.Term.doExpr then
-      let term := doElem[0]
-      if doElems.isEmpty then
-        pure $ mkTerminalAction term
-      else
-        mkSeq term <$> doSeqToCode doElems
+  match (← liftMacroM $ expandMacro? doElem) with
+  | some doElem => doSeqToCode (doElem::doElems)
+  | none =>
+    let (liftedDoElems, doElem) ← liftM (liftMacroM $ expandLiftMethod doElem : TermElabM _)
+    if !liftedDoElems.isEmpty then
+      doSeqToCode (liftedDoElems ++ [doElem] ++ doElems)
     else
-      match (← liftMacroM $ expandMacro? doElem) with
-      | some doElem => doSeqToCode (doElem::doElems)
-      | none => throwError! "unexpected do-element\n{doElem}"
+      let ref := doElem
+      let concatWithRest (c : CodeBlock) : M CodeBlock := concatWith doSeqToCode c doElems
+      let k := doElem.getKind
+      if k == `Lean.Parser.Term.doLet then
+        let vars ← getDoLetVars doElem
+        mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
+      else if k == `Lean.Parser.Term.doHave then
+        let var := getDoHaveVar doElem
+        mkVarDeclCore #[var] doElem <$> withNewVars #[var] (doSeqToCode doElems)
+      else if k == `Lean.Parser.Term.doLetRec then
+        let vars ← getDoLetRecVars doElem
+        mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
+      else if k == `Lean.Parser.Term.doReassign then
+        let vars ← liftM $ getDoReassignVars doElem
+        checkReassignable vars
+        let k ← doSeqToCode doElems
+        mkReassignCore vars doElem k
+      else if k == `Lean.Parser.Term.doLetArrow then
+        doLetArrowToCode doSeqToCode doElem doElems
+      else if k == `Lean.Parser.Term.doReassignArrow then
+        doReassignArrowToCode doSeqToCode doElem doElems
+      else if k == `Lean.Parser.Term.doIf then
+        doIfToCode doSeqToCode doElem doElems
+      else if k == `Lean.Parser.Term.doUnless then
+        doUnlessToCode doSeqToCode doElem doElems
+      else if k == `Lean.Parser.Term.doFor then withFreshMacroScope do
+        doForToCode doSeqToCode doElem doElems
+      else if k == `Lean.Parser.Term.doMatch then
+        doMatchToCode doSeqToCode doElem doElems
+      else if k == `Lean.Parser.Term.doTry then
+        doTryToCode doSeqToCode doElem doElems
+      else if k == `Lean.Parser.Term.doBreak then
+        ensureInsideFor
+        ensureEOS doElems
+        pure $ mkBreak ref
+      else if k == `Lean.Parser.Term.doContinue then
+        ensureInsideFor
+        ensureEOS doElems
+        pure $ mkContinue ref
+      else if k == `Lean.Parser.Term.doReturn then
+        doReturnToCode doElem doElems
+      else if k == `Lean.Parser.Term.doDbgTrace then
+        mkSeq doElem <$> doSeqToCode doElems
+      else if k == `Lean.Parser.Term.doAssert then
+        mkSeq doElem <$> doSeqToCode doElems
+      else if k == `Lean.Parser.Term.doNested then
+        let nestedDoSeq := doElem[1]
+        doSeqToCode (getDoSeqElems nestedDoSeq ++ doElems)
+      else if k == `Lean.Parser.Term.doExpr then
+        let term := doElem[0]
+        if doElems.isEmpty then
+          pure $ mkTerminalAction term
+        else
+          mkSeq term <$> doSeqToCode doElems
+      else
+        throwError! "unexpected do-element\n{doElem}"
 
 def run (doStx : Syntax) (m : Syntax) : TermElabM CodeBlock :=
 (doSeqToCode $ getDoSeqElems $ getDoSeq doStx).run { ref := doStx, m := m }

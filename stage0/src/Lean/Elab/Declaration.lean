@@ -264,16 +264,23 @@ fun stx => do
     let declName ← resolveGlobalConstNoOverload ident.getId
     Term.applyAttributes declName attrs persistent
 
-@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro :=
+def expandInitCmd (builtin : Bool) : Macro :=
 fun stx =>
   let optHeader := stx[1]
   let doSeq     := stx[2]
+  let attrId    := mkIdentFrom stx $ if builtin then `builtinInit else `init
   if optHeader.isNone then
-    `(@[init]def initFn : IO Unit := do $doSeq)
+    `(@[$attrId:ident]def initFn : IO Unit := do $doSeq)
   else
     let id   := optHeader[0]
     let type := optHeader[1][1]
     `(def initFn : IO $type := do $doSeq
-      @[init initFn]constant $id : $type)
+      @[$attrId:ident initFn]constant $id : $type)
+
+@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro :=
+expandInitCmd (builtin := false)
+
+@[builtinMacro Lean.Parser.Command.«builtin_initialize»] def expandBuiltinInitialize : Macro :=
+expandInitCmd (builtin := true)
 
 end Lean.Elab.Command

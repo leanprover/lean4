@@ -167,7 +167,7 @@ structure Ext (σ : Type) :=
 instance Ext.inhabitedExt {σ} : Inhabited (Ext σ) := ⟨{idx := 0, mkInitial := arbitrary _ }⟩
 
 private def mkEnvExtensionsRef : IO (IO.Ref (Array (Ext EnvExtensionState))) := IO.mkRef #[]
-@[init mkEnvExtensionsRef] private constant envExtensionsRef : IO.Ref (Array (Ext EnvExtensionState)) := arbitrary _
+@[builtinInit mkEnvExtensionsRef] private constant envExtensionsRef : IO.Ref (Array (Ext EnvExtensionState)) := arbitrary _
 
 unsafe def setState {σ} (ext : Ext σ) (env : Environment) (s : σ) : Environment :=
 { env with extensions := env.extensions.set! ext.idx (unsafeCast s) }
@@ -341,7 +341,7 @@ end PersistentEnvExtension
 private def mkPersistentEnvExtensionsRef : IO (IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState))) :=
 IO.mkRef #[]
 
-@[init mkPersistentEnvExtensionsRef]
+@[builtinInit mkPersistentEnvExtensionsRef]
 private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) := arbitrary _
 
 structure PersistentEnvExtensionDescr (α β σ : Type) :=
@@ -463,7 +463,7 @@ instance Modification.inhabited : Inhabited Modification := inferInstanceAs (Inh
 def regModListExtension : IO (EnvExtension (List Modification)) :=
 registerEnvExtension (pure [])
 
-@[init regModListExtension]
+@[builtinInit regModListExtension]
 constant modListExtension : EnvExtension (List Modification) := arbitrary _
 
 /- The C++ code uses this function to store the given modification object into the environment. -/
@@ -621,7 +621,7 @@ registerSimplePersistentEnvExtension {
   addEntryFn      := fun s n => s.insert n
 }
 
-@[init regNamespacesExtension]
+@[builtinInit regNamespacesExtension]
 constant namespacesExt : SimplePersistentEnvExtension Name NameSet := arbitrary _
 
 namespace Environment

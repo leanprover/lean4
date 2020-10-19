@@ -161,7 +161,7 @@ instance PatternVar.hasToString : HasToString PatternVar :=
   | PatternVar.localVar x          => toString x
   | PatternVar.anonymousVar mvarId => s!"?m{mvarId}"⟩
 
-@[init] private def registerAuxiliaryNodeKind : IO Unit :=
+@[builtinInit] private def registerAuxiliaryNodeKind : IO Unit :=
 Parser.registerBuiltinNodeKind `MVarWithIdKind
 
 /--
@@ -888,7 +888,7 @@ fun stx expectedType? => match_syntax stx with
         throwErrorAt matchOptType "match expected type should not be provided when discriminants with equality proofs are used"
       elabMatchCore stx expectedType?
 
-@[init] private def regTraceClasses : IO Unit := do
+@[builtinInit] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.match;
 pure ()
 

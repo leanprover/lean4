@@ -55,7 +55,7 @@ registerSimplePersistentEnvExtension {
   addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
 }
 
-@[init mkClassExtension]
+@[builtinInit mkClassExtension]
 constant classExtension : SimplePersistentEnvExtension ClassEntry ClassState := arbitrary _
 
 @[export lean_is_class]
@@ -135,7 +135,7 @@ partial def getClassName (env : Environment) : Expr → Option Name
     if isClass env c then some c
     else none
 
-@[init] def registerClassAttr : IO Unit :=
+@[builtinInit] def registerClassAttr : IO Unit :=
 registerBuiltinAttribute {
   name  := `class,
   descr := "type class",

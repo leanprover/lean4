@@ -10,7 +10,7 @@ namespace Lean
 def mkAuxRecursorExtension : IO TagDeclarationExtension :=
 mkTagDeclarationExtension `auxRec
 
-@[init mkAuxRecursorExtension]
+@[builtinInit mkAuxRecursorExtension]
 constant auxRecExt : TagDeclarationExtension := arbitrary _
 
 @[export lean_mark_aux_recursor]
@@ -24,7 +24,7 @@ auxRecExt.isTagged env n
 def mkNoConfusionExtension : IO TagDeclarationExtension :=
 mkTagDeclarationExtension `noConf
 
-@[init mkNoConfusionExtension]
+@[builtinInit mkNoConfusionExtension]
 constant noConfusionExt : TagDeclarationExtension := arbitrary _
 
 @[export lean_mark_no_confusion]

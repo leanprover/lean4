@@ -20,7 +20,7 @@ open Std (HashMap)
 def mkInferTCGoalsLRAttr : IO TagAttribute :=
 registerTagAttribute `inferTCGoalsLR "instruct type class resolution procedure to solve goals from left to right for this instance"
 
-@[init mkInferTCGoalsLRAttr]
+@[builtinInit mkInferTCGoalsLRAttr]
 constant inferTCGoalsLRAttr : TagAttribute := arbitrary _
 
 def hasInferTCGoalsLRAttribute (env : Environment) (constName : Name) : Bool :=
@@ -525,7 +525,7 @@ forallTelescope type $ fun xs typeBody =>
   | _ => pure type
 
 def maxStepsDefault := 1000
-@[init] def maxStepsOption : IO Unit :=
+@[builtinInit] def maxStepsOption : IO Unit :=
 registerOption `synthInstance.maxSteps { defValue := maxStepsDefault, group := "", descr := "maximum steps for the type class instance synthesis procedure" }
 private def getMaxSteps (opts : Options) : Nat :=
 opts.getNat `synthInstance.maxSteps maxStepsDefault
@@ -605,10 +605,10 @@ match mvarDecl.kind with
         pure true
 | _ => pure false
 
-@[init] def setSynthPendingRef : IO Unit :=
+@[builtinInit] def setSynthPendingRef : IO Unit :=
 synthPendingRef.set synthPendingImp
 
-@[init] private def regTraceClasses : IO Unit := do
+@[builtinInit] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.synthInstance;
 registerTraceClass `Meta.synthInstance.globalInstances;
 registerTraceClass `Meta.synthInstance.newSubgoal;

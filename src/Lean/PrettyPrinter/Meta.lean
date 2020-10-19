@@ -47,7 +47,7 @@ unsafe def interpretParserDescr : ParserDescr → AttrM Parenthesizer
 | ParserDescr.parser constName                    => interpretParser (ctx interpretParserDescr) constName
 | ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec
 
-@[init] unsafe def regHook : IO Unit :=
+@[builtinInit] unsafe def regHook : IO Unit :=
 ParserCompiler.registerParserCompiler (ctx interpretParserDescr)
 
 end Parenthesizer
@@ -82,7 +82,7 @@ unsafe def interpretParserDescr : ParserDescr → AttrM Formatter
 | ParserDescr.parser constName                    => interpretParser (ctx interpretParserDescr) constName
 | ParserDescr.cat catName prec                    => pure $ categoryParser.formatter catName
 
-@[init] unsafe def regHook : IO Unit :=
+@[builtinInit] unsafe def regHook : IO Unit :=
 ParserCompiler.registerParserCompiler (ctx interpretParserDescr)
 
 end Formatter

@@ -57,7 +57,7 @@ open Std (PersistentHashMap)
 def mkAttributeMapRef : IO (IO.Ref (PersistentHashMap Name AttributeImpl)) :=
 IO.mkRef {}
 
-@[init mkAttributeMapRef]
+@[builtinInit mkAttributeMapRef]
 constant attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImpl) := arbitrary _
 
 /- Low level attribute registration function. -/
@@ -72,7 +72,7 @@ abbrev AttributeImplBuilder := List DataValue → Except String AttributeImpl
 abbrev AttributeImplBuilderTable := Std.HashMap Name AttributeImplBuilder
 
 def mkAttributeImplBuilderTable : IO (IO.Ref AttributeImplBuilderTable) := IO.mkRef {}
-@[init mkAttributeImplBuilderTable] constant attributeImplBuilderTableRef : IO.Ref AttributeImplBuilderTable := arbitrary _
+@[builtinInit mkAttributeImplBuilderTable] constant attributeImplBuilderTableRef : IO.Ref AttributeImplBuilderTable := arbitrary _
 
 def registerAttributeImplBuilder (builderId : Name) (builder : AttributeImplBuilder) : IO Unit := do
 table ← attributeImplBuilderTableRef.get;
@@ -143,7 +143,7 @@ registerPersistentEnvExtension {
   statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
 }
 
-@[init mkAttributeExtension]
+@[builtinInit mkAttributeExtension]
 def attributeExtension : AttributeExtension := arbitrary _
 
 /- Return true iff `n` is the name of a registered attribute. -/

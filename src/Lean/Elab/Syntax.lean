@@ -489,7 +489,7 @@ fun stx => do
     `(syntax $prec* [$(mkIdentFrom stx kind):ident] $stxParts* : $cat
       macro_rules | `($pat) => `($rhsBody))
 
-@[init] private def regTraceClasses : IO Unit := do
+@[builtinInit] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.syntax
 pure ()
 

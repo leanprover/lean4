@@ -32,7 +32,7 @@ registerSimplePersistentEnvExtension {
   toArrayFn     := fun es => es.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
 }
 
-@[init mkProjectionFnInfoExtension]
+@[builtinInit mkProjectionFnInfoExtension]
 constant projectionFnInfoExt : SimplePersistentEnvExtension (Name × ProjectionFunctionInfo) (NameMap ProjectionFunctionInfo) := arbitrary _
 
 @[export lean_add_projection_info]

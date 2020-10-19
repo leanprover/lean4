@@ -184,11 +184,11 @@ def getWidth (o : Options) : Nat    := o.get `format.width  defWidth
 def getIndent (o : Options) : Nat   := o.get `format.indent defIndent
 def getUnicode (o : Options) : Bool := o.get `format.unicode defUnicode
 
-@[init] def indentOption : IO Unit :=
+@[builtinInit] def indentOption : IO Unit :=
 registerOption `format.indent { defValue := defIndent, group := "format", descr := "indentation" }
-@[init] def unicodeOption : IO Unit :=
+@[builtinInit] def unicodeOption : IO Unit :=
 registerOption `format.unicode { defValue := defUnicode, group := "format", descr := "unicode characters" }
-@[init] def widthOption : IO Unit :=
+@[builtinInit] def widthOption : IO Unit :=
 registerOption `format.width { defValue := defWidth, group := "format", descr := "line width" }
 
 @[export lean_format_pretty]

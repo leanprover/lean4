@@ -65,7 +65,7 @@ def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names false
 def getPPUnicode (o : Options) : Bool := o.get `pp.unicode true
 def getPPAll (o : Options) : Bool := o.get `pp.all false
 
-@[init] def ppOptions : IO Unit := do
+@[builtinInit] def ppOptions : IO Unit := do
 registerOption `pp.explicit { defValue := false, group := "pp", descr := "(pretty printer) display implicit arguments" };
 registerOption `pp.structure_instance_type { defValue := false, group := "pp", descr := "(pretty printer) display type of structure instances" };
 -- TODO: register other options when old pretty printer is removed
@@ -91,7 +91,7 @@ structure Context :=
 -- Exceptions from delaborators are not expected. We use an internal exception to signal whether
 -- the delaborator was able to produce a Syntax object.
 def registerDelabFailureId : IO InternalExceptionId := registerInternalExceptionId `delabFailure
-@[init registerDelabFailureId] constant delabFailureId : InternalExceptionId := arbitrary _
+@[builtinInit registerDelabFailureId] constant delabFailureId : InternalExceptionId := arbitrary _
 
 abbrev DelabM := ReaderT Context MetaM
 abbrev Delab := DelabM Syntax
@@ -129,7 +129,7 @@ to reduce special casing. If the term is an `Expr.mdata` with a single key `k`, 
 is tried first.",
   valueTypeName := `Lean.Delaborator.Delab
 } `Lean.Delaborator.delabAttribute
-@[init mkDelabAttribute] constant delabAttribute : KeyedDeclsAttribute Delab := arbitrary _
+@[builtinInit mkDelabAttribute] constant delabAttribute : KeyedDeclsAttribute Delab := arbitrary _
 
 def getExpr : DelabM Expr := do
 ctx ← read;

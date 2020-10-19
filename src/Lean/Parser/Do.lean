@@ -8,10 +8,10 @@ import Lean.Parser.Term
 namespace Lean
 namespace Parser
 
-@[init] def regBuiltinDoElemParserAttr : IO Unit :=
+@[builtinInit] def regBuiltinDoElemParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinDoElemParser `doElem
 
-@[init] def regDoElemParserAttribute : IO Unit :=
+@[builtinInit] def regDoElemParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `doElemParser `doElem
 
 @[inline] def doElemParser (rbp : Nat := 0) : Parser :=

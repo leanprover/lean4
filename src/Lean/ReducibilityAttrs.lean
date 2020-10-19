@@ -18,7 +18,7 @@ registerEnumAttributes `reducibility
    (`semireducible, "semireducible", ReducibilityStatus.semireducible),
    (`irreducible, "irreducible", ReducibilityStatus.irreducible)]
 
-@[init mkReducibilityAttrs]
+@[builtinInit mkReducibilityAttrs]
 constant reducibilityAttrs : EnumAttributes ReducibilityStatus := arbitrary _
 
 @[export lean_get_reducibility_status]

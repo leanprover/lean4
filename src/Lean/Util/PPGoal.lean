@@ -8,7 +8,7 @@ import Lean.Util.PPExt
 namespace Lean
 
 def ppAuxDeclsDefault := false
-@[init] def ppAuxDeclsOption : IO Unit :=
+@[builtinInit] def ppAuxDeclsOption : IO Unit :=
 registerOption `pp.auxDecls { defValue := ppAuxDeclsDefault, group := "pp", descr := "display auxiliary declarations used to compile recursive functions" }
 def getAuxDeclsOption (o : Options) : Bool:= o.get `pp.auxDecls ppAuxDeclsDefault
 

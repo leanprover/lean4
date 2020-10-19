@@ -9,11 +9,11 @@ import Lean.Parser.Level
 namespace Lean
 namespace Parser
 
-@[init] def regBuiltinTacticParserAttr : IO Unit :=
+@[builtinInit] def regBuiltinTacticParserAttr : IO Unit :=
 let leadingIdentAsSymbol := true;
 registerBuiltinParserAttribute `builtinTacticParser `tactic leadingIdentAsSymbol
 
-@[init] def regTacticParserAttribute : IO Unit :=
+@[builtinInit] def regTacticParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `tacticParser `tactic
 
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=

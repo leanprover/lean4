@@ -14,16 +14,16 @@ namespace Lean
 namespace Parser
 
 def mkBuiltinTokenTable : IO (IO.Ref TokenTable) := IO.mkRef {}
-@[init mkBuiltinTokenTable] constant builtinTokenTable : IO.Ref TokenTable := arbitrary _
+@[builtinInit mkBuiltinTokenTable] constant builtinTokenTable : IO.Ref TokenTable := arbitrary _
 
 /- Global table with all SyntaxNodeKind's -/
 def mkBuiltinSyntaxNodeKindSetRef : IO (IO.Ref SyntaxNodeKindSet) := IO.mkRef {}
-@[init mkBuiltinSyntaxNodeKindSetRef] constant builtinSyntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
+@[builtinInit mkBuiltinSyntaxNodeKindSetRef] constant builtinSyntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
 
 def registerBuiltinNodeKind (k : SyntaxNodeKind) : IO Unit :=
 builtinSyntaxNodeKindSetRef.modify fun s => s.insert k
 
-@[init] private def registerAuxiliaryNodeKindSets : IO Unit := do
+@[builtinInit] private def registerAuxiliaryNodeKindSets : IO Unit := do
 registerBuiltinNodeKind choiceKind;
 registerBuiltinNodeKind identKind;
 registerBuiltinNodeKind strLitKind;
@@ -33,7 +33,7 @@ registerBuiltinNodeKind nameLitKind;
 pure ()
 
 def mkBuiltinParserCategories : IO (IO.Ref ParserCategories) := IO.mkRef {}
-@[init mkBuiltinParserCategories] constant builtinParserCategoriesRef : IO.Ref ParserCategories := arbitrary _
+@[builtinInit mkBuiltinParserCategories] constant builtinParserCategoriesRef : IO.Ref ParserCategories := arbitrary _
 
 private def throwParserCategoryAlreadyDefined {α} (catName : Name) : ExceptT String Id α :=
 throw ("parser category '" ++ toString catName ++ "' has already been defined")
@@ -235,7 +235,7 @@ structure ParserAttributeHook :=
 (postAdd (catName : Name) (declName : Name) (builtin : Bool) : AttrM Unit)
 
 def mkParserAttributeHooks : IO (IO.Ref (List ParserAttributeHook)) := IO.mkRef {}
-@[init mkParserAttributeHooks] constant parserAttributeHooks : IO.Ref (List ParserAttributeHook) := arbitrary _
+@[builtinInit mkParserAttributeHooks] constant parserAttributeHooks : IO.Ref (List ParserAttributeHook) := arbitrary _
 
 def registerParserAttributeHook (hook : ParserAttributeHook) : IO Unit := do
 parserAttributeHooks.modify fun hooks => hook::hooks
@@ -244,7 +244,7 @@ def runParserAttributeHooks (catName : Name) (declName : Name) (builtin : Bool) 
 hooks ← parserAttributeHooks.get;
 hooks.forM fun hook => hook.postAdd catName declName builtin
 
-@[init]
+@[builtinInit]
 def registerRunParserAttributeHooksAttribute : IO Unit :=
 discard $ registerTagAttribute `runParserAttributeHooks "explicitly run hooks normally activated by parser attributes" fun declName =>
   liftM $ runParserAttributeHooks `Name.anonymous declName /- builtin -/ true
@@ -282,7 +282,7 @@ registerPersistentEnvExtension {
   statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
 }
 
-@[init mkParserExtension]
+@[builtinInit mkParserExtension]
 constant parserExtension : ParserExtension := arbitrary _
 
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
@@ -314,7 +314,7 @@ fun ctx s =>
     prattParser catName cat.tables cat.leadingIdentAsSymbol (mkCategoryAntiquotParser catName).fn ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
 
-@[init] def setCategoryParserFnRef : IO Unit :=
+@[builtinInit] def setCategoryParserFnRef : IO Unit :=
 categoryParserFnRef.set categoryParserFnImpl
 
 def addToken (env : Environment) (tk : Token) : Except String Environment := do
@@ -450,7 +450,7 @@ def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=
 def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : IO Unit := do
 registerBuiltinAttribute (mkParserAttributeImpl attrName catName)
 
-@[init] private def registerParserAttributeImplBuilder : IO Unit :=
+@[builtinInit] private def registerParserAttributeImplBuilder : IO Unit :=
 registerAttributeImplBuilder `parserAttr $ fun args =>
   match args with
   | [DataValue.ofName attrName, DataValue.ofName catName] => pure $ mkParserAttributeImpl attrName catName
@@ -462,17 +462,17 @@ registerAttributeOfBuilder env `parserAttr [DataValue.ofName attrName, DataValue
 
 -- declare `termParser` here since it is used everywhere via antiquotations
 
-@[init] def regBuiltinTermParserAttr : IO Unit :=
+@[builtinInit] def regBuiltinTermParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinTermParser `term
 
-@[init] def regTermParserAttribute : IO Unit :=
+@[builtinInit] def regTermParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `termParser `term
 
 -- declare `commandParser` to break cyclic dependency
-@[init] def regBuiltinCommandParserAttr : IO Unit :=
+@[builtinInit] def regBuiltinCommandParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinCommandParser `command
 
-@[init] def regCommandParserAttribute : IO Unit :=
+@[builtinInit] def regCommandParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `commandParser `command
 
 @[inline] def commandParser (rbp : Nat := 0) : Parser :=

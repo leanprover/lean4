@@ -401,12 +401,12 @@ namespace CheckAssignment
 
 def registerCheckAssignmentId : IO InternalExceptionId :=
 registerInternalExceptionId `checkAssignment
-@[init registerCheckAssignmentId, matchPattern]
+@[builtinInit registerCheckAssignmentId, matchPattern]
 constant checkAssignmentExceptionId : InternalExceptionId := arbitrary _
 
 def registerOutOfScopeId : IO InternalExceptionId :=
 registerInternalExceptionId `outOfScope
-@[init registerOutOfScopeId, matchPattern]
+@[builtinInit registerOutOfScopeId, matchPattern]
 constant outOfScopeExceptionId : InternalExceptionId := arbitrary _
 
 structure State :=
@@ -1107,10 +1107,10 @@ partial def isExprDefEqAuxImpl : Expr → Expr → DefEqM Bool
       whenUndefDo (isDefEqStringLit t s) $
       isDefEqOnFailure t s
 
-@[init] def setIsExprDefEqAuxRef : IO Unit :=
+@[builtinInit] def setIsExprDefEqAuxRef : IO Unit :=
 isExprDefEqAuxRef.set isExprDefEqAuxImpl
 
-@[init] private def regTraceClasses : IO Unit := do
+@[builtinInit] private def regTraceClasses : IO Unit := do
 registerTraceClass `Meta.isDefEq;
 registerTraceClass `Meta.isDefEq.foApprox;
 registerTraceClass `Meta.isDefEq.constApprox;

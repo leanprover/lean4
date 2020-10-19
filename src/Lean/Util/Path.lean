@@ -23,7 +23,7 @@ abbrev SearchPath := List String
 def mkSearchPathRef : IO (IO.Ref SearchPath) :=
 IO.mkRef ∅
 
-@[init mkSearchPathRef]
+@[builtinInit mkSearchPathRef]
 constant searchPathRef : IO.Ref SearchPath := arbitrary _
 
 def parseSearchPath (path : String) (sp : SearchPath := ∅) : IO SearchPath :=

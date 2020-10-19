@@ -15,7 +15,7 @@ instance : HasBeq InternalExceptionId :=
 def mkInternalExceptionsRef : IO (IO.Ref (Array Name)) :=
 IO.mkRef #[]
 
-@[init mkInternalExceptionsRef] constant internalExceptionsRef : IO.Ref (Array Name) := arbitrary _
+@[builtinInit mkInternalExceptionsRef] constant internalExceptionsRef : IO.Ref (Array Name) := arbitrary _
 
 def registerInternalExceptionId (name : Name) : IO InternalExceptionId := do
 exs ← internalExceptionsRef.get;

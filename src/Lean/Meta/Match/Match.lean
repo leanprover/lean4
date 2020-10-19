@@ -786,7 +786,7 @@ registerSimplePersistentEnvExtension {
   addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
 }
 
-@[init mkExtension]
+@[builtinInit mkExtension]
 constant extension : SimplePersistentEnvExtension Entry State :=
 arbitrary _
 

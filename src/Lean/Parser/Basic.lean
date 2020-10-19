@@ -1504,13 +1504,13 @@ abbrev CategoryParserFn := Name → ParserFn
 def mkCategoryParserFnRef : IO (IO.Ref CategoryParserFn) :=
 IO.mkRef $ fun _ => whitespace
 
-@[init mkCategoryParserFnRef]
+@[builtinInit mkCategoryParserFnRef]
 constant categoryParserFnRef : IO.Ref CategoryParserFn := arbitrary _
 
 def mkCategoryParserFnExtension : IO (EnvExtension CategoryParserFn) :=
 registerEnvExtension $ categoryParserFnRef.get
 
-@[init mkCategoryParserFnExtension]
+@[builtinInit mkCategoryParserFnExtension]
 def categoryParserFnExtension : EnvExtension CategoryParserFn := arbitrary _
 
 def categoryParserFn (catName : Name) : ParserFn :=

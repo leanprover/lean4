@@ -128,7 +128,7 @@ KeyedDeclsAttribute.init {
       else throwError ("invalid [parenthesizer] argument, unknown syntax kind '" ++ toString id ++ "'")
     | none    => throwError "invalid [parenthesizer] argument, expected identifier"
 } `Lean.PrettyPrinter.parenthesizerAttribute
-@[init mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer := arbitrary _
+@[builtinInit mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer := arbitrary _
 
 abbrev CategoryParenthesizer := forall (prec : Nat), Parenthesizer
 
@@ -151,7 +151,7 @@ but still be traversed for parenthesizing nested categories.",
       else throwError ("invalid [parenthesizer] argument, unknown parser category '" ++ toString id ++ "'")
     | none    => throwError "invalid [parenthesizer] argument, expected identifier"
 } `Lean.PrettyPrinter.categoryParenthesizerAttribute
-@[init mkCategoryParenthesizerAttribute] constant categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer := arbitrary _
+@[builtinInit mkCategoryParenthesizerAttribute] constant categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer := arbitrary _
 
 unsafe def mkCombinatorParenthesizerAttribute : IO ParserCompiler.CombinatorAttribute :=
 ParserCompiler.registerCombinatorAttribute
@@ -162,7 +162,7 @@ ParserCompiler.registerCombinatorAttribute
 Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.
 The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
 with `Parenthesizer` in the parameter types."
-@[init mkCombinatorParenthesizerAttribute] constant combinatorParenthesizerAttribute : ParserCompiler.CombinatorAttribute := arbitrary _
+@[builtinInit mkCombinatorParenthesizerAttribute] constant combinatorParenthesizerAttribute : ParserCompiler.CombinatorAttribute := arbitrary _
 
 namespace Parenthesizer
 
@@ -483,7 +483,7 @@ catchInternalId backtrackExceptionId
 def parenthesizeTerm := parenthesize $ categoryParser.parenthesizer `term 0
 def parenthesizeCommand := parenthesize $ categoryParser.parenthesizer `command 0
 
-@[init] private def regTraceClasses : IO Unit := do
+@[builtinInit] private def regTraceClasses : IO Unit := do
 registerTraceClass `PrettyPrinter.parenthesize;
 pure ()
 

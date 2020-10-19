@@ -28,7 +28,7 @@ instance OptionDecls.inhabited : Inhabited OptionDecls :=
 private def initOptionDeclsRef : IO (IO.Ref OptionDecls) :=
 IO.mkRef (mkNameMap OptionDecl)
 
-@[init initOptionDeclsRef]
+@[builtinInit initOptionDeclsRef]
 private constant optionDeclsRef : IO.Ref OptionDecls := arbitrary _
 
 @[export lean_register_option]
@@ -80,13 +80,13 @@ match defValue with
   | none   => throw (IO.userError ("invalid Int option value '" ++ val ++ "'"))
   | some v => pure $ opts.setInt key v
 
-@[init] def verboseOption : IO Unit :=
+@[builtinInit] def verboseOption : IO Unit :=
 registerOption `verbose { defValue := true, group := "", descr := "disable/enable verbose messages" }
 
-@[init] def timeoutOption : IO Unit :=
+@[builtinInit] def timeoutOption : IO Unit :=
 registerOption `timeout { defValue := DataValue.ofNat 0, group := "", descr := "the (deterministic) timeout is measured as the maximum of memory allocations (in thousands) per task, the default is unbounded" }
 
-@[init] def maxMemoryOption : IO Unit :=
+@[builtinInit] def maxMemoryOption : IO Unit :=
 registerOption `maxMemory { defValue := DataValue.ofNat 2048, group := "", descr := "maximum amount of memory available for Lean in megabytes" }
 
 class MonadOptions (m : Type → Type) :=

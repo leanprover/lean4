@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -11,114 +12,106 @@ This is not the Kernel type checker, but an auxiliary method for checking
 whether terms produced by tactics and `isDefEq` are type correct.
 -/
 
-namespace Lean
-namespace Meta
+namespace Lean.Meta
 
 private def ensureType (e : Expr) : MetaM Unit := do
-_ ← getLevel e; pure ()
+getLevel e
+pure ()
 
 def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
-lctx ← getLCtx;
+let lctx ← getLCtx
 match lctx.find? fvarId with
 | some (LocalDecl.ldecl _ _ n t v _) => do
-  vType ← inferType v;
-  throwError $
-     "invalid let declaration, term" ++ indentExpr v
-    ++ Format.line ++ "has type " ++ indentExpr vType
-    ++ Format.line ++ "but is expected to have type" ++ indentExpr t
+  let vType ← inferType v
+  throwError! "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
 | _ => unreachable!
 
 @[specialize] private def checkLambdaLet
     (check   : Expr → MetaM Unit)
     (e : Expr) : MetaM Unit :=
-lambdaLetTelescope e $ fun xs b => do
-  xs.forM $ fun x => do {
-    xDecl ← getFVarLocalDecl x;
+lambdaLetTelescope e fun xs b => do
+  xs.forM fun x => do
+    let xDecl ← getFVarLocalDecl x;
     match xDecl with
-    | LocalDecl.cdecl _ _ _ t _ => do
-      ensureType t;
+    | LocalDecl.cdecl _ _ _ t _ =>
+      ensureType t
       check t
-    | LocalDecl.ldecl _ _ _ t v _ => do
-      ensureType t;
-      check t;
-      vType ← inferType v;
-      unlessM (isDefEq t vType) $ throwLetTypeMismatchMessage x.fvarId!;
+    | LocalDecl.ldecl _ _ _ t v _ =>
+      ensureType t
+      check t
+      let vType ← inferType v
+      unless (← isDefEq t vType) do throwLetTypeMismatchMessage x.fvarId!
       check v
-  };
   check b
 
 @[specialize] private def checkForall
     (check   : Expr → MetaM Unit)
     (e : Expr) : MetaM Unit :=
-forallTelescope e $ fun xs b => do
-  xs.forM $ fun x => do {
-    xDecl ← getFVarLocalDecl x;
-    ensureType xDecl.type;
+forallTelescope e fun xs b => do
+  xs.forM fun x => do
+    let xDecl ← getFVarLocalDecl x
+    ensureType xDecl.type
     check xDecl.type
-  };
-  ensureType b;
+  ensureType b
   check b
 
 private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
-cinfo ← getConstInfo constName;
-unless (us.length == cinfo.lparams.length) $ throwIncorrectNumberOfLevels constName us
+let cinfo ← getConstInfo constName
+unless us.length == cinfo.lparams.length do
+  throwIncorrectNumberOfLevels constName us
 
 private def getFunctionDomain (f : Expr) : MetaM Expr := do
-fType ← inferType f;
-fType ← whnfD fType;
+let fType ← inferType f
+let fType ← whnfD fType
 match fType with
 | Expr.forallE _ d _ _ => pure d
 | _                    => throwFunctionExpected f
 
 def throwAppTypeMismatch {α} {m} [Monad m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] [MonadLiftT MetaM m]
     (f a : Expr) (extraMsg : MessageData := Format.nil) : m α := do
-let e := mkApp f a;
-aType ← inferType a;
-expectedType ← liftM $ getFunctionDomain f;
-throwError $
-  "application type mismatch" ++ indentExpr e
-  ++ Format.line ++ "argument" ++ indentExpr a
-  ++ Format.line ++ "has type" ++ indentExpr aType
-  ++ Format.line ++ "but is expected to have type" ++ indentExpr expectedType
-  ++ extraMsg
+let e := mkApp f a
+let aType ← inferType a
+let expectedType ← liftM $ getFunctionDomain f
+throwError! "application type mismatch{indentExpr e}\nargument{indentExpr a}\nhas type{indentExpr aType}\nbut is expected to have type{indentExpr expectedType}{extraMsg}"
 
 @[specialize] private def checkApp
     (check   : Expr → MetaM Unit)
     (f a : Expr) : MetaM Unit := do
-check f;
-check a;
-fType ← inferType f;
-fType ← whnf fType;
+check f
+check a
+let fType ← inferType f
+let fType ← whnf fType
 match fType with
-| Expr.forallE _ d _ _ => do
-  aType ← inferType a;
-  unlessM (isDefEq d aType) $ throwAppTypeMismatch f a
+| Expr.forallE _ d _ _ =>
+  let aType ← inferType a
+  unless (← isDefEq d aType) do
+    throwAppTypeMismatch f a
 | _ => throwFunctionExpected (mkApp f a)
 
 private partial def checkAux : Expr → MetaM Unit
-| e@(Expr.forallE _ _ _ _) => checkForall checkAux e
-| e@(Expr.lam _ _ _ _)     => checkLambdaLet checkAux e
-| e@(Expr.letE _ _ _ _ _)  => checkLambdaLet checkAux e
-| Expr.const c lvls _      => checkConstant c lvls
-| Expr.app f a _           => checkApp checkAux f a
-| Expr.mdata _ e _         => checkAux e
-| Expr.proj _ _ e _        => checkAux e
-| _                        => pure ()
+| e@(Expr.forallE ..)  => checkForall checkAux e
+| e@(Expr.lam ..)      => checkLambdaLet checkAux e
+| e@(Expr.letE ..)     => checkLambdaLet checkAux e
+| Expr.const c lvls _  => checkConstant c lvls
+| Expr.app f a _       => checkApp checkAux f a
+| Expr.mdata _ e _     => checkAux e
+| Expr.proj _ _ e _    => checkAux e
+| _                    => pure ()
 
 def check (e : Expr) : MetaM Unit :=
 traceCtx `Meta.check $
   withTransparency TransparencyMode.all $ checkAux e
 
-def isTypeCorrect (e : Expr) : MetaM Bool :=
-catch
-  (do check e; pure true)
-  (fun ex => do
-    trace! `Meta.typeError ex.toMessageData;
-    pure false)
+def isTypeCorrect (e : Expr) : MetaM Bool := do
+try
+  check e
+  pure true
+catch ex =>
+  trace[Meta.typeError]! ex.toMessageData
+  pure false
 
-@[init] private def regTraceClasses : IO Unit := do
-registerTraceClass `Meta.check;
-registerTraceClass `Meta.typeError
+initialize
+  registerTraceClass `Meta.check
+  registerTraceClass `Meta.typeError
 
-end Meta
-end Lean
+end Lean.Meta

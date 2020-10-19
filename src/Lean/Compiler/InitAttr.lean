@@ -57,17 +57,25 @@ getInitFnNameForCore? env builtinInitAttr fn
 def getRegularInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
 getInitFnNameForCore? env regularInitAttr fn
 
--- Only used
-def isIOUnitInitFn (env : Environment) (fn : Name) : Bool :=
-let aux (attr : ParametricAttribute Name) : Bool :=
-  match attr.getParam env fn with
-  | some Name.anonymous => true
-  | _ => false
-aux builtinInitAttr || aux regularInitAttr
-
 @[export lean_get_init_fn_name_for]
 def getInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
 getBuiltinInitFnNameFor? env fn <|> getRegularInitFnNameFor? env fn
+
+def isIOUnitInitFnCore (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Bool :=
+match attr.getParam env fn with
+| some Name.anonymous => true
+| _ => false
+
+@[export lean_is_io_unit_regular_init_fn]
+def isIOUnitRegularInitFn (env : Environment) (fn : Name) : Bool :=
+isIOUnitInitFnCore env regularInitAttr fn
+
+@[export lean_is_io_unit_builtin_init_fn]
+def isIOUnitBuiltinInitFn (env : Environment) (fn : Name) : Bool :=
+isIOUnitInitFnCore env builtinInitAttr fn
+
+def isIOUnitInitFn (env : Environment) (fn : Name) : Bool :=
+isIOUnitBuiltinInitFn env fn || isIOUnitRegularInitFn env fn
 
 def hasInitAttr (env : Environment) (fn : Name) : Bool :=
 (getInitFnNameFor? env fn).isSome

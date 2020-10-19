@@ -78,7 +78,6 @@ lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces(lean_object*, lean_obje
 lean_object* l_Lean_Elab_evalSyntaxConstant___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_getBetterRef___lambda__1(lean_object*);
 lean_object* l_List_foldl___main___at_Lean_Elab_addMacroStack___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_237____spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_getMacros___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getMacros_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__2;
@@ -156,6 +155,7 @@ lean_object* l_Lean_Elab_adaptMacro(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Elab_getBetterRef_match__2(lean_object*);
 uint8_t l_Lean_Parser_isValidSyntaxNodeKind(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacro_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_evalSyntaxConstant(lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
@@ -915,7 +915,7 @@ lean_object* x_12; lean_object* x_13;
 lean_free_object(x_6);
 lean_dec(x_1);
 x_12 = l_Lean_Elab_checkSyntaxNodeKind___closed__3;
-x_13 = l_Lean_throwError___at_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_237____spec__2___rarg(x_12, x_2, x_3, x_4, x_9);
+x_13 = l_Lean_throwError___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__2___rarg(x_12, x_2, x_3, x_4, x_9);
 return x_13;
 }
 else
@@ -942,7 +942,7 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; 
 lean_dec(x_1);
 x_18 = l_Lean_Elab_checkSyntaxNodeKind___closed__3;
-x_19 = l_Lean_throwError___at_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_237____spec__2___rarg(x_18, x_2, x_3, x_4, x_15);
+x_19 = l_Lean_throwError___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__2___rarg(x_18, x_2, x_3, x_4, x_15);
 return x_19;
 }
 else

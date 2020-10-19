@@ -469,6 +469,7 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__99;
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_isAtomLikeSyntax_match__1(lean_object*);
 lean_object* l_Lean_throwUnknownConstant___at_Lean_Elab_Term_toParserDescrAux___spec__5(lean_object*);
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__5;
+extern lean_object* l_Lean_Meta_throwUnknownMVar___rarg___closed__2;
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_getCatSuffix_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_expandMixfix___closed__1;
 lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Elab_Syntax_0__Lean_Elab_Term_mkParserSeq___spec__1___closed__7;
@@ -509,7 +510,6 @@ lean_object* l_Array_umapMAux___main___at_Lean_Elab_Command_expandMacro___spec__
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Command_expandMacro___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__50;
 lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__11;
-extern lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3___closed__3;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Elab_Syntax_0__Lean_Elab_Term_mkParserSeq___spec__1___closed__3;
 lean_object* l_Lean_Elab_Command_expandMacroHeadIntoSyntaxItem___boxed(lean_object*, lean_object*, lean_object*);
@@ -533,6 +533,7 @@ lean_object* l_Lean_Elab_Term_elabBinders___rarg___boxed(lean_object*, lean_obje
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_elabKindPrio(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__12;
 lean_object* l_Lean_Elab_Term_checkLeftRec___closed__6;
+extern lean_object* l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__60;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__47;
 lean_object* l_Lean_Elab_Command_expandElab___closed__1;
@@ -777,7 +778,6 @@ lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_mkParserSeq(lean_obj
 extern lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__2;
 lean_object* l_Lean_Elab_Command_expandElab___closed__6;
 lean_object* l_Lean_Elab_Command_strLitToPattern_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_DiscrTree_Trie_format___main___rarg___closed__1;
 lean_object* l_Lean_Elab_Term_expandOptPrecedence_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabMacroRules___closed__1;
 lean_object* l_Lean_Elab_Command_mkFreshKind(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10923,7 +10923,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Subarray_forInUnsafe_loop___at___private_Lean_Elab_Syntax_0__Lean_Elab_Term_mkParserSeq___spec__1___closed__7;
-x_2 = l_Lean_Meta_DiscrTree_Trie_format___main___rarg___closed__1;
+x_2 = l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -12438,7 +12438,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Subarray_forInUnsafe_loop___at___private_Lean_Elab_Syntax_0__Lean_Elab_Term_mkParserSeq___spec__1___closed__4;
-x_2 = l_Lean_Meta_DiscrTree_Trie_format___main___rarg___closed__1;
+x_2 = l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -13868,7 +13868,7 @@ x_16 = l_Lean_Elab_Command_elabMacroRulesAux___lambda__1___closed__2;
 x_17 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_15);
-x_18 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3___closed__3;
+x_18 = l_Lean_Meta_throwUnknownMVar___rarg___closed__2;
 x_19 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
@@ -13896,7 +13896,7 @@ x_25 = l_Lean_Elab_Command_elabMacroRulesAux___lambda__1___closed__4;
 x_26 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_24);
-x_27 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3___closed__3;
+x_27 = l_Lean_Meta_throwUnknownMVar___rarg___closed__2;
 x_28 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);

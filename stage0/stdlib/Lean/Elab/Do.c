@@ -181,6 +181,7 @@ lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___rarg___lambda__5___closed__1;
 lean_object* l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__17;
 lean_object* l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTermCore_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
+extern lean_object* l_List_map___main___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1;
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_Do_ToCodeBlock_mkForInBody___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_getDoPatDeclVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_matchNestedTermResult___closed__31;
@@ -574,6 +575,7 @@ lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_getDoSeqElems___closed__
 lean_object* l_Lean_Elab_Term_Do_mkSingletonDoSeq(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_mkJoinPointCore_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_mkReassignCore___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__6;
 lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___rarg___lambda__5___closed__5;
 lean_object* l_Lean_Elab_Term_Do_getPatternVarNames_match__1(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_getDoHaveVar___closed__1;
@@ -813,7 +815,6 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_Elab_Term_Do_hasReturn___spec
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doSeqToCode_match__3(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_continueToTermCore___closed__24;
 lean_object* l_Lean_Elab_Term_Do_getLetEqnsDeclVar(lean_object*);
-extern lean_object* l_List_map___main___at_Lean_Meta_DiscrTree_Trie_format___main___spec__2___rarg___closed__1;
 lean_object* l_Lean_Elab_Term_Do_concat___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_continueToTermCore___closed__26;
 lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___rarg___lambda__1___closed__1;
@@ -988,7 +989,6 @@ lean_object* l_Lean_Elab_Term_Do_ToTerm_mkJoinPointCore_match__1(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_reassignToTermCore(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_hasExitPointPred_loop_match__1(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_getDoLetArrowVars___closed__1;
-extern lean_object* l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__5;
 lean_object* l_List_toArrayAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_matchNestedTermResult___closed__38;
 lean_object* l_Lean_Elab_Term_Do_ToTerm_matchNestedTermResult___closed__21;
@@ -2564,7 +2564,7 @@ static lean_object* _init_l_Array_iterateMAux___main___at_Lean_Elab_Term_Do_Code
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_List_map___main___at_Lean_Meta_DiscrTree_Trie_format___main___spec__2___rarg___closed__1;
+x_1 = l_List_map___main___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -31844,7 +31844,7 @@ lean_dec(x_26);
 x_29 = lean_simp_macro_scopes(x_23);
 x_30 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
-x_31 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__5;
+x_31 = l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__6;
 x_32 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_30);
@@ -31904,7 +31904,7 @@ lean_dec(x_26);
 x_45 = lean_simp_macro_scopes(x_23);
 x_46 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_46, 0, x_45);
-x_47 = l_Array_forMAux___main___at_Lean_Meta_clear___spec__5___closed__5;
+x_47 = l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__6;
 x_48 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_48, 0, x_47);
 lean_ctor_set(x_48, 1, x_46);

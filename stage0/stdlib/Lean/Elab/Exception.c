@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Exception
-// Imports: Init Lean.InternalExceptionId Lean.Meta.Exception
+// Imports: Init Lean.InternalExceptionId Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -35,6 +35,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_31____closed__2;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_31____closed__1;
+extern lean_object* l_Lean_registerAttributeImplBuilder___closed__2;
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_17____closed__2;
@@ -46,7 +47,6 @@ lean_object* l_Lean_Elab_throwUnsupportedSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwIllFormedSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2;
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__4;
 lean_object* l_Lean_Elab_abortExceptionId;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_3____closed__1;
 lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
@@ -259,16 +259,8 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("' has already been declared");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3;
+x_1 = l_Lean_registerAttributeImplBuilder___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -283,7 +275,7 @@ x_7 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2;
 x_8 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);
-x_9 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__4;
+x_9 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3;
 x_10 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);
@@ -359,7 +351,7 @@ return x_7;
 }
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_InternalExceptionId(lean_object*);
-lean_object* initialize_Lean_Meta_Exception(lean_object*);
+lean_object* initialize_Lean_Meta_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Elab_Exception(lean_object* w) {
 lean_object * res;
@@ -371,7 +363,7 @@ lean_dec_ref(res);
 res = initialize_Lean_InternalExceptionId(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Exception(lean_io_mk_world());
+res = initialize_Lean_Meta_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_3____closed__1 = _init_l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_3____closed__1();
@@ -417,8 +409,6 @@ l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2 = _init_l_Lean_
 lean_mark_persistent(l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2);
 l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3 = _init_l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3();
 lean_mark_persistent(l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3);
-l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__4 = _init_l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__4();
-lean_mark_persistent(l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__4);
 l_Lean_Elab_throwAbort___rarg___closed__1 = _init_l_Lean_Elab_throwAbort___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_throwAbort___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

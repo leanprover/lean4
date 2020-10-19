@@ -15,8 +15,8 @@ extern "C" {
 #endif
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAltsAux___rarg___closed__2;
-lean_object* l___private_Lean_Meta_Match_1__regTraceClasses(lean_object*);
-lean_object* l___private_Lean_Meta_Match_1__regTraceClasses(lean_object* x_1) {
+lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3_(lean_object*);
+lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -50,7 +50,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_CaseArraySizes(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Match_1__regTraceClasses(lean_io_mk_world());
+res = l_Lean_initFn____x40_Lean_Meta_Match___hyg_3_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

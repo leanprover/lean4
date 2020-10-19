@@ -1370,6 +1370,18 @@ fun c s =>
 @[inline] def checkColGt (errorMsg : String := "checkColGt") : Parser :=
 { fn := checkColGtFn errorMsg }
 
+@[inline] def checkLineEqFn (errorMsg : String) : ParserFn :=
+fun c s =>
+  match c.savedPos? with
+  | none => s
+  | some savedPos =>
+    let pos := c.fileMap.toPosition s.pos;
+    if pos.line == savedPos.line then s
+    else s.mkError errorMsg
+
+@[inline] def checkLineEq (errorMsg : String := "checkLineEq") : Parser :=
+{ fn := checkLineEqFn errorMsg }
+
 @[inline] def withPosition (p : Parser) : Parser :=
 { info := p.info,
   fn   := fun c s =>

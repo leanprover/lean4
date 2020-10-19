@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Basic
-// Imports: Init Lean.Data.LOption Lean.Environment Lean.Class Lean.ReducibilityAttrs Lean.Util.Trace Lean.Util.RecDepth Lean.Util.PPExt Lean.Compiler.InlineAttrs Lean.Meta.Exception Lean.Meta.TransparencyMode Lean.Meta.DiscrTreeTypes Lean.Eval Lean.CoreM
+// Imports: Init Lean.Data.LOption Lean.Environment Lean.Class Lean.ReducibilityAttrs Lean.Util.Trace Lean.Util.RecDepth Lean.Util.PPExt Lean.Compiler.InlineAttrs Lean.Meta.TransparencyMode Lean.Meta.DiscrTreeTypes Lean.Eval Lean.CoreM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -543,7 +543,7 @@ lean_object* l_Lean_Meta_mkInferTypeRef___lambda__1___boxed(lean_object*, lean_o
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_21__forallBoundedTelescopeImp___spec__41___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_20__forallTelescopeReducingImp___spec__34(lean_object*);
 lean_object* l_Lean_throwUnknownConstant___at_Lean_Meta_getConst_x3f___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_isDefEqStuckExceptionId;
+lean_object* l_Lean_Meta_isDefEqStuckExceptionId;
 lean_object* l_Lean_Meta_mkInferTypeRef___lambda__1___closed__1;
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_21__forallBoundedTelescopeImp___spec__63(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_18__withNewLocalInstancesImpAux___spec__1(lean_object*);
@@ -605,6 +605,7 @@ lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___a
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp(lean_object*);
 lean_object* l_Lean_Meta_findLocalDecl_x3f___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
+lean_object* l_Lean_Meta_registerIsDefEqStuckId(lean_object*);
 lean_object* l_Lean_Meta_MetaM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_21__forallBoundedTelescopeImp___spec__32___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_instantiateLevelMVars(lean_object*, lean_object*);
@@ -629,6 +630,7 @@ lean_object* l___private_Lean_Meta_Basic_5__mkFreshExprMVarWithIdCore___rarg___b
 lean_object* l_Lean_Meta_resettingSynthInstanceCacheWhen___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_21__forallBoundedTelescopeImp___spec__36(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_19__forallTelescopeImp___spec__28(lean_object*);
+lean_object* l_Lean_Meta_registerIsDefEqStuckId___closed__1;
 lean_object* l___private_Lean_Meta_Basic_38__instantiateLambdaAux___main___closed__3;
 size_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Lean_Meta_isReadOnlyExprMVar(lean_object*);
@@ -797,6 +799,7 @@ lean_object* l_Lean_Meta_modifyMCtx___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_21__forallBoundedTelescopeImp___spec__23(lean_object*);
 lean_object* l_Lean_Meta_Lean_MonadMCtx___closed__2;
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_20__forallTelescopeReducingImp___spec__51___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_20__forallTelescopeReducingImp___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_21__forallBoundedTelescopeImp___spec__24___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_20__forallTelescopeReducingImp___spec__48(lean_object*);
@@ -891,6 +894,7 @@ lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___a
 lean_object* l_Lean_Meta_resettingSynthInstanceCache(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_19__forallTelescopeImp___spec__23(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_19__forallTelescopeImp___spec__32___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_registerIsDefEqStuckId___closed__2;
 lean_object* l___private_Lean_Meta_Basic_14__forallTelescopeReducingAuxAux___main(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_19__forallTelescopeImp___spec__7___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___rarg___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1314,6 +1318,33 @@ lean_object* l_Lean_Meta_instantiateLocalDeclMVars___rarg___lambda__2___boxed(le
 lean_object* l_Lean_Meta_State_inhabited___closed__6;
 lean_object* l_monadControlRefl___rarg(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_12__withNewLocalInstancesImp___main___at___private_Lean_Meta_Basic_19__forallTelescopeImp___spec__14(lean_object*);
+static lean_object* _init_l_Lean_Meta_registerIsDefEqStuckId___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("isDefEqStuck");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_registerIsDefEqStuckId___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_registerIsDefEqStuckId___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Meta_registerIsDefEqStuckId(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_Meta_registerIsDefEqStuckId___closed__2;
+x_3 = l_Lean_registerInternalExceptionId(x_2, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Meta_ParamInfo_inhabited___closed__1() {
 _start:
 {
@@ -91903,7 +91934,6 @@ lean_object* initialize_Lean_Util_Trace(lean_object*);
 lean_object* initialize_Lean_Util_RecDepth(lean_object*);
 lean_object* initialize_Lean_Util_PPExt(lean_object*);
 lean_object* initialize_Lean_Compiler_InlineAttrs(lean_object*);
-lean_object* initialize_Lean_Meta_Exception(lean_object*);
 lean_object* initialize_Lean_Meta_TransparencyMode(lean_object*);
 lean_object* initialize_Lean_Meta_DiscrTreeTypes(lean_object*);
 lean_object* initialize_Lean_Eval(lean_object*);
@@ -91940,9 +91970,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_InlineAttrs(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Exception(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_TransparencyMode(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -91954,6 +91981,15 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_CoreM(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Meta_registerIsDefEqStuckId___closed__1 = _init_l_Lean_Meta_registerIsDefEqStuckId___closed__1();
+lean_mark_persistent(l_Lean_Meta_registerIsDefEqStuckId___closed__1);
+l_Lean_Meta_registerIsDefEqStuckId___closed__2 = _init_l_Lean_Meta_registerIsDefEqStuckId___closed__2();
+lean_mark_persistent(l_Lean_Meta_registerIsDefEqStuckId___closed__2);
+res = l_Lean_Meta_registerIsDefEqStuckId(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Meta_isDefEqStuckExceptionId = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Meta_isDefEqStuckExceptionId);
 lean_dec_ref(res);
 l_Lean_Meta_ParamInfo_inhabited___closed__1 = _init_l_Lean_Meta_ParamInfo_inhabited___closed__1();
 lean_mark_persistent(l_Lean_Meta_ParamInfo_inhabited___closed__1);

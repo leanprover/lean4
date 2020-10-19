@@ -109,7 +109,6 @@ lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
 lean_object* l_Lean_Delaborator_delabGE___closed__1;
 lean_object* l_Lean_Delaborator_delabBind___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_getPPCoercions(lean_object*);
-extern lean_object* l___private_Lean_Meta_DiscrTree_6__shouldAddAsStar___closed__5;
 lean_object* l_Lean_Delaborator_delabGT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabGT___closed__1;
 lean_object* l_Lean_Delaborator_delabModN___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -282,7 +281,6 @@ extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed
 lean_object* l_Lean_Delaborator_delabPow___lambda__1___closed__4;
 lean_object* l_Lean_Delaborator_delabAdd___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_HasQuote___closed__1;
-lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_1__inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabOfNat(lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabBEq___closed__1;
 lean_object* l_Lean_Delaborator_delabBAnd___lambda__1___closed__2;
@@ -375,6 +373,7 @@ lean_object* l___regBuiltin_Lean_Delaborator_delabEq___closed__1;
 lean_object* l_Lean_ppOptions(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_mkDelabAttribute___closed__7;
+extern lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_shouldAddAsStar___closed__5;
 lean_object* l_Lean_Delaborator_delabAppExplicit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabMod___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -392,6 +391,7 @@ extern lean_object* l_Lean_Exception_inhabited___closed__1;
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__5;
 lean_object* l_Lean_Delaborator_delabSort___closed__10;
 lean_object* l___regBuiltin_Lean_Delaborator_delabCons(lean_object*);
+extern lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_shouldAddAsStar___closed__7;
 lean_object* l_Lean_Delaborator_delabBOr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_orelse(lean_object*);
 lean_object* l_Lean_Delaborator_delabBNe___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -460,6 +460,7 @@ extern lean_object* l_Lean_Meta_reduceNat_x3f___closed__10;
 lean_object* l___regBuiltin_Lean_Delaborator_delabLT___closed__3;
 lean_object* l___private_Lean_Delaborator_6__delabBinders(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
+lean_object* l_Lean_Meta_inferType___at_Lean_Meta_SynthInstance_mkGeneratorNode_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabOrM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabAppImplicit___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabLE___closed__1;
@@ -804,7 +805,6 @@ lean_object* l_Lean_Delaborator_delabBNe___lambda__1___closed__3;
 lean_object* l_Lean_Delaborator_delabProd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_Basic_9__isClassQuick_x3f___main___closed__1;
 lean_object* l___regBuiltin_Lean_Delaborator_delabIff___closed__1;
-extern lean_object* l___private_Lean_Meta_DiscrTree_6__shouldAddAsStar___closed__7;
 lean_object* l_Lean_Level_quote___main___lambda__9(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabseqLeft___closed__1;
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_530____closed__8;
@@ -10739,7 +10739,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_7 = l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_1__inferAppType___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_Meta_inferType___at_Lean_Meta_SynthInstance_mkGeneratorNode_x3f___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -19948,7 +19948,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkAppStx___closed__6;
-x_2 = l___private_Lean_Meta_DiscrTree_6__shouldAddAsStar___closed__5;
+x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_shouldAddAsStar___closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -20009,7 +20009,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Delaborator_getExprKind___closed__5;
-x_2 = l___private_Lean_Meta_DiscrTree_6__shouldAddAsStar___closed__7;
+x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_shouldAddAsStar___closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -20019,7 +20019,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___regBuiltin_Lean_Delaborator_delabAdd___closed__1;
-x_2 = l___private_Lean_Meta_DiscrTree_6__shouldAddAsStar___closed__5;
+x_2 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_shouldAddAsStar___closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

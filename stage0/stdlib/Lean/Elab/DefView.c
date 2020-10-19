@@ -61,12 +61,11 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_isDefLike___closed__2;
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___closed__1;
 lean_object* l_Lean_Elab_Command_isDefLike___closed__1;
-extern lean_object* l_Lean_Meta_registerInstanceAttr___closed__1;
 lean_object* l_Lean_Elab_DefKind_isExample_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___closed__4;
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___closed__8;
 lean_object* l_Lean_Elab_Command_isDefLike___boxed(lean_object*);
-extern lean_object* l_Lean_Meta_registerInstanceAttr___closed__2;
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____closed__2;
 extern lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
 lean_object* l_Lean_Elab_DefKind_isTheorem___boxed(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfInstance_match__1(lean_object*);
@@ -120,6 +119,7 @@ lean_object* l_Lean_Elab_DefKind_isTheorem_match__1___rarg(uint8_t, lean_object*
 lean_object* l_Lean_Elab_Command_mkDefView(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefView___closed__1;
 extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_899____closed__1;
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____closed__1;
 lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_662____closed__2;
 lean_object* l_Lean_Elab_Command_isDefLike___closed__10;
 lean_object* l_Lean_Elab_Command_mkDefViewOfExample_match__1(lean_object*);
@@ -1032,7 +1032,7 @@ static lean_object* _init_l_Lean_Elab_Command_mkDefViewOfInstance___closed__1() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_registerInstanceAttr___closed__2;
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____closed__2;
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1284,7 +1284,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
-x_2 = l_Lean_Meta_registerInstanceAttr___closed__1;
+x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

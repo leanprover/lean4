@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.InternalExceptionId
-import Lean.Meta.Exception
+import Lean.Meta.Basic
 
 namespace Lean.Elab
 initialize postponeExceptionId : InternalExceptionId ← registerInternalExceptionId `postpone

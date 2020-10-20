@@ -162,6 +162,7 @@ if arg.isOfKind `Lean.Parser.Term.hole then
   match expectedType? with
   | none => throwError "invalid macro, expected type is not available"
   | some expectedType =>
+    synthesizeSyntheticMVars
     let expectedType ← instantiateMVars expectedType
     if expectedType.hasFVar || expectedType.hasMVar then
       throwError! "expected type must not contain free or meta variables{indentExpr expectedType}"

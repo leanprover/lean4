@@ -10,6 +10,8 @@ import Std.Data.PersistentHashSet
 import Lean.Data.Name
 import Lean.Data.Format
 
+namespace Std end Std -- Hack for old frontend
+
 def Nat.imax (n m : Nat) : Nat :=
 if m = 0 then 0 else Nat.max n m
 

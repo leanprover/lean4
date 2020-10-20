@@ -109,12 +109,14 @@ else ins lt t k v
 
 end Insert
 
-def balance₃ : RBNode α β → ∀ k, β k → RBNode α β → RBNode α β
-| node red (node red a kx vx b) ky vy c,   k, v, d => node red (node black a kx vx b) ky vy (node black c k v d)
-| node red a kx vx (node red b ky vy c),   k, v, d => node red (node black a kx vx b) ky vy (node black c k v d)
-| a, k, v, node red b ky vy (node red c kz vz d)   => node red (node black a k v b) ky vy (node black c kz vz d)
-| a, k, v, node red (node red b ky vy c) kz vz d   => node red (node black a k v b) ky vy (node black c kz vz d)
-| l, k, v, r                                       => node black l k v r
+def balance₃ (a : RBNode α β) (k : α) (v : β k) (d : RBNode α β) : RBNode α β :=
+match a with
+| node red (node red a kx vx b) ky vy c => node red (node black a kx vx b) ky vy (node black c k v d)
+| node red a kx vx (node red b ky vy c) => node red (node black a kx vx b) ky vy (node black c k v d)
+| a => match d with
+  | node red b ky vy (node red c kz vz d)   => node red (node black a k v b) ky vy (node black c kz vz d)
+  | node red (node red b ky vy c) kz vz d   => node red (node black a k v b) ky vy (node black c kz vz d)
+  | _                                       => node black a k v d
 
 def setRed : RBNode α β → RBNode α β
 | node _ a k v b => node red a k v b

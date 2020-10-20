@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -15,7 +16,7 @@ open System.FilePath (pathSeparator extSeparator)
 private def pathSep : String := toString pathSeparator
 
 def realPathNormalized (fname : String) : IO String := do
-fname ← IO.realPath fname;
+fname ← IO.realPath fname
 pure (System.FilePath.normalizePath fname)
 
 abbrev SearchPath := List String
@@ -33,12 +34,12 @@ pure $ System.FilePath.splitSearchPath path ++ sp
 constant isStage0 (u : Unit) : Bool := arbitrary _
 
 def getBuiltinSearchPath : IO SearchPath := do
-appDir ← IO.appDir;
+let appDir ← IO.appDir
 -- use stage1 stdlib with stage0 executable (which should never be distributed outside of the build directory)
 pure [appDir ++ pathSep ++ ".." ++ (if isStage0 () then pathSep ++ ".." ++ pathSep ++ "stage1" else "") ++ pathSep ++ "lib" ++ pathSep ++ "lean"]
 
 def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
-val ← IO.getEnv "LEAN_PATH";
+let val ← IO.getEnv "LEAN_PATH"
 match val with
 | none     => pure sp
 | some val => parseSearchPath val sp
@@ -48,8 +49,8 @@ def initSearchPath (path : Option String := none) : IO Unit :=
 match path with
 | some path => parseSearchPath path >>= searchPathRef.set
 | none      => do
-  sp ← getBuiltinSearchPath;
-  sp ← addSearchPathFromEnv sp;
+  let sp ← getBuiltinSearchPath
+  let sp ← addSearchPathFromEnv sp
   searchPathRef.set sp
 
 def modPathToFilePath : Name → String
@@ -58,30 +59,30 @@ def modPathToFilePath : Name → String
 | Name.num p _ _              => panic! "ill-formed import"
 
 def findOLean (mod : Name) : IO String := do
-sp ← searchPathRef.get;
-let pkg := mod.getRoot.toString;
-some root ← sp.findM? (fun path => IO.isDir $ path ++ pathSep ++ pkg)
-  | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'";
+let sp ← searchPathRef.get
+let pkg := mod.getRoot.toString
+let some root ← sp.findM? (fun path => IO.isDir $ path ++ pathSep ++ pkg)
+  | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'"
 pure $ root ++ modPathToFilePath mod ++ ".olean"
 
 /-- Infer module name of source file name. -/
 @[export lean_module_name_of_file]
 def moduleNameOfFileName (fname : String) (rootDir : Option String) : IO Name := do
-fname ← realPathNormalized fname;
-rootDir ← match rootDir with
+let fname ← realPathNormalized fname
+let rootDir ← match rootDir with
   | some rootDir => pure rootDir
-  | none         => IO.currentDir;
-rootDir ← realPathNormalized rootDir;
-when (!rootDir.isPrefixOf fname) $
-  throw $ IO.userError $ "input file '" ++ fname ++ "' must be contained in root directory (" ++ rootDir ++ ")";
-let fnameSuffix := fname.drop rootDir.length;
-let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
-some extPos ← pure (fnameSuffix.revPosOf '.')
-  | throw (IO.userError ("failed to convert file name '" ++ fname ++ "' to module name, extension is missing"));
-let modNameStr := fnameSuffix.extract 0 extPos;
-let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
-let parts      := modNameStr.splitOn pathSep;
-let modName    := parts.foldl mkNameStr Name.anonymous;
+  | none         => IO.currentDir
+let rootDir ← realPathNormalized rootDir
+if !rootDir.isPrefixOf fname then
+  throw $ IO.userError s!"input file '{fname}' must be contained in root directory ({rootDir})"
+let fnameSuffix := fname.drop rootDir.length
+let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix
+let some extPos ← pure (fnameSuffix.revPosOf '.')
+  | throw (IO.userError ("failed to convert file name '" ++ fname ++ "' to module name, extension is missing"))
+let modNameStr := fnameSuffix.extract 0 extPos
+let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize
+let parts      := modNameStr.splitOn pathSep
+let modName    := parts.foldl mkNameStr Name.anonymous
 pure modName
 
 end Lean

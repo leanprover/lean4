@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -85,15 +86,15 @@ def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × A
 match e with
 | Expr.lit (Literal.natVal n) _ =>
   if n == 0 then do
-    v ← getConstructorVal? env `Nat.zero;
+    let v ← getConstructorVal? env `Nat.zero
     pure (v, #[])
   else do
-    v ← getConstructorVal? env `Nat.succ;
+    let v ← getConstructorVal? env `Nat.succ
     pure (v, #[mkNatLit (n-1)])
 | _ =>
   match e.getAppFn with
   | Expr.const n _ _ => do
-    v ← getConstructorVal? env n;
+    let v ← getConstructorVal? env n
     if v.nparams + v.nfields == e.getAppNumArgs then
       pure (v, e.getAppArgs)
     else

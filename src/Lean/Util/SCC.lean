@@ -1,11 +1,11 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Std.Data.HashMap
-namespace Lean
-namespace SCC
+namespace Lean.SCC
 /-
   Very simple implementation of Tarjan's SCC algorithm.
   Performance is not a goal here since we use this module to
@@ -34,7 +34,7 @@ end
 variables {α : Type} [HasBeq α] [Hashable α]
 
 private def getDataOf (a : α) : M α Data := do
-s ← get;
+let s ← get
 match s.data.find? a with
 | some d => pure d
 | none   => pure {}
@@ -74,42 +74,38 @@ private partial def addSCCAux (a : α) : List α → List α → M α Unit
   resetOnStack b;
   let newSCC := b::newSCC;
   if a != b then
-    addSCCAux bs newSCC
+    addSCCAux a bs newSCC
   else
     modify fun s => { s with stack := bs, sccs := newSCC :: s.sccs }
 
 private def addSCC (a : α) : M α Unit := do
-s ← get;
+let s ← get
 addSCCAux a s.stack []
 
-@[specialize] private partial def sccAux (successorsOf : α → List α) : α → M α Unit
-| a => do
-  push a;
-  (successorsOf a).forM fun b => do {
-    bData ← getDataOf b;
-    if bData.index?.isNone then do
-      -- `b` has not been visited yet
-      sccAux b;
-      bData ← getDataOf b;
-      updateLowLinkOf a bData.lowlink?
-    else if bData.onStack then do
-      -- `b` is on the stack. So, it must be in the current SCC
-      -- The edge `(a, b)` is pointing to an SCC already found and must be ignored
-      updateLowLinkOf a bData.index?
-    else
-      pure ()
-  };
-  aData ← getDataOf a;
-  when (aData.lowlink? == aData.index?) $
-    addSCC a
+@[specialize] private partial def sccAux (successorsOf : α → List α) (a : α) : M α Unit := do
+push a
+(successorsOf a).forM fun b => do
+  let bData ← getDataOf b;
+  if bData.index?.isNone then
+    -- `b` has not been visited yet
+    sccAux successorsOf b;
+    let bData ← getDataOf b;
+    updateLowLinkOf a bData.lowlink?
+  else if bData.onStack then do
+    -- `b` is on the stack. So, it must be in the current SCC
+    -- The edge `(a, b)` is pointing to an SCC already found and must be ignored
+    updateLowLinkOf a bData.index?
+  else
+    pure ()
+let aData ← getDataOf a;
+if aData.lowlink? == aData.index? then
+  addSCC a
 
 @[specialize] def scc (vertices : List α) (successorsOf : α → List α) : List (List α) :=
-let main : M α Unit := vertices.forM fun a => do {
-  aData ← getDataOf a;
-  when aData.index?.isNone do sccAux successorsOf a
-};
-let (_, s) := main.run {};
+let main : M α Unit := vertices.forM fun a => do
+  let aData ← getDataOf a
+  if aData.index?.isNone then sccAux successorsOf a
+let (_, s) := main.run {}
 s.sccs.reverse
 
-end SCC
-end Lean
+end Lean.SCC

@@ -32,15 +32,15 @@ theorem tst8 : "hello" ++ "world" = "helloworld" :=
 rfl
 
 theorem tst9 : "abc" ≠ "cde" :=
-decide! _
+decide!
 
 theorem tst10 : "helloWorld" ≠ "helloworld" :=
-decide! _
+decide!
 
 theorem tst11 : "helloWorld" = "helloWorld" :=
-decide! _
+decide!
 
 theorem tst12 : 'a' ≠ 'c' :=
-decide! _
+decide!
 
 #check tst10

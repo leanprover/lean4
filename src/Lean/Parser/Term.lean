@@ -170,8 +170,8 @@ def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "
     parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 
 @[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
-@[builtinTermParser] def nativeDecide := parser! "nativeDecide! " >> termParser maxPrec
-@[builtinTermParser] def decide       := parser! "decide! " >> termParser maxPrec
+@[builtinTermParser] def nativeDecide := parser! "nativeDecide!"
+@[builtinTermParser] def decide       := parser! "decide!"
 
 @[builtinTermParser] def typeOf             := parser! "typeOf! " >> termParser maxPrec
 @[builtinTermParser] def ensureTypeOf       := parser! "ensureTypeOf! " >> termParser maxPrec >> strLit >> termParser

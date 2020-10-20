@@ -156,25 +156,20 @@ fun stx _ => do
     let eq ← mkEq e val
     mkExpectedTypeHint r eq
 
-private def getPropToDecide (arg : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-if arg.isOfKind `Lean.Parser.Term.hole then
-  tryPostponeIfNoneOrMVar expectedType?
-  match expectedType? with
-  | none => throwError "invalid macro, expected type is not available"
-  | some expectedType =>
-    synthesizeSyntheticMVars
-    let expectedType ← instantiateMVars expectedType
-    if expectedType.hasFVar || expectedType.hasMVar then
-      throwError! "expected type must not contain free or meta variables{indentExpr expectedType}"
-    pure expectedType
-else
-  let prop := mkSort levelZero
-  elabClosedTerm arg prop
+private def getPropToDecide (expectedType? : Option Expr) : TermElabM Expr := do
+tryPostponeIfNoneOrMVar expectedType?
+match expectedType? with
+| none => throwError "invalid macro, expected type is not available"
+| some expectedType =>
+  synthesizeSyntheticMVars
+  let expectedType ← instantiateMVars expectedType
+  if expectedType.hasFVar || expectedType.hasMVar then
+    throwError! "expected type must not contain free or meta variables{indentExpr expectedType}"
+  pure expectedType
 
 @[builtinTermElab «nativeDecide»] def elabNativeDecide : TermElab :=
 fun stx expectedType? => do
-  let arg  := stx[1]
-  let p ← getPropToDecide arg expectedType?
+  let p ← getPropToDecide expectedType?
   let d ← mkAppM `Decidable.decide #[p]
   let auxDeclName ← mkNativeReflAuxDecl (Lean.mkConst `Bool) d
   let rflPrf ← mkEqRefl (toExpr true)
@@ -183,8 +178,7 @@ fun stx expectedType? => do
 
 @[builtinTermElab Lean.Parser.Term.decide] def elabDecide : TermElab :=
 fun stx expectedType? => do
-  let arg  := stx[1]
-  let p ← getPropToDecide arg expectedType?
+  let p ← getPropToDecide expectedType?
   let d ← mkAppM `Decidable.decide #[p]
   let d ← instantiateMVars d
   let s := d.appArg! -- get instance from `d`

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -20,7 +21,7 @@ variables {α : Type u}
 open List
 
 def ofList (l : List α) : DList α :=
-⟨HasAppend.append l, fun t => (appendNil l).symm ▸ rfl⟩
+⟨HasAppend.append l, fun t => by rw appendNil; exact rfl⟩
 
 def empty : DList α :=
 ⟨id, fun t => rfl⟩
@@ -40,20 +41,26 @@ def cons : α → DList α → DList α
   ⟨fun t => a :: f t,
    fun t =>
     show a :: f t = a :: f [] ++ t from
-    have h₁ : a :: f t = a :: (f nil ++ t) := h t ▸ rfl;
-    have h₂ : a :: (f nil ++ t) = a :: f nil ++ t := (consAppend _ _ _).symm;
+    have h₁ : a :: f t = a :: (f nil ++ t) by rw h t; exact rfl
+    have h₂ : a :: (f nil ++ t) = a :: f nil ++ t := (consAppend _ _ _).symm
     Eq.trans h₁ h₂⟩
 
 def append : DList α → DList α → DList α
 | ⟨f, h₁⟩, ⟨g, h₂⟩ =>
-  ⟨f ∘ g, fun t =>
-    show f (g t) = (f (g [])) ++ t from
-   (h₁ (g [])).symm ▸ (appendAssoc (f []) (g []) t).symm ▸ h₂ t ▸ h₁ (g t) ▸ rfl⟩
+  ⟨f ∘ g, by
+    intro t
+    show f (g t) = (f (g [])) ++ t
+    rw [h₁ (g t), h₂ t, ← appendAssoc (f []) (g []) t, ← h₁ (g [])]
+    exact rfl⟩
 
 def push : DList α → α → DList α
 | ⟨f, h⟩, a =>
   ⟨fun t => f (a :: t),
-   fun t => (h (a::t)).symm ▸ (h [a]).symm ▸ (appendAssoc (f []) [a] t).symm ▸ rfl⟩
+   by
+    intro t
+    show f (a :: t) = f (a :: nil) ++ t
+    rw [h [a], h (a::t), appendAssoc (f []) [a] t]
+    exact rfl⟩
 
 instance : HasAppend (DList α) :=
 ⟨DList.append⟩

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -7,11 +8,7 @@ import Lean.Environment
 
 namespace Lean
 
-def mkAuxRecursorExtension : IO TagDeclarationExtension :=
-mkTagDeclarationExtension `auxRec
-
-@[builtinInit mkAuxRecursorExtension]
-constant auxRecExt : TagDeclarationExtension := arbitrary _
+builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension `auxRec
 
 @[export lean_mark_aux_recursor]
 def markAuxRecursor (env : Environment) (n : Name) : Environment :=
@@ -21,11 +18,7 @@ auxRecExt.tag env n
 def isAuxRecursor (env : Environment) (n : Name) : Bool :=
 auxRecExt.isTagged env n
 
-def mkNoConfusionExtension : IO TagDeclarationExtension :=
-mkTagDeclarationExtension `noConf
-
-@[builtinInit mkNoConfusionExtension]
-constant noConfusionExt : TagDeclarationExtension := arbitrary _
+builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension `noConf
 
 @[export lean_mark_no_confusion]
 def markNoConfusion (env : Environment) (n : Name) : Environment :=

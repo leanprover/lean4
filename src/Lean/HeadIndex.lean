@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -21,7 +22,7 @@ namespace HeadIndex
 
 instance : Inhabited HeadIndex := ⟨sort⟩
 
-def HeadIndex.hash : HeadIndex → USize
+protected def HeadIndex.hash : HeadIndex → USize
 | fvar fvarId         => mixHash 11 $ hash fvarId
 | mvar mvarId         => mixHash 13 $ hash mvarId
 | const constName     => mixHash 17 $ hash constName
@@ -33,7 +34,7 @@ def HeadIndex.hash : HeadIndex → USize
 
 instance : Hashable HeadIndex := ⟨HeadIndex.hash⟩
 
-def HeadIndex.beq : HeadIndex → HeadIndex → Bool
+protected def HeadIndex.beq : HeadIndex → HeadIndex → Bool
 | fvar id₁,   fvar id₂   => id₁ == id₂
 | mvar id₁,   mvar id₂   => id₁ == id₂
 | const id₁,  const id₂  => id₁ == id₂

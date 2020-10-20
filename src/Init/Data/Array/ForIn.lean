@@ -41,7 +41,7 @@ let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
   | 0,   _ => pure b
   | i+1, h =>
     have h' : i < as.size          from Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
-    have as.size - 1 < as.size     from Nat.subLt (zeroLtOfLt h') (decide! (0 < 1))
+    have as.size - 1 < as.size     from Nat.subLt (zeroLtOfLt h') (decide! : 0 < 1)
     have as.size - 1 - i < as.size from Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this
     match (← f (as.get ⟨as.size - 1 - i, this⟩) b) with
     | ForInStep.done b  => pure b

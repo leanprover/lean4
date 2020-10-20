@@ -73,7 +73,6 @@ lean_object* l_Lean_Meta_inferType___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfD___at___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkForall___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkLambdaLet___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_MonadCacheT_MonadLift___closed__1;
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkLambdaLet___at___private_Lean_Meta_Check_0__Lean_Meta_checkAux___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -136,6 +135,7 @@ lean_object* l_Lean_addErrorMessageContextDefault___rarg(lean_object*, lean_obje
 lean_object* l_StateRefT_x27_MonadExceptOf___rarg(lean_object*);
 lean_object* l___private_Lean_Util_Trace_3__checkTraceOptionM___at_Lean_Meta_isLevelDefEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkLambdaLet___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___closed__1;
 lean_object* l_Array_forMAux___main___at___private_Lean_Meta_Check_0__Lean_Meta_checkAux___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3;
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkApp___closed__6;
@@ -1697,7 +1697,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Core_Lean_Ref;
 x_2 = l___private_Lean_Meta_Check_0__Lean_Meta_checkApp___closed__6;
-x_3 = l_Lean_MonadCacheT_MonadLift___closed__1;
+x_3 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___closed__1;
 x_4 = l_Lean_refTrans___rarg(x_1, x_2, x_3);
 return x_4;
 }

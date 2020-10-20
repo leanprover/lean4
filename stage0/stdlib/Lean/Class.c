@@ -21,6 +21,7 @@ size_t l_USize_add(size_t, size_t);
 uint8_t lean_is_out_param(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Class_1__checkOutParam___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___at_Lean_ClassState_addEntry___spec__18___boxed(lean_object*, lean_object*);
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_ClassState_addEntry___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l___private_Lean_Class_1__checkOutParam(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ClassState_switch(lean_object*);
@@ -79,7 +80,6 @@ lean_object* l_Lean_classExtension___elambda__1___boxed(lean_object*);
 lean_object* lean_get_class_instances(lean_object*, lean_object*);
 lean_object* l_Lean_ClassEntry_getName(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_ClassState_addEntry___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ClassEntry_lt___boxed(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_8__persistentEnvExtensionsRef;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_hasOutParams___spec__6(lean_object*, lean_object*);
@@ -97,6 +97,7 @@ lean_object* l_Lean_classExtension___closed__2;
 lean_object* l_Lean_ClassState_Inhabited___closed__1;
 lean_object* l_Lean_getClassName___main(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_ClassState_addEntry___spec__20(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_mkClassExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_insert___at_Lean_ClassState_addEntry___spec__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
@@ -220,7 +221,6 @@ lean_object* l_Lean_SMap_find_x3f___at_Lean_hasOutParams___spec__1___boxed(lean_
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_addAliasEntry___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_addGlobalInstanceOld___closed__2;
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_ClassState_addEntry___spec__20(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Class_1__checkOutParam___main___closed__4;
 lean_object* l_Lean_isInstance___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_hasOutParams___spec__1(lean_object*, lean_object*);
@@ -977,7 +977,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_ClassState_addEntry___spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_ClassState_addEntry___spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1018,7 +1018,7 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashMapImp_moveEntries___main___at_Lean_ClassState_addEntry___spec__9(x_8, x_2, x_7);
+x_9 = l_Std_HashMapImp_moveEntries___at_Lean_ClassState_addEntry___spec__9(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);
@@ -1841,7 +1841,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_ClassState_addEntry___spec__20(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_ClassState_addEntry___spec__20(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1882,7 +1882,7 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashMapImp_moveEntries___main___at_Lean_ClassState_addEntry___spec__20(x_8, x_2, x_7);
+x_9 = l_Std_HashMapImp_moveEntries___at_Lean_ClassState_addEntry___spec__20(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);

@@ -73,7 +73,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_Cl
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__9(lean_object*, lean_object*, lean_object*);
 size_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -101,6 +100,7 @@ uint8_t l_USize_decLe(size_t, size_t);
 lean_object* l_Lean_closedTermCacheExt___elambda__2___boxed(lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8__match__1(lean_object*);
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__3(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_getClosedTermName_x3f___spec__1___boxed(lean_object*, lean_object*);
@@ -719,7 +719,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -760,7 +760,7 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashMapImp_moveEntries___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__9(x_8, x_2, x_7);
+x_9 = l_Std_HashMapImp_moveEntries___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__9(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);

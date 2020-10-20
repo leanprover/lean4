@@ -232,16 +232,22 @@ let rec loop (u : Unit) : TermElabM Unit := do
 loop ()
 
 def synthesizeSyntheticMVarsNoPostponing : TermElabM Unit :=
-synthesizeSyntheticMVars false
+synthesizeSyntheticMVars (mayPostpone := false)
 
-/-- Execute `k`, and make sure all pending synthetic metavariables created while executing `k` are solved. -/
-def withSynthesize {α} (k : TermElabM α) : TermElabM α := do
+/--
+  Execute `k`, and synthesize pending synthetic metavariables created while executing `k` are solved.
+  If `mayPostpone == false`, then all of them must be synthesized.
+  Remark: even if `mayPostpone == true`, the method still uses `synthesizeUsingDefault` -/
+def withSynthesize {α} (k : TermElabM α) (mayPostpone := false) : TermElabM α := do
 let s ← get
 let syntheticMVarsSaved := s.syntheticMVars
 modify fun s => { s with syntheticMVars := [] }
 try
   let a ← k
-  synthesizeSyntheticMVarsNoPostponing
+  synthesizeSyntheticMVars mayPostpone
+  if mayPostpone then
+    if (← synthesizeUsingDefault) then
+      synthesizeSyntheticMVars mayPostpone
   pure a
 finally
   modify fun s => { s with syntheticMVars := s.syntheticMVars ++ syntheticMVarsSaved }

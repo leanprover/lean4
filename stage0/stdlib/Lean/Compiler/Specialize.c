@@ -48,6 +48,7 @@ lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Compiler_getSpecializati
 size_t l_USize_sub(size_t, size_t);
 lean_object* l_List_map___main___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__7(lean_object*, uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Compiler_SpecState_addEntry___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getSpecializationInfo___spec__1___boxed(lean_object*, lean_object*);
@@ -101,6 +102,7 @@ lean_object* l_Lean_Compiler_SpecializeAttributeKind_beq_match__1(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Compiler_SpecState_addEntry___spec__20(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension;
 lean_object* l_Array_iterateMAux___main___at_Lean_Compiler_SpecState_addEntry___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -157,7 +159,6 @@ lean_object* lean_add_specialization_info(lean_object*, lean_object*, lean_objec
 size_t l_USize_mul(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_Compiler_getCachedSpecialization___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_Compiler_SpecState_addEntry___spec__20(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_cache___default___closed__2;
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_Compiler_getSpecializationInfo___spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -194,7 +195,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getSpecializationInfo___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_Compiler_SpecState_addEntry___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__1___lambda__1(lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___at_Lean_Compiler_SpecState_addEntry___spec__18(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___main___at_Lean_Compiler_SpecState_addEntry___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2730,7 +2730,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_Compiler_SpecState_addEntry___spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Compiler_SpecState_addEntry___spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -2771,7 +2771,7 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashMapImp_moveEntries___main___at_Lean_Compiler_SpecState_addEntry___spec__9(x_8, x_2, x_7);
+x_9 = l_Std_HashMapImp_moveEntries___at_Lean_Compiler_SpecState_addEntry___spec__9(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);
@@ -3590,7 +3590,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_Compiler_SpecState_addEntry___spec__20(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Compiler_SpecState_addEntry___spec__20(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -3631,7 +3631,7 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashMapImp_moveEntries___main___at_Lean_Compiler_SpecState_addEntry___spec__20(x_8, x_2, x_7);
+x_9 = l_Std_HashMapImp_moveEntries___at_Lean_Compiler_SpecState_addEntry___spec__20(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);

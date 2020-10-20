@@ -54,6 +54,7 @@ lean_object* l_Std_PShareCommonT_monadShareCommon___rarg(lean_object*);
 lean_object* l_Std_AssocList_contains___at_Std_ShareCommon_ObjectMap_insert___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Std_ShareCommon_ObjectMap_insert___spec__1(lean_object*, lean_object*, lean_object*);
 size_t l_Std_ShareCommon_Object_ptrHash(lean_object*);
+lean_object* l_Std_HashMapImp_moveEntries___at_Std_ShareCommon_ObjectMap_insert___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PShareCommonT_monadShareCommon(lean_object*);
 lean_object* l_Std_ShareCommon_Object_eq___boxed(lean_object*, lean_object*);
 lean_object* lean_persistent_state_sharecommon(lean_object*, lean_object*);
@@ -160,7 +161,6 @@ lean_object* l_Std_withShareCommon___rarg(lean_object*, lean_object*, lean_objec
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_expand___at_Std_ShareCommon_ObjectSet_insert___spec__3(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Std_ShareCommon_ObjectMap_insert___spec__4(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_ShareCommon_Object_ptrEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -407,7 +407,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Std_ShareCommon_ObjectMap_insert___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMapImp_moveEntries___at_Std_ShareCommon_ObjectMap_insert___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -448,7 +448,7 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashMapImp_moveEntries___main___at_Std_ShareCommon_ObjectMap_insert___spec__4(x_8, x_2, x_7);
+x_9 = l_Std_HashMapImp_moveEntries___at_Std_ShareCommon_ObjectMap_insert___spec__4(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);

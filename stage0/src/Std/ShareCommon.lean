@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -144,10 +145,10 @@ x.run' ShareCommon.State.empty
 x.run' ShareCommon.PersistentState.empty
 
 @[inline] def ShareCommonM.run {α : Type u} (x : ShareCommonM α) : α :=
-Id.run x.run
+ShareCommonT.run x
 
 @[inline] def PShareCommonM.run {α : Type u} (x : PShareCommonM α) : α :=
-Id.run x.run
+PShareCommonT.run x
 
 def shareCommon {α} (a : α) : α :=
 (withShareCommon a : ShareCommonM α).run

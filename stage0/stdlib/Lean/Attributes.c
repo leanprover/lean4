@@ -195,6 +195,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean
 lean_object* l_Std_RBNode_fold___at_Lean_registerEnumAttributes___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerParametricAttribute___spec__3(lean_object*);
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_registerAttributeImplBuilder___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_setParam(lean_object*);
 lean_object* l_Lean_attributeExtension___closed__1;
@@ -246,7 +247,6 @@ lean_object* l_Lean_registerAttributeImplBuilder___closed__1;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
 extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_Ext_inhabitedExt___closed__2;
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_registerAttributeImplBuilder___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__4___closed__2;
 lean_object* l_Lean_ParametricAttribute_setParam___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_contains___at_Lean_registerBuiltinAttribute___spec__1___boxed(lean_object*, lean_object*);
@@ -1836,7 +1836,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_registerAttributeImplBuilder___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_registerAttributeImplBuilder___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1877,7 +1877,7 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashMapImp_moveEntries___main___at_Lean_registerAttributeImplBuilder___spec__5(x_8, x_2, x_7);
+x_9 = l_Std_HashMapImp_moveEntries___at_Lean_registerAttributeImplBuilder___spec__5(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);

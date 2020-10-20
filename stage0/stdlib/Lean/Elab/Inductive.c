@@ -83,7 +83,6 @@ lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_getResultingUn
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_List_map___main___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_updateResultingUniverse___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_updateParams___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -394,6 +393,7 @@ lean_object* l_Lean_Elab_Command_elabInductiveViews___lambda__1___boxed(lean_obj
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_withUsed_match__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache;
 extern lean_object* l_Std_HashMap_find_x21___rarg___closed__1;
+extern lean_object* l_Std_HashMap_find_x21___rarg___closed__2;
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_removeUnused(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUniverses(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_getResultingType___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -503,6 +503,7 @@ lean_object* l_List_mapM___main___at___private_Lean_Elab_Inductive_0__Lean_Elab_
 lean_object* l_Lean_Elab_Command_checkValidCtorModifier___lambda__2___closed__3;
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUniversesFromCtorTypeAux_match__2(lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUsed___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkLevelNames___spec__1___closed__2;
 uint8_t l_List_beq___main___at_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_withInductiveLocalDecls_loop_match__1___rarg(lean_object*, lean_object*);
@@ -13951,13 +13952,14 @@ return x_2;
 static lean_object* _init_l_List_map___main___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyInferMod___spec__1___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_HashMap_find_x21___rarg___closed__1;
-x_2 = lean_unsigned_to_nat(162u);
-x_3 = lean_unsigned_to_nat(12u);
-x_4 = l_Std_PersistentHashMap_find_x21___rarg___closed__2;
-x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
-return x_5;
+x_2 = l_Std_HashMap_find_x21___rarg___closed__2;
+x_3 = lean_unsigned_to_nat(164u);
+x_4 = lean_unsigned_to_nat(12u);
+x_5 = l_Std_PersistentHashMap_find_x21___rarg___closed__2;
+x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+return x_6;
 }
 }
 lean_object* l_List_map___main___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyInferMod___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

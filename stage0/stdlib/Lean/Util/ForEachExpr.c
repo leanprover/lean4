@@ -21,6 +21,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_ForEachExpr_visit___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forEach_x27___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Expr_forEach___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___main___at_Lean_Expr_forEach___spec__1___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___main___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -42,7 +43,6 @@ lean_object* l_Lean_ForEachExpr_visit___main___at_Lean_Expr_forEach___spec__1___
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_Expr_forEach___spec__7(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_notM___rarg___closed__1;
 extern lean_object* l_Lean_MonadCacheT_run___rarg___closed__1;
 size_t l_Lean_Expr_hash(lean_object*);
@@ -734,7 +734,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashMapImp_moveEntries___main___at_Lean_Expr_forEach___spec__7(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Expr_forEach___spec__7(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -775,7 +775,7 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashMapImp_moveEntries___main___at_Lean_Expr_forEach___spec__7(x_8, x_2, x_7);
+x_9 = l_Std_HashMapImp_moveEntries___at_Lean_Expr_forEach___spec__7(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);

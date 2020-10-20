@@ -290,6 +290,46 @@ fun stx expectedType? => do
   let stxNew ← `(HasEmptyc.emptyc)
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 
+/-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
+partial def mkPairs (elems : Array Syntax) : MacroM Syntax :=
+let rec loop (i : Nat) (acc : Syntax) := do
+  if i > 0 then
+    let i    := i - 1
+    let elem := elems[i]
+    let acc ← `(Prod.mk $elem $acc)
+    loop i acc
+  else
+    pure acc
+loop (elems.size - 1) elems.back
+
+/--
+  Try to expand `·` notation, and if successful elaborate result.
+  This method is used to elaborate the Lean parentheses notation.
+  Recall that in Lean the `·` notation must be surrounded by parentheses.
+  We may change this is the future, but right now, here are valid examples
+  - `(· + 1)`
+  - `(f ⟨·, 1⟩ ·)`
+  - `(· + ·)`
+  - `(f · a b)` -/
+private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+match (← liftMacroM $ expandCDot? stx) with
+| some stx' => withMacroExpansion stx stx' (elabTerm stx' expectedType?)
+| none      => elabTerm stx expectedType?
+
+@[builtinTermElab paren] def elabParen : TermElab :=
+fun stx expectedType? =>
+  match_syntax stx with
+  | `(())           => pure $ Lean.mkConst `Unit.unit
+  | `(($e : $type)) => do
+    let type ← withSynthesize $ elabType type
+    let e ← elabCDot e type
+    ensureHasType type e
+  | `(($e))         => elabCDot e expectedType?
+  | `(($e, $es*))   => do
+    let pairs ← liftMacroM $ mkPairs (#[e] ++ es.getEvenElems)
+    withMacroExpansion stx pairs (elabTerm pairs expectedType?)
+  | _ => throwError "unexpected parentheses notation"
+
 /-
 TODO
 @[builtinTermElab] def elabsubst : TermElab := expandInfixOp infixR " ▸ " 75

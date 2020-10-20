@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -13,7 +14,7 @@ namespace Parser
 open Std (RBNode RBNode.leaf RBNode.singleton RBNode.find RBNode.insert)
 
 inductive Trie (α : Type)
-| Node : Option α → RBNode Char (fun _ => Trie) → Trie
+| Node : Option α → RBNode Char (fun _ => Trie α) → Trie α
 
 namespace Trie
 variables {α : Type}
@@ -27,62 +28,58 @@ instance : HasEmptyc (Trie α) :=
 instance : Inhabited (Trie α) :=
 ⟨Node none RBNode.leaf⟩
 
-private partial def insertEmptyAux (s : String) (val : α) : String.Pos → Trie α
-| i => match s.atEnd i with
+partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
+let rec insertEmpty (i : String.Pos) : Trie α :=
+  match s.atEnd i with
   | true => Trie.Node (some val) RBNode.leaf
   | false =>
-    let c := s.get i;
-    let t := insertEmptyAux (s.next i);
+    let c := s.get i
+    let t := insertEmpty (s.next i)
     Trie.Node none (RBNode.singleton c t)
+let rec loop
+  | Trie.Node v m, i =>
+    match s.atEnd i with
+    | true  => Trie.Node (some val) m -- overrides old value
+    | false =>
+      let c := s.get i
+      let i := s.next i
+      let t := match RBNode.find Char.lt m c with
+        | none   => insertEmpty i
+        | some t => loop t i
+      Trie.Node v (RBNode.insert Char.lt m c t)
+loop t 0
 
-private partial def insertAux (s : String) (val : α) : Trie α → String.Pos → Trie α
-| Trie.Node v m, i =>
-  match s.atEnd i with
-  | true  => Trie.Node (some val) m -- overrides old value
-  | false =>
-    let c := s.get i;
-    let i := s.next i;
-    let t := match RBNode.find Char.lt m c with
-      | none   => insertEmptyAux s val i
-      | some t => insertAux t i;
-    Trie.Node v (RBNode.insert Char.lt m c t)
-
-def insert (t : Trie α) (s : String) (val : α) : Trie α :=
-insertAux s val t 0
-
-private partial def findAux? (s : String) : Trie α → String.Pos → Option α
-| Trie.Node val m, i =>
-  match s.atEnd i with
-  | true  => val
-  | false =>
-    let c := s.get i;
-    let i := s.next i;
-    match RBNode.find Char.lt m c with
-    | none   => none
-    | some t => findAux? t i
-
-def find? (t : Trie α) (s : String) : Option α :=
-findAux? s t 0
+partial def find? (t : Trie α) (s : String) : Option α :=
+let rec loop
+  | Trie.Node val m, i =>
+    match s.atEnd i with
+    | true  => val
+    | false =>
+      let c := s.get i
+      let i := s.next i
+      match RBNode.find Char.lt m c with
+      | none   => none
+      | some t => loop t i
+loop t 0
 
 private def updtAcc (v : Option α) (i : String.Pos) (acc : String.Pos × Option α) : String.Pos × Option α :=
 match v, acc with
 | some v, (j, w) => (i, some v)  -- we pattern match on `acc` to enable memory reuse
 | none,   acc    => acc
 
-private partial def matchPrefixAux (s : String) : Trie α → String.Pos → (String.Pos × Option α) → String.Pos × Option α
-| Trie.Node v m, i, acc =>
-  match s.atEnd i with
-  | true  => updtAcc v i acc
-  | false =>
-    let acc := updtAcc v i acc;
-    let c   := s.get i;
-    let i   := s.next i;
-    match RBNode.find Char.lt m c with
-    | some t => matchPrefixAux t i acc
-    | none   => acc
-
-def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos × Option α :=
-matchPrefixAux s t i (i, none)
+partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos × Option α :=
+let rec loop
+  | Trie.Node v m, i, acc =>
+    match s.atEnd i with
+    | true  => updtAcc v i acc
+    | false =>
+      let acc := updtAcc v i acc
+      let c   := s.get i
+      let i   := s.next i
+      match RBNode.find Char.lt m c with
+      | some t => loop t i acc
+      | none   => acc
+loop t i (i, none)
 
 private partial def toStringAux {α : Type} : Trie α → List Format
 | Trie.Node val map => map.fold (fun Fs c t =>

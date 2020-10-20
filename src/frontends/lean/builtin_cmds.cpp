@@ -390,7 +390,7 @@ static environment eval_cmd(parser & p) {
         scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
         time_task t("#eval execution",
                     message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
-        r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
+        r = object_ref(ir::run_boxed(new_env, p.get_options(), fn_name, args.size(), &args[0]));
     }
     lean_assert(io_result_is_ok(r.raw()));
     r = object_ref(io_result_get_value(r.raw()), true);

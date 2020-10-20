@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -125,15 +126,16 @@ def getIdAt (stx : Syntax) (i : Nat) : Name :=
 
 @[specialize] partial def replaceM {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m (Syntax)
 | stx@(node kind args) => do
-  o ← fn stx;
-  match o with
-  | some stx => pure stx
-  | none     => do args ← args.mapM replaceM; pure (node kind args)
-| stx => do o ← fn stx; pure $ o.getD stx
+  match (← fn stx) with
+  | some stx => return stx
+  | none     => return node kind (← args.mapM (replaceM fn))
+| stx => do
+  let o ← fn stx
+  return o.getD stx
 
 @[specialize] partial def rewriteBottomUpM {m : Type → Type} [Monad m] (fn : Syntax → m (Syntax)) : Syntax → m (Syntax)
 | node kind args   => do
-  args ← args.mapM rewriteBottomUpM;
+  let args ← args.mapM (rewriteBottomUpM fn)
   fn (node kind args)
 | stx => fn stx
 
@@ -150,14 +152,14 @@ private def updateInfo : SourceInfo → String.Pos → SourceInfo
 @[inline]
 private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
 | atom info@{trailing := some trail, ..} val => do
-  last ← get;
-  set trail.stopPos;
-  let newInfo := updateInfo info last;
+  let last ← get
+  set trail.stopPos
+  let newInfo := updateInfo info last
   pure $ some (atom newInfo val)
 | ident info@{trailing := some trail, ..} rawVal val pre   => do
-  last ← get;
-  set trail.stopPos;
-  let newInfo := updateInfo info last;
+  let last ← get
+  set trail.stopPos
+  let newInfo := updateInfo info last
   pure $ some (ident newInfo rawVal val pre)
 | _ => pure none
 
@@ -178,11 +180,11 @@ fun stx => (replaceM updateLeadingAux stx).run' 0
 partial def updateTrailing (trailing : Option Substring) : Syntax → Syntax
 | Syntax.atom info val               => Syntax.atom (info.updateTrailing trailing) val
 | Syntax.ident info rawVal val pre   => Syntax.ident (info.updateTrailing trailing) rawVal val pre
-| n@(Syntax.node k args)                    =>
+| n@(Syntax.node k args)             =>
   if args.size == 0 then n
   else
-   let i    := args.size - 1;
-   let last := updateTrailing (args.get! i);
+   let i    := args.size - 1
+   let last := updateTrailing trailing args[i]
    let args := args.set! i last;
    Syntax.node k args
 | s => s
@@ -210,13 +212,13 @@ partial def getTailInfo : Syntax → Option SourceInfo
     let v := a.get! i;
     match f v with
     | some v => some $ a.set! i v
-    | none   => updateLast i
+    | none   => updateLast a f i
 
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
 | atom _ val             => some $ atom info val
 | ident _ rawVal val pre => some $ ident info rawVal val pre
 | node k args            =>
-  match updateLast args setTailInfoAux args.size with
+  match updateLast args (setTailInfoAux info) args.size with
   | some args => some $ node k args
   | none      => none
 | stx                    => none
@@ -237,7 +239,7 @@ match stx.getTailInfo with
     let v := a.get ⟨i, h⟩;
     match f v with
     | some v => some $ a.set ⟨i, h⟩ v
-    | none   => updateFirst (i+1)
+    | none   => updateFirst a f (i+1)
   else
     none
 
@@ -245,7 +247,7 @@ partial def setHeadInfoAux (info : SourceInfo) : Syntax → Option Syntax
 | atom _ val             => some $ atom info val
 | ident _ rawVal val pre => some $ ident info rawVal val pre
 | node k args            =>
-  match updateFirst args setHeadInfoAux 0 with
+  match updateFirst args (setHeadInfoAux info) 0 with
   | some args => some $ node k args
   | noxne     => none
 | stx                    => none
@@ -261,7 +263,7 @@ def setInfo (info : SourceInfo) : Syntax → Syntax
 | stx                    => stx
 
 partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
-| node k args => node k $ args.map replaceInfo
+| node k args => node k $ args.map (replaceInfo info)
 | stx         => setInfo info stx
 
 def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
@@ -283,9 +285,9 @@ partial def reprint : Syntax → Option String
   if kind == choiceKind then
     if args.size == 0 then failure
     else do
-      s ← reprint (args.get! 0);
-      args.foldlFromM (fun s stx => do s' ← reprint stx; guard (s == s'); pure s) s 1
-  else args.foldlM (fun r stx => do s ← reprint stx; pure $ r ++ s) ""
+      let s ← reprint args[0]
+      args.foldlFromM (fun s stx => do let s' ← reprint stx; guard (s == s'); pure s) s 1
+  else args.foldlM (fun r stx => do let s ← reprint stx; pure $ r ++ s) ""
 | _ => ""
 
 open Lean.Format
@@ -309,12 +311,12 @@ partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syn
       if args.size > 0 && depth > maxDepth.getD depth then
         ".."
       else
-        joinSep (args.toList.map (formatStxAux depth)) line
+        joinSep (args.toList.map (formatStxAux maxDepth showInfo depth)) line
   else
     let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;
     let header      := format shorterName;
     let body : List Format :=
-      if args.size > 0 && depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux depth);
+      if args.size > 0 && depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux maxDepth showInfo depth);
     paren $ joinSep (header :: body) line
 
 def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showInfo := false) : Format :=
@@ -360,7 +362,7 @@ else
 /-- Advance to the parent of the current node, if any. -/
 def up (t : Traverser) : Traverser :=
 if t.parents.size > 0 then
-  let cur := if t.idxs.back < t.parents.back.getNumArgs then t.parents.back.setArg t.idxs.back t.cur else t.parents.back;
+  let cur := if t.idxs.back < t.parents.back.getNumArgs then t.parents.back.setArg t.idxs.back t.cur else t.parents.back
   { cur := cur, parents := t.parents.pop, idxs := t.idxs.pop }
 else t
 
@@ -394,7 +396,7 @@ def goLeft                : m Unit := @modify _ _ t.st (fun t => t.left)
 def goRight               : m Unit := @modify _ _ t.st (fun t => t.right)
 
 def getIdx : m Nat := do
-st ← t.st.get;
+let st ← t.st.get
 pure st.idxs.back
 
 end MonadTraverser

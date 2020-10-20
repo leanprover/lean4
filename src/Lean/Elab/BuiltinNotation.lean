@@ -321,7 +321,7 @@ fun stx expectedType? =>
   match_syntax stx with
   | `(())           => pure $ Lean.mkConst `Unit.unit
   | `(($e : $type)) => do
-    let type ← withSynthesize $ elabType type
+    let type ← withSynthesize (mayPostpone := true) $ elabType type
     let e ← elabCDot e type
     ensureHasType type e
   | `(($e))         => elabCDot e expectedType?

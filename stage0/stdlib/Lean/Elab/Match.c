@@ -225,7 +225,6 @@ lean_object* l_Lean_throwError___at___private_Lean_Elab_Match_0__Lean_Elab_Term_
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_isAuxDiscrName___closed__2;
 extern lean_object* l_Lean_mkAppStx___closed__8;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_finalizePatternDecls___spec__2___closed__3;
-extern lean_object* l_Lean_Parser_registerRunParserAttributeHooksAttribute___lambda__1___closed__1;
 extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__18;
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_expandNonAtomicDiscrs_x3f_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_toMessageData___closed__2;
@@ -403,6 +402,7 @@ lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_getMatchOptType(lean_
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_throwInvalidPattern___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Elab_Term_CollectPatternVars_main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_expandMacros___main(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_registerRunBuiltinParserAttributeHooksAttribute___lambda__1___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_throwInvalidPattern___rarg___closed__1;
 extern lean_object* l_Lean_choiceKind;
@@ -8586,7 +8586,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_14 = lean_ctor_get(x_12, 0);
-x_15 = l_Lean_Parser_registerRunParserAttributeHooksAttribute___lambda__1___closed__1;
+x_15 = l_Lean_Parser_registerRunBuiltinParserAttributeHooksAttribute___lambda__1___closed__1;
 x_16 = l_Lean_addMacroScope(x_14, x_15, x_10);
 x_17 = l_Lean_SourceInfo_inhabited___closed__1;
 x_18 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_nameToPattern___closed__3;
@@ -8607,7 +8607,7 @@ x_22 = lean_ctor_get(x_12, 1);
 lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_12);
-x_23 = l_Lean_Parser_registerRunParserAttributeHooksAttribute___lambda__1___closed__1;
+x_23 = l_Lean_Parser_registerRunBuiltinParserAttributeHooksAttribute___lambda__1___closed__1;
 x_24 = l_Lean_addMacroScope(x_21, x_23, x_10);
 x_25 = l_Lean_SourceInfo_inhabited___closed__1;
 x_26 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_nameToPattern___closed__3;

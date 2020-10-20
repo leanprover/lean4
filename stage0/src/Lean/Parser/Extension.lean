@@ -245,9 +245,24 @@ hooks ← parserAttributeHooks.get;
 hooks.forM fun hook => hook.postAdd catName declName builtin
 
 @[builtinInit]
+def registerRunBuiltinParserAttributeHooksAttribute : IO Unit :=
+registerBuiltinAttribute {
+  name  := `runBuiltinParserAttributeHooks,
+  descr := "explicitly run hooks normally activated by builtin parser attributes",
+  add   := fun decl args persistent => do
+    when args.hasArgs $ throwError ("invalid attribute 'runBuiltinParserAttributeHooks', unexpected argument");
+    runParserAttributeHooks `Name.anonymous decl /- builtin -/ true
+}
+
+@[builtinInit]
 def registerRunParserAttributeHooksAttribute : IO Unit :=
-discard $ registerTagAttribute `runParserAttributeHooks "explicitly run hooks normally activated by parser attributes" fun declName =>
-  liftM $ runParserAttributeHooks `Name.anonymous declName /- builtin -/ true
+registerBuiltinAttribute {
+  name  := `runParserAttributeHooks,
+  descr := "explicitly run hooks normally activated by parser attributes",
+  add   := fun decl args persistent => do
+    when args.hasArgs $ throwError ("invalid attribute 'runParserAttributeHooks', unexpected argument");
+    runParserAttributeHooks `Name.anonymous decl /- builtin -/ false
+}
 
 private def ParserExtension.addImported (es : Array (Array ParserExtensionOleanEntry)) : ImportM ParserExtensionState := do
 ctx ← read;

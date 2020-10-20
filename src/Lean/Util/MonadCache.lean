@@ -60,8 +60,8 @@ namespace MonadCacheT
 variables {ω α β : Type} {m : Type → Type} [STWorld ω m] [HasBeq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
 
 instance  : MonadHashMapCacheAdapter α β (MonadCacheT α β m) :=
-{ getCache    := (get : StateRefT _ m _), -- TODO: check why we need to provide `m` explicitly
-  modifyCache := fun f => (modify f : StateRefT _ m _) }
+{ getCache    := (get : StateRefT _ _ _),
+  modifyCache := fun f => (modify f : StateRefT _ _ _) }
 
 @[inline] def run {σ} (x : MonadCacheT α β m σ) : m σ :=
 x.run' Std.mkHashMap

@@ -9,6 +9,8 @@ import Lean.PrettyPrinter.Formatter
 import Lean.Parser.Module
 
 namespace Lean
+namespace Meta end Meta -- HACK for old frontend
+open Meta (MetaM) -- HACK for old frontend
 
 def PPContext.runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
 Prod.fst <$> x.toIO { options := ppCtx.opts } { env := ppCtx.env }

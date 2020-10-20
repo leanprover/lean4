@@ -15,6 +15,9 @@ import Lean.ParserCompiler.Attribute
 import Lean.Parser.Extension
 
 namespace Lean
+namespace Meta end Meta -- HACK for old frontend
+open Meta (MetaM) -- HACK for old frontend
+
 namespace ParserCompiler
 
 structure Context (α : Type) :=

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -151,30 +152,29 @@ subset m₁ m₂ && subset m₂ m₁
 
 instance : HasBeq KVMap := ⟨eqv⟩
 
-class isKVMapVal (α : Type) :=
+class KVMapVal (α : Type) :=
 (defVal : α)
 (set    : KVMap → Name → α → KVMap)
 (get    : KVMap → Name → α → α)
 
-export isKVMapVal (set)
+export KVMapVal (set)
 
-@[inline] def get {α : Type} [isKVMapVal α] (m : KVMap) (k : Name) (defVal := isKVMapVal.defVal) : α :=
-isKVMapVal.get m k defVal
+@[inline] def get {α : Type} [s : KVMapVal α] (m : KVMap) (k : Name) (defVal := s.defVal) : α :=
+KVMapVal.get m k defVal
 
-instance boolVal : isKVMapVal Bool :=
+instance : KVMapVal Bool :=
 { defVal := false, set := setBool, get := fun k n v => getBool k n v }
 
-instance natVal : isKVMapVal Nat :=
+instance : KVMapVal Nat :=
 { defVal := 0, set := setNat, get := fun k n v => getNat k n v }
 
-instance intVal : isKVMapVal Int :=
+instance : KVMapVal Int :=
 { defVal := 0, set := setInt, get := fun k n v => getInt k n v }
 
-instance nameVal : isKVMapVal Name :=
+instance : KVMapVal Name :=
 { defVal := Name.anonymous, set := setName, get := fun k n v => getName k n v }
 
-instance stringVal : isKVMapVal String :=
+instance : KVMapVal String :=
 { defVal := "", set := setString, get := fun k n v => getString k n v }
 
-end KVMap
-end Lean
+end Lean.KVMap

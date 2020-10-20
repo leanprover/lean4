@@ -14,6 +14,9 @@ import Lean.Util.PPExt
 import Lean.Util.PPGoal
 
 namespace Lean
+namespace MonadOptions end MonadOptions -- hack for old frontend
+export MonadOptions (getOptions) -- hack for old frontend
+
 def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : String :=
 fileName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ toString msg
 

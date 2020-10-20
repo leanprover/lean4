@@ -1152,6 +1152,8 @@ instance : Inhabited PNonScalar.{u} := ⟨⟨arbitrary _⟩⟩
 
 instance : Inhabited PointedType := ⟨{type := PUnit, val := ⟨⟩}⟩
 
+instance {α} [Inhabited α] : Inhabited (ForInStep α) := ⟨ForInStep.done (arbitrary _)⟩
+
 class inductive Nonempty (α : Sort u) : Prop
 | intro (val : α) : Nonempty
 

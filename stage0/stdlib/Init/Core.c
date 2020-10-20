@@ -77,6 +77,7 @@ lean_object* l_Function_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Prod_sizeof(lean_object*, lean_object*);
 lean_object* l_arbitrary___rarg(lean_object*);
 lean_object* l_And_Decidable___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_ForInStep_Inhabited___rarg(lean_object*);
 lean_object* l_prodHasDecidableLt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_namedPattern___rarg___boxed(lean_object*);
 uint8_t l_Ne_Decidable___rarg(lean_object*, lean_object*, lean_object*);
@@ -190,6 +191,7 @@ lean_object* l___private_Init_Core_21__extfunApp(lean_object*, lean_object*);
 lean_object* l_Unit_unit;
 lean_object* l_Sum_DecidableEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_decEq(lean_object*);
+lean_object* l_ForInStep_Inhabited(lean_object*);
 lean_object* l_or___boxed(lean_object*, lean_object*);
 uint8_t l_strictOr(uint8_t, uint8_t);
 lean_object* l_Eq_mpr___rarg(lean_object*);
@@ -2683,6 +2685,23 @@ _start:
 lean_object* x_1; 
 x_1 = lean_box(0);
 return x_1;
+}
+}
+lean_object* l_ForInStep_Inhabited___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_ForInStep_Inhabited(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_ForInStep_Inhabited___rarg), 1, 0);
+return x_2;
 }
 }
 lean_object* l_Subtype_Inhabited___rarg(lean_object* x_1, lean_object* x_2) {

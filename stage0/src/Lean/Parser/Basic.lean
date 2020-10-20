@@ -406,9 +406,6 @@ checkPrec prec >> node n p
 @[inline] def trailingNode (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : TrailingParser :=
 checkPrec prec >> trailingNodeAux n p
 
-@[inline] def group (p : Parser) : Parser :=
-node nullKind p
-
 def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : Nat) (mergeErrors : Bool) : ParserState :=
 match s with
 | ⟨stack, pos, cache, some error2⟩ =>
@@ -1035,9 +1032,6 @@ let sym := sym.trim;
 { info := symbolInfo sym,
   fn   := symbolFn sym }
 
-abbrev notSymbol (s : String) : Parser :=
-notFollowedBy (symbol s) s
-
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
     been so by some unrelated code).
@@ -1411,12 +1405,6 @@ fun c s =>
 @[inline] def eoi : Parser :=
 { fn := eoiFn }
 
-@[inline] def many1Indent (p : Parser) : Parser :=
-withPosition $ many1 (checkColGe "irrelevant" >> p)
-
-@[inline] def manyIndent (p : Parser) : Parser :=
-withPosition $ many (checkColGe "irrelevant" >> p)
-
 open Std (RBMap RBMap.empty)
 
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
@@ -1727,23 +1715,6 @@ withAntiquot (mkAntiquot "fieldIdx" `fieldIdx)
 @[inline] def skip : Parser :=
 { fn   := fun c s => s,
   info := epsilonInfo }
-
-/-- No-op parser that advises the pretty printer to emit a non-breaking space. -/
-@[inline] def ppHardSpace : Parser := skip
-/-- No-op parser that advises the pretty printer to emit a space/soft line break. -/
-@[inline] def ppSpace : Parser := skip
-/-- No-op parser that advises the pretty printer to emit a hard line break. -/
-@[inline] def ppLine : Parser := skip
-/--
-  No-op parser combinator that advises the pretty printer to group and indent the given syntax.
-  By default, only syntax categories are grouped. -/
-@[inline] def ppGroup : Parser → Parser := id
-/-- No-op parser combinator that advises the pretty printer to indent the given syntax without grouping it. -/
-@[inline] def ppIndent : Parser → Parser := id
-/--
-  No-op parser combinator that advises the pretty printer to dedent the given syntax.
-  Dedenting can in particular be used to counteract automatic indentation. -/
-@[inline] def ppDedent : Parser → Parser := id
 
 end Parser
 

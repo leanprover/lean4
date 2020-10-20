@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -12,23 +13,20 @@ instance : Inhabited InternalExceptionId := ⟨{}⟩
 instance : HasBeq InternalExceptionId :=
 ⟨fun id₁ id₂ => id₁.idx == id₂.idx⟩
 
-def mkInternalExceptionsRef : IO (IO.Ref (Array Name)) :=
-IO.mkRef #[]
-
-@[builtinInit mkInternalExceptionsRef] constant internalExceptionsRef : IO.Ref (Array Name) := arbitrary _
+builtin_initialize internalExceptionsRef : IO.Ref (Array Name) ← IO.mkRef #[]
 
 def registerInternalExceptionId (name : Name) : IO InternalExceptionId := do
-exs ← internalExceptionsRef.get;
-when (exs.contains name) $ throw $ IO.userError ("invalid internal exception id, '" ++ toString name ++ "' has already been used");
-let nextIdx := exs.size;
-internalExceptionsRef.modify fun a => a.push name;
+let exs ← internalExceptionsRef.get
+if exs.contains name then throw $ IO.userError s!"invalid internal exception id, '{name}' has already been used"
+let nextIdx := exs.size
+internalExceptionsRef.modify fun a => a.push name
 pure { idx := nextIdx }
 
 def InternalExceptionId.toString (id : InternalExceptionId) : String :=
-"internal exception #" ++ toString id.idx
+s!"internal exception #{id.idx}"
 
 def InternalExceptionId.getName (id : InternalExceptionId) : IO Name :=  do
-exs ← internalExceptionsRef.get;
+let exs ← internalExceptionsRef.get
 let i := id.idx;
 if h : i < exs.size then
   pure $ exs.get ⟨i, h⟩

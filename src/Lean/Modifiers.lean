@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -7,11 +8,7 @@ import Lean.Environment
 
 namespace Lean
 
-def mkProtectedExtension : IO TagDeclarationExtension :=
-mkTagDeclarationExtension `protected
-
-@[builtinInit mkProtectedExtension]
-constant protectedExt : TagDeclarationExtension := arbitrary _
+builtin_initialize protectedExt : TagDeclarationExtension ← mkTagDeclarationExtension `protected
 
 @[export lean_add_protected]
 def addProtected (env : Environment) (n : Name) : Environment :=
@@ -21,11 +18,7 @@ protectedExt.tag env n
 def isProtected (env : Environment) (n : Name) : Bool :=
 protectedExt.isTagged env n
 
-def mkPrivateExtension : IO (EnvExtension Nat) :=
-registerEnvExtension (pure 1)
-
-@[builtinInit mkPrivateExtension]
-constant privateExt : EnvExtension Nat := arbitrary _
+builtin_initialize privateExt : EnvExtension Nat ← registerEnvExtension (pure 1)
 
 /- Private name support.
 
@@ -43,14 +36,14 @@ def privateHeader : Name := `_private
 
 @[export lean_mk_private_prefix]
 def mkUniquePrivatePrefix (env : Environment) : Environment × Name :=
-let idx := privateExt.getState env;
-let p   := mkNameNum (privateHeader ++ env.mainModule) idx;
-let env := privateExt.setState env (idx+1);
+let idx := privateExt.getState env
+let p   := mkNameNum (privateHeader ++ env.mainModule) idx
+let env := privateExt.setState env (idx+1)
 (env, p)
 
 @[export lean_mk_private_name]
 def mkUniquePrivateName (env : Environment) (n : Name) : Environment × Name :=
-let (env, p) := mkUniquePrivatePrefix env;
+let (env, p) := mkUniquePrivatePrefix env
 (env, p ++ n)
 
 def mkPrivateName (env : Environment) (n : Name) : Name :=

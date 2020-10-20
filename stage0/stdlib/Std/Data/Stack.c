@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 extern lean_object* l_Array_empty___closed__1;
+lean_object* l_Std_Stack_vals___default(lean_object*);
 lean_object* l_Std_Stack_push(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -41,6 +42,14 @@ lean_object* lean_array_pop(lean_object*);
 lean_object* l_Std_Stack_peek_x21___rarg(lean_object*, lean_object*);
 lean_object* l_Std_Stack_pop(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Std_Stack_vals___default(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Array_empty___closed__1;
+return x_2;
+}
+}
 lean_object* l_Std_Stack_empty(lean_object* x_1) {
 _start:
 {

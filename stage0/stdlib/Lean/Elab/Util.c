@@ -47,7 +47,6 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_liftMacroM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__12;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg(lean_object*);
-lean_object* l_Lean_Syntax_reprint___main(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_Elab_getMacros___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___closed__1;
 lean_object* lean_array_get_size(lean_object*);
@@ -176,7 +175,6 @@ lean_object* l_Lean_Elab_checkSyntaxNodeKind___closed__3;
 lean_object* l_Lean_Elab_checkSyntaxNodeKind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getBetterRef_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__2;
-lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
@@ -200,6 +198,8 @@ lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__4;
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__8;
+lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_reprint(lean_object*);
 lean_object* l_Lean_Elab_addMacroStack_match__1(lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Elab_getMacros___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
@@ -242,7 +242,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 lean_inc(x_1);
 x_2 = l_Lean_Syntax_unsetTrailing(x_1);
-x_3 = l_Lean_Syntax_reprint___main(x_2);
+x_3 = l_Lean_Syntax_reprint(x_2);
 lean_dec(x_2);
 if (lean_obj_tag(x_3) == 0)
 {
@@ -250,7 +250,7 @@ lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7;
 x_4 = lean_box(0);
 x_5 = 0;
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Lean_Syntax_formatStxAux___main(x_4, x_5, x_6, x_1);
+x_7 = l_Lean_Syntax_formatStxAux(x_4, x_5, x_6, x_1);
 return x_7;
 }
 else

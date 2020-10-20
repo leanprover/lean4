@@ -13137,7 +13137,6 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = l_Lean_Syntax_getArg(x_1, x_5);
 x_7 = l_Lean_Syntax_asNode(x_6);
-lean_dec(x_6);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = l_Lean_Elab_Command_elabOpen___closed__2;

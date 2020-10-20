@@ -421,6 +421,7 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
+lean_inc(x_12);
 x_13 = l_Lean_Syntax_getNumArgs(x_12);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_nat_dec_eq(x_13, x_14);

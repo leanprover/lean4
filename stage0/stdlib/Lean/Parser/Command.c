@@ -113,6 +113,7 @@ lean_object* l_Lean_Parser_Command_structFields_parenthesizer___closed__7;
 lean_object* l_Lean_Parser_Command_structExplicitBinder_parenthesizer___closed__8;
 lean_object* l_Lean_Parser_Command_instance___closed__4;
 lean_object* l_Lean_Parser_Command_ctor___elambda__1___closed__4;
+extern lean_object* l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 lean_object* l___regBuiltinParser_Lean_Parser_Command_variable(lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Command_open_formatter(lean_object*);
 lean_object* l_Lean_Parser_Command_visibility;
@@ -2228,7 +2229,6 @@ lean_object* l_Lean_Parser_Command_attribute___closed__4;
 lean_object* l_Lean_Parser_Command_ctor___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_quot_parenthesizer___closed__8;
 lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__7;
-extern lean_object* l_Lean_Syntax_isQuot___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_many_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_declSig;
 lean_object* l_Lean_Parser_Command_declaration_parenthesizer___closed__11;
@@ -2399,7 +2399,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkAppStx___closed__6;
-x_2 = l_Lean_Syntax_isQuot___closed__1;
+x_2 = l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2418,7 +2418,7 @@ static lean_object* _init_l_Lean_Parser_Term_quot___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Syntax_isQuot___closed__1;
+x_1 = l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 x_2 = l_Lean_Parser_Term_quot___elambda__1___closed__2;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -3044,7 +3044,7 @@ static lean_object* _init_l_Lean_Parser_Term_quot_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Syntax_isQuot___closed__1;
+x_1 = l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 x_2 = l_Lean_Parser_Term_quot___elambda__1___closed__2;
 x_3 = 1;
 x_4 = lean_box(x_3);

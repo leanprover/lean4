@@ -19,7 +19,7 @@ lean_object* l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___sp
 lean_object* l_Lean_IR_CtorFieldInfo_format_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
 lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1(lean_object*);
-extern lean_object* l___private_Lean_Syntax_6__formatInfo___closed__1;
+extern lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo___closed__1;
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
 extern lean_object* l_Lean_Format_join___closed__1;
 lean_object* l_Lean_IR_CtorFieldInfo_Lean_Compiler_IR_CtorLayout___instance__1___closed__1;
@@ -247,7 +247,7 @@ x_23 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(
 x_24 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l___private_Lean_Syntax_6__formatInfo___closed__1;
+x_25 = l___private_Lean_Syntax_0__Lean_Syntax_formatInfo___closed__1;
 x_26 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);

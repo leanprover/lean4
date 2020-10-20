@@ -58,10 +58,10 @@ lean_object* l_Lean_getPPRaw___boxed(lean_object*);
 lean_object* l_Lean_ppTerm(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppExt;
 lean_object* l_Lean_getSyntaxMaxDepth(lean_object*);
-lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_sanitizeNamesOption___closed__2;
 lean_object* l_Lean_mkPPExt___closed__1;
+lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Util_PPExt_1__registerOptions___closed__1() {
 _start:
 {
@@ -310,7 +310,7 @@ x_6 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = 0;
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Lean_Syntax_formatStxAux___main(x_6, x_7, x_8, x_2);
+x_9 = l_Lean_Syntax_formatStxAux(x_6, x_7, x_8, x_2);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_3);
@@ -491,7 +491,7 @@ x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = 0;
 x_14 = lean_unsigned_to_nat(0u);
-x_15 = l_Lean_Syntax_formatStxAux___main(x_12, x_13, x_14, x_2);
+x_15 = l_Lean_Syntax_formatStxAux(x_12, x_13, x_14, x_2);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_3);

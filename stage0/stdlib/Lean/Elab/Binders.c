@@ -502,6 +502,7 @@ lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderType(le
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_inc(x_2);
 x_3 = l_Lean_Syntax_getNumArgs(x_2);
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_3, x_4);
@@ -511,11 +512,13 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = l_Lean_Syntax_getArg(x_2, x_6);
+lean_dec(x_2);
 return x_7;
 }
 else
 {
 lean_object* x_8; 
+lean_dec(x_2);
 x_8 = l_Lean_mkHole(x_1);
 return x_8;
 }
@@ -526,7 +529,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderType(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -592,6 +594,7 @@ lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandOptIdent(lean
 _start:
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+lean_inc(x_1);
 x_9 = l_Lean_Syntax_getNumArgs(x_1);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_nat_dec_eq(x_9, x_10);
@@ -601,6 +604,7 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_2);
 x_12 = l_Lean_Syntax_getArg(x_1, x_10);
+lean_dec(x_1);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_8);
@@ -616,6 +620,7 @@ if (x_15 == 0)
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_14, 0);
 x_17 = l_Lean_mkIdentFrom(x_1, x_16);
+lean_dec(x_1);
 lean_ctor_set(x_14, 0, x_17);
 return x_14;
 }
@@ -628,6 +633,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_14);
 x_20 = l_Lean_mkIdentFrom(x_1, x_18);
+lean_dec(x_1);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_19);
@@ -646,7 +652,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_9;
 }
 }
@@ -3834,7 +3839,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_22);
 x_24 = !lean_is_exclusive(x_23);
 if (x_24 == 0)
 {
@@ -3901,7 +3905,6 @@ lean_dec(x_44);
 x_47 = lean_unsigned_to_nat(2u);
 x_48 = lean_array_get(x_41, x_10, x_47);
 x_49 = l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderType(x_1, x_48);
-lean_dec(x_48);
 x_50 = x_45;
 x_51 = lean_unsigned_to_nat(0u);
 x_52 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at___private_Lean_Elab_Binders_0__Lean_Elab_Term_matchBinder___spec__3___boxed), 10, 3);
@@ -3967,7 +3970,6 @@ lean_dec(x_62);
 x_65 = lean_unsigned_to_nat(2u);
 x_66 = lean_array_get(x_59, x_10, x_65);
 x_67 = l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderType(x_1, x_66);
-lean_dec(x_66);
 x_68 = lean_unsigned_to_nat(3u);
 x_69 = lean_array_get(x_59, x_10, x_68);
 lean_inc(x_7);

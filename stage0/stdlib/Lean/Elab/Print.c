@@ -2302,6 +2302,7 @@ lean_object* l_Lean_Elab_Command_elabPrint(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+lean_inc(x_1);
 x_5 = l_Lean_Syntax_getNumArgs(x_1);
 x_6 = lean_unsigned_to_nat(2u);
 x_7 = lean_nat_dec_eq(x_5, x_6);
@@ -2309,6 +2310,7 @@ lean_dec(x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
+lean_dec(x_1);
 x_8 = l_Lean_Elab_Command_elabPrint___closed__3;
 x_9 = l_Lean_throwError___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__1___rarg(x_8, x_2, x_3, x_4);
 return x_9;
@@ -2318,6 +2320,7 @@ else
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
+lean_dec(x_1);
 x_12 = l_Lean_Syntax_isIdent(x_11);
 if (x_12 == 0)
 {
@@ -2364,7 +2367,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_Command_elabPrint(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_5;
 }
 }

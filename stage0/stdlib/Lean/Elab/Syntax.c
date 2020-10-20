@@ -42,6 +42,7 @@ lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_expandNotationAux
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__50;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Elab_Command_elabSyntaxAbbrev___closed__3;
+extern lean_object* l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_elabKindPrio___closed__9;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__156;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__127;
@@ -839,7 +840,6 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_elabKindPrio___closed__1;
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__24;
 lean_object* l_Lean_Elab_Command_expandNotationItemIntoSyntaxItem(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Syntax_isQuot___closed__1;
 extern lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_3____closed__1;
 lean_object* l_Array_findIdxAux___main___at___private_Lean_Elab_Syntax_0__Lean_Elab_Command_antiquote___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandMacroArgIntoSyntaxItem___closed__1;
@@ -10610,7 +10610,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Syntax_isQuot___closed__1;
+x_2 = l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -12189,6 +12189,7 @@ return x_20;
 else
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+lean_inc(x_1);
 x_21 = l_Lean_Syntax_getNumArgs(x_1);
 x_22 = lean_unsigned_to_nat(1u);
 x_23 = lean_nat_sub(x_21, x_22);

@@ -70,7 +70,6 @@ lean_object* l_Lean_Elab_elabAttr___rarg___lambda__3(lean_object*, lean_object*,
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Attribute_hasFormat___closed__3;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
@@ -79,6 +78,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg(
 lean_object* l_Lean_Elab_elabAttr___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabAttr_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabDeclAttrs___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_Attribute_args___default() {
 _start:
@@ -144,7 +144,7 @@ lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object
 x_8 = lean_box(0);
 x_9 = 0;
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = l_Lean_Syntax_formatStxAux___main(x_8, x_9, x_10, x_6);
+x_11 = l_Lean_Syntax_formatStxAux(x_8, x_9, x_10, x_6);
 x_12 = lean_box(0);
 x_13 = l_Lean_Format_pretty(x_11, x_12);
 x_14 = lean_alloc_ctor(2, 1, 0);
@@ -272,6 +272,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = l_Lean_Syntax_getArg(x_1, x_6);
+lean_inc(x_7);
 x_8 = l_Lean_Syntax_getNumArgs(x_7);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_nat_dec_eq(x_8, x_9);

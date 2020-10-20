@@ -85,6 +85,7 @@ lean_object* l_Lean_Parser_Syntax_many___elambda__1___closed__2;
 lean_object* l_Lean_Parser_andthenInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Syntax_interpolatedStr___closed__5;
 lean_object* l_Lean_Parser_Command_postfix_formatter___closed__3;
+extern lean_object* l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 lean_object* l_Lean_Parser_Syntax_interpolatedStr_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Command_mixfix;
 lean_object* l_Lean_Parser_Syntax_notFollowedBy_formatter___closed__1;
@@ -1546,7 +1547,6 @@ lean_object* l_Lean_Parser_Command_elab_formatter___closed__5;
 lean_object* l_Lean_Parser_Command_syntaxAbbrev_formatter___closed__5;
 lean_object* l_Lean_Parser_Syntax_atom___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_categoryParserOfStack_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Syntax_isQuot___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_many_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_elab__rules_formatter___closed__4;
 lean_object* l_Lean_Parser_Command_macroTailTactic_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10474,7 +10474,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_stx_quot___elambda__1___closed__1;
-x_2 = l_Lean_Syntax_isQuot___closed__1;
+x_2 = l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -10493,7 +10493,7 @@ static lean_object* _init_l_Lean_Parser_Term_stx_quot___elambda__1___closed__4()
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Syntax_isQuot___closed__1;
+x_1 = l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 x_2 = l_Lean_Parser_Term_stx_quot___elambda__1___closed__3;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -11085,7 +11085,7 @@ static lean_object* _init_l_Lean_Parser_Term_stx_quot_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Syntax_isQuot___closed__1;
+x_1 = l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 x_2 = l_Lean_Parser_Term_stx_quot___elambda__1___closed__3;
 x_3 = 1;
 x_4 = lean_box(x_3);

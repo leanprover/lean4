@@ -185,7 +185,6 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared(lean_object*);
 lean_object* l_Lean_Elab_Modifiers_hasFormat___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_expandDeclId___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Attribute_hasFormat___closed__3;
 lean_object* l_Lean_Elab_Visibility_hasToString___closed__1;
 extern lean_object* l_System_FilePath_dirName___closed__1;
@@ -199,6 +198,7 @@ lean_object* l_Lean_Elab_Visibility_hasToString_match__1___rarg___boxed(lean_obj
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___closed__2;
+lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Modifiers_hasFormat___closed__9;
 lean_object* l_Lean_Elab_applyVisibility___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 extern lean_object* l_addParenHeuristic___closed__1;
@@ -1020,7 +1020,7 @@ lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object
 x_8 = lean_box(0);
 x_9 = 0;
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = l_Lean_Syntax_formatStxAux___main(x_8, x_9, x_10, x_6);
+x_11 = l_Lean_Syntax_formatStxAux(x_8, x_9, x_10, x_6);
 x_12 = lean_box(0);
 x_13 = l_Lean_Format_pretty(x_11, x_12);
 x_14 = lean_alloc_ctor(2, 1, 0);

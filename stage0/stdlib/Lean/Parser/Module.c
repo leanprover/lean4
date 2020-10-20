@@ -266,7 +266,6 @@ lean_object* l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed(lean_object
 lean_object* l_Lean_Parser_Module_header___closed__10;
 extern lean_object* l_Lean_Parser_Term_quot_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__3;
-lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__9;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -290,6 +289,7 @@ lean_object* l_Std_PersistentArray_forM___at___private_Lean_Parser_Module_4__tes
 lean_object* l_Lean_Parser_Trie_Lean_Data_Trie___instance__2(lean_object*);
 lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__6;
+lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Module_4__testModuleParserAux___main(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_andthen_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseCommand(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4021,7 +4021,7 @@ lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* 
 x_3 = lean_box(0);
 x_4 = 0;
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = l_Lean_Syntax_formatStxAux___main(x_3, x_4, x_5, x_1);
+x_6 = l_Lean_Syntax_formatStxAux(x_3, x_4, x_5, x_1);
 x_7 = lean_box(0);
 x_8 = l_Lean_Format_pretty(x_6, x_7);
 x_9 = 10;

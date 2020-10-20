@@ -24,7 +24,7 @@ withMVarContext mvarId do
   let heq := mkAppN heq newMVars
   let cont (heq heqType : Expr) : MetaM RewriteResult :=
     match heqType.eq? with
-    | none => throwTacticEx `rewrite mvarId "equality of iff proof expected"
+    | none => throwTacticEx `rewrite mvarId msg!"equality of iff proof expected{indentExpr heqType}"
     | some (α, lhs, rhs) =>
       let cont (heq heqType lhs rhs : Expr) : MetaM RewriteResult := do
         if lhs.getAppFn.isMVar then
@@ -32,7 +32,7 @@ withMVarContext mvarId do
         let e ← instantiateMVars e
         let eAbst ← kabstract e lhs occs
         unless eAbst.hasLooseBVars do
-          throwTacticEx `rewrite mvarId "did not find instance of the pattern in the target expression"
+          throwTacticEx `rewrite mvarId msg!"did not find instance of the pattern in the target expression{indentExpr lhs}"
         -- construct rewrite proof
         let eNew := eAbst.instantiate1 rhs
         let eNew ← instantiateMVars eNew

@@ -156,24 +156,20 @@ fun stx _ => do
     let eq ← mkEq e val
     mkExpectedTypeHint r eq
 
-private def getPropToDecide (arg : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-if arg.isOfKind `Lean.Parser.Term.hole then
-  tryPostponeIfNoneOrMVar expectedType?
-  match expectedType? with
-  | none => throwError "invalid macro, expected type is not available"
-  | some expectedType =>
-    let expectedType ← instantiateMVars expectedType
-    if expectedType.hasFVar || expectedType.hasMVar then
-      throwError! "expected type must not contain free or meta variables{indentExpr expectedType}"
-    pure expectedType
-else
-  let prop := mkSort levelZero
-  elabClosedTerm arg prop
+private def getPropToDecide (expectedType? : Option Expr) : TermElabM Expr := do
+tryPostponeIfNoneOrMVar expectedType?
+match expectedType? with
+| none => throwError "invalid macro, expected type is not available"
+| some expectedType =>
+  synthesizeSyntheticMVars
+  let expectedType ← instantiateMVars expectedType
+  if expectedType.hasFVar || expectedType.hasMVar then
+    throwError! "expected type must not contain free or meta variables{indentExpr expectedType}"
+  pure expectedType
 
 @[builtinTermElab «nativeDecide»] def elabNativeDecide : TermElab :=
 fun stx expectedType? => do
-  let arg  := stx[1]
-  let p ← getPropToDecide arg expectedType?
+  let p ← getPropToDecide expectedType?
   let d ← mkAppM `Decidable.decide #[p]
   let auxDeclName ← mkNativeReflAuxDecl (Lean.mkConst `Bool) d
   let rflPrf ← mkEqRefl (toExpr true)
@@ -182,8 +178,7 @@ fun stx expectedType? => do
 
 @[builtinTermElab Lean.Parser.Term.decide] def elabDecide : TermElab :=
 fun stx expectedType? => do
-  let arg  := stx[1]
-  let p ← getPropToDecide arg expectedType?
+  let p ← getPropToDecide expectedType?
   let d ← mkAppM `Decidable.decide #[p]
   let d ← instantiateMVars d
   let s := d.appArg! -- get instance from `d`
@@ -294,6 +289,46 @@ fun _ => `(sorryAx _ false)
 fun stx expectedType? => do
   let stxNew ← `(HasEmptyc.emptyc)
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+
+/-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
+partial def mkPairs (elems : Array Syntax) : MacroM Syntax :=
+let rec loop (i : Nat) (acc : Syntax) := do
+  if i > 0 then
+    let i    := i - 1
+    let elem := elems[i]
+    let acc ← `(Prod.mk $elem $acc)
+    loop i acc
+  else
+    pure acc
+loop (elems.size - 1) elems.back
+
+/--
+  Try to expand `·` notation, and if successful elaborate result.
+  This method is used to elaborate the Lean parentheses notation.
+  Recall that in Lean the `·` notation must be surrounded by parentheses.
+  We may change this is the future, but right now, here are valid examples
+  - `(· + 1)`
+  - `(f ⟨·, 1⟩ ·)`
+  - `(· + ·)`
+  - `(f · a b)` -/
+private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+match (← liftMacroM $ expandCDot? stx) with
+| some stx' => withMacroExpansion stx stx' (elabTerm stx' expectedType?)
+| none      => elabTerm stx expectedType?
+
+@[builtinTermElab paren] def elabParen : TermElab :=
+fun stx expectedType? =>
+  match_syntax stx with
+  | `(())           => pure $ Lean.mkConst `Unit.unit
+  | `(($e : $type)) => do
+    let type ← withSynthesize $ elabType type
+    let e ← elabCDot e type
+    ensureHasType type e
+  | `(($e))         => elabCDot e expectedType?
+  | `(($e, $es*))   => do
+    let pairs ← liftMacroM $ mkPairs (#[e] ++ es.getEvenElems)
+    withMacroExpansion stx pairs (elabTerm pairs expectedType?)
+  | _ => throwError "unexpected parentheses notation"
 
 /-
 TODO

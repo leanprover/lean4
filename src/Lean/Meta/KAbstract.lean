@@ -11,6 +11,7 @@ import Lean.Meta.ExprDefEq
 namespace Lean.Meta
 
 def kabstract {m} [MonadLiftT MetaM m] (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : m Expr := liftMetaM do
+let e ← instantiateMVars e
 if p.isFVar && occs == Occurrences.all then
   return e.abstract #[p] -- Easy case
 else

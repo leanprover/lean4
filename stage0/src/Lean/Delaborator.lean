@@ -31,6 +31,8 @@ import Lean.Syntax
 import Lean.Elab.Term
 
 namespace Lean
+namespace Meta end Meta -- HACK for old frontend
+open Meta (MetaM) -- HACK for old frontend
 
 -- TODO: move, maybe
 namespace Level

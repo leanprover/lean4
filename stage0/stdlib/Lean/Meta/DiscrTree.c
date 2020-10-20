@@ -109,7 +109,6 @@ lean_object* l_Array_binSearchAux___main___at___private_Lean_Meta_DiscrTree_0__L
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getUnifyAux___spec__6(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_Meta_DiscrTree_getUnify___spec__6(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_getUnify_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_DiscrTree_Key_beq(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getMatchAux___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_Meta_DiscrTree_getUnify___spec__2___rarg(lean_object*, size_t, lean_object*);
@@ -193,6 +192,7 @@ lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_Meta_DiscrTree_g
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Lean_Meta_DiscrTree___instance__4(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_arity(lean_object*);
+lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassExpensive_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getMatchAux___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_getMatch___spec__10___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_Meta_DiscrTree_mkPathAux___spec__1(lean_object*);
@@ -1595,7 +1595,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_7 = l_Lean_Meta_whnf___at___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassExpensive_x3f___spec__2(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 

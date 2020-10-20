@@ -98,7 +98,6 @@ extern lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_CheckAssignment
 extern lean_object* l_Lean_protectedExt;
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__5;
 extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__6___closed__6;
-extern lean_object* l_Lean_Meta_throwUnknownMVar___rarg___closed__2;
 lean_object* l_Lean_Elab_Command_CollectAxioms_State_axioms___default;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -125,6 +124,7 @@ lean_object* l_List_forInAux___main___at___private_Lean_Elab_Print_0__Lean_Elab_
 lean_object* l_List_filterAux___main___at_Lean_resolveGlobalConst___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printAxiomsOf_match__1(lean_object*);
+extern lean_object* l_Lean_Meta_getMVarDecl___rarg___lambda__1___closed__3;
 lean_object* l_Lean_resolveGlobalConst___at___private_Lean_Elab_Print_0__Lean_Elab_Command_printId___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__8;
@@ -188,7 +188,7 @@ x_6 = l_Lean_Elab_Term_resolveName___closed__2;
 x_7 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
-x_8 = l_Lean_Meta_throwUnknownMVar___rarg___closed__2;
+x_8 = l_Lean_Meta_getMVarDecl___rarg___lambda__1___closed__3;
 x_9 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
 lean_ctor_set(x_9, 1, x_8);
@@ -3179,7 +3179,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; 
 x_14 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_14, 0, x_1);
-x_15 = l_Lean_Meta_throwUnknownMVar___rarg___closed__2;
+x_15 = l_Lean_Meta_getMVarDecl___rarg___lambda__1___closed__3;
 x_16 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_14);
@@ -3209,7 +3209,7 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean
 lean_dec(x_12);
 x_27 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_27, 0, x_1);
-x_28 = l_Lean_Meta_throwUnknownMVar___rarg___closed__2;
+x_28 = l_Lean_Meta_getMVarDecl___rarg___lambda__1___closed__3;
 x_29 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
 lean_ctor_set(x_29, 1, x_27);

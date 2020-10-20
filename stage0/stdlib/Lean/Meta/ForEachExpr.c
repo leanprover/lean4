@@ -15,10 +15,10 @@ extern "C" {
 #endif
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_ForEachExpr_visit___spec__8(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forEachExpr___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Basic_27__withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Std_AssocList_contains___at_Lean_Meta_ForEachExpr_visit___spec__2___boxed(lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Meta_ForEachExpr_0__Lean_Meta_ForEachExpr_visitBinder___spec__2(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -35,7 +35,6 @@ lean_object* lean_expr_instantiate_rev_range(lean_object*, lean_object*, lean_ob
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forEachExpr_x27___at_Lean_Meta_forEachExpr___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forEachExpr(lean_object*);
-lean_object* l___private_Lean_Meta_Basic_28__withLetDeclImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Meta_ForEachExpr_0__Lean_Meta_ForEachExpr_visitBinder___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_ForEachExpr_visit___spec__7(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -66,6 +65,7 @@ lean_object* l_Lean_Meta_forEachExpr_x27(lean_object*);
 lean_object* l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_ForEachExpr_visitBinder_match__1(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___at_Lean_Meta_ForEachExpr_visit___spec__2(lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_ForEachExpr_visitBinder___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_ForEachExpr_0__Lean_Meta_ForEachExpr_visitBinder___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forEachExpr_x27___rarg(lean_object*, lean_object*, lean_object*);
@@ -317,7 +317,7 @@ lean_object* x_11; lean_object* x_12;
 x_11 = lean_alloc_closure((void*)(l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_ForEachExpr_0__Lean_Meta_ForEachExpr_visitBinder___spec__1___rarg___lambda__1), 8, 2);
 lean_closure_set(x_11, 0, x_4);
 lean_closure_set(x_11, 1, x_5);
-x_12 = l___private_Lean_Meta_Basic_27__withLocalDeclImp___rarg(x_1, x_2, x_3, x_11, x_6, x_7, x_8, x_9, x_10);
+x_12 = l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(x_1, x_2, x_3, x_11, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 
@@ -379,7 +379,7 @@ lean_object* x_11; lean_object* x_12;
 x_11 = lean_alloc_closure((void*)(l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_ForEachExpr_0__Lean_Meta_ForEachExpr_visitBinder___spec__1___rarg___lambda__1), 8, 2);
 lean_closure_set(x_11, 0, x_4);
 lean_closure_set(x_11, 1, x_5);
-x_12 = l___private_Lean_Meta_Basic_28__withLetDeclImp___rarg(x_1, x_2, x_3, x_11, x_6, x_7, x_8, x_9, x_10);
+x_12 = l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp___rarg(x_1, x_2, x_3, x_11, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 

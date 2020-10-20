@@ -26,6 +26,7 @@ lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processConstApprox_mat
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_trySynthPending_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignmentFOApprox_loop___closed__2;
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_916____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isListLevelDefEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_withNestedTraces___spec__1(lean_object*, lean_object*);
@@ -508,7 +509,6 @@ lean_object* l_Lean_Meta_commitWhen___at___private_Lean_Meta_ExprDefEq_0__Lean_M
 lean_object* l_Lean_Meta_isEtaUnassignedMVar_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_trySynthPending___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isLevelDefEqAux___closed__3;
-extern lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 lean_object* l_Lean_refTrans___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isSynthetic_match__1(lean_object*);
@@ -27185,7 +27185,7 @@ x_1 = l_Lean_Meta_CheckAssignment_check___closed__3;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__4;
 x_3 = lean_unsigned_to_nat(519u);
 x_4 = lean_unsigned_to_nat(30u);
-x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -29980,7 +29980,7 @@ x_1 = l_Lean_Meta_CheckAssignment_check___closed__3;
 x_2 = l_Lean_Meta_CheckAssignmentQuick_check_visit___closed__1;
 x_3 = lean_unsigned_to_nat(597u);
 x_4 = lean_unsigned_to_nat(22u);
-x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }

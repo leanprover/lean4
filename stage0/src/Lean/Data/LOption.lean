@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -8,9 +9,9 @@ universes u
 namespace Lean
 
 inductive LOption (α : Type u)
-| none  : LOption
-| some  : α → LOption
-| undef : LOption
+| none  : LOption α
+| some  : α → LOption α
+| undef : LOption α
 
 namespace LOption
 variables {α : Type u}
@@ -36,4 +37,5 @@ def Option.toLOption {α : Type u} : Option α → Lean.LOption α
 | some a => Lean.LOption.some a
 
 @[inline] def toLOptionM {α} {m : Type → Type} [Monad m] (x : m (Option α)) : m (Lean.LOption α) := do
-b ← x; pure b.toLOption
+let b ← x
+pure b.toLOption

@@ -14,9 +14,9 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(lean_object*);
 lean_object* l_Lean_Meta_induction___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_Level_normalize___main(lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
@@ -64,6 +64,7 @@ lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___lambda__1
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__11___closed__2;
 extern lean_object* l_Lean_Name_inhabited;
 extern lean_object* l_Lean_Level_Inhabited;
@@ -207,7 +208,6 @@ lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_induction___spec__12__
 lean_object* l_List_foldlM___main___at_Lean_Meta_induction___spec__10___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_induction_match__3___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
@@ -1743,7 +1743,7 @@ x_1 = l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda
 x_2 = l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___closed__2;
 x_3 = lean_unsigned_to_nat(113u);
 x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -4615,7 +4615,7 @@ lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
 x_32 = lean_unsigned_to_nat(1u);
 x_33 = lean_nat_add(x_4, x_32);
-x_34 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_33);
+x_34 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_33);
 x_35 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 x_36 = lean_alloc_ctor(10, 2, 0);
@@ -4672,7 +4672,7 @@ lean_ctor_set(x_52, 0, x_50);
 lean_ctor_set(x_52, 1, x_51);
 x_53 = lean_unsigned_to_nat(1u);
 x_54 = lean_nat_add(x_4, x_53);
-x_55 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_54);
+x_55 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_54);
 x_56 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_56, 0, x_55);
 x_57 = lean_alloc_ctor(10, 2, 0);

@@ -13,8 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Std_RBNode_fold___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2(lean_object*, lean_object*);
-lean_object* l_Std_RBNode_fold___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____closed__10;
@@ -25,6 +23,7 @@ uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l_Lean_ElaboratorStrategy_inhabited;
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
+lean_object* l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -41,7 +40,6 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_Elab_Str
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____closed__3;
 lean_object* l_Lean_elaboratorStrategyAttrs;
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____closed__18;
-lean_object* l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_8__persistentEnvExtensionsRef;
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,7 +62,7 @@ lean_object* l_List_map___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs__
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__1___lambda__2(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(lean_object*, lean_object*);
+lean_object* l_Std_RBNode_find___at_Lean_getElaboratorStrategy___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__4___closed__1;
 lean_object* l_Array_qsortAux___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__3(lean_object*, lean_object*, lean_object*);
@@ -81,7 +79,9 @@ lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_ob
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern lean_object* l_Lean_EnumAttributes_Inhabited___closed__1;
 lean_object* l_List_map___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__7___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____closed__11;
+lean_object* l_Std_RBNode_find___at_Lean_getElaboratorStrategy___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__1___lambda__2___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnumAttributes___rarg___closed__1;
@@ -119,7 +119,7 @@ x_1 = 1;
 return x_1;
 }
 }
-lean_object* l_Std_RBNode_fold___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -133,7 +133,7 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_ctor_get(x_2, 3);
-x_7 = l_Std_RBNode_fold___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2(x_1, x_3);
+x_7 = l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2(x_1, x_3);
 lean_inc(x_5);
 lean_inc(x_4);
 x_8 = lean_alloc_ctor(0, 2, 0);
@@ -948,7 +948,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = l_Array_empty___closed__1;
-x_3 = l_Std_RBNode_fold___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2(x_2, x_1);
+x_3 = l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2(x_2, x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);
@@ -1323,11 +1323,11 @@ x_6 = l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_Elab_StrategyAt
 return x_6;
 }
 }
-lean_object* l_Std_RBNode_fold___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_fold___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2(x_1, x_2);
+x_3 = l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_14____spec__2(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -1420,7 +1420,7 @@ lean_dec(x_1);
 return x_8;
 }
 }
-lean_object* l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_find___at_Lean_getElaboratorStrategy___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1554,7 +1554,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = l_Lean_PersistentEnvExtension_getState___rarg(x_5, x_2);
-x_7 = l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(x_6, x_3);
+x_7 = l_Std_RBNode_find___at_Lean_getElaboratorStrategy___spec__2(x_6, x_3);
 lean_dec(x_3);
 lean_dec(x_6);
 return x_7;
@@ -1628,11 +1628,11 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_find___at_Lean_getElaboratorStrategy___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(x_1, x_2);
+x_3 = l_Std_RBNode_find___at_Lean_getElaboratorStrategy___spec__2(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

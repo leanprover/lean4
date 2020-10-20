@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(lean_object*);
 lean_object* l___private_Lean_Util_Trace_5__getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decAux_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -68,6 +67,7 @@ lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__5___spec_
 lean_object* l_Lean_Meta_decLevel___rarg___lambda__1___closed__4;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___closed__3;
+lean_object* l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(lean_object*);
 lean_object* l___private_Lean_Util_Trace_5__getResetTraces___at_Lean_Meta_isLevelDefEq___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decAux_x3f_match__3(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -14814,7 +14814,7 @@ else
 {
 lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; 
 lean_inc(x_9);
-x_113 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_9);
+x_113 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_9);
 x_114 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_114, 0, x_113);
 x_115 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedAux___rarg___closed__4;
@@ -15177,7 +15177,7 @@ else
 {
 lean_object* x_198; lean_object* x_199; lean_object* x_200; lean_object* x_201; lean_object* x_202; lean_object* x_203; lean_object* x_204; lean_object* x_205; lean_object* x_206; 
 lean_inc(x_137);
-x_198 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_137);
+x_198 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_137);
 x_199 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_199, 0, x_198);
 x_200 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedAux___rarg___closed__4;

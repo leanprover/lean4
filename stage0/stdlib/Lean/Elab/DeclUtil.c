@@ -24,7 +24,6 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___boxed
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___closed__1;
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleAux___spec__1(lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux_match__1(lean_object*);
-uint8_t l_Lean_Name_lt___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleAux___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -82,6 +81,7 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__2___boxed
 uint8_t l_Lean_Elab_sortDeclLevelParams___lambda__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_beq(uint8_t, uint8_t);
 extern lean_object* l_Lean_Meta_getMVarDecl___rarg___lambda__1___closed__3;
+uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_Elab_sortDeclLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
@@ -1303,7 +1303,7 @@ else
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_9 = l_Lean_Name_inhabited;
 x_10 = lean_array_get(x_9, x_3, x_5);
-x_11 = l_Lean_Name_lt___main(x_10, x_2);
+x_11 = l_Lean_Name_lt(x_10, x_2);
 lean_dec(x_10);
 if (x_11 == 0)
 {
@@ -1351,7 +1351,7 @@ lean_dec(x_14);
 x_37 = l_Lean_Name_inhabited;
 x_38 = lean_array_get(x_37, x_1, x_16);
 x_39 = lean_array_get(x_37, x_1, x_2);
-x_40 = l_Lean_Name_lt___main(x_38, x_39);
+x_40 = l_Lean_Name_lt(x_38, x_39);
 lean_dec(x_39);
 lean_dec(x_38);
 if (x_40 == 0)
@@ -1372,13 +1372,13 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21;
 x_18 = l_Lean_Name_inhabited;
 x_19 = lean_array_get(x_18, x_17, x_3);
 x_20 = lean_array_get(x_18, x_17, x_2);
-x_21 = l_Lean_Name_lt___main(x_19, x_20);
+x_21 = l_Lean_Name_lt(x_19, x_20);
 lean_dec(x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; uint8_t x_23; 
 x_22 = lean_array_get(x_18, x_17, x_16);
-x_23 = l_Lean_Name_lt___main(x_22, x_19);
+x_23 = l_Lean_Name_lt(x_22, x_19);
 lean_dec(x_22);
 if (x_23 == 0)
 {
@@ -1411,7 +1411,7 @@ lean_dec(x_19);
 x_28 = lean_array_swap(x_17, x_2, x_3);
 x_29 = lean_array_get(x_18, x_28, x_16);
 x_30 = lean_array_get(x_18, x_28, x_3);
-x_31 = l_Lean_Name_lt___main(x_29, x_30);
+x_31 = l_Lean_Name_lt(x_29, x_30);
 lean_dec(x_29);
 if (x_31 == 0)
 {

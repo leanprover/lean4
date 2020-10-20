@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Lsp_Trace_hasFromJson___boxed(lean_object*);
 lean_object* l_Lean_Lsp_Trace_hasFromJson___closed__1;
 lean_object* l_Lean_Lsp_ServerInfo_hasToJson___boxed(lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_481____closed__1;
 lean_object* l_Lean_Lsp_ClientInfo_hasFromJson___boxed(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Location_hasFromJson___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_ClientInfo_hasFromJson(lean_object*);
@@ -47,7 +48,6 @@ lean_object* l_Lean_Json_opt___at_Lean_Lsp_InitializeResult_hasToJson___spec__1(
 lean_object* l_Lean_Lsp_InitializeParams_hasFromJson___closed__5;
 lean_object* l_Lean_Lsp_InitializeParams_hasFromJson___closed__7;
 lean_object* l_Lean_Lsp_Trace_hasFromJson___closed__5;
-extern lean_object* l_Lean_verboseOption___closed__1;
 lean_object* l_Lean_Lsp_Trace_hasFromJson___closed__3;
 lean_object* l_Lean_Json_mkObj(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_InitializeParams_hasFromJson___spec__5(lean_object*, lean_object*);
@@ -206,7 +206,7 @@ x_8 = lean_string_dec_eq(x_4, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = l_Lean_verboseOption___closed__1;
+x_9 = l_Lean_initFn____x40_Lean_Data_Options___hyg_481____closed__1;
 x_10 = lean_string_dec_eq(x_4, x_9);
 lean_dec(x_4);
 if (x_10 == 0)
@@ -396,7 +396,7 @@ x_12 = lean_string_dec_eq(x_8, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = l_Lean_verboseOption___closed__1;
+x_13 = l_Lean_initFn____x40_Lean_Data_Options___hyg_481____closed__1;
 x_14 = lean_string_dec_eq(x_8, x_13);
 lean_dec(x_8);
 if (x_14 == 0)

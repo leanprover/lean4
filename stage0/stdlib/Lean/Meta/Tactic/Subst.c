@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Array_findSomeMAux___main___at_Lean_Meta_subst___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_substCore___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_substCore___spec__4(lean_object*);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_Meta_substCore___lambda__3___boxed(lean_object**);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
@@ -140,7 +141,6 @@ lean_object* l_Lean_Meta_substCore___lambda__13___closed__24;
 lean_object* l_Lean_Meta_substCore_match__6___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_substCore___lambda__9___boxed(lean_object**);
 lean_object* l_Lean_Meta_substCore___lambda__13___closed__15;
-extern lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 lean_object* l_Lean_Meta_substCore___lambda__13___closed__19;
 lean_object* l_Lean_Meta_substCore_match__1(lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
@@ -1915,7 +1915,7 @@ x_1 = l_Lean_Meta_substCore___lambda__11___closed__3;
 x_2 = l_Lean_Meta_substCore___lambda__11___closed__4;
 x_3 = lean_unsigned_to_nat(49u);
 x_4 = lean_unsigned_to_nat(18u);
-x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }

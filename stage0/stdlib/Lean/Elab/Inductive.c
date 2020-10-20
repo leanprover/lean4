@@ -107,7 +107,6 @@ lean_object* l_Lean_Elab_Command_accLevelAtCtor___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidInductiveModifier___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_applyAttributesAt(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_List_beq___main___at_Lean_OpenDecl_HasToString___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Lean_Elab_Command_ElabHeaderResult_inhabited;
 extern lean_object* l_String_splitAux___main___closed__1;
@@ -505,6 +504,7 @@ lean_object* l_Lean_Elab_Command_checkValidCtorModifier___lambda__2___closed__3;
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUniversesFromCtorTypeAux_match__2(lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUsed___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkLevelNames___spec__1___closed__2;
+uint8_t l_List_beq___main___at_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_withInductiveLocalDecls_loop_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isTypeImp___at_Lean_Meta_isType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkParamsAndResultType_match__2(lean_object*);
@@ -2028,7 +2028,7 @@ lean_dec(x_5);
 x_15 = lean_array_uget(x_2, x_4);
 x_16 = lean_ctor_get(x_15, 4);
 lean_inc(x_16);
-x_17 = l_List_beq___main___at_Lean_OpenDecl_HasToString___spec__1(x_16, x_1);
+x_17 = l_List_beq___main___at_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___spec__1(x_16, x_1);
 lean_dec(x_16);
 if (x_17 == 0)
 {

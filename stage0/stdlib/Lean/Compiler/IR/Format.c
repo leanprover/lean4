@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_IR_litValHasFormat___closed__1;
-lean_object* l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(lean_object*);
 lean_object* l_Lean_IR_typeHasToString;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__15;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__1;
@@ -58,6 +57,7 @@ lean_object* l_Lean_IR_formatAlt___closed__4;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__22;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__25;
 extern lean_object* l_Lean_formatKVMap___closed__1;
 lean_object* l_Lean_IR_formatArray___at_Lean_IR_formatParams___spec__1(lean_object*);
@@ -593,7 +593,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 4);
 lean_inc(x_5);
 lean_dec(x_1);
-x_6 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_3);
+x_6 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_3);
 x_7 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__2;
 x_8 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -627,14 +627,14 @@ x_17 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__3
 x_18 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_4);
+x_19 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_4);
 x_20 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_17);
-x_22 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_5);
+x_22 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_5);
 x_23 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
@@ -656,14 +656,14 @@ x_28 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__3
 x_29 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
-x_30 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_4);
+x_30 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_4);
 x_31 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
 x_32 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_28);
-x_33 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_5);
+x_33 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_5);
 x_34 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_34, 0, x_32);
 lean_ctor_set(x_34, 1, x_33);

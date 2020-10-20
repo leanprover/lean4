@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -10,8 +11,8 @@ inductive Rbcolor
 | red | black
 
 inductive RBNode (α : Type u) (β : α → Type v)
-| leaf                                                                                : RBNode
-| node  (color : Rbcolor) (lchild : RBNode) (key : α) (val : β key) (rchild : RBNode) : RBNode
+| leaf                                                                                        : RBNode α β
+| node  (color : Rbcolor) (lchild : RBNode α β) (key : α) (val : β key) (rchild : RBNode α β) : RBNode α β
 
 namespace RBNode
 variables {α : Type u} {β : α → Type v} {σ : Type w}
@@ -20,51 +21,51 @@ open Std.Rbcolor Nat
 
 def depth (f : Nat → Nat → Nat) : RBNode α β → Nat
 | leaf           => 0
-| node _ l _ _ r => succ (f (depth l) (depth r))
+| node _ l _ _ r => succ (f (depth f l) (depth f r))
 
 protected def min : RBNode α β → Option (Sigma (fun k => β k))
 | leaf              => none
 | node _ leaf k v _ => some ⟨k, v⟩
-| node _ l k v _    => min l
+| node _ l k v _    => RBNode.min l
 
 protected def max : RBNode α β → Option (Sigma (fun k => β k))
 | leaf              => none
 | node _ _ k v leaf => some ⟨k, v⟩
-| node _ _ k v r    => max r
+| node _ _ k v r    => RBNode.max r
 
 @[specialize] def fold (f : σ → ∀ (k : α), β k → σ) : σ → RBNode α β → σ
 | b, leaf           => b
-| b, node _ l k v r => fold (f (fold b l) k v) r
+| b, node _ l k v r => fold f (f (fold f b l) k v) r
 
-@[specialize] def foldM {m : Type w → Type w'} [Monad m] (f : σ → ∀ (k : α), β k → m σ) : σ → RBNode α β → m σ
-| b, leaf           => pure b
-| b, node _ l k v r => do
-  b ← foldM b l;
-  b ← f b k v;
-  foldM b r
+@[specialize] def foldM {m : Type w → Type w'} [Monad m] (f : σ → ∀ (k : α), β k → m σ) (b : σ) : RBNode α β → m σ
+| leaf           => pure b
+| node _ l k v r => do
+  let b ← foldM f b l
+  let b ← f b k v
+  foldM f b r
 
-@[specialize] def revFold (f : σ → ∀ (k : α), β k → σ) : σ → RBNode α β → σ
-| b, leaf           => b
-| b, node _ l k v r => revFold (f (revFold b r) k v) l
+@[specialize] def revFold (f : σ → ∀ (k : α), β k → σ) (b : σ) : RBNode α β → σ
+| leaf           => b
+| node _ l k v r => revFold f (f (revFold f b r) k v) l
 
 @[specialize] def all (p : ∀ k, β k → Bool) : RBNode α β → Bool
 | leaf           => true
-| node _ l k v r => p k v && all l && all r
+| node _ l k v r => p k v && all p l && all p r
 
 @[specialize] def any (p : ∀ k, β k → Bool) : RBNode α β → Bool
 | leaf             => false
-| node _ l k v r => p k v || any l || any r
+| node _ l k v r => p k v || any p l || any p r
 
 def singleton (k : α) (v : β k) : RBNode α β :=
 node red leaf k v leaf
 
-@[inline] def balance1 : ∀ a, β a → RBNode α β → RBNode α β → RBNode α β
+@[inline] def balance1 : (a : α) → β a → RBNode α β → RBNode α β → RBNode α β
 | kv, vv, t, node _ (node red l kx vx r₁) ky vy r₂   => node red (node black l kx vx r₁) ky vy (node black r₂ kv vv t)
 | kv, vv, t, node _ l₁ ky vy (node red l₂ kx vx r)   => node red (node black l₁ ky vy l₂) kx vx (node black r kv vv t)
 | kv, vv, t, node _ l  ky vy r                       => node black (node red l ky vy r) kv vv t
 | _,  _,  _,                                       _ => leaf -- unreachable
 
-@[inline] def balance2 : RBNode α β → ∀ a, β a → RBNode α β → RBNode α β
+@[inline] def balance2 : RBNode α β → (a : α) → β a → RBNode α β → RBNode α β
 | t, kv, vv, node _ (node red l kx₁ vx₁ r₁) ky vy r₂  => node red (node black t kv vv l) kx₁ vx₁ (node black r₁ ky vy r₂)
 | t, kv, vv, node _ l₁ ky vy (node red l₂ kx₂ vx₂ r₂) => node red (node black t kv vv l₁) ky vy (node black l₂ kx₂ vx₂ r₂)
 | t, kv, vv, node _ l ky vy r                         => node black t kv vv (node red l ky vy r)
@@ -108,12 +109,14 @@ else ins lt t k v
 
 end Insert
 
-def balance₃ : RBNode α β → ∀ k, β k → RBNode α β → RBNode α β
-| node red (node red a kx vx b) ky vy c,   k, v, d => node red (node black a kx vx b) ky vy (node black c k v d)
-| node red a kx vx (node red b ky vy c),   k, v, d => node red (node black a kx vx b) ky vy (node black c k v d)
-| a, k, v, node red b ky vy (node red c kz vz d)   => node red (node black a k v b) ky vy (node black c kz vz d)
-| a, k, v, node red (node red b ky vy c) kz vz d   => node red (node black a k v b) ky vy (node black c kz vz d)
-| l, k, v, r                                       => node black l k v r
+def balance₃ (a : RBNode α β) (k : α) (v : β k) (d : RBNode α β) : RBNode α β :=
+match a with
+| node red (node red a kx vx b) ky vy c => node red (node black a kx vx b) ky vy (node black c k v d)
+| node red a kx vx (node red b ky vy c) => node red (node black a kx vx b) ky vy (node black c k v d)
+| a => match d with
+  | node red b ky vy (node red c kz vz d)   => node red (node black a k v b) ky vy (node black c kz vz d)
+  | node red (node red b ky vy c) kz vz d   => node red (node black a k v b) ky vy (node black c kz vz d)
+  | _                                       => node black a k v d
 
 def setRed : RBNode α β → RBNode α β
 | node _ a k v b => node red a k v b
@@ -156,11 +159,11 @@ variables (lt : α → α → Bool)
 | leaf           => leaf
 | node _ a y v b =>
   if lt x y then
-    if a.isBlack then balLeft (del a) y v b
-    else node red (del a) y v b
+    if a.isBlack then balLeft (del x a) y v b
+    else node red (del x a) y v b
   else if lt y x then
-    if b.isBlack then balRight a y v (del b)
-    else node red a y v (del b)
+    if b.isBlack then balRight a y v (del x b)
+    else node red a y v (del x b)
   else appendTrees a b
 
 @[specialize] def erase (x : α) (t : RBNode α β) : RBNode α β :=
@@ -196,9 +199,9 @@ variable (lt : α → α → Bool)
 end Membership
 
 inductive WellFormed (lt : α → α → Bool) : RBNode α β → Prop
-| leafWff : WellFormed leaf
-| insertWff {n n' : RBNode α β} {k : α} {v : β k} : WellFormed n → n' = insert lt n k v → WellFormed n'
-| eraseWff {n n' : RBNode α β} {k : α} : WellFormed n → n' = erase lt k n → WellFormed n'
+| leafWff : WellFormed lt leaf
+| insertWff {n n' : RBNode α β} {k : α} {v : β k} : WellFormed lt n → n' = insert lt n k v → WellFormed lt n'
+| eraseWff {n n' : RBNode α β} {k : α} : WellFormed lt n → n' = erase lt k n → WellFormed lt n'
 
 end RBNode
 

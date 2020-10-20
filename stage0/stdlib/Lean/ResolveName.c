@@ -18,6 +18,7 @@ lean_object* l_Std_HashMapImp_expand___at_Lean_addAliasEntry___spec__14(lean_obj
 lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 size_t l_USize_add(size_t, size_t);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_ResolveName_resolveGlobalName_loop_match__4(lean_object*);
 extern lean_object* l_Lean_rootNamespace;
 lean_object* l_Lean_aliasExtension___elambda__1___boxed(lean_object*);
@@ -125,7 +126,6 @@ lean_object* l_Lean_resolveNamespace___rarg___lambda__2(lean_object*, lean_objec
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__1;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(lean_object*, lean_object*);
-lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope___closed__4;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveOpenDecls_match__1(lean_object*);
 lean_object* l_Lean_resolveGlobalName___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -171,7 +171,6 @@ lean_object* l_Lean_getAliases(lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespace_x3f_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_addAliasEntry___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__3;
-lean_object* l_Lean_Name_replacePrefix___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_getRevAliases___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getRevAliases___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
@@ -265,6 +264,7 @@ lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveExact(lean_
 lean_object* l_Std_HashMapImp_insert___at_Lean_addAliasEntry___spec__12(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getRevAliases___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveGlobalName_loop_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst_match__1(lean_object*);
@@ -1326,54 +1326,60 @@ uint8_t x_5;
 x_5 = !lean_is_exclusive(x_1);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; 
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = l_Std_PersistentHashMap_insert___at_Lean_addAliasEntry___spec__8(x_6, x_2, x_3);
+x_8 = 0;
 lean_ctor_set(x_1, 1, x_7);
+lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_8);
 return x_1;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_ctor_get(x_1, 0);
-x_9 = lean_ctor_get(x_1, 1);
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
+x_9 = lean_ctor_get(x_1, 0);
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
 lean_inc(x_9);
-lean_inc(x_8);
 lean_dec(x_1);
-x_10 = l_Std_PersistentHashMap_insert___at_Lean_addAliasEntry___spec__8(x_9, x_2, x_3);
-x_11 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_11, 0, x_8);
-lean_ctor_set(x_11, 1, x_10);
-lean_ctor_set_uint8(x_11, sizeof(void*)*2, x_4);
-return x_11;
+x_11 = l_Std_PersistentHashMap_insert___at_Lean_addAliasEntry___spec__8(x_10, x_2, x_3);
+x_12 = 0;
+x_13 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_13, 0, x_9);
+lean_ctor_set(x_13, 1, x_11);
+lean_ctor_set_uint8(x_13, sizeof(void*)*2, x_12);
+return x_13;
 }
 }
 else
 {
-uint8_t x_12; 
-x_12 = !lean_is_exclusive(x_1);
-if (x_12 == 0)
+uint8_t x_14; 
+x_14 = !lean_is_exclusive(x_1);
+if (x_14 == 0)
 {
-lean_object* x_13; lean_object* x_14; 
-x_13 = lean_ctor_get(x_1, 0);
-x_14 = l_Std_HashMapImp_insert___at_Lean_addAliasEntry___spec__12(x_13, x_2, x_3);
-lean_ctor_set(x_1, 0, x_14);
+lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_15 = lean_ctor_get(x_1, 0);
+x_16 = l_Std_HashMapImp_insert___at_Lean_addAliasEntry___spec__12(x_15, x_2, x_3);
+x_17 = 1;
+lean_ctor_set(x_1, 0, x_16);
+lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_17);
 return x_1;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_15 = lean_ctor_get(x_1, 0);
-x_16 = lean_ctor_get(x_1, 1);
-lean_inc(x_16);
-lean_inc(x_15);
+lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; 
+x_18 = lean_ctor_get(x_1, 0);
+x_19 = lean_ctor_get(x_1, 1);
+lean_inc(x_19);
+lean_inc(x_18);
 lean_dec(x_1);
-x_17 = l_Std_HashMapImp_insert___at_Lean_addAliasEntry___spec__12(x_15, x_2, x_3);
-x_18 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_16);
-lean_ctor_set_uint8(x_18, sizeof(void*)*2, x_4);
-return x_18;
+x_20 = l_Std_HashMapImp_insert___at_Lean_addAliasEntry___spec__12(x_18, x_2, x_3);
+x_21 = 1;
+x_22 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_22, 0, x_20);
+lean_ctor_set(x_22, 1, x_19);
+lean_ctor_set_uint8(x_22, sizeof(void*)*2, x_21);
+return x_22;
 }
 }
 }
@@ -2878,7 +2884,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = l_Lean_rootNamespace;
 x_5 = lean_box(0);
-x_6 = l_Lean_Name_replacePrefix___main(x_2, x_4, x_5);
+x_6 = l_Lean_Name_replacePrefix(x_2, x_4, x_5);
 lean_inc(x_1);
 x_7 = l_Lean_Environment_contains(x_1, x_6);
 if (x_7 == 0)
@@ -3872,20 +3878,12 @@ return x_1;
 static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__1;
 x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__2;
 x_3 = lean_unsigned_to_nat(114u);
 x_4 = lean_unsigned_to_nat(25u);
-x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -3928,7 +3926,7 @@ default:
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 lean_dec(x_2);
 x_10 = lean_box(0);
-x_11 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__4;
+x_11 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 x_12 = lean_panic_fn(x_10, x_11);
 return x_12;
 }
@@ -5102,8 +5100,6 @@ l_Lean_ResolveName_resolveNamespaceUsingScope___closed__2 = _init_l_Lean_Resolve
 lean_mark_persistent(l_Lean_ResolveName_resolveNamespaceUsingScope___closed__2);
 l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3 = _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3();
 lean_mark_persistent(l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3);
-l_Lean_ResolveName_resolveNamespaceUsingScope___closed__4 = _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed__4();
-lean_mark_persistent(l_Lean_ResolveName_resolveNamespaceUsingScope___closed__4);
 l_Lean_resolveNamespace___rarg___lambda__1___closed__1 = _init_l_Lean_resolveNamespace___rarg___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_resolveNamespace___rarg___lambda__1___closed__1);
 l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__1 = _init_l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__1();

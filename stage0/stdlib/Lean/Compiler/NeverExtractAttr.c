@@ -16,13 +16,13 @@ extern "C" {
 lean_object* l_Lean_hasNeverExtractAttribute___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3____closed__4;
 extern lean_object* l_Lean_TagAttribute_Inhabited___closed__1;
+uint8_t l_Lean_Name_isInternal(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttributeAux___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3_(lean_object*);
 lean_object* l_Lean_neverExtractAttr;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttributeAux_match__1___rarg(lean_object*, lean_object*);
-uint8_t l_Lean_Name_isInternal___main(lean_object*);
 lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttributeAux_match__1(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3____closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3____closed__1;
@@ -126,7 +126,7 @@ x_4 = l_Lean_TagAttribute_hasTag(x_3, x_1, x_2);
 if (x_4 == 0)
 {
 uint8_t x_5; 
-x_5 = l_Lean_Name_isInternal___main(x_2);
+x_5 = l_Lean_Name_isInternal(x_2);
 if (x_5 == 0)
 {
 lean_dec(x_2);

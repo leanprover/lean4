@@ -26,6 +26,7 @@ lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_withPa
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_FreeIndices_insertParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectAlts___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectJP(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectArray___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectArg(lean_object*, lean_object*, lean_object*);
@@ -90,7 +91,6 @@ lean_object* l_Array_iterateMAux___main___at___private_Lean_Compiler_IR_FreeVars
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_skip___boxed(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectAlts___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FreeIndices_collectFnBody(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_skip(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectArray___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectParams___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectParam___boxed(lean_object*, lean_object*);
@@ -107,6 +107,7 @@ lean_object* l_Lean_IR_HasIndex_visitArg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FreeIndices_insertParams(lean_object*, lean_object*);
 lean_object* l_Lean_IR_MaxIndex_Lean_Compiler_IR_FreeVars___instance__1;
 lean_object* l_Array_anyRangeMAux___main___at_Lean_IR_HasIndex_visitArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_HasIndex_visitArgs___boxed(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectParams___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_withJP(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,7 +117,6 @@ lean_object* l_Lean_IR_FreeIndices_collectFnBody___closed__1;
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectArray___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectExpr_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_IR_HasIndex_visitArg(lean_object*, lean_object*);
 uint8_t l_Lean_IR_HasIndex_visitArgs(lean_object*, lean_object*);
 lean_object* l_Lean_IR_HasIndex_visitExpr_match__1(lean_object*);
@@ -2018,7 +2018,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -2069,7 +2069,7 @@ lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collec
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_1);
+x_4 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_1);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -2085,11 +2085,11 @@ return x_3;
 }
 }
 }
-lean_object* l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_1, x_2);
+x_3 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -2108,7 +2108,7 @@ lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collec
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_1);
+x_4 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_1);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -2137,7 +2137,7 @@ lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collec
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_1);
+x_4 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_1);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -2334,7 +2334,7 @@ lean_object* x_4; lean_object* x_5;
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_4);
+x_5 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
@@ -2849,7 +2849,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_1, 2);
 lean_inc(x_8);
 lean_dec(x_1);
-x_9 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_7);
+x_9 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -2877,7 +2877,7 @@ lean_object* x_16; lean_object* x_17;
 x_16 = lean_ctor_get(x_1, 2);
 lean_inc(x_16);
 lean_dec(x_1);
-x_17 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_16);
+x_17 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; 
@@ -2922,7 +2922,7 @@ lean_inc(x_26);
 x_27 = lean_ctor_get(x_1, 1);
 lean_inc(x_27);
 lean_dec(x_1);
-x_28 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_26);
+x_28 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_26);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
@@ -2950,7 +2950,7 @@ lean_object* x_35; lean_object* x_36;
 x_35 = lean_ctor_get(x_1, 0);
 lean_inc(x_35);
 lean_dec(x_1);
-x_36 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_35);
+x_36 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_35);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; lean_object* x_38; 
@@ -2976,7 +2976,7 @@ lean_object* x_39; lean_object* x_40;
 x_39 = lean_ctor_get(x_1, 0);
 lean_inc(x_39);
 lean_dec(x_1);
-x_40 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_39);
+x_40 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_39);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; lean_object* x_42; 
@@ -2997,7 +2997,7 @@ lean_object* x_43; lean_object* x_44;
 x_43 = lean_ctor_get(x_1, 0);
 lean_inc(x_43);
 lean_dec(x_1);
-x_44 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_43);
+x_44 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_43);
 if (lean_obj_tag(x_44) == 0)
 {
 lean_object* x_45; lean_object* x_46; 
@@ -3018,7 +3018,7 @@ lean_object* x_47; lean_object* x_48;
 x_47 = lean_ctor_get(x_1, 1);
 lean_inc(x_47);
 lean_dec(x_1);
-x_48 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_47);
+x_48 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_47);
 if (lean_obj_tag(x_48) == 0)
 {
 lean_object* x_49; lean_object* x_50; 
@@ -3574,7 +3574,7 @@ lean_inc(x_22);
 x_23 = lean_ctor_get(x_1, 3);
 lean_inc(x_23);
 lean_dec(x_1);
-x_24 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_21);
+x_24 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_21);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -3606,7 +3606,7 @@ lean_inc(x_32);
 x_33 = lean_ctor_get(x_1, 3);
 lean_inc(x_33);
 lean_dec(x_1);
-x_42 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_31);
+x_42 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_31);
 if (lean_obj_tag(x_42) == 0)
 {
 lean_object* x_43; lean_object* x_44; 
@@ -3629,7 +3629,7 @@ goto block_41;
 block_41:
 {
 lean_object* x_36; 
-x_36 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_35, x_32);
+x_36 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_35, x_32);
 lean_dec(x_35);
 if (lean_obj_tag(x_36) == 0)
 {
@@ -3660,7 +3660,7 @@ lean_inc(x_46);
 x_47 = lean_ctor_get(x_1, 5);
 lean_inc(x_47);
 lean_dec(x_1);
-x_56 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_45);
+x_56 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_45);
 if (lean_obj_tag(x_56) == 0)
 {
 lean_object* x_57; lean_object* x_58; 
@@ -3683,7 +3683,7 @@ goto block_55;
 block_55:
 {
 lean_object* x_50; 
-x_50 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_49, x_46);
+x_50 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_49, x_46);
 lean_dec(x_49);
 if (lean_obj_tag(x_50) == 0)
 {
@@ -3712,7 +3712,7 @@ lean_inc(x_59);
 x_60 = lean_ctor_get(x_1, 1);
 lean_inc(x_60);
 lean_dec(x_1);
-x_61 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_59);
+x_61 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_59);
 if (lean_obj_tag(x_61) == 0)
 {
 lean_object* x_62; lean_object* x_63; 
@@ -3747,7 +3747,7 @@ lean_inc(x_68);
 x_69 = lean_ctor_get(x_1, 3);
 lean_inc(x_69);
 lean_dec(x_1);
-x_70 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_68);
+x_70 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_68);
 if (lean_obj_tag(x_70) == 0)
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
@@ -3789,7 +3789,7 @@ lean_inc(x_81);
 x_82 = lean_ctor_get(x_1, 1);
 lean_inc(x_82);
 lean_dec(x_1);
-x_83 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_81);
+x_83 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_81);
 if (lean_obj_tag(x_83) == 0)
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; 
@@ -3826,7 +3826,7 @@ lean_inc(x_90);
 x_91 = lean_ctor_get(x_1, 2);
 lean_inc(x_91);
 lean_dec(x_1);
-x_92 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_90);
+x_92 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_2, x_90);
 if (lean_obj_tag(x_92) == 0)
 {
 lean_object* x_93; lean_object* x_94; 

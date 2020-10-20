@@ -45,6 +45,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp__
 lean_object* l_Lean_Meta_instantiateLambda___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateLocalDeclMVars___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_setMVarKind___rarg(lean_object*, lean_object*, uint8_t);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1328,7 +1329,6 @@ lean_object* l_Lean_Meta_assignExprMVar___rarg___lambda__1___boxed(lean_object*,
 lean_object* l_Lean_throwError___at_Lean_Meta_getMVarDecl___spec__1(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeImp___spec__42___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 lean_object* l_Lean_Meta_mkFreshExprMVarWithId___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___spec__89(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaMetaTelescopeImp_process_match__1(lean_object*);
@@ -12839,7 +12839,7 @@ x_1 = l___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuick_x3f___closed__2;
 x_2 = l___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuick_x3f___closed__3;
 x_3 = lean_unsigned_to_nat(468u);
 x_4 = lean_unsigned_to_nat(25u);
-x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }

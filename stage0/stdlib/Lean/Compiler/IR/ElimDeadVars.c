@@ -16,6 +16,7 @@ extern "C" {
 extern lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__11;
 lean_object* l_Lean_IR_FnBody_elimDead(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_reshapeWithoutDeadAux_match__2(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -27,7 +28,6 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_freeIndices(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead_match__2(lean_object*);
-lean_object* l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_IR_reshapeWithoutDeadAux_match__1(lean_object*);
 lean_object* l_Lean_IR_reshapeWithoutDeadAux(lean_object*, lean_object*, lean_object*);
@@ -152,7 +152,7 @@ case 0:
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
-x_8 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_3, x_7);
+x_8 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_3, x_7);
 lean_dec(x_7);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -178,7 +178,7 @@ case 1:
 lean_object* x_13; lean_object* x_14; 
 x_13 = lean_ctor_get(x_5, 0);
 lean_inc(x_13);
-x_14 = l_Std_RBNode_findCore___main___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_3, x_13);
+x_14 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_3, x_13);
 lean_dec(x_13);
 if (lean_obj_tag(x_14) == 0)
 {

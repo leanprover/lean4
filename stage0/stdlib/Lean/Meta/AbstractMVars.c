@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Std_AssocList_contains___at___private_Lean_Meta_AbstractMVars_0__Lean_Meta_AbstractMVars_abstractLevelMVars___spec__4___boxed(lean_object*, lean_object*);
 lean_object* l_Array_isEqvAux___main___at_Lean_Meta_AbstractMVarsResult_beq___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_openAbstractMVarsResult___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__2(lean_object*, lean_object*);
@@ -119,7 +120,6 @@ lean_object* l_Lean_Meta_AbstractMVarsResult_beq___boxed(lean_object*, lean_obje
 lean_object* l_Lean_Meta_AbstractMVarsResult_hasBeq___closed__1;
 lean_object* l_Lean_Meta_abstractMVars_match__1(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-extern lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_State_lmap___default;
 extern lean_object* l_Lean_Expr_updateLet_x21___closed__1;
@@ -2409,7 +2409,7 @@ x_1 = l_Lean_Meta_AbstractMVars_abstractExprMVars___closed__3;
 x_2 = l_Lean_Meta_AbstractMVars_abstractExprMVars___closed__4;
 x_3 = lean_unsigned_to_nat(104u);
 x_4 = lean_unsigned_to_nat(20u);
-x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__3;
+x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }

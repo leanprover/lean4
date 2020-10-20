@@ -138,6 +138,7 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Elab_Tactic_setGoals___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_evalTacticUsing_loop_match__2(lean_object*);
 lean_object* l_Lean_Elab_Tactic_liftMetaMAtMain_match__1___rarg(lean_object*, lean_object*);
+uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getGoals___boxed(lean_object*);
 extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalClear___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -271,7 +272,6 @@ lean_object* l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_regTraceClas
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalFocus___closed__2;
 lean_object* l_Lean_Elab_Tactic_getUnsolvedGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalIntros___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_isPrefixOf___main(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getGoals___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__2(lean_object*);
@@ -439,6 +439,7 @@ lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Elab_Tactic_withMainMVarContext_match__1(lean_object*);
 lean_object* l_Lean_Elab_Tactic_getFVarId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_ensureHasNoMVars___closed__1;
+uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalIntro___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalAssumption(lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalIntro___closed__8;
@@ -462,7 +463,6 @@ lean_object* l_Std_PersistentHashMap_findAtAux___main___at_Lean_Elab_Tactic_eval
 lean_object* l_Lean_Elab_Tactic_tagUntaggedGoals_match__2(lean_object*);
 extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__16;
 lean_object* l_Lean_Elab_Tactic_evalIntro___closed__9;
-uint8_t l_Lean_Name_isSuffixOf___main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalFailIfSuccess(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalIntros_match__1(lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalOrelse___closed__1;
@@ -14676,7 +14676,7 @@ x_19 = lean_ctor_get(x_16, 1);
 x_20 = lean_ctor_get(x_18, 0);
 lean_inc(x_20);
 lean_dec(x_18);
-x_21 = l_Lean_Name_isSuffixOf___main(x_1, x_20);
+x_21 = l_Lean_Name_isSuffixOf(x_1, x_20);
 lean_dec(x_20);
 if (x_21 == 0)
 {
@@ -14707,7 +14707,7 @@ lean_dec(x_16);
 x_26 = lean_ctor_get(x_24, 0);
 lean_inc(x_26);
 lean_dec(x_24);
-x_27 = l_Lean_Name_isSuffixOf___main(x_1, x_26);
+x_27 = l_Lean_Name_isSuffixOf(x_1, x_26);
 lean_dec(x_26);
 if (x_27 == 0)
 {
@@ -14790,7 +14790,7 @@ x_19 = lean_ctor_get(x_16, 1);
 x_20 = lean_ctor_get(x_18, 0);
 lean_inc(x_20);
 lean_dec(x_18);
-x_21 = l_Lean_Name_isPrefixOf___main(x_1, x_20);
+x_21 = l_Lean_Name_isPrefixOf(x_1, x_20);
 lean_dec(x_20);
 if (x_21 == 0)
 {
@@ -14821,7 +14821,7 @@ lean_dec(x_16);
 x_26 = lean_ctor_get(x_24, 0);
 lean_inc(x_26);
 lean_dec(x_24);
-x_27 = l_Lean_Name_isPrefixOf___main(x_1, x_26);
+x_27 = l_Lean_Name_isPrefixOf(x_1, x_26);
 lean_dec(x_26);
 if (x_27 == 0)
 {

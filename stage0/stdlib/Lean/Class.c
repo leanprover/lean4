@@ -1221,54 +1221,60 @@ uint8_t x_5;
 x_5 = !lean_is_exclusive(x_1);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; 
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = l_Std_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__2(x_6, x_2, x_3);
+x_8 = 0;
 lean_ctor_set(x_1, 1, x_7);
+lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_8);
 return x_1;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_ctor_get(x_1, 0);
-x_9 = lean_ctor_get(x_1, 1);
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
+x_9 = lean_ctor_get(x_1, 0);
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
 lean_inc(x_9);
-lean_inc(x_8);
 lean_dec(x_1);
-x_10 = l_Std_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__2(x_9, x_2, x_3);
-x_11 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_11, 0, x_8);
-lean_ctor_set(x_11, 1, x_10);
-lean_ctor_set_uint8(x_11, sizeof(void*)*2, x_4);
-return x_11;
+x_11 = l_Std_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__2(x_10, x_2, x_3);
+x_12 = 0;
+x_13 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_13, 0, x_9);
+lean_ctor_set(x_13, 1, x_11);
+lean_ctor_set_uint8(x_13, sizeof(void*)*2, x_12);
+return x_13;
 }
 }
 else
 {
-uint8_t x_12; 
-x_12 = !lean_is_exclusive(x_1);
-if (x_12 == 0)
+uint8_t x_14; 
+x_14 = !lean_is_exclusive(x_1);
+if (x_14 == 0)
 {
-lean_object* x_13; lean_object* x_14; 
-x_13 = lean_ctor_get(x_1, 0);
-x_14 = l_Std_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__6(x_13, x_2, x_3);
-lean_ctor_set(x_1, 0, x_14);
+lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_15 = lean_ctor_get(x_1, 0);
+x_16 = l_Std_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__6(x_15, x_2, x_3);
+x_17 = 1;
+lean_ctor_set(x_1, 0, x_16);
+lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_17);
 return x_1;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_15 = lean_ctor_get(x_1, 0);
-x_16 = lean_ctor_get(x_1, 1);
-lean_inc(x_16);
-lean_inc(x_15);
+lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; 
+x_18 = lean_ctor_get(x_1, 0);
+x_19 = lean_ctor_get(x_1, 1);
+lean_inc(x_19);
+lean_inc(x_18);
 lean_dec(x_1);
-x_17 = l_Std_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__6(x_15, x_2, x_3);
-x_18 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_16);
-lean_ctor_set_uint8(x_18, sizeof(void*)*2, x_4);
-return x_18;
+x_20 = l_Std_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__6(x_18, x_2, x_3);
+x_21 = 1;
+x_22 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_22, 0, x_20);
+lean_ctor_set(x_22, 1, x_19);
+lean_ctor_set_uint8(x_22, sizeof(void*)*2, x_21);
+return x_22;
 }
 }
 }
@@ -2075,54 +2081,60 @@ uint8_t x_5;
 x_5 = !lean_is_exclusive(x_1);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; 
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = l_Std_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__13(x_6, x_2, x_3);
+x_8 = 0;
 lean_ctor_set(x_1, 1, x_7);
+lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_8);
 return x_1;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_ctor_get(x_1, 0);
-x_9 = lean_ctor_get(x_1, 1);
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
+x_9 = lean_ctor_get(x_1, 0);
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
 lean_inc(x_9);
-lean_inc(x_8);
 lean_dec(x_1);
-x_10 = l_Std_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__13(x_9, x_2, x_3);
-x_11 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_11, 0, x_8);
-lean_ctor_set(x_11, 1, x_10);
-lean_ctor_set_uint8(x_11, sizeof(void*)*2, x_4);
-return x_11;
+x_11 = l_Std_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__13(x_10, x_2, x_3);
+x_12 = 0;
+x_13 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_13, 0, x_9);
+lean_ctor_set(x_13, 1, x_11);
+lean_ctor_set_uint8(x_13, sizeof(void*)*2, x_12);
+return x_13;
 }
 }
 else
 {
-uint8_t x_12; 
-x_12 = !lean_is_exclusive(x_1);
-if (x_12 == 0)
+uint8_t x_14; 
+x_14 = !lean_is_exclusive(x_1);
+if (x_14 == 0)
 {
-lean_object* x_13; lean_object* x_14; 
-x_13 = lean_ctor_get(x_1, 0);
-x_14 = l_Std_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__17(x_13, x_2, x_3);
-lean_ctor_set(x_1, 0, x_14);
+lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_15 = lean_ctor_get(x_1, 0);
+x_16 = l_Std_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__17(x_15, x_2, x_3);
+x_17 = 1;
+lean_ctor_set(x_1, 0, x_16);
+lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_17);
 return x_1;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_15 = lean_ctor_get(x_1, 0);
-x_16 = lean_ctor_get(x_1, 1);
-lean_inc(x_16);
-lean_inc(x_15);
+lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; 
+x_18 = lean_ctor_get(x_1, 0);
+x_19 = lean_ctor_get(x_1, 1);
+lean_inc(x_19);
+lean_inc(x_18);
 lean_dec(x_1);
-x_17 = l_Std_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__17(x_15, x_2, x_3);
-x_18 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_16);
-lean_ctor_set_uint8(x_18, sizeof(void*)*2, x_4);
-return x_18;
+x_20 = l_Std_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__17(x_18, x_2, x_3);
+x_21 = 1;
+x_22 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_22, 0, x_20);
+lean_ctor_set(x_22, 1, x_19);
+lean_ctor_set_uint8(x_22, sizeof(void*)*2, x_21);
+return x_22;
 }
 }
 }

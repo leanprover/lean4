@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -48,4 +49,5 @@ def Bool.toLBool : Bool → Lean.LBool
 | false => Lean.LBool.false
 
 @[inline] def toLBoolM {m : Type → Type} [Monad m] (x : m Bool) : m Lean.LBool := do
-b ← x; pure b.toLBool
+let b ← x
+pure b.toLBool

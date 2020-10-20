@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -42,7 +43,7 @@ partial def MessageData.hasSorry : MessageData → Bool
 | MessageData.group msg         => msg.hasSorry
 | MessageData.compose msg₁ msg₂ => msg₁.hasSorry || msg₂.hasSorry
 | MessageData.tagged _ msg      => msg.hasSorry
-| MessageData.node msgs         => msgs.any MessageData.hasSorry
+| MessageData.node msgs         => msgs.any hasSorry
 | _                             => false
 
 partial def MessageData.hasSyntheticSorry : MessageData → Bool
@@ -52,7 +53,7 @@ partial def MessageData.hasSyntheticSorry : MessageData → Bool
 | MessageData.group msg         => msg.hasSyntheticSorry
 | MessageData.compose msg₁ msg₂ => msg₁.hasSyntheticSorry || msg₂.hasSyntheticSorry
 | MessageData.tagged _ msg      => msg.hasSyntheticSorry
-| MessageData.node msgs         => msgs.any MessageData.hasSyntheticSorry
+| MessageData.node msgs         => msgs.any hasSyntheticSorry
 | _                             => false
 
 def Exception.hasSyntheticSorry : Exception → Bool

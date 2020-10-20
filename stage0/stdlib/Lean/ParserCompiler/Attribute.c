@@ -58,9 +58,9 @@ extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed_
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_Inhabited___closed__1;
+lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_4__sanitizeSyntaxAux___main___spec__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__3;
-lean_object* l_Std_RBNode_find___main___at___private_Lean_Hygiene_4__sanitizeSyntaxAux___main___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__6;
@@ -935,7 +935,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_4, x_2);
-x_6 = l_Std_RBNode_find___main___at___private_Lean_Hygiene_4__sanitizeSyntaxAux___main___spec__2(x_5, x_3);
+x_6 = l_Std_RBNode_find___at___private_Lean_Hygiene_4__sanitizeSyntaxAux___main___spec__2(x_5, x_3);
 lean_dec(x_5);
 return x_6;
 }

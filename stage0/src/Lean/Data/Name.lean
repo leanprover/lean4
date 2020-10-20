@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -8,8 +9,8 @@ import Std.Data.RBMap
 import Std.Data.RBTree
 namespace Lean
 
-instance stringToName : HasCoe String Name :=
-⟨mkNameSimple⟩
+instance : HasCoe String Name := ⟨mkNameSimple⟩ -- TODO delete
+instance : Coe String Name := ⟨mkNameSimple⟩
 
 namespace Name
 
@@ -178,8 +179,8 @@ namespace NameHashSet
 @[inline] def empty : NameHashSet := Std.HashSet.empty
 instance : HasEmptyc NameHashSet := ⟨empty⟩
 instance : Inhabited NameHashSet := ⟨{}⟩
-def insert (s : NameHashSet) (n : Name) := s.insert n
-def contains (s : NameHashSet) (n : Name) : Bool := s.contains n
+def insert (s : NameHashSet) (n : Name) := Std.HashSet.insert s n
+def contains (s : NameHashSet) (n : Name) : Bool := Std.HashSet.contains s n
 end NameHashSet
 
 end Lean

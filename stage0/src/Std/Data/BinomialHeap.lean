@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -11,8 +12,8 @@ structure HeapNodeAux (α : Type u) (h : Type u) :=
 (val : α) (rank : Nat) (children : List h)
 
 inductive Heap (α : Type u) : Type u
-| empty     : Heap
-| heap  (ns : List (HeapNodeAux α Heap)) : Heap
+| empty     : Heap α
+| heap  (ns : List (HeapNodeAux α (Heap α))) : Heap α
 
 abbrev HeapNode (α) := HeapNodeAux α (Heap α)
 
@@ -41,15 +42,15 @@ else
 | [], h  => h
 | h,  [] => h
 | f@(h₁ :: t₁), s@(h₂ :: t₂) =>
-  if h₁.rank < h₂.rank then h₁ :: mergeNodes t₁ s
-  else if h₂.rank < h₁.rank then h₂ :: mergeNodes t₂ f
+  if h₁.rank < h₂.rank then h₁ :: mergeNodes lt t₁ s
+  else if h₂.rank < h₁.rank then h₂ :: mergeNodes lt t₂ f
   else
     let merged := combine lt h₁ h₂;
     let r      := merged.rank;
     if r != hRank t₁ then
-      if r != hRank t₂ then merged :: mergeNodes t₁ t₂ else mergeNodes (merged :: t₁) t₂
+      if r != hRank t₂ then merged :: mergeNodes lt t₁ t₂ else mergeNodes lt (merged :: t₁) t₂
     else
-      if r != hRank t₂ then mergeNodes t₁ (merged :: t₂) else merged :: mergeNodes t₁ t₂
+      if r != hRank t₂ then mergeNodes lt t₁ (merged :: t₂) else merged :: mergeNodes lt t₁ t₂
 
 @[specialize] def merge (lt : α → α → Bool) : Heap α → Heap α → Heap α
 | Heap.empty,    h           => h
@@ -58,10 +59,9 @@ else
 
 @[specialize] def head? (lt : α → α → Bool) : Heap α → Option α
 | Heap.empty  => none
-| Heap.heap h => h.foldl
-  (fun r n => match r with
-   | none   => n.val
-   | some v => if lt v n.val then v else n.val) none
+| Heap.heap h => h.foldl (init := none) fun r n => match r with
+   | none   => some n.val
+   | some v => if lt v n.val then v else some n.val
 
 /- O(log n) -/
 @[specialize] def head [Inhabited α] (lt : α → α → Bool) : Heap α → α
@@ -71,7 +71,7 @@ else
 
 @[specialize] def findMin (lt : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat
 | [],    _,   r          => r
-| h::hs, idx, (h', idx') => if lt h.val h'.val then findMin hs (idx+1) (h, idx) else findMin hs (idx+1) (h', idx')
+| h::hs, idx, (h', idx') => if lt h.val h'.val then findMin lt hs (idx+1) (h, idx) else findMin lt hs (idx+1) (h', idx')
 
 def tail (lt : α → α → Bool) : Heap α → Heap α
 | Heap.empty        => Heap.empty
@@ -89,13 +89,13 @@ partial def toList (lt : α → α → Bool) : Heap α → List α
 | Heap.empty => []
 | h          => match head? lt h with
   | none   => []
-  | some a => a :: toList (tail lt h)
+  | some a => a :: toList lt (tail lt h)
 
 inductive WellFormed (lt : α → α → Bool) : Heap α → Prop
-| emptyWff               : WellFormed Heap.empty
-| singletonWff (a : α)   : WellFormed (singleton a)
-| mergeWff (h₁ h₂ : Heap α) : WellFormed h₁ → WellFormed h₂ → WellFormed (merge lt h₁ h₂)
-| tailWff (h : Heap α)      : WellFormed h → WellFormed (tail lt h)
+| emptyWff               : WellFormed lt Heap.empty
+| singletonWff (a : α)   : WellFormed lt (singleton a)
+| mergeWff (h₁ h₂ : Heap α) : WellFormed lt h₁ → WellFormed lt h₂ → WellFormed lt (merge lt h₁ h₂)
+| tailWff (h : Heap α)      : WellFormed lt h → WellFormed lt (tail lt h)
 
 end BinomialHeapImp
 

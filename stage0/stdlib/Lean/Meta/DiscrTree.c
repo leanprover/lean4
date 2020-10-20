@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_getMatch___spec__10(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_Meta_DiscrTree_getMatch___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___main___at_Lean_Meta_DiscrTree_getMatch___spec__2___rarg(lean_object*, size_t, lean_object*);
-lean_object* l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_Meta_DiscrTree_format___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getMatchAux___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Meta_DiscrTree_Trie_format___spec__2(lean_object*);
@@ -85,6 +84,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___main___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getStarResult___spec__2___rarg(lean_object*, size_t, lean_object*);
 lean_object* l_Std_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
+lean_object* l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_Meta_DiscrTree_getUnify___spec__10(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_ctorIdx___boxed(lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_getUnify___spec__4(lean_object*);
@@ -1015,7 +1015,7 @@ lean_object* x_7; lean_object* x_8;
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_7);
+x_8 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_7);
 return x_8;
 }
 else

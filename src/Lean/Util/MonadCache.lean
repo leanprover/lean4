@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -13,12 +14,12 @@ class MonadCache (α β : Type) (m : Type → Type) :=
 /-- If entry `a := b` is already in the cache, then return `b`.
     Otherwise, execute `b ← f a`, store `a := b` in the cache and return `b`. -/
 @[inline] def checkCache {α β : Type} {m : Type → Type} [MonadCache α β m] [Monad m] (a : α) (f : α → m β) : m β := do
-b? ← MonadCache.findCached? a;
+let b? ← MonadCache.findCached? a
 match b? with
 | some b => pure b
 | none   => do
-  b ← f a;
-  MonadCache.cache a b;
+  let b ← f a
+  MonadCache.cache a b
   pure b
 
 instance readerLift {α β ρ : Type} {m : Type → Type} [MonadCache α β m] : MonadCache α β (ReaderT ρ m) :=
@@ -40,11 +41,11 @@ class MonadHashMapCacheAdapter (α β : Type) (m : Type → Type) [HasBeq α] [H
 namespace MonadHashMapCacheAdapter
 
 @[inline] def findCached? {α β : Type} {m : Type → Type} [HasBeq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] (a : α) : m (Option β) := do
-c ← getCache;
+let c ← getCache
 pure (c.find? a)
 
 @[inline] def cache {α β : Type} {m : Type → Type} [HasBeq α] [Hashable α] [MonadHashMapCacheAdapter α β m] (a : α) (b : β) : m Unit :=
-modifyCache $ fun s => s.insert a b
+modifyCache fun s => s.insert a b
 
 instance {α β : Type} {m : Type → Type} [HasBeq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] : MonadCache α β m :=
 { findCached? := MonadHashMapCacheAdapter.findCached?,
@@ -59,8 +60,8 @@ namespace MonadCacheT
 variables {ω α β : Type} {m : Type → Type} [STWorld ω m] [HasBeq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
 
 instance  : MonadHashMapCacheAdapter α β (MonadCacheT α β m) :=
-{ getCache    := (get : StateRefT _ _ _),
-  modifyCache := fun f => (modify f : StateRefT _ _ _) }
+{ getCache    := (get : StateRefT _ m _), -- TODO: check why we need to provide `m` explicitly
+  modifyCache := fun f => (modify f : StateRefT _ m _) }
 
 @[inline] def run {σ} (x : MonadCacheT α β m σ) : m σ :=
 x.run' Std.mkHashMap
@@ -82,20 +83,20 @@ structure WithHashMapCache (α β σ : Type) [HasBeq α] [Hashable α] :=
 namespace WithHashMapCache
 
 @[inline] def getCache {α β σ : Type} [HasBeq α] [Hashable α] : StateM (WithHashMapCache α β σ) (HashMap α β) := do
-s ← get; pure s.cache
+let s ← get; pure s.cache
 
 @[inline] def modifyCache {α β σ : Type} [HasBeq α] [Hashable α] (f : HashMap α β → HashMap α β) : StateM (WithHashMapCache α β σ) Unit :=
-modify $ fun s => { s with cache := f s.cache }
+modify fun s => { s with cache := f s.cache }
 
 instance stateAdapter (α β σ : Type) [HasBeq α] [Hashable α] : MonadHashMapCacheAdapter α β (StateM (WithHashMapCache α β σ)) :=
 { getCache    := WithHashMapCache.getCache,
   modifyCache := WithHashMapCache.modifyCache }
 
 @[inline] def getCacheE {α β ε σ : Type} [HasBeq α] [Hashable α] : EStateM ε (WithHashMapCache α β σ) (HashMap α β) := do
-s ← get; pure s.cache
+let s ← get; pure s.cache
 
 @[inline] def modifyCacheE {α β ε σ : Type} [HasBeq α] [Hashable α] (f : HashMap α β → HashMap α β) : EStateM ε (WithHashMapCache α β σ) Unit :=
-modify $ fun s => { s with cache := f s.cache }
+modify fun s => { s with cache := f s.cache }
 
 instance estateAdapter (α β ε σ : Type) [HasBeq α] [Hashable α] : MonadHashMapCacheAdapter α β (EStateM ε (WithHashMapCache α β σ)) :=
 { getCache    := WithHashMapCache.getCacheE,

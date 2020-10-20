@@ -722,7 +722,7 @@ int main(int argc, char ** argv) {
         }
 
         if (run && ok) {
-            uint32 ret = ir::run_main(env, argc - optind, argv + optind);
+            uint32 ret = ir::run_main(env, opts, argc - optind, argv + optind);
             environment_free_regions(std::move(env));
             return ret;
         }

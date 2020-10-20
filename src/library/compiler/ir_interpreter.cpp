@@ -38,9 +38,15 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include <lean/interrupt.h>
 #include "library/trace.h"
 #include "library/compiler/ir.h"
+#include "library/compiler/init_attribute.h"
 #include "util/option_ref.h"
 #include "util/array_ref.h"
 #include "util/nat.h"
+#include "util/option_declarations.h"
+
+#ifndef LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE
+#define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE true
+#endif
 
 namespace lean {
 namespace ir {
@@ -179,6 +185,7 @@ option_ref<decl> find_ir_decl(environment const & env, name const & n) {
 static string_ref * g_mangle_prefix = nullptr;
 static string_ref * g_boxed_suffix = nullptr;
 static string_ref * g_boxed_mangled_suffix = nullptr;
+static name * g_interpreter_prefer_native = nullptr;
 
 // reuse the compiler's name mangling to compute native symbol names
 extern "C" object * lean_name_mangle(object * n, object * pre);
@@ -287,6 +294,8 @@ class interpreter {
     };
     std::vector<frame> m_call_stack;
     environment const & m_env;
+    // if `false`, use IR code where possible
+    bool m_prefer_native;
     // if we were called within the execution of a different interpreter, restore the value of `g_interpreter` in the end
     interpreter * m_prev_interpreter;
     struct constant_cache_entry {
@@ -350,12 +359,13 @@ class interpreter {
     /** \brief Return closure pointing to interpreter stub taking interpreter data, declaration to be called, and partially
         applied arguments. */
     object * mk_stub_closure(decl const & d, unsigned n, object ** args) {
-        unsigned cls_size = 2 + decl_params(d).size();
-        object * cls = alloc_closure(get_stub(cls_size), cls_size, 2 + n);
+        unsigned cls_size = 3 + decl_params(d).size();
+        object * cls = alloc_closure(get_stub(cls_size), cls_size, 3 + n);
         closure_set(cls, 0, m_env.to_obj_arg());
-        closure_set(cls, 1, d.to_obj_arg());
+        closure_set(cls, 1, box(m_prefer_native));
+        closure_set(cls, 2, d.to_obj_arg());
         for (unsigned i = 0; i < n ; i++)
-            closure_set(cls, 2 + i, args[i]);
+            closure_set(cls, 3 + i, args[i]);
         return cls;
     }
 
@@ -679,16 +689,18 @@ class interpreter {
         if (symbol_cache_entry const * e = m_symbol_cache.find(fn)) {
             return *e;
         } else {
-            string_ref mangled = name_mangle(fn, *g_mangle_prefix);
-            string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
             symbol_cache_entry e_new { get_decl(fn), nullptr, false };
-            // check for boxed version first
-            if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
-                e_new.m_addr = p_boxed;
-                e_new.m_boxed = true;
-            } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
-                // if there is no boxed version, there are no unboxed parameters, so use default version
-                e_new.m_addr = p;
+            if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern) {
+                string_ref mangled = name_mangle(fn, *g_mangle_prefix);
+                string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
+                // check for boxed version first
+                if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
+                    e_new.m_addr = p_boxed;
+                    e_new.m_boxed = true;
+                } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
+                    // if there is no boxed version, there are no unboxed parameters, so use default version
+                    e_new.m_addr = p;
+                }
             }
             m_symbol_cache.insert(fn, e_new);
             return e_new;
@@ -786,10 +798,10 @@ class interpreter {
 
     // closure stub
     object * stub_m(object ** args) {
-        decl d(args[1]);
+        decl d(args[2]);
         size_t old_size = m_arg_stack.size();
         for (size_t i = 0; i < decl_params(d).size(); i++) {
-            m_arg_stack.push_back(args[2 + i]);
+            m_arg_stack.push_back(args[3 + i]);
         }
         push_frame(d, old_size);
         object * r = eval_body(decl_fun_body(d)).m_obj;
@@ -800,12 +812,13 @@ class interpreter {
     // closure stub stub
     static object * stub_m_aux(object ** args) {
         environment env(args[0]);
+        bool prefer_native = unbox(args[1]);
         if (g_interpreter && is_eqp(g_interpreter->m_env, env)) {
             return g_interpreter->stub_m(args);
         } else {
             // We changed threads or the closure was stored and called in a different context.
             // Create new interpreter with new stacks.
-            return interpreter(env).stub_m(args);
+            return interpreter(env, prefer_native).stub_m(args);
         }
     }
 
@@ -850,10 +863,13 @@ class interpreter {
         }
     }
 public:
-    explicit interpreter(environment const & env) : m_env(env) {
+    explicit interpreter(environment const & env, bool prefer_native) : m_env(env), m_prefer_native(prefer_native) {
         m_prev_interpreter = g_interpreter;
         g_interpreter = this;
     }
+    explicit interpreter(environment const & env, options const & opts) :
+        interpreter(env, opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE)) {}
+
     ~interpreter() {
         for_each(m_constant_cache, [](name const &, constant_cache_entry const & e) {
             if (!e.m_is_scalar) {
@@ -930,17 +946,16 @@ public:
     }
 };
 
-object * run_boxed(environment const & env, name const & fn, unsigned n, object **args) {
-    return interpreter(env).call_boxed(fn, n, args);
+object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
+    return interpreter(env, opts).call_boxed(fn, n, args);
 }
-uint32 run_main(environment const & env, int argv, char * argc[]) {
-    return interpreter(env).run_main(argv, argc);
+uint32 run_main(environment const & env, options const & opts, int argv, char * argc[]) {
+    return interpreter(env, opts).run_main(argv, argc);
 }
 
-extern "C" object * lean_eval_const(object * env, object * /* opts */, object * c) {
+extern "C" object * lean_eval_const(object * env, object * opts, object * c) {
     try {
-        // TODO: Kha use `opts`
-        return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(name, c), 0, 0)).steal();
+        return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, c), 0, 0)).steal();
     } catch (exception & ex) {
         return mk_cnstr(0, string_ref(ex.what())).steal();
     }
@@ -954,6 +969,8 @@ void initialize_ir_interpreter() {
     mark_persistent(ir::g_boxed_suffix->raw());
     ir::g_boxed_mangled_suffix = new string_ref("___boxed");
     mark_persistent(ir::g_boxed_mangled_suffix->raw());
+    ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
+    register_bool_option(*ir::g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE, "(interpreter) whether to use precompiled code where available");
     DEBUG_CODE({
         register_trace_class({"interpreter"});
         register_trace_class({"interpreter", "call"});

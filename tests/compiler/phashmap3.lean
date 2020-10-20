@@ -1,3 +1,4 @@
+#lang lean4
 import Std.Data.PersistentHashMap
 import Lean.Data.Format
 open Lean Std Std.PersistentHashMap
@@ -26,8 +27,8 @@ partial def formatMap : Node Nat Nat → Format
     Format.nil
 
 def checkState (m : Map) : IO Unit := do
-unless (m.stats.maxDepth == 1) (IO.println "unexpected max depth");
-unless (m.stats.numCollisions == 0) (IO.println "unexpected number of collisions")
+unless (m.stats.maxDepth == 1) do (IO.println "unexpected max depth");
+unless (m.stats.numCollisions == 0) do (IO.println "unexpected number of collisions")
 
 def main : IO Unit := do
 let m : Map := PersistentHashMap.empty;
@@ -37,13 +38,13 @@ let max := PersistentHashMap.maxDepth.toNat;
 let m := m.insert (32^max + 1) 3;
 let m := m.insert (32^(max+1) + 1) 4;
 let m := m.insert (32^(max+2) + 1) 5;
-unless (m.stats.maxDepth == PersistentHashMap.maxDepth.toNat) (IO.println "unexpected max depth");
-unless (m.stats.numCollisions == 3) (IO.println "unexpected number of collisions");
+unless (m.stats.maxDepth == PersistentHashMap.maxDepth.toNat) do (IO.println "unexpected max depth");
+unless (m.stats.numCollisions == 3) do (IO.println "unexpected number of collisions");
 IO.println m.stats;
 let m := m.erase (32^(max+1) + 1);
 let m := m.erase (32^(max+2) + 1);
 let m := m.erase (32^max + 1);
-unless (m.stats.maxDepth == PersistentHashMap.maxDepth.toNat - 1) (IO.println "unexpected max depth");
+unless (m.stats.maxDepth == PersistentHashMap.maxDepth.toNat - 1) do (IO.println "unexpected max depth");
 let m := m.erase (32^5 + 1);
 checkState m;
 IO.println m.stats

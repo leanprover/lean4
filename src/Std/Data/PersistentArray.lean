@@ -198,6 +198,33 @@ variable {β : Type v}
 let b ← foldlMAux f t.root init
 t.tail.foldlM f b
 
+@[specialize]
+partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
+    (f : α → β → m (ForInStep β)) (n : PersistentArrayNode α) (b : β) : m (ForInStep β) := do
+match n with
+| leaf vs =>
+  for v in vs do
+    match (← f v b) with
+    | r@(ForInStep.done b) => return r
+    | ForInStep.yield bNew => b := bNew
+  return ForInStep.yield b
+| node cs =>
+  for c in cs do
+    match (← forInAux f c b) with
+    | r@(ForInStep.done b) => return r
+    | ForInStep.yield bNew => b := bNew
+  return ForInStep.yield b
+
+@[specialize] def forIn (t : PersistentArray α) (init : β) (f : α → β → m (ForInStep β)) : m β := do
+match (← forInAux (inh := ⟨init⟩) f t.root init) with
+| ForInStep.done b  => b
+| ForInStep.yield b =>
+  for v in t.tail do
+    match (← f v b) with
+    | ForInStep.done b => return b
+    | ForInStep.yield bNew => b := bNew
+  return b
+
 @[specialize] partial def findSomeMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
 | node cs => cs.findSomeM? (fun c => findSomeMAux f c)
 | leaf vs => vs.findSomeM? f

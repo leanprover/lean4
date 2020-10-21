@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -9,19 +10,19 @@ namespace Lean
 namespace Parser
 namespace Tactic
 
-def underscoreFn : ParserFn :=
-fun c s =>
+def underscoreFn : ParserFn := fun c s =>
   let s   := symbolFn "_" c s;
   let stx := s.stxStack.back;
   let s   := s.popSyntax;
   s.pushSyntax $ mkIdentFrom stx `_
 
-@[inline] def underscore : Parser :=
-{ fn   := underscoreFn,
-  info := mkAtomicInfo "ident" }
+@[inline] def underscore : Parser := {
+  fn   := underscoreFn,
+  info := mkAtomicInfo "ident"
+}
 
-@[combinatorParenthesizer underscore] def underscore.parenthesizer := PrettyPrinter.Parenthesizer.rawIdent.parenthesizer
-@[combinatorFormatter underscore] def underscore.formatter := PrettyPrinter.Formatter.rawIdent.formatter
+@[combinatorParenthesizer Lean.Parser.Tactic.underscore] def underscore.parenthesizer := PrettyPrinter.Parenthesizer.rawIdent.parenthesizer
+@[combinatorFormatter Lean.Parser.Tactic.underscore] def underscore.formatter := PrettyPrinter.Formatter.rawIdent.formatter
 
 def ident' : Parser := ident <|> underscore
 
@@ -43,7 +44,7 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «admit»      := parser! nonReservedSymbol "admit"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticSeq
-@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional (try (ident >> " : ")) >> termParser 51 >> " = " >> ident
+@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional («try» (ident >> " : ")) >> termParser 51 >> " = " >> ident
 
 def locationWildcard := parser! "*"
 def locationTarget   := parser! unicodeSymbol "⊢" "|-"
@@ -58,7 +59,7 @@ def rwRuleSeq := parser! "[" >> sepBy1 rwRule ", " true >> "]"
 @[builtinTacticParser] def «rewrite»    := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> notSymbol "[" >> rwRule >> optional location
 @[builtinTacticParser] def «rewriteSeq» := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRuleSeq >> optional location
 
-def majorPremise := parser! optional (try (ident >> " : ")) >> termParser
+def majorPremise := parser! optional («try» (ident >> " : ")) >> termParser
 def altRHS := Term.hole <|> Term.syntheticHole <|> tacticSeq
 def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> altRHS
 def inductionAlts : Parser := withPosition $ "| " >> sepBy1 inductionAlt (checkColGe "alternatives must be indented" >> "|")

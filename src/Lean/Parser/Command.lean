@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -21,8 +22,8 @@ namespace Command
 def commentBody : Parser :=
 { fn := rawFn (finishCommentBlock 1) true }
 
-@[combinatorParenthesizer commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
-@[combinatorFormatter commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
+@[combinatorParenthesizer Lean.Parser.Command.commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+@[combinatorFormatter Lean.Parser.Command.commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
 def docComment       := parser! ppDedent $ "/--" >> commentBody >> ppLine
 def «private»        := parser! "private "
@@ -45,15 +46,15 @@ def «constant»       := parser! "constant " >> declId >> declSig >> optional d
 def «instance»       := parser! "instance " >> optional declId >> declSig >> declVal
 def «axiom»          := parser! "axiom " >> declId >> declSig
 def «example»        := parser! "example " >> declSig >> declVal
-def inferMod         := parser! try ("{" >> "}")
+def inferMod         := parser! «try» ("{" >> "}")
 def ctor             := parser! "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
 def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> ppDedent (many ctor)
-def classInductive   := parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
-def structExplicitBinder := parser! try (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
-def structImplicitBinder := parser! try (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
-def structInstBinder     := parser! try (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
+def classInductive   := parser! «try» ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
+def structExplicitBinder := parser! «try» (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
+def structImplicitBinder := parser! «try» (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
+def structInstBinder     := parser! «try» (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
 def structFields         := parser! many (ppLine >> (structExplicitBinder <|> structImplicitBinder <|> structInstBinder))
-def structCtor           := parser! try (declModifiers true >> ident >> optional inferMod >> " :: ")
+def structCtor           := parser! «try» (declModifiers true >> ident >> optional inferMod >> " :: ")
 def structureTk          := parser! "structure "
 def classTk              := parser! "class "
 def «extends»            := parser! " extends " >> sepBy1 termParser ", "
@@ -80,10 +81,10 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» 
 @[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> (nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit)
 @[builtinCommandParser] def «attribute»    := parser! optional "local " >> "attribute " >> "[" >> sepBy1 Term.attrInstance ", " >> "] " >> many1 ident
 @[builtinCommandParser] def «export»       := parser! "export " >> ident >> "(" >> many1 ident >> ")"
-def openHiding       := parser! try (ident >> "hiding") >> many1 ident
+def openHiding       := parser! «try» (ident >> "hiding") >> many1 ident
 def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident
-def openRenaming     := parser! try (ident >> "renaming") >> sepBy1 openRenamingItem ", "
-def openOnly         := parser! try (ident >> "(") >> many1 ident >> ")"
+def openRenaming     := parser! «try» (ident >> "renaming") >> sepBy1 openRenamingItem ", "
+def openOnly         := parser! «try» (ident >> "(") >> many1 ident >> ")"
 def openSimple       := parser! many1 ident
 @[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
 

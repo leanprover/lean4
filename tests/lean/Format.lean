@@ -1,3 +1,4 @@
+#lang lean4
 import Lean.Data.Format
 open Lean
 open Lean.Format

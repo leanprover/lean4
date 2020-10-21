@@ -207,6 +207,16 @@ static bool type_is_scalar(type t) {
     return t != type::Object && t != type::TObject && t != type::Irrelevant;
 }
 
+extern "C" object* lean_get_regular_init_fn_name_for(object* env, object* fn);
+optional<name> get_regular_init_fn_name_for(environment const & env, name const & n) {
+    return to_optional<name>(lean_get_regular_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
+}
+
+extern "C" object* lean_get_builtin_init_fn_name_for(object* env, object* fn);
+optional<name> get_builtin_init_fn_name_for(environment const & env, name const & n) {
+    return to_optional<name>(lean_get_builtin_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
+}
+
 /** \brief Value stored in an interpreter variable slot */
 union value {
     // NOTE: the IR type system guarantees that we always access the active union member
@@ -695,7 +705,7 @@ class interpreter {
             return *e;
         } else {
             symbol_cache_entry e_new { get_decl(fn), nullptr, false };
-            if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern) {
+            if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || get_builtin_init_fn_name_for(m_env, fn)) {
                 string_ref mangled = name_mangle(fn, *g_mangle_prefix);
                 string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
                 // check for boxed version first

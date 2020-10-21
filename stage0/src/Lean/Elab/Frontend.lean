@@ -12,6 +12,7 @@ structure State :=
 (commandState : Command.State)
 (parserState  : Parser.ModuleParserState)
 (cmdPos       : String.Pos)
+(commands     : Array Syntax := #[])
 
 structure Context :=
 (inputCtx     : Parser.InputContext)
@@ -30,7 +31,7 @@ match sNew? with
 | some sNew => setCommandState sNew
 | none      => pure ()
 
-def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit :=
+def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
 runCommandElabM (Command.elabCommand stx)
 
 def updateCmdPos : FrontendM Unit := do
@@ -47,6 +48,7 @@ updateCmdPos
 let cmdState ← getCommandState
 match Parser.parseCommand cmdState.env (← getInputContext) (← getParserState) cmdState.messages with
 | (cmd, ps, messages) =>
+  modify fun s => { s with commands := s.commands.push cmd }
   setParserState ps
   setMessages messages
   if Parser.isEOI cmd || Parser.isExitCommand cmd then
@@ -64,15 +66,15 @@ end Frontend
 
 open Frontend
 
-def IO.processCommands (inputCtx : Parser.InputContext) (parserState : Parser.ModuleParserState) (commandState : Command.State) : IO Command.State := do
+def IO.processCommands (inputCtx : Parser.InputContext) (parserState : Parser.ModuleParserState) (commandState : Command.State) : IO State := do
 let (_, s) ← (Frontend.processCommands.run { inputCtx := inputCtx }).run { commandState := commandState, parserState := parserState, cmdPos := parserState.pos }
-pure s.commandState
+pure s
 
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do
 let fileName   := fileName.getD "<input>"
 let inputCtx   := Parser.mkInputContext input fileName
-let commandState ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
-pure (commandState.env, commandState.messages)
+let s ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
+pure (s.commandState.env, s.commandState.messages)
 
 @[export lean_process_input]
 def processExport (env : Environment) (input : String) (opts : Options) (fileName : String) : IO (Environment × List Message) := do
@@ -80,12 +82,12 @@ let (env, messages) ← process input env opts fileName
 pure (env, messages.toList)
 
 @[export lean_run_frontend]
-def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) : IO (Environment × List Message) := do
+def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) : IO (Environment × List Message × Module) := do
 let inputCtx := Parser.mkInputContext input fileName
 let (header, parserState, messages) ← Parser.parseHeader inputCtx
 let (env, messages) ← processHeader header opts messages inputCtx
 let env := env.setMainModule mainModuleName
-let cmdState ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
-pure (cmdState.env, cmdState.messages.toList)
+let s ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
+pure (s.commandState.env, s.commandState.messages.toList, { header := header, commands := s.commands })
 
 end Lean.Elab

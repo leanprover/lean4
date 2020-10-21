@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -9,21 +10,21 @@ import Lean.Parser.Tactic
 namespace Lean
 namespace Parser
 
-@[builtinInit] def regBuiltinSyntaxParserAttr : IO Unit :=
-let leadingIdentAsSymbol := true;
-registerBuiltinParserAttribute `builtinSyntaxParser `stx leadingIdentAsSymbol
+builtin_initialize
+  let leadingIdentAsSymbol := true
+  registerBuiltinParserAttribute `builtinSyntaxParser `stx leadingIdentAsSymbol
 
-@[builtinInit] def regSyntaxParserAttribute : IO Unit :=
-registerBuiltinDynamicParserAttribute `stxParser `stx
+builtin_initialize
+  registerBuiltinDynamicParserAttribute `stxParser `stx
 
 @[inline] def syntaxParser (rbp : Nat := 0) : Parser :=
-categoryParser `stx rbp
+  categoryParser `stx rbp
 
 -- TODO: `max` is a bad precedence name. Find a new one.
 def maxSymbol := parser! nonReservedSymbol "max" true
 def precedenceLit : Parser := numLit <|> maxSymbol
 def «precedence» := parser! ":" >> precedenceLit
-def optPrecedence := optional (try «precedence»)
+def optPrecedence := optional («try» «precedence»)
 
 namespace Syntax
 @[builtinSyntaxParser] def paren           := parser! "(" >> many1 syntaxParser >> ")"
@@ -35,7 +36,7 @@ namespace Syntax
 @[builtinSyntaxParser] def ident           := parser! nonReservedSymbol "ident"
 @[builtinSyntaxParser] def noWs            := parser! nonReservedSymbol "noWs"
 @[builtinSyntaxParser] def interpolatedStr := parser! nonReservedSymbol "interpolatedStr " >> syntaxParser maxPrec
-@[builtinSyntaxParser] def try             := parser! nonReservedSymbol "try " >> syntaxParser maxPrec
+@[builtinSyntaxParser] def «try»           := parser! nonReservedSymbol "try " >> syntaxParser maxPrec
 @[builtinSyntaxParser] def lookahead       := parser! nonReservedSymbol "lookahead " >> syntaxParser maxPrec
 @[builtinSyntaxParser] def sepBy           := parser! nonReservedSymbol "sepBy " >> syntaxParser maxPrec >> syntaxParser maxPrec
 @[builtinSyntaxParser] def sepBy1          := parser! nonReservedSymbol "sepBy1 " >> syntaxParser maxPrec >> syntaxParser maxPrec
@@ -78,24 +79,24 @@ def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Par
 @[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> optKind >> Term.matchAlts
 def parserKind     := parser! ident
 def parserPrio     := parser! numLit
-def parserKindPrio := parser! try (ident >> ", ") >> numLit
+def parserKindPrio := parser! «try» (ident >> ", ") >> numLit
 def optKindPrio : Parser := optional ("[" >> (parserKindPrio <|> parserKind <|> parserPrio) >> "]")
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
 def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> syntaxParser maxPrec
-def macroArg  := try strLit <|> try macroArgSimple
-def macroHead := macroArg <|> try ident
-def macroTailTactic   : Parser := try (" : " >> identEq "tactic") >> darrow >> ("`(" >> toggleInsideQuot Tactic.seq1 >> ")" <|> termParser)
-def macroTailCommand  : Parser := try (" : " >> identEq "command") >> darrow >> ("`(" >> toggleInsideQuot (many1Unbox commandParser) >> ")" <|> termParser)
-def macroTailDefault  : Parser := try (" : " >> ident) >> darrow >> (("`(" >> toggleInsideQuot (categoryParserOfStack 2) >> ")") <|> termParser)
+def macroArg  := «try» strLit <|> «try» macroArgSimple
+def macroHead := macroArg <|> «try» ident
+def macroTailTactic   : Parser := «try» (" : " >> identEq "tactic") >> darrow >> ("`(" >> toggleInsideQuot Tactic.seq1 >> ")" <|> termParser)
+def macroTailCommand  : Parser := «try» (" : " >> identEq "command") >> darrow >> ("`(" >> toggleInsideQuot (many1Unbox commandParser) >> ")" <|> termParser)
+def macroTailDefault  : Parser := «try» (" : " >> ident) >> darrow >> (("`(" >> toggleInsideQuot (categoryParserOfStack 2) >> ")") <|> termParser)
 def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
 @[builtinCommandParser] def «macro»       := parser! "macro " >> optPrecedence >> macroHead >> many macroArg >> macroTail
 
 @[builtinCommandParser] def «elab_rules» := parser! "elab_rules" >> optKind >> optional (" : " >> ident) >> Term.matchAlts
 def elabHead := macroHead
 def elabArg  := macroArg
-def elabTail := try (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
+def elabTail := «try» (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
 @[builtinCommandParser] def «elab»       := parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
 
 end Command

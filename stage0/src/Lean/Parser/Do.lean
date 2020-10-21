@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -8,14 +9,11 @@ import Lean.Parser.Term
 namespace Lean
 namespace Parser
 
-@[builtinInit] def regBuiltinDoElemParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinDoElemParser `doElem
-
-@[builtinInit] def regDoElemParserAttribute : IO Unit :=
-registerBuiltinDynamicParserAttribute `doElemParser `doElem
+builtin_initialize registerBuiltinParserAttribute `builtinDoElemParser `doElem
+builtin_initialize registerBuiltinDynamicParserAttribute `doElemParser `doElem
 
 @[inline] def doElemParser (rbp : Nat := 0) : Parser :=
-categoryParser `doElem rbp
+  categoryParser `doElem rbp
 
 namespace Term
 def leftArrow : Parser := unicodeSymbol " ← " " <- "

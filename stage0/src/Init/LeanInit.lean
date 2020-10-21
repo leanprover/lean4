@@ -266,6 +266,11 @@ partial def getHeadInfo : Syntax → Option SourceInfo
 
 end Syntax
 
+/- Syntax objects for a Lean module. -/
+structure Module :=
+(header   : Syntax)
+(commands : Array Syntax)
+
 /-
 Runtime support for making quotation terms auto-hygienic, by mangling identifiers
 introduced by them with a "macro scope" supplied by the context. Details to appear in a

@@ -423,7 +423,7 @@ def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : Nat) (mergeEr
     else s
   | other => other
 
-@[inline] def orelseFnCore (p q : ParserFn) (mergeErrors : Bool) : ParserFn := fun c s =>
+def orelseFnCore (p q : ParserFn) (mergeErrors : Bool) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let s      := p c s
@@ -457,7 +457,7 @@ instance hashOrelse : HasOrelse Parser :=
   collectKinds  := info.collectKinds
 }
 
-@[inline] def tryFn (p : ParserFn) : ParserFn := fun c s =>
+def tryFn (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let iniPos := s.pos
   match p c s with
@@ -469,7 +469,7 @@ instance hashOrelse : HasOrelse Parser :=
   fn   := tryFn p.fn
 }
 
-@[inline] def optionalFn (p : ParserFn) : ParserFn := fun c s =>
+def optionalFn (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let s      := p c s
@@ -487,7 +487,7 @@ instance hashOrelse : HasOrelse Parser :=
   fn   := optionalFn p.fn
 }
 
-@[inline] def lookaheadFn (p : ParserFn) : ParserFn := fun c s =>
+def lookaheadFn (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let s      := p c s
@@ -498,7 +498,7 @@ instance hashOrelse : HasOrelse Parser :=
   fn   := lookaheadFn p.fn
 }
 
-@[inline] def notFollowedByFn (p : ParserFn) (msg : String) : ParserFn := fun c s =>
+def notFollowedByFn (p : ParserFn) (msg : String) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let s      := p c s
@@ -512,7 +512,7 @@ instance hashOrelse : HasOrelse Parser :=
   fn := notFollowedByFn p.fn msg
 }
 
-@[specialize] partial def manyAux (p : ParserFn) : ParserFn := fun c s =>
+partial def manyAux (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let s      := p c s
@@ -541,7 +541,7 @@ instance hashOrelse : HasOrelse Parser :=
   fn   := many1Fn p.fn
 }
 
-@[specialize] private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep : Bool) (iniSz : Nat) (pOpt : Bool) : ParserFn :=
+private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep : Bool) (iniSz : Nat) (pOpt : Bool) : ParserFn :=
   let rec parse (pOpt : Bool) (c s) :=
     let sz  := s.stackSize
     let pos := s.pos
@@ -566,11 +566,11 @@ instance hashOrelse : HasOrelse Parser :=
         parse allowTrailingSep c s
   parse pOpt
 
-@[specialize] def sepByFn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserFn := fun c s =>
+def sepByFn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserFn := fun c s =>
   let iniSz := s.stackSize
   sepByFnAux p sep allowTrailingSep iniSz true c s
 
-@[specialize] def sepBy1Fn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserFn := fun c s =>
+def sepBy1Fn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserFn := fun c s =>
   let iniSz := s.stackSize
   sepByFnAux p sep allowTrailingSep iniSz false c s
 
@@ -596,7 +596,7 @@ instance hashOrelse : HasOrelse Parser :=
 }
 
 /- Apply `f` to the syntax object produced by `p` -/
-@[inline] def withResultOfFn (p : ParserFn) (f : Syntax → Syntax) : ParserFn := fun c s =>
+def withResultOfFn (p : ParserFn) (f : Syntax → Syntax) : ParserFn := fun c s =>
   let s := p c s
   if s.hasError then s
   else
@@ -616,19 +616,19 @@ instance hashOrelse : HasOrelse Parser :=
 @[inline] def many1Unbox (p : Parser) : Parser :=
   withResultOf (many1 p) fun stx => if stx.getNumArgs == 1 then stx.getArg 0 else stx
 
-@[specialize] partial def satisfyFn (p : Char → Bool) (errorMsg : String := "unexpected character") : ParserFn := fun c s =>
+partial def satisfyFn (p : Char → Bool) (errorMsg : String := "unexpected character") : ParserFn := fun c s =>
   let i := s.pos
   if c.input.atEnd i then s.mkEOIError
   else if p (c.input.get i) then s.next c.input i
   else s.mkUnexpectedError errorMsg
 
-@[specialize] partial def takeUntilFn (p : Char → Bool) : ParserFn := fun c s =>
+partial def takeUntilFn (p : Char → Bool) : ParserFn := fun c s =>
   let i := s.pos
   if c.input.atEnd i then s
   else if p (c.input.get i) then s
   else takeUntilFn p c (s.next c.input i)
 
-@[specialize] def takeWhileFn (p : Char → Bool) : ParserFn :=
+def takeWhileFn (p : Char → Bool) : ParserFn :=
   takeUntilFn (fun c => !p c)
 
 @[inline] def takeWhile1Fn (p : Char → Bool) (errorMsg : String) : ParserFn :=
@@ -723,7 +723,7 @@ def hexDigitFn : ParserFn := fun c s =>
     if curr.isDigit || ('a' <= curr && curr <= 'f') || ('A' <= curr && curr <= 'F') then s.setPos i
     else s.mkUnexpectedError "invalid hexadecimal numeral"
 
-@[specialize] def quotedCharCoreFn (isQuotable : Char → Bool) : ParserFn := fun c s =>
+def quotedCharCoreFn (isQuotable : Char → Bool) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
   if input.atEnd i then s.mkEOIError
@@ -985,7 +985,7 @@ def peekTokenAux (c : ParserContext) (s : ParserState) : ParserState × Option S
     let stx := s.stxStack.back
     (s.restore iniSz iniPos, some stx)
 
-@[inline] def peekToken (c : ParserContext) (s : ParserState) : ParserState × Option Syntax :=
+def peekToken (c : ParserContext) (s : ParserState) : ParserState × Option Syntax :=
   let tkc := s.cache.tokenCache
   if tkc.startPos == s.pos then
     (s, some tkc.token)
@@ -1009,7 +1009,7 @@ def rawIdentFn : ParserFn := fun c s =>
     | Syntax.atom _ sym => if p sym then s else s.mkErrorsAt expected startPos
     | _                 => s.mkErrorsAt expected startPos
 
-@[inline] def symbolFnAux (sym : String) (errorMsg : String) : ParserFn :=
+def symbolFnAux (sym : String) (errorMsg : String) : ParserFn :=
   satisfySymbolFn (fun s => s == sym) [errorMsg]
 
 def symbolInfo (sym : String) : ParserInfo := {
@@ -1257,7 +1257,7 @@ def invalidLongestMatchParser (s : ParserState) : ParserState :=
 
  Remark: `p` must produce exactly one syntax node.
  Remark: the `left?` is not none when we are processing trailing parsers. -/
-@[inline] def runLongestMatchParser (left? : Option Syntax) (p : ParserFn) : ParserFn := fun c s =>
+def runLongestMatchParser (left? : Option Syntax) (p : ParserFn) : ParserFn := fun c s =>
   let startSize := s.stackSize
   match left? with
   | none      =>

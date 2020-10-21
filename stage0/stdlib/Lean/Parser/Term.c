@@ -1251,6 +1251,7 @@ lean_object* l_Lean_Parser_Term_typeSpec_formatter(lean_object*, lean_object*, l
 lean_object* l___regBuiltin_Lean_Parser_Tactic_quot_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_structInst_parenthesizer___closed__8;
 lean_object* l_Lean_Parser_Term_ensureTypeOf___elambda__1___closed__9;
+extern lean_object* l_Lean_Parser_compileParserDescr_visit___closed__1;
 extern lean_object* l_Lean_Parser_mkAntiquot___closed__5;
 lean_object* l_Lean_Parser_Tactic_seq1_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_funBinder_quot___elambda__1___closed__7;
@@ -2217,7 +2218,6 @@ lean_object* l_Lean_Parser_Term_funBinder_quot_formatter___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_lookahead_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_let_x2a___closed__5;
 lean_object* l___regBuiltin_Lean_Parser_Term_anonymousCtor_formatter___closed__1;
-extern lean_object* l_Lean_Parser_compileParserDescr___main___closed__1;
 lean_object* l_Lean_Parser_Term_letDecl___closed__9;
 extern lean_object* l_Lean_Parser_Level_ident___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Term_heq_formatter___closed__1;
@@ -3284,7 +3284,6 @@ lean_object* l___regBuiltin_Lean_Parser_Term_ne_formatter___closed__1;
 lean_object* l_Lean_Parser_Term_map___closed__2;
 lean_object* l_Lean_Parser_Term_or;
 lean_object* l_Lean_Parser_Term_orM___elambda__1(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_unicodeSymbolFn___closed__1;
 lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_Term_app___elambda__1___spec__1___closed__2;
 lean_object* l_Lean_Parser_Term_pow___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_bor_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3358,6 +3357,7 @@ lean_object* l_Lean_Parser_Term_and___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_typeOf_formatter___closed__2;
 lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Term_tupleTail_parenthesizer___closed__1;
+extern lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3___closed__2;
 lean_object* l_Lean_Parser_Term_structInstArrayRef;
 lean_object* l_Lean_Parser_Term_match__syntax___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Term_listLit___elambda__1___closed__1;
@@ -36561,7 +36561,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_depArrow___elambda__1___closed__9;
-x_2 = l_Lean_Parser_unicodeSymbolFn___closed__1;
+x_2 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3___closed__2;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -38594,7 +38594,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_forall___elambda__1___closed__8;
-x_2 = l_Lean_Parser_unicodeSymbolFn___closed__1;
+x_2 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3___closed__2;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -44596,7 +44596,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_fun___elambda__1___closed__7;
-x_2 = l_Lean_Parser_unicodeSymbolFn___closed__1;
+x_2 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3___closed__2;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -64613,7 +64613,7 @@ x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
 x_9 = lean_array_get_size(x_8);
 lean_dec(x_8);
-x_45 = l_Lean_Parser_compileParserDescr___main___closed__1;
+x_45 = l_Lean_Parser_compileParserDescr_visit___closed__1;
 x_46 = l_Lean_Parser_checkNoWsBeforeFn(x_45, x_1, x_6);
 x_47 = lean_ctor_get(x_46, 3);
 lean_inc(x_47);
@@ -65090,7 +65090,7 @@ x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
 x_7 = lean_array_get_size(x_6);
 lean_dec(x_6);
-x_41 = l_Lean_Parser_compileParserDescr___main___closed__1;
+x_41 = l_Lean_Parser_compileParserDescr_visit___closed__1;
 x_42 = l_Lean_Parser_checkNoWsBeforeFn(x_41, x_1, x_4);
 x_43 = lean_ctor_get(x_42, 3);
 lean_inc(x_43);

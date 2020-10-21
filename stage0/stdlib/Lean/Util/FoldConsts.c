@@ -37,9 +37,9 @@ lean_object* l_Lean_Expr_foldConsts___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getMaxHeight(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_foldConsts___boxed(lean_object*, lean_object*);
-extern lean_object* l_Std_HashSet_Inhabited___closed__1;
 size_t l_USize_mod(size_t, size_t);
 size_t lean_ptr_addr(lean_object*);
+extern lean_object* l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_object* l_Lean_Expr_FoldConstsImpl_fold(lean_object*);
 lean_object* l_Lean_Expr_FoldConstsImpl_visited(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Expr_FoldConstsImpl_initCache;
@@ -438,7 +438,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Expr_FindImpl_initCache___closed__1;
-x_2 = l_Std_HashSet_Inhabited___closed__1;
+x_2 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

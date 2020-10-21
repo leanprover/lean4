@@ -23,6 +23,7 @@ lean_object* l_Std_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__1(lean
 lean_object* l_List_elem___main___at_Lean_CollectFVars_visit___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_CollectFVars_State_fvarSet___default;
 lean_object* l_Lean_collectFVars(lean_object*, lean_object*);
+lean_object* l_Std_HashSetImp_moveEntries___at_Lean_CollectFVars_visit___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectFVars_main_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
@@ -37,17 +38,16 @@ lean_object* l_List_foldl___main___at_Lean_CollectFVars_visit___spec__5(lean_obj
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_List_replace___main___at_Lean_CollectFVars_visit___spec__6(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
-extern lean_object* l_Std_HashSet_Inhabited___closed__1;
 lean_object* l_Lean_CollectFVars_visit(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+extern lean_object* l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_object* l_Lean_CollectFVars_State_visitedExpr___default;
 lean_object* l_List_replace___main___at_Lean_CollectFVars_visit___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__7___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t l_List_elem___main___at_Lean_CollectFVars_visit___spec__2(lean_object*, lean_object*);
-lean_object* l_Std_HashSetImp_moveEntries___main___at_Lean_CollectFVars_visit___spec__4(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Std_mkHashSet___at_Lean_CollectFVars_State_visitedExpr___default___spec__1(lean_object*);
 lean_object* l_Lean_CollectFVars_State_visitedExpr___default___closed__1;
@@ -89,7 +89,7 @@ static lean_object* _init_l_Lean_CollectFVars_State_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_HashSet_Inhabited___closed__1;
+x_1 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 x_2 = l_Lean_NameSet_empty;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -185,7 +185,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashSetImp_moveEntries___main___at_Lean_CollectFVars_visit___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashSetImp_moveEntries___at_Lean_CollectFVars_visit___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -226,7 +226,7 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashSetImp_moveEntries___main___at_Lean_CollectFVars_visit___spec__4(x_8, x_2, x_7);
+x_9 = l_Std_HashSetImp_moveEntries___at_Lean_CollectFVars_visit___spec__4(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);

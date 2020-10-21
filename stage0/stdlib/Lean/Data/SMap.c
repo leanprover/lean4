@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_SMap_find_x21___rarg___closed__1;
-extern lean_object* l_Std_PersistentHashMap_empty___rarg___closed__2;
 lean_object* l_Lean_SMap_fold(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_foldStage2___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x21___rarg___closed__3;
@@ -22,31 +21,34 @@ extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_SMap_foldStage2___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_SMap_fold___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_SMap_stage_u2081___default;
+extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_SMap_find_x3f_x27_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_foldStage2___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f_x27(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_map_u2082___default(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_fold___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_map_u2081___default___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_foldStage2___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_SMap_fold___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_foldStage2(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_SMap_fold___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_foldStage2___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_numBuckets___rarg(lean_object*);
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f_match__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_Lean_Data_SMap___instance__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_SMap_foldStage2___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_numBuckets___rarg(lean_object*);
 lean_object* l_Std_PersistentHashMap_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_map_u2081___default(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_insert_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_PersistentHashMap_find_x21___rarg___closed__2;
 lean_object* l_Lean_SMap_findD(lean_object*, lean_object*);
 uint8_t l_Std_HashMapImp_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -54,7 +56,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_SMap_foldStage2___spec__3___ra
 lean_object* l_Lean_SMap_find_x21___rarg___closed__2;
 lean_object* l_Lean_SMap_switch(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_Lean_Data_SMap___instance__1(lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_SMap_fold___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,19 +73,19 @@ lean_object* l_Lean_SMap_numBuckets___rarg___boxed(lean_object*);
 lean_object* l_Lean_SMap_empty___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes___rarg___boxed(lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_SMap_fold___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_contains(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_fold___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_switch___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_foldStage2___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_foldStage2___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_fold___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_findD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f(lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_foldStage2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_numBuckets___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_PersistentHashMap_find_x21___rarg___closed__3;
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_SMap_foldStage2___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -95,7 +96,6 @@ lean_object* l_Lean_SMap_find_x3f_x27_match__1(lean_object*, lean_object*, lean_
 lean_object* l_Lean_SMap_contains_match__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_size___rarg(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_fold___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_contains_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_switch___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_fold___spec__5(lean_object*, lean_object*, lean_object*);
@@ -153,7 +153,7 @@ lean_object* l_Lean_SMap_map_u2082___default___rarg(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Std_PersistentHashMap_empty___rarg___closed__2;
+x_3 = l_Std_PersistentHashMap_root___default___closed__2;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_3);
@@ -183,7 +183,7 @@ lean_object* l_Lean_SMap_Lean_Data_SMap___instance__1___rarg(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = l_Std_PersistentHashMap_empty___rarg___closed__2;
+x_3 = l_Std_PersistentHashMap_root___default___closed__2;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_3);
@@ -219,7 +219,7 @@ lean_object* l_Lean_SMap_empty___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = l_Std_PersistentHashMap_empty___rarg___closed__2;
+x_3 = l_Std_PersistentHashMap_root___default___closed__2;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_3);
@@ -571,7 +571,7 @@ x_1 = l_Lean_SMap_find_x21___rarg___closed__1;
 x_2 = l_Lean_SMap_find_x21___rarg___closed__2;
 x_3 = lean_unsigned_to_nat(56u);
 x_4 = lean_unsigned_to_nat(12u);
-x_5 = l_Std_PersistentHashMap_find_x21___rarg___closed__2;
+x_5 = l_Std_PersistentHashMap_find_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -913,7 +913,7 @@ x_15 = lean_ctor_get(x_8, 0);
 lean_inc(x_15);
 lean_dec(x_8);
 lean_inc(x_1);
-x_16 = l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg(x_1, x_15, x_5);
+x_16 = l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_foldStage2___spec__2___rarg(x_1, x_15, x_5);
 lean_dec(x_15);
 x_4 = x_10;
 x_5 = x_16;
@@ -973,7 +973,7 @@ x_4 = lean_alloc_closure((void*)(l_Array_iterateMAux___main___at_Lean_SMap_foldS
 return x_4;
 }
 }
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_foldStage2___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -995,11 +995,11 @@ return x_10;
 }
 }
 }
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_foldStage2___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg___boxed), 3, 0);
+x_4 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_foldStage2___spec__2___rarg___boxed), 3, 0);
 return x_4;
 }
 }
@@ -1008,7 +1008,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_2, 0);
-x_5 = l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg(x_1, x_4, x_3);
+x_5 = l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_foldStage2___spec__2___rarg(x_1, x_4, x_3);
 return x_5;
 }
 }
@@ -1058,11 +1058,11 @@ lean_dec(x_2);
 return x_7;
 }
 }
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_foldStage2___spec__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg(x_1, x_2, x_3);
+x_4 = l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_foldStage2___spec__2___rarg(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
 }
@@ -1209,7 +1209,7 @@ x_15 = lean_ctor_get(x_8, 0);
 lean_inc(x_15);
 lean_dec(x_8);
 lean_inc(x_1);
-x_16 = l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4___rarg(x_1, x_15, x_5);
+x_16 = l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__4___rarg(x_1, x_15, x_5);
 lean_dec(x_15);
 x_4 = x_10;
 x_5 = x_16;
@@ -1269,7 +1269,7 @@ x_4 = lean_alloc_closure((void*)(l_Array_iterateMAux___main___at_Lean_SMap_fold_
 return x_4;
 }
 }
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1291,11 +1291,11 @@ return x_10;
 }
 }
 }
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4___rarg___boxed), 3, 0);
+x_4 = lean_alloc_closure((void*)(l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__4___rarg___boxed), 3, 0);
 return x_4;
 }
 }
@@ -1304,7 +1304,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_2, 0);
-x_5 = l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4___rarg(x_1, x_4, x_3);
+x_5 = l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__4___rarg(x_1, x_4, x_3);
 return x_5;
 }
 }
@@ -1369,11 +1369,11 @@ lean_dec(x_2);
 return x_7;
 }
 }
-lean_object* l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__4___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_PersistentHashMap_foldlMAux___main___at_Lean_SMap_fold___spec__4___rarg(x_1, x_2, x_3);
+x_4 = l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__4___rarg(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
 }

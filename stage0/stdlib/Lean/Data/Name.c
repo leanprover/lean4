@@ -49,6 +49,7 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_Lean_NameHashSet_Lean_Data_Name___instance__8;
+lean_object* l_Std_HashSetImp_moveEntries___at_Lean_NameHashSet_insert___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 lean_object* l_Lean_Name_lt___boxed(lean_object*, lean_object*);
 lean_object* l_String_splitOn(lean_object*, lean_object*);
@@ -102,7 +103,6 @@ uint8_t l_Lean_Name_isAtomic(lean_object*);
 lean_object* l_Lean_NameHashSet_empty___closed__1;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getNumParts(lean_object*);
-lean_object* l_Std_HashSetImp_moveEntries___main___at_Lean_NameHashSet_insert___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1(lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_Lean_Data_Name___instance__2;
@@ -113,7 +113,6 @@ lean_object* l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(lean
 lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_Name_appendIndexAfter_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_elem___main___at_Lean_NameHashSet_insert___spec__2___boxed(lean_object*, lean_object*);
-extern lean_object* l_Std_HashSet_Inhabited___closed__1;
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1(lean_object*);
 lean_object* l_List_foldl___main___at_String_toName___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_NameMap_contains___rarg___boxed(lean_object*, lean_object*);
@@ -132,6 +131,7 @@ lean_object* l_Lean_NameHashSet_Lean_Data_Name___instance__9;
 lean_object* l_Lean_Name_getPrefix___boxed(lean_object*);
 lean_object* l_Lean_NameHashSet_insert(lean_object*, lean_object*);
 uint8_t l_Lean_NameHashSet_contains(lean_object*, lean_object*);
+extern lean_object* l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_object* l_Lean_Name_getRoot_match__1(lean_object*);
 uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getNumParts_match__1(lean_object*);
@@ -10322,7 +10322,7 @@ static lean_object* _init_l_Lean_NameHashSet_Lean_Data_Name___instance__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_HashSet_Inhabited___closed__1;
+x_1 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 return x_1;
 }
 }
@@ -10330,7 +10330,7 @@ static lean_object* _init_l_Lean_NameHashSet_Lean_Data_Name___instance__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_HashSet_Inhabited___closed__1;
+x_1 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 return x_1;
 }
 }
@@ -10414,7 +10414,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashSetImp_moveEntries___main___at_Lean_NameHashSet_insert___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashSetImp_moveEntries___at_Lean_NameHashSet_insert___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -10455,7 +10455,7 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashSetImp_moveEntries___main___at_Lean_NameHashSet_insert___spec__4(x_8, x_2, x_7);
+x_9 = l_Std_HashSetImp_moveEntries___at_Lean_NameHashSet_insert___spec__4(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -26,8 +27,8 @@ namespace Unhygienic
 instance MonadQuotation : MonadQuotation Unhygienic := {
   getCurrMacroScope   := read,
   getMainModule       := pure `UnhygienicMain,
-  withFreshMacroScope := fun α x => do
-    fresh ← modifyGet (fun n => (n, n + 1));
+  withFreshMacroScope := fun x => do
+    let fresh ← modifyGet fun n => (n, n + 1)
     withReader (fun _ => fresh) x
 }
 protected def run {α : Type} (x : Unhygienic α) : α := run x firstFrontendMacroScope (firstFrontendMacroScope+1)
@@ -49,9 +50,9 @@ private def mkInaccessibleUserName (unicode : Bool) : Name → Name
   mkInaccessibleUserNameAux unicode Name.anonymous idx
 | Name.num p idx _ =>
   if unicode then
-    (mkInaccessibleUserName p).appendAfter ("⁻" ++ idx.toSuperscriptString)
+    (mkInaccessibleUserName unicode p).appendAfter ("⁻" ++ idx.toSuperscriptString)
   else
-    mkNameNum (mkInaccessibleUserName p) idx
+    mkNameNum (mkInaccessibleUserName unicode p) idx
 | n => n
 
 @[export lean_is_inaccessible_user_name]
@@ -74,34 +75,31 @@ structure NameSanitizerState :=
 
 private partial def mkFreshInaccessibleUserName (userName : Name) : Nat → StateM NameSanitizerState Name
 | idx => do
-  st ← get;
-  let userNameNew := mkInaccessibleUserName (Format.getUnicode st.options) (mkNameNum userName idx);
-  if st.nameStem2Idx.contains userNameNew then
-    mkFreshInaccessibleUserName (idx+1)
+  let s ← get
+  let userNameNew := mkInaccessibleUserName (Format.getUnicode s.options) (mkNameNum userName idx)
+  if s.nameStem2Idx.contains userNameNew then
+    mkFreshInaccessibleUserName userName (idx+1)
   else do
-    modify fun st => { st with nameStem2Idx := st.nameStem2Idx.insert userName (idx+1) };
+    modify fun s => { s with nameStem2Idx := s.nameStem2Idx.insert userName (idx+1) }
     pure userNameNew
 
 def sanitizeName (userName : Name) : StateM NameSanitizerState Name := do
-st ← get;
 let stem := userName.eraseMacroScopes;
-let idx  := (st.nameStem2Idx.find? stem).getD 0;
-san ← mkFreshInaccessibleUserName stem idx;
-modify fun st => { st with userName2Sanitized := st.userName2Sanitized.insert userName san };
+let idx  := (← get).nameStem2Idx.find? stem $.getD 0
+let san ← mkFreshInaccessibleUserName stem idx
+modify fun s => { s with userName2Sanitized := s.userName2Sanitized.insert userName san }
 pure san
 
 private partial def sanitizeSyntaxAux : Syntax → StateM NameSanitizerState Syntax
 | Syntax.ident _ _ n _ => do
-  st ← get;
-  mkIdent <$> match st.userName2Sanitized.find? n with
+  mkIdent <$> match (← get).userName2Sanitized.find? n with
   | some n' => pure n'
   | none    => if n.hasMacroScopes then sanitizeName n else pure n
 | Syntax.node k args => Syntax.node k <$> args.mapM sanitizeSyntaxAux
 | stx => pure stx
 
 def sanitizeSyntax (stx : Syntax) : StateM NameSanitizerState Syntax := do
-st ← get;
-if getSanitizeNames st.options then
+if getSanitizeNames (← get).options then
   sanitizeSyntaxAux stx
 else
   pure stx

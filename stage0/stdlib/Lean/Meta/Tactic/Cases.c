@@ -250,7 +250,6 @@ lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg_2406_(lean_o
 lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_unifyEqsAux___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_unifyEqsAux___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_HashSet_Inhabited___closed__1;
 extern lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkNoConfusionImp___closed__8;
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_Meta_Cases_cases___lambda__1___closed__2;
@@ -289,6 +288,7 @@ uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_0__Lea
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_Meta_generalizeIndices___spec__1___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_object* l_Lean_Meta_FVarSubst_insert(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__40___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9723,7 +9723,7 @@ return x_25;
 else
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
-x_26 = l_Std_HashSet_Inhabited___closed__1;
+x_26 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_inc(x_4);
 x_27 = l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__6(x_1, x_2, x_3, x_4, x_22, x_26);
 x_28 = lean_ctor_get(x_27, 0);
@@ -9753,7 +9753,7 @@ goto _start;
 else
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
-x_34 = l_Std_HashSet_Inhabited___closed__1;
+x_34 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_inc(x_4);
 x_35 = l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__12(x_1, x_2, x_3, x_4, x_22, x_34);
 x_36 = lean_ctor_get(x_35, 0);
@@ -9798,7 +9798,7 @@ if (x_68 == 0)
 uint8_t x_69; lean_object* x_70; 
 lean_dec(x_42);
 x_69 = 0;
-x_70 = l_Std_HashSet_Inhabited___closed__1;
+x_70 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 x_44 = x_69;
 x_45 = x_70;
 goto block_66;
@@ -9806,7 +9806,7 @@ goto block_66;
 else
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; uint8_t x_75; 
-x_71 = l_Std_HashSet_Inhabited___closed__1;
+x_71 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_inc(x_4);
 x_72 = l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__30(x_1, x_2, x_3, x_4, x_42, x_71);
 x_73 = lean_ctor_get(x_72, 0);
@@ -9824,7 +9824,7 @@ goto block_66;
 else
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; uint8_t x_80; 
-x_76 = l_Std_HashSet_Inhabited___closed__1;
+x_76 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_inc(x_4);
 x_77 = l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__36(x_1, x_2, x_3, x_4, x_42, x_76);
 x_78 = lean_ctor_get(x_77, 0);
@@ -10049,7 +10049,7 @@ return x_25;
 else
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
-x_26 = l_Std_HashSet_Inhabited___closed__1;
+x_26 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_inc(x_4);
 x_27 = l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__6(x_1, x_2, x_3, x_4, x_22, x_26);
 x_28 = lean_ctor_get(x_27, 0);
@@ -10079,7 +10079,7 @@ goto _start;
 else
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
-x_34 = l_Std_HashSet_Inhabited___closed__1;
+x_34 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_inc(x_4);
 x_35 = l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__12(x_1, x_2, x_3, x_4, x_22, x_34);
 x_36 = lean_ctor_get(x_35, 0);
@@ -10124,7 +10124,7 @@ if (x_68 == 0)
 uint8_t x_69; lean_object* x_70; 
 lean_dec(x_42);
 x_69 = 0;
-x_70 = l_Std_HashSet_Inhabited___closed__1;
+x_70 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 x_44 = x_69;
 x_45 = x_70;
 goto block_66;
@@ -10132,7 +10132,7 @@ goto block_66;
 else
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; uint8_t x_75; 
-x_71 = l_Std_HashSet_Inhabited___closed__1;
+x_71 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_inc(x_4);
 x_72 = l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__30(x_1, x_2, x_3, x_4, x_42, x_71);
 x_73 = lean_ctor_get(x_72, 0);
@@ -10150,7 +10150,7 @@ goto block_66;
 else
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; uint8_t x_80; 
-x_76 = l_Std_HashSet_Inhabited___closed__1;
+x_76 = l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_inc(x_4);
 x_77 = l___private_Lean_MetavarContext_8__dep___main___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__36(x_1, x_2, x_3, x_4, x_42, x_76);
 x_78 = lean_ctor_get(x_77, 0);

@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_generalize___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_HeadIndex_1__headNumArgsAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalize___lambda__3___closed__3;
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30,7 +29,6 @@ lean_object* l_Lean_Meta_generalize___lambda__3___closed__2;
 uint8_t l_Lean_Occurrences_beq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_kabstract___at_Lean_Meta_generalize___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_toHeadIndex___main(lean_object*);
 lean_object* l_Lean_Meta_generalize___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalize___lambda__3___closed__1;
 lean_object* l_Lean_Meta_generalize___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -40,8 +38,10 @@ lean_object* l_Lean_Meta_generalize___lambda__2___closed__1;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalize(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalize___closed__2;
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -75,9 +75,9 @@ if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_free_object(x_9);
-x_14 = l_Lean_Expr_toHeadIndex___main(x_2);
+x_14 = l_Lean_Expr_toHeadIndex(x_2);
 x_15 = lean_unsigned_to_nat(0u);
-x_16 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_2, x_15);
+x_16 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_2, x_15);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_st_mk_ref(x_17, x_12);
 x_19 = lean_ctor_get(x_18, 0);
@@ -152,9 +152,9 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
 lean_free_object(x_9);
-x_35 = l_Lean_Expr_toHeadIndex___main(x_2);
+x_35 = l_Lean_Expr_toHeadIndex(x_2);
 x_36 = lean_unsigned_to_nat(0u);
-x_37 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_2, x_36);
+x_37 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_2, x_36);
 x_38 = lean_unsigned_to_nat(1u);
 x_39 = lean_st_mk_ref(x_38, x_12);
 x_40 = lean_ctor_get(x_39, 0);
@@ -249,9 +249,9 @@ x_59 = l_Lean_Expr_isFVar(x_2);
 if (x_59 == 0)
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; 
-x_60 = l_Lean_Expr_toHeadIndex___main(x_2);
+x_60 = l_Lean_Expr_toHeadIndex(x_2);
 x_61 = lean_unsigned_to_nat(0u);
-x_62 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_2, x_61);
+x_62 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_2, x_61);
 x_63 = lean_unsigned_to_nat(1u);
 x_64 = lean_st_mk_ref(x_63, x_58);
 x_65 = lean_ctor_get(x_64, 0);
@@ -325,9 +325,9 @@ x_79 = l_Lean_Occurrences_beq(x_3, x_78);
 if (x_79 == 0)
 {
 lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; 
-x_80 = l_Lean_Expr_toHeadIndex___main(x_2);
+x_80 = l_Lean_Expr_toHeadIndex(x_2);
 x_81 = lean_unsigned_to_nat(0u);
-x_82 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_2, x_81);
+x_82 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_2, x_81);
 x_83 = lean_unsigned_to_nat(1u);
 x_84 = lean_st_mk_ref(x_83, x_58);
 x_85 = lean_ctor_get(x_84, 0);

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -18,16 +19,16 @@ structure HashSetImp (α : Type u) :=
 (buckets    : HashSetBucket α)
 
 def mkHashSetImp {α : Type u} (nbuckets := 8) : HashSetImp α :=
-let n := if nbuckets = 0 then 8 else nbuckets;
+let n := if nbuckets = 0 then 8 else nbuckets
 { size       := 0,
   buckets    :=
   ⟨ mkArray n [],
-    have p₁ : (mkArray n ([] : List α)).size = n from Array.szMkArrayEq _ _;
-    have p₂ : n = (if nbuckets = 0 then 8 else nbuckets) from rfl;
+    have p₁ : (mkArray n ([] : List α)).size = n from Array.szMkArrayEq _ _
+    have p₂ : n = (if nbuckets = 0 then 8 else nbuckets) from rfl
     have p₃ : (if nbuckets = 0 then 8 else nbuckets) > 0 from
       match nbuckets with
       | 0            => Nat.zeroLtSucc _
-      | (Nat.succ x) => Nat.zeroLtSucc _;
+      | (Nat.succ x) => Nat.zeroLtSucc _
     transRelRight Greater (Eq.trans p₁ p₂) p₃ ⟩ }
 
 namespace HashSetImp
@@ -37,7 +38,7 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 ⟨u %ₙ n, USize.modnLt _ h⟩
 
 @[inline] def reinsertAux (hashFn : α → USize) (data : HashSetBucket α) (a : α) : HashSetBucket α :=
-let ⟨i, h⟩ := mkIdx data.property (hashFn a);
+let ⟨i, h⟩ := mkIdx data.property (hashFn a)
 data.update i (a :: data.val.uget i h) h
 
 @[inline] def foldBucketsM {δ : Type w} {m : Type w → Type w} [Monad m] (data : HashSetBucket α) (d : δ) (f : δ → α → m δ) : m δ :=
@@ -55,45 +56,46 @@ foldBuckets m.buckets d f
 def find? [HasBeq α] [Hashable α] (m : HashSetImp α) (a : α) : Option α :=
 match m with
 | ⟨_, buckets⟩ =>
-  let ⟨i, h⟩ := mkIdx buckets.property (hash a);
+  let ⟨i, h⟩ := mkIdx buckets.property (hash a)
   (buckets.val.uget i h).find? (fun a' => a == a')
 
 def contains [HasBeq α] [Hashable α] (m : HashSetImp α) (a : α) : Bool :=
 match m with
 | ⟨_, buckets⟩ =>
-  let ⟨i, h⟩ := mkIdx buckets.property (hash a);
+  let ⟨i, h⟩ := mkIdx buckets.property (hash a)
   (buckets.val.uget i h).contains a
 
 -- TODO: remove `partial` by using well-founded recursion
 partial def moveEntries [Hashable α] : Nat → Array (List α) → HashSetBucket α → HashSetBucket α
 | i, source, target =>
   if h : i < source.size then
-     let idx : Fin source.size := ⟨i, h⟩;
-     let es  : List α   := source.get idx;
+     let idx : Fin source.size := ⟨i, h⟩
+     let es  : List α   := source.get idx
      -- We remove `es` from `source` to make sure we can reuse its memory cells when performing es.foldl
-     let source                := source.set idx [];
-     let target                := es.foldl (reinsertAux hash) target;
+     let source                := source.set idx []
+     let target                := es.foldl (reinsertAux hash) target
      moveEntries (i+1) source target
   else target
 
 def expand [Hashable α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
-let nbuckets := buckets.val.size * 2;
-have aux₁  : nbuckets > 0 from Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero);
-have aux₂  : (mkArray nbuckets ([] : List α)).size = nbuckets from Array.szMkArrayEq _ _;
-let new_buckets : HashSetBucket α := ⟨mkArray nbuckets [], aux₂.symm ▸ aux₁⟩;
+let nbuckets := buckets.val.size * 2
+have nbuckets > 0 from Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero)
+have (mkArray nbuckets ([] : List α)).size = nbuckets from Array.szMkArrayEq _ _
+have Array.size (mkArray nbuckets List.nil) > 0 by rw this; assumption
+let new_buckets : HashSetBucket α := ⟨mkArray nbuckets [], this⟩;
 { size    := size,
   buckets := moveEntries 0 buckets.val new_buckets }
 
 def insert [HasBeq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
 match m with
 | ⟨size, buckets⟩ =>
-  let ⟨i, h⟩ := mkIdx buckets.property (hash a);
-  let bkt    := buckets.val.uget i h;
+  let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+  let bkt    := buckets.val.uget i h
   if bkt.contains a
   then ⟨size, buckets.update i (bkt.replace a a) h⟩
   else
-    let size'    := size + 1;
-    let buckets' := buckets.update i (a :: bkt) h;
+    let size'    := size + 1
+    let buckets' := buckets.update i (a :: bkt) h
     if size' ≤ buckets.val.size
     then { size := size', buckets := buckets' }
     else expand size' buckets'
@@ -101,8 +103,8 @@ match m with
 def erase [HasBeq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
 match m with
 | ⟨ size, buckets ⟩ =>
-  let ⟨i, h⟩ := mkIdx buckets.property (hash a);
-  let bkt    := buckets.val.uget i h;
+  let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+  let bkt    := buckets.val.uget i h
   if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
   else m
 

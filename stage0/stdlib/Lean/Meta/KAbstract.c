@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
-lean_object* l___private_Lean_HeadIndex_1__headNumArgsAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_kabstract___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___at_Lean_Meta_kabstract_visit___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -35,16 +34,17 @@ uint8_t l_Lean_Occurrences_beq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__4;
-lean_object* l_Lean_Expr_toHeadIndex___main(lean_object*);
 uint8_t l_Lean_Occurrences_contains(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_kabstract_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars___at_Lean_Meta_instantiateLocalDeclMVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_4__addNode___at_Lean_Meta_isLevelDefEq___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_kabstract_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(lean_object*, lean_object*);
 extern lean_object* l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
 lean_object* l_Lean_Meta_kabstract_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -1699,7 +1699,7 @@ x_550 = l_Lean_Expr_hasLooseBVars(x_5);
 if (x_550 == 0)
 {
 lean_object* x_551; uint8_t x_552; 
-x_551 = l_Lean_Expr_toHeadIndex___main(x_5);
+x_551 = l_Lean_Expr_toHeadIndex(x_5);
 x_552 = l_Lean_HeadIndex_HeadIndex_beq(x_551, x_3);
 lean_dec(x_551);
 if (x_552 == 0)
@@ -1713,7 +1713,7 @@ else
 {
 lean_object* x_554; lean_object* x_555; uint8_t x_556; 
 x_554 = lean_unsigned_to_nat(0u);
-x_555 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_5, x_554);
+x_555 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_5, x_554);
 x_556 = lean_nat_dec_eq(x_555, x_4);
 lean_dec(x_555);
 if (x_556 == 0)
@@ -5031,9 +5031,9 @@ x_9 = l_Lean_Expr_isFVar(x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_10 = l_Lean_Expr_toHeadIndex___main(x_1);
+x_10 = l_Lean_Expr_toHeadIndex(x_1);
 x_11 = lean_unsigned_to_nat(0u);
-x_12 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_1, x_11);
+x_12 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_1, x_11);
 x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_st_mk_ref(x_13, x_8);
 x_15 = lean_ctor_get(x_14, 0);
@@ -5107,9 +5107,9 @@ x_30 = l_Lean_Occurrences_beq(x_2, x_29);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-x_31 = l_Lean_Expr_toHeadIndex___main(x_1);
+x_31 = l_Lean_Expr_toHeadIndex(x_1);
 x_32 = lean_unsigned_to_nat(0u);
-x_33 = l___private_Lean_HeadIndex_1__headNumArgsAux___main(x_1, x_32);
+x_33 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_1, x_32);
 x_34 = lean_unsigned_to_nat(1u);
 x_35 = lean_st_mk_ref(x_34, x_8);
 x_36 = lean_ctor_get(x_35, 0);

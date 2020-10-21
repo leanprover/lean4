@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Std_PersistentHashMap_empty___rarg___closed__2;
 lean_object* l_Lean_Meta_DiscrTree_Key_hash_match__1(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_root___default(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_beq_match__1(lean_object*);
+extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
 lean_object* l_Lean_Meta_DiscrTree_Key_beq___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Meta_DiscrTree_Key_beq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Lean_Meta_DiscrTreeTypes___instance__2;
@@ -495,7 +495,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_root___default___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_PersistentHashMap_empty___rarg___closed__2;
+x_1 = l_Std_PersistentHashMap_root___default___closed__2;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

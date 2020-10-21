@@ -1332,7 +1332,6 @@ extern lean_object* l_Lean_Parser_Term_match_parenthesizer___closed__3;
 lean_object* l___private_Lean_Parser_Basic_2__sepByFnAux___main___at_Lean_Parser_Tactic_matchAlts___elambda__1___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_done___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__3;
-extern lean_object* l_Lean_Parser_unicodeSymbolFn___closed__1;
 lean_object* l_Lean_Parser_Tactic_intro___closed__6;
 lean_object* l_Lean_Parser_Tactic_rewriteSeq_parenthesizer___closed__4;
 extern lean_object* l_Lean_Parser_Term_structInstArrayRef___elambda__1___closed__5;
@@ -1356,6 +1355,7 @@ lean_object* l_Lean_Parser_Tactic_rewriteSeq___closed__3;
 lean_object* l_Lean_Parser_Tactic_matchAlt_formatter___closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Tactic_subst_parenthesizer___closed__1;
 extern lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_parenthesizer___closed__3;
+extern lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3___closed__2;
 lean_object* l_Lean_Parser_Tactic_nestedTactic_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_subst___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__11;
@@ -13607,7 +13607,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Tactic_locationTarget___elambda__1___closed__8;
-x_2 = l_Lean_Parser_unicodeSymbolFn___closed__1;
+x_2 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3___closed__2;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -16900,7 +16900,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Tactic_rwRule___elambda__1___closed__9;
-x_2 = l_Lean_Parser_unicodeSymbolFn___closed__1;
+x_2 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3___closed__2;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }

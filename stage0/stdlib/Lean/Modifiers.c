@@ -44,7 +44,6 @@ lean_object* l_Lean_protectedExt;
 extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l_Lean_mkUniquePrivateName_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_Ext_inhabitedExt___closed__2;
 lean_object* l_Lean_mkUniquePrivateName_match__1(lean_object*);
 lean_object* l_Lean_isPrivateName_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__2(lean_object*);
@@ -64,6 +63,7 @@ lean_object* l_Lean_privateExt;
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__4___rarg(lean_object*);
+extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_Lean_Environment___instance__6___closed__2;
 lean_object* l_Lean_isProtected___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux___boxed(lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -181,7 +181,7 @@ static lean_object* _init_l_Lean_protectedExt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = l_Lean_EnvExtensionInterfaceUnsafe_Ext_inhabitedExt___closed__2;
+x_1 = l_Lean_EnvExtensionInterfaceUnsafe_Lean_Environment___instance__6___closed__2;
 x_2 = lean_box(0);
 x_3 = l_Lean_protectedExt___closed__1;
 x_4 = l_Lean_protectedExt___closed__2;

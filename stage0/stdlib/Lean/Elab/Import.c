@@ -42,12 +42,12 @@ lean_object* lean_import_modules(lean_object*, lean_object*, uint32_t, lean_obje
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_List_forInAux___main___at_Lean_Elab_printDeps___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
-lean_object* l_IO_println___at___private_Lean_Parser_Module_0__Lean_Parser_testModuleParserAux_loop___spec__4(lean_object*, lean_object*);
 lean_object* lean_parse_imports(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_println___at_Lean_Environment_displayStats___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_parseImportsExport_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_parseImportsExport_match__1(lean_object*);
@@ -1071,7 +1071,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_IO_println___at___private_Lean_Parser_Module_0__Lean_Parser_testModuleParserAux_loop___spec__4(x_9, x_10);
+x_11 = l_IO_println___at_Lean_Environment_displayStats___spec__3(x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; 

@@ -35,11 +35,10 @@ lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_133_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__9;
 lean_object* l_Lean_getSyntaxMaxDepth___boxed(lean_object*);
-extern lean_object* l_Lean_LocalContext_Inhabited___closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__6;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_98____lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_PersistentEnvExtension_inhabited___closed__1;
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
+extern lean_object* l_Lean_LocalContext_Lean_LocalContext___instance__2___closed__1;
 lean_object* l_Lean_PPFns_inhabited;
 lean_object* l_Lean_ppFnsRef;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -49,11 +48,11 @@ lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_98____lambda__2___boxed(
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_98____closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_133____closed__1;
 lean_object* l_Lean_ppExpr(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_MetavarContext_Lean_MetavarContext___instance__3___closed__1;
 lean_object* l_Lean_PPContext_currNamespace___default;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__10;
 uint8_t l_Lean_getPPRaw(lean_object*);
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_Ext_inhabitedExt___closed__2;
 lean_object* l_Lean_PPFns_inhabited___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_98____closed__3;
 extern lean_object* l_Lean_sanitizeNamesOption___closed__1;
@@ -61,12 +60,13 @@ lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPPRaw___boxed(lean_object*);
 lean_object* l_Lean_ppTerm(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppExt;
+extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_Lean_Environment___instance__6___closed__2;
 lean_object* l_Lean_getSyntaxMaxDepth(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_133____lambda__1(lean_object*);
-extern lean_object* l_Lean_MetavarContext_Inhabited___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_98____closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_98____lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Lean_Environment___instance__10___closed__1;
 extern lean_object* l_Lean_sanitizeNamesOption___closed__2;
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__1() {
@@ -254,7 +254,7 @@ static lean_object* _init_l_Lean_PPContext_mctx___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_MetavarContext_Inhabited___closed__1;
+x_1 = l_Lean_MetavarContext_Lean_MetavarContext___instance__3___closed__1;
 return x_1;
 }
 }
@@ -262,7 +262,7 @@ static lean_object* _init_l_Lean_PPContext_lctx___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_LocalContext_Inhabited___closed__2;
+x_1 = l_Lean_LocalContext_Lean_LocalContext___instance__2___closed__1;
 return x_1;
 }
 }
@@ -294,7 +294,7 @@ static lean_object* _init_l_Lean_PPFns_inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_PersistentEnvExtension_inhabited___closed__1;
+x_1 = l_Lean_Lean_Environment___instance__10___closed__1;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);

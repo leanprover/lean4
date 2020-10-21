@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -219,51 +220,49 @@ we may solve the issue by implementing `isDefEqCheap` that never invokes TC and 
 -/
 
 structure LocalInstance :=
-(className : Name)
-(fvar      : Expr)
+  (className : Name)
+  (fvar      : Expr)
 
 abbrev LocalInstances := Array LocalInstance
 
 def LocalInstance.beq (i₁ i₂ : LocalInstance) : Bool :=
-i₁.fvar == i₂.fvar
+  i₁.fvar == i₂.fvar
 
-instance LocalInstance.hasBeq : HasBeq LocalInstance := ⟨LocalInstance.beq⟩
+instance : HasBeq LocalInstance := ⟨LocalInstance.beq⟩
 
 /-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
 def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
-match localInsts.findIdx? (fun inst => inst.fvar.fvarId! == fvarId) with
-| some idx => localInsts.eraseIdx idx
-| _        => localInsts
+  match localInsts.findIdx? (fun inst => inst.fvar.fvarId! == fvarId) with
+  | some idx => localInsts.eraseIdx idx
+  | _        => localInsts
 
 inductive MetavarKind
-| natural
-| synthetic
-| syntheticOpaque
+  | natural
+  | synthetic
+  | syntheticOpaque
 
 def MetavarKind.isSyntheticOpaque : MetavarKind → Bool
-| MetavarKind.syntheticOpaque => true
-| _                           => false
+  | MetavarKind.syntheticOpaque => true
+  | _                           => false
 
 def MetavarKind.isNatural : MetavarKind → Bool
-| MetavarKind.natural => true
-| _                   => false
+  | MetavarKind.natural => true
+  | _                   => false
 
 structure MetavarDecl :=
-(userName       : Name := Name.anonymous)
-(lctx           : LocalContext)
-(type           : Expr)
-(depth          : Nat)
-(localInstances : LocalInstances)
-(kind           : MetavarKind)
-(numScopeArgs   : Nat := 0) -- See comment at `CheckAssignment` `Meta/ExprDefEq.lean`
+  (userName       : Name := Name.anonymous)
+  (lctx           : LocalContext)
+  (type           : Expr)
+  (depth          : Nat)
+  (localInstances : LocalInstances)
+  (kind           : MetavarKind)
+  (numScopeArgs   : Nat := 0) -- See comment at `CheckAssignment` `Meta/ExprDefEq.lean`
 
 @[export lean_mk_metavar_decl]
 def mkMetavarDeclEx (userName : Name) (lctx : LocalContext) (type : Expr) (depth : Nat) (localInstances : LocalInstances) (kind : MetavarKind) : MetavarDecl :=
-{ userName := userName, lctx := lctx, type := type, depth := depth, localInstances := localInstances, kind := kind }
+  { userName := userName, lctx := lctx, type := type, depth := depth, localInstances := localInstances, kind := kind }
 
-namespace MetavarDecl
 instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary _, type := arbitrary _, depth := 0, localInstances := #[], kind := MetavarKind.natural }⟩
-end MetavarDecl
 
 /--
   A delayed assignment for a metavariable `?m`. It represents an assignment of the form
@@ -273,27 +272,26 @@ end MetavarDecl
   - TODO: after we delete the old frontend, we can remove the field `lctx`.
     This field is only used in old C++ implementation. -/
 structure DelayedMetavarAssignment :=
-(lctx     : LocalContext)
-(fvars    : Array Expr)
-(val      : Expr)
+  (lctx     : LocalContext)
+  (fvars    : Array Expr)
+  (val      : Expr)
 
 open Std (HashMap PersistentHashMap)
 
 structure MetavarContext :=
-(depth       : Nat := 0)
-(lDepth      : PersistentHashMap MVarId Nat := {})
-(decls       : PersistentHashMap MVarId MetavarDecl := {})
-(lAssignment : PersistentHashMap MVarId Level := {})
-(eAssignment : PersistentHashMap MVarId Expr := {})
-(dAssignment : PersistentHashMap MVarId DelayedMetavarAssignment := {})
+  (depth       : Nat := 0)
+  (lDepth      : PersistentHashMap MVarId Nat := {})
+  (decls       : PersistentHashMap MVarId MetavarDecl := {})
+  (lAssignment : PersistentHashMap MVarId Level := {})
+  (eAssignment : PersistentHashMap MVarId Expr := {})
+  (dAssignment : PersistentHashMap MVarId DelayedMetavarAssignment := {})
 
 namespace MetavarContext
 
 instance : Inhabited MetavarContext := ⟨{}⟩
 
 @[export lean_mk_metavar_ctx]
-def mkMetavarContext : Unit → MetavarContext :=
-fun _ => {}
+def mkMetavarContext : Unit → MetavarContext := fun _ => {}
 
 /- Low level API for adding/declaring metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
@@ -306,111 +304,111 @@ def addExprMVarDecl (mctx : MetavarContext)
     (type : Expr)
     (kind : MetavarKind := MetavarKind.natural)
     (numScopeArgs : Nat := 0) : MetavarContext :=
-{ mctx with
-  decls := mctx.decls.insert mvarId {
-    userName       := userName,
-    lctx           := lctx,
-    localInstances := localInstances,
-    type           := type,
-    depth          := mctx.depth,
-    kind           := kind,
-    numScopeArgs   := numScopeArgs } }
+  { mctx with
+    decls := mctx.decls.insert mvarId {
+      userName       := userName,
+      lctx           := lctx,
+      localInstances := localInstances,
+      type           := type,
+      depth          := mctx.depth,
+      kind           := kind,
+      numScopeArgs   := numScopeArgs } }
 
 @[export lean_metavar_ctx_mk_decl]
 def addExprMVarDeclExp (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) (lctx : LocalContext) (localInstances : LocalInstances)
     (type : Expr) (kind : MetavarKind) : MetavarContext :=
-addExprMVarDecl mctx mvarId userName lctx localInstances type kind
+    addExprMVarDecl mctx mvarId userName lctx localInstances type kind
 
 /- Low level API for adding/declaring universe level metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : MVarId)` is assumed to be "unique". -/
 def addLevelMVarDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext :=
-{ mctx with lDepth := mctx.lDepth.insert mvarId mctx.depth }
+  { mctx with lDepth := mctx.lDepth.insert mvarId mctx.depth }
 
 @[export lean_metavar_ctx_find_decl]
 def findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
-mctx.decls.find? mvarId
+  mctx.decls.find? mvarId
 
 def getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
-match mctx.decls.find? mvarId with
-| some decl => decl
-| none      => panic! "unknown metavariable"
+  match mctx.decls.find? mvarId with
+  | some decl => decl
+  | none      => panic! "unknown metavariable"
 
 def findUserName? (mctx : MetavarContext) (userName : Name) : Option MVarId :=
-let search : Except MVarId Unit := mctx.decls.forM fun mvarId decl =>
-  if decl.userName == userName then throw mvarId else pure ();
-match search with
-| Except.ok _         => none
-| Except.error mvarId => some mvarId
+  let search : Except MVarId Unit := mctx.decls.forM fun mvarId decl =>
+    if decl.userName == userName then throw mvarId else pure ()
+  match search with
+  | Except.ok _         => none
+  | Except.error mvarId => some mvarId
 
 def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) : MetavarContext :=
-let decl := mctx.getDecl mvarId;
-{ mctx with decls := mctx.decls.insert mvarId { decl with kind := kind } }
+  let decl := mctx.getDecl mvarId
+  { mctx with decls := mctx.decls.insert mvarId { decl with kind := kind } }
 
 def setMVarUserName (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
-let decl := mctx.getDecl mvarId;
-{ mctx with decls := mctx.decls.insert mvarId { decl with userName := userName } }
+  let decl := mctx.getDecl mvarId
+  { mctx with decls := mctx.decls.insert mvarId { decl with userName := userName } }
 
 def findLevelDepth? (mctx : MetavarContext) (mvarId : MVarId) : Option Nat :=
-mctx.lDepth.find? mvarId
+  mctx.lDepth.find? mvarId
 
 def getLevelDepth (mctx : MetavarContext) (mvarId : MVarId) : Nat :=
-match mctx.findLevelDepth? mvarId with
-| some d => d
-| none   => panic! "unknown metavariable"
+  match mctx.findLevelDepth? mvarId with
+  | some d => d
+  | none   => panic! "unknown metavariable"
 
 def isAnonymousMVar (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
-match mctx.findDecl? mvarId with
-| none          => false
-| some mvarDecl => mvarDecl.userName.isAnonymous
+  match mctx.findDecl? mvarId with
+  | none          => false
+  | some mvarDecl => mvarDecl.userName.isAnonymous
 
 def renameMVar (mctx : MetavarContext) (mvarId : MVarId) (newUserName : Name) : MetavarContext :=
-match mctx.findDecl? mvarId with
-| none          => panic! "unknown metavariable"
-| some mvarDecl => { mctx with decls := mctx.decls.insert mvarId { mvarDecl with userName := newUserName } }
+  match mctx.findDecl? mvarId with
+  | none          => panic! "unknown metavariable"
+  | some mvarDecl => { mctx with decls := mctx.decls.insert mvarId { mvarDecl with userName := newUserName } }
 
 @[export lean_metavar_ctx_assign_level]
 def assignLevel (m : MetavarContext) (mvarId : MVarId) (val : Level) : MetavarContext :=
-{ m with lAssignment := m.lAssignment.insert mvarId val }
+  { m with lAssignment := m.lAssignment.insert mvarId val }
 
 @[export lean_metavar_ctx_assign_expr]
 def assignExprCore (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
-{ m with eAssignment := m.eAssignment.insert mvarId val }
+  { m with eAssignment := m.eAssignment.insert mvarId val }
 
 def assignExpr (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
-{ m with eAssignment := m.eAssignment.insert mvarId val }
+  { m with eAssignment := m.eAssignment.insert mvarId val }
 
 @[export lean_metavar_ctx_assign_delayed]
 def assignDelayed (m : MetavarContext) (mvarId : MVarId) (lctx : LocalContext) (fvars : Array Expr) (val : Expr) : MetavarContext :=
-{ m with dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val } }
+  { m with dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val } }
 
 @[export lean_metavar_ctx_get_level_assignment]
 def getLevelAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Level :=
-m.lAssignment.find? mvarId
+  m.lAssignment.find? mvarId
 
 @[export lean_metavar_ctx_get_expr_assignment]
 def getExprAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Expr :=
-m.eAssignment.find? mvarId
+  m.eAssignment.find? mvarId
 
 @[export lean_metavar_ctx_get_delayed_assignment]
 def getDelayedAssignment? (m : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
-m.dAssignment.find? mvarId
+  m.dAssignment.find? mvarId
 
 @[export lean_metavar_ctx_is_level_assigned]
 def isLevelAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
-m.lAssignment.contains mvarId
+  m.lAssignment.contains mvarId
 
 @[export lean_metavar_ctx_is_expr_assigned]
 def isExprAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
-m.eAssignment.contains mvarId
+  m.eAssignment.contains mvarId
 
 @[export lean_metavar_ctx_is_delayed_assigned]
 def isDelayedAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
-m.dAssignment.contains mvarId
+  m.dAssignment.contains mvarId
 
 @[export lean_metavar_ctx_erase_delayed]
 def eraseDelayed (m : MetavarContext) (mvarId : MVarId) : MetavarContext :=
-{ m with dAssignment := m.dAssignment.erase mvarId }
+  { m with dAssignment := m.dAssignment.erase mvarId }
 
 /- Given a sequence of delayed assignments
    ```
@@ -421,239 +419,242 @@ def eraseDelayed (m : MetavarContext) (mvarId : MVarId) : MetavarContext :=
    in `mctx`, `getDelayedRoot mctx mvarId₁` return `mvarId_root`.
    If `mvarId₁` is not delayed assigned then return `mvarId₁` -/
 partial def getDelayedRoot (m : MetavarContext) : MVarId → MVarId
-| mvarId => match getDelayedAssignment? m mvarId with
-  | some d => match d.val.getAppFn with
-    | Expr.mvar mvarId _ => getDelayedRoot mvarId
-    | _                  => mvarId
-  | none   => mvarId
+  | mvarId => match getDelayedAssignment? m mvarId with
+    | some d => match d.val.getAppFn with
+      | Expr.mvar mvarId _ => getDelayedRoot m mvarId
+      | _                  => mvarId
+    | none   => mvarId
 
 def isLevelAssignable (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
-match mctx.lDepth.find? mvarId with
-| some d => d == mctx.depth
-| _      => panic! "unknown universe metavariable"
+  match mctx.lDepth.find? mvarId with
+  | some d => d == mctx.depth
+  | _      => panic! "unknown universe metavariable"
 
 def isExprAssignable (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
-let decl := mctx.getDecl mvarId;
-decl.depth == mctx.depth
+  let decl := mctx.getDecl mvarId
+  decl.depth == mctx.depth
 
 def incDepth (mctx : MetavarContext) : MetavarContext :=
-{ mctx with depth := mctx.depth + 1 }
+  { mctx with depth := mctx.depth + 1 }
 
 /-- Return true iff the given level contains an assigned metavariable. -/
 def hasAssignedLevelMVar (mctx : MetavarContext) : Level → Bool
-| Level.succ lvl _       => lvl.hasMVar && hasAssignedLevelMVar lvl
-| Level.max lvl₁ lvl₂ _  => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)
-| Level.imax lvl₁ lvl₂ _ => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)
-| Level.mvar mvarId _    => mctx.isLevelAssigned mvarId
-| Level.zero _           => false
-| Level.param _ _        => false
+  | Level.succ lvl _       => lvl.hasMVar && hasAssignedLevelMVar mctx lvl
+  | Level.max lvl₁ lvl₂ _  => (lvl₁.hasMVar && hasAssignedLevelMVar mctx lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar mctx lvl₂)
+  | Level.imax lvl₁ lvl₂ _ => (lvl₁.hasMVar && hasAssignedLevelMVar mctx lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar mctx lvl₂)
+  | Level.mvar mvarId _    => mctx.isLevelAssigned mvarId
+  | Level.zero _           => false
+  | Level.param _ _        => false
 
 /-- Return `true` iff expression contains assigned (level/expr) metavariables or delayed assigned mvars -/
 def hasAssignedMVar (mctx : MetavarContext) : Expr → Bool
-| Expr.const _ lvls _  => lvls.any (hasAssignedLevelMVar mctx)
-| Expr.sort lvl _      => hasAssignedLevelMVar mctx lvl
-| Expr.app f a _       => (f.hasMVar && hasAssignedMVar f) || (a.hasMVar && hasAssignedMVar a)
-| Expr.letE _ t v b _  => (t.hasMVar && hasAssignedMVar t) || (v.hasMVar && hasAssignedMVar v) || (b.hasMVar && hasAssignedMVar b)
-| Expr.forallE _ d b _ => (d.hasMVar && hasAssignedMVar d) || (b.hasMVar && hasAssignedMVar b)
-| Expr.lam _ d b _     => (d.hasMVar && hasAssignedMVar d) || (b.hasMVar && hasAssignedMVar b)
-| Expr.fvar _ _        => false
-| Expr.bvar _ _        => false
-| Expr.lit _ _         => false
-| Expr.mdata _ e _     => e.hasMVar && hasAssignedMVar e
-| Expr.proj _ _ e _    => e.hasMVar && hasAssignedMVar e
-| Expr.mvar mvarId _   => mctx.isExprAssigned mvarId || mctx.isDelayedAssigned mvarId
-| Expr.localE _ _ _ _  => unreachable!
+  | Expr.const _ lvls _  => lvls.any (hasAssignedLevelMVar mctx)
+  | Expr.sort lvl _      => hasAssignedLevelMVar mctx lvl
+  | Expr.app f a _       => (f.hasMVar && hasAssignedMVar mctx f) || (a.hasMVar && hasAssignedMVar mctx a)
+  | Expr.letE _ t v b _  => (t.hasMVar && hasAssignedMVar mctx t) || (v.hasMVar && hasAssignedMVar mctx v) || (b.hasMVar && hasAssignedMVar mctx b)
+  | Expr.forallE _ d b _ => (d.hasMVar && hasAssignedMVar mctx d) || (b.hasMVar && hasAssignedMVar mctx b)
+  | Expr.lam _ d b _     => (d.hasMVar && hasAssignedMVar mctx d) || (b.hasMVar && hasAssignedMVar mctx b)
+  | Expr.fvar _ _        => false
+  | Expr.bvar _ _        => false
+  | Expr.lit _ _         => false
+  | Expr.mdata _ e _     => e.hasMVar && hasAssignedMVar mctx e
+  | Expr.proj _ _ e _    => e.hasMVar && hasAssignedMVar mctx e
+  | Expr.mvar mvarId _   => mctx.isExprAssigned mvarId || mctx.isDelayedAssigned mvarId
+  | Expr.localE _ _ _ _  => unreachable!
 
 /-- Return true iff the given level contains a metavariable that can be assigned. -/
 def hasAssignableLevelMVar (mctx : MetavarContext) : Level → Bool
-| Level.succ lvl _       => lvl.hasMVar && hasAssignableLevelMVar lvl
-| Level.max lvl₁ lvl₂ _  => (lvl₁.hasMVar && hasAssignableLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar lvl₂)
-| Level.imax lvl₁ lvl₂ _ => (lvl₁.hasMVar && hasAssignableLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar lvl₂)
-| Level.mvar mvarId _    => mctx.isLevelAssignable mvarId
-| Level.zero _           => false
-| Level.param _ _        => false
+  | Level.succ lvl _       => lvl.hasMVar && hasAssignableLevelMVar mctx lvl
+  | Level.max lvl₁ lvl₂ _  => (lvl₁.hasMVar && hasAssignableLevelMVar mctx lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar mctx lvl₂)
+  | Level.imax lvl₁ lvl₂ _ => (lvl₁.hasMVar && hasAssignableLevelMVar mctx lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar mctx lvl₂)
+  | Level.mvar mvarId _    => mctx.isLevelAssignable mvarId
+  | Level.zero _           => false
+  | Level.param _ _        => false
 
 /-- Return `true` iff expression contains a metavariable that can be assigned. -/
 def hasAssignableMVar (mctx : MetavarContext) : Expr → Bool
-| Expr.const _ lvls _  => lvls.any (hasAssignableLevelMVar mctx)
-| Expr.sort lvl _      => hasAssignableLevelMVar mctx lvl
-| Expr.app f a _       => (f.hasMVar && hasAssignableMVar f) || (a.hasMVar && hasAssignableMVar a)
-| Expr.letE _ t v b _  => (t.hasMVar && hasAssignableMVar t) || (v.hasMVar && hasAssignableMVar v) || (b.hasMVar && hasAssignableMVar b)
-| Expr.forallE _ d b _ => (d.hasMVar && hasAssignableMVar d) || (b.hasMVar && hasAssignableMVar b)
-| Expr.lam _ d b _     => (d.hasMVar && hasAssignableMVar d) || (b.hasMVar && hasAssignableMVar b)
-| Expr.fvar _ _        => false
-| Expr.bvar _ _        => false
-| Expr.lit _ _         => false
-| Expr.mdata _ e _     => e.hasMVar && hasAssignableMVar e
-| Expr.proj _ _ e _    => e.hasMVar && hasAssignableMVar e
-| Expr.mvar mvarId _   => mctx.isExprAssignable mvarId
-| Expr.localE _ _ _ _  => unreachable!
+  | Expr.const _ lvls _  => lvls.any (hasAssignableLevelMVar mctx)
+  | Expr.sort lvl _      => hasAssignableLevelMVar mctx lvl
+  | Expr.app f a _       => (f.hasMVar && hasAssignableMVar mctx f) || (a.hasMVar && hasAssignableMVar mctx a)
+  | Expr.letE _ t v b _  => (t.hasMVar && hasAssignableMVar mctx t) || (v.hasMVar && hasAssignableMVar mctx v) || (b.hasMVar && hasAssignableMVar mctx b)
+  | Expr.forallE _ d b _ => (d.hasMVar && hasAssignableMVar mctx d) || (b.hasMVar && hasAssignableMVar mctx b)
+  | Expr.lam _ d b _     => (d.hasMVar && hasAssignableMVar mctx d) || (b.hasMVar && hasAssignableMVar mctx b)
+  | Expr.fvar _ _        => false
+  | Expr.bvar _ _        => false
+  | Expr.lit _ _         => false
+  | Expr.mdata _ e _     => e.hasMVar && hasAssignableMVar mctx e
+  | Expr.proj _ _ e _    => e.hasMVar && hasAssignableMVar mctx e
+  | Expr.mvar mvarId _   => mctx.isExprAssignable mvarId
+  | Expr.localE _ _ _ _  => unreachable!
 
 partial def instantiateLevelMVars : Level → StateM MetavarContext Level
-| lvl@(Level.succ lvl₁ _)      => do lvl₁ ← instantiateLevelMVars lvl₁; pure (Level.updateSucc! lvl lvl₁)
-| lvl@(Level.max lvl₁ lvl₂ _)  => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)
-| lvl@(Level.imax lvl₁ lvl₂ _) => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
-| lvl@(Level.mvar mvarId _)    => do
-  mctx ← get;
-  match getLevelAssignment? mctx mvarId with
-  | some newLvl =>
-    if !newLvl.hasMVar then pure newLvl
-    else do
-      newLvl' ← instantiateLevelMVars newLvl;
-      modify $ fun mctx => mctx.assignLevel mvarId newLvl';
-      pure newLvl'
-  | none        => pure lvl
-| lvl => pure lvl
+  | lvl@(Level.succ lvl₁ _)      => do return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
+  | lvl@(Level.max lvl₁ lvl₂ _)  => do return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
+  | lvl@(Level.imax lvl₁ lvl₂ _) => do return Level.updateIMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
+  | lvl@(Level.mvar mvarId _)    => do
+    let mctx ← get
+    match getLevelAssignment? mctx mvarId with
+    | some newLvl =>
+      if !newLvl.hasMVar then pure newLvl
+      else do
+        let newLvl' ← instantiateLevelMVars newLvl
+        modify fun mctx => mctx.assignLevel mvarId newLvl'
+        pure newLvl'
+    | none        => pure lvl
+  | lvl => pure lvl
 
 namespace InstantiateExprMVars
 private abbrev M := StateM (WithHashMapCache Expr Expr MetavarContext)
 
 @[inline] def instantiateLevelMVars (lvl : Level) : M Level :=
-WithHashMapCache.fromState $ MetavarContext.instantiateLevelMVars lvl
-
-@[inline] private def visit (f : Expr → M Expr) (e : Expr) : M Expr :=
-if !e.hasMVar then pure e else checkCache e f
+  WithHashMapCache.fromState $ MetavarContext.instantiateLevelMVars lvl
 
 @[inline] private def getMCtx : M MetavarContext := do
-s ← get; pure s.state
+  let s ← get; pure s.state
 
 @[inline] private def modifyCtx (f : MetavarContext → MetavarContext) : M Unit :=
-modify $ fun s => { s with state := f s.state }
+  modify fun s => { s with state := f s.state }
 
 /-- instantiateExprMVars main function -/
-partial def main : Expr → M Expr
-| e@(Expr.proj _ _ s _)    => do s ← visit main s; pure (e.updateProj! s)
-| e@(Expr.forallE _ d b _) => do d ← visit main d; b ← visit main b; pure (e.updateForallE! d b)
-| e@(Expr.lam _ d b _)     => do d ← visit main d; b ← visit main b; pure (e.updateLambdaE! d b)
-| e@(Expr.letE _ t v b _)  => do t ← visit main t; v ← visit main v; b ← visit main b; pure (e.updateLet! t v b)
-| e@(Expr.const _ lvls _)  => do lvls ← lvls.mapM instantiateLevelMVars; pure (e.updateConst! lvls)
-| e@(Expr.sort lvl _)      => do lvl ← instantiateLevelMVars lvl; pure (e.updateSort! lvl)
-| e@(Expr.mdata _ b _)     => do b ← visit main b; pure (e.updateMData! b)
-| e@(Expr.app _ _ _)       => e.withApp $ fun f args => do
-  let instArgs (f : Expr) : M Expr := do {
-    args ← args.mapM (visit main);
-    pure (mkAppN f args)
-  };
-  let instApp : M Expr := do {
-    let wasMVar := f.isMVar;
-    f ← visit main f;
-    if wasMVar && f.isLambda then
-      /- Some of the arguments in args are irrelevant after we beta reduce. -/
-      visit main (f.betaRev args.reverse)
-    else
-      instArgs f
-  };
-  match f with
-  | Expr.mvar mvarId _ => do
-    mctx ← getMCtx;
-    match mctx.getDelayedAssignment? mvarId with
-    | none => instApp
-    | some { fvars := fvars, val := val, .. } =>
-      /-
-         Apply "delayed substitution" (i.e., delayed assignment + application).
-         That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.
-         If after instantiating `val`, we obtain `newVal`, and `newVal` does not contain
-         metavariables, we replace the free variables `fvars` in `newVal` with the first
-         `fvars.size` elements of `args`. -/
-      if fvars.size > args.size then
-        /- We don't have sufficient arguments for instantiating the free variables `fvars`.
-           This can only happy if a tactic or elaboration function is not implemented correctly.
-           We decided to not use `panic!` here and report it as an error in the frontend
-           when we are checking for unassigned metavariables in an elaborated term. -/
-        instArgs f
-      else do
-        newVal ← visit main val;
-        if newVal.hasExprMVar then
+partial def main (e : Expr) : M Expr :=
+  if !e.hasMVar then
+    pure e
+  else checkCache e fun e => do match e with
+    | Expr.proj _ _ s _    => return e.updateProj! (← main s)
+    | Expr.forallE _ d b _ => return e.updateForallE! (← main d) (← main b)
+    | Expr.lam _ d b _     => return e.updateLambdaE! (← main d) (← main b)
+    | Expr.letE _ t v b _  => return e.updateLet! (← main t) (← main v) (← main b)
+    | Expr.const _ lvls _  => return e.updateConst! (← lvls.mapM instantiateLevelMVars)
+    | Expr.sort lvl _      => return e.updateSort! (← instantiateLevelMVars lvl)
+    | Expr.mdata _ b _     => return e.updateMData! (← main b)
+    | Expr.app _ _ _       => e.withApp fun f args => do
+      let instArgs (f : Expr) : M Expr := do
+        let args ← args.mapM main
+        pure (mkAppN f args)
+      let instApp : M Expr := do
+        let wasMVar := f.isMVar
+        let f ← main f
+        if wasMVar && f.isLambda then
+          /- Some of the arguments in args are irrelevant after we beta reduce. -/
+          main (f.betaRev args.reverse)
+        else
           instArgs f
-        else do
-          args ← args.mapM (visit main);
+      match f with
+      | Expr.mvar mvarId _ =>
+        let mctx ← getMCtx
+        match mctx.getDelayedAssignment? mvarId with
+        | none => instApp
+        | some { fvars := fvars, val := val, .. } =>
           /-
-             Example: suppose we have
-               `?m t1 t2 t3`
-             That is, `f := ?m` and `args := #[t1, t2, t3]`
-             Morever, `?m` is delayed assigned
-               `?m #[x, y] := f x y`
-             where, `fvars := #[x, y]` and `newVal := f x y`.
-             After abstracting `newVal`, we have `f (Expr.bvar 0) (Expr.bvar 1)`.
-             After `instantiaterRevRange 0 2 args`, we have `f t1 t2`.
-             After `mkAppRange 2 3`, we have `f t1 t2 t3` -/
-          let newVal := newVal.abstract fvars;
-          let result := newVal.instantiateRevRange 0 fvars.size args;
-          let result := mkAppRange result fvars.size args.size args;
-          pure $ result
-  | _ => instApp
-| e@(Expr.mvar mvarId _)   => checkCache e $ fun e => do
-  mctx ← getMCtx;
-  match mctx.getExprAssignment? mvarId with
-  | some newE => do
-    newE' ← visit main newE;
-    modifyCtx $ fun mctx => mctx.assignExpr mvarId newE';
-    pure newE'
-  | none => pure e
-| e => pure e
+             Apply "delayed substitution" (i.e., delayed assignment + application).
+             That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.
+             If after instantiating `val`, we obtain `newVal`, and `newVal` does not contain
+             metavariables, we replace the free variables `fvars` in `newVal` with the first
+             `fvars.size` elements of `args`. -/
+          if fvars.size > args.size then
+            /- We don't have sufficient arguments for instantiating the free variables `fvars`.
+               This can only happy if a tactic or elaboration function is not implemented correctly.
+               We decided to not use `panic!` here and report it as an error in the frontend
+               when we are checking for unassigned metavariables in an elaborated term. -/
+            instArgs f
+          else
+            let newVal ← main val
+            if newVal.hasExprMVar then
+              instArgs f
+            else do
+              let args ← args.mapM main
+              /-
+                 Example: suppose we have
+                   `?m t1 t2 t3`
+                 That is, `f := ?m` and `args := #[t1, t2, t3]`
+                 Morever, `?m` is delayed assigned
+                   `?m #[x, y] := f x y`
+                 where, `fvars := #[x, y]` and `newVal := f x y`.
+                 After abstracting `newVal`, we have `f (Expr.bvar 0) (Expr.bvar 1)`.
+                 After `instantiaterRevRange 0 2 args`, we have `f t1 t2`.
+                 After `mkAppRange 2 3`, we have `f t1 t2 t3` -/
+              let newVal := newVal.abstract fvars
+              let result := newVal.instantiateRevRange 0 fvars.size args
+              let result := mkAppRange result fvars.size args.size args
+              pure $ result
+      | _ => instApp
+    | e@(Expr.mvar mvarId _)   => checkCache e fun e => do
+      let mctx ← getMCtx
+      match mctx.getExprAssignment? mvarId with
+      | some newE => do
+        let newE' ← main newE
+        modifyCtx fun mctx => mctx.assignExpr mvarId newE'
+        pure newE'
+      | none => pure e
+    | e => pure e
 
 end InstantiateExprMVars
 
 def instantiateMVars (mctx : MetavarContext) (e : Expr) : Expr × MetavarContext :=
-if !e.hasMVar then (e, mctx)
-else (WithHashMapCache.toState $ InstantiateExprMVars.main e).run mctx
+  if !e.hasMVar then (e, mctx)
+  else (WithHashMapCache.toState $ InstantiateExprMVars.main e).run mctx
 
 def instantiateLCtxMVars (mctx : MetavarContext) (lctx : LocalContext) : LocalContext × MetavarContext :=
-lctx.foldl
-  (fun (result : LocalContext × MetavarContext) ldecl =>
-     let (lctx, mctx) := result;
-     match ldecl with
-     | LocalDecl.cdecl _ fvarId userName type bi =>
-       let (type, mctx) := mctx.instantiateMVars type;
-       (lctx.mkLocalDecl fvarId userName type bi, mctx)
-     | LocalDecl.ldecl _ fvarId userName type value nonDep =>
-       let (type, mctx)  := mctx.instantiateMVars type;
-       let (value, mctx) := mctx.instantiateMVars value;
-       (lctx.mkLetDecl fvarId userName type value nonDep, mctx))
-  ({}, mctx)
+  lctx.foldl
+    (fun (result : LocalContext × MetavarContext) ldecl =>
+       let (lctx, mctx) := result;
+       match ldecl with
+       | LocalDecl.cdecl _ fvarId userName type bi =>
+         let (type, mctx) := mctx.instantiateMVars type
+         (lctx.mkLocalDecl fvarId userName type bi, mctx)
+       | LocalDecl.ldecl _ fvarId userName type value nonDep =>
+         let (type, mctx)  := mctx.instantiateMVars type
+         let (value, mctx) := mctx.instantiateMVars value
+         (lctx.mkLetDecl fvarId userName type value nonDep, mctx))
+    ({}, mctx)
 
 def instantiateMVarDeclMVars (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext :=
-let mvarDecl     := mctx.getDecl mvarId;
-let (lctx, mctx) := mctx.instantiateLCtxMVars mvarDecl.lctx;
-let (type, mctx) := mctx.instantiateMVars mvarDecl.type;
-{ mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx := lctx, type := type } }
+  let mvarDecl     := mctx.getDecl mvarId
+  let (lctx, mctx) := mctx.instantiateLCtxMVars mvarDecl.lctx
+  let (type, mctx) := mctx.instantiateMVars mvarDecl.type
+  { mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx := lctx, type := type } }
 
 namespace DependsOn
 
 private abbrev M := StateM ExprSet
 
-private def visit? (e : Expr) : M Bool :=
-if !e.hasMVar && !e.hasFVar then
-  pure false
-else do
-  s ← get;
-  if s.contains e then
+private def shouldVisit (e : Expr) : M Bool :=
+  if !e.hasMVar && !e.hasFVar then
     pure false
   else do
-    modify $ fun s => s.insert e;
-    pure true
+    let s ← get
+    if s.contains e then
+      pure false
+    else do
+      modify fun s => s.insert e
+      pure true
 
-@[inline] private def visit (main : Expr → M Bool) (e : Expr) : M Bool :=
-condM (visit? e) (main e) (pure false)
-
-@[specialize] private partial def dep (mctx : MetavarContext) (p : FVarId → Bool) : Expr → M Bool
-| e@(Expr.proj _ _ s _)    => visit dep s
-| e@(Expr.forallE _ d b _) => visit dep d <||> visit dep b
-| e@(Expr.lam _ d b _)     => visit dep d <||> visit dep b
-| e@(Expr.letE _ t v b _)  => visit dep t <||> visit dep v <||> visit dep b
-| e@(Expr.mdata _ b _)     => visit dep b
-| e@(Expr.app f a _)       => visit dep a <||> if f.isApp then dep f else visit dep f
-| e@(Expr.mvar mvarId _)   =>
-  match mctx.getExprAssignment? mvarId with
-  | some a => visit dep a
-  | none   =>
-    let lctx := (mctx.getDecl mvarId).lctx;
-    pure $ lctx.any $ fun decl => p decl.fvarId
-| e@(Expr.fvar fvarId _)   => pure $ p fvarId
-| e                        => pure false
+@[specialize] private partial def dep (mctx : MetavarContext) (p : FVarId → Bool) (e : Expr) : M Bool :=
+let rec
+  visit (e : Expr) : M Bool := do
+    if !(← shouldVisit e) then
+      pure false
+    else
+      visitMain e,
+  visitMain : Expr → M Bool
+    | Expr.proj _ _ s _    => visit s
+    | Expr.forallE _ d b _ => visit d <||> visit b
+    | Expr.lam _ d b _     => visit d <||> visit b
+    | Expr.letE _ t v b _  => visit t <||> visit v <||> visit b
+    | Expr.mdata _ b _     => visit b
+    | Expr.app f a _       => visit a <||> if f.isApp then visitMain f else visit f
+    | Expr.mvar mvarId _   =>
+      match mctx.getExprAssignment? mvarId with
+      | some a => visit a
+      | none   =>
+        let lctx := (mctx.getDecl mvarId).lctx
+        pure $ lctx.any $ fun decl => p decl.fvarId
+    | Expr.fvar fvarId _   => pure $ p fvarId
+    | e                    => pure false
+visit e
 
 @[inline] partial def main (mctx : MetavarContext) (p : FVarId → Bool) (e : Expr) : M Bool :=
-if !e.hasFVar && !e.hasMVar then pure false else dep mctx p e
+  if !e.hasFVar && !e.hasMVar then pure false else dep mctx p e
 
 end DependsOn
 
@@ -664,35 +665,35 @@ end DependsOn
   2- If `?m` is unassigned, then we consider the worst case and check whether `x` is in the local context of `?m`.
      This case is a "may dependency". That is, we may assign a term `t` to `?m` s.t. `t` contains `x`. -/
 @[inline] def findExprDependsOn (mctx : MetavarContext) (e : Expr) (p : FVarId → Bool) : Bool :=
-(DependsOn.main mctx p e).run' {}
+  (DependsOn.main mctx p e).run' {}
 
 /--
   Similar to `findExprDependsOn`, but checks the expressions in the given local declaration
   depends on a free variable `x` s.t. `p x` is `true`. -/
 @[inline] def findLocalDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (p : FVarId → Bool) : Bool :=
-match localDecl with
-| LocalDecl.cdecl _ _ _ type _       => findExprDependsOn mctx type p
-| LocalDecl.ldecl _ _ _ type value _ => (DependsOn.main mctx p type <||> DependsOn.main mctx p value).run' {}
+  match localDecl with
+  | LocalDecl.cdecl _ _ _ type _       => findExprDependsOn mctx type p
+  | LocalDecl.ldecl _ _ _ type value _ => (DependsOn.main mctx p type <||> DependsOn.main mctx p value).run' {}
 
 def exprDependsOn (mctx : MetavarContext) (e : Expr) (fvarId : FVarId) : Bool :=
-findExprDependsOn mctx e $ fun fvarId' => fvarId == fvarId'
+  findExprDependsOn mctx e $ fun fvarId' => fvarId == fvarId'
 
 def localDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (fvarId : FVarId) : Bool :=
-findLocalDeclDependsOn mctx localDecl $ fun fvarId' => fvarId == fvarId'
+  findLocalDeclDependsOn mctx localDecl $ fun fvarId' => fvarId == fvarId'
 
 namespace MkBinding
 
 inductive Exception
-| revertFailure (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (decl : LocalDecl)
+  | revertFailure (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (decl : LocalDecl)
 
-def Exception.toString : Exception → String
-| Exception.revertFailure _ lctx toRevert decl =>
-  "failed to revert "
-  ++ toString (toRevert.map (fun x => "'" ++ toString (lctx.getFVar! x).userName ++ "'"))
-  ++ ", '" ++ toString decl.userName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
-  ++ " (possible solution: use tactic 'clear' to remove '" ++ toString decl.userName ++ "' from local context)"
+protected def Exception.toString : Exception → String
+  | Exception.revertFailure _ lctx toRevert decl =>
+    "failed to revert "
+    ++ toString (toRevert.map (fun x => "'" ++ toString (lctx.getFVar! x).userName ++ "'"))
+    ++ ", '" ++ toString decl.userName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
+    ++ " (possible solution: use tactic 'clear' to remove '" ++ toString decl.userName ++ "' from local context)"
 
-instance Exception.hasToString : HasToString Exception := ⟨Exception.toString⟩
+instance : HasToString Exception := ⟨Exception.toString⟩
 
 /--
  `MkBinding` and `elimMVarDepsAux` are mutually recursive, but `cache` is only used at `elimMVarDepsAux`.
@@ -700,27 +701,28 @@ instance Exception.hasToString : HasToString Exception := ⟨Exception.toString�
 
   We have a `NameGenerator` because we need to generate fresh auxiliary metavariables. -/
 structure State :=
-(mctx  : MetavarContext)
-(ngen  : NameGenerator)
-(cache : HashMap Expr Expr := {}) --
+  (mctx  : MetavarContext)
+  (ngen  : NameGenerator)
+  (cache : HashMap Expr Expr := {}) --
 
 abbrev MCore := EStateM Exception State
 abbrev M     := ReaderT Bool (EStateM Exception State)
 
 def preserveOrder : M Bool := read
 
-instance : MonadHashMapCacheAdapter Expr Expr M :=
-{ getCache    := do s ← get; pure s.cache,
-  modifyCache := fun f => modify $ fun s => { s with cache := f s.cache } }
+instance : MonadHashMapCacheAdapter Expr Expr M := {
+  getCache    := do let s ← get; pure s.cache,
+  modifyCache := fun f => modify fun s => { s with cache := f s.cache }
+}
 
 /-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
 private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl :=
-let d : LocalDecl := lctx.getFVar! $ xs.get! 0;
-xs.foldlFrom
-  (fun d x =>
-    let decl := lctx.getFVar! x;
-    if decl.index < d.index then decl else d)
-  d 1
+  let d : LocalDecl := lctx.getFVar! $ xs.get! 0
+  xs.foldlFrom
+    (fun d x =>
+      let decl := lctx.getFVar! x;
+      if decl.index < d.index then decl else d)
+    d 1
 
 /--
   Given `toRevert` an array of free variables s.t. `lctx` contains their declarations,
@@ -755,193 +757,190 @@ xs.foldlFrom
   Note that https://github.com/leanprover/lean/issues/1258 is not an issue in Lean4 because
   we have changed how we compile recursive definitions.
 -/
-private def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (preserveOrder : Bool) : Except Exception (Array Expr) :=
-if toRevert.size == 0 then pure toRevert
-else do
-  when preserveOrder $ do {
-    -- Make sure none of `toRevert` is an AuxDecl
-    -- Make sure toRevert[j] does not depend on toRevert[i] for j > i
-    toRevert.size.forM $ fun i => do
-      let fvar := toRevert.get! i;
-      let decl := lctx.getFVar! fvar;
-      i.forM $ fun j =>
-        let prevFVar := toRevert.get! j;
-        let prevDecl := lctx.getFVar! prevFVar;
-        when (localDeclDependsOn mctx prevDecl fvar.fvarId!) $
-          throw (Exception.revertFailure mctx lctx toRevert prevDecl)
-  };
-  let newToRevert      := if preserveOrder then toRevert else Array.mkEmpty toRevert.size;
-  let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert;
-  let initSize         := newToRevert.size;
-  lctx.foldlFromM
-    (fun (newToRevert : Array Expr) decl =>
-      if initSize.any $ fun i => decl.fvarId == (newToRevert.get! i).fvarId! then pure newToRevert
-      else if toRevert.any (fun x => decl.fvarId == x.fvarId!) then
-        pure (newToRevert.push decl.toExpr)
-      else if findLocalDeclDependsOn mctx decl (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) then
-        pure (newToRevert.push decl.toExpr)
-      else
-        pure newToRevert)
-    newToRevert
-    firstDeclToVisit.index
+private def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (preserveOrder : Bool) : Except Exception (Array Expr) := do
+  if toRevert.size == 0 then
+    pure toRevert
+  else
+    if preserveOrder then
+      -- Make sure none of `toRevert` is an AuxDecl
+      -- Make sure toRevert[j] does not depend on toRevert[i] for j > i
+      toRevert.size.forM fun i => do
+        let fvar := toRevert[i]
+        let decl := lctx.getFVar! fvar
+        i.forM fun j => do
+          let prevFVar := toRevert[j]
+          let prevDecl := lctx.getFVar! prevFVar
+          if localDeclDependsOn mctx prevDecl fvar.fvarId! then
+            throw (Exception.revertFailure mctx lctx toRevert prevDecl)
+    let newToRevert      := if preserveOrder then toRevert else Array.mkEmpty toRevert.size
+    let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert
+    let initSize         := newToRevert.size
+    lctx.foldlFromM
+      (fun (newToRevert : Array Expr) decl =>
+        if initSize.any $ fun i => decl.fvarId == (newToRevert.get! i).fvarId! then pure newToRevert
+        else if toRevert.any (fun x => decl.fvarId == x.fvarId!) then
+          pure (newToRevert.push decl.toExpr)
+        else if findLocalDeclDependsOn mctx decl (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) then
+          pure (newToRevert.push decl.toExpr)
+        else
+          pure newToRevert)
+      newToRevert
+      firstDeclToVisit.index
 
 /-- Create a new `LocalContext` by removing the free variables in `toRevert` from `lctx`.
     We use this function when we create auxiliary metavariables at `elimMVarDepsAux`. -/
 private def reduceLocalContext (lctx : LocalContext) (toRevert : Array Expr) : LocalContext :=
-toRevert.foldr
-  (fun x lctx => lctx.erase x.fvarId!)
-  lctx
-
-@[inline] private def visit (f : Expr → M Expr) (e : Expr) : M Expr :=
-if !e.hasMVar then pure e else checkCache e f
+  toRevert.foldr
+    (fun x lctx => lctx.erase x.fvarId!)
+    lctx
 
 @[inline] private def getMCtx : M MetavarContext := do
-s ← get; pure s.mctx
+  let s ← get; pure s.mctx
 
 /-- Return free variables in `xs` that are in the local context `lctx` -/
 private def getInScope (lctx : LocalContext) (xs : Array Expr) : Array Expr :=
-xs.foldl
-  (fun scope x =>
-    if lctx.contains x.fvarId! then
-      scope.push x
-    else
-      scope)
-  #[]
+  xs.foldl
+    (fun scope x =>
+      if lctx.contains x.fvarId! then
+        scope.push x
+      else
+        scope)
+    #[]
 
 /-- Execute `x` with an empty cache, and then restore the original cache. -/
 @[inline] private def withFreshCache {α} (x : M α) : M α := do
-cache ← modifyGet $ fun s => (s.cache, { s with cache := {} });
-a ← x;
-modify $ fun s => { s with cache := cache };
-pure a
-
-@[inline] private def abstractRangeAux (elimMVarDeps : Expr → M Expr) (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
-e ← elimMVarDeps e;
-pure (e.abstractRange i xs)
-
-private def mkAuxMVarType (elimMVarDeps : Expr → M Expr) (lctx : LocalContext) (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do
-e ← abstractRangeAux elimMVarDeps xs xs.size e;
-xs.size.foldRevM
-  (fun i e =>
-    let x := xs.get! i;
-    match lctx.getFVar! x with
-    | LocalDecl.cdecl _ _ n type bi => do
-      let type := type.headBeta;
-      type ← abstractRangeAux elimMVarDeps xs i type;
-      pure $ Lean.mkForall n bi type e
-    | LocalDecl.ldecl _ _ n type value nonDep => do
-      let type := type.headBeta;
-      type  ← abstractRangeAux elimMVarDeps xs i type;
-      value ← abstractRangeAux elimMVarDeps xs i value;
-      let e := mkLet n type value e nonDep;
-      match kind with
-      | MetavarKind.syntheticOpaque =>
-        -- See "Gruesome details" section in the beginning of the file
-        let e := e.liftLooseBVars 0 1;
-        pure $ mkForall n BinderInfo.default type e
-      | _ => pure e)
-  e
+  let cache ← modifyGet $ fun s => (s.cache, { s with cache := {} })
+  let a ← x
+  modify fun s => { s with cache := cache }
+  pure a
 
 /--
   Create an application `mvar ys` where `ys` are the free variables.
   See "Gruesome details" in the beginning of the file for understanding
   how let-decl free variables are handled. -/
 private def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) (kind : MetavarKind) : Expr :=
-xs.foldl
-  (fun e x =>
-    match kind with
-    | MetavarKind.syntheticOpaque => mkApp e x
-    | _                           => if (lctx.getFVar! x).isLet then e else mkApp e x)
-  mvar
+  xs.foldl
+    (fun e x =>
+      match kind with
+      | MetavarKind.syntheticOpaque => mkApp e x
+      | _                           => if (lctx.getFVar! x).isLet then e else mkApp e x)
+    mvar
 
 /-- Return true iff some `e` in `es` depends on `fvarId` -/
 private def anyDependsOn (mctx : MetavarContext) (es : Array Expr) (fvarId : FVarId) : Bool :=
-es.any $ fun e => exprDependsOn mctx e fvarId
+  es.any fun e => exprDependsOn mctx e fvarId
 
-private partial def elimMVarDepsApp (elimMVarDepsAux : Expr → M Expr) (xs : Array Expr) : Expr → Array Expr → M Expr
-| f, args =>
-  match f with
-  | Expr.mvar mvarId _ => do
-    let processDefault (newF : Expr) : M Expr := do {
-      if newF.isLambda then do
-        args ← args.mapM (visit elimMVarDepsAux);
-        elimMVarDepsAux $ newF.betaRev args.reverse
-      else if newF == f then do
-        args ← args.mapM (visit elimMVarDepsAux);
-        pure $ mkAppN newF args
-      else
-        elimMVarDepsApp newF args
-    };
-    mctx ← getMCtx;
-    match mctx.getExprAssignment? mvarId with
-    | some val => processDefault val
-    | _        =>
-      let mvarDecl  := mctx.getDecl mvarId;
-      let mvarLCtx  := mvarDecl.lctx;
-      let toRevert  := getInScope mvarLCtx xs;
-      if toRevert.size == 0 then
-        processDefault f
-      else
-        let newMVarKind := if !mctx.isExprAssignable mvarId then MetavarKind.syntheticOpaque else mvarDecl.kind;
-        /- If `mvarId` is the lhs of a delayed assignment `?m #[x_1, ... x_n] := val`,
-           then `nestedFVars` is `#[x_1, ..., x_n]`.
-           In this case, we produce a new `syntheticOpaque` metavariable `?n` and a delayed assignment
-           ```
-           ?n #[y_1, ..., y_m, x_1, ... x_n] := ?m x_1 ... x_n
-           ```
-           where `#[y_1, ..., y_m]` is `toRevert` after `collectDeps`.
-
-           Remark: `newMVarKind != MetavarKind.syntheticOpaque ==> nestedFVars == #[]`
-        -/
-        let continue (nestedFVars : Array Expr) : M Expr := do {
-          args ← args.mapM (visit elimMVarDepsAux);
-          preserve ← preserveOrder;
-          match collectDeps mctx mvarLCtx toRevert preserve with
-          | Except.error ex    => throw ex
-          | Except.ok toRevert => do
-            let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert;
-            let newLocalInsts := mvarDecl.localInstances.filter $ fun inst => toRevert.all $ fun x => inst.fvar != x;
-            newMVarType ← mkAuxMVarType elimMVarDepsAux mvarLCtx toRevert newMVarKind mvarDecl.type;
-            newMVarId ← get >>= fun s => pure s.ngen.curr;
-            let newMVar      := mkMVar newMVarId;
-            let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind;
-            let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs;
-            modify fun s => { s with
-                mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
-                ngen := s.ngen.next
-              };
-            match newMVarKind with
+private partial def elimMVarDepsAux (xs : Array Expr) (e : Expr) : M Expr :=
+  let rec
+    visit (e : Expr) : M Expr :=
+      if !e.hasMVar then pure e else checkCache e elim,
+    elim (e : Expr) : M Expr := do
+      match e with
+      | Expr.proj _ _ s _    => return e.updateProj! (← visit s)
+      | Expr.forallE _ d b _ => return e.updateForallE! (← visit d) (← visit b)
+      | Expr.lam _ d b _     => return e.updateLambdaE! (← visit d) (← visit b)
+      | Expr.letE _ t v b _  => return e.updateLet! (← visit t) (← visit v) (← visit b)
+      | Expr.mdata _ b _     => return e.updateMData! (← visit b)
+      | Expr.app _ _ _       => e.withApp fun f args => elimApp f args
+      | Expr.mvar mvarId _   => elimApp e #[]
+      | e                    => return e,
+    abstractRangeAux (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
+      let e ← elim e
+      pure (e.abstractRange i xs),
+    mkAuxMVarType (lctx : LocalContext)  (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do
+      let e ← abstractRangeAux xs xs.size e
+      xs.size.foldRevM
+        (fun i e =>
+          let x := xs[i]
+          match lctx.getFVar! x with
+          | LocalDecl.cdecl _ _ n type bi => do
+            let type := type.headBeta
+            let type ← abstractRangeAux xs i type
+            pure $ Lean.mkForall n bi type e
+          | LocalDecl.ldecl _ _ n type value nonDep => do
+            let type := type.headBeta
+            let type  ← abstractRangeAux xs i type
+            let value ← abstractRangeAux xs i value
+            let e := mkLet n type value e nonDep
+            match kind with
             | MetavarKind.syntheticOpaque =>
-              modify $ fun s => { s with mctx := assignDelayed s.mctx newMVarId mvarLCtx (toRevert ++ nestedFVars) (mkAppN f nestedFVars) }
-            | _                           =>
-              modify $ fun s => { s with mctx := assignExpr s.mctx mvarId result };
-            pure (mkAppN result args)
-        };
-        if !mvarDecl.kind.isSyntheticOpaque then
-          continue #[]
-        else match mctx.getDelayedAssignment? mvarId with
-        | none                        => continue #[]
-        | some { fvars := fvars, .. } => continue fvars
-  | _ => do
-    f ← visit elimMVarDepsAux f;
-    args ← args.mapM (visit elimMVarDepsAux);
-    pure (mkAppN f args)
+              -- See "Gruesome details" section in the beginning of the file
+              let e := e.liftLooseBVars 0 1
+              pure $ mkForall n BinderInfo.default type e
+            | _ => pure e)
+        e,
+    elimApp (f : Expr) (args : Array Expr) : M Expr := do
+      match f with
+      | Expr.mvar mvarId _ =>
+        let processDefault (newF : Expr) : M Expr := do
+          if newF.isLambda then
+            let args ← args.mapM visit
+            elim $ newF.betaRev args.reverse
+          else if newF == f then
+            let args ← args.mapM visit
+            pure $ mkAppN newF args
+          else
+            elimApp newF args
+        let mctx ← getMCtx
+        match mctx.getExprAssignment? mvarId with
+        | some val => processDefault val
+        | _        =>
+          let mvarDecl  := mctx.getDecl mvarId
+          let mvarLCtx  := mvarDecl.lctx
+          let toRevert  := getInScope mvarLCtx xs
+          if toRevert.size == 0 then
+            processDefault f
+          else
+            let newMVarKind := if !mctx.isExprAssignable mvarId then MetavarKind.syntheticOpaque else mvarDecl.kind
+            /- If `mvarId` is the lhs of a delayed assignment `?m #[x_1, ... x_n] := val`,
+               then `nestedFVars` is `#[x_1, ..., x_n]`.
+               In this case, we produce a new `syntheticOpaque` metavariable `?n` and a delayed assignment
+               ```
+               ?n #[y_1, ..., y_m, x_1, ... x_n] := ?m x_1 ... x_n
+               ```
+               where `#[y_1, ..., y_m]` is `toRevert` after `collectDeps`.
 
-private partial def elimMVarDepsAux (xs : Array Expr) : Expr → M Expr
-| e@(Expr.proj _ _ s _)    => do s ← visit elimMVarDepsAux s; pure (e.updateProj! s)
-| e@(Expr.forallE _ d b _) => do d ← visit elimMVarDepsAux d; b ← visit elimMVarDepsAux b; pure (e.updateForallE! d b)
-| e@(Expr.lam _ d b _)     => do d ← visit elimMVarDepsAux d; b ← visit elimMVarDepsAux b; pure (e.updateLambdaE! d b)
-| e@(Expr.letE _ t v b _)  => do t ← visit elimMVarDepsAux t; v ← visit elimMVarDepsAux v; b ← visit elimMVarDepsAux b; pure (e.updateLet! t v b)
-| e@(Expr.mdata _ b _)     => do b ← visit elimMVarDepsAux b; pure (e.updateMData! b)
-| e@(Expr.app _ _ _)       => e.withApp $ fun f args => elimMVarDepsApp elimMVarDepsAux xs f args
-| e@(Expr.mvar mvarId _)   => elimMVarDepsApp elimMVarDepsAux xs e #[]
-| e                        => pure e
+               Remark: `newMVarKind != MetavarKind.syntheticOpaque ==> nestedFVars == #[]`
+            -/
+            let cont (nestedFVars : Array Expr) : M Expr := do
+              let args ← args.mapM visit
+              let preserve ← preserveOrder
+              match collectDeps mctx mvarLCtx toRevert preserve with
+              | Except.error ex    => throw ex
+              | Except.ok toRevert =>
+                let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
+                let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all $ fun x => inst.fvar != x
+                let newMVarType ← mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
+                let newMVarId ← get >>= fun s => pure s.ngen.curr
+                let newMVar      := mkMVar newMVarId
+                let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
+                let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs
+                modify fun s => { s with
+                    mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
+                    ngen := s.ngen.next
+                  }
+                match newMVarKind with
+                | MetavarKind.syntheticOpaque =>
+                  modify fun s => { s with mctx := assignDelayed s.mctx newMVarId mvarLCtx (toRevert ++ nestedFVars) (mkAppN f nestedFVars) }
+                | _                           =>
+                  modify fun s => { s with mctx := assignExpr s.mctx mvarId result }
+                pure (mkAppN result args)
+            if !mvarDecl.kind.isSyntheticOpaque then
+              cont #[]
+            else match mctx.getDelayedAssignment? mvarId with
+            | none                        => cont #[]
+            | some { fvars := fvars, .. } => cont fvars
+      | _ =>
+        let f ← visit f
+        args ← args.mapM visit
+        pure (mkAppN f args)
+  elim e
 
 partial def elimMVarDeps (xs : Array Expr) (e : Expr) : M Expr :=
-if !e.hasMVar then
-  pure e
-else
-  withFreshCache $ elimMVarDepsAux xs e
+  if !e.hasMVar then
+    pure e
+  else
+    withFreshCache $ elimMVarDepsAux xs e
 
 /--
   Similar to `Expr.abstractRange`, but handles metavariables correctly.
@@ -950,171 +949,171 @@ else
 
   `elimMVarDeps` is defined later in this file. -/
 @[inline] private def abstractRange (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
-e ← elimMVarDeps xs e;
-pure (e.abstractRange i xs)
+  let e ← elimMVarDeps xs e
+  pure (e.abstractRange i xs)
 
 /--
   Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
   If `usedOnly == false` then `forall` and `lambda` are created only for used variables. -/
 @[specialize] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : M (Expr × Nat) := do
-e ← abstractRange xs xs.size e;
-xs.size.foldRevM
-  (fun i (p : Expr × Nat) =>
-    let (e, num) := p;
-    let x := xs.get! i;
-    match lctx.getFVar! x with
-    | LocalDecl.cdecl _ _ n type bi =>
-      if !usedOnly || e.hasLooseBVar 0 then do
-        let type := type.headBeta;
-        type ← abstractRange xs i type;
-        if isLambda then
-          pure (Lean.mkLambda n bi type e, num + 1)
+  let e ← abstractRange xs xs.size e
+  xs.size.foldRevM
+    (fun i (p : Expr × Nat) => do
+      let (e, num) := p;
+      let x := xs[i]
+      match lctx.getFVar! x with
+      | LocalDecl.cdecl _ _ n type bi =>
+        if !usedOnly || e.hasLooseBVar 0 then
+          let type := type.headBeta;
+          let type ← abstractRange xs i type
+          if isLambda then
+            pure (Lean.mkLambda n bi type e, num + 1)
+          else
+            pure (Lean.mkForall n bi type e, num + 1)
         else
-          pure (Lean.mkForall n bi type e, num + 1)
-      else
-        pure (e.lowerLooseBVars 1 1, num)
-    | LocalDecl.ldecl _ _ n type value nonDep => do
-      if e.hasLooseBVar 0 then do
-        type  ← abstractRange xs i type;
-        value ← abstractRange xs i value;
-        pure (mkLet n type value e nonDep, num + 1)
-      else
-        pure (e.lowerLooseBVars 1 1, num))
-  (e, 0)
+          pure (e.lowerLooseBVars 1 1, num)
+      | LocalDecl.ldecl _ _ n type value nonDep =>
+        if e.hasLooseBVar 0 then
+          let type  ← abstractRange xs i type
+          let value ← abstractRange xs i value
+          pure (mkLet n type value e nonDep, num + 1)
+        else
+          pure (e.lowerLooseBVars 1 1, num))
+    (e, 0)
 
 end MkBinding
 
 abbrev MkBindingM := ReaderT LocalContext MkBinding.MCore
 
-def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr :=
-fun _ => MkBinding.elimMVarDeps xs e preserveOrder
+def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun _ =>
+  MkBinding.elimMVarDeps xs e preserveOrder
 
-def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : MkBindingM (Expr × Nat) :=
-fun lctx => MkBinding.mkBinding isLambda lctx xs e usedOnly false
+def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : MkBindingM (Expr × Nat) := fun lctx =>
+  MkBinding.mkBinding isLambda lctx xs e usedOnly false
 
 @[inline] def mkLambda (xs : Array Expr) (e : Expr) : MkBindingM Expr := do
-(e, _) ← mkBinding true xs e;
-pure e
+  let (e, _) ← mkBinding true xs e
+  pure e
 
 @[inline] def mkForall (xs : Array Expr) (e : Expr) : MkBindingM Expr := do
-(e, _) ← mkBinding false xs e;
-pure e
+  let (e, _) ← mkBinding false xs e
+  pure e
 
 @[inline] def mkForallUsedOnly (xs : Array Expr) (e : Expr) : MkBindingM (Expr × Nat) := do
-mkBinding false xs e true
+  mkBinding false xs e true
 
 /--
   `isWellFormed mctx lctx e` return true if
   - All locals in `e` are declared in `lctx`
   - All metavariables `?m` in `e` have a local context which is a subprefix of `lctx` or are assigned, and the assignment is well-formed. -/
 partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr → Bool
-| Expr.mdata _ e _         => isWellFormed e
-| Expr.proj _ _ e _        => isWellFormed e
-| e@(Expr.app f a _)       => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed f && isWellFormed a)
-| e@(Expr.lam _ d b _)     => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed d && isWellFormed b)
-| e@(Expr.forallE _ d b _) => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed d && isWellFormed b)
-| e@(Expr.letE _ t v b _)  => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed t && isWellFormed v && isWellFormed b)
-| Expr.const _ _ _         => true
-| Expr.bvar _ _            => true
-| Expr.sort _ _            => true
-| Expr.lit _ _             => true
-| Expr.mvar mvarId _       =>
-  let mvarDecl := mctx.getDecl mvarId;
-  if mvarDecl.lctx.isSubPrefixOf lctx then true
-  else match mctx.getExprAssignment? mvarId with
-    | none   => false
-    | some v => isWellFormed v
-| Expr.fvar fvarId _       => lctx.contains fvarId
-| Expr.localE _ _ _ _      => unreachable!
+  | Expr.mdata _ e _         => isWellFormed mctx lctx e
+  | Expr.proj _ _ e _        => isWellFormed mctx lctx e
+  | e@(Expr.app f a _)       => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed mctx lctx f && isWellFormed mctx lctx a)
+  | e@(Expr.lam _ d b _)     => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed mctx lctx d && isWellFormed mctx lctx b)
+  | e@(Expr.forallE _ d b _) => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed mctx lctx d && isWellFormed mctx lctx b)
+  | e@(Expr.letE _ t v b _)  => (!e.hasExprMVar && !e.hasFVar) || (isWellFormed mctx lctx t && isWellFormed mctx lctx v && isWellFormed mctx lctx b)
+  | Expr.const _ _ _         => true
+  | Expr.bvar _ _            => true
+  | Expr.sort _ _            => true
+  | Expr.lit _ _             => true
+  | Expr.mvar mvarId _       =>
+    let mvarDecl := mctx.getDecl mvarId;
+    if mvarDecl.lctx.isSubPrefixOf lctx then true
+    else match mctx.getExprAssignment? mvarId with
+      | none   => false
+      | some v => isWellFormed mctx lctx v
+  | Expr.fvar fvarId _       => lctx.contains fvarId
+  | Expr.localE _ _ _ _      => unreachable!
 
 
 namespace LevelMVarToParam
 
 structure Context :=
-(paramNamePrefix : Name)
-(alreadyUsedPred : Name → Bool)
+  (paramNamePrefix : Name)
+  (alreadyUsedPred : Name → Bool)
 
 structure State :=
-(mctx         : MetavarContext)
-(paramNames   : Array Name := #[])
-(nextParamIdx : Nat)
+  (mctx         : MetavarContext)
+  (paramNames   : Array Name := #[])
+  (nextParamIdx : Nat)
 
 abbrev M := ReaderT Context $ StateM State
 
-partial def mkParamName : Unit → M Name
-| _ => do
-  ctx ← read;
-  s ← get;
-  let newParamName := ctx.paramNamePrefix.appendIndexAfter s.nextParamIdx;
-  if ctx.alreadyUsedPred newParamName then do
-    modify $ fun s => { s with nextParamIdx := s.nextParamIdx + 1 };
-    mkParamName ()
+partial def mkParamName : M Name := do
+  let ctx ← read
+  let s ← get
+  let newParamName := ctx.paramNamePrefix.appendIndexAfter s.nextParamIdx
+  if ctx.alreadyUsedPred newParamName then
+    modify fun s => { s with nextParamIdx := s.nextParamIdx + 1 }
+    mkParamName
   else do
-    modify $ fun s => { s with nextParamIdx := s.nextParamIdx + 1, paramNames := s.paramNames.push newParamName };
+    modify fun s => { s with nextParamIdx := s.nextParamIdx + 1, paramNames := s.paramNames.push newParamName }
     pure newParamName
 
-partial def visitLevel : Level → M Level
-| u@(Level.succ v _)      => do v ← visitLevel v; pure (u.updateSucc v rfl)
-| u@(Level.max v₁ v₂ _)   => do v₁ ← visitLevel v₁; v₂ ← visitLevel v₂; pure (u.updateMax v₁ v₂ rfl)
-| u@(Level.imax v₁ v₂ _)  => do v₁ ← visitLevel v₁; v₂ ← visitLevel v₂; pure (u.updateIMax v₁ v₂ rfl)
-| u@(Level.zero _)        => pure u
-| u@(Level.param _ _)     => pure u
-| u@(Level.mvar mvarId _) => do
-  s ← get;
-  match s.mctx.getLevelAssignment? mvarId with
-  | some v => visitLevel v
-  | none   => do
-    p ← mkParamName ();
-    let p := mkLevelParam p;
-    modify $ fun s => { s with mctx := s.mctx.assignLevel mvarId p };
-    pure p
+partial def visitLevel (u : Level) : M Level := do
+  match u with
+  | Level.succ v _      => return u.updateSucc! (← visitLevel v)
+  | Level.max v₁ v₂ _   => return u.updateMax! (← visitLevel v₁) (← visitLevel v₂)
+  | Level.imax v₁ v₂ _  => return u.updateIMax! (← visitLevel v₁) (← visitLevel v₂)
+  | Level.zero _        => pure u
+  | Level.param _ _     => pure u
+  | Level.mvar mvarId _ =>
+    let s ← get
+    match s.mctx.getLevelAssignment? mvarId with
+    | some v => visitLevel v
+    | none   =>
+      let p ← mkParamName
+      let p := mkLevelParam p
+      modify fun s => { s with mctx := s.mctx.assignLevel mvarId p }
+      pure p
 
-@[inline] private def visit (f : Expr → M Expr) (e : Expr) : M Expr :=
-if e.hasMVar then f e else pure e
-
-partial def main : Expr → M Expr
-| e@(Expr.proj _ _ s _)    => do s ← visit main s; pure (e.updateProj! s)
-| e@(Expr.forallE _ d b _) => do d ← visit main d; b ← visit main b; pure (e.updateForallE! d b)
-| e@(Expr.lam _ d b _)     => do d ← visit main d; b ← visit main b; pure (e.updateLambdaE! d b)
-| e@(Expr.letE _ t v b _)  => do t ← visit main t; v ← visit main v; b ← visit main b; pure (e.updateLet! t v b)
-| e@(Expr.app f a _)       => do f ← visit main f; a ← visit main a; pure (e.updateApp! f a)
-| e@(Expr.mdata _ b _)     => do b ← visit main b; pure (e.updateMData! b)
-| e@(Expr.const _ us _)    => do us ← us.mapM visitLevel; pure (e.updateConst! us)
-| e@(Expr.sort u _)        => do u ← visitLevel u; pure (e.updateSort! u)
-| e@(Expr.mvar mvarId _)   => do
-  s ← get;
-  match s.mctx.getExprAssignment? mvarId with
-  | some v => visit main v
-  | none   => pure e
-| e                        => pure e
+partial def main (e : Expr) : M Expr := do
+  if !e.hasMVar then
+    pure e
+  else match e with
+    | Expr.proj _ _ s _    => return e.updateProj! (← main s)
+    | Expr.forallE _ d b _ => return e.updateForallE! (← main d) (← main b)
+    | Expr.lam _ d b _     => return e.updateLambdaE! (← main d) (← main b)
+    | Expr.letE _ t v b _  => return e.updateLet! (← main t) (← main v) (← main b)
+    | Expr.app f a _       => return e.updateApp! (← main f) (← main a)
+    | Expr.mdata _ b _     => return e.updateMData! (← main b)
+    | Expr.const _ us _    => return e.updateConst! (← us.mapM visitLevel)
+    | Expr.sort u _        => return e.updateSort! (← visitLevel u)
+    | Expr.mvar mvarId _   =>
+      let s ← get
+      match s.mctx.getExprAssignment? mvarId with
+      | some v => main v
+      | none   => pure e
+    | e                        => pure e
 
 end LevelMVarToParam
 
 structure UnivMVarParamResult :=
-(mctx          : MetavarContext)
-(newParamNames : Array Name)
-(nextParamIdx  : Nat)
-(expr          : Expr)
+  (mctx          : MetavarContext)
+  (newParamNames : Array Name)
+  (nextParamIdx  : Nat)
+  (expr          : Expr)
 
 def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=
-let (e, s) := LevelMVarToParam.main e { paramNamePrefix := paramNamePrefix, alreadyUsedPred := alreadyUsedPred } { mctx := mctx, nextParamIdx := nextParamIdx };
-{ mctx          := s.mctx,
-  newParamNames := s.paramNames,
-  nextParamIdx  := s.nextParamIdx,
-  expr          := e }
+  let (e, s) := LevelMVarToParam.main e { paramNamePrefix := paramNamePrefix, alreadyUsedPred := alreadyUsedPred } { mctx := mctx, nextParamIdx := nextParamIdx }
+  { mctx          := s.mctx,
+    newParamNames := s.paramNames,
+    nextParamIdx  := s.nextParamIdx,
+    expr          := e }
 
 def getExprAssignmentDomain (mctx : MetavarContext) : Array MVarId :=
-mctx.eAssignment.foldl (fun a mvarId _ => Array.push a mvarId) #[]
+  mctx.eAssignment.foldl (fun a mvarId _ => Array.push a mvarId) #[]
 
 end MetavarContext
 
 class MonadMCtx (m : Type → Type) :=
-(getMCtx : m MetavarContext)
+  (getMCtx : m MetavarContext)
 
 export MonadMCtx (getMCtx)
 
 instance monadMCtxTrans (m n) [MonadMCtx m] [MonadLift m n] : MonadMCtx n :=
-{ getMCtx := liftM (getMCtx : m _) }
+  { getMCtx := liftM (getMCtx : m _) }
 
 end Lean

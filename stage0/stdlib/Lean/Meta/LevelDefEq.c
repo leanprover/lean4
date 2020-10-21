@@ -97,7 +97,6 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_L
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___closed__5;
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___closed__3;
-uint8_t l_Lean_MetavarContext_hasAssignableLevelMVar___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_decLevel___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__1___rarg(lean_object*, lean_object*);
@@ -124,7 +123,6 @@ lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decAux_x3f_match__2__
 lean_object* lean_metavar_ctx_get_level_assignment(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___rarg___closed__1;
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_strictOccursMax_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MetavarContext_instantiateLevelMVars___main(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__5___closed__3;
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_strictOccursMaxAux_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decAux_x3f_match__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -143,6 +141,7 @@ lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_getResetPostponed(lea
 lean_object* l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_decLevel(lean_object*);
 lean_object* l_Lean_Meta_getDecLevel(lean_object*);
+lean_object* l_Lean_MetavarContext_instantiateLevelMVars(lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_isLevelDefEqAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -197,6 +196,7 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_L
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decAux_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forInAux___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_MetavarContext_hasAssignableLevelMVar(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_toArray___rarg(lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decLevelImp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isDefEqGuarded(lean_object*);
@@ -3121,7 +3121,7 @@ lean_dec(x_8);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
-x_12 = l_Lean_MetavarContext_instantiateLevelMVars___main(x_1, x_11);
+x_12 = l_Lean_MetavarContext_instantiateLevelMVars(x_1, x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
@@ -3589,11 +3589,11 @@ x_40 = lean_ctor_get(x_37, 0);
 lean_inc(x_40);
 lean_dec(x_37);
 lean_inc(x_40);
-x_90 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_40, x_1);
+x_90 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_40, x_1);
 if (x_90 == 0)
 {
 uint8_t x_91; 
-x_91 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_40, x_2);
+x_91 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_40, x_2);
 if (x_91 == 0)
 {
 uint8_t x_92; 
@@ -3831,11 +3831,11 @@ x_109 = lean_ctor_get(x_106, 0);
 lean_inc(x_109);
 lean_dec(x_106);
 lean_inc(x_109);
-x_156 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_109, x_1);
+x_156 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_109, x_1);
 if (x_156 == 0)
 {
 uint8_t x_157; 
-x_157 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_109, x_2);
+x_157 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_109, x_2);
 if (x_157 == 0)
 {
 uint8_t x_158; 
@@ -4353,11 +4353,11 @@ x_248 = lean_ctor_get(x_245, 0);
 lean_inc(x_248);
 lean_dec(x_245);
 lean_inc(x_248);
-x_298 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_248, x_1);
+x_298 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_248, x_1);
 if (x_298 == 0)
 {
 uint8_t x_299; 
-x_299 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_248, x_2);
+x_299 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_248, x_2);
 if (x_299 == 0)
 {
 uint8_t x_300; 
@@ -4595,11 +4595,11 @@ x_317 = lean_ctor_get(x_314, 0);
 lean_inc(x_317);
 lean_dec(x_314);
 lean_inc(x_317);
-x_364 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_317, x_1);
+x_364 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_317, x_1);
 if (x_364 == 0)
 {
 uint8_t x_365; 
-x_365 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_317, x_2);
+x_365 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_317, x_2);
 if (x_365 == 0)
 {
 uint8_t x_366; 
@@ -5127,11 +5127,11 @@ x_459 = lean_ctor_get(x_456, 0);
 lean_inc(x_459);
 lean_dec(x_456);
 lean_inc(x_459);
-x_509 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_459, x_1);
+x_509 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_459, x_1);
 if (x_509 == 0)
 {
 uint8_t x_510; 
-x_510 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_459, x_2);
+x_510 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_459, x_2);
 if (x_510 == 0)
 {
 uint8_t x_511; 
@@ -5369,11 +5369,11 @@ x_528 = lean_ctor_get(x_525, 0);
 lean_inc(x_528);
 lean_dec(x_525);
 lean_inc(x_528);
-x_575 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_528, x_1);
+x_575 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_528, x_1);
 if (x_575 == 0)
 {
 uint8_t x_576; 
-x_576 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_528, x_2);
+x_576 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_528, x_2);
 if (x_576 == 0)
 {
 uint8_t x_577; 
@@ -5888,11 +5888,11 @@ x_667 = lean_ctor_get(x_664, 0);
 lean_inc(x_667);
 lean_dec(x_664);
 lean_inc(x_667);
-x_717 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_667, x_1);
+x_717 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_667, x_1);
 if (x_717 == 0)
 {
 uint8_t x_718; 
-x_718 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_667, x_2);
+x_718 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_667, x_2);
 if (x_718 == 0)
 {
 uint8_t x_719; 
@@ -6130,11 +6130,11 @@ x_736 = lean_ctor_get(x_733, 0);
 lean_inc(x_736);
 lean_dec(x_733);
 lean_inc(x_736);
-x_783 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_736, x_1);
+x_783 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_736, x_1);
 if (x_783 == 0)
 {
 uint8_t x_784; 
-x_784 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_736, x_2);
+x_784 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_736, x_2);
 if (x_784 == 0)
 {
 uint8_t x_785; 
@@ -6649,11 +6649,11 @@ x_875 = lean_ctor_get(x_872, 0);
 lean_inc(x_875);
 lean_dec(x_872);
 lean_inc(x_875);
-x_925 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_875, x_1);
+x_925 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_875, x_1);
 if (x_925 == 0)
 {
 uint8_t x_926; 
-x_926 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_875, x_2);
+x_926 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_875, x_2);
 if (x_926 == 0)
 {
 uint8_t x_927; 
@@ -6891,11 +6891,11 @@ x_944 = lean_ctor_get(x_941, 0);
 lean_inc(x_944);
 lean_dec(x_941);
 lean_inc(x_944);
-x_991 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_944, x_1);
+x_991 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_944, x_1);
 if (x_991 == 0)
 {
 uint8_t x_992; 
-x_992 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_944, x_2);
+x_992 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_944, x_2);
 if (x_992 == 0)
 {
 uint8_t x_993; 
@@ -7410,11 +7410,11 @@ x_1083 = lean_ctor_get(x_1080, 0);
 lean_inc(x_1083);
 lean_dec(x_1080);
 lean_inc(x_1083);
-x_1133 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1083, x_1);
+x_1133 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1083, x_1);
 if (x_1133 == 0)
 {
 uint8_t x_1134; 
-x_1134 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1083, x_2);
+x_1134 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1083, x_2);
 if (x_1134 == 0)
 {
 uint8_t x_1135; 
@@ -7652,11 +7652,11 @@ x_1152 = lean_ctor_get(x_1149, 0);
 lean_inc(x_1152);
 lean_dec(x_1149);
 lean_inc(x_1152);
-x_1199 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1152, x_1);
+x_1199 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1152, x_1);
 if (x_1199 == 0)
 {
 uint8_t x_1200; 
-x_1200 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1152, x_2);
+x_1200 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1152, x_2);
 if (x_1200 == 0)
 {
 uint8_t x_1201; 
@@ -8173,11 +8173,11 @@ x_1291 = lean_ctor_get(x_1288, 0);
 lean_inc(x_1291);
 lean_dec(x_1288);
 lean_inc(x_1291);
-x_1341 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1291, x_1);
+x_1341 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1291, x_1);
 if (x_1341 == 0)
 {
 uint8_t x_1342; 
-x_1342 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1291, x_2);
+x_1342 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1291, x_2);
 if (x_1342 == 0)
 {
 uint8_t x_1343; 
@@ -8415,11 +8415,11 @@ x_1360 = lean_ctor_get(x_1357, 0);
 lean_inc(x_1360);
 lean_dec(x_1357);
 lean_inc(x_1360);
-x_1407 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1360, x_1);
+x_1407 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1360, x_1);
 if (x_1407 == 0)
 {
 uint8_t x_1408; 
-x_1408 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1360, x_2);
+x_1408 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1360, x_2);
 if (x_1408 == 0)
 {
 uint8_t x_1409; 
@@ -8934,11 +8934,11 @@ x_1499 = lean_ctor_get(x_1496, 0);
 lean_inc(x_1499);
 lean_dec(x_1496);
 lean_inc(x_1499);
-x_1549 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1499, x_1);
+x_1549 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1499, x_1);
 if (x_1549 == 0)
 {
 uint8_t x_1550; 
-x_1550 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1499, x_2);
+x_1550 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1499, x_2);
 if (x_1550 == 0)
 {
 uint8_t x_1551; 
@@ -9176,11 +9176,11 @@ x_1568 = lean_ctor_get(x_1565, 0);
 lean_inc(x_1568);
 lean_dec(x_1565);
 lean_inc(x_1568);
-x_1615 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1568, x_1);
+x_1615 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1568, x_1);
 if (x_1615 == 0)
 {
 uint8_t x_1616; 
-x_1616 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1568, x_2);
+x_1616 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1568, x_2);
 if (x_1616 == 0)
 {
 uint8_t x_1617; 
@@ -9695,11 +9695,11 @@ x_1707 = lean_ctor_get(x_1704, 0);
 lean_inc(x_1707);
 lean_dec(x_1704);
 lean_inc(x_1707);
-x_1757 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1707, x_1);
+x_1757 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1707, x_1);
 if (x_1757 == 0)
 {
 uint8_t x_1758; 
-x_1758 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1707, x_2);
+x_1758 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1707, x_2);
 if (x_1758 == 0)
 {
 uint8_t x_1759; 
@@ -9937,11 +9937,11 @@ x_1776 = lean_ctor_get(x_1773, 0);
 lean_inc(x_1776);
 lean_dec(x_1773);
 lean_inc(x_1776);
-x_1823 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1776, x_1);
+x_1823 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1776, x_1);
 if (x_1823 == 0)
 {
 uint8_t x_1824; 
-x_1824 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1776, x_2);
+x_1824 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1776, x_2);
 if (x_1824 == 0)
 {
 uint8_t x_1825; 
@@ -10456,11 +10456,11 @@ x_1915 = lean_ctor_get(x_1912, 0);
 lean_inc(x_1915);
 lean_dec(x_1912);
 lean_inc(x_1915);
-x_1965 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1915, x_1);
+x_1965 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1915, x_1);
 if (x_1965 == 0)
 {
 uint8_t x_1966; 
-x_1966 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1915, x_2);
+x_1966 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1915, x_2);
 if (x_1966 == 0)
 {
 uint8_t x_1967; 
@@ -10698,11 +10698,11 @@ x_1984 = lean_ctor_get(x_1981, 0);
 lean_inc(x_1984);
 lean_dec(x_1981);
 lean_inc(x_1984);
-x_2031 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1984, x_1);
+x_2031 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1984, x_1);
 if (x_2031 == 0)
 {
 uint8_t x_2032; 
-x_2032 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_1984, x_2);
+x_2032 = l_Lean_MetavarContext_hasAssignableLevelMVar(x_1984, x_2);
 if (x_2032 == 0)
 {
 uint8_t x_2033; 

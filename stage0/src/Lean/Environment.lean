@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -12,22 +13,21 @@ import Lean.Util.FindExpr
 
 namespace Lean
 /- Opaque environment extension state. -/
-constant EnvExtensionStateSpec : PointedType.{0} := arbitrary _
+constant EnvExtensionStateSpec : PointedType.{0}
 def EnvExtensionState : Type := EnvExtensionStateSpec.type
-instance EnvExtensionState.inhabited : Inhabited EnvExtensionState := ⟨EnvExtensionStateSpec.val⟩
+instance : Inhabited EnvExtensionState := ⟨EnvExtensionStateSpec.val⟩
 
 def ModuleIdx := Nat
 
-instance ModuleIdx.inhabited : Inhabited ModuleIdx := inferInstanceAs (Inhabited Nat)
+instance : Inhabited ModuleIdx := inferInstanceAs (Inhabited Nat)
 
 abbrev ConstMap := SMap Name ConstantInfo
 
 structure Import :=
-(module      : Name)
-(runtimeOnly : Bool := false)
+  (module      : Name)
+  (runtimeOnly : Bool := false)
 
-instance : HasToString Import :=
-⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
+instance : HasToString Import := ⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
 
 /--
   A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.
@@ -37,176 +37,178 @@ def CompactedRegion := USize
 
 /-- Free a compacted region and its contents. No live references to the contents may exist at the time of invocation. -/
 @[extern 2 "lean_compacted_region_free"]
-unsafe constant CompactedRegion.free : CompactedRegion → IO Unit := arbitrary _
+unsafe constant CompactedRegion.free : CompactedRegion → IO Unit
 
 /- Environment fields that are not used often. -/
 structure EnvironmentHeader :=
-(trustLevel   : UInt32       := 0)
-(quotInit     : Bool         := false)
-(mainModule   : Name         := arbitrary _)
-(imports      : Array Import := #[]) -- direct imports
-(regions      : Array CompactedRegion := #[]) -- compacted regions of all imported modules
-(moduleNames  : NameSet      := {})  -- names of all imported modules
+  (trustLevel   : UInt32       := 0)
+  (quotInit     : Bool         := false)
+  (mainModule   : Name         := arbitrary _)
+  (imports      : Array Import := #[]) -- direct imports
+  (regions      : Array CompactedRegion := #[]) -- compacted regions of all imported modules
+  (moduleNames  : NameSet      := {})  -- names of all imported modules
 
 open Std (HashMap)
 
 structure Environment :=
-(const2ModIdx : HashMap Name ModuleIdx)
-(constants    : ConstMap)
-(extensions   : Array EnvExtensionState)
-(header       : EnvironmentHeader := {})
+  (const2ModIdx : HashMap Name ModuleIdx)
+  (constants    : ConstMap)
+  (extensions   : Array EnvExtensionState)
+  (header       : EnvironmentHeader := {})
 
 namespace Environment
 
 instance : Inhabited Environment :=
-⟨{ const2ModIdx := {}, constants := {}, extensions := #[] }⟩
+  ⟨{ const2ModIdx := {}, constants := {}, extensions := #[] }⟩
 
 def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
-{ env with constants := env.constants.insert cinfo.name cinfo }
+  { env with constants := env.constants.insert cinfo.name cinfo }
 
 @[export lean_environment_find]
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
-/- It is safe to use `find'` because we never overwrite imported declarations. -/
-env.constants.find?' n
+  /- It is safe to use `find'` because we never overwrite imported declarations. -/
+  env.constants.find?' n
 
 def contains (env : Environment) (n : Name) : Bool :=
-env.constants.contains n
+  env.constants.contains n
 
 def imports (env : Environment) : Array Import :=
-env.header.imports
+  env.header.imports
 
 def allImportedModuleNames (env : Environment) : NameSet :=
-env.header.moduleNames
+  env.header.moduleNames
 
 @[export lean_environment_set_main_module]
 def setMainModule (env : Environment) (m : Name) : Environment :=
-{ env with header := { env.header with mainModule := m } }
+  { env with header := { env.header with mainModule := m } }
 
 @[export lean_environment_main_module]
 def mainModule (env : Environment) : Name :=
-env.header.mainModule
+  env.header.mainModule
 
 @[export lean_environment_mark_quot_init]
 private def markQuotInit (env : Environment) : Environment :=
-{ env with header := { env.header with quotInit := true } }
+  { env with header := { env.header with quotInit := true } }
 
 @[export lean_environment_quot_init]
 private def isQuotInit (env : Environment) : Bool :=
-env.header.quotInit
+  env.header.quotInit
 
 @[export lean_environment_trust_level]
 private def getTrustLevel (env : Environment) : UInt32 :=
-env.header.trustLevel
+  env.header.trustLevel
 
 def getModuleIdxFor? (env : Environment) (c : Name) : Option ModuleIdx :=
-env.const2ModIdx.find? c
+  env.const2ModIdx.find? c
 
 def isConstructor (env : Environment) (c : Name) : Bool :=
-match env.find? c with
-| ConstantInfo.ctorInfo _ => true
-| _                       => false
+  match env.find? c with
+  | ConstantInfo.ctorInfo _ => true
+  | _                       => false
 
 end Environment
 
 inductive KernelException
-| unknownConstant  (env : Environment) (name : Name)
-| alreadyDeclared  (env : Environment) (name : Name)
-| declTypeMismatch (env : Environment) (decl : Declaration) (givenType : Expr)
-| declHasMVars     (env : Environment) (name : Name) (expr : Expr)
-| declHasFVars     (env : Environment) (name : Name) (expr : Expr)
-| funExpected      (env : Environment) (lctx : LocalContext) (expr : Expr)
-| typeExpected     (env : Environment) (lctx : LocalContext) (expr : Expr)
-| letTypeMismatch  (env : Environment) (lctx : LocalContext) (name : Name) (givenType : Expr) (expectedType : Expr)
-| exprTypeMismatch (env : Environment) (lctx : LocalContext) (expr : Expr) (expectedType : Expr)
-| appTypeMismatch  (env : Environment) (lctx : LocalContext) (app : Expr) (funType : Expr) (argType : Expr)
-| invalidProj      (env : Environment) (lctx : LocalContext) (proj : Expr)
-| other            (msg : String)
+  | unknownConstant  (env : Environment) (name : Name)
+  | alreadyDeclared  (env : Environment) (name : Name)
+  | declTypeMismatch (env : Environment) (decl : Declaration) (givenType : Expr)
+  | declHasMVars     (env : Environment) (name : Name) (expr : Expr)
+  | declHasFVars     (env : Environment) (name : Name) (expr : Expr)
+  | funExpected      (env : Environment) (lctx : LocalContext) (expr : Expr)
+  | typeExpected     (env : Environment) (lctx : LocalContext) (expr : Expr)
+  | letTypeMismatch  (env : Environment) (lctx : LocalContext) (name : Name) (givenType : Expr) (expectedType : Expr)
+  | exprTypeMismatch (env : Environment) (lctx : LocalContext) (expr : Expr) (expectedType : Expr)
+  | appTypeMismatch  (env : Environment) (lctx : LocalContext) (app : Expr) (funType : Expr) (argType : Expr)
+  | invalidProj      (env : Environment) (lctx : LocalContext) (proj : Expr)
+  | other            (msg : String)
 
 namespace Environment
 
 /- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
-constant addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment := arbitrary _
+constant addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment
 
 /- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
 @[extern "lean_compile_decl"]
-constant compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment := arbitrary _
+constant compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment
 
 def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment := do
-env ← addDecl env decl;
-compileDecl env opt decl
+  let env ← addDecl env decl
+  compileDecl env opt decl
 
 end Environment
 
 /- Interface for managing environment extensions. -/
 structure EnvExtensionInterface :=
-(ext              : Type → Type)
-(inhabitedExt {σ} : Inhabited σ → Inhabited (ext σ))
-(registerExt  {σ} (mkInitial : IO σ) : IO (ext σ))
-(setState     {σ} (e : ext σ) (env : Environment) : σ → Environment)
-(modifyState  {σ} (e : ext σ) (env : Environment) : (σ → σ) → Environment)
-(getState     {σ} (e : ext σ) (env : Environment) : σ)
-(mkInitialExtStates : IO (Array EnvExtensionState))
+  (ext              : Type → Type)
+  (inhabitedExt {σ} : Inhabited σ → Inhabited (ext σ))
+  (registerExt  {σ} (mkInitial : IO σ) : IO (ext σ))
+  (setState     {σ} (e : ext σ) (env : Environment) : σ → Environment)
+  (modifyState  {σ} (e : ext σ) (env : Environment) : (σ → σ) → Environment)
+  (getState     {σ} (e : ext σ) (env : Environment) : σ)
+  (mkInitialExtStates : IO (Array EnvExtensionState))
 
-instance EnvExtensionInterface.inhabited : Inhabited EnvExtensionInterface :=
-⟨{ ext                := id,
-   inhabitedExt       := fun _ => id,
-   registerExt        := fun _ mk => mk,
-   setState           := fun _ _ env _ => env,
-   modifyState        := fun _ _ env _ => env,
-   getState           := fun _ ext _ => ext,
-   mkInitialExtStates := pure #[] }⟩
+instance : Inhabited EnvExtensionInterface := ⟨{
+  ext                := id,
+  inhabitedExt       := id,
+  registerExt        := fun mk => mk,
+  setState           := fun _ env _ => env,
+  modifyState        := fun _ env _ => env,
+  getState           := fun ext _ => ext,
+  mkInitialExtStates := pure #[]
+}⟩
 
 /- Unsafe implementation of `EnvExtensionInterface` -/
 namespace EnvExtensionInterfaceUnsafe
 
 structure Ext (σ : Type) :=
-(idx       : Nat)
-(mkInitial : IO σ)
+  (idx       : Nat)
+  (mkInitial : IO σ)
 
-instance Ext.inhabitedExt {σ} : Inhabited (Ext σ) := ⟨{idx := 0, mkInitial := arbitrary _ }⟩
+instance {σ} : Inhabited (Ext σ) := ⟨{idx := 0, mkInitial := arbitrary _ }⟩
 
 private def mkEnvExtensionsRef : IO (IO.Ref (Array (Ext EnvExtensionState))) := IO.mkRef #[]
-@[builtinInit mkEnvExtensionsRef] private constant envExtensionsRef : IO.Ref (Array (Ext EnvExtensionState)) := arbitrary _
+@[builtinInit mkEnvExtensionsRef] private constant envExtensionsRef : IO.Ref (Array (Ext EnvExtensionState))
 
 unsafe def setState {σ} (ext : Ext σ) (env : Environment) (s : σ) : Environment :=
-{ env with extensions := env.extensions.set! ext.idx (unsafeCast s) }
+  { env with extensions := env.extensions.set! ext.idx (unsafeCast s) }
 
 @[inline] unsafe def modifyState {σ : Type} (ext : Ext σ) (env : Environment) (f : σ → σ) : Environment :=
-{ env with
-  extensions := env.extensions.modify ext.idx fun s =>
-    let s : σ := unsafeCast s;
-    let s : σ := f s;
-    unsafeCast s }
+  { env with
+    extensions := env.extensions.modify ext.idx fun s =>
+      let s : σ := unsafeCast s;
+      let s : σ := f s;
+      unsafeCast s }
 
 unsafe def getState {σ} (ext : Ext σ) (env : Environment) : σ :=
-let s : EnvExtensionState := env.extensions.get! ext.idx;
-unsafeCast s
+  let s : EnvExtensionState := env.extensions.get! ext.idx
+  unsafeCast s
 
 unsafe def registerExt {σ} (mkInitial : IO σ) : IO (Ext σ) := do
-initializing ← IO.initializing;
-unless initializing $ throw (IO.userError ("failed to register environment, extensions can only be registered during initialization"));
-exts ← envExtensionsRef.get;
-let idx := exts.size;
-let ext : Ext σ := {
-   idx        := idx,
-   mkInitial  := mkInitial,
-};
-envExtensionsRef.modify (fun exts => exts.push (unsafeCast ext));
-pure ext
+  let initializing ← IO.initializing
+  unless initializing do throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
+  let exts ← envExtensionsRef.get
+  let idx := exts.size
+  let ext : Ext σ := {
+     idx        := idx,
+     mkInitial  := mkInitial,
+  }
+  envExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
+  pure ext
 
 def mkInitialExtStates : IO (Array EnvExtensionState) := do
-exts ← envExtensionsRef.get;
-exts.mapM $ fun ext => ext.mkInitial
+  let exts ← envExtensionsRef.get
+  exts.mapM fun ext => ext.mkInitial
 
-unsafe def imp : EnvExtensionInterface :=
-{ ext                := Ext,
-  inhabitedExt       := fun σ _ => ⟨arbitrary _⟩,
-  registerExt        := fun _ => registerExt,
-  setState           := fun _ => setState,
-  modifyState        := fun _ => modifyState,
-  getState           := fun _ => getState,
-  mkInitialExtStates := mkInitialExtStates }
+unsafe def imp : EnvExtensionInterface := {
+  ext                := Ext,
+  inhabitedExt       := fun _ => ⟨arbitrary _⟩,
+  registerExt        := registerExt,
+  setState           := setState,
+  modifyState        := modifyState,
+  getState           := getState,
+  mkInitialExtStates := mkInitialExtStates
+}
 
 /- Auxiliary code for supporting old frontend. It will be deleted -/
 namespace OldFrontend
@@ -216,28 +218,28 @@ namespace OldFrontend
 set_option compiler.extract_closed false
 @[export lean_register_extension]
 unsafe def registerCPPExtension (initial : EnvExtensionState) : Option Nat :=
-Except.toOption $ unsafeIO do
-  ext ← registerExt (pure initial);
-  pure ext.idx
+  Except.toOption $ unsafeIO do
+    let ext ← registerExt (pure initial)
+    pure ext.idx
 
 @[export lean_set_extension]
 unsafe def setCPPExtensionState (env : Environment) (idx : Nat) (s : EnvExtensionState) : Option Environment :=
-Except.toOption $ unsafeIO do
-  exts ← envExtensionsRef.get;
-  pure $ setState (exts.get! idx) env s
+  Except.toOption $ unsafeIO do
+    let exts ← envExtensionsRef.get
+    pure $ setState (exts.get! idx) env s
 
 @[export lean_get_extension]
 unsafe def getCPPExtensionState (env : Environment) (idx : Nat) : Option EnvExtensionState :=
-Except.toOption $ unsafeIO do
-  exts ← envExtensionsRef.get;
-  pure $ getState (exts.get! idx) env
+  Except.toOption $ unsafeIO do
+    let exts ← envExtensionsRef.get
+    pure $ getState (exts.get! idx) env
 
 end OldFrontend
 
 end EnvExtensionInterfaceUnsafe
 
 @[implementedBy EnvExtensionInterfaceUnsafe.imp]
-constant EnvExtensionInterfaceImp : EnvExtensionInterface := arbitrary _
+constant EnvExtensionInterfaceImp : EnvExtensionInterface
 
 def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
 
@@ -257,25 +259,25 @@ private def mkInitialExtensionStates : IO (Array EnvExtensionState) := EnvExtens
 
 @[export lean_mk_empty_environment]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
-initializing ← IO.initializing;
-when initializing $ throw (IO.userError "environment objects cannot be created during initialization");
-exts ← mkInitialExtensionStates;
-pure {
-  const2ModIdx := {},
-  constants    := {},
-  header       := { trustLevel := trustLevel },
-  extensions   := exts
-}
+  let initializing ← IO.initializing
+  if initializing then throw (IO.userError "environment objects cannot be created during initialization")
+  let exts ← mkInitialExtensionStates
+  pure {
+    const2ModIdx := {},
+    constants    := {},
+    header       := { trustLevel := trustLevel },
+    extensions   := exts
+  }
 
 structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
-(importedEntries : Array (Array α))  -- entries per imported module
-(state : σ)
+  (importedEntries : Array (Array α))  -- entries per imported module
+  (state : σ)
 
 structure ImportM.Context :=
-(env  : Environment)
-(opts : Options)
+  (env  : Environment)
+  (opts : Options)
 
-abbrev ImportM := ReaderT ImportM.Context IO
+abbrev ImportM := ReaderT Lean.ImportM.Context IO
 
 /- An environment extension with support for storing/retrieving entries from a .olean file.
    - α is the type of the entries that are stored in .olean files.
@@ -294,129 +296,125 @@ abbrev ImportM := ReaderT ImportM.Context IO
    `α` and ‵β` do not coincide for extensions where the data used to update the state contains, for example,
    closures which we currently cannot store in files. -/
 structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) :=
-(toEnvExtension  : EnvExtension (PersistentEnvExtensionState α σ))
-(name            : Name)
-(addImportedFn   : Array (Array α) → ImportM σ)
-(addEntryFn      : σ → β → σ)
-(exportEntriesFn : σ → Array α)
-(statsFn         : σ → Format)
+  (toEnvExtension  : EnvExtension (PersistentEnvExtensionState α σ))
+  (name            : Name)
+  (addImportedFn   : Array (Array α) → ImportM σ)
+  (addEntryFn      : σ → β → σ)
+  (exportEntriesFn : σ → Array α)
+  (statsFn         : σ → Format)
 
 /- Opaque persistent environment extension entry. -/
 constant EnvExtensionEntrySpec : PointedType.{0} := arbitrary _
 def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
-instance EnvExtensionEntry.inhabited : Inhabited EnvExtensionEntry := ⟨EnvExtensionEntrySpec.val⟩
+instance : Inhabited EnvExtensionEntry := ⟨EnvExtensionEntrySpec.val⟩
 
-instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
-⟨{importedEntries := #[], state := arbitrary _ }⟩
+instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
+  ⟨{importedEntries := #[], state := arbitrary _ }⟩
 
-instance PersistentEnvExtension.inhabited {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) :=
-⟨{ toEnvExtension := arbitrary _,
+instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) := ⟨{
+   toEnvExtension := arbitrary _,
    name := arbitrary _,
    addImportedFn := fun _ => arbitrary _,
    addEntryFn := fun s _ => s,
    exportEntriesFn := fun _ => #[],
-   statsFn := fun _ => Format.nil }⟩
+   statsFn := fun _ => Format.nil
+}⟩
 
 namespace PersistentEnvExtension
 
 def getModuleEntries {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : Array α :=
-(ext.toEnvExtension.getState env).importedEntries.get! m
+  (ext.toEnvExtension.getState env).importedEntries.get! m
 
 def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
-ext.toEnvExtension.modifyState env $ fun s =>
-  let state   := ext.addEntryFn s.state b;
-  { s with state := state }
+  ext.toEnvExtension.modifyState env fun s =>
+    let state   := ext.addEntryFn s.state b;
+    { s with state := state }
 
 def getState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
-(ext.toEnvExtension.getState env).state
+  (ext.toEnvExtension.getState env).state
 
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
-ext.toEnvExtension.modifyState env $ fun ps => { ps with  state := s }
+  ext.toEnvExtension.modifyState env $ fun ps => { ps with  state := s }
 
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
-ext.toEnvExtension.modifyState env $ fun ps => { ps with state := f (ps.state) }
+  ext.toEnvExtension.modifyState env $ fun ps => { ps with state := f (ps.state) }
 
 end PersistentEnvExtension
 
-private def mkPersistentEnvExtensionsRef : IO (IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState))) :=
-IO.mkRef #[]
-
-@[builtinInit mkPersistentEnvExtensionsRef]
-private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) := arbitrary _
+builtin_initialize persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]
 
 structure PersistentEnvExtensionDescr (α β σ : Type) :=
-(name            : Name)
-(mkInitial       : IO σ)
-(addImportedFn   : Array (Array α) → ImportM σ)
-(addEntryFn      : σ → β → σ)
-(exportEntriesFn : σ → Array α)
-(statsFn         : σ → Format := fun _ => Format.nil)
+  (name            : Name)
+  (mkInitial       : IO σ)
+  (addImportedFn   : Array (Array α) → ImportM σ)
+  (addEntryFn      : σ → β → σ)
+  (exportEntriesFn : σ → Array α)
+  (statsFn         : σ → Format := fun _ => Format.nil)
 
 unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) := do
-pExts ← persistentEnvExtensionsRef.get;
-when (pExts.any (fun ext => ext.name == descr.name)) $ throw (IO.userError ("invalid environment extension, '" ++ toString descr.name ++ "' has already been used"));
-ext ← registerEnvExtension $ do {
-  initial ← descr.mkInitial;
-  let s : PersistentEnvExtensionState α σ := {
-    importedEntries := #[],
-    state           := initial
-  };
-  pure s
-};
-let pExt : PersistentEnvExtension α β σ := {
-  toEnvExtension  := ext,
-  name            := descr.name,
-  addImportedFn   := descr.addImportedFn,
-  addEntryFn      := descr.addEntryFn,
-  exportEntriesFn := descr.exportEntriesFn,
-  statsFn         := descr.statsFn
-};
-persistentEnvExtensionsRef.modify $ fun pExts => pExts.push (unsafeCast pExt);
-pure pExt
+  let pExts ← persistentEnvExtensionsRef.get
+  if pExts.any (fun ext => ext.name == descr.name) then throw (IO.userError s!"invalid environment extension, '{descr.name}' has already been used")
+  let ext ← registerEnvExtension do
+    let initial ← descr.mkInitial
+    let s : PersistentEnvExtensionState α σ := {
+      importedEntries := #[],
+      state           := initial
+    }
+    pure s
+  let pExt : PersistentEnvExtension α β σ := {
+    toEnvExtension  := ext,
+    name            := descr.name,
+    addImportedFn   := descr.addImportedFn,
+    addEntryFn      := descr.addEntryFn,
+    exportEntriesFn := descr.exportEntriesFn,
+    statsFn         := descr.statsFn
+  }
+  persistentEnvExtensionsRef.modify fun pExts => pExts.push (unsafeCast pExt)
+  pure pExt
 
 @[implementedBy registerPersistentEnvExtensionUnsafe]
-constant registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) := arbitrary _
+constant registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
 
 /- Simple PersistentEnvExtension that implements exportEntriesFn using a list of entries. -/
 
 def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α (List α × σ)
 
 @[specialize] def mkStateFromImportedEntries {α σ : Type} (addEntryFn : σ → α → σ) (initState : σ) (as : Array (Array α)) : σ :=
-as.foldl (fun r es => es.foldl (fun r e => addEntryFn r e) r) initState
+  as.foldl (fun r es => es.foldl (fun r e => addEntryFn r e) r) initState
 
 structure SimplePersistentEnvExtensionDescr (α σ : Type) :=
-(name          : Name)
-(addEntryFn    : σ → α → σ)
-(addImportedFn : Array (Array α) → σ)
-(toArrayFn     : List α → Array α := fun es => es.toArray)
+  (name          : Name)
+  (addEntryFn    : σ → α → σ)
+  (addImportedFn : Array (Array α) → σ)
+  (toArrayFn     : List α → Array α := fun es => es.toArray)
 
 def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
-registerPersistentEnvExtension {
-  name            := descr.name,
-  mkInitial       := pure ([], descr.addImportedFn #[]),
-  addImportedFn   := fun as => pure ([], descr.addImportedFn as),
-  addEntryFn      := fun s e => match s with
-    | (entries, s) => (e::entries, descr.addEntryFn s e),
-  exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
-  statsFn := fun s => format "number of local entries: " ++ format s.1.length
-}
+  registerPersistentEnvExtension {
+    name            := descr.name,
+    mkInitial       := pure ([], descr.addImportedFn #[]),
+    addImportedFn   := fun as => pure ([], descr.addImportedFn as),
+    addEntryFn      := fun s e => match s with
+      | (entries, s) => (e::entries, descr.addEntryFn s e),
+    exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
+    statsFn := fun s => format "number of local entries: " ++ format s.1.length
+  }
 
 namespace SimplePersistentEnvExtension
 
 instance {α σ : Type} [Inhabited σ] : Inhabited (SimplePersistentEnvExtension α σ) :=
-inferInstanceAs (Inhabited (PersistentEnvExtension α α (List α × σ)))
+  inferInstanceAs (Inhabited (PersistentEnvExtension α α (List α × σ)))
 
 def getEntries {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) : List α :=
-(PersistentEnvExtension.getState ext env).1
+  (PersistentEnvExtension.getState ext env).1
 
 def getState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
-(PersistentEnvExtension.getState ext env).2
+  (PersistentEnvExtension.getState ext env).2
 
 def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (s : σ) : Environment :=
-PersistentEnvExtension.modifyState ext env (fun ⟨entries, _⟩ => (entries, s))
+  PersistentEnvExtension.modifyState ext env (fun ⟨entries, _⟩ => (entries, s))
 
 def modifyState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (f : σ → σ) : Environment :=
-PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, f s))
+  PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, f s))
 
 end SimplePersistentEnvExtension
 
@@ -425,25 +423,25 @@ end SimplePersistentEnvExtension
 def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
 
 def mkTagDeclarationExtension (name : Name) : IO TagDeclarationExtension :=
-registerSimplePersistentEnvExtension {
-  name          := name,
-  addImportedFn := fun as => {},
-  addEntryFn    := fun s n => s.insert n,
-  toArrayFn     := fun es => es.toArray.qsort Name.quickLt
-}
+  registerSimplePersistentEnvExtension {
+    name          := name,
+    addImportedFn := fun as => {},
+    addEntryFn    := fun s n => s.insert n,
+    toArrayFn     := fun es => es.toArray.qsort Name.quickLt
+  }
 
 namespace TagDeclarationExtension
 
 instance : Inhabited TagDeclarationExtension :=
-inferInstanceAs (Inhabited (SimplePersistentEnvExtension Name NameSet))
+  inferInstanceAs (Inhabited (SimplePersistentEnvExtension Name NameSet))
 
 def tag (ext : TagDeclarationExtension) (env : Environment) (n : Name) : Environment :=
-ext.addEntry env n
+  ext.addEntry env n
 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (n : Name) : Bool :=
-match env.getModuleIdxFor? n with
-| some modIdx => (ext.getModuleEntries env modIdx).binSearchContains n Name.quickLt
-| none        => (ext.getState env).contains n
+  match env.getModuleIdxFor? n with
+  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains n Name.quickLt
+  | none        => (ext.getState env).contains n
 
 end TagDeclarationExtension
 
@@ -458,245 +456,234 @@ end TagDeclarationExtension
    TODO: delete after we remove legacy code -/
 def Modification := NonScalar
 
-instance Modification.inhabited : Inhabited Modification := inferInstanceAs (Inhabited NonScalar)
+instance : Inhabited Modification := inferInstanceAs (Inhabited NonScalar)
 
-def regModListExtension : IO (EnvExtension (List Modification)) :=
-registerEnvExtension (pure [])
+builtin_initialize modListExtension : EnvExtension (List Modification) ← registerEnvExtension (pure [])
 
-@[builtinInit regModListExtension]
-constant modListExtension : EnvExtension (List Modification) := arbitrary _
 
 /- The C++ code uses this function to store the given modification object into the environment. -/
 @[export lean_environment_add_modification]
 def addModification (env : Environment) (mod : Modification) : Environment :=
-modListExtension.modifyState env $ fun mods => mod :: mods
+  modListExtension.modifyState env $ fun mods => mod :: mods
 
 /- mkModuleData invokes this function to convert a list of modification objects into
    a serialized byte array. -/
 @[extern 2 "lean_serialize_modifications"]
-constant serializeModifications : List Modification → IO ByteArray := arbitrary _
+constant serializeModifications : List Modification → IO ByteArray
 
 @[extern 3 "lean_perform_serialized_modifications"]
-constant performModifications : Environment → ByteArray → IO Environment := arbitrary _
+constant performModifications : Environment → ByteArray → IO Environment
 
 /- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData :=
-(imports    : Array Import)
-(constants  : Array ConstantInfo)
-(entries    : Array (Name × Array EnvExtensionEntry))
-(serialized : ByteArray) -- Legacy support: serialized modification objects
+  (imports    : Array Import)
+  (constants  : Array ConstantInfo)
+  (entries    : Array (Name × Array EnvExtensionEntry))
+  (serialized : ByteArray) -- Legacy support: serialized modification objects
 
-instance ModuleData.inhabited : Inhabited ModuleData :=
-⟨{imports := arbitrary _, constants := arbitrary _, entries := arbitrary _, serialized := arbitrary _}⟩
+instance : Inhabited ModuleData :=
+  ⟨{imports := arbitrary _, constants := arbitrary _, entries := arbitrary _, serialized := arbitrary _}⟩
 
 @[extern 3 "lean_save_module_data"]
-constant saveModuleData (fname : @& String) (m : ModuleData) : IO Unit := arbitrary _
+constant saveModuleData (fname : @& String) (m : ModuleData) : IO Unit
 @[extern 2 "lean_read_module_data"]
-constant readModuleData (fname : @& String) : IO (ModuleData × CompactedRegion) := arbitrary _
+constant readModuleData (fname : @& String) : IO (ModuleData × CompactedRegion)
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
   particular, `env` should be the last reference to any `Environment` derived from these imports. -/
 @[noinline, export lean_environment_free_regions]
 unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
-/-
-  NOTE: This assumes `env` is not inferred as a borrowed parameter, and is freed after extracting the `header` field.
-  Otherwise, we would encounter undefined behavior when the constant map in `env`, which may reference objects in
-  compacted regions, is freed after the regions.
+  /-
+    NOTE: This assumes `env` is not inferred as a borrowed parameter, and is freed after extracting the `header` field.
+    Otherwise, we would encounter undefined behavior when the constant map in `env`, which may reference objects in
+    compacted regions, is freed after the regions.
 
-  In the currently produced IR, we indeed see:
-  ```
-    def Lean.Environment.freeRegions (x_1 : obj) (x_2 : obj) : obj :=
-      let x_3 : obj := proj[3] x_1;
-      inc x_3;
-      dec x_1;
-      ...
-  ```
+    In the currently produced IR, we indeed see:
+    ```
+      def Lean.Environment.freeRegions (x_1 : obj) (x_2 : obj) : obj :=
+        let x_3 : obj := proj[3] x_1;
+        inc x_3;
+        dec x_1;
+        ...
+    ```
 
-  TODO: statically check for this. -/
-env.header.regions.forM CompactedRegion.free
+    TODO: statically check for this. -/
+  env.header.regions.forM CompactedRegion.free
 
 def mkModuleData (env : Environment) : IO ModuleData := do
-pExts ← persistentEnvExtensionsRef.get;
-let entries : Array (Name × Array EnvExtensionEntry) := pExts.size.fold
-  (fun i result =>
-    let state  := (pExts.get! i).getState env;
-    let exportEntriesFn := (pExts.get! i).exportEntriesFn;
-    let extName    := (pExts.get! i).name;
-    result.push (extName, exportEntriesFn state))
-  #[];
-bytes ← serializeModifications (modListExtension.getState env);
-pure {
-  imports    := env.header.imports,
-  constants  := env.constants.foldStage2 (fun cs _ c => cs.push c) #[],
-  entries    := entries,
-  serialized := bytes
-}
+  let pExts ← persistentEnvExtensionsRef.get
+  let entries : Array (Name × Array EnvExtensionEntry) := pExts.size.fold
+    (fun i result =>
+      let state  := (pExts.get! i).getState env
+      let exportEntriesFn := (pExts.get! i).exportEntriesFn
+      let extName    := (pExts.get! i).name
+      result.push (extName, exportEntriesFn state))
+    #[]
+  let bytes ← serializeModifications (modListExtension.getState env)
+  pure {
+    imports    := env.header.imports,
+    constants  := env.constants.foldStage2 (fun cs _ c => cs.push c) #[],
+    entries    := entries,
+    serialized := bytes
+  }
 
 @[export lean_write_module]
 def writeModule (env : Environment) (fname : String) : IO Unit := do
-modData ← mkModuleData env; saveModuleData fname modData
+  let modData ← mkModuleData env; saveModuleData fname modData
 
 partial def importModulesAux : List Import → (NameSet × Array ModuleData × Array CompactedRegion) → IO (NameSet × Array ModuleData × Array CompactedRegion)
-| [],    r         => pure r
-| i::is, (s, mods, regions) =>
-  if i.runtimeOnly || s.contains i.module then
-    importModulesAux is (s, mods, regions)
-  else do
-    let s := s.insert i.module;
-    mFile ← findOLean i.module;
-    unlessM (IO.fileExists mFile) $
-      throw $ IO.userError $ "object file '" ++ mFile ++ "' of module " ++ toString i.module ++ " does not exist";
-    (mod, region) ← readModuleData mFile;
-    (s, mods, regions) ← importModulesAux mod.imports.toList (s, mods, regions);
-    let mods := mods.push mod;
-    let regions := regions.push region;
-    importModulesAux is (s, mods, regions)
+  | [],    r         => pure r
+  | i::is, (s, mods, regions) =>
+    if i.runtimeOnly || s.contains i.module then
+      importModulesAux is (s, mods, regions)
+    else do
+      let s := s.insert i.module
+      let mFile ← findOLean i.module
+      unless (← IO.fileExists mFile) do
+        throw $ IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
+      let (mod, region) ← readModuleData mFile
+      let (s, mods, regions) ← importModulesAux mod.imports.toList (s, mods, regions)
+      let mods := mods.push mod
+      let regions := regions.push region
+      importModulesAux is (s, mods, regions)
 
-private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionEntry
-| i =>
+private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : Array EnvExtensionEntry :=
   if i < mod.entries.size then
     let curr := mod.entries.get! i;
-    if curr.1 == extId then curr.2 else getEntriesFor (i+1)
+    if curr.1 == extId then curr.2 else getEntriesFor mod extId (i+1)
   else
     #[]
 
 private def setImportedEntries (env : Environment) (mods : Array ModuleData) : IO Environment := do
-pExtDescrs ← persistentEnvExtensionsRef.get;
-pure $ mods.iterate env fun _ mod env =>
-  pExtDescrs.iterate env fun _ extDescr env =>
-    let entries := getEntriesFor mod extDescr.name 0;
-    extDescr.toEnvExtension.modifyState env $ fun s =>
-      { s with importedEntries := s.importedEntries.push entries }
+  let pExtDescrs ← persistentEnvExtensionsRef.get
+  pure $ mods.iterate env fun _ mod env =>
+    pExtDescrs.iterate env fun _ extDescr env =>
+      let entries := getEntriesFor mod extDescr.name 0
+      extDescr.toEnvExtension.modifyState env fun s =>
+        { s with importedEntries := s.importedEntries.push entries }
 
 private def finalizePersistentExtensions (env : Environment) (opts : Options) : IO Environment := do
-pExtDescrs ← persistentEnvExtensionsRef.get;
-pExtDescrs.iterateM env fun _ extDescr env => do
-  let s := extDescr.toEnvExtension.getState env;
-  newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts };
-  pure $ extDescr.toEnvExtension.setState env { s with state := newState }
+  let pExtDescrs ← persistentEnvExtensionsRef.get
+  pExtDescrs.iterateM env fun _ extDescr env => do
+    let s := extDescr.toEnvExtension.getState env
+    let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
+    pure $ extDescr.toEnvExtension.setState env { s with state := newState }
 
 @[export lean_import_modules]
 def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := do
-(moduleNames, mods, regions) ← importModulesAux imports ({}, #[], #[]);
-let const2ModIdx := mods.iterate {} $ fun (modIdx) (mod : ModuleData) (m : HashMap Name ModuleIdx) =>
-  mod.constants.iterate m $ fun _ cinfo m =>
-    m.insert cinfo.name modIdx.val;
-constants ← mods.iterateM SMap.empty $ fun _ (mod : ModuleData) (cs : ConstMap) =>
-  mod.constants.iterateM cs $ fun _ cinfo cs => do {
-    when (cs.contains cinfo.name) $ throw (IO.userError ("import failed, environment already contains '" ++ toString cinfo.name ++ "'"));
-    pure $ cs.insert cinfo.name cinfo
-  };
-let constants   := constants.switch;
-exts ← mkInitialExtensionStates;
-let env : Environment := {
-  const2ModIdx := const2ModIdx,
-  constants    := constants,
-  extensions   := exts,
-  header       := {
-    quotInit     := !imports.isEmpty, -- We assume `core.lean` initializes quotient module
-    trustLevel   := trustLevel,
-    imports      := imports.toArray,
-    regions      := regions,
-    moduleNames  := moduleNames
+  let (moduleNames, mods, regions) ← importModulesAux imports ({}, #[], #[])
+  let const2ModIdx := mods.iterate {} fun (modIdx) (mod : ModuleData) (m : HashMap Name ModuleIdx) =>
+    mod.constants.iterate m fun _ cinfo m =>
+      m.insert cinfo.name modIdx.val
+  let constants ← mods.iterateM SMap.empty fun _ (mod : ModuleData) (cs : ConstMap) =>
+    mod.constants.iterateM cs fun _ cinfo cs => do
+      if cs.contains cinfo.name then throw (IO.userError s!"import failed, environment already contains '{cinfo.name}'")
+      pure $ cs.insert cinfo.name cinfo
+  let constants   := constants.switch
+  let exts ← mkInitialExtensionStates
+  let env : Environment := {
+    const2ModIdx := const2ModIdx,
+    constants    := constants,
+    extensions   := exts,
+    header       := {
+      quotInit     := !imports.isEmpty, -- We assume `core.lean` initializes quotient module
+      trustLevel   := trustLevel,
+      imports      := imports.toArray,
+      regions      := regions,
+      moduleNames  := moduleNames
+    }
   }
-};
-env ← setImportedEntries env mods;
-env ← finalizePersistentExtensions env opts;
-env ← mods.iterateM env $ fun _ mod env => performModifications env mod.serialized;
-pure env
+  let env ← setImportedEntries env mods
+  let env ← finalizePersistentExtensions env opts
+  let env ← mods.iterateM env fun _ mod env => performModifications env mod.serialized;
+  pure env
 
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the
   environment object or imported objects may exist after `act` finishes. -/
 unsafe def withImportModules {α : Type} (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) (x : Environment → IO α) : IO α := do
-env ← importModules imports opts trustLevel;
-finally (x env) env.freeRegions
+  let env ← importModules imports opts trustLevel
+  try x env finally env.freeRegions
 
-def regNamespacesExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
-registerSimplePersistentEnvExtension {
-  name            := `namespaces,
-  addImportedFn   := fun as => mkStateFromImportedEntries NameSet.insert {} as,
-  addEntryFn      := fun s n => s.insert n
-}
-
-@[builtinInit regNamespacesExtension]
-constant namespacesExt : SimplePersistentEnvExtension Name NameSet := arbitrary _
+builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSet ←
+  registerSimplePersistentEnvExtension {
+    name            := `namespaces,
+    addImportedFn   := fun as => mkStateFromImportedEntries NameSet.insert {} as,
+    addEntryFn      := fun s n => s.insert n
+  }
 
 namespace Environment
 
 def registerNamespace (env : Environment) (n : Name) : Environment :=
-if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
+  if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
 
 def isNamespace (env : Environment) (n : Name) : Bool :=
-(namespacesExt.getState env).contains n
+  (namespacesExt.getState env).contains n
 
 def getNamespaceSet (env : Environment) : NameSet :=
-namespacesExt.getState env
+  namespacesExt.getState env
 
 private def isNamespaceName : Name → Bool
-| Name.str Name.anonymous _ _ => true
-| Name.str p _ _              => isNamespaceName p
-| _                           => false
+  | Name.str Name.anonymous _ _ => true
+  | Name.str p _ _              => isNamespaceName p
+  | _                           => false
 
 private def registerNamePrefixes : Environment → Name → Environment
-| env, Name.str p _ _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
-| env, _              => env
+  | env, Name.str p _ _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
+  | env, _              => env
 
 @[export lean_environment_add]
 def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
-let env := registerNamePrefixes env cinfo.name;
-env.addAux cinfo
+  let env := registerNamePrefixes env cinfo.name
+  env.addAux cinfo
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do
-pExtDescrs ← persistentEnvExtensionsRef.get;
-let numModules := ((pExtDescrs.get! 0).toEnvExtension.getState env).importedEntries.size;
-IO.println ("direct imports:                        " ++ toString env.header.imports);
-IO.println ("number of imported modules:            " ++ toString numModules);
-IO.println ("number of consts:                      " ++ toString env.constants.size);
-IO.println ("number of imported consts:             " ++ toString env.constants.stageSizes.1);
-IO.println ("number of local consts:                " ++ toString env.constants.stageSizes.2);
-IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
-IO.println ("trust level:                           " ++ toString env.header.trustLevel);
-IO.println ("number of extensions:                  " ++ toString env.extensions.size);
-pExtDescrs.forM $ fun extDescr => do {
-  IO.println ("extension '" ++ toString extDescr.name ++ "'");
-  let s := extDescr.toEnvExtension.getState env;
-  let fmt := extDescr.statsFn s.state;
-  unless fmt.isNil (IO.println ("  " ++ toString (Format.nest 2 (extDescr.statsFn s.state))));
-  IO.println ("  number of imported entries: " ++ toString (s.importedEntries.foldl (fun sum es => sum + es.size) 0));
-  pure ()
-};
-pure ()
+  let pExtDescrs ← persistentEnvExtensionsRef.get
+  let numModules := ((pExtDescrs.get! 0).toEnvExtension.getState env).importedEntries.size;
+  IO.println ("direct imports:                        " ++ toString env.header.imports);
+  IO.println ("number of imported modules:            " ++ toString numModules);
+  IO.println ("number of consts:                      " ++ toString env.constants.size);
+  IO.println ("number of imported consts:             " ++ toString env.constants.stageSizes.1);
+  IO.println ("number of local consts:                " ++ toString env.constants.stageSizes.2);
+  IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
+  IO.println ("trust level:                           " ++ toString env.header.trustLevel);
+  IO.println ("number of extensions:                  " ++ toString env.extensions.size);
+  pExtDescrs.forM $ fun extDescr => do
+    IO.println ("extension '" ++ toString extDescr.name ++ "'")
+    let s := extDescr.toEnvExtension.getState env
+    let fmt := extDescr.statsFn s.state
+    unless fmt.isNil do IO.println ("  " ++ toString (Format.nest 2 (extDescr.statsFn s.state)))
+    IO.println ("  number of imported entries: " ++ toString (s.importedEntries.foldl (fun sum es => sum + es.size) 0))
 
 @[extern "lean_eval_const"]
-unsafe constant evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α := arbitrary _
+unsafe constant evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
 
 private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : ExceptT String Id α :=
-throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
+  throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
 
 /-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.
     This function is still unsafe because it cannot guarantee that `typeName` is in fact the name of the type `α`. -/
 unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : Name) (constName : Name) : ExceptT String Id α :=
-match env.find? constName with
-| none      => throw ("unknow constant '" ++ toString constName ++ "'")
-| some info =>
-  match info.type with
-  | Expr.const c _ _ =>
-    if c != typeName then throwUnexpectedType typeName constName
-    else env.evalConst α opts constName
-  | _ => throwUnexpectedType typeName constName
+  match env.find? constName with
+  | none      => throw ("unknow constant '" ++ toString constName ++ "'")
+  | some info =>
+    match info.type with
+    | Expr.const c _ _ =>
+      if c != typeName then throwUnexpectedType typeName constName
+      else env.evalConst α opts constName
+    | _ => throwUnexpectedType typeName constName
 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
-let c? := e.find? $ fun e => match e with
-  | Expr.const c _ _ =>
-    match env.find? c with
-    | some cinfo => cinfo.isUnsafe
-    | none       => false
-  | _ => false;
-c?.isSome
+  let c? := e.find? $ fun e => match e with
+    | Expr.const c _ _ =>
+      match env.find? c with
+      | some cinfo => cinfo.isUnsafe
+      | none       => false
+    | _ => false;
+  c?.isSome
 
 end Environment
 
@@ -708,25 +695,26 @@ namespace Kernel
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_is_def_eq"]
-constant isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool := arbitrary _
+constant isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
 
 /--
   Kernel WHNF function. We use it mainly for debugging purposes.
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_whnf"]
-constant whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr := arbitrary _
+constant whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr
 
 end Kernel
 
 class MonadEnv (m : Type → Type) :=
-(getEnv    : m Environment)
-(modifyEnv : (Environment → Environment) → m Unit)
+  (getEnv    : m Environment)
+  (modifyEnv : (Environment → Environment) → m Unit)
 
 export MonadEnv (getEnv modifyEnv)
 
-instance monadEnvFromLift (m n) [MonadEnv m] [MonadLift m n] : MonadEnv n :=
-{ getEnv    := liftM (getEnv : m Environment),
-  modifyEnv := fun f => liftM (modifyEnv f : m Unit) }
+instance monadEnvFromLift (m n) [MonadEnv m] [MonadLift m n] : MonadEnv n := {
+  getEnv    := liftM (getEnv : m Environment),
+  modifyEnv := fun f => liftM (modifyEnv f : m Unit)
+}
 
 end Lean

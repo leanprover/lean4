@@ -98,6 +98,7 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* l_Lean_Meta_Closure_pickNextToProcess_x3f(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+extern lean_object* l_Lean_LocalDecl_Lean_LocalContext___instance__1;
 lean_object* l_Lean_Meta_getZetaFVarIds___at_Lean_Meta_Closure_process___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_collectExprAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_resetZetaFVarIds___at_Lean_Meta_Closure_mkValueTypeClosureAux___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -139,7 +140,6 @@ lean_object* l_Lean_Meta_mkAuxDefinitionFor___rarg___lambda__1(lean_object*, lea
 lean_object* l_Lean_Meta_Closure_mkBinding_match__1(lean_object*);
 extern lean_object* l_Lean_Level_updateMax_x21___closed__3;
 lean_object* l_Lean_Meta_mkAuxDefinition___at_Lean_Meta_mkAuxDefinitionFor___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_LocalDecl_Inhabited;
 lean_object* l_List_mapM___main___at_Lean_Meta_Closure_collectExprAux___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_preprocess___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_collectExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10204,7 +10204,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_4, x_8);
 lean_dec(x_4);
-x_10 = l_Lean_LocalDecl_Inhabited;
+x_10 = l_Lean_LocalDecl_Lean_LocalContext___instance__1;
 x_11 = lean_array_get(x_10, x_2, x_9);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -10331,7 +10331,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
-x_9 = l_Lean_LocalDecl_Inhabited;
+x_9 = l_Lean_LocalDecl_Lean_LocalContext___instance__1;
 x_10 = lean_array_get(x_9, x_1, x_8);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -10442,7 +10442,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
-x_9 = l_Lean_LocalDecl_Inhabited;
+x_9 = l_Lean_LocalDecl_Lean_LocalContext___instance__1;
 x_10 = lean_array_get(x_9, x_1, x_8);
 if (lean_obj_tag(x_10) == 0)
 {

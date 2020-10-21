@@ -79,6 +79,8 @@ import Lean.PrettyPrinter.Backtrack
 
 namespace Lean
 namespace Syntax namespace MonadTraverser end MonadTraverser end Syntax -- Hack for old frontend
+namespace Parser end Parser -- Hack for old frontend
+
 namespace PrettyPrinter
 namespace Parenthesizer
 

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -20,16 +21,16 @@ attribute [runBuiltinParserAttributeHooks]
   ident numLit charLit strLit nameLit
 
 @[runBuiltinParserAttributeHooks, inline] def group (p : Parser) : Parser :=
-node nullKind p
+  node nullKind p
 
 @[runBuiltinParserAttributeHooks, inline] def many1Indent (p : Parser) : Parser :=
-withPosition $ many1 (checkColGe "irrelevant" >> p)
+  withPosition $ many1 (checkColGe "irrelevant" >> p)
 
 @[runBuiltinParserAttributeHooks, inline] def manyIndent (p : Parser) : Parser :=
-withPosition $ many (checkColGe "irrelevant" >> p)
+  withPosition $ many (checkColGe "irrelevant" >> p)
 
 @[runBuiltinParserAttributeHooks] abbrev notSymbol (s : String) : Parser :=
-notFollowedBy (symbol s) s
+  notFollowedBy (symbol s) s
 
 /-- No-op parser that advises the pretty printer to emit a non-breaking space. -/
 @[inline] def ppHardSpace : Parser := skip
@@ -59,8 +60,8 @@ namespace Formatter
 @[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := group $ indent p
 @[combinatorFormatter Lean.Parser.ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := indent p
 @[combinatorFormatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
-opts ← getOptions;
-indent p (some (-(Format.getIndent opts)))
+  let opts ← getOptions
+  indent p (some (0 - Format.getIndent opts))
 
 end Formatter
 end PrettyPrinter

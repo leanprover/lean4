@@ -677,7 +677,7 @@ end Delaborator
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
 def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
-opts ← getOptions;
+opts ← MonadOptions.getOptions;
 catchInternalId Delaborator.delabFailureId
   (Delaborator.delab.run { expr := e, defaultOptions := opts, optionsPerPos := optionsPerPos, currNamespace := currNamespace, openDecls := openDecls })
   (fun _ => unreachable!)

@@ -60,11 +60,11 @@ lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_addInstanceEntry__
 lean_object* l_Std_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 lean_object* l_Lean_Meta_instanceExtension___elambda__1___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* l_Lean_setEnv___at_Lean_registerTagAttribute___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
 extern lean_object* l_Lean_Environment_addAttributeOld___closed__2;
 lean_object* l_Lean_Meta_withNewMCtxDepth___at___private_Lean_Meta_Instances_0__Lean_Meta_mkInstanceKey___spec__2(lean_object*);
 lean_object* l_Lean_Meta_instanceExtension___elambda__3___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_setEnv___at_Lean_initFn____x40_Lean_Class___hyg_785____spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_19____spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_DiscrTree_Key_beq(lean_object*, lean_object*);
@@ -163,10 +163,10 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Meta_initFn__
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_Data_Array_BinSearch_1__binInsertAux___main___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_19____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instanceExtension___closed__3;
 uint8_t l_Lean_Meta_DiscrTree_Key_lt(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Instances_0__Lean_Meta_mkInstanceKey_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addInstanceEntry___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2859,7 +2859,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = l_Lean_setEnv___at_Lean_initFn____x40_Lean_Class___hyg_785____spec__3(x_12, x_2, x_3, x_4, x_13);
+x_14 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__4(x_12, x_2, x_3, x_4, x_13);
 return x_14;
 }
 else
@@ -2932,7 +2932,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = l_Lean_setEnv___at_Lean_initFn____x40_Lean_Class___hyg_785____spec__3(x_13, x_3, x_4, x_5, x_14);
+x_15 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__4(x_13, x_3, x_4, x_5, x_14);
 x_16 = lean_ctor_get(x_15, 1);
 lean_inc(x_16);
 lean_dec(x_15);
@@ -3000,7 +3000,7 @@ if (x_2 == 0)
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 lean_dec(x_1);
 x_8 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____lambda__2___closed__3;
-x_9 = l_Lean_throwError___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__2___rarg(x_8, x_4, x_5, x_6, x_7);
+x_9 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_8, x_4, x_5, x_6, x_7);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
@@ -3074,7 +3074,7 @@ else
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 lean_dec(x_1);
 x_11 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____lambda__3___closed__3;
-x_12 = l_Lean_throwError___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__2___rarg(x_11, x_4, x_5, x_6, x_7);
+x_12 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_11, x_4, x_5, x_6, x_7);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
 {

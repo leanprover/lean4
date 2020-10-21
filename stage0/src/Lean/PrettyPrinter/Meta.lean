@@ -35,14 +35,14 @@ unsafe def interpretParserDescr : ParserDescr → AttrM Parenthesizer
 | ParserDescr.sepBy1 d₁ d₂                        => sepBy1.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
 | ParserDescr.node k prec d                       => leadingNode.parenthesizer k prec <$> interpretParserDescr d
 | ParserDescr.trailingNode k prec d               => trailingNode.parenthesizer k prec <$> interpretParserDescr d
-| ParserDescr.symbol tk                           => pure $ symbol.parenthesizer
+| ParserDescr.symbol tk                           => pure $ symbol.parenthesizer tk
 | ParserDescr.numLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer
 | ParserDescr.strLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer
 | ParserDescr.charLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer
 | ParserDescr.nameLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer
 | ParserDescr.ident                               => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer
 | ParserDescr.interpolatedStr d                   => interpolatedStr.parenthesizer <$> interpretParserDescr d
-| ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer
+| ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer tk includeIdent
 | ParserDescr.noWs                                => pure $ checkNoWsBefore.parenthesizer
 | ParserDescr.parser constName                    => interpretParser (ctx interpretParserDescr) constName
 | ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec

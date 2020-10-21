@@ -105,11 +105,6 @@ mkLet `a (mkSort levelOne) nat (mkForall `x BinderInfo.default (mkBVar 0) (mkBVa
 #eval tstInferType [`Init.Core] $ mkLit (Literal.strVal "hello")
 #eval tstInferType [`Init.Core] $ mkMData {} $ mkLit (Literal.natVal 10)
 
-#eval tstInferType [`Lean.Util.Trace] (mkProj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited []))
-#eval tstInferType [`Lean.Util.Trace] (mkProj `Lean.TraceState 0 (mkProj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited [])))
-#eval tstWHNF [`Lean.Util.Trace] (mkProj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited []))
-#eval tstWHNF [`Lean.Util.Trace] (mkProj `Lean.TraceState 0 (mkProj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited [])))
-
 def t10 : Expr :=
 let nat  := mkConst `Nat [];
 let refl := mkApp (mkConst `Eq.refl [levelOne]) nat;

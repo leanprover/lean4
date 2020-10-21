@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -46,9 +47,9 @@ match env.find? constName with
 private def getStructureFieldsAux (nparams : Nat) : Nat → Expr → Array Name → Array Name
 | i, Expr.forallE n d b _, fieldNames =>
   if i < nparams then
-    getStructureFieldsAux (i+1) b fieldNames
+    getStructureFieldsAux nparams (i+1) b fieldNames
   else
-    getStructureFieldsAux (i+1) b (fieldNames.push $ deinternalizeFieldName n)
+    getStructureFieldsAux nparams (i+1) b (fieldNames.push $ deinternalizeFieldName n)
 | _, _, fieldNames => fieldNames
 
 -- TODO: fix. See comment in the beginning of the file
@@ -59,13 +60,13 @@ getStructureFieldsAux ctor.nparams 0 ctor.type #[]
 private def isSubobjectFieldAux (nparams : Nat) (target : Name) : Nat → Expr → Option Name
 | i, Expr.forallE n d b _ =>
   if i < nparams then
-    isSubobjectFieldAux (i+1) b
+    isSubobjectFieldAux nparams target (i+1) b
   else if n == target then
     match d.getAppFn with
     | Expr.const parentStructName _ _ => some parentStructName
     | _ => panic! "ill-formed structure"
   else
-    isSubobjectFieldAux (i+1) b
+    isSubobjectFieldAux nparams target (i+1) b
 | _, _ => none
 
 -- TODO: fix. See comment in the beginning of the file
@@ -90,7 +91,7 @@ partial def findField? (env : Environment) : Name → Name → Option Name
   if (getStructureFields env structName).contains fieldName then
     some structName
   else
-    (getParentStructures env structName).findSome? $ fun parentStructName => findField? parentStructName fieldName
+    (getParentStructures env structName).findSome? $ fun parentStructName => findField? env parentStructName fieldName
 
 private partial def getStructureFieldsFlattenedAux (env : Environment) : Name → Array Name → Array Name
 | structName, fullNames =>
@@ -98,7 +99,7 @@ private partial def getStructureFieldsFlattenedAux (env : Environment) : Name �
     (fun (fullNames : Array Name) (fieldName : Name) =>
       let fullNames := fullNames.push fieldName;
       match isSubobjectField? env structName fieldName with
-      | some parentStructName => getStructureFieldsFlattenedAux parentStructName fullNames
+      | some parentStructName => getStructureFieldsFlattenedAux env parentStructName fullNames
       | none                  => fullNames)
     fullNames
 
@@ -109,7 +110,7 @@ getStructureFieldsFlattenedAux env structName #[]
 private def hasProjFn (env : Environment) (structName : Name) (nparams : Nat) : Nat → Expr → Bool
 | i, Expr.forallE n d b _ =>
   if i < nparams then
-    hasProjFn (i+1) b
+    hasProjFn env structName nparams (i+1) b
   else
     let fullFieldName := structName ++ deinternalizeFieldName n;
     env.isProjectionFn fullFieldName
@@ -148,7 +149,7 @@ partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name
       | some parentStructName =>
         match getProjFnForField? env structName fieldName with
         | none        => none
-        | some projFn => getPathToBaseStructureAux parentStructName (projFn :: path)
+        | some projFn => getPathToBaseStructureAux env baseStructName parentStructName (projFn :: path)
 
 /--
   If `baseStructName` is an ancestor structure for `structName`, then return a sequence of projection functions

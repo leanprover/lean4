@@ -1,11 +1,12 @@
+#lang lean4
 import Lean
 open Lean
 open Lean.Parser
 
 def testParser (input : String) : IO Unit :=
 do
-env ← mkEmptyEnvironment;
-stx ← IO.ofExcept $ runParserCategory env `term input "<input>";
+let env ← mkEmptyEnvironment;
+let stx ← IO.ofExcept $ runParserCategory env `term input "<input>";
 IO.println stx
 
 def test (is : List String) : IO Unit :=
@@ -15,7 +16,7 @@ is.forM $ fun input => do
 
 def testParserFailure (input : String) : IO Unit :=
 do
-env ← mkEmptyEnvironment;
+let env ← mkEmptyEnvironment;
 match runParserCategory env `term input "<input>" with
 | Except.ok stx    => throw (IO.userError ("unexpected success\n" ++ toString stx))
 | Except.error msg => IO.println ("failed as expected, error: " ++ msg)

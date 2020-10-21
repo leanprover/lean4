@@ -18,12 +18,16 @@ private def isValidCppName : Name → Bool
 | _                           => false
 
 builtin_initialize exportAttr : ParametricAttribute Name ←
-registerParametricAttribute `export "name to be used by code generators" $ fun _ stx =>
-  match attrParamSyntaxToIdentifier stx with
-  | some exportName =>
-    if isValidCppName exportName then pure exportName
-    else throwError "invalid 'export' function name, is not a valid C++ identifier"
-  | _ => throwError "unexpected kind of argument"
+registerParametricAttribute {
+  name := `export,
+  descr := "name to be used by code generators",
+  getParam := fun _ stx =>
+    match attrParamSyntaxToIdentifier stx with
+    | some exportName =>
+      if isValidCppName exportName then pure exportName
+      else throwError "invalid 'export' function name, is not a valid C++ identifier"
+    | _ => throwError "unexpected kind of argument",
+}
 
 @[export lean_get_export_name_for]
 def getExportNameFor (env : Environment) (n : Name) : Option Name :=

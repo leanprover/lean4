@@ -80,15 +80,18 @@ private def syntaxToExternAttrData (s : Syntax) : ExceptT String Id ExternAttrDa
 constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
 
 builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
-  registerParametricAttribute `extern "builtin and foreign functions"
-    (fun _ stx => ofExcept $ syntaxToExternAttrData stx)
-    (fun declName _ => do
+  registerParametricAttribute {
+    name := `extern,
+    descr := "builtin and foreign functions",
+    getParam := fun _ stx => ofExcept $ syntaxToExternAttrData stx,
+    afterSet := fun declName _ => do
       let env ← getEnv
       if env.isProjectionFn declName || env.isConstructor declName then do
         env ← ofExcept $ addExtern env declName
         setEnv env
       else
-        pure ())
+        pure (),
+  }
 
 @[export lean_get_extern_attr_data]
 def getExternAttrData (env : Environment) (n : Name) : Option ExternAttrData :=

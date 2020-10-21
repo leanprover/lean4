@@ -23,22 +23,26 @@ match getIOTypeArg type with
 | _ => false
 
 def registerInitAttr (attrName : Name) : IO (ParametricAttribute Name) :=
-registerParametricAttribute attrName "initialization procedure for global references" fun declName stx => do
-  let decl ← getConstInfo declName
-  match attrParamSyntaxToIdentifier stx with
-  | some initFnName =>
-    let initFnName ← resolveGlobalConstNoOverload initFnName
-    let initDecl ← getConstInfo initFnName
-    match getIOTypeArg initDecl.type with
-    | none => throwError ("initialization function '" ++ initFnName ++ "' must have type of the form `IO <type>`")
-    | some initTypeArg =>
-      if decl.type == initTypeArg then pure initFnName
-      else throwError ("initialization function '" ++ initFnName ++ "' type mismatch")
-  | _ => match stx with
-    | Syntax.missing =>
-      if isIOUnit decl.type then pure Name.anonymous
-      else throwError "initialization function must have type `IO Unit`"
-    | _ => throwError "unexpected kind of argument"
+registerParametricAttribute {
+  name := `init,
+  descr := "initialization procedure for global references",
+  getParam := fun declName stx => do
+    let decl ← getConstInfo declName
+    match attrParamSyntaxToIdentifier stx with
+    | some initFnName =>
+      let initFnName ← resolveGlobalConstNoOverload initFnName
+      let initDecl ← getConstInfo initFnName
+      match getIOTypeArg initDecl.type with
+      | none => throwError ("initialization function '" ++ initFnName ++ "' must have type of the form `IO <type>`")
+      | some initTypeArg =>
+        if decl.type == initTypeArg then pure initFnName
+        else throwError ("initialization function '" ++ initFnName ++ "' type mismatch")
+    | _ => match stx with
+      | Syntax.missing =>
+        if isIOUnit decl.type then pure Name.anonymous
+        else throwError "initialization function must have type `IO Unit`"
+      | _ => throwError "unexpected kind of argument",
+}
 
 builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init
 builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit

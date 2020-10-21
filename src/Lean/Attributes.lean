@@ -36,11 +36,15 @@ instance : MonadResolveName AttrM := {
 -- TODO: after we delete the old frontend, we should use `EIO` with a richer exception kind at AttributeImpl.
 -- We must perform a similar modification at `PersistentEnvExtension`
 
-structure AttributeImpl :=
+structure AttributeImplCore :=
   (name : Name)
   (descr : String)
+  (applicationTime := AttributeApplicationTime.afterTypeChecking)
+
+structure AttributeImpl extends AttributeImplCore :=
   (add (decl : Name) (args : Syntax) (persistent : Bool) : AttrM Unit)
-  (applicationTime : AttributeApplicationTime := AttributeApplicationTime.afterTypeChecking)
+  -- TODO: shouldn't be necessary
+  (applicationTime := AttributeApplicationTime.afterTypeChecking)
 
 instance : Inhabited AttributeImpl :=
   ⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure () }⟩
@@ -315,13 +319,15 @@ structure ParametricAttribute (α : Type) :=
   (attr : AttributeImpl)
   (ext  : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
 
-def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String)
-    (getParam : Name → Syntax → AttrM α)
-    (afterSet : Name → α → AttrM Unit := fun env _ _ => pure ())
-    (appTime := AttributeApplicationTime.afterTypeChecking)
-    : IO (ParametricAttribute α) := do
+structure ParametricAttributeImpl (α : Type) extends AttributeImplCore :=
+  (getParam : Name → Syntax → AttrM α)
+  (afterSet : Name → α → AttrM Unit := fun env _ _ => pure ())
+  -- TODO: shouldn't be necessary
+  (applicationTime := AttributeApplicationTime.afterTypeChecking)
+
+def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
-    name            := name,
+    name            := impl.name,
     mkInitial       := pure {},
     addImportedFn   := fun _ _ => pure {},
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
@@ -330,19 +336,16 @@ def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr 
       r.qsort (fun a b => Name.quickLt a.1 b.1),
     statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
   }
-  let attrImpl : AttributeImpl := {
-    name  := name,
-    descr := descr,
-    applicationTime := appTime,
+  let attrImpl : AttributeImpl := { impl with
     add   := fun decl args persistent => do
-      unless persistent do throwError! "invalid attribute '{name}', must be persistent"
+      unless persistent do throwError! "invalid attribute '{impl.name}', must be persistent"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
-        throwError! "invalid attribute '{name}', declaration is in an imported module"
-      let val ← getParam decl args
+        throwError! "invalid attribute '{impl.name}', declaration is in an imported module"
+      let val ← impl.getParam decl args
       let env' := ext.addEntry env (decl, val)
       setEnv env'
-      try afterSet decl val catch _ => setEnv env
+      try impl.afterSet decl val catch _ => setEnv env
   }
   registerBuiltinAttribute attrImpl
   pure { attr := attrImpl, ext := ext }

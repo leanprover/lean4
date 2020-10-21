@@ -345,9 +345,10 @@ bool test_module_parser(environment const & env, std::string const & input, std:
 }
 
 typedef list_ref<object_ref> messages;
+typedef object_ref module_stx;
 extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, object * w);
-pair_ref<environment, messages> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name) {
-    return get_io_result<pair_ref<environment, messages>>(
+pair_ref<environment, pair_ref<messages, module_stx>> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name) {
+    return get_io_result<pair_ref<environment, pair_ref<messages, module_stx>>>(
         lean_run_frontend(mk_string(input), opts.to_obj_arg(), mk_string(file_name), main_module_name.to_obj_arg(), io_mk_world()));
 }
 
@@ -637,11 +638,11 @@ int main(int argc, char ** argv) {
         if (new_frontend) {
             if (!main_module_name)
                 main_module_name = name("_stdin");
-            pair_ref<environment, messages> r = run_new_frontend(contents, opts, mod_fn, *main_module_name);
+            pair_ref<environment, pair_ref<messages, module_stx>> r = run_new_frontend(contents, opts, mod_fn, *main_module_name);
             env = r.fst();
             buffer<message> cpp_msgs;
             // HACK: convert Lean Message into C++ message
-            for (auto msg : r.snd()) {
+            for (auto msg : r.snd().fst()) {
                 pos_info pos = get_message_pos(msg);
                 message_severity sev = get_message_severity(msg);
                 if (sev == message_severity::ERROR)

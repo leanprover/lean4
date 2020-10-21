@@ -322,6 +322,7 @@ structure ParametricAttribute (α : Type) :=
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore :=
   (getParam : Name → Syntax → AttrM α)
   (afterSet : Name → α → AttrM Unit := fun env _ _ => pure ())
+  (afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ())
   -- TODO: shouldn't be necessary
   (applicationTime := AttributeApplicationTime.afterTypeChecking)
 
@@ -329,7 +330,7 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
     name            := impl.name,
     mkInitial       := pure {},
-    addImportedFn   := fun _ _ => pure {},
+    addImportedFn   := fun s => impl.afterImport s *> pure {},
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
     exportEntriesFn := fun m =>
       let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) #[]

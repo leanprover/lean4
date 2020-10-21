@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -9,8 +10,6 @@ import Lean.PrettyPrinter.Formatter
 import Lean.Parser.Module
 
 namespace Lean
-namespace Meta end Meta -- HACK for old frontend
-open Meta (MetaM) -- HACK for old frontend
 
 def PPContext.runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
 Prod.fst <$> x.toIO { options := ppCtx.opts } { env := ppCtx.env }
@@ -21,17 +20,17 @@ ppCtx.runCoreM $ x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
 namespace PrettyPrinter
 
 def ppTerm (stx : Syntax) : CoreM Format := do
-opts ← getOptions;
-let stx := (sanitizeSyntax stx).run' { options := opts };
+let opts ← getOptions
+let stx := (sanitizeSyntax stx).run' { options := opts }
 parenthesizeTerm stx >>= formatTerm
 
 def ppExpr (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) : MetaM Format := do
-lctx ← getLCtx;
-opts ← getOptions;
-let lctx := lctx.sanitizeNames.run' { options := opts };
-Meta.withLCtx lctx #[] $ do
-  stx ← delab currNamespace openDecls e;
-  liftM $ ppTerm stx
+let lctx ← getLCtx
+let opts ← getOptions
+let lctx := lctx.sanitizeNames.run' { options := opts }
+Meta.withLCtx lctx #[] do
+  let stx ← delab currNamespace openDecls e
+  ppTerm stx
 
 @[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
@@ -54,15 +53,14 @@ adaptExcept (fun ex => match ex with
   | e                       => e)
   x
 
-@[builtinInit] def registerPPExt : IO Unit := do
-ppFnsRef.set {
-  ppExpr := fun ctx e   => ctx.runMetaM $ withoutContext $ ppExpr ctx.currNamespace ctx.openDecls e,
-  ppTerm := fun ctx stx => ctx.runCoreM $ withoutContext $ ppTerm stx,
-}
+builtin_initialize
+  ppFnsRef.set {
+    ppExpr := fun ctx e   => ctx.runMetaM $ withoutContext $ ppExpr ctx.currNamespace ctx.openDecls e,
+    ppTerm := fun ctx stx => ctx.runCoreM $ withoutContext $ ppTerm stx,
+  }
 
-@[builtinInit] private def regTraceClasses : IO Unit := do
-registerTraceClass `PrettyPrinter;
-pure ()
+builtin_initialize
+  registerTraceClass `PrettyPrinter;
 
 end PrettyPrinter
 end Lean

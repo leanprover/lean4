@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -14,7 +15,7 @@ inductive Literal
 
 instance Literal.inhabited : Inhabited Literal := ⟨Literal.natVal 0⟩
 
-def Literal.hash : Literal → USize
+protected def Literal.hash : Literal → USize
 | Literal.natVal v => hash v
 | Literal.strVal v => hash v
 
@@ -120,7 +121,7 @@ def Expr.Data.nonDepLet (c : Expr.Data) : Bool :=
 
 @[extern c inline "(uint8_t)((#1 << 24) >> 61)"]
 def Expr.Data.binderInfo (c : Expr.Data) : BinderInfo :=
-let bi := (c.shiftLeft 24).shiftRight 61;
+let bi := (c.shiftLeft 24).shiftRight 61
 if bi == 0 then BinderInfo.default
 else if bi == 1 then BinderInfo.implicit
 else if bi == 2 then BinderInfo.strictImplicit
@@ -149,7 +150,7 @@ else
     hasLevelParam.toUInt64.shiftLeft 35 +
     nonDepLet.toUInt64.shiftLeft 36 +
     bi.toUInt64.shiftLeft 37 +
-    looseBVarRange.toUInt64.shiftLeft 40;
+    looseBVarRange.toUInt64.shiftLeft 40
   r
 
 def Expr.mkData (h : USize) (looseBVarRange : Nat := 0) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data :=
@@ -219,7 +220,7 @@ def ctorName : Expr → String
 | proj _ _ _ _    => "proj"
 | localE _ _ _ _  => "localE"
 
-def hash (e : Expr) : USize :=
+protected def hash (e : Expr) : USize :=
 e.data.hash
 
 instance : Hashable Expr := ⟨Expr.hash⟩
@@ -234,7 +235,7 @@ def hasLevelMVar (e : Expr) : Bool :=
 e.data.hasLevelMVar
 
 def hasMVar (e : Expr) : Bool :=
-let d := e.data;
+let d := e.data
 d.hasExprMVar || d.hasLevelMVar
 
 def hasLevelParam (e : Expr) : Bool :=
@@ -304,7 +305,7 @@ Expr.app f a $ mkData (mixHash 29 $ mixHash (hash f) (hash a))
   (f.hasLevelParam || a.hasLevelParam)
 
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
--- let x := x.eraseMacroScopes;
+-- let x := x.eraseMacroScopes
 Expr.lam x t b $ mkDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
   (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
   (t.hasFVar || b.hasFVar)
@@ -314,7 +315,7 @@ Expr.lam x t b $ mkDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
   bi
 
 def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
--- let x := x.eraseMacroScopes;
+-- let x := x.eraseMacroScopes
 Expr.forallE x t b $ mkDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
   (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
   (t.hasFVar || b.hasFVar)
@@ -332,7 +333,7 @@ def mkSimpleThunk (type : Expr) : Expr :=
 mkLambda `_ BinderInfo.default (Lean.mkConst `Unit) type
 
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
--- let x := x.eraseMacroScopes;
+-- let x := x.eraseMacroScopes
 Expr.letE x t v b $ mkDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash v) (hash b))
   (Nat.max (Nat.max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
   (t.hasFVar || v.hasFVar || b.hasFVar)
@@ -362,8 +363,8 @@ Expr.localE x u t $ mkDataForBinder (mixHash 43 $ hash t) t.looseBVarRange true 
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
 args.foldl mkApp f
 
-private partial def mkAppRangeAux (n : Nat) (args : Array Expr) : Nat → Expr → Expr
-| i, e => if i < n then mkAppRangeAux (i+1) (mkApp e (args.get! i)) else e
+private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
+if i < n then mkAppRangeAux n args (i+1) (mkApp e (args.get! i)) else e
 
 /-- `mkAppRange f i j #[a_1, ..., a_i, ..., a_j, ... ]` ==> the expression `f a_i ... a_{j-1}` -/
 def mkAppRange (f : Expr) (i j : Nat) (args : Array Expr) : Expr :=
@@ -468,8 +469,8 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
 | _,         as, _ => as
 
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
-let dummy := mkSort levelZero;
-let nargs := e.getAppNumArgs;
+let dummy := mkSort levelZero
+let nargs := e.getAppNumArgs
 getAppArgsAux e (mkArray nargs dummy) (nargs-1)
 
 private def getAppRevArgsAux : Expr → Array Expr → Array Expr
@@ -480,16 +481,16 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
 getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
 
 @[specialize] def withAppAux {α} (k : Expr → Array Expr → α) : Expr → Array Expr → Nat → α
-| app f a _, as, i => withAppAux f (as.set! i a) (i-1)
+| app f a _, as, i => withAppAux k f (as.set! i a) (i-1)
 | f,         as, i => k f as
 
 @[inline] def withApp {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
-let dummy := mkSort levelZero;
-let nargs := e.getAppNumArgs;
+let dummy := mkSort levelZero
+let nargs := e.getAppNumArgs
 withAppAux k e (mkArray nargs dummy) (nargs-1)
 
 @[specialize] private def withAppRevAux {α} (k : Expr → Array Expr → α) : Expr → Array Expr → α
-| app f a _, as => withAppRevAux f (as.push a)
+| app f a _, as => withAppRevAux k f (as.push a)
 | f,         as => k f as
 
 @[inline] def withAppRev {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
@@ -631,8 +632,8 @@ constant liftLooseBVars (e : @& Expr) (s d : @& Nat) : Expr := arbitrary _
 -/
 def inferImplicit : Expr → Nat → Bool → Expr
 | Expr.forallE n d b c, i+1, considerRange =>
-  let b       := inferImplicit b i considerRange;
-  let newInfo := if c.binderInfo.isExplicit && hasLooseBVarInExplicitDomain b 0 considerRange then BinderInfo.implicit else c.binderInfo;
+  let b       := inferImplicit b i considerRange
+  let newInfo := if c.binderInfo.isExplicit && hasLooseBVarInExplicitDomain b 0 considerRange then BinderInfo.implicit else c.binderInfo
   mkForall n newInfo d b
 | e, 0, _ => e
 | e, _, _ => e
@@ -750,12 +751,11 @@ abbrev PersistentExprStructMap (α : Type) := PHashMap ExprStructEq α
 
 namespace Expr
 
-private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) : Expr → Nat → Expr
-| b, i =>
+private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) (b : Expr) (i : Nat) : Expr :=
   if i == start then b
   else
-    let i := i - 1;
-    mkAppRevRangeAux (mkApp b (revArgs.get! i)) i
+    let i := i - 1
+    mkAppRevRangeAux revArgs start (mkApp b (revArgs.get! i)) i
 
 /-- `mkAppRevRange f b e args == mkAppRev f (revArgs.extract b e)` -/
 def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Expr :=
@@ -764,13 +764,13 @@ mkAppRevRangeAux revArgs beginIdx f endIdx
 private def betaRevAux (revArgs : Array Expr) (sz : Nat) : Expr → Nat → Expr
 | Expr.lam _ _ b _, i =>
   if i + 1 < sz then
-    betaRevAux b (i+1)
+    betaRevAux revArgs sz b (i+1)
   else
-    let n := sz - (i + 1);
+    let n := sz - (i + 1)
     mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-| Expr.mdata _ b _, i => betaRevAux b i
+| Expr.mdata _ b _, i => betaRevAux revArgs sz b i
 | b,                i =>
-  let n := sz - i;
+  let n := sz - i
   mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
 
 /-- If `f` is a lambda expression, than "beta-reduce" it using `revArgs`.
@@ -793,7 +793,7 @@ def isHeadBetaTargetFn : Expr → Bool
 | _                => false
 
 def headBeta (e : Expr) : Expr :=
-let f := e.getAppFn;
+let f := e.getAppFn
 if f.isHeadBetaTargetFn then betaRev f e.getAppRevArgs else e
 
 def isHeadBetaTarget (e : Expr) : Bool :=
@@ -841,22 +841,21 @@ e.isAppOfArity `optParam 2
 def isAutoParam (e : Expr) : Bool :=
 e.isAppOfArity `autoParam 2
 
-@[specialize] private partial def hasAnyFVarAux (p : FVarId → Bool) : Expr → Bool
-| e => if !e.hasFVar then false else
+/-- Return true iff `e` contains a free variable which statisfies `p`. -/
+@[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
+let rec @[specialize] visit (e : Expr) := if !e.hasFVar then false else
   match e with
-  | Expr.forallE _ d b _   => hasAnyFVarAux d || hasAnyFVarAux b
-  | Expr.lam _ d b _       => hasAnyFVarAux d || hasAnyFVarAux b
-  | Expr.mdata _ e _       => hasAnyFVarAux e
-  | Expr.letE _ t v b _    => hasAnyFVarAux t || hasAnyFVarAux v || hasAnyFVarAux b
-  | Expr.app f a _         => hasAnyFVarAux f || hasAnyFVarAux a
-  | Expr.proj _ _ e _      => hasAnyFVarAux e
+  | Expr.forallE _ d b _   => visit d || visit b
+  | Expr.lam _ d b _       => visit d || visit b
+  | Expr.mdata _ e _       => visit e
+  | Expr.letE _ t v b _    => visit t || visit v || visit b
+  | Expr.app f a _         => visit f || visit a
+  | Expr.proj _ _ e _      => visit e
   | Expr.localE _ _ _ _    => unreachable!
   | e@(Expr.fvar fvarId _) => p fvarId
   | e                      => false
+visit e
 
-/-- Return true iff `e` contains a free variable which statisfies `p`. -/
-@[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
-hasAnyFVarAux p e
 
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.
@@ -954,32 +953,26 @@ match e with
 | _              => panic! "let expression expected"
 
 def updateFn : Expr → Expr → Expr
-| e@(app f a _), g => e.updateApp (updateFn f g) a rfl
+| e@(app f a _), g => e.updateApp! (updateFn f g) a
 | _,             g => g
 
 /- Instantiate level parameters -/
 
-namespace InstantiateLevelParams
-
-@[inline] def visit (f : Expr → Expr) (e : Expr) : Expr :=
-if e.hasLevelParam then f e else e
-
-@[specialize] partial def instantiate (s : Name → Option Level) : Expr → Expr
-| e@(lam n d b _)     => e.updateLambdaE! (visit instantiate d) (visit instantiate b)
-| e@(forallE n d b _) => e.updateForallE! (visit instantiate d) (visit instantiate b)
-| e@(letE n t v b _)  => e.updateLet! (visit instantiate t) (visit instantiate v) (visit instantiate b)
-| e@(app f a _)       => e.updateApp (visit instantiate f) (visit instantiate a) rfl
-| e@(proj _ _ s _)    => e.updateProj (visit instantiate s) rfl
-| e@(mdata _ b _)     => e.updateMData (visit instantiate b) rfl
-| e@(const _ us _)    => e.updateConst (us.map (fun u => u.instantiateParams s)) rfl
-| e@(sort u _)        => e.updateSort (u.instantiateParams s) rfl
-| localE _ _ _ _      => unreachable!
-| e => e
-
-end InstantiateLevelParams
-
 @[inline] def instantiateLevelParamsCore (s : Name → Option Level) (e : Expr) : Expr :=
-if e.hasLevelParam then InstantiateLevelParams.instantiate s e else e
+let rec @[specialize] visit (e : Expr) : Expr :=
+  if !e.hasLevelParam then e
+  else match e with
+  | lam n d b _     => e.updateLambdaE! (visit d) (visit b)
+  | forallE n d b _ => e.updateForallE! (visit d) (visit b)
+  | letE n t v b _  => e.updateLet! (visit t) (visit v) (visit b)
+  | app f a _       => e.updateApp! (visit f) (visit a)
+  | proj _ _ s _    => e.updateProj! (visit s)
+  | mdata _ b _     => e.updateMData! (visit b)
+  | const _ us _    => e.updateConst! (us.map (fun u => u.instantiateParams s))
+  | sort u _        => e.updateSort! (u.instantiateParams s)
+  | localE ..       => unreachable!
+  | e               => e
+visit e
 
 private def getParamSubst : List Name → List Level → Name → Option Level
 | p::ps, u::us, p' => if p == p' then some u else getParamSubst ps us p'
@@ -988,15 +981,14 @@ private def getParamSubst : List Name → List Level → Name → Option Level
 def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
 instantiateLevelParamsCore (getParamSubst paramNames lvls) e
 
-private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' : Name) : Nat → Option Level
-| i =>
-  if h : i < ps.size then
-    let p := ps.get ⟨i, h⟩;
-    if h : i < us.size then
-      let u := us.get ⟨i, h⟩;
-      if p == p' then some u else getParamSubstArray (i+1)
-    else none
+private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' : Name) (i : Nat) : Option Level :=
+if h : i < ps.size then
+  let p := ps.get ⟨i, h⟩
+  if h : i < us.size then
+    let u := us.get ⟨i, h⟩
+    if p == p' then some u else getParamSubstArray ps us p' (i+1)
   else none
+else none
 
 def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=
 instantiateLevelParamsCore (fun p => getParamSubstArray paramNames lvls p 0) e

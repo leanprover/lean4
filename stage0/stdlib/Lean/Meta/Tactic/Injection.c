@@ -58,12 +58,12 @@ lean_object* l_Lean_Meta_injectionIntro_match__1___rarg(lean_object*, lean_objec
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Injection_0__Lean_Meta_heqToEq_match__1___rarg(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLocalDecl___at_Lean_Meta_getFVarLocalDecl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqOfHEq___at___private_Lean_Meta_Tactic_Injection_0__Lean_Meta_heqToEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro_match__5(lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
-uint8_t l_Lean_Expr_isAppOfArity___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -311,7 +311,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = l_Lean_Expr_eq_x3f___closed__2;
 x_18 = lean_unsigned_to_nat(3u);
-x_19 = l_Lean_Expr_isAppOfArity___main(x_15, x_17, x_18);
+x_19 = l_Lean_Expr_isAppOfArity(x_15, x_17, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -1083,7 +1083,7 @@ x_12 = lean_ctor_get(x_10, 0);
 x_13 = lean_ctor_get(x_10, 1);
 x_14 = l_Lean_Expr_heq_x3f___closed__2;
 x_15 = lean_unsigned_to_nat(4u);
-x_16 = l_Lean_Expr_isAppOfArity___main(x_12, x_14, x_15);
+x_16 = l_Lean_Expr_isAppOfArity(x_12, x_14, x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -1377,7 +1377,7 @@ lean_inc(x_71);
 lean_dec(x_10);
 x_73 = l_Lean_Expr_heq_x3f___closed__2;
 x_74 = lean_unsigned_to_nat(4u);
-x_75 = l_Lean_Expr_isAppOfArity___main(x_71, x_73, x_74);
+x_75 = l_Lean_Expr_isAppOfArity(x_71, x_73, x_74);
 if (x_75 == 0)
 {
 lean_object* x_76; lean_object* x_77; 

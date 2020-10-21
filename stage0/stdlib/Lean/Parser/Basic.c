@@ -719,6 +719,7 @@ lean_object* l_Lean_Parser_rawFn(lean_object*, uint8_t, lean_object*, lean_objec
 lean_object* l_Lean_Parser_charLitFn___closed__1;
 lean_object* l_Lean_Syntax_getTailInfo(lean_object*);
 lean_object* l_Lean_Parser_nodeFn(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Level_LevelToFormat_toResult___closed__4;
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_Parser_checkWsBeforeFn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_optionalFn(lean_object*, lean_object*, lean_object*);
@@ -782,7 +783,6 @@ lean_object* l_Lean_Parser_withResultOfInfo___elambda__1(lean_object*, lean_obje
 lean_object* l_List_toStringAux___main___at_Lean_Parser_FirstTokens_toStr___spec__2(uint8_t, lean_object*);
 lean_object* l_List_toArrayAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_andthen(lean_object*, lean_object*);
-extern lean_object* l_Lean_Level_LevelToFormat_toResult___main___closed__4;
 lean_object* l_Lean_Parser_node(lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_forArgsM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3604,7 +3604,7 @@ x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec(x_1);
 x_7 = l_List_toString___at_Lean_Parser_FirstTokens_toStr___spec__1(x_6);
-x_8 = l_Lean_Level_LevelToFormat_toResult___main___closed__4;
+x_8 = l_Lean_Level_LevelToFormat_toResult___closed__4;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
 return x_9;

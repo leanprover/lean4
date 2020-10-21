@@ -26,6 +26,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___closed__2;
 lean_object* l_Lean_Elab_Command_mkDefViewOfInstance___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_14____closed__4;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfInstance___closed__1;
@@ -84,7 +85,6 @@ lean_object* l_Lean_Elab_Command_mkFreshInstanceName(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfExample_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_DefKind_isTheorem_match__1(lean_object*);
-extern lean_object* l_Lean_mkReducibilityAttrs___closed__4;
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_45____closed__14;
 lean_object* l_Lean_Elab_Command_mkDefViewOfTheorem_match__1(lean_object*);
@@ -421,7 +421,7 @@ static lean_object* _init_l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkReducibilityAttrs___closed__4;
+x_1 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_14____closed__4;
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

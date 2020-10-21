@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -48,15 +49,12 @@ def switch : ClassState → ClassState
 end ClassState
 
 /- TODO: add support for scoped instances -/
-def mkClassExtension : IO (SimplePersistentEnvExtension ClassEntry ClassState) :=
-registerSimplePersistentEnvExtension {
-  name          := `classExt,
-  addEntryFn    := ClassState.addEntry,
-  addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
-}
-
-@[builtinInit mkClassExtension]
-constant classExtension : SimplePersistentEnvExtension ClassEntry ClassState := arbitrary _
+builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry ClassState ←
+  registerSimplePersistentEnvExtension {
+    name          := `classExt,
+    addEntryFn    := ClassState.addEntry,
+    addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
+  }
 
 @[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=
@@ -97,23 +95,23 @@ e.isAppOfArity `outParam 1
 private partial def checkOutParam : Nat → Array FVarId → Expr → Except String Bool
 | i, outParams, Expr.forallE _ d b _ =>
   if isOutParam d then
-    let fvarId    := mkNameNum `_fvar outParams.size;
-    let outParams := outParams.push fvarId;
-    let fvar      := mkFVar fvarId;
-    let b         := b.instantiate1 fvar;
+    let fvarId    := mkNameNum `_fvar outParams.size
+    let outParams := outParams.push fvarId
+    let fvar      := mkFVar fvarId
+    let b         := b.instantiate1 fvar
     checkOutParam (i+1) outParams b
-  else if d.hasAnyFVar (fun fvarId => outParams.contains fvarId) then
-    Except.error $ "invalid class, parameter #" ++ toString i ++ " depends on `outParam`, but it is not an `outParam`"
+  else if d.hasAnyFVar fun fvarId => outParams.contains fvarId then
+    Except.error s!"invalid class, parameter #{i} depends on `outParam`, but it is not an `outParam`"
   else
     checkOutParam (i+1) outParams b
 | i, outParams, e => pure (outParams.size > 0)
 
 def addClass (env : Environment) (clsName : Name) : Except String Environment :=
-if isClass env clsName then Except.error ("class has already been declared '" ++ toString clsName ++ "'")
+if isClass env clsName then Except.error s!"class has already been declared '{clsName}'"
 else match env.find? clsName with
   | none      => Except.error ("unknown declaration '" ++ toString clsName ++ "'")
   | some decl@(ConstantInfo.inductInfo _) => do
-    b ← checkOutParam 1 #[] decl.type;
+    let b ← checkOutParam 1 #[] decl.type
     Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName b))
   | some _    => Except.error ("invalid 'class', declaration '" ++ toString clsName ++ "' must be inductive datatype or structure")
 
@@ -123,29 +121,29 @@ private def consumeNLambdas : Nat → Expr → Option Expr
 | _,   _                => none
 
 partial def getClassName (env : Environment) : Expr → Option Name
-| Expr.forallE _ _ b _ => getClassName b
+| Expr.forallE _ _ b _ => getClassName env b
 | e                    => do
-  Expr.const c _ _ ← pure e.getAppFn | none;
-  info ← env.find? c;
+  let Expr.const c _ _ ← pure e.getAppFn | none
+  let info ← env.find? c
   match info.value? with
   | some val => do
-    body ← consumeNLambdas e.getAppNumArgs val;
-    getClassName body
+    let body ← consumeNLambdas e.getAppNumArgs val
+    getClassName env body
   | none =>
     if isClass env c then some c
     else none
 
-@[builtinInit] def registerClassAttr : IO Unit :=
-registerBuiltinAttribute {
-  name  := `class,
-  descr := "type class",
-  add   := fun decl args persistent => do
-    env ← getEnv;
-    when args.hasArgs $ throwError "invalid attribute 'class', unexpected argument";
-    unless persistent $ throwError "invalid attribute 'class', must be persistent";
-    env ← ofExcept (addClass env decl);
-    setEnv env
-}
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `class,
+    descr := "type class",
+    add   := fun decl args persistent => do
+      let env ← getEnv
+      if args.hasArgs then throwError "invalid attribute 'class', unexpected argument"
+      unless persistent do throwError "invalid attribute 'class', must be persistent"
+      let env ← ofExcept (addClass env decl)
+      setEnv env
+  }
 
 -- TODO: delete
 @[export lean_add_instance_old]

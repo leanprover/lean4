@@ -66,7 +66,6 @@ lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___close
 lean_object* l_Lean_IR_formatFnBodyHead___closed__11;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__8;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatLitVal(lean_object*);
-lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___main___spec__1(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__15;
 lean_object* l_Lean_IR_argHasFormat___closed__1;
@@ -186,6 +185,7 @@ extern lean_object* l_Lean_IR_VarId_Lean_Compiler_IR_Basic___instance__2___close
 lean_object* l_Lean_IR_formatDecl___closed__4;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_typeHasToString___closed__1;
+lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(lean_object*);
 lean_object* l_Lean_IR_formatArray___at_Lean_IR_formatParams___spec__1___boxed(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__29;
 lean_object* l_Array_toList___rarg(lean_object*);
@@ -534,7 +534,7 @@ x_8 = l_Lean_Format_sbracket___closed__3;
 x_9 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
 lean_ctor_set(x_9, 1, x_8);
-x_10 = l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___main___spec__1(x_1);
+x_10 = l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(x_1);
 x_11 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);

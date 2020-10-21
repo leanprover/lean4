@@ -167,7 +167,6 @@ lean_object* l_Lean_Elab_Term_mkPairs_loop___closed__2;
 lean_object* l_Lean_Elab_Term_elabPanic___closed__6;
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_expandCons___closed__1;
-lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabParen(lean_object*);
 lean_object* l_Lean_Elab_Term_expandDbgTrace___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_evalNat___closed__8;
@@ -731,6 +730,7 @@ lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_Builtin
 lean_object* l_Lean_Elab_Term_expandAssert___closed__15;
 extern lean_object* l_Lean_Elab_Term_quoteAutoTactic___closed__11;
 lean_object* l_Lean_Elab_Term_expandCons(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux___closed__27;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandIf___closed__1;
 lean_object* l_Lean_Elab_Term_expandMap___boxed(lean_object*, lean_object*, lean_object*);
@@ -2019,7 +2019,7 @@ lean_inc(x_28);
 x_29 = lean_ctor_get(x_27, 1);
 lean_inc(x_29);
 lean_dec(x_27);
-x_30 = l_Lean_Expr_getAppFn___main(x_28);
+x_30 = l_Lean_Expr_getAppFn(x_28);
 if (lean_obj_tag(x_30) == 4)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 

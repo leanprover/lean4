@@ -50,7 +50,6 @@ lean_object* l_ReaderT_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getMVarDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_find_x3f___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_forInAux___main___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_reportStuckSyntheticMVars___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingCoeInstMVar___lambda__1___closed__2;
 lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingCoeInstMVar___lambda__1___closed__1;
 lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingCoeInstMVar___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -182,6 +181,7 @@ lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___insta
 lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeSyntheticMVar(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_getSomeSynthethicMVarsRef___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Elab_Term_runTactic___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_899____closed__1;
@@ -2124,7 +2124,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_ctor_get(x_10, 0);
-x_13 = l_Lean_Expr_getAppFn___main(x_12);
+x_13 = l_Lean_Expr_getAppFn(x_12);
 lean_dec(x_12);
 x_14 = l_Lean_Expr_isMVar(x_13);
 lean_dec(x_13);
@@ -2153,7 +2153,7 @@ x_20 = lean_ctor_get(x_10, 1);
 lean_inc(x_20);
 lean_inc(x_19);
 lean_dec(x_10);
-x_21 = l_Lean_Expr_getAppFn___main(x_19);
+x_21 = l_Lean_Expr_getAppFn(x_19);
 lean_dec(x_19);
 x_22 = l_Lean_Expr_isMVar(x_21);
 lean_dec(x_21);
@@ -3945,7 +3945,7 @@ x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
 x_13 = l_List_filterAuxM___main___at_Lean_Elab_Term_synthesizeUsingDefault___spec__1___lambda__2___closed__1;
-x_32 = l_Lean_Expr_getAppFn___main(x_2);
+x_32 = l_Lean_Expr_getAppFn(x_2);
 x_33 = l_Lean_Expr_isMVar(x_32);
 lean_dec(x_32);
 if (x_33 == 0)

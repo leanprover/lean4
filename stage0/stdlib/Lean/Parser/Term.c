@@ -3472,6 +3472,7 @@ lean_object* l_Lean_Parser_Tactic_quot___closed__3;
 lean_object* l_Lean_Parser_nodeFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinParser_Lean_Parser_Term_modN(lean_object*);
 lean_object* l_Lean_Parser_Term_typeSpec___closed__1;
+extern lean_object* l_Lean_Level_LevelToFormat_toResult___closed__4;
 lean_object* l_Lean_Parser_Term_subtype_formatter___closed__5;
 lean_object* l_Lean_Parser_Term_assert___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_subst___closed__8;
@@ -3813,7 +3814,6 @@ extern lean_object* l___regBuiltin_Lean_Parser_strLit_formatter___closed__2;
 lean_object* l_Lean_Parser_Term_prop_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_map___elambda__1___closed__2;
 lean_object* l___private_Lean_Parser_Basic_2__sepByFnAux___main___at_Lean_Parser_Term_subst___elambda__1___spec__2___closed__2;
-extern lean_object* l_Lean_Level_LevelToFormat_toResult___main___closed__4;
 lean_object* l___regBuiltin_Lean_Parser_Term_str_formatter(lean_object*);
 lean_object* l___regBuiltinParser_Lean_Parser_Term_gt(lean_object*);
 lean_object* l_Lean_Parser_Term_modN_formatter___closed__1;
@@ -12336,7 +12336,7 @@ static lean_object* _init_l_Lean_Parser_Term_syntheticHole___elambda__1___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Level_LevelToFormat_toResult___main___closed__4;
+x_1 = l_Lean_Level_LevelToFormat_toResult___closed__4;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -12875,7 +12875,7 @@ static lean_object* _init_l_Lean_Parser_Term_syntheticHole_formatter___closed__2
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Level_LevelToFormat_toResult___main___closed__4;
+x_1 = l_Lean_Level_LevelToFormat_toResult___closed__4;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

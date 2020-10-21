@@ -7,6 +7,7 @@ import Std.Data.PersistentArray
 import Lean.Expr
 import Lean.Hygiene
 
+namespace Std end Std -- Hack for old frontend
 namespace Lean
 
 inductive LocalDecl

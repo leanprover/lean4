@@ -18,7 +18,7 @@ lean_object* l_Lean_Meta_matchEq_x3f_match__1___rarg(lean_object*, lean_object*,
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassExpensive_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_isAppOfArity___main(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchEq_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchEq_x3f_match__1(lean_object*);
 lean_object* l_Lean_Meta_matchEq_x3f_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -57,7 +57,7 @@ _start:
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = l_Lean_Expr_eq_x3f___closed__2;
 x_8 = lean_unsigned_to_nat(3u);
-x_9 = l_Lean_Expr_isAppOfArity___main(x_1, x_7, x_8);
+x_9 = l_Lean_Expr_isAppOfArity(x_1, x_7, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
@@ -70,7 +70,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_ctor_get(x_10, 0);
-x_13 = l_Lean_Expr_isAppOfArity___main(x_12, x_7, x_8);
+x_13 = l_Lean_Expr_isAppOfArity(x_12, x_7, x_8);
 if (x_13 == 0)
 {
 lean_object* x_14; 
@@ -110,7 +110,7 @@ x_24 = lean_ctor_get(x_10, 1);
 lean_inc(x_24);
 lean_inc(x_23);
 lean_dec(x_10);
-x_25 = l_Lean_Expr_isAppOfArity___main(x_23, x_7, x_8);
+x_25 = l_Lean_Expr_isAppOfArity(x_23, x_7, x_8);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; 

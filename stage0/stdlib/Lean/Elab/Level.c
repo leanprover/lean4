@@ -18,6 +18,7 @@ lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__2;
 lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__10;
 extern lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3;
+extern lean_object* l_Lean_Level_LevelToFormat_Result_format___closed__5;
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__1___lambda__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_MetavarContext_MkBinding_Lean_MonadHashMapCacheAdapter___closed__1;
@@ -42,13 +43,13 @@ lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__3___lambda__1___boxed
 extern lean_object* l_Lean_mkAppStx___closed__4;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_Level_ofNat___main(lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Level_Lean_Elab_Level___instance__1___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__3;
 lean_object* l_Lean_Elab_Level_elabLevel___closed__6;
 lean_object* l_Lean_mkLevelIMax(lean_object*, lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Elab_Level_elabLevel___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Level_LevelToFormat_Result_format___closed__3;
 lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Elab_Level_elabLevel___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_numLitKind;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -62,9 +63,8 @@ lean_object* l_Lean_Elab_Level_elabLevel_match__1(lean_object*);
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__3___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__1___closed__5;
 lean_object* l_Lean_Elab_Level_elabLevel_match__2(lean_object*);
-lean_object* l_Lean_Level_addOffsetAux___main(lean_object*, lean_object*);
-extern lean_object* l_Lean_Level_LevelToFormat_Result_format___main___closed__5;
 lean_object* l_Lean_Syntax_getId(lean_object*);
+lean_object* l_Lean_Level_addOffsetAux(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1(lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__2;
@@ -90,11 +90,11 @@ lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Elab_Level_elabLevel___spec__
 lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___boxed(lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__3;
 extern lean_object* l_Lean_mkHole___closed__1;
-extern lean_object* l_Lean_Level_LevelToFormat_Result_format___main___closed__3;
 lean_object* l_ReaderT_bind___at_Lean_Elab_Level_Lean_Elab_Level___instance__1___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___rarg(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Level_ofNat(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__3;
@@ -871,7 +871,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Level_elabLevel___closed__2;
-x_2 = l_Lean_Level_LevelToFormat_Result_format___main___closed__3;
+x_2 = l_Lean_Level_LevelToFormat_Result_format___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -881,7 +881,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Level_elabLevel___closed__2;
-x_2 = l_Lean_Level_LevelToFormat_Result_format___main___closed__5;
+x_2 = l_Lean_Level_LevelToFormat_Result_format___closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1066,7 +1066,7 @@ lean_dec(x_2);
 x_35 = lean_ctor_get(x_33, 0);
 lean_inc(x_35);
 lean_dec(x_33);
-x_36 = l_Lean_Level_addOffsetAux___main(x_35, x_29);
+x_36 = l_Lean_Level_addOffsetAux(x_35, x_29);
 lean_ctor_set(x_27, 0, x_36);
 return x_27;
 }
@@ -1099,7 +1099,7 @@ lean_dec(x_2);
 x_43 = lean_ctor_get(x_41, 0);
 lean_inc(x_43);
 lean_dec(x_41);
-x_44 = l_Lean_Level_addOffsetAux___main(x_43, x_37);
+x_44 = l_Lean_Level_addOffsetAux(x_43, x_37);
 x_45 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_45, 0, x_44);
 lean_ctor_set(x_45, 1, x_38);
@@ -1202,7 +1202,7 @@ lean_dec(x_2);
 x_64 = lean_ctor_get(x_62, 0);
 lean_inc(x_64);
 lean_dec(x_62);
-x_65 = l_Lean_Level_ofNat___main(x_64);
+x_65 = l_Lean_Level_ofNat(x_64);
 lean_dec(x_64);
 x_66 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_66, 0, x_65);
@@ -1546,7 +1546,7 @@ lean_dec(x_130);
 x_155 = lean_ctor_get(x_153, 0);
 lean_inc(x_155);
 lean_dec(x_153);
-x_156 = l_Lean_Level_addOffsetAux___main(x_155, x_148);
+x_156 = l_Lean_Level_addOffsetAux(x_155, x_148);
 if (lean_is_scalar(x_150)) {
  x_157 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -1656,7 +1656,7 @@ lean_dec(x_130);
 x_176 = lean_ctor_get(x_174, 0);
 lean_inc(x_176);
 lean_dec(x_174);
-x_177 = l_Lean_Level_ofNat___main(x_176);
+x_177 = l_Lean_Level_ofNat(x_176);
 lean_dec(x_176);
 x_178 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_178, 0, x_177);

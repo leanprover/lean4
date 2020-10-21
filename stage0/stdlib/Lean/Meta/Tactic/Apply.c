@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Meta_isExprMVarAssigned___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_Lean_Expr___instance__1;
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_appendParentTag___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -38,7 +39,6 @@ lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__5___spec_
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgs_match__1(lean_object*);
-lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgs_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthInstanceImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_filterAux___main___at_Lean_Meta_apply___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,13 +106,13 @@ lean_object* l_Nat_forMAux___main___at_Lean_Meta_synthAppInstances___spec__1___b
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwApplyError___rarg___closed__5;
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_dependsOnOthers___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toList___rarg(lean_object*);
-extern lean_object* l_Lean_Expr_Inhabited;
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_synthAppInstances___spec__1___closed__2;
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars___at_Lean_Meta_instantiateLocalDeclMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_reorderNonDependentFirst_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_reorderNonDependentFirst_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_synthAppInstances___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_appendParentTag___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwApplyError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -127,7 +127,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_8 = lean_array_get_size(x_1);
-x_9 = l_Lean_Expr_getAppFn___main(x_2);
+x_9 = l_Lean_Expr_getAppFn(x_2);
 x_10 = l_Lean_Expr_isMVar(x_9);
 lean_dec(x_9);
 x_11 = lean_box(x_10);
@@ -630,7 +630,7 @@ goto _start;
 else
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_24 = l_Lean_Expr_Inhabited;
+x_24 = l_Lean_Expr_Lean_Expr___instance__1;
 x_25 = lean_array_get(x_24, x_3, x_17);
 lean_dec(x_17);
 lean_inc(x_10);
@@ -874,7 +874,7 @@ lean_dec(x_5);
 x_15 = lean_nat_sub(x_4, x_14);
 x_16 = lean_nat_sub(x_15, x_13);
 lean_dec(x_15);
-x_17 = l_Lean_Expr_Inhabited;
+x_17 = l_Lean_Expr_Lean_Expr___instance__1;
 x_18 = lean_array_get(x_17, x_1, x_16);
 x_19 = l_Lean_Expr_mvarId_x21(x_18);
 lean_dec(x_18);
@@ -1025,7 +1025,7 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_dec(x_13);
 lean_free_object(x_9);
-x_19 = l_Lean_Expr_Inhabited;
+x_19 = l_Lean_Expr_Lean_Expr___instance__1;
 x_20 = lean_unsigned_to_nat(0u);
 x_21 = lean_array_get(x_19, x_2, x_20);
 x_22 = l_Lean_Expr_mvarId_x21(x_21);
@@ -1073,7 +1073,7 @@ else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_26);
-x_33 = l_Lean_Expr_Inhabited;
+x_33 = l_Lean_Expr_Lean_Expr___instance__1;
 x_34 = lean_unsigned_to_nat(0u);
 x_35 = lean_array_get(x_33, x_2, x_34);
 x_36 = l_Lean_Expr_mvarId_x21(x_35);

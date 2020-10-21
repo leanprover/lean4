@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -12,14 +13,11 @@ inductive ReducibilityStatus
 
 instance ReducibilityStatus.inhabited : Inhabited ReducibilityStatus := ⟨ReducibilityStatus.semireducible⟩
 
-def mkReducibilityAttrs : IO (EnumAttributes ReducibilityStatus) :=
-registerEnumAttributes `reducibility
-  [(`reducible, "reducible", ReducibilityStatus.reducible),
-   (`semireducible, "semireducible", ReducibilityStatus.semireducible),
-   (`irreducible, "irreducible", ReducibilityStatus.irreducible)]
-
-@[builtinInit mkReducibilityAttrs]
-constant reducibilityAttrs : EnumAttributes ReducibilityStatus := arbitrary _
+builtin_initialize reducibilityAttrs : EnumAttributes ReducibilityStatus ←
+  registerEnumAttributes `reducibility
+    [(`reducible, "reducible", ReducibilityStatus.reducible),
+     (`semireducible, "semireducible", ReducibilityStatus.semireducible),
+     (`irreducible, "irreducible", ReducibilityStatus.irreducible)]
 
 @[export lean_get_reducibility_status]
 def getReducibilityStatus (env : Environment) (n : Name) : ReducibilityStatus :=

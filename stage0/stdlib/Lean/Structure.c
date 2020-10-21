@@ -40,7 +40,6 @@ lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Lean_isInternalSubobjectFieldName(lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux_match__2(lean_object*);
 lean_object* l_Lean_getPathToBaseStructureAux_match__2(lean_object*);
-lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Lean_deinternalizeFieldName_match__1(lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getProjFnForField_x3f(lean_object*, lean_object*, lean_object*);
@@ -102,6 +101,7 @@ lean_object* l_Lean_getPathToBaseStructureAux___boxed(lean_object*, lean_object*
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendBefore(lean_object*, lean_object*);
 lean_object* l_Array_findSomeMAux___main___at_Lean_getPathToBaseStructureAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_getPathToBaseStructureAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_drop(lean_object*, lean_object*);
@@ -1068,7 +1068,7 @@ else
 {
 lean_object* x_13; 
 lean_dec(x_3);
-x_13 = l_Lean_Expr_getAppFn___main(x_6);
+x_13 = l_Lean_Expr_getAppFn(x_6);
 if (lean_obj_tag(x_13) == 4)
 {
 lean_object* x_14; lean_object* x_15; 

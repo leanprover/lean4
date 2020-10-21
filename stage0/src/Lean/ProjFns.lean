@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -24,16 +25,13 @@ def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool :=
 instance ProjectionFunctionInfo.inhabited : Inhabited ProjectionFunctionInfo :=
 ⟨{ ctorName := arbitrary _, nparams := arbitrary _, i := 0, fromClass := false }⟩
 
-def mkProjectionFnInfoExtension : IO (SimplePersistentEnvExtension (Name × ProjectionFunctionInfo) (NameMap ProjectionFunctionInfo)) :=
-registerSimplePersistentEnvExtension {
-  name          := `projinfo,
-  addImportedFn := fun as => {},
-  addEntryFn    := fun s p => s.insert p.1 p.2,
-  toArrayFn     := fun es => es.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
-}
-
-@[builtinInit mkProjectionFnInfoExtension]
-constant projectionFnInfoExt : SimplePersistentEnvExtension (Name × ProjectionFunctionInfo) (NameMap ProjectionFunctionInfo) := arbitrary _
+builtin_initialize projectionFnInfoExt : SimplePersistentEnvExtension (Name × ProjectionFunctionInfo) (NameMap ProjectionFunctionInfo) ←
+  registerSimplePersistentEnvExtension {
+    name          := `projinfo,
+    addImportedFn := fun as => {},
+    addEntryFn    := fun s p => s.insert p.1 p.2,
+    toArrayFn     := fun es => es.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
+  }
 
 @[export lean_add_projection_info]
 def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : Bool) : Environment :=

@@ -50,7 +50,6 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp___rarg
 lean_object* l_Lean_Meta_withLocalDecl(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallBoundedTelescopeImp___spec__56___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Level_normalize___main(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___spec__67(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___spec__15(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeAux___spec__23(lean_object*);
@@ -352,7 +351,6 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp__
 lean_object* l_Lean_Meta_resetZetaFVarIds___rarg___closed__2;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___spec__82(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImpAux(lean_object*);
-lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_approxDefEqImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeImp___spec__43(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallBoundedTelescopeImp___spec__33___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -571,7 +569,6 @@ lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hy
 lean_object* lean_expr_instantiate_rev_range(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeImp___spec__43___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeImp___spec__42(lean_object*);
-extern lean_object* l_Lean_Expr_Inhabited___closed__1;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___spec__36___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallBoundedTelescopeImp___spec__98(lean_object*);
@@ -1237,6 +1234,7 @@ extern lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__2;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallBoundedTelescopeImp___spec__14(lean_object*);
 lean_object* l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___spec__90___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Level_normalize(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallBoundedTelescopeImp___spec__65(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___spec__9(lean_object*);
 lean_object* l_Lean_Meta_withMVarContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1525,6 +1523,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp__
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_liftStateMCtx_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp_process___spec__3(lean_object*);
 uint8_t l_Lean_LocalInstance_beq(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___spec__37___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___spec__20___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___spec__66___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1715,6 +1714,7 @@ lean_object* l_Lean_Meta_getConfig___rarg___lambda__1(lean_object*, lean_object*
 extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeImp___spec__11(lean_object*);
 lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_Lean_Expr___instance__1___closed__1;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp_process___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateLambdaAux_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuick_x3f___closed__4;
@@ -1939,7 +1939,7 @@ _start:
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
 x_2 = 1;
-x_3 = l_Lean_Expr_Inhabited___closed__1;
+x_3 = l_Lean_Expr_Lean_Expr___instance__1___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_1);
@@ -12911,7 +12911,7 @@ lean_object* x_21; lean_object* x_22;
 x_21 = lean_ctor_get(x_1, 0);
 lean_inc(x_21);
 lean_dec(x_1);
-x_22 = l_Lean_Expr_getAppFn___main(x_21);
+x_22 = l_Lean_Expr_getAppFn(x_21);
 lean_dec(x_21);
 switch (lean_obj_tag(x_22)) {
 case 4:
@@ -15194,7 +15194,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -15505,7 +15505,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_14 = l_Lean_Expr_getAppFn___main(x_1);
+x_14 = l_Lean_Expr_getAppFn(x_1);
 if (lean_obj_tag(x_14) == 4)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
@@ -15896,7 +15896,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -16491,7 +16491,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -17086,7 +17086,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -17681,7 +17681,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -18276,7 +18276,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -18871,7 +18871,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -19466,7 +19466,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -20061,7 +20061,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -20656,7 +20656,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -21251,7 +21251,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -21846,7 +21846,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -22441,7 +22441,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -23036,7 +23036,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -23631,7 +23631,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -23941,7 +23941,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -24536,7 +24536,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -25131,7 +25131,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -25726,7 +25726,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -26321,7 +26321,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -26916,7 +26916,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -27511,7 +27511,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -28106,7 +28106,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -28701,7 +28701,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -29296,7 +29296,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_11 = l_Lean_Expr_getAppFn___main(x_1);
+x_11 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_11) == 4)
 {
@@ -31318,7 +31318,7 @@ lean_dec(x_10);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_13 = l_Lean_Expr_getAppFn___main(x_1);
+x_13 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_13) == 4)
 {
@@ -31427,7 +31427,7 @@ lean_dec(x_33);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_36 = l_Lean_Expr_getAppFn___main(x_1);
+x_36 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_36) == 4)
 {
@@ -31573,7 +31573,7 @@ if (x_64 == 0)
 lean_object* x_65; lean_object* x_66; 
 x_65 = lean_ctor_get(x_2, 0);
 lean_dec(x_65);
-x_66 = l_Lean_Expr_getAppFn___main(x_1);
+x_66 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_66) == 4)
 {
@@ -31660,7 +31660,7 @@ else
 {
 lean_object* x_82; 
 lean_dec(x_2);
-x_82 = l_Lean_Expr_getAppFn___main(x_1);
+x_82 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_82) == 4)
 {
@@ -31761,7 +31761,7 @@ if (lean_is_exclusive(x_2)) {
  lean_dec_ref(x_2);
  x_100 = lean_box(0);
 }
-x_101 = l_Lean_Expr_getAppFn___main(x_1);
+x_101 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_101) == 4)
 {
@@ -31886,7 +31886,7 @@ if (x_121 == 0)
 lean_object* x_122; lean_object* x_123; 
 x_122 = lean_ctor_get(x_2, 0);
 lean_dec(x_122);
-x_123 = l_Lean_Expr_getAppFn___main(x_1);
+x_123 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_123) == 4)
 {
@@ -31974,7 +31974,7 @@ else
 {
 lean_object* x_140; 
 lean_dec(x_2);
-x_140 = l_Lean_Expr_getAppFn___main(x_1);
+x_140 = l_Lean_Expr_getAppFn(x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_140) == 4)
 {
@@ -128715,7 +128715,7 @@ lean_object* l_Lean_Meta_normalizeLevel___rarg___lambda__1(lean_object* x_1, lea
 _start:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = l_Lean_Level_normalize___main(x_1);
+x_7 = l_Lean_Level_normalize(x_1);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);

@@ -90,7 +90,6 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Meta_assertAfter_match__1(lean_object*);
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
-uint8_t l_Array_contains___at___private_Lean_Class_1__checkOutParam___main___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assertExt___lambda__1___closed__1;
 lean_object* l_Lean_Meta_assertExt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_index(lean_object*);
@@ -102,6 +101,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_insert(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_assertAfter___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_define___closed__2;
 lean_object* l_Lean_Meta_assertExt___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -1208,7 +1208,7 @@ lean_inc(x_9);
 lean_dec(x_8);
 x_10 = l_Lean_Expr_fvarId_x21(x_9);
 lean_dec(x_9);
-x_11 = l_Array_contains___at___private_Lean_Class_1__checkOutParam___main___spec__1(x_1, x_10);
+x_11 = l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1(x_1, x_10);
 lean_dec(x_10);
 if (x_11 == 0)
 {

@@ -154,7 +154,6 @@ lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_processImpl
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_processExplictArg___closed__2;
 lean_object* l_Lean_Elab_Term_ElabAppArgs_main_match__3(lean_object*);
 lean_object* l_Lean_Expr_getOptParamDefault_x3f(lean_object*);
-lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Lean_Elab_Term_expandApp___closed__1;
 uint8_t l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_getForallBody___lambda__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_processExplictArg___closed__1;
@@ -384,6 +383,7 @@ extern lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed_
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppAux___spec__1___closed__2;
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___closed__15;
+lean_object* l_Lean_Expr_consumeMData(lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_findMethod_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_expandDollarProj___closed__1;
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___closed__16;
@@ -545,7 +545,6 @@ lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_App_0__
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Elab_Term_addNamedArg___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_ElabAppArgs_synthesizeAppInstMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_consumeMData___main(lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_hasOptAutoParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux___closed__9;
@@ -611,6 +610,7 @@ lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux_match__2
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_runDefEqM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_addNamedArg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_addLValArg_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_tryCoeFun___lambda__1___closed__4;
 lean_object* l_List_foldlM___main___at___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFnId___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_propagateExpectedType_match__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -15944,7 +15944,7 @@ lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux(lean_obj
 _start:
 {
 lean_object* x_11; 
-x_11 = l_Lean_Expr_getAppFn___main(x_2);
+x_11 = l_Lean_Expr_getAppFn(x_2);
 if (lean_obj_tag(x_11) == 4)
 {
 switch (lean_obj_tag(x_3)) {
@@ -18648,7 +18648,7 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; 
 x_25 = lean_ctor_get(x_23, 0);
 x_26 = lean_ctor_get(x_23, 1);
-x_27 = l_Lean_Expr_consumeMData___main(x_25);
+x_27 = l_Lean_Expr_consumeMData(x_25);
 lean_dec(x_25);
 x_28 = l_Lean_Expr_isAppOf(x_27, x_4);
 lean_dec(x_27);
@@ -18703,7 +18703,7 @@ x_38 = lean_ctor_get(x_23, 1);
 lean_inc(x_38);
 lean_inc(x_37);
 lean_dec(x_23);
-x_39 = l_Lean_Expr_consumeMData___main(x_37);
+x_39 = l_Lean_Expr_consumeMData(x_37);
 lean_dec(x_37);
 x_40 = l_Lean_Expr_isAppOf(x_39, x_4);
 lean_dec(x_39);
@@ -18831,7 +18831,7 @@ if (lean_is_exclusive(x_64)) {
  lean_dec_ref(x_64);
  x_67 = lean_box(0);
 }
-x_68 = l_Lean_Expr_consumeMData___main(x_65);
+x_68 = l_Lean_Expr_consumeMData(x_65);
 lean_dec(x_65);
 x_69 = l_Lean_Expr_isAppOf(x_68, x_4);
 lean_dec(x_68);
@@ -19001,7 +19001,7 @@ if (lean_obj_tag(x_40) == 0)
 lean_object* x_41; lean_object* x_42; uint8_t x_43; 
 x_41 = l_Lean_LocalDecl_type(x_32);
 lean_dec(x_32);
-x_42 = l_Lean_Expr_consumeMData___main(x_41);
+x_42 = l_Lean_Expr_consumeMData(x_41);
 x_43 = l_Lean_Expr_isAppOf(x_42, x_1);
 lean_dec(x_42);
 if (x_43 == 0)
@@ -19192,7 +19192,7 @@ if (lean_obj_tag(x_78) == 0)
 lean_object* x_79; lean_object* x_80; uint8_t x_81; 
 x_79 = l_Lean_LocalDecl_type(x_70);
 lean_dec(x_70);
-x_80 = l_Lean_Expr_consumeMData___main(x_79);
+x_80 = l_Lean_Expr_consumeMData(x_79);
 x_81 = l_Lean_Expr_isAppOf(x_80, x_1);
 lean_dec(x_80);
 if (x_81 == 0)
@@ -19442,7 +19442,7 @@ if (lean_obj_tag(x_125) == 0)
 lean_object* x_126; lean_object* x_127; uint8_t x_128; 
 x_126 = l_Lean_LocalDecl_type(x_115);
 lean_dec(x_115);
-x_127 = l_Lean_Expr_consumeMData___main(x_126);
+x_127 = l_Lean_Expr_consumeMData(x_126);
 x_128 = l_Lean_Expr_isAppOf(x_127, x_1);
 lean_dec(x_127);
 if (x_128 == 0)
@@ -19721,7 +19721,7 @@ if (lean_obj_tag(x_177) == 0)
 lean_object* x_178; lean_object* x_179; uint8_t x_180; 
 x_178 = l_Lean_LocalDecl_type(x_166);
 lean_dec(x_166);
-x_179 = l_Lean_Expr_consumeMData___main(x_178);
+x_179 = l_Lean_Expr_consumeMData(x_178);
 x_180 = l_Lean_Expr_isAppOf(x_179, x_1);
 lean_dec(x_179);
 if (x_180 == 0)

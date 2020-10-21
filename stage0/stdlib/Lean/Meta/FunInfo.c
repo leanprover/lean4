@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_whenHasVar___rarg___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_Lean_Expr___instance__1;
 size_t l_USize_add(size_t, size_t);
 size_t l_Lean_Meta_TransparencyMode_hash(uint8_t);
 uint8_t l_Array_contains___at___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit___spec__2(lean_object*, lean_object*);
@@ -84,7 +85,6 @@ lean_object* l_Lean_Meta_getFunInfoNArgs(lean_object*, lean_object*, lean_object
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main___at___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_Inhabited;
 extern size_t l_Std_PersistentHashMap_insertAux___rarg___closed__2;
 size_t lean_usize_mix_hash(size_t, size_t);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2558,7 +2558,7 @@ lean_dec(x_5);
 x_15 = lean_unsigned_to_nat(1u);
 x_16 = lean_nat_sub(x_3, x_15);
 lean_dec(x_3);
-x_17 = l_Lean_Expr_Inhabited;
+x_17 = l_Lean_Expr_Lean_Expr___instance__1;
 x_18 = lean_array_get(x_17, x_1, x_4);
 lean_inc(x_6);
 x_19 = l_Lean_Meta_getFVarLocalDecl___at___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstanceImp___spec__1(x_18, x_6, x_7, x_8, x_9, x_10);

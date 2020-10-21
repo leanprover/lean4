@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Expr_Lean_Expr___instance__1;
 lean_object* l_Lean_Elab_Term_elabLetRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_elabLetRecDeclValues___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -133,7 +134,6 @@ lean_object* l_Array_umapMAux___main___at___private_Lean_Elab_LetRec_0__Lean_Ela
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toList___rarg(lean_object*);
-extern lean_object* l_Lean_Expr_Inhabited;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabLetRec___closed__1;
 lean_object* l_Lean_Elab_Term_elabBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2185,7 +2185,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_13, 6);
 lean_inc(x_19);
 lean_dec(x_13);
-x_20 = l_Lean_Expr_Inhabited;
+x_20 = l_Lean_Expr_Lean_Expr___instance__1;
 x_21 = lean_array_get(x_20, x_1, x_5);
 x_22 = l_Lean_Expr_fvarId_x21(x_21);
 lean_dec(x_21);

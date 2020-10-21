@@ -257,7 +257,7 @@ end ParserState
 
 def ParserFn := ParserContext → ParserState → ParserState
 
-instance ParserFn.inhabited : Inhabited ParserFn := ⟨fun _ => id⟩
+instance : Inhabited ParserFn := ⟨fun _ => id⟩
 
 inductive FirstTokens
   | epsilon   : FirstTokens
@@ -305,7 +305,7 @@ structure Parser :=
   (info : ParserInfo := {})
   (fn   : ParserFn)
 
-instance Parser.inhabited : Inhabited Parser :=
+instance : Inhabited Parser :=
   ⟨{ fn := fun _ s => s }⟩
 
 abbrev TrailingParser := Parser
@@ -337,8 +337,7 @@ abbrev TrailingParser := Parser
   fn   := andthenFn p.fn q.fn
 }
 
-instance hasAndthen : HasAndthen Parser :=
-  ⟨andthen⟩
+instance : HasAndthen Parser := ⟨andthen⟩
 
 @[inline] def nodeFn (n : SyntaxNodeKind) (p : ParserFn) : ParserFn := fun c s =>
   let iniSz := s.stackSize
@@ -449,8 +448,7 @@ def orelseFnCore (p q : ParserFn) (mergeErrors : Bool) : ParserFn := fun c s =>
   fn   := orelseFn p.fn q.fn
 }
 
-instance hashOrelse : HasOrelse Parser :=
-  ⟨orelse⟩
+instance : HasOrelse Parser := ⟨orelse⟩
 
 @[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo := {
   collectTokens := info.collectTokens,
@@ -1214,8 +1212,8 @@ def unquotedSymbolFn : ParserFn := fun c s =>
 def unquotedSymbol : Parser :=
   { fn := unquotedSymbolFn }
 
-instance stringToParserCoeOld : HasCoe String Parser := ⟨fun s => symbol s ⟩
-instance stringToParserCoe : Coe String Parser := ⟨fun s => symbol s ⟩
+instance : HasCoe String Parser := ⟨fun s => symbol s ⟩
+instance : Coe String Parser := ⟨fun s => symbol s ⟩
 
 namespace ParserState
 

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -9,8 +10,6 @@ import Std.Data.PersistentHashMap
 import Std.Data.PersistentHashSet
 import Lean.Data.Name
 import Lean.Data.Format
-
-namespace Std end Std -- Hack for old frontend
 
 def Nat.imax (n m : Nat) : Nat :=
 if m = 0 then 0 else Nat.max n m
@@ -46,7 +45,7 @@ def Level.Data.hasParam (c : Level.Data) : Bool :=
 def Level.mkData (h : USize) (depth : Nat) (hasMVar hasParam : Bool) : Level.Data :=
 if depth > Nat.pow 2 24 - 1 then panic! "universe level depth is too big"
 else
-  let r : UInt64 := h.toUInt32.toUInt64 + hasMVar.toUInt64.shiftLeft 32 + hasParam.toUInt64.shiftLeft 33 + depth.toUInt64.shiftLeft 40;
+  let r : UInt64 := h.toUInt32.toUInt64 + hasMVar.toUInt64.shiftLeft 32 + hasParam.toUInt64.shiftLeft 33 + depth.toUInt64.shiftLeft 40
   r
 
 open Level
@@ -69,10 +68,10 @@ namespace Level
 | max _ _ d  => d
 | imax _ _ d => d
 
-def hash (u : Level) : USize :=
+protected def hash (u : Level) : USize :=
 u.data.hash
 
-instance : Hashable Level := ⟨hash⟩
+instance : Hashable Level := ⟨Level.hash⟩
 
 def depth (u : Level) : Nat :=
 u.data.depth.toNat
@@ -83,7 +82,7 @@ u.data.hasMVar
 def hasParam (u : Level) : Bool :=
 u.data.hasParam
 
-@[export lean_level_hash] def hashEx : Level → USize := hash
+@[export lean_level_hash] def hashEx : Level → USize := Level.hash
 @[export lean_level_has_mvar] def hasMVarEx : Level → Bool := hasMVar
 @[export lean_level_has_param] def hasParamEx : Level → Bool := hasParam
 @[export lean_level_depth] def depthEx (u : Level) : UInt32 := u.data.depth
@@ -259,8 +258,8 @@ private def mkIMaxAux : Level → Level → Level
 
 /- Auxiliary function used at `normalize` -/
 @[specialize] private partial def getMaxArgsAux (normalize : Level → Level) : Level → Bool → Array Level → Array Level
-| max l₁ l₂ _, alreadyNormalized, lvls => getMaxArgsAux l₂ alreadyNormalized (getMaxArgsAux l₁ alreadyNormalized lvls)
-| l,           false,             lvls => getMaxArgsAux (normalize l) true lvls
+| max l₁ l₂ _, alreadyNormalized, lvls => getMaxArgsAux normalize l₂ alreadyNormalized (getMaxArgsAux normalize l₁ alreadyNormalized lvls)
+| l,           false,             lvls => getMaxArgsAux normalize (normalize l) true lvls
 | l,           true,              lvls => lvls.push l
 
 private def accMax (result : Level) (prev : Level) (offset : Nat) : Level :=
@@ -275,29 +274,27 @@ else mkLevelMax result (prev.addOffset offset)
    - `prev + prevK` is the "previous" level that has not been added to `result` yet.
    - `result` is the accumulator
  -/
-private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) : Nat → Level → Nat → Level → Level
-| i, prev, prevK, result =>
-  if h : i < lvls.size then
-    let lvl   := lvls.get ⟨i, h⟩;
-    let curr  := lvl.getLevelOffset;
-    let currK := lvl.getOffset;
-    if curr == prev then
-       mkMaxAux (i+1) curr currK result
-    else
-       mkMaxAux (i+1) curr currK (accMax result prev (extraK + prevK))
+private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) (i : Nat) (prev : Level) (prevK : Nat) (result : Level) : Level :=
+if h : i < lvls.size then
+  let lvl   := lvls.get ⟨i, h⟩
+  let curr  := lvl.getLevelOffset
+  let currK := lvl.getOffset
+  if curr == prev then
+    mkMaxAux lvls extraK (i+1) curr currK result
   else
-    accMax result prev (extraK + prevK)
+    mkMaxAux lvls extraK (i+1) curr currK (accMax result prev (extraK + prevK))
+else
+  accMax result prev (extraK + prevK)
 
 /-
   Auxiliary function for `normalize`. It assumes `lvls` has been sorted using `normLt`.
   It finds the first position that is not an explicit universe. -/
-private partial def skipExplicit (lvls : Array Level) : Nat → Nat
-| i =>
-  if h : i < lvls.size then
-    let lvl := lvls.get ⟨i, h⟩;
-    if lvl.getLevelOffset.isZero then skipExplicit (i+1) else i
-  else
-    i
+private partial def skipExplicit (lvls : Array Level) (i : Nat) : Nat :=
+if h : i < lvls.size then
+  let lvl := lvls.get ⟨i, h⟩
+  if lvl.getLevelOffset.isZero then skipExplicit lvls (i+1) else i
+else
+  i
 
 /-
   Auxiliary function for `normalize`.
@@ -305,14 +302,13 @@ private partial def skipExplicit (lvls : Array Level) : Nat → Nat
   Return true if it finds a level with offset ≥ maxExplicit.
   `i` starts at the first non explict level.
   It assumes `lvls` has been sorted using `normLt`. -/
-private partial def isExplicitSubsumedAux (lvls : Array Level) (maxExplicit : Nat) : Nat → Bool
-| i =>
-  if h : i < lvls.size then
-    let lvl := lvls.get ⟨i, h⟩;
-    if lvl.getOffset ≥ maxExplicit then true
-    else isExplicitSubsumedAux (i+1)
-  else
-    false
+private partial def isExplicitSubsumedAux (lvls : Array Level) (maxExplicit : Nat) (i : Nat) : Bool :=
+if h : i < lvls.size then
+  let lvl := lvls.get ⟨i, h⟩
+  if lvl.getOffset ≥ maxExplicit then true
+  else isExplicitSubsumedAux lvls maxExplicit (i+1)
+else
+  false
 
 /- Auxiliary function for `normalize`. See `isExplicitSubsumedAux` -/
 private def isExplicitSubsumed (lvls : Array Level) (firstNonExplicit : Nat) : Bool :=
@@ -321,28 +317,27 @@ else
   let max := (lvls.get! (firstNonExplicit - 1)).getOffset;
   isExplicitSubsumedAux lvls max firstNonExplicit
 
-partial def normalize : Level → Level
-| l =>
+partial def normalize (l : Level) : Level :=
   if isAlreadyNormalizedCheap l then l
   else
-    let k := l.getOffset;
-    let u := l.getLevelOffset;
+    let k := l.getOffset
+    let u := l.getLevelOffset
     match u with
     | max l₁ l₂ _ =>
-      let lvls  := getMaxArgsAux normalize l₁ false #[];
-      let lvls  := getMaxArgsAux normalize l₂ false lvls;
-      let lvls  := lvls.qsort normLt;
-      let firstNonExplicit := skipExplicit lvls 0;
-      let i := if isExplicitSubsumed lvls firstNonExplicit then firstNonExplicit else firstNonExplicit - 1;
-      let lvl₁  := lvls.get! i;
-      let prev  := lvl₁.getLevelOffset;
-      let prevK := lvl₁.getOffset;
+      let lvls  := getMaxArgsAux normalize l₁ false #[]
+      let lvls  := getMaxArgsAux normalize l₂ false lvls
+      let lvls  := lvls.qsort normLt
+      let firstNonExplicit := skipExplicit lvls 0
+      let i := if isExplicitSubsumed lvls firstNonExplicit then firstNonExplicit else firstNonExplicit - 1
+      let lvl₁  := lvls[i]
+      let prev  := lvl₁.getLevelOffset
+      let prevK := lvl₁.getOffset
       mkMaxAux lvls k (i+1) prev prevK levelZero
     | imax l₁ l₂ _ =>
       if l₂.isNeverZero then addOffset (normalize (mkLevelMax l₁ l₂)) k
       else
-        let l₁ := normalize l₁;
-        let l₂ := normalize l₂;
+        let l₁ := normalize l₁
+        let l₂ := normalize l₂
         addOffset (mkIMaxAux l₁ l₂) k
     | _ => unreachable!
 
@@ -391,17 +386,17 @@ def parenIfFalse : Format → Bool → Format
 
 @[specialize] private def formatLst (fmt : Result → Format) : List Result → Format
 | []    => Format.nil
-| r::rs => Format.line ++ fmt r ++ formatLst rs
+| r::rs => Format.line ++ fmt r ++ formatLst fmt rs
 
 partial def Result.format : Result → Bool → Format
 | Result.leaf f,         _ => f
 | Result.num k,          _ => toString k
-| Result.offset f 0,     r => Result.format f r
+| Result.offset f 0,     r => format f r
 | Result.offset f (k+1), r =>
-  let f' := Result.format f false;
+  let f' := format f false;
   parenIfFalse (f' ++ "+" ++ fmt (k+1)) r
-| Result.maxNode fs,    r => parenIfFalse (Format.group $ "max"  ++ formatLst (fun r => Result.format r false) fs) r
-| Result.imaxNode fs,   r => parenIfFalse (Format.group $ "imax" ++ formatLst (fun r => Result.format r false) fs) r
+| Result.maxNode fs,    r => parenIfFalse (Format.group $ "max"  ++ formatLst (fun r => format r false) fs) r
+| Result.imaxNode fs,   r => parenIfFalse (Format.group $ "imax" ++ formatLst (fun r => format r false) fs) r
 
 def toResult : Level → Result
 | zero _       => Result.num 0
@@ -466,9 +461,9 @@ def mkNaryMax : List Level → Level
 
 @[specialize] def instantiateParams (s : Name → Option Level) : Level → Level
 | u@(zero _)       => u
-| u@(succ v _)     => if u.hasParam then u.updateSucc (instantiateParams v) rfl else u
-| u@(max v₁ v₂ _)  => if u.hasParam then u.updateMax (instantiateParams v₁) (instantiateParams v₂) rfl else u
-| u@(imax v₁ v₂ _) => if u.hasParam then u.updateIMax (instantiateParams v₁) (instantiateParams v₂) rfl else u
+| u@(succ v _)     => if u.hasParam then u.updateSucc! (instantiateParams s v) else u
+| u@(max v₁ v₂ _)  => if u.hasParam then u.updateMax! (instantiateParams s v₁) (instantiateParams s v₂) else u
+| u@(imax v₁ v₂ _) => if u.hasParam then u.updateIMax! (instantiateParams s v₁) (instantiateParams s v₂) else u
 | u@(param n _)    => match s n with
   | some u' => u'
   | none    => u

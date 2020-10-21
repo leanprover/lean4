@@ -16,75 +16,75 @@ open Meta
 
 /- Auxiliary function for `expandDeclNamespace?` -/
 def expandDeclIdNamespace? (declId : Syntax) : Option (Name × Syntax) :=
-let (id, optUnivDeclStx) := expandDeclIdCore declId
-let scpView := extractMacroScopes id
-match scpView.name with
-| Name.str Name.anonymous s _ => none
-| Name.str pre s _            =>
-  let nameNew := { scpView with name := mkNameSimple s }.review
-  if declId.isIdent then
-    some (pre, mkIdentFrom declId nameNew)
-  else
-    some (pre, declId.setArg 0 (mkIdentFrom declId nameNew))
-| _ => none
+  let (id, optUnivDeclStx) := expandDeclIdCore declId
+  let scpView := extractMacroScopes id
+  match scpView.name with
+  | Name.str Name.anonymous s _ => none
+  | Name.str pre s _            =>
+    let nameNew := { scpView with name := mkNameSimple s }.review
+    if declId.isIdent then
+      some (pre, mkIdentFrom declId nameNew)
+    else
+      some (pre, declId.setArg 0 (mkIdentFrom declId nameNew))
+  | _ => none
 
 /- given declarations such as `@[...] def Foo.Bla.f ...` return `some (Foo.Bla, @[...] def f ...)` -/
 def expandDeclNamespace? (stx : Syntax) : Option (Name × Syntax) :=
-if !stx.isOfKind `Lean.Parser.Command.declaration then none
-else
-  let decl := stx[1]
-  let k := decl.getKind
-  if k == `Lean.Parser.Command.abbrev ||
-     k == `Lean.Parser.Command.def ||
-     k == `Lean.Parser.Command.theorem ||
-     k == `Lean.Parser.Command.constant ||
-     k == `Lean.Parser.Command.axiom ||
-     k == `Lean.Parser.Command.inductive ||
-     k == `Lean.Parser.Command.structure then
-    match expandDeclIdNamespace? decl[1] with
-    | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 1 declId))
-    | none              => none
-  else if k == `Lean.Parser.Command.instance then
-    let optDeclId := decl[1]
-    if optDeclId.isNone then none
-    else match expandDeclIdNamespace? optDeclId[0] with
-      | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 1 (optDeclId.setArg 0 declId)))
-      | none              => none
-  else if k == `Lean.Parser.Command.classInductive then
-    match expandDeclIdNamespace? decl[2] with
-    | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 2 declId))
-    | none              => none
+  if !stx.isOfKind `Lean.Parser.Command.declaration then none
   else
-    none
+    let decl := stx[1]
+    let k := decl.getKind
+    if k == `Lean.Parser.Command.abbrev ||
+       k == `Lean.Parser.Command.def ||
+       k == `Lean.Parser.Command.theorem ||
+       k == `Lean.Parser.Command.constant ||
+       k == `Lean.Parser.Command.axiom ||
+       k == `Lean.Parser.Command.inductive ||
+       k == `Lean.Parser.Command.structure then
+      match expandDeclIdNamespace? decl[1] with
+      | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 1 declId))
+      | none              => none
+    else if k == `Lean.Parser.Command.instance then
+      let optDeclId := decl[1]
+      if optDeclId.isNone then none
+      else match expandDeclIdNamespace? optDeclId[0] with
+        | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 1 (optDeclId.setArg 0 declId)))
+        | none              => none
+    else if k == `Lean.Parser.Command.classInductive then
+      match expandDeclIdNamespace? decl[2] with
+      | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 2 declId))
+      | none              => none
+    else
+      none
 
 def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
--- parser! "axiom " >> declId >> declSig
-let declId             := stx[1]
-let (binders, typeStx) := expandDeclSig stx[2]
-let scopeLevelNames ← getLevelNames
-let ⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
-runTermElabM declName fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders binders.getArgs fun xs => do
-  Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
-  let type ← Term.elabType typeStx
-  Term.synthesizeSyntheticMVarsNoPostponing
-  let type ← instantiateMVars type
-  let type ← mkForallFVars xs type
-  let (type, _) ← mkForallUsedOnly vars type
-  let (type, _) ← Term.levelMVarToParam type
-  let usedParams  := collectLevelParams {} type $.params
-  match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
-  | Except.error msg      => throwErrorAt stx msg
-  | Except.ok levelParams =>
-    let decl := Declaration.axiomDecl {
-      name     := declName,
-      lparams  := levelParams,
-      type     := type,
-      isUnsafe := modifiers.isUnsafe
-    }
-    Term.ensureNoUnassignedMVars decl
-    addDecl decl
-    Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
-    Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
+  -- parser! "axiom " >> declId >> declSig
+  let declId             := stx[1]
+  let (binders, typeStx) := expandDeclSig stx[2]
+  let scopeLevelNames ← getLevelNames
+  let ⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
+  runTermElabM declName fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders binders.getArgs fun xs => do
+    Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
+    let type ← Term.elabType typeStx
+    Term.synthesizeSyntheticMVarsNoPostponing
+    let type ← instantiateMVars type
+    let type ← mkForallFVars xs type
+    let (type, _) ← mkForallUsedOnly vars type
+    let (type, _) ← Term.levelMVarToParam type
+    let usedParams  := collectLevelParams {} type $.params
+    match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
+    | Except.error msg      => throwErrorAt stx msg
+    | Except.ok levelParams =>
+      let decl := Declaration.axiomDecl {
+        name     := declName,
+        lparams  := levelParams,
+        type     := type,
+        isUnsafe := modifiers.isUnsafe
+      }
+      Term.ensureNoUnassignedMVars decl
+      addDecl decl
+      Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
+      Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
 parser! "inductive " >> declId >> optDeclSig >> many ctor
@@ -93,116 +93,116 @@ parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
 Remark: numTokens == 1 for regular `inductive` and 2 for `class inductive`.
 -/
 private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTokens := 1) : CommandElabM InductiveView := do
-checkValidInductiveModifier modifiers
-let (binders, type?) := expandOptDeclSig decl[numTokens + 1]
-let declId           := decl[numTokens]
-let ⟨name, declName, levelNames⟩ ← expandDeclId declId modifiers
-let ctors      ← decl[numTokens + 2].getArgs.mapM fun ctor => withRef ctor do
-  -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
-  let ctorModifiers ← elabModifiers ctor[1]
-  if ctorModifiers.isPrivate && modifiers.isPrivate then
-    throwError "invalid 'private' constructor in a 'private' inductive datatype"
-  if ctorModifiers.isProtected && modifiers.isPrivate then
-    throwError "invalid 'protected' constructor in a 'private' inductive datatype"
-  checkValidCtorModifier ctorModifiers
-  let ctorName := ctor.getIdAt 2
-  let ctorName := declName ++ ctorName
-  let ctorName ← withRef ctor[2] $ applyVisibility ctorModifiers.visibility ctorName
-  let inferMod := !ctor[3].isNone
-  let (binders, type?) := expandOptDeclSig ctor[4]
-  pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
-pure {
-  ref           := decl,
-  modifiers     := modifiers,
-  shortDeclName := name,
-  declName      := declName,
-  levelNames    := levelNames,
-  binders       := binders,
-  type?         := type?,
-  ctors         := ctors
-}
+  checkValidInductiveModifier modifiers
+  let (binders, type?) := expandOptDeclSig decl[numTokens + 1]
+  let declId           := decl[numTokens]
+  let ⟨name, declName, levelNames⟩ ← expandDeclId declId modifiers
+  let ctors      ← decl[numTokens + 2].getArgs.mapM fun ctor => withRef ctor do
+    -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
+    let ctorModifiers ← elabModifiers ctor[1]
+    if ctorModifiers.isPrivate && modifiers.isPrivate then
+      throwError "invalid 'private' constructor in a 'private' inductive datatype"
+    if ctorModifiers.isProtected && modifiers.isPrivate then
+      throwError "invalid 'protected' constructor in a 'private' inductive datatype"
+    checkValidCtorModifier ctorModifiers
+    let ctorName := ctor.getIdAt 2
+    let ctorName := declName ++ ctorName
+    let ctorName ← withRef ctor[2] $ applyVisibility ctorModifiers.visibility ctorName
+    let inferMod := !ctor[3].isNone
+    let (binders, type?) := expandOptDeclSig ctor[4]
+    pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
+  pure {
+    ref           := decl,
+    modifiers     := modifiers,
+    shortDeclName := name,
+    declName      := declName,
+    levelNames    := levelNames,
+    binders       := binders,
+    type?         := type?,
+    ctors         := ctors
+  }
 
 private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView :=
-inductiveSyntaxToView modifiers decl 2
+  inductiveSyntaxToView modifiers decl 2
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
-let v ← inductiveSyntaxToView modifiers stx
-elabInductiveViews #[v]
+  let v ← inductiveSyntaxToView modifiers stx
+  elabInductiveViews #[v]
 
 def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
-let modifiers := modifiers.addAttribute { name := `class }
-let v ← classInductiveSyntaxToView modifiers stx
-elabInductiveViews #[v]
+  let modifiers := modifiers.addAttribute { name := `class }
+  let v ← classInductiveSyntaxToView modifiers stx
+  elabInductiveViews #[v]
 
 @[builtinCommandElab declaration]
-def elabDeclaration : CommandElab :=
-fun stx => match expandDeclNamespace? stx with
-| some (ns, newStx) => do
-  let ns := mkIdentFrom stx ns
-  let newStx ← `(namespace $ns:ident $newStx end $ns:ident)
-  withMacroExpansion stx newStx $ elabCommand newStx
-| none => do
-  let modifiers ← elabModifiers stx[0]
-  let decl     := stx[1]
-  let declKind := decl.getKind
-  if declKind == `Lean.Parser.Command.«axiom» then
-    elabAxiom modifiers decl
-  else if declKind == `Lean.Parser.Command.«inductive» then
-    elabInductive modifiers decl
-  else if declKind == `Lean.Parser.Command.classInductive then
-    elabClassInductive modifiers decl
-  else if declKind == `Lean.Parser.Command.«structure» then
-    elabStructure modifiers decl
-  else if isDefLike decl then
-    elabMutualDef #[stx]
-  else
-    throwError "unexpected declaration"
+def elabDeclaration : CommandElab := fun stx =>
+  match expandDeclNamespace? stx with
+  | some (ns, newStx) => do
+    let ns := mkIdentFrom stx ns
+    let newStx ← `(namespace $ns:ident $newStx end $ns:ident)
+    withMacroExpansion stx newStx $ elabCommand newStx
+  | none => do
+    let modifiers ← elabModifiers stx[0]
+    let decl     := stx[1]
+    let declKind := decl.getKind
+    if declKind == `Lean.Parser.Command.«axiom» then
+      elabAxiom modifiers decl
+    else if declKind == `Lean.Parser.Command.«inductive» then
+      elabInductive modifiers decl
+    else if declKind == `Lean.Parser.Command.classInductive then
+      elabClassInductive modifiers decl
+    else if declKind == `Lean.Parser.Command.«structure» then
+      elabStructure modifiers decl
+    else if isDefLike decl then
+      elabMutualDef #[stx]
+    else
+      throwError "unexpected declaration"
 
 /- Return true if all elements of the mutual-block are inductive declarations. -/
 private def isMutualInductive (stx : Syntax) : Bool :=
-stx[1].getArgs.all fun elem =>
-  let decl     := elem[1]
-  let declKind := decl.getKind
-  declKind == `Lean.Parser.Command.inductive
+  stx[1].getArgs.all fun elem =>
+    let decl     := elem[1]
+    let declKind := decl.getKind
+    declKind == `Lean.Parser.Command.inductive
 
 private def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
-let views ← elems.mapM fun stx => do
-   let modifiers ← elabModifiers stx[0]
-   inductiveSyntaxToView modifiers stx[1]
-elabInductiveViews views
+  let views ← elems.mapM fun stx => do
+     let modifiers ← elabModifiers stx[0]
+     inductiveSyntaxToView modifiers stx[1]
+  elabInductiveViews views
 
 /- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
 private def isMutualDef (stx : Syntax) : Bool :=
-stx[1].getArgs.all fun elem =>
-  let decl := elem[1]
-  isDefLike decl
+  stx[1].getArgs.all fun elem =>
+    let decl := elem[1]
+    isDefLike decl
 
 private def isMutualPreambleCommand (stx : Syntax) : Bool :=
-let k := stx.getKind
-k == `Lean.Parser.Command.variable ||
-k == `Lean.Parser.Command.variables ||
-k == `Lean.Parser.Command.universe ||
-k == `Lean.Parser.Command.universes ||
-k == `Lean.Parser.Command.check ||
-k == `Lean.Parser.Command.set_option ||
-k == `Lean.Parser.Command.open
+  let k := stx.getKind
+  k == `Lean.Parser.Command.variable ||
+  k == `Lean.Parser.Command.variables ||
+  k == `Lean.Parser.Command.universe ||
+  k == `Lean.Parser.Command.universes ||
+  k == `Lean.Parser.Command.check ||
+  k == `Lean.Parser.Command.set_option ||
+  k == `Lean.Parser.Command.open
 
 private partial def splitMutualPreamble (elems : Array Syntax) : Option (Array Syntax × Array Syntax) :=
-let rec loop (i : Nat) : Option (Array Syntax × Array Syntax) :=
-  if h : i < elems.size then
-    let elem := elems.get ⟨i, h⟩
-    if isMutualPreambleCommand elem then
-      loop (i+1)
-    else if i == 0 then
-      none -- `mutual` block does not contain any preamble commands
+  let rec loop (i : Nat) : Option (Array Syntax × Array Syntax) :=
+    if h : i < elems.size then
+      let elem := elems.get ⟨i, h⟩
+      if isMutualPreambleCommand elem then
+        loop (i+1)
+      else if i == 0 then
+        none -- `mutual` block does not contain any preamble commands
+      else
+        some (elems[0:i], elems[i:elems.size])
     else
-      some (elems[0:i], elems[i:elems.size])
-  else
-    none -- a `mutual` block containing only preamble commands is not a valid `mutual` block
-loop 0
+      none -- a `mutual` block containing only preamble commands is not a valid `mutual` block
+  loop 0
 
-@[builtinMacro Lean.Parser.Command.mutual] def expandMutualNamespace : Macro :=
-fun stx => do
+@[builtinMacro Lean.Parser.Command.mutual]
+def expandMutualNamespace : Macro := fun stx => do
   let ns?      := none
   let elemsNew := #[]
   for elem in stx[1].getArgs do
@@ -221,8 +221,8 @@ fun stx => do
     `(namespace $ns:ident $stxNew end $ns:ident)
   | none => Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Command.mutual] def expandMutualElement : Macro :=
-fun stx => do
+@[builtinMacro Lean.Parser.Command.mutual]
+def expandMutualElement : Macro := fun stx => do
   let elemsNew := #[]
   let modified := false
   for elem in stx[1].getArgs do
@@ -234,8 +234,8 @@ fun stx => do
   else
     Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Command.mutual] def expandMutualPreamble : Macro :=
-fun stx =>
+@[builtinMacro Lean.Parser.Command.mutual]
+def expandMutualPreamble : Macro := fun stx =>
   match splitMutualPreamble stx[1].getArgs with
   | none => Macro.throwUnsupported
   | some (preamble, rest) => do
@@ -245,8 +245,7 @@ fun stx =>
     pure $ mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])
 
 @[builtinCommandElab «mutual»]
-def elabMutual : CommandElab :=
-fun stx => do
+def elabMutual : CommandElab := fun stx => do
   if isMutualInductive stx then
     elabMutualInductive stx[1].getArgs
   else if isMutualDef stx then
@@ -255,8 +254,7 @@ fun stx => do
     throwError "invalid mutual block"
 
 /- parser! optional "local " >> "attribute " >> "[" >> sepBy1 Term.attrInstance ", " >> "]" >> many1 ident -/
-@[builtinCommandElab «attribute»] def elabAttr : CommandElab :=
-fun stx => do
+@[builtinCommandElab «attribute»] def elabAttr : CommandElab := fun stx => do
   let persistent := stx[0].isNone
   let attrs ← elabAttrs stx[3]
   let idents := stx[5].getArgs
@@ -264,8 +262,7 @@ fun stx => do
     let declName ← resolveGlobalConstNoOverload ident.getId
     Term.applyAttributes declName attrs persistent
 
-def expandInitCmd (builtin : Bool) : Macro :=
-fun stx =>
+def expandInitCmd (builtin : Bool) : Macro := fun stx =>
   let optHeader := stx[1]
   let doSeq     := stx[2]
   let attrId    := mkIdentFrom stx $ if builtin then `builtinInit else `init
@@ -278,9 +275,9 @@ fun stx =>
       @[$attrId:ident initFn]constant $id : $type)
 
 @[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro :=
-expandInitCmd (builtin := false)
+  expandInitCmd (builtin := false)
 
 @[builtinMacro Lean.Parser.Command.«builtin_initialize»] def expandBuiltinInitialize : Macro :=
-expandInitCmd (builtin := true)
+  expandInitCmd (builtin := true)
 
 end Lean.Elab.Command

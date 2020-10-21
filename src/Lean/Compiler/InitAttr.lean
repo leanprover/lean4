@@ -22,9 +22,13 @@ match getIOTypeArg type with
 | some type => isUnitType type
 | _ => false
 
-def registerInitAttr (attrName : Name) : IO (ParametricAttribute Name) :=
+/-- Run the initializer for `decl` and store its value for global access. Should only be used while importing. -/
+@[extern "lean_run_init"]
+unsafe constant runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit := arbitrary _
+
+unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name) :=
 registerParametricAttribute {
-  name := `init,
+  name := attrName,
   descr := "initialization procedure for global references",
   getParam := fun declName stx => do
     let decl ← getConstInfo declName
@@ -42,10 +46,21 @@ registerParametricAttribute {
         if isIOUnit decl.type then pure Name.anonymous
         else throwError "initialization function must have type `IO Unit`"
       | _ => throwError "unexpected kind of argument",
+  afterImport := fun entries => do
+    let ctx ← read
+    when runAfterImport do
+      for modEntries in entries do
+        for (decl, initDecl) in modEntries do
+          if initDecl.isAnonymous then
+            _ ← IO.ofExcept $ ctx.env.evalConst (IO Unit) ctx.opts decl
+          else runInit ctx.env ctx.opts decl initDecl
 }
 
-builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init
-builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit
+@[implementedBy registerInitAttrUnsafe]
+constant registerInitAttr (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name) := arbitrary _
+
+builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init true
+builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit false
 
 def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Option Name :=
 match attr.getParam env fn with

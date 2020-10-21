@@ -9,16 +9,19 @@ import Lean.MonadEnv
 
 namespace Lean.Compiler
 
-builtin_initialize implementedByAttr : ParametricAttribute Name ←
-registerParametricAttribute `implementedBy "name of the Lean (probably unsafe) function that implements opaque constant" fun declName stx => do
-  let decl ← getConstInfo declName
-  match attrParamSyntaxToIdentifier stx with
-  | some fnName =>
-    let fnName ← resolveGlobalConstNoOverload fnName;
-    let fnDecl ← getConstInfo fnName;
-    if decl.type == fnDecl.type then pure fnName
-    else throwError! "invalid function '{fnName}' type mismatch"
-  | _ => throwError "expected identifier"
+builtin_initialize implementedByAttr : ParametricAttribute Name ← registerParametricAttribute {
+  name := `implementedBy,
+  descr := "name of the Lean (probably unsafe) function that implements opaque constant",
+  getParam := fun declName stx => do
+    let decl ← getConstInfo declName
+    match attrParamSyntaxToIdentifier stx with
+    | some fnName =>
+      let fnName ← resolveGlobalConstNoOverload fnName
+      let fnDecl ← getConstInfo fnName
+      if decl.type == fnDecl.type then pure fnName
+      else throwError! "invalid function '{fnName}' type mismatch"
+    | _ => throwError "expected identifier",
+}
 
 @[export lean_get_implemented_by]
 def getImplementedBy (env : Environment) (declName : Name) : Option Name :=

@@ -558,30 +558,33 @@ private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : 
 
 private def setImportedEntries (env : Environment) (mods : Array ModuleData) : IO Environment := do
   let pExtDescrs ← persistentEnvExtensionsRef.get
-  pure $ mods.iterate env fun _ mod env =>
-    pExtDescrs.iterate env fun _ extDescr env =>
+  for mod in mods do
+    for extDescr in pExtDescrs do
       let entries := getEntriesFor mod extDescr.name 0
-      extDescr.toEnvExtension.modifyState env fun s =>
-        { s with importedEntries := s.importedEntries.push entries }
+      env ← extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.push entries }
+  return env
 
 private def finalizePersistentExtensions (env : Environment) (opts : Options) : IO Environment := do
   let pExtDescrs ← persistentEnvExtensionsRef.get
-  pExtDescrs.iterateM env fun _ extDescr env => do
+  for extDescr in pExtDescrs do
     let s := extDescr.toEnvExtension.getState env
     let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
-    pure $ extDescr.toEnvExtension.setState env { s with state := newState }
+    env ← extDescr.toEnvExtension.setState env { s with state := newState }
+  return env
 
 @[export lean_import_modules]
 def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := do
   let (moduleNames, mods, regions) ← importModulesAux imports ({}, #[], #[])
-  let const2ModIdx := mods.iterate {} fun (modIdx) (mod : ModuleData) (m : HashMap Name ModuleIdx) =>
-    mod.constants.iterate m fun _ cinfo m =>
-      m.insert cinfo.name modIdx.val
-  let constants ← mods.iterateM SMap.empty fun _ (mod : ModuleData) (cs : ConstMap) =>
-    mod.constants.iterateM cs fun _ cinfo cs => do
-      if cs.contains cinfo.name then throw (IO.userError s!"import failed, environment already contains '{cinfo.name}'")
-      pure $ cs.insert cinfo.name cinfo
-  let constants   := constants.switch
+  let modIdx : Nat := 0
+  let const2ModIdx : HashMap Name ModuleIdx := {}
+  let constants : ConstMap := SMap.empty
+  for mod in mods do
+    for cinfo in mod.constants do
+      const2ModIdx := const2ModIdx.insert cinfo.name modIdx
+      if constants.contains cinfo.name then throw (IO.userError s!"import failed, environment already contains '{cinfo.name}'")
+      constants := constants.insert cinfo.name cinfo
+    modIdx := modIdx + 1
+  constants   := constants.switch
   let exts ← mkInitialExtensionStates
   let env : Environment := {
     const2ModIdx := const2ModIdx,
@@ -597,7 +600,8 @@ def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 
   }
   let env ← setImportedEntries env mods
   let env ← finalizePersistentExtensions env opts
-  let env ← mods.iterateM env fun _ mod env => performModifications env mod.serialized;
+  for mod in mods do
+    env ← performModifications env mod.serialized
   pure env
 
 /--

@@ -111,12 +111,16 @@ partial def insertAux [HasBeq α] [Hashable α] : Node α β → USize → USize
   else match newNode with
     | ⟨Node.entries _, h⟩ => False.elim (nomatch h)
     | ⟨Node.collision keys vals heq, _⟩ =>
-      let entries : Node α β := mkEmptyEntries
-      keys.iterate entries fun i k entries =>
-        let v := vals.get ⟨i.val, by rw [←heq]; exact i.isLt⟩
-        let h := hash k
-        let h := div2Shift h (shift * (depth - 1))
-        insertAux entries h depth k v
+      let rec traverse (i : Nat) (entries : Node α β) : Node α β :=
+        if h : i < keys.size then
+          let k := keys.get ⟨i, h⟩
+          let v := vals.get ⟨i, heq ▸ h⟩
+          let h := hash k
+          let h := div2Shift h (shift * (depth - 1))
+          traverse (i+1) (insertAux entries h depth k v)
+        else
+          entries
+      traverse 0 mkEmptyEntries
 | Node.entries entries, h, depth, k, v =>
   let j     := (mod2Shift h shift).toNat
   Node.entries $ entries.modify j fun entry =>
@@ -257,7 +261,15 @@ variables {m : Type w → Type w'} [Monad m]
 variables {σ : Type w}
 
 @[specialize] partial def foldlMAux (f : σ → α → β → m σ) : Node α β → σ → m σ
-| Node.collision keys vals heq, acc => keys.iterateM acc fun i k acc => f acc k (vals.get ⟨i.val, by rw [←heq]; exact i.isLt⟩)
+| Node.collision keys vals heq, acc =>
+  let rec traverse (i : Nat) (acc : σ) : m σ := do
+    if h : i < keys.size then
+      let k := keys.get ⟨i, h⟩
+      let v := vals.get ⟨i, heq ▸ h⟩
+      traverse (i+1) (← f acc k v)
+    else
+      pure acc
+  traverse 0 acc
 | Node.entries entries, acc => entries.foldlM (fun acc entry =>
   match entry with
   | Entry.null      => pure acc

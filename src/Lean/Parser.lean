@@ -22,8 +22,6 @@ namespace Parenthesizer
 def mkAntiquot.parenthesizer (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parenthesizer :=
   Parser.mkAntiquot.parenthesizer name kind anonymous
 
-#check Parser.Term.ident.parenthesizer
-
 -- The parenthesizer auto-generated these instances correctly, but tagged them with the wrong kind, since the actual kind
 -- (e.g. `ident`) is not equal to the parser name `Lean.Parser.Term.ident`.
 @[builtinParenthesizer ident] def ident.parenthesizer : Parenthesizer := Parser.Term.ident.parenthesizer

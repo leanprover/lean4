@@ -70,7 +70,7 @@ withMVarContext mvarId $ do
   let localDecl  ← getLocalDecl fvarId
   let lctx       ← getLCtx
   let localInsts ← getLocalInstances
-  let fvarIds := lctx.foldlFrom (fun (fvarIds : Array FVarId) decl => fvarIds.push decl.fvarId) #[] (localDecl.index+1)
+  let fvarIds := lctx.foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId
   let xs   := fvarIds.map mkFVar
   let targetNew ← mkForallFVars xs target
   let targetNew := Lean.mkForall userName BinderInfo.default type targetNew

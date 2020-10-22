@@ -9,23 +9,26 @@ import Lean.Parser.Basic
 namespace Lean
 namespace Syntax
 
-def manyToSepBy (stx : Syntax) (sepTk : String) : Syntax :=
+def manyToSepBy (stx : Syntax) (sepTk : String) : Syntax := do
   match stx with
   | node k args =>
-    let args := args.foldlFrom (fun (newArgs : Array Syntax) arg =>
-      let prevArg := newArgs.back
-      match prevArg.getTailInfo with
-      | some info =>
-        let prevArg := prevArg.setTailInfo { trailing := none }
-        let newArgs := newArgs.set! (newArgs.size - 1) prevArg
-        let newArgs := newArgs.push (atom info sepTk)
-        newArgs.push arg
-      | none =>
-        let newArgs := newArgs.push (atom {} sepTk)
-        newArgs.push arg)
-      #[args.get! 0]
-      1
-    node k args
+    if args.size == 0 then
+      stx
+    else
+      let argsNew := #[args[0]]
+      for i in [1:args.size] do
+        let arg  := args[i]
+        let prev := argsNew.back
+        match prev.getTailInfo with
+        | some info =>
+          let prevArg := prev.setTailInfo { trailing := none }
+          argsNew := argsNew.set! (argsNew.size - 1) prev
+          argsNew := argsNew.push (atom info sepTk)
+          argsNew := argsNew.push arg
+        | none =>
+          argsNew := argsNew.push (atom {} sepTk)
+          argsNew := argsNew.push arg
+      node k argsNew
   | stx => stx
 
 def removeParen (stx : Syntax) : Syntax :=

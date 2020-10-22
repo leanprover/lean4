@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -18,75 +19,77 @@ instance (σ : Type) : Monad (ST σ) := inferInstanceAs (Monad (EST _ _))
 -- Auxiliary class for inferring the "state" of `EST` and `ST` monads
 class STWorld (σ : outParam Type) (m : Type → Type)
 
-instance STWorld.trans {σ m n} [STWorld σ m] [MonadLift m n] : STWorld σ n := ⟨⟩
-instance STWorld.base {ε σ} : STWorld σ (EST ε σ) := ⟨⟩
+instance {σ m n} [STWorld σ m] [MonadLift m n] : STWorld σ n := ⟨⟩
+instance {ε σ} : STWorld σ (EST ε σ) := ⟨⟩
 
 @[inline] def runEST {ε α : Type} (x : forall (σ : Type), EST ε σ α) : Except ε α :=
-match x Unit () with
-| EStateM.Result.ok a _     => Except.ok a
-| EStateM.Result.error ex _ => Except.error ex
+  match x Unit () with
+  | EStateM.Result.ok a _     => Except.ok a
+  | EStateM.Result.error ex _ => Except.error ex
 
 @[inline] def runST {α : Type} (x : forall (σ : Type), ST σ α) : α :=
-match x Unit () with
-| EStateM.Result.ok a _     => a
-| EStateM.Result.error ex _ => Empty.rec _ ex
+  match x Unit () with
+  | EStateM.Result.ok a _     => a
+  | EStateM.Result.error ex _ => nomatch ex
 
-instance st2est {ε σ} : MonadLift (ST σ) (EST ε σ) :=
-⟨fun α x s => match x s with
+instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
+  match x s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
-  | EStateM.Result.error ex _ => Empty.rec _ ex⟩
+  | EStateM.Result.error ex _ => nomatch ex⟩
 
 namespace ST
 
 /- References -/
-constant RefPointed : PointedType.{0} := arbitrary _
+constant RefPointed : PointedType.{0}
 
 structure Ref (σ : Type) (α : Type) : Type :=
-(ref : RefPointed.type) (h : Nonempty α)
+  (ref : RefPointed.type) (h : Nonempty α)
 
-instance Ref.inhabited {σ α} [Inhabited α] : Inhabited (Ref σ α) :=
-⟨{ ref := RefPointed.val, h := Nonempty.intro $ arbitrary _}⟩
+instance {σ α} [Inhabited α] : Inhabited (Ref σ α) :=
+  ⟨{ ref := RefPointed.val, h := Nonempty.intro $ arbitrary _}⟩
 
 namespace Prim
 
+set_option pp.all true
 /- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
 private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
-pure $ (Classical.inhabitedOfNonempty r.h).default
+  let inh : Inhabited α := Classical.inhabitedOfNonempty r.h
+  pure $ arbitrary α
 
 @[extern "lean_st_mk_ref"]
 constant mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
 @[extern "lean_st_ref_get"]
 constant Ref.get {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_set"]
-constant Ref.set {σ α} (r : @& Ref σ α) (a : α) : ST σ Unit := arbitrary _
+constant Ref.set {σ α} (r : @& Ref σ α) (a : α) : ST σ Unit
 @[extern "lean_st_ref_swap"]
 constant Ref.swap {σ α} (r : @& Ref σ α) (a : α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_take"]
 unsafe constant Ref.take {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_ptr_eq"]
-constant Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool := arbitrary _
+constant Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool
 
 @[inline] unsafe def Ref.modifyUnsafe {σ α : Type} (r : Ref σ α) (f : α → α) : ST σ Unit := do
-v ← Ref.take r;
-Ref.set r (f v)
+  let v ← Ref.take r
+  Ref.set r (f v)
 
 @[inline] unsafe def Ref.modifyGetUnsafe {σ α β : Type} (r : Ref σ α) (f : α → β × α) : ST σ β := do
-v ← Ref.take r;
-let (b, a) := f v;
-Ref.set r a;
-pure b
+  let v ← Ref.take r
+  let (b, a) := f v
+  Ref.set r a
+  pure b
 
 @[implementedBy Ref.modifyUnsafe]
 def Ref.modify {σ α : Type} (r : Ref σ α) (f : α → α) : ST σ Unit := do
-v ← Ref.get r;
-Ref.set r (f v)
+  let v ← Ref.get r
+  Ref.set r (f v)
 
 @[implementedBy Ref.modifyGetUnsafe]
 def Ref.modifyGet {σ α β : Type} (r : Ref σ α) (f : α → β × α) : ST σ β := do
-v ← Ref.get r;
-let (b, a) := f v;
-Ref.set r a;
-pure b
+  let v ← Ref.get r
+  let (b, a) := f v
+  Ref.set r a
+  pure b
 
 end Prim
 

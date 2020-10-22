@@ -108,6 +108,7 @@ lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkForall___lambda__1___
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_check___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_lambdaLetTelescope___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
+lean_object* l_Init_System_IO___instance__4(lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_check___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_ReaderT_MonadLift___closed__1;
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -121,7 +122,6 @@ extern lean_object* l_Lean_Core_Lean_CoreM___instance__3;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 extern lean_object* l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkApp_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_EIO_MonadExceptOf(lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_getFunctionDomain_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkLambdaLet___at___private_Lean_Meta_Check_0__Lean_Meta_checkAux___spec__3___closed__1;
@@ -1637,7 +1637,7 @@ static lean_object* _init_l___private_Lean_Meta_Check_0__Lean_Meta_checkApp___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = l_EIO_MonadExceptOf(lean_box(0));
+x_1 = l_Init_System_IO___instance__4(lean_box(0));
 return x_1;
 }
 }

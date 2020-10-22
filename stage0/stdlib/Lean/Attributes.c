@@ -246,7 +246,6 @@ lean_object* l_Array_binSearchAux___main___at_Lean_ParametricAttribute_getParam_
 extern lean_object* l_Lean_Environment_evalConstCheck___rarg___closed__1;
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
 lean_object* l_Lean_TODELETE_pushScopeCore(lean_object*, lean_object*, uint8_t);
-extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l_Lean_attrParamSyntaxToIdentifier(lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
 lean_object* l_Lean_TagAttribute_Lean_Attributes___instance__5___closed__1;
@@ -295,6 +294,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean
 lean_object* l_IO_ofExcept___at_Lean_mkAttributeImplOfBuilder___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getBuiltinAttributeNames___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Attributes___instance__2___closed__6;
+extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Lean_getAttributeImpl___boxed(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_EnumAttributes_getValue___spec__2(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4000,7 +4000,7 @@ lean_object* l_Lean_attributeExtension___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

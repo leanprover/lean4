@@ -453,7 +453,12 @@ def toggleInsideQuot.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.unquotedSymbol] def unquotedSymbol.parenthesizer := visitToken
 
 @[combinatorParenthesizer Lean.Parser.interpolatedStr]
-def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := throwError "NIY"
+def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+  visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>
+    if chunk.isOfKind interpolatedStrLitKind then
+      goLeft
+    else
+      p
 
 @[combinatorParenthesizer ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e

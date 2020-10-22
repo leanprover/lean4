@@ -392,7 +392,11 @@ def toggleInsideQuot.formatter (p : Formatter) : Formatter := p
     push "`"; goLeft
 
 @[combinatorFormatter Lean.Parser.interpolatedStr]
-def interpolatedStr.formatter (p : Formatter) : Formatter := throwError "NIY"
+def interpolatedStr.formatter (p : Formatter) : Formatter := do
+  visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>
+    match chunk.isLit? interpolatedStrLitKind with
+    | some str => push str *> goLeft
+    | none     => p
 
 @[combinatorFormatter Lean.Parser.unquotedSymbol] def unquotedSymbol.formatter := visitAtom Name.anonymous
 

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -13,47 +14,45 @@ open Platform
 
 /-- The character that separates directories. In the case where more than one character is possible, `pathSeparator` is the 'ideal' one. -/
 def pathSeparator : Char :=
-if isWindows then '\\' else '/'
+  if isWindows then '\\' else '/'
 
 /-- The list of all possible separators. -/
 def pathSeparators : List Char :=
-if isWindows then ['\\', '/'] else ['/']
+  if isWindows then ['\\', '/'] else ['/']
 
 /-- The character that is used to separate the entries in the $PATH environment variable. -/
 def searchPathSeparator : Char :=
-if isWindows then ';' else ':'
+  if isWindows then ';' else ':'
 
 /-- The list of all possible separators. -/
 def searchPathSeparators : List Char :=
-if isWindows then [';', ':'] else [':']
+  if isWindows then [';', ':'] else [':']
 
 def splitSearchPath (s : String) : List String :=
-s.split (fun c => searchPathSeparators.elem c)
+  s.split (fun c => searchPathSeparators.elem c)
 
 /-- File extension character -/
-def extSeparator : Char :=
-'.'
+def extSeparator : Char := '.'
 
 /-- Case-insensitive file system -/
-def isCaseInsensitive : Bool :=
-isWindows || isOSX
+def isCaseInsensitive : Bool := isWindows || isOSX
 
 def normalizePath (fname : String) : String :=
-if pathSeparators.length == 1 && !isCaseInsensitive then fname
-else fname.map (fun c =>
-  if pathSeparators.any (fun c' => c == c') then pathSeparator
-  -- else if isCaseInsensitive then c.toLower
-  else c)
+  if pathSeparators.length == 1 && !isCaseInsensitive then fname
+  else fname.map fun c =>
+    if pathSeparators.any (fun c' => c == c') then pathSeparator
+    -- else if isCaseInsensitive then c.toLower
+    else c
 
 def dirName (fname : String) : String :=
-let fname := normalizePath fname;
-match fname.revPosOf pathSeparator with
-| none => "."
-| some pos => { str := fname, startPos := 0, stopPos := pos : Substring }.toString
+  let fname := normalizePath fname
+  match fname.revPosOf pathSeparator with
+  | none => "."
+  | some pos => { str := fname, startPos := 0, stopPos := pos : Substring }.toString
 
 end FilePath
 
 def mkFilePath (parts : List String) : String :=
-String.intercalate FilePath.pathSeparator.toString parts
+  String.intercalate FilePath.pathSeparator.toString parts
 
 end System

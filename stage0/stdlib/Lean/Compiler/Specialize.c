@@ -140,7 +140,6 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean
 lean_object* l_Lean_Compiler_hasSpecializeAttribute___boxed(lean_object*, lean_object*);
 uint8_t lean_has_specialize_attribute(lean_object*, lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
-extern lean_object* l_IO_Error_Inhabited___closed__1;
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
 uint8_t l_Std_AssocList_contains___at_Lean_Compiler_SpecState_addEntry___spec__7(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux_match__2(lean_object*);
@@ -169,6 +168,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean
 lean_object* l_Array_iterateMAux___main___at_Lean_Compiler_SpecState_addEntry___spec__5(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__4___closed__1;
 lean_object* lean_cache_specialization(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Array_qsortAux___main___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_addEntry_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -4471,7 +4471,7 @@ lean_object* l_Lean_Compiler_specExtension___elambda__4___rarg(lean_object* x_1)
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

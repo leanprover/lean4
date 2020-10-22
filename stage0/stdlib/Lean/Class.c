@@ -161,7 +161,6 @@ lean_object* l_Lean_initFn____x40_Lean_Class___hyg_153____closed__1;
 lean_object* l_Lean_classExtension___elambda__4___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l_Std_PersistentHashMap_contains___at_Lean_isInstance___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_insert___at_Lean_ClassState_addEntry___spec__12(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
@@ -192,6 +191,7 @@ size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_replace___at_Lean_ClassState_addEntry___spec__11(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_getClassName_match__3(lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Std_HashMapImp_expand___at_Lean_ClassState_addEntry___spec__8(lean_object*, lean_object*);
 lean_object* l_Lean_ClassState_Lean_Class___instance__1___closed__1;
@@ -3172,7 +3172,7 @@ lean_object* l_Lean_classExtension___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

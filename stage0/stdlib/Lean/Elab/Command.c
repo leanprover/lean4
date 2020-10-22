@@ -423,7 +423,6 @@ lean_object* l_Lean_Name_getNumParts(lean_object*);
 lean_object* l_Lean_Elab_Command_hasNoErrorMessages(lean_object*);
 lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__12___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_Command_elabCommand___spec__1(lean_object*, lean_object*);
-extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabEnd___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabUniverses___closed__1;
 lean_object* l_Lean_Elab_Command_liftCoreM_match__2___rarg(lean_object*, lean_object*);
@@ -519,6 +518,7 @@ lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__13___closed__1;
 lean_object* l_Lean_Elab_Command_elabEnd_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_addUnivLevel(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_setOption___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 extern lean_object* l_Lean_Meta_State_inhabited___closed__1;
 lean_object* l_Lean_evalConst___at_Lean_Elab_Command_elabEvalUnsafe___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_resetMessageLog(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3398,7 +3398,7 @@ lean_object* l_Lean_Elab_Command_mkCommandElabAttribute(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

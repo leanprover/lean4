@@ -72,7 +72,6 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean
 lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
 lean_object* l_Lean_TODELETE_pushScopeCore(lean_object*, lean_object*, uint8_t);
-extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l_Lean_TODELETE_hasOpenScopes___boxed(lean_object*);
 lean_object* l_Lean_TODELETE_ScopeManagerState_saveNamespace(lean_object*, lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_TODELETE_regScopeManagerExtension___spec__1___boxed(lean_object*, lean_object*);
@@ -80,6 +79,7 @@ lean_object* l_Lean_TODELETE_getScopeHeader_match__1___rarg(lean_object*, lean_o
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 uint8_t lean_has_open_scopes(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
@@ -621,7 +621,7 @@ lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__4___rarg(lean_object* x_
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

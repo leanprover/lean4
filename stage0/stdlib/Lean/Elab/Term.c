@@ -145,6 +145,7 @@ lean_object* l_Lean_Elab_Term_State_letRecsToLift___default;
 lean_object* l_Lean_MacroScopesView_format(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_tryCoe___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_metavar_ctx_get_expr_assignment(lean_object*, lean_object*);
+lean_object* l_IO_println___at_Lean_Init_System_IO___instance__10___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabImplicitLambdaAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_saveAllState(lean_object*);
@@ -392,7 +393,6 @@ lean_object* l_Lean_Elab_Term_mkConst___boxed(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Elab_Term_resolveName_match__1(lean_object*);
 extern lean_object* l_Lean_Meta_evalNat___closed__7;
 lean_object* l_Lean_Elab_Term_Lean_Elab_Term___instance__8___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_println___at_Lean_HasRepr_hasEval___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_MVarErrorInfo_logError___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_tryCoeSort(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_TermElabM_run(lean_object*);
@@ -547,7 +547,6 @@ lean_object* l_Std_AssocList_find_x3f___at___private_Lean_Elab_Term_0__Lean_Elab
 lean_object* l_Lean_Elab_Term_Lean_Elab_Term___instance__12___closed__6;
 lean_object* l_Lean_Elab_Term_getCurrMacroScope___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__6;
-extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l_Lean_Elab_Term_Lean_Elab_Term___instance__11___closed__3;
 lean_object* l_Lean_Elab_Term_expandArrayLit___closed__9;
 lean_object* l_Lean_Elab_Term_getMessageLog___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -659,6 +658,7 @@ lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_getFunctionDomain(lean_obj
 extern lean_object* l_Lean_Meta_evalNat___closed__6;
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_912____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getDeclName_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Lean_Elab_setMacroStackOption(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Term_Lean_Elab_Term___instance__4___closed__1;
 extern lean_object* l_Lean_Meta_State_inhabited___closed__1;
@@ -3634,7 +3634,7 @@ lean_object* l_Lean_Elab_Term_mkTermElabAttribute(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -34371,7 +34371,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
-x_6 = l_IO_println___at_Lean_HasRepr_hasEval___spec__1(x_4, x_5);
+x_6 = l_IO_println___at_Lean_Init_System_IO___instance__10___spec__1(x_4, x_5);
 return x_6;
 }
 else

@@ -120,7 +120,6 @@ extern lean_object* l_Lean_Meta_DiscrTree_Lean_Meta_DiscrTree___instance__4___cl
 lean_object* l_Lean_Meta_instanceExtension___elambda__1(lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_addInstanceEntry___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addInstanceEntry___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addGlobalInstance___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
@@ -143,6 +142,7 @@ lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____lambda__
 lean_object* l_Lean_Meta_addGlobalInstanceImp___closed__4;
 lean_object* l___private_Lean_Meta_Instances_0__Lean_Meta_mkInstanceKey___closed__1;
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertVal___at_Lean_Meta_addInstanceEntry___spec__10(lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 extern lean_object* l_Lean_Meta_State_inhabited___closed__1;
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* lean_add_instance(lean_object*, lean_object*, lean_object*);
@@ -1908,7 +1908,7 @@ lean_object* l_Lean_Meta_instanceExtension___elambda__4___rarg(lean_object* x_1)
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

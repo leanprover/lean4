@@ -237,7 +237,6 @@ lean_object* l_Lean_Elab_Term_Do_convertTerminalActionIntoJmp_loop(lean_object*,
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___spec__2___closed__11;
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__2___closed__6;
 lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___rarg___lambda__5___closed__2;
-extern lean_object* l_EST_Monad___closed__1;
 extern lean_object* l_PUnit_HasRepr___closed__1;
 lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_varsToMessageData___boxed(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_CodeBlocl_toMessageData_loop___closed__13;
@@ -935,6 +934,7 @@ lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at___p
 lean_object* l_Lean_Elab_Term_Do_ToTerm_matchNestedTermResult___closed__36;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_Do_concat___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_Do_ToCodeBlock_doMatchToCode___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_System_ST___instance__1___closed__1;
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_Do_mkJmp___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Elab_Term_Do_extendUpdatedVarsAux_update___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16725,7 +16725,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_EST_Monad___closed__1;
+x_1 = l_Init_System_ST___instance__1___closed__1;
 x_2 = l_Lean_Syntax_inhabited;
 x_3 = l_monadInhabited___rarg(x_1, x_2);
 return x_3;
@@ -27224,7 +27224,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_EST_Monad___closed__1;
+x_2 = l_Init_System_ST___instance__1___closed__1;
 x_3 = l_monadInhabited___rarg(x_2, x_1);
 return x_3;
 }

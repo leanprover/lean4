@@ -111,7 +111,6 @@ lean_object* lean_get_regular_init_fn_name_for(lean_object*, lean_object*);
 lean_object* l_Lean_registerInitAttr___rarg(lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerInitAttrUnsafe___spec__13(lean_object*, lean_object*);
-extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_Lean_attrParamSyntaxToIdentifier(lean_object*);
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
@@ -137,6 +136,7 @@ uint8_t l_Lean_hasInitAttr(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_setParam___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType_match__1(lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_registerInitAttrUnsafe___spec__10(lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 extern lean_object* l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__1;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_List_filterAux___main___at_Lean_resolveGlobalConst___spec__1(lean_object*, lean_object*);
@@ -2916,7 +2916,7 @@ lean_object* l_Lean_registerInitAttr___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

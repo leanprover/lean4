@@ -327,7 +327,6 @@ lean_object* l_Lean_EnvExtension_setState___rarg___boxed(lean_object*, lean_obje
 lean_object* l_Lean_Environment_evalConstCheck___rarg___closed__1;
 lean_object* l_Lean_importModulesAux_match__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_persistentEnvExtensionsRef;
-extern lean_object* l_IO_Error_Inhabited___closed__1;
 lean_object* lean_environment_add(lean_object*, lean_object*);
 lean_object* lean_save_module_data(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_importModulesAux_match__2(lean_object*);
@@ -395,6 +394,7 @@ uint8_t l_Std_AssocList_contains___at_Lean_Environment_addAux___spec__7(lean_obj
 lean_object* l_fix1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp;
 lean_object* l_Lean_namespacesExt___elambda__2___boxed(lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Lean_Environment_Lean_Environment___instance__4___closed__3;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2___closed__1;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -2984,7 +2984,7 @@ lean_object* l_Lean_EnvExtensionInterfaceUnsafe_Lean_Environment___instance__6__
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -4418,7 +4418,7 @@ lean_object* l_Lean_Lean_Environment___instance__10___lambda__1(lean_object* x_1
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_IO_Error_Inhabited___closed__1;
+x_4 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_5 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
@@ -5132,7 +5132,7 @@ lean_object* l_Lean_registerPersistentEnvExtension___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -10007,7 +10007,7 @@ lean_object* l_Lean_namespacesExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Inhabited___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

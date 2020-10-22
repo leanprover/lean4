@@ -180,7 +180,6 @@ uint8_t l_Std_PersistentArray_anyMAux___at___private_Lean_MetavarContext_0__Lean
 lean_object* l_Lean_MetavarContext_renameMVar(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_collectDeps___spec__27(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_collectDeps___spec__25___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_EST_Monad___closed__1;
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 lean_object* l_Array_filterAux___main___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVarDepsAux_elimApp___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__3;
@@ -763,6 +762,7 @@ lean_object* l_Lean_MetavarContext_instantiateMVarDeclMVars(lean_object*, lean_o
 lean_object* lean_mk_metavar_decl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_anyRangeMAux___main___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVarDepsAux_elimApp___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_MetavarContext_addLevelMVarDecl___spec__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_System_ST___instance__1___closed__1;
 lean_object* l_Lean_LocalContext_foldlM___at_Lean_MetavarContext_instantiateLCtxMVars___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_MkBinding_preserveOrder___boxed(lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_MetavarContext_exprDependsOn___spec__10(lean_object*, lean_object*);
@@ -35521,7 +35521,7 @@ static lean_object* _init_l_Lean_MetavarContext_MkBinding_mkBinding___closed__1(
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_EST_Monad___closed__1;
+x_1 = l_Init_System_ST___instance__1___closed__1;
 x_2 = l_ReaderT_Monad___rarg(x_1);
 return x_2;
 }

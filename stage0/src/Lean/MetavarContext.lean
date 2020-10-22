@@ -716,13 +716,13 @@ instance : MonadHashMapCacheAdapter Expr Expr M := {
 }
 
 /-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
-private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl :=
-  let d : LocalDecl := lctx.getFVar! $ xs.get! 0
-  xs.foldlFrom
-    (fun d x =>
-      let decl := lctx.getFVar! x;
-      if decl.index < d.index then decl else d)
-    d 1
+private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl := do
+  let d : LocalDecl := lctx.getFVar! xs[0]
+  for i in [1:xs.size] do
+    let curr := lctx.getFVar! xs[i]
+    if curr.index < d.index then
+      d := curr
+  return d
 
 /--
   Given `toRevert` an array of free variables s.t. `lctx` contains their declarations,
@@ -775,17 +775,14 @@ private def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert 
     let newToRevert      := if preserveOrder then toRevert else Array.mkEmpty toRevert.size
     let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert
     let initSize         := newToRevert.size
-    lctx.foldlFromM
-      (fun (newToRevert : Array Expr) decl =>
+    lctx.foldlM (init := newToRevert) (start := firstDeclToVisit.index) fun (newToRevert : Array Expr) decl =>
         if initSize.any $ fun i => decl.fvarId == (newToRevert.get! i).fvarId! then pure newToRevert
         else if toRevert.any (fun x => decl.fvarId == x.fvarId!) then
           pure (newToRevert.push decl.toExpr)
         else if findLocalDeclDependsOn mctx decl (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) then
           pure (newToRevert.push decl.toExpr)
         else
-          pure newToRevert)
-      newToRevert
-      firstDeclToVisit.index
+          pure newToRevert
 
 /-- Create a new `LocalContext` by removing the free variables in `toRevert` from `lctx`.
     We use this function when we create auxiliary metavariables at `elimMVarDepsAux`. -/

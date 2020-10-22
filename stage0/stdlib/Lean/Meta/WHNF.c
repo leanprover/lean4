@@ -19,6 +19,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_getStuckMVarImp_x3f_match__
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isIdRhsApp___boxed(lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceNative_x3f___closed__2;
+extern lean_object* l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___closed__1;
 lean_object* l_Lean_Meta_whnfImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isIdRhsApp___closed__1;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
@@ -280,7 +281,6 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_unfoldDefinitionImp_x3f_mat
 lean_object* l_Lean_Meta_toCtorIfLit___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_cache___closed__1;
-extern lean_object* l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
 lean_object* l_Lean_Meta_toCtorIfLit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__13;
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_cache___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16138,7 +16138,7 @@ static lean_object* _init_l_Lean_Meta_reduceBinNatOp___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
+x_1 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___closed__1;
 x_2 = l_Lean_Meta_reduceBinNatOp___closed__5;
 x_3 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -16192,7 +16192,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_reduceBinNatOp___closed__10;
-x_2 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
+x_2 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___closed__1;
 x_3 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -16683,7 +16683,7 @@ x_106 = l_Lean_Meta_reduceBinNatOp___closed__9;
 x_107 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_107, 0, x_106);
 lean_ctor_set(x_107, 1, x_105);
-x_108 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
+x_108 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___closed__1;
 x_109 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_109, 0, x_107);
 lean_ctor_set(x_109, 1, x_108);
@@ -17259,7 +17259,7 @@ x_234 = l_Lean_Meta_reduceBinNatOp___closed__9;
 x_235 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_235, 0, x_234);
 lean_ctor_set(x_235, 1, x_233);
-x_236 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
+x_236 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___closed__1;
 x_237 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_237, 0, x_235);
 lean_ctor_set(x_237, 1, x_236);
@@ -17675,7 +17675,7 @@ lean_inc(x_292);
 x_317 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_292);
 x_318 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_318, 0, x_317);
-x_319 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
+x_319 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___closed__1;
 x_320 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_320, 0, x_319);
 lean_ctor_set(x_320, 1, x_318);
@@ -17926,7 +17926,7 @@ lean_inc(x_292);
 x_381 = l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(x_292);
 x_382 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_382, 0, x_381);
-x_383 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
+x_383 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___closed__1;
 x_384 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_384, 0, x_383);
 lean_ctor_set(x_384, 1, x_382);

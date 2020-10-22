@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_extractMacroScopes(lean_object*);
+extern lean_object* l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___closed__1;
 lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__1___closed__2;
 lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2___closed__14;
 lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2___closed__5;
@@ -141,7 +142,6 @@ lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__1(uint8_t);
 lean_object* l_Lean_Elab_mkDeclName___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Lean_Elab_Attributes___instance__1___closed__4;
-extern lean_object* l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_expandDeclId___spec__1(lean_object*);
 lean_object* l_Lean_Elab_expandDeclId___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Modifiers_isPrivate___boxed(lean_object*);
@@ -2419,7 +2419,7 @@ x_41 = l_Lean_Elab_elabModifiers___rarg___closed__2;
 x_42 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_40);
-x_43 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
+x_43 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___closed__1;
 x_44 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_44, 0, x_42);
 lean_ctor_set(x_44, 1, x_43);
@@ -2476,7 +2476,7 @@ x_61 = l_Lean_Elab_elabModifiers___rarg___closed__2;
 x_62 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_62, 0, x_61);
 lean_ctor_set(x_62, 1, x_60);
-x_63 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__4___closed__1;
+x_63 = l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___closed__1;
 x_64 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_64, 0, x_62);
 lean_ctor_set(x_64, 1, x_63);

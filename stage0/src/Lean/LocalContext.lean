@@ -258,11 +258,10 @@ universes u v
 variables {m : Type u → Type v} [Monad m]
 variable {β : Type u}
 
-@[specialize] def foldlM (lctx : LocalContext) (f : β → LocalDecl → m β) (b : β) : m β :=
-  lctx.decls.foldlM (fun b decl => match decl with
+@[specialize] def foldlM (lctx : LocalContext) (f : β → LocalDecl → m β) (init : β) (start : Nat := 0) : m β :=
+  lctx.decls.foldlM (init := init) (start := start) fun b decl => match decl with
     | none      => pure b
-    | some decl => f b decl)
-    b
+    | some decl => f b decl
 
 @[specialize] def forM (lctx : LocalContext) (f : LocalDecl → m PUnit) : m PUnit :=
   lctx.decls.forM $ fun decl => match decl with
@@ -279,25 +278,16 @@ variable {β : Type u}
     | none      => pure none
     | some decl => f decl
 
-@[specialize] def foldlFromM (lctx : LocalContext) (f : β → LocalDecl → m β) (b : β) (index : Nat) : m β :=
-  lctx.decls.foldlFromM (fun b decl => match decl with
-    | none      => pure b
-    | some decl => f b decl)
-    b index
-
 end
 
-@[inline] def foldl {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) : β :=
-  Id.run $ lctx.foldlM f b
+@[inline] def foldl {β} (lctx : LocalContext) (f : β → LocalDecl → β) (init : β) (start : Nat := 0) : β :=
+  Id.run $ lctx.foldlM f init start
 
 @[inline] def findDecl? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
   Id.run $ lctx.findDeclM? f
 
 @[inline] def findDeclRev? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
   Id.run $ lctx.findDeclRevM? f
-
-@[inline] def foldlFrom {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) (index : Nat) : β :=
-  Id.run $ lctx.foldlFromM f b index
 
 partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Array Expr) (i j : Nat) : Bool :=
   if i < a₁.size then

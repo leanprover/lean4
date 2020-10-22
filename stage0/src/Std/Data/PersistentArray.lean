@@ -190,13 +190,26 @@ section
 variables {m : Type v → Type w} [Monad m]
 variable {β : Type v}
 
-@[specialize] partial def foldlMAux (f : β → α → m β) : PersistentArrayNode α → β → m β
+@[specialize] private partial def foldlMAux (f : β → α → m β) : PersistentArrayNode α → β → m β
 | node cs, b => cs.foldlM (fun b c => foldlMAux f c b) b
 | leaf vs, b => vs.foldlM f b
 
-@[specialize] def foldlM (t : PersistentArray α) (f : β → α → m β) (init : β) : m β := do
-let b ← foldlMAux f t.root init
-t.tail.foldlM f b
+@[specialize] private partial def foldlFromMAux (f : β → α → m β) : PersistentArrayNode α → USize → USize → β → m β
+| node cs, i, shift, b => do
+  let j    := (div2Shift i shift).toNat
+  let b ← foldlFromMAux f (cs.get! j) (mod2Shift i shift) (shift - initShift) b
+  cs.foldlFromM (fun b c => foldlMAux f c b) b (j+1)
+| leaf vs, i, _, b => vs.foldlFromM f b i.toNat
+
+@[specialize] def foldlM (t : PersistentArray α) (f : β → α → m β) (init : β) (start : Nat := 0) : m β := do
+if start == 0 then
+  let b ← foldlMAux f t.root init
+  t.tail.foldlM f b
+else if start >= t.tailOff then
+  t.tail.foldlFromM f init (start - t.tailOff)
+else do
+  let b ← foldlFromMAux f t.root (USize.ofNat start) t.shift init;
+  t.tail.foldlM f b
 
 @[specialize]
 partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
@@ -245,20 +258,6 @@ match b with
 | none   => findSomeRevMAux f t.root
 | some b => pure (some b)
 
-partial def foldlFromMAux (f : β → α → m β) : PersistentArrayNode α → USize → USize → β → m β
-| node cs, i, shift, b => do
-  let j    := (div2Shift i shift).toNat
-  let b ← foldlFromMAux f (cs.get! j) (mod2Shift i shift) (shift - initShift) b
-  cs.foldlFromM (fun b c => foldlMAux f c b) b (j+1)
-| leaf vs, i, _, b => vs.foldlFromM f b i.toNat
-
-def foldlFromM (t : PersistentArray α) (f : β → α → m β) (init : β) (start : Nat) : m β :=
-if start >= t.tailOff then
-  t.tail.foldlFromM f init (start - t.tailOff)
-else do
-  let b ← foldlFromMAux f t.root (USize.ofNat start) t.shift init;
-  t.tail.foldlM f b
-
 @[specialize] partial def forMAux (f : α → m PUnit) : PersistentArrayNode α → m PUnit
 | node cs => cs.forM (fun c => forMAux f c)
 | leaf vs => vs.forM f
@@ -268,8 +267,8 @@ forMAux f t.root *> t.tail.forM f
 
 end
 
-@[inline] def foldl {β} (t : PersistentArray α) (f : β → α → β) (init : β) : β :=
-Id.run (t.foldlM f init)
+@[inline] def foldl {β} (t : PersistentArray α) (f : β → α → β) (init : β) (start : Nat := 0) : β :=
+Id.run (t.foldlM f init start)
 
 @[inline] def filter (as : PersistentArray α) (p : α → Bool) : PersistentArray α :=
 as.foldl (fun asNew a => if p a then asNew.push a else asNew) {}
@@ -288,9 +287,6 @@ Id.run (t.findSomeM? f)
 
 @[inline] def findSomeRev? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
 Id.run (t.findSomeRevM? f)
-
-@[inline] def foldlFrom {β} (t : PersistentArray α) (f : β → α → β) (b : β) (ini : Nat) : β :=
-Id.run (t.foldlFromM f b ini)
 
 def toList (t : PersistentArray α) : List α :=
 (t.foldl (fun xs x => x :: xs) []).reverse

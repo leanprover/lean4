@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitExpr___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_params___default;
-lean_object* l_List_foldl___main___at_Lean_CollectLevelParams_visitLevel___spec__5(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_CollectLevelParams_visitLevel(lean_object*, lean_object*, lean_object*);
@@ -31,7 +30,7 @@ lean_object* l_Lean_CollectLevelParams_State_visitedLevel___default;
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 uint8_t l_List_elem___main___at_Lean_CollectLevelParams_visitExpr___spec__2(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7___boxed(lean_object*, lean_object*);
+lean_object* l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam_loop(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -39,22 +38,21 @@ uint8_t l_List_elem___main___at_Lean_CollectLevelParams_visitLevel___spec__2(lea
 lean_object* l_List_foldl___main___at_Lean_CollectLevelParams_main___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam___boxed(lean_object*, lean_object*);
-lean_object* l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitLevel___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_main_match__1(lean_object*);
 lean_object* l_Lean_CollectLevelParams_visitExpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitExpr___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
+lean_object* l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_mkHashSet___at_Lean_CollectLevelParams_State_visitedExpr___default___spec__1(lean_object*);
+uint8_t l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_main_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam_loop___boxed(lean_object*, lean_object*, lean_object*);
 size_t l_Lean_Expr_hash(lean_object*);
+lean_object* l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitLevel___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_main(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Std_HashSetImp_moveEntries___at_Lean_CollectLevelParams_visitExpr___spec__5(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__6___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__6(lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitExpr___spec__4(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_inhabited___closed__1;
@@ -62,13 +60,13 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 extern lean_object* l_Std_HashSet_Std_Data_HashSet___instance__1___closed__1;
 lean_object* l_Lean_CollectLevelParams_collect_match__1(lean_object*);
 lean_object* l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(lean_object*, lean_object*);
-lean_object* l_Std_HashSetImp_moveEntries___at_Lean_CollectLevelParams_visitLevel___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_elem___main___at_Lean_CollectLevelParams_visitLevel___spec__2___boxed(lean_object*, lean_object*);
-lean_object* l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_visitedExpr___default___closed__1;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_List_foldl___main___at_Lean_CollectLevelParams_visitLevel___spec__6(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_State_inhabited;
 lean_object* l_Lean_CollectLevelParams_State_visitedExpr___default;
 lean_object* l_List_elem___main___at_Lean_CollectLevelParams_visitExpr___spec__2___boxed(lean_object*, lean_object*);
@@ -76,7 +74,9 @@ lean_object* l_List_foldl___main___at_Lean_CollectLevelParams_visitExpr___spec__
 lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* l_Lean_collectLevelParams(lean_object*, lean_object*);
 uint8_t lean_level_eq(lean_object*, lean_object*);
+lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_collect_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_HashSetImp_moveEntries___at_Lean_CollectLevelParams_visitLevel___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashSet___at_Lean_CollectLevelParams_State_visitedLevel___default___spec__1(lean_object*);
 uint8_t l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -188,7 +188,22 @@ return x_8;
 }
 }
 }
-lean_object* l_List_foldl___main___at_Lean_CollectLevelParams_visitLevel___spec__5(lean_object* x_1, lean_object* x_2) {
+uint8_t l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; uint8_t x_8; 
+x_3 = lean_ctor_get(x_1, 1);
+x_4 = lean_array_get_size(x_3);
+x_5 = l_Lean_Level_hash(x_2);
+x_6 = lean_usize_modn(x_5, x_4);
+lean_dec(x_4);
+x_7 = lean_array_uget(x_3, x_6);
+x_8 = l_List_elem___main___at_Lean_CollectLevelParams_visitLevel___spec__2(x_2, x_7);
+lean_dec(x_7);
+return x_8;
+}
+}
+lean_object* l_List_foldl___main___at_Lean_CollectLevelParams_visitLevel___spec__6(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -239,7 +254,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashSetImp_moveEntries___at_Lean_CollectLevelParams_visitLevel___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_HashSetImp_moveEntries___at_Lean_CollectLevelParams_visitLevel___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -258,7 +273,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_array_fget(x_2, x_1);
 x_7 = lean_box(0);
 x_8 = lean_array_fset(x_2, x_1, x_7);
-x_9 = l_List_foldl___main___at_Lean_CollectLevelParams_visitLevel___spec__5(x_3, x_6);
+x_9 = l_List_foldl___main___at_Lean_CollectLevelParams_visitLevel___spec__6(x_3, x_6);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_add(x_1, x_10);
 lean_dec(x_1);
@@ -269,7 +284,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitLevel___spec__3(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitLevel___spec__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -280,14 +295,14 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Std_HashSetImp_moveEntries___at_Lean_CollectLevelParams_visitLevel___spec__4(x_8, x_2, x_7);
+x_9 = l_Std_HashSetImp_moveEntries___at_Lean_CollectLevelParams_visitLevel___spec__5(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);
 return x_10;
 }
 }
-lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__7(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -308,7 +323,7 @@ x_7 = lean_level_eq(x_5, x_2);
 if (x_7 == 0)
 {
 lean_object* x_8; 
-x_8 = l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__6(x_6, x_2, x_3);
+x_8 = l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__7(x_6, x_2, x_3);
 lean_ctor_set(x_1, 1, x_8);
 return x_1;
 }
@@ -331,7 +346,7 @@ x_11 = lean_level_eq(x_9, x_2);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__6(x_10, x_2, x_3);
+x_12 = l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__7(x_10, x_2, x_3);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_9);
 lean_ctor_set(x_13, 1, x_12);
@@ -350,7 +365,7 @@ return x_14;
 }
 }
 }
-lean_object* l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -381,7 +396,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; 
 lean_free_object(x_1);
-x_16 = l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitLevel___spec__3(x_12, x_14);
+x_16 = l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitLevel___spec__4(x_12, x_14);
 return x_16;
 }
 else
@@ -396,7 +411,7 @@ else
 lean_object* x_17; lean_object* x_18; 
 lean_dec(x_6);
 lean_inc(x_2);
-x_17 = l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__6(x_9, x_2, x_2);
+x_17 = l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__7(x_9, x_2, x_2);
 lean_dec(x_2);
 x_18 = lean_array_uset(x_5, x_8, x_17);
 lean_ctor_set(x_1, 1, x_18);
@@ -431,7 +446,7 @@ lean_dec(x_21);
 if (x_30 == 0)
 {
 lean_object* x_31; 
-x_31 = l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitLevel___spec__3(x_27, x_29);
+x_31 = l_Std_HashSetImp_expand___at_Lean_CollectLevelParams_visitLevel___spec__4(x_27, x_29);
 return x_31;
 }
 else
@@ -448,7 +463,7 @@ else
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 lean_dec(x_21);
 lean_inc(x_2);
-x_33 = l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__6(x_24, x_2, x_2);
+x_33 = l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__7(x_24, x_2, x_2);
 lean_dec(x_2);
 x_34 = lean_array_uset(x_20, x_23, x_33);
 x_35 = lean_alloc_ctor(0, 2, 0);
@@ -457,21 +472,6 @@ lean_ctor_set(x_35, 1, x_34);
 return x_35;
 }
 }
-}
-}
-uint8_t l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; uint8_t x_8; 
-x_3 = lean_ctor_get(x_1, 1);
-x_4 = lean_array_get_size(x_3);
-x_5 = l_Lean_Level_hash(x_2);
-x_6 = lean_usize_modn(x_5, x_4);
-lean_dec(x_4);
-x_7 = lean_array_uget(x_3, x_6);
-x_8 = l_List_elem___main___at_Lean_CollectLevelParams_visitLevel___spec__2(x_2, x_7);
-lean_dec(x_7);
-return x_8;
 }
 }
 lean_object* l_Lean_CollectLevelParams_visitLevel(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -494,7 +494,7 @@ x_6 = lean_ctor_get(x_3, 1);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_3, 2);
 lean_inc(x_7);
-x_8 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_5, x_2);
+x_8 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_5, x_2);
 if (x_8 == 0)
 {
 uint8_t x_9; 
@@ -509,7 +509,7 @@ lean_dec(x_11);
 x_12 = lean_ctor_get(x_3, 0);
 lean_dec(x_12);
 lean_inc(x_2);
-x_13 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_5, x_2);
+x_13 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_5, x_2);
 lean_ctor_set(x_3, 0, x_13);
 x_14 = lean_apply_2(x_1, x_2, x_3);
 return x_14;
@@ -519,7 +519,7 @@ else
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_dec(x_3);
 lean_inc(x_2);
-x_15 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_5, x_2);
+x_15 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_5, x_2);
 x_16 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_6);
@@ -551,23 +551,23 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__6(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-lean_object* l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_1, x_2);
+x_3 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
+return x_4;
+}
+}
+lean_object* l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_replace___main___at_Lean_CollectLevelParams_visitLevel___spec__7(x_1, x_2, x_3);
+lean_dec(x_2);
 return x_4;
 }
 }
@@ -685,7 +685,7 @@ x_6 = lean_ctor_get(x_2, 1);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 2);
 lean_inc(x_7);
-x_8 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_5, x_3);
+x_8 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_5, x_3);
 if (x_8 == 0)
 {
 uint8_t x_9; 
@@ -700,7 +700,7 @@ lean_dec(x_11);
 x_12 = lean_ctor_get(x_2, 0);
 lean_dec(x_12);
 lean_inc(x_3);
-x_13 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_5, x_3);
+x_13 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_5, x_3);
 lean_ctor_set(x_2, 0, x_13);
 x_1 = x_3;
 goto _start;
@@ -710,7 +710,7 @@ else
 lean_object* x_15; lean_object* x_16; 
 lean_dec(x_2);
 lean_inc(x_3);
-x_15 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_5, x_3);
+x_15 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_5, x_3);
 x_16 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_6);
@@ -763,7 +763,7 @@ x_38 = lean_ctor_get(x_2, 1);
 lean_inc(x_38);
 x_39 = lean_ctor_get(x_2, 2);
 lean_inc(x_39);
-x_40 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_37, x_18);
+x_40 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_37, x_18);
 if (x_40 == 0)
 {
 uint8_t x_41; 
@@ -778,7 +778,7 @@ lean_dec(x_43);
 x_44 = lean_ctor_get(x_2, 0);
 lean_dec(x_44);
 lean_inc(x_18);
-x_45 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_37, x_18);
+x_45 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_37, x_18);
 lean_ctor_set(x_2, 0, x_45);
 x_46 = l_Lean_CollectLevelParams_collect(x_18, x_2);
 if (x_36 == 0)
@@ -797,7 +797,7 @@ else
 lean_object* x_47; lean_object* x_48; lean_object* x_49; 
 lean_dec(x_2);
 lean_inc(x_18);
-x_47 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_37, x_18);
+x_47 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_37, x_18);
 x_48 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_48, 0, x_47);
 lean_ctor_set(x_48, 1, x_38);
@@ -842,7 +842,7 @@ x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_20, 2);
 lean_inc(x_23);
-x_24 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_21, x_19);
+x_24 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_21, x_19);
 if (x_24 == 0)
 {
 uint8_t x_25; 
@@ -857,7 +857,7 @@ lean_dec(x_27);
 x_28 = lean_ctor_get(x_20, 0);
 lean_dec(x_28);
 lean_inc(x_19);
-x_29 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_21, x_19);
+x_29 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_21, x_19);
 lean_ctor_set(x_20, 0, x_29);
 x_1 = x_19;
 x_2 = x_20;
@@ -868,7 +868,7 @@ else
 lean_object* x_31; lean_object* x_32; 
 lean_dec(x_20);
 lean_inc(x_19);
-x_31 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_21, x_19);
+x_31 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_21, x_19);
 x_32 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_22);
@@ -921,7 +921,7 @@ x_70 = lean_ctor_get(x_2, 1);
 lean_inc(x_70);
 x_71 = lean_ctor_get(x_2, 2);
 lean_inc(x_71);
-x_72 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_69, x_50);
+x_72 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_69, x_50);
 if (x_72 == 0)
 {
 uint8_t x_73; 
@@ -936,7 +936,7 @@ lean_dec(x_75);
 x_76 = lean_ctor_get(x_2, 0);
 lean_dec(x_76);
 lean_inc(x_50);
-x_77 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_69, x_50);
+x_77 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_69, x_50);
 lean_ctor_set(x_2, 0, x_77);
 x_78 = l_Lean_CollectLevelParams_collect(x_50, x_2);
 if (x_68 == 0)
@@ -955,7 +955,7 @@ else
 lean_object* x_79; lean_object* x_80; lean_object* x_81; 
 lean_dec(x_2);
 lean_inc(x_50);
-x_79 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_69, x_50);
+x_79 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_69, x_50);
 x_80 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_80, 0, x_79);
 lean_ctor_set(x_80, 1, x_70);
@@ -1000,7 +1000,7 @@ x_54 = lean_ctor_get(x_52, 1);
 lean_inc(x_54);
 x_55 = lean_ctor_get(x_52, 2);
 lean_inc(x_55);
-x_56 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_53, x_51);
+x_56 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_53, x_51);
 if (x_56 == 0)
 {
 uint8_t x_57; 
@@ -1015,7 +1015,7 @@ lean_dec(x_59);
 x_60 = lean_ctor_get(x_52, 0);
 lean_dec(x_60);
 lean_inc(x_51);
-x_61 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_53, x_51);
+x_61 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_53, x_51);
 lean_ctor_set(x_52, 0, x_61);
 x_1 = x_51;
 x_2 = x_52;
@@ -1026,7 +1026,7 @@ else
 lean_object* x_63; lean_object* x_64; 
 lean_dec(x_52);
 lean_inc(x_51);
-x_63 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_53, x_51);
+x_63 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_53, x_51);
 x_64 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_64, 0, x_63);
 lean_ctor_set(x_64, 1, x_54);
@@ -1735,7 +1735,7 @@ x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 2);
 lean_inc(x_9);
-x_10 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_7, x_3);
+x_10 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_7, x_3);
 if (x_10 == 0)
 {
 uint8_t x_11; 
@@ -1750,7 +1750,7 @@ lean_dec(x_13);
 x_14 = lean_ctor_get(x_1, 0);
 lean_dec(x_14);
 lean_inc(x_3);
-x_15 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_7, x_3);
+x_15 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_7, x_3);
 lean_ctor_set(x_1, 0, x_15);
 x_16 = l_Lean_CollectLevelParams_collect(x_3, x_1);
 x_1 = x_16;
@@ -1762,7 +1762,7 @@ else
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_1);
 lean_inc(x_3);
-x_18 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_7, x_3);
+x_18 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_7, x_3);
 x_19 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_8);
@@ -1811,7 +1811,7 @@ x_6 = lean_ctor_get(x_2, 1);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 2);
 lean_inc(x_7);
-x_8 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_5, x_3);
+x_8 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_5, x_3);
 if (x_8 == 0)
 {
 uint8_t x_9; 
@@ -1826,7 +1826,7 @@ lean_dec(x_11);
 x_12 = lean_ctor_get(x_2, 0);
 lean_dec(x_12);
 lean_inc(x_3);
-x_13 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_5, x_3);
+x_13 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_5, x_3);
 lean_ctor_set(x_2, 0, x_13);
 x_14 = l_Lean_CollectLevelParams_collect(x_3, x_2);
 return x_14;
@@ -1836,7 +1836,7 @@ else
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_dec(x_2);
 lean_inc(x_3);
-x_15 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__1(x_5, x_3);
+x_15 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(x_5, x_3);
 x_16 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_6);
@@ -2340,7 +2340,7 @@ return x_86;
 }
 case 8:
 {
-lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; uint8_t x_134; uint8_t x_135; uint8_t x_136; lean_object* x_137; lean_object* x_139; 
+lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; uint8_t x_134; uint8_t x_135; uint8_t x_136; lean_object* x_137; 
 x_116 = lean_ctor_get(x_1, 1);
 lean_inc(x_116);
 x_117 = lean_ctor_get(x_1, 2);
@@ -2357,94 +2357,126 @@ lean_dec(x_116);
 if (x_135 == 0)
 {
 lean_dec(x_117);
+if (x_136 == 0)
+{
+lean_dec(x_118);
+return x_2;
+}
+else
+{
+x_119 = x_2;
+goto block_133;
+}
+}
+else
+{
 x_137 = x_2;
-goto block_138;
-}
-else
-{
-x_139 = x_2;
-goto block_153;
+goto block_151;
 }
 }
 else
 {
-lean_object* x_154; lean_object* x_155; lean_object* x_156; uint8_t x_157; 
-x_154 = lean_ctor_get(x_2, 0);
+lean_object* x_152; lean_object* x_153; lean_object* x_154; uint8_t x_155; 
+x_152 = lean_ctor_get(x_2, 0);
+lean_inc(x_152);
+x_153 = lean_ctor_get(x_2, 1);
+lean_inc(x_153);
+x_154 = lean_ctor_get(x_2, 2);
 lean_inc(x_154);
-x_155 = lean_ctor_get(x_2, 1);
-lean_inc(x_155);
-x_156 = lean_ctor_get(x_2, 2);
-lean_inc(x_156);
-x_157 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(x_155, x_116);
-if (x_157 == 0)
+x_155 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(x_153, x_116);
+if (x_155 == 0)
 {
-uint8_t x_158; 
-x_158 = !lean_is_exclusive(x_2);
-if (x_158 == 0)
+uint8_t x_156; 
+x_156 = !lean_is_exclusive(x_2);
+if (x_156 == 0)
 {
-lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; 
-x_159 = lean_ctor_get(x_2, 2);
+lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; 
+x_157 = lean_ctor_get(x_2, 2);
+lean_dec(x_157);
+x_158 = lean_ctor_get(x_2, 1);
+lean_dec(x_158);
+x_159 = lean_ctor_get(x_2, 0);
 lean_dec(x_159);
-x_160 = lean_ctor_get(x_2, 1);
-lean_dec(x_160);
-x_161 = lean_ctor_get(x_2, 0);
-lean_dec(x_161);
 lean_inc(x_116);
-x_162 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_155, x_116);
-lean_ctor_set(x_2, 1, x_162);
-x_163 = l_Lean_CollectLevelParams_main(x_116, x_2);
+x_160 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_153, x_116);
+lean_ctor_set(x_2, 1, x_160);
+x_161 = l_Lean_CollectLevelParams_main(x_116, x_2);
 if (x_135 == 0)
 {
 lean_dec(x_117);
-x_137 = x_163;
-goto block_138;
+if (x_136 == 0)
+{
+lean_dec(x_118);
+return x_161;
 }
 else
 {
-x_139 = x_163;
-goto block_153;
+x_119 = x_161;
+goto block_133;
 }
 }
 else
 {
-lean_object* x_164; lean_object* x_165; lean_object* x_166; 
+x_137 = x_161;
+goto block_151;
+}
+}
+else
+{
+lean_object* x_162; lean_object* x_163; lean_object* x_164; 
 lean_dec(x_2);
 lean_inc(x_116);
-x_164 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_155, x_116);
-x_165 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_165, 0, x_154);
-lean_ctor_set(x_165, 1, x_164);
-lean_ctor_set(x_165, 2, x_156);
-x_166 = l_Lean_CollectLevelParams_main(x_116, x_165);
+x_162 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_153, x_116);
+x_163 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_163, 0, x_152);
+lean_ctor_set(x_163, 1, x_162);
+lean_ctor_set(x_163, 2, x_154);
+x_164 = l_Lean_CollectLevelParams_main(x_116, x_163);
 if (x_135 == 0)
 {
 lean_dec(x_117);
-x_137 = x_166;
-goto block_138;
+if (x_136 == 0)
+{
+lean_dec(x_118);
+return x_164;
 }
 else
 {
-x_139 = x_166;
-goto block_153;
+x_119 = x_164;
+goto block_133;
+}
+}
+else
+{
+x_137 = x_164;
+goto block_151;
 }
 }
 }
 else
 {
-lean_dec(x_156);
-lean_dec(x_155);
 lean_dec(x_154);
+lean_dec(x_153);
+lean_dec(x_152);
 lean_dec(x_116);
 if (x_135 == 0)
 {
 lean_dec(x_117);
-x_137 = x_2;
-goto block_138;
+if (x_136 == 0)
+{
+lean_dec(x_118);
+return x_2;
 }
 else
 {
-x_139 = x_2;
-goto block_153;
+x_119 = x_2;
+goto block_133;
+}
+}
+else
+{
+x_137 = x_2;
+goto block_151;
 }
 }
 }
@@ -2502,8 +2534,73 @@ lean_dec(x_118);
 return x_119;
 }
 }
-block_138:
+block_151:
 {
+lean_object* x_138; lean_object* x_139; lean_object* x_140; uint8_t x_141; 
+x_138 = lean_ctor_get(x_137, 0);
+lean_inc(x_138);
+x_139 = lean_ctor_get(x_137, 1);
+lean_inc(x_139);
+x_140 = lean_ctor_get(x_137, 2);
+lean_inc(x_140);
+x_141 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(x_139, x_117);
+if (x_141 == 0)
+{
+uint8_t x_142; 
+x_142 = !lean_is_exclusive(x_137);
+if (x_142 == 0)
+{
+lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; 
+x_143 = lean_ctor_get(x_137, 2);
+lean_dec(x_143);
+x_144 = lean_ctor_get(x_137, 1);
+lean_dec(x_144);
+x_145 = lean_ctor_get(x_137, 0);
+lean_dec(x_145);
+lean_inc(x_117);
+x_146 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_139, x_117);
+lean_ctor_set(x_137, 1, x_146);
+x_147 = l_Lean_CollectLevelParams_main(x_117, x_137);
+if (x_136 == 0)
+{
+lean_dec(x_118);
+return x_147;
+}
+else
+{
+x_119 = x_147;
+goto block_133;
+}
+}
+else
+{
+lean_object* x_148; lean_object* x_149; lean_object* x_150; 
+lean_dec(x_137);
+lean_inc(x_117);
+x_148 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_139, x_117);
+x_149 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_149, 0, x_138);
+lean_ctor_set(x_149, 1, x_148);
+lean_ctor_set(x_149, 2, x_140);
+x_150 = l_Lean_CollectLevelParams_main(x_117, x_149);
+if (x_136 == 0)
+{
+lean_dec(x_118);
+return x_150;
+}
+else
+{
+x_119 = x_150;
+goto block_133;
+}
+}
+}
+else
+{
+lean_dec(x_140);
+lean_dec(x_139);
+lean_dec(x_138);
+lean_dec(x_117);
 if (x_136 == 0)
 {
 lean_dec(x_118);
@@ -2515,214 +2612,136 @@ x_119 = x_137;
 goto block_133;
 }
 }
-block_153:
-{
-lean_object* x_140; lean_object* x_141; lean_object* x_142; uint8_t x_143; 
-x_140 = lean_ctor_get(x_139, 0);
-lean_inc(x_140);
-x_141 = lean_ctor_get(x_139, 1);
-lean_inc(x_141);
-x_142 = lean_ctor_get(x_139, 2);
-lean_inc(x_142);
-x_143 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(x_141, x_117);
-if (x_143 == 0)
-{
-uint8_t x_144; 
-x_144 = !lean_is_exclusive(x_139);
-if (x_144 == 0)
-{
-lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; 
-x_145 = lean_ctor_get(x_139, 2);
-lean_dec(x_145);
-x_146 = lean_ctor_get(x_139, 1);
-lean_dec(x_146);
-x_147 = lean_ctor_get(x_139, 0);
-lean_dec(x_147);
-lean_inc(x_117);
-x_148 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_141, x_117);
-lean_ctor_set(x_139, 1, x_148);
-x_149 = l_Lean_CollectLevelParams_main(x_117, x_139);
-if (x_136 == 0)
-{
-lean_dec(x_118);
-return x_149;
-}
-else
-{
-x_119 = x_149;
-goto block_133;
-}
-}
-else
-{
-lean_object* x_150; lean_object* x_151; lean_object* x_152; 
-lean_dec(x_139);
-lean_inc(x_117);
-x_150 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_141, x_117);
-x_151 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_151, 0, x_140);
-lean_ctor_set(x_151, 1, x_150);
-lean_ctor_set(x_151, 2, x_142);
-x_152 = l_Lean_CollectLevelParams_main(x_117, x_151);
-if (x_136 == 0)
-{
-lean_dec(x_118);
-return x_152;
-}
-else
-{
-x_119 = x_152;
-goto block_133;
-}
-}
-}
-else
-{
-lean_dec(x_142);
-lean_dec(x_141);
-lean_dec(x_140);
-lean_dec(x_117);
-if (x_136 == 0)
-{
-lean_dec(x_118);
-return x_139;
-}
-else
-{
-x_119 = x_139;
-goto block_133;
-}
-}
 }
 }
 case 10:
 {
-lean_object* x_167; uint8_t x_168; 
-x_167 = lean_ctor_get(x_1, 1);
-lean_inc(x_167);
+lean_object* x_165; uint8_t x_166; 
+x_165 = lean_ctor_get(x_1, 1);
+lean_inc(x_165);
 lean_dec(x_1);
-x_168 = l_Lean_Expr_hasLevelParam(x_167);
-if (x_168 == 0)
+x_166 = l_Lean_Expr_hasLevelParam(x_165);
+if (x_166 == 0)
 {
-lean_dec(x_167);
+lean_dec(x_165);
 return x_2;
 }
 else
 {
-lean_object* x_169; lean_object* x_170; lean_object* x_171; uint8_t x_172; 
-x_169 = lean_ctor_get(x_2, 0);
+lean_object* x_167; lean_object* x_168; lean_object* x_169; uint8_t x_170; 
+x_167 = lean_ctor_get(x_2, 0);
+lean_inc(x_167);
+x_168 = lean_ctor_get(x_2, 1);
+lean_inc(x_168);
+x_169 = lean_ctor_get(x_2, 2);
 lean_inc(x_169);
-x_170 = lean_ctor_get(x_2, 1);
-lean_inc(x_170);
-x_171 = lean_ctor_get(x_2, 2);
-lean_inc(x_171);
-x_172 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(x_170, x_167);
-if (x_172 == 0)
+x_170 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(x_168, x_165);
+if (x_170 == 0)
 {
-uint8_t x_173; 
-x_173 = !lean_is_exclusive(x_2);
-if (x_173 == 0)
+uint8_t x_171; 
+x_171 = !lean_is_exclusive(x_2);
+if (x_171 == 0)
 {
-lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; 
-x_174 = lean_ctor_get(x_2, 2);
+lean_object* x_172; lean_object* x_173; lean_object* x_174; lean_object* x_175; 
+x_172 = lean_ctor_get(x_2, 2);
+lean_dec(x_172);
+x_173 = lean_ctor_get(x_2, 1);
+lean_dec(x_173);
+x_174 = lean_ctor_get(x_2, 0);
 lean_dec(x_174);
-x_175 = lean_ctor_get(x_2, 1);
-lean_dec(x_175);
-x_176 = lean_ctor_get(x_2, 0);
-lean_dec(x_176);
-lean_inc(x_167);
-x_177 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_170, x_167);
-lean_ctor_set(x_2, 1, x_177);
-x_1 = x_167;
+lean_inc(x_165);
+x_175 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_168, x_165);
+lean_ctor_set(x_2, 1, x_175);
+x_1 = x_165;
 goto _start;
 }
 else
 {
-lean_object* x_179; lean_object* x_180; 
+lean_object* x_177; lean_object* x_178; 
 lean_dec(x_2);
-lean_inc(x_167);
-x_179 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_170, x_167);
-x_180 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_180, 0, x_169);
-lean_ctor_set(x_180, 1, x_179);
-lean_ctor_set(x_180, 2, x_171);
-x_1 = x_167;
-x_2 = x_180;
+lean_inc(x_165);
+x_177 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_168, x_165);
+x_178 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_178, 0, x_167);
+lean_ctor_set(x_178, 1, x_177);
+lean_ctor_set(x_178, 2, x_169);
+x_1 = x_165;
+x_2 = x_178;
 goto _start;
 }
 }
 else
 {
-lean_dec(x_171);
-lean_dec(x_170);
 lean_dec(x_169);
+lean_dec(x_168);
 lean_dec(x_167);
+lean_dec(x_165);
 return x_2;
 }
 }
 }
 case 11:
 {
-lean_object* x_182; uint8_t x_183; 
-x_182 = lean_ctor_get(x_1, 2);
-lean_inc(x_182);
+lean_object* x_180; uint8_t x_181; 
+x_180 = lean_ctor_get(x_1, 2);
+lean_inc(x_180);
 lean_dec(x_1);
-x_183 = l_Lean_Expr_hasLevelParam(x_182);
-if (x_183 == 0)
+x_181 = l_Lean_Expr_hasLevelParam(x_180);
+if (x_181 == 0)
 {
-lean_dec(x_182);
+lean_dec(x_180);
 return x_2;
 }
 else
 {
-lean_object* x_184; lean_object* x_185; lean_object* x_186; uint8_t x_187; 
-x_184 = lean_ctor_get(x_2, 0);
+lean_object* x_182; lean_object* x_183; lean_object* x_184; uint8_t x_185; 
+x_182 = lean_ctor_get(x_2, 0);
+lean_inc(x_182);
+x_183 = lean_ctor_get(x_2, 1);
+lean_inc(x_183);
+x_184 = lean_ctor_get(x_2, 2);
 lean_inc(x_184);
-x_185 = lean_ctor_get(x_2, 1);
-lean_inc(x_185);
-x_186 = lean_ctor_get(x_2, 2);
-lean_inc(x_186);
-x_187 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(x_185, x_182);
-if (x_187 == 0)
+x_185 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(x_183, x_180);
+if (x_185 == 0)
 {
-uint8_t x_188; 
-x_188 = !lean_is_exclusive(x_2);
-if (x_188 == 0)
+uint8_t x_186; 
+x_186 = !lean_is_exclusive(x_2);
+if (x_186 == 0)
 {
-lean_object* x_189; lean_object* x_190; lean_object* x_191; lean_object* x_192; 
-x_189 = lean_ctor_get(x_2, 2);
+lean_object* x_187; lean_object* x_188; lean_object* x_189; lean_object* x_190; 
+x_187 = lean_ctor_get(x_2, 2);
+lean_dec(x_187);
+x_188 = lean_ctor_get(x_2, 1);
+lean_dec(x_188);
+x_189 = lean_ctor_get(x_2, 0);
 lean_dec(x_189);
-x_190 = lean_ctor_get(x_2, 1);
-lean_dec(x_190);
-x_191 = lean_ctor_get(x_2, 0);
-lean_dec(x_191);
-lean_inc(x_182);
-x_192 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_185, x_182);
-lean_ctor_set(x_2, 1, x_192);
-x_1 = x_182;
+lean_inc(x_180);
+x_190 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_183, x_180);
+lean_ctor_set(x_2, 1, x_190);
+x_1 = x_180;
 goto _start;
 }
 else
 {
-lean_object* x_194; lean_object* x_195; 
+lean_object* x_192; lean_object* x_193; 
 lean_dec(x_2);
-lean_inc(x_182);
-x_194 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_185, x_182);
-x_195 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_195, 0, x_184);
-lean_ctor_set(x_195, 1, x_194);
-lean_ctor_set(x_195, 2, x_186);
-x_1 = x_182;
-x_2 = x_195;
+lean_inc(x_180);
+x_192 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_183, x_180);
+x_193 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_193, 0, x_182);
+lean_ctor_set(x_193, 1, x_192);
+lean_ctor_set(x_193, 2, x_184);
+x_1 = x_180;
+x_2 = x_193;
 goto _start;
 }
 }
 else
 {
-lean_dec(x_186);
-lean_dec(x_185);
 lean_dec(x_184);
+lean_dec(x_183);
 lean_dec(x_182);
+lean_dec(x_180);
 return x_2;
 }
 }
@@ -2744,7 +2763,7 @@ lean_inc(x_2);
 x_4 = l_Lean_Name_appendIndexAfter(x_2, x_3);
 x_5 = l_Lean_mkLevelParam(x_4);
 x_6 = lean_ctor_get(x_1, 0);
-x_7 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_6, x_5);
+x_7 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_6, x_5);
 if (x_7 == 0)
 {
 lean_dec(x_3);
@@ -2779,7 +2798,7 @@ lean_object* x_3; lean_object* x_4; uint8_t x_5;
 lean_inc(x_2);
 x_3 = l_Lean_mkLevelParam(x_2);
 x_4 = lean_ctor_get(x_1, 0);
-x_5 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__7(x_4, x_3);
+x_5 = l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(x_4, x_3);
 if (x_5 == 0)
 {
 lean_dec(x_2);

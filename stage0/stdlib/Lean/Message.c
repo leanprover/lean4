@@ -21,7 +21,7 @@ lean_object* l_Lean_Lean_Message___instance__19(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__51;
 lean_object* l_Lean_addMessageContextPartial___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 uint8_t l_Lean_MessageData_isNest(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_toList___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -133,7 +133,7 @@ lean_object* l_Lean_MessageLog_getInfoMessages_match__1___rarg___boxed(lean_obje
 lean_object* l_Lean_MessageData_Lean_Message___instance__11;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_Lean_Message___instance__8(lean_object*);
-lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Message___instance__24;
 extern lean_object* l_Lean_Option_format___rarg___closed__1;
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
@@ -162,7 +162,7 @@ lean_object* l_Lean_MessageLog_errorsToWarnings(lean_object*);
 uint8_t l_Lean_MessageData_isNil(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__25;
 lean_object* l_Lean_MessageData_mkPPContext___boxed(lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__30;
 lean_object* l_Lean_Lean_Message___instance__16___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1869_(lean_object*, lean_object*, lean_object*);
@@ -202,7 +202,6 @@ lean_object* l_Lean_addMessageContextPartial___rarg___lambda__1(lean_object*, le
 lean_object* l_Lean_KernelException_toMessageData___closed__42;
 extern lean_object* l_Lean_MetavarContext_Lean_MetavarContext___instance__3___closed__1;
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_toList___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_MessageLog_getInfoMessages___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_toList___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString_match__1(lean_object*);
 lean_object* l_Lean_MessageData_Lean_Message___instance__10___closed__1;
@@ -213,7 +212,7 @@ lean_object* l_Lean_MessageLog_Lean_Message___instance__14;
 lean_object* l_Lean_MessageData_ofList___boxed(lean_object*);
 lean_object* l_Lean_MessageData_arrayExpr_toMessageData___closed__2;
 lean_object* l_Lean_KernelException_toMessageData___closed__3;
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__40;
 lean_object* l_Lean_MessageData_arrayExpr_toMessageData(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull(lean_object*);
@@ -269,7 +268,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___spec__
 lean_object* l_Lean_Lean_Message___instance__27___rarg(lean_object*);
 lean_object* l_Lean_MessageData_Lean_Message___instance__7(lean_object*);
 lean_object* l_Lean_Lean_Message___instance__27___rarg___closed__3;
-lean_object* l_Lean_MessageLog_getInfoMessages___lambda__1___boxed(lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1836____closed__1;
 lean_object* l_Lean_MessageData_Lean_Message___instance__3___lambda__1(lean_object*);
 extern lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__11___closed__2;
@@ -291,17 +289,17 @@ lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_toList___spec__4(le
 lean_object* l_Lean_KernelException_toMessageData___closed__31;
 lean_object* l_Lean_MessageLog_getInfoMessages_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__35;
-lean_object* l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1869____lambda__1___closed__9;
 lean_object* l_Lean_KernelException_toMessageData___closed__41;
 lean_object* l_Lean_ppTerm(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_isNest___boxed(lean_object*);
-lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__23;
 lean_object* l_Lean_MessageLog_hasErrors_match__1(lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_toList___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Message___instance__28___closed__1;
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1869____lambda__1___closed__4;
 lean_object* l_Array_anyRangeMAux___main___at_Lean_MessageLog_hasErrors___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -359,9 +357,8 @@ lean_object* l_Lean_Message_getSeverityEx___boxed(lean_object*);
 lean_object* l_Lean_MessageLog_append___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_formatAux(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__18;
-uint8_t l_Lean_MessageLog_getInfoMessages___lambda__1(lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__2;
 lean_object* l_Lean_Lean_Message___instance__20(lean_object*);
@@ -375,7 +372,7 @@ lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Message___instance__28_match__1(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_addMessageContextPartial(lean_object*);
-lean_object* l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_toList___spec__1(lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_Message_Lean_Message___instance__13___closed__2;
@@ -4502,243 +4499,198 @@ x_5 = l_Lean_MessageLog_getInfoMessages_match__1___rarg(x_4, x_2, x_3);
 return x_5;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_array_get_size(x_3);
-x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
-if (x_7 == 0)
+lean_object* x_5; uint8_t x_6; 
+x_5 = lean_array_get_size(x_2);
+x_6 = lean_nat_dec_lt(x_3, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
 {
-lean_dec(x_4);
-return x_5;
-}
-else
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_array_fget(x_3, x_4);
-x_9 = l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2(x_1, x_8, x_5);
-lean_dec(x_8);
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_add(x_4, x_10);
-lean_dec(x_4);
-x_4 = x_11;
-x_5 = x_9;
-goto _start;
-}
-}
-}
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_array_get_size(x_3);
-x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
-if (x_7 == 0)
-{
-lean_dec(x_4);
-return x_5;
-}
-else
-{
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_array_fget(x_3, x_4);
-x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*5);
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_add(x_4, x_10);
-lean_dec(x_4);
-x_12 = lean_box(x_9);
-if (lean_obj_tag(x_12) == 0)
-{
-lean_object* x_13; 
-x_13 = l_Std_PersistentArray_push___rarg(x_5, x_8);
-x_4 = x_11;
-x_5 = x_13;
-goto _start;
-}
-else
-{
-lean_dec(x_12);
-lean_dec(x_8);
-x_4 = x_11;
-goto _start;
-}
-}
-}
-}
-lean_object* l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3(x_1, x_4, x_4, x_5, x_3);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_2, 0);
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4(x_1, x_7, x_7, x_8, x_3);
-return x_9;
-}
-}
-}
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_array_get_size(x_3);
-x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
-if (x_7 == 0)
-{
-lean_dec(x_4);
-return x_5;
-}
-else
-{
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_array_fget(x_3, x_4);
-x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*5);
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_add(x_4, x_10);
-lean_dec(x_4);
-x_12 = lean_box(x_9);
-if (lean_obj_tag(x_12) == 0)
-{
-lean_object* x_13; 
-x_13 = l_Std_PersistentArray_push___rarg(x_5, x_8);
-x_4 = x_11;
-x_5 = x_13;
-goto _start;
-}
-else
-{
-lean_dec(x_12);
-lean_dec(x_8);
-x_4 = x_11;
-goto _start;
-}
-}
-}
-}
-lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2(x_1, x_4, x_3);
-x_6 = lean_ctor_get(x_2, 1);
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5(x_1, x_2, x_6, x_7, x_5);
-return x_8;
-}
-}
-uint8_t l_Lean_MessageLog_getInfoMessages___lambda__1(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*5);
-x_3 = lean_box(x_2);
-if (lean_obj_tag(x_3) == 0)
-{
-uint8_t x_4; 
-x_4 = 1;
+lean_dec(x_3);
 return x_4;
 }
 else
 {
-uint8_t x_5; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_array_fget(x_2, x_3);
+x_8 = l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2(x_7, x_4);
+lean_dec(x_7);
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_nat_add(x_3, x_9);
 lean_dec(x_3);
-x_5 = 0;
-return x_5;
+x_3 = x_10;
+x_4 = x_8;
+goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_MessageLog_getInfoMessages___closed__1() {
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_MessageLog_getInfoMessages___lambda__1___boxed), 1, 0);
-return x_1;
+lean_object* x_5; uint8_t x_6; 
+x_5 = lean_array_get_size(x_2);
+x_6 = lean_nat_dec_lt(x_3, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
+{
+lean_dec(x_3);
+return x_4;
+}
+else
+{
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_7 = lean_array_fget(x_2, x_3);
+x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*5);
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_nat_add(x_3, x_9);
+lean_dec(x_3);
+x_11 = lean_box(x_8);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; 
+x_12 = l_Std_PersistentArray_push___rarg(x_4, x_7);
+x_3 = x_10;
+x_4 = x_12;
+goto _start;
+}
+else
+{
+lean_dec(x_11);
+lean_dec(x_7);
+x_3 = x_10;
+goto _start;
+}
+}
+}
+}
+lean_object* l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3(x_3, x_3, x_4, x_2);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4(x_6, x_6, x_7, x_2);
+return x_8;
+}
+}
+}
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; uint8_t x_6; 
+x_5 = lean_array_get_size(x_2);
+x_6 = lean_nat_dec_lt(x_3, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
+{
+lean_dec(x_3);
+return x_4;
+}
+else
+{
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_7 = lean_array_fget(x_2, x_3);
+x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*5);
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_nat_add(x_3, x_9);
+lean_dec(x_3);
+x_11 = lean_box(x_8);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; 
+x_12 = l_Std_PersistentArray_push___rarg(x_4, x_7);
+x_3 = x_10;
+x_4 = x_12;
+goto _start;
+}
+else
+{
+lean_dec(x_11);
+lean_dec(x_7);
+x_3 = x_10;
+goto _start;
+}
+}
+}
+}
+lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2(x_3, x_2);
+x_5 = lean_ctor_get(x_1, 1);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5(x_1, x_5, x_6, x_4);
+return x_7;
 }
 }
 lean_object* l_Lean_MessageLog_getInfoMessages(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_MessageLog_getInfoMessages___closed__1;
-x_3 = l_Std_PersistentArray_empty___closed__1;
-x_4 = l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1(x_2, x_1, x_3);
-return x_4;
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Std_PersistentArray_empty___closed__1;
+x_3 = l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1(x_1, x_2);
+return x_3;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-x_6 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_3);
+lean_object* x_5; 
+x_5 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__3(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_6;
+return x_5;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-x_6 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_3);
+lean_object* x_5; 
+x_5 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__4(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_6;
+return x_5;
 }
 }
-lean_object* l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2(x_1, x_2, x_3);
+lean_object* x_3; 
+x_3 = l_Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__2(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_4;
+return x_5;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_6; 
-x_6 = l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__5(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_object* x_3; 
+x_3 = l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1(x_1, x_2);
 lean_dec(x_1);
-return x_6;
-}
-}
-lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_PersistentArray_foldlM___at_Lean_MessageLog_getInfoMessages___spec__1(x_1, x_2, x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* l_Lean_MessageLog_getInfoMessages___lambda__1___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_MessageLog_getInfoMessages___lambda__1(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
 return x_3;
 }
 }
@@ -7507,8 +7459,6 @@ l_Lean_MessageLog_Lean_Message___instance__15___closed__1 = _init_l_Lean_Message
 lean_mark_persistent(l_Lean_MessageLog_Lean_Message___instance__15___closed__1);
 l_Lean_MessageLog_Lean_Message___instance__15 = _init_l_Lean_MessageLog_Lean_Message___instance__15();
 lean_mark_persistent(l_Lean_MessageLog_Lean_Message___instance__15);
-l_Lean_MessageLog_getInfoMessages___closed__1 = _init_l_Lean_MessageLog_getInfoMessages___closed__1();
-lean_mark_persistent(l_Lean_MessageLog_getInfoMessages___closed__1);
 l_Lean_KernelException_toMessageData___closed__1 = _init_l_Lean_KernelException_toMessageData___closed__1();
 lean_mark_persistent(l_Lean_KernelException_toMessageData___closed__1);
 l_Lean_KernelException_toMessageData___closed__2 = _init_l_Lean_KernelException_toMessageData___closed__2();

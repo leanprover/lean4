@@ -33,7 +33,7 @@ structure GeneratorNode :=
 (instances       : Array Expr)
 (currInstanceIdx : Nat)
 
-instance GeneratorNode.inhabited : Inhabited GeneratorNode := ⟨⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _, 0⟩⟩
+instance : Inhabited GeneratorNode := ⟨⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _, 0⟩⟩
 
 structure ConsumerNode :=
 (mvar     : Expr)
@@ -41,7 +41,7 @@ structure ConsumerNode :=
 (mctx     : MetavarContext)
 (subgoals : List Expr)
 
-instance Consumernode.inhabited : Inhabited ConsumerNode := ⟨⟨arbitrary _, arbitrary _, arbitrary _, []⟩⟩
+instance : Inhabited ConsumerNode := ⟨⟨arbitrary _, arbitrary _, arbitrary _, []⟩⟩
 
 inductive Waiter
 | consumerNode : ConsumerNode → Waiter
@@ -137,7 +137,7 @@ structure Answer :=
 (result     : AbstractMVarsResult)
 (resultType : Expr)
 
-instance Answer.inhabited : Inhabited Answer := ⟨⟨arbitrary _, arbitrary _⟩⟩
+instance : Inhabited Answer := ⟨⟨arbitrary _, arbitrary _⟩⟩
 
 structure TableEntry :=
 (waiters : Array Waiter)

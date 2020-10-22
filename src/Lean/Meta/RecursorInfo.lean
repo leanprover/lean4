@@ -24,7 +24,7 @@ inductive RecursorUnivLevelPos
 | motive                -- marks where the universe of the motive should go
 | majorType (idx : Nat) -- marks where the #idx universe of the major premise type goes
 
-instance RecursorUnivLevelPos.hasToString : HasToString RecursorUnivLevelPos :=
+instance : HasToString RecursorUnivLevelPos :=
 ⟨fun pos => match pos with
   | RecursorUnivLevelPos.motive        => "<motive-univ>"
   | RecursorUnivLevelPos.majorType idx => toString idx⟩

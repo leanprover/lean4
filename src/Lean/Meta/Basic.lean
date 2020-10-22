@@ -100,7 +100,7 @@ structure State :=
 /- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
 (zetaFVarIds : NameSet := {})
 
-instance State.inhabited : Inhabited State := ⟨{}⟩
+instance : Inhabited State := ⟨{}⟩
 
 structure Context :=
 (config         : Config         := {})
@@ -118,7 +118,7 @@ abbrev DefEqM := StateRefT (PersistentArray PostponedEntry) MetaM
 instance : MonadIO MetaM :=
 { liftIO := fun x => liftM (liftIO x : CoreM _) }
 
-instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
+instance {α} : Inhabited (MetaM α) :=
 ⟨fun _ _ => arbitrary _⟩
 
 instance : MonadLCtx MetaM :=
@@ -140,7 +140,7 @@ Prod.fst <$> x.run ctx s
 let ((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore
 pure (a, sCore, s)
 
-instance hasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
+instance {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
 ⟨fun env opts x _ => MetaHasEval.eval env opts x.run' true⟩
 
 protected def throwIsDefEqStuck {α} : DefEqM α :=

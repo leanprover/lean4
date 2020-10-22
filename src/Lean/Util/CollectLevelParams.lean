@@ -15,7 +15,7 @@ structure State :=
 (visitedExpr  : ExprSet    := {})
 (params       : Array Name := #[])
 
-instance State.inhabited : Inhabited State := ⟨{}⟩
+instance : Inhabited State := ⟨{}⟩
 
 abbrev Visitor := State → State
 

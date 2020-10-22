@@ -332,7 +332,7 @@ partial def structEq : Syntax → Syntax → Bool
 | Syntax.ident _ rawVal val preresolved, Syntax.ident _ rawVal' val' preresolved' => rawVal == rawVal' && val == val' && preresolved == preresolved'
 | _, _ => false
 
-instance structHasBeq : HasBeq Lean.Syntax := ⟨structEq⟩
+instance : HasBeq Lean.Syntax := ⟨structEq⟩
 
 /--
 Represents a cursor into a syntax tree that can be read, written, and advanced down/up/left/right.

@@ -11,7 +11,7 @@ namespace Lean
 inductive ReducibilityStatus
 | reducible | semireducible | irreducible
 
-instance ReducibilityStatus.inhabited : Inhabited ReducibilityStatus := ⟨ReducibilityStatus.semireducible⟩
+instance : Inhabited ReducibilityStatus := ⟨ReducibilityStatus.semireducible⟩
 
 builtin_initialize reducibilityAttrs : EnumAttributes ReducibilityStatus ←
   registerEnumAttributes `reducibility

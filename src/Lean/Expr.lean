@@ -727,7 +727,7 @@ abbrev PExprSet := PersistentExprSet
 structure ExprStructEq :=
 (val : Expr)
 
-instance exprToExprStructEq    : Coe Expr ExprStructEq := ⟨ExprStructEq.mk⟩
+instance : Coe Expr ExprStructEq := ⟨ExprStructEq.mk⟩
 
 namespace ExprStructEq
 

@@ -109,7 +109,7 @@ abbrev Parenthesizer := ParenthesizerM Unit
     p₁
     (fun _ => do set s; p₂)
 
-instance Parenthesizer.orelse {α} : HasOrelse (ParenthesizerM α) := ⟨ParenthesizerM.orelse⟩
+instance {α} : HasOrelse (ParenthesizerM α) := ⟨ParenthesizerM.orelse⟩
 
 unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
   KeyedDeclsAttribute.init {
@@ -173,7 +173,7 @@ open Lean.Format
 def throwBacktrack {α} : ParenthesizerM α :=
 throw $ Exception.internal backtrackExceptionId
 
-instance ParenthesizerM.monadTraverser : Syntax.MonadTraverser ParenthesizerM := ⟨{
+instance : Syntax.MonadTraverser ParenthesizerM := ⟨{
   get       := State.stxTrav <$> get,
   set       := fun t => modify (fun st => { st with stxTrav := t }),
   modifyGet := fun f => modifyGet (fun st => let (a, t) := f st.stxTrav; (a, { st with stxTrav := t }))
@@ -193,7 +193,7 @@ def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
 
 -- Macro scopes in the parenthesizer output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
-instance monadQuotation : MonadQuotation ParenthesizerM := {
+instance : MonadQuotation ParenthesizerM := {
   getCurrMacroScope   := pure $ arbitrary _,
   getMainModule       := pure $ arbitrary _,
   withFreshMacroScope := fun x => x,

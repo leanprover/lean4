@@ -15,7 +15,7 @@ structure CaseArraySizesSubgoal :=
 (diseqs : Array FVarId := #[])
 (subst  : FVarSubst := {})
 
-instance CaseArraySizesSubgoal.inhabited : Inhabited CaseArraySizesSubgoal :=
+instance : Inhabited CaseArraySizesSubgoal :=
 ⟨{ mvarId := arbitrary _ }⟩
 
 def getArrayArgType (a : Expr) : MetaM Expr := do

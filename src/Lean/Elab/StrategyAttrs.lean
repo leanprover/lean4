@@ -15,7 +15,7 @@ the strategy selection attributes while we rely on the Lean3 elaborator.
 inductive ElaboratorStrategy
 | simple | withExpectedType | asEliminator
 
-instance ElaboratorStrategy.inhabited : Inhabited ElaboratorStrategy :=
+instance : Inhabited ElaboratorStrategy :=
 ⟨ElaboratorStrategy.withExpectedType⟩
 
 builtin_initialize elaboratorStrategyAttrs : EnumAttributes ElaboratorStrategy ←

@@ -32,7 +32,7 @@ structure PPFns :=
   (ppExpr : PPContext → Expr → IO Format)
   (ppTerm : PPContext → Syntax → IO Format)
 
-instance PPFns.inhabited : Inhabited PPFns := ⟨⟨arbitrary _, arbitrary _⟩⟩
+instance : Inhabited PPFns := ⟨⟨arbitrary _, arbitrary _⟩⟩
 
 builtin_initialize ppFnsRef : IO.Ref PPFns ←
   IO.mkRef {

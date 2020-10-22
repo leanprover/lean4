@@ -12,7 +12,7 @@ structure State :=
 (visitedExpr  : ExprSet  := {})
 (fvarSet      : NameSet  := {})
 
-instance State.inhabited : Inhabited State := ⟨{}⟩
+instance : Inhabited State := ⟨{}⟩
 
 abbrev Visitor := State → State
 

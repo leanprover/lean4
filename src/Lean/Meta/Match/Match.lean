@@ -773,7 +773,7 @@ structure Entry :=
 structure State :=
 (map : SMap Name MatcherInfo := {})
 
-instance State.inhabited : Inhabited State :=
+instance : Inhabited State :=
 ⟨{}⟩
 
 def State.addEntry (s : State) (e : Entry) : State := { s with map  := s.map.insert e.name e.info }

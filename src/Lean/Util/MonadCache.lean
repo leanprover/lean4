@@ -22,11 +22,11 @@ match b? with
   MonadCache.cache a b
   pure b
 
-instance readerLift {α β ρ : Type} {m : Type → Type} [MonadCache α β m] : MonadCache α β (ReaderT ρ m) :=
+instance {α β ρ : Type} {m : Type → Type} [MonadCache α β m] : MonadCache α β (ReaderT ρ m) :=
 { findCached? := fun a r   => MonadCache.findCached? a,
   cache       := fun a b r => MonadCache.cache a b }
 
-instance exceptLift {α β ε : Type} {m : Type → Type} [MonadCache α β m] [Monad m] : MonadCache α β (ExceptT ε m) :=
+instance {α β ε : Type} {m : Type → Type} [MonadCache α β m] [Monad m] : MonadCache α β (ExceptT ε m) :=
 { findCached? := fun a   => ExceptT.lift $ MonadCache.findCached? a,
   cache       := fun a b => ExceptT.lift $ MonadCache.cache a b }
 
@@ -88,7 +88,7 @@ let s ← get; pure s.cache
 @[inline] def modifyCache {α β σ : Type} [HasBeq α] [Hashable α] (f : HashMap α β → HashMap α β) : StateM (WithHashMapCache α β σ) Unit :=
 modify fun s => { s with cache := f s.cache }
 
-instance stateAdapter (α β σ : Type) [HasBeq α] [Hashable α] : MonadHashMapCacheAdapter α β (StateM (WithHashMapCache α β σ)) :=
+instance (α β σ : Type) [HasBeq α] [Hashable α] : MonadHashMapCacheAdapter α β (StateM (WithHashMapCache α β σ)) :=
 { getCache    := WithHashMapCache.getCache,
   modifyCache := WithHashMapCache.modifyCache }
 
@@ -98,7 +98,7 @@ let s ← get; pure s.cache
 @[inline] def modifyCacheE {α β ε σ : Type} [HasBeq α] [Hashable α] (f : HashMap α β → HashMap α β) : EStateM ε (WithHashMapCache α β σ) Unit :=
 modify fun s => { s with cache := f s.cache }
 
-instance estateAdapter (α β ε σ : Type) [HasBeq α] [Hashable α] : MonadHashMapCacheAdapter α β (EStateM ε (WithHashMapCache α β σ)) :=
+instance (α β ε σ : Type) [HasBeq α] [Hashable α] : MonadHashMapCacheAdapter α β (EStateM ε (WithHashMapCache α β σ)) :=
 { getCache    := WithHashMapCache.getCacheE,
   modifyCache := WithHashMapCache.modifyCacheE }
 

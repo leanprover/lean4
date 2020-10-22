@@ -147,23 +147,6 @@ instance [Monad m] : MonadReaderAdapterOf ρ ρ' (ReaderT ρ m) (ReaderT ρ' m) 
 ⟨fun α => ReaderT.adapt⟩
 end
 
-instance (ρ : Type u) (m out) [MonadRun out m] : MonadRun (fun α => ρ → out α) (ReaderT ρ m) :=
-⟨fun α x => run ∘ x⟩
-
-class MonadReaderRunner (ρ : Type u) (m m' : Type u → Type u) :=
-(runReader {α : Type u} : m α → ρ → m' α)
-export MonadReaderRunner (runReader)
-
-section
-variables {ρ ρ' : Type u} {m m' : Type u → Type u}
-
-instance monadReaderRunnerTrans {n n' : Type u → Type u} [MonadReaderRunner ρ m m'] [MonadFunctor m m' n n'] : MonadReaderRunner ρ n n' :=
-⟨fun α x r => monadMap (fun (α) (y : m α) => (runReader y r : m' α)) x⟩
-
-instance ReaderT.MonadStateRunner [Monad m] : MonadReaderRunner ρ (ReaderT ρ m) m :=
-⟨fun α x r => x r⟩
-end
-
 instance ReaderT.monadControl (ρ : Type u) (m : Type u → Type v) : MonadControl m (ReaderT ρ m) := {
   stM      := fun α       => α,
   liftWith := fun α f ctx => f fun β x => x ctx,

@@ -31,7 +31,7 @@ instance : MonadQuotation Unhygienic := {
     let fresh ← modifyGet fun n => (n, n + 1)
     withReader (fun _ => fresh) x
 }
-protected def run {α : Type} (x : Unhygienic α) : α := run x firstFrontendMacroScope (firstFrontendMacroScope+1)
+protected def run {α : Type} (x : Unhygienic α) : α := (x firstFrontendMacroScope).run' (firstFrontendMacroScope+1)
 end Unhygienic
 
 private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat) : Name :=

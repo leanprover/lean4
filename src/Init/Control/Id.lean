@@ -7,7 +7,6 @@ The identity Monad.
 -/
 prelude
 import Init.Control.MonadLift
-import Init.Control.MonadRun
 
 universe u
 
@@ -35,8 +34,5 @@ x
 
 instance {α} [HasOfNat α] : HasOfNat (Id α) :=
 inferInstanceAs (HasOfNat α)
-
-instance : MonadRun id Id :=
-⟨@Id.run⟩
 
 end Id

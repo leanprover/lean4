@@ -10,7 +10,6 @@ import Init.Control.Alternative
 import Init.Control.Monad
 import Init.Control.MonadLift
 import Init.Control.MonadFunctor
-import Init.Control.MonadRun
 import Init.Control.MonadControl
 import Init.Control.State
 import Init.Control.StateRef

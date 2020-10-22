@@ -66,6 +66,4 @@ namespace OptionT
   instance : MonadExceptOf Unit (OptionT m) :=
   { throw := fun _ _ => OptionT.fail, catch := @OptionT.catch _ _ }
 
-  instance (m out) [MonadRun out m] : MonadRun (fun α => out (Option α)) (OptionT m) :=
-  ⟨fun α => MonadRun.run⟩
 end OptionT

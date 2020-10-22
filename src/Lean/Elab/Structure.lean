@@ -16,7 +16,7 @@ open Meta
 
 /- Recall that the `structure command syntax is
 ```
-parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
+parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> optional (" := " >> optional structCtor >> structFields)
 ```
 -/
 
@@ -93,29 +93,34 @@ structure ElabStructResult :=
 private def defaultCtorName := `mk
 
 /-
-The structore constructor syntax is
+The structure constructor syntax is
 ```
 parser! try (declModifiers >> ident >> optional inferMod >> " :: ")
 ```
 -/
 private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM StructCtorView :=
-  let optCtor := structStx[6]
-  if optCtor.isNone then
+  let useDefault :=
     pure { ref := structStx, modifiers := {}, inferMod := false, name := defaultCtorName, declName := structDeclName ++ defaultCtorName }
+  if structStx[5].isNone then
+    useDefault
   else
-    let ctor := optCtor[0]
-    withRef ctor do
-    let ctorModifiers ← elabModifiers ctor[0]
-    checkValidCtorModifier ctorModifiers
-    if ctorModifiers.isPrivate && structModifiers.isPrivate then
-      throwError "invalid 'private' constructor in a 'private' structure"
-    if ctorModifiers.isProtected && structModifiers.isPrivate then
-      throwError "invalid 'protected' constructor in a 'private' structure"
-    let inferMod := !ctor[2].isNone
-    let name := ctor[1].getId
-    let declName := structDeclName ++ name
-    let declName ← applyVisibility ctorModifiers.visibility declName
-    pure { ref := ctor, name := name, modifiers := ctorModifiers, inferMod := inferMod, declName := declName }
+    let optCtor := structStx[5][1]
+    if optCtor.isNone then
+      useDefault
+    else
+      let ctor := optCtor[0]
+      withRef ctor do
+      let ctorModifiers ← elabModifiers ctor[0]
+      checkValidCtorModifier ctorModifiers
+      if ctorModifiers.isPrivate && structModifiers.isPrivate then
+        throwError "invalid 'private' constructor in a 'private' structure"
+      if ctorModifiers.isProtected && structModifiers.isPrivate then
+        throwError "invalid 'protected' constructor in a 'private' structure"
+      let inferMod := !ctor[2].isNone
+      let name := ctor[1].getId
+      let declName := structDeclName ++ name
+      let declName ← applyVisibility ctorModifiers.visibility declName
+      pure { ref := ctor, name := name, modifiers := ctorModifiers, inferMod := inferMod, declName := declName }
 
 def checkValidFieldModifier (modifiers : Modifiers) : CommandElabM Unit := do
   if modifiers.isNoncomputable then
@@ -138,7 +143,7 @@ def structFields         := parser! many (structExplicitBinder <|> structImplici
 ```
 -/
 private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM (Array StructFieldView) :=
-  let fieldBinders := structStx[7][0].getArgs
+  let fieldBinders := if structStx[5].isNone then #[] else structStx[5][2][0].getArgs
   fieldBinders.foldlM (init := #[]) fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do
     let k := fieldBinder.getKind
     let binfo ←

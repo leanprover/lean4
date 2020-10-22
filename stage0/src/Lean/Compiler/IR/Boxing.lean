@@ -218,20 +218,27 @@ match x with
 | Arg.var x => castVarIfNeeded x expected (fun x => k (Arg.var x))
 | _         => k x
 
-@[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) :=
-xs.iterateM (#[], #[]) fun i (x : Arg) (r : Array Arg × Array FnBody) => do
-  let expected := typeFromIdx i.val
-  let (xs, bs) := r
+@[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) := do
+let xs' := #[]
+let bs  := #[]
+let i   := 0
+for x in xs do
+  let expected := typeFromIdx i
   match x with
-  | Arg.irrelevant => pure (xs.push x, bs)
+  | Arg.irrelevant =>
+    xs' := xs'.push x
   | Arg.var x =>
     let xType ← getVarType x
-    if eqvTypes xType expected then pure (xs.push (Arg.var x), bs)
+    if eqvTypes xType expected then
+      xs' := xs'.push (Arg.var x)
     else
       let y ← M.mkFresh
       let v ← mkCast x xType expected
       let b := FnBody.vdecl y expected v FnBody.nil
-      pure (xs.push (Arg.var y), bs.push b)
+      xs' := xs'.push (Arg.var y)
+      bs := bs.push b
+  i := i + 1
+return (xs', bs)
 
 @[inline] def castArgsIfNeeded (xs : Array Arg) (ps : Array Param) (k : Array Arg → M FnBody) : M FnBody := do
 let (ys, bs) ← castArgsIfNeededAux xs fun i => ps[i].ty

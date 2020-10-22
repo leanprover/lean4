@@ -245,8 +245,16 @@ instance {α : Type u} {β : Type v} [HasFormat α] [HasFormat β] : HasFormat (
   paren $ format a ++ "," ++ line ++ format b
 ⟩
 
-def Format.joinArraySep {α : Type u} [HasFormat α] (a : Array α) (sep : Format) : Format :=
-  a.iterate nil (fun i a r => if i.val > 0 then r ++ sep ++ format a else r ++ format a)
+def Format.joinArraySep {α : Type u} [HasFormat α] (as : Array α) (sep : Format) : Format := do
+  let r := nil
+  let i := 0
+  for a in as do
+    if i > 0 then
+      r := r ++ sep ++ format a
+    else
+      r := r ++ format a
+    i := i + 1
+  return r
 
 instance : HasFormat Nat    := ⟨fun n => toString n⟩
 instance : HasFormat UInt16 := ⟨fun n => toString n⟩

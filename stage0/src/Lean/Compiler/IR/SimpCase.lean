@@ -17,15 +17,23 @@ else
   let alts := alts.pop;
   alts.push (Alt.default last.body)
 
-private def getOccsOf (alts : Array Alt) (i : Nat) : Nat :=
-let aBody := (alts.get! i).body;
-alts.iterateFrom 1 (i + 1) $ fun _ a' n =>
-  if a'.body == aBody then n+1 else n
+private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := do
+let aBody := (alts.get! i).body
+let n := 1
+for j in [i+1:alts.size] do
+  if alts[j].body == aBody then
+    n := n+1
+return n
 
-private def maxOccs (alts : Array Alt) : Alt × Nat :=
-alts.iterateFrom (alts.get! 0, getOccsOf alts 0) 1 $ fun i a p =>
-  let noccs := getOccsOf alts i.val;
-  if noccs > p.2 then (alts.get i, noccs) else p
+private def maxOccs (alts : Array Alt) : Alt × Nat := do
+let maxAlt := alts[0]
+let max    := getOccsOf alts 0
+for i in [1:alts.size] do
+  let curr := getOccsOf alts i
+  if curr > max then
+     maxAlt := alts[i]
+     max    := curr
+return (maxAlt, max)
 
 private def addDefault (alts : Array Alt) : Array Alt :=
 if alts.size <= 1 || alts.any Alt.isDefault then alts

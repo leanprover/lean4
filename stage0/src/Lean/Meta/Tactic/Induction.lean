@@ -159,7 +159,13 @@ withMVarContext mvarId do
     let (indices', mvarId) ← introNP mvarId indices.size
     let (majorFVarId', mvarId) ← intro1P mvarId
     -- Create FVarSubst with indices
-    let baseSubst : FVarSubst := indices.iterate {} (fun i index subst => subst.insert index.fvarId! (mkFVar (indices'.get! i.val)))
+    let baseSubst := do
+      let subst : FVarSubst := {}
+      let i := 0
+      for index in indices do
+        subst := subst.insert index.fvarId! (mkFVar indices'[i])
+        i     := i + 1
+      pure subst
     trace[Meta.Tactic.induction]! "after revert&intro\n{MessageData.ofGoal mvarId}"
     -- Update indices and major
     let indices := indices'.map mkFVar

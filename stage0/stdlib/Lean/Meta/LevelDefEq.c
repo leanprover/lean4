@@ -88,6 +88,7 @@ lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSelfMax___boxed(
 lean_object* l_Lean_setEnv___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_restore___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isDefEqNoConstantApprox___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__2;
+lean_object* l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_strictOccursMax___boxed(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Util_Trace_0__Lean_addNode___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isDefEq___rarg(lean_object*, lean_object*, lean_object*);
@@ -102,7 +103,6 @@ lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep_
 lean_object* l_Lean_throwError___at_Lean_Meta_getMVarDecl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedAux___rarg___closed__1;
 lean_object* l_Lean_Meta_isReadOnlyLevelMVar___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decAux_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_505____closed__2;
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_831____closed__1;
 lean_object* l_Lean_Meta_isExprDefEq___rarg___closed__2;
 lean_object* l_Lean_Meta_isLevelDefEqAux___closed__6;
@@ -145,7 +145,6 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_i
 lean_object* l_Lean_Meta_decLevel(lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_isLevelDefEq___spec__3___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getDecLevel(lean_object*);
-lean_object* l_Lean_MetavarContext_instantiateLevelMVars(lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_isLevelDefEqAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -157,6 +156,7 @@ lean_object* l_Lean_Meta_isLevelDefEqAux___closed__2;
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decAux_x3f_match__5(lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*);
 lean_object* l_Lean_Meta_isReadOnlyLevelMVar___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_517____closed__2;
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decLevelImp_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedAux___boxed(lean_object*);
 lean_object* l_Lean_Meta_decLevel_x3f___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -217,7 +217,6 @@ lean_object* l_Lean_Meta_isLevelDefEq___rarg(lean_object*, lean_object*, lean_ob
 uint8_t l_Lean_Level_isMVar(lean_object*);
 lean_object* l_Lean_Meta_isReadOnlyLevelMVar___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decAux_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_setMCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___closed__2;
 lean_object* l_Lean_Meta_isLevelDefEqAux___closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -3182,43 +3181,9 @@ return x_165;
 lean_object* l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_8 = lean_st_ref_get(x_4, x_7);
-x_9 = lean_ctor_get(x_8, 0);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_8, 1);
-lean_inc(x_10);
-lean_dec(x_8);
-x_11 = lean_ctor_get(x_9, 0);
-lean_inc(x_11);
-lean_dec(x_9);
-x_12 = l_Lean_MetavarContext_instantiateLevelMVars(x_1, x_11);
-x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-x_14 = lean_ctor_get(x_12, 1);
-lean_inc(x_14);
-lean_dec(x_12);
-x_15 = l_Lean_Meta_setMCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___spec__1(x_14, x_3, x_4, x_5, x_6, x_10);
-x_16 = !lean_is_exclusive(x_15);
-if (x_16 == 0)
-{
-lean_object* x_17; 
-x_17 = lean_ctor_get(x_15, 0);
-lean_dec(x_17);
-lean_ctor_set(x_15, 0, x_13);
-return x_15;
-}
-else
-{
-lean_object* x_18; lean_object* x_19; 
-x_18 = lean_ctor_get(x_15, 1);
-lean_inc(x_18);
-lean_dec(x_15);
-x_19 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_19, 0, x_13);
-lean_ctor_set(x_19, 1, x_18);
-return x_19;
-}
+lean_object* x_8; 
+x_8 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_3, x_4, x_5, x_6, x_7);
+return x_8;
 }
 }
 lean_object* l_Lean_addTrace___at_Lean_Meta_isLevelDefEqAux___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -3413,7 +3378,7 @@ static lean_object* _init_l_Lean_Meta_isLevelDefEqAux___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_505____closed__2;
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_517____closed__2;
 x_2 = l_Lean_Meta_isLevelDefEqAux___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -3517,7 +3482,7 @@ block_332:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 lean_inc(x_1);
-x_11 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_1, x_3, x_4, x_5, x_6, x_7, x_10);
+x_11 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_4, x_5, x_6, x_7, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
@@ -3526,7 +3491,7 @@ lean_dec(x_11);
 x_14 = l_Lean_Level_normalize(x_12);
 lean_dec(x_12);
 lean_inc(x_2);
-x_15 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_13);
+x_15 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_2, x_4, x_5, x_6, x_7, x_13);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_15, 1);
@@ -4791,7 +4756,7 @@ block_685:
 {
 lean_object* x_364; lean_object* x_365; lean_object* x_366; lean_object* x_367; lean_object* x_368; lean_object* x_369; lean_object* x_370; lean_object* x_371; uint8_t x_372; 
 lean_inc(x_1);
-x_364 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_1, x_3, x_4, x_5, x_6, x_7, x_363);
+x_364 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_4, x_5, x_6, x_7, x_363);
 x_365 = lean_ctor_get(x_364, 0);
 lean_inc(x_365);
 x_366 = lean_ctor_get(x_364, 1);
@@ -4800,7 +4765,7 @@ lean_dec(x_364);
 x_367 = l_Lean_Level_normalize(x_365);
 lean_dec(x_365);
 lean_inc(x_2);
-x_368 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_366);
+x_368 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_2, x_4, x_5, x_6, x_7, x_366);
 x_369 = lean_ctor_get(x_368, 0);
 lean_inc(x_369);
 x_370 = lean_ctor_get(x_368, 1);
@@ -6075,7 +6040,7 @@ block_1041:
 {
 lean_object* x_720; lean_object* x_721; lean_object* x_722; lean_object* x_723; lean_object* x_724; lean_object* x_725; lean_object* x_726; lean_object* x_727; uint8_t x_728; 
 lean_inc(x_1);
-x_720 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_1, x_3, x_4, x_5, x_6, x_7, x_719);
+x_720 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_4, x_5, x_6, x_7, x_719);
 x_721 = lean_ctor_get(x_720, 0);
 lean_inc(x_721);
 x_722 = lean_ctor_get(x_720, 1);
@@ -6084,7 +6049,7 @@ lean_dec(x_720);
 x_723 = l_Lean_Level_normalize(x_721);
 lean_dec(x_721);
 lean_inc(x_2);
-x_724 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_722);
+x_724 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_2, x_4, x_5, x_6, x_7, x_722);
 x_725 = lean_ctor_get(x_724, 0);
 lean_inc(x_725);
 x_726 = lean_ctor_get(x_724, 1);
@@ -7346,7 +7311,7 @@ block_1394:
 {
 lean_object* x_1073; lean_object* x_1074; lean_object* x_1075; lean_object* x_1076; lean_object* x_1077; lean_object* x_1078; lean_object* x_1079; lean_object* x_1080; uint8_t x_1081; 
 lean_inc(x_1);
-x_1073 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_1, x_3, x_4, x_5, x_6, x_7, x_1072);
+x_1073 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_4, x_5, x_6, x_7, x_1072);
 x_1074 = lean_ctor_get(x_1073, 0);
 lean_inc(x_1074);
 x_1075 = lean_ctor_get(x_1073, 1);
@@ -7355,7 +7320,7 @@ lean_dec(x_1073);
 x_1076 = l_Lean_Level_normalize(x_1074);
 lean_dec(x_1074);
 lean_inc(x_2);
-x_1077 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_1075);
+x_1077 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_2, x_4, x_5, x_6, x_7, x_1075);
 x_1078 = lean_ctor_get(x_1077, 0);
 lean_inc(x_1078);
 x_1079 = lean_ctor_get(x_1077, 1);
@@ -8617,7 +8582,7 @@ block_1747:
 {
 lean_object* x_1426; lean_object* x_1427; lean_object* x_1428; lean_object* x_1429; lean_object* x_1430; lean_object* x_1431; lean_object* x_1432; lean_object* x_1433; uint8_t x_1434; 
 lean_inc(x_1);
-x_1426 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_1, x_3, x_4, x_5, x_6, x_7, x_1425);
+x_1426 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_4, x_5, x_6, x_7, x_1425);
 x_1427 = lean_ctor_get(x_1426, 0);
 lean_inc(x_1427);
 x_1428 = lean_ctor_get(x_1426, 1);
@@ -8626,7 +8591,7 @@ lean_dec(x_1426);
 x_1429 = l_Lean_Level_normalize(x_1427);
 lean_dec(x_1427);
 lean_inc(x_2);
-x_1430 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_1428);
+x_1430 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_2, x_4, x_5, x_6, x_7, x_1428);
 x_1431 = lean_ctor_get(x_1430, 0);
 lean_inc(x_1431);
 x_1432 = lean_ctor_get(x_1430, 1);
@@ -9888,7 +9853,7 @@ block_2100:
 {
 lean_object* x_1779; lean_object* x_1780; lean_object* x_1781; lean_object* x_1782; lean_object* x_1783; lean_object* x_1784; lean_object* x_1785; lean_object* x_1786; uint8_t x_1787; 
 lean_inc(x_1);
-x_1779 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_1, x_3, x_4, x_5, x_6, x_7, x_1778);
+x_1779 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_4, x_5, x_6, x_7, x_1778);
 x_1780 = lean_ctor_get(x_1779, 0);
 lean_inc(x_1780);
 x_1781 = lean_ctor_get(x_1779, 1);
@@ -9897,7 +9862,7 @@ lean_dec(x_1779);
 x_1782 = l_Lean_Level_normalize(x_1780);
 lean_dec(x_1780);
 lean_inc(x_2);
-x_1783 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_1781);
+x_1783 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_2, x_4, x_5, x_6, x_7, x_1781);
 x_1784 = lean_ctor_get(x_1783, 0);
 lean_inc(x_1784);
 x_1785 = lean_ctor_get(x_1783, 1);
@@ -11161,7 +11126,7 @@ block_2453:
 {
 lean_object* x_2132; lean_object* x_2133; lean_object* x_2134; lean_object* x_2135; lean_object* x_2136; lean_object* x_2137; lean_object* x_2138; lean_object* x_2139; uint8_t x_2140; 
 lean_inc(x_1);
-x_2132 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_1, x_3, x_4, x_5, x_6, x_7, x_2131);
+x_2132 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_4, x_5, x_6, x_7, x_2131);
 x_2133 = lean_ctor_get(x_2132, 0);
 lean_inc(x_2133);
 x_2134 = lean_ctor_get(x_2132, 1);
@@ -11170,7 +11135,7 @@ lean_dec(x_2132);
 x_2135 = l_Lean_Level_normalize(x_2133);
 lean_dec(x_2133);
 lean_inc(x_2);
-x_2136 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_2134);
+x_2136 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_2, x_4, x_5, x_6, x_7, x_2134);
 x_2137 = lean_ctor_get(x_2136, 0);
 lean_inc(x_2137);
 x_2138 = lean_ctor_get(x_2136, 1);
@@ -12432,7 +12397,7 @@ block_2806:
 {
 lean_object* x_2485; lean_object* x_2486; lean_object* x_2487; lean_object* x_2488; lean_object* x_2489; lean_object* x_2490; lean_object* x_2491; lean_object* x_2492; uint8_t x_2493; 
 lean_inc(x_1);
-x_2485 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_1, x_3, x_4, x_5, x_6, x_7, x_2484);
+x_2485 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_4, x_5, x_6, x_7, x_2484);
 x_2486 = lean_ctor_get(x_2485, 0);
 lean_inc(x_2486);
 x_2487 = lean_ctor_get(x_2485, 1);
@@ -12441,7 +12406,7 @@ lean_dec(x_2485);
 x_2488 = l_Lean_Level_normalize(x_2486);
 lean_dec(x_2486);
 lean_inc(x_2);
-x_2489 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_2487);
+x_2489 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_2, x_4, x_5, x_6, x_7, x_2487);
 x_2490 = lean_ctor_get(x_2489, 0);
 lean_inc(x_2490);
 x_2491 = lean_ctor_get(x_2489, 1);
@@ -13703,7 +13668,7 @@ block_3159:
 {
 lean_object* x_2838; lean_object* x_2839; lean_object* x_2840; lean_object* x_2841; lean_object* x_2842; lean_object* x_2843; lean_object* x_2844; lean_object* x_2845; uint8_t x_2846; 
 lean_inc(x_1);
-x_2838 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_1, x_3, x_4, x_5, x_6, x_7, x_2837);
+x_2838 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_4, x_5, x_6, x_7, x_2837);
 x_2839 = lean_ctor_get(x_2838, 0);
 lean_inc(x_2839);
 x_2840 = lean_ctor_get(x_2838, 1);
@@ -13712,7 +13677,7 @@ lean_dec(x_2838);
 x_2841 = l_Lean_Level_normalize(x_2839);
 lean_dec(x_2839);
 lean_inc(x_2);
-x_2842 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_2840);
+x_2842 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_2, x_4, x_5, x_6, x_7, x_2840);
 x_2843 = lean_ctor_get(x_2842, 0);
 lean_inc(x_2843);
 x_2844 = lean_ctor_get(x_2842, 1);
@@ -14974,7 +14939,7 @@ block_3512:
 {
 lean_object* x_3191; lean_object* x_3192; lean_object* x_3193; lean_object* x_3194; lean_object* x_3195; lean_object* x_3196; lean_object* x_3197; lean_object* x_3198; uint8_t x_3199; 
 lean_inc(x_1);
-x_3191 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_1, x_3, x_4, x_5, x_6, x_7, x_3190);
+x_3191 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_1, x_4, x_5, x_6, x_7, x_3190);
 x_3192 = lean_ctor_get(x_3191, 0);
 lean_inc(x_3192);
 x_3193 = lean_ctor_get(x_3191, 1);
@@ -14983,7 +14948,7 @@ lean_dec(x_3191);
 x_3194 = l_Lean_Level_normalize(x_3192);
 lean_dec(x_3192);
 lean_inc(x_2);
-x_3195 = l_Lean_Meta_instantiateLevelMVars___at_Lean_Meta_isLevelDefEqAux___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_3193);
+x_3195 = l_Lean_MetavarContext_instantiateLevelMVars___at_Lean_Meta_instantiateLevelMVarsImp___spec__1(x_2, x_4, x_5, x_6, x_7, x_3193);
 x_3196 = lean_ctor_get(x_3195, 0);
 lean_inc(x_3196);
 x_3197 = lean_ctor_get(x_3195, 1);
@@ -26434,7 +26399,7 @@ static lean_object* _init_l_Lean_Meta_isExprDefEq___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_505____closed__2;
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_517____closed__2;
 x_2 = l_Lean_Meta_isExprDefEq___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Except
-// Imports: Init.Data.ToString.Basic Init.Control.Alternative Init.Control.MonadControl Init.Control.Id Init.Control.MonadFunctor Init.Control.MonadRun
+// Imports: Init.Data.ToString.Basic Init.Control.Alternative Init.Control.MonadControl Init.Control.Id Init.Control.MonadFunctor
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -32,7 +32,6 @@ lean_object* l_Except_toOption___rarg(lean_object*);
 lean_object* l_MonadExcept_orelse_x27___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadExcept_HasOrelse(lean_object*, lean_object*);
 lean_object* l_Except_Monad___lambda__3(lean_object*, lean_object*, lean_object*);
-lean_object* l_ExceptT_MonadRun___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_observing___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_return(lean_object*, lean_object*);
 lean_object* l_finally(lean_object*, lean_object*, lean_object*);
@@ -40,7 +39,6 @@ lean_object* l_ExceptT_Monad___rarg___lambda__8(lean_object*, lean_object*);
 lean_object* l_Except_toOption___rarg___boxed(lean_object*);
 lean_object* l_ExceptT_MonadExceptAdapter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_bind(lean_object*, lean_object*, lean_object*);
-lean_object* l_ExceptT_MonadRun(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_Monad___closed__10;
 lean_object* l_ExceptT_catch___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_toBool___rarg___boxed(lean_object*);
@@ -2248,22 +2246,6 @@ x_4 = lean_alloc_closure((void*)(l_ExceptT_MonadExceptAdapter___rarg), 4, 0);
 return x_4;
 }
 }
-lean_object* l_ExceptT_MonadRun___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_apply_2(x_1, lean_box(0), x_3);
-return x_4;
-}
-}
-lean_object* l_ExceptT_MonadRun(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_ExceptT_MonadRun___rarg), 3, 0);
-return x_4;
-}
-}
 lean_object* l_observing___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2781,7 +2763,6 @@ lean_object* initialize_Init_Control_Alternative(lean_object*);
 lean_object* initialize_Init_Control_MonadControl(lean_object*);
 lean_object* initialize_Init_Control_Id(lean_object*);
 lean_object* initialize_Init_Control_MonadFunctor(lean_object*);
-lean_object* initialize_Init_Control_MonadRun(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control_Except(lean_object* w) {
 lean_object * res;
@@ -2800,9 +2781,6 @@ res = initialize_Init_Control_Id(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_MonadFunctor(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_MonadRun(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Except_toString___rarg___closed__1 = _init_l_Except_toString___rarg___closed__1();

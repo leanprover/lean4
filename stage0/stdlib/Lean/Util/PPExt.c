@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__5;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____lambda__2(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_MetavarContext_Lean_MetavarContext___instance__4___closed__1;
 lean_object* l_Lean_PPContext_mctx___default;
 lean_object* l_Lean_MetavarContext_instantiateMVars(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__7;
@@ -47,7 +48,6 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_Lean_ppExpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____closed__1;
-extern lean_object* l_Lean_MetavarContext_Lean_MetavarContext___instance__3___closed__1;
 lean_object* l_Lean_PPContext_currNamespace___default;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__10;
 uint8_t l_Lean_getPPRaw(lean_object*);
@@ -254,7 +254,7 @@ static lean_object* _init_l_Lean_PPContext_mctx___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_MetavarContext_Lean_MetavarContext___instance__3___closed__1;
+x_1 = l_Lean_MetavarContext_Lean_MetavarContext___instance__4___closed__1;
 return x_1;
 }
 }

@@ -199,23 +199,6 @@ instance [Monad m] : MonadStateAdapter σ σ' (StateT σ m) (StateT σ' m) :=
 ⟨fun σ'' α => StateT.adapt⟩
 end
 
-instance (σ : Type u) (m out : Type u → Type v) [MonadRun out m] [Functor m] : MonadRun (fun α => σ → out α) (StateT σ m) :=
-⟨fun α x => run ∘ StateT.run' x⟩
-
-class MonadStateRunner (σ : Type u) (m m' : Type u → Type u) :=
-(runState {α : Type u} : m α → σ → m' α)
-export MonadStateRunner (runState)
-
-section
-variables {σ σ' : Type u} {m m' : Type u → Type u}
-
-instance monadStateRunnerTrans {n n' : Type u → Type u} [MonadStateRunner σ m m'] [MonadFunctor m m' n n'] : MonadStateRunner σ n n' :=
-⟨fun α x s => monadMap (fun (α) (y : m α) => (runState y s : m' α)) x⟩
-
-instance StateT.MonadStateRunner [Monad m] : MonadStateRunner σ (StateT σ m) m :=
-⟨fun α x s => Prod.fst <$> x s⟩
-end
-
 instance StateT.monadControl (σ : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (StateT σ m) := {
   stM      := fun α   => α × σ,
   liftWith := fun α f => do s ← get; liftM (f (fun β x => x.run s)),

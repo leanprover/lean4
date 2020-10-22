@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Id
-// Imports: Init.Control.MonadLift Init.Control.MonadRun
+// Imports: Init.Control.MonadLift
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -37,10 +37,8 @@ lean_object* l_Id_Monad;
 lean_object* l_Id_HasOfNat___rarg___boxed(lean_object*);
 lean_object* l_Id_Monad___closed__1;
 lean_object* l_Id_Monad___closed__6;
-lean_object* l_Id_MonadRun;
 lean_object* l_Id_Monad___closed__5;
 lean_object* l_Id_Monad___closed__3;
-lean_object* l_Id_MonadRun___closed__1;
 lean_object* l_Id_Monad___closed__2;
 lean_object* l_Id_Monad___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_run___rarg(lean_object*);
@@ -324,33 +322,13 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Id_MonadRun___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_run), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Id_MonadRun() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Id_MonadRun___closed__1;
-return x_1;
-}
-}
 lean_object* initialize_Init_Control_MonadLift(lean_object*);
-lean_object* initialize_Init_Control_MonadRun(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control_Id(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Control_MonadLift(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_MonadRun(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Id_HasBind___closed__1 = _init_l_Id_HasBind___closed__1();
@@ -377,10 +355,6 @@ l_Id_Monad___closed__9 = _init_l_Id_Monad___closed__9();
 lean_mark_persistent(l_Id_Monad___closed__9);
 l_Id_Monad = _init_l_Id_Monad();
 lean_mark_persistent(l_Id_Monad);
-l_Id_MonadRun___closed__1 = _init_l_Id_MonadRun___closed__1();
-lean_mark_persistent(l_Id_MonadRun___closed__1);
-l_Id_MonadRun = _init_l_Id_MonadRun();
-lean_mark_persistent(l_Id_MonadRun);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

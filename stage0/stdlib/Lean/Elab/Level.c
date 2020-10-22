@@ -23,6 +23,7 @@ extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__1___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__7;
 lean_object* lean_array_uget(lean_object*, size_t);
+extern lean_object* l_Lean_MetavarContext_MkBinding_Lean_MetavarContext___instance__7___closed__1;
 lean_object* l_Lean_MetavarContext_addLevelMVarDecl(lean_object*, lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Elab_Level_elabLevel___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -67,7 +68,6 @@ lean_object* l_Lean_Level_addOffsetAux(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1(lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__2;
-extern lean_object* l_Lean_MetavarContext_MkBinding_Lean_MetavarContext___instance__5___closed__1;
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__3___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__1;
@@ -350,7 +350,7 @@ static lean_object* _init_l_Lean_Elab_Level_Lean_Elab_Level___instance__3___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MetavarContext_MkBinding_Lean_MetavarContext___instance__5___closed__1;
+x_1 = l_Lean_MetavarContext_MkBinding_Lean_MetavarContext___instance__7___closed__1;
 x_2 = l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__1;
 x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Level_Lean_Elab_Level___instance__1___spec__2___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);

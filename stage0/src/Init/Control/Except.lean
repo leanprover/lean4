@@ -11,7 +11,6 @@ import Init.Control.Alternative
 import Init.Control.MonadControl
 import Init.Control.Id
 import Init.Control.MonadFunctor
-import Init.Control.MonadRun
 
 universes u v w u'
 
@@ -199,9 +198,6 @@ instance monadExceptAdapterTrans {n n' : Type u → Type v} [MonadExceptAdapter 
 instance [Monad m] : MonadExceptAdapter ε ε' (ExceptT ε m) (ExceptT ε' m) :=
 ⟨fun α => ExceptT.adapt⟩
 end
-
-instance (ε m out) [MonadRun out m] : MonadRun (fun α => out (Except ε α)) (ExceptT ε m) :=
-⟨fun α => run⟩
 
 @[inline] def observing {ε α : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) : m (Except ε α) :=
 catch (do a ← x; pure (Except.ok a)) (fun ex => pure (Except.error ex))

@@ -32,6 +32,7 @@ extern lean_object* l_addParenHeuristic___closed__2;
 lean_object* l_Lean_KernelException_toMessageData___closed__49;
 lean_object* l_Lean_Message_getMessageStringEx_match__1(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_MetavarContext_Lean_MetavarContext___instance__4___closed__1;
 lean_object* l_Array_umapMAux___main___at_Lean_MessageLog_errorsToWarnings___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1836____closed__4;
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_toList___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,7 +227,6 @@ lean_object* l_Lean_KernelException_toMessageData___closed__15;
 uint8_t l_Std_PersistentArray_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_addMessageContextPartial___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__42;
-extern lean_object* l_Lean_MetavarContext_Lean_MetavarContext___instance__3___closed__1;
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_toList___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MessageLog_toList___spec__3(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_toList___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5466,7 +5466,7 @@ lean_object* l___private_Lean_Message_0__Lean_KernelException_mkCtx(lean_object*
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = l_Lean_MetavarContext_Lean_MetavarContext___instance__3___closed__1;
+x_5 = l_Lean_MetavarContext_Lean_MetavarContext___instance__4___closed__1;
 x_6 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_5);
@@ -6704,7 +6704,7 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = l_Lean_MetavarContext_Lean_MetavarContext___instance__3___closed__1;
+x_7 = l_Lean_MetavarContext_Lean_MetavarContext___instance__4___closed__1;
 x_8 = l_Lean_LocalContext_Lean_LocalContext___instance__2___closed__1;
 x_9 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_9, 0, x_2);
@@ -6812,17 +6812,20 @@ return x_9;
 lean_object* l_Lean_addMessageContextFull___rarg___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; 
-lean_inc(x_3);
-x_8 = lean_alloc_closure((void*)(l_Lean_addMessageContextFull___rarg___lambda__3), 7, 6);
-lean_closure_set(x_8, 0, x_1);
-lean_closure_set(x_8, 1, x_7);
-lean_closure_set(x_8, 2, x_2);
-lean_closure_set(x_8, 3, x_3);
-lean_closure_set(x_8, 4, x_4);
-lean_closure_set(x_8, 5, x_5);
-x_9 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_6, x_8);
-return x_9;
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+lean_inc(x_4);
+x_9 = lean_alloc_closure((void*)(l_Lean_addMessageContextFull___rarg___lambda__3), 7, 6);
+lean_closure_set(x_9, 0, x_2);
+lean_closure_set(x_9, 1, x_7);
+lean_closure_set(x_9, 2, x_3);
+lean_closure_set(x_9, 3, x_4);
+lean_closure_set(x_9, 4, x_5);
+lean_closure_set(x_9, 5, x_6);
+x_10 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_8, x_9);
+return x_10;
 }
 }
 lean_object* l_Lean_addMessageContextFull___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -6836,12 +6839,12 @@ lean_inc(x_8);
 lean_dec(x_2);
 lean_inc(x_7);
 x_9 = lean_alloc_closure((void*)(l_Lean_addMessageContextFull___rarg___lambda__4), 7, 6);
-lean_closure_set(x_9, 0, x_1);
-lean_closure_set(x_9, 1, x_6);
-lean_closure_set(x_9, 2, x_7);
-lean_closure_set(x_9, 3, x_5);
-lean_closure_set(x_9, 4, x_4);
-lean_closure_set(x_9, 5, x_3);
+lean_closure_set(x_9, 0, x_3);
+lean_closure_set(x_9, 1, x_1);
+lean_closure_set(x_9, 2, x_6);
+lean_closure_set(x_9, 3, x_7);
+lean_closure_set(x_9, 4, x_5);
+lean_closure_set(x_9, 5, x_4);
 x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
 return x_10;
 }

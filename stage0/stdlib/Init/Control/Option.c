@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_OptionT_MonadFunctor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_OptionT_MonadRun___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_Alternative(lean_object*);
 lean_object* l_OptionT_MonadExceptOf___rarg(lean_object*);
 lean_object* l_OptionT_orelse(lean_object*);
@@ -41,7 +40,6 @@ lean_object* l_OptionT_Monad___rarg___lambda__8(lean_object*, lean_object*, lean
 lean_object* l_OptionT_Monad___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_MonadFunctor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_MonadExceptOf(lean_object*);
-lean_object* l_OptionT_MonadRun(lean_object*, lean_object*);
 lean_object* l_OptionT_Alternative___rarg(lean_object*);
 lean_object* l_OptionT_lift___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_Monad___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -799,22 +797,6 @@ lean_object* x_4;
 x_4 = l_OptionT_MonadExceptOf___rarg___lambda__1(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
-}
-}
-lean_object* l_OptionT_MonadRun___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_apply_2(x_1, lean_box(0), x_3);
-return x_4;
-}
-}
-lean_object* l_OptionT_MonadRun(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_OptionT_MonadRun___rarg), 3, 0);
-return x_3;
 }
 }
 lean_object* initialize_Init_Control_Alternative(lean_object*);

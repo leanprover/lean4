@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control
-// Imports: Init.Control.Applicative Init.Control.Functor Init.Control.Alternative Init.Control.Monad Init.Control.MonadLift Init.Control.MonadFunctor Init.Control.MonadRun Init.Control.MonadControl Init.Control.State Init.Control.StateRef Init.Control.Id Init.Control.Except Init.Control.Reader Init.Control.Option Init.Control.Conditional
+// Imports: Init.Control.Applicative Init.Control.Functor Init.Control.Alternative Init.Control.Monad Init.Control.MonadLift Init.Control.MonadFunctor Init.Control.MonadControl Init.Control.State Init.Control.StateRef Init.Control.Id Init.Control.Except Init.Control.Reader Init.Control.Option Init.Control.Conditional
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,7 +19,6 @@ lean_object* initialize_Init_Control_Alternative(lean_object*);
 lean_object* initialize_Init_Control_Monad(lean_object*);
 lean_object* initialize_Init_Control_MonadLift(lean_object*);
 lean_object* initialize_Init_Control_MonadFunctor(lean_object*);
-lean_object* initialize_Init_Control_MonadRun(lean_object*);
 lean_object* initialize_Init_Control_MonadControl(lean_object*);
 lean_object* initialize_Init_Control_State(lean_object*);
 lean_object* initialize_Init_Control_StateRef(lean_object*);
@@ -49,9 +48,6 @@ res = initialize_Init_Control_MonadLift(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_MonadFunctor(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_MonadRun(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_MonadControl(lean_io_mk_world());

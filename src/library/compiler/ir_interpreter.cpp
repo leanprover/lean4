@@ -809,7 +809,7 @@ class interpreter {
             }
         } else {
             if (decl_tag(e.m_decl) == decl_kind::Extern) {
-                throw exception(sstream() << "unexpected external declaration '" << fn << "'");
+                throw exception(sstream() << "could not find native implementation of external declaration '" << fn << "'");
             }
             // evaluate args in old stack frame
             for (const auto & arg : args) {

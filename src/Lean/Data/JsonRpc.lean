@@ -41,34 +41,32 @@ inductive ErrorCode
 
 instance : HasFromJson ErrorCode := ⟨fun j =>
   match j with
-  | num v =>
-    if v == (0-32700 : Int) then ErrorCode.parseError
-    else if v == (0-32600 : Int) then ErrorCode.invalidRequest
-    else if v == (0-32601 : Int) then ErrorCode.methodNotFound
-    else if v == (0-32602 : Int) then ErrorCode.invalidParams
-    else if v == (0-32603 : Int) then ErrorCode.internalError
-    else if v == (0-32099 : Int) then ErrorCode.serverErrorStart
-    else if v == (0-32000 : Int) then ErrorCode.serverErrorEnd
-    else if v == (0-32002 : Int) then ErrorCode.serverNotInitialized
-    else if v == (0-32001 : Int) then ErrorCode.unknownErrorCode
-    else if v == (0-32800 : Int) then ErrorCode.requestCancelled
-    else if v == (0-32801 : Int) then ErrorCode.contentModified
-    else none
+  | num (-32700 : Int) => ErrorCode.parseError
+  | num (-32600 : Int) => ErrorCode.invalidRequest
+  | num (-32601 : Int) => ErrorCode.methodNotFound
+  | num (-32602 : Int) => ErrorCode.invalidParams
+  | num (-32603 : Int) => ErrorCode.internalError
+  | num (-32099 : Int) => ErrorCode.serverErrorStart
+  | num (-32000 : Int) => ErrorCode.serverErrorEnd
+  | num (-32002 : Int) => ErrorCode.serverNotInitialized
+  | num (-32001 : Int) => ErrorCode.unknownErrorCode
+  | num (-32800 : Int) => ErrorCode.requestCancelled
+  | num (-32801 : Int) => ErrorCode.contentModified
   | _  => none⟩
 
 instance : HasToJson ErrorCode := ⟨fun e =>
   match e with
-  | ErrorCode.parseError           => (0-32700 : Int)
-  | ErrorCode.invalidRequest       => (0-32600 : Int)
-  | ErrorCode.methodNotFound       => (0-32601 : Int)
-  | ErrorCode.invalidParams        => (0-32602 : Int)
-  | ErrorCode.internalError        => (0-32603 : Int)
-  | ErrorCode.serverErrorStart     => (0-32099 : Int)
-  | ErrorCode.serverErrorEnd       => (0-32000 : Int)
-  | ErrorCode.serverNotInitialized => (0-32002 : Int)
-  | ErrorCode.unknownErrorCode     => (0-32001 : Int)
-  | ErrorCode.requestCancelled     => (0-32800 : Int)
-  | ErrorCode.contentModified      => (0-32801 : Int)⟩
+  | ErrorCode.parseError           => (-32700 : Int)
+  | ErrorCode.invalidRequest       => (-32600 : Int)
+  | ErrorCode.methodNotFound       => (-32601 : Int)
+  | ErrorCode.invalidParams        => (-32602 : Int)
+  | ErrorCode.internalError        => (-32603 : Int)
+  | ErrorCode.serverErrorStart     => (-32099 : Int)
+  | ErrorCode.serverErrorEnd       => (-32000 : Int)
+  | ErrorCode.serverNotInitialized => (-32002 : Int)
+  | ErrorCode.unknownErrorCode     => (-32001 : Int)
+  | ErrorCode.requestCancelled     => (-32800 : Int)
+  | ErrorCode.contentModified      => (-32801 : Int)⟩
 
 /- Uses separate constructors for notifications and errors because client and server
 behavior is expected to be wildly different for both. -/

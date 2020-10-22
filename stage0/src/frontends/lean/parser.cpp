@@ -2058,6 +2058,8 @@ public:
     lazy_type_context(environment const & env, options const & opts):m_env(env), m_opts(opts) {}
     virtual ~lazy_type_context() {}
     virtual environment const & env() const override { return const_cast<lazy_type_context*>(this)->ctx().env(); }
+    virtual local_context const & lctx() const override { return const_cast<lazy_type_context*>(this)->ctx().lctx(); }
+    virtual metavar_context const & mctx() const override { return const_cast<lazy_type_context*>(this)->ctx().mctx(); }
     virtual expr whnf(expr const & e) override { return ctx().whnf(e); }
     virtual bool is_def_eq(expr const & e1, expr const & e2) override { return ctx().is_def_eq(e1, e2); }
     virtual expr infer(expr const & e) override { return ctx().infer(e); }

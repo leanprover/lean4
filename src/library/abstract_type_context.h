@@ -6,12 +6,16 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
+#include "library/local_context.h"
+#include "library/metavar_context.h"
 
 namespace lean {
 class abstract_type_context {
 public:
     virtual ~abstract_type_context() {}
     virtual environment const & env() const = 0;
+    virtual local_context const & lctx() const = 0;
+    virtual metavar_context const & mctx() const = 0;
     virtual expr whnf(expr const & e) = 0;
     virtual name next_name() = 0;
     virtual expr relaxed_whnf(expr const & e) { return whnf(e); }

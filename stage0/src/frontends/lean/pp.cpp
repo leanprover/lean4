@@ -17,8 +17,7 @@ formatter_factory mk_pretty_formatter_factory() {
     return [](environment const & env, options const & o, abstract_type_context & ctx) { // NOLINT
         return formatter(o, [&](expr const & e, options const & new_o) {
             // what could ever go wrong
-            type_context_old & tctx = dynamic_cast<type_context_old &>(ctx);
-            return get_io_result<format>(lean_pp_expr(env.to_obj_arg(), tctx.mctx().to_obj_arg(), tctx.lctx().to_obj_arg(), new_o.to_obj_arg(), e.to_obj_arg(), box(0)));
+            return get_io_result<format>(lean_pp_expr(env.to_obj_arg(), ctx.mctx().to_obj_arg(), ctx.lctx().to_obj_arg(), new_o.to_obj_arg(), e.to_obj_arg(), box(0)));
         });
     };
 }

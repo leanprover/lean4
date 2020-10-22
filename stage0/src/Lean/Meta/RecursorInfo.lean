@@ -269,11 +269,14 @@ match cinfo with
 | _                        => mkRecursorInfoAux cinfo majorPos?
 
 builtin_initialize recursorAttribute : ParametricAttribute Nat ←
-  registerParametricAttribute `recursor "user defined recursor, numerical parameter specifies position of the major premise"
-    (fun _ stx => ofExcept $ syntaxToMajorPos stx)
-    (fun declName majorPos => do
-      (mkRecursorInfoCore declName (some majorPos)).run'
-      pure ())
+registerParametricAttribute {
+  name := `recursor,
+  descr := "user defined recursor, numerical parameter specifies position of the major premise",
+  getParam := fun _ stx => ofExcept $ syntaxToMajorPos stx,
+  afterSet := fun declName majorPos => do
+    (mkRecursorInfoCore declName (some majorPos)).run'
+    pure ()
+}
 
 def getMajorPos? (env : Environment) (declName : Name) : Option Nat :=
 recursorAttribute.getParam env declName

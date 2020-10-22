@@ -22,26 +22,45 @@ match getIOTypeArg type with
 | some type => isUnitType type
 | _ => false
 
-def registerInitAttr (attrName : Name) : IO (ParametricAttribute Name) :=
-registerParametricAttribute attrName "initialization procedure for global references" fun declName stx => do
-  let decl ← getConstInfo declName
-  match attrParamSyntaxToIdentifier stx with
-  | some initFnName =>
-    let initFnName ← resolveGlobalConstNoOverload initFnName
-    let initDecl ← getConstInfo initFnName
-    match getIOTypeArg initDecl.type with
-    | none => throwError ("initialization function '" ++ initFnName ++ "' must have type of the form `IO <type>`")
-    | some initTypeArg =>
-      if decl.type == initTypeArg then pure initFnName
-      else throwError ("initialization function '" ++ initFnName ++ "' type mismatch")
-  | _ => match stx with
-    | Syntax.missing =>
-      if isIOUnit decl.type then pure Name.anonymous
-      else throwError "initialization function must have type `IO Unit`"
-    | _ => throwError "unexpected kind of argument"
+/-- Run the initializer for `decl` and store its value for global access. Should only be used while importing. -/
+@[extern "lean_run_init"]
+unsafe constant runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit := arbitrary _
 
-builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init
-builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit
+unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name) :=
+registerParametricAttribute {
+  name := attrName,
+  descr := "initialization procedure for global references",
+  getParam := fun declName stx => do
+    let decl ← getConstInfo declName
+    match attrParamSyntaxToIdentifier stx with
+    | some initFnName =>
+      let initFnName ← resolveGlobalConstNoOverload initFnName
+      let initDecl ← getConstInfo initFnName
+      match getIOTypeArg initDecl.type with
+      | none => throwError ("initialization function '" ++ initFnName ++ "' must have type of the form `IO <type>`")
+      | some initTypeArg =>
+        if decl.type == initTypeArg then pure initFnName
+        else throwError ("initialization function '" ++ initFnName ++ "' type mismatch")
+    | _ => match stx with
+      | Syntax.missing =>
+        if isIOUnit decl.type then pure Name.anonymous
+        else throwError "initialization function must have type `IO Unit`"
+      | _ => throwError "unexpected kind of argument",
+  afterImport := fun entries => do
+    let ctx ← read
+    when runAfterImport do
+      for modEntries in entries do
+        for (decl, initDecl) in modEntries do
+          if initDecl.isAnonymous then
+            _ ← IO.ofExcept $ ctx.env.evalConst (IO Unit) ctx.opts decl
+          else runInit ctx.env ctx.opts decl initDecl
+}
+
+@[implementedBy registerInitAttrUnsafe]
+constant registerInitAttr (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name) := arbitrary _
+
+builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init true
+builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit false
 
 def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Option Name :=
 match attr.getParam env fn with

@@ -36,6 +36,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include <lean/flet.h>
 #include <lean/apply.h>
 #include <lean/interrupt.h>
+#include <lean/io.h>
 #include "library/trace.h"
 #include "library/compiler/ir.h"
 #include "library/compiler/init_attribute.h"
@@ -192,6 +193,9 @@ static string_ref * g_boxed_suffix = nullptr;
 static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
 
+// constants (lacking native declarations) initialized by `lean_run_init`
+static name_map<object *> * g_init_globals;
+
 // reuse the compiler's name mangling to compute native symbol names
 extern "C" object * lean_name_mangle(object * n, object * pre);
 string_ref name_mangle(name const & n, string_ref const & pre) {
@@ -205,6 +209,16 @@ format format_fn_body_head(fn_body const & b) {
 
 static bool type_is_scalar(type t) {
     return t != type::Object && t != type::TObject && t != type::Irrelevant;
+}
+
+extern "C" object* lean_get_regular_init_fn_name_for(object* env, object* fn);
+optional<name> get_regular_init_fn_name_for(environment const & env, name const & n) {
+    return to_optional<name>(lean_get_regular_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
+}
+
+extern "C" object* lean_get_builtin_init_fn_name_for(object* env, object* fn);
+optional<name> get_builtin_init_fn_name_for(environment const & env, name const & n) {
+    return to_optional<name>(lean_get_builtin_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 
 /** \brief Value stored in an interpreter variable slot */
@@ -695,7 +709,7 @@ class interpreter {
             return *e;
         } else {
             symbol_cache_entry e_new { get_decl(fn), nullptr, false };
-            if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern) {
+            if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
                 string_ref mangled = name_mangle(fn, *g_mangle_prefix);
                 string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
                 // check for boxed version first
@@ -723,14 +737,21 @@ class interpreter {
 
     /** \brief Evaluate nullary function ("constant"). */
     value load(name const & fn, type t) {
-        constant_cache_entry const * cached = m_constant_cache.find(fn);
-        if (cached) {
+        if (constant_cache_entry const * cached = m_constant_cache.find(fn)) {
             if (!cached->m_is_scalar) {
                 inc(cached->m_val.m_obj);
             }
             return cached->m_val;
         }
+        if (object * const * o = g_init_globals->find(fn)) {
+            // persistent, so no `inc` needed
+            return *o;
+        }
 
+        if (get_regular_init_fn_name_for(m_env, fn)) {
+            // We don't know whether `[init]` decls can be re-executed, so let's not.
+            throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
+        }
         symbol_cache_entry e = lookup_symbol(fn);
         if (e.m_addr) {
             // constants do not have boxed wrappers, but we'll survive
@@ -949,6 +970,29 @@ public:
             return 1;
         }
     }
+
+    object * run_init(name const & decl, name const & init_decl) {
+        try {
+            object * args[] = { io_mk_world() };
+            object * r = call_boxed(init_decl, 1, args);
+            if (io_result_is_ok(r)) {
+                object * o = io_result_get_value(r);
+                mark_persistent(o);
+                dec_ref(r);
+                symbol_cache_entry e = lookup_symbol(decl);
+                if (e.m_addr) {
+                    *((object **)e.m_addr) = o;
+                } else {
+                    g_init_globals->insert(decl, o);
+                }
+                return lean_io_result_mk_ok(box(0));
+            } else {
+                return r;
+            }
+        } catch (exception & ex) {
+            return io_result_mk_error(ex.what());
+        }
+    }
 };
 
 object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
@@ -965,6 +1009,10 @@ extern "C" object * lean_eval_const(object * env, object * opts, object * c) {
         return mk_cnstr(0, string_ref(ex.what())).steal();
     }
 }
+
+extern "C" object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
+    return interpreter(TO_REF(environment, env), TO_REF(options, opts)).run_init(TO_REF(name, decl), TO_REF(name, init_decl));
+}
 }
 
 void initialize_ir_interpreter() {
@@ -975,6 +1023,7 @@ void initialize_ir_interpreter() {
     ir::g_boxed_mangled_suffix = new string_ref("___boxed");
     mark_persistent(ir::g_boxed_mangled_suffix->raw());
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
+    ir::g_init_globals = new name_map<object *>();
     register_bool_option(*ir::g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE, "(interpreter) whether to use precompiled code where available");
     DEBUG_CODE({
         register_trace_class({"interpreter"});
@@ -984,5 +1033,10 @@ void initialize_ir_interpreter() {
 }
 
 void finalize_ir_interpreter() {
+    delete ir::g_init_globals;
+    delete ir::g_interpreter_prefer_native;
+    delete ir::g_boxed_mangled_suffix;
+    delete ir::g_boxed_suffix;
+    delete ir::g_mangle_prefix;
 }
 }

@@ -91,6 +91,7 @@ uint8_t l_Char_isDigit(uint32_t);
 lean_object* l_Lean_charLitKind___closed__2;
 lean_object* l_Lean_Substring_HasQuote(lean_object*);
 lean_object* l___private_Init_LeanInit_8__decodeOctalLitAux___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_8__decodeOctalLitAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isGreek___boxed(lean_object*);
 lean_object* l_Lean_Substring_HasQuote___closed__2;
@@ -341,6 +342,7 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 uint8_t l_Lean_isGreek(uint32_t);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_MacroScopesView_review(lean_object*);
+lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_filterSepElems(lean_object*, lean_object*);
 lean_object* l_Array_mapSepElemsM___at_Array_mapSepElems___spec__1(lean_object*, lean_object*);
@@ -1213,6 +1215,17 @@ lean_object* x_2; lean_object* x_3;
 x_2 = lean_box(0);
 x_3 = lean_name_mk_string(x_2, x_1);
 return x_3;
+}
+}
+lean_object* l_Lean_Name_beq___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_name_eq(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* l_Lean_Name_Name_beq___boxed(lean_object* x_1, lean_object* x_2) {

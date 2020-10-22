@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Marc Huisinga. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -19,16 +20,15 @@ open Json
 -- TODO: right now we ignore the client's capabilities
 inductive ClientCapabilities | mk
 
-instance ClientCapabilities.hasFromJson : HasFromJson ClientCapabilities :=
-⟨fun j => ClientCapabilities.mk⟩
+instance : HasFromJson ClientCapabilities :=
+  ⟨fun j => ClientCapabilities.mk⟩
 
 -- TODO largely unimplemented
 structure ServerCapabilities :=
-(textDocumentSync? : Option TextDocumentSyncOptions := none)
-(hoverProvider : Bool := false)
+  (textDocumentSync? : Option TextDocumentSyncOptions := none)
+  (hoverProvider : Bool := false)
 
-instance ServerCapabilities.hasToJson : HasToJson ServerCapabilities :=
-⟨fun o => mkObj $
+instance : HasToJson ServerCapabilities := ⟨fun o => mkObj $
   opt "textDocumentSync" o.textDocumentSync? ++
   [⟨"hoverProvider", o.hoverProvider⟩]⟩
 

@@ -37,3 +37,25 @@ h₂ ▸ h₁
 
 theorem ex10 (a b : Nat) (h : a = b) : b = a :=
 h ▸ rfl
+
+def ex11  {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = n) (h₂ : i < n) : α :=
+  a.get ⟨i, h₁ ▸ h₂⟩
+
+theorem ex12 {α : Type u} {n : Nat}
+  (a b : Array α)
+  (hsz₁ : a.size = n) (hsz₂ : b.size = n)
+  (h : ∀ (i : Nat) (hi : i < n), a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
+Array.ext a b (hsz₁.trans hsz₂.symm) fun i hi₁ hi₂ => h i (hsz₁ ▸ hi₁)
+
+def toArrayLit {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
+List.toArray $ Array.toListLitAux a n hsz n (hsz ▸ Nat.leRefl _) []
+
+partial def isEqvAux {α} (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
+  if h : i < a.size then
+     let aidx : Fin a.size := ⟨i, h⟩
+     let bidx : Fin b.size := ⟨i, hsz ▸ h⟩
+     match p (a.get aidx) (b.get bidx) with
+     | true  => isEqvAux a b hsz p (i+1)
+     | false => false
+  else
+    true

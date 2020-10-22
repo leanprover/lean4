@@ -327,6 +327,7 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
     throwError! "invalid `▸` notation, expected type must be known"
   let expectedType ← instantiateMVars expectedType
   if expectedType.hasExprMVar then
+    tryPostpone
     throwError! "invalid `▸` notation, expected type contains metavariables{indentExpr expectedType}"
   match_syntax stx with
   | `($heq ▸ $h) => do

@@ -278,14 +278,15 @@ private partial def withFields {α}
       match type?, value? with
       | none,      none => throwError "invalid field, type expected"
       | some type, _    =>
-        withLocalDecl view.name view.binderInfo type $ fun fieldFVar =>
+        withLocalDecl view.name view.binderInfo type fun fieldFVar =>
           let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
                                     kind := StructFieldKind.newField, inferMod := view.inferMod }
           withFields views (i+1) infos k
       | none, some value =>
         let type ← inferType value
         withLocalDecl view.name view.binderInfo type fun fieldFVar =>
-          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, kind := StructFieldKind.newField, inferMod := view.inferMod }
+          let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
+                                    kind := StructFieldKind.newField, inferMod := view.inferMod }
           withFields views (i+1) infos k
     | some info =>
       match info.kind with

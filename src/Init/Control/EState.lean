@@ -133,16 +133,6 @@ instance : MonadFinally (EStateM ε σ) :=
     | Result.ok _ s     => Result.error e₁ s
     | Result.error e₂ s => Result.error e₂ s }
 
-@[inline] def adaptState {σ₁ σ₂} (split : σ → σ₁ × σ₂) (merge : σ₁ → σ₂ → σ) (x : EStateM ε σ₁ α) : EStateM ε σ α :=
-fun s =>
-  let (s₁, s₂) := split s;
-  match x s₁ with
-  | Result.ok a s₁    => Result.ok a (merge s₁ s₂)
-  | Result.error e s₁ => Result.error e (merge s₁ s₂)
-
-instance {ε σ σ'} : MonadStateAdapter σ σ' (EStateM ε σ) (EStateM ε σ') :=
-⟨fun σ'' α => EStateM.adaptState⟩
-
 @[inline] def fromStateM {ε σ α : Type} (x : StateM σ α) : EStateM ε σ α :=
 fun s =>
   match x.run s with

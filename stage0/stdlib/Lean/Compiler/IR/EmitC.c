@@ -194,6 +194,7 @@ lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__3___boxed(lean_object*, lean_o
 lean_object* l_Lean_IR_EmitC_emitJmp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_toCType___closed__6;
 lean_object* l_Lean_IR_Decl_resultType(lean_object*);
+lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__3___closed__1;
 extern lean_object* l_Char_quoteCore___closed__1;
 lean_object* l_Lean_IR_Decl_name(lean_object*);
@@ -591,7 +592,6 @@ lean_object* l_Lean_IR_EmitC_emitExternDeclAux___boxed(lean_object*, lean_object
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_IR_EmitC_emitFnDecls_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitSSet___closed__4;
-lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitInitFn___closed__2;
 lean_object* l_Lean_IR_EmitC_emitLn(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitSSet___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -779,7 +779,7 @@ if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_8 = l_System_FilePath_dirName___closed__1;
-x_9 = l_Lean_Name_toStringWithSep___main(x_8, x_1);
+x_9 = l_Lean_Name_toStringWithSep(x_8, x_1);
 x_10 = l_Lean_addClass___closed__1;
 x_11 = lean_string_append(x_10, x_9);
 lean_dec(x_9);
@@ -814,7 +814,7 @@ if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_18 = l_System_FilePath_dirName___closed__1;
-x_19 = l_Lean_Name_toStringWithSep___main(x_18, x_1);
+x_19 = l_Lean_Name_toStringWithSep(x_18, x_1);
 x_20 = l_Lean_addClass___closed__1;
 x_21 = lean_string_append(x_20, x_19);
 lean_dec(x_19);
@@ -1475,7 +1475,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = l_System_FilePath_dirName___closed__1;
-x_5 = l_Lean_Name_toStringWithSep___main(x_4, x_1);
+x_5 = l_Lean_Name_toStringWithSep(x_4, x_1);
 x_6 = l_Lean_IR_EmitC_throwInvalidExportName___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
@@ -4072,7 +4072,7 @@ x_9 = lean_array_fget(x_1, x_2);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = l_System_FilePath_dirName___closed__1;
-x_12 = l_Lean_Name_toStringWithSep___main(x_11, x_10);
+x_12 = l_Lean_Name_toStringWithSep(x_11, x_10);
 x_13 = lean_ctor_get_uint8(x_9, sizeof(void*)*1);
 lean_dec(x_9);
 if (x_13 == 0)
@@ -4377,7 +4377,7 @@ x_10 = lean_string_append(x_8, x_9);
 x_11 = l___private_Lean_Data_Format_0__Lean_Format_pushNewline___closed__1;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l_System_FilePath_dirName___closed__1;
-x_14 = l_Lean_Name_toStringWithSep___main(x_13, x_7);
+x_14 = l_Lean_Name_toStringWithSep(x_13, x_7);
 x_15 = l_Lean_IR_EmitC_emitFileHeader___closed__2;
 x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);
@@ -7907,7 +7907,7 @@ if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_9 = l_System_FilePath_dirName___closed__1;
-x_10 = l_Lean_Name_toStringWithSep___main(x_9, x_1);
+x_10 = l_Lean_Name_toStringWithSep(x_9, x_1);
 x_11 = l_Lean_IR_EmitC_emitExternCall___closed__1;
 x_12 = lean_string_append(x_11, x_10);
 lean_dec(x_10);
@@ -7930,7 +7930,7 @@ case 0:
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_dec(x_16);
 x_17 = l_System_FilePath_dirName___closed__1;
-x_18 = l_Lean_Name_toStringWithSep___main(x_17, x_1);
+x_18 = l_Lean_Name_toStringWithSep(x_17, x_1);
 x_19 = l_Lean_IR_EmitC_emitExternCall___closed__1;
 x_20 = lean_string_append(x_19, x_18);
 lean_dec(x_18);

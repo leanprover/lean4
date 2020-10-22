@@ -49,6 +49,7 @@ lean_object* l_Lean_TODELETE_regScopeManagerExtension___lambda__2___boxed(lean_o
 lean_object* l_Lean_TODELETE_popScopeCore(lean_object*);
 lean_object* lean_get_namespaces(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_getNamespace_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__2(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -59,7 +60,6 @@ lean_object* lean_to_valid_namespace(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_TODELETE_regScopeManagerExtension___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_toValidNamespace_match__1(lean_object*);
-lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_toValidNamespace_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,6 +87,7 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___bo
 uint8_t lean_in_section(lean_object*);
 lean_object* lean_get_namespace(lean_object*);
 lean_object* l_Lean_TODELETE_regScopeManagerExtension___lambda__2(lean_object*);
+lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_regScopeManagerExtension___lambda__1(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
@@ -109,7 +110,6 @@ lean_object* l_Lean_TODELETE_getNamespaceSet(lean_object*);
 lean_object* l_Lean_TODELETE_pushScopeCore___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 uint8_t l_List_isEmpty___rarg(lean_object*);
-lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_inSection___boxed(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_TODELETE_regScopeManagerExtension___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
@@ -344,7 +344,7 @@ x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 lean_dec(x_1);
 x_14 = l_System_FilePath_dirName___closed__1;
-x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_13);
+x_15 = l_Lean_Name_toStringWithSep(x_14, x_13);
 x_16 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_17 = lean_string_append(x_16, x_15);
 lean_dec(x_15);
@@ -384,7 +384,7 @@ x_28 = lean_ctor_get(x_1, 0);
 lean_inc(x_28);
 lean_dec(x_1);
 x_29 = l_System_FilePath_dirName___closed__1;
-x_30 = l_Lean_Name_toStringWithSep___main(x_29, x_28);
+x_30 = l_Lean_Name_toStringWithSep(x_29, x_28);
 x_31 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_32 = lean_string_append(x_31, x_30);
 lean_dec(x_30);
@@ -1049,7 +1049,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_5 = lean_ctor_get(x_4, 0);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_1);
-x_7 = l_Lean_Name_append___main(x_5, x_1);
+x_7 = l_Lean_Name_append(x_5, x_1);
 x_8 = l_Lean_NameSet_contains(x_2, x_7);
 if (x_8 == 0)
 {
@@ -1278,7 +1278,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 lean_inc(x_2);
-x_10 = l_Lean_Name_append___main(x_4, x_2);
+x_10 = l_Lean_Name_append(x_4, x_2);
 lean_dec(x_4);
 lean_inc(x_10);
 x_11 = l_Lean_TODELETE_registerNamespaceAux(x_1, x_10);

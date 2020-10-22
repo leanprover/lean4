@@ -37,11 +37,11 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_Lean_Hygiene___instance__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_sanitizeNamesOption(lean_object*);
+uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 lean_object* l_Lean_Unhygienic_Lean_Hygiene___instance__1___closed__6;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_String_contains(lean_object*, uint32_t);
-lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__3;
 lean_object* l_Lean_Unhygienic_run___rarg(lean_object*);
@@ -62,7 +62,6 @@ lean_object* l_Lean_sanitizeNamesOption___closed__6;
 lean_object* l___private_Lean_Hygiene_0__Lean_mkFreshInaccessibleUserName(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName___closed__1;
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName___boxed(lean_object*, lean_object*);
-uint8_t l_Lean_Name_hasMacroScopes___main(lean_object*);
 lean_object* l_ReaderT_pure___at_Lean_Unhygienic_Lean_Hygiene___instance__1___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendAfter(lean_object*, lean_object*);
@@ -72,6 +71,7 @@ lean_object* l_Lean_Unhygienic_Lean_Hygiene___instance__1___closed__2;
 lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_sanitizeNamesOption___closed__1;
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__1;
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_Lean_Hygiene___instance__1___closed__4;
@@ -283,7 +283,7 @@ if (x_1 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__2;
 x_5 = lean_name_mk_numeral(x_4, x_3);
-x_6 = l_Lean_Name_append___main(x_2, x_5);
+x_6 = l_Lean_Name_append(x_2, x_5);
 lean_dec(x_2);
 return x_6;
 }
@@ -1292,7 +1292,7 @@ lean_dec(x_28);
 if (lean_obj_tag(x_29) == 0)
 {
 uint8_t x_30; 
-x_30 = l_Lean_Name_hasMacroScopes___main(x_27);
+x_30 = l_Lean_Name_hasMacroScopes(x_27);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; 

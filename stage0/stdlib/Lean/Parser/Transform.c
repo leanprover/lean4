@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_LeanInit___instance__9;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -31,10 +32,9 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_manyToSepBy(lean_object*, lean_object*);
-extern lean_object* l_Lean_Syntax_inhabited;
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
-extern lean_object* l_Lean_SourceInfo_inhabited___closed__1;
 lean_object* l_Lean_Syntax_manyToSepBy_match__2(lean_object*);
+extern lean_object* l_Lean_Init_LeanInit___instance__8___closed__1;
 lean_object* l_Lean_Syntax_removeParen(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Lean_Syntax_getTailInfo(lean_object*);
@@ -138,7 +138,7 @@ if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_9);
-x_13 = l_Lean_SourceInfo_inhabited___closed__1;
+x_13 = l_Lean_Init_LeanInit___instance__8___closed__1;
 lean_inc(x_1);
 x_14 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
@@ -155,7 +155,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean
 x_18 = lean_ctor_get(x_10, 0);
 lean_inc(x_18);
 lean_dec(x_10);
-x_19 = l_Lean_SourceInfo_inhabited___closed__1;
+x_19 = l_Lean_Init_LeanInit___instance__8___closed__1;
 x_20 = l_Lean_Syntax_setTailInfo(x_9, x_19);
 x_21 = lean_array_get_size(x_5);
 x_22 = lean_nat_sub(x_21, x_11);
@@ -186,7 +186,7 @@ if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = lean_ctor_get(x_1, 1);
-x_5 = l_Lean_Syntax_inhabited;
+x_5 = l_Lean_Init_LeanInit___instance__9;
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_get(x_5, x_4, x_6);
 x_8 = l_Lean_mkOptionalNode___closed__2;
@@ -205,7 +205,7 @@ x_13 = lean_ctor_get(x_1, 1);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_1);
-x_14 = l_Lean_Syntax_inhabited;
+x_14 = l_Lean_Init_LeanInit___instance__9;
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_get(x_14, x_13, x_15);
 x_17 = l_Lean_mkOptionalNode___closed__2;
@@ -882,7 +882,7 @@ lean_dec(x_7);
 x_8 = lean_ctor_get(x_1, 0);
 lean_dec(x_8);
 lean_inc(x_3);
-x_9 = l_Lean_Syntax_inhabited;
+x_9 = l_Lean_Init_LeanInit___instance__9;
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_array_get(x_9, x_3, x_10);
 lean_inc(x_11);
@@ -1268,7 +1268,7 @@ lean_inc(x_3);
 x_97 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_97, 0, x_2);
 lean_ctor_set(x_97, 1, x_3);
-x_98 = l_Lean_Syntax_inhabited;
+x_98 = l_Lean_Init_LeanInit___instance__9;
 x_99 = lean_unsigned_to_nat(1u);
 x_100 = lean_array_get(x_98, x_3, x_99);
 lean_inc(x_100);

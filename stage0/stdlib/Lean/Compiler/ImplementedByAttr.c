@@ -39,7 +39,6 @@ lean_object* l_Lean_setImplementedBy_match__1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_inhabited;
 extern lean_object* l_String_splitAux___main___closed__1;
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____lambda__1___closed__7;
@@ -53,6 +52,7 @@ lean_object* l_Std_RBNode_fold___at_Lean_Compiler_initFn____x40_Lean_Compiler_Im
 lean_object* l_Lean_throwUnknownConstant___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__5(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__2;
+lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____closed__3;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____lambda__1___closed__4;
 lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -84,6 +84,7 @@ extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__2;
 lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_LeanInit___instance__1;
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__3;
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_ParametricAttribute_Lean_Attributes___instance__6___closed__1;
@@ -120,7 +121,6 @@ lean_object* l_Lean_setImplementedBy___rarg(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____closed__2;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 uint8_t l_List_isEmpty___rarg(lean_object*);
-lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__9___closed__1;
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -562,7 +562,7 @@ static lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___m
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Name_inhabited;
+x_1 = l_Lean_Init_LeanInit___instance__1;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -851,7 +851,7 @@ x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 lean_dec(x_1);
 x_14 = l_System_FilePath_dirName___closed__1;
-x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_13);
+x_15 = l_Lean_Name_toStringWithSep(x_14, x_13);
 x_16 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_17 = lean_string_append(x_16, x_15);
 lean_dec(x_15);
@@ -891,7 +891,7 @@ x_28 = lean_ctor_get(x_1, 0);
 lean_inc(x_28);
 lean_dec(x_1);
 x_29 = l_System_FilePath_dirName___closed__1;
-x_30 = l_Lean_Name_toStringWithSep___main(x_29, x_28);
+x_30 = l_Lean_Name_toStringWithSep(x_29, x_28);
 x_31 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_32 = lean_string_append(x_31, x_30);
 lean_dec(x_30);

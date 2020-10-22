@@ -42,7 +42,6 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____lambda__1
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____lambda__1___closed__2;
-extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81_(lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExportNameFor___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____spec__2___lambda__1(lean_object*);
@@ -51,6 +50,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____lambda__1___closed__1;
 lean_object* l_String_anyAux___main___at___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81__match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -79,6 +79,7 @@ extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__2;
 lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_LeanInit___instance__1;
 extern lean_object* l_Lean_ParametricAttribute_Lean_Attributes___instance__6___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isExport(lean_object*, lean_object*);
@@ -109,7 +110,6 @@ lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Compiler_ExportAttr_
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____spec__2___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____spec__1(lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
-lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____spec__6(lean_object*, lean_object*);
@@ -493,7 +493,7 @@ static lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___m
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Name_inhabited;
+x_1 = l_Lean_Init_LeanInit___instance__1;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -782,7 +782,7 @@ x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 lean_dec(x_1);
 x_14 = l_System_FilePath_dirName___closed__1;
-x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_13);
+x_15 = l_Lean_Name_toStringWithSep(x_14, x_13);
 x_16 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_17 = lean_string_append(x_16, x_15);
 lean_dec(x_15);
@@ -822,7 +822,7 @@ x_28 = lean_ctor_get(x_1, 0);
 lean_inc(x_28);
 lean_dec(x_1);
 x_29 = l_System_FilePath_dirName___closed__1;
-x_30 = l_Lean_Name_toStringWithSep___main(x_29, x_28);
+x_30 = l_Lean_Name_toStringWithSep(x_29, x_28);
 x_31 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_32 = lean_string_append(x_31, x_30);
 lean_dec(x_30);

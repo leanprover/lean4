@@ -44,6 +44,7 @@ uint8_t l_Lean_IR_IRType_isObj(lean_object*);
 lean_object* l_Lean_IR_Checker_checkFullApp___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkExpr_match__1(lean_object*);
+lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_Checker_checkDecl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_name(lean_object*);
 lean_object* l_Lean_IR_Checker_checkVar___boxed(lean_object*, lean_object*, lean_object*);
@@ -139,7 +140,6 @@ lean_object* l_Lean_IR_Checker_checkFullApp___boxed(lean_object*, lean_object*, 
 lean_object* l_Lean_IR_Checker_checkJP___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_withParams(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
-lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkScalarVar___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkDecl_match__1(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_Checker_withParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -388,7 +388,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_7 = l_System_FilePath_dirName___closed__1;
-x_8 = l_Lean_Name_toStringWithSep___main(x_7, x_1);
+x_8 = l_Lean_Name_toStringWithSep(x_7, x_1);
 x_9 = l_Lean_addClass___closed__1;
 x_10 = lean_string_append(x_9, x_8);
 lean_dec(x_8);
@@ -1749,7 +1749,7 @@ if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 x_27 = l_System_FilePath_dirName___closed__1;
-x_28 = l_Lean_Name_toStringWithSep___main(x_27, x_1);
+x_28 = l_Lean_Name_toStringWithSep(x_27, x_1);
 x_29 = l_Lean_IR_Checker_checkFullApp___lambda__2___closed__1;
 x_30 = lean_string_append(x_29, x_28);
 lean_dec(x_28);
@@ -1798,7 +1798,7 @@ if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
 x_48 = l_System_FilePath_dirName___closed__1;
-x_49 = l_Lean_Name_toStringWithSep___main(x_48, x_1);
+x_49 = l_Lean_Name_toStringWithSep(x_48, x_1);
 x_50 = l_Lean_IR_Checker_checkFullApp___lambda__2___closed__1;
 x_51 = lean_string_append(x_50, x_49);
 lean_dec(x_49);
@@ -1857,7 +1857,7 @@ if (x_71 == 0)
 {
 lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; 
 x_72 = l_System_FilePath_dirName___closed__1;
-x_73 = l_Lean_Name_toStringWithSep___main(x_72, x_1);
+x_73 = l_Lean_Name_toStringWithSep(x_72, x_1);
 x_74 = l_Lean_IR_Checker_checkFullApp___lambda__2___closed__1;
 x_75 = lean_string_append(x_74, x_73);
 lean_dec(x_73);
@@ -2104,7 +2104,7 @@ if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_26 = l_System_FilePath_dirName___closed__1;
-x_27 = l_Lean_Name_toStringWithSep___main(x_26, x_1);
+x_27 = l_Lean_Name_toStringWithSep(x_26, x_1);
 x_28 = l_Lean_IR_Checker_checkPartialApp___closed__1;
 x_29 = lean_string_append(x_28, x_27);
 lean_dec(x_27);
@@ -2153,7 +2153,7 @@ if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
 x_47 = l_System_FilePath_dirName___closed__1;
-x_48 = l_Lean_Name_toStringWithSep___main(x_47, x_1);
+x_48 = l_Lean_Name_toStringWithSep(x_47, x_1);
 x_49 = l_Lean_IR_Checker_checkPartialApp___closed__1;
 x_50 = lean_string_append(x_49, x_48);
 lean_dec(x_48);
@@ -2212,7 +2212,7 @@ if (x_70 == 0)
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
 x_71 = l_System_FilePath_dirName___closed__1;
-x_72 = l_Lean_Name_toStringWithSep___main(x_71, x_1);
+x_72 = l_Lean_Name_toStringWithSep(x_71, x_1);
 x_73 = l_Lean_IR_Checker_checkPartialApp___closed__1;
 x_74 = lean_string_append(x_73, x_72);
 lean_dec(x_72);
@@ -7574,7 +7574,7 @@ lean_dec(x_11);
 x_13 = l_Lean_IR_Decl_name(x_2);
 lean_dec(x_2);
 x_14 = l_System_FilePath_dirName___closed__1;
-x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_13);
+x_15 = l_Lean_Name_toStringWithSep(x_14, x_13);
 x_16 = l_Lean_IR_checkDecl___closed__1;
 x_17 = lean_string_append(x_16, x_15);
 lean_dec(x_15);
@@ -7625,7 +7625,7 @@ lean_dec(x_29);
 x_31 = l_Lean_IR_Decl_name(x_2);
 lean_dec(x_2);
 x_32 = l_System_FilePath_dirName___closed__1;
-x_33 = l_Lean_Name_toStringWithSep___main(x_32, x_31);
+x_33 = l_Lean_Name_toStringWithSep(x_32, x_31);
 x_34 = l_Lean_IR_checkDecl___closed__1;
 x_35 = lean_string_append(x_34, x_33);
 lean_dec(x_33);

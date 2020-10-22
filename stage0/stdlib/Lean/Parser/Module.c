@@ -21,7 +21,6 @@ lean_object* l_Lean_Parser_Module_header_parenthesizer___closed__10;
 lean_object* l_Lean_Parser_Module_module_parenthesizer___closed__6;
 lean_object* l_Lean_Parser_Module_module_formatter___closed__2;
 lean_object* l_Lean_Parser_Module_module___closed__5;
-extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_Parser_Module_module_formatter___closed__1;
 lean_object* l_Lean_Parser_Module_header___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Module_updateTokens___closed__2;
@@ -146,6 +145,7 @@ lean_object* l_Lean_Parser_parseHeader_match__1___rarg(lean_object*, lean_object
 extern lean_object* l_Lean_Parser_ident___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_testModuleParser___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 lean_object* l_Lean_Parser_lookaheadFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_header___closed__2;
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__8;
@@ -2108,7 +2108,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Parser_Module_updateTokens___closed__2;
 x_2 = l_Lean_Parser_Module_updateTokens___closed__3;
 x_3 = lean_unsigned_to_nat(28u);
-x_4 = l_Lean_Name_getString_x21___closed__3;
+x_4 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_5 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_3, x_4);
 return x_5;
 }

@@ -33,7 +33,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_inhabited;
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__4___closed__1;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__1___lambda__2(lean_object*);
 lean_object* l_Lean_setEnv___at_Lean_registerTagAttribute___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -45,6 +44,7 @@ lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____closed__18
 lean_object* l_Lean_elaboratorStrategyAttrs;
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____closed__15;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_List_forM___main___at_Lean_registerEnumAttributes___spec__10(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____closed__17;
 lean_object* l_List_map___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__7___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -70,6 +70,7 @@ extern lean_object* l_Lean_registerTagAttribute___lambda__5___closed__4;
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____closed__6;
 lean_object* lean_get_elaborator_strategy(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__1___lambda__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_LeanInit___instance__1;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__1___closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____closed__1;
 lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getElaboratorStrategy___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -103,7 +104,6 @@ extern lean_object* l_Lean_EnumAttributes_Lean_Attributes___instance__7___closed
 lean_object* l_List_map___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__7___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__7___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
-lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____closed__13;
 lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -149,7 +149,7 @@ static lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___m
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Name_inhabited;
+x_1 = l_Lean_Init_LeanInit___instance__1;
 x_2 = l_Lean_Lean_Elab_StrategyAttrs___instance__1;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);
@@ -440,7 +440,7 @@ x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 lean_dec(x_1);
 x_14 = l_System_FilePath_dirName___closed__1;
-x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_13);
+x_15 = l_Lean_Name_toStringWithSep(x_14, x_13);
 x_16 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_17 = lean_string_append(x_16, x_15);
 lean_dec(x_15);
@@ -480,7 +480,7 @@ x_28 = lean_ctor_get(x_1, 0);
 lean_inc(x_28);
 lean_dec(x_1);
 x_29 = l_System_FilePath_dirName___closed__1;
-x_30 = l_Lean_Name_toStringWithSep___main(x_29, x_28);
+x_30 = l_Lean_Name_toStringWithSep(x_29, x_28);
 x_31 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_32 = lean_string_append(x_31, x_30);
 lean_dec(x_30);

@@ -70,6 +70,7 @@ lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext
 lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext(lean_object*);
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_246____closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_NameGenerator_Init_LeanInit___instance__6___closed__1;
 extern lean_object* l_Lean_Meta_Context_config___default___closed__1;
 lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_noContext_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
@@ -79,7 +80,6 @@ lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec_
 extern lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__1;
 extern lean_object* l_Lean_TraceState_Lean_Util_Trace___instance__2___closed__1;
 lean_object* l_Lean_LocalContext_sanitizeNames(lean_object*, lean_object*);
-extern lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 lean_object* l_Lean_PPContext_runCoreM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -96,7 +96,7 @@ lean_ctor_set(x_9, 1, x_6);
 lean_ctor_set(x_9, 2, x_7);
 lean_ctor_set(x_9, 3, x_8);
 x_10 = l_Lean_Unhygienic_run___rarg___closed__1;
-x_11 = l_Lean_NameGenerator_Inhabited___closed__3;
+x_11 = l_Lean_NameGenerator_Init_LeanInit___instance__6___closed__1;
 x_12 = l_Lean_TraceState_Lean_Util_Trace___instance__2___closed__1;
 lean_inc(x_4);
 x_13 = lean_alloc_ctor(0, 4, 0);
@@ -516,7 +516,7 @@ lean_ctor_set(x_17, 1, x_14);
 lean_ctor_set(x_17, 2, x_15);
 lean_ctor_set(x_17, 3, x_16);
 x_18 = l_Lean_Unhygienic_run___rarg___closed__1;
-x_19 = l_Lean_NameGenerator_Inhabited___closed__3;
+x_19 = l_Lean_NameGenerator_Init_LeanInit___instance__6___closed__1;
 x_20 = l_Lean_TraceState_Lean_Util_Trace___instance__2___closed__1;
 x_21 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_21, 0, x_1);

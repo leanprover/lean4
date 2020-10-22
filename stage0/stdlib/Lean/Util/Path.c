@@ -35,6 +35,7 @@ lean_object* lean_io_getenv(lean_object*, lean_object*);
 lean_object* l_Lean_moduleNameOfFileName___lambda__2___closed__1;
 lean_object* l_Lean_moduleNameOfFileName_match__1(lean_object*);
 lean_object* l_Lean_findOLean(lean_object*, lean_object*);
+lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean_getBuiltinSearchPath___closed__8;
 lean_object* l_IO_mkRef___at_Lean_mkSearchPathRef___spec__1(lean_object*, lean_object*);
@@ -101,7 +102,6 @@ lean_object* l_List_findM_x3f___main___at_Lean_findOLean___spec__2(lean_object*,
 lean_object* lean_io_app_dir(lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_String_drop(lean_object*, lean_object*);
-lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__3;
 extern lean_object* l_String_Inhabited;
@@ -1085,7 +1085,7 @@ lean_inc(x_6);
 lean_dec(x_4);
 x_7 = l_Lean_Name_getRoot(x_1);
 x_8 = l_System_FilePath_dirName___closed__1;
-x_9 = l_Lean_Name_toStringWithSep___main(x_8, x_7);
+x_9 = l_Lean_Name_toStringWithSep(x_8, x_7);
 x_10 = l_List_findM_x3f___main___at_Lean_findOLean___spec__2(x_9, x_5, x_6);
 if (lean_obj_tag(x_10) == 0)
 {

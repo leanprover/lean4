@@ -125,7 +125,6 @@ lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_ppLine_formatter___clos
 extern lean_object* l_Int_zero___closed__1;
 lean_object* l_Lean_Parser_strLit_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkPrec_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_nameLit_formatter___closed__2;
 lean_object* l___regBuiltin_Lean_Parser_ident_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_nodeWithAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -219,6 +218,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_nameLit_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_ppGroup_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_commandParser_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot_formatter___closed__7;
 lean_object* l___regBuiltin_Lean_Parser_ppLine_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_nameLit_parenthesizer___closed__2;
@@ -833,7 +833,7 @@ block_50:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_Parser_mkAntiquot___closed__1;
-x_11 = l_Lean_Name_append___main(x_9, x_10);
+x_11 = l_Lean_Name_append(x_9, x_10);
 lean_dec(x_9);
 if (x_3 == 0)
 {
@@ -1078,7 +1078,7 @@ block_54:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_Parser_mkAntiquot___closed__1;
-x_11 = l_Lean_Name_append___main(x_9, x_10);
+x_11 = l_Lean_Name_append(x_9, x_10);
 lean_dec(x_9);
 if (x_3 == 0)
 {

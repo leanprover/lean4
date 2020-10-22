@@ -146,7 +146,6 @@ lean_object* l_Lean_Compiler_foldNatDecLt(uint8_t, lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_isOfNat(lean_object*);
 lean_object* l_Lean_Compiler_foldStrictOr___boxed(lean_object*);
 lean_object* l_Lean_Compiler_mkNatLt___closed__5;
-lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatSucc___boxed(lean_object*);
 lean_object* l_Lean_Compiler_mkNatLe___closed__5;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__8;
@@ -265,6 +264,7 @@ lean_object* l_Lean_Compiler_mkUIntLit(lean_object*, lean_object*);
 extern lean_object* l_usizeSz___closed__1;
 lean_object* l_Lean_Compiler_foldBinUInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__24;
+lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__2;
 lean_object* l_Lean_Compiler_mkNatLe___closed__1;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__2;
@@ -1876,7 +1876,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_ctor_get(x_5, 0);
 x_10 = lean_ctor_get(x_1, 1);
-x_11 = l_Lean_Name_append___main(x_10, x_9);
+x_11 = l_Lean_Name_append(x_10, x_9);
 lean_ctor_set(x_5, 0, x_11);
 lean_ctor_set(x_2, 1, x_7);
 return x_2;
@@ -1890,7 +1890,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_5);
 x_14 = lean_ctor_get(x_1, 1);
-x_15 = l_Lean_Name_append___main(x_14, x_12);
+x_15 = l_Lean_Name_append(x_14, x_12);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_13);
@@ -1921,7 +1921,7 @@ if (lean_is_exclusive(x_17)) {
  x_22 = lean_box(0);
 }
 x_23 = lean_ctor_get(x_1, 1);
-x_24 = l_Lean_Name_append___main(x_23, x_20);
+x_24 = l_Lean_Name_append(x_23, x_20);
 if (lean_is_scalar(x_22)) {
  x_25 = lean_alloc_ctor(0, 2, 0);
 } else {

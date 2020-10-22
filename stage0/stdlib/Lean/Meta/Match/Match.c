@@ -40,7 +40,6 @@ lean_object* l_Lean_throwErrorAt___at_Lean_Meta_Match_Alt_checkAndReplaceFVarId_
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor_match__4(lean_object*);
 lean_object* l_Lean_Meta_Match_mkMatcher___lambda__1___closed__3;
 size_t l_USize_add(size_t, size_t);
-extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__1___closed__3;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_Match_processInaccessibleAsCtor_match__2(lean_object*);
@@ -254,6 +253,7 @@ lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAltsAux___
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_expandNatValuePattern(lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___at_Lean_Meta_Match_Unify_unify___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_collectValues_match__1(lean_object*);
+lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__3;
 extern lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__3___closed__2;
 lean_object* l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_expandNatValuePattern___spec__1(lean_object*);
@@ -316,6 +316,7 @@ lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_Match_mkMatcher__
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor_match__3(lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_hasVarPattern_match__1(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Meta_Match_Extension_mkExtension___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAltsAux___rarg___closed__2;
 lean_object* l_Lean_Meta_Match_Pattern_toMessageData___closed__5;
 lean_object* l_List_filterMapMAux___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor___spec__8___closed__2;
@@ -863,7 +864,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(lean_object*,
 lean_object* l_List_map___main___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__1;
 lean_object* l_Lean_Meta_Match_mkMatcher___lambda__1___closed__16;
 lean_object* l_Lean_Meta_Match_Extension_extension___closed__3;
-lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at_Lean_Meta_Match_mkMatcher___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuick_x3f___closed__1;
@@ -8605,7 +8605,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__1___closed__2;
 x_3 = lean_unsigned_to_nat(359u);
 x_4 = lean_unsigned_to_nat(17u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -8949,7 +8949,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__1___closed__2;
 x_3 = lean_unsigned_to_nat(355u);
 x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -10039,7 +10039,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processAsPattern___closed__1;
 x_3 = lean_unsigned_to_nat(374u);
 x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -10213,7 +10213,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_mapM___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processVariable___spec__1___closed__1;
 x_3 = lean_unsigned_to_nat(388u);
 x_4 = lean_unsigned_to_nat(38u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -10632,7 +10632,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_mapM___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processVariable___spec__1___closed__1;
 x_3 = lean_unsigned_to_nat(383u);
 x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -16159,7 +16159,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_Lean_Meta_Match_processInaccessibleAsCtor___closed__1;
 x_3 = lean_unsigned_to_nat(529u);
 x_4 = lean_unsigned_to_nat(7u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -17465,7 +17465,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_filterMapMAux___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor___spec__8___closed__1;
 x_3 = lean_unsigned_to_nat(574u);
 x_4 = lean_unsigned_to_nat(46u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -18038,7 +18038,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_filterMapMAux___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor___spec__8___closed__1;
 x_3 = lean_unsigned_to_nat(535u);
 x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -18520,7 +18520,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_filterMapMAux___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVariable___spec__1___closed__1;
 x_3 = lean_unsigned_to_nat(593u);
 x_4 = lean_unsigned_to_nat(19u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -19046,7 +19046,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_filterMapMAux___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVariable___spec__1___closed__1;
 x_3 = lean_unsigned_to_nat(579u);
 x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -19866,7 +19866,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processValue___spec__6___closed__1;
 x_3 = lean_unsigned_to_nat(633u);
 x_4 = lean_unsigned_to_nat(16u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -20479,7 +20479,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processValue___spec__6___closed__1;
 x_3 = lean_unsigned_to_nat(612u);
 x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -22050,7 +22050,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_mapM___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processArrayLit___spec__8___closed__1;
 x_3 = lean_unsigned_to_nat(688u);
 x_4 = lean_unsigned_to_nat(16u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -22750,7 +22750,7 @@ x_1 = l_List_map___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 x_2 = l_List_mapM___main___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processArrayLit___spec__8___closed__1;
 x_3 = lean_unsigned_to_nat(666u);
 x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -27298,7 +27298,7 @@ x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 lean_dec(x_1);
 x_14 = l_System_FilePath_dirName___closed__1;
-x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_13);
+x_15 = l_Lean_Name_toStringWithSep(x_14, x_13);
 x_16 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_17 = lean_string_append(x_16, x_15);
 lean_dec(x_15);
@@ -27338,7 +27338,7 @@ x_28 = lean_ctor_get(x_1, 0);
 lean_inc(x_28);
 lean_dec(x_1);
 x_29 = l_System_FilePath_dirName___closed__1;
-x_30 = l_Lean_Name_toStringWithSep___main(x_29, x_28);
+x_30 = l_Lean_Name_toStringWithSep(x_29, x_28);
 x_31 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_32 = lean_string_append(x_31, x_30);
 lean_dec(x_30);

@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_Expr_replaceLevel_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -32,6 +31,7 @@ lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___closed__4;
 size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
 lean_object* l_Lean_Level_replace_match__2(lean_object*);
 lean_object* l_Lean_mkLevelIMax(lean_object*, lean_object*);
+extern lean_object* l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 lean_object* l_Lean_Level_replace_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit_match__1(lean_object*);
 lean_object* l_Lean_mkLevelMax(lean_object*, lean_object*);
@@ -590,7 +590,7 @@ x_1 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___closed__2;
 x_2 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___closed__3;
 x_3 = lean_unsigned_to_nat(55u);
 x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }

@@ -18,7 +18,6 @@ lean_object* l_Std_HashMapImp_expand___at_Lean_addAliasEntry___spec__14(lean_obj
 lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 size_t l_USize_add(size_t, size_t);
-extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_ResolveName_resolveGlobalName_loop_match__4(lean_object*);
 extern lean_object* l_Lean_rootNamespace;
 lean_object* l_Lean_aliasExtension___elambda__1___boxed(lean_object*);
@@ -91,6 +90,7 @@ lean_object* l_Lean_aliasExtension___elambda__1(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveQualifiedName(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveUsingNamespace_match__2(lean_object*);
+lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveGlobalName_loop_match__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getRevAliases___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_ResolveName_resolveGlobalName_loop___spec__6(lean_object*, lean_object*);
@@ -106,13 +106,13 @@ lean_object* l_Lean_ResolveName_resolveNamespace_x3f_match__1___rarg(lean_object
 lean_object* l_List_map___main___at_Lean_ResolveName_resolveGlobalName_loop___spec__3(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getRevAliases___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_53____lambda__1(lean_object*);
+extern lean_object* l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalName___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
 lean_object* l_Lean_ResolveName_resolveGlobalName_loop_match__2(lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespace_x3f_match__1(lean_object*);
-lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__2;
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getRevAliases___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -197,6 +197,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
 lean_object* l_List_toStringAux___main___at_Lean_resolveGlobalConstNoOverload___spec__3___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_addAliasEntry___spec__11(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MacroScopesView_review(lean_object*);
 lean_object* l_List_map___main___at_Lean_ResolveName_resolveGlobalName_loop___spec__4(lean_object*, lean_object*);
@@ -247,7 +248,6 @@ lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveOpenDecls(l
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
-lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_addAliasEntry___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalName___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -1756,7 +1756,7 @@ x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 lean_dec(x_1);
 x_14 = l_System_FilePath_dirName___closed__1;
-x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_13);
+x_15 = l_Lean_Name_toStringWithSep(x_14, x_13);
 x_16 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_17 = lean_string_append(x_16, x_15);
 lean_dec(x_15);
@@ -1796,7 +1796,7 @@ x_28 = lean_ctor_get(x_1, 0);
 lean_inc(x_28);
 lean_dec(x_1);
 x_29 = l_System_FilePath_dirName___closed__1;
-x_30 = l_Lean_Name_toStringWithSep___main(x_29, x_28);
+x_30 = l_Lean_Name_toStringWithSep(x_29, x_28);
 x_31 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_32 = lean_string_append(x_31, x_30);
 lean_dec(x_30);
@@ -2558,7 +2558,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 lean_inc(x_3);
-x_4 = l_Lean_Name_append___main(x_2, x_3);
+x_4 = l_Lean_Name_append(x_2, x_3);
 x_5 = l_Lean_getAliases(x_1, x_4);
 lean_inc(x_1);
 x_6 = l_Lean_Environment_contains(x_1, x_4);
@@ -3755,7 +3755,7 @@ x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__1;
 x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope___closed__2;
 x_3 = lean_unsigned_to_nat(123u);
 x_4 = lean_unsigned_to_nat(25u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -3776,7 +3776,7 @@ case 1:
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_2);
-x_6 = l_Lean_Name_append___main(x_3, x_2);
+x_6 = l_Lean_Name_append(x_3, x_2);
 x_7 = l_Lean_Environment_isNamespace(x_1, x_6);
 if (x_7 == 0)
 {
@@ -3908,7 +3908,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_7 = lean_ctor_get(x_3, 1);
 x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_2);
-x_9 = l_Lean_Name_append___main(x_8, x_2);
+x_9 = l_Lean_Name_append(x_8, x_2);
 x_10 = l_Lean_Environment_isNamespace(x_1, x_9);
 if (x_10 == 0)
 {
@@ -4255,7 +4255,7 @@ if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_10 = l_System_FilePath_dirName___closed__1;
-x_11 = l_Lean_Name_toStringWithSep___main(x_10, x_3);
+x_11 = l_Lean_Name_toStringWithSep(x_10, x_3);
 x_12 = l_Lean_resolveNamespace___rarg___lambda__1___closed__1;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);

@@ -33,6 +33,7 @@ lean_object* l_Lean_Server_Snapshots_Snapshot_env_match__1(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileCmdsAfter_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileHeader_match__2___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getHeadInfo(lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileHeader_match__1(lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_env___boxed(lean_object*);
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
@@ -45,11 +46,10 @@ lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_endPos___boxed(lean_object*);
 lean_object* l_IO_mkRef___at_Lean_Server_Snapshots_compileNextCmd___spec__1(lean_object*, lean_object*);
-extern lean_object* l_Lean_SourceInfo_inhabited;
 lean_object* l_Lean_InternalExceptionId_getName(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileNextCmd_match__1(lean_object*);
-lean_object* l_Lean_Syntax_getHeadInfo___main(lean_object*);
 lean_object* l_Lean_Parser_parseCommand_parse(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_LeanInit___instance__8;
 lean_object* l___private_Lean_Server_Snapshots_0__Lean_Server_Snapshots_ioErrorFromEmpty___boxed(lean_object*);
 uint8_t l_Lean_Parser_isExitCommand(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -617,13 +617,13 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
 lean_dec(x_10);
-x_14 = l_Lean_Syntax_getHeadInfo___main(x_11);
+x_14 = l_Lean_Syntax_getHeadInfo(x_11);
 lean_inc(x_11);
 x_15 = l_Lean_Parser_isEOI(x_11);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; 
-x_121 = l_Lean_SourceInfo_inhabited;
+x_121 = l_Lean_Init_LeanInit___instance__8;
 x_122 = l_Option_get_x21___rarg___closed__3;
 x_123 = lean_panic_fn(x_121, x_122);
 x_124 = lean_ctor_get(x_123, 1);

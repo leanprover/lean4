@@ -172,6 +172,7 @@ lean_object* l_Lean_LocalContext_forM___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_Std_PersistentArray_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_value(lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_LocalContext_anyM___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 lean_object* lean_local_ctx_num_indices(lean_object*);
 lean_object* l_Lean_LocalDecl_isLet___boxed(lean_object*);
 lean_object* l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__2;
@@ -336,7 +337,6 @@ lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
 lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_LocalContext_foldlFrom___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_hasMacroScopes___main(lean_object*);
 lean_object* l_Lean_LocalContext_isSubPrefixOfAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_LocalContext_getFVarIds___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Array_findSomeMAux___main___at_Lean_LocalContext_findDecl_x3f___spec__5(lean_object*);
@@ -9843,7 +9843,7 @@ x_14 = lean_box(0);
 lean_inc(x_13);
 lean_inc(x_3);
 x_15 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_3, x_13, x_14);
-x_16 = l_Lean_Name_hasMacroScopes___main(x_13);
+x_16 = l_Lean_Name_hasMacroScopes(x_13);
 if (x_16 == 0)
 {
 uint8_t x_17; 

@@ -39,7 +39,6 @@ lean_object* l_Lean_IR_Decl_insertResetReuse(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__29;
 lean_object* l_Array_forMAux___main___at_Lean_IR_addDecls___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__22;
 lean_object* lean_ir_compile(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5;
@@ -75,6 +74,7 @@ lean_object* l_Lean_IR_Decl_simpCase(lean_object*);
 lean_object* l_Lean_IR_Decl_expandResetReuse(lean_object*);
 lean_object* l_Lean_IR_elimDeadBranches(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21;
+lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__13;
 lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedVersion(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__23;
@@ -298,7 +298,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_522____closed__2;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }
@@ -326,7 +326,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }
@@ -354,7 +354,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }
@@ -382,7 +382,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }
@@ -410,7 +410,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }
@@ -438,7 +438,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }
@@ -466,7 +466,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }
@@ -494,7 +494,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__21;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }
@@ -522,7 +522,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__24;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }
@@ -550,7 +550,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }
@@ -578,7 +578,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
 x_2 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__30;
-x_3 = l_Lean_Name_append___main(x_1, x_2);
+x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
 }

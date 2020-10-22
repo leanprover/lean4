@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Elab.Import
 import Lean.Elab.Command
+import Lean.Util.Profile
 
 namespace Lean.Elab.Frontend
 structure State :=
@@ -46,7 +47,10 @@ def getInputContext : FrontendM Parser.InputContext := do pure (← read).inputC
 def processCommand : FrontendM Bool := do
 updateCmdPos
 let cmdState ← getCommandState
-match Parser.parseCommand cmdState.env (← getInputContext) (← getParserState) cmdState.messages with
+let ictx ← getInputContext
+let pstate ← getParserState
+let pos := ictx.fileMap.toPosition pstate.pos
+match profileit "parsing" pos fun _ => Parser.parseCommand cmdState.env ictx pstate cmdState.messages with
 | (cmd, ps, messages) =>
   modify fun s => { s with commands := s.commands.push cmd }
   setParserState ps
@@ -54,7 +58,7 @@ match Parser.parseCommand cmdState.env (← getInputContext) (← getParserState
   if Parser.isEOI cmd || Parser.isExitCommand cmd then
     pure true -- Done
   else
-    elabCommandAtFrontend cmd
+    profileitM IO.Error "elaboration" pos $ elabCommandAtFrontend cmd
     pure false
 
 partial def processCommands : FrontendM Unit := do

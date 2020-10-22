@@ -11,6 +11,7 @@ import Lean.Meta.Instances
 import Lean.Meta.LevelDefEq
 import Lean.Meta.AbstractMVars
 import Lean.Meta.WHNF
+import Lean.Util.Profile
 
 namespace Lean.Meta
 namespace SynthInstance
@@ -534,7 +535,7 @@ builtin_initialize
 private def getMaxSteps (opts : Options) : Nat :=
 opts.getNat `synthInstance.maxSteps maxStepsDefault
 
-private def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := do
+private def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := profileitM Exception "typeclass inference" ⟨0, 0⟩ do
 let opts ← getOptions
 let fuel := getMaxSteps opts
 let inputConfig ← getConfig

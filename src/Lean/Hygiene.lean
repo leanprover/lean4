@@ -24,7 +24,7 @@ namespace Lean
     corresponding to `withFreshMacroScope` calls. -/
 abbrev Unhygienic := ReaderT MacroScope $ StateM MacroScope
 namespace Unhygienic
-instance MonadQuotation : MonadQuotation Unhygienic := {
+instance : MonadQuotation Unhygienic := {
   getCurrMacroScope   := read,
   getMainModule       := pure `UnhygienicMain,
   withFreshMacroScope := fun x => do

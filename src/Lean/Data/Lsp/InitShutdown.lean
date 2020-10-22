@@ -21,7 +21,7 @@ structure ClientInfo :=
   (name : String)
   (version? : Option String := none)
 
-instance ClientInfo.hasFromJson : HasFromJson ClientInfo := ⟨fun j => do
+instance : HasFromJson ClientInfo := ⟨fun j => do
   let name ← j.getObjValAs? String "name"
   let version? := j.getObjValAs? String "version"
   pure ⟨name, version?⟩⟩
@@ -84,9 +84,10 @@ structure InitializeResult :=
   (capabilities : ServerCapabilities)
   (serverInfo? : Option ServerInfo := none)
 
-instance InitializeResult.hasToJson : HasToJson InitializeResult := ⟨fun o => mkObj $
-   ⟨"capabilities", toJson o.capabilities⟩ ::
-   opt "serverInfo" o.serverInfo?⟩
+instance : HasToJson InitializeResult := ⟨fun o =>
+  mkObj $
+     ⟨"capabilities", toJson o.capabilities⟩ ::
+     opt "serverInfo" o.serverInfo?⟩
 
 end Lsp
 end Lean

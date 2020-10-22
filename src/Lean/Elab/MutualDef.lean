@@ -24,7 +24,7 @@ structure DefViewElabHeader :=
 (type          : Expr) -- including the parameters
 (valueStx      : Syntax)
 
-instance DefViewElabHeader.inhabited : Inhabited DefViewElabHeader :=
+instance : Inhabited DefViewElabHeader :=
 ⟨⟨arbitrary _, {}, DefKind.«def», arbitrary _, arbitrary _, [], 0, arbitrary _, arbitrary _⟩⟩
 
 namespace Term

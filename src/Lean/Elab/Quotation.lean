@@ -154,7 +154,7 @@ structure HeadInfo :=
 -- bind pattern variables.
 (rhsFn   : Syntax → TermElabM Syntax := pure)
 
-instance HeadInfo.Inhabited : Inhabited HeadInfo := ⟨{}⟩
+instance : Inhabited HeadInfo := ⟨{}⟩
 
 /-- `h1.generalizes h2` iff h1 is equal to or more general than h2, i.e. it matches all nodes
     h2 matches. This induces a partial ordering. -/

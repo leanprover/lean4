@@ -53,7 +53,7 @@ def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
 class AddErrorMessageContext (m : Type → Type) :=
   (add : Syntax → MessageData → m (Syntax × MessageData))
 
-instance addErrorMessageContextDefault (m : Type → Type) [AddMessageContext m] [Monad m] : AddErrorMessageContext m := {
+instance (m : Type → Type) [AddMessageContext m] [Monad m] : AddErrorMessageContext m := {
   add := fun ref msg => do
     msg ← addMessageContext msg
     pure (ref, msg)

@@ -62,7 +62,7 @@ private structure SpaceResult :=
   (foundFlattenedHardLine : Bool := false)
   (space                  : Nat  := 0)
 
-instance SpaceResult.inhabited : Inhabited SpaceResult := ⟨{}⟩
+instance : Inhabited SpaceResult := ⟨{}⟩
 
 @[inline] private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Nat → SpaceResult) : SpaceResult :=
   if r₁.space > w || r₁.foundLine then r₁

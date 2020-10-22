@@ -20,7 +20,7 @@ def AttributeApplicationTime.beq : AttributeApplicationTime → AttributeApplica
   | AttributeApplicationTime.beforeElaboration, AttributeApplicationTime.beforeElaboration => true
   | _,                                          _                                          => false
 
-instance AttributeApplicationTime.hasBeq : HasBeq AttributeApplicationTime := ⟨AttributeApplicationTime.beq⟩
+instance : HasBeq AttributeApplicationTime := ⟨AttributeApplicationTime.beq⟩
 
 structure Attr.Context :=
   (currNamespace : Name)
@@ -28,7 +28,7 @@ structure Attr.Context :=
 
 abbrev AttrM := ReaderT Attr.Context CoreM
 
-instance attrResolveName : MonadResolveName AttrM := {
+instance : MonadResolveName AttrM := {
   getCurrNamespace := do pure (← read).currNamespace,
   getOpenDecls     := do pure (← read).openDecls
 }

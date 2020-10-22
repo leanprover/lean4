@@ -13,20 +13,20 @@ inductive Literal
 | natVal (val : Nat)
 | strVal (val : String)
 
-instance Literal.inhabited : Inhabited Literal := ⟨Literal.natVal 0⟩
+instance : Inhabited Literal := ⟨Literal.natVal 0⟩
 
 protected def Literal.hash : Literal → USize
 | Literal.natVal v => hash v
 | Literal.strVal v => hash v
 
-instance Literal.hashable : Hashable Literal := ⟨Literal.hash⟩
+instance : Hashable Literal := ⟨Literal.hash⟩
 
 def Literal.beq : Literal → Literal → Bool
 | Literal.natVal v₁, Literal.natVal v₂ => v₁ == v₂
 | Literal.strVal v₁, Literal.strVal v₂ => v₁ == v₂
 | _,                 _                 => false
 
-instance Literal.hasBeq : HasBeq Literal := ⟨Literal.beq⟩
+instance : HasBeq Literal := ⟨Literal.beq⟩
 
 def Literal.lt : Literal → Literal → Bool
 | Literal.natVal _,  Literal.strVal _  => true
@@ -34,9 +34,9 @@ def Literal.lt : Literal → Literal → Bool
 | Literal.strVal v₁, Literal.strVal v₂ => v₁ < v₂
 | _,                 _                 => false
 
-instance Literal.hasLess : HasLess Literal := ⟨fun a b => a.lt b⟩
+instance : HasLess Literal := ⟨fun a b => a.lt b⟩
 
-instance Literal.decLess (a b : Literal) : Decidable (a < b) :=
+instance (a b : Literal) : Decidable (a < b) :=
 inferInstanceAs (Decidable (a.lt b))
 
 inductive BinderInfo
@@ -55,9 +55,9 @@ def BinderInfo.isExplicit : BinderInfo → Bool
 | BinderInfo.instImplicit   => false
 | _                         => true
 
-instance BinderInfo.hashable : Hashable BinderInfo := ⟨BinderInfo.hash⟩
+instance : Hashable BinderInfo := ⟨BinderInfo.hash⟩
 
-instance BinderInfo.inhabited : Inhabited BinderInfo := ⟨BinderInfo.default⟩
+instance : Inhabited BinderInfo := ⟨BinderInfo.default⟩
 
 def BinderInfo.isInstImplicit : BinderInfo → Bool
 | BinderInfo.instImplicit => true
@@ -75,7 +75,7 @@ protected def BinderInfo.beq : BinderInfo → BinderInfo → Bool
 | BinderInfo.auxDecl,        BinderInfo.auxDecl        => true
 | _,                         _                         => false
 
-instance BinderInfo.hasBeq : HasBeq BinderInfo := ⟨BinderInfo.beq⟩
+instance : HasBeq BinderInfo := ⟨BinderInfo.beq⟩
 
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}
@@ -92,13 +92,13 @@ abbrev MData.empty : MData := {}
    looseBVarRange : 24-bits -/
 def Expr.Data := UInt64
 
-instance Expr.Data.inhabited : Inhabited Expr.Data :=
+instance: Inhabited Expr.Data :=
 inferInstanceAs (Inhabited UInt64)
 
 def Expr.Data.hash (c : Expr.Data) : USize :=
 c.toUInt32.toUSize
 
-instance Expr.Data.hasBeq : HasBeq Expr.Data :=
+instance : HasBeq Expr.Data :=
 ⟨fun (a b : UInt64) => a == b⟩
 
 def Expr.Data.looseBVarRange (c : Expr.Data) : UInt32 :=

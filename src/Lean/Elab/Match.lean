@@ -156,7 +156,7 @@ inductive PatternVar
 -- anonymous variables (`_`) are encoded using metavariables
 | anonymousVar (mvarId   : MVarId)
 
-instance PatternVar.hasToString : HasToString PatternVar :=
+instance : HasToString PatternVar :=
 ⟨fun
   | PatternVar.localVar x          => toString x
   | PatternVar.anonymousVar mvarId => s!"?m{mvarId}"⟩
@@ -269,7 +269,7 @@ structure Context :=
 (args          : List Arg)
 (newArgs       : Array Syntax := #[])
 
-instance Context.inhabited : Inhabited Context :=
+instance : Inhabited Context :=
 ⟨⟨arbitrary _, none, false, false, #[], 0, #[], [], #[]⟩⟩
 
 private def isDone (ctx : Context) : Bool :=

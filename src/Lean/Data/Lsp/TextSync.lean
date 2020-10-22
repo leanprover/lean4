@@ -20,14 +20,14 @@ inductive TextDocumentSyncKind
   | full
   | incremental
 
-instance TextDocumentSyncKind.hasFromJson : HasFromJson TextDocumentSyncKind := ⟨fun j =>
+instance : HasFromJson TextDocumentSyncKind := ⟨fun j =>
   match j.getNat? with
   | some 0 => TextDocumentSyncKind.none
   | some 1 => TextDocumentSyncKind.full
   | some 2 => TextDocumentSyncKind.incremental
   | _      => none⟩
 
-instance TextDocumentSyncKind.hasToJson : HasToJson TextDocumentSyncKind := ⟨fun o =>
+instance : HasToJson TextDocumentSyncKind := ⟨fun o =>
   match o with
   | TextDocumentSyncKind.none        => 0
   | TextDocumentSyncKind.full        => 1
@@ -56,7 +56,7 @@ inductive TextDocumentContentChangeEvent
   | rangeChange (range : Range) (text : String)
   | fullChange (text : String)
 
-instance TextDocumentContentChangeEvent.hasFromJson : HasFromJson TextDocumentContentChangeEvent := ⟨fun j =>
+instance : HasFromJson TextDocumentContentChangeEvent := ⟨fun j =>
   (do
     let range ← j.getObjValAs? Range "range"
     let text ← j.getObjValAs? String "text"
@@ -67,7 +67,7 @@ structure DidChangeTextDocumentParams :=
   (textDocument : VersionedTextDocumentIdentifier)
   (contentChanges : Array TextDocumentContentChangeEvent)
 
-instance DidChangeTextDocumentParams.hasFromJson : HasFromJson DidChangeTextDocumentParams := ⟨fun j => do
+instance : HasFromJson DidChangeTextDocumentParams := ⟨fun j => do
   let textDocument ← j.getObjValAs? VersionedTextDocumentIdentifier "textDocument"
   let contentChanges ← j.getObjValAs? (Array TextDocumentContentChangeEvent) "contentChanges"
   pure ⟨textDocument, contentChanges⟩⟩
@@ -78,12 +78,12 @@ instance DidChangeTextDocumentParams.hasFromJson : HasFromJson DidChangeTextDocu
 
 structure SaveOptions := (includeText : Bool)
 
-instance SaveOptions.hasToJson : HasToJson SaveOptions := ⟨fun o =>
+instance : HasToJson SaveOptions := ⟨fun o =>
   mkObj $ [⟨"includeText", o.includeText⟩]⟩
 
 structure DidCloseTextDocumentParams := (textDocument : TextDocumentIdentifier)
 
-instance DidCloseTextDocumentParams.hasFromJson : HasFromJson DidCloseTextDocumentParams := ⟨fun j =>
+instance : HasFromJson DidCloseTextDocumentParams := ⟨fun j =>
   DidCloseTextDocumentParams.mk <$> j.getObjValAs? TextDocumentIdentifier "textDocument"⟩
 
 -- TODO: TextDocumentSyncClientCapabilities
@@ -96,12 +96,13 @@ structure TextDocumentSyncOptions :=
   (willSaveWaitUntil : Bool)
   (save? : Option SaveOptions := none)
 
-instance TextDocumentSyncOptions.hasToJson : HasToJson TextDocumentSyncOptions := ⟨fun o => mkObj $
-  opt "save" o.save? ++ [
-    ⟨"openClose", toJson o.openClose⟩,
-    ⟨"change", toJson o.change⟩,
-    ⟨"willSave", toJson o.willSave⟩,
-    ⟨"willSaveWaitUntil", toJson o.willSaveWaitUntil⟩]⟩
+instance : HasToJson TextDocumentSyncOptions := ⟨fun o =>
+  mkObj $
+    opt "save" o.save? ++ [
+      ⟨"openClose", toJson o.openClose⟩,
+      ⟨"change", toJson o.change⟩,
+      ⟨"willSave", toJson o.willSave⟩,
+      ⟨"willSaveWaitUntil", toJson o.willSaveWaitUntil⟩]⟩
 
 end Lsp
 end Lean

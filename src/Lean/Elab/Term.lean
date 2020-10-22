@@ -143,8 +143,7 @@ abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
 open Meta
 
-instance TermElabM.inhabited {α} : Inhabited (TermElabM α) :=
-  ⟨throw $ arbitrary _⟩
+instance {α} : Inhabited (TermElabM α) := ⟨throw $ arbitrary _⟩
 
 structure SavedState :=
   (core   : Core.State)
@@ -237,7 +236,7 @@ instance : AddErrorMessageContext TermElabM := {
     pure (ref, msg)
 }
 
-instance monadLog : MonadLog TermElabM := {
+instance : MonadLog TermElabM := {
   getRef      := getRef,
   getFileMap  := do pure (← read).fileMap,
   getFileName := do pure (← read).fileName,
@@ -254,7 +253,7 @@ protected def getMainModule     : TermElabM Name := do pure (← getEnv).mainMod
   let fresh ← modifyGetThe Core.State (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
-instance monadQuotation : MonadQuotation TermElabM := {
+instance : MonadQuotation TermElabM := {
   getCurrMacroScope   := Term.getCurrMacroScope,
   getMainModule       := Term.getMainModule,
   withFreshMacroScope := Term.withFreshMacroScope
@@ -279,8 +278,10 @@ inductive LVal
   | fieldName (name : String)
   | getOp     (idx : Syntax)
 
-instance LVal.hasToString : HasToString LVal :=
-  ⟨fun p => match p with | LVal.fieldIdx i => toString i | LVal.fieldName n => n | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩
+instance : HasToString LVal := ⟨fun
+  | LVal.fieldIdx i => toString i
+  | LVal.fieldName n => n
+  | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩
 
 instance : MonadResolveName TermElabM := {
   getCurrNamespace := do pure (← read).currNamespace,

@@ -146,7 +146,7 @@ def aux4 (j : Json) : Option Message := do
 
 -- HACK: The implementation must be made up of several `auxN`s instead
 -- of one large block because of a bug in the compiler.
-instance Message.hasFromJson : HasFromJson Message := ⟨fun j => do
+instance : HasFromJson Message := ⟨fun j => do
   let "2.0" ← j.getObjVal? "jsonrpc" | none
   aux1 j <|> aux2 j <|> aux3 j <|> aux4 j⟩
 

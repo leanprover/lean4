@@ -101,7 +101,7 @@ namespace Closure
 structure ToProcessElement :=
 (fvarId : FVarId) (newFVarId : FVarId)
 
-instance ToProcessElement.inhabited : Inhabited ToProcessElement :=
+instance : Inhabited ToProcessElement :=
 ⟨⟨arbitrary _, arbitrary _⟩⟩
 
 structure Context :=

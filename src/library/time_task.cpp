@@ -64,13 +64,13 @@ time_task::~time_task() {
     }
 }
 
-/* profileit {α : Type} (category : string) (pos : position) (act : io α) : io α */
-extern "C" obj_res lean_lean_profileit(obj_arg, b_obj_arg category, b_obj_arg pos, obj_arg fn, obj_arg w) {
+/* profileit {α : Type} (category : String) (pos : Position) (fn : Unit → α) : α */
+extern "C" obj_res lean_profileit(b_obj_arg category, b_obj_arg pos, obj_arg fn) {
     time_task t(string_to_std(category),
-                message_builder(environment(), get_global_ios(), get_pos_info_provider()->get_file_name(),
+                message_builder(environment(), get_global_ios(), "foo",
                         pos_info(nat(cnstr_get(pos, 0), true).get_small_value(),
                                  nat(cnstr_get(pos, 1), true).get_small_value()),
                         message_severity::INFORMATION));
-    return apply_1(fn, w);
+    return apply_1(fn, box(0));
 }
 }

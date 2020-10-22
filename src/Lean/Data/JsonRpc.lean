@@ -85,9 +85,6 @@ structure Request (α : Type) := (id : RequestID) (param : α)
 structure Response (α : Type) := (id : RequestID) (result : α)
 structure Error := (id : RequestID) (code : JsonNumber) (message : String) (data? : Option Json)
 
-instance : HasCoe String RequestID := ⟨RequestID.str⟩
-instance : HasCoe JsonNumber RequestID := ⟨RequestID.num⟩
-
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
 

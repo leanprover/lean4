@@ -28,10 +28,6 @@ namespace JsonNumber
 protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩
 protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
 
--- TODO: delete
-instance : HasCoe Nat JsonNumber := ⟨JsonNumber.fromNat⟩
-instance : HasCoe Int JsonNumber := ⟨JsonNumber.fromInt⟩
-
 instance : Coe Nat JsonNumber := ⟨JsonNumber.fromNat⟩
 instance : Coe Int JsonNumber := ⟨JsonNumber.fromInt⟩
 
@@ -104,12 +100,6 @@ namespace Json
 def mkObj (o : List (String × Json)) : Json :=
   obj (o.foldr (fun ⟨k, v⟩ acc => acc.insert strLt k v) RBNode.leaf)
 
--- TODO delete
-instance : HasCoe Nat Json := ⟨fun n => Json.num n⟩
-instance : HasCoe Int Json := ⟨fun n => Json.num n⟩
-instance : HasCoe String Json := ⟨Json.str⟩
-instance : HasCoe Bool Json := ⟨Json.bool⟩
-
 instance : Coe Nat Json := ⟨fun n => Json.num n⟩
 instance : Coe Int Json := ⟨fun n => Json.num n⟩
 instance : Coe String Json := ⟨Json.str⟩
@@ -157,10 +147,6 @@ def getObjValD (j : Json) (k : String) : Json :=
 inductive Structured
   | arr (elems : Array Json)
   | obj (kvPairs : RBNode String (fun _ => Json))
-
--- TODO: delete
-instance : HasCoe (Array Json) Structured := ⟨Structured.arr⟩
-instance : HasCoe (RBNode String (fun _ => Json)) Structured := ⟨Structured.obj⟩
 
 instance : Coe (Array Json) Structured := ⟨Structured.arr⟩
 instance : Coe (RBNode String (fun _ => Json)) Structured := ⟨Structured.obj⟩

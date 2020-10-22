@@ -9,7 +9,6 @@ import Std.Data.RBMap
 import Std.Data.RBTree
 namespace Lean
 
-instance : HasCoe String Name := ⟨mkNameSimple⟩ -- TODO delete
 instance : Coe String Name := ⟨mkNameSimple⟩
 
 namespace Name

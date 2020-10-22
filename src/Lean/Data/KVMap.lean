@@ -46,12 +46,6 @@ def DataValue.str : DataValue → String
 
 instance DataValue.hasToString : HasToString DataValue := ⟨DataValue.str⟩
 
-instance string2DataValueOld : HasCoe String DataValue := ⟨DataValue.ofString⟩
-instance bool2DataValueOld   : HasCoe Bool DataValue   := ⟨DataValue.ofBool⟩
-instance name2DataValueOld   : HasCoe Name DataValue   := ⟨DataValue.ofName⟩
-instance nat2DataValueOld    : HasCoe Nat DataValue    := ⟨DataValue.ofNat⟩
-instance int2DataValueOld    : HasCoe Int DataValue    := ⟨DataValue.ofInt⟩
-
 instance string2DataValue : Coe String DataValue := ⟨DataValue.ofString⟩
 instance bool2DataValue   : Coe Bool DataValue   := ⟨DataValue.ofBool⟩
 instance name2DataValue   : Coe Name DataValue   := ⟨DataValue.ofName⟩

@@ -52,7 +52,7 @@ def Waiter.isRoot : Waiter → Bool
 | Waiter.root           => true
 
 /-
-  In tabled resolution, we creating a mapping from goals (e.g., `HasCoe Nat ?x`) to
+  In tabled resolution, we creating a mapping from goals (e.g., `Coe Nat ?x`) to
   answers and waiters. Waiters are consumer nodes that are waiting for answers for a
   particular node.
 

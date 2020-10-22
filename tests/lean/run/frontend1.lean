@@ -1,5 +1,5 @@
+#lang lean4
 import Lean.Elab
-new_frontend
 open Lean
 open Lean.Elab
 
@@ -215,10 +215,6 @@ def three := 3
 #eval runM "#check g (y := three)"
 #eval runM "#check g (z := three)"
 #eval runM "#check g three (z := zero)"
-
-#eval runM "open Lean.Parser
- @[termParser] def myParser : Lean.Parser.Parser := parser! oldCoe \"hi\"
-#check myParser"
 
 #eval runM "#check (fun stx => if True then let e := stx; HasPure.pure e else HasPure.pure stx : Nat → Id Nat)"
 #eval runM "constant n : Nat #check n"

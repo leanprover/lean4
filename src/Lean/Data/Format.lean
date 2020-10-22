@@ -47,7 +47,6 @@ protected def groupEx : Format → Format :=
   group
 
 instance : HasAppend Format     := ⟨Format.append⟩
-instance : HasCoe String Format := ⟨text⟩
 instance : Coe String Format    := ⟨text⟩
 instance : Inhabited Format     := ⟨nil⟩
 

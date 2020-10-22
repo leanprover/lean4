@@ -173,13 +173,16 @@ environment compile(environment const & env, options const & opts, names cs) {
         }
     }
 
-    if (length(cs) == 1 && is_extern_constant(env, head(cs))) {
-        /* Generate boxed version for extern/native constant if needed. */
-        return ir::add_extern(env, head(cs));
+    if (length(cs) == 1) {
+        name c = get_real_name(head(cs));
+        if (is_extern_constant(env, c)) {
+            /* Generate boxed version for extern/native constant if needed. */
+            return ir::add_extern(env, c);
+        }
     }
 
     for (name const & c : cs) {
-        lean_assert(!is_extern_constant(env, c));
+        lean_assert(!is_extern_constant(env, get_real_name(c)));
         constant_info cinfo = env.get(c);
         if (!cinfo.is_definition() && !cinfo.is_opaque()) return env;
         if (has_synthetic_sorry(cinfo)) return env;

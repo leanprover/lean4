@@ -30,7 +30,7 @@ instance : HasToJson Hover := ⟨fun o => mkObj $
   ⟨"contents", toJson o.contents⟩ ::
   opt "range" o.range?⟩
 
-structure HoverParams extends TextDocumentPositionParams := -- TODO: remove :=
+structure HoverParams extends TextDocumentPositionParams
 
 instance : HasFromJson HoverParams := ⟨fun j => do
   let tdpp ← @fromJson? TextDocumentPositionParams _ j

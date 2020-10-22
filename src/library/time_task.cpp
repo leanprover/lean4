@@ -7,6 +7,7 @@ Author: Sebastian Ullrich
 #include <string>
 #include <map>
 #include "library/time_task.h"
+#include "library/trace.h"
 
 namespace lean {
 
@@ -42,11 +43,10 @@ time_task::time_task(std::string const & category, message_builder builder, name
     auto const & opts = builder.get_text_stream().get_options();
     if (get_profiler(opts)) {
         m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
-            builder.get_text_stream().get_stream() << m_category;
+            tout() << m_category;
             if (decl)
-                builder.get_text_stream().get_stream() << " of " << decl;
-            builder.get_text_stream().get_stream() << " took " << display_profiling_time{duration} << "\n";
-            builder.report();
+                tout() << " of " << decl;
+            tout() << " took " << display_profiling_time{duration} << "\n";
         });
         m_parent_task = g_current_time_task;
         g_current_time_task = this;

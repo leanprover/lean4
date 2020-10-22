@@ -286,6 +286,17 @@ structure MetavarContext :=
   (eAssignment : PersistentHashMap MVarId Expr := {})
   (dAssignment : PersistentHashMap MVarId DelayedMetavarAssignment := {})
 
+class MonadMCtx (m : Type → Type) :=
+  (getMCtx    : m MetavarContext)
+  (modifyMCtx : (MetavarContext → MetavarContext) → m Unit)
+
+export MonadMCtx (getMCtx modifyMCtx)
+
+instance (m n) [MonadMCtx m] [MonadLift m n] : MonadMCtx n := {
+  getMCtx    := liftM (getMCtx : m _),
+  modifyMCtx := fun f => liftM (modifyMCtx f : m _)
+}
+
 namespace MetavarContext
 
 instance : Inhabited MetavarContext := ⟨{}⟩
@@ -487,56 +498,43 @@ def hasAssignableMVar (mctx : MetavarContext) : Expr → Bool
   | Expr.mvar mvarId _   => mctx.isExprAssignable mvarId
   | Expr.localE _ _ _ _  => unreachable!
 
-partial def instantiateLevelMVars : Level → StateM MetavarContext Level
+partial def instantiateLevelMVars {m} [Monad m] [MonadMCtx m] : Level → m Level
   | lvl@(Level.succ lvl₁ _)      => do return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
   | lvl@(Level.max lvl₁ lvl₂ _)  => do return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
   | lvl@(Level.imax lvl₁ lvl₂ _) => do return Level.updateIMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
   | lvl@(Level.mvar mvarId _)    => do
-    let mctx ← get
-    match getLevelAssignment? mctx mvarId with
+    match getLevelAssignment? (← getMCtx) mvarId with
     | some newLvl =>
       if !newLvl.hasMVar then pure newLvl
       else do
         let newLvl' ← instantiateLevelMVars newLvl
-        modify fun mctx => mctx.assignLevel mvarId newLvl'
+        modifyMCtx fun mctx => mctx.assignLevel mvarId newLvl'
         pure newLvl'
     | none        => pure lvl
   | lvl => pure lvl
 
-namespace InstantiateExprMVars
-private abbrev M := StateM (WithHashMapCache Expr Expr MetavarContext)
-
-@[inline] def instantiateLevelMVars (lvl : Level) : M Level :=
-  WithHashMapCache.fromState $ MetavarContext.instantiateLevelMVars lvl
-
-@[inline] private def getMCtx : M MetavarContext := do
-  let s ← get; pure s.state
-
-@[inline] private def modifyCtx (f : MetavarContext → MetavarContext) : M Unit :=
-  modify fun s => { s with state := f s.state }
-
 /-- instantiateExprMVars main function -/
-partial def main (e : Expr) : M Expr :=
+partial def instantiateExprMVars {m ω} [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLiftT (ST ω) m] (e : Expr) : MonadCacheT Expr Expr m Expr :=
   if !e.hasMVar then
     pure e
   else checkCache e fun e => do match e with
-    | Expr.proj _ _ s _    => return e.updateProj! (← main s)
-    | Expr.forallE _ d b _ => return e.updateForallE! (← main d) (← main b)
-    | Expr.lam _ d b _     => return e.updateLambdaE! (← main d) (← main b)
-    | Expr.letE _ t v b _  => return e.updateLet! (← main t) (← main v) (← main b)
+    | Expr.proj _ _ s _    => return e.updateProj! (← instantiateExprMVars s)
+    | Expr.forallE _ d b _ => return e.updateForallE! (← instantiateExprMVars d) (← instantiateExprMVars b)
+    | Expr.lam _ d b _     => return e.updateLambdaE! (← instantiateExprMVars d) (← instantiateExprMVars b)
+    | Expr.letE _ t v b _  => return e.updateLet! (← instantiateExprMVars t) (← instantiateExprMVars v) (← instantiateExprMVars b)
     | Expr.const _ lvls _  => return e.updateConst! (← lvls.mapM instantiateLevelMVars)
     | Expr.sort lvl _      => return e.updateSort! (← instantiateLevelMVars lvl)
-    | Expr.mdata _ b _     => return e.updateMData! (← main b)
+    | Expr.mdata _ b _     => return e.updateMData! (← instantiateExprMVars b)
     | Expr.app _ _ _       => e.withApp fun f args => do
-      let instArgs (f : Expr) : M Expr := do
-        let args ← args.mapM main
+      let instArgs (f : Expr) : MonadCacheT Expr Expr m Expr := do
+        let args ← args.mapM instantiateExprMVars
         pure (mkAppN f args)
-      let instApp : M Expr := do
+      let instApp : MonadCacheT Expr Expr m Expr := do
         let wasMVar := f.isMVar
-        let f ← main f
+        let f ← instantiateExprMVars f
         if wasMVar && f.isLambda then
           /- Some of the arguments in args are irrelevant after we beta reduce. -/
-          main (f.betaRev args.reverse)
+          instantiateExprMVars (f.betaRev args.reverse)
         else
           instArgs f
       match f with
@@ -558,11 +556,11 @@ partial def main (e : Expr) : M Expr :=
                when we are checking for unassigned metavariables in an elaborated term. -/
             instArgs f
           else
-            let newVal ← main val
+            let newVal ← instantiateExprMVars val
             if newVal.hasExprMVar then
               instArgs f
             else do
-              let args ← args.mapM main
+              let args ← args.mapM instantiateExprMVars
               /-
                  Example: suppose we have
                    `?m t1 t2 t3`
@@ -582,17 +580,24 @@ partial def main (e : Expr) : M Expr :=
       let mctx ← getMCtx
       match mctx.getExprAssignment? mvarId with
       | some newE => do
-        let newE' ← main newE
-        modifyCtx fun mctx => mctx.assignExpr mvarId newE'
+        let newE' ← instantiateExprMVars newE
+        modifyMCtx fun mctx => mctx.assignExpr mvarId newE'
         pure newE'
       | none => pure e
     | e => pure e
 
-end InstantiateExprMVars
+instance {ω} : MonadMCtx (StateRefT MetavarContext (ST ω)) := {
+  getMCtx    := get,
+  modifyMCtx := modify
+}
 
 def instantiateMVars (mctx : MetavarContext) (e : Expr) : Expr × MetavarContext :=
-  if !e.hasMVar then (e, mctx)
-  else (WithHashMapCache.toState $ InstantiateExprMVars.main e).run mctx
+  if !e.hasMVar then
+    (e, mctx)
+  else
+    let instantiate {ω} (e : Expr) : (MonadCacheT Expr Expr $ StateRefT MetavarContext $ ST ω) Expr :=
+      instantiateExprMVars e
+    runST fun _ => instantiate e $.run $.run mctx
 
 def instantiateLCtxMVars (mctx : MetavarContext) (lctx : LocalContext) : LocalContext × MetavarContext :=
   lctx.foldl
@@ -1104,13 +1109,5 @@ def getExprAssignmentDomain (mctx : MetavarContext) : Array MVarId :=
   mctx.eAssignment.foldl (fun a mvarId _ => Array.push a mvarId) #[]
 
 end MetavarContext
-
-class MonadMCtx (m : Type → Type) :=
-  (getMCtx : m MetavarContext)
-
-export MonadMCtx (getMCtx)
-
-instance (m n) [MonadMCtx m] [MonadLift m n] : MonadMCtx n :=
-  { getMCtx := liftM (getMCtx : m _) }
 
 end Lean

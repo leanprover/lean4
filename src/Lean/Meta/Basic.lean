@@ -124,8 +124,10 @@ instance {α} : Inhabited (MetaM α) :=
 instance : MonadLCtx MetaM :=
 { getLCtx := do pure (← read).lctx }
 
-instance : MonadMCtx MetaM :=
-{ getMCtx := do pure (← get).mctx }
+instance : MonadMCtx MetaM := {
+  getMCtx    := do pure (← get).mctx,
+  modifyMCtx := fun f => modify fun s => { s with mctx := f s.mctx }
+}
 
 instance : AddMessageContext MetaM :=
 { addMessageContext := addMessageContextFull }
@@ -169,8 +171,6 @@ variables {n : Type → Type} [MonadControlT MetaM n] [Monad n]
 def getLocalInstances : m LocalInstances := liftMetaM do pure (← read).localInstances
 def getConfig : m Config := liftMetaM do pure (← read).config
 def setMCtx (mctx : MetavarContext) : m Unit := liftMetaM $ modify fun s => { s with mctx := mctx }
-@[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : m Unit :=
-liftMetaM $ modify fun s => { s with mctx := f s.mctx }
 def resetZetaFVarIds : m Unit := liftMetaM $ modify fun s => { s with zetaFVarIds := {} }
 def getZetaFVarIds : m NameSet := liftMetaM do pure (← get).zetaFVarIds
 
@@ -271,7 +271,7 @@ match mctx.findDecl? mvarId with
 | some d => pure d
 | none   => throwError! "unknown metavariable '{mkMVar mvarId}'"
 
-def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : m Unit :=
+def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : m Unit := liftMetaM do
 modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
 
 def isReadOnlyExprMVar (mvarId : MVarId) : m Bool := liftMetaM do
@@ -293,7 +293,7 @@ match mctx.findLevelDepth? mvarId with
 | some depth => pure $ depth != mctx.depth
 | _          => throwError! "unknown universe metavariable '{mkLevelMVar mvarId}'"
 
-def renameMVar (mvarId : MVarId) (newUserName : Name) : m Unit :=
+def renameMVar (mvarId : MVarId) (newUserName : Name) : m Unit := liftMetaM do
 modifyMCtx fun mctx => mctx.renameMVar mvarId newUserName
 
 def isExprMVarAssigned (mvarId : MVarId) : m Bool := liftMetaM do
@@ -335,13 +335,17 @@ match (← getLCtx).findFromUserName? userName with
 | some d => pure d
 | none   => throwError! "unknown local declaration '{userName}'"
 
+def instantiateLevelMVarsImp (u : Level) : MetaM Level :=
+MetavarContext.instantiateLevelMVars u
+
+def instantiateLevelMVars (u : Level) : m Level := liftMetaM do
+instantiateLevelMVarsImp u
+
+def instantiateMVarsImp (e : Expr) : MetaM Expr :=
+(MetavarContext.instantiateExprMVars e).run
+
 def instantiateMVars (e : Expr) : m Expr := liftMetaM do
-if e.hasMVar then
-  modifyGet fun s =>
-    let (e, mctx) := s.mctx.instantiateMVars e;
-    (e, { s with mctx := mctx })
-else
-  pure e
+instantiateMVarsImp e
 
 def instantiateLocalDeclMVars (localDecl : LocalDecl) : m LocalDecl := liftMetaM do
 match localDecl with
@@ -902,19 +906,10 @@ withConfig (fun config => { config with foApprox := true, ctxApprox := true, qua
 @[inline] def fullApproxDefEq {α} : n α → n α :=
 mapMetaM fullApproxDefEqImp
 
-@[inline] private def liftStateMCtx {α} (x : StateM MetavarContext α) : MetaM α := do
-let mctx ← getMCtx
-let (a, mctx) := x.run mctx
-setMCtx mctx
-pure a
-
-def instantiateLevelMVars (u : Level) : m Level :=
-liftMetaM $ liftStateMCtx $ MetavarContext.instantiateLevelMVars u
-
 def normalizeLevel (u : Level) : m Level :=
 liftMetaM do let u ← instantiateLevelMVars u; pure u.normalize
 
-def assignLevelMVar (mvarId : MVarId) (u : Level) : m Unit :=
+def assignLevelMVar (mvarId : MVarId) (u : Level) : m Unit := liftMetaM do
 modifyMCtx fun mctx => mctx.assignLevel mvarId u
 
 def whnfD [MonadLiftT MetaM n] (e : Expr) : n Expr :=

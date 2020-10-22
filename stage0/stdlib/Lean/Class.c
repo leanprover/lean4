@@ -42,7 +42,6 @@ lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_initFn____x40_Lean_Clas
 lean_object* l_Lean_addClass___closed__4;
 lean_object* l_Lean_ClassState_addEntry(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Lean_SMap_contains___at_Lean_isClass___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_isOutParam___closed__2;
@@ -67,6 +66,7 @@ lean_object* l_Lean_initFn____x40_Lean_Class___hyg_785____lambda__1___boxed(lean
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_ClassState_addEntry___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getClassName_match__2(lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Class___hyg_153____spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_785____lambda__3___closed__2;
 uint8_t l_Lean_ClassEntry_lt(lean_object*, lean_object*);

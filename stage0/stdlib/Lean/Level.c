@@ -40,7 +40,6 @@ lean_object* l_Lean_Level_updateIMax___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_Array_qsortAux___main___at_Lean_Level_normalize___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_mkData___closed__3;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 uint64_t l_UInt64_add(uint64_t, uint64_t);
 lean_object* l_Lean_Level_isExplicit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Bool_toUInt64(uint8_t);
@@ -60,6 +59,7 @@ uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* l_Lean_Level_data_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_hasMVarEx___boxed(lean_object*);
 lean_object* l_Lean_Level_mkData___closed__2;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l_Lean_Level_isEquiv(lean_object*, lean_object*);
 uint8_t lean_level_has_param(lean_object*);
 size_t l_Lean_Level_hash(lean_object*);

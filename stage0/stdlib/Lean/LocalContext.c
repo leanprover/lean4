@@ -59,7 +59,6 @@ lean_object* l_Std_PersistentArray_foldlMAux___at_Lean_LocalContext_getFVarIds__
 uint8_t l_Std_PersistentHashMap_isEmpty___at_Lean_LocalContext_isEmpty___spec__1(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_LocalContext_foldlFrom___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_anyM___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_updateBinderInfo___closed__1;
 lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Lean_LocalDecl_updateBinderInfo___boxed(lean_object*, lean_object*);
@@ -101,6 +100,7 @@ uint8_t l_Array_anyRangeMAux___main___at_Lean_LocalContext_any___spec__5(lean_ob
 extern lean_object* l_Std_PersistentArray_empty___closed__1;
 lean_object* l_Lean_sanitizeName(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type_match__1(lean_object*);
 lean_object* l_Lean_LocalContext_get_x21(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlFromM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

@@ -29,7 +29,6 @@ lean_object* l_Lean_Elab_elabModifiers_match__2___rarg(lean_object*, lean_object
 lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__3___lambda__1(lean_object*);
 uint8_t l_Lean_Elab_Modifiers_isProtected(lean_object*);
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkDeclName(lean_object*);
 lean_object* l_Lean_withRef___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
@@ -38,6 +37,7 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2___closed__19;
 lean_object* l_Lean_Elab_elabModifiers___rarg___closed__2;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkDeclName___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1;
 lean_object* lean_private_to_user_name(lean_object*);

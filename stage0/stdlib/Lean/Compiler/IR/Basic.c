@@ -32,7 +32,6 @@ lean_object* l_Lean_IR_IRType_beq_match__1___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__10___closed__1;
 lean_object* l_Lean_IR_FnBody_isTerminal_match__1(lean_object*);
 uint8_t l_Array_isEqvAux___main___at_Lean_IR_args_alphaEqv___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Alt_isDefault_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_Index_lt(lean_object*, lean_object*);
 lean_object* lean_ir_mk_vdecl(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,6 +54,7 @@ uint8_t l_Lean_IR_Lean_Compiler_IR_Basic___instance__5(lean_object*, lean_object
 lean_object* l_Lean_IR_mmodifyJPs(lean_object*);
 lean_object* l_Lean_IR_mmodifyJPs___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_IRType_isIrrelevant(lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_IRType_isObj_match__1(lean_object*);
 lean_object* l_Lean_IR_Expr_alphaEqv_match__1___rarg___boxed(lean_object**);
 lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__13___closed__1;

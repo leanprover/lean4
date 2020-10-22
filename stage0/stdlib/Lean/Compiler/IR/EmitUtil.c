@@ -25,10 +25,10 @@ lean_object* l_Lean_IR_CollectUsedDecls_collectDecl_match__1___rarg(lean_object*
 lean_object* l_Lean_IR_usesModuleFrom___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectDecl_match__1(lean_object*);
 lean_object* l_Lean_IR_mkVarJPMaps___closed__2;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_expand___at_Lean_IR_CollectMaps_collectJP___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_IR_collectUsedDecls(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collectInitDecl_match__1(lean_object*);
 lean_object* l_List_foldr___main___at_Lean_IR_usesModuleFrom___spec__3___boxed(lean_object*, lean_object*, lean_object*);

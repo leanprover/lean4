@@ -22,7 +22,6 @@ lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getElaboratorStrategy___sp
 lean_object* l_Array_anyRangeMAux___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__7___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
@@ -30,6 +29,7 @@ lean_object* l_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____closed__12
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_Elab_StrategyAttrs___hyg_10____spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);

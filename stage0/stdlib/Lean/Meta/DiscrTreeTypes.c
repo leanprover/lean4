@@ -15,9 +15,9 @@ extern "C" {
 #endif
 lean_object* l_Lean_Meta_DiscrTree_Key_hash_match__1(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_root___default(lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_beq_match__1(lean_object*);
 extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_beq___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Meta_DiscrTree_Key_beq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Lean_Meta_DiscrTreeTypes___instance__2;

@@ -27,7 +27,6 @@ lean_object* l___private_Lean_Meta_AbstractMVars_0__Lean_Meta_AbstractMVars_abst
 extern lean_object* l_Lean_Level_Lean_Level___instance__4;
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_replace___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__6(lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaMetaTelescopeImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_Meta_AbstractMVars_State_lmap___default___spec__1(lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___closed__3;
@@ -37,6 +36,7 @@ extern lean_object* l_Array_empty___closed__1;
 uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_mkFreshId___rarg(lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateApp_x21___closed__2;
 lean_object* l_Lean_Meta_AbstractMVars_State_emap___default___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);

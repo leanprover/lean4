@@ -21,7 +21,6 @@ lean_object* l_Lean_Compiler_atMostOnce_visit(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Compiler_voidType;
 lean_object* l_Lean_Compiler_neutralExpr___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_visit_match__1(lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkLcProof___closed__3;
 lean_object* l_Lean_Compiler_objectType;
 lean_object* l_Lean_Compiler_objectType___closed__2;
@@ -30,6 +29,7 @@ lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkLcProof___closed__2;
 lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen_match__1(lean_object*);
 lean_object* l_Lean_Compiler_isEagerLambdaLiftingName_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_neutralExpr___closed__2;
 lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);

@@ -17,7 +17,6 @@ lean_object* l_Lean_IR_Checker_checkFullApp___closed__4;
 lean_object* l_Lean_IR_Checker_checkArg_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_Checker_checkArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_Checker_checkDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LocalContext_isJP(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_markVar(lean_object*, lean_object*, lean_object*);
@@ -25,6 +24,7 @@ lean_object* l_Lean_IR_Checker_checkExpr(lean_object*, lean_object*, lean_object
 uint8_t l_Lean_IR_IRType_isStruct(lean_object*);
 lean_object* l_Lean_IR_Checker_getType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkType(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkJP___closed__1;
 lean_object* l_Lean_IR_Checker_checkFullApp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LocalContext_isParam(lean_object*, lean_object*);

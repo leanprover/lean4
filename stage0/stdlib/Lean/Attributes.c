@@ -56,7 +56,6 @@ lean_object* l_Std_AssocList_foldlM___at_Lean_registerAttributeImplBuilder___spe
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerEnumAttributes___spec__5(lean_object*);
 lean_object* l_Lean_getBuiltinAttributeImpl(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_registerEnumAttributes___spec__9___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_709____closed__1;
@@ -83,6 +82,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean
 lean_object* l_Lean_Lean_Attributes___instance__4___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_mkAttributeImplOfBuilder_match__1___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_addAttributeOld___closed__1;
 lean_object* l_Array_anyRangeMAux___main___at_Lean_registerEnumAttributes___spec__8(lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_registerAttributeImplBuilder___spec__1(lean_object*, lean_object*, lean_object*);

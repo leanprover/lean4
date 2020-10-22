@@ -16,8 +16,8 @@ extern "C" {
 lean_object* l_Lean_rootNamespace;
 lean_object* l_List_toString___at_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___spec__2(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___closed__2;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;

@@ -25,7 +25,6 @@ lean_object* l_Lean_registerParametricAttribute___rarg___lambda__7___boxed(lean_
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____closed__5;
 lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName___boxed(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____closed__7;
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
@@ -34,6 +33,7 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____spec__3___boxed(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t l_Char_isDigit(uint32_t);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName(lean_object*);
 lean_object* l_Substring_nextn___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_81____spec__2___closed__1;

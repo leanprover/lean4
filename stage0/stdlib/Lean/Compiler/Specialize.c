@@ -34,7 +34,6 @@ lean_object* l_Std_HashMapImp_insert___at_Lean_Compiler_SpecState_addEntry___spe
 lean_object* l_Array_iterateMAux___main___at_Lean_Compiler_SpecState_addEntry___spec__16(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_cache___default___closed__3;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Lean_Compiler_SpecState_switch_match__1(lean_object*);
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
@@ -53,6 +52,7 @@ lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Compiler_SpecState_addEntry_
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux(lean_object*, uint8_t, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getSpecializationInfo___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specializeAttrs;
 lean_object* l_Lean_Compiler_SpecState_Lean_Compiler_Specialize___instance__3___closed__2;

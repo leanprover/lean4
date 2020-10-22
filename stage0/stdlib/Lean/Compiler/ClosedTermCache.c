@@ -21,7 +21,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_Cl
 lean_object* l_Lean_closedTermCacheExt___closed__3;
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_getClosedTermName_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2495____closed__4;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__18(lean_object*, lean_object*);
@@ -32,6 +31,7 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__7(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__2(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__4;

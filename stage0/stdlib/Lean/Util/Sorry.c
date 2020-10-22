@@ -15,11 +15,11 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_hasSyntheticSorry_match__1(lean_object*);
 uint8_t l_Lean_Expr_isSyntheticSorry(lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isSyntheticSorry_match__1___rarg___closed__1;
 uint8_t l_Array_anyRangeMAux___main___at_Lean_MessageData_hasSyntheticSorry___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_hasSorry_match__1(lean_object*);
 lean_object* l_Lean_MessageData_hasSyntheticSorry___boxed(lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_MessageData_hasSyntheticSorry___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasSyntheticSorry(lean_object*);

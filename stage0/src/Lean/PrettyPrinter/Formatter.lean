@@ -47,7 +47,7 @@ abbrev FormatterM := ReaderT Formatter.Context $ StateRefT Formatter.State $ Cor
     p₁
     (fun _ => do set s; p₂)
 
-instance Formatter.orelse {α} : HasOrelse (FormatterM α) := ⟨FormatterM.orelse⟩
+instance {α} : HasOrelse (FormatterM α) := ⟨FormatterM.orelse⟩
 
 abbrev Formatter := FormatterM Unit
 
@@ -90,7 +90,7 @@ open Lean.Parser
 def throwBacktrack {α} : FormatterM α :=
 throw $ Exception.internal backtrackExceptionId
 
-instance FormatterM.monadTraverser : Syntax.MonadTraverser FormatterM := ⟨{
+instance : Syntax.MonadTraverser FormatterM := ⟨{
   get       := State.stxTrav <$> get,
   set       := fun t => modify (fun st => { st with stxTrav := t }),
   modifyGet := fun f => modifyGet (fun st => let (a, t) := f st.stxTrav; (a, { st with stxTrav := t }))

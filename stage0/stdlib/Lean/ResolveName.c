@@ -33,6 +33,7 @@ lean_object* l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_5
 lean_object* l_List_toString___at_Lean_resolveGlobalConstNoOverload___spec__2(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 extern lean_object* l_List_repr___rarg___closed__1;
+lean_object* l_Lean_Lean_ResolveName___instance__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addAliasEntry_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -91,7 +92,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveQualifiedName(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveUsingNamespace_match__2(lean_object*);
 lean_object* l_Lean_ResolveName_resolveGlobalName_loop_match__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_monadResolveNameFromLift___rarg(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getRevAliases___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_ResolveName_resolveGlobalName_loop___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__7(lean_object*, lean_object*);
@@ -105,7 +105,6 @@ lean_object* l_Lean_SMap_fold___at_Lean_getRevAliases___spec__1(lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespace_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_ResolveName_resolveGlobalName_loop___spec__3(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getRevAliases___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_monadResolveNameFromLift(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_53____lambda__1(lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls___boxed(lean_object*, lean_object*, lean_object*);
@@ -269,6 +268,7 @@ lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_
 lean_object* l_Lean_getAliases_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Lean_Lean_ResolveName___instance__1(lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addAliasEntry_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -4096,7 +4096,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_Lean_monadResolveNameFromLift___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Lean_ResolveName___instance__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -4114,11 +4114,11 @@ lean_ctor_set(x_7, 1, x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_monadResolveNameFromLift(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Lean_ResolveName___instance__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_monadResolveNameFromLift___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_Lean_ResolveName___instance__1___rarg), 2, 0);
 return x_3;
 }
 }

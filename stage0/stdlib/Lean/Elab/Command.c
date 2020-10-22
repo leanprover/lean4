@@ -68,6 +68,7 @@ lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_Elab_Command_elabSection___closed__2;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabCommand___spec__9___boxed(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabNamespace___closed__1;
+extern lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3123____closed__3;
 extern lean_object* l_Lean_Core_Lean_CoreM___instance__1___closed__1;
 lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__13___closed__6;
 lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__6___closed__1;
@@ -95,7 +96,6 @@ lean_object* l_Lean_Elab_Command_elabCommand___boxed(lean_object*, lean_object*,
 lean_object* l___regBuiltin_Lean_Elab_Command_elabSetOption___closed__3;
 lean_object* l_Lean_Elab_Command_elabExport___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe_match__2(lean_object*);
-extern lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3127____closed__3;
 lean_object* l_Lean_Elab_Command_Context_macroStack___default;
 lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__3___closed__4;
 lean_object* l_Lean_Elab_Command_modifyScope_match__1(lean_object*);
@@ -345,6 +345,7 @@ lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_1019____c
 lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Command_0__Lean_Elab_Command_mkMetaContext___closed__1;
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__5___closed__1;
 lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__10___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__6___closed__2;
 lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__13___closed__4;
@@ -519,7 +520,6 @@ lean_object* l_Lean_Elab_Command_elabEnd_match__1___rarg(lean_object*, lean_obje
 lean_object* l_Lean_Elab_Command_addUnivLevel(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_setOption___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
-extern lean_object* l_Lean_Meta_State_inhabited___closed__1;
 lean_object* l_Lean_evalConst___at_Lean_Elab_Command_elabEvalUnsafe___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_resetMessageLog(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Elab_Command_elabCommand___spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -3389,7 +3389,7 @@ x_3 = l_Lean_Elab_Command_mkCommandElabAttributeUnsafe___closed__5;
 x_4 = l_Lean_Elab_Command_mkCommandElabAttributeUnsafe___closed__7;
 x_5 = l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
 x_6 = l_Lean_Elab_Command_mkCommandElabAttributeUnsafe___closed__9;
-x_7 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3127____closed__3;
+x_7 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3123____closed__3;
 x_8 = l_Lean_Elab_mkElabAttribute___rarg(x_2, x_3, x_4, x_5, x_6, x_7, x_1);
 return x_8;
 }
@@ -4795,7 +4795,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_899____closed__1;
-x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3127____closed__3;
+x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3123____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -7754,7 +7754,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
-x_70 = l_Lean_Meta_State_inhabited___closed__1;
+x_70 = l_Lean_Meta_Lean_Meta_Basic___instance__5___closed__1;
 x_71 = lean_st_mk_ref(x_70, x_19);
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);

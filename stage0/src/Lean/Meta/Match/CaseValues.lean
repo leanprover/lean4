@@ -14,7 +14,7 @@ structure CaseValueSubgoal :=
 (newH   : FVarId)
 (subst  : FVarSubst := {})
 
-instance CaseValueSubgoal.inhabited : Inhabited CaseValueSubgoal :=
+instance : Inhabited CaseValueSubgoal :=
 ⟨{ mvarId := arbitrary _, newH := arbitrary _ }⟩
 
 /--
@@ -65,7 +65,7 @@ structure CaseValuesSubgoal :=
 (newHs  : Array FVarId := #[])
 (subst  : FVarSubst := {})
 
-instance CaseValueSubgoals.inhabited : Inhabited CaseValuesSubgoal :=
+instance : Inhabited CaseValuesSubgoal :=
 ⟨{ mvarId := arbitrary _ }⟩
 
 /--

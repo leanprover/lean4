@@ -247,7 +247,7 @@ partial def Trie.format {α} [HasFormat α] : Trie α → Format
   "node" ++ (if vs.isEmpty then Format.nil else " " ++ fmt vs)
   ++ Format.join (cs.toList.map $ fun ⟨k, c⟩ => Format.line ++ Format.paren (fmt k ++ " => " ++ format c))
 
-instance Trie.hasFormat {α} [HasFormat α] : HasFormat (Trie α) := ⟨Trie.format⟩
+instance {α} [HasFormat α] : HasFormat (Trie α) := ⟨Trie.format⟩
 
 partial def format {α} [HasFormat α] (d : DiscrTree α) : Format :=
 let (_, r) := d.root.foldl
@@ -256,7 +256,7 @@ let (_, r) := d.root.foldl
   (true, Format.nil)
 Format.group r
 
-instance DiscrTree.hasFormat {α} [HasFormat α] : HasFormat (DiscrTree α) := ⟨format⟩
+instance {α} [HasFormat α] : HasFormat (DiscrTree α) := ⟨format⟩
 
 private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) := do
 let e ← whnfEta e

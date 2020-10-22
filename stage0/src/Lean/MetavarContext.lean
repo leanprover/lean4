@@ -1113,7 +1113,7 @@ class MonadMCtx (m : Type → Type) :=
 
 export MonadMCtx (getMCtx)
 
-instance monadMCtxTrans (m n) [MonadMCtx m] [MonadLift m n] : MonadMCtx n :=
+instance (m n) [MonadMCtx m] [MonadLift m n] : MonadMCtx n :=
   { getMCtx := liftM (getMCtx : m _) }
 
 end Lean

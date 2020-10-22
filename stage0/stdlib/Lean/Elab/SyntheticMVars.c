@@ -131,6 +131,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp___rarg(
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars_loop___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeSyntheticMVarsStep___spec__3(uint8_t);
 lean_object* l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeSyntheticMVarsStep___spec__2___closed__5;
+lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__10___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAuxM___main___at_Lean_Elab_Term_synthesizeUsingDefault___spec__1___lambda__2___closed__2;
 lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_getSomeSynthethicMVarsRef_match__1(lean_object*);
 lean_object* l_Lean_Elab_Term_runTactic___closed__1;
@@ -147,7 +148,6 @@ lean_object* l_List_filterAuxM___main___at_Lean_Elab_Term_synthesizeUsingDefault
 extern lean_object* l_Lean_Elab_postponeExceptionId;
 lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_reportStuckSyntheticMVars_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isMVar(lean_object*);
-lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Tactic_liftMetaTacticAux___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAuxM___main___at_Lean_Elab_Term_synthesizeUsingDefault___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeInstMVarCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2837,7 +2837,7 @@ lean_object* l_List_filterAuxM___main___at___private_Lean_Elab_SyntheticMVars_0_
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__1(x_1, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__10___spec__1(x_1, x_3, x_4, x_5, x_6, x_7);
 return x_8;
 }
 }

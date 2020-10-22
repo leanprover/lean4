@@ -24,13 +24,13 @@ namespace Lean
    depth     : 24-bits -/
 def Level.Data := UInt64
 
-instance Level.Data.inhabited : Inhabited Level.Data :=
+instance : Inhabited Level.Data :=
 inferInstanceAs (Inhabited UInt64)
 
 def Level.Data.hash (c : Level.Data) : USize :=
 c.toUInt32.toUSize
 
-instance Level.Data.hasBeq : HasBeq Level.Data :=
+instance : HasBeq Level.Data :=
 ⟨fun (a b : UInt64) => a == b⟩
 
 def Level.Data.depth (c : Level.Data) : UInt32 :=

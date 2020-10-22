@@ -657,6 +657,7 @@ lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_mkMonadAlias___closed
 lean_object* l_Lean_Elab_Term_Do_CodeBlocl_toMessageData_loop___closed__20;
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_checkLetArrowRHS___closed__2;
 lean_object* l_Lean_Elab_Term_elabLiftMethod___closed__3;
+lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__10___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_mkPureUnit(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__2___closed__4;
 lean_object* l_Lean_Elab_Term_Do_hasExitPointPred(lean_object*, lean_object*);
@@ -750,7 +751,6 @@ uint8_t l_Lean_Expr_isMVar(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_mkUVarTuple(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__10;
-lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_mkMonadAlias___closed__2;
 extern lean_object* l_Lean_Elab_Term_elabLetDeclCore___closed__6;
 lean_object* l_Lean_Elab_Term_Do_hasBreakContinueReturn_match__1(lean_object*);
@@ -7724,7 +7724,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_ctor_get(x_7, 3);
-x_11 = l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__1(x_1, x_5, x_6, x_7, x_8, x_9);
+x_11 = l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__10___spec__1(x_1, x_5, x_6, x_7, x_8, x_9);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
 {
@@ -31720,7 +31720,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_ctor_get(x_7, 3);
-x_11 = l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__1(x_1, x_5, x_6, x_7, x_8, x_9);
+x_11 = l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__10___spec__1(x_1, x_5, x_6, x_7, x_8, x_9);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
 {

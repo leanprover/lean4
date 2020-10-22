@@ -392,7 +392,7 @@ class MonadLCtx (m : Type → Type) :=
 
 export MonadLCtx (getLCtx)
 
-instance monadLCtxTrans (m n) [MonadLCtx m] [MonadLift m n] : MonadLCtx n :=
+instance (m n) [MonadLCtx m] [MonadLift m n] : MonadLCtx n :=
   { getLCtx := liftM (getLCtx : m _) }
 
 def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=

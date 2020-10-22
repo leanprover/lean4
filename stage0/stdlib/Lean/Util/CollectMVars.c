@@ -21,6 +21,7 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
+lean_object* l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_CollectMVars_State_visitedExpr___default___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -36,7 +37,6 @@ size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_List_elem___main___at_Lean_CollectMVars_visit___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_contains___at_Lean_CollectMVars_visit___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_CollectMVars_main_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_CollectMVars_State_inhabited___closed__1;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
@@ -49,7 +49,7 @@ lean_object* l_Std_HashSetImp_moveEntries___at_Lean_CollectMVars_visit___spec__5
 lean_object* l_Lean_CollectMVars_State_visitedExpr___default;
 lean_object* l_List_replace___main___at_Lean_CollectMVars_visit___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectMVars_State_result___default;
-lean_object* l_Lean_CollectMVars_State_inhabited;
+lean_object* l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_CollectMVars_main(lean_object*, lean_object*);
 lean_object* l_Std_mkHashSet___at_Lean_CollectMVars_State_visitedExpr___default___spec__1(lean_object* x_1) {
@@ -85,7 +85,7 @@ x_1 = l_Array_empty___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_CollectMVars_State_inhabited___closed__1() {
+static lean_object* _init_l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -97,11 +97,11 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_CollectMVars_State_inhabited() {
+static lean_object* _init_l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_CollectMVars_State_inhabited___closed__1;
+x_1 = l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1___closed__1;
 return x_1;
 }
 }
@@ -2045,10 +2045,10 @@ l_Lean_CollectMVars_State_visitedExpr___default = _init_l_Lean_CollectMVars_Stat
 lean_mark_persistent(l_Lean_CollectMVars_State_visitedExpr___default);
 l_Lean_CollectMVars_State_result___default = _init_l_Lean_CollectMVars_State_result___default();
 lean_mark_persistent(l_Lean_CollectMVars_State_result___default);
-l_Lean_CollectMVars_State_inhabited___closed__1 = _init_l_Lean_CollectMVars_State_inhabited___closed__1();
-lean_mark_persistent(l_Lean_CollectMVars_State_inhabited___closed__1);
-l_Lean_CollectMVars_State_inhabited = _init_l_Lean_CollectMVars_State_inhabited();
-lean_mark_persistent(l_Lean_CollectMVars_State_inhabited);
+l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1___closed__1 = _init_l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1___closed__1();
+lean_mark_persistent(l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1___closed__1);
+l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1 = _init_l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1();
+lean_mark_persistent(l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

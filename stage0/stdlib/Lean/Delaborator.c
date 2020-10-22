@@ -191,6 +191,7 @@ extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____c
 extern lean_object* l_Lean_Elab_Term_mkExplicitBinder___closed__2;
 lean_object* l___regBuiltin_Lean_Delaborator_delabGE___closed__3;
 lean_object* l_Lean_Delaborator_delabFComp___lambda__1___closed__1;
+lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_904____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_withAppArg(lean_object*);
 lean_object* l_Lean_Delaborator_delabseqLeft___lambda__1___closed__4;
 lean_object* l_Lean_Delaborator_delabAppImplicit___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -764,7 +765,6 @@ lean_object* l___regBuiltin_Lean_Delaborator_delabSub___closed__1;
 lean_object* l_Lean_Delaborator_delabHEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabHEq___lambda__1___closed__5;
 lean_object* l_Lean_Delaborator_delabProj___closed__3;
-lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_912____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabIff___lambda__1___closed__4;
 lean_object* l_Lean_Delaborator_annotatePos_match__1(lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabModN___closed__1;
@@ -10868,7 +10868,7 @@ else
 lean_object* x_30; 
 lean_free_object(x_18);
 lean_dec(x_19);
-x_30 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_912____spec__1___rarg(x_17, x_2, x_3, x_4, x_5, x_25);
+x_30 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_904____spec__1___rarg(x_17, x_2, x_3, x_4, x_5, x_25);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -10904,7 +10904,7 @@ else
 {
 lean_object* x_36; 
 lean_dec(x_19);
-x_36 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_912____spec__1___rarg(x_17, x_2, x_3, x_4, x_5, x_31);
+x_36 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_904____spec__1___rarg(x_17, x_2, x_3, x_4, x_5, x_31);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -20423,7 +20423,7 @@ lean_object* x_13; lean_object* x_14; uint8_t x_15;
 lean_dec(x_8);
 lean_dec(x_1);
 x_13 = l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
-x_14 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_912____spec__1___rarg(x_13, x_3, x_4, x_5, x_6, x_7);
+x_14 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_904____spec__1___rarg(x_13, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);

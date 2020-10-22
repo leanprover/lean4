@@ -14,105 +14,105 @@
 extern "C" {
 #endif
 lean_object* l_Lean_MonadCacheT_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___rarg(lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_fromState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_finally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_getCache(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_fromState(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_readerLift___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Lean_WithHashMapCache_modifyCache(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__3___rarg(lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_getCache___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg(lean_object*);
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_readerLift___rarg(lean_object*);
+lean_object* l_Lean_Lean_Util_MonadCache___instance__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_ExceptT_lift___rarg___closed__1;
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_readerLift___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7___rarg(lean_object*);
+lean_object* l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___rarg(lean_object*);
 lean_object* l_Lean_WithHashMapCache_getCacheE(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_readerLift___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_getCache___rarg(lean_object*);
+lean_object* l_Lean_Lean_Util_MonadCache___instance__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_modifyCache___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_modifyThe___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_checkCache_match__1(lean_object*, lean_object*);
-lean_object* l_Lean_readerLift___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_findCached_x3f(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_toEState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadLift(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_getCacheE___rarg(lean_object*);
-lean_object* l_Lean_WithHashMapCache_estateAdapter___rarg___closed__1;
-lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_Util_MonadCache___instance__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_Util_MonadCache___instance__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_run___rarg___closed__1;
-lean_object* l_Lean_WithHashMapCache_stateAdapter___rarg___closed__1;
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11___rarg___closed__1;
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_cache___default(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_exceptLift(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_WithHashMapCache_stateAdapter(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_WithHashMapCache_stateAdapter___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Lean_Util_MonadCache___instance__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_modifyCacheE___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_fromState___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__10___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_toState(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_fromEState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_Util_MonadCache___instance__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_toEState___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_modifyCache___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run_x27___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadIO___rarg(lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_findCached_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_WithHashMapCache_estateAdapter___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg(lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_ReaderT_monadControl___closed__2;
-lean_object* l_Lean_readerLift(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_modifyCacheE___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_getCacheE___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_findCached_x3f___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_Util_MonadCache___instance__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Lean_Util_MonadCache___instance__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_fromEState___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_exceptLift___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_get___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_findCached_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_toEState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_toState___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8___rarg(lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_cache(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_toState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_cache___default___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadExceptOf___rarg(lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___closed__1;
+lean_object* l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12___rarg___closed__1;
 lean_object* l_Lean_WithHashMapCache_modifyCacheE(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_WithHashMapCache_estateAdapter(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_exceptLift___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___closed__1;
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_fromEState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_exceptLift___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -227,7 +227,7 @@ x_4 = lean_alloc_closure((void*)(l_Lean_checkCache___rarg), 4, 0);
 return x_4;
 }
 }
-lean_object* l_Lean_readerLift___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -238,7 +238,7 @@ x_5 = lean_apply_1(x_4, x_2);
 return x_5;
 }
 }
-lean_object* l_Lean_readerLift___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
@@ -249,14 +249,14 @@ x_6 = lean_apply_2(x_5, x_2, x_3);
 return x_6;
 }
 }
-lean_object* l_Lean_readerLift___rarg(lean_object* x_1) {
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 lean_inc(x_1);
-x_2 = lean_alloc_closure((void*)(l_Lean_readerLift___rarg___lambda__1___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__1___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
-x_3 = lean_alloc_closure((void*)(l_Lean_readerLift___rarg___lambda__2___boxed), 4, 1);
+x_3 = lean_alloc_closure((void*)(l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__2___boxed), 4, 1);
 lean_closure_set(x_3, 0, x_1);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_2);
@@ -264,33 +264,33 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_readerLift(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Lean_readerLift___rarg), 1, 0);
+x_5 = lean_alloc_closure((void*)(l_Lean_Lean_Util_MonadCache___instance__1___rarg), 1, 0);
 return x_5;
 }
 }
-lean_object* l_Lean_readerLift___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_readerLift___rarg___lambda__1(x_1, x_2, x_3);
+x_4 = l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__1(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_readerLift___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_readerLift___rarg___lambda__2(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__2(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
 }
 }
-lean_object* l_Lean_exceptLift___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Lean_Util_MonadCache___instance__2___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -312,7 +312,7 @@ x_10 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_9, x_5);
 return x_10;
 }
 }
-lean_object* l_Lean_exceptLift___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Lean_Util_MonadCache___instance__2___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -334,16 +334,16 @@ x_11 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_6);
 return x_11;
 }
 }
-lean_object* l_Lean_exceptLift___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Lean_Util_MonadCache___instance__2___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_3 = lean_alloc_closure((void*)(l_Lean_exceptLift___rarg___lambda__1), 3, 2);
+x_3 = lean_alloc_closure((void*)(l_Lean_Lean_Util_MonadCache___instance__2___rarg___lambda__1), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
-x_4 = lean_alloc_closure((void*)(l_Lean_exceptLift___rarg___lambda__2), 4, 2);
+x_4 = lean_alloc_closure((void*)(l_Lean_Lean_Util_MonadCache___instance__2___rarg___lambda__2), 4, 2);
 lean_closure_set(x_4, 0, x_1);
 lean_closure_set(x_4, 1, x_2);
 x_5 = lean_alloc_ctor(0, 2, 0);
@@ -352,11 +352,11 @@ lean_ctor_set(x_5, 1, x_4);
 return x_5;
 }
 }
-lean_object* l_Lean_exceptLift(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Lean_Util_MonadCache___instance__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Lean_exceptLift___rarg), 2, 0);
+x_5 = lean_alloc_closure((void*)(l_Lean_Lean_Util_MonadCache___instance__2___rarg), 2, 0);
 return x_5;
 }
 }
@@ -442,7 +442,7 @@ x_4 = lean_alloc_closure((void*)(l_Lean_MonadHashMapCacheAdapter_cache___rarg), 
 return x_4;
 }
 }
-lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_Util_MonadCache___instance__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_Util_MonadCache___instance__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -464,15 +464,15 @@ lean_ctor_set(x_7, 1, x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_Util_MonadCache___instance__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_Util_MonadCache___instance__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_MonadHashMapCacheAdapter_Lean_Util_MonadCache___instance__1___rarg), 4, 0);
+x_4 = lean_alloc_closure((void*)(l_Lean_MonadHashMapCacheAdapter_Lean_Util_MonadCache___instance__3___rarg), 4, 0);
 return x_4;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -485,14 +485,14 @@ x_6 = lean_apply_2(x_1, lean_box(0), x_5);
 return x_6;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc(x_3);
 x_5 = lean_alloc_closure((void*)(l_StateRefT_x27_get___rarg), 2, 1);
 lean_closure_set(x_5, 0, x_3);
-x_6 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___rarg___lambda__1), 3, 1);
+x_6 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___rarg___lambda__1), 3, 1);
 lean_closure_set(x_6, 0, x_3);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_5);
@@ -500,30 +500,30 @@ lean_ctor_set(x_7, 1, x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___rarg___boxed), 4, 0);
+x_6 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___rarg___boxed), 4, 0);
 return x_6;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___rarg(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__2(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 return x_6;
 }
@@ -583,7 +583,7 @@ lean_dec(x_5);
 return x_8;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__3___rarg(lean_object* x_1) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -591,26 +591,26 @@ x_2 = l_ReaderT_Monad___rarg(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__3___rarg), 1, 0);
+x_8 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___rarg), 1, 0);
 return x_8;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___closed__1() {
+static lean_object* _init_l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -621,26 +621,26 @@ lean_closure_set(x_1, 2, lean_box(0));
 return x_1;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___closed__1;
+x_8 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___closed__1;
 return x_8;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_8;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___rarg(lean_object* x_1) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -648,19 +648,19 @@ x_2 = l_StateRefT_x27_MonadIO___rarg(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___rarg), 1, 0);
+x_9 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7___rarg), 1, 0);
 return x_9;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -668,7 +668,7 @@ lean_dec(x_5);
 return x_9;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___rarg(lean_object* x_1) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -676,26 +676,26 @@ x_2 = l_StateRefT_x27_MonadExceptOf___rarg(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___rarg), 1, 0);
+x_9 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8___rarg), 1, 0);
 return x_9;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_9;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__9(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
@@ -703,18 +703,18 @@ x_8 = l_ReaderT_monadControl___closed__2;
 return x_8;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__9___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__9(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_8;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__10___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -724,19 +724,19 @@ lean_closure_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__10(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8___rarg), 2, 0);
+x_8 = lean_alloc_closure((void*)(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__10___rarg), 2, 0);
 return x_8;
 }
 }
-lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__10___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__8(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -846,7 +846,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_WithHashMapCache_stateAdapter___rarg___closed__1() {
+static lean_object* _init_l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -854,25 +854,25 @@ x_1 = lean_alloc_closure((void*)(l_Lean_WithHashMapCache_getCache___rarg), 1, 0)
 return x_1;
 }
 }
-lean_object* l_Lean_WithHashMapCache_stateAdapter___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_alloc_closure((void*)(l_Lean_WithHashMapCache_modifyCache___rarg___boxed), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
-x_4 = l_Lean_WithHashMapCache_stateAdapter___rarg___closed__1;
+x_4 = l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11___rarg___closed__1;
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 return x_5;
 }
 }
-lean_object* l_Lean_WithHashMapCache_stateAdapter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_WithHashMapCache_stateAdapter___rarg), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11___rarg), 2, 0);
 return x_4;
 }
 }
@@ -961,7 +961,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_WithHashMapCache_estateAdapter___rarg___closed__1() {
+static lean_object* _init_l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -969,25 +969,25 @@ x_1 = lean_alloc_closure((void*)(l_Lean_WithHashMapCache_getCacheE___rarg), 1, 0
 return x_1;
 }
 }
-lean_object* l_Lean_WithHashMapCache_estateAdapter___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_alloc_closure((void*)(l_Lean_WithHashMapCache_modifyCacheE___rarg___boxed), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
-x_4 = l_Lean_WithHashMapCache_estateAdapter___rarg___closed__1;
+x_4 = l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12___rarg___closed__1;
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 return x_5;
 }
 }
-lean_object* l_Lean_WithHashMapCache_estateAdapter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Lean_WithHashMapCache_estateAdapter___rarg), 2, 0);
+x_5 = lean_alloc_closure((void*)(l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12___rarg), 2, 0);
 return x_5;
 }
 }
@@ -1389,12 +1389,12 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_MonadCacheT_run___rarg___closed__1 = _init_l_Lean_MonadCacheT_run___rarg___closed__1();
 lean_mark_persistent(l_Lean_MonadCacheT_run___rarg___closed__1);
-l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___closed__1 = _init_l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___closed__1();
-lean_mark_persistent(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__4___closed__1);
-l_Lean_WithHashMapCache_stateAdapter___rarg___closed__1 = _init_l_Lean_WithHashMapCache_stateAdapter___rarg___closed__1();
-lean_mark_persistent(l_Lean_WithHashMapCache_stateAdapter___rarg___closed__1);
-l_Lean_WithHashMapCache_estateAdapter___rarg___closed__1 = _init_l_Lean_WithHashMapCache_estateAdapter___rarg___closed__1();
-lean_mark_persistent(l_Lean_WithHashMapCache_estateAdapter___rarg___closed__1);
+l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___closed__1 = _init_l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___closed__1();
+lean_mark_persistent(l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__6___closed__1);
+l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11___rarg___closed__1 = _init_l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11___rarg___closed__1();
+lean_mark_persistent(l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__11___rarg___closed__1);
+l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12___rarg___closed__1 = _init_l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12___rarg___closed__1();
+lean_mark_persistent(l_Lean_WithHashMapCache_Lean_Util_MonadCache___instance__12___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

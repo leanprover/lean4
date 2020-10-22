@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 -/
 import Init.Data.ToString
 import Lean.Compiler.BorrowedAnnotation
+import Lean.Meta.KAbstract
 import Lean.Elab.Term
 import Lean.Elab.Quotation
 import Lean.Elab.SyntheticMVars
@@ -320,9 +321,46 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
     withMacroExpansion stx pairs (elabTerm pairs expectedType?)
   | _ => throwError "unexpected parentheses notation"
 
-/-
-TODO
-@[builtinTermElab] def elabsubst : TermElab := expandInfixOp infixR " ▸ " 75
--/
+@[builtinTermElab subst] def elabSubst : TermElab := fun stx expectedType? => do
+  tryPostponeIfNoneOrMVar expectedType?
+  let some expectedType ← pure expectedType? |
+    throwError! "invalid `▸` notation, expected type must be known"
+  let expectedType ← instantiateMVars expectedType
+  if expectedType.hasExprMVar then
+    throwError! "invalid `▸` notation, expected type contains metavariables{indentExpr expectedType}"
+  match_syntax stx with
+  | `($heq ▸ $h) => do
+     let heq ← elabTerm heq none
+     let heqType ← inferType heq
+     match (← Meta.matchEq? heqType) with
+     | none => throwError! "invalid `▸` notation, argument{indentExpr heq}\nhas type{indentExpr heqType}\nequality expected"
+     | some (α, lhs, rhs) =>
+       let mkMotive (typeWithLooseBVar : Expr) :=
+         withLocalDeclD (← mkFreshUserName `x) α fun x => do
+           mkLambdaFVars #[x] $ typeWithLooseBVar.instantiate1 x
+       let expectedAbst ← kabstract expectedType rhs
+       unless expectedAbst.hasLooseBVars do
+         expectedAbst ← kabstract expectedType lhs
+         unless expectedAbst.hasLooseBVars do
+           throwError! "invalid `▸` notation, expected type{indentExpr expectedType}\ndoes contain equation left-hand-side nor right-hand-side{indentExpr heqType}"
+         heq ← mkEqSymm heq
+         (lhs, rhs) := (rhs, lhs)
+       let hExpectedType := expectedAbst.instantiate1 lhs
+       let h ← withRef h do
+         let h ← elabTerm h hExpectedType
+         try
+           ensureHasType hExpectedType h
+         catch ex =>
+           -- if `rhs` occurs in `hType`, we try to apply `heq` to `h` too
+           let hType ← inferType h
+           let hTypeAbst ← kabstract hType rhs
+           unless hTypeAbst.hasLooseBVars do
+             throw ex
+           let hTypeNew := hTypeAbst.instantiate1 lhs
+           unless (← isDefEq hExpectedType hTypeNew) do
+             throw ex
+           mkEqNDRec (← mkMotive hTypeAbst) h (← mkEqSymm heq)
+       mkEqNDRec (← mkMotive expectedAbst) h heq
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

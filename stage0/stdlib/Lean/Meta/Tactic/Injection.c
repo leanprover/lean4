@@ -21,7 +21,6 @@ extern lean_object* l_Lean_Expr_eq_x3f___closed__2;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
-lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro_match__2(lean_object*);
 lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__6;
@@ -94,6 +93,7 @@ lean_object* l___private_Lean_Meta_Tactic_Injection_0__Lean_Meta_heqToEq(lean_ob
 lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__4;
 lean_object* l_Lean_Meta_injectionCore___closed__2;
 lean_object* l_Lean_Meta_assignExprMVar___at___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -954,7 +954,7 @@ x_10 = lean_alloc_closure((void*)(l_Lean_Meta_injectionCore___lambda__1___boxed)
 lean_closure_set(x_10, 0, x_2);
 lean_closure_set(x_10, 1, x_8);
 lean_closure_set(x_10, 2, x_1);
-x_11 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg), 7, 2);
+x_11 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg), 7, 2);
 lean_closure_set(x_11, 0, x_9);
 lean_closure_set(x_11, 1, x_10);
 x_12 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(x_1, x_11, x_3, x_4, x_5, x_6, x_7);
@@ -1679,7 +1679,7 @@ lean_inc(x_1);
 x_9 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Injection_0__Lean_Meta_heqToEq___lambda__1___boxed), 8, 2);
 lean_closure_set(x_9, 0, x_2);
 lean_closure_set(x_9, 1, x_1);
-x_10 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg), 7, 2);
+x_10 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg), 7, 2);
 lean_closure_set(x_10, 0, x_8);
 lean_closure_set(x_10, 1, x_9);
 x_11 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(x_1, x_10, x_3, x_4, x_5, x_6, x_7);

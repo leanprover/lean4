@@ -38,7 +38,6 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_getStuckMVarImp_x3f_match__
 lean_object* l_Lean_Meta_reduceBinNatOp___closed__3;
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__16;
 extern lean_object* l_Lean_Lean_ToExpr___instance__9___rarg___closed__1;
-lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaBetaDefinition___at___private_Lean_Meta_WHNF_0__Lean_Meta_unfoldDefinitionImp_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceNative_x3f___closed__6;
 uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,6 +65,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isQuotRecStuck_x3f___at___p
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_toCtorIfLit___closed__7;
 lean_object* l_Lean_Meta_whnfImp_match__3___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_904____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getStuckMVar_x3f(lean_object*);
 lean_object* l_Lean_Meta_toCtorIfLit___closed__5;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -137,6 +137,7 @@ lean_object* l_Lean_Meta_reduceBoolNative___rarg(lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isRecStuck_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_505____closed__2;
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaBetaDefinition___at___private_Lean_Meta_WHNF_0__Lean_Meta_whnfCoreImp___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -167,7 +168,6 @@ lean_object* l_Lean_Meta_whnfHeadPredImp___lambda__1(lean_object*, lean_object*,
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isAuxDefImp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_List_toExprAux___at_Lean_Meta_toCtorIfLit___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Lean_Exception___instance__1___closed__1;
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_513____closed__2;
 lean_object* l_Lean_Meta_whnfImp_match__2(lean_object*);
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -236,7 +236,6 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_reduceRec___rarg___boxed(le
 lean_object* l_Lean_Meta_isAuxDef_x3f(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_WHNF___hyg_4520_(lean_object*);
 extern lean_object* l_Nat_HasDiv___closed__1;
-lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_912____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___closed__1;
 lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
 lean_object* l_Lean_Meta_whnfImp_match__5___rarg(lean_object*, lean_object*);
@@ -379,6 +378,7 @@ lean_object* l_Lean_Meta_reduceBinNatOp___closed__4;
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfCoreImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isQuotRecStuck_x3f___at___private_Lean_Meta_WHNF_0__Lean_Meta_getStuckMVarImp_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceNat_x3f___closed__3;
+lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_getFirstCtor_match__1(lean_object*);
 lean_object* l_Lean_Meta_reduceBinNatOp___closed__9;
@@ -7244,7 +7244,7 @@ static lean_object* _init_l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_513____closed__2;
+x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_505____closed__2;
 x_2 = l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___at___private_Lean_Meta_WHNF_0__Lean_Meta_whnfCoreImp___spec__2___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -14447,7 +14447,7 @@ x_8 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 x_9 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
-x_10 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_912____spec__1___rarg(x_9, x_2, x_3, x_4, x_5, x_6);
+x_10 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_904____spec__1___rarg(x_9, x_2, x_3, x_4, x_5, x_6);
 return x_10;
 }
 else
@@ -25375,7 +25375,7 @@ lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_2);
 x_5 = lean_alloc_closure((void*)(l_Lean_Meta_whnfUntil___rarg___lambda__1___boxed), 7, 1);
 lean_closure_set(x_5, 0, x_3);
-x_6 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg), 7, 2);
+x_6 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg), 7, 2);
 lean_closure_set(x_6, 0, x_4);
 lean_closure_set(x_6, 1, x_5);
 x_7 = lean_apply_2(x_1, lean_box(0), x_6);

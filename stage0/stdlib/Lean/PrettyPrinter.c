@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_sanitizeSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_PPContext_runMetaM___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_InternalExceptionId_toString___closed__1;
 lean_object* l_Lean_PrettyPrinter_formatTerm(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___regBuiltin_Lean_Parser_Module_module_parenthesizer___closed__1;
@@ -76,6 +75,7 @@ lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_noContext_matc
 extern lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PPContext_runMetaM(lean_object*);
+lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__1;
 extern lean_object* l_Lean_TraceState_Lean_Util_Trace___instance__2___closed__1;
 lean_object* l_Lean_LocalContext_sanitizeNames(lean_object*, lean_object*);
@@ -472,7 +472,7 @@ lean_closure_set(x_15, 1, x_2);
 lean_closure_set(x_15, 2, x_3);
 lean_closure_set(x_15, 3, x_11);
 x_16 = l_Lean_PrettyPrinter_ppExpr___closed__1;
-x_17 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg), 7, 2);
+x_17 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg), 7, 2);
 lean_closure_set(x_17, 0, x_15);
 lean_closure_set(x_17, 1, x_16);
 x_18 = l_Array_empty___closed__1;

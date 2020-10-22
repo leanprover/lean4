@@ -28,10 +28,10 @@ lean_object* l_Lean_Meta_getExprMVarAssignment_x3f___at___private_Lean_Meta_Basi
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_throwUnexpectedMajorType___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfUntil___at_Lean_Meta_induction___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfHeadPredImp___at_Lean_Meta_induction___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Level_Lean_Level___instance__4;
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_induction___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop_match__3(lean_object*);
@@ -50,7 +50,6 @@ lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___lambda__2
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__12___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___at___private_Lean_Meta_WHNF_0__Lean_Meta_whnfCoreImp___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
-extern lean_object* l_Lean_Level_Lean_Level___instance__2;
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__11___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_InductionSubgoal_fields___default;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
@@ -71,7 +70,7 @@ lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__4;
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_induction_match__8(lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2132_(lean_object*);
+lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2128_(lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___closed__2;
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__11___closed__7;
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -156,6 +155,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___at_Lean_Met
 extern lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___closed__3;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_induction___spec__7___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1___closed__1;
 lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__3;
@@ -171,7 +171,6 @@ lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthInstanceImp_x
 lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_getTargetArity_match__1(lean_object*);
-lean_object* l_Lean_Meta_InductionSubgoal_inhabited___closed__1;
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__11___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__12___lambda__2___closed__3;
 lean_object* l_Lean_Meta_induction_match__2(lean_object*);
@@ -220,6 +219,7 @@ lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___lambda__2
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_revert___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_Meta_induction___spec__6___lambda__2___closed__1;
 lean_object* l_Nat_foldAux___main___at___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1;
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_induction_match__5(lean_object*);
@@ -242,7 +242,6 @@ lean_object* l_Lean_Meta_induction_match__10___rarg(lean_object*, lean_object*, 
 lean_object* l_Lean_Meta_induction_match__4(lean_object*);
 extern lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuick_x3f___closed__1;
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop_match__4___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_InductionSubgoal_inhabited;
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_isLevelDefEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_throwUnexpectedMajorType___rarg___closed__2;
 lean_object* l_Lean_Meta_induction_match__3(lean_object*);
@@ -255,6 +254,7 @@ lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop__
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_induction___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_getTypeBody_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar___at___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfForall___at___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_induction_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -873,7 +873,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_InductionSubgoal_inhabited___closed__1() {
+static lean_object* _init_l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -887,11 +887,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_InductionSubgoal_inhabited() {
+static lean_object* _init_l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_InductionSubgoal_inhabited___closed__1;
+x_1 = l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1___closed__1;
 return x_1;
 }
 }
@@ -5513,7 +5513,7 @@ lean_object* l_List_foldlM___main___at_Lean_Meta_induction___spec__10___lambda__
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_11 = l_Lean_Level_Lean_Level___instance__2;
+x_11 = l_Lean_Level_Lean_Level___instance__4;
 x_12 = lean_array_get(x_11, x_1, x_2);
 x_13 = lean_array_push(x_3, x_12);
 x_14 = lean_box(x_4);
@@ -6438,7 +6438,7 @@ lean_closure_set(x_47, 8, x_25);
 lean_closure_set(x_47, 9, x_40);
 lean_closure_set(x_47, 10, x_44);
 lean_closure_set(x_47, 11, x_45);
-x_48 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg), 7, 2);
+x_48 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg), 7, 2);
 lean_closure_set(x_48, 0, x_46);
 lean_closure_set(x_48, 1, x_47);
 x_49 = l_Lean_Meta_withMVarContext___at_Lean_Meta_revert___spec__5___rarg(x_38, x_48, x_11, x_12, x_13, x_14, x_41);
@@ -7076,7 +7076,7 @@ lean_closure_set(x_13, 1, x_3);
 lean_closure_set(x_13, 2, x_1);
 lean_closure_set(x_13, 3, x_4);
 lean_closure_set(x_13, 4, x_11);
-x_14 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg), 7, 2);
+x_14 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg), 7, 2);
 lean_closure_set(x_14, 0, x_12);
 lean_closure_set(x_14, 1, x_13);
 x_15 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(x_1, x_14, x_6, x_7, x_8, x_9, x_10);
@@ -7413,7 +7413,7 @@ x_12 = l_Lean_Meta_induction(x_1, x_2, x_3, x_4, x_11, x_6, x_7, x_8, x_9, x_10)
 return x_12;
 }
 }
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2132_(lean_object* x_1) {
+lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2128_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -7479,10 +7479,10 @@ l_Lean_Meta_InductionSubgoal_fields___default = _init_l_Lean_Meta_InductionSubgo
 lean_mark_persistent(l_Lean_Meta_InductionSubgoal_fields___default);
 l_Lean_Meta_InductionSubgoal_subst___default = _init_l_Lean_Meta_InductionSubgoal_subst___default();
 lean_mark_persistent(l_Lean_Meta_InductionSubgoal_subst___default);
-l_Lean_Meta_InductionSubgoal_inhabited___closed__1 = _init_l_Lean_Meta_InductionSubgoal_inhabited___closed__1();
-lean_mark_persistent(l_Lean_Meta_InductionSubgoal_inhabited___closed__1);
-l_Lean_Meta_InductionSubgoal_inhabited = _init_l_Lean_Meta_InductionSubgoal_inhabited();
-lean_mark_persistent(l_Lean_Meta_InductionSubgoal_inhabited);
+l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1___closed__1 = _init_l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1___closed__1();
+lean_mark_persistent(l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1___closed__1);
+l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1 = _init_l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1();
+lean_mark_persistent(l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1);
 l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___closed__1 = _init_l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___closed__1);
 l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___closed__2 = _init_l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___closed__2();
@@ -7543,7 +7543,7 @@ l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__12___closed__1 = _init_l
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__12___closed__1);
 l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__12___closed__2 = _init_l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__12___closed__2();
 lean_mark_persistent(l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__12___closed__2);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2132_(lean_io_mk_world());
+res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_2128_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

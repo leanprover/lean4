@@ -22,7 +22,7 @@ def mkProjectionInfoEx (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : 
 @[export lean_projection_info_from_class]
 def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool := info.fromClass
 
-instance ProjectionFunctionInfo.inhabited : Inhabited ProjectionFunctionInfo :=
+instance : Inhabited ProjectionFunctionInfo :=
 ⟨{ ctorName := arbitrary _, nparams := arbitrary _, i := 0, fromClass := false }⟩
 
 builtin_initialize projectionFnInfoExt : SimplePersistentEnvExtension (Name × ProjectionFunctionInfo) (NameMap ProjectionFunctionInfo) ←

@@ -43,8 +43,6 @@ structure AttributeImplCore :=
 
 structure AttributeImpl extends AttributeImplCore :=
   (add (decl : Name) (args : Syntax) (persistent : Bool) : AttrM Unit)
-  -- TODO: shouldn't be necessary
-  (applicationTime := AttributeApplicationTime.afterTypeChecking)
 
 instance : Inhabited AttributeImpl :=
   ⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure () }⟩
@@ -323,8 +321,6 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore :=
   (getParam : Name → Syntax → AttrM α)
   (afterSet : Name → α → AttrM Unit := fun env _ _ => pure ())
   (afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ())
-  -- TODO: shouldn't be necessary
-  (applicationTime := AttributeApplicationTime.afterTypeChecking)
 
 def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {

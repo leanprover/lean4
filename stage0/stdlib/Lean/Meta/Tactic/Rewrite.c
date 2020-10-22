@@ -18,7 +18,6 @@ extern lean_object* l_Lean_Expr_eq_x3f___closed__2;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite___lambda__4___closed__8;
 lean_object* l_Lean_Meta_rewrite_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite___lambda__4___closed__1;
@@ -98,6 +97,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(lean_object*,
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l_List_map___main___at_Lean_Meta_rewrite___spec__3(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -1975,7 +1975,7 @@ lean_closure_set(x_14, 2, x_1);
 lean_closure_set(x_14, 3, x_13);
 lean_closure_set(x_14, 4, x_2);
 lean_closure_set(x_14, 5, x_5);
-x_15 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg), 7, 2);
+x_15 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg), 7, 2);
 lean_closure_set(x_15, 0, x_12);
 lean_closure_set(x_15, 1, x_14);
 x_16 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(x_1, x_15, x_6, x_7, x_8, x_9, x_10);

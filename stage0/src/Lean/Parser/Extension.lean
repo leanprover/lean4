@@ -65,7 +65,7 @@ structure ParserExtensionState :=
 (categories  : ParserCategories := {})
 (newEntries  : List ParserExtensionOleanEntry := [])
 
-instance ParserExtensionState.inhabited : Inhabited ParserExtensionState := ⟨{}⟩
+instance : Inhabited ParserExtensionState := ⟨{}⟩
 
 abbrev ParserExtension := PersistentEnvExtension ParserExtensionOleanEntry ParserExtensionEntry ParserExtensionState
 

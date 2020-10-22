@@ -20,6 +20,7 @@ lean_object* l_Lean_Syntax_formatStxAux___boxed(lean_object*, lean_object*, lean
 lean_object* l_Lean_Syntax_setHeadInfoAux_match__2(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__1;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_Lean_Syntax___instance__3;
 lean_object* l_Lean_Syntax_replaceM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__2;
 lean_object* l_Lean_Syntax_setInfo_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -59,7 +60,6 @@ lean_object* l_Lean_Syntax_MonadTraverser_getCur(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Syntax_MonadTraverser_goRight(lean_object*);
 lean_object* l_Lean_Syntax_Lean_Syntax___instance__2___closed__2;
-lean_object* l_Lean_Syntax_structHasBeq___closed__1;
 lean_object* l_Lean_Syntax_isAntiquot_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_isEqvAux___main___at_Lean_Syntax_structEq___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_withArgs(lean_object*);
@@ -125,6 +125,7 @@ lean_object* l_Lean_Syntax_replaceM___rarg___lambda__1(lean_object*, lean_object
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateFirst_match__2(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_getKind___boxed(lean_object*);
+lean_object* l_Lean_Syntax_Lean_Syntax___instance__3___closed__1;
 lean_object* l_List_map___main___at_Lean_Syntax_formatStxAux___spec__3(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevMAux___main___at_Lean_Syntax_getTailInfo___spec__1(lean_object*, lean_object*, lean_object*);
@@ -279,7 +280,6 @@ lean_object* l_Lean_Syntax_setInfo(lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo(uint8_t, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Syntax_updateLeading___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goDown___rarg___lambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_structHasBeq;
 extern lean_object* l_Lean_mkOptionalNode___closed__1;
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg___lambda__1(lean_object*);
 lean_object* l_List_map___main___at_Lean_Syntax_formatStxAux___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7135,7 +7135,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Syntax_structHasBeq___closed__1() {
+static lean_object* _init_l_Lean_Syntax_Lean_Syntax___instance__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7143,11 +7143,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_structEq___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Syntax_structHasBeq() {
+static lean_object* _init_l_Lean_Syntax_Lean_Syntax___instance__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Syntax_structHasBeq___closed__1;
+x_1 = l_Lean_Syntax_Lean_Syntax___instance__3___closed__1;
 return x_1;
 }
 }
@@ -7840,10 +7840,10 @@ l_Lean_Syntax_Lean_Syntax___instance__2___closed__2 = _init_l_Lean_Syntax_Lean_S
 lean_mark_persistent(l_Lean_Syntax_Lean_Syntax___instance__2___closed__2);
 l_Lean_Syntax_Lean_Syntax___instance__2 = _init_l_Lean_Syntax_Lean_Syntax___instance__2();
 lean_mark_persistent(l_Lean_Syntax_Lean_Syntax___instance__2);
-l_Lean_Syntax_structHasBeq___closed__1 = _init_l_Lean_Syntax_structHasBeq___closed__1();
-lean_mark_persistent(l_Lean_Syntax_structHasBeq___closed__1);
-l_Lean_Syntax_structHasBeq = _init_l_Lean_Syntax_structHasBeq();
-lean_mark_persistent(l_Lean_Syntax_structHasBeq);
+l_Lean_Syntax_Lean_Syntax___instance__3___closed__1 = _init_l_Lean_Syntax_Lean_Syntax___instance__3___closed__1();
+lean_mark_persistent(l_Lean_Syntax_Lean_Syntax___instance__3___closed__1);
+l_Lean_Syntax_Lean_Syntax___instance__3 = _init_l_Lean_Syntax_Lean_Syntax___instance__3();
+lean_mark_persistent(l_Lean_Syntax_Lean_Syntax___instance__3);
 l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1 = _init_l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1();
 lean_mark_persistent(l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1);
 l_Lean_Syntax_MonadTraverser_goUp___rarg___closed__1 = _init_l_Lean_Syntax_MonadTraverser_goUp___rarg___closed__1();

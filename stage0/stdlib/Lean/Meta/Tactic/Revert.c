@@ -19,7 +19,6 @@ lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_revert___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_revert___lambda__2___closed__2;
-lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Lean_Meta_setMVarKind___at_Lean_Meta_revert___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkMVar(lean_object*);
@@ -60,6 +59,7 @@ lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarTag___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_setMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_elimMVarDeps___at_Lean_Meta_revert___spec__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_setMVarKind___at_Lean_Meta_revert___spec__1(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
@@ -651,7 +651,7 @@ x_12 = lean_alloc_closure((void*)(l_Lean_Meta_revert___lambda__2___boxed), 9, 3)
 lean_closure_set(x_12, 0, x_1);
 lean_closure_set(x_12, 1, x_2);
 lean_closure_set(x_12, 2, x_11);
-x_13 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__6___spec__2___rarg), 7, 2);
+x_13 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg), 7, 2);
 lean_closure_set(x_13, 0, x_10);
 lean_closure_set(x_13, 1, x_12);
 x_14 = l_Lean_Meta_withMVarContext___at_Lean_Meta_revert___spec__5___rarg(x_1, x_13, x_4, x_5, x_6, x_7, x_8);

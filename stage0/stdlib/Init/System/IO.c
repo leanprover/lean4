@@ -256,6 +256,7 @@ lean_object* l_Init_System_IO___instance__3___closed__1;
 lean_object* l_IO_ofExcept___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Prim_fileExists___boxed(lean_object*, lean_object*);
 lean_object* l_IO_print___at_IO_println___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t l_IO_Process_StdioConfig_stdout___default;
 lean_object* l_IO_print___at_Lean_Init_System_IO___instance__10___spec__2(lean_object*, lean_object*);
 lean_object* l_IO_Process_Stdio_toHandleType_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_readFile___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -347,9 +348,11 @@ lean_object* l_IO_Prim_fopenFlags___closed__9;
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_Init_System_IO___instance__11___rarg(uint8_t, lean_object*);
 lean_object* l_IO_mkRef(lean_object*, lean_object*, lean_object*);
+uint8_t l_IO_Process_StdioConfig_stderr___default;
 uint8_t lean_byte_array_get(lean_object*, lean_object*);
 lean_object* l_IO_getStderr(lean_object*);
 lean_object* l_Lean_Init_System_IO___instance__10(lean_object*);
+uint8_t l_IO_Process_StdioConfig_stdin___default;
 lean_object* l_IO_Prim_fopenFlags___closed__8;
 lean_object* l_IO_Prim_Handle_putStr___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_withStdout(lean_object*);
@@ -2950,6 +2953,30 @@ x_5 = lean_unbox(x_1);
 lean_dec(x_1);
 x_6 = l_IO_Process_Stdio_toHandleType_match__1___rarg(x_5, x_2, x_3, x_4);
 return x_6;
+}
+}
+static uint8_t _init_l_IO_Process_StdioConfig_stdin___default() {
+_start:
+{
+uint8_t x_1; 
+x_1 = 1;
+return x_1;
+}
+}
+static uint8_t _init_l_IO_Process_StdioConfig_stdout___default() {
+_start:
+{
+uint8_t x_1; 
+x_1 = 1;
+return x_1;
+}
+}
+static uint8_t _init_l_IO_Process_StdioConfig_stderr___default() {
+_start:
+{
+uint8_t x_1; 
+x_1 = 1;
+return x_1;
 }
 }
 static lean_object* _init_l_IO_Process_SpawnArgs_args___default() {
@@ -6573,6 +6600,9 @@ l_IO_appPath___rarg___closed__1 = _init_l_IO_appPath___rarg___closed__1();
 lean_mark_persistent(l_IO_appPath___rarg___closed__1);
 l_IO_currentDir___rarg___closed__1 = _init_l_IO_currentDir___rarg___closed__1();
 lean_mark_persistent(l_IO_currentDir___rarg___closed__1);
+l_IO_Process_StdioConfig_stdin___default = _init_l_IO_Process_StdioConfig_stdin___default();
+l_IO_Process_StdioConfig_stdout___default = _init_l_IO_Process_StdioConfig_stdout___default();
+l_IO_Process_StdioConfig_stderr___default = _init_l_IO_Process_StdioConfig_stderr___default();
 l_IO_Process_SpawnArgs_args___default = _init_l_IO_Process_SpawnArgs_args___default();
 lean_mark_persistent(l_IO_Process_SpawnArgs_args___default);
 l_IO_Process_SpawnArgs_cwd___default = _init_l_IO_Process_SpawnArgs_cwd___default();

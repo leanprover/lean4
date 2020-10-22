@@ -453,6 +453,7 @@ extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_tryToSynthesizeDefault_loop_match__3(lean_object*);
 lean_object* l_Lean_mkSepStx(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoop_match__1(lean_object*);
+lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__10___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_reduce_match__2(lean_object*);
 extern lean_object* l_Lean_Elab_Term_termElabAttribute;
 extern lean_object* l_Lean_Format_sbracket___closed__3;
@@ -510,7 +511,6 @@ lean_object* l_Lean_Elab_Term_StructInst_Struct_modifyFieldsM___rarg___lambda__1
 lean_object* l_Lean_Elab_Term_StructInst_throwFailedToElabField___rarg___closed__1;
 lean_object* l_Lean_Meta_reduceProj_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_getFieldValue_x3f___lambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_Lean_Elab_StructInst___instance__7;
 lean_object* l_Lean_Elab_Term_StructInst_Struct_structName_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabStructInstAux___closed__1;
@@ -24821,7 +24821,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_11 = lean_ctor_get(x_8, 3);
-x_12 = l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__1(x_1, x_6, x_7, x_8, x_9, x_10);
+x_12 = l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__10___spec__1(x_1, x_6, x_7, x_8, x_9, x_10);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
 {

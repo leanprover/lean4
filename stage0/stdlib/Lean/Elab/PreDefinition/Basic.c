@@ -28,7 +28,6 @@ lean_object* l_Lean_Elab_addAndCompileUnsafeRec_match__1(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Std_ShareCommon_State_empty;
 lean_object* l_Lean_Elab_addAndCompileUnsafeRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_PreDefinition_inhabited;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Elab_Term_applyAttributesAt(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,11 +54,13 @@ lean_object* l_List_map___main___at_Lean_Meta_addGlobalInstanceImp___spec__1(lea
 lean_object* l_Lean_Elab_addNonRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_fixLevelParams___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__2;
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_shareCommon(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_getLevelParamsPreDecls___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_getLevelParamsPreDecls___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__1;
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addAndCompileUnsafeRec_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -85,16 +86,15 @@ lean_object* l_Lean_Elab_addAndCompileUnsafeRec___boxed(lean_object*, lean_objec
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_levelMVarToParamExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_fixLevelParams_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_fixLevelParams___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_CollectLevelParams_State_inhabited___closed__1;
 lean_object* l_Lean_Meta_abstractNestedProofs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addNonRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1;
 lean_object* l_Lean_Elab_addAsAxiom___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addAndCompileUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 extern lean_object* l_Lean_Lean_Declaration___instance__3;
 lean_object* l_Lean_Elab_applyAttributesOf___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Elab_fixLevelParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_PreDefinition_inhabited___closed__2;
 lean_object* l_Lean_Elab_fixLevelParams_match__1(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Elab_fixLevelParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -107,9 +107,9 @@ extern lean_object* l_Lean_Expr_Lean_Expr___instance__11___closed__1;
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_levelMVarToParamExpr_match__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_getLevelParamsPreDecls(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_PreDefinition_inhabited___closed__1;
 extern lean_object* l_Lean_Compiler_mkUnsafeRecName___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_CollectLevelParams_Lean_Util_CollectLevelParams___instance__1___closed__1;
 lean_object* l_Lean_Elab_fixLevelParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Elab_addAndCompileUnsafeRec___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addAndCompileNonRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -122,7 +122,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_applyAttributesOf___spec__1
 lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_ReplaceImpl_initCache;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Elab_PreDefinition_inhabited___closed__1() {
+static lean_object* _init_l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -140,13 +140,13 @@ lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 3, x_3);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_PreDefinition_inhabited___closed__2() {
+static lean_object* _init_l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__2() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = lean_box(0);
 x_2 = 0;
-x_3 = l_Lean_Elab_PreDefinition_inhabited___closed__1;
+x_3 = l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__1;
 x_4 = lean_box(0);
 x_5 = l_Lean_Expr_Lean_Expr___instance__11___closed__1;
 x_6 = lean_alloc_ctor(0, 5, 1);
@@ -159,11 +159,11 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*5, x_2);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Elab_PreDefinition_inhabited() {
+static lean_object* _init_l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_PreDefinition_inhabited___closed__2;
+x_1 = l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__2;
 return x_1;
 }
 }
@@ -651,7 +651,7 @@ x_11 = lean_array_get_size(x_1);
 x_12 = lean_usize_of_nat(x_11);
 lean_dec(x_11);
 x_13 = 0;
-x_14 = l_Lean_CollectLevelParams_State_inhabited___closed__1;
+x_14 = l_Lean_CollectLevelParams_Lean_Util_CollectLevelParams___instance__1___closed__1;
 x_15 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_getLevelParamsPreDecls___spec__1(x_1, x_12, x_13, x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 x_16 = !lean_is_exclusive(x_15);
 if (x_16 == 0)
@@ -2671,7 +2671,7 @@ x_20 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit(x_17, x_18, x_13, x_19);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 lean_dec(x_20);
-x_22 = l_Lean_Elab_PreDefinition_inhabited___closed__1;
+x_22 = l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__1;
 lean_ctor_set(x_10, 4, x_21);
 lean_ctor_set(x_10, 2, x_16);
 lean_ctor_set(x_10, 1, x_22);
@@ -2708,7 +2708,7 @@ x_38 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit(x_35, x_36, x_32, x_37);
 x_39 = lean_ctor_get(x_38, 0);
 lean_inc(x_39);
 lean_dec(x_38);
-x_40 = l_Lean_Elab_PreDefinition_inhabited___closed__1;
+x_40 = l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__1;
 x_41 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_41, 0, x_29);
 lean_ctor_set(x_41, 1, x_40);
@@ -2804,12 +2804,12 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_MkInhabitant(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_PreDefinition_inhabited___closed__1 = _init_l_Lean_Elab_PreDefinition_inhabited___closed__1();
-lean_mark_persistent(l_Lean_Elab_PreDefinition_inhabited___closed__1);
-l_Lean_Elab_PreDefinition_inhabited___closed__2 = _init_l_Lean_Elab_PreDefinition_inhabited___closed__2();
-lean_mark_persistent(l_Lean_Elab_PreDefinition_inhabited___closed__2);
-l_Lean_Elab_PreDefinition_inhabited = _init_l_Lean_Elab_PreDefinition_inhabited();
-lean_mark_persistent(l_Lean_Elab_PreDefinition_inhabited);
+l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__1 = _init_l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__1();
+lean_mark_persistent(l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__1);
+l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__2 = _init_l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__2();
+lean_mark_persistent(l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__2);
+l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1 = _init_l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1();
+lean_mark_persistent(l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1);
 l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux___closed__1 = _init_l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux___closed__1();
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux___closed__1);
 l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux___closed__2 = _init_l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux___closed__2();

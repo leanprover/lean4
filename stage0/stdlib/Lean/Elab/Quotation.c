@@ -288,6 +288,7 @@ extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____c
 lean_object* l_Lean_Elab_Term_Quotation_match__syntax_expand_match__1(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabTacticQuotSeq___closed__1;
 lean_object* l_Lean_Elab_Term_Quotation_isAntiquotSplicePat___boxed(lean_object*);
+extern lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__5___closed__1;
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotTerm(lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___closed__48;
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_compileStxMatch___lambda__1___closed__5;
@@ -409,7 +410,6 @@ lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHead
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_compileStxMatch_match__3(lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__3;
 lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabDoElemQuot(lean_object*);
-extern lean_object* l_Lean_Meta_State_inhabited___closed__1;
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__29;
 lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabfunBinderQuot___closed__4;
 lean_object* l_Lean_KVMap_setName(lean_object*, lean_object*, lean_object*);
@@ -21901,7 +21901,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = l_Lean_Meta_State_inhabited___closed__1;
+x_25 = l_Lean_Meta_Lean_Meta_Basic___instance__5___closed__1;
 x_26 = lean_st_mk_ref(x_25, x_24);
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);

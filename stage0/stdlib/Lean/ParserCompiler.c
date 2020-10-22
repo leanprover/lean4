@@ -40,7 +40,6 @@ lean_object* l_Lean_ParserCompiler_compileParserBody___rarg___lambda__44(lean_ob
 extern lean_object* l_Lean_Parser_mkParserOfConstantUnsafe_match__1___rarg___closed__3;
 lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___spec__27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_registerParserAttributeHook(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_hasEval___rarg___closed__1;
 lean_object* l_Lean_ParserCompiler_interpretParser_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserBody___rarg___lambda__35___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
@@ -163,6 +162,7 @@ lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lea
 lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_unfoldDefinitionImp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserBody___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__5___closed__1;
 lean_object* l_Lean_ParserCompiler_compileParserBody___rarg___lambda__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_ParserCompiler_compileParserBody___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_preprocessParserBody___rarg(lean_object*, lean_object*);
@@ -227,7 +227,6 @@ lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compilePa
 lean_object* l_Lean_ParserCompiler_interpretParser_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserBody_match__3(lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__3;
-extern lean_object* l_Lean_Meta_State_inhabited___closed__1;
 lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___spec__10(lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserBody___rarg___closed__12;
 lean_object* l_Lean_ParserCompiler_compileParserBody___rarg___lambda__27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -325,6 +324,7 @@ lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compilePa
 lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_ParserCompiler_compileParserBody___spec__31___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerParserCompiler(lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_ParserCompiler_compileParserBody___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__11___rarg___closed__1;
 lean_object* l_Lean_ParserCompiler_compileParser___rarg___closed__4;
 lean_object* l_Array_iterateM_u2082Aux___main___at_Lean_ParserCompiler_compileParserBody___spec__33(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -17669,14 +17669,14 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_box(0);
 lean_inc(x_2);
 x_10 = l_Lean_mkConst(x_2, x_9);
-x_11 = l_Lean_Meta_State_inhabited___closed__1;
+x_11 = l_Lean_Meta_Lean_Meta_Basic___instance__5___closed__1;
 x_12 = lean_st_mk_ref(x_11, x_8);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = l_Lean_Meta_hasEval___rarg___closed__1;
+x_15 = l_Lean_Meta_Lean_Meta_Basic___instance__11___rarg___closed__1;
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_13);

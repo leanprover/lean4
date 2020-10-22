@@ -90,13 +90,6 @@ protected def beq : (@& Name) → (@& Name) → Bool
 | num p₁ n₁ _, num p₂ n₂ _ => n₁ == n₂ && beq p₁ p₂
 | _,           _           => false
 
-@[extern "lean_name_eq"]
-protected def Name.beq : (@& Name) → (@& Name) → Bool
-| anonymous,   anonymous   => true
-| str p₁ s₁ _, str p₂ s₂ _ => s₁ == s₂ && Name.beq p₁ p₂
-| num p₁ n₁ _, num p₂ n₂ _ => n₁ == n₂ && Name.beq p₁ p₂
-| _,           _           => false
-
 instance : HasBeq Name := ⟨Name.beq⟩
 
 def toStringWithSep (sep : String) : Name → String

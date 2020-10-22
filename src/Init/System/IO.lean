@@ -28,9 +28,6 @@ def IO.RealWorld : Type := Unit
 -/
 def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
-instance {ε ε'} : MonadExceptAdapter ε ε' (EIO ε) (EIO ε') :=
-  inferInstanceAs $ MonadExceptAdapter ε ε' (EStateM ε IO.RealWorld) (EStateM ε' IO.RealWorld)
-
 @[inline] def EIO.catchExceptions {α ε} (x : EIO ε α) (h : ε → EIO Empty α) : EIO Empty α :=
   fun s => match x s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
@@ -83,9 +80,6 @@ instance (m n) [MonadIO m] [MonadLift m n] : MonadIO n :=
 
 instance : MonadIO IO :=
 { liftIO := id }
-
-@[inline] def mkEIOMonadIO {ε ε'} [MonadIO (EIO ε)] (f : ε → ε') : MonadIO (EIO ε') :=
-  { liftIO := fun x => adaptExcept f (liftIO x : EIO ε _) }
 
 namespace IO
 

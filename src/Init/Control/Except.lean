@@ -178,27 +178,6 @@ catch t₁ $ fun e₁ => catch t₂ $ fun e₂ => throw (if useFirstEx then e₁
 
 end MonadExcept
 
-/-- Adapt a Monad stack, changing its top-most error Type.
-
-    Note: This class can be seen as a simplification of the more "principled" definition
-    ```
-    class MonadExceptFunctor (ε ε' : outParam (Type u)) (n n' : Type u → Type u) :=
-    (map {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ExceptT ε m α → ExceptT ε' m α) → n α → n' α)
-    `` -/
-class MonadExceptAdapter (ε ε' : outParam (Type u)) (m m' : Type u → Type v) :=
-(adaptExcept {α : Type u} : (ε → ε') → m α → m' α)
-export MonadExceptAdapter (adaptExcept)
-
-section
-variables {ε ε' : Type u} {m m' : Type u → Type v}
-
-instance monadExceptAdapterTrans {n n' : Type u → Type v} [MonadExceptAdapter ε ε' m m'] [MonadFunctor m m' n n'] : MonadExceptAdapter ε ε' n n' :=
-⟨fun α f => monadMap (fun α => (adaptExcept f : m α → m' α))⟩
-
-instance [Monad m] : MonadExceptAdapter ε ε' (ExceptT ε m) (ExceptT ε' m) :=
-⟨fun α => ExceptT.adapt⟩
-end
-
 @[inline] def observing {ε α : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) : m (Except ε α) :=
 catch (do a ← x; pure (Except.ok a)) (fun ex => pure (Except.error ex))
 

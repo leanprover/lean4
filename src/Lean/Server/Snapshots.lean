@@ -92,11 +92,10 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
         fileName := inputCtx.fileName,
         fileMap := inputCtx.fileMap
       }
-    adaptExcept
-      ioErrorFromEmpty
-      (Elab.Command.catchExceptions
+    EIO.toIO ioErrorFromEmpty $
+      Elab.Command.catchExceptions
         (Elab.Command.elabCommand cmdStx)
-        cmdCtx cmdStateRef)
+        cmdCtx cmdStateRef
     let postCmdState ← cmdStateRef.get
     let postCmdSnap : Snapshot := {
         beginPos := cmdPos,

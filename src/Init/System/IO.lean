@@ -58,10 +58,13 @@ abbrev IO : Type → Type := EIO Error
    represents the "initial world". We don't want to cache this closed term. So, we disable
    the "extract closed terms" optimization. -/
 set_option compiler.extract_closed false in
-@[inline] unsafe def unsafeIO {α : Type} (fn : IO α) : Except IO.Error α :=
+@[inline] unsafe def unsafeEIO {ε α : Type} (fn : EIO ε α) : Except ε α :=
   match fn.run () with
   | EStateM.Result.ok a _    => Except.ok a
   | EStateM.Result.error e _ => Except.error e
+
+@[inline] unsafe def unsafeIO {α : Type} (fn : IO α) : Except IO.Error α :=
+  unsafeEIO fn
 
 @[extern "lean_io_timeit"] constant timeit {α : Type} (msg : @& String) (fn : IO α) : IO α
 @[extern "lean_io_allocprof"] constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α

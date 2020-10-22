@@ -19,10 +19,9 @@ inductive Arg
 | stx  (val : Syntax)
 | expr (val : Expr)
 
-instance Arg.inhabited : Inhabited Arg := ⟨Arg.stx (arbitrary _)⟩
+instance : Inhabited Arg := ⟨Arg.stx (arbitrary _)⟩
 
-instance Arg.hasToString : HasToString Arg :=
-⟨fun
+instance : HasToString Arg := ⟨fun
   | Arg.stx  val => toString val
   | Arg.expr val => toString val⟩
 
@@ -30,10 +29,10 @@ instance Arg.hasToString : HasToString Arg :=
 structure NamedArg :=
 (name : Name) (val : Arg)
 
-instance NamedArg.hasToString : HasToString NamedArg :=
+instance : HasToString NamedArg :=
 ⟨fun s => "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"⟩
 
-instance NamedArg.inhabited : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _ }⟩
+instance : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _ }⟩
 
 /--
   Add a new named argument to `namedArgs`, and throw an error if it already contains a named argument

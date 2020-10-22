@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
 lean_object* l_IO_FS_Stream_readJson(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_parse(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-lean_object* l_Lean_Json_compress___main(lean_object*);
 lean_object* l_IO_FS_Stream_readJson___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeJson(lean_object*, lean_object*, lean_object*);
@@ -122,7 +122,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 5);
 lean_inc(x_4);
-x_5 = l_Lean_Json_compress___main(x_2);
+x_5 = l_Lean_Json_compress(x_2);
 x_6 = lean_apply_2(x_4, x_5, x_3);
 if (lean_obj_tag(x_6) == 0)
 {

@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -10,8 +11,7 @@ namespace PrettyPrinter
 
 /- Auxiliary internal exception for backtracking the pretty printer.
    See `orelse.parenthesizer` for example -/
-def registerBacktrackId : IO InternalExceptionId := registerInternalExceptionId `backtrackFormatter
-@[builtinInit registerBacktrackId] constant backtrackExceptionId : InternalExceptionId := arbitrary _
+builtin_initialize backtrackExceptionId : InternalExceptionId ← registerInternalExceptionId `backtrackFormatter
 
 end PrettyPrinter
 end Lean

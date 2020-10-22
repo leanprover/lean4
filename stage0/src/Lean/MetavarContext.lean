@@ -38,7 +38,7 @@ context for outer TC.
 
 - TC should not assign metavariables created by the elaborator, simp,
 tactic framework, and outer TC problems. Reason: TC commits to the
-first solution it finds. Consider the TC problem `HasCoe Nat ?x`,
+first solution it finds. Consider the TC problem `Coe Nat ?x`,
 where `?x` is a metavariable created by the caller. There are many
 solutions to this problem (e.g., `?x := Int`, `?x := Real`, ...),
 and it doesn’t make sense to commit to the first one since TC does
@@ -167,8 +167,8 @@ Gruesome details:
 - We use TC for implementing coercions. Both Joe Hendrix and Reid Barton
 reported a nasty limitation. In Lean3, TC will not be used if there are
 metavariables in the TC problem. For example, the elaborator will not try
-to synthesize `HasCoe Nat ?x`. This is good, but this constraint is too
-strict for problems such as `HasCoe (Vector Bool ?n) (BV ?n)`. The coercion
+to synthesize `Coe Nat ?x`. This is good, but this constraint is too
+strict for problems such as `Coe (Vector Bool ?n) (BV ?n)`. The coercion
 exists independently of `?n`. Thus, during TC, we want `isDefEq` to throw
 an exception instead of return `false` whenever it tries to assign
 a metavariable owned by its caller. The idea is to sign to the caller that

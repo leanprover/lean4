@@ -121,7 +121,6 @@ lean_object* l_Std_RBNode_find___at___private_Lean_Compiler_Specialize_0__Lean_C
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____closed__11;
-extern lean_object* l_Lean_EnumAttributes_Lean_Attributes___instance__5___closed__1;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isInternal(lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
@@ -233,6 +232,7 @@ lean_object* l_Lean_Compiler_SpecState_specInfo___default___closed__1;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Compiler_SpecState_addEntry___spec__16(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_switch(lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_230____lambda__1(lean_object*);
+extern lean_object* l_Lean_EnumAttributes_Lean_Attributes___instance__7___closed__1;
 lean_object* l_Lean_Compiler_SpecState_addEntry(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___closed__3;

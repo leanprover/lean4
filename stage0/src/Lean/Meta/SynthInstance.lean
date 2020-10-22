@@ -52,7 +52,7 @@ def Waiter.isRoot : Waiter → Bool
 | Waiter.root           => true
 
 /-
-  In tabled resolution, we creating a mapping from goals (e.g., `HasCoe Nat ?x`) to
+  In tabled resolution, we creating a mapping from goals (e.g., `Coe Nat ?x`) to
   answers and waiters. Waiters are consumer nodes that are waiting for answers for a
   particular node.
 
@@ -161,7 +161,7 @@ abbrev SynthM := StateRefT State MetaM
 @[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
 monadMap @f
 
-instance SynthM.inhabited {α} : Inhabited (SynthM α) :=
+instance {α} : Inhabited (SynthM α) :=
 ⟨fun _ => arbitrary _⟩
 
 /-- Return globals and locals instances that may unify with `type` -/

@@ -61,7 +61,7 @@ structure ParamInfo :=
 (hasFwdDeps   : Bool      := false)
 (backDeps     : Array Nat := #[])
 
-instance ParamInfo.inhabited : Inhabited ParamInfo := ⟨{}⟩
+instance : Inhabited ParamInfo := ⟨{}⟩
 
 def ParamInfo.isExplicit (p : ParamInfo) : Bool :=
 !p.implicit && p.instImplicit

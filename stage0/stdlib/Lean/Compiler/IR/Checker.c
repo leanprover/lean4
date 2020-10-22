@@ -20,7 +20,6 @@ lean_object* l_Array_forMAux___main___at_Lean_IR_Checker_checkArgs___spec__1(lea
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_Checker_checkDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LocalContext_isJP(lean_object*, lean_object*);
-extern lean_object* l_Lean_IR_JoinPointId_Lean_Compiler_IR_Basic___instance__6___closed__1;
 lean_object* l_Lean_IR_Checker_markVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkExpr(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_IRType_isStruct(lean_object*);
@@ -65,6 +64,7 @@ lean_object* l_Lean_IR_Checker_checkFullApp___lambda__2___closed__3;
 lean_object* l_Lean_IR_checkDecl_match__1(lean_object*);
 uint8_t l_Lean_IR_CtorInfo_isRef(lean_object*);
 lean_object* l_Lean_IR_LocalContext_addJP(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__2___closed__1;
 lean_object* l_Lean_IR_Checker_checkObjVar___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkObjType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_findCore___at_Lean_IR_Checker_markIndex___spec__1(lean_object*, lean_object*);
@@ -108,6 +108,7 @@ lean_object* l_Lean_IR_Checker_markIndex___boxed(lean_object*, lean_object*, lea
 lean_object* l_Lean_IR_Checker_checkVarType(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkPartialApp___closed__2;
 lean_object* l_Lean_IR_Checker_markJP(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__6___closed__1;
 lean_object* l_Lean_IR_Checker_checkVarType___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LocalContext_isLocalVar(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkExpr___closed__1;
@@ -126,7 +127,6 @@ lean_object* l_Lean_IR_LocalContext_addLocal(lean_object*, lean_object*, lean_ob
 lean_object* l_Array_forMAux___main___at_Lean_IR_Checker_checkArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkFullApp___closed__1;
 lean_object* l_Lean_IR_Checker_checkFnBody_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_IR_VarId_Lean_Compiler_IR_Basic___instance__2___closed__1;
 lean_object* l_Lean_IR_Checker_getDecl_match__1(lean_object*);
 lean_object* l_Lean_IR_checkDecl_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_findCore___at_Lean_IR_Checker_markIndex___spec__1___boxed(lean_object*, lean_object*);
@@ -448,7 +448,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_7 = l_Nat_repr(x_1);
-x_8 = l_Lean_IR_VarId_Lean_Compiler_IR_Basic___instance__2___closed__1;
+x_8 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__2___closed__1;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
 x_10 = l_Lean_IR_Checker_checkVar___closed__1;
@@ -513,7 +513,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_6 = l_Nat_repr(x_1);
-x_7 = l_Lean_IR_JoinPointId_Lean_Compiler_IR_Basic___instance__6___closed__1;
+x_7 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__6___closed__1;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
 x_9 = l_Lean_IR_Checker_checkJP___closed__1;
@@ -974,7 +974,7 @@ if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_6 = l_Nat_repr(x_1);
-x_7 = l_Lean_IR_VarId_Lean_Compiler_IR_Basic___instance__2___closed__1;
+x_7 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__2___closed__1;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
 x_9 = l_Lean_IR_Checker_checkVar___closed__1;

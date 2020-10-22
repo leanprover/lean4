@@ -15,7 +15,7 @@ class MonadLog (m : Type → Type) :=
 (getFileName  : m String)
 (logMessage   : Message → m Unit)
 
-instance monadLogTrans (m n) [MonadLog m] [MonadLift m n] : MonadLog n :=
+instance (m n) [MonadLog m] [MonadLift m n] : MonadLog n :=
 { getRef      := liftM (MonadLog.getRef : m _),
   getFileMap  := liftM (MonadLog.getFileMap : m _),
   getFileName := liftM (MonadLog.getFileName : m _),

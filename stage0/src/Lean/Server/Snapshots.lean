@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Wojciech Nawrocki. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -24,34 +25,34 @@ open Elab
 /-- The data associated with a snapshot is different depending on whether
 it was produced from the header or from a command. -/
 inductive SnapshotData
-| headerData : Environment → MessageLog → Options → SnapshotData
-| cmdData : Command.State → SnapshotData
+  | headerData : Environment → MessageLog → Options → SnapshotData
+  | cmdData : Command.State → SnapshotData
 
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot :=
-/- Where the command which produced this snapshot begins. Note that
-neighbouring snapshots are *not* necessarily attached beginning-to-end,
-since inputs outside the grammar advance the parser but do not produce
-snapshots. -/
-(beginPos : String.Pos)
-(mpState : Parser.ModuleParserState)
-(data : SnapshotData)
+  /- Where the command which produced this snapshot begins. Note that
+  neighbouring snapshots are *not* necessarily attached beginning-to-end,
+  since inputs outside the grammar advance the parser but do not produce
+  snapshots. -/
+  (beginPos : String.Pos)
+  (mpState : Parser.ModuleParserState)
+  (data : SnapshotData)
 
 namespace Snapshot
 
 def endPos (s : Snapshot) : String.Pos := s.mpState.pos
 
 def env : Snapshot → Environment
-| ⟨_, _, SnapshotData.headerData env_ _ _⟩ => env_
-| ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState.env
+  | ⟨_, _, SnapshotData.headerData env_ _ _⟩ => env_
+  | ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState.env
 
 def msgLog : Snapshot → MessageLog
-| ⟨_, _, SnapshotData.headerData _ msgLog_ _⟩ => msgLog_
-| ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState.messages
+  | ⟨_, _, SnapshotData.headerData _ msgLog_ _⟩ => msgLog_
+  | ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState.messages
 
 def toCmdState : Snapshot → Command.State
-| ⟨_, _, SnapshotData.headerData env msgLog opts⟩ => Command.mkState env msgLog opts
-| ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState
+  | ⟨_, _, SnapshotData.headerData env msgLog opts⟩ => Command.mkState env msgLog opts
+  | ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState
 
 end Snapshot
 
@@ -59,16 +60,17 @@ end Snapshot
 -- in some SnapshotsM := ReaderT Context (EIO Empty)
 
 def compileHeader (contents : String) (opts : Options := {}) : IO Snapshot := do
-let inputCtx := Parser.mkInputContext contents "<input>";
-(headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx;
-(headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx;
-pure { beginPos := 0,
-       mpState := headerParserState,
-       data := SnapshotData.headerData headerEnv msgLog opts
-     }
+  let inputCtx := Parser.mkInputContext contents "<input>"
+  let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
+  let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
+  pure { beginPos := 0,
+         mpState := headerParserState,
+         data := SnapshotData.headerData headerEnv msgLog opts
+       }
 
 private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
-Empty.rec _ ex
+  nomatch ex
+
 
 /-- Compiles the next command occurring after the given snapshot.
 If there is no next command (file ended), returns messages produced
@@ -77,40 +79,39 @@ through the file. -/
 -- over "store snapshots"/"don't store snapshots" would likely result in confusing
 -- isServer? conditionals and not be worth it due to how short it is.
 def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot MessageLog) := do
-let inputCtx := Parser.mkInputContext contents "<input>";
-let (cmdStx, cmdParserState, msgLog) :=
-  Parser.parseCommand snap.env inputCtx snap.mpState snap.msgLog;
-let cmdPos := cmdStx.getHeadInfo.get!.pos.get!; -- TODO(WN): always `some`?
-if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-  pure $ Sum.inr msgLog
-else do
-  cmdStateRef ← IO.mkRef { snap.toCmdState with messages := msgLog };
-  let cmdCtx : Elab.Command.Context :=
-    { cmdPos := snap.endPos,
-      fileName := inputCtx.fileName,
-      fileMap := inputCtx.fileMap
-    };
-  adaptExcept
-    ioErrorFromEmpty
-    (Elab.Command.catchExceptions
-      (Elab.Command.elabCommand cmdStx)
-      cmdCtx cmdStateRef);
-  postCmdState ← cmdStateRef.get;
-  let postCmdSnap : Snapshot :=
-    { beginPos := cmdPos,
-      mpState := cmdParserState,
-      data := SnapshotData.cmdData postCmdState
-    };
-  pure $ Sum.inl postCmdSnap
+  let inputCtx := Parser.mkInputContext contents "<input>";
+  let (cmdStx, cmdParserState, msgLog) :=
+    Parser.parseCommand snap.env inputCtx snap.mpState snap.msgLog;
+  let cmdPos := cmdStx.getHeadInfo.get!.pos.get!; -- TODO(WN): always `some`?
+  if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
+    pure $ Sum.inr msgLog
+  else
+    let cmdStateRef ← IO.mkRef { snap.toCmdState with messages := msgLog }
+    let cmdCtx : Elab.Command.Context := {
+        cmdPos := snap.endPos,
+        fileName := inputCtx.fileName,
+        fileMap := inputCtx.fileMap
+      }
+    adaptExcept
+      ioErrorFromEmpty
+      (Elab.Command.catchExceptions
+        (Elab.Command.elabCommand cmdStx)
+        cmdCtx cmdStateRef)
+    let postCmdState ← cmdStateRef.get
+    let postCmdSnap : Snapshot := {
+        beginPos := cmdPos,
+        mpState := cmdParserState,
+        data := SnapshotData.cmdData postCmdState
+      }
+    pure $ Sum.inl postCmdSnap
 
 /-- Compiles all commands after the given snapshot. Returns them as a list, together with
 the final message log. -/
-partial def compileCmdsAfter (contents : String) : Snapshot → IO (List Snapshot × MessageLog)
-| snap => do
-  cmdOut ← compileNextCmd contents snap;
+partial def compileCmdsAfter (contents : String) (snap : Snapshot) : IO (List Snapshot × MessageLog) := do
+  let cmdOut ← compileNextCmd contents snap
   match cmdOut with
   | Sum.inl snap => do
-    (snaps, msgLog) ← compileCmdsAfter snap;
+    let (snaps, msgLog) ← compileCmdsAfter contents snap
     pure $ (snap :: snaps, msgLog)
   | Sum.inr msgLog => pure ([], msgLog)
 

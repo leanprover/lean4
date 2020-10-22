@@ -35,6 +35,7 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_getProjFnForField_x3f___spec_
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_findField_x3f_match__1(lean_object*);
 lean_object* l_Lean_getStructureCtor_match__2(lean_object*);
+extern lean_object* l_Lean_Lean_Declaration___instance__4;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Lean_isInternalSubobjectFieldName(lean_object*);
@@ -87,7 +88,6 @@ lean_object* l_Lean_getStructureCtor(lean_object*, lean_object*);
 lean_object* l_Lean_isStructure___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__2;
 lean_object* l_Array_iterateMAux___main___at_Lean_getParentStructures___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_ConstructorVal_inhabited;
 lean_object* l_Lean_isSubobjectField_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getParentStructures_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -714,7 +714,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 lean_dec(x_1);
-x_4 = l_Lean_ConstructorVal_inhabited;
+x_4 = l_Lean_Lean_Declaration___instance__4;
 x_5 = l_Lean_getStructureCtor___closed__4;
 x_6 = lean_panic_fn(x_4, x_5);
 return x_6;
@@ -738,7 +738,7 @@ if (lean_obj_tag(x_9) == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 lean_dec(x_8);
 lean_dec(x_1);
-x_10 = l_Lean_ConstructorVal_inhabited;
+x_10 = l_Lean_Lean_Declaration___instance__4;
 x_11 = l_Lean_getStructureCtor___closed__4;
 x_12 = lean_panic_fn(x_10, x_11);
 return x_12;
@@ -763,7 +763,7 @@ x_16 = lean_environment_find(x_1, x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_17 = l_Lean_ConstructorVal_inhabited;
+x_17 = l_Lean_Lean_Declaration___instance__4;
 x_18 = l_Lean_getStructureCtor___closed__6;
 x_19 = lean_panic_fn(x_17, x_18);
 return x_19;
@@ -786,7 +786,7 @@ else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_20);
-x_22 = l_Lean_ConstructorVal_inhabited;
+x_22 = l_Lean_Lean_Declaration___instance__4;
 x_23 = l_Lean_getStructureCtor___closed__6;
 x_24 = lean_panic_fn(x_22, x_23);
 return x_24;
@@ -798,7 +798,7 @@ else
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_9);
 lean_dec(x_1);
-x_25 = l_Lean_ConstructorVal_inhabited;
+x_25 = l_Lean_Lean_Declaration___instance__4;
 x_26 = l_Lean_getStructureCtor___closed__4;
 x_27 = lean_panic_fn(x_25, x_26);
 return x_27;
@@ -811,7 +811,7 @@ lean_dec(x_13);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_1);
-x_28 = l_Lean_ConstructorVal_inhabited;
+x_28 = l_Lean_Lean_Declaration___instance__4;
 x_29 = l_Lean_getStructureCtor___closed__4;
 x_30 = lean_panic_fn(x_28, x_29);
 return x_30;
@@ -823,7 +823,7 @@ else
 lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 lean_dec(x_7);
 lean_dec(x_1);
-x_31 = l_Lean_ConstructorVal_inhabited;
+x_31 = l_Lean_Lean_Declaration___instance__4;
 x_32 = l_Lean_getStructureCtor___closed__4;
 x_33 = lean_panic_fn(x_31, x_32);
 return x_33;

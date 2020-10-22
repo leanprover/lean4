@@ -14,12 +14,12 @@
 extern "C" {
 #endif
 lean_object* l_Lean_hasNeverExtractAttribute___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_TagAttribute_Lean_Attributes___instance__3___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3____closed__4;
 uint8_t l_Lean_Name_isInternal(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttributeAux___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3_(lean_object*);
+extern lean_object* l_Lean_TagAttribute_Lean_Attributes___instance__5___closed__1;
 lean_object* l_Lean_neverExtractAttr;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttributeAux_match__1___rarg(lean_object*, lean_object*);

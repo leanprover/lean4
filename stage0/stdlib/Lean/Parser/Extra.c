@@ -92,7 +92,6 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer(lean_objec
 lean_object* l_Lean_Parser_ppLine;
 lean_object* l_Lean_Parser_leadingNode_formatter___closed__1;
 lean_object* l_Lean_Parser_antiquotNestedExpr_formatter___closed__3;
-extern lean_object* l___private_Lean_Data_Format_10__pushNewline___closed__1;
 extern lean_object* l_Lean_Parser_mkAntiquot___closed__3;
 lean_object* l_Lean_PrettyPrinter_Formatter_optional_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_nameLit_formatter(lean_object*);
@@ -106,6 +105,7 @@ lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___closed__12;
 lean_object* l_Lean_Parser_antiquotNestedExpr_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_ppSpace_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_ppSpace_formatter___closed__3;
+extern lean_object* l___private_Lean_Data_Format_0__Lean_Format_pushNewline___closed__1;
 lean_object* l_Lean_Parser_ppHardSpace_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_charLit_formatter(lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___closed__11;
@@ -2562,7 +2562,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_ppLine_formatter___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Data_Format_10__pushNewline___closed__1;
+x_1 = l___private_Lean_Data_Format_0__Lean_Format_pushNewline___closed__1;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

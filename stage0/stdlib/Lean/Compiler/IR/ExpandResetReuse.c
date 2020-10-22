@@ -95,6 +95,7 @@ lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncFor(lean_object*, lean_objec
 lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_ExpandResetReuse_isSelfSet___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_IR_MapVars_mapFnBody___at_Lean_IR_FnBody_replaceVar___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_IR_ExpandResetReuse_consumed___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__15;
 lean_object* l_Array_iterateMAux___main___at_Array_append___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 uint8_t l_Lean_IR_ExpandResetReuse_consumed(lean_object*, lean_object*);
@@ -108,7 +109,6 @@ lean_object* l_Std_AssocList_replace___at_Lean_IR_ExpandResetReuse_CollectProjMa
 lean_object* l_Lean_IR_ExpandResetReuse_removeSelfSet_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_ExpandResetReuse_removeSelfSet___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_reuseToCtor_match__1(lean_object*);
-extern lean_object* l_Lean_IR_Arg_Lean_Compiler_IR_Basic___instance__10;
 lean_object* l_Nat_foldAux___main___at_Lean_IR_ExpandResetReuse_setFields___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_isSelfSet_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_mkFresh___boxed(lean_object*);
@@ -1340,7 +1340,7 @@ x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_sub(x_2, x_3);
 lean_dec(x_2);
-x_5 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__11;
+x_5 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__15;
 x_6 = lean_array_get(x_5, x_1, x_4);
 lean_dec(x_4);
 return x_6;
@@ -1419,7 +1419,7 @@ if (x_25 == 0)
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_26 = lean_nat_sub(x_5, x_6);
 lean_dec(x_5);
-x_27 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__11;
+x_27 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__15;
 x_28 = lean_array_get(x_27, x_2, x_26);
 lean_dec(x_26);
 if (lean_obj_tag(x_28) == 0)
@@ -1583,7 +1583,7 @@ if (x_67 == 0)
 lean_object* x_68; lean_object* x_69; lean_object* x_70; 
 x_68 = lean_nat_sub(x_5, x_6);
 lean_dec(x_5);
-x_69 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__11;
+x_69 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__15;
 x_70 = lean_array_get(x_69, x_2, x_68);
 lean_dec(x_68);
 if (lean_obj_tag(x_70) == 0)
@@ -2588,7 +2588,7 @@ x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_4, x_8);
 x_10 = lean_nat_sub(x_3, x_4);
 lean_dec(x_4);
-x_11 = l_Lean_IR_Arg_Lean_Compiler_IR_Basic___instance__10;
+x_11 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__11;
 x_12 = lean_array_get(x_11, x_2, x_10);
 lean_inc(x_1);
 x_13 = lean_alloc_ctor(2, 4, 0);

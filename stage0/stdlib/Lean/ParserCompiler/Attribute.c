@@ -30,6 +30,7 @@ lean_object* l_Lean_setEnv___at_Lean_registerTagAttribute___spec__4(lean_object*
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_Lean_ParserCompiler_Attribute___instance__1;
+extern lean_object* l_Lean_Lean_Attributes___instance__3___closed__2;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor___boxed(lean_object*, lean_object*, lean_object*);
@@ -69,7 +70,6 @@ lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__2;
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Lean_Attributes___instance__1___closed__2;
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__4;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -661,7 +661,7 @@ static lean_object* _init_l_Lean_ParserCompiler_CombinatorAttribute_Lean_ParserC
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Lean_Attributes___instance__1___closed__2;
+x_1 = l_Lean_Lean_Attributes___instance__3___closed__2;
 x_2 = l_Lean_Lean_Environment___instance__10___closed__5;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

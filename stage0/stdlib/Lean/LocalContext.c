@@ -20,7 +20,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_LocalContext_foldl___spec__4(l
 lean_object* l_Lean_LocalContext_mkBinding_match__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_contains___at_Lean_LocalContext_contains___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_Lean_Expr___instance__1;
 uint8_t lean_local_ctx_uses_user_name(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkLambda___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_setType_match__1(lean_object*);
@@ -358,6 +357,7 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_allM___spec__4__
 lean_object* l_Array_findSomeMAux___main___at_Lean_LocalContext_findDecl_x3f___spec__6___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDecl_x3f___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_LocalContext_allM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_Lean_Expr___instance__11;
 lean_object* l_Lean_LocalContext_foldl(lean_object*);
 lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_LocalContext_findDeclRev_x3f___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId___boxed(lean_object*);
@@ -444,6 +444,7 @@ uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_allM___spec__3(lean_object*);
 lean_object* l_Lean_LocalContext_renameUserName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDeclM_x3f___at_Lean_LocalContext_findDecl_x3f___spec__1___rarg___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_Lean_Expr___instance__11___closed__1;
 lean_object* l_Lean_LocalContext_isSubPrefixOf___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlMAux___at_Lean_LocalContext_getFVarIds___spec__2(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_LocalContext_isSubPrefixOfAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -495,7 +496,6 @@ lean_object* l_Lean_LocalContext_mkForall___boxed(lean_object*, lean_object*, le
 lean_object* l_Std_PersistentArray_findSomeM_x3f___at_Lean_LocalContext_findDecl_x3f___spec__2___rarg___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_LocalContext_all___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_Lean_Expr___instance__1___closed__1;
 lean_object* l_Lean_LocalContext_renameUserName_match__1(lean_object*);
 uint8_t l_Lean_LocalDecl_isLet(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -613,7 +613,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_box(0);
-x_3 = l_Lean_Expr_Lean_Expr___instance__1___closed__1;
+x_3 = l_Lean_Expr_Lean_Expr___instance__11___closed__1;
 x_4 = 0;
 x_5 = lean_alloc_ctor(1, 5, 1);
 lean_ctor_set(x_5, 0, x_1);
@@ -1504,7 +1504,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Expr_Lean_Expr___instance__1;
+x_2 = l_Lean_Expr_Lean_Expr___instance__11;
 x_3 = l_Lean_LocalDecl_value___closed__4;
 x_4 = lean_panic_fn(x_2, x_3);
 return x_4;
@@ -7848,7 +7848,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_4, x_8);
 lean_dec(x_4);
-x_10 = l_Lean_Expr_Lean_Expr___instance__1;
+x_10 = l_Lean_Expr_Lean_Expr___instance__11;
 x_11 = lean_array_get(x_10, x_3, x_9);
 lean_inc(x_2);
 x_12 = l_Lean_LocalContext_findFVar_x3f(x_2, x_11);
@@ -7989,7 +7989,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
-x_9 = l_Lean_Expr_Lean_Expr___instance__1;
+x_9 = l_Lean_Expr_Lean_Expr___instance__11;
 x_10 = lean_array_get(x_9, x_2, x_8);
 lean_inc(x_1);
 x_11 = l_Lean_LocalContext_findFVar_x3f(x_1, x_10);
@@ -8114,7 +8114,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
-x_9 = l_Lean_Expr_Lean_Expr___instance__1;
+x_9 = l_Lean_Expr_Lean_Expr___instance__11;
 x_10 = lean_array_get(x_9, x_2, x_8);
 lean_inc(x_1);
 x_11 = l_Lean_LocalContext_findFVar_x3f(x_1, x_10);

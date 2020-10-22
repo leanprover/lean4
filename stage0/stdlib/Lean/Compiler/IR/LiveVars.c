@@ -66,6 +66,7 @@ lean_object* l_Lean_IR_IsLive_visitFnBody_match__1___rarg(lean_object*, lean_obj
 lean_object* l_Lean_IR_IsLive_visitFnBody_match__2(lean_object*);
 lean_object* l_Std_RBNode_balLeft___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_Lean_Compiler_IR_LiveVars___instance__1;
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArray___at_Lean_IR_LiveVars_collectFnBody___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LiveVars_collectFnBody_match__1(lean_object*);
 extern lean_object* l_Id_Monad;
@@ -86,7 +87,6 @@ lean_object* l_Lean_IR_FnBody_hasLiveVar(lean_object*, lean_object*, lean_object
 uint8_t l_Lean_IR_HasIndex_visitArg(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_erase___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_IR_HasIndex_visitArgs(lean_object*, lean_object*);
-lean_object* l_Lean_IR_LiveVarSet_inhabited;
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArray___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArgs___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkLiveVarSet(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams(lean_object*, lean_object*);
@@ -1123,7 +1123,7 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_IR_LiveVarSet_inhabited() {
+static lean_object* _init_l_Lean_IR_Lean_Compiler_IR_LiveVars___instance__1() {
 _start:
 {
 lean_object* x_1; 
@@ -7840,8 +7840,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_FreeVars(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_IR_LiveVarSet_inhabited = _init_l_Lean_IR_LiveVarSet_inhabited();
-lean_mark_persistent(l_Lean_IR_LiveVarSet_inhabited);
+l_Lean_IR_Lean_Compiler_IR_LiveVars___instance__1 = _init_l_Lean_IR_Lean_Compiler_IR_LiveVars___instance__1();
+lean_mark_persistent(l_Lean_IR_Lean_Compiler_IR_LiveVars___instance__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

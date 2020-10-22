@@ -201,7 +201,6 @@ lean_object* l_Lean_Level_LevelToFormat_toResult___closed__2;
 uint8_t l_Lean_Level_normLt(lean_object*, lean_object*);
 lean_object* l_Lean_Level_ctorToNat_match__1(lean_object*);
 lean_object* l_Lean_Level_mvarId_x21_match__1(lean_object*);
-extern lean_object* l_Lean_HasRepr___closed__1;
 lean_object* lean_level_mk_param(lean_object*);
 lean_object* l_Lean_Level_normalize___closed__2;
 lean_object* lean_level_update_imax(lean_object*, lean_object*, lean_object*);
@@ -265,6 +264,7 @@ size_t lean_usize_mix_hash(size_t, size_t);
 lean_object* lean_level_mk_zero(lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_Result_imax_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_isZero(lean_object*);
+extern lean_object* l_Lean_Lean_Data_Format___instance__20___closed__1;
 lean_object* l_Lean_Level_hasParam___boxed(lean_object*);
 uint8_t l_Lean_Level_occurs(lean_object*, lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_mkIMaxAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5799,7 +5799,7 @@ static lean_object* _init_l_Lean_Level_Lean_Level___instance__5___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_HasRepr___closed__1;
+x_1 = l_Lean_Lean_Data_Format___instance__20___closed__1;
 x_2 = l_Lean_Level_Lean_Level___instance__4___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Function_comp___rarg), 3, 2);
 lean_closure_set(x_3, 0, x_1);

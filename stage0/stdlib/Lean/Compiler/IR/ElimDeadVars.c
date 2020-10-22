@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__11;
 lean_object* l_Lean_IR_FnBody_elimDead(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(lean_object*, lean_object*);
@@ -30,6 +29,7 @@ lean_object* l_Lean_IR_FnBody_freeIndices(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead_match__2(lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_IR_reshapeWithoutDeadAux_match__1(lean_object*);
+extern lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__15;
 lean_object* l_Lean_IR_reshapeWithoutDeadAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_elimDead_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead_match__2___rarg(lean_object*, lean_object*);
@@ -130,7 +130,7 @@ x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_sub(x_2, x_3);
 lean_dec(x_2);
-x_5 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__11;
+x_5 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__15;
 x_6 = lean_array_get(x_5, x_1, x_4);
 lean_dec(x_4);
 return x_6;

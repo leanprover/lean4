@@ -39,7 +39,7 @@ structure Def (γ : Type) :=
     | some id => pure id
     | none    => throwError "invalid attribute argument, expected identifier")
 
-instance Def.inhabited {γ} : Inhabited (Def γ) :=
+instance {γ} : Inhabited (Def γ) :=
 ⟨{ builtinName := arbitrary _, name := arbitrary _, descr := arbitrary _, valueTypeName := arbitrary _ }⟩
 
 structure OLeanEntry :=
@@ -75,10 +75,9 @@ match table.find? k with
 | some vs => SMap.insert table k (v::vs)
 | none    => SMap.insert table k [v]
 
-instance ExtensionState.inhabited {γ} : Inhabited (ExtensionState γ) :=
-⟨{}⟩
+instance {γ} : Inhabited (ExtensionState γ) := ⟨{}⟩
 
-instance KeyedDeclsAttribute.inhabited {γ} : Inhabited (KeyedDeclsAttribute γ) :=
+instance {γ} : Inhabited (KeyedDeclsAttribute γ) :=
 ⟨{ defn := arbitrary _, tableRef := arbitrary _, ext := arbitrary _ }⟩
 
 private def mkInitial {γ} (tableRef : IO.Ref (Table γ)) : IO (ExtensionState γ) := do

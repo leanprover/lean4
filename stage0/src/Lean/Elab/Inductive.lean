@@ -42,7 +42,7 @@ structure CtorView :=
 (binders   : Syntax)
 (type?     : Option Syntax)
 
-instance CtorView.inhabited : Inhabited CtorView :=
+instance : Inhabited CtorView :=
 ⟨{ ref := arbitrary _, modifiers := {}, inferMod := false, declName := arbitrary _, binders := arbitrary _, type? := none }⟩
 
 structure InductiveView :=
@@ -55,7 +55,7 @@ structure InductiveView :=
 (type?         : Option Syntax)
 (ctors         : Array CtorView)
 
-instance InductiveView.inhabited : Inhabited InductiveView :=
+instance : Inhabited InductiveView :=
 ⟨{ ref := arbitrary _, modifiers := {}, shortDeclName := arbitrary _, declName := arbitrary _,
    levelNames := [], binders := arbitrary _, type? := none, ctors := #[] }⟩
 
@@ -66,7 +66,7 @@ structure ElabHeaderResult :=
 (params     : Array Expr)
 (type       : Expr)
 
-instance ElabHeaderResult.inhabited : Inhabited ElabHeaderResult :=
+instance : Inhabited ElabHeaderResult :=
 ⟨{ view := arbitrary _, lctx := arbitrary _, localInsts := arbitrary _, params := #[], type := arbitrary _ }⟩
 
 private partial def elabHeaderAux (views : Array InductiveView)

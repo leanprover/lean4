@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_Lean_Expr___instance__1;
 extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_Expr_replaceLevel_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
@@ -31,12 +30,12 @@ lean_object* l_Lean_Expr_ReplaceLevelImpl_cache(size_t, lean_object*, lean_objec
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___closed__4;
 size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
-extern lean_object* l___private_Lean_Data_Format_11__be___main___closed__1;
 lean_object* l_Lean_Level_replace_match__2(lean_object*);
 lean_object* l_Lean_mkLevelIMax(lean_object*, lean_object*);
 lean_object* l_Lean_Level_replace_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit_match__1(lean_object*);
 lean_object* l_Lean_mkLevelMax(lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Data_Format_0__Lean_Format_be___closed__1;
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -49,6 +48,7 @@ size_t l_USize_mod(size_t, size_t);
 size_t lean_ptr_addr(lean_object*);
 lean_object* l_Lean_Expr_replaceLevel(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelSucc(lean_object*);
+extern lean_object* l_Lean_Expr_Lean_Expr___instance__11;
 lean_object* lean_expr_update_sort(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM(lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___closed__1;
@@ -58,12 +58,12 @@ lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_o
 lean_object* l_List_map___main___at_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___closed__3;
 lean_object* lean_mk_array(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_Lean_Expr___instance__11___closed__1;
 lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
 lean_object* l_Lean_Level_replace_match__1(lean_object*);
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_const(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_Lean_Expr___instance__1___closed__1;
 lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___closed__2;
 lean_object* l_Lean_Level_replace_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -560,8 +560,8 @@ static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Data_Format_11__be___main___closed__1;
-x_2 = l_Lean_Expr_Lean_Expr___instance__1;
+x_1 = l___private_Lean_Data_Format_0__Lean_Format_be___closed__1;
+x_2 = l_Lean_Expr_Lean_Expr___instance__11;
 x_3 = l_monadInhabited___rarg(x_1, x_2);
 return x_3;
 }
@@ -1472,7 +1472,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(8192u);
-x_2 = l_Lean_Expr_Lean_Expr___instance__1___closed__1;
+x_2 = l_Lean_Expr_Lean_Expr___instance__11___closed__1;
 x_3 = lean_mk_array(x_1, x_2);
 return x_3;
 }

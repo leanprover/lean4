@@ -12,34 +12,34 @@ namespace Lean.Elab
 structure Attribute :=
 (name : Name) (args : Syntax := Syntax.missing)
 
-instance Attribute.hasFormat : HasFormat Attribute :=
-⟨fun attr => Format.bracket "@[" (toString attr.name ++ (if attr.args.isMissing then "" else toString attr.args)) "]"⟩
+instance : HasFormat Attribute := ⟨fun attr =>
+  Format.bracket "@[" (toString attr.name ++ (if attr.args.isMissing then "" else toString attr.args)) "]"⟩
 
-instance Attribute.inhabited : Inhabited Attribute := ⟨{ name := arbitrary _ }⟩
+instance : Inhabited Attribute := ⟨{ name := arbitrary _ }⟩
 
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m Attribute := do
--- rawIdent >> many attrArg
-let nameStx := stx[0]
-let attrName ← match nameStx.isIdOrAtom? with
-  | none     => withRef nameStx $ throwError "identifier expected"
-  | some str => pure $ mkNameSimple str
-unless isAttribute (← getEnv) attrName do
-  throwError! "unknown attribute [{attrName}]"
-let args := stx[1]
--- the old frontend passes Syntax.missing for empty args, for reasons
-if args.getNumArgs == 0 then
-  args := Syntax.missing
-pure { name := attrName, args := args }
+  -- rawIdent >> many attrArg
+  let nameStx := stx[0]
+  let attrName ← match nameStx.isIdOrAtom? with
+    | none     => withRef nameStx $ throwError "identifier expected"
+    | some str => pure $ mkNameSimple str
+  unless isAttribute (← getEnv) attrName do
+    throwError! "unknown attribute [{attrName}]"
+  let args := stx[1]
+  -- the old frontend passes Syntax.missing for empty args, for reasons
+  if args.getNumArgs == 0 then
+    args := Syntax.missing
+  pure { name := attrName, args := args }
 
 -- sepBy1 attrInstance ", "
 def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) := do
-let attrs := #[]
-for attr in stx.getSepArgs do
-  attrs := attrs.push (← elabAttr attr)
-return attrs
+  let attrs := #[]
+  for attr in stx.getSepArgs do
+    attrs := attrs.push (← elabAttr attr)
+  return attrs
 
 -- parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
-elabAttrs stx[1]
+  elabAttrs stx[1]
 
 end Lean.Elab

@@ -105,15 +105,6 @@ instance : Coe Name MessageData   := ⟨ofName⟩
 instance : Coe Syntax MessageData := ⟨ofSyntax⟩
 instance : Coe (Option Expr) MessageData := ⟨fun o => match o with | none => "none" | some e => ofExpr e⟩
 
--- TODO: delete
-instance : HasCoe Format MessageData := ⟨ofFormat⟩
-instance : HasCoe Level MessageData  := ⟨ofLevel⟩
-instance : HasCoe Expr MessageData   := ⟨ofExpr⟩
-instance : HasCoe Name MessageData   := ⟨ofName⟩
-instance : HasCoe Syntax MessageData := ⟨ofSyntax⟩
-instance : HasCoe (Option Expr) MessageData := ⟨fun o => match o with | none => "none" | some e => ofExpr e⟩
-
-
 partial def arrayExpr.toMessageData (es : Array Expr) (i : Nat) (acc : MessageData) : MessageData :=
   if h : i < es.size then
     let e   := es.get ⟨i, h⟩;
@@ -122,7 +113,6 @@ partial def arrayExpr.toMessageData (es : Array Expr) (i : Nat) (acc : MessageDa
   else
     acc ++ "]"
 
-instance : HasCoe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
 instance : Coe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
 
 def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (nest l.length $ l ++ f ++ r)
@@ -137,9 +127,6 @@ def ofList: List MessageData → MessageData
   | xs => sbracket $ joinSep xs ("," ++ Format.line)
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
-
-instance : HasCoe (List MessageData) MessageData := ⟨ofList⟩
-instance : HasCoe (List Expr) MessageData := ⟨fun es => ofList $ es.map ofExpr⟩
 
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
 instance : Coe (List Expr) MessageData := ⟨fun es => ofList $ es.map ofExpr⟩

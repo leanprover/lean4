@@ -64,7 +64,6 @@ lean_object* l_List_map___main___at_Lean_initFn____x40_Lean_ReducibilityAttrs___
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_14____spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_EnumAttributes_Lean_Attributes___instance__5___closed__1;
 lean_object* l_List_map___main___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_14____spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_14____spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_14____closed__10;
@@ -107,6 +106,7 @@ lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_ob
 lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_14____closed__6;
 lean_object* l_Lean_EnumAttributes_setValue___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getReducibilityStatus___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_EnumAttributes_Lean_Attributes___instance__7___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_14____closed__2;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_14____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

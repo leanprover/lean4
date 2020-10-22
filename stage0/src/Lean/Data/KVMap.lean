@@ -34,7 +34,7 @@ def DataValue.sameCtor : DataValue → DataValue → Bool
 | DataValue.ofInt _,    DataValue.ofInt _    => true
 | _,                    _                    => false
 
-instance DataValue.HasBeq : HasBeq DataValue := ⟨DataValue.beq⟩
+instance : HasBeq DataValue := ⟨DataValue.beq⟩
 
 @[export lean_data_value_to_string]
 def DataValue.str : DataValue → String
@@ -44,19 +44,13 @@ def DataValue.str : DataValue → String
 | DataValue.ofNat v    => toString v
 | DataValue.ofInt v    => toString v
 
-instance DataValue.hasToString : HasToString DataValue := ⟨DataValue.str⟩
+instance : HasToString DataValue := ⟨DataValue.str⟩
 
-instance string2DataValueOld : HasCoe String DataValue := ⟨DataValue.ofString⟩
-instance bool2DataValueOld   : HasCoe Bool DataValue   := ⟨DataValue.ofBool⟩
-instance name2DataValueOld   : HasCoe Name DataValue   := ⟨DataValue.ofName⟩
-instance nat2DataValueOld    : HasCoe Nat DataValue    := ⟨DataValue.ofNat⟩
-instance int2DataValueOld    : HasCoe Int DataValue    := ⟨DataValue.ofInt⟩
-
-instance string2DataValue : Coe String DataValue := ⟨DataValue.ofString⟩
-instance bool2DataValue   : Coe Bool DataValue   := ⟨DataValue.ofBool⟩
-instance name2DataValue   : Coe Name DataValue   := ⟨DataValue.ofName⟩
-instance nat2DataValue    : Coe Nat DataValue    := ⟨DataValue.ofNat⟩
-instance int2DataValue    : Coe Int DataValue    := ⟨DataValue.ofInt⟩
+instance : Coe String DataValue := ⟨DataValue.ofString⟩
+instance : Coe Bool DataValue   := ⟨DataValue.ofBool⟩
+instance : Coe Name DataValue   := ⟨DataValue.ofName⟩
+instance : Coe Nat DataValue    := ⟨DataValue.ofNat⟩
+instance : Coe Int DataValue    := ⟨DataValue.ofInt⟩
 
 /- Remark: we do not use RBMap here because we need to manipulate KVMap objects in
    C++ and RBMap is implemented in Lean. So, we use just a List until we can

@@ -244,6 +244,7 @@ def expandPrefixOp (op : Name) : Macro := fun stx => do
 
 @[builtinMacro Lean.Parser.Term.not] def expandNot : Macro := expandPrefixOp `Not
 @[builtinMacro Lean.Parser.Term.bnot] def expandBNot : Macro := expandPrefixOp `not
+@[builtinMacro Lean.Parser.Term.uminus] def expandUMinus : Macro := expandPrefixOp `HasNeg.neg
 
 @[builtinTermElab panic] def elabPanic : TermElab := fun stx expectedType? => do
   let arg := stx[1]

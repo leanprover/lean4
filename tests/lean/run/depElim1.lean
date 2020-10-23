@@ -176,7 +176,7 @@ withDepElimFrom ex numPats fun majors alts => do
   pure ()
 
 def testFailure (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit := do
-let worked ← «catch» (do test ex numPats elimName inProp; pure true) (fun ex => pure false)
+let worked ← tryCatch (do test ex numPats elimName inProp; pure true) (fun ex => pure false)
 if worked then
   throwError "unexpected success"
 

@@ -28,7 +28,7 @@ match r with
 #eval checkE ((tst1.run).run' 0) 100
 
 def tst2 : M Nat :=
-catchThe IO.Error
+tryCatchThe IO.Error
   («finally» f2 (do set 100; IO.println "finisher executed"))
   (fun _ => get)
 
@@ -37,7 +37,7 @@ catchThe IO.Error
 #eval checkE ((tst2.run).run' 0) 100
 
 def tst3 : M Nat :=
-catchThe IO.Error
+tryCatchThe IO.Error
   («finally»
     («finally» f1 (do set 100; IO.println "inner finisher executed"; f2; pure ()))
     (do modify Nat.succ; IO.println "outer finisher executed"))
@@ -69,6 +69,6 @@ let (a, _) ← finally' f2 (fun a? => do IO.println ("finalizer received: " ++ t
 pure a
 
 def tst7 : IO Unit :=
-catchThe IO.Error (do (tst6.run).run' 0; pure ()) (fun _ => IO.println "failed as expected")
+tryCatchThe IO.Error (do (tst6.run).run' 0; pure ()) (fun _ => IO.println "failed as expected")
 
 #eval tst7

@@ -17,8 +17,8 @@ match r with
 throwThe Exception $ Exception.error Syntax.missing "Error at act1"
 
 def g1 : M Nat :=
-catchThe Exception
-  («catch» act1 (fun ex => pure 100))
+tryCatchThe Exception
+  (tryCatch act1 (fun ex => pure 100))
   (fun ex => pure 200)
 
 #eval testM g1 200
@@ -27,8 +27,8 @@ catchThe Exception
 throw "hello world"
 
 def g2 : M Nat :=
-catchThe Exception
-  («catch» act2 (fun ex => pure 100))
+tryCatchThe Exception
+  (tryCatch act2 (fun ex => pure 100))
   (fun ex => pure 200)
 
 #eval testM g2 100

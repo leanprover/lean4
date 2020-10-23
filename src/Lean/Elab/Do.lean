@@ -1400,7 +1400,7 @@ def doTryToCode (doSeqToCode : List Syntax → M CodeBlock) (doTry : Syntax) (do
       if hasBreakContinueReturn finallyCode.code then
         throwError "'finally' currently does 'return', 'break', nor 'continue'"
       let finallyTerm ← liftMacroM $ ToTerm.run finallyCode.code ctx.m {} ToTerm.Kind.regular
-      `(«finally» $term $finallyTerm)
+      `(tryFinally $term $finallyTerm)
   let doElemsNew ← liftMacroM $ ToTerm.matchNestedTermResult ref term uvars a r bc
   doSeqToCode (doElemsNew ++ doElems)
 

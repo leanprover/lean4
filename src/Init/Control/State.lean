@@ -154,9 +154,9 @@ instance StateT.monadControl (σ : Type u) (m : Type u → Type v) [Monad m] : M
   restoreM := fun α x => do (a, s) ← liftM x; set s; pure a
 }
 
-instance StateT.finally {m : Type u → Type v} {σ : Type u} [MonadFinally m] [Monad m] : MonadFinally (StateT σ m) :=
-{ finally' := fun α β x h s => do
-  ((a, _), (b, s'')) ← finally' (x s)
+instance StateT.tryFinally {m : Type u → Type v} {σ : Type u} [MonadFinally m] [Monad m] : MonadFinally (StateT σ m) :=
+{ tryFinally' := fun α β x h s => do
+  ((a, _), (b, s'')) ← tryFinally' (x s)
     (fun p? => match p? with
       | some (a, s') => h (some a) s'
       | none         => h none s);

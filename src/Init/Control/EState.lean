@@ -120,7 +120,7 @@ instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) :=
 { throw := @EStateM.throw _ _, tryCatch := @EStateM.tryCatch _ _ _ _ }
 
 instance : MonadFinally (EStateM ε σ) :=
-{ finally' := fun α β x h s =>
+{ tryFinally' := fun α β x h s =>
   let r := x s;
   match r with
   | Result.ok a s    => match h (some a) s with

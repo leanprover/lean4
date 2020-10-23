@@ -196,10 +196,6 @@ export MonadFinally (tryFinally')
 @[inline] abbrev tryFinally {m : Type u → Type v} {α β : Type u} [MonadFinally m] [Functor m] (x : m α) (finalizer : m β) : m α := do
 Prod.fst <$> tryFinally' x (fun _ => finalizer)
 
--- TODO delete
-@[inline] abbrev finally {m : Type u → Type v} {α β : Type u} [MonadFinally m] [Functor m] (x : m α) (finalizer : m β) : m α := do
-Prod.fst <$> tryFinally' x (fun _ => finalizer)
-
 instance Id.finally : MonadFinally Id :=
 { tryFinally' := fun α β x h =>
    let a := x;

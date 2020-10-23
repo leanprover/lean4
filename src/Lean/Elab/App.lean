@@ -27,12 +27,19 @@ instance : HasToString Arg := ⟨fun
 
 /-- Named arguments created using the notation `(x := val)` -/
 structure NamedArg :=
-  (name : Name) (val : Arg)
+  (ref  : Syntax := Syntax.missing)
+  (name : Name)
+  (val  : Arg)
 
 instance : HasToString NamedArg :=
   ⟨fun s => "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"⟩
 
 instance : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _ }⟩
+
+def throwInvalidNamedArg {α} (namedArg : NamedArg) (fn? : Option Name) : TermElabM α :=
+  withRef namedArg.ref $ match fn? with
+    | some fn => throwError! "invalid argument name '{namedArg.name}' for function '{fn}'"
+    | none    => throwError! "invalid argument name '{namedArg.name}' for function"
 
 /--
   Add a new named argument to `namedArgs`, and throw an error if it already contains a named argument
@@ -52,7 +59,7 @@ private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermEl
   class CoeFun (α : Sort u) (γ : α → outParam (Sort v))
   abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
   ``` -/
-private def tryCoeFun (α : Expr) (a : Expr) : TermElabM Expr := do
+private def tryCoeFun? (α : Expr) (a : Expr) : TermElabM (Option Expr) := do
   let v ← mkFreshLevelMVar
   let type ← mkArrow α (mkSort v)
   let γ ← mkFreshExprMVar type
@@ -60,16 +67,13 @@ private def tryCoeFun (α : Expr) (a : Expr) : TermElabM Expr := do
   let coeFunInstType := mkAppN (Lean.mkConst `CoeFun [u, v]) #[α, γ]
   let mvar ← mkFreshExprMVar coeFunInstType MetavarKind.synthetic
   let mvarId := mvar.mvarId!
-  let synthesized ←
-    try
-      withoutMacroStackAtErr $ synthesizeInstMVarCore mvarId
-    catch _ =>
-      -- Should we add an option for showing the type class failure?
-      throwError "function expected"
-  if synthesized then
-    pure $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
-  else
-    throwError "function expected"
+  try
+    if (← synthesizeInstMVarCore mvarId) then
+      pure $ some $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
+    else
+      pure none
+  catch _ =>
+    pure none
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) : TermElabM Unit := do
   for mvarId in instMVars do
@@ -119,9 +123,16 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
   match fType with
   | Expr.forallE _ _ _ _ => modify fun s => { s with fType := fType }
   | _ =>
-    let f ← tryCoeFun fType s.f
-    let fType ← inferType f
-    modify fun s => { s with f := f, fType := fType }
+    match (← tryCoeFun? fType s.f) with
+    | some f =>
+      let fType ← inferType f
+      modify fun s => { s with f := f, fType := fType }
+    | none =>
+      for namedArg in s.namedArgs do
+        match s.f.getAppFn with
+        | Expr.const fn .. => throwInvalidNamedArg namedArg fn
+        | _                => throwInvalidNamedArg namedArg none
+      throwError "function expected"
 
 /- Normalize and return the function type. -/
 private def normalizeFunType : M Expr := do
@@ -593,6 +604,8 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
           if i < args.size then
             i := i + 1
           else
+            for namedArg in namedArgs do
+              throwInvalidNamedArg namedArg fullName
             throwError! "invalid field notation, function '{fullName}' does not have explicit argument with type ({baseName} ...)"
     return args
 
@@ -637,7 +650,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       let getOpFn ← mkConst fullName
       if lvals.isEmpty then
         let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
-        let namedArgs ← addNamedArg namedArgs { name := `idx, val := Arg.stx idx }
+        let namedArgs ← addNamedArg namedArgs { name := `idx,  val := Arg.stx idx }
         elabAppArgs getOpFn namedArgs args expectedType? explicit ellipsis
       else
         let f ← elabAppArgs getOpFn #[{ name := `self, val := Arg.expr f }, { name := `idx, val := Arg.stx idx }]
@@ -805,7 +818,7 @@ partial def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × A
       -- tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
       let name := stx[1].getId.eraseMacroScopes
       let val  := stx[3]
-      let namedArgs ← addNamedArg namedArgs { name := name, val := Arg.stx val }
+      let namedArgs ← addNamedArg namedArgs { ref := stx, name := name, val := Arg.stx val }
       pure (namedArgs, args)
     else if stx.getKind == `Lean.Parser.Term.ellipsis then
       throwErrorAt stx "unexpected '..'"

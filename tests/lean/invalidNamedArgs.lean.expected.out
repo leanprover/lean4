@@ -1,0 +1,2 @@
+invalidNamedArgs.lean:4:9: error: invalid argument name 'b' for function 'List.foldl'
+invalidNamedArgs.lean:10:4: error: invalid argument name 'flg' for function 'f'

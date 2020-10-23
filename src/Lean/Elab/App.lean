@@ -132,7 +132,7 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
         match s.f.getAppFn with
         | Expr.const fn .. => throwInvalidNamedArg namedArg fn
         | _                => throwInvalidNamedArg namedArg none
-      throwError "function expected"
+      throwError! "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
 
 /- Normalize and return the function type. -/
 private def normalizeFunType : M Expr := do

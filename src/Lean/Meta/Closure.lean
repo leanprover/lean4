@@ -345,7 +345,7 @@ end Closure
 
 variables {m : Type → Type} [MonadLiftT MetaM m]
 
-private def mkAuxDefinitionImp (name : Name) (type : Expr) (value : Expr) (zeta : Bool) : MetaM Expr := do
+private def mkAuxDefinitionImp (name : Name) (type : Expr) (value : Expr) (zeta : Bool) (compile : Bool) : MetaM Expr := do
 let result ← Closure.mkValueTypeClosure type value zeta
 let env ← getEnv
 let decl := Declaration.defnDecl {
@@ -357,7 +357,9 @@ let decl := Declaration.defnDecl {
   isUnsafe := env.hasUnsafe result.type || env.hasUnsafe result.value
 }
 trace[Meta.debug]! "{name} : {result.type} := {result.value}"
-addAndCompile decl
+addDecl decl
+if compile then
+  compileDecl decl
 pure $ mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 /--
@@ -366,9 +368,9 @@ pure $ mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
   A "closure" is computed, and a term of the form `name.{u_1 ... u_n} t_1 ... t_m` is
   returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
   and `t_j`s are free and meta variables `type` and `value` depend on. -/
-def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta := false) : m Expr := liftMetaM do
+def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta := false) (compile := true) : m Expr := liftMetaM do
 trace[Meta.debug]! "{name} : {type} := {value}"
-mkAuxDefinitionImp name type value zeta
+mkAuxDefinitionImp name type value zeta compile
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
 def mkAuxDefinitionFor (name : Name) (value : Expr) : m Expr := liftMetaM do

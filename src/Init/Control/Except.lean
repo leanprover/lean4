@@ -136,9 +136,6 @@ class MonadExceptOf (ε : Type u) (m : Type v → Type w) :=
 abbrev throwThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (e : ε) : m α :=
 MonadExceptOf.throw e
 
-abbrev catchThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
-MonadExceptOf.tryCatch x handle
-
 abbrev tryCatchThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
 MonadExceptOf.tryCatch x handle
 
@@ -160,9 +157,6 @@ class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
 (tryCatch {α : Type v} : m α → (ε → m α) → m α)
 
 export MonadExcept (throw tryCatch)
-
-abbrev MonadExcept.«catch» {ε : Type u} {m : Type v → Type w} [MonadExcept ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
-MonadExcept.tryCatch x handle
 
 instance MonadExceptOf.isMonadExcept (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m :=
 { throw := fun _ e        => throwThe ε e,

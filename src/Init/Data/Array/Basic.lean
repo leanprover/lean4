@@ -13,6 +13,9 @@ import Init.Control.Id
 import Init.Util
 universes u v w
 
+namespace HasToString end HasToString -- Hack for old frontend
+open HasToString (toString) -- Hack for old frontend
+
 /-
 The Compiler has special support for arrays.
 They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic_array

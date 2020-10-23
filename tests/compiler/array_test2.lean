@@ -1,5 +1,6 @@
-def check (b : Bool) : IO Unit :=
-unless b $ IO.println "failed"
+#lang lean4
+def check (b : Bool) : IO Unit := do
+unless b do  IO.println "failed"
 
 
 def main : IO Unit :=

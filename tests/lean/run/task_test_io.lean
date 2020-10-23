@@ -1,27 +1,28 @@
-#eval do
-  t1 ← IO.asTask $ Nat.forM 10 fun _ => IO.println "hi";
-  t2 ← IO.asTask $ Nat.forM 10 fun _ => IO.println "ho";
+#lang lean4
+#eval id (α := IO _) do
+  let t1 ← IO.asTask $ Nat.forM 10 fun _ => IO.println "hi";
+  let t2 ← IO.asTask $ Nat.forM 10 fun _ => IO.println "ho";
   IO.ofExcept t1.get
 
-#eval do
-  t1 ← IO.mapTask IO.println (Task.spawn fun _ => "ha");
+#eval id (α := IO _) do
+  let t1 ← IO.mapTask IO.println (Task.spawn fun _ => "ha");
   pure ()
 
-#eval do
-  t1 ← IO.bindTask (Task.spawn fun _ => "hu") fun s =>
+#eval id (α := IO _) do
+  let t1 ← IO.bindTask (Task.spawn fun _ => "hu") fun s =>
     IO.asTask (IO.println s);
   pure ()
 
-#eval do
-  t1 ← IO.asTask do {
-    c ← IO.checkCanceled;
+#eval id (α := IO _) do
+  let t1 ← IO.asTask do {
+    let c ← IO.checkCanceled;
     IO.println (if c then "canceled!" else "done!")
   };
   pure ()
 
-#eval do
-  t1 ← IO.asTask do {
-    c ← IO.checkCanceled;
+#eval id (α := IO _) do
+  let t1 ← IO.asTask do {
+    let c ← IO.checkCanceled;
     IO.println (if c then "canceled! 2" else "done! 2")
   };
   IO.cancel t1;

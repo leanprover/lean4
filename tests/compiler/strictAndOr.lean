@@ -1,3 +1,5 @@
+#lang lean4
+
 def main : IO Unit :=
 IO.println (strictOr false false) *>
 IO.println (strictOr false true) *>

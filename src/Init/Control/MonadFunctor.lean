@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -13,18 +14,19 @@ universes u v w
     but not restricted to monad transformers.
     Alternatively, an implementation of [MonadTransFunctor](http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor). -/
 class MonadFunctor (m : Type u → Type v) (n : Type u → Type w) :=
-(monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α)
+  (monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α)
 
 /-- The reflexive-transitive closure of `MonadFunctor`.
-    `monadMap` is used to transitively lift Monad morphisms such as `StateT.zoom`.
-    A generalization of [MonadLiftFunctor](http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadLiftFunctor), which can only lift endomorphisms (i.e. m = m', n = n'). -/
+    `monadMap` is used to transitively lift Monad morphisms -/
 class MonadFunctorT (m : Type u → Type v) (n : Type u → Type w) :=
-(monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α)
+  (monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α)
 
 export MonadFunctorT (monadMap)
 
-instance monadFunctorTrans (m n o) [MonadFunctorT m n] [MonadFunctor n o] : MonadFunctorT m o :=
-⟨fun α f => MonadFunctor.monadMap (fun β => (monadMap @f : n β → n β))⟩
+instance (m n o) [MonadFunctorT m n] [MonadFunctor n o] : MonadFunctorT m o := {
+  monadMap := fun f => MonadFunctor.monadMap (m := n) (monadMap (m := m) f)
+}
 
-instance monadFunctorRefl (m) : MonadFunctorT m m :=
-⟨fun α f => f⟩
+instance monadFunctorRefl (m) : MonadFunctorT m m := {
+  monadMap := fun f => f
+}

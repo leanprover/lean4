@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -43,127 +44,105 @@ Users that want to use `mapM` with `Applicative` should use `mapA` instead.
 
 @[specialize]
 def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
-| []    => pure []
-| a::as => do b ← f a; bs ← mapM as; pure (b :: bs)
-
-@[specialize]
-def mapM₂ {m : Type u → Type v} [Monad m] {α : Type u₁} {β : Type u₂} {γ : Type u} (f : α → β → m γ) : List α → List β → m (List γ)
-| a::as, b::bs => do c ← f a b; cs ← mapM₂ as bs; pure (c :: cs)
-| _,     _     => pure []
+  | []    => pure []
+  | a::as => do return (← f a) :: (← mapM f as)
 
 @[specialize]
 def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
-| []    => pure []
-| a::as => List.cons <$> f a <*> mapA as
-
-@[specialize]
-def mapA₂ {m : Type u → Type v} [Applicative m] {α : Type u₁} {β : Type u₂} {γ : Type u} (f : α → β → m γ) : List α → List β → m (List γ)
-| a::as, b::bs => List.cons <$> f a b <*> mapA₂ as bs
-| _,     _     => pure []
+  | []    => pure []
+  | a::as => List.cons <$> f a <*> mapA f as
 
 @[specialize]
 def forM {m : Type u → Type v} [Monad m] {α : Type w} (f : α → m PUnit) : List α → m PUnit
-| []     => pure ⟨⟩
-| h :: t => do f h; forM t
-
-@[specialize]
-def forM₂ {m : Type u → Type v} [Monad m] {α : Type u₁} {β : Type u₂} (f : α → β → m PUnit) : List α → List β → m PUnit
-| a::as, b::bs => do f a b; forM₂ as bs
-| _,     _     => pure ⟨⟩
+  | []     => pure ⟨⟩
+  | h :: t => do f h; forM f t
 
 @[specialize]
 def forA {m : Type u → Type v} [Applicative m] {α : Type w} (f : α → m PUnit) : List α → m PUnit
-| []     => pure ⟨⟩
-| h :: t => f h *> forA t
-
-@[specialize]
-def forA₂ {m : Type u → Type v} [Applicative m] {α : Type u₁} {β : Type u₂} (f : α → β → m PUnit) : List α → List β → m PUnit
-| a::as, b::bs => f a b *> forA₂ as bs
-| _,     _     => pure ⟨⟩
+  | []     => pure ⟨⟩
+  | h :: t => f h *> forA f t
 
 @[specialize]
 def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → List α → m (List α)
-| [],     acc => pure acc
-| h :: t, acc => do b ← f h; filterAuxM t (cond b (h :: acc) acc)
+  | [],     acc => pure acc
+  | h :: t, acc => do
+    let b ← f h
+    filterAuxM f t (cond b (h :: acc) acc)
 
 @[inline]
-def filterM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) (as : List α) : m (List α) :=
-do as ← filterAuxM f as []; pure as.reverse
+def filterM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) (as : List α) : m (List α) := do
+  let as ← filterAuxM f as []
+  pure as.reverse
 
 @[inline]
 def filterRevM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) (as : List α) : m (List α) :=
-filterAuxM f as.reverse []
-
-@[specialize]
-def filterMapMAux {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) : List α → List β → m (List β)
-| [],     bs => pure bs
-| a :: as, bs => do
-  b? ← f a;
-  match b? with
-  | none   => filterMapMAux as bs
-  | some b => filterMapMAux as (b::bs)
+  filterAuxM f as.reverse []
 
 @[inline]
 def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
-filterMapMAux f as.reverse []
+  let rec @[specialize] loop
+    | [],     bs => pure bs
+    | a :: as, bs => do
+      match (← f a) with
+      | none   => loop as bs
+      | some b => loop as (b::bs)
+  loop as.reverse []
 
 @[specialize]
-def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : forall (f : s → α → m s) (init : s), List α → m s
-| f, s, [] => pure s
-| f, s, h :: r   => do
-  s' ← f s h;
-  foldlM f s' r
+def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
+  | f, s, []      => pure s
+  | f, s, a :: as => do
+    let s' ← f s a
+    foldlM f s' as
 
 @[specialize]
-def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : forall (f : α → s → m s) (init : s), List α → m s
-| f, s, [] => pure s
-| f, s, h :: r   => do
-  s' ← foldrM f s r;
-  f h s'
+def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : α → s → m s) → (init : s) → List α → m s
+  | f, s, []      => pure s
+  | f, s, a :: as => do
+    let s' ← foldrM f s as
+    f a s'
 
 @[specialize]
 def firstM {m : Type u → Type v} [Monad m] [Alternative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m β
-| []    => failure
-| a::as => f a <|> firstM as
+  | []    => failure
+  | a::as => f a <|> firstM f as
 
 @[specialize]
 def anyM {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Bool) : List α → m Bool
-| []    => pure false
-| a::as => do b ← f a; match b with
-  | true  => pure true
-  | false =>  anyM as
+  | []    => pure false
+  | a::as => do
+    match (← f a) with
+    | true  => pure true
+    | false => anyM f as
 
 @[specialize]
 def allM {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Bool) : List α → m Bool
-| []    => pure true
-| a::as => do b ← f a; match b with
-  | true  => allM as
-  | false => pure false
+  | []    => pure true
+  | a::as => do
+    match (← f a) with
+    | true  => allM f as
+    | false => pure false
 
 @[specialize]
 def findM? {m : Type → Type u} [Monad m] {α : Type} (p : α → m Bool) : List α → m (Option α)
-| []    => pure none
-| a::as => condM (p a) (pure (some a)) (findM? as)
+  | []    => pure none
+  | a::as => condM (p a) (pure (some a)) (findM? p as)
 
 @[specialize]
 def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β)) : List α → m (Option β)
-| []    => pure none
-| a::as => do
-  b? ← f a;
-  match b? with
-  | some b => pure b
-  | none   => findSomeM? as
-
-@[specialize]
-def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m (ForInStep β)) : List α → β → m β
-| [], b    => pure b
-| a::as, b => do
-  s ← f a b;
-  match s with
-  | ForInStep.done b  => pure b
-  | ForInStep.yield b => forInAux as b
+  | []    => pure none
+  | a::as => do
+    match (← f a) with
+    | some b => pure b
+    | none   => findSomeM? f as
 
 @[inline] def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
-forInAux f as init
+  let rec @[specialize] loop
+    | [], b    => pure b
+    | a::as, b => do
+      match (← f a b) with
+      | ForInStep.done b  => pure b
+      | ForInStep.yield b => loop as b
+  loop as init
 
 end List

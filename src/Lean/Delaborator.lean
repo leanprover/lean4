@@ -105,7 +105,7 @@ instance : Alternative DelabM := {
   failure := Delaborator.failure
 }
 -- HACK: necessary since it would otherwise prefer the instance from MonadExcept
-instance {α} : HasOrelse (DelabM α) := alternativeHasOrelse _ _
+instance {α} : HasOrelse (DelabM α) := ⟨Delaborator.orelse⟩
 
 -- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.

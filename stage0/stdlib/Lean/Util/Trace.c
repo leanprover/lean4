@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_mkHole___closed__3;
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1236____closed__7;
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_954____closed__3;
@@ -103,6 +102,7 @@ lean_object* l_Lean_modifyTraces(lean_object*);
 lean_object* l_Std_PersistentArray_forM___at_Lean_printTraces___spec__2(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Data_Format_0__Lean_Format_pushNewline___closed__1;
+extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__4(lean_object*);
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__22;
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_890____closed__4;
@@ -2544,7 +2544,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
-x_2 = l_Lean_mkHole___closed__3;
+x_2 = l_Lean_Name_appendIndexAfter___closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

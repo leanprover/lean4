@@ -17,7 +17,6 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_withAppRevAux_match__1(lean_obje
 lean_object* l_Lean_Expr_isBinding___boxed(lean_object*);
 lean_object* l_Lean_Expr_letName_x21___closed__2;
 lean_object* l_Lean_Expr_data_match__1(lean_object*);
-extern lean_object* l_Lean_mkHole___closed__3;
 lean_object* l_Lean_Expr_ctorName___closed__7;
 uint8_t l_Lean_Expr_bindingInfo_x21(lean_object*);
 lean_object* l_Lean_BinderInfo_beq_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -276,6 +275,7 @@ lean_object* l_Lean_Expr_updateApp___boxed(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_ExprStructEq_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParams___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Expr___instance__2___closed__1;
+extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux_match__1(lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
@@ -5730,7 +5730,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_mkHole___closed__3;
+x_2 = l_Lean_Name_appendIndexAfter___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

@@ -27,7 +27,6 @@ lean_object* l_Lean_Parser_Tactic_rewriteSeq___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Tactic_locationWildcard_parenthesizer___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_visitToken___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_assumption_parenthesizer___closed__2;
-extern lean_object* l_Lean_mkHole___closed__3;
 lean_object* l_Lean_Parser_Tactic_withAlts___closed__2;
 extern lean_object* l_Lean_Parser_Term_tupleTail_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Tactic_refine___elambda__1(lean_object*, lean_object*);
@@ -657,6 +656,7 @@ lean_object* l_Lean_Parser_Tactic_injection_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Tactic_location___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Tactic_clear___elambda__1___closed__10;
 lean_object* l___regBuiltin_Lean_Parser_Tactic_revert_formatter___closed__1;
+extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 lean_object* l_Lean_Parser_Tactic_injection___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Tactic_locationHyp_formatter___closed__3;
 lean_object* l_Lean_Parser_Tactic_traceState_formatter___closed__3;
@@ -1889,7 +1889,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Char_HasRepr___closed__1;
-x_2 = l_Lean_mkHole___closed__3;
+x_2 = l_Lean_Name_appendIndexAfter___closed__1;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -1908,7 +1908,7 @@ lean_object* l_Lean_Parser_Tactic_underscoreFn(lean_object* x_1, lean_object* x_
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_3 = l_Lean_mkHole___closed__3;
+x_3 = l_Lean_Name_appendIndexAfter___closed__1;
 x_4 = l_Lean_Parser_Tactic_underscoreFn___closed__2;
 x_5 = l_Lean_Parser_symbolFnAux(x_3, x_4, x_1, x_2);
 x_6 = lean_ctor_get(x_5, 0);

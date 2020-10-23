@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_mkHole___closed__3;
 lean_object* l_Lean_Parser_Level_ident_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Level_ident_parenthesizer(lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Level_ident_parenthesizer___closed__1;
@@ -111,6 +110,7 @@ lean_object* l_Lean_Parser_Level_addLit_formatter___closed__1;
 lean_object* l_Lean_Parser_Level_imax___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Level_ident___closed__3;
 lean_object* l___regBuiltinParser_Lean_Parser_Level_paren(lean_object*);
+extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_4____closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Level_num_formatter___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Level_paren_formatter___closed__1;
@@ -1597,7 +1597,7 @@ static lean_object* _init_l_Lean_Parser_Level_hole___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_mkHole___closed__3;
+x_1 = l_Lean_Name_appendIndexAfter___closed__1;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -1750,7 +1750,7 @@ static lean_object* _init_l_Lean_Parser_Level_hole_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_mkHole___closed__3;
+x_1 = l_Lean_Name_appendIndexAfter___closed__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -1818,7 +1818,7 @@ static lean_object* _init_l_Lean_Parser_Level_hole_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_mkHole___closed__3;
+x_1 = l_Lean_Name_appendIndexAfter___closed__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_symbol_parenthesizer___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

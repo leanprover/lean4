@@ -100,4 +100,8 @@ def toLower (c : Char) : Char :=
 let n := toNat c;
 if n >= 65 ∧ n <= 90 then ofNat (n + 32) else c
 
+def toUpper (c : Char) : Char :=
+let n := toNat c;
+if n >= 97 ∧ n <= 122 then ofNat (n - 32) else c
+
 end Char

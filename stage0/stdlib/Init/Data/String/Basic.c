@@ -60,6 +60,7 @@ lean_object* l_Substring_splitOn___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_String_Basic_6__utf8ExtractAux_u2082___main(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 lean_object* l_String_isPrefixOfAux___boxed(lean_object*, lean_object*, lean_object*);
+uint32_t l_Char_toUpper(uint32_t);
 lean_object* l_String_isEmpty___boxed(lean_object*);
 lean_object* l_Nat_repeatAux___main___at_String_pushn___spec__1(uint32_t, lean_object*, lean_object*);
 lean_object* l_String_back___boxed(lean_object*);
@@ -136,6 +137,7 @@ lean_object* l_String_take(lean_object*, lean_object*);
 uint8_t l_Substring_isNat(lean_object*);
 lean_object* l_Substring_foldr___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Substring_contains(lean_object*, uint32_t);
+lean_object* l_String_capitalize(lean_object*);
 lean_object* l_Substring_nextn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_String_Basic_7__utf8ExtractAux_u2081___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Iterator_pos___boxed(lean_object*);
@@ -4949,6 +4951,17 @@ lean_object* x_4;
 x_4 = l_String_nextUntil(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
+}
+}
+lean_object* l_String_capitalize(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint32_t x_3; uint32_t x_4; lean_object* x_5; 
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_string_utf8_get(x_1, x_2);
+x_4 = l_Char_toUpper(x_3);
+x_5 = lean_string_utf8_set(x_1, x_2, x_4);
+return x_5;
 }
 }
 lean_object* l_Char_toString(uint32_t x_1) {

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.CollectLevelParams
 import Lean.Util.Recognizers
+import Lean.Compiler.ExternAttr
 import Lean.Meta.Check
 import Lean.Meta.Closure
 import Lean.Meta.Tactic.Cases
@@ -802,6 +803,13 @@ private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (O
     | none => throwError "dependent match elimination failed, universe level not found"
     | some pos => pure $ some pos.val
 
+/- See comment at `mkMatcher` before `mkAuxDefinition` -/
+builtin_initialize
+  registerOption `bootstrap.gen_matcher_code { defValue := true, group := "bootstrap", descr := "disable code generation for auxiliary matcher function" }
+
+def generateMatcherCode (opts : Options) : Bool :=
+  opts.get `bootstrap.gen_matcher_code true
+
 /-
 Create a dependent matcher for `matchType` where `matchType` is of the form
 `(a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> B[a_1, ..., a_n]`
@@ -810,8 +818,7 @@ Each `AltLHS` has a list of local declarations and a list of patterns.
 The number of patterns must be the same in each `AltLHS`.
 The generated matcher has the structure described at `MatcherInfo`. The motive argument is of the form
 `(motive : (a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> Sort v)`
-where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition.
--/
+where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition. -/
 def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : MetaM MatcherResult :=
   forallBoundedTelescope matchType numDiscrs fun majors matchTypeBody => do
   checkNumPatterns majors lhss
@@ -834,13 +841,24 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
     let type ← mkForallFVars args mvarType
     let val  ← mkLambdaFVars args mvar
     trace! `Meta.Match.debug ("matcher value: " ++ val ++ "\ntype: " ++ type)
-    let matcher ← mkAuxDefinition matcherName type val
+    /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
+       for compiling `src/Init/Data/Int`. It is needed because the compiler uses `Int.decLt`
+       for generating code for `Int.casesOn` applications, but `Int.casesOn` is used to
+       give the reference implementation for
+       ```
+       @[extern "lean_int_neg"] def neg (n : @& Int) : Int :=
+       match n with
+       | ofNat n   => negOfNat n
+       | negSucc n => succ n
+       ```
+       which is defined **before** `Int.decLt` -/
+    let matcher ← mkAuxDefinition matcherName type val (compile := generateMatcherCode (← getOptions))
     trace! `Meta.Match.debug ("matcher levels: " ++ toString matcher.getAppFn.constLevels! ++ ", uElim: " ++ toString uElimGen)
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
     isLevelDefEq uElimGen uElim
     addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := numDiscrs, altNumParams := minors.map Prod.snd, uElimPos? := uElimPos? }
     setInlineAttribute matcherName
-    trace! `Meta.Match.debug ("matcher: " ++ matcher)
+    trace[Meta.Match.debug]! "matcher: {matcher}"
     let unusedAltIdxs : List Nat := lhss.length.fold
       (fun i r => if s.used.contains i then r else i::r)
       []

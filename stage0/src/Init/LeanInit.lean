@@ -110,6 +110,23 @@ protected def append : Name → Name → Name
 
 instance : HasAppend Name := ⟨Name.append⟩
 
+def capitalize : Name → Name
+| Name.str p s _ => mkNameStr p s.capitalize
+| n              => n
+
+def appendAfter : Name → String → Name
+| str p s _, suffix => mkNameStr p (s ++ suffix)
+| n,         suffix => mkNameStr n suffix
+
+def appendIndexAfter : Name → Nat → Name
+| str p s _, idx => mkNameStr p (s ++ "_" ++ toString idx)
+| n,         idx => mkNameStr n ("_" ++ toString idx)
+
+def appendBefore : Name → String → Name
+| anonymous, pre => mkNameStr anonymous pre
+| str p s _, pre => mkNameStr p (pre ++ s)
+| num p n _, pre => mkNameNum (mkNameStr p pre) n
+
 end Name
 
 structure NameGenerator :=

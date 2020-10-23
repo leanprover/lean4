@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Char_HasLessEq;
 lean_object* l_Char_isAlpha___boxed(lean_object*);
 uint8_t l_Char_decLe(uint32_t, uint32_t);
+uint32_t l_Char_toUpper(uint32_t);
 uint8_t l_Char_isUpper(uint32_t);
 uint8_t l_Char_isDigit(uint32_t);
 uint8_t l_Char_isWhitespace(uint32_t);
@@ -25,6 +26,7 @@ uint8_t l_Char_lt(uint32_t, uint32_t);
 lean_object* l_Char_toNat(uint32_t);
 lean_object* l_Char_DecidableEq___boxed(lean_object*, lean_object*);
 lean_object* l_Char_HasLess;
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Char_toLower___boxed(lean_object*);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 lean_object* l_Char_utf8Size___boxed(lean_object*);
@@ -44,6 +46,7 @@ lean_object* l_Char_HasSizeof___boxed(lean_object*);
 uint32_t l_Char_toLower(uint32_t);
 uint32_t l_Char_utf8Size(uint32_t);
 lean_object* l_Char_isLower___boxed(lean_object*);
+lean_object* l_Char_toUpper___boxed(lean_object*);
 uint8_t l_Char_DecidableEq(uint32_t, uint32_t);
 lean_object* l_Char_ofNat___boxed(lean_object*);
 lean_object* l_Char_lt___boxed(lean_object*, lean_object*);
@@ -576,6 +579,51 @@ uint32_t x_2; uint32_t x_3; lean_object* x_4;
 x_2 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_3 = l_Char_toLower(x_2);
+x_4 = lean_box_uint32(x_3);
+return x_4;
+}
+}
+uint32_t l_Char_toUpper(uint32_t x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_uint32_to_nat(x_1);
+x_3 = lean_unsigned_to_nat(97u);
+x_4 = lean_nat_dec_le(x_3, x_2);
+if (x_4 == 0)
+{
+lean_dec(x_2);
+return x_1;
+}
+else
+{
+lean_object* x_5; uint8_t x_6; 
+x_5 = lean_unsigned_to_nat(122u);
+x_6 = lean_nat_dec_le(x_2, x_5);
+if (x_6 == 0)
+{
+lean_dec(x_2);
+return x_1;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; uint32_t x_9; 
+x_7 = lean_unsigned_to_nat(32u);
+x_8 = lean_nat_sub(x_2, x_7);
+lean_dec(x_2);
+x_9 = l_Char_ofNat(x_8);
+return x_9;
+}
+}
+}
+}
+lean_object* l_Char_toUpper___boxed(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; uint32_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = l_Char_toUpper(x_2);
 x_4 = lean_box_uint32(x_3);
 return x_4;
 }

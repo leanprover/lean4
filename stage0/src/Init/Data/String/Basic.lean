@@ -537,6 +537,9 @@ Substring.takeWhileAux s s.bsize p i
 @[inline] def nextUntil (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
 nextWhile s (fun c => !p c) i
 
+def capitalize (s : String) :=
+s.set 0 $ (s.get 0).toUpper
+
 end String
 
 protected def Char.toString (c : Char) : String :=

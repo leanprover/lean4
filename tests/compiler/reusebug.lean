@@ -1,3 +1,4 @@
+#lang lean4
 inductive Expr
 | Val : Int → Expr
 | Var : String → Expr
@@ -6,7 +7,7 @@ inductive Expr
 
 open Expr
 
-def Expr.toString : Expr → String
+protected def Expr.toString : Expr → String
 | Val n   => toString n
 | Var x   => x
 | Add f g   => "(" ++ Expr.toString f ++ " + " ++ Expr.toString g ++ ")"

@@ -1,4 +1,5 @@
-constant SPointed : PointedType := arbitrary _
+#lang lean4
+constant SPointed : PointedType
 def S : Type := SPointed.type
 instance : Inhabited S := ⟨SPointed.val⟩
 

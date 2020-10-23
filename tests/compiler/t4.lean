@@ -1,3 +1,4 @@
+#lang lean4
 /- Benchmark for new code generator -/
 inductive Expr
 | Val : Int → Expr
@@ -9,7 +10,7 @@ inductive Expr
 
 open Expr
 
-def Expr.toString : Expr → String
+protected def Expr.toString : Expr → String
 | Val n   => toString n
 | Var x   => x
 | Add f g   => "(" ++ Expr.toString f ++ " + " ++ Expr.toString g ++ ")"
@@ -73,12 +74,12 @@ def ln : Expr → Expr
 def d (x : String) : Expr → Expr
 | Val _     => Val 0
 | Var y     => if x = y then Val 1 else Val 0
-| Add f g   => add (d f) (d g)
+| Add f g   => add (d x f) (d x g)
 | Mul f g   =>
   -- dbgTrace (">> d (" ++ toString f ++ ", " ++ toString g ++ ")") $ fun _ =>
-  add (mul f (d g)) (mul g (d f))
-| Pow f g   => mul (pow f g) (add (mul (mul g (d f)) (pow f (Val (-1)))) (mul (ln f) (d g)))
-| Ln f      => mul (d f) (pow f (Val (-1)))
+  add (mul f (d x g)) (mul g (d x f))
+| Pow f g   => mul (pow f g) (add (mul (mul g (d x f)) (pow f (Val (-1)))) (mul (ln f) (d x g)))
+| Ln f      => mul (d x f) (pow f (Val (-1)))
 
 def count : Expr → Nat
 | Val _   => 1
@@ -91,7 +92,7 @@ def count : Expr → Nat
 
 def nestAux (s : Nat) (f : Nat → Expr → IO Expr) : Nat → Expr → IO Expr
 | 0,       x => pure x
-| m@(n+1), x => f (s - m) x >>= nestAux n
+| m@(n+1), x => f (s - m) x >>= nestAux s f n
 
 def nest (f : Nat → Expr → IO Expr) (n : Nat) (e : Expr) : IO Expr :=
 nestAux n f n e

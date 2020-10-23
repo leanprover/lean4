@@ -1,5 +1,6 @@
-@[noinline]
-def h (x : Nat) : UInt32 :=
+#lang lean4
+
+@[noinline] def h (x : Nat) : UInt32 :=
 UInt32.ofNat x
 
 def f (x y : UInt32) : UInt32 :=
@@ -9,7 +10,7 @@ let a2 : UInt32 := x + a1;
 let a3 : UInt32 := 10;
 y + a2 + h v + a3
 
-partial def g : UInt32 → UInt32 → UInt32 | x, y =>
+partial def g (x : UInt32) (y : UInt32) : UInt32 :=
 if x = 0 then y else g (x-1) (y+2)
 
 def foo : UInt8 :=

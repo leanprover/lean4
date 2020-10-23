@@ -6,7 +6,7 @@ The file `main.lean` contains a small Lean program that uses the exported primit
 Build instructions
 =====
 
-Assuming the Lean `bin/` directory (e.g. from `build/release/stage0.5`) is in your `PATH`,
+Assuming the Lean `bin/` directory (e.g. from `build/release/stage1`) is in your `PATH`,
 executing `leanmake` will create the executable `build/bin/test`.
 
 The executable `build/bin/test` should produce the output

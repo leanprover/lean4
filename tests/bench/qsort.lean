@@ -1,3 +1,4 @@
+#lang lean4
 abbrev Elem := UInt32
 
 def badRand (seed : Elem) : Elem :=
@@ -10,24 +11,25 @@ def mkRandomArray : Nat → Elem → Array Elem → Array Elem
 partial def checkSortedAux (a : Array Elem) : Nat → IO Unit
 | i =>
   if i < a.size - 1 then do
-    unless (a.get! i <= a.get! (i+1)) $ throw (IO.userError "array is not sorted");
-    checkSortedAux (i+1)
+    unless (a.get! i <= a.get! (i+1)) do  throw (IO.userError "array is not sorted");
+    checkSortedAux a (i+1)
   else
     pure ()
 
 -- copied from stdlib, but with `UInt32` indices instead of `Nat` (which is more comparable to the other versions)
 abbrev Idx := UInt32
-instance : HasLift UInt32 Nat := ⟨UInt32.toNat⟩
-prefix `↑`:max := oldCoe
+
+macro:max "↑" x:term:max : term => `(UInt32.toNat $x)
+
 
 @[specialize] private partial def partitionAux {α : Type} [Inhabited α] (lt : α → α → Bool) (hi : Idx) (pivot : α) : Array α → Idx → Idx → Idx × Array α
 | as, i, j =>
   if j < hi then
     if lt (as.get! ↑j) pivot then
       let as := as.swap! ↑i ↑j;
-      partitionAux as (i+1) (j+1)
+      partitionAux lt hi pivot as (i+1) (j+1)
     else
-      partitionAux as i (j+1)
+      partitionAux lt hi pivot as i (j+1)
   else
     let as := as.swap! ↑i ↑hi;
     (i, as)
@@ -47,8 +49,8 @@ partitionAux lt hi pivot as lo lo
     -- TODO: fix `partial` support in the equation compiler, it breaks if we use `let (mid, as) := partition as lt low high`
     let mid := p.1;
     let as  := p.2;
-    let as  := qsortAux as low mid;
-    qsortAux as (mid+1) high
+    let as  := qsortAux lt as low mid;
+    qsortAux lt as (mid+1) high
   else as
 
 @[inline] def qsort {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) : Array α :=

@@ -1,7 +1,8 @@
+#lang lean4
 def showChars : Nat → String → String.Pos → IO Unit
 | 0,     _, _   => pure ()
-| n+1,   s, idx =>
-  unless (s.atEnd idx) $
+| n+1,   s, idx => do
+  unless s.atEnd idx  do
     IO.println (">> " ++ toString (s.get idx)) *>
     showChars n s (s.next idx)
 

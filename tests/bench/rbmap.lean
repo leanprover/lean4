@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -23,7 +24,7 @@ open color Nat Tree
 
 def fold (f : Nat → Bool → σ → σ) : Tree → σ → σ
 | Leaf, b               => b
-| Node _ l k v r,     b => fold r (f k v (fold l b))
+| Node _ l k v r,     b => fold f r (f k v (fold f l b))
 
 @[inline]
 def balance1 : Nat → Bool → Tree → Tree → Tree

@@ -1,3 +1,4 @@
+#lang lean4
 inductive Tree
 | Nil
 | Node (l r : Tree) : Tree
@@ -53,7 +54,7 @@ def main : List String → IO UInt32
 
   -- allocate, walk, and deallocate many bottom-up binary trees
   let vs := (depth minN maxN); -- `using` (parList $ evalTuple3 r0 r0 rseq)
-  vs.forM (fun ⟨m,d,i⟩ => out (toString m ++ "\t trees") d i.get);
+  vs.forM (fun (m, d, i) => out (toString m ++ "\t trees") d i.get);
 
   -- confirm the the long-lived binary tree still exists
   out "long lived tree" maxN (check long);

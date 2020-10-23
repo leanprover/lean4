@@ -61,7 +61,7 @@ class Backtrackable (δ : outParam $ Type u) (σ : Type u) :=
 (save    : σ → δ)
 (restore : σ → δ → σ)
 
-@[inline] protected def catch {δ} [Backtrackable δ σ] {α} (x : EStateM ε σ α) (handle : ε → EStateM ε σ α) : EStateM ε σ α :=
+@[inline] protected def tryCatch {δ} [Backtrackable δ σ] {α} (x : EStateM ε σ α) (handle : ε → EStateM ε σ α) : EStateM ε σ α :=
 fun s =>
   let d := Backtrackable.save s;
   match x s with
@@ -117,7 +117,7 @@ instance : MonadStateOf σ (EStateM ε σ) :=
 { set := @EStateM.set _ _, get := @EStateM.get _ _, modifyGet := @EStateM.modifyGet _ _ }
 
 instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) :=
-{ throw := @EStateM.throw _ _, catch := @EStateM.catch _ _ _ _ }
+{ throw := @EStateM.throw _ _, tryCatch := @EStateM.tryCatch _ _ _ _ }
 
 instance : MonadFinally (EStateM ε σ) :=
 { finally' := fun α β x h s =>

@@ -51,7 +51,7 @@ instance [MonadLiftT (ST ω) m] [Monad m] : MonadStateOf σ (StateRefT' ω σ m)
 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateRefT' ω σ m) :=
 { throw := fun α => StateRefT'.lift ∘ throwThe ε,
-  catch := fun α x c s => catchThe ε (x s) (fun e => c e s) }
+  tryCatch := fun α x c s => tryCatchThe ε (x s) (fun e => c e s) }
 
 end StateRefT'
 

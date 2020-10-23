@@ -82,7 +82,7 @@ fun st => do
 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) :=
 { throw := fun α => StateT.lift ∘ throwThe ε,
-  catch := fun α x c s => catchThe ε (x s) (fun e => c e s) }
+  tryCatch := fun α x c s => tryCatchThe ε (x s) (fun e => c e s) }
 
 end
 end StateT

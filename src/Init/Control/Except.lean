@@ -68,7 +68,7 @@ match ma with
 | Except.ok a    => some a
 | Except.error _ => none
 
-@[inline] protected def catch {α : Type u} (ma : Except ε α) (handle : ε → Except ε α) : Except ε α :=
+@[inline] protected def tryCatch {α : Type u} (ma : Except ε α) (handle : ε → Except ε α) : Except ε α :=
 match ma with
 | Except.ok a    => Except.ok a
 | Except.error e => handle e
@@ -113,7 +113,7 @@ instance exceptTOfExcept : MonadLift (Except ε) (ExceptT ε m) :=
 instance : MonadLift m (ExceptT ε m) :=
 ⟨@ExceptT.lift _ _ _⟩
 
-@[inline] protected def catch {α : Type u} (ma : ExceptT ε m α) (handle : ε → ExceptT ε m α) : ExceptT ε m α :=
+@[inline] protected def tryCatch {α : Type u} (ma : ExceptT ε m α) (handle : ε → ExceptT ε m α) : ExceptT ε m α :=
 ExceptT.mk $ ma >>= fun res => match res with
  | Except.ok a    => pure (Except.ok a)
  | Except.error e => (handle e)
@@ -131,42 +131,48 @@ end ExceptT
 /-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
 class MonadExceptOf (ε : Type u) (m : Type v → Type w) :=
 (throw {α : Type v} : ε → m α)
-(catch {α : Type v} : m α → (ε → m α) → m α)
+(tryCatch {α : Type v} : m α → (ε → m α) → m α)
 
 abbrev throwThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (e : ε) : m α :=
 MonadExceptOf.throw e
 
 abbrev catchThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
-MonadExceptOf.catch x handle
+MonadExceptOf.tryCatch x handle
+
+abbrev tryCatchThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
+MonadExceptOf.tryCatch x handle
 
 instance ExceptT.monadExceptParent (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [Monad m] [MonadExceptOf ε₁ m] : MonadExceptOf ε₁ (ExceptT ε₂ m) :=
-{ throw := fun α e        => ExceptT.mk $ throwThe ε₁ e,
-  catch := fun α x handle => ExceptT.mk $ catchThe ε₁ x handle }
+{ throw    := fun α e        => ExceptT.mk $ throwThe ε₁ e,
+  tryCatch := fun α x handle => ExceptT.mk $ tryCatchThe ε₁ x handle }
 
 instance ExceptT.monadExceptSelf (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (ExceptT ε m) :=
 { throw := fun α e => ExceptT.mk $ pure (Except.error e),
-  catch := @ExceptT.catch ε _ _ }
+  tryCatch := @ExceptT.tryCatch ε _ _ }
 
 instance (ε) : MonadExceptOf ε (Except ε) :=
 { throw := fun α => Except.error,
-  catch := @Except.catch _ }
+  tryCatch := @Except.tryCatch _ }
 
 /-- Similar to `MonadExceptOf`, but `ε` is an outParam for convenience -/
 class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
 (throw {α : Type v} : ε → m α)
-(catch {α : Type v} : m α → (ε → m α) → m α)
+(tryCatch {α : Type v} : m α → (ε → m α) → m α)
 
-export MonadExcept (throw catch)
+export MonadExcept (throw tryCatch)
+
+abbrev MonadExcept.«catch» {ε : Type u} {m : Type v → Type w} [MonadExcept ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
+MonadExcept.tryCatch x handle
 
 instance MonadExceptOf.isMonadExcept (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m :=
 { throw := fun _ e        => throwThe ε e,
-  catch := fun _ x handle => catchThe ε x handle }
+  tryCatch := fun _ x handle => tryCatchThe ε x handle }
 
 namespace MonadExcept
 variables {ε : Type u} {m : Type v → Type w}
 
 @[inline] protected def orelse [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
-catch t₁ $ fun _ => t₂
+tryCatch t₁ $ fun _ => t₂
 
 instance [MonadExcept ε m] {α : Type v} : HasOrelse (m α) :=
 ⟨MonadExcept.orelse⟩
@@ -174,12 +180,12 @@ instance [MonadExcept ε m] {α : Type v} : HasOrelse (m α) :=
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/
 @[inline] def orelse' [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) (useFirstEx := true) : m α :=
-catch t₁ $ fun e₁ => catch t₂ $ fun e₂ => throw (if useFirstEx then e₁ else e₂)
+tryCatch t₁ $ fun e₁ => tryCatch t₂ $ fun e₂ => throw (if useFirstEx then e₁ else e₂)
 
 end MonadExcept
 
 @[inline] def observing {ε α : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) : m (Except ε α) :=
-catch (do a ← x; pure (Except.ok a)) (fun ex => pure (Except.error ex))
+tryCatch (do a ← x; pure (Except.ok a)) (fun ex => pure (Except.error ex))
 
 instance ExceptT.monadControl (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (ExceptT ε m) := {
   stM      := fun α   => Except ε α,

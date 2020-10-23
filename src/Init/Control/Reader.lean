@@ -38,7 +38,7 @@ instance  : MonadLift m (ReaderT ρ m) :=
 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) :=
 { throw := fun α => ReaderT.lift ∘ throwThe ε,
-  catch := fun α x c r => catchThe ε (x r) (fun e => (c e) r) }
+  tryCatch := fun α x c r => tryCatchThe ε (x r) (fun e => (c e) r) }
 
 @[inline] protected def orelse [Alternative m] {α : Type u} (x₁ x₂ : ReaderT ρ m α) : ReaderT ρ m α :=
 fun s => x₁ s <|> x₂ s

@@ -474,7 +474,7 @@ instance : MonadQuotation MacroM := {
   withFreshMacroScope := Macro.withFreshMacroScope
 }
 
-instance {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n := {
+instance {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctorT m n] : MonadQuotation n := {
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope,
   getMainModule       := liftM (m := m) getMainModule,
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope

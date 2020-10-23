@@ -66,7 +66,7 @@ fun r => f <$> x r
 instance : Monad (ReaderT ρ m) :=
 { pure := @ReaderT.pure _ _ _, bind := @ReaderT.bind _ _ _, map := @ReaderT.map _ _ _ }
 
-instance (ρ m m') [Monad m] [Monad m'] : MonadFunctor m m' (ReaderT ρ m) (ReaderT ρ m') :=
+instance (ρ m) [Monad m] : MonadFunctor m (ReaderT ρ m) :=
 ⟨fun _ f x r => f (x r)⟩
 
 @[inline] protected def adapt {ρ' : Type u} [Monad m] {α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
@@ -138,7 +138,7 @@ instance MonadWithReaderOf.isMonadWithReader (ρ : Type u) (m : Type u → Type 
 section
 variables {ρ : Type u} {m : Type u → Type v}
 
-instance monadWithReaderOfTrans {n : Type u → Type v} [MonadWithReaderOf ρ m] [MonadFunctor m m n n] : MonadWithReaderOf ρ n :=
+instance monadWithReaderOfTrans {n : Type u → Type v} [MonadWithReaderOf ρ m] [MonadFunctor m n] : MonadWithReaderOf ρ n :=
 ⟨fun α f => monadMap fun β => (withTheReader ρ f : m β → m β)⟩
 
 instance ReaderT.monadWithReaderOf [Monad m] : MonadWithReaderOf ρ (ReaderT ρ m) :=

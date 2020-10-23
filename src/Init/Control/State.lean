@@ -70,7 +70,7 @@ fun s => do a ← t; pure (a, s)
 instance : MonadLift m (StateT σ m) :=
 ⟨@StateT.lift σ m _⟩
 
-instance (σ m m') [Monad m] [Monad m'] : MonadFunctor m m' (StateT σ m) (StateT σ m') :=
+instance (σ m) [Monad m] : MonadFunctor m (StateT σ m) :=
 ⟨fun _ f x s => f (x s)⟩
 
 @[inline] protected def adapt {σ σ' σ'' α : Type u} {m : Type u → Type v} [Monad m] (split : σ → σ' × σ'')

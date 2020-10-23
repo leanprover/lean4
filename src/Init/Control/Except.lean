@@ -118,7 +118,7 @@ ExceptT.mk $ ma >>= fun res => match res with
  | Except.ok a    => pure (Except.ok a)
  | Except.error e => (handle e)
 
-instance (m') [Monad m'] : MonadFunctor m m' (ExceptT ε m) (ExceptT ε m') :=
+instance : MonadFunctor m (ExceptT ε m) :=
 ⟨fun _ f x => f x⟩
 
 instance : Monad (ExceptT ε m) :=

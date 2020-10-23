@@ -56,7 +56,7 @@ namespace OptionT
   @[inline] protected def monadMap {m'} [Monad m'] {α} (f : ∀ {α}, m α → m' α) : OptionT m α → OptionT m' α :=
   fun x => f x
 
-  instance (m') [Monad m'] : MonadFunctor m m' (OptionT m) (OptionT m') :=
+  instance : MonadFunctor m (OptionT m) :=
   ⟨fun α => OptionT.monadMap⟩
 
   @[inline] protected def catch (ma : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α :=

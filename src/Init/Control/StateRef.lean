@@ -32,8 +32,8 @@ fun _ => x
 instance [Monad m] : Monad (StateRefT' ω σ m) := inferInstanceAs (Monad (ReaderT _ _))
 instance : MonadLift m (StateRefT' ω σ m) := ⟨fun _ => StateRefT'.lift⟩
 instance [Monad m] [MonadIO m] : MonadIO (StateRefT' ω σ m) := inferInstanceAs (MonadIO (ReaderT _ _))
-instance (σ m m') [Monad m] [Monad m'] : MonadFunctor m m' (StateRefT' ω σ m) (StateRefT' ω σ m') :=
-inferInstanceAs (MonadFunctor m m' (ReaderT _ _) (ReaderT _ _))
+instance (σ m) [Monad m] : MonadFunctor m (StateRefT' ω σ m) :=
+inferInstanceAs (MonadFunctor m (ReaderT _ _))
 
 @[inline] protected def get [Monad m] [MonadLiftT (ST ω) m] : StateRefT' ω σ m σ :=
 fun ref => ref.get

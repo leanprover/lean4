@@ -13,7 +13,7 @@ let (debug, f) : Bool × String := match args with
   | _         => panic! "usage: file [-d]"
 let env ← mkEmptyEnvironment
 let stx ← Lean.Parser.parseFile env args.head!
-let (f, _) ← («finally» (PrettyPrinter.ppModule stx) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.format debug } { env := env }
+let (f, _) ← (tryFinally (PrettyPrinter.ppModule stx) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.format debug } { env := env }
 IO.print f
 let stx' ← Lean.Parser.parseModule env args.head! (toString f)
 if stx' != stx then

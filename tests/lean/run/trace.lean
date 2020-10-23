@@ -49,7 +49,7 @@ withReader
     let opts := opts.setBool `trace.bughunt true;
     -- let opts := opts.setBool `trace.slow true;
     { ctx with options := opts })
-  (tryCatch («finally» x printTraces) (fun _ => IO.println "ERROR"))
+  (tryCatch (tryFinally x printTraces) (fun _ => IO.println "ERROR"))
 
 #eval run (tst3 true)
 #eval run (tst3 false)

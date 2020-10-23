@@ -44,14 +44,19 @@ parenthesize Lean.Parser.Module.module.parenthesizer stx >>= format Lean.Parser.
 
 private partial def noContext : MessageData → MessageData
 | MessageData.withContext ctx msg => noContext msg
+| MessageData.withNamingContext ctx msg => MessageData.withNamingContext ctx (noContext msg)
+| MessageData.nest n msg => MessageData.nest n (noContext msg)
+| MessageData.group msg  => MessageData.group (noContext msg)
+| MessageData.compose msg₁ msg₂ => MessageData.compose (noContext msg₁) (noContext msg₂)
+| MessageData.tagged tag msg => MessageData.tagged tag (noContext msg)
+| MessageData.node msgs => MessageData.node (msgs.map noContext)
 | msg => msg
 
 -- strip context (including environments with registered pretty printers) to prevent infinite recursion when pretty printing pretty printer error
-private def withoutContext {m} [MonadExceptAdapter Exception Exception m m] (x : m Format) : m Format :=
-adaptExcept (fun ex => match ex with
-  | Exception.error ref msg => Exception.error ref (noContext msg)
-  | e                       => e)
-  x
+private def withoutContext {m} [MonadExcept Exception m] (x : m Format) : m Format :=
+tryCatch x fun
+  | Exception.error ref msg => throw $ Exception.error ref (noContext msg)
+  | ex                      => throw ex
 
 builtin_initialize
   ppFnsRef.set {

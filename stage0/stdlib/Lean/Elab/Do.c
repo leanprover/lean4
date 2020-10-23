@@ -38306,7 +38306,7 @@ static lean_object* _init_l_Array_iterateMAux___main___at_Lean_Elab_Term_Do_ToCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("catchThe");
+x_1 = lean_mk_string("tryCatchThe");
 return x_1;
 }
 }
@@ -38371,7 +38371,7 @@ static lean_object* _init_l_Array_iterateMAux___main___at_Lean_Elab_Term_Do_ToCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("MonadExcept.«catch»");
+x_1 = lean_mk_string("MonadExcept.tryCatch");
 return x_1;
 }
 }
@@ -38420,7 +38420,7 @@ static lean_object* _init_l_Array_iterateMAux___main___at_Lean_Elab_Term_Do_ToCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("catch");
+x_1 = lean_mk_string("tryCatch");
 return x_1;
 }
 }

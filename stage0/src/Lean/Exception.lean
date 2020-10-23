@@ -31,7 +31,7 @@ class Ref (m : Type → Type) :=
 
 export Ref (getRef)
 
-instance (m n : Type → Type) [Ref m] [MonadFunctor m m n n] [MonadLift m n] : Ref n := {
+instance (m n : Type → Type) [Ref m] [MonadFunctor m n] [MonadLift m n] : Ref n := {
   getRef  := liftM (getRef : m _),
   withRef := fun ref x => monadMap (m := m) (Ref.withRef ref) x
 }

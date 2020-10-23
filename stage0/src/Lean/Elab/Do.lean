@@ -719,7 +719,7 @@ We use this method to convert
       `Syntax` term has type `m (ForInStep σ)`.
       We use `Kind.forIn` for this case.
 
-3- The `CodeBlock` `c` for a `do` sequence nested in a monadic combinator (e.g., `MonadExcept.catch`).
+3- The `CodeBlock` `c` for a `do` sequence nested in a monadic combinator (e.g., `MonadExcept.tryCatch`).
 
    The generated `Syntax` term for `c` must inform whether `c` "exited" using `Code.action`, `Code.return`,
    `Code.break` or `Code.continue`. We use the auxiliary types `DoResult`s for storing this information.
@@ -733,7 +733,7 @@ We use this method to convert
       a) The elaborator would not be able to infer all type parameters without extra annotations. For example,
          if the code block does not contain `Code.return _ _`, the elaborator will not be able to infer `β`.
 
-      b) We need to pattern match on the result produced by the combinator (e.g., `MonadExcept.catch`),
+      b) We need to pattern match on the result produced by the combinator (e.g., `MonadExcept.tryCatch`),
          but we don't want to consider "unreachable" cases.
 
    We do not distinguish between cases that contain `break`, but not `continue`, and vice versa.
@@ -1387,10 +1387,10 @@ def doTryToCode (doSeqToCode : List Syntax → M CodeBlock) (doTry : Syntax) (do
     (fun term «catch» => do
       let catchTerm ← toTerm «catch».codeBlock
       if catch.optType.isNone then
-        `(MonadExcept.«catch» $term (fun $(«catch».x):ident => $catchTerm))
+        `(MonadExcept.tryCatch $term (fun $(«catch».x):ident => $catchTerm))
       else
         let type := «catch».optType[1]
-        `(catchThe $type $term (fun $(«catch».x):ident => $catchTerm)))
+        `(tryCatchThe $type $term (fun $(«catch».x):ident => $catchTerm)))
     term
   let term ← match finallyCode? with
     | none             => pure term

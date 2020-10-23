@@ -70,7 +70,7 @@ fun s => do a ← t; pure (a, s)
 instance : MonadLift m (StateT σ m) :=
 ⟨@StateT.lift σ m _⟩
 
-instance (σ m m') [Monad m] [Monad m'] : MonadFunctor m m' (StateT σ m) (StateT σ m') :=
+instance (σ m) [Monad m] : MonadFunctor m (StateT σ m) :=
 ⟨fun _ f x s => f (x s)⟩
 
 @[inline] protected def adapt {σ σ' σ'' α : Type u} {m : Type u → Type v} [Monad m] (split : σ → σ' × σ'')
@@ -82,7 +82,7 @@ fun st => do
 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) :=
 { throw := fun α => StateT.lift ∘ throwThe ε,
-  catch := fun α x c s => catchThe ε (x s) (fun e => c e s) }
+  tryCatch := fun α x c s => tryCatchThe ε (x s) (fun e => c e s) }
 
 end
 end StateT
@@ -146,57 +146,6 @@ instance [Monad m] : MonadStateOf σ (StateT σ m) :=
   set := StateT.set,
   modifyGet := @StateT.modifyGet _ _ _ }
 
-end
-
-/-- Adapt a Monad stack, changing the Type of its top-most State.
-
-    This class is comparable to [Control.Lens.Zoom](https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Zoom), but does not use lenses (yet?), and is derived automatically for any transformer implementing `MonadFunctor`.
-
-    For zooming into a part of the State, the `split` Function should split σ into the part σ' and the "context" σ'' so that the potentially modified σ' and the context can be rejoined by `join` in the end.
-    In the simplest case, the context can be chosen as the full outer State (ie. `σ'' = σ`), which makes `split` and `join` simpler to define. However, note that the State will not be used linearly in this case.
-
-    Example:
-    ```
-    def zoomFst {α σ σ' : Type} : State σ α → State (σ × σ') α :=
-    adaptState id Prod.mk
-    ```
-
-    The Function can also zoom out into a "larger" State, where the new parts are supplied by `split` and discarded by `join` in the end. The State is therefore not used linearly anymore but merely affinely, which is not a practically relevant distinction in Lean.
-
-    Example:
-    ```
-    def withSnd {α σ σ' : Type} (snd : σ') : State (σ × σ') α → State σ α :=
-    adaptState (fun st => ((st, snd), ())) (fun ⟨st,snd⟩ _ => st)
-    ```
-
-    Note: This class can be seen as a simplification of the more "principled" definition
-    ```
-    class MonadStateFunctor (σ σ' : outParam (Type u)) (n n' : Type u → Type u) :=
-    (map {α : Type u} : (∀ {m : Type u → Type u} [Monad m], StateT σ m α → StateT σ' m α) → n α → n' α)
-    ```
-    which better describes the intent of "we can map a `StateT` anywhere in the Monad stack".
-    If we look at the unfolded Type of the first argument `∀ m [Monad m], (σ → m (α × σ)) → σ' → m (α × σ')`, we see that it has the lens Type `∀ f [Functor f], (α → f α) → β → f β` with `f` specialized to `fun σ => m (α × σ)` (exercise: show that this is a lawful Functor). We can build all lenses we are insterested in from the functions `split` and `join` as
-    ```
-    fun f _ st => let (st, ctx) := split st in
-              (fun st' => join st' ctx) <$> f st
-    ```
-    -/
-class MonadStateAdapter (σ σ' : outParam (Type u)) (m m' : Type u → Type v) :=
-(adaptState {σ'' α : Type u} (split : σ' → σ × σ'') (join : σ → σ'' → σ') : m α → m' α)
-export MonadStateAdapter (adaptState)
-
-section
-variables {σ σ' : Type u} {m m' : Type u → Type v}
-
-@[inline] def MonadStateAdapter.adaptState' [MonadStateAdapter σ σ' m m'] {α : Type u} (toSigma : σ' → σ) (fromSigma : σ → σ') : m α → m' α :=
-adaptState (fun st => (toSigma st, PUnit.unit)) (fun st _ => fromSigma st)
-export MonadStateAdapter (adaptState')
-
-instance monadStateAdapterTrans {n n' : Type u → Type v} [MonadStateAdapter σ σ' m m'] [MonadFunctor m m' n n'] : MonadStateAdapter σ σ' n n' :=
-⟨fun σ'' α split join => monadMap (fun α => (adaptState split join : m α → m' α))⟩
-
-instance [Monad m] : MonadStateAdapter σ σ' (StateT σ m) (StateT σ' m) :=
-⟨fun σ'' α => StateT.adapt⟩
 end
 
 instance StateT.monadControl (σ : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (StateT σ m) := {

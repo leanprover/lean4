@@ -736,6 +736,7 @@ extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_antiquote___closed__2;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__27;
 lean_object* l_Lean_Elab_Command_expandElab___closed__9;
+extern lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_643____closed__1;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__67;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__40;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__175;
@@ -743,7 +744,6 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__140;
 lean_object* l_Lean_Elab_Command_expandElab(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabSyntax___lambda__3___closed__14;
 lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__55;
-extern lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_645____closed__1;
 lean_object* l___private_Init_LeanInit_0__Array_filterSepElemsMAux___at_Lean_Elab_Command_elabNoKindMacroRulesAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_quoteName(lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___closed__129;
@@ -14317,7 +14317,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_mkMacroAttributeUnsafe___closed__9;
-x_2 = l_Lean___kind_term____x40_Lean_Exception___hyg_645____closed__1;
+x_2 = l_Lean___kind_term____x40_Lean_Exception___hyg_643____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

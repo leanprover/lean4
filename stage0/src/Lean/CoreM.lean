@@ -63,7 +63,7 @@ instance : MonadRecDepth CoreM := {
 
 @[inline] def liftIOCore {α} (x : IO α) : CoreM α := do
   let ref ← getRef
-  liftM (adaptExcept (fun (err : IO.Error) => Exception.error ref (toString err)) x : EIO Exception α)
+  IO.toEIO (fun (err : IO.Error) => Exception.error ref (toString err)) x
 
 instance : MonadIO CoreM := {
   liftIO := @liftIOCore
@@ -97,7 +97,7 @@ def mkFreshUserName {m} [MonadLiftT CoreM m] (n : Name) : m Name :=
 instance {α} [MetaHasEval α] : MetaHasEval (CoreM α) := {
   eval := fun env opts x _ => do
     let x : CoreM α := do try x finally printTraces
-    let (a, s) ← x.toIO { maxRecDepth := getMaxRecDepth opts, options := opts } { env := env}
+    let (a, s) ← x.toIO { maxRecDepth := getMaxRecDepth opts, options := opts } { env := env }
     MetaHasEval.eval s.env opts a (hideUnit := true)
 }
 
@@ -106,17 +106,17 @@ end Core
 export Core (CoreM mkFreshUserName)
 
 @[inline] def catchInternalId {α} {m : Type → Type} [Monad m] [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
-try
-  x
-catch ex => match ex with
-  | Exception.error _ _    => throw ex
-  | Exception.internal id' => if id == id' then h ex else throw ex
+  try
+    x
+  catch ex => match ex with
+    | Exception.error _ _    => throw ex
+    | Exception.internal id' => if id == id' then h ex else throw ex
 
 @[inline] def catchInternalIds {α} {m : Type → Type} [Monad m] [MonadExcept Exception m] (ids : List InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
-try
-  x
-catch ex => match ex with
-  | Exception.error _ _   => throw ex
-  | Exception.internal id => if ids.contains id then h ex else throw ex
+  try
+    x
+  catch ex => match ex with
+    | Exception.error _ _   => throw ex
+    | Exception.internal id => if ids.contains id then h ex else throw ex
 
 end Lean

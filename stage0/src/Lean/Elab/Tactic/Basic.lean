@@ -48,7 +48,7 @@ def BacktrackableState.restore (b : BacktrackableState) : TacticM Unit := do
   setMCtx b.mctx
   modify fun s => { s with goals := b.goals }
 
-@[inline] protected def «catch» {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do
+@[inline] protected def tryCatch {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do
   let b ← saveBacktrackableState
   try x catch ex => b.restore; h ex
 
@@ -56,8 +56,8 @@ def BacktrackableState.restore (b : BacktrackableState) : TacticM Unit := do
   try x catch _ => y
 
 instance : MonadExcept Exception TacticM := {
-  throw   := throw,
-  «catch» := Tactic.«catch»
+  throw    := throw,
+  tryCatch := Tactic.tryCatch
 }
 
 instance {α} : HasOrelse (TacticM α) := ⟨Tactic.orelse⟩

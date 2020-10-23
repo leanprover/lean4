@@ -38,7 +38,7 @@ instance  : MonadLift m (ReaderT ρ m) :=
 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) :=
 { throw := fun α => ReaderT.lift ∘ throwThe ε,
-  catch := fun α x c r => catchThe ε (x r) (fun e => (c e) r) }
+  tryCatch := fun α x c r => tryCatchThe ε (x r) (fun e => (c e) r) }
 
 @[inline] protected def orelse [Alternative m] {α : Type u} (x₁ x₂ : ReaderT ρ m α) : ReaderT ρ m α :=
 fun s => x₁ s <|> x₂ s
@@ -66,7 +66,7 @@ fun r => f <$> x r
 instance : Monad (ReaderT ρ m) :=
 { pure := @ReaderT.pure _ _ _, bind := @ReaderT.bind _ _ _, map := @ReaderT.map _ _ _ }
 
-instance (ρ m m') [Monad m] [Monad m'] : MonadFunctor m m' (ReaderT ρ m) (ReaderT ρ m') :=
+instance (ρ m) [Monad m] : MonadFunctor m (ReaderT ρ m) :=
 ⟨fun _ f x r => f (x r)⟩
 
 @[inline] protected def adapt {ρ' : Type u} [Monad m] {α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
@@ -112,41 +112,6 @@ instance monadReaderTrans {ρ : Type u} {m : Type u → Type v} {n : Type u → 
 instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (ReaderT ρ m) :=
 ⟨ReaderT.read⟩
 
-/-- Adapt a Monad stack, changing the Type of its top-most environment.
-
-    This class is comparable to [Control.Lens.Magnify](https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Magnify), but does not use lenses (why would it), and is derived automatically for any transformer implementing `MonadFunctor`.
-
-    Note: This class can be seen as a simplification of the more "principled" definition
-    ```
-    class MonadReaderFunctor (ρ ρ' : outParam (Type u)) (n n' : Type u → Type u) :=
-    (map {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α → ReaderT ρ' m α) → n α → n' α)
-    ```
-    -/
-class MonadReaderAdapterOf (ρ : outParam (Type u)) (ρ' : Type u) (m m' : Type u → Type v) :=
-(adaptReader {α : Type u} : (ρ' → ρ) → m α → m' α)
-
-@[inline] def adaptTheReader {ρ : Type u} (ρ' : Type u) {m m' : Type u → Type v} [MonadReaderAdapterOf ρ ρ' m m'] {α} : (ρ' → ρ) → m α → m' α :=
-MonadReaderAdapterOf.adaptReader
-
-/-- Similar to `MonadReaderAdapterOf`, but `ρ'` is an `outParam` for convenience -/
-class MonadReaderAdapter (ρ ρ' : outParam (Type u)) (m m' : Type u → Type v) :=
-(adaptReader {α : Type u} : (ρ' → ρ) → m α → m' α)
-
-export MonadReaderAdapter (adaptReader)
-
-instance MonadReaderAdapterOf.isMonadReaderAdapter (ρ ρ' : Type u) (m m' : Type u → Type v) [MonadReaderAdapterOf ρ ρ' m m'] : MonadReaderAdapter ρ ρ' m m' :=
-⟨fun α => adaptTheReader ρ'⟩
-
-section
-variables {ρ ρ' : Type u} {m m' : Type u → Type v}
-
-instance monadReaderAdapterTrans {n n' : Type u → Type v} [MonadReaderAdapterOf ρ ρ' m m'] [MonadFunctor m m' n n'] : MonadReaderAdapterOf ρ ρ' n n' :=
-⟨fun α f => monadMap (fun α => (adaptReader f : m α → m' α))⟩
-
-instance [Monad m] : MonadReaderAdapterOf ρ ρ' (ReaderT ρ m) (ReaderT ρ' m) :=
-⟨fun α => ReaderT.adapt⟩
-end
-
 instance ReaderT.monadControl (ρ : Type u) (m : Type u → Type v) : MonadControl m (ReaderT ρ m) := {
   stM      := fun α       => α,
   liftWith := fun α f ctx => f fun β x => x ctx,
@@ -173,7 +138,7 @@ instance MonadWithReaderOf.isMonadWithReader (ρ : Type u) (m : Type u → Type 
 section
 variables {ρ : Type u} {m : Type u → Type v}
 
-instance monadWithReaderOfTrans {n : Type u → Type v} [MonadWithReaderOf ρ m] [MonadFunctor m m n n] : MonadWithReaderOf ρ n :=
+instance monadWithReaderOfTrans {n : Type u → Type v} [MonadWithReaderOf ρ m] [MonadFunctor m n] : MonadWithReaderOf ρ n :=
 ⟨fun α f => monadMap fun β => (withTheReader ρ f : m β → m β)⟩
 
 instance ReaderT.monadWithReaderOf [Monad m] : MonadWithReaderOf ρ (ReaderT ρ m) :=

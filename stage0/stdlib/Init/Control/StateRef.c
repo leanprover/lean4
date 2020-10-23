@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Init_System_IO___instance__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_set(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -33,14 +34,14 @@ lean_object* l_StateRefT_x27_MonadStateOf___rarg___lambda__1(lean_object*, lean_
 lean_object* l_StateRefT_x27_modifyGet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateRefT_x27_MonadFunctor(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_StateRefT_x27_MonadFunctor(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_Monad___rarg(lean_object*);
 lean_object* l_StateRefT_x27_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_lift(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadLift(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadLift___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_StateRefT_x27_MonadFunctor___rarg(lean_object*, lean_object*);
+lean_object* l_StateRefT_x27_MonadFunctor___rarg(lean_object*);
 lean_object* l_ReaderT_MonadExceptOf___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_get(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_monadControl(lean_object*, lean_object*, lean_object*);
@@ -60,9 +61,8 @@ lean_object* l_StateRefT_x27_run___rarg___lambda__2(lean_object*, lean_object*, 
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadExceptOf(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadExceptOf___rarg(lean_object*);
-lean_object* l_Init_System_IO___instance__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadLift___rarg(lean_object*, lean_object*);
-lean_object* l_ReaderT_MonadFunctor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_MonadFunctor___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadStateOf___rarg(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -266,7 +266,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_ReaderT_MonadLift___closed__1;
-x_3 = lean_alloc_closure((void*)(l_Init_System_IO___instance__7___rarg), 4, 2);
+x_3 = lean_alloc_closure((void*)(l_Init_System_IO___instance__6___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
@@ -289,25 +289,23 @@ lean_dec(x_4);
 return x_5;
 }
 }
-lean_object* l_StateRefT_x27_MonadFunctor___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_StateRefT_x27_MonadFunctor___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_ReaderT_MonadFunctor___boxed), 6, 5);
-lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, lean_box(0));
-lean_closure_set(x_3, 2, lean_box(0));
-lean_closure_set(x_3, 3, x_1);
-lean_closure_set(x_3, 4, x_2);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_ReaderT_MonadFunctor___boxed), 4, 3);
+lean_closure_set(x_2, 0, lean_box(0));
+lean_closure_set(x_2, 1, lean_box(0));
+lean_closure_set(x_2, 2, x_1);
+return x_2;
 }
 }
-lean_object* l_StateRefT_x27_MonadFunctor(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_StateRefT_x27_MonadFunctor(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_StateRefT_x27_MonadFunctor___rarg), 2, 0);
-return x_5;
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_StateRefT_x27_MonadFunctor___rarg), 1, 0);
+return x_4;
 }
 }
 lean_object* l_StateRefT_x27_get___rarg(lean_object* x_1, lean_object* x_2) {

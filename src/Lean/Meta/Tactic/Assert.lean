@@ -15,74 +15,74 @@ namespace Lean.Meta
   Convert the given goal `Ctx |- target` into `Ctx |- type -> target`.
   It assumes `val` has type `type` -/
 def assert (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId :=
-withMVarContext mvarId do
-  checkNotAssigned mvarId `assert
-  let tag    ← getMVarTag mvarId
-  let target ← getMVarType mvarId
-  let newType := Lean.mkForall name BinderInfo.default type target
-  let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
-  assignExprMVar mvarId (mkApp newMVar val)
-  pure newMVar.mvarId!
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `assert
+    let tag    ← getMVarTag mvarId
+    let target ← getMVarType mvarId
+    let newType := Lean.mkForall name BinderInfo.default type target
+    let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
+    assignExprMVar mvarId (mkApp newMVar val)
+    pure newMVar.mvarId!
 
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- let name : type := val; target`.
   It assumes `val` has type `type` -/
 def define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId := do
-withMVarContext mvarId $ do
-  checkNotAssigned mvarId `define
-  let tag    ← getMVarTag mvarId
-  let target ← getMVarType mvarId
-  let newType := Lean.mkLet name type val target
-  let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
-  assignExprMVar mvarId newMVar
-  pure newMVar.mvarId!
+  withMVarContext mvarId $ do
+    checkNotAssigned mvarId `define
+    let tag    ← getMVarTag mvarId
+    let target ← getMVarType mvarId
+    let newType := Lean.mkLet name type val target
+    let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
+    assignExprMVar mvarId newMVar
+    pure newMVar.mvarId!
 
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- forall (name : type) -> name = val -> target`.
   It assumes `val` has type `type` -/
 def assertExt (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) (hName : Name := `h) : MetaM MVarId := do
-withMVarContext mvarId $ do
-  checkNotAssigned mvarId `assert
-  let tag    ← getMVarTag mvarId
-  let target ← getMVarType mvarId
-  let u ← getLevel type
-  let hType := mkApp3 (mkConst `Eq [u]) type (mkBVar 0) val
-  let newType := Lean.mkForall name BinderInfo.default type $ Lean.mkForall hName BinderInfo.default hType target
-  let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
-  let rflPrf ← mkEqRefl val
-  assignExprMVar mvarId (mkApp2 newMVar val rflPrf)
-  pure newMVar.mvarId!
+  withMVarContext mvarId $ do
+    checkNotAssigned mvarId `assert
+    let tag    ← getMVarTag mvarId
+    let target ← getMVarType mvarId
+    let u ← getLevel type
+    let hType := mkApp3 (mkConst `Eq [u]) type (mkBVar 0) val
+    let newType := Lean.mkForall name BinderInfo.default type $ Lean.mkForall hName BinderInfo.default hType target
+    let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
+    let rflPrf ← mkEqRefl val
+    assignExprMVar mvarId (mkApp2 newMVar val rflPrf)
+    pure newMVar.mvarId!
 
 structure AssertAfterResult :=
-(fvarId : FVarId)
-(mvarId : MVarId)
-(subst  : FVarSubst)
+  (fvarId : FVarId)
+  (mvarId : MVarId)
+  (subst  : FVarSubst)
 
 /--
   Convert the given goal `Ctx |- target` into a goal containing `(userName : type)` after the local declaration with if `fvarId`.
   It assumes `val` has type `type`, and that `type` is well-formed after `fvarId`.
   Note that `val` does not need to be well-formed after `fvarId`. That is, it may contain variables that are defined after `fvarId`. -/
 def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do
-withMVarContext mvarId $ do
-  checkNotAssigned mvarId `assertAfter
-  let tag        ← getMVarTag mvarId
-  let target     ← getMVarType mvarId
-  let localDecl  ← getLocalDecl fvarId
-  let lctx       ← getLCtx
-  let localInsts ← getLocalInstances
-  let fvarIds := lctx.foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId
-  let xs   := fvarIds.map mkFVar
-  let targetNew ← mkForallFVars xs target
-  let targetNew := Lean.mkForall userName BinderInfo.default type targetNew
-  let lctxNew := fvarIds.foldl (init := lctx) fun lctxNew fvarId => lctxNew.erase fvarId
-  let localInstsNew := localInsts.filter fun inst => fvarIds.contains inst.fvar.fvarId!
-  let mvarNew ← mkFreshExprMVarAt lctxNew localInstsNew targetNew MetavarKind.syntheticOpaque tag
-  let args := (fvarIds.filter fun fvarId => !(lctx.get! fvarId).isLet).map mkFVar
-  let args := #[val] ++ args
-  assignExprMVar mvarId (mkAppN mvarNew args)
-  let (fvarIdNew, mvarIdNew) ← intro1P mvarNew.mvarId!
-  let (fvarIdsNew, mvarIdNew) ← introNP mvarIdNew fvarIds.size
-  let subst := fvarIds.size.fold (init := {}) fun i subst => subst.insert fvarIds[i] (mkFVar fvarIdsNew[i])
-  pure { fvarId := fvarIdNew, mvarId := mvarIdNew, subst := subst }
+  withMVarContext mvarId $ do
+    checkNotAssigned mvarId `assertAfter
+    let tag        ← getMVarTag mvarId
+    let target     ← getMVarType mvarId
+    let localDecl  ← getLocalDecl fvarId
+    let lctx       ← getLCtx
+    let localInsts ← getLocalInstances
+    let fvarIds := lctx.foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId
+    let xs   := fvarIds.map mkFVar
+    let targetNew ← mkForallFVars xs target
+    let targetNew := Lean.mkForall userName BinderInfo.default type targetNew
+    let lctxNew := fvarIds.foldl (init := lctx) fun lctxNew fvarId => lctxNew.erase fvarId
+    let localInstsNew := localInsts.filter fun inst => fvarIds.contains inst.fvar.fvarId!
+    let mvarNew ← mkFreshExprMVarAt lctxNew localInstsNew targetNew MetavarKind.syntheticOpaque tag
+    let args := (fvarIds.filter fun fvarId => !(lctx.get! fvarId).isLet).map mkFVar
+    let args := #[val] ++ args
+    assignExprMVar mvarId (mkAppN mvarNew args)
+    let (fvarIdNew, mvarIdNew) ← intro1P mvarNew.mvarId!
+    let (fvarIdsNew, mvarIdNew) ← introNP mvarIdNew fvarIds.size
+    let subst := fvarIds.size.fold (init := {}) fun i subst => subst.insert fvarIds[i] (mkFVar fvarIdsNew[i])
+    pure { fvarId := fvarIdNew, mvarId := mvarIdNew, subst := subst }
 
 end Lean.Meta

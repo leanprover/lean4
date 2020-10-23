@@ -12,76 +12,74 @@ import Lean.Meta.Tactic.Intro
 namespace Lean.Meta
 
 inductive InjectionResultCore
-| solved
-| subgoal (mvarId : MVarId) (numNewEqs : Nat)
+  | solved
+  | subgoal (mvarId : MVarId) (numNewEqs : Nat)
 
 def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCore :=
-withMVarContext mvarId do
-  checkNotAssigned mvarId `injection
-  let decl ← getLocalDecl fvarId
-  let type ← whnf decl.type
-  match type.eq? with
-  | none           => throwTacticEx `injection mvarId "equality expected"
-  | some (α, a, b) =>
-    let a ← whnf a
-    let b ← whnf b
-    let target ← getMVarType mvarId
-    let env ← getEnv
-    match a.isConstructorApp? env, b.isConstructorApp? env with
-    | some aCtor, some bCtor =>
-      let val ← mkNoConfusion target (mkFVar fvarId)
-      if aCtor.name != bCtor.name then
-        assignExprMVar mvarId val
-        pure InjectionResultCore.solved
-      else do
-        let valType ← inferType val
-        let valType ← whnf valType
-        match valType with
-        | Expr.forallE _ newTarget _ _ =>
-          let newTarget := newTarget.headBeta
-          let tag ← getMVarTag mvarId
-          let newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag
-          assignExprMVar mvarId (mkApp val newMVar)
-          let mvarId ← tryClear newMVar.mvarId! fvarId
-          pure $ InjectionResultCore.subgoal mvarId aCtor.nfields
-        | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
-    | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `injection
+    let decl ← getLocalDecl fvarId
+    let type ← whnf decl.type
+    match type.eq? with
+    | none           => throwTacticEx `injection mvarId "equality expected"
+    | some (α, a, b) =>
+      let a ← whnf a
+      let b ← whnf b
+      let target ← getMVarType mvarId
+      let env ← getEnv
+      match a.isConstructorApp? env, b.isConstructorApp? env with
+      | some aCtor, some bCtor =>
+        let val ← mkNoConfusion target (mkFVar fvarId)
+        if aCtor.name != bCtor.name then
+          assignExprMVar mvarId val
+          pure InjectionResultCore.solved
+        else
+          let valType ← inferType val
+          let valType ← whnf valType
+          match valType with
+          | Expr.forallE _ newTarget _ _ =>
+            let newTarget := newTarget.headBeta
+            let tag ← getMVarTag mvarId
+            let newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag
+            assignExprMVar mvarId (mkApp val newMVar)
+            let mvarId ← tryClear newMVar.mvarId! fvarId
+            pure $ InjectionResultCore.subgoal mvarId aCtor.nfields
+          | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
+      | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
 
 inductive InjectionResult
-| solved
-| subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
+  | solved
+  | subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
 
 private def heqToEq (mvarId : MVarId) (fvarId : FVarId) : MetaM (FVarId × MVarId) :=
-withMVarContext mvarId do
- let decl ← getLocalDecl fvarId
- let type ← whnf decl.type
- match type.heq? with
- | none              => pure (fvarId, mvarId)
- | some (α, a, β, b) => do
-   let pr ← mkEqOfHEq (mkFVar fvarId)
-   let eq ← mkEq a b
-   let mvarId ← assert mvarId decl.userName eq pr
-   let mvarId ← clear mvarId fvarId
-   let (fvarId, mvarId) ← intro1P mvarId
-   pure (fvarId, mvarId)
+  withMVarContext mvarId do
+   let decl ← getLocalDecl fvarId
+   let type ← whnf decl.type
+   match type.heq? with
+   | none              => pure (fvarId, mvarId)
+   | some (α, a, β, b) =>
+     let pr ← mkEqOfHEq (mkFVar fvarId)
+     let eq ← mkEq a b
+     let mvarId ← assert mvarId decl.userName eq pr
+     let mvarId ← clear mvarId fvarId
+     let (fvarId, mvarId) ← intro1P mvarId
+     pure (fvarId, mvarId)
 
 def injectionIntro : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult
-| 0, mvarId, fvarIds, remainingNames =>
-  pure $ InjectionResult.subgoal mvarId fvarIds remainingNames
-| n+1, mvarId, fvarIds, name::remainingNames => do
-  let (fvarId, mvarId) ← intro mvarId name
-  let (fvarId, mvarId) ← heqToEq mvarId fvarId
-  injectionIntro n mvarId (fvarIds.push fvarId) remainingNames
-| n+1, mvarId, fvarIds, [] => do
-  let (fvarId, mvarId) ← intro1 mvarId
-  let (fvarId, mvarId) ← heqToEq mvarId fvarId
-  injectionIntro n mvarId (fvarIds.push fvarId) []
+  | 0, mvarId, fvarIds, remainingNames =>
+    pure $ InjectionResult.subgoal mvarId fvarIds remainingNames
+  | n+1, mvarId, fvarIds, name::remainingNames => do
+    let (fvarId, mvarId) ← intro mvarId name
+    let (fvarId, mvarId) ← heqToEq mvarId fvarId
+    injectionIntro n mvarId (fvarIds.push fvarId) remainingNames
+  | n+1, mvarId, fvarIds, [] => do
+    let (fvarId, mvarId) ← intro1 mvarId
+    let (fvarId, mvarId) ← heqToEq mvarId fvarId
+    injectionIntro n mvarId (fvarIds.push fvarId) []
 
 def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) (useUnusedNames : Bool := true) : MetaM InjectionResult := do
-let r ← injectionCore mvarId fvarId
-match r with
-| InjectionResultCore.solved                => pure InjectionResult.solved
-| InjectionResultCore.subgoal mvarId numEqs => injectionIntro numEqs mvarId #[] newNames
+  match (← injectionCore mvarId fvarId) with
+  | InjectionResultCore.solved                => pure InjectionResult.solved
+  | InjectionResultCore.subgoal mvarId numEqs => injectionIntro numEqs mvarId #[] newNames
 
-end Meta
-end Lean
+end Lean.Meta

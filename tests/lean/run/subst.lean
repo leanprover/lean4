@@ -17,6 +17,12 @@ h ▸ rfl
 theorem ex3 {α : Sort u} {a b c : α} (r : α → α → Prop) (h₁ : r a b) (h₂ : b = c) : r a c :=
 h₂ ▸ h₁
 
+theorem ex3b {α : Sort u} {a b c : α} (r : α → α → Prop) (h₁ : r a b) (h₂ : b = c) : r a c :=
+h₂.symm ▸ h₁
+
+theorem ex3c {α : Sort u} {a b c : α} (r : α → α → Prop) (h₁ : r a b) (h₂ : b = c) : r a c :=
+h₂.symm.symm ▸ h₁
+
 theorem ex4 {α : Sort u} {a b c : α} (r : α → α → Prop) (h₁ : a = b) (h₂ : r b c) : r a c :=
 h₁ ▸ h₂
 

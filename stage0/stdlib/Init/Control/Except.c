@@ -33,7 +33,6 @@ lean_object* l_MonadExcept_HasOrelse(lean_object*, lean_object*);
 lean_object* l_Except_Monad___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_observing___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_return(lean_object*, lean_object*);
-lean_object* l_finally(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_Monad___rarg___lambda__8(lean_object*, lean_object*);
 lean_object* l_Except_toOption___rarg___boxed(lean_object*);
 lean_object* l_Except_bind(lean_object*, lean_object*, lean_object*);
@@ -143,7 +142,6 @@ lean_object* l_ExceptT_run___rarg___boxed(lean_object*);
 lean_object* l_Except_toOption(lean_object*, lean_object*);
 lean_object* l_ExceptT_Monad___rarg___lambda__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadExcept_orelse_x27___rarg___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_finally___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_MonadLift(lean_object*, lean_object*);
 lean_object* l_ExceptT_MonadFunctor___rarg(lean_object*, lean_object*);
 lean_object* l_ExceptT_run___rarg(lean_object*);
@@ -2343,29 +2341,6 @@ lean_object* x_2;
 x_2 = l_tryFinally___rarg___lambda__1(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-lean_object* l_finally___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_5 = lean_ctor_get(x_2, 0);
-lean_inc(x_5);
-lean_dec(x_2);
-x_6 = lean_alloc_closure((void*)(l_ExceptT_Monad___rarg___lambda__8___boxed), 2, 1);
-lean_closure_set(x_6, 0, x_4);
-x_7 = lean_apply_4(x_1, lean_box(0), lean_box(0), x_3, x_6);
-x_8 = l_tryFinally___rarg___closed__1;
-x_9 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_8, x_7);
-return x_9;
-}
-}
-lean_object* l_finally(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_finally___rarg), 4, 0);
-return x_4;
 }
 }
 lean_object* l_Id_finally___rarg(lean_object* x_1, lean_object* x_2) {

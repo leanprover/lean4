@@ -241,7 +241,6 @@ uint32_t l_IO_AccessRight_flags___closed__11;
 lean_object* l_IO_setStdin___at_IO_FS_withIsolatedStreams___spec__9(lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_read(lean_object*);
 lean_object* lean_io_has_finished(lean_object*, lean_object*);
-extern lean_object* l_finally___rarg___closed__1;
 lean_object* l_String_dropRight(lean_object*, lean_object*);
 lean_object* l_EIO_catchExceptions(lean_object*, lean_object*);
 lean_object* l_IO_setAccessRights___boxed(lean_object*, lean_object*, lean_object*);
@@ -381,6 +380,7 @@ lean_object* l_EIO_catchExceptions_match__1(lean_object*, lean_object*, lean_obj
 uint8_t l_IO_AccessRight_execution___default;
 lean_object* l_IO_Prim_fopenFlags___closed__2;
 lean_object* l_IO_withStdout___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_tryFinally___rarg___closed__1;
 lean_object* l_IO_FS_Handle_getLine___at_IO_Process_output___spec__4(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 uint32_t l_IO_AccessRight_flags___closed__5;
@@ -2296,7 +2296,7 @@ lean_dec(x_7);
 x_11 = lean_alloc_closure((void*)(l_dbgTraceVal___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_11, 0, x_9);
 x_12 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_11);
-x_13 = l_finally___rarg___closed__1;
+x_13 = l_tryFinally___rarg___closed__1;
 x_14 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_13, x_12);
 return x_14;
 }
@@ -2345,7 +2345,7 @@ lean_dec(x_7);
 x_11 = lean_alloc_closure((void*)(l_dbgTraceVal___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_11, 0, x_9);
 x_12 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_11);
-x_13 = l_finally___rarg___closed__1;
+x_13 = l_tryFinally___rarg___closed__1;
 x_14 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_13, x_12);
 return x_14;
 }
@@ -2394,7 +2394,7 @@ lean_dec(x_7);
 x_11 = lean_alloc_closure((void*)(l_dbgTraceVal___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_11, 0, x_9);
 x_12 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_11);
-x_13 = l_finally___rarg___closed__1;
+x_13 = l_tryFinally___rarg___closed__1;
 x_14 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_13, x_12);
 return x_14;
 }

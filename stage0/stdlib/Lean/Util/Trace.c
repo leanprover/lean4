@@ -160,7 +160,6 @@ lean_object* l_Lean_addTrace___rarg___lambda__3(lean_object*, lean_object*, lean
 lean_object* l_Lean_modifyTraces___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracer_trace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_954____closed__9;
-extern lean_object* l_finally___rarg___closed__1;
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_890____closed__11;
 lean_object* l_Lean_addTrace___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -273,6 +272,7 @@ lean_object* l_Lean_traceCtx___rarg___lambda__3(lean_object*, uint8_t, lean_obje
 lean_object* l_Array_forMAux___main___at_Lean_printTraces___spec__6(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkTraceOption___closed__2;
+extern lean_object* l_tryFinally___rarg___closed__1;
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1236____closed__2;
 lean_object* l_Array_iterateMAux___main___at_Lean_withNestedTraces___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_954____closed__10;
@@ -2070,7 +2070,7 @@ lean_dec(x_9);
 x_14 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_14, 0, x_12);
 x_15 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_6, x_14);
-x_16 = l_finally___rarg___closed__1;
+x_16 = l_tryFinally___rarg___closed__1;
 x_17 = lean_apply_4(x_13, lean_box(0), lean_box(0), x_16, x_15);
 return x_17;
 }
@@ -2092,7 +2092,7 @@ lean_dec(x_9);
 x_12 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_10);
 x_13 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_6, x_12);
-x_14 = l_finally___rarg___closed__1;
+x_14 = l_tryFinally___rarg___closed__1;
 x_15 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_14, x_13);
 return x_15;
 }
@@ -3756,7 +3756,7 @@ lean_dec(x_8);
 x_12 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_10);
 x_13 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_12);
-x_14 = l_finally___rarg___closed__1;
+x_14 = l_tryFinally___rarg___closed__1;
 x_15 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_14, x_13);
 return x_15;
 }

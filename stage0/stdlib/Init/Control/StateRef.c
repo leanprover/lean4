@@ -18,7 +18,7 @@ lean_object* l_StateRefT_x27_set(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_StateRefT_x27_run_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadStateOf(lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_finally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_tryFinally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_MonadIO(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_modifyGet___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_Monad(lean_object*, lean_object*, lean_object*);
@@ -477,7 +477,7 @@ lean_object* l_StateRefT_finally___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_ReaderT_finally___rarg___boxed), 7, 2);
+x_3 = lean_alloc_closure((void*)(l_ReaderT_tryFinally___rarg___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;

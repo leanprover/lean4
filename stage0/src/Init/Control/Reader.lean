@@ -118,8 +118,8 @@ instance ReaderT.monadControl (ρ : Type u) (m : Type u → Type v) : MonadContr
   restoreM := fun α x ctx => x,
 }
 
-instance ReaderT.finally {m : Type u → Type v} {ρ : Type u} [MonadFinally m] [Monad m] : MonadFinally (ReaderT ρ m) :=
-{ finally' := fun α β x h ctx => finally' (x ctx) (fun a? => h a? ctx) }
+instance ReaderT.tryFinally {m : Type u → Type v} {ρ : Type u} [MonadFinally m] [Monad m] : MonadFinally (ReaderT ρ m) :=
+{ tryFinally' := fun α β x h ctx => tryFinally' (x ctx) (fun a? => h a? ctx) }
 
 class MonadWithReaderOf (ρ : Type u) (m : Type u → Type v) :=
 (withReader {α : Type u} : (ρ → ρ) → m α → m α)

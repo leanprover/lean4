@@ -136,9 +136,6 @@ class MonadExceptOf (ε : Type u) (m : Type v → Type w) :=
 abbrev throwThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (e : ε) : m α :=
 MonadExceptOf.throw e
 
-abbrev catchThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
-MonadExceptOf.tryCatch x handle
-
 abbrev tryCatchThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
 MonadExceptOf.tryCatch x handle
 
@@ -160,9 +157,6 @@ class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
 (tryCatch {α : Type v} : m α → (ε → m α) → m α)
 
 export MonadExcept (throw tryCatch)
-
-abbrev MonadExcept.«catch» {ε : Type u} {m : Type v → Type w} [MonadExcept ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
-MonadExcept.tryCatch x handle
 
 instance MonadExceptOf.isMonadExcept (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m :=
 { throw := fun _ e        => throwThe ε e,
@@ -194,23 +188,27 @@ instance ExceptT.monadControl (ε : Type u) (m : Type u → Type v) [Monad m] : 
 }
 
 class MonadFinally (m : Type u → Type v) :=
-(finally' {α β} : m α → (Option α → m β) → m (α × β))
+(tryFinally' {α β} : m α → (Option α → m β) → m (α × β))
 
-export MonadFinally (finally')
+export MonadFinally (tryFinally')
 
 /-- Execute `x` and then execute `finalizer` even if `x` threw an exception -/
+@[inline] abbrev tryFinally {m : Type u → Type v} {α β : Type u} [MonadFinally m] [Functor m] (x : m α) (finalizer : m β) : m α := do
+Prod.fst <$> tryFinally' x (fun _ => finalizer)
+
+-- TODO delete
 @[inline] abbrev finally {m : Type u → Type v} {α β : Type u} [MonadFinally m] [Functor m] (x : m α) (finalizer : m β) : m α := do
-Prod.fst <$> finally' x (fun _ => finalizer)
+Prod.fst <$> tryFinally' x (fun _ => finalizer)
 
 instance Id.finally : MonadFinally Id :=
-{ finally' := fun α β x h =>
+{ tryFinally' := fun α β x h =>
    let a := x;
    let b := h (some x);
    pure (a, b) }
 
 instance ExceptT.finally {m : Type u → Type v} {ε : Type u} [MonadFinally m] [Monad m] : MonadFinally (ExceptT ε m) :=
-{ finally' := fun α β x h => ExceptT.mk do
-    r ← finally' x (fun e? => match e? with
+{ tryFinally' := fun α β x h => ExceptT.mk do
+    r ← tryFinally' x (fun e? => match e? with
         | some (Except.ok a) => h (some a)
         | _                  => h none);
     match r with

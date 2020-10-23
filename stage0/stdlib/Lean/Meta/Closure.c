@@ -120,6 +120,7 @@ lean_object* l_Lean_Meta_Closure_pickNextToProcess_x3f___rarg___boxed(lean_objec
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAuxDefinition___rarg___closed__2;
 lean_object* l_Lean_Meta_mkAuxDefinition___rarg___closed__1;
+extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__7___closed__4;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_Closure_visitLevel___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_Closure_visitExpr___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_State_visitedLevel___default;
@@ -233,7 +234,6 @@ lean_object* l_Lean_Meta_mkAuxDefinitionFor___rarg(lean_object*, lean_object*, l
 lean_object* lean_level_update_succ(lean_object*, lean_object*);
 lean_object* l_Lean_mkLet(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Std_mkHashMap___at_Lean_Meta_Closure_State_visitedLevel___default___spec__1(lean_object*);
-extern lean_object* l_Array_iterateMAux___main___at_Lean_ppGoal___spec__7___closed__5;
 lean_object* l_Lean_Meta_Closure_process_match__2(lean_object*);
 lean_object* l_Lean_mkFreshId___at_Lean_Meta_Closure_collectExprAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toList___rarg(lean_object*);
@@ -11737,7 +11737,7 @@ static lean_object* _init_l___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefini
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__7___closed__5;
+x_1 = l_Array_iterateMAux___main___at_Lean_ppGoal___spec__7___closed__4;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

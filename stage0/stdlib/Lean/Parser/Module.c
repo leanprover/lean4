@@ -111,7 +111,7 @@ uint8_t l_Lean_Parser_ModuleParserState_recovering___default;
 lean_object* l_Lean_Parser_Module_prelude_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_import_parenthesizer___closed__3;
-lean_object* l_Lean_Parser_testModuleParser___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_Parser_testModuleParser___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_IO_FS_readFile___at_Lean_Parser_parseFile___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux___at___private_Lean_Parser_Module_0__Lean_Parser_testModuleParserAux_loop___spec__4(lean_object*, lean_object*, lean_object*);
@@ -144,14 +144,13 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseHeader_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_ident___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Parser_testModuleParser___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Parser_testModuleParser___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 lean_object* l_Lean_Parser_lookaheadFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_header___closed__2;
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__8;
 lean_object* l_Lean_Parser_nodeInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_symbolFn___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_module___closed__6;
 lean_object* l_Lean_Parser_Module_header_parenthesizer___closed__6;
 lean_object* l_Lean_Parser_noFirstTokenInfo(lean_object*);
@@ -3847,70 +3846,108 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Parser_testModuleParser_match__1___rarg)
 return x_2;
 }
 }
-lean_object* l_Lean_Parser_testModuleParser___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_Parser_testModuleParser___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-x_6 = lean_ctor_get(x_4, 1);
+lean_object* x_5; 
+lean_inc(x_1);
+x_5 = l_Lean_Parser_parseHeader(x_1, x_4);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
+x_7 = lean_ctor_get(x_6, 1);
+lean_inc(x_7);
 if (x_3 == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_4);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_6, 1);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_dec(x_6);
+x_8 = lean_ctor_get(x_5, 1);
 lean_inc(x_8);
-lean_dec(x_6);
-x_9 = l___private_Lean_Parser_Module_0__Lean_Parser_testModuleParserAux_loop(x_1, x_2, x_3, x_7, x_8, x_5);
-return x_9;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_10 = lean_ctor_get(x_4, 0);
+lean_dec(x_5);
+x_9 = lean_ctor_get(x_7, 0);
+lean_inc(x_9);
+x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
-lean_dec(x_4);
-x_11 = lean_ctor_get(x_6, 0);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_6, 1);
-lean_inc(x_12);
-lean_dec(x_6);
-x_13 = l_IO_println___at___private_Lean_Parser_Module_0__Lean_Parser_testModuleParserAux_loop___spec__1(x_10, x_5);
-if (lean_obj_tag(x_13) == 0)
-{
-lean_object* x_14; lean_object* x_15; 
-x_14 = lean_ctor_get(x_13, 1);
-lean_inc(x_14);
-lean_dec(x_13);
-x_15 = l___private_Lean_Parser_Module_0__Lean_Parser_testModuleParserAux_loop(x_1, x_2, x_3, x_11, x_12, x_14);
-return x_15;
+lean_dec(x_7);
+x_11 = l___private_Lean_Parser_Module_0__Lean_Parser_testModuleParserAux_loop(x_2, x_1, x_3, x_9, x_10, x_8);
+return x_11;
 }
 else
 {
-uint8_t x_16; 
-lean_dec(x_12);
-lean_dec(x_11);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_12 = lean_ctor_get(x_5, 1);
+lean_inc(x_12);
+lean_dec(x_5);
+x_13 = lean_ctor_get(x_6, 0);
+lean_inc(x_13);
+lean_dec(x_6);
+x_14 = lean_ctor_get(x_7, 0);
+lean_inc(x_14);
+x_15 = lean_ctor_get(x_7, 1);
+lean_inc(x_15);
+lean_dec(x_7);
+x_16 = l_IO_println___at___private_Lean_Parser_Module_0__Lean_Parser_testModuleParserAux_loop___spec__1(x_13, x_12);
+if (lean_obj_tag(x_16) == 0)
+{
+lean_object* x_17; lean_object* x_18; 
+x_17 = lean_ctor_get(x_16, 1);
+lean_inc(x_17);
+lean_dec(x_16);
+x_18 = l___private_Lean_Parser_Module_0__Lean_Parser_testModuleParserAux_loop(x_2, x_1, x_3, x_14, x_15, x_17);
+return x_18;
+}
+else
+{
+uint8_t x_19; 
+lean_dec(x_15);
+lean_dec(x_14);
 lean_dec(x_2);
 lean_dec(x_1);
-x_16 = !lean_is_exclusive(x_13);
-if (x_16 == 0)
+x_19 = !lean_is_exclusive(x_16);
+if (x_19 == 0)
 {
-return x_13;
+return x_16;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_17 = lean_ctor_get(x_13, 0);
-x_18 = lean_ctor_get(x_13, 1);
-lean_inc(x_18);
-lean_inc(x_17);
-lean_dec(x_13);
-x_19 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_19, 0, x_17);
-lean_ctor_set(x_19, 1, x_18);
-return x_19;
+lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_20 = lean_ctor_get(x_16, 0);
+x_21 = lean_ctor_get(x_16, 1);
+lean_inc(x_21);
+lean_inc(x_20);
+lean_dec(x_16);
+x_22 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_22, 0, x_20);
+lean_ctor_set(x_22, 1, x_21);
+return x_22;
 }
+}
+}
+}
+else
+{
+uint8_t x_23; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_23 = !lean_is_exclusive(x_5);
+if (x_23 == 0)
+{
+return x_5;
+}
+else
+{
+lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_24 = lean_ctor_get(x_5, 0);
+x_25 = lean_ctor_get(x_5, 1);
+lean_inc(x_25);
+lean_inc(x_24);
+lean_dec(x_5);
+x_26 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_26, 0, x_24);
+lean_ctor_set(x_26, 1, x_25);
+return x_26;
 }
 }
 }
@@ -3926,35 +3963,29 @@ return x_1;
 lean_object* lean_test_module_parser(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_6 = l_Lean_Parser_testModuleParser___closed__1;
 lean_inc(x_3);
 x_7 = lean_string_append(x_3, x_6);
 x_8 = l_Lean_Parser_mkInputContext(x_2, x_3);
-lean_inc(x_8);
-x_9 = lean_alloc_closure((void*)(l_Lean_Parser_parseHeader), 2, 1);
-lean_closure_set(x_9, 0, x_8);
-x_10 = lean_box(x_4);
-x_11 = lean_alloc_closure((void*)(l_Lean_Parser_testModuleParser___lambda__1___boxed), 5, 3);
-lean_closure_set(x_11, 0, x_1);
-lean_closure_set(x_11, 1, x_8);
-lean_closure_set(x_11, 2, x_10);
-x_12 = lean_alloc_closure((void*)(l_EStateM_bind___rarg), 3, 2);
-lean_closure_set(x_12, 0, x_9);
-lean_closure_set(x_12, 1, x_11);
-x_13 = lean_io_timeit(x_7, x_12, x_5);
+x_9 = lean_box(x_4);
+x_10 = lean_alloc_closure((void*)(l_Lean_Parser_testModuleParser___lambda__1___boxed), 4, 3);
+lean_closure_set(x_10, 0, x_8);
+lean_closure_set(x_10, 1, x_1);
+lean_closure_set(x_10, 2, x_9);
+x_11 = lean_io_timeit(x_7, x_10, x_5);
 lean_dec(x_7);
-return x_13;
+return x_11;
 }
 }
-lean_object* l_Lean_Parser_testModuleParser___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_Parser_testModuleParser___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-uint8_t x_6; lean_object* x_7; 
-x_6 = lean_unbox(x_3);
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_3);
 lean_dec(x_3);
-x_7 = l_Lean_Parser_testModuleParser___lambda__1(x_1, x_2, x_6, x_4, x_5);
-return x_7;
+x_6 = l_Lean_Parser_testModuleParser___lambda__1(x_1, x_2, x_5, x_4);
+return x_6;
 }
 }
 lean_object* l_Lean_Parser_testModuleParser___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

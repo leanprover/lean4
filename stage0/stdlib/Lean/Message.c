@@ -136,7 +136,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_getInfoMessages___s
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1869____closed__6;
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageLog_toList___spec__10(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-extern lean_object* l_EStateM_Result_toString___rarg___closed__2;
 lean_object* l_Lean_MessageLog_toList(lean_object*);
 extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*);
@@ -289,6 +288,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__21;
 lean_object* l_Lean_mkErrorStringWithPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__47;
+extern lean_object* l_EStateM_Init_Control_EState___instance__1___rarg___closed__2;
 extern lean_object* l_Lean_Format_sbracket___closed__4;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3412,7 +3412,7 @@ static lean_object* _init_l_Lean_Message_toString___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_EStateM_Result_toString___rarg___closed__2;
+x_1 = l_EStateM_Init_Control_EState___instance__1___rarg___closed__2;
 x_2 = l_String_splitAux___main___closed__1;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
@@ -3515,7 +3515,7 @@ if (x_14 == 0)
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_32 = l_Lean_Message_toString___closed__1;
 x_33 = lean_string_append(x_12, x_32);
-x_34 = l_EStateM_Result_toString___rarg___closed__2;
+x_34 = l_EStateM_Init_Control_EState___instance__1___rarg___closed__2;
 x_35 = lean_string_append(x_34, x_33);
 lean_dec(x_33);
 x_36 = lean_string_append(x_35, x_6);
@@ -3638,7 +3638,7 @@ if (x_50 == 0)
 lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; 
 x_72 = l_Lean_Message_toString___closed__1;
 x_73 = lean_string_append(x_48, x_72);
-x_74 = l_EStateM_Result_toString___rarg___closed__2;
+x_74 = l_EStateM_Init_Control_EState___instance__1___rarg___closed__2;
 x_75 = lean_string_append(x_74, x_73);
 lean_dec(x_73);
 x_76 = lean_string_append(x_75, x_41);

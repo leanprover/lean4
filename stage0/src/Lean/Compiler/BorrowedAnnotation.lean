@@ -8,10 +8,10 @@ import Lean.Expr
 namespace Lean
 
 def markBorrowed (e : Expr) : Expr :=
-mkAnnotation `borrowed e
+  mkAnnotation `borrowed e
 
 @[export lean_is_marked_borrowed]
 def isMarkedBorrowed (e : Expr) : Bool :=
-annotation? `borrowed e $.isSome
+  annotation? `borrowed e $.isSome
 
 end Lean

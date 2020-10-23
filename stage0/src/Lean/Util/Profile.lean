@@ -9,9 +9,19 @@ import Lean.Data.Position
 namespace Lean
 
 /-- Print and accumulate run time of `act` when Option `profiler` is set to `true`. -/
-@[extern 5 "lean_lean_profileit"]
-constant profileit {α : Type} (category : @& String) (pos : @& Position) (act : IO α) : IO α := act
-def profileitPure {α : Type} (category : String) (pos : Position) (fn : Unit → α) : IO α :=
-profileit category pos $ IO.lazyPure fn
+@[extern "lean_profileit"]
+def profileit {α : Type} (category : @& String) (pos : @& Position) (fn : Unit → α) : α := fn ()
+
+unsafe def profileitIOUnsafe {ε α : Type} (category : String) (pos : Position) (act : EIO ε α) : EIO ε α :=
+  match profileit category pos fun _ => unsafeEIO act with
+  | Except.ok a    => pure a
+  | Except.error e => throw e
+
+@[implementedBy profileitIOUnsafe]
+def profileitIO {ε α : Type} (category : String) (pos : Position) (act : EIO ε α) : EIO ε α := act
+
+-- impossible to infer `ε`
+def profileitM {m : Type → Type} (ε : Type) [MonadFunctorT (EIO ε) m] {α : Type} (category : @& String) (pos : @& Position) (act : m α) : m α :=
+  monadMap (fun {β} => @profileitIO ε β category pos) act
 
 end Lean

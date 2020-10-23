@@ -245,6 +245,7 @@ lean_object* l_List_map___main___at_Lean_resolveGlobalConst___spec__2(lean_objec
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Lean_getRevAliases___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_addAliasEntry___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveOpenDecls(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Lean_Environment___instance__5___lambda__3(lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
@@ -253,7 +254,6 @@ lean_object* l_Lean_resolveGlobalName___rarg___lambda__1(lean_object*, lean_obje
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveOpenDecls_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getRevAliases___spec__6(lean_object*);
-lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConstNoOverload___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveExact(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_addAliasEntry___spec__12(lean_object*, lean_object*, lean_object*);
@@ -1827,7 +1827,7 @@ x_7 = lean_apply_1(x_4, x_6);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_7);
-x_9 = lean_alloc_closure((void*)(l_EStateM_pure___rarg), 2, 1);
+x_9 = lean_alloc_closure((void*)(l_Lean_Lean_Environment___instance__5___lambda__3), 2, 1);
 lean_closure_set(x_9, 0, x_8);
 x_10 = lean_alloc_closure((void*)(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed), 5, 2);
 lean_closure_set(x_10, 0, x_4);

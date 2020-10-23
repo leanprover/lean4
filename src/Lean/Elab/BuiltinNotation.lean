@@ -333,6 +333,7 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
   | `($heq ▸ $h) => do
      let heq ← elabTerm heq none
      let heqType ← inferType heq
+     let heqType ← instantiateMVars heqType
      match (← Meta.matchEq? heqType) with
      | none => throwError! "invalid `▸` notation, argument{indentExpr heq}\nhas type{indentExpr heqType}\nequality expected"
      | some (α, lhs, rhs) =>

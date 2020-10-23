@@ -24,7 +24,6 @@ lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object*, lean_object*,
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_31_(lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_3_(lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_17_(lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_Elab_throwPostpone(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMessageCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMessageCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -38,6 +37,7 @@ lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_31____closed__1
 extern lean_object* l_Lean_registerAttributeImplBuilder___closed__2;
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2;
+extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_17____closed__2;
 lean_object* l_Lean_Elab_postponeExceptionId;
 lean_object* l_Lean_Elab_throwPostpone___rarg___closed__1;
@@ -327,7 +327,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = l_Lean_FileMap_toPosition(x_2, x_5);
 x_7 = lean_box(0);
-x_8 = l_String_splitAux___main___closed__1;
+x_8 = l_String_splitAux___closed__1;
 x_9 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_9, 0, x_1);
 lean_ctor_set(x_9, 1, x_6);

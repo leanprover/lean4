@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -13,13 +14,15 @@ import Init.Control.Id
 import Init.Util
 universes u v w
 
+-- TODO: CLEANUP
+
 /-
 The Compiler has special support for arrays.
 They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic_array
 -/
 structure Array (α : Type u) :=
-(sz   : Nat)
-(data : Fin sz → α)
+  (sz   : Nat)
+  (data : Fin sz → α)
 
 attribute [extern "lean_array_mk"] Array.mk
 attribute [extern "lean_array_data"] Array.data
@@ -27,136 +30,136 @@ attribute [extern "lean_array_sz"] Array.sz
 
 @[reducible, extern "lean_array_get_size"]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
-a.sz
+  a.sz
 
 namespace Array
 variables {α : Type u}
 
 /- The parameter `c` is the initial capacity -/
 @[extern "lean_mk_empty_array_with_capacity"]
-def mkEmpty (c : @& Nat) : Array α :=
-{ sz := 0,
-  data := fun ⟨x, h⟩ => absurd h (Nat.notLtZero x) }
+def mkEmpty (c : @& Nat) : Array α := {
+  sz   := 0,
+  data := fun ⟨x, h⟩ => absurd h (Nat.notLtZero x)
+}
 
 @[extern "lean_array_push"]
-def push (a : Array α) (v : α) : Array α :=
-{ sz   := Nat.succ a.sz,
+def push (a : Array α) (v : α) : Array α := {
+  sz   := Nat.succ a.sz,
   data := fun ⟨j, h₁⟩ =>
     if h₂ : j = a.sz then v
     else a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩ }
 
 @[extern "lean_mk_array"]
-def mkArray {α : Type u} (n : Nat) (v : α) : Array α :=
-{ sz   := n,
+def mkArray {α : Type u} (n : Nat) (v : α) : Array α := {
+  sz   := n,
   data := fun _ => v}
 
-theorem szMkArrayEq {α : Type u} (n : Nat) (v : α) : (mkArray n v).sz = n :=
-rfl
+theorem szMkArrayEq (n : Nat) (v : α) : (mkArray n v).sz = n :=
+  rfl
 
 def empty : Array α :=
-mkEmpty 0
+  mkEmpty 0
 
-instance : HasEmptyc (Array α) :=
-⟨Array.empty⟩
-
-instance : Inhabited (Array α) :=
-⟨Array.empty⟩
+instance : HasEmptyc (Array α) := ⟨Array.empty⟩
+instance : Inhabited (Array α) := ⟨Array.empty⟩
 
 def isEmpty (a : Array α) : Bool :=
-a.size = 0
+  a.size = 0
 
 def singleton (v : α) : Array α :=
-mkArray 1 v
+  mkArray 1 v
 
 @[extern "lean_array_fget"]
 def get (a : @& Array α) (i : @& Fin a.size) : α :=
-a.data i
+  a.data i
 
 /- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
 @[extern "lean_array_uget"]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
-a.get ⟨i.toNat, h⟩
+  a.get ⟨i.toNat, h⟩
 
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
 def get! [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-if h : i < a.size then a.get ⟨i, h⟩ else arbitrary α
+  if h : i < a.size then a.get ⟨i, h⟩ else arbitrary α
 
 def back [Inhabited α] (a : Array α) : α :=
-a.get! (a.size - 1)
+  a.get! (a.size - 1)
 
 def get? (a : Array α) (i : Nat) : Option α :=
-if h : i < a.size then some (a.get ⟨i, h⟩) else none
+  if h : i < a.size then some (a.get ⟨i, h⟩) else none
 
 def getD (a : Array α) (i : Nat) (v₀ : α) : α :=
-if h : i < a.size then a.get ⟨i, h⟩ else v₀
+  if h : i < a.size then a.get ⟨i, h⟩ else v₀
 
 def getOp [Inhabited α] (self : Array α) (idx : Nat) : α :=
-self.get! idx
+  self.get! idx
 
 -- auxiliary declaration used in the equation compiler when pattern matching array literals.
 abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = n) (h₂ : i < n) : α :=
-a.get ⟨i, h₁.symm ▸ h₂⟩
+  a.get ⟨i, h₁.symm ▸ h₂⟩
 
 @[extern "lean_array_fset"]
-def set (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
-{ sz   := a.sz,
-  data := fun j => if h : i = j then v else a.data j }
+def set (a : Array α) (i : @& Fin a.size) (v : α) : Array α := {
+  sz   := a.sz,
+  data := fun j => if h : i = j then v else a.data j
+}
 
 theorem szFSetEq (a : Array α) (i : Fin a.size) (v : α) : (set a i v).size = a.size :=
-rfl
+  rfl
 
 theorem szPushEq (a : Array α) (v : α) : (push a v).size = a.size + 1 :=
-rfl
+  rfl
 
 /- Low-level version of `fset` which is as fast as a C array fset.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fset` may be slightly slower than `uset`. -/
 @[extern "lean_array_uset"]
 def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
-a.set ⟨i.toNat, h⟩ v
+  a.set ⟨i.toNat, h⟩ v
 
 /- "Comfortable" version of `fset`. It performs a bound check at runtime. -/
 @[extern "lean_array_set"]
 def set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
-if h : i < a.size then a.set ⟨i, h⟩ v else panic! "index out of bounds"
+  if h : i < a.size then a.set ⟨i, h⟩ v else panic! "index out of bounds"
 
 @[extern "lean_array_fswap"]
 def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
-let v₁ := a.get i;
-let v₂ := a.get j;
-let a  := a.set i v₂;
-a.set j v₁
+  let v₁ := a.get i;
+  let v₂ := a.get j;
+  let a  := a.set i v₂;
+  a.set j v₁
 
 @[extern "lean_array_swap"]
 def swap! (a : Array α) (i j : @& Nat) : Array α :=
-if h₁ : i < a.size then
-if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
-else panic! "index out of bounds"
-else panic! "index out of bounds"
+  if h₁ : i < a.size then
+  if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
+  else panic! "index out of bounds"
+  else panic! "index out of bounds"
 
 @[inline] def swapAt {α : Type} (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
-let e := a.get i;
-let a := a.set i v;
-(e, a)
+  let e := a.get i;
+  let a := a.set i v;
+  (e, a)
 
 -- TODO: delete as soon as we can define local instances
 @[neverExtract] private def swapAtPanic! [Inhabited α] (i : Nat) : α × Array α :=
-panic! ("index " ++ toString i ++ " out of bounds")
+  panic! ("index " ++ toString i ++ " out of bounds")
 
 @[inline] def swapAt! {α : Type} (a : Array α) (i : Nat) (v : α) : α × Array α :=
-if h : i < a.size then swapAt a ⟨i, h⟩ v else @swapAtPanic! _ ⟨v⟩ i
+  if h : i < a.size then swapAt a ⟨i, h⟩ v else @swapAtPanic! _ ⟨v⟩ i
 
 @[extern "lean_array_pop"]
-def pop (a : Array α) : Array α :=
-{ sz   := Nat.pred a.size,
-  data := fun ⟨j, h⟩ => a.get ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩ }
+def pop (a : Array α) : Array α := {
+  sz   := Nat.pred a.size,
+  data := fun ⟨j, h⟩ => a.get ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩
+}
 
 -- TODO(Leo): justify termination using wf-rec
 partial def shrink : Array α → Nat → Array α
-| a, n => if n ≥ a.size then a else shrink a.pop n
+  | a, n => if n ≥ a.size then a else shrink a.pop n
 
 section
 variables {m : Type v → Type w} [Monad m]
@@ -164,68 +167,67 @@ variables {β : Type v} {σ : Type u}
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def iterateMAux (a : Array α) (f : ∀ (i : Fin a.size), α → β → m β) : Nat → β → m β
-| i, b =>
-  if h : i < a.size then
-     let idx : Fin a.size := ⟨i, h⟩;
-     f idx (a.get idx) b >>= iterateMAux (i+1)
-  else pure b
+  | i, b =>
+    if h : i < a.size then
+       let idx : Fin a.size := ⟨i, h⟩;
+       f idx (a.get idx) b >>= iterateMAux a f (i+1)
+    else pure b
 
 @[inline] def iterateM (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → m β) : m β :=
-iterateMAux a f 0 b
+  iterateMAux a f 0 b
 
 @[inline] def foldlM (f : β → α → m β) (init : β) (a : Array α) : m β :=
-iterateM a init (fun _ b a => f a b)
+  iterateM a init (fun _ b a => f a b)
 
 @[inline] def foldlFromM (f : β → α → m β) (init : β) (beginIdx : Nat) (a : Array α) : m β :=
-iterateMAux a (fun _ b a => f a b) beginIdx init
+  iterateMAux a (fun _ b a => f a b) beginIdx init
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def iterateM₂Aux (a₁ : Array α) (a₂ : Array σ) (f : ∀ (i : Fin a₁.size), α → σ → β → m β) : Nat → β → m β
-| i, b =>
-  if h₁ : i < a₁.size then
-     let idx₁ : Fin a₁.size := ⟨i, h₁⟩;
-     if h₂ : i < a₂.size then
-       let idx₂ : Fin a₂.size := ⟨i, h₂⟩;
-       f idx₁ (a₁.get idx₁) (a₂.get idx₂) b >>= iterateM₂Aux (i+1)
-     else pure b
-  else pure b
+  | i, b =>
+    if h₁ : i < a₁.size then
+       let idx₁ : Fin a₁.size := ⟨i, h₁⟩;
+       if h₂ : i < a₂.size then
+         let idx₂ : Fin a₂.size := ⟨i, h₂⟩;
+         f idx₁ (a₁.get idx₁) (a₂.get idx₂) b >>= iterateM₂Aux a₁ a₂ f (i+1)
+       else pure b
+    else pure b
 
 @[inline] def iterateM₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : ∀ (i : Fin a₁.size), α → σ → β → m β) : m β :=
-iterateM₂Aux a₁ a₂ f 0 b
+  iterateM₂Aux a₁ a₂ f 0 b
 
 @[inline] def foldlM₂ (f : β → α → σ → m β) (b : β) (a₁ : Array α) (a₂ : Array σ): m β :=
-iterateM₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
+  iterateM₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 
 @[specialize] partial def findSomeMAux (a : Array α) (f : α → m (Option β)) : Nat → m (Option β)
-| i =>
-  if h : i < a.size then
-     let idx : Fin a.size := ⟨i, h⟩;
-     do r ← f (a.get idx);
-        match r with
-        | some v => pure r
-        | none   => findSomeMAux (i+1)
-  else pure none
+  | i =>
+    if h : i < a.size then
+       let idx : Fin a.size := ⟨i, h⟩;
+       do let r ← f (a.get idx);
+          match r with
+          | some v => pure r
+          | none   => findSomeMAux a f (i+1)
+    else pure none
 
 @[inline] def findSomeM? (a : Array α) (f : α → m (Option β)) : m (Option β) :=
-findSomeMAux a f 0
+  findSomeMAux a f 0
 
 @[specialize] partial def findSomeRevMAux (a : Array α) (f : α → m (Option β)) : ∀ (idx : Nat), idx ≤ a.size → m (Option β)
-| i, h =>
-  if hLt : 0 < i then
-    have i - 1 < i from Nat.subLt hLt (Nat.zeroLtSucc 0);
-    have i - 1 < a.size from Nat.ltOfLtOfLe this h;
-    let idx : Fin a.size := ⟨i - 1, this⟩;
-    do
-      r ← f (a.get idx);
-      match r with
-      | some v => pure r
-      | none   =>
-        have i - 1 ≤ a.size from Nat.leOfLt this;
-        findSomeRevMAux (i-1) this
-  else pure none
+  | 0,   h => pure none
+  | i+1, h => do
+      have i < a.size from sorry
+      let idx : Fin a.size := ⟨i, this⟩;
+      do
+        let r ← f (a.get idx);
+        match r with
+        | some v => pure r
+        | none   =>
+          have i ≤ a.size from Nat.leOfLt this;
+          findSomeRevMAux a f i this
+
 
 @[inline] def findSomeRevM? (a : Array α) (f : α → m (Option β)) : m (Option β) :=
-findSomeRevMAux a f a.size (Nat.leRefl _)
+  findSomeRevMAux a f a.size (Nat.leRefl _)
 end
 
 -- TODO(Leo): justify termination using wf-rec
@@ -233,7 +235,7 @@ end
 | i =>
   if h : i < a.size then do
     let v := a.get ⟨i, h⟩;
-    condM (p v) (pure (some v)) (findMAux (i+1))
+    condM (p v) (pure (some v)) (findMAux a p (i+1))
   else pure none
 
 @[inline] def findM? {α : Type} {m : Type → Type} [Monad m] (a : Array α) (p : α → m Bool) : m (Option α) :=
@@ -245,13 +247,13 @@ Id.run $ a.findM? p
 @[specialize] partial def findRevMAux {α : Type} {m : Type → Type} [Monad m] (a : Array α) (p : α → m Bool) : ∀ (idx : Nat), idx ≤ a.size → m (Option α)
 | i, h =>
   if hLt : 0 < i then
-    have i - 1 < i from Nat.subLt hLt (Nat.zeroLtSucc 0);
+    have i - 1 < i from sorry -- Nat.subLt hLt (Nat.zeroLtSucc 0);
     have i - 1 < a.size from Nat.ltOfLtOfLe this h;
     let v := a.get ⟨i - 1, this⟩;
     do {
       condM (p v) (pure (some v)) $
         have i - 1 ≤ a.size from Nat.leOfLt this;
-        findRevMAux (i-1) this
+        findRevMAux a p (i-1) this
     }
   else pure none
 
@@ -301,7 +303,7 @@ match findSomeRev? a f with
 @[specialize] partial def findIdxMAux {m : Type → Type u} [Monad m] (a : Array α) (p : α → m Bool) : Nat → m (Option Nat)
 | i =>
   if h : i < a.size then
-    condM (p (a.get ⟨i, h⟩)) (pure (some i)) (findIdxMAux (i+1))
+    condM (p (a.get ⟨i, h⟩)) (pure (some i)) (findIdxMAux a p (i+1))
   else
     pure none
 
@@ -311,7 +313,7 @@ findIdxMAux a p 0
 @[specialize] partial def findIdxAux (a : Array α) (p : α → Bool) : Nat → Option Nat
 | i =>
   if h : i < a.size then
-    if p (a.get ⟨i, h⟩) then some i else findIdxAux (i+1)
+    if p (a.get ⟨i, h⟩) then some i else findIdxAux a p (i+1)
   else
     none
 
@@ -335,17 +337,18 @@ variables {m : Type → Type w} [Monad m]
 | i =>
   if h : i < endIdx then
      let idx : Fin a.size := ⟨i, Nat.ltOfLtOfLe h hlt⟩;
-     do b ← p (a.get idx);
+     do
+     let b ← p (a.get idx);
      match b with
      | true  => pure true
-     | false => anyRangeMAux (i+1)
+     | false => anyRangeMAux a endIdx hlt p (i+1)
   else pure false
 
 @[inline] def anyM (a : Array α) (p : α → m Bool) : m Bool :=
 anyRangeMAux a a.size (Nat.leRefl _) p 0
 
 @[inline] def allM (a : Array α) (p : α → m Bool) : m Bool := do
-b ← anyM a (fun v => do b ← p v; pure (!b)); pure (!b)
+let b ← anyM a (fun v => do let b ← p v; pure (!b)); pure (!b)
 
 @[inline] def anyRangeM (a : Array α) (beginIdx endIdx : Nat) (p : α → m Bool) : m Bool :=
 if h : endIdx ≤ a.size then
@@ -354,7 +357,7 @@ else
   anyRangeMAux a a.size (Nat.leRefl _) p beginIdx
 
 @[inline] def allRangeM (a : Array α) (beginIdx endIdx : Nat) (p : α → m Bool) : m Bool := do
-b ← anyRangeM a beginIdx endIdx (fun v => do b ← p v; pure b); pure (!b)
+let b ← anyRangeM a beginIdx endIdx (fun v => do let b ← p v; pure b); pure (!b)
 
 end
 
@@ -382,7 +385,7 @@ variable {β : Type v}
 | j+1, h, b => do
   let i : Fin a.size := ⟨j, h⟩;
   b ← f i (a.get i) b;
-  iterateRevMAux j (Nat.leOfLt h) b
+  iterateRevMAux a f j (Nat.leOfLt h) b
 
 @[inline] def iterateRevM (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → m β) : m β :=
 iterateRevMAux a f a.size (Nat.leRefl _) b
@@ -394,8 +397,8 @@ iterateRevM a init (fun _ => f)
 | 0,   h, b => pure b
 | j+1, h, b => do
   let i : Fin a.size := ⟨j, h⟩;
-  b ← f (a.get i) b;
-  if j == beginIdx then pure b else foldrRangeMAux j (Nat.leOfLt h) b
+  let b ← f (a.get i) b;
+  if j == beginIdx then pure b else foldrRangeMAux a f beginIdx j (Nat.leOfLt h) b
 
 @[inline] def foldrRangeM (beginIdx endIdx : Nat) (f : α → β → m β) (ini : β) (a : Array α) : m β :=
 if h : endIdx ≤ a.size then
@@ -408,7 +411,7 @@ else
   if h : i < a.size then do
     let curr := a.get ⟨i, h⟩;
     b ← f b curr;
-    foldlStepMAux (i+step) b
+    foldlStepMAux step a f (i+step) b
   else
     pure b
 
@@ -445,27 +448,27 @@ section
 variables {m : Type v → Type w} [Monad m]
 variable {β : Type v}
 
-@[specialize] unsafe partial def umapMAux (f : Nat → α → m β) : Nat → Array NonScalar → m (Array PNonScalar.{v})
+@[specialize] unsafe def umapMAux (f : Nat → α → m β) : Nat → Array NonScalar → m (Array PNonScalar.{v})
 | i, a =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      let v   : NonScalar  := a.get idx;
      let a                := a.set idx (arbitrary _);
-     do newV ← f i (unsafeCast v); umapMAux (i+1) (a.set idx (unsafeCast newV))
+     do let newV ← f i (unsafeCast v); umapMAux f (i+1) (a.set idx (unsafeCast newV))
   else
      pure (unsafeCast a)
 
-@[inline] unsafe partial def umapM (f : α → m β) (as : Array α) : m (Array β) :=
+@[inline] unsafe def umapM (f : α → m β) (as : Array α) : m (Array β) :=
 @unsafeCast (m (Array PNonScalar.{v})) (m (Array β)) $ umapMAux (fun i a => f a) 0 (unsafeCast as)
 
-@[inline] unsafe partial def umapIdxM (f : Nat → α → m β) (as : Array α) : m (Array β) :=
+@[inline] unsafe def umapIdxM (f : Nat → α → m β) (as : Array α) : m (Array β) :=
 @unsafeCast (m (Array PNonScalar.{v})) (m (Array β)) $ umapMAux f 0 (unsafeCast as)
 
 @[implementedBy Array.umapM] def mapM (f : α → m β) (as : Array α) : m (Array β) :=
-as.foldlM (fun bs a => do b ← f a; pure (bs.push b)) (mkEmpty as.size)
+as.foldlM (fun bs a => do let b ← f a; pure (bs.push b)) (mkEmpty as.size)
 
 @[implementedBy Array.umapIdxM] def mapIdxM (f : Nat → α → m β) (as : Array α) : m (Array β) :=
-as.iterateM (mkEmpty as.size) (fun i a bs => do b ← f i.val a; pure (bs.push b))
+as.iterateM (mkEmpty as.size) (fun i a bs => do let b ← f i.val a; pure (bs.push b))
 end
 
 section
@@ -509,7 +512,7 @@ partial def forMAux (f : α → m PUnit) (a : Array α) : Nat → m PUnit
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      let v   : α          := a.get idx;
-     do f v; forMAux (i+1)
+     do f v; forMAux f a (i+1)
   else
      pure ⟨⟩
 
@@ -523,11 +526,11 @@ a.forMAux f beginIdx
 partial def forRevMAux (f : α → m PUnit) (a : Array α) : forall (i : Nat), i ≤ a.size → m PUnit
 | i, h =>
   if hLt : 0 < i then
-    have i - 1 < i from Nat.subLt hLt (Nat.zeroLtSucc 0);
+    have i - 1 < i from sorry -- Nat.subLt hLt (Nat.zeroLtSucc 0);
     have i - 1 < a.size from Nat.ltOfLtOfLe this h;
     let v : α := a.get ⟨i-1, this⟩;
     have i - 1 ≤ a.size from Nat.leOfLt this;
-    do f v; forRevMAux (i-1) this
+    do f v; forRevMAux f a (i-1) this
   else
      pure ⟨⟩
 
@@ -548,7 +551,7 @@ instance : HasAppend (Array α) := ⟨Array.append⟩
      let aidx : Fin a.size := ⟨i, h⟩;
      let bidx : Fin b.size := ⟨i, hsz ▸ h⟩;
      match p (a.get aidx) (b.get bidx) with
-     | true  => isEqvAux (i+1)
+     | true  => isEqvAux a b hsz p (i+1)
      | false => false
   else
     true
@@ -580,11 +583,11 @@ reverseAux a 0
   if h₁ : i < a.size then
     if p (a.get ⟨i, h₁⟩) then
        if h₂ : j < i then
-         filterAux (a.swap ⟨i, h₁⟩ ⟨j, Nat.ltTrans h₂ h₁⟩) (i+1) (j+1)
+         filterAux p (a.swap ⟨i, h₁⟩ ⟨j, Nat.ltTrans h₂ h₁⟩) (i+1) (j+1)
        else
-         filterAux a (i+1) (j+1)
+         filterAux p a (i+1) (j+1)
     else
-       filterAux a (i+1) j
+       filterAux p a (i+1) j
   else
     a.shrink j
 
@@ -596,10 +599,10 @@ filterAux p as 0 0
   if h₁ : i < a.size then
     condM (p (a.get ⟨i, h₁⟩))
      (if h₂ : j < i then
-        filterMAux (a.swap ⟨i, h₁⟩ ⟨j, Nat.ltTrans h₂ h₁⟩) (i+1) (j+1)
+        filterMAux p (a.swap ⟨i, h₁⟩ ⟨j, Nat.ltTrans h₂ h₁⟩) (i+1) (j+1)
       else
-        filterMAux a (i+1) (j+1))
-     (filterMAux a (i+1) j)
+        filterMAux p a (i+1) (j+1))
+     (filterMAux p a (i+1) j)
   else
     pure $ a.shrink j
 
@@ -613,10 +616,10 @@ filterMAux p as beginIdx beginIdx
 | i, bs =>
   if h : i < as.size then do
     let a := as.get ⟨i, h⟩;
-    b? ← f a;
+    let b? ← f a;
     match b? with
-    | none   => filterMapMAux (i+1) bs
-    | some b => filterMapMAux (i+1) (bs.push b)
+    | none   => filterMapMAux f as (i+1) bs
+    | some b => filterMapMAux f as (i+1) (bs.push b)
   else
     pure bs
 
@@ -631,7 +634,7 @@ partial def indexOfAux {α} [HasBeq α] (a : Array α) (v : α) : Nat → Option
   if h : i < a.size then
     let idx : Fin a.size := ⟨i, h⟩;
     if a.get idx == v then some idx
-    else indexOfAux (i+1)
+    else indexOfAux a v (i+1)
   else none
 
 def indexOf? {α} [HasBeq α] (a : Array α) (v : α) : Option (Fin a.size) :=
@@ -669,7 +672,7 @@ partial def eraseIdxSzAux {α} (a : Array α) : ∀ (i : Nat) (r : Array α), r.
   if h : i < r.size then
     let idx  : Fin r.size := ⟨i, h⟩;
     let idx1 : Fin r.size := ⟨i - 1, Nat.ltOfLeOfLt (Nat.predLe i) h⟩;
-    eraseIdxSzAux (i+1) (r.swap idx idx1) ((szFSwapEq r idx idx1).trans heq)
+    eraseIdxSzAux a (i+1) (r.swap idx idx1) ((szFSwapEq r idx idx1).trans heq)
   else
     ⟨r.pop, (szPopEq r).trans (heq ▸ rfl)⟩
 end
@@ -693,7 +696,7 @@ partial def insertAtAux {α} (i : Nat) : Array α → Nat → Array α
   if i == j then as
   else
     let as := as.swap! (j-1) j;
-    insertAtAux as (j-1)
+    insertAtAux i as (j-1)
 
 /--
   Insert element `a` at position `i`.
@@ -704,20 +707,20 @@ else
   let as := as.push a;
   as.insertAtAux i as.size
 
-theorem ext {α : Type u} (a b : Array α) : a.size = b.size → (∀ (i : Nat) (hi₁ : i < a.size) (hi₂ : i < b.size) , a.get ⟨i, hi₁⟩ = b.get ⟨i, hi₂⟩) → a = b :=
+theorem ext (a b : Array α) : a.size = b.size → (∀ (i : Nat) (hi₁ : i < a.size) (hi₂ : i < b.size) , a.get ⟨i, hi₁⟩ = b.get ⟨i, hi₂⟩) → a = b :=
 match a, b with
-| ⟨sz₁, f₁⟩, ⟨sz₂, f₂⟩ =>
-  show sz₁ = sz₂ → (∀ (i : Nat) (hi₁ : i < sz₁) (hi₂ : i < sz₂) , f₁ ⟨i, hi₁⟩ = f₂ ⟨i, hi₂⟩) → Array.mk sz₁ f₁ = Array.mk sz₂ f₂ from
-  fun h₁ h₂ =>
-    match sz₁, sz₂, f₁, f₂, h₁, h₂ with
-    | sz, _, f₁, f₂, rfl, h₂ =>
-      have f₁ = f₂ from funext $ fun ⟨i, hi₁⟩ => h₂ i hi₁ hi₁;
-      congrArg _ this
+| ⟨sz₁, f₁⟩, ⟨sz₂, f₂⟩ => by
+  show sz₁ = sz₂ → (∀ (i : Nat) (hi₁ : i < sz₁) (hi₂ : i < sz₂) , f₁ ⟨i, hi₁⟩ = f₂ ⟨i, hi₂⟩) → Array.mk sz₁ f₁ = Array.mk sz₂ f₂
+  intro h₁ h₂
+  subst h₁
+  have f₁ = f₂ from funext $ fun ⟨i, hi₁⟩ => h₂ i hi₁ hi₁
+  subst this
+  exact rfl
 
 theorem extLit {α : Type u} {n : Nat}
-  (a b : Array α)
-  (hsz₁ : a.size = n) (hsz₂ : b.size = n)
-  (h : ∀ (i : Nat) (hi : i < n), a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
+    (a b : Array α)
+    (hsz₁ : a.size = n) (hsz₂ : b.size = n)
+    (h : ∀ (i : Nat) (hi : i < n), a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
 Array.ext a b (hsz₁.trans hsz₂.symm) $ fun i hi₁ hi₂ => h i (hsz₁ ▸ hi₁)
 
 end Array
@@ -726,7 +729,7 @@ export Array (mkArray)
 
 @[inlineIfReduce] def List.toArrayAux {α : Type u} : List α → Array α → Array α
 | [],    r => r
-| a::as, r => List.toArrayAux as (r.push a)
+| a::as, r => toArrayAux as (r.push a)
 
 @[inlineIfReduce] def List.redLength {α : Type u} : List α → Nat
 | []    => 0
@@ -739,7 +742,7 @@ namespace Array
 
 def toListLitAux {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i ≤ a.size → List α → List α
 | 0,     hi, acc => acc
-| (i+1), hi, acc => toListLitAux i (Nat.leOfSuccLe hi) (a.getLit i hsz (Nat.ltOfLtOfEq (Nat.ltOfLtOfLe (Nat.ltSuccSelf i) hi) hsz) :: acc)
+| (i+1), hi, acc => toListLitAux a n hsz i (Nat.leOfSuccLe hi) (a.getLit i hsz (Nat.ltOfLtOfEq (Nat.ltOfLtOfLe (Nat.ltSuccSelf i) hi) hsz) :: acc)
 
 def toArrayLit {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
 List.toArray $ toListLitAux a n hsz n (hsz ▸ Nat.leRefl _) []
@@ -797,8 +800,8 @@ else
   if h : i < as.size then
     let a := as.get ⟨i, h⟩;
     match p a with
-    | true  => partitionAux (i+1) (bs.push a) cs
-    | false => partitionAux (i+1) bs (cs.push a)
+    | true  => partitionAux p as (i+1) (bs.push a) cs
+    | false => partitionAux p as (i+1) bs (cs.push a)
   else
     (bs, cs)
 
@@ -811,7 +814,7 @@ partial def isPrefixOfAux {α : Type u} [HasBeq α] (as bs : Array α) (hle : as
     let a := as.get ⟨i, h⟩;
     let b := bs.get ⟨i, Nat.ltOfLtOfLe h hle⟩;
     if a == b then
-      isPrefixOfAux (i+1)
+      isPrefixOfAux as bs hle (i+1)
     else
       false
   else
@@ -828,12 +831,12 @@ private def allDiffAuxAux {α} [HasBeq α] (as : Array α) (a : α) : forall (i 
 | 0,   h => true
 | i+1, h =>
   have i < as.size from Nat.ltTrans (Nat.ltSuccSelf _) h;
-  a != as.get ⟨i, this⟩ && allDiffAuxAux i this
+  a != as.get ⟨i, this⟩ && allDiffAuxAux as a i this
 
 private partial def allDiffAux {α} [HasBeq α] (as : Array α) : Nat → Bool
 | i =>
   if h : i < as.size then
-    allDiffAuxAux as (as.get ⟨i, h⟩) i h && allDiffAux (i+1)
+    allDiffAuxAux as (as.get ⟨i, h⟩) i h && allDiffAux as (i+1)
   else
     true
 
@@ -846,7 +849,7 @@ allDiffAux as 0
     let a := as.get ⟨i, h⟩;
     if h : i < bs.size then
       let b := bs.get ⟨i, h⟩;
-      zipWithAux (i+1) (cs.push $ f a b)
+      zipWithAux f as bs (i+1) (cs.push $ f a b)
     else
       cs
   else

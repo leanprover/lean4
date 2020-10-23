@@ -24,9 +24,11 @@ lean_object* l_Lean_IR_reshapeWithoutDeadAux_match__1___rarg(lean_object*, lean_
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___at_Lean_IR_FnBody_elimDead___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_freeIndices(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead_match__2(lean_object*);
+lean_object* l_Array_umapMAux___at_Lean_IR_FnBody_elimDead___spec__2(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_IR_reshapeWithoutDeadAux_match__1(lean_object*);
 extern lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__15;
@@ -34,14 +36,12 @@ lean_object* l_Lean_IR_reshapeWithoutDeadAux(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_IR_Decl_elimDead_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_IR_reshapeWithoutDead(lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
 lean_object* l_Lean_IR_FnBody_setBody(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_flatten(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead_match__3___rarg(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead_match__1(lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___spec__1___boxed(lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_collectFreeIndices(lean_object*, lean_object*);
@@ -312,7 +312,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_IR_FnBody_elimDead_match__3___rarg), 2, 
 return x_2;
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_IR_FnBody_elimDead___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -388,7 +388,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_IR_FnBody_elimDead___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -497,7 +497,7 @@ lean_inc(x_4);
 lean_dec(x_2);
 x_5 = x_3;
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___spec__1(x_6, x_5);
+x_7 = l_Array_umapMAux___at_Lean_IR_FnBody_elimDead___spec__1(x_6, x_5);
 x_8 = x_7;
 if (lean_obj_tag(x_4) == 10)
 {
@@ -508,7 +508,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_10 = lean_ctor_get(x_4, 3);
 x_11 = x_10;
-x_12 = l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___spec__2(x_6, x_11);
+x_12 = l_Array_umapMAux___at_Lean_IR_FnBody_elimDead___spec__2(x_6, x_11);
 x_13 = x_12;
 lean_ctor_set(x_4, 3, x_13);
 x_14 = l_Lean_IR_reshapeWithoutDead(x_8, x_4);
@@ -527,7 +527,7 @@ lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_4);
 x_19 = x_18;
-x_20 = l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___spec__2(x_6, x_19);
+x_20 = l_Array_umapMAux___at_Lean_IR_FnBody_elimDead___spec__2(x_6, x_19);
 x_21 = x_20;
 x_22 = lean_alloc_ctor(10, 4, 0);
 lean_ctor_set(x_22, 0, x_15);

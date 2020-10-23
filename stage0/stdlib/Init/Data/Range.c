@@ -62,6 +62,7 @@ lean_object* l_Std_Range_forIn_loop_match__2___rarg(lean_object*, lean_object*, 
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__16;
 lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__20;
 lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__10;
+extern lean_object* l___private_Init_Util_0__mkPanicMessage___closed__2;
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_1210_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_831_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_530_(lean_object*, lean_object*, lean_object*);
@@ -102,7 +103,6 @@ lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_151____closed_
 extern lean_object* l_Lean_Init_LeanInit___instance__8___closed__1;
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__24;
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_530____closed__8;
-extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* l_Std_Range_forIn_loop_match__2(lean_object*);
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_530____closed__5;
 extern lean_object* l_Lean_Name_hasMacroScopes___closed__1;
@@ -516,7 +516,7 @@ static lean_object* _init_l_Std_Range___kind_term____x40_Init_Data_Range___hyg_1
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_Util_1__mkPanicMessage___closed__2;
+x_1 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_2 = lean_alloc_ctor(11, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1036,7 +1036,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
-x_2 = l___private_Init_Util_1__mkPanicMessage___closed__2;
+x_2 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__5(lean_object*);
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__7___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__2___closed__3;
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_Basic___instance__33___closed__1;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__7___spec__1(lean_object*, lean_object*);
@@ -70,7 +71,6 @@ lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_TextSync___
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___boxed(lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_Basic___instance__21___closed__1;
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__7___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__1(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__5___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__3(lean_object*);
@@ -932,7 +932,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__7___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__7___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -1049,7 +1049,7 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = x_6;
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__7___spec__2(x_8, x_7);
+x_9 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__7___spec__2(x_8, x_7);
 x_10 = x_9;
 return x_10;
 }

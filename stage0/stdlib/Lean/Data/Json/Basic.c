@@ -46,7 +46,6 @@ lean_object* l_Lean_Json_getArr_x3f_match__1(lean_object*);
 lean_object* lean_nat_pow(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getArrVal_x3f(lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_Json_getObj_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_mkObj_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -87,15 +86,16 @@ lean_object* l_Lean_strLt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getArrVal_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getNat_x3f___boxed(lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
+lean_object* l_Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_Json_mkObj___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Json_getObjVal_x3f___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_Substring_takeRightWhileAux___main___at_Lean_JsonNumber_toString___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_decEq_match__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_Json_getNum_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Lean_Data_Json_Basic___instance__10(lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
@@ -136,6 +136,7 @@ lean_object* l_Lean_JsonNumber_decEq_match__2(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_JsonNumber_shiftr_match__1(lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValD___boxed(lean_object*, lean_object*);
+lean_object* l_Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_Lean_Data_Json_Basic___instance__3;
 lean_object* l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_countDigits(lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
@@ -146,7 +147,6 @@ lean_object* l_Lean_Json_getObjVal_x3f___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_JsonNumber_decEq_match__1___rarg(uint8_t, lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
-lean_object* l_Substring_takeRightWhileAux___main___at_Lean_JsonNumber_toString___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_decEq_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -446,7 +446,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_JsonNumber_toString_match__1___rarg), 3,
 return x_2;
 }
 }
-lean_object* l_Substring_takeRightWhileAux___main___at_Lean_JsonNumber_toString___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -565,7 +565,7 @@ x_30 = l_String_Iterator_remainingToString(x_29);
 lean_dec(x_29);
 x_31 = l_Nat_repr(x_23);
 x_32 = lean_string_utf8_byte_size(x_30);
-x_33 = l_Substring_takeRightWhileAux___main___at_Lean_JsonNumber_toString___spec__1(x_30, x_4, x_32);
+x_33 = l_Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec__1(x_30, x_4, x_32);
 x_34 = lean_string_utf8_extract(x_30, x_4, x_33);
 lean_dec(x_33);
 lean_dec(x_30);
@@ -596,7 +596,7 @@ else
 {
 lean_object* x_45; lean_object* x_46; 
 lean_dec(x_18);
-x_45 = l_String_splitAux___main___closed__1;
+x_45 = l_String_splitAux___closed__1;
 x_46 = lean_string_append(x_40, x_45);
 return x_46;
 }
@@ -604,7 +604,7 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
-x_47 = l_String_splitAux___main___closed__1;
+x_47 = l_String_splitAux___closed__1;
 x_48 = lean_string_append(x_47, x_31);
 lean_dec(x_31);
 x_49 = l_System_FilePath_dirName___closed__1;
@@ -643,11 +643,11 @@ return x_58;
 }
 }
 }
-lean_object* l_Substring_takeRightWhileAux___main___at_Lean_JsonNumber_toString___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeRightWhileAux___main___at_Lean_JsonNumber_toString___spec__1(x_1, x_2, x_3);
+x_4 = l_Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;

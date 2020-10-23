@@ -28,7 +28,6 @@ lean_object* l_Lean_PPContext_openDecls___default;
 lean_object* l_IO_mkRef___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____spec__1(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_129____lambda__1(lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__2;
 lean_object* l_Lean_Lean_Util_PPExt___instance__1___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__4;
@@ -55,6 +54,7 @@ lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____lambda__1___boxed(
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Util_PPExt___instance__1;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____closed__3;
+extern lean_object* l_String_splitAux___closed__1;
 extern lean_object* l_Lean_sanitizeNamesOption___closed__1;
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPPRaw___boxed(lean_object*);
@@ -110,7 +110,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__3;
-x_2 = l_String_splitAux___main___closed__1;
+x_2 = l_String_splitAux___closed__1;
 x_3 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

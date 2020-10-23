@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_List_forIn_loop___at_Lean_Elab_printDeps___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_List_map___main___at_Lean_Elab_headerToImports___spec__1(lean_object*);
@@ -21,8 +22,6 @@ lean_object* l_Lean_Elab_headerToImports___closed__2;
 lean_object* l_Lean_Elab_headerToImports(lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_parseImports_match__1(lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
-lean_object* l_List_forInAux___main___at_Lean_Elab_printDeps___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_headerToImports___closed__1;
 lean_object* l_Lean_Elab_headerToImports___boxed(lean_object*);
 lean_object* l_Lean_findOLean(lean_object*, lean_object*);
@@ -40,7 +39,7 @@ lean_object* l_Lean_FileMap_ofString(lean_object*);
 lean_object* lean_mk_empty_environment(uint32_t, lean_object*);
 lean_object* lean_import_modules(lean_object*, lean_object*, uint32_t, lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
-lean_object* l_List_forInAux___main___at_Lean_Elab_printDeps___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* lean_parse_imports(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos(lean_object*);
@@ -52,6 +51,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_parseImportsExport_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_parseImportsExport_match__1(lean_object*);
 extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__6;
+lean_object* l_List_forIn_loop___at_Lean_Elab_printDeps___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Elab_headerToImports___spec__1(lean_object* x_1) {
 _start:
 {
@@ -293,7 +293,7 @@ lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; lean_obje
 x_29 = lean_unsigned_to_nat(0u);
 x_30 = l_Lean_FileMap_toPosition(x_23, x_29);
 x_31 = 2;
-x_32 = l_String_splitAux___main___closed__1;
+x_32 = l_String_splitAux___closed__1;
 lean_inc(x_24);
 x_33 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_33, 0, x_24);
@@ -317,7 +317,7 @@ lean_inc(x_36);
 lean_dec(x_22);
 x_37 = l_Lean_FileMap_toPosition(x_23, x_36);
 x_38 = 2;
-x_39 = l_String_splitAux___main___closed__1;
+x_39 = l_String_splitAux___closed__1;
 lean_inc(x_24);
 x_40 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_40, 0, x_24);
@@ -357,7 +357,7 @@ lean_object* x_52; lean_object* x_53; uint8_t x_54; lean_object* x_55; lean_obje
 x_52 = lean_unsigned_to_nat(0u);
 x_53 = l_Lean_FileMap_toPosition(x_46, x_52);
 x_54 = 2;
-x_55 = l_String_splitAux___main___closed__1;
+x_55 = l_String_splitAux___closed__1;
 lean_inc(x_47);
 x_56 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_56, 0, x_47);
@@ -383,7 +383,7 @@ lean_inc(x_60);
 lean_dec(x_45);
 x_61 = l_Lean_FileMap_toPosition(x_46, x_60);
 x_62 = 2;
-x_63 = l_String_splitAux___main___closed__1;
+x_63 = l_String_splitAux___closed__1;
 lean_inc(x_47);
 x_64 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_64, 0, x_47);
@@ -1044,7 +1044,7 @@ return x_38;
 }
 }
 }
-lean_object* l_List_forInAux___main___at_Lean_Elab_printDeps___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_forIn_loop___at_Lean_Elab_printDeps___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1137,7 +1137,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_box(0);
-x_4 = l_List_forInAux___main___at_Lean_Elab_printDeps___spec__1(x_1, x_3, x_2);
+x_4 = l_List_forIn_loop___at_Lean_Elab_printDeps___spec__1(x_1, x_3, x_2);
 lean_dec(x_1);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -1185,11 +1185,11 @@ return x_12;
 }
 }
 }
-lean_object* l_List_forInAux___main___at_Lean_Elab_printDeps___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_forIn_loop___at_Lean_Elab_printDeps___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_List_forInAux___main___at_Lean_Elab_printDeps___spec__1(x_1, x_2, x_3);
+x_4 = l_List_forIn_loop___at_Lean_Elab_printDeps___spec__1(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }

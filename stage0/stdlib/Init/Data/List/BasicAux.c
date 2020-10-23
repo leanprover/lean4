@@ -24,7 +24,6 @@ lean_object* l_List_getD___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_tail_x21___rarg___boxed(lean_object*);
 lean_object* l_List_getLast_x3f___rarg___boxed(lean_object*);
 lean_object* l_List_get_x21___main___rarg___closed__3;
-lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_tailD___rarg(lean_object*, lean_object*);
 lean_object* l_List_get_x21___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_tailD(lean_object*);
@@ -37,6 +36,7 @@ lean_object* l_List_getLastD(lean_object*);
 lean_object* l_List_headD___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_get_x3f___main(lean_object*);
 lean_object* l_List_getLast___rarg___boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_Util_0__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_getLast(lean_object*);
 lean_object* l_List_tail_x3f___rarg(lean_object*);
 lean_object* l_List_head_x21___rarg___closed__1;
@@ -96,7 +96,7 @@ x_1 = l_List_get_x21___main___rarg___closed__1;
 x_2 = lean_unsigned_to_nat(21u);
 x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_List_get_x21___main___rarg___closed__2;
-x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+x_5 = l___private_Init_Util_0__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -335,7 +335,7 @@ x_1 = l_List_get_x21___main___rarg___closed__1;
 x_2 = lean_unsigned_to_nat(32u);
 x_3 = lean_unsigned_to_nat(10u);
 x_4 = l_List_head_x21___rarg___closed__1;
-x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+x_5 = l___private_Init_Util_0__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -456,7 +456,7 @@ x_1 = l_List_get_x21___main___rarg___closed__1;
 x_2 = lean_unsigned_to_nat(44u);
 x_3 = lean_unsigned_to_nat(11u);
 x_4 = l_List_head_x21___rarg___closed__1;
-x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+x_5 = l___private_Init_Util_0__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -639,7 +639,7 @@ x_1 = l_List_get_x21___main___rarg___closed__1;
 x_2 = lean_unsigned_to_nat(61u);
 x_3 = lean_unsigned_to_nat(11u);
 x_4 = l_List_head_x21___rarg___closed__1;
-x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+x_5 = l___private_Init_Util_0__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }

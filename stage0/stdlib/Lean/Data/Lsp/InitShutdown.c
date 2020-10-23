@@ -27,7 +27,6 @@ lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___closed__5;
 lean_object* l_Lean_Lsp_InitializeParams_processId_x3f___default;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___spec__4(lean_object*, lean_object*);
@@ -77,6 +76,7 @@ extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_Capabilities___instance__1___closed
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__4(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Basic___instance__11___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_InitializeParams_workspaceFolders_x3f___default;
 lean_object* l_Lean_Lsp_ClientInfo_version_x3f___default;
@@ -582,7 +582,7 @@ return x_18;
 }
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___spec__6(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___spec__6(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -681,7 +681,7 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = x_6;
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___spec__6(x_8, x_7);
+x_9 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___spec__6(x_8, x_7);
 x_10 = x_9;
 return x_10;
 }

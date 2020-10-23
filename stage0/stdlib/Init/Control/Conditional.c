@@ -13,28 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Option_HasToBool(lean_object*);
 lean_object* l_notM___rarg___lambda__1___boxed(lean_object*);
+lean_object* l_bool_match__1(lean_object*);
+lean_object* l_andM_match__1___rarg(uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Nat_HasOfNat___closed__1;
+lean_object* l_orM_match__1(lean_object*);
 lean_object* l_andM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_bool_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_bool_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_notM___rarg___closed__1;
 lean_object* l_orM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_orM_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_bool___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_notM(lean_object*);
 lean_object* l_bool(lean_object*, lean_object*);
-lean_object* l_Option_HasToBool___closed__1;
+lean_object* l_Init_Control_Conditional___instance__2(lean_object*);
 lean_object* l_orM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_orM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Init_Control_Conditional___instance__1;
 lean_object* l_andM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_notM___rarg___lambda__1(uint8_t);
+lean_object* l_andM_match__1(lean_object*);
 lean_object* l_bool___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Bool_HasToBool;
+lean_object* l_orM_match__1___rarg(uint8_t, lean_object*, lean_object*);
+lean_object* l_Init_Control_Conditional___instance__2___closed__1;
 lean_object* l_andM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_andM(lean_object*, lean_object*);
 lean_object* l_orM(lean_object*, lean_object*);
 lean_object* l_Option_toBool___rarg___boxed(lean_object*);
+lean_object* l_andM_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_notM___rarg(lean_object*, lean_object*);
-static lean_object* _init_l_Bool_HasToBool() {
+static lean_object* _init_l_Init_Control_Conditional___instance__1() {
 _start:
 {
 lean_object* x_1; 
@@ -42,7 +51,7 @@ x_1 = l_Nat_HasOfNat___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Option_HasToBool___closed__1() {
+static lean_object* _init_l_Init_Control_Conditional___instance__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -50,12 +59,51 @@ x_1 = lean_alloc_closure((void*)(l_Option_toBool___rarg___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* l_Option_HasToBool(lean_object* x_1) {
+lean_object* l_Init_Control_Conditional___instance__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Option_HasToBool___closed__1;
+x_2 = l_Init_Control_Conditional___instance__2___closed__1;
 return x_2;
+}
+}
+lean_object* l_bool_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_2);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_3);
+x_6 = lean_box(0);
+x_7 = lean_apply_1(x_2, x_6);
+return x_7;
+}
+}
+}
+lean_object* l_bool_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_bool_match__1___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_bool_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l_bool_match__1___rarg(x_4, x_2, x_3);
+return x_5;
 }
 }
 lean_object* l_bool___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -92,6 +140,45 @@ lean_object* x_5;
 x_5 = l_bool___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+return x_5;
+}
+}
+lean_object* l_orM_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_2);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_3);
+x_6 = lean_box(0);
+x_7 = lean_apply_1(x_2, x_6);
+return x_7;
+}
+}
+}
+lean_object* l_orM_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_orM_match__1___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_orM_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l_orM_match__1___rarg(x_4, x_2, x_3);
 return x_5;
 }
 }
@@ -152,6 +239,45 @@ _start:
 lean_object* x_5; 
 x_5 = l_orM___rarg___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
+return x_5;
+}
+}
+lean_object* l_andM_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_2);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_3);
+x_6 = lean_box(0);
+x_7 = lean_apply_1(x_2, x_6);
+return x_7;
+}
+}
+}
+lean_object* l_andM_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_andM_match__1___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_andM_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l_andM_match__1___rarg(x_4, x_2, x_3);
 return x_5;
 }
 }
@@ -287,10 +413,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Bool_HasToBool = _init_l_Bool_HasToBool();
-lean_mark_persistent(l_Bool_HasToBool);
-l_Option_HasToBool___closed__1 = _init_l_Option_HasToBool___closed__1();
-lean_mark_persistent(l_Option_HasToBool___closed__1);
+l_Init_Control_Conditional___instance__1 = _init_l_Init_Control_Conditional___instance__1();
+lean_mark_persistent(l_Init_Control_Conditional___instance__1);
+l_Init_Control_Conditional___instance__2___closed__1 = _init_l_Init_Control_Conditional___instance__2___closed__1();
+lean_mark_persistent(l_Init_Control_Conditional___instance__2___closed__1);
 l_notM___rarg___closed__1 = _init_l_notM___rarg___closed__1();
 lean_mark_persistent(l_notM___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

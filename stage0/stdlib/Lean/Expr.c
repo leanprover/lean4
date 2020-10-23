@@ -190,6 +190,7 @@ lean_object* l_Lean_Expr_updateForall_x21___boxed(lean_object*, lean_object*, le
 lean_object* l_Lean_Lean_Expr___instance__16(lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 lean_object* l_Lean_Lean_Expr___instance__8;
+lean_object* l_Array_iterateMAux___at_Lean_mkAppN___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21___closed__2;
 uint8_t lean_expr_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
@@ -412,6 +413,7 @@ lean_object* l_Lean_Expr_instantiate___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkSimpleThunk___closed__1;
 lean_object* l_Lean_Expr_appFn_x21___closed__1;
 lean_object* l_Lean_Expr_updateApp_x21___closed__1;
+lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConst(lean_object*);
 lean_object* l_Lean_Expr_Lean_Expr___instance__14;
 lean_object* l_Lean_BinderInfo_hash_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -516,6 +518,7 @@ extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__
 lean_object* l_Lean_Expr_constLevels_x21___closed__1;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t l_Lean_Lean_Expr___instance__7;
+lean_object* l_Array_iterateMAux___at_Lean_mkAppN___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getOptParamDefault_x3f___closed__1;
 lean_object* l_Lean_Expr_Lean_Expr___instance__11;
 uint8_t l_Lean_Expr_isMVar(lean_object*);
@@ -538,6 +541,7 @@ lean_object* l_Lean_Lean_Expr___instance__5___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_BinderInfo_isInstImplicit___boxed(lean_object*);
 extern lean_object* l_Lean_KVMap_empty;
 lean_object* l_Lean_Expr_isLambda_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_iterateRevMAux___at_Lean_mkAppRev___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isExplicit(uint8_t);
 lean_object* l_Lean_BinderInfo_isAuxDecl_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateMData_x21___closed__3;
@@ -551,7 +555,6 @@ lean_object* l_Lean_Expr_mkDataForBinder___boxed__const__1;
 extern uint8_t l_Bool_Inhabited;
 lean_object* l_Lean_Expr_bvarIdx_x21___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t l_USize_toUInt32(size_t);
 lean_object* l_Lean_Expr_withApp___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingDomain_x21_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -561,6 +564,7 @@ lean_object* l_Lean_Expr_appArg_x21___boxed(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getParamSubst(lean_object*, lean_object*, lean_object*);
 uint64_t l_UInt64_shiftLeft(uint64_t, uint64_t);
 lean_object* l_Lean_Expr_binderInfo___boxed(lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_iterateRevMAux___at_Lean_mkAppRev___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Literal_lt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_mkDataCore___closed__2;
@@ -666,7 +670,6 @@ lean_object* l_Lean_BinderInfo_isExplicit___boxed(lean_object*);
 lean_object* l_Lean_Lean_Expr___instance__2;
 uint64_t l_Lean_Expr_mkData___closed__1;
 lean_object* l_Lean_Expr_hashEx___boxed(lean_object*);
-lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_withAppRevAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsFalse___closed__3;
 lean_object* l_Lean_Expr_Lean_Expr___instance__11___closed__1;
@@ -694,7 +697,6 @@ lean_object* l_Lean_ExprStructEq_Lean_Expr___instance__20(lean_object*);
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit___closed__1;
 lean_object* l_Lean_Expr_bvarIdx_x21_match__1(lean_object*);
 uint64_t l_UInt64_shiftRight(uint64_t, uint64_t);
-lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasLooseBVars___boxed(lean_object*);
 lean_object* lean_lit_type(lean_object*);
 lean_object* l_Lean_Expr_getArgD___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -749,9 +751,7 @@ lean_object* l_Lean_Expr_isConstOf_match__1(lean_object*);
 size_t lean_string_hash(lean_object*);
 lean_object* l_Lean_ExprStructEq_Lean_Expr___instance__19___closed__1;
 lean_object* l_Lean_Expr_isNatLit___boxed(lean_object*);
-lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_mkDataCore___closed__3;
-lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLocal___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isSort(lean_object*);
@@ -2163,7 +2163,7 @@ x_2 = l___private_Lean_Expr_0__Lean_Expr_mkDataCore___closed__2;
 x_3 = lean_unsigned_to_nat(143u);
 x_4 = lean_unsigned_to_nat(42u);
 x_5 = l___private_Lean_Expr_0__Lean_Expr_mkDataCore___closed__3;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -6278,7 +6278,7 @@ x_6 = lean_expr_mk_local(x_1, x_2, x_3, x_5);
 return x_6;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___at_Lean_mkAppN___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -6309,15 +6309,15 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(x_2, x_2, x_3, x_1);
+x_4 = l_Array_iterateMAux___at_Lean_mkAppN___spec__1(x_2, x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___at_Lean_mkAppN___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(x_1, x_2, x_3, x_4);
+x_5 = l_Array_iterateMAux___at_Lean_mkAppN___spec__1(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
@@ -6385,7 +6385,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_Basic_0__Array_iterateRevMAux___at_Lean_mkAppRev___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
@@ -6416,15 +6416,15 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_array_get_size(x_2);
-x_4 = l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1(x_2, x_2, x_3, lean_box(0), x_1);
+x_4 = l___private_Init_Data_Array_Basic_0__Array_iterateRevMAux___at_Lean_mkAppRev___spec__1(x_2, x_2, x_3, lean_box(0), x_1);
 return x_4;
 }
 }
-lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_Basic_0__Array_iterateRevMAux___at_Lean_mkAppRev___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_iterateRevMAux___at_Lean_mkAppRev___spec__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
@@ -8043,7 +8043,7 @@ x_2 = l_Lean_Expr_getRevArg_x21___closed__1;
 x_3 = lean_unsigned_to_nat(507u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_List_get_x21___main___rarg___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -8426,7 +8426,7 @@ x_2 = l_Lean_Expr_appFn_x21___closed__1;
 x_3 = lean_unsigned_to_nat(527u);
 x_4 = lean_unsigned_to_nat(15u);
 x_5 = l_Lean_Expr_appFn_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -8510,7 +8510,7 @@ x_2 = l_Lean_Expr_appArg_x21___closed__1;
 x_3 = lean_unsigned_to_nat(531u);
 x_4 = lean_unsigned_to_nat(15u);
 x_5 = l_Lean_Expr_appFn_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -8928,7 +8928,7 @@ x_2 = l_Lean_Expr_constName_x21___closed__1;
 x_3 = lean_unsigned_to_nat(550u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_Expr_constName_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9075,7 +9075,7 @@ x_2 = l_Lean_Expr_constLevels_x21___closed__1;
 x_3 = lean_unsigned_to_nat(558u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Expr_constName_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9165,7 +9165,7 @@ x_2 = l_Lean_Expr_bvarIdx_x21___closed__1;
 x_3 = lean_unsigned_to_nat(562u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_Expr_bvarIdx_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9255,7 +9255,7 @@ x_2 = l_Lean_Expr_fvarId_x21___closed__1;
 x_3 = lean_unsigned_to_nat(566u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Expr_fvarId_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9345,7 +9345,7 @@ x_2 = l_Lean_Expr_mvarId_x21___closed__1;
 x_3 = lean_unsigned_to_nat(570u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Expr_mvarId_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9460,7 +9460,7 @@ x_2 = l_Lean_Expr_bindingName_x21___closed__1;
 x_3 = lean_unsigned_to_nat(575u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Expr_bindingName_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9576,7 +9576,7 @@ x_2 = l_Lean_Expr_bindingDomain_x21___closed__1;
 x_3 = lean_unsigned_to_nat(580u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Expr_bindingName_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9692,7 +9692,7 @@ x_2 = l_Lean_Expr_bindingBody_x21___closed__1;
 x_3 = lean_unsigned_to_nat(585u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Expr_bindingName_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9808,7 +9808,7 @@ x_2 = l_Lean_Expr_bindingInfo_x21___closed__1;
 x_3 = lean_unsigned_to_nat(590u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Expr_bindingName_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9917,7 +9917,7 @@ x_2 = l_Lean_Expr_letName_x21___closed__1;
 x_3 = lean_unsigned_to_nat(594u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_Expr_letName_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -12130,7 +12130,7 @@ x_2 = l_Lean_Expr_hasAnyFVar_visit___closed__1;
 x_3 = lean_unsigned_to_nat(853u);
 x_4 = lean_unsigned_to_nat(30u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -12397,7 +12397,7 @@ x_2 = l_Lean_Expr_updateApp_x21___closed__1;
 x_3 = lean_unsigned_to_nat(875u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Expr_appFn_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -12503,7 +12503,7 @@ x_2 = l_Lean_Expr_updateConst_x21___closed__1;
 x_3 = lean_unsigned_to_nat(884u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Expr_constName_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -12614,7 +12614,7 @@ x_2 = l_Lean_Expr_updateSort_x21___closed__1;
 x_3 = lean_unsigned_to_nat(893u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Expr_updateSort_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -12802,7 +12802,7 @@ x_2 = l_Lean_Expr_updateMData_x21___closed__1;
 x_3 = lean_unsigned_to_nat(910u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_Expr_updateMData_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -12909,7 +12909,7 @@ x_2 = l_Lean_Expr_updateProj_x21___closed__1;
 x_3 = lean_unsigned_to_nat(915u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Expr_updateProj_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -13029,7 +13029,7 @@ x_2 = l_Lean_Expr_updateForall_x21___closed__1;
 x_3 = lean_unsigned_to_nat(924u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Expr_updateForall_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -13142,7 +13142,7 @@ x_2 = l_Lean_Expr_updateForallE_x21___closed__1;
 x_3 = lean_unsigned_to_nat(929u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Expr_updateForall_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -13266,7 +13266,7 @@ x_2 = l_Lean_Expr_updateLambda_x21___closed__1;
 x_3 = lean_unsigned_to_nat(938u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_Expr_updateLambda_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -13379,7 +13379,7 @@ x_2 = l_Lean_Expr_updateLambdaE_x21___closed__1;
 x_3 = lean_unsigned_to_nat(943u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_Expr_updateLambda_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -13495,7 +13495,7 @@ x_2 = l_Lean_Expr_updateLet_x21___closed__1;
 x_3 = lean_unsigned_to_nat(952u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_Expr_letName_x21___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -13892,7 +13892,7 @@ x_2 = l_Lean_Expr_instantiateLevelParamsCore_visit___closed__1;
 x_3 = lean_unsigned_to_nat(972u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

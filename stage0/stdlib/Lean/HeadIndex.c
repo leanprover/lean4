@@ -33,6 +33,7 @@ uint8_t l_Lean_Literal_beq(lean_object*, lean_object*);
 size_t l_Lean_HeadIndex_HeadIndex_hash(lean_object*);
 size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_Expr_headNumArgs(lean_object*);
+lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_HeadIndex_HeadIndex_hash_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -52,7 +53,6 @@ lean_object* l_Lean_HeadIndex_Lean_HeadIndex___instance__3;
 size_t lean_usize_mix_hash(size_t, size_t);
 lean_object* l_Lean_HeadIndex_Lean_HeadIndex___instance__1;
 lean_object* l_Lean_Expr_toHeadIndex_match__1(lean_object*);
-lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_HeadIndex_Lean_HeadIndex___instance__2___closed__1;
 static lean_object* _init_l_Lean_HeadIndex_Lean_HeadIndex___instance__1() {
 _start:
@@ -1309,7 +1309,7 @@ x_2 = l_Lean_Expr_toHeadIndex___closed__2;
 x_3 = lean_unsigned_to_nat(81u);
 x_4 = lean_unsigned_to_nat(29u);
 x_5 = l_Lean_Expr_toHeadIndex___closed__3;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

@@ -19,7 +19,6 @@ extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* lean_byte_array_data(lean_object*);
 lean_object* l_ByteArray_findIdx_x3f(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 extern lean_object* l_List_repr___rarg___closed__3;
 lean_object* l_ByteArray_data___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -29,11 +28,13 @@ lean_object* l_ByteArray_empty;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_ByteArray_toListAux___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_toStringAux___at_ByteArray_HasToString___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_ByteArray_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toByteArrayAux___main(lean_object*, lean_object*);
 lean_object* l_ByteArray_empty___closed__1;
 lean_object* l_List_toByteArrayAux(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
+lean_object* l_List_toStringAux___at_ByteArray_HasToString___spec__2(uint8_t, lean_object*);
 lean_object* l_ByteArray_HasAppend___closed__1;
 extern lean_object* l_List_repr___rarg___closed__2;
 lean_object* lean_byte_array_set(lean_object*, lean_object*, uint8_t);
@@ -50,10 +51,10 @@ lean_object* l_List_toString___at_ByteArray_HasToString___spec__1(lean_object*);
 lean_object* l_ByteArray_append___boxed(lean_object*, lean_object*);
 lean_object* l_ByteArray_findIdxAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_HasToString(lean_object*);
-lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_ByteArray_Inhabited;
 lean_object* l_ByteArray_findIdxAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_toListAux(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_ByteArray_HasAppend;
 lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_ByteArray_isEmpty___boxed(lean_object*);
@@ -67,7 +68,6 @@ lean_object* l_ByteArray_set_x21___boxed(lean_object*, lean_object*, lean_object
 lean_object* lean_mk_empty_byte_array(lean_object*);
 lean_object* l_ByteArray_mk___boxed(lean_object*);
 lean_object* l_ByteArray_HasToString___boxed(lean_object*);
-lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(uint8_t, lean_object*);
 lean_object* l_ByteArray_mkEmpty___boxed(lean_object*);
 lean_object* l_ByteArray_findIdxAux___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint8_to_nat(uint8_t);
@@ -460,7 +460,7 @@ x_3 = l_List_toByteArrayAux___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(uint8_t x_1, lean_object* x_2) {
+lean_object* l_List_toStringAux___at_ByteArray_HasToString___spec__2(uint8_t x_1, lean_object* x_2) {
 _start:
 {
 if (x_1 == 0)
@@ -468,12 +468,12 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_String_splitAux___main___closed__1;
+x_3 = l_String_splitAux___closed__1;
 return x_3;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 1);
@@ -486,37 +486,38 @@ x_8 = l_Nat_repr(x_7);
 x_9 = l_List_reprAux___main___rarg___closed__1;
 x_10 = lean_string_append(x_9, x_8);
 lean_dec(x_8);
-x_11 = l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(x_1, x_5);
-x_12 = lean_string_append(x_10, x_11);
-lean_dec(x_11);
-return x_12;
+x_11 = 0;
+x_12 = l_List_toStringAux___at_ByteArray_HasToString___spec__2(x_11, x_5);
+x_13 = lean_string_append(x_10, x_12);
+lean_dec(x_12);
+return x_13;
 }
 }
 else
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_13; 
-x_13 = l_String_splitAux___main___closed__1;
-return x_13;
+lean_object* x_14; 
+x_14 = l_String_splitAux___closed__1;
+return x_14;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
-x_14 = lean_ctor_get(x_2, 0);
-lean_inc(x_14);
-x_15 = lean_ctor_get(x_2, 1);
+lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; 
+x_15 = lean_ctor_get(x_2, 0);
 lean_inc(x_15);
+x_16 = lean_ctor_get(x_2, 1);
+lean_inc(x_16);
 lean_dec(x_2);
-x_16 = lean_unbox(x_14);
-lean_dec(x_14);
-x_17 = lean_uint8_to_nat(x_16);
-x_18 = l_Nat_repr(x_17);
-x_19 = 0;
-x_20 = l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(x_19, x_15);
-x_21 = lean_string_append(x_18, x_20);
-lean_dec(x_20);
-return x_21;
+x_17 = lean_unbox(x_15);
+lean_dec(x_15);
+x_18 = lean_uint8_to_nat(x_17);
+x_19 = l_Nat_repr(x_18);
+x_20 = 0;
+x_21 = l_List_toStringAux___at_ByteArray_HasToString___spec__2(x_20, x_16);
+x_22 = lean_string_append(x_19, x_21);
+lean_dec(x_21);
+return x_22;
 }
 }
 }
@@ -532,15 +533,40 @@ return x_2;
 }
 else
 {
-uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = 1;
-x_4 = l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(x_3, x_1);
-x_5 = l_List_repr___rarg___closed__2;
-x_6 = lean_string_append(x_5, x_4);
-lean_dec(x_4);
-x_7 = l_List_repr___rarg___closed__3;
-x_8 = lean_string_append(x_6, x_7);
-return x_8;
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
+{
+uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_4 = 1;
+x_5 = l_List_toStringAux___at_ByteArray_HasToString___spec__2(x_4, x_1);
+x_6 = l_List_repr___rarg___closed__2;
+x_7 = lean_string_append(x_6, x_5);
+lean_dec(x_5);
+x_8 = l_List_repr___rarg___closed__3;
+x_9 = lean_string_append(x_7, x_8);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_1);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+x_13 = 1;
+x_14 = l_List_toStringAux___at_ByteArray_HasToString___spec__2(x_13, x_12);
+x_15 = l_List_repr___rarg___closed__2;
+x_16 = lean_string_append(x_15, x_14);
+lean_dec(x_14);
+x_17 = l_List_repr___rarg___closed__3;
+x_18 = lean_string_append(x_16, x_17);
+return x_18;
+}
 }
 }
 }
@@ -553,13 +579,13 @@ x_3 = l_List_toString___at_ByteArray_HasToString___spec__1(x_2);
 return x_3;
 }
 }
-lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_toStringAux___at_ByteArray_HasToString___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
 lean_dec(x_1);
-x_4 = l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(x_3, x_2);
+x_4 = l_List_toStringAux___at_ByteArray_HasToString___spec__2(x_3, x_2);
 return x_4;
 }
 }

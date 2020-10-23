@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Option_get_x21___rarg___closed__3;
-lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Util_0__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_get_x21___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Option_get_x21___rarg___closed__2;
 lean_object* l_Option_get_x21___rarg___closed__1;
@@ -45,7 +45,7 @@ x_1 = l_Option_get_x21___rarg___closed__1;
 x_2 = lean_unsigned_to_nat(16u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Option_get_x21___rarg___closed__2;
-x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+x_5 = l___private_Init_Util_0__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }

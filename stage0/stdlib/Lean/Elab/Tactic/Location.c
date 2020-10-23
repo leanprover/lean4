@@ -23,10 +23,10 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandLocation___closed__6;
 lean_object* l_Lean_Elab_Tactic_expandLocation___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___at_Lean_Elab_Tactic_expandLocation___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandOptLocation(lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandLocation(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandLocation___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandLocation___closed__4;
@@ -38,7 +38,7 @@ uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandLocation___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_Elab_Tactic_expandLocation___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -151,7 +151,7 @@ lean_dec(x_3);
 x_11 = l_Lean_Syntax_getArgs(x_10);
 lean_dec(x_10);
 x_12 = x_11;
-x_13 = l_Array_umapMAux___main___at_Lean_Elab_Tactic_expandLocation___spec__1(x_9, x_12);
+x_13 = l_Array_umapMAux___at_Lean_Elab_Tactic_expandLocation___spec__1(x_9, x_12);
 x_14 = x_13;
 x_15 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_15, 0, x_14);

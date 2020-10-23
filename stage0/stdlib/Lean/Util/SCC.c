@@ -48,19 +48,18 @@ uint8_t l_Lean_SCC_Data_onStack___default;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCCAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SCC_State_stack___default(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___at___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Id_Monad;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SCC_Data_lowlink_x3f___default;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_StateT_Monad___rarg(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCCAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___rarg___lambda__1(lean_object*, lean_object*);
-lean_object* l_List_forM___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf_match__1(lean_object*);
+extern lean_object* l_Id_Init_Control_Id___instance__1;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_forM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCCAux(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___rarg___closed__1;
@@ -68,6 +67,7 @@ lean_object* l_Lean_SCC_State_sccs___default(lean_object*);
 lean_object* l_Lean_SCC_scc___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SCC_scc_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_StateT_Init_Control_State___instance__2___rarg(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___at___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_SCC_State_nextIndex___default;
@@ -1401,8 +1401,8 @@ static lean_object* _init_l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_Monad;
-x_2 = l_StateT_Monad___rarg(x_1);
+x_1 = l_Id_Init_Control_Id___instance__1;
+x_2 = l_StateT_Init_Control_State___instance__2___rarg(x_1);
 return x_2;
 }
 }
@@ -1429,7 +1429,7 @@ lean_closure_set(x_8, 3, x_4);
 lean_inc(x_4);
 x_9 = lean_apply_1(x_3, x_4);
 x_10 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___closed__1;
-x_11 = l_List_forM___main___rarg(x_10, lean_box(0), x_8, x_9);
+x_11 = l_List_forM___rarg(x_10, lean_box(0), x_8, x_9);
 x_12 = lean_apply_1(x_11, x_7);
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
@@ -1710,7 +1710,7 @@ lean_ctor_set(x_9, 1, x_7);
 lean_ctor_set(x_9, 2, x_8);
 lean_ctor_set(x_9, 3, x_6);
 x_10 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___closed__1;
-x_11 = l_List_forM___main___rarg(x_10, lean_box(0), x_5, x_3);
+x_11 = l_List_forM___rarg(x_10, lean_box(0), x_5, x_3);
 x_12 = lean_apply_1(x_11, x_9);
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);

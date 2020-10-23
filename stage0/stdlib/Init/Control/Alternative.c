@@ -13,19 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_alternativeHasOrelse___rarg(lean_object*);
 lean_object* l_assert___rarg(lean_object*, lean_object*, uint8_t);
 lean_object* l_guard___rarg(lean_object*, lean_object*, uint8_t);
 lean_object* l_optional___rarg___closed__1;
 lean_object* l_assert(lean_object*);
 lean_object* l_optional___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_guard___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Init_Control_Alternative___instance__1(lean_object*, lean_object*);
+lean_object* l_Init_Control_Alternative___instance__1___rarg(lean_object*);
 lean_object* l_optional___rarg___lambda__1(lean_object*);
-lean_object* l_alternativeHasOrelse(lean_object*, lean_object*);
 lean_object* l_guard(lean_object*);
 lean_object* l_optional(lean_object*);
 lean_object* l_assert___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_alternativeHasOrelse___rarg(lean_object* x_1) {
+lean_object* l_Init_Control_Alternative___instance__1___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -36,11 +36,11 @@ x_3 = lean_apply_1(x_2, lean_box(0));
 return x_3;
 }
 }
-lean_object* l_alternativeHasOrelse(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Init_Control_Alternative___instance__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_alternativeHasOrelse___rarg), 1, 0);
+x_3 = lean_alloc_closure((void*)(l_Init_Control_Alternative___instance__1___rarg), 1, 0);
 return x_3;
 }
 }

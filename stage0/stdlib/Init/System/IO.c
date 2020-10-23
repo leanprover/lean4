@@ -73,6 +73,7 @@ lean_object* l_IO_FS_Handle_getLine___rarg(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_IO_Prim_getStdout___boxed(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_Monad_seqRight___default___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_unsafeIO___rarg(lean_object*);
 lean_object* l_EIO_toIO_x27(lean_object*, lean_object*);
 lean_object* l_IO_Init_System_IO___instance__8___rarg(lean_object*, lean_object*);
@@ -99,7 +100,6 @@ lean_object* l_IO_Process_SpawnArgs_args___default;
 uint32_t l_IO_AccessRight_flags___closed__6;
 lean_object* l_IO_FS_Handle_readToEnd___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_ofExcept_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_IO_isDir(lean_object*);
 lean_object* l_IO_Prim_setStdout___boxed(lean_object*, lean_object*);
 lean_object* l_EIO_catchExceptions_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -271,10 +271,10 @@ lean_object* l_IO_FS_Handle_putStr(lean_object*);
 lean_object* l_IO_Prim_setAccessRights___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_isDir___rarg(lean_object*, lean_object*);
+extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_IO_getEnv(lean_object*);
 lean_object* l_IO_FS_Stream_ofHandle___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeEIO___rarg(lean_object*);
-lean_object* l_dbgTraceVal___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_string_to_utf8(lean_object*);
 lean_object* l_IO_eprint___at_IO_eprintln___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_ofExcept_match__1(lean_object*, lean_object*, lean_object*);
@@ -1950,7 +1950,7 @@ lean_object* l_IO_FS_Handle_readToEnd___rarg(lean_object* x_1, lean_object* x_2,
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_String_splitAux___main___closed__1;
+x_4 = l_String_splitAux___closed__1;
 x_5 = l_IO_FS_Handle_readToEnd_read___rarg(x_1, x_2, x_3, x_4);
 return x_5;
 }
@@ -1967,7 +1967,7 @@ lean_object* l_IO_FS_readFile___rarg___lambda__1(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_String_splitAux___main___closed__1;
+x_4 = l_String_splitAux___closed__1;
 x_5 = l_IO_FS_Handle_readToEnd_read___rarg(x_1, x_2, x_3, x_4);
 return x_5;
 }
@@ -2321,14 +2321,14 @@ lean_dec(x_6);
 x_8 = l_IO_setStdin___rarg(x_2, x_5);
 lean_inc(x_7);
 x_9 = l_Functor_discard___rarg(x_7, x_8);
-x_10 = lean_ctor_get(x_7, 0);
-lean_inc(x_10);
+x_10 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_10, 0, x_9);
+x_11 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_10);
+x_12 = lean_ctor_get(x_7, 0);
+lean_inc(x_12);
 lean_dec(x_7);
-x_11 = lean_alloc_closure((void*)(l_dbgTraceVal___rarg___lambda__1___boxed), 2, 1);
-lean_closure_set(x_11, 0, x_9);
-x_12 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_11);
 x_13 = l_tryFinally___rarg___closed__1;
-x_14 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_13, x_12);
+x_14 = lean_apply_4(x_12, lean_box(0), lean_box(0), x_13, x_11);
 return x_14;
 }
 }
@@ -2370,14 +2370,14 @@ lean_dec(x_6);
 x_8 = l_IO_setStdout___rarg(x_2, x_5);
 lean_inc(x_7);
 x_9 = l_Functor_discard___rarg(x_7, x_8);
-x_10 = lean_ctor_get(x_7, 0);
-lean_inc(x_10);
+x_10 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_10, 0, x_9);
+x_11 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_10);
+x_12 = lean_ctor_get(x_7, 0);
+lean_inc(x_12);
 lean_dec(x_7);
-x_11 = lean_alloc_closure((void*)(l_dbgTraceVal___rarg___lambda__1___boxed), 2, 1);
-lean_closure_set(x_11, 0, x_9);
-x_12 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_11);
 x_13 = l_tryFinally___rarg___closed__1;
-x_14 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_13, x_12);
+x_14 = lean_apply_4(x_12, lean_box(0), lean_box(0), x_13, x_11);
 return x_14;
 }
 }
@@ -2419,14 +2419,14 @@ lean_dec(x_6);
 x_8 = l_IO_setStderr___rarg(x_2, x_5);
 lean_inc(x_7);
 x_9 = l_Functor_discard___rarg(x_7, x_8);
-x_10 = lean_ctor_get(x_7, 0);
-lean_inc(x_10);
+x_10 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_10, 0, x_9);
+x_11 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_10);
+x_12 = lean_ctor_get(x_7, 0);
+lean_inc(x_12);
 lean_dec(x_7);
-x_11 = lean_alloc_closure((void*)(l_dbgTraceVal___rarg___lambda__1___boxed), 2, 1);
-lean_closure_set(x_11, 0, x_9);
-x_12 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_11);
 x_13 = l_tryFinally___rarg___closed__1;
-x_14 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_13, x_12);
+x_14 = lean_apply_4(x_12, lean_box(0), lean_box(0), x_13, x_11);
 return x_14;
 }
 }
@@ -3221,7 +3221,7 @@ lean_inc(x_9);
 lean_dec(x_7);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
-x_11 = l_String_splitAux___main___closed__1;
+x_11 = l_String_splitAux___closed__1;
 x_12 = lean_alloc_closure((void*)(l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__1___boxed), 3, 2);
 lean_closure_set(x_12, 0, x_10);
 lean_closure_set(x_12, 1, x_11);
@@ -3445,7 +3445,7 @@ lean_inc(x_60);
 lean_dec(x_58);
 x_61 = lean_ctor_get(x_59, 1);
 lean_inc(x_61);
-x_62 = l_String_splitAux___main___closed__1;
+x_62 = l_String_splitAux___closed__1;
 x_63 = lean_alloc_closure((void*)(l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__1___boxed), 3, 2);
 lean_closure_set(x_63, 0, x_61);
 lean_closure_set(x_63, 1, x_62);
@@ -3698,7 +3698,7 @@ lean_inc(x_115);
 lean_dec(x_113);
 x_116 = lean_ctor_get(x_114, 1);
 lean_inc(x_116);
-x_117 = l_String_splitAux___main___closed__1;
+x_117 = l_String_splitAux___closed__1;
 x_118 = lean_alloc_closure((void*)(l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__1___boxed), 3, 2);
 lean_closure_set(x_118, 0, x_116);
 lean_closure_set(x_118, 1, x_117);
@@ -6314,7 +6314,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
 lean_dec(x_6);
-x_9 = lean_alloc_closure((void*)(l_dbgTraceVal___rarg___lambda__1___boxed), 2, 1);
+x_9 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_9, 0, x_7);
 x_10 = 1;
 x_11 = lean_box(x_10);
@@ -6387,7 +6387,7 @@ lean_object* l_Lean_runEvalOld___rarg(lean_object* x_1, lean_object* x_2, lean_o
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_alloc_closure((void*)(l_dbgTraceVal___rarg___lambda__1___boxed), 2, 1);
+x_4 = lean_alloc_closure((void*)(l_Monad_seqRight___default___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_4, 0, x_2);
 x_5 = l_Lean_runEval___rarg(x_1, x_4, x_3);
 return x_5;

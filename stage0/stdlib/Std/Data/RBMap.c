@@ -67,7 +67,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_any(lean_object*, lean_object*);
 lean_object* l_Std_RBMap_depth___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_min___rarg___boxed(lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Std_RBNode_appendTrees(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_appendTrees_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_max___rarg___boxed(lean_object*);
@@ -181,6 +180,7 @@ lean_object* l_Std_RBNode_revFold_match__1(lean_object*, lean_object*, lean_obje
 lean_object* l_Std_RBNode_findCore_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balance1(lean_object*, lean_object*);
+lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_erase_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_setRed(lean_object*, lean_object*);
@@ -211,6 +211,7 @@ lean_object* l_Std_RBMap_toList_match__1___boxed(lean_object*, lean_object*, lea
 lean_object* l_Std_RBMap_empty(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Std_Data_RBMap___instance__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_depth_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_Std_RBMap_find_x21___rarg___closed__2;
 lean_object* l_Std_RBNode_balance_u2083___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_find_x21___rarg___closed__1;
@@ -303,7 +304,6 @@ lean_object* l_Std_RBNode_min(lean_object*, lean_object*);
 lean_object* l_Std_RBMap_max_match__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBMap_any___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_appendTrees_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_del_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_depth(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_lowerBound_match__1(lean_object*, lean_object*, lean_object*);
@@ -20697,7 +20697,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_5 = l_String_splitAux___main___closed__1;
+x_5 = l_String_splitAux___closed__1;
 return x_5;
 }
 else
@@ -20741,7 +20741,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_22; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_22 = l_String_splitAux___main___closed__1;
+x_22 = l_String_splitAux___closed__1;
 return x_22;
 }
 else
@@ -21576,7 +21576,7 @@ x_2 = l_Std_RBMap_min_x21___rarg___closed__2;
 x_3 = lean_unsigned_to_nat(309u);
 x_4 = lean_unsigned_to_nat(12u);
 x_5 = l_Std_RBMap_min_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -21689,7 +21689,7 @@ x_2 = l_Std_RBMap_max_x21___rarg___closed__1;
 x_3 = lean_unsigned_to_nat(314u);
 x_4 = lean_unsigned_to_nat(12u);
 x_5 = l_Std_RBMap_min_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -21810,7 +21810,7 @@ x_2 = l_Std_RBMap_find_x21___rarg___closed__1;
 x_3 = lean_unsigned_to_nat(319u);
 x_4 = lean_unsigned_to_nat(12u);
 x_5 = l_Std_RBMap_find_x21___rarg___closed__2;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

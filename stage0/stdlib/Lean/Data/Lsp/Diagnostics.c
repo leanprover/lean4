@@ -26,11 +26,9 @@ lean_object* l_Lean_Lsp_msgToDiagnostic_match__2(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2___closed__4;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2___closed__8;
 lean_object* l_Lean_Lsp_Diagnostic_relatedInformation_x3f___default;
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__6___closed__2;
 lean_object* l_Lean_Json_getNat_x3f(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___spec__2(lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4(lean_object*, lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__3___boxed(lean_object*, lean_object*);
@@ -39,9 +37,9 @@ lean_object* l_Lean_Lsp_msgToDiagnostic_match__1(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__5___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__6___boxed(lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__4___boxed(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__6___closed__1;
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2___closed__6;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__6___closed__3;
@@ -63,10 +61,12 @@ lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__7___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__8(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__4_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_msgToDiagnostic___closed__1;
 lean_object* l_Lean_Lsp_msgToDiagnostic___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__6_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__12(lean_object*);
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__4;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__5_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_Basic___instance__7___closed__2;
@@ -77,6 +77,7 @@ lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2_match__1___rarg(
 lean_object* l_Lean_Json_getInt_x3f(lean_object*);
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_Basic___instance__2___closed__2;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2___closed__1;
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10(lean_object*);
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__12___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___boxed(lean_object*);
@@ -88,7 +89,6 @@ extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_Basic___instance__2___closed__1;
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__1_match__1(lean_object*);
 lean_object* l_Lean_Lsp_msgToDiagnostic_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Diagnostic_tags_x3f___default;
 lean_object* l_Lean_Lsp_msgToDiagnostic_match__2___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Int_one___closed__1;
@@ -101,32 +101,30 @@ lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___boxed(lean_ob
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2___closed__5;
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 lean_object* l_Lean_Lsp_msgToDiagnostic(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__12___spec__2(lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__3___boxed(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__3_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1;
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___spec__3(lean_object*, lean_object*);
-extern lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__11___closed__2;
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2;
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__12___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__1(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__1___closed__2;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__3(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__6(uint8_t);
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___closed__1;
 lean_object* l_Lean_Json_mkObj(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__1___closed__1;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__1___closed__4;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_530____closed__1;
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__7___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2_match__1(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__6___closed__4;
+extern lean_object* l_Array_forMAux___at_Lean_Environment_displayStats___spec__11___closed__2;
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__12___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9(lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2;
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__5___boxed(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__7___closed__2;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Basic___instance__7___spec__1(lean_object*, lean_object*);
@@ -144,11 +142,13 @@ lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Basic___instance__11___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__7___boxed(lean_object*);
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2;
 lean_object* l_Lean_Lsp_Diagnostic_severity_x3f___default;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__5(lean_object*);
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2___closed__10;
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__6_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__2___boxed(lean_object*, lean_object*);
@@ -475,7 +475,7 @@ static lean_object* _init_l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__11___closed__2;
+x_1 = l_Array_forMAux___at_Lean_Environment_displayStats___spec__11___closed__2;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1587,7 +1587,7 @@ return x_29;
 }
 }
 }
-static lean_object* _init_l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1() {
+static lean_object* _init_l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -1597,7 +1597,7 @@ x_3 = x_2;
 return x_3;
 }
 }
-static lean_object* _init_l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2() {
+static lean_object* _init_l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -1607,7 +1607,7 @@ x_3 = x_2;
 return x_3;
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -1666,7 +1666,7 @@ else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_19 = lean_nat_add(x_1, x_14);
-x_20 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1;
+x_20 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1;
 x_21 = lean_array_fset(x_9, x_1, x_20);
 lean_dec(x_1);
 x_1 = x_19;
@@ -1679,7 +1679,7 @@ else
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_13);
 x_23 = lean_nat_add(x_1, x_14);
-x_24 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2;
+x_24 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2;
 x_25 = lean_array_fset(x_9, x_1, x_24);
 lean_dec(x_1);
 x_1 = x_23;
@@ -1715,7 +1715,7 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = x_6;
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4(x_8, x_7);
+x_9 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4(x_8, x_7);
 x_10 = x_9;
 return x_10;
 }
@@ -1729,7 +1729,7 @@ return x_11;
 }
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__6(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__6(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -1828,7 +1828,7 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = x_6;
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__6(x_8, x_7);
+x_9 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__6(x_8, x_7);
 x_10 = x_9;
 return x_10;
 }
@@ -2137,7 +2137,7 @@ return x_15;
 }
 }
 }
-static lean_object* _init_l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1() {
+static lean_object* _init_l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2146,7 +2146,7 @@ x_2 = x_1;
 return x_2;
 }
 }
-static lean_object* _init_l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2() {
+static lean_object* _init_l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2155,7 +2155,7 @@ x_2 = x_1;
 return x_2;
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -2183,7 +2183,7 @@ x_12 = lean_nat_add(x_1, x_11);
 if (x_10 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1;
+x_13 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1;
 x_14 = lean_array_fset(x_8, x_1, x_13);
 lean_dec(x_1);
 x_1 = x_12;
@@ -2193,7 +2193,7 @@ goto _start;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2;
+x_16 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2;
 x_17 = lean_array_fset(x_8, x_1, x_16);
 lean_dec(x_1);
 x_1 = x_12;
@@ -2221,7 +2221,7 @@ lean_inc(x_4);
 lean_dec(x_2);
 x_5 = x_4;
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4(x_6, x_5);
+x_7 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4(x_6, x_5);
 x_8 = x_7;
 x_9 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -2236,7 +2236,7 @@ return x_12;
 }
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__6(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__6(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -2401,7 +2401,7 @@ lean_inc(x_4);
 lean_dec(x_2);
 x_5 = x_4;
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__6(x_6, x_5);
+x_7 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__6(x_6, x_5);
 x_8 = x_7;
 x_9 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -2593,7 +2593,7 @@ return x_6;
 }
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___spec__3(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -2711,7 +2711,7 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = x_6;
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___spec__3(x_8, x_7);
+x_9 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___spec__3(x_8, x_7);
 x_10 = x_9;
 return x_10;
 }
@@ -2857,7 +2857,7 @@ return x_10;
 }
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__12___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__12___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -3032,7 +3032,7 @@ lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_7);
 x_10 = x_4;
 x_11 = lean_unsigned_to_nat(0u);
-x_12 = l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__12___spec__2(x_11, x_10);
+x_12 = l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__12___spec__2(x_11, x_10);
 x_13 = x_12;
 x_14 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
@@ -3510,10 +3510,10 @@ l_Lean_Lsp_Diagnostic_tags_x3f___default = _init_l_Lean_Lsp_Diagnostic_tags_x3f_
 lean_mark_persistent(l_Lean_Lsp_Diagnostic_tags_x3f___default);
 l_Lean_Lsp_Diagnostic_relatedInformation_x3f___default = _init_l_Lean_Lsp_Diagnostic_relatedInformation_x3f___default();
 lean_mark_persistent(l_Lean_Lsp_Diagnostic_relatedInformation_x3f___default);
-l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1 = _init_l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1();
-lean_mark_persistent(l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1);
-l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2 = _init_l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2();
-lean_mark_persistent(l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2);
+l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1 = _init_l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1();
+lean_mark_persistent(l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__1);
+l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2 = _init_l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2();
+lean_mark_persistent(l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___spec__4___closed__2);
 l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__1 = _init_l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__1();
 lean_mark_persistent(l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__1);
 l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__2 = _init_l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__2();
@@ -3524,10 +3524,10 @@ l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__4 = _init_l_Lean_Ls
 lean_mark_persistent(l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__4);
 l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__5 = _init_l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__5();
 lean_mark_persistent(l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__9___closed__5);
-l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1 = _init_l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1();
-lean_mark_persistent(l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1);
-l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2 = _init_l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2();
-lean_mark_persistent(l_Array_umapMAux___main___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2);
+l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1 = _init_l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1();
+lean_mark_persistent(l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__1);
+l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2 = _init_l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2();
+lean_mark_persistent(l_Array_umapMAux___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__4___closed__2);
 l_Lean_Lsp_PublishDiagnosticsParams_version_x3f___default = _init_l_Lean_Lsp_PublishDiagnosticsParams_version_x3f___default();
 lean_mark_persistent(l_Lean_Lsp_PublishDiagnosticsParams_version_x3f___default);
 l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___closed__1 = _init_l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___closed__1();

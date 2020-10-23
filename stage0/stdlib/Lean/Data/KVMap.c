@@ -24,7 +24,6 @@ lean_object* l_Lean_DataValue_beq_match__1___rarg(lean_object*, lean_object*, le
 extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l_Lean_KVMap_findD___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__3;
-lean_object* l_List_toStringAux___main___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(uint8_t, lean_object*);
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l_Lean_Lean_Data_KVMap___instance__4___boxed(lean_object*);
 lean_object* l_Lean_KVMap_getName_match__1(lean_object*);
@@ -42,7 +41,6 @@ lean_object* l_Lean_KVMap_get___rarg(lean_object*, lean_object*, lean_object*, l
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_DataValue_beq_match__1(lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__9(lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 extern lean_object* l_List_repr___rarg___closed__3;
 lean_object* l_Lean_KVMap_getName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
@@ -86,7 +84,6 @@ lean_object* l_Lean_DataValue_beq___boxed(lean_object*, lean_object*);
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_Lean_KVMap_findD(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setInt(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_toStringAux___main___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_KVMap___instance__5(lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__1;
@@ -101,6 +98,7 @@ uint8_t l_Lean_KVMap_isEmpty(lean_object*);
 lean_object* l_Lean_KVMap_subsetAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__14___closed__3;
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__11___closed__1;
+lean_object* l_List_toStringAux___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(uint8_t, lean_object*);
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__14___closed__1;
 lean_object* l_Lean_KVMap_subset_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -117,6 +115,7 @@ lean_object* l_Lean_KVMap_setBool___boxed(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_KVMap_subset___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_isEmpty_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getString_match__1(lean_object*);
+extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_Lean_DataValue_str_match__1(lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__12___closed__2;
 lean_object* l_Lean_KVMap_get(lean_object*);
@@ -150,6 +149,7 @@ lean_object* l_Lean_Lean_Data_KVMap___instance__1___closed__1;
 lean_object* l_Lean_KVMap_subsetAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_subsetAux___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_DataValue_sameCtor___boxed(lean_object*, lean_object*);
+lean_object* l_List_toStringAux___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getNat___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__10___closed__1;
@@ -911,7 +911,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* l_List_toStringAux___main___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(uint8_t x_1, lean_object* x_2) {
+lean_object* l_List_toStringAux___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(uint8_t x_1, lean_object* x_2) {
 _start:
 {
 if (x_1 == 0)
@@ -919,80 +919,81 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_String_splitAux___main___closed__1;
+x_3 = l_String_splitAux___closed__1;
 return x_3;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
 lean_dec(x_2);
-x_6 = l_List_toStringAux___main___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(x_1, x_5);
-x_7 = lean_ctor_get(x_4, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_4, 1);
+x_6 = 0;
+x_7 = l_List_toStringAux___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(x_6, x_5);
+x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
+x_9 = lean_ctor_get(x_4, 1);
+lean_inc(x_9);
 lean_dec(x_4);
-x_9 = l_System_FilePath_dirName___closed__1;
-x_10 = l_Lean_Name_toStringWithSep(x_9, x_7);
-x_11 = l_Prod_HasRepr___rarg___closed__1;
-x_12 = lean_string_append(x_11, x_10);
-lean_dec(x_10);
-x_13 = l_List_reprAux___main___rarg___closed__1;
-x_14 = lean_string_append(x_12, x_13);
-x_15 = lean_data_value_to_string(x_8);
-x_16 = lean_string_append(x_14, x_15);
-lean_dec(x_15);
-x_17 = l_ULift_HasRepr___rarg___closed__2;
-x_18 = lean_string_append(x_16, x_17);
-x_19 = lean_string_append(x_13, x_18);
-lean_dec(x_18);
-x_20 = lean_string_append(x_19, x_6);
-lean_dec(x_6);
-return x_20;
+x_10 = l_System_FilePath_dirName___closed__1;
+x_11 = l_Lean_Name_toStringWithSep(x_10, x_8);
+x_12 = l_Prod_HasRepr___rarg___closed__1;
+x_13 = lean_string_append(x_12, x_11);
+lean_dec(x_11);
+x_14 = l_List_reprAux___main___rarg___closed__1;
+x_15 = lean_string_append(x_13, x_14);
+x_16 = lean_data_value_to_string(x_9);
+x_17 = lean_string_append(x_15, x_16);
+lean_dec(x_16);
+x_18 = l_ULift_HasRepr___rarg___closed__2;
+x_19 = lean_string_append(x_17, x_18);
+x_20 = lean_string_append(x_14, x_19);
+lean_dec(x_19);
+x_21 = lean_string_append(x_20, x_7);
+lean_dec(x_7);
+return x_21;
 }
 }
 else
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_21; 
-x_21 = l_String_splitAux___main___closed__1;
-return x_21;
+lean_object* x_22; 
+x_22 = l_String_splitAux___closed__1;
+return x_22;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-x_22 = lean_ctor_get(x_2, 0);
-lean_inc(x_22);
-x_23 = lean_ctor_get(x_2, 1);
+lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
+x_23 = lean_ctor_get(x_2, 0);
 lean_inc(x_23);
+x_24 = lean_ctor_get(x_2, 1);
+lean_inc(x_24);
 lean_dec(x_2);
-x_24 = 0;
-x_25 = l_List_toStringAux___main___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(x_24, x_23);
-x_26 = lean_ctor_get(x_22, 0);
-lean_inc(x_26);
-x_27 = lean_ctor_get(x_22, 1);
+x_25 = 0;
+x_26 = l_List_toStringAux___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(x_25, x_24);
+x_27 = lean_ctor_get(x_23, 0);
 lean_inc(x_27);
-lean_dec(x_22);
-x_28 = l_System_FilePath_dirName___closed__1;
-x_29 = l_Lean_Name_toStringWithSep(x_28, x_26);
-x_30 = l_Prod_HasRepr___rarg___closed__1;
-x_31 = lean_string_append(x_30, x_29);
-lean_dec(x_29);
-x_32 = l_List_reprAux___main___rarg___closed__1;
-x_33 = lean_string_append(x_31, x_32);
-x_34 = lean_data_value_to_string(x_27);
-x_35 = lean_string_append(x_33, x_34);
-lean_dec(x_34);
-x_36 = l_ULift_HasRepr___rarg___closed__2;
-x_37 = lean_string_append(x_35, x_36);
-x_38 = lean_string_append(x_37, x_25);
-lean_dec(x_25);
-return x_38;
+x_28 = lean_ctor_get(x_23, 1);
+lean_inc(x_28);
+lean_dec(x_23);
+x_29 = l_System_FilePath_dirName___closed__1;
+x_30 = l_Lean_Name_toStringWithSep(x_29, x_27);
+x_31 = l_Prod_HasRepr___rarg___closed__1;
+x_32 = lean_string_append(x_31, x_30);
+lean_dec(x_30);
+x_33 = l_List_reprAux___main___rarg___closed__1;
+x_34 = lean_string_append(x_32, x_33);
+x_35 = lean_data_value_to_string(x_28);
+x_36 = lean_string_append(x_34, x_35);
+lean_dec(x_35);
+x_37 = l_ULift_HasRepr___rarg___closed__2;
+x_38 = lean_string_append(x_36, x_37);
+x_39 = lean_string_append(x_38, x_26);
+lean_dec(x_26);
+return x_39;
 }
 }
 }
@@ -1008,15 +1009,40 @@ return x_2;
 }
 else
 {
-uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = 1;
-x_4 = l_List_toStringAux___main___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(x_3, x_1);
-x_5 = l_List_repr___rarg___closed__2;
-x_6 = lean_string_append(x_5, x_4);
-lean_dec(x_4);
-x_7 = l_List_repr___rarg___closed__3;
-x_8 = lean_string_append(x_6, x_7);
-return x_8;
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
+{
+uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_4 = 1;
+x_5 = l_List_toStringAux___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(x_4, x_1);
+x_6 = l_List_repr___rarg___closed__2;
+x_7 = lean_string_append(x_6, x_5);
+lean_dec(x_5);
+x_8 = l_List_repr___rarg___closed__3;
+x_9 = lean_string_append(x_7, x_8);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_1);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+x_13 = 1;
+x_14 = l_List_toStringAux___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(x_13, x_12);
+x_15 = l_List_repr___rarg___closed__2;
+x_16 = lean_string_append(x_15, x_14);
+lean_dec(x_14);
+x_17 = l_List_repr___rarg___closed__3;
+x_18 = lean_string_append(x_16, x_17);
+return x_18;
+}
 }
 }
 }
@@ -1028,13 +1054,13 @@ x_2 = l_List_toString___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__1(x_
 return x_2;
 }
 }
-lean_object* l_List_toStringAux___main___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_toStringAux___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
 lean_dec(x_1);
-x_4 = l_List_toStringAux___main___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(x_3, x_2);
+x_4 = l_List_toStringAux___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(x_3, x_2);
 return x_4;
 }
 }
@@ -2375,7 +2401,7 @@ static lean_object* _init_l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_String_splitAux___main___closed__1;
+x_1 = l_String_splitAux___closed__1;
 x_2 = l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__1;
 x_3 = l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__2;
 x_4 = lean_alloc_ctor(0, 3, 0);

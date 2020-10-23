@@ -26,7 +26,6 @@ lean_object* l_System_FilePath_pathSeparators___closed__2___boxed__const__1;
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 lean_object* l_System_FilePath_splitSearchPath(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_System_FilePath_searchPathSeparators___closed__2;
 lean_object* l_System_FilePath_dirName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_pathSeparators;
@@ -34,9 +33,9 @@ lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_System_FilePath_searchPathSeparators___closed__2___boxed__const__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_System_FilePath_normalizePath___closed__2;
+lean_object* l_String_splitAux___at_System_FilePath_splitSearchPath___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_System_FilePath_normalizePath___closed__1;
-lean_object* l_String_splitAux___main___at_System_FilePath_splitSearchPath___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_splitSearchPath___boxed(lean_object*);
 lean_object* l_System_FilePath_searchPathSeparators___closed__1;
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
@@ -52,12 +51,14 @@ uint32_t l_System_FilePath_searchPathSeparator___closed__1;
 lean_object* l_System_FilePath_searchPathSeparators;
 uint8_t l_List_foldr___main___at_System_FilePath_normalizePath___spec__1(uint32_t, uint8_t, lean_object*);
 lean_object* l_String_split___at_System_FilePath_splitSearchPath___spec__2___boxed(lean_object*);
+lean_object* l_String_mapAux___at_System_FilePath_normalizePath___spec__2(lean_object*, lean_object*);
 uint32_t l_System_FilePath_extSeparator;
-lean_object* l_String_splitAux___main___at_System_FilePath_splitSearchPath___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 uint32_t l_System_FilePath_searchPathSeparator;
+extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_System_FilePath_pathSeparators___closed__3;
+lean_object* l_String_splitAux___at_System_FilePath_splitSearchPath___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_mkFilePath___closed__1;
 lean_object* l_System_FilePath_searchPathSeparators___closed__3;
 lean_object* l_System_FilePath_pathSeparators___closed__2;
@@ -66,7 +67,6 @@ lean_object* l_System_FilePath_pathSeparators___closed__1;
 lean_object* l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
 lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_List_foldr___main___at_System_FilePath_normalizePath___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_String_mapAux___main___at_System_FilePath_normalizePath___spec__2(lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 static uint32_t _init_l_System_FilePath_pathSeparator___closed__1() {
 _start:
@@ -295,7 +295,7 @@ return x_9;
 }
 }
 }
-lean_object* l_String_splitAux___main___at_System_FilePath_splitSearchPath___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_String_splitAux___at_System_FilePath_splitSearchPath___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -364,7 +364,7 @@ lean_dec(x_2);
 x_26 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_4);
-x_27 = l_String_splitAux___main___closed__1;
+x_27 = l_String_splitAux___closed__1;
 x_28 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_26);
@@ -380,7 +380,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_box(0);
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_String_splitAux___main___at_System_FilePath_splitSearchPath___spec__3(x_1, x_3, x_3, x_2);
+x_4 = l_String_splitAux___at_System_FilePath_splitSearchPath___spec__3(x_1, x_3, x_3, x_2);
 return x_4;
 }
 }
@@ -403,11 +403,11 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-lean_object* l_String_splitAux___main___at_System_FilePath_splitSearchPath___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_String_splitAux___at_System_FilePath_splitSearchPath___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_String_splitAux___main___at_System_FilePath_splitSearchPath___spec__3(x_1, x_2, x_3, x_4);
+x_5 = l_String_splitAux___at_System_FilePath_splitSearchPath___spec__3(x_1, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_5;
 }
@@ -497,7 +497,7 @@ return x_9;
 }
 }
 }
-lean_object* l_String_mapAux___main___at_System_FilePath_normalizePath___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_String_mapAux___at_System_FilePath_normalizePath___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -567,7 +567,7 @@ if (x_2 == 0)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_String_mapAux___main___at_System_FilePath_normalizePath___spec__2(x_3, x_1);
+x_4 = l_String_mapAux___at_System_FilePath_normalizePath___spec__2(x_3, x_1);
 return x_4;
 }
 else
@@ -582,7 +582,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_String_mapAux___main___at_System_FilePath_normalizePath___spec__2(x_6, x_1);
+x_7 = l_String_mapAux___at_System_FilePath_normalizePath___spec__2(x_6, x_1);
 return x_7;
 }
 }
@@ -672,7 +672,7 @@ static lean_object* _init_l_System_mkFilePath___closed__1() {
 _start:
 {
 lean_object* x_1; uint32_t x_2; lean_object* x_3; 
-x_1 = l_String_splitAux___main___closed__1;
+x_1 = l_String_splitAux___closed__1;
 x_2 = l_System_FilePath_pathSeparator;
 x_3 = lean_string_push(x_1, x_2);
 return x_3;

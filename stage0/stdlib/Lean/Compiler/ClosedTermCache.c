@@ -16,19 +16,23 @@ extern "C" {
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__13(lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____lambda__1(lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___closed__3;
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_getClosedTermName_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* l_Array_anyRangeMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2730____closed__4;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__18(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_getClosedTermName_x3f___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__7___boxed(lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__7(lean_object*, lean_object*);
+uint8_t l_Array_anyRangeMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__2(lean_object*);
@@ -53,7 +57,6 @@ lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_initFn____x40_Lean_Comp
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__5;
 lean_object* l_Std_mkHashMap___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__12(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
-lean_object* l_Array_anyRangeMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__4___rarg(lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_getClosedTermName_x3f___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_insert___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__1(lean_object*, lean_object*, lean_object*);
@@ -75,7 +78,6 @@ size_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_getClosedTermName_x3f___spec__6___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
 size_t lean_usize_modn(size_t, lean_object*);
@@ -100,6 +102,7 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8__match__
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__3(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_getClosedTermName_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____lambda__2___closed__1;
@@ -114,7 +117,6 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 extern size_t l_Std_PersistentHashMap_insertAux___rarg___closed__2;
 lean_object* l_Lean_closedTermCacheExt___closed__4;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
-lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_closed_term_name(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__2;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -126,8 +128,6 @@ lean_object* l_Lean_closedTermCacheExt___elambda__3___boxed(lean_object*, lean_o
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8_(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_anyRangeMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8__match__1___rarg(lean_object*, lean_object*);
@@ -1072,7 +1072,7 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -1103,7 +1103,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -1120,7 +1120,7 @@ else
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_array_fget(x_2, x_3);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14(x_7, x_7, x_8, x_4);
+x_9 = l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14(x_7, x_7, x_8, x_4);
 lean_dec(x_7);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_add(x_3, x_10);
@@ -1136,7 +1136,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(x_2, x_2, x_3, x_1);
+x_4 = l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(x_2, x_2, x_3, x_1);
 return x_4;
 }
 }
@@ -1178,7 +1178,7 @@ return x_8;
 }
 }
 }
-uint8_t l_Array_anyRangeMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+uint8_t l_Array_anyRangeMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -1211,8 +1211,10 @@ goto _start;
 }
 else
 {
+uint8_t x_15; 
 lean_dec(x_5);
-return x_11;
+x_15 = 1;
+return x_15;
 }
 }
 }
@@ -1231,7 +1233,7 @@ x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Array_anyRangeMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(x_1, x_6, x_6, x_8, x_9);
+x_10 = l_Array_anyRangeMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(x_1, x_6, x_6, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_6);
 if (x_10 == 0)
@@ -1272,7 +1274,7 @@ lean_inc(x_21);
 lean_dec(x_4);
 x_23 = lean_array_get_size(x_21);
 x_24 = lean_unsigned_to_nat(0u);
-x_25 = l_Array_anyRangeMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(x_1, x_21, x_21, x_23, x_24);
+x_25 = l_Array_anyRangeMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(x_1, x_21, x_21, x_23, x_24);
 lean_dec(x_23);
 lean_dec(x_21);
 if (x_25 == 0)
@@ -1396,7 +1398,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____lambda__2___closed__3;
-x_4 = l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(x_1, x_1, x_2, x_3);
+x_4 = l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(x_1, x_1, x_2, x_3);
 x_5 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__16(x_4);
 return x_5;
 }
@@ -1495,21 +1497,21 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14(x_1, x_2, x_3, x_4);
+x_5 = l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__14(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_iterateMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(x_1, x_2, x_3, x_4);
+x_5 = l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
@@ -1524,11 +1526,11 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Array_anyRangeMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_anyRangeMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; lean_object* x_7; 
-x_6 = l_Array_anyRangeMAux___main___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Array_anyRangeMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -1892,19 +1894,34 @@ return x_7;
 }
 else
 {
+uint8_t x_8; 
 lean_dec(x_4);
+x_8 = !lean_is_exclusive(x_6);
+if (x_8 == 0)
+{
 return x_6;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_ctor_get(x_6, 0);
+lean_inc(x_9);
+lean_dec(x_6);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
+}
 }
 }
 else
 {
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_ctor_get(x_1, 0);
+lean_inc(x_11);
 lean_dec(x_1);
-x_9 = l_Std_HashMapImp_find_x3f___at_Lean_getClosedTermName_x3f___spec__5(x_8, x_2);
-lean_dec(x_8);
-return x_9;
+x_12 = l_Std_HashMapImp_find_x3f___at_Lean_getClosedTermName_x3f___spec__5(x_11, x_2);
+lean_dec(x_11);
+return x_12;
 }
 }
 }

@@ -161,14 +161,14 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec(x_6);
 x_8 = l_Lean_setEnv___rarg(x_2, x_5);
-x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
+x_9 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_9, 0, x_8);
+x_10 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_9);
+x_11 = lean_ctor_get(x_7, 0);
+lean_inc(x_11);
 lean_dec(x_7);
-x_10 = lean_alloc_closure((void*)(l_fix1___rarg___lambda__1___boxed), 2, 1);
-lean_closure_set(x_10, 0, x_8);
-x_11 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_10);
 x_12 = l_tryFinally___rarg___closed__1;
-x_13 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_12, x_11);
+x_13 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_12, x_10);
 return x_13;
 }
 }

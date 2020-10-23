@@ -17,7 +17,6 @@ uint8_t l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mayReuse(l
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain_match__4___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain_match__2___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mkFresh___rarg(lean_object*);
-lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain_match__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -27,7 +26,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l_Lean_IR_CtorInfo_isScalar(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize_match__1___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___at_Lean_IR_ResetReuse_R___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_isCtorUsing_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ResetReuse_R_match__2(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -38,9 +37,11 @@ lean_object* l_Lean_IR_Decl_insertResetReuse(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_isCtorUsing___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_insertResetReuse_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain_match__3(lean_object*);
 lean_object* l_Lean_IR_ResetReuse_R_match__3(lean_object*);
+uint8_t l_Array_anyRangeMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addJP(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_insertResetReuse_match__1(lean_object*);
@@ -52,16 +53,15 @@ uint8_t l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContai
 lean_object* l_Lean_IR_ResetReuse_R_match__2___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_tryS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain_match__1(lean_object*);
+lean_object* l_Array_anyRangeMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mkFresh___boxed(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S_match__2(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain_match__5(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_D(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain_match__4(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_isCtorUsing_match__1(lean_object*);
-lean_object* l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_Lean_IR_ResetReuse_R___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mkFresh(lean_object*);
 lean_object* l_Lean_IR_FnBody_setBody(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_tryS___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -75,13 +75,13 @@ lean_object* l_Lean_IR_ResetReuse_R(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_isCtorUsing(lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S_match__1(lean_object*);
 lean_object* l_Lean_IR_FnBody_body(lean_object*);
 lean_object* l_Lean_IR_ResetReuse_R_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize_match__1(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain_match__2(lean_object*);
-lean_object* l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_MaxIndex_collectDecl(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mayReuse(lean_object* x_1, lean_object* x_2) {
@@ -263,7 +263,7 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_ResetReuse_0__Lean
 return x_2;
 }
 }
-lean_object* l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -612,7 +612,7 @@ lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean
 x_58 = lean_ctor_get(x_3, 3);
 x_59 = x_58;
 x_60 = lean_unsigned_to_nat(0u);
-x_61 = l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1(x_1, x_2, x_60, x_59);
+x_61 = l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1(x_1, x_2, x_60, x_59);
 x_62 = x_61;
 lean_ctor_set(x_3, 3, x_62);
 return x_3;
@@ -631,7 +631,7 @@ lean_inc(x_63);
 lean_dec(x_3);
 x_67 = x_66;
 x_68 = lean_unsigned_to_nat(0u);
-x_69 = l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1(x_1, x_2, x_68, x_67);
+x_69 = l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1(x_1, x_2, x_68, x_67);
 x_70 = x_69;
 x_71 = lean_alloc_ctor(10, 4, 0);
 lean_ctor_set(x_71, 0, x_63);
@@ -664,11 +664,11 @@ return x_3;
 }
 }
 }
-lean_object* l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1(x_1, x_2, x_3, x_4);
+x_5 = l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
 }
@@ -934,7 +934,7 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_ResetReuse_0__Lean
 return x_2;
 }
 }
-uint8_t l_Array_anyRangeMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+uint8_t l_Array_anyRangeMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -969,17 +969,19 @@ goto _start;
 }
 else
 {
+uint8_t x_14; 
 lean_dec(x_5);
-return x_10;
+x_14 = 1;
+return x_14;
 }
 }
 else
 {
-lean_object* x_14; lean_object* x_15; 
-x_14 = lean_unsigned_to_nat(1u);
-x_15 = lean_nat_add(x_5, x_14);
+lean_object* x_15; lean_object* x_16; 
+x_15 = lean_unsigned_to_nat(1u);
+x_16 = lean_nat_add(x_5, x_15);
 lean_dec(x_5);
-x_5 = x_15;
+x_5 = x_16;
 goto _start;
 }
 }
@@ -991,16 +993,16 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_array_get_size(x_1);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_Array_anyRangeMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1(x_1, x_2, x_1, x_3, x_4);
+x_5 = l_Array_anyRangeMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1(x_1, x_2, x_1, x_3, x_4);
 lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* l_Array_anyRangeMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_anyRangeMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; lean_object* x_7; 
-x_6 = l_Array_anyRangeMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Array_anyRangeMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -1253,7 +1255,7 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_ResetReuse_0__Lean
 return x_2;
 }
 }
-lean_object* l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; uint8_t x_8; 
@@ -1654,7 +1656,7 @@ x_64 = lean_ctor_get(x_3, 0);
 lean_dec(x_64);
 x_65 = x_53;
 x_66 = lean_unsigned_to_nat(0u);
-x_67 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1), 6, 4);
+x_67 = lean_alloc_closure((void*)(l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1), 6, 4);
 lean_closure_set(x_67, 0, x_1);
 lean_closure_set(x_67, 1, x_2);
 lean_closure_set(x_67, 2, x_66);
@@ -1703,7 +1705,7 @@ lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean
 lean_dec(x_3);
 x_82 = x_53;
 x_83 = lean_unsigned_to_nat(0u);
-x_84 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1), 6, 4);
+x_84 = lean_alloc_closure((void*)(l_Array_umapMAux___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1), 6, 4);
 lean_closure_set(x_84, 0, x_1);
 lean_closure_set(x_84, 1, x_2);
 lean_closure_set(x_84, 2, x_83);
@@ -2210,7 +2212,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_IR_ResetReuse_R_match__3___rarg), 4, 0);
 return x_2;
 }
 }
-lean_object* l_Array_umapMAux___main___at_Lean_IR_ResetReuse_R___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_umapMAux___at_Lean_IR_ResetReuse_R___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
@@ -2533,7 +2535,7 @@ x_35 = lean_ctor_get(x_1, 3);
 x_36 = x_35;
 x_37 = lean_unsigned_to_nat(0u);
 lean_inc(x_34);
-x_38 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at_Lean_IR_ResetReuse_R___spec__1), 5, 3);
+x_38 = lean_alloc_closure((void*)(l_Array_umapMAux___at_Lean_IR_ResetReuse_R___spec__1), 5, 3);
 lean_closure_set(x_38, 0, x_34);
 lean_closure_set(x_38, 1, x_37);
 lean_closure_set(x_38, 2, x_36);
@@ -2578,7 +2580,7 @@ lean_dec(x_1);
 x_50 = x_49;
 x_51 = lean_unsigned_to_nat(0u);
 lean_inc(x_47);
-x_52 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at_Lean_IR_ResetReuse_R___spec__1), 5, 3);
+x_52 = lean_alloc_closure((void*)(l_Array_umapMAux___at_Lean_IR_ResetReuse_R___spec__1), 5, 3);
 lean_closure_set(x_52, 0, x_47);
 lean_closure_set(x_52, 1, x_51);
 lean_closure_set(x_52, 2, x_50);

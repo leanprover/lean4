@@ -100,6 +100,7 @@ lean_object* l_Lean_Name_getNumParts(lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1(lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_NameHashSet_Lean_Data_Name___instance__7;
+lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameMap_find_x3f(lean_object*);
 lean_object* l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_empty;
@@ -170,13 +171,12 @@ lean_object* l_Lean_Name_eqStr_match__1___rarg(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Name_getRoot___boxed(lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
 lean_object* l_Lean_Name_isAtomic_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_String_Inhabited;
+extern lean_object* l_String_Init_Data_String_Basic___instance__3;
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_replace___main___at_Lean_NameHashSet_insert___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_components(lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_Name_isPrefixOf_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_2__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -479,7 +479,7 @@ x_2 = l_Lean_Name_getString_x21___closed__2;
 x_3 = lean_unsigned_to_nat(33u);
 x_4 = lean_unsigned_to_nat(15u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
-x_6 = l___private_Init_Util_2__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -496,7 +496,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_String_Inhabited;
+x_3 = l_String_Init_Data_String_Basic___instance__3;
 x_4 = l_Lean_Name_getString_x21___closed__3;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;

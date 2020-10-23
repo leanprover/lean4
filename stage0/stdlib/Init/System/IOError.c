@@ -35,7 +35,6 @@ lean_object* l_IO_Error_fopenErrorToString(lean_object*, lean_object*, uint32_t,
 lean_object* mk_io_user_error(lean_object*);
 lean_object* l_IO_Error_toString_match__1___rarg___boxed(lean_object**);
 lean_object* lean_string_append(lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_IO_Error_toString___closed__7;
 lean_object* l_IO_Error_mkAlreadyExists___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_io_error_already_exists(uint32_t, lean_object*);
@@ -81,6 +80,7 @@ lean_object* l_IO_Error_Init_System_IOError___instance__2;
 lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* lean_mk_io_error_resource_vanished(uint32_t, lean_object*);
 lean_object* l_IO_Error_toString_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_IO_Error_toString___closed__15;
 lean_object* lean_mk_io_error_unsatisfied_constraints(uint32_t, lean_object*);
 lean_object* l_IO_Error_toString___closed__5;
@@ -2150,7 +2150,7 @@ static lean_object* _init_l_IO_Error_Init_System_IOError___instance__2___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_String_splitAux___main___closed__1;
+x_1 = l_String_splitAux___closed__1;
 x_2 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

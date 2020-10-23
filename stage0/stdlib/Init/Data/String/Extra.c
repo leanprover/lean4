@@ -13,14 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-lean_object* l_String_foldlAux___main___at_String_toNat_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
 uint8_t l_String_isNat(lean_object*);
+lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_to_utf8(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* l_String_foldlAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toUTF8___boxed(lean_object*);
+lean_object* l_String_toNat_x21___closed__4;
+extern lean_object* l_String_toNat_x3f___closed__1;
 lean_object* l_String_fromUTF8Unchecked___boxed(lean_object*);
 lean_object* l_String_toNat_x21___boxed(lean_object*);
 lean_object* l_String_toNat_x21___closed__1;
@@ -40,20 +42,29 @@ static lean_object* _init_l_String_toNat_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat expected");
+x_1 = lean_mk_string("String.toNat!");
 return x_1;
 }
 }
 static lean_object* _init_l_String_toNat_x21___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; 
+x_1 = lean_mk_string("Nat expected");
+return x_1;
+}
+}
+static lean_object* _init_l_String_toNat_x21___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_toNat_x21___closed__1;
-x_2 = lean_unsigned_to_nat(17u);
-x_3 = lean_unsigned_to_nat(2u);
-x_4 = l_String_toNat_x21___closed__2;
-x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
-return x_5;
+x_2 = l_String_toNat_x21___closed__2;
+x_3 = lean_unsigned_to_nat(18u);
+x_4 = lean_unsigned_to_nat(4u);
+x_5 = l_String_toNat_x21___closed__3;
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+return x_6;
 }
 }
 lean_object* l_String_toNat_x21(lean_object* x_1) {
@@ -65,18 +76,19 @@ if (x_2 == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_Nat_Inhabited;
-x_4 = l_String_toNat_x21___closed__3;
+x_4 = l_String_toNat_x21___closed__4;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_string_utf8_byte_size(x_1);
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = l_String_foldlAux___main___at_String_toNat_x3f___spec__1(x_1, x_6, x_7, x_7);
+x_7 = l_String_toNat_x3f___closed__1;
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = l_String_foldlAux_loop___rarg(x_7, x_1, x_6, x_8, x_8);
 lean_dec(x_6);
-return x_8;
+return x_9;
 }
 }
 }
@@ -130,6 +142,8 @@ l_String_toNat_x21___closed__2 = _init_l_String_toNat_x21___closed__2();
 lean_mark_persistent(l_String_toNat_x21___closed__2);
 l_String_toNat_x21___closed__3 = _init_l_String_toNat_x21___closed__3();
 lean_mark_persistent(l_String_toNat_x21___closed__3);
+l_String_toNat_x21___closed__4 = _init_l_String_toNat_x21___closed__4();
+lean_mark_persistent(l_String_toNat_x21___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -29,7 +29,6 @@ lean_object* l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___sp
 lean_object* l_prodHasDecidableLt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_formatKVMap___closed__1;
 lean_object* l_Lean_Position_Lean_Data_Position___instance__1___boxed(lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_Position_Lean_Data_Position___instance__1_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString___closed__1;
 lean_object* l_Lean_Position_Lean_Data_Position___instance__2_match__1___rarg(lean_object*, lean_object*);
@@ -57,6 +56,7 @@ lean_object* l_Lean_FileMap_toPosition_toColumn___boxed(lean_object*, lean_objec
 lean_object* l_Lean_FileMap_toPosition_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 uint8_t l_Lean_Position_Lean_Data_Position___instance__1(lean_object*, lean_object*);
+extern lean_object* l_String_splitAux___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Position_Lean_Data_Position___instance__2___closed__1;
 lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1(lean_object*);
@@ -379,7 +379,7 @@ static lean_object* _init_l_Lean_FileMap_Lean_Data_Position___instance__5___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_String_splitAux___main___closed__1;
+x_1 = l_String_splitAux___closed__1;
 x_2 = l_Array_empty___closed__1;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_1);

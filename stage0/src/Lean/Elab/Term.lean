@@ -370,7 +370,7 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := d
         msg ++ " " ++ arg.getAppFn
       else
         msg ++ " …"
-    let msg : MessageData := "don't know how to synthesize implicit argument" ++ indentD msg
+    let msg : MessageData := msg!"don't know how to synthesize implicit argument{indentD msg}"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
     logErrorAt mvarErrorInfo.ref msg
   | MVarErrorKind.hole => do
@@ -392,7 +392,7 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) : TermElabM Boo
     let mvarId := mvarErrorInfo.mvarId;
     if alreadyVisited.contains mvarId then
       pure (foundErrors, alreadyVisited)
-    else do
+    else withMVarContext mvarId do
       let alreadyVisited := alreadyVisited.insert mvarId
       /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
          delayed assigned to another metavariable that is unassigned. -/

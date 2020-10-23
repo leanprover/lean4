@@ -12580,6 +12580,8 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
 lean_inc(x_43);
 x_44 = l_Lean_Elab_Term_ensureNoUnassignedMVars(x_43, x_6, x_7, x_8, x_9, x_10, x_11, x_34);
 if (lean_obj_tag(x_44) == 0)

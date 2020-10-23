@@ -12,10 +12,10 @@ import Init.Control.Except
 universes u v
 
 def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
-m (Option α)
+  m (Option α)
 
 @[inline] def OptionT.run {m : Type u → Type v} {α : Type u} (x : OptionT m α) : m (Option α) :=
-x
+  x
 
 namespace OptionT
 variables {m : Type u → Type v} [Monad m] {α β : Type u}
@@ -54,8 +54,8 @@ instance : MonadLift m (OptionT m) := ⟨OptionT.lift⟩
 instance : MonadFunctor m (OptionT m) := ⟨fun f x => f x⟩
 
 @[inline] protected def tryCatch (x : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α := id (α := m (Option α)) do
-let some a ← x | handle ()
-pure a
+  let some a ← x | handle ()
+  pure a
 
 instance : MonadExceptOf Unit (OptionT m) := {
   throw    := fun _ => OptionT.fail,

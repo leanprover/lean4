@@ -63,9 +63,9 @@ private def tryCoeFun (α : Expr) (a : Expr) : TermElabM Expr := do
   let synthesized ←
     try
       withoutMacroStackAtErr $ synthesizeInstMVarCore mvarId
-    catch
-      | Exception.error _ msg => throwError! "function expected\n{msg}"
-      | _                     => throwError "function expected"
+    catch _ =>
+      -- Should we add an option for showing the type class failure?
+      throwError "function expected"
   if synthesized then
     pure $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
   else

@@ -541,7 +541,7 @@ public:
             expr C_ty = mk_sort(m_elim_level);
             C_ty      = mk_pi(info.m_major, C_ty);
             C_ty      = mk_pi(info.m_indices, C_ty);
-            name C_name("C");
+            name C_name("motive");
             if (m_ind_types.size() > 1)
                 C_name = name(C_name).append_after(d_idx+1);
             info.m_C = mk_local_decl(C_name, C_ty);

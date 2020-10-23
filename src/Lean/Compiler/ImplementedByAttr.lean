@@ -25,18 +25,18 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
 
 @[export lean_get_implemented_by]
 def getImplementedBy (env : Environment) (declName : Name) : Option Name :=
-implementedByAttr.getParam env declName
+  implementedByAttr.getParam env declName
 
 def setImplementedBy (env : Environment) (declName : Name) (impName : Name) : Except String Environment :=
-implementedByAttr.setParam env declName impName
+  implementedByAttr.setParam env declName impName
 
 end Compiler
 
 def setImplementedBy {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
     (declName : Name) (impName : Name) : m Unit := do
-let env ← getEnv
-match Compiler.setImplementedBy env declName impName with
-| Except.ok env   => setEnv env
-| Except.error ex => throwError ex
+  let env ← getEnv
+  match Compiler.setImplementedBy env declName impName with
+  | Except.ok env   => setEnv env
+  | Except.error ex => throwError ex
 
 end Lean

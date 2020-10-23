@@ -8,48 +8,48 @@ import Lean.Data.Name
 namespace Lean
 
 private def String.mangleAux : Nat → String.Iterator → String → String
-| 0,   it, r => r
-| i+1, it, r =>
-  let c := it.curr
-  if c.isAlpha || c.isDigit then
-    mangleAux i it.next (r.push c)
-  else if c = '_' then
-    mangleAux i it.next (r ++ "__")
-  else if c.toNat < 255 then
-    let n := c.toNat
-    let r := r ++ "_x"
-    let r := r.push $ Nat.digitChar (n / 16)
-    let r := r.push $ Nat.digitChar (n % 16)
-    mangleAux i it.next r
-  else
-    let n := c.toNat
-    let r := r ++ "_u"
-    let r := r.push $ Nat.digitChar (n / 4096)
-    let n := n % 4096
-    let r := r.push $ Nat.digitChar (n / 256)
-    let n := n % 256
-    let r := r.push $ Nat.digitChar (n / 16)
-    let r := r.push $ Nat.digitChar (n % 16)
-    mangleAux i it.next r
+  | 0,   it, r => r
+  | i+1, it, r =>
+    let c := it.curr
+    if c.isAlpha || c.isDigit then
+      mangleAux i it.next (r.push c)
+    else if c = '_' then
+      mangleAux i it.next (r ++ "__")
+    else if c.toNat < 255 then
+      let n := c.toNat
+      let r := r ++ "_x"
+      let r := r.push $ Nat.digitChar (n / 16)
+      let r := r.push $ Nat.digitChar (n % 16)
+      mangleAux i it.next r
+    else
+      let n := c.toNat
+      let r := r ++ "_u"
+      let r := r.push $ Nat.digitChar (n / 4096)
+      let n := n % 4096
+      let r := r.push $ Nat.digitChar (n / 256)
+      let n := n % 256
+      let r := r.push $ Nat.digitChar (n / 16)
+      let r := r.push $ Nat.digitChar (n % 16)
+      mangleAux i it.next r
 
 def String.mangle (s : String) : String :=
-String.mangleAux s.length s.mkIterator ""
+  String.mangleAux s.length s.mkIterator ""
 
 private def Name.mangleAux : Name → String
-| Name.anonymous => ""
-| Name.str p s _ =>
-  let m := String.mangle s
-  match p with
-  | Name.anonymous => m
-  | _              => mangleAux p ++ "_" ++ m
-| Name.num p n _ => mangleAux p ++ "_" ++ toString n ++ "_"
+  | Name.anonymous => ""
+  | Name.str p s _ =>
+    let m := String.mangle s
+    match p with
+    | Name.anonymous => m
+    | _              => mangleAux p ++ "_" ++ m
+  | Name.num p n _ => mangleAux p ++ "_" ++ toString n ++ "_"
 
 @[export lean_name_mangle]
 def Name.mangle (n : Name) (pre : String := "l_") : String :=
-pre ++ Name.mangleAux n
+  pre ++ Name.mangleAux n
 
 @[export lean_mk_module_initialization_function_name]
 def mkModuleInitializationFunctionName (moduleName : Name) : String :=
-"initialize_" ++ moduleName.mangle ""
+  "initialize_" ++ moduleName.mangle ""
 
 end Lean

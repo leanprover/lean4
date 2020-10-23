@@ -17,7 +17,6 @@ import Lean.Class
 import Lean.LocalContext
 import Lean.MetavarContext
 import Lean.AuxRecursor
-import Lean.Linter
 import Lean.Meta
 import Lean.Util
 import Lean.Eval

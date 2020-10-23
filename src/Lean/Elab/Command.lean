@@ -54,6 +54,15 @@ structure Context :=
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
+abbrev Linter := Syntax → CommandElabM Unit
+
+/- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the
+    environment (which only contains `import`ed objects). -/
+builtin_initialize lintersRef : IO.Ref (Array Linter) ← IO.mkRef #[]
+
+def addLinter (l : Linter) : IO Unit := do
+let ls ← lintersRef.get
+lintersRef.set (ls.push l)
 
 instance : MonadEnv CommandElabM := {
   getEnv    := do pure (← get).env,
@@ -137,6 +146,18 @@ instance : MonadLog CommandElabM := {
     modify fun s => { s with messages := s.messages.add msg }
 }
 
+def runLinters (stx : Syntax) : CommandElabM Unit := do
+  let linters ← lintersRef.get
+  unless linters.isEmpty do
+    for linter in linters do
+      let savedState ← get
+      try
+        linter stx
+      catch ex =>
+        logException ex
+      finally
+        modify fun s => { savedState with messages := s.messages }
+
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
 
@@ -194,7 +215,9 @@ instance : MonadRecDepth CommandElabM := {
 builtin_initialize registerTraceClass `Elab.command
 
 partial def elabCommand : Syntax → CommandElabM Unit
-  | stx => withLogging $ withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
+  | stx => withLogging $ withRef stx $ withIncRecDepth $ withFreshMacroScope do
+    runLinters stx
+    match stx with
     | Syntax.node k args =>
       if k == nullKind then
         -- list of commands => elaborate in order
@@ -618,4 +641,8 @@ def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM Expand
   let currLevelNames ← getLevelNames
   Lean.Elab.expandDeclId currNamespace currLevelNames declId modifiers
 
-end Lean.Elab.Command
+end Elab.Command
+
+export Elab.Command (Linter addLinter)
+
+end Lean

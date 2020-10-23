@@ -21,7 +21,7 @@ unsafe def profileitIOUnsafe {ε α : Type} (category : String) (pos : Position)
 def profileitIO {ε α : Type} (category : String) (pos : Position) (act : EIO ε α) : EIO ε α := act
 
 -- impossible to infer `ε`
-def profileitM {m : Type → Type} (ε : Type) [MonadFunctorT (EIO ε) (EIO ε) m m] {α : Type} (category : @& String) (pos : @& Position) (act : m α) : m α :=
+def profileitM {m : Type → Type} (ε : Type) [MonadFunctorT (EIO ε) m] {α : Type} (category : @& String) (pos : @& Position) (act : m α) : m α :=
   monadMap (fun {β} => @profileitIO ε β category pos) act
 
 end Lean

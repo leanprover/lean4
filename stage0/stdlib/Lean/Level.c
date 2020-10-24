@@ -509,7 +509,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_mkData___closed__3;
 x_3 = lean_unsigned_to_nat(46u);
-x_4 = lean_unsigned_to_nat(33u);
+x_4 = lean_unsigned_to_nat(35u);
 x_5 = l_Lean_Level_mkData___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
@@ -1845,7 +1845,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_mvarId_x21___closed__1;
 x_3 = lean_unsigned_to_nat(158u);
-x_4 = lean_unsigned_to_nat(19u);
+x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Level_mvarId_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
@@ -5890,7 +5890,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_updateSucc_x21___closed__1;
 x_3 = lean_unsigned_to_nat(435u);
-x_4 = lean_unsigned_to_nat(16u);
+x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Level_updateSucc_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
@@ -6000,7 +6000,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_updateMax_x21___closed__1;
 x_3 = lean_unsigned_to_nat(444u);
-x_4 = lean_unsigned_to_nat(19u);
+x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Level_updateMax_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
@@ -6114,7 +6114,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_updateIMax_x21___closed__1;
 x_3 = lean_unsigned_to_nat(453u);
-x_4 = lean_unsigned_to_nat(20u);
+x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_Level_updateIMax_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;

@@ -48,8 +48,8 @@ def ident' : Parser := ident <|> underscore
 
 def locationWildcard := parser! "*"
 def locationTarget   := parser! unicodeSymbol "⊢" "|-"
-def locationHyp      := parser! many1 ident
-def location         := parser! "at " >> (locationWildcard <|> locationTarget <|> locationHyp)
+def locationHyp      := parser! many1 (checkColGt >> ident)
+def location         := parser! withPosition ("at " >> (locationWildcard <|> locationTarget <|> locationHyp))
 
 @[builtinTacticParser] def change     := parser! nonReservedSymbol "change " >> termParser >> optional location
 @[builtinTacticParser] def changeWith := parser! nonReservedSymbol "change " >> termParser >> " with " >> termParser >> optional location

@@ -99,10 +99,12 @@ mod.inductionOn x y
        Heq.symm ▸ hgt))
 
 theorem modLe (x y : Nat) : x % y ≤ x :=
+sorry
+/-
 Or.elim (Nat.ltOrGe x y)
   (fun (h₁ : x < y) => (modEqOfLt h₁).symm ▸ Nat.leRefl _)
   (fun (h₁ : x ≥ y) => Or.elim (eqZeroOrPos y)
     (fun (h₂ : y = 0) => h₂.symm ▸ (Nat.modZero x).symm ▸ Nat.leRefl _)
     (fun (h₂ : y > 0) => Nat.leTrans (Nat.leOfLt (Nat.modLt _ h₂)) h₁))
-
+-/
 end Nat

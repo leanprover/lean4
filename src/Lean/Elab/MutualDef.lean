@@ -161,13 +161,10 @@ private def removeUnusedVars (vars : Array Expr) (headers : Array DefViewElabHea
   let (_, used) ← (collectUsed headers values toLift).run {}
   removeUnused vars used
 
-private def withUsedWhen {α} (vars : Array Expr) (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
-    (cond : Bool) (k : Array Expr → TermElabM α) : TermElabM α := do
-  if cond then
-   let (lctx, localInsts, vars) ← removeUnusedVars vars headers values toLift
-   withLCtx lctx localInsts $ k vars
-  else
-   k vars
+private def withUsed {α} (vars : Array Expr) (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
+    (k : Array Expr → TermElabM α) : TermElabM α := do
+  let (lctx, localInsts, vars) ← removeUnusedVars vars headers values toLift
+  withLCtx lctx localInsts $ k vars
 
 private def isExample (views : Array DefView) : Bool :=
   views.any (·.kind.isExample)
@@ -583,7 +580,7 @@ def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :
       let letRecsToLift ← getLetRecsToLift
       let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
       checkLetRecsToLiftTypes funFVars letRecsToLift
-      withUsedWhen vars headers values letRecsToLift (not $ isTheorem views) fun vars => do
+      withUsed vars headers values letRecsToLift fun vars => do
         let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
         let preDefs ← levelMVarToParamPreDecls preDefs
         let preDefs ← instantiateMVarsAtPreDecls preDefs

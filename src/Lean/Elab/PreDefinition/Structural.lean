@@ -245,7 +245,8 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
       let matcherApp? ← matchMatcherApp? e
       match matcherApp? with
       | some matcherApp =>
-        if !containsRecFn recFnName e then
+        /- If none of the alternatives contain a recursive application, we process it as a regular one. -/
+        if matcherApp.alts.all fun alt => !containsRecFn recFnName alt then
           processApp e
         else
           /- Here is an example we currently not handle

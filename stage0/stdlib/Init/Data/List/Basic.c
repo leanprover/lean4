@@ -43,7 +43,6 @@ uint8_t l_List_elem___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_HasLess___boxed(lean_object*, lean_object*);
 lean_object* l_List_spanAux(lean_object*);
 lean_object* l_List_iota(lean_object*);
-lean_object* l_Nat_repeatAux___main___at_List_replicate___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterMap___main(lean_object*, lean_object*);
 lean_object* l_List_unzip___rarg(lean_object*);
@@ -92,7 +91,6 @@ lean_object* l_List_unzip___main(lean_object*, lean_object*);
 lean_object* l_List_lengthAux(lean_object*);
 lean_object* l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1(lean_object*);
 lean_object* l_List_drop(lean_object*);
-lean_object* l_Nat_repeatAux___main___at_List_replicate___spec__1(lean_object*);
 lean_object* l_List_or___boxed(lean_object*);
 lean_object* l_List_replicate___rarg(lean_object*, lean_object*);
 lean_object* l_List_foldr1Opt___rarg(lean_object*, lean_object*);
@@ -106,6 +104,7 @@ lean_object* l_List_any(lean_object*);
 lean_object* l_List_bind___rarg(lean_object*, lean_object*);
 lean_object* l_List_eraseDupsAux___main(lean_object*);
 lean_object* l_List_iota___main___boxed(lean_object*);
+lean_object* l_Nat_repeat_loop___at_List_replicate___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr___main___at_List_any___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse(lean_object*);
 lean_object* l_List_intersperse___main(lean_object*);
@@ -264,6 +263,7 @@ uint8_t l_List_any___rarg(lean_object*, lean_object*);
 lean_object* l_List_isEqv___main(lean_object*);
 lean_object* l_List_isPrefixOf(lean_object*);
 lean_object* l_List_dropWhile___main(lean_object*);
+lean_object* l_Nat_repeat_loop___at_List_replicate___spec__1(lean_object*);
 uint8_t l_List_beq___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_intercalate(lean_object*);
 lean_object* l_List_beq___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -3917,7 +3917,7 @@ x_3 = lean_alloc_closure((void*)(l_List_unzip___rarg), 1, 0);
 return x_3;
 }
 }
-lean_object* l_Nat_repeatAux___main___at_List_replicate___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Nat_repeat_loop___at_List_replicate___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -3945,11 +3945,11 @@ return x_3;
 }
 }
 }
-lean_object* l_Nat_repeatAux___main___at_List_replicate___spec__1(lean_object* x_1) {
+lean_object* l_Nat_repeat_loop___at_List_replicate___spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Nat_repeatAux___main___at_List_replicate___spec__1___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Nat_repeat_loop___at_List_replicate___spec__1___rarg), 3, 0);
 return x_2;
 }
 }
@@ -3958,7 +3958,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_box(0);
-x_4 = l_Nat_repeatAux___main___at_List_replicate___spec__1___rarg(x_2, x_1, x_3);
+x_4 = l_Nat_repeat_loop___at_List_replicate___spec__1___rarg(x_2, x_1, x_3);
 return x_4;
 }
 }

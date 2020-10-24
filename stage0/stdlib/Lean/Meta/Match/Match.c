@@ -210,6 +210,7 @@ extern lean_object* l_Init_Data_Repr___instance__11___rarg___closed__1;
 uint8_t l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_isDone(lean_object*);
 lean_object* l_Lean_SMap_switch___at_Lean_Meta_Match_Extension_State_switch___spec__1(lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor___closed__1;
+lean_object* l_Nat_foldAux___at_Lean_Meta_Match_mkMatcher___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_joinSep(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_mkMatcher___lambda__1___closed__14;
 lean_object* l_Lean_Meta_Match_mkMatcher(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -233,7 +234,6 @@ lean_object* l_Lean_Meta_Match_Example_toMessageData_match__1(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars___at___private_Lean_Meta_InferType_0__Lean_Meta_inferLambdaType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_processInaccessibleAsCtor___lambda__1___closed__4;
-lean_object* l_Nat_foldAux___main___at_Lean_Meta_Match_mkMatcher___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_unify_x3f_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAltsAux___rarg___closed__4;
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_expandNatValuePattern(lean_object*);
@@ -700,6 +700,7 @@ extern lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAs
 lean_object* l_Array_iterateMAux___at_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_Match___hyg_6522____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_indexOfAux___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_getUElimPos_x3f___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MatcherApp_addArg___lambda__4___closed__2;
+lean_object* l_Nat_foldAux___at_Lean_Meta_Match_mkMatcher___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_Match_mkMatcher___spec__10(lean_object*);
 lean_object* l_Lean_Meta_setMCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -848,7 +849,6 @@ lean_object* l_Lean_Meta_Match_mkMatcher___lambda__1___closed__16;
 lean_object* l_Lean_Meta_Match_Extension_extension___closed__3;
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_traceStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_foldAux___main___at_Lean_Meta_Match_mkMatcher___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuick_x3f___closed__1;
 lean_object* l_Lean_Meta_Match_Pattern_applyFVarSubst_match__2(lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAltsAux_match__1___rarg(lean_object*, lean_object*);
@@ -43512,7 +43512,7 @@ lean_dec(x_7);
 return x_8;
 }
 }
-lean_object* l_Nat_foldAux___main___at_Lean_Meta_Match_mkMatcher___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Nat_foldAux___at_Lean_Meta_Match_mkMatcher___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
@@ -43520,26 +43520,28 @@ x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_nat_dec_eq(x_4, x_6);
 if (x_7 == 0)
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_4, x_8);
-x_10 = lean_nat_sub(x_3, x_4);
 lean_dec(x_4);
-x_11 = lean_ctor_get(x_2, 0);
-x_12 = l_Std_HashSetImp_contains___at_Lean_Meta_Match_mkMatcher___spec__3(x_11, x_10);
-if (x_12 == 0)
+x_10 = lean_nat_add(x_9, x_8);
+x_11 = lean_nat_sub(x_3, x_10);
+lean_dec(x_10);
+x_12 = lean_ctor_get(x_2, 0);
+x_13 = l_Std_HashSetImp_contains___at_Lean_Meta_Match_mkMatcher___spec__3(x_12, x_11);
+if (x_13 == 0)
 {
-lean_object* x_13; 
-x_13 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_13, 0, x_10);
-lean_ctor_set(x_13, 1, x_5);
+lean_object* x_14; 
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_11);
+lean_ctor_set(x_14, 1, x_5);
 x_4 = x_9;
-x_5 = x_13;
+x_5 = x_14;
 goto _start;
 }
 else
 {
-lean_dec(x_10);
+lean_dec(x_11);
 x_4 = x_9;
 goto _start;
 }
@@ -45615,7 +45617,7 @@ lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean
 x_60 = l_List_lengthAux___main___rarg(x_5, x_39);
 x_61 = l_Lean_Meta_Match_mkMatcher___lambda__1___closed__1;
 lean_inc(x_60);
-x_62 = l_Nat_foldAux___main___at_Lean_Meta_Match_mkMatcher___spec__4(x_61, x_35, x_60, x_60, x_27);
+x_62 = l_Nat_foldAux___at_Lean_Meta_Match_mkMatcher___spec__4(x_61, x_35, x_60, x_60, x_27);
 lean_dec(x_60);
 x_63 = lean_ctor_get(x_35, 1);
 lean_inc(x_63);
@@ -46530,11 +46532,11 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_Nat_foldAux___main___at_Lean_Meta_Match_mkMatcher___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Nat_foldAux___at_Lean_Meta_Match_mkMatcher___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Nat_foldAux___main___at_Lean_Meta_Match_mkMatcher___spec__4(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Nat_foldAux___at_Lean_Meta_Match_mkMatcher___spec__4(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);

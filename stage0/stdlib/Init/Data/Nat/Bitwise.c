@@ -19,13 +19,11 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Nat_lor___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_bitwise(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
-lean_object* l_Nat_bitwise___main___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_bitwise___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_bitwise___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_land___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-lean_object* l_Nat_bitwise___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Nat_bitwise(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -42,7 +40,7 @@ x_7 = lean_unsigned_to_nat(2u);
 x_8 = lean_nat_div(x_2, x_7);
 x_9 = lean_nat_div(x_3, x_7);
 lean_inc(x_1);
-x_10 = l_Nat_bitwise___main(x_1, x_8, x_9);
+x_10 = l_Nat_bitwise(x_1, x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);
 x_11 = lean_nat_mod(x_2, x_7);
@@ -119,24 +117,6 @@ lean_inc(x_3);
 return x_3;
 }
 }
-}
-}
-lean_object* l_Nat_bitwise___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Nat_bitwise___main(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-lean_object* l_Nat_bitwise(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Nat_bitwise___main(x_1, x_2, x_3);
-return x_4;
 }
 }
 lean_object* l_Nat_bitwise___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

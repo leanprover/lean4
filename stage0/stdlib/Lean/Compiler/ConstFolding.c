@@ -62,7 +62,6 @@ lean_object* l_Lean_Compiler_foldStrictAnd___boxed(lean_object*);
 extern lean_object* l_Init_Data_Repr___instance__2___closed__2;
 lean_object* l_Lean_Compiler_natFoldFns;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__25;
-extern lean_object* l_Nat_HasMul___closed__1;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_boolFoldFns___closed__5;
 lean_object* l_Lean_Compiler_foldUIntSub(uint8_t, lean_object*, lean_object*);
@@ -302,6 +301,7 @@ lean_object* l_Lean_Compiler_numScalarTypes___closed__16;
 lean_object* l_Lean_Compiler_foldNatSucc(uint8_t);
 lean_object* l_Lean_Compiler_toDecidableExpr(uint8_t, lean_object*, uint8_t);
 lean_object* l_Lean_Compiler_foldNatAdd___rarg(lean_object*, lean_object*);
+extern lean_object* l_Nat_Init_Data_Nat_Basic___instance__5___closed__1;
 lean_object* l_List_foldl___main___at_Lean_Compiler_uintFoldToNatFns___spec__1___closed__1;
 lean_object* l_Lean_Compiler_mkUInt32Lit___boxed(lean_object*);
 lean_object* l_Lean_Compiler_foldNatDecEq___closed__1;
@@ -2082,7 +2082,7 @@ lean_object* l_Lean_Compiler_foldNatMul___rarg(lean_object* x_1, lean_object* x_
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Nat_HasMul___closed__1;
+x_3 = l_Nat_Init_Data_Nat_Basic___instance__5___closed__1;
 x_4 = l_Lean_Compiler_foldNatBinOp(x_3, x_1, x_2);
 return x_4;
 }

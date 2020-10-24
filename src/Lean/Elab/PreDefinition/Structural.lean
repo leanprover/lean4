@@ -354,7 +354,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
     throwError "structural recursion does not handle mutually recursive functions"
   else do
     let preDefNonRec ← elimRecursion preDefs[0]
-    addNonRec preDefNonRec
+    mapError (addNonRec preDefNonRec) (fun msg => msg!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompileUnsafeRec preDefs
 
 builtin_initialize

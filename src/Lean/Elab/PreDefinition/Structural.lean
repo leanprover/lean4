@@ -110,13 +110,15 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
               | none =>
                 let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
                 orelseMergeErrors
-                  (k { fixedParams := fixedParams, ys := ys, pos := i - fixedParams.size,
+                  (mapError
+                    (k { fixedParams := fixedParams, ys := ys, pos := i - fixedParams.size,
                        indicesPos  := indicesPos,
                        indName     := indInfo.name,
                        indLevels   := us,
                        indParams   := indParams,
                        indIndices  := indIndices,
                        reflexive := indInfo.isReflexive })
+                    (fun msg => msg!"argument #{i+1} was not used for structural recursion{indentD msg}"))
                   (loop (i+1))
     else
       throwStructuralFailed

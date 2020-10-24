@@ -4,7 +4,7 @@ new_frontend
 
 #synth HasAdd Nat
 
-#synth HasCoe Bool Prop
+#synth Coe Bool Prop
 
 #synth Decidable (True ∧ 1 = 1)
 

@@ -1,3 +1,4 @@
+#lang lean4
 partial def spin : Nat → Bool
 | n => spin (n)
 

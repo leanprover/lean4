@@ -188,12 +188,13 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         name       := name,
         binders    := binders,
         type?      := type?,
-        value?     := value? }
+        value?     := value?
+      }
 
 private def validStructType (type : Expr) : Bool :=
   match type with
-  | Expr.sort (Level.succ _ _) _ => true
-  | _                            => false
+  | Expr.sort .. => true
+  | _            => false
 
 private def checkParentIsStructure (parent : Expr) : TermElabM Name :=
   match parent.getAppFn with

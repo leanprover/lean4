@@ -10,7 +10,7 @@ open Meta
 
 private def mkInhabitant? (type : Expr) : MetaM (Option Expr) := do
   try
-    pure $ some (← mkAppM `arbitrary #[type])
+    pure $ some (← mkArbitrary type)
   catch _ =>
     pure none
 

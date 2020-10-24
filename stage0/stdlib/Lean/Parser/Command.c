@@ -514,7 +514,6 @@ lean_object* l_Lean_Parser_Command_in___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Command_ctor___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Command_declId___closed__8;
 lean_object* l_Lean_Parser_Command_axiom___elambda__1___closed__10;
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 lean_object* l_Lean_Parser_Command_declModifiers_parenthesizer___closed__22;
 lean_object* l_Lean_Parser_Command_structExplicitBinder___elambda__1___closed__15;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -585,6 +584,7 @@ lean_object* l_Lean_Parser_Command_set__option_formatter___closed__8;
 lean_object* l_Lean_Parser_Command_mutual_formatter___closed__4;
 lean_object* l_Lean_Parser_Command_end_formatter___closed__4;
 lean_object* l_Lean_Parser_Command_print___elambda__1___closed__1;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 lean_object* l___regBuiltin_Lean_Parser_Command_attribute_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Command_instance;
 lean_object* l_Lean_Parser_Command_builtin__initialize___elambda__1___closed__6;
@@ -2907,7 +2907,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_quot(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 x_3 = l_Lean_Parser_Term_quot___elambda__1___closed__1;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_quot;

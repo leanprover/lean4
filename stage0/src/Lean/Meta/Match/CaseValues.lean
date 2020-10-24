@@ -96,7 +96,7 @@ let rec loop : Nat → MVarId → List Expr → Array FVarId → Array CaseValue
     | [] => do
       appendTagSuffix elseSubgoal.mvarId ((`case).appendIndexAfter (i+1))
       pure $ subgoals.push { mvarId := elseSubgoal.mvarId, newHs := hs.push elseSubgoal.newH, subst := {} }
-    | _  => loop (i+1) elseSubgoal.mvarId vs (hs.push elseSubgoal.newH) subgoals
+    | vs => loop (i+1) elseSubgoal.mvarId vs (hs.push elseSubgoal.newH) subgoals
 loop 1 mvarId values.toList #[] #[]
 
 end Lean.Meta

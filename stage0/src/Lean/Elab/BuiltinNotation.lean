@@ -168,7 +168,7 @@ private def getPropToDecide (expectedType? : Option Expr) : TermElabM Expr := do
 
 @[builtinTermElab «nativeDecide»] def elabNativeDecide : TermElab := fun stx expectedType? => do
   let p ← getPropToDecide expectedType?
-  let d ← mkAppM `Decidable.decide #[p]
+  let d ← mkDecide p
   let auxDeclName ← mkNativeReflAuxDecl (Lean.mkConst `Bool) d
   let rflPrf ← mkEqRefl (toExpr true)
   let r   := mkApp3 (Lean.mkConst `Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf
@@ -176,7 +176,7 @@ private def getPropToDecide (expectedType? : Option Expr) : TermElabM Expr := do
 
 @[builtinTermElab Lean.Parser.Term.decide] def elabDecide : TermElab := fun stx expectedType? => do
   let p ← getPropToDecide expectedType?
-  let d ← mkAppM `Decidable.decide #[p]
+  let d ← mkDecide p
   let d ← instantiateMVars d
   let s := d.appArg! -- get instance from `d`
   let rflPrf ← mkEqRefl (toExpr true)

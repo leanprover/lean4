@@ -336,7 +336,6 @@ lean_object* l_Lean_Parser_Command_elab__rules_parenthesizer___closed__6;
 lean_object* l_Lean_Parser_Syntax_paren_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_elab___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_macro___elambda__1___closed__9;
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_mkAntiquot_formatter___closed__9;
 lean_object* l_Lean_Parser_Command_mixfix_parenthesizer___closed__7;
@@ -374,6 +373,7 @@ lean_object* l_Lean_Parser_Command_elab_formatter___closed__2;
 lean_object* l_Lean_Parser_Command_notation_formatter___closed__5;
 lean_object* l_Lean_Parser_Command_macro___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Command_macroHead___closed__1;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 extern lean_object* l_Lean_Parser_quotedSymbol___closed__1;
 lean_object* l_Lean_Parser_Command_elab__rules___elambda__1___closed__12;
 lean_object* l_Lean_Parser_Command_parserKindPrio_parenthesizer___closed__3;
@@ -8605,7 +8605,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_stx_quot(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 x_3 = l_Lean_Parser_Term_stx_quot___elambda__1___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_stx_quot;
@@ -18639,7 +18639,7 @@ lean_inc(x_7);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
+x_8 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_Lean_Parser_categoryParser___elambda__1(x_8, x_9, x_1, x_6);
 return x_10;

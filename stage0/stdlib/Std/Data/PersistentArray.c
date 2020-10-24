@@ -213,7 +213,6 @@ lean_object* l_Array_iterateMAux___at_Std_PersistentArray_filter___spec__11___ra
 lean_object* l_Array_iterateMAux___at_Std_PersistentArray_filter___spec__12___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_mapMAux___rarg___lambda__3(lean_object*);
 lean_object* l_Std_PersistentArray_forInAux___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__28;
 lean_object* l_Std_PersistentArray_map___rarg(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___at_Std_PersistentArray_foldl___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -221,6 +220,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___at_Std_PersistentArray_foldl___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_insertNewLeaf_match__1___rarg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___at_Std_PersistentArray_filter___spec__8(lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 lean_object* l_Array_findSomeRevMAux___at_Std_PersistentArray_findSomeRev_x3f___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forInAux___rarg___lambda__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___at_Std_PersistentArray_append___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10381,7 +10381,7 @@ lean_dec(x_1);
 x_14 = l_Nat_repr(x_13);
 x_15 = lean_string_append(x_12, x_14);
 lean_dec(x_14);
-x_16 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__28;
+x_16 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 x_17 = lean_string_append(x_15, x_16);
 return x_17;
 }

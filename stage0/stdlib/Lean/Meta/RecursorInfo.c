@@ -126,7 +126,6 @@ lean_object* l_Lean_getConstInfoRec___at___private_Lean_Meta_RecursorInfo_0__Lea
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 lean_object* l_List_map___main___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__2(lean_object*);
 lean_object* l_Lean_Meta_brecOnSuffix;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__28;
 lean_object* l_Array_qsort_sort___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2074____spec__5___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_numMinors(lean_object*);
@@ -140,6 +139,7 @@ lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___close
 lean_object* l_List_toStringAux___at_Lean_Meta_RecursorInfo_Lean_Meta_RecursorInfo___instance__2___spec__6(uint8_t, lean_object*);
 extern lean_object* l_Init_Data_Repr___instance__7___rarg___closed__2;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_syntaxToMajorPos(lean_object*);
 extern lean_object* l_Lean_numLitKind;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -1514,7 +1514,7 @@ x_82 = lean_string_append(x_80, x_81);
 x_83 = lean_string_append(x_82, x_40);
 lean_dec(x_40);
 x_84 = lean_string_append(x_83, x_7);
-x_85 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__28;
+x_85 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 x_86 = lean_string_append(x_84, x_85);
 return x_86;
 }

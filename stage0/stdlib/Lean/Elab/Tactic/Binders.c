@@ -38,8 +38,8 @@ extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__1;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandLetBangTactic___closed__1;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__5;
 lean_object* l_Lean_Elab_Tactic_expandLetBangTactic(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__5;
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__3;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandLetTactic___closed__1;
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__15;
@@ -73,7 +73,7 @@ lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandShowTactic___closed__2;
 extern lean_object* l_Lean_Init_LeanInit___instance__8___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandHaveTactic___closed__2;
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_954____closed__12;
+extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__12;
 extern lean_object* l_Lean_mkAppStx___closed__9;
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__2;
 extern lean_object* l_Lean_Level_LevelToFormat_toResult___closed__4;
@@ -189,7 +189,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__2;
-x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_954____closed__12;
+x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__12;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -675,7 +675,7 @@ lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
 x_12 = l_Array_empty___closed__1;
 x_13 = lean_array_push(x_12, x_11);
-x_14 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_301____closed__5;
+x_14 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__5;
 x_15 = lean_array_push(x_13, x_14);
 x_16 = l_Lean_nullKind___closed__2;
 x_17 = lean_alloc_ctor(1, 2, 0);

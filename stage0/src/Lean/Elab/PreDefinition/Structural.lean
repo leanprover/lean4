@@ -110,13 +110,15 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
               | none =>
                 let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
                 orelseMergeErrors
-                  (k { fixedParams := fixedParams, ys := ys, pos := i - fixedParams.size,
+                  (mapError
+                    (k { fixedParams := fixedParams, ys := ys, pos := i - fixedParams.size,
                        indicesPos  := indicesPos,
                        indName     := indInfo.name,
                        indLevels   := us,
                        indParams   := indParams,
                        indIndices  := indIndices,
                        reflexive := indInfo.isReflexive })
+                    (fun msg => msg!"argument #{i+1} was not used for structural recursion{indentD msg}"))
                   (loop (i+1))
     else
       throwStructuralFailed
@@ -243,7 +245,8 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
       let matcherApp? ← matchMatcherApp? e
       match matcherApp? with
       | some matcherApp =>
-        if !containsRecFn recFnName e then
+        /- If none of the alternatives contain a recursive application, we process it as a regular one. -/
+        if matcherApp.alts.all fun alt => !containsRecFn recFnName alt then
           processApp e
         else
           /- Here is an example we currently not handle
@@ -352,7 +355,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
     throwError "structural recursion does not handle mutually recursive functions"
   else do
     let preDefNonRec ← elimRecursion preDefs[0]
-    addNonRec preDefNonRec
+    mapError (addNonRec preDefNonRec) (fun msg => msg!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompileUnsafeRec preDefs
 
 builtin_initialize

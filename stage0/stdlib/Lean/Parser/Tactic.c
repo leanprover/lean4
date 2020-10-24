@@ -363,7 +363,6 @@ extern lean_object* l_Lean_Parser_Term_syntheticHole___closed__7;
 lean_object* l_Lean_Parser_Tactic_rewrite___elambda__1___closed__15;
 lean_object* l_Lean_Parser_Tactic_refine_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Tactic_revert_formatter(lean_object*);
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_location___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Tactic_induction_formatter___closed__5;
@@ -405,6 +404,7 @@ lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_parenthesizer(lean_object*,
 lean_object* l_Lean_Parser_Tactic_generalize___elambda__1___closed__18;
 lean_object* l_Lean_Parser_Tactic_cases___closed__3;
 extern lean_object* l_Lean_Parser_Term_eq___elambda__1___closed__3;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 lean_object* l_Lean_Parser_Tactic_inductionAlts_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_failIfSuccess___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Tactic_clear_formatter___closed__4;
@@ -9130,7 +9130,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 x_2 = lean_unsigned_to_nat(51u);
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_categoryParser___elambda__1), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -9246,7 +9246,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_111____closed__17;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__17;
 x_2 = lean_unsigned_to_nat(51u);
 x_3 = l_Lean_Parser_categoryParser(x_1, x_2);
 return x_3;

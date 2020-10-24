@@ -18,33 +18,35 @@ lean_object* l_List_repr___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_ofList_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_toList___rarg___closed__1;
 lean_object* l_Std_RBTree_all___boxed(lean_object*, lean_object*);
+lean_object* l_Std_RBTree_Std_Data_RBTree___instance__2(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Std_RBTree_foldM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_toList___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBNode_any___at_Std_RBTree_any___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_max___rarg(lean_object*);
 lean_object* l_Std_RBTree_forM(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Std_RBTree_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_RBTree_Std_Data_RBTree___instance__2___rarg___closed__1;
 lean_object* l_Std_RBTree_find_x3f___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkRBTree(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_subset___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_all___at_Std_RBTree_subset___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_all___at_Std_RBTree_all___spec__1(lean_object*);
 lean_object* l_Std_RBTree_min___rarg(lean_object*);
-lean_object* l_Std_RBTree_hasEmptyc(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Std_RBTree_forM___spec__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Std_RBTree_forM___spec__1(lean_object*, lean_object*);
+lean_object* l_Std_RBTree_Std_Data_RBTree___instance__2___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_max(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_seteq___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBTree_Std_Data_RBTree___instance__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_find_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Std_Data_RBTree___instance__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_forM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_toList___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_seteq(lean_object*);
 lean_object* l_Std_RBNode_all___at_Std_RBTree_all___spec__1___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Std_RBTree_Std_Data_RBTree___instance__2___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_depth___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Std_RBTree_Std_Data_RBTree___instance__1___rarg___closed__1;
 lean_object* l_Std_RBNode_revFold___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBNode_all___at_Std_RBTree_subset___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_foldM(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,7 +68,6 @@ lean_object* l_Std_RBTree_all(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_revFold___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_rbtreeOf___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_ofList(lean_object*);
-lean_object* l_Std_RBTree_hasEmptyc___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_min___rarg(lean_object*);
 lean_object* l_Std_RBNode_erase___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Std_RBTree_forM___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -76,6 +77,7 @@ lean_object* l_Std_RBTree_depth___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_min___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_empty___boxed(lean_object*, lean_object*);
 lean_object* l_Std_rbtreeOf(lean_object*);
+lean_object* l_Std_Std_Data_RBTree___instance__1(lean_object*, lean_object*);
 lean_object* l_Std_mkRBTree___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___at_Std_RBTree_fold___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_max___rarg___boxed(lean_object*);
@@ -88,7 +90,6 @@ lean_object* l_Std_RBTree_toList(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_empty(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_insert___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBTree_all___rarg(lean_object*, lean_object*);
-lean_object* l_Std_RBTree_Std_Data_RBTree___instance__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_depth___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_any___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_min___rarg___boxed(lean_object*);
@@ -110,7 +111,6 @@ lean_object* l_Std_RBNode_fold___at_Std_RBTree_fold___spec__1___rarg(lean_object
 lean_object* l_List_foldl___main___at_Std_RBTree_fromList___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_erase___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_min(lean_object*, lean_object*);
-lean_object* l_Std_RBTree_Std_Data_RBTree___instance__1(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_fold___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_any___at_Std_RBTree_any___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Std_RBTree_foldM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -144,7 +144,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Std_RBTree_hasEmptyc(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_Std_Data_RBTree___instance__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -152,11 +152,11 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-lean_object* l_Std_RBTree_hasEmptyc___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_Std_Data_RBTree___instance__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBTree_hasEmptyc(x_1, x_2);
+x_3 = l_Std_Std_Data_RBTree___instance__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -844,7 +844,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_RBTree_Std_Data_RBTree___instance__1___rarg___closed__1() {
+static lean_object* _init_l_Std_RBTree_Std_Data_RBTree___instance__2___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -852,31 +852,31 @@ x_1 = lean_mk_string("rbtreeOf ");
 return x_1;
 }
 }
-lean_object* l_Std_RBTree_Std_Data_RBTree___instance__1___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBTree_Std_Data_RBTree___instance__2___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_Std_RBTree_toList___rarg(x_2);
 x_4 = l_List_repr___rarg(x_1, x_3);
-x_5 = l_Std_RBTree_Std_Data_RBTree___instance__1___rarg___closed__1;
+x_5 = l_Std_RBTree_Std_Data_RBTree___instance__2___rarg___closed__1;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);
 return x_6;
 }
 }
-lean_object* l_Std_RBTree_Std_Data_RBTree___instance__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBTree_Std_Data_RBTree___instance__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_RBTree_Std_Data_RBTree___instance__1___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Std_RBTree_Std_Data_RBTree___instance__2___rarg), 2, 0);
 return x_3;
 }
 }
-lean_object* l_Std_RBTree_Std_Data_RBTree___instance__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_RBTree_Std_Data_RBTree___instance__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBTree_Std_Data_RBTree___instance__1(x_1, x_2);
+x_3 = l_Std_RBTree_Std_Data_RBTree___instance__2(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -1539,8 +1539,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_RBTree_toList___rarg___closed__1 = _init_l_Std_RBTree_toList___rarg___closed__1();
 lean_mark_persistent(l_Std_RBTree_toList___rarg___closed__1);
-l_Std_RBTree_Std_Data_RBTree___instance__1___rarg___closed__1 = _init_l_Std_RBTree_Std_Data_RBTree___instance__1___rarg___closed__1();
-lean_mark_persistent(l_Std_RBTree_Std_Data_RBTree___instance__1___rarg___closed__1);
+l_Std_RBTree_Std_Data_RBTree___instance__2___rarg___closed__1 = _init_l_Std_RBTree_Std_Data_RBTree___instance__2___rarg___closed__1();
+lean_mark_persistent(l_Std_RBTree_Std_Data_RBTree___instance__2___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-extern lean_object* l_Option_get_x21___rarg___closed__3;
 lean_object* l_Lean_mkMVar(lean_object*);
 lean_object* l_Lean_Meta_MVarRenaming_find_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MVarRenaming_apply(lean_object*, lean_object*);
@@ -31,6 +30,7 @@ extern lean_object* l_Lean_Init_LeanInit___instance__1;
 lean_object* l_Lean_Meta_MVarRenaming_find_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MVarRenaming_isEmpty___boxed(lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Option_get_x21___rarg___closed__4;
 lean_object* l_Lean_Meta_MVarRenaming_apply___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MVarRenaming_find_x21(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
@@ -154,7 +154,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = l_Lean_Init_LeanInit___instance__1;
-x_5 = l_Option_get_x21___rarg___closed__3;
+x_5 = l_Option_get_x21___rarg___closed__4;
 x_6 = lean_panic_fn(x_4, x_5);
 return x_6;
 }

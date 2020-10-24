@@ -41,7 +41,6 @@ lean_object* l_List_foldr___main___at_Lean_IR_UnreachableBranches_Value_beq___sp
 lean_object* l_Array_forMAux___at___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_resetNestedJPParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2730____closed__4;
-extern lean_object* l_Option_get_x21___rarg___closed__3;
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Array_iterateMAux___at_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___closed__3;
@@ -223,6 +222,7 @@ extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Std_AssocList_contains___at_Lean_IR_UnreachableBranches_updateVarAssignment___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_updateVarAssignment___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_IR_UnreachableBranches_getFunctionSummary_x3f___spec__2(lean_object*, lean_object*);
+extern lean_object* l_Option_get_x21___rarg___closed__4;
 lean_object* l_Lean_IR_UnreachableBranches_InterpContext_lctx___default;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_IR_UnreachableBranches_updateVarAssignment___closed__1;
@@ -7436,7 +7436,7 @@ if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_45 = l_Array_empty___closed__1;
-x_46 = l_Option_get_x21___rarg___closed__3;
+x_46 = l_Option_get_x21___rarg___closed__4;
 x_47 = lean_panic_fn(x_45, x_46);
 x_48 = l_Lean_IR_UnreachableBranches_updateJPParamsAssignment(x_47, x_41, x_2, x_3);
 lean_dec(x_41);
@@ -7562,7 +7562,7 @@ if (lean_obj_tag(x_44) == 0)
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; 
 x_78 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__15;
-x_79 = l_Option_get_x21___rarg___closed__3;
+x_79 = l_Option_get_x21___rarg___closed__4;
 x_80 = lean_panic_fn(x_78, x_79);
 x_81 = lean_ctor_get(x_77, 0);
 lean_inc(x_81);

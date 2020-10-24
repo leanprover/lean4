@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -7,23 +8,23 @@ prelude
 import Init.Data.UInt
 
 @[inline, reducible] def isValidChar (n : UInt32) : Prop :=
-n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
+  n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
 /-- The `Char` Type represents an unicode scalar value.
     See http://www.unicode.org/glossary/#unicode_scalar_value). -/
 structure Char :=
-(val : UInt32) (valid : isValidChar val)
+  (val : UInt32)
+  (valid : isValidChar val)
 
-instance : HasSizeof Char :=
-⟨fun c => c.val.toNat⟩
+instance : HasSizeof Char := ⟨fun c => c.val.toNat⟩
 
 namespace Char
 def utf8Size (c : Char) : UInt32 :=
-let v := c.val;
-if v ≤ 0x7F then 1
-else if v ≤ 0x7FF then 2
-else if v ≤ 0xFFFF then 3
-else 4
+  let v := c.val;
+  if v ≤ 0x7F then 1
+  else if v ≤ 0x7FF then 2
+  else if v ≤ 0xFFFF then 3
+  else 4
 
 protected def Less (a b : Char) : Prop := a.val < b.val
 protected def LessEq (a b : Char) : Prop := a.val ≤ b.val
@@ -33,75 +34,83 @@ instance : HasLessEq Char := ⟨Char.LessEq⟩
 
 protected def lt (a b : Char) : Bool := a.val < b.val
 
-instance decLt (a b : Char) :  Decidable (a < b) :=
-UInt32.decLt _ _
+instance (a b : Char) :  Decidable (a < b) :=
+  UInt32.decLt _ _
 
-instance decLe (a b : Char) : Decidable (a ≤ b) :=
-UInt32.decLe _ _
+instance (a b : Char) : Decidable (a ≤ b) :=
+  UInt32.decLe _ _
 
 abbrev isValidCharNat (n : Nat) : Prop :=
-n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
+  n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
-theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < uint32Sz :=
-sorry -- TODO: waiting for new frontend
+theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < uint32Sz := by
+  match h with
+  | Or.inl h        =>
+    apply Nat.ltTrans h
+    exact decide!
+  | Or.inr ⟨h₁, h₂⟩ =>
+    apply Nat.ltTrans h₂
+    exact decide!
 
 theorem isValidCharOfValidNat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
-sorry -- TODO: waiting for new frontend
+  match h with
+  | Or.inl h        => Or.inl h
+  | Or.inr ⟨h₁, h₂⟩ => Or.inr ⟨h₁, h₂⟩
 
 theorem isValidChar0 : isValidChar 0 :=
-sorry -- TODO: waiting for new frontend
+  Or.inl decide!
 
 @[noinline, matchPattern] def ofNat (n : Nat) : Char :=
-if h : isValidCharNat n then
-  { val := UInt32.ofNat' n (isValidUInt32 n h), valid := isValidCharOfValidNat n h }
-else
-  { val := 0, valid := isValidChar0 }
+  if h : isValidCharNat n then
+    { val := UInt32.ofNat' n (isValidUInt32 n h), valid := isValidCharOfValidNat n h }
+  else
+    { val := 0, valid := isValidChar0 }
 
 @[inline] def toNat (c : Char) : Nat :=
-c.val.toNat
+  c.val.toNat
 
 theorem eqOfVeq : ∀ {c d : Char}, c.val = d.val → c = d
-| ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
+  | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
 
 theorem veqOfEq : ∀ {c d : Char}, c = d → c.val = d.val
-| _, _, rfl => rfl
+  | _, _, rfl => rfl
 
 theorem neOfVne {c d : Char} (h : c.val ≠ d.val) : c ≠ d :=
-fun h' => absurd (veqOfEq h') h
+  fun h' => absurd (veqOfEq h') h
 
 theorem vneOfNe {c d : Char} (h : c ≠ d) : c.val ≠ d.val :=
-fun h' => absurd (eqOfVeq h') h
+  fun h' => absurd (eqOfVeq h') h
 
 @[inline] instance : DecidableEq Char :=
-fun i j => decidableOfDecidableOfIff (decEq i.val j.val) ⟨Char.eqOfVeq, Char.veqOfEq⟩
+  fun i j => decidableOfDecidableOfIff (decEq i.val j.val) ⟨Char.eqOfVeq, Char.veqOfEq⟩
 
 instance : Inhabited Char :=
-⟨'A'⟩
+  ⟨'A'⟩
 
 def isWhitespace (c : Char) : Bool :=
-c = ' ' || c = '\t' || c = '\r' || c = '\n'
+  c = ' ' || c = '\t' || c = '\r' || c = '\n'
 
 def isUpper (c : Char) : Bool :=
-c.val ≥ 65 && c.val ≤ 90
+  c.val ≥ 65 && c.val ≤ 90
 
 def isLower (c : Char) : Bool :=
-c.val ≥ 97 && c.val ≤ 122
+  c.val ≥ 97 && c.val ≤ 122
 
 def isAlpha (c : Char) : Bool :=
-c.isUpper || c.isLower
+  c.isUpper || c.isLower
 
 def isDigit (c : Char) : Bool :=
-c.val ≥ 48 && c.val ≤ 57
+  c.val ≥ 48 && c.val ≤ 57
 
 def isAlphanum (c : Char) : Bool :=
-c.isAlpha || c.isDigit
+  c.isAlpha || c.isDigit
 
 def toLower (c : Char) : Char :=
-let n := toNat c;
-if n >= 65 ∧ n <= 90 then ofNat (n + 32) else c
+  let n := toNat c;
+  if n >= 65 ∧ n <= 90 then ofNat (n + 32) else c
 
 def toUpper (c : Char) : Char :=
-let n := toNat c;
-if n >= 97 ∧ n <= 122 then ofNat (n - 32) else c
+  let n := toNat c;
+  if n >= 97 ∧ n <= 122 then ofNat (n - 32) else c
 
 end Char

@@ -18,6 +18,7 @@ lean_object* l_Lean_LBool_Lean_Data_LBool___instance__3;
 lean_object* l_Lean_LBool_toString(uint8_t);
 lean_object* l_toLBoolM___rarg___lambda__1(lean_object*, uint8_t);
 uint8_t l_Lean_LBool_Lean_Data_LBool___instance__1;
+extern lean_object* l_Init_Data_Repr___instance__2___closed__2;
 lean_object* l_Lean_LBool_Lean_Data_LBool___instance__2___closed__1;
 lean_object* l_Lean_LBool_toString___boxed(lean_object*);
 lean_object* l_Bool_toLBool_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -33,15 +34,14 @@ lean_object* l_Bool_toLBool___boxed(lean_object*);
 lean_object* l_Lean_LBool_and___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LBool_and_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_LBool_beq_match__1(lean_object*);
-extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_LBool_toString_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_toLBoolM___rarg___lambda__1___boxed(lean_object*, lean_object*);
-extern lean_object* l_Bool_HasRepr___closed__2;
 lean_object* l_Bool_toLBool_match__1(lean_object*);
 lean_object* l_Lean_LBool_Lean_Data_LBool___instance__2;
 uint8_t l_Lean_LBool_neg(uint8_t);
 uint8_t l_Bool_toLBool(uint8_t);
 lean_object* l_Lean_LBool_toString___closed__1;
+extern lean_object* l_Init_Data_Repr___instance__2___closed__1;
 uint8_t l_Lean_LBool_beq(uint8_t, uint8_t);
 lean_object* l_Lean_LBool_toString_match__1(lean_object*);
 lean_object* l_Lean_LBool_and_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -479,13 +479,13 @@ switch (x_1) {
 case 0:
 {
 lean_object* x_2; 
-x_2 = l_Bool_HasRepr___closed__1;
+x_2 = l_Init_Data_Repr___instance__2___closed__1;
 return x_2;
 }
 case 1:
 {
 lean_object* x_3; 
-x_3 = l_Bool_HasRepr___closed__2;
+x_3 = l_Init_Data_Repr___instance__2___closed__2;
 return x_3;
 }
 default: 

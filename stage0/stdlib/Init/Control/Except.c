@@ -65,7 +65,6 @@ lean_object* l_ExceptT_Init_Control_Except___instance__8___rarg___lambda__1(lean
 lean_object* l_Except_toOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_bindCont___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_Init_Control_Except___instance__4___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Init_Control_Except___instance__10___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_tryCatch_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_map___rarg(lean_object*, lean_object*);
@@ -74,6 +73,7 @@ lean_object* l_tryFinally(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_Init_Control_Except___instance__5(lean_object*, lean_object*);
 lean_object* l_Init_Control_Except___instance__12___rarg(lean_object*);
 lean_object* l_Except_toString___rarg___closed__1;
+extern lean_object* l_Init_Data_Repr___instance__7___rarg___closed__2;
 lean_object* l_ExceptT_finally_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_Init_Control_Except___instance__4___lambda__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_Except___instance__2(lean_object*, lean_object*);
@@ -272,7 +272,7 @@ x_5 = lean_apply_1(x_1, x_4);
 x_6 = l_Except_toString___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_ULift_HasRepr___rarg___closed__2;
+x_8 = l_Init_Data_Repr___instance__7___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -287,7 +287,7 @@ x_11 = lean_apply_1(x_2, x_10);
 x_12 = l_Except_toString___rarg___closed__2;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);
-x_14 = l_ULift_HasRepr___rarg___closed__2;
+x_14 = l_Init_Data_Repr___instance__7___rarg___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }
@@ -348,7 +348,7 @@ x_5 = lean_apply_1(x_1, x_4);
 x_6 = l_Except_toString___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_ULift_HasRepr___rarg___closed__2;
+x_8 = l_Init_Data_Repr___instance__7___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -363,7 +363,7 @@ x_11 = lean_apply_1(x_2, x_10);
 x_12 = l_Except_toString___rarg___closed__2;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);
-x_14 = l_ULift_HasRepr___rarg___closed__2;
+x_14 = l_Init_Data_Repr___instance__7___rarg___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }

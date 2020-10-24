@@ -13,51 +13,51 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Char_HasLessEq;
+lean_object* l_Init_Data_Char_Basic___instance__1___boxed(lean_object*);
 lean_object* l_Char_isAlpha___boxed(lean_object*);
-uint8_t l_Char_decLe(uint32_t, uint32_t);
 uint32_t l_Char_toUpper(uint32_t);
 uint8_t l_Char_isUpper(uint32_t);
 uint8_t l_Char_isDigit(uint32_t);
 uint8_t l_Char_isWhitespace(uint32_t);
 lean_object* l_Char_toNat___boxed(lean_object*);
+lean_object* l_Char_Init_Data_Char_Basic___instance__6___boxed(lean_object*, lean_object*);
+lean_object* l_Char_Init_Data_Char_Basic___instance__4___boxed(lean_object*, lean_object*);
+uint8_t l_Char_Init_Data_Char_Basic___instance__6(uint32_t, uint32_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t l_Char_lt(uint32_t, uint32_t);
 lean_object* l_Char_toNat(uint32_t);
-lean_object* l_Char_DecidableEq___boxed(lean_object*, lean_object*);
-lean_object* l_Char_HasLess;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Char_toLower___boxed(lean_object*);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
+uint32_t l_Char_Init_Data_Char_Basic___instance__7;
 lean_object* l_Char_utf8Size___boxed(lean_object*);
 uint8_t l_Char_isLower(uint32_t);
-lean_object* l_Char_HasSizeof(uint32_t);
 lean_object* l_Char_isAlphanum___boxed(lean_object*);
-uint32_t l_Char_Inhabited;
+lean_object* l_Char_Init_Data_Char_Basic___instance__5___boxed(lean_object*, lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
 lean_object* l_Char_isWhitespace___boxed(lean_object*);
 uint8_t l_Char_isAlpha(uint32_t);
-lean_object* l_Char_decLt___boxed(lean_object*, lean_object*);
+uint8_t l_Char_Init_Data_Char_Basic___instance__5(uint32_t, uint32_t);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Char_isAlphanum(uint32_t);
-uint8_t l_Char_decLt(uint32_t, uint32_t);
-lean_object* l_Char_HasSizeof___boxed(lean_object*);
+lean_object* l_Init_Data_Char_Basic___instance__1(uint32_t);
 uint32_t l_Char_toLower(uint32_t);
 uint32_t l_Char_utf8Size(uint32_t);
 lean_object* l_Char_isLower___boxed(lean_object*);
 lean_object* l_Char_toUpper___boxed(lean_object*);
-uint8_t l_Char_DecidableEq(uint32_t, uint32_t);
 lean_object* l_Char_ofNat___boxed(lean_object*);
 lean_object* l_Char_lt___boxed(lean_object*, lean_object*);
 lean_object* l_Char_isUpper___boxed(lean_object*);
+lean_object* l_Char_Init_Data_Char_Basic___instance__3;
+lean_object* l_Char_Init_Data_Char_Basic___instance__2;
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
+uint8_t l_Char_Init_Data_Char_Basic___instance__4(uint32_t, uint32_t);
 lean_object* lean_uint32_to_nat(uint32_t);
-lean_object* l_Char_decLe___boxed(lean_object*, lean_object*);
 uint32_t l_Char_ofNat(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Char_isDigit___boxed(lean_object*);
-lean_object* l_Char_HasSizeof(uint32_t x_1) {
+lean_object* l_Init_Data_Char_Basic___instance__1(uint32_t x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -65,55 +65,57 @@ x_2 = lean_uint32_to_nat(x_1);
 return x_2;
 }
 }
-lean_object* l_Char_HasSizeof___boxed(lean_object* x_1) {
+lean_object* l_Init_Data_Char_Basic___instance__1___boxed(lean_object* x_1) {
 _start:
 {
 uint32_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
-x_3 = l_Char_HasSizeof(x_2);
+x_3 = l_Init_Data_Char_Basic___instance__1(x_2);
 return x_3;
 }
 }
 uint32_t l_Char_utf8Size(uint32_t x_1) {
 _start:
 {
-uint32_t x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5; 
-x_2 = 1;
-x_3 = 3;
-x_4 = 127;
+uint32_t x_2; uint8_t x_3; 
+x_2 = 127;
+x_3 = x_1 <= x_2;
+if (x_3 == 0)
+{
+uint32_t x_4; uint8_t x_5; 
+x_4 = 2047;
 x_5 = x_1 <= x_4;
 if (x_5 == 0)
 {
 uint32_t x_6; uint8_t x_7; 
-x_6 = 2047;
+x_6 = 65535;
 x_7 = x_1 <= x_6;
 if (x_7 == 0)
 {
-uint32_t x_8; uint8_t x_9; 
-x_8 = 65535;
-x_9 = x_1 <= x_8;
-if (x_9 == 0)
-{
-uint32_t x_10; 
-x_10 = 4;
-return x_10;
+uint32_t x_8; 
+x_8 = 4;
+return x_8;
 }
 else
 {
-return x_3;
+uint32_t x_9; 
+x_9 = 3;
+return x_9;
+}
+}
+else
+{
+uint32_t x_10; 
+x_10 = 2;
+return x_10;
 }
 }
 else
 {
 uint32_t x_11; 
-x_11 = 2;
+x_11 = 1;
 return x_11;
-}
-}
-else
-{
-return x_2;
 }
 }
 }
@@ -128,7 +130,7 @@ x_4 = lean_box_uint32(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Char_HasLess() {
+static lean_object* _init_l_Char_Init_Data_Char_Basic___instance__2() {
 _start:
 {
 lean_object* x_1; 
@@ -136,7 +138,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Char_HasLessEq() {
+static lean_object* _init_l_Char_Init_Data_Char_Basic___instance__3() {
 _start:
 {
 lean_object* x_1; 
@@ -165,7 +167,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-uint8_t l_Char_decLt(uint32_t x_1, uint32_t x_2) {
+uint8_t l_Char_Init_Data_Char_Basic___instance__4(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -173,7 +175,7 @@ x_3 = x_1 < x_2;
 return x_3;
 }
 }
-lean_object* l_Char_decLt___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Char_Init_Data_Char_Basic___instance__4___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -181,12 +183,12 @@ x_3 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
-x_5 = l_Char_decLt(x_3, x_4);
+x_5 = l_Char_Init_Data_Char_Basic___instance__4(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
 }
-uint8_t l_Char_decLe(uint32_t x_1, uint32_t x_2) {
+uint8_t l_Char_Init_Data_Char_Basic___instance__5(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -194,7 +196,7 @@ x_3 = x_1 <= x_2;
 return x_3;
 }
 }
-lean_object* l_Char_decLe___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Char_Init_Data_Char_Basic___instance__5___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -202,7 +204,7 @@ x_3 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
-x_5 = l_Char_decLe(x_3, x_4);
+x_5 = l_Char_Init_Data_Char_Basic___instance__5(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -280,7 +282,7 @@ x_3 = l_Char_toNat(x_2);
 return x_3;
 }
 }
-uint8_t l_Char_DecidableEq(uint32_t x_1, uint32_t x_2) {
+uint8_t l_Char_Init_Data_Char_Basic___instance__6(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -288,7 +290,7 @@ x_3 = x_1 == x_2;
 return x_3;
 }
 }
-lean_object* l_Char_DecidableEq___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Char_Init_Data_Char_Basic___instance__6___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -296,12 +298,12 @@ x_3 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
-x_5 = l_Char_DecidableEq(x_3, x_4);
+x_5 = l_Char_Init_Data_Char_Basic___instance__6(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static uint32_t _init_l_Char_Inhabited() {
+static uint32_t _init_l_Char_Init_Data_Char_Basic___instance__7() {
 _start:
 {
 uint32_t x_1; 
@@ -637,11 +639,11 @@ _G_initialized = true;
 res = initialize_Init_Data_UInt(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Char_HasLess = _init_l_Char_HasLess();
-lean_mark_persistent(l_Char_HasLess);
-l_Char_HasLessEq = _init_l_Char_HasLessEq();
-lean_mark_persistent(l_Char_HasLessEq);
-l_Char_Inhabited = _init_l_Char_Inhabited();
+l_Char_Init_Data_Char_Basic___instance__2 = _init_l_Char_Init_Data_Char_Basic___instance__2();
+lean_mark_persistent(l_Char_Init_Data_Char_Basic___instance__2);
+l_Char_Init_Data_Char_Basic___instance__3 = _init_l_Char_Init_Data_Char_Basic___instance__3();
+lean_mark_persistent(l_Char_Init_Data_Char_Basic___instance__3);
+l_Char_Init_Data_Char_Basic___instance__7 = _init_l_Char_Init_Data_Char_Basic___instance__7();
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

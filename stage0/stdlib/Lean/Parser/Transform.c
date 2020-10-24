@@ -25,10 +25,10 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 extern lean_object* l_Array_forMAux___at_Lean_Environment_displayStats___spec__11___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 lean_object* l_Lean_Syntax_removeParen_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_manyToSepBy_match__1(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+extern lean_object* l_Init_Data_Repr___instance__7___rarg___closed__2;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Syntax_manyToSepBy___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -377,7 +377,7 @@ x_24 = lean_ctor_get(x_1, 1);
 lean_inc(x_24);
 x_25 = lean_ctor_get(x_8, 0);
 lean_inc(x_25);
-x_26 = l_ULift_HasRepr___rarg___closed__2;
+x_26 = l_Init_Data_Repr___instance__7___rarg___closed__2;
 x_27 = lean_string_dec_eq(x_24, x_26);
 lean_dec(x_24);
 if (x_27 == 0)
@@ -998,7 +998,7 @@ lean_object* x_26; lean_object* x_27; uint8_t x_28;
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc(x_26);
 lean_dec(x_25);
-x_27 = l_ULift_HasRepr___rarg___closed__2;
+x_27 = l_Init_Data_Repr___instance__7___rarg___closed__2;
 x_28 = lean_string_dec_eq(x_21, x_27);
 lean_dec(x_21);
 if (x_28 == 0)
@@ -1384,7 +1384,7 @@ lean_object* x_115; lean_object* x_116; uint8_t x_117;
 x_115 = lean_ctor_get(x_114, 0);
 lean_inc(x_115);
 lean_dec(x_114);
-x_116 = l_ULift_HasRepr___rarg___closed__2;
+x_116 = l_Init_Data_Repr___instance__7___rarg___closed__2;
 x_117 = lean_string_dec_eq(x_110, x_116);
 lean_dec(x_110);
 if (x_117 == 0)

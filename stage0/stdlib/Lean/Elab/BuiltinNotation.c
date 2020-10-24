@@ -133,6 +133,7 @@ lean_object* l___regBuiltin_Lean_Elab_Term_expandseqLeft(lean_object*);
 lean_object* l_Lean_Elab_Term_expandEmptyC___closed__8;
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux___closed__19;
 lean_object* l_Lean_Elab_Term_elabTermAndSynthesize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Data_Repr___instance__2___closed__2;
 lean_object* l_Lean_Elab_Term_expandDollar(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_markBorrowed___closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqSymmImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -583,7 +584,6 @@ lean_object* l_Lean_Elab_Term_expandseq___closed__1;
 lean_object* l_Lean_Elab_Term_expandHave(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_LeanInit_0__Lean_quoteOption___rarg___closed__5;
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_getPropToDecide(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_Elab_Term_elabPanic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTParserMacro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_expandMul___closed__2;
@@ -630,7 +630,6 @@ lean_object* l___regBuiltin_Lean_Elab_Term_expandIff(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____lambda__1___closed__4;
 lean_object* l_Lean_Elab_Term_expandIf___closed__1;
-extern lean_object* l_Bool_HasRepr___closed__2;
 lean_object* l_Lean_Elab_Term_expandMapRev(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabSubst___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
@@ -720,6 +719,7 @@ extern lean_object* l_Lean_Meta_mkSorry___rarg___lambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_expandAssert___closed__19;
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux___closed__9;
 lean_object* l_Lean_Elab_getRefPos___at_Lean_Elab_Term_elabPanic___spec__2___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Data_Repr___instance__2___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandCons___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandUMinus___closed__2;
 lean_object* l_Lean_Elab_Term_elabSubst___closed__4;
@@ -7338,7 +7338,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Term_elabNativeRefl___lambda__1___closed__1;
-x_2 = l_Bool_HasRepr___closed__2;
+x_2 = l_Init_Data_Repr___instance__2___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -12043,7 +12043,7 @@ static lean_object* _init_l_Lean_Elab_Term_expandSorry___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Bool_HasRepr___closed__1;
+x_1 = l_Init_Data_Repr___instance__2___closed__1;
 x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
@@ -12052,7 +12052,7 @@ static lean_object* _init_l_Lean_Elab_Term_expandSorry___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Bool_HasRepr___closed__1;
+x_1 = l_Init_Data_Repr___instance__2___closed__1;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Elab_Term_expandSorry___rarg___closed__5;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -12067,7 +12067,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Term_elabNativeRefl___lambda__1___closed__1;
-x_2 = l_Bool_HasRepr___closed__1;
+x_2 = l_Init_Data_Repr___instance__2___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

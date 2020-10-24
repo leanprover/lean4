@@ -71,10 +71,10 @@ lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_643____closed__6;
 lean_object* l_Lean_Lean_Exception___instance__4___rarg___lambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Exception___instance__2(lean_object*, lean_object*);
-extern lean_object* l_Char_HasRepr___closed__1;
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__15;
 extern lean_object* l_Lean_MessageData_nil___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_727____closed__7;
 lean_object* l_Lean_replaceRef_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_682____closed__3;
@@ -576,7 +576,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Char_HasRepr___closed__1;
+x_1 = l_Init_Data_Repr___instance__15___closed__1;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

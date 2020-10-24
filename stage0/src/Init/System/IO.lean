@@ -432,7 +432,7 @@ def ofBuffer (r : Ref Buffer) : Stream := {
     -- set `exact` to `false` so that repeatedly writing to the stream does not impose quadratic run time
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
   getLine := r.modifyGet fun b =>
-    let pos := match b.data.findIdxAux (fun u => u == 0 || u = '\n'.toNat.toUInt8) b.pos with
+    let pos := match b.data.findIdx? (start := b.pos) fun u => u == 0 || u = '\n'.toNat.toUInt8 with
     -- include '\n', but not '\0'
     | some pos => if b.data.get! pos == 0 then pos else pos + 1
     | none     => b.data.size

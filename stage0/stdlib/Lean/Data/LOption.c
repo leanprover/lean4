@@ -14,19 +14,19 @@
 extern "C" {
 #endif
 lean_object* l_Lean_LOption_beq_match__1(lean_object*, lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__2;
 lean_object* l_toLOptionM___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LOption_beq_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_toLOption___rarg(lean_object*);
 lean_object* l_toLOptionM(lean_object*, lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__1;
 lean_object* l_Lean_LOption_Lean_Data_LOption___instance__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LOption_Lean_Data_LOption___instance__2_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_LOption_beq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+extern lean_object* l_Init_Data_Repr___instance__9___rarg___closed__2;
 lean_object* l_Lean_LOption_beq(lean_object*);
 lean_object* l_Lean_LOption_Lean_Data_LOption___instance__2(lean_object*);
-extern lean_object* l_ULift_HasRepr___rarg___closed__2;
+extern lean_object* l_Init_Data_Repr___instance__7___rarg___closed__2;
+extern lean_object* l_Init_Data_Repr___instance__9___rarg___closed__1;
 lean_object* l_Lean_LOption_Lean_Data_LOption___instance__1(lean_object*);
 lean_object* l_Lean_LOption_Lean_Data_LOption___instance__3___rarg(lean_object*);
 lean_object* l_Option_toLOption___rarg___boxed(lean_object*);
@@ -106,7 +106,7 @@ case 0:
 {
 lean_object* x_3; 
 lean_dec(x_1);
-x_3 = l_Option_HasRepr___rarg___closed__1;
+x_3 = l_Init_Data_Repr___instance__9___rarg___closed__1;
 return x_3;
 }
 case 1:
@@ -116,10 +116,10 @@ x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 lean_dec(x_2);
 x_5 = lean_apply_1(x_1, x_4);
-x_6 = l_Option_HasRepr___rarg___closed__2;
+x_6 = l_Init_Data_Repr___instance__9___rarg___closed__2;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_ULift_HasRepr___rarg___closed__2;
+x_8 = l_Init_Data_Repr___instance__7___rarg___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }

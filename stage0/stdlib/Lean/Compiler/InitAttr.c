@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___closed__1;
 lean_object* l_Lean_registerInitAttrUnsafe(lean_object*, uint8_t, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_registerInitAttrUnsafe___spec__9___lambda__1(lean_object*);
@@ -29,7 +30,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_registerInitAttrUnsafe_match__3(lean_object*);
 lean_object* l_Lean_setBuiltinInitAttr(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__13;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_registerInitAttrUnsafe___spec__8(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
@@ -68,10 +68,8 @@ lean_object* l_Lean_registerParametricAttribute___at_Lean_registerInitAttrUnsafe
 lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_539_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_522_(lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__12;
-lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_registerInitAttrUnsafe___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___closed__1;
 lean_object* lean_get_init_fn_name_for(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalName___at_Lean_registerInitAttrUnsafe___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -97,7 +95,6 @@ lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__7;
 lean_object* l_IO_ofExcept___at_Lean_registerInitAttrUnsafe___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getInitFnNameForCore_x3f___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__3(uint8_t, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_qsortAux___main___at_Lean_registerInitAttrUnsafe___spec__11___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isIOUnitBuiltinInitFn___boxed(lean_object*, lean_object*);
@@ -114,6 +111,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerInitA
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_Lean_attrParamSyntaxToIdentifier(lean_object*);
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
+lean_object* l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__2;
 lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
@@ -129,6 +127,7 @@ uint8_t lean_is_io_unit_builtin_init_fn(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg_match__1(lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__9;
 size_t lean_usize_of_nat(lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_registerInitAttrUnsafe___spec__11(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe_match__2(lean_object*);
 lean_object* l_IO_ofExcept___at_Lean_registerInitAttrUnsafe___spec__6(lean_object*, lean_object*);
@@ -156,12 +155,15 @@ lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_registerInitAttrUnsaf
 lean_object* l_Array_binSearchAux___at_Lean_getInitFnNameForCore_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getInitFnNameForCore_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___closed__1;
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__3;
 lean_object* l_Lean_regularInitAttr;
 uint8_t l_Lean_isIOUnitInitFn(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_registerInitAttrUnsafe___spec__7(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_registerInitAttrUnsafe___spec__11___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
+lean_object* l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isIOUnitInitFn___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_builtin_init_fn_name_for(lean_object*, lean_object*);
@@ -192,7 +194,6 @@ lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__4;
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_registerInitAttrUnsafe___spec__9___lambda__1___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* l_Array_qsortAux___main___at_Lean_registerInitAttrUnsafe___spec__11(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg_match__1___rarg___closed__1() {
@@ -1316,7 +1317,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___closed__1() {
+static lean_object* _init_l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1327,59 +1328,60 @@ lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_6; 
-x_6 = lean_nat_dec_lt(x_5, x_1);
-if (x_6 == 0)
+uint8_t x_7; 
+x_7 = lean_nat_dec_lt(x_6, x_2);
+if (x_7 == 0)
 {
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_5);
-x_7 = lean_array_swap(x_3, x_4, x_1);
-x_8 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_8, 0, x_4);
-lean_ctor_set(x_8, 1, x_7);
-return x_8;
+lean_object* x_8; lean_object* x_9; 
+lean_dec(x_6);
+lean_dec(x_3);
+lean_dec(x_1);
+x_8 = lean_array_swap(x_4, x_5, x_2);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_5);
+lean_ctor_set(x_9, 1, x_8);
+return x_9;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_9 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___closed__1;
-x_10 = lean_array_get(x_9, x_3, x_5);
-x_11 = lean_ctor_get(x_10, 0);
-lean_inc(x_11);
-lean_dec(x_10);
-x_12 = lean_ctor_get(x_2, 0);
-x_13 = l_Lean_Name_quickLt(x_11, x_12);
-lean_dec(x_11);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_10 = l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___closed__1;
+x_11 = lean_array_get(x_10, x_4, x_6);
+lean_inc(x_1);
+lean_inc(x_3);
+x_12 = lean_apply_2(x_1, x_11, x_3);
+x_13 = lean_unbox(x_12);
+lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = lean_unsigned_to_nat(1u);
-x_15 = lean_nat_add(x_5, x_14);
-lean_dec(x_5);
-x_5 = x_15;
+x_15 = lean_nat_add(x_6, x_14);
+lean_dec(x_6);
+x_6 = x_15;
 goto _start;
 }
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_17 = lean_array_swap(x_3, x_4, x_5);
+x_17 = lean_array_swap(x_4, x_5, x_6);
 x_18 = lean_unsigned_to_nat(1u);
-x_19 = lean_nat_add(x_4, x_18);
-lean_dec(x_4);
-x_20 = lean_nat_add(x_5, x_18);
+x_19 = lean_nat_add(x_5, x_18);
 lean_dec(x_5);
-x_3 = x_17;
-x_4 = x_19;
-x_5 = x_20;
+x_20 = lean_nat_add(x_6, x_18);
+lean_dec(x_6);
+x_4 = x_17;
+x_5 = x_19;
+x_6 = x_20;
 goto _start;
 }
 }
 }
 }
-lean_object* l_Array_qsortAux___main___at_Lean_registerInitAttrUnsafe___spec__11(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Array_qsort_sort___at_Lean_registerInitAttrUnsafe___spec__11(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_13; 
@@ -1391,39 +1393,39 @@ return x_1;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; uint8_t x_51; 
 x_14 = lean_nat_add(x_2, x_3);
 x_15 = lean_unsigned_to_nat(2u);
 x_16 = lean_nat_div(x_14, x_15);
 lean_dec(x_14);
-x_42 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___closed__1;
-x_43 = lean_array_get(x_42, x_1, x_16);
-x_44 = lean_array_get(x_42, x_1, x_2);
-x_45 = lean_ctor_get(x_43, 0);
-lean_inc(x_45);
-lean_dec(x_43);
-x_46 = lean_ctor_get(x_44, 0);
-lean_inc(x_46);
-lean_dec(x_44);
-x_47 = l_Lean_Name_quickLt(x_45, x_46);
-lean_dec(x_46);
-lean_dec(x_45);
-if (x_47 == 0)
+x_46 = l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___closed__1;
+x_47 = lean_array_get(x_46, x_1, x_16);
+x_48 = lean_array_get(x_46, x_1, x_2);
+x_49 = lean_ctor_get(x_47, 0);
+lean_inc(x_49);
+lean_dec(x_47);
+x_50 = lean_ctor_get(x_48, 0);
+lean_inc(x_50);
+lean_dec(x_48);
+x_51 = l_Lean_Name_quickLt(x_49, x_50);
+lean_dec(x_50);
+lean_dec(x_49);
+if (x_51 == 0)
 {
 x_17 = x_1;
-goto block_41;
+goto block_45;
 }
 else
 {
-lean_object* x_48; 
-x_48 = lean_array_swap(x_1, x_2, x_16);
-x_17 = x_48;
-goto block_41;
+lean_object* x_52; 
+x_52 = lean_array_swap(x_1, x_2, x_16);
+x_17 = x_52;
+goto block_45;
 }
-block_41:
+block_45:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
-x_18 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___closed__1;
+x_18 = l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___closed__1;
 x_19 = lean_array_get(x_18, x_17, x_3);
 x_20 = lean_array_get(x_18, x_17, x_2);
 x_21 = lean_ctor_get(x_19, 0);
@@ -1445,65 +1447,65 @@ lean_dec(x_21);
 lean_dec(x_25);
 if (x_26 == 0)
 {
-lean_object* x_27; 
+lean_object* x_27; lean_object* x_28; 
 lean_dec(x_16);
+x_27 = l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___closed__1;
 lean_inc_n(x_2, 2);
-x_27 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12(x_3, x_19, x_17, x_2, x_2);
-lean_dec(x_19);
-x_4 = x_27;
+x_28 = l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12(x_27, x_3, x_19, x_17, x_2, x_2);
+x_4 = x_28;
 goto block_12;
 }
 else
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_19);
-x_28 = lean_array_swap(x_17, x_16, x_3);
+x_29 = lean_array_swap(x_17, x_16, x_3);
 lean_dec(x_16);
-x_29 = lean_array_get(x_18, x_28, x_3);
+x_30 = lean_array_get(x_18, x_29, x_3);
+x_31 = l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___closed__1;
 lean_inc_n(x_2, 2);
-x_30 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12(x_3, x_29, x_28, x_2, x_2);
-lean_dec(x_29);
-x_4 = x_30;
+x_32 = l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12(x_31, x_3, x_30, x_29, x_2, x_2);
+x_4 = x_32;
 goto block_12;
 }
 }
 else
 {
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; 
+lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
 lean_dec(x_21);
 lean_dec(x_19);
-x_31 = lean_array_swap(x_17, x_2, x_3);
-x_32 = lean_array_get(x_18, x_31, x_16);
-x_33 = lean_array_get(x_18, x_31, x_3);
-x_34 = lean_ctor_get(x_32, 0);
-lean_inc(x_34);
-lean_dec(x_32);
-x_35 = lean_ctor_get(x_33, 0);
-lean_inc(x_35);
-x_36 = l_Lean_Name_quickLt(x_34, x_35);
-lean_dec(x_35);
+x_33 = lean_array_swap(x_17, x_2, x_3);
+x_34 = lean_array_get(x_18, x_33, x_16);
+x_35 = lean_array_get(x_18, x_33, x_3);
+x_36 = lean_ctor_get(x_34, 0);
+lean_inc(x_36);
 lean_dec(x_34);
-if (x_36 == 0)
+x_37 = lean_ctor_get(x_35, 0);
+lean_inc(x_37);
+x_38 = l_Lean_Name_quickLt(x_36, x_37);
+lean_dec(x_37);
+lean_dec(x_36);
+if (x_38 == 0)
 {
-lean_object* x_37; 
+lean_object* x_39; lean_object* x_40; 
 lean_dec(x_16);
+x_39 = l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___closed__1;
 lean_inc_n(x_2, 2);
-x_37 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12(x_3, x_33, x_31, x_2, x_2);
-lean_dec(x_33);
-x_4 = x_37;
+x_40 = l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12(x_39, x_3, x_35, x_33, x_2, x_2);
+x_4 = x_40;
 goto block_12;
 }
 else
 {
-lean_object* x_38; lean_object* x_39; lean_object* x_40; 
-lean_dec(x_33);
-x_38 = lean_array_swap(x_31, x_16, x_3);
+lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
+lean_dec(x_35);
+x_41 = lean_array_swap(x_33, x_16, x_3);
 lean_dec(x_16);
-x_39 = lean_array_get(x_18, x_38, x_3);
+x_42 = lean_array_get(x_18, x_41, x_3);
+x_43 = l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___closed__1;
 lean_inc_n(x_2, 2);
-x_40 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12(x_3, x_39, x_38, x_2, x_2);
-lean_dec(x_39);
-x_4 = x_40;
+x_44 = l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12(x_43, x_3, x_42, x_41, x_2, x_2);
+x_4 = x_44;
 goto block_12;
 }
 }
@@ -1521,7 +1523,7 @@ x_7 = lean_nat_dec_le(x_3, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = l_Array_qsortAux___main___at_Lean_registerInitAttrUnsafe___spec__11(x_6, x_2, x_5);
+x_8 = l_Array_qsort_sort___at_Lean_registerInitAttrUnsafe___spec__11(x_6, x_2, x_5);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_add(x_5, x_9);
 lean_dec(x_5);
@@ -1678,7 +1680,7 @@ x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);
 lean_dec(x_4);
 x_7 = lean_unsigned_to_nat(0u);
-x_8 = l_Array_qsortAux___main___at_Lean_registerInitAttrUnsafe___spec__11(x_3, x_7, x_6);
+x_8 = l_Array_qsort_sort___at_Lean_registerInitAttrUnsafe___spec__11(x_3, x_7, x_6);
 lean_dec(x_6);
 return x_8;
 }
@@ -2825,21 +2827,20 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_6; 
-x_6 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12(x_1, x_2, x_3, x_4, x_5);
+lean_object* x_7; 
+x_7 = l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_2);
-lean_dec(x_1);
-return x_6;
+return x_7;
 }
 }
-lean_object* l_Array_qsortAux___main___at_Lean_registerInitAttrUnsafe___spec__11___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Array_qsort_sort___at_Lean_registerInitAttrUnsafe___spec__11___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Array_qsortAux___main___at_Lean_registerInitAttrUnsafe___spec__11(x_1, x_2, x_3);
+x_4 = l_Array_qsort_sort___at_Lean_registerInitAttrUnsafe___spec__11(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
 }
@@ -3062,7 +3063,7 @@ x_7 = lean_nat_add(x_3, x_4);
 x_8 = lean_unsigned_to_nat(2u);
 x_9 = lean_nat_div(x_7, x_8);
 lean_dec(x_7);
-x_10 = l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___closed__1;
+x_10 = l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___closed__1;
 x_11 = lean_array_get(x_10, x_1, x_9);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
@@ -3553,8 +3554,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg_match__1___rarg___closed__1 = _init_l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg_match__1___rarg___closed__1();
 lean_mark_persistent(l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg_match__1___rarg___closed__1);
-l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___closed__1 = _init_l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___closed__1();
-lean_mark_persistent(l___private_Init_Data_Array_QSort_1__qpartitionAux___main___at_Lean_registerInitAttrUnsafe___spec__12___closed__1);
+l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___closed__1 = _init_l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___closed__1();
+lean_mark_persistent(l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12___closed__1);
 l_Lean_registerParametricAttribute___at_Lean_registerInitAttrUnsafe___spec__9___closed__1 = _init_l_Lean_registerParametricAttribute___at_Lean_registerInitAttrUnsafe___spec__9___closed__1();
 lean_mark_persistent(l_Lean_registerParametricAttribute___at_Lean_registerInitAttrUnsafe___spec__9___closed__1);
 l_Lean_registerInitAttrUnsafe___lambda__1___closed__1 = _init_l_Lean_registerInitAttrUnsafe___lambda__1___closed__1();

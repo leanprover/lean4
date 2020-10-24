@@ -27,7 +27,6 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__8
 extern lean_object* l_Lean_MessageData_ofList___closed__3;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__19___boxed(lean_object*, lean_object*);
-extern lean_object* l_Option_get_x21___rarg___closed__3;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__5___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___at_Lean_Elab_addPreDefinitions___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,6 +112,7 @@ lean_object* l_Array_findMAux___at___private_Lean_Elab_PreDefinition_Main_0__Lea
 lean_object* l_List_forM___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__22(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addPreDefinitions(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_FindImpl_initCache;
+extern lean_object* l_Option_get_x21___rarg___closed__4;
 lean_object* l_Std_HashMapImp_find_x3f___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__6(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_isNonRecursive_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_isNonRecursive(lean_object*);
@@ -2072,7 +2072,7 @@ if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_11 = l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1;
-x_12 = l_Option_get_x21___rarg___closed__3;
+x_12 = l_Option_get_x21___rarg___closed__4;
 x_13 = lean_panic_fn(x_11, x_12);
 x_14 = lean_ctor_get(x_13, 4);
 lean_inc(x_14);
@@ -2597,7 +2597,7 @@ if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_14 = l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1;
-x_15 = l_Option_get_x21___rarg___closed__3;
+x_15 = l_Option_get_x21___rarg___closed__4;
 x_16 = lean_panic_fn(x_14, x_15);
 x_17 = x_16;
 x_18 = lean_array_fset(x_9, x_2, x_17);

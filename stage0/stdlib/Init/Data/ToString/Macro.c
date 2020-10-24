@@ -24,22 +24,22 @@ lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____lambda__2___c
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2_;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__5;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__14;
-extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__12;
 extern lean_object* l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__5;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__6;
+extern lean_object* l_Init_Data_Repr___instance__11___rarg___closed__1;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__8;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__10;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__19;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__11;
-extern lean_object* l_ULift_HasRepr___rarg___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____lambda__2___closed__7;
+extern lean_object* l_Init_Data_Repr___instance__7___rarg___closed__2;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__4;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__17;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__8;
@@ -539,7 +539,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
-x_2 = l_Prod_HasRepr___rarg___closed__1;
+x_2 = l_Init_Data_Repr___instance__11___rarg___closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -648,7 +648,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
-x_2 = l_ULift_HasRepr___rarg___closed__2;
+x_2 = l_Init_Data_Repr___instance__7___rarg___closed__2;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

@@ -51,7 +51,6 @@ lean_object* l_Lean_fieldIdxKind___closed__2;
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks_match__2___rarg(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
-extern lean_object* l_Option_HasRepr___rarg___closed__1;
 uint32_t l_Lean_idBeginEscape;
 lean_object* l___private_Init_LeanInit_0__Lean_quoteOption(lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -63,7 +62,6 @@ lean_object* l_Lean_Syntax_getKind_match__1(lean_object*);
 lean_object* l_Lean_Init_LeanInit___instance__2___closed__1;
 lean_object* l_Array_filterSepElemsM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_capitalize(lean_object*);
-extern lean_object* l_Option_get_x21___rarg___closed__3;
 lean_object* l_Lean_Syntax_isAtom___boxed(lean_object*);
 lean_object* l_Lean_monadNameGeneratorLift(lean_object*, lean_object*);
 lean_object* l_Array_mapSepElemsM___rarg(lean_object*, lean_object*, lean_object*);
@@ -226,6 +224,7 @@ lean_object* l___private_Init_LeanInit_0__Lean_quoteOption___rarg(lean_object*, 
 lean_object* l_Lean_Macro_Init_LeanInit___instance__12___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_monadNameGeneratorLift___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeQuotedChar_match__1___rarg(lean_object*, lean_object*);
+extern lean_object* l_Init_Data_Repr___instance__9___rarg___closed__1;
 lean_object* l_Lean_Init_LeanInit___instance__19___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId___boxed(lean_object*);
 lean_object* l_Lean_Syntax_hasArgs_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -386,6 +385,7 @@ lean_object* l___private_Init_LeanInit_0__Lean_quoteList___rarg___closed__3;
 lean_object* l_Lean_identKind;
 lean_object* l_Lean_Name_beq_match__1(lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_quoteOption___rarg___closed__5;
+extern lean_object* l_Option_get_x21___rarg___closed__4;
 lean_object* l_Lean_Syntax_isLit_x3f_match__2(lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_Syntax_decodeQuotedChar_match__6(lean_object*);
@@ -8752,7 +8752,7 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = l_Lean_Init_LeanInit___instance__8;
-x_6 = l_Option_get_x21___rarg___closed__3;
+x_6 = l_Option_get_x21___rarg___closed__4;
 x_7 = lean_panic_fn(x_5, x_6);
 x_8 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -10062,7 +10062,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_LeanInit_0__Lean_quoteOption___rarg___closed__2;
-x_2 = l_Option_HasRepr___rarg___closed__1;
+x_2 = l_Init_Data_Repr___instance__9___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

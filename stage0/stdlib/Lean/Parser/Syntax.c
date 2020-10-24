@@ -825,7 +825,6 @@ lean_object* l_Lean_Parser_Command_elab_formatter___closed__11;
 lean_object* l_Lean_Parser_Syntax_num___closed__4;
 extern lean_object* l_Lean_Parser_categoryParserFnImpl___closed__4;
 extern lean_object* l_Lean_Parser_Term_structInstArrayRef_parenthesizer___closed__3;
-extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l_Lean_Parser_Syntax_lookahead___elambda__1___closed__3;
 extern lean_object* l_Lean_Parser_mkAntiquot___closed__20;
 lean_object* l_Lean_Parser_precedence_parenthesizer___closed__1;
@@ -876,6 +875,7 @@ lean_object* l_Lean_Parser_Term_stx_quot_formatter___closed__4;
 lean_object* l_Lean_Parser_Command_macroTailDefault_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Command_mixfix___elambda__1___closed__14;
 lean_object* l_Lean_Parser_Syntax_paren___elambda__1___closed__9;
+extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 lean_object* l_Lean_Parser_Command_infix___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_precedence_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Command_mixfix_formatter___closed__1;
@@ -7559,7 +7559,7 @@ static lean_object* _init_l_Lean_Parser_Syntax_optional___elambda__1___closed__3
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Char_HasRepr___closed__1;
+x_1 = l_Init_Data_Repr___instance__15___closed__1;
 x_2 = l_Lean_Parser_Term_syntheticHole___elambda__1___closed__5;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
@@ -7570,7 +7570,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Syntax_optional___elambda__1___closed__3;
-x_2 = l_Char_HasRepr___closed__1;
+x_2 = l_Init_Data_Repr___instance__15___closed__1;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -7749,7 +7749,7 @@ static lean_object* _init_l_Lean_Parser_Syntax_many___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Char_HasRepr___closed__1;
+x_1 = l_Init_Data_Repr___instance__15___closed__1;
 x_2 = l_Lean_Parser_mkAntiquot___closed__20;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
@@ -7760,7 +7760,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Syntax_many___elambda__1___closed__3;
-x_2 = l_Char_HasRepr___closed__1;
+x_2 = l_Init_Data_Repr___instance__15___closed__1;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -7948,7 +7948,7 @@ static lean_object* _init_l_Lean_Parser_Syntax_many1___elambda__1___closed__4() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Char_HasRepr___closed__1;
+x_1 = l_Init_Data_Repr___instance__15___closed__1;
 x_2 = l_Lean_Parser_Syntax_many1___elambda__1___closed__3;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
@@ -7959,7 +7959,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Syntax_many1___elambda__1___closed__4;
-x_2 = l_Char_HasRepr___closed__1;
+x_2 = l_Init_Data_Repr___instance__15___closed__1;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }

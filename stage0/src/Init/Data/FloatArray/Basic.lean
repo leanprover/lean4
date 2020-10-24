@@ -1,3 +1,4 @@
+#lang lean4
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -10,7 +11,7 @@ import Init.Data.Option.Basic
 universes u
 
 structure FloatArray :=
-(data : Array Float)
+  (data : Array Float)
 
 attribute [extern "lean_float_array_mk"] FloatArray.mk
 attribute [extern "lean_float_array_data"] FloatArray.data
@@ -18,67 +19,63 @@ attribute [extern "lean_float_array_data"] FloatArray.data
 namespace FloatArray
 @[extern "lean_mk_empty_float_array"]
 def mkEmpty (c : @& Nat) : FloatArray :=
-{ data := #[] }
+  { data := #[] }
 
 def empty : FloatArray :=
-mkEmpty 0
+  mkEmpty 0
 
-instance : Inhabited FloatArray :=
-⟨empty⟩
+instance : Inhabited FloatArray := ⟨empty⟩
 
 @[extern "lean_float_array_push"]
 def push : FloatArray → Float → FloatArray
-| ⟨ds⟩, b => ⟨ds.push b⟩
+  | ⟨ds⟩, b => ⟨ds.push b⟩
 
 @[extern "lean_float_array_size"]
 def size : (@& FloatArray) → Nat
-| ⟨ds⟩ => ds.size
+  | ⟨ds⟩ => ds.size
 
 @[extern "lean_float_array_fget"]
 def get (ds : @& FloatArray) (i : @& Fin ds.size) : Float :=
-match ds, i with
-| ⟨ds⟩, i => ds.get i
+  match ds, i with
+  | ⟨ds⟩, i => ds.get i
 
 @[extern "lean_float_array_get"]
 def get! : (@& FloatArray) → (@& Nat) → Float
-| ⟨ds⟩, i => ds.get! i
+  | ⟨ds⟩, i => ds.get! i
 
 def get? (ds : FloatArray) (i : Nat) : Option Float :=
-if h : i < ds.size then
-  ds.get ⟨i, h⟩
-else
-  none
+  if h : i < ds.size then
+    ds.get ⟨i, h⟩
+  else
+    none
 
 @[extern "lean_float_array_fset"]
 def set (ds : FloatArray) (i : @& Fin ds.size) (d : Float) : FloatArray :=
-match ds, i with
-| ⟨ds⟩, i=> ⟨ds.set i d⟩
+  match ds, i with
+  | ⟨ds⟩, i=> ⟨ds.set i d⟩
 
 @[extern "lean_float_array_set"]
 def set! : FloatArray → (@& Nat) → Float → FloatArray
-| ⟨ds⟩, i, d => ⟨ds.set! i d⟩
+  | ⟨ds⟩, i, d => ⟨ds.set! i d⟩
 
 def isEmpty (s : FloatArray) : Bool :=
-s.size == 0
+  s.size == 0
 
-partial def toListAux (ds : FloatArray) : Nat → List Float → List Float
-| i, r =>
-  if h : i < ds.size then
-    toListAux (i+1) (ds.get ⟨i, h⟩ :: r)
-  else
-    r.reverse
-
-def toList (ds : FloatArray) : List Float :=
-toListAux ds 0 []
+partial def toList (ds : FloatArray) : List Float :=
+  let rec loop (i r) :=
+    if h : i < ds.size then
+      loop (i+1) (ds.get ⟨i, h⟩ :: r)
+    else
+      r.reverse
+  loop 0 []
 
 end FloatArray
 
-def List.toFloatArrayAux : List Float → FloatArray → FloatArray
-| [],    r => r
-| b::ds, r => List.toFloatArrayAux ds (r.push b)
-
 def List.toFloatArray (ds : List Float) : FloatArray :=
-ds.toFloatArrayAux FloatArray.empty
+  let rec loop
+    | [],    r => r
+    | b::ds, r => loop ds (r.push b)
+  loop ds FloatArray.empty
 
-instance : HasToString FloatArray :=
-⟨fun ds => ds.toList.toString⟩
+
+instance : HasToString FloatArray := ⟨fun ds => ds.toList.toString⟩

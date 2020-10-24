@@ -35,6 +35,7 @@ lean_object* l_Array_iterateMAux___at_Lean_ppGoal___spec__7___closed__5;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPGoal___hyg_6____closed__2;
+extern lean_object* l_Init_Data_Repr___instance__18___closed__2;
 lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal_match__6___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPGoal___hyg_6____closed__1;
@@ -58,7 +59,6 @@ lean_object* l_Array_iterateMAux___at_Lean_ppGoal___spec__13(lean_object*, lean_
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_ppGoal___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppExpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal_match__2(lean_object*);
-extern lean_object* l_String_Iterator_HasRepr___closed__2;
 lean_object* l_Array_iterateMAux___at_Lean_ppGoal___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___at_Lean_ppGoal___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ppAuxDeclsDefault;
@@ -534,7 +534,7 @@ static lean_object* _init_l_Array_iterateMAux___at_Lean_ppGoal___spec__7___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_String_Iterator_HasRepr___closed__2;
+x_1 = l_Init_Data_Repr___instance__18___closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

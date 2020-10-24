@@ -51,6 +51,7 @@ lean_object* l_Lean_IR_IRType_isStruct_match__1(lean_object*);
 extern lean_object* l___private_Init_Data_Array_Basic_0__Array_swapAtPanic_x21___rarg___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_IR_modifyJPs_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Data_Repr___instance__2___closed__2;
 lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__23;
 uint8_t l_Lean_IR_IRType_isStruct(lean_object*);
 uint8_t l_Lean_IR_Lean_Compiler_IR_Basic___instance__5(lean_object*, lean_object*);
@@ -223,7 +224,6 @@ lean_object* lean_ir_mk_extern_decl(lean_object*, lean_object*, lean_object*, le
 lean_object* lean_ir_mk_ctor_expr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LocalContext_contains(lean_object*, lean_object*);
 lean_object* l_Lean_IR_AltCore_mmodifyBody(lean_object*);
-extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_IR_FnBody_body_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LitVal_beq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_AltCore_setBody(lean_object*, lean_object*);
@@ -240,7 +240,6 @@ uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 lean_object* l_Lean_IR_CtorInfo_isScalar___boxed(lean_object*);
 uint8_t l_Lean_IR_LocalContext_isLocalVar(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Data_Array_Basic_0__Array_swapAtPanic_x21___rarg___closed__4;
-extern lean_object* l_Bool_HasRepr___closed__2;
 lean_object* l_Lean_IR_FnBody_flatten(lean_object*);
 lean_object* l_Lean_IR_Expr_alphaEqv_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEqvAux___at_Lean_IR_FnBody_alphaEqv___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -269,6 +268,7 @@ lean_object* l_Lean_IR_IRType_isScalar_match__1(lean_object*);
 lean_object* lean_ir_mk_uset(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_modifyJPs(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_name_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Data_Repr___instance__2___closed__1;
 lean_object* l_Lean_IR_LocalContext_isParam___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__14;
 lean_object* lean_ir_mk_ret(lean_object*);
@@ -17104,7 +17104,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_mkIf___closed__2;
-x_2 = l_Bool_HasRepr___closed__1;
+x_2 = l_Init_Data_Repr___instance__2___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -17129,7 +17129,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_mkIf___closed__2;
-x_2 = l_Bool_HasRepr___closed__2;
+x_2 = l_Init_Data_Repr___instance__2___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

@@ -59,6 +59,7 @@ lean_object* l_Lean_Compiler_foldStrictAnd(uint8_t);
 lean_object* l_Lean_Compiler_getBoolLit___closed__2;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns;
 lean_object* l_Lean_Compiler_foldStrictAnd___boxed(lean_object*);
+extern lean_object* l_Init_Data_Repr___instance__2___closed__2;
 lean_object* l_Lean_Compiler_natFoldFns;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__25;
 extern lean_object* l_Nat_HasMul___closed__1;
@@ -236,7 +237,6 @@ lean_object* l_Lean_Compiler_unFoldFns;
 lean_object* l_Lean_Compiler_uintBinFoldFns;
 lean_object* l_Lean_Compiler_natFoldFns___closed__11;
 lean_object* l_Lean_Compiler_natFoldFns___closed__22;
-extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_Compiler_mkNatLt___closed__3;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__7;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__23;
@@ -266,7 +266,6 @@ extern lean_object* l_usizeSz___closed__1;
 lean_object* l_Lean_Compiler_foldBinUInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__24;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
-extern lean_object* l_Bool_HasRepr___closed__2;
 lean_object* l_Lean_Compiler_mkNatLe___closed__1;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__2;
 lean_object* l_Lean_Compiler_mkNatLe___closed__4;
@@ -289,6 +288,7 @@ lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__3;
 lean_object* l_Lean_Compiler_natPowThreshold;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__24;
 lean_object* l_Lean_Compiler_getInfoFromFn_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Data_Repr___instance__2___closed__1;
 lean_object* l_Lean_Compiler_foldNatDecLt___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatDecLt___closed__2;
 lean_object* l_Lean_Compiler_foldUIntSub___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3365,13 +3365,13 @@ x_22 = lean_ctor_get(x_1, 1);
 lean_dec(x_22);
 x_23 = lean_ctor_get(x_1, 0);
 lean_dec(x_23);
-x_24 = l_Bool_HasRepr___closed__2;
+x_24 = l_Init_Data_Repr___instance__2___closed__2;
 x_25 = lean_string_dec_eq(x_11, x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; uint8_t x_27; 
 lean_dec(x_2);
-x_26 = l_Bool_HasRepr___closed__1;
+x_26 = l_Init_Data_Repr___instance__2___closed__1;
 x_27 = lean_string_dec_eq(x_11, x_26);
 if (x_27 == 0)
 {
@@ -3416,13 +3416,13 @@ else
 {
 lean_object* x_37; uint8_t x_38; 
 lean_dec(x_1);
-x_37 = l_Bool_HasRepr___closed__2;
+x_37 = l_Init_Data_Repr___instance__2___closed__2;
 x_38 = lean_string_dec_eq(x_11, x_37);
 if (x_38 == 0)
 {
 lean_object* x_39; uint8_t x_40; 
 lean_dec(x_2);
-x_39 = l_Bool_HasRepr___closed__1;
+x_39 = l_Init_Data_Repr___instance__2___closed__1;
 x_40 = lean_string_dec_eq(x_11, x_39);
 if (x_40 == 0)
 {
@@ -3499,13 +3499,13 @@ if (lean_is_exclusive(x_1)) {
  lean_dec_ref(x_1);
  x_56 = lean_box(0);
 }
-x_57 = l_Bool_HasRepr___closed__2;
+x_57 = l_Init_Data_Repr___instance__2___closed__2;
 x_58 = lean_string_dec_eq(x_11, x_57);
 if (x_58 == 0)
 {
 lean_object* x_59; uint8_t x_60; 
 lean_dec(x_2);
-x_59 = l_Bool_HasRepr___closed__1;
+x_59 = l_Init_Data_Repr___instance__2___closed__1;
 x_60 = lean_string_dec_eq(x_11, x_59);
 if (x_60 == 0)
 {
@@ -3602,13 +3602,13 @@ if (lean_is_exclusive(x_1)) {
  lean_dec_ref(x_1);
  x_81 = lean_box(0);
 }
-x_82 = l_Bool_HasRepr___closed__2;
+x_82 = l_Init_Data_Repr___instance__2___closed__2;
 x_83 = lean_string_dec_eq(x_73, x_82);
 if (x_83 == 0)
 {
 lean_object* x_84; uint8_t x_85; 
 lean_dec(x_2);
-x_84 = l_Bool_HasRepr___closed__1;
+x_84 = l_Init_Data_Repr___instance__2___closed__1;
 x_85 = lean_string_dec_eq(x_73, x_84);
 if (x_85 == 0)
 {
@@ -3772,12 +3772,12 @@ return x_9;
 else
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_Bool_HasRepr___closed__2;
+x_10 = l_Init_Data_Repr___instance__2___closed__2;
 x_11 = lean_string_dec_eq(x_5, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
-x_12 = l_Bool_HasRepr___closed__1;
+x_12 = l_Init_Data_Repr___instance__2___closed__1;
 x_13 = lean_string_dec_eq(x_5, x_12);
 if (x_13 == 0)
 {

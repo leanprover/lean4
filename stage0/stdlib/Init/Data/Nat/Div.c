@@ -15,21 +15,21 @@ extern "C" {
 #endif
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Nat_div___boxed(lean_object*, lean_object*);
-lean_object* l_Nat_HasMod___closed__1;
-lean_object* l___private_Init_Data_Nat_Div_2__div_F(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_Init_Data_Nat_Div___instance__1___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Nat_HasDiv;
-lean_object* l___private_Init_Data_Nat_Div_5__mod_F(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Nat_Div_5__mod_F___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Nat_Div_0__Nat_mod_F(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_mod___boxed(lean_object*, lean_object*);
-lean_object* l_Nat_HasDiv___closed__1;
-lean_object* l___private_Init_Data_Nat_Div_2__div_F___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Nat_Div_0__Nat_div_F___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_Init_Data_Nat_Div___instance__2___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Nat_Div_0__Nat_div_F(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_Init_Data_Nat_Div___instance__2;
+lean_object* l___private_Init_Data_Nat_Div_0__Nat_mod_F___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-lean_object* l_Nat_HasMod;
+lean_object* l_Nat_Init_Data_Nat_Div___instance__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Nat_Div_2__div_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Nat_Div_0__Nat_div_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -68,11 +68,11 @@ return x_12;
 }
 }
 }
-lean_object* l___private_Init_Data_Nat_Div_2__div_F___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Nat_Div_0__Nat_div_F___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_Data_Nat_Div_2__div_F(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_Nat_Div_0__Nat_div_F(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -87,7 +87,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Nat_HasDiv___closed__1() {
+static lean_object* _init_l_Nat_Init_Data_Nat_Div___instance__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -95,15 +95,15 @@ x_1 = lean_alloc_closure((void*)(l_Nat_div___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Nat_HasDiv() {
+static lean_object* _init_l_Nat_Init_Data_Nat_Div___instance__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Nat_HasDiv___closed__1;
+x_1 = l_Nat_Init_Data_Nat_Div___instance__1___closed__1;
 return x_1;
 }
 }
-lean_object* l___private_Init_Data_Nat_Div_5__mod_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Nat_Div_0__Nat_mod_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -137,11 +137,11 @@ return x_8;
 }
 }
 }
-lean_object* l___private_Init_Data_Nat_Div_5__mod_F___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Nat_Div_0__Nat_mod_F___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_Data_Nat_Div_5__mod_F(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_Nat_Div_0__Nat_mod_F(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -156,7 +156,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Nat_HasMod___closed__1() {
+static lean_object* _init_l_Nat_Init_Data_Nat_Div___instance__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -164,11 +164,11 @@ x_1 = lean_alloc_closure((void*)(l_Nat_mod___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Nat_HasMod() {
+static lean_object* _init_l_Nat_Init_Data_Nat_Div___instance__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Nat_HasMod___closed__1;
+x_1 = l_Nat_Init_Data_Nat_Div___instance__2___closed__1;
 return x_1;
 }
 }
@@ -185,14 +185,14 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Nat_HasDiv___closed__1 = _init_l_Nat_HasDiv___closed__1();
-lean_mark_persistent(l_Nat_HasDiv___closed__1);
-l_Nat_HasDiv = _init_l_Nat_HasDiv();
-lean_mark_persistent(l_Nat_HasDiv);
-l_Nat_HasMod___closed__1 = _init_l_Nat_HasMod___closed__1();
-lean_mark_persistent(l_Nat_HasMod___closed__1);
-l_Nat_HasMod = _init_l_Nat_HasMod();
-lean_mark_persistent(l_Nat_HasMod);
+l_Nat_Init_Data_Nat_Div___instance__1___closed__1 = _init_l_Nat_Init_Data_Nat_Div___instance__1___closed__1();
+lean_mark_persistent(l_Nat_Init_Data_Nat_Div___instance__1___closed__1);
+l_Nat_Init_Data_Nat_Div___instance__1 = _init_l_Nat_Init_Data_Nat_Div___instance__1();
+lean_mark_persistent(l_Nat_Init_Data_Nat_Div___instance__1);
+l_Nat_Init_Data_Nat_Div___instance__2___closed__1 = _init_l_Nat_Init_Data_Nat_Div___instance__2___closed__1();
+lean_mark_persistent(l_Nat_Init_Data_Nat_Div___instance__2___closed__1);
+l_Nat_Init_Data_Nat_Div___instance__2 = _init_l_Nat_Init_Data_Nat_Div___instance__2();
+lean_mark_persistent(l_Nat_Init_Data_Nat_Div___instance__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -26,8 +26,8 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux_match__1(lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleAux___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___closed__2;
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___closed__2;
+lean_object* l_List_foldl___at_Lean_Elab_sortDeclLevelParams___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___closed__3;
@@ -37,7 +37,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_List_find_x3f___main___rarg(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -45,7 +44,6 @@ lean_object* l_Array_shrink___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_lt___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
-lean_object* l_List_foldl___main___at_Lean_Elab_sortDeclLevelParams___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_isFreshInstanceName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_getMVarDecl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkFreshInstanceName(lean_object*, lean_object*);
@@ -68,6 +66,7 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux_match__2(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_object*, lean_object*);
+lean_object* l_List_foldl___at_Lean_Elab_sortDeclLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_sortDeclLevelParams_match__1(lean_object*);
 extern lean_object* l_Lean_Init_LeanInit___instance__1;
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__3;
@@ -79,10 +78,11 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4(lean_ob
 lean_object* l_Lean_Elab_expandOptDeclSig___boxed(lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_sortDeclLevelParams___lambda__1(lean_object*, lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 extern lean_object* l_Array_iterateMAux___at_Lean_withNestedTraces___spec__5___closed__1;
 uint8_t l_Lean_BinderInfo_beq(uint8_t, uint8_t);
 uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
-lean_object* l_List_foldl___main___at_Lean_Elab_sortDeclLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_Elab_sortDeclLevelParams___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
@@ -1159,7 +1159,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Elab_sortDeclLevelParams_match__1___rarg
 return x_2;
 }
 }
-lean_object* l_List_foldl___main___at_Lean_Elab_sortDeclLevelParams___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_foldl___at_Lean_Elab_sortDeclLevelParams___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -1239,7 +1239,7 @@ else
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_array_fget(x_2, x_3);
-x_9 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_8, x_1);
+x_9 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_8, x_1);
 lean_dec(x_8);
 if (x_9 == 0)
 {
@@ -1437,7 +1437,7 @@ x_4 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_3)
 if (x_4 == 0)
 {
 uint8_t x_5; 
-x_5 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_3, x_2);
+x_5 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_3, x_2);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -1476,13 +1476,13 @@ x_4 = lean_alloc_closure((void*)(l_Lean_Elab_sortDeclLevelParams___lambda__1___b
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_1);
 lean_inc(x_2);
-x_5 = l_List_find_x3f___main___rarg(x_4, x_2);
+x_5 = l_List_find_x3f___rarg(x_4, x_2);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_6 = lean_box(0);
 lean_inc(x_2);
-x_7 = l_List_foldl___main___at_Lean_Elab_sortDeclLevelParams___spec__1(x_3, x_6, x_2);
+x_7 = l_List_foldl___at_Lean_Elab_sortDeclLevelParams___spec__1(x_3, x_6, x_2);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = l_Array_filterAux___at_Lean_Elab_sortDeclLevelParams___spec__2(x_2, x_3, x_8, x_8);
 lean_dec(x_2);
@@ -1520,11 +1520,11 @@ return x_24;
 }
 }
 }
-lean_object* l_List_foldl___main___at_Lean_Elab_sortDeclLevelParams___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_foldl___at_Lean_Elab_sortDeclLevelParams___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_List_foldl___main___at_Lean_Elab_sortDeclLevelParams___spec__1(x_1, x_2, x_3);
+x_4 = l_List_foldl___at_Lean_Elab_sortDeclLevelParams___spec__1(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }

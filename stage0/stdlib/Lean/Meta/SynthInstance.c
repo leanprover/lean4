@@ -269,6 +269,7 @@ lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__L
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_SynthInstance_tryResolve___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_step(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_preprocessArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_map___at_Lean_MessageData_Lean_Message___instance__12___spec__1(lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_Meta_SynthInstance_State_tableEntries___default___spec__1(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_consume_match__2(lean_object*);
 extern lean_object* l_Lean_TagAttribute_Lean_Attributes___instance__5___closed__1;
@@ -312,7 +313,6 @@ lean_object* l_Lean_Meta_SynthInstance_MkTableKey_State_lmap___default___closed_
 lean_object* l_Lean_Meta_SynthInstance_getNextToResume___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_MkTableKey_normExpr_match__2(lean_object*);
 extern lean_object* l_Lean_Meta_isLevelDefEqAux___closed__7;
-lean_object* l_List_map___main___at_Lean_MessageData_Lean_Message___instance__12___spec__1(lean_object*);
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_tryResolveCore_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
@@ -4028,7 +4028,7 @@ x_40 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_40, 0, x_38);
 lean_ctor_set(x_40, 1, x_39);
 x_41 = l_Array_toList___rarg(x_29);
-x_42 = l_List_map___main___at_Lean_MessageData_Lean_Message___instance__12___spec__1(x_41);
+x_42 = l_List_map___at_Lean_MessageData_Lean_Message___instance__12___spec__1(x_41);
 x_43 = l_Lean_MessageData_ofList(x_42);
 lean_dec(x_42);
 x_44 = lean_alloc_ctor(10, 2, 0);

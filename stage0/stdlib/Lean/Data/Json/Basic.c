@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_List_foldr___main___at_Lean_Json_mkObj___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_decEq_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_Json_mkObj___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_shiftl(lean_object*, lean_object*);
@@ -98,7 +97,6 @@ extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
-lean_object* l_List_foldr___main___at_Lean_Json_mkObj___spec__3___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 lean_object* l_Lean_Json_getInt_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -118,8 +116,10 @@ lean_object* l_Lean_Json_getBool_x3f_match__1___rarg(lean_object*, lean_object*,
 lean_object* l_Lean_JsonNumber_toString___closed__2;
 lean_object* l_Lean_JsonNumber_toString_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_get_x3f___rarg(lean_object*, lean_object*);
+lean_object* l_List_foldr___at_Lean_Json_mkObj___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_shiftr_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getArr_x3f(lean_object*);
+lean_object* l_List_foldr___at_Lean_Json_mkObj___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Json_Lean_Data_Json_Basic___instance__9(uint8_t);
 uint8_t l_Lean_JsonNumber_decEq(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getNum_x3f(lean_object*);
@@ -3376,7 +3376,7 @@ return x_7;
 }
 }
 }
-lean_object* l_List_foldr___main___at_Lean_Json_mkObj___spec__3(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_foldr___at_Lean_Json_mkObj___spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -3392,7 +3392,7 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec(x_2);
-x_5 = l_List_foldr___main___at_Lean_Json_mkObj___spec__3(x_1, x_4);
+x_5 = l_List_foldr___at_Lean_Json_mkObj___spec__3(x_1, x_4);
 x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_3, 1);
@@ -3408,17 +3408,17 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_box(0);
-x_3 = l_List_foldr___main___at_Lean_Json_mkObj___spec__3(x_2, x_1);
+x_3 = l_List_foldr___at_Lean_Json_mkObj___spec__3(x_2, x_1);
 x_4 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
 return x_4;
 }
 }
-lean_object* l_List_foldr___main___at_Lean_Json_mkObj___spec__3___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_foldr___at_Lean_Json_mkObj___spec__3___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_foldr___main___at_Lean_Json_mkObj___spec__3(x_1, x_2);
+x_3 = l_List_foldr___at_Lean_Json_mkObj___spec__3(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

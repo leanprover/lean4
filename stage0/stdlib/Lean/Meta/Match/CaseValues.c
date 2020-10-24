@@ -86,13 +86,13 @@ lean_object* l_Lean_Meta_getLocalDecl___at_Lean_Meta_getFVarLocalDecl___spec__1(
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValues_loop___closed__6;
 lean_object* l_Array_iterateMAux___at_Lean_Meta_caseValues_loop___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_map___main___at_Lean_Meta_substCore___spec__8(lean_object*);
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValues_loop___closed__1;
 lean_object* l_Lean_Meta_caseValues_loop_match__3(lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__2___closed__2;
 lean_object* l_Lean_Meta_caseValue___closed__3;
 lean_object* l_Lean_Meta_caseValues_loop_match__2___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_map___at_Lean_Meta_substCore___spec__8(lean_object*);
 lean_object* l_Lean_Meta_caseValues(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Lean_Meta_Match_CaseValues___instance__1___closed__1;
@@ -496,7 +496,7 @@ else
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; 
 x_60 = l_Lean_Meta_FVarSubst_domain(x_1);
-x_61 = l_List_map___main___at_Lean_Meta_substCore___spec__8(x_60);
+x_61 = l_List_map___at_Lean_Meta_substCore___spec__8(x_60);
 x_62 = l_Lean_MessageData_ofList(x_61);
 lean_dec(x_61);
 x_63 = l_Lean_Meta_caseValueAux___lambda__1___closed__6;

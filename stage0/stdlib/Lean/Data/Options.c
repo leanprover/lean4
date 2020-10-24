@@ -103,6 +103,7 @@ lean_object* l_Lean_getOptionDecl_match__1(lean_object*);
 lean_object* l_Lean_setOptionFromString_match__2(lean_object*);
 lean_object* l_Lean_Lean_Data_Options___instance__4(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_List_map___at_Lean_setOptionFromString___spec__1(lean_object*);
 lean_object* l___private_Lean_Data_Options_0__Lean_initOptionDeclsRef(lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__2;
 lean_object* l_String_toNat_x3f(lean_object*);
@@ -114,7 +115,6 @@ lean_object* l_Lean_setOptionFromString_match__2___rarg(lean_object*, lean_objec
 lean_object* l_Lean_getOptionDescr(lean_object*, lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__3;
 lean_object* l_Lean_getNatOption___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_map___main___at_Lean_setOptionFromString___spec__1(lean_object*);
 static lean_object* _init_l_Lean_Options_empty() {
 _start:
 {
@@ -926,7 +926,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_setOptionFromString_match__4___rarg), 3,
 return x_2;
 }
 }
-lean_object* l_List_map___main___at_Lean_setOptionFromString___spec__1(lean_object* x_1) {
+lean_object* l_List_map___at_Lean_setOptionFromString___spec__1(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -946,7 +946,7 @@ x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = l_String_trim(x_4);
 lean_dec(x_4);
-x_7 = l_List_map___main___at_Lean_setOptionFromString___spec__1(x_5);
+x_7 = l_List_map___at_Lean_setOptionFromString___spec__1(x_5);
 lean_ctor_set(x_1, 1, x_7);
 lean_ctor_set(x_1, 0, x_6);
 return x_1;
@@ -961,7 +961,7 @@ lean_inc(x_8);
 lean_dec(x_1);
 x_10 = l_String_trim(x_8);
 lean_dec(x_8);
-x_11 = l_List_map___main___at_Lean_setOptionFromString___spec__1(x_9);
+x_11 = l_List_map___at_Lean_setOptionFromString___spec__1(x_9);
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -1046,7 +1046,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = l_Lean_setOptionFromString___closed__1;
 x_5 = l_String_splitOn(x_2, x_4);
-x_6 = l_List_map___main___at_Lean_setOptionFromString___spec__1(x_5);
+x_6 = l_List_map___at_Lean_setOptionFromString___spec__1(x_5);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 

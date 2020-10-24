@@ -40,6 +40,7 @@ lean_object* l_Lean_List_format___rarg___closed__1;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__21___closed__1;
 lean_object* l_Lean_Format_prettyAux___closed__1;
+lean_object* l_List_foldl___at_Lean_Format_join___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__11___rarg(lean_object*);
 extern lean_object* l_Init_Data_Repr___instance__2___closed__2;
 lean_object* l_Lean_Lean_Data_Format___instance__9(lean_object*);
@@ -182,7 +183,6 @@ lean_object* l_Lean_Lean_Data_Format___instance__10___rarg___boxed(lean_object*,
 lean_object* l_Lean_Format_initFn____x40_Lean_Data_Format___hyg_979____closed__2;
 lean_object* l_Lean_Format_isNil___boxed(lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be___closed__6;
-lean_object* l_List_foldl___main___at_Lean_Format_join___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__12_match__1___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Format_isNil(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -253,9 +253,9 @@ lean_object* l_Lean_Lean_Data_Format___instance__12(lean_object*, lean_object*);
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__6___rarg(lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
+lean_object* l_List_foldl___at_Lean_Format_join___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__22;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_spaceUptoLine_x27_match__1(lean_object*);
-lean_object* l_List_foldl___main___at_Lean_Format_join___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__20___closed__1;
 lean_object* l_Lean_Option_format_match__1(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
@@ -474,7 +474,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-lean_object* l_List_foldl___main___at_Lean_Format_join___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_foldl___at_Lean_Format_join___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -511,15 +511,15 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Format_join___closed__1;
-x_3 = l_List_foldl___main___at_Lean_Format_join___spec__1(x_2, x_1);
+x_3 = l_List_foldl___at_Lean_Format_join___spec__1(x_2, x_1);
 return x_3;
 }
 }
-lean_object* l_List_foldl___main___at_Lean_Format_join___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_foldl___at_Lean_Format_join___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_foldl___main___at_Lean_Format_join___spec__1(x_1, x_2);
+x_3 = l_List_foldl___at_Lean_Format_join___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

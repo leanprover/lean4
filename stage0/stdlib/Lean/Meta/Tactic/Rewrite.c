@@ -65,6 +65,7 @@ lean_object* l_Lean_Meta_rewrite___lambda__4___closed__2;
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqSymm___at_Lean_Meta_rewrite___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_map___at_Lean_Meta_rewrite___spec__3(lean_object*);
 lean_object* l_Lean_Meta_kabstract___at_Lean_Meta_rewrite___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite___lambda__2___closed__3;
 lean_object* l_Lean_mkLambda(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -95,7 +96,6 @@ lean_object* l_Lean_Meta_rewrite___lambda__4(lean_object*, lean_object*, lean_ob
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
-lean_object* l_List_map___main___at_Lean_Meta_rewrite___spec__3(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
@@ -638,7 +638,7 @@ x_9 = l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqNDRecImp(x_1, x_2, x_3, 
 return x_9;
 }
 }
-lean_object* l_List_map___main___at_Lean_Meta_rewrite___spec__3(lean_object* x_1) {
+lean_object* l_List_map___at_Lean_Meta_rewrite___spec__3(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -658,7 +658,7 @@ x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = l_Lean_Expr_mvarId_x21(x_4);
 lean_dec(x_4);
-x_7 = l_List_map___main___at_Lean_Meta_rewrite___spec__3(x_5);
+x_7 = l_List_map___at_Lean_Meta_rewrite___spec__3(x_5);
 lean_ctor_set(x_1, 1, x_7);
 lean_ctor_set(x_1, 0, x_6);
 return x_1;
@@ -673,7 +673,7 @@ lean_inc(x_8);
 lean_dec(x_1);
 x_10 = l_Lean_Expr_mvarId_x21(x_8);
 lean_dec(x_8);
-x_11 = l_List_map___main___at_Lean_Meta_rewrite___spec__3(x_9);
+x_11 = l_List_map___at_Lean_Meta_rewrite___spec__3(x_9);
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -744,7 +744,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29;
 x_26 = lean_ctor_get(x_24, 0);
 x_27 = l_Array_toList___rarg(x_26);
 lean_dec(x_26);
-x_28 = l_List_map___main___at_Lean_Meta_rewrite___spec__3(x_27);
+x_28 = l_List_map___at_Lean_Meta_rewrite___spec__3(x_27);
 x_29 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_29, 0, x_8);
 lean_ctor_set(x_29, 1, x_19);
@@ -762,7 +762,7 @@ lean_inc(x_30);
 lean_dec(x_24);
 x_32 = l_Array_toList___rarg(x_30);
 lean_dec(x_30);
-x_33 = l_List_map___main___at_Lean_Meta_rewrite___spec__3(x_32);
+x_33 = l_List_map___at_Lean_Meta_rewrite___spec__3(x_32);
 x_34 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_34, 0, x_8);
 lean_ctor_set(x_34, 1, x_19);

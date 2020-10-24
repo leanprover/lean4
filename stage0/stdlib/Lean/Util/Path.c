@@ -52,6 +52,7 @@ lean_object* lean_io_realpath(lean_object*, lean_object*);
 lean_object* l_List_findM_x3f___at_Lean_findOLean___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_modPathToFilePath___closed__1;
 lean_object* l_System_FilePath_dirName(lean_object*);
+lean_object* l_List_foldl___at_Lean_moduleNameOfFileName___spec__1(lean_object*, lean_object*);
 lean_object* l_System_FilePath_normalizePath(lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__5;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -76,7 +77,6 @@ lean_object* l_Lean_addSearchPathFromEnv_match__1(lean_object*);
 lean_object* l_IO_isDir___at_Lean_findOLean___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_findOLean___closed__1;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
-lean_object* l_List_foldl___main___at_Lean_moduleNameOfFileName___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_findOLean___boxed(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___closed__1;
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
@@ -1286,7 +1286,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_moduleNameOfFileName_match__2___rarg), 3
 return x_2;
 }
 }
-lean_object* l_List_foldl___main___at_Lean_moduleNameOfFileName___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_foldl___at_Lean_moduleNameOfFileName___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1393,7 +1393,7 @@ lean_dec(x_6);
 x_22 = l___private_Lean_Util_Path_0__Lean_pathSep;
 x_23 = l_String_splitOn(x_21, x_22);
 x_24 = lean_box(0);
-x_25 = l_List_foldl___main___at_Lean_moduleNameOfFileName___spec__1(x_24, x_23);
+x_25 = l_List_foldl___at_Lean_moduleNameOfFileName___spec__1(x_24, x_23);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_4);
@@ -1435,7 +1435,7 @@ lean_dec(x_28);
 x_38 = l___private_Lean_Util_Path_0__Lean_pathSep;
 x_39 = l_String_splitOn(x_37, x_38);
 x_40 = lean_box(0);
-x_41 = l_List_foldl___main___at_Lean_moduleNameOfFileName___spec__1(x_40, x_39);
+x_41 = l_List_foldl___at_Lean_moduleNameOfFileName___spec__1(x_40, x_39);
 x_42 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_4);

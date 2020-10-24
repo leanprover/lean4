@@ -65,12 +65,12 @@ lean_object* l_Array_iterateMAux___at_Lean_TODELETE_regScopeManagerExtension___s
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_toValidNamespace_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_ScopeManagerState_Lean_Scopes___instance__1___closed__1;
-lean_object* l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_is_namespace(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_pushScopeCore___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldl___at_Lean_TODELETE_toValidNamespace___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
 lean_object* l_Lean_TODELETE_pushScopeCore(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_TODELETE_hasOpenScopes___boxed(lean_object*);
@@ -79,6 +79,7 @@ lean_object* l_Array_iterateMAux___at_Lean_TODELETE_regScopeManagerExtension___s
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_TODELETE_regScopeManagerExtension___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_getScopeHeader_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
+lean_object* l_List_foldl___at_Lean_TODELETE_toValidNamespace___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
@@ -103,7 +104,6 @@ lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_TODELETE_regScopeManage
 lean_object* l_Lean_TODELETE_getNamespace_match__1(lean_object*);
 lean_object* l_Lean_TODELETE_ScopeManagerState_Lean_Scopes___instance__1;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
-lean_object* l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_namespace(lean_object*, lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_TODELETE_scopeManagerExt___elambda__3___boxed(lean_object*, lean_object*);
@@ -1035,7 +1035,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_TODELETE_toValidNamespace_match__1___rar
 return x_2;
 }
 }
-lean_object* l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_List_foldl___at_Lean_TODELETE_toValidNamespace___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_4) == 0)
@@ -1099,7 +1099,7 @@ x_7 = lean_box(0);
 x_8 = lean_ctor_get(x_4, 1);
 lean_inc(x_8);
 lean_dec(x_4);
-x_9 = l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1(x_2, x_5, x_7, x_8);
+x_9 = l_List_foldl___at_Lean_TODELETE_toValidNamespace___spec__1(x_2, x_5, x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_5);
 return x_9;
@@ -1115,11 +1115,11 @@ return x_10;
 }
 }
 }
-lean_object* l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_List_foldl___at_Lean_TODELETE_toValidNamespace___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_List_foldl___main___at_Lean_TODELETE_toValidNamespace___spec__1(x_1, x_2, x_3, x_4);
+x_5 = l_List_foldl___at_Lean_TODELETE_toValidNamespace___spec__1(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_2);
 return x_5;

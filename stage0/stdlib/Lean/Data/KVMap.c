@@ -71,7 +71,6 @@ lean_object* l_Lean_DataValue_getBoolEx___boxed(lean_object*);
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__15;
 lean_object* l_Lean_KVMap_eqv___boxed(lean_object*, lean_object*);
-lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getInt_match__1(lean_object*);
 lean_object* l_Lean_KVMap_find___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getName___boxed(lean_object*, lean_object*, lean_object*);
@@ -141,6 +140,7 @@ uint8_t l_Lean_KVMap_subsetAux(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_eqv(lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 uint8_t l_List_isEmpty___rarg(lean_object*);
+lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__12___closed__1;
 lean_object* l_Lean_KVMap_getBool_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_KVMap___instance__4(uint8_t);
@@ -1111,7 +1111,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_List_lengthAux___main___rarg(x_1, x_2);
+x_3 = l_List_lengthAux___rarg(x_1, x_2);
 return x_3;
 }
 }

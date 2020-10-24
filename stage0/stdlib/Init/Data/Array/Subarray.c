@@ -24,7 +24,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop___at_Array_ofSubarray___spec__1(lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
-lean_object* l_Array_Init_Data_Array_Subarray___instance__2(lean_object*);
 lean_object* l_Array_Init_Data_Array_Subarray___instance__1___closed__1;
 lean_object* l_Subarray_forIn___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -415,14 +414,6 @@ return x_1;
 }
 }
 lean_object* l_Array_Init_Data_Array_Subarray___instance__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Array_Init_Data_Array_Subarray___instance__1___closed__1;
-return x_2;
-}
-}
-lean_object* l_Array_Init_Data_Array_Subarray___instance__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

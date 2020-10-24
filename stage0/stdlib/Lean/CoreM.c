@@ -49,6 +49,7 @@ lean_object* l_Lean_Core_Lean_CoreM___instance__7___closed__3;
 lean_object* l_Lean_catchInternalIds___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_CoreM___instance__4___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_List_elem___at_Lean_catchInternalIds___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_CoreM___instance__11___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_printTraces___at_Lean_Core_Lean_CoreM___instance__11___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_CoreM___instance__3___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,7 +61,6 @@ lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, le
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_CoreM___instance__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_catchInternalIds_match__1___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___main___at_Lean_catchInternalIds___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_CoreM___instance__7___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -130,7 +130,6 @@ lean_object* l_Lean_catchInternalId___rarg(lean_object*, lean_object*, lean_obje
 lean_object* l_Array_forMAux___at_Lean_Core_Lean_CoreM___instance__11___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_Context_currRecDepth___default;
 lean_object* l_Lean_Core_liftIOCore(lean_object*);
-lean_object* l_List_elem___main___at_Lean_catchInternalIds___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_CoreM___instance__3___closed__3;
 lean_object* l_Lean_catchInternalId_match__1(lean_object*);
 extern lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
@@ -145,6 +144,7 @@ lean_object* l_Lean_Core_Lean_CoreM___instance__10___lambda__1(lean_object*, lea
 lean_object* l_Lean_catchInternalId___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_CoreM___instance__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_CoreM_toIO_match__1(lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_catchInternalIds___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Core_CoreM_toIO___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_liftIOCore___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_TraceState_Lean_Util_Trace___instance__2___closed__1;
@@ -2472,7 +2472,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_catchInternalIds_match__1___rarg), 3, 0)
 return x_2;
 }
 }
-uint8_t l_List_elem___main___at_Lean_catchInternalIds___spec__1(lean_object* x_1, lean_object* x_2) {
+uint8_t l_List_elem___at_Lean_catchInternalIds___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -2519,7 +2519,7 @@ else
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_ctor_get(x_4, 0);
 lean_inc(x_7);
-x_8 = l_List_elem___main___at_Lean_catchInternalIds___spec__1(x_7, x_2);
+x_8 = l_List_elem___at_Lean_catchInternalIds___spec__1(x_7, x_2);
 lean_dec(x_7);
 if (x_8 == 0)
 {
@@ -2563,11 +2563,11 @@ x_4 = lean_alloc_closure((void*)(l_Lean_catchInternalIds___rarg), 4, 0);
 return x_4;
 }
 }
-lean_object* l_List_elem___main___at_Lean_catchInternalIds___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_elem___at_Lean_catchInternalIds___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_List_elem___main___at_Lean_catchInternalIds___spec__1(x_1, x_2);
+x_3 = l_List_elem___at_Lean_catchInternalIds___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_List_forIn_loop___at_Lean_Elab_printDeps___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
-lean_object* l_List_map___main___at_Lean_Elab_headerToImports___spec__1(lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_headerToImports___closed__2;
 lean_object* l_Lean_Elab_headerToImports(lean_object*);
@@ -44,6 +43,7 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* lean_parse_imports(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
+lean_object* l_List_map___at_Lean_Elab_headerToImports___spec__1(lean_object*);
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_println___at_Lean_Environment_displayStats___spec__3(lean_object*, lean_object*);
@@ -52,7 +52,7 @@ lean_object* l_Lean_Elab_parseImportsExport_match__1___rarg(lean_object*, lean_o
 extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__6;
 lean_object* l_Lean_Elab_parseImportsExport_match__1(lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Elab_printDeps___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_map___main___at_Lean_Elab_headerToImports___spec__1(lean_object* x_1) {
+lean_object* l_List_map___at_Lean_Elab_headerToImports___spec__1(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -79,7 +79,7 @@ x_10 = l_Lean_Syntax_getArg(x_4, x_9);
 lean_dec(x_4);
 x_11 = l_Lean_Syntax_getId(x_10);
 lean_dec(x_10);
-x_12 = l_List_map___main___at_Lean_Elab_headerToImports___spec__1(x_5);
+x_12 = l_List_map___at_Lean_Elab_headerToImports___spec__1(x_5);
 if (x_8 == 0)
 {
 uint8_t x_13; lean_object* x_14; 
@@ -120,7 +120,7 @@ x_23 = l_Lean_Syntax_getArg(x_17, x_22);
 lean_dec(x_17);
 x_24 = l_Lean_Syntax_getId(x_23);
 lean_dec(x_23);
-x_25 = l_List_map___main___at_Lean_Elab_headerToImports___spec__1(x_18);
+x_25 = l_List_map___at_Lean_Elab_headerToImports___spec__1(x_18);
 if (x_21 == 0)
 {
 uint8_t x_26; lean_object* x_27; lean_object* x_28; 
@@ -197,7 +197,7 @@ x_7 = l_Lean_Syntax_getArgs(x_6);
 lean_dec(x_6);
 x_8 = l_Array_toList___rarg(x_7);
 lean_dec(x_7);
-x_9 = l_List_map___main___at_Lean_Elab_headerToImports___spec__1(x_8);
+x_9 = l_List_map___at_Lean_Elab_headerToImports___spec__1(x_8);
 if (x_4 == 0)
 {
 lean_object* x_10; lean_object* x_11; 

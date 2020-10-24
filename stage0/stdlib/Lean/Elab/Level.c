@@ -26,7 +26,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_MetavarContext_addLevelMVarDecl(lean_object*, lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Elab_Level_elabLevel___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__1___lambda__1___boxed(lean_object*, lean_object*);
-uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__9;
@@ -75,6 +74,7 @@ lean_object* l_Lean_Elab_Level_elabLevel___closed__4;
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__1;
 lean_object* l_Lean_Elab_Level_elabLevel___closed__1;
 extern lean_object* l_Lean_identKind;
+uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__3___closed__2;
 lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__5;
@@ -1037,7 +1037,7 @@ lean_object* x_50; uint8_t x_51;
 lean_dec(x_4);
 x_50 = l_Lean_Syntax_getId(x_1);
 lean_dec(x_1);
-x_51 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_50, x_9);
+x_51 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_50, x_9);
 lean_dec(x_9);
 if (x_51 == 0)
 {
@@ -1489,7 +1489,7 @@ lean_object* x_162; uint8_t x_163;
 lean_dec(x_4);
 x_162 = l_Lean_Syntax_getId(x_1);
 lean_dec(x_1);
-x_163 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_162, x_128);
+x_163 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_162, x_128);
 lean_dec(x_128);
 if (x_163 == 0)
 {

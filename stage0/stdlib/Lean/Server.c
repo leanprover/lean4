@@ -46,6 +46,7 @@ extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___closed__5;
 lean_object* l_Lean_Server_EditableDocument_compileDocument_match__1(lean_object*);
 lean_object* l_Lean_Server_handleDidOpen_match__1(lean_object*);
+lean_object* l_List_filterAux___at_Lean_Server_EditableDocument_updateDocument___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_writeLspMessage(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_EditableDocument_updateDocument___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -136,7 +137,6 @@ uint8_t l_Std_RBNode_isBlack___rarg(lean_object*);
 lean_object* l_Lean_Server_EditableDocument_updateDocument_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_handleDidChange___closed__4;
 lean_object* l_Lean_Server_Snapshots_compileHeader(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_filterAux___main___at_Lean_Server_EditableDocument_updateDocument___spec__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__5;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_mapM___at_Lean_Server_sendDiagnostics___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -182,6 +182,7 @@ lean_object* l_Lean_Server_writeLspResponse___at_Lean_Server_initAndRunServer___
 lean_object* l_Lean_Server_initAndRunServer___closed__3;
 lean_object* l_Lean_Lsp_readLspRequestAs___at_Lean_Server_initAndRunServer___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_msgToDiagnostic(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_filterAux___at_Lean_Server_EditableDocument_updateDocument___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_Capabilities___instance__2___closed__2;
 lean_object* l_Lean_Server_EditableDocument_updateDocument_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_writeLspResponse___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -249,7 +250,6 @@ lean_object* l_Std_RBNode_find___at_Lean_Server_findOpenDocument___spec__1___box
 lean_object* l_Lean_Server_handleNotification_match__1___rarg___closed__4;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_Server_initAndRunServer(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_filterAux___main___at_Lean_Server_EditableDocument_updateDocument___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_getLastD___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___closed__2;
 lean_object* l_Lean_Server_EditableDocument_compileDocument(lean_object*, lean_object*, lean_object*);
@@ -457,7 +457,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Server_EditableDocument_updateDocument_m
 return x_2;
 }
 }
-lean_object* l_List_filterAux___main___at_Lean_Server_EditableDocument_updateDocument___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_filterAux___at_Lean_Server_EditableDocument_updateDocument___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -567,7 +567,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_16 = lean_box(0);
-x_17 = l_List_filterAux___main___at_Lean_Server_EditableDocument_updateDocument___spec__1(x_2, x_8, x_16);
+x_17 = l_List_filterAux___at_Lean_Server_EditableDocument_updateDocument___spec__1(x_2, x_8, x_16);
 lean_inc(x_17);
 x_18 = l_List_getLastD___rarg(x_17, x_7);
 x_19 = lean_ctor_get(x_4, 0);
@@ -691,7 +691,7 @@ if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
 x_47 = lean_box(0);
-x_48 = l_List_filterAux___main___at_Lean_Server_EditableDocument_updateDocument___spec__1(x_2, x_41, x_47);
+x_48 = l_List_filterAux___at_Lean_Server_EditableDocument_updateDocument___spec__1(x_2, x_41, x_47);
 lean_inc(x_48);
 x_49 = l_List_getLastD___rarg(x_48, x_40);
 x_50 = lean_ctor_get(x_4, 0);
@@ -755,11 +755,11 @@ return x_62;
 }
 }
 }
-lean_object* l_List_filterAux___main___at_Lean_Server_EditableDocument_updateDocument___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_filterAux___at_Lean_Server_EditableDocument_updateDocument___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_List_filterAux___main___at_Lean_Server_EditableDocument_updateDocument___spec__1(x_1, x_2, x_3);
+x_4 = l_List_filterAux___at_Lean_Server_EditableDocument_updateDocument___spec__1(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }

@@ -148,7 +148,6 @@ lean_object* l_Lean_Delaborator_delabStructureInstance_match__3(lean_object*);
 lean_object* l_Lean_Delaborator_getExprKind___closed__1;
 lean_object* l_Lean_Delaborator_getExprKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabseqRight___lambda__1___closed__4;
-uint8_t l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabOr___lambda__1___closed__8;
 lean_object* l_Lean_Delaborator_delabBind___lambda__1___closed__4;
 lean_object* l_Lean_getPPStructureProjections___closed__1;
@@ -773,6 +772,7 @@ lean_object* l_Lean_Delaborator_withAppFnArgs_match__2___rarg(lean_object*, lean
 lean_object* l___regBuiltin_Lean_Delaborator_delabCons___closed__3;
 lean_object* l_Array_findIdxAux___at_Lean_Delaborator_annotatePos___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_getPPOption___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabProjectionApp_match__1(lean_object*);
 lean_object* l_Lean_Delaborator_delabGT___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Delaborator_0__Lean_Delaborator_unresolveOpenDecls(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12473,7 +12473,7 @@ x_16 = lean_name_eq(x_15, x_1);
 if (x_16 == 0)
 {
 uint8_t x_17; 
-x_17 = l_List_elem___main___at_Lean_NameHashSet_insert___spec__2(x_15, x_13);
+x_17 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_15, x_13);
 lean_dec(x_15);
 if (x_17 == 0)
 {

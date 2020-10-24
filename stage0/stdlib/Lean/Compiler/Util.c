@@ -33,7 +33,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_neutralExpr___closed__2;
 lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_List_map___main___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object*);
 lean_object* lean_get_decl_names_for_code_gen(lean_object*);
 lean_object* l_Lean_Compiler_mkLcProof___closed__1;
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
@@ -62,6 +61,7 @@ lean_object* l_Lean_Compiler_atMostOnce_visitFVar___boxed(lean_object*, lean_obj
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar___closed__2;
 lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_checkIsDefinition(lean_object*, lean_object*);
+lean_object* l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object*);
 lean_object* l_Lean_Compiler_voidType___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar___closed__1;
 lean_object* l_Lean_Compiler_unreachableExpr;
@@ -1341,7 +1341,7 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Compiler_Util_0__Lean_Compiler
 return x_2;
 }
 }
-lean_object* l_List_map___main___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object* x_1) {
+lean_object* l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1368,7 +1368,7 @@ lean_dec(x_7);
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
 lean_dec(x_4);
-x_9 = l_List_map___main___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_6);
+x_9 = l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_6);
 lean_ctor_set(x_1, 1, x_9);
 lean_ctor_set(x_1, 0, x_8);
 return x_1;
@@ -1382,7 +1382,7 @@ lean_dec(x_1);
 x_11 = lean_ctor_get(x_4, 0);
 lean_inc(x_11);
 lean_dec(x_4);
-x_12 = l_List_map___main___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_10);
+x_12 = l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_10);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_12);
@@ -1437,7 +1437,7 @@ lean_object* x_12; lean_object* x_13;
 x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
 lean_dec(x_1);
-x_13 = l_List_map___main___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_12);
+x_13 = l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_12);
 return x_13;
 }
 default: 

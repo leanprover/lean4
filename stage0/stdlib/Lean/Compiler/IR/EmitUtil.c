@@ -31,7 +31,6 @@ lean_object* l_Lean_IR_collectUsedDecls(lean_object*, lean_object*, lean_object*
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collectInitDecl_match__1(lean_object*);
-lean_object* l_List_foldr___main___at_Lean_IR_usesModuleFrom___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collectFnBody(lean_object*, lean_object*, lean_object*);
@@ -39,6 +38,7 @@ lean_object* l_Lean_IR_CollectUsedDecls_collectInitDecl_match__1___rarg(lean_obj
 lean_object* l_Std_AssocList_foldlM___at_Lean_IR_CollectMaps_collectVar___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkVarJPMaps___closed__1;
 uint8_t l_Lean_IR_isTailCallTo(lean_object*, lean_object*);
+uint8_t l_List_foldr___at_Lean_IR_usesModuleFrom___spec__3(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_IR_isTailCallTo_match__1(lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectFnBody_match__1(lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectParams(lean_object*, lean_object*);
@@ -60,10 +60,10 @@ lean_object* l_Array_iterateMAux___at_Lean_IR_CollectMaps_collectParams___spec__
 lean_object* l_Std_HashMapImp_insert___at_Lean_IR_CollectMaps_collectJP___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_expand___at_Lean_IR_CollectMaps_collectVar___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collect(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldr___at_Lean_IR_usesModuleFrom___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Array_iterateMAux___at_Lean_IR_CollectMaps_collectFnBody___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-uint8_t l_List_foldr___main___at_Lean_IR_usesModuleFrom___spec__3(lean_object*, uint8_t, lean_object*);
 lean_object* l_Array_iterateMAux___at_Lean_IR_CollectMaps_collectFnBody___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_revFold___at_Lean_IR_usesModuleFrom___spec__2(lean_object*, lean_object*);
 uint8_t l_Std_AssocList_contains___at_Lean_IR_CollectMaps_collectVar___spec__2(lean_object*, lean_object*);
@@ -294,7 +294,7 @@ x_3 = l_Std_RBNode_revFold___at_Lean_IR_usesModuleFrom___spec__2(x_2, x_1);
 return x_3;
 }
 }
-uint8_t l_List_foldr___main___at_Lean_IR_usesModuleFrom___spec__3(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
+uint8_t l_List_foldr___at_Lean_IR_usesModuleFrom___spec__3(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -306,7 +306,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_3, 0);
 x_5 = lean_ctor_get(x_3, 1);
-x_6 = l_List_foldr___main___at_Lean_IR_usesModuleFrom___spec__3(x_1, x_2, x_5);
+x_6 = l_List_foldr___at_Lean_IR_usesModuleFrom___spec__3(x_1, x_2, x_5);
 x_7 = l_Lean_Name_isPrefixOf(x_1, x_4);
 if (x_7 == 0)
 {
@@ -329,7 +329,7 @@ x_3 = l_Lean_Environment_allImportedModuleNames(x_1);
 x_4 = l_Std_RBTree_toList___at_Lean_IR_usesModuleFrom___spec__1(x_3);
 lean_dec(x_3);
 x_5 = 0;
-x_6 = l_List_foldr___main___at_Lean_IR_usesModuleFrom___spec__3(x_2, x_5, x_4);
+x_6 = l_List_foldr___at_Lean_IR_usesModuleFrom___spec__3(x_2, x_5, x_4);
 lean_dec(x_4);
 return x_6;
 }
@@ -352,13 +352,13 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_List_foldr___main___at_Lean_IR_usesModuleFrom___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_foldr___at_Lean_IR_usesModuleFrom___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_5 = l_List_foldr___main___at_Lean_IR_usesModuleFrom___spec__3(x_1, x_4, x_3);
+x_5 = l_List_foldr___at_Lean_IR_usesModuleFrom___spec__3(x_1, x_4, x_3);
 lean_dec(x_3);
 lean_dec(x_1);
 x_6 = lean_box(x_5);

@@ -62,7 +62,6 @@ lean_object* l_Lean_QuotVal_kindEx___boxed(lean_object*);
 lean_object* l_Lean_ConstructorVal_isUnsafeEx___boxed(lean_object*);
 lean_object* lean_mk_inductive_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
-lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3(lean_object*);
 lean_object* l_Lean_ConstantInfo_toConstantVal_match__1(lean_object*);
 lean_object* l_Lean_ConstantInfo_toConstantVal(lean_object*);
@@ -141,6 +140,7 @@ lean_object* l_Lean_ConstantInfo_value_x21(lean_object*);
 lean_object* l_Lean_mkRecursorValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Declaration_forExprM(lean_object*);
 lean_object* l_Lean_ConstantInfo_hints_match__1(lean_object*);
+lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Declaration_isUnsafeInductiveDeclEx_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_axiom_val_is_unsafe(lean_object*);
 lean_object* lean_mk_axiom_val(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -1400,7 +1400,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 4);
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_List_lengthAux___main___rarg(x_2, x_3);
+x_4 = l_List_lengthAux___rarg(x_2, x_3);
 return x_4;
 }
 }

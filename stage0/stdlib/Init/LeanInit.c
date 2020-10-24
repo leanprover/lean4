@@ -465,6 +465,7 @@ lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__6___bo
 lean_object* l_Lean_Name_Init_LeanInit___instance__5___closed__1;
 lean_object* l_Lean_mkCAppStx(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks_match__2(lean_object*);
+lean_object* l_List_foldl___at_Lean_MacroScopesView_review___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppStx___closed__9;
 lean_object* l___private_Init_LeanInit_0__Lean_quoteName___closed__1;
 lean_object* l_Lean_Macro_Init_LeanInit___instance__12___lambda__2(lean_object*, lean_object*);
@@ -530,7 +531,6 @@ lean_object* l_Lean_Init_LeanInit___instance__21___rarg___closed__2;
 lean_object* l_Array_foldlStepMAux___at_Array_getSepElems___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_nameLitKind___closed__2;
 uint8_t l_Lean_isSubScriptAlnum(uint32_t);
-lean_object* l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_Syntax_decodeInterpStrQuotedChar(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_toNat_match__1(lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_assembleParts___closed__2;
@@ -3611,7 +3611,7 @@ x_1 = l_Lean_Init_LeanInit___instance__10___closed__1;
 return x_1;
 }
 }
-lean_object* l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_foldl___at_Lean_MacroScopesView_review___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -3658,7 +3658,7 @@ x_10 = l_Lean_Name_append(x_8, x_9);
 lean_dec(x_8);
 x_11 = l_Lean_Name_hasMacroScopes___closed__1;
 x_12 = lean_name_mk_string(x_10, x_11);
-x_13 = l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(x_12, x_2);
+x_13 = l_List_foldl___at_Lean_MacroScopesView_review___spec__1(x_12, x_2);
 return x_13;
 }
 else
@@ -4269,7 +4269,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean
 lean_dec(x_2);
 x_18 = l_Lean_Name_append(x_14, x_15);
 lean_dec(x_14);
-x_19 = l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(x_18, x_16);
+x_19 = l_List_foldl___at_Lean_MacroScopesView_review___spec__1(x_18, x_16);
 x_20 = lean_box(0);
 x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_3);
@@ -4312,7 +4312,7 @@ lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean
 lean_dec(x_2);
 x_29 = l_Lean_Name_append(x_25, x_26);
 lean_dec(x_25);
-x_30 = l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(x_29, x_27);
+x_30 = l_List_foldl___at_Lean_MacroScopesView_review___spec__1(x_29, x_27);
 x_31 = lean_box(0);
 x_32 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_32, 0, x_3);

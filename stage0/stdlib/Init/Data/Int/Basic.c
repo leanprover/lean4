@@ -17,7 +17,7 @@ uint8_t l_String_isInt(lean_object*);
 lean_object* l_Int_Init_Data_Int_Basic___instance__8;
 lean_object* l_Int_Init_Data_Int_Basic___instance__16;
 lean_object* l_Int_Init_Data_Int_Basic___instance__5;
-lean_object* l_Int_Init_Data_Int_Basic___instance__11;
+uint8_t l_Int_Init_Data_Int_Basic___instance__11(lean_object*, lean_object*);
 lean_object* l_Int_toNat_match__1(lean_object*);
 lean_object* l_Int_Init_Data_Int_Basic___instance__9;
 lean_object* l_Int_natMod(lean_object*, lean_object*);
@@ -27,17 +27,18 @@ lean_object* l_Int_repr___closed__1;
 lean_object* l_Substring_toNat_x3f(lean_object*);
 lean_object* l_String_isInt___boxed(lean_object*);
 lean_object* l_String_toInt_x21___closed__2;
-lean_object* l_Int_Init_Data_Int_Basic___instance__13___closed__1;
 lean_object* l_Int_Init_Data_Int_Basic___instance__3;
 lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
+lean_object* l_Int_Init_Data_Int_Basic___instance__5___closed__1;
 lean_object* l_Int_negSucc___boxed(lean_object*);
 lean_object* l_String_toInt_x3f(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Int_mod_match__1(lean_object*);
+lean_object* l_Int_Init_Data_Int_Basic___instance__2;
 lean_object* l_String_toInt_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
+lean_object* l_Int_Init_Data_Int_Basic___instance__11___boxed(lean_object*, lean_object*);
 lean_object* l_String_toInt_x21(lean_object*);
-lean_object* l_Int_Init_Data_Int_Basic___instance__17___closed__1;
 lean_object* l_Int_zero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Int_decLt___boxed(lean_object*, lean_object*);
@@ -48,7 +49,6 @@ lean_object* l_Int_repr_match__1___rarg(lean_object*, lean_object*, lean_object*
 lean_object* lean_int_mod(lean_object*, lean_object*);
 lean_object* l_Int_mod_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_mul___boxed(lean_object*, lean_object*);
-lean_object* l_Init_Data_Int_Basic___instance__2(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Int_decLe___boxed(lean_object*, lean_object*);
 lean_object* l_Int_div___boxed(lean_object*, lean_object*);
@@ -59,7 +59,7 @@ lean_object* l_Int_negOfNat_match__1(lean_object*);
 lean_object* l_Int_zero___closed__1;
 lean_object* l_Int_Init_Data_Int_Basic___instance__6;
 uint8_t l_Substring_isNat(lean_object*);
-lean_object* l_Int_Init_Data_Int_Basic___instance__14;
+lean_object* l_Int_Init_Data_Int_Basic___instance__14(lean_object*);
 lean_object* l_Int_subNatNat_match__1(lean_object*);
 lean_object* l_Int_negOfNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_div_match__1(lean_object*);
@@ -84,14 +84,14 @@ lean_object* l_Int_toNat(lean_object*);
 lean_object* l_Int_toNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* l_Int_one___closed__1;
-uint8_t l_Int_Init_Data_Int_Basic___instance__12(lean_object*, lean_object*);
+lean_object* l_Int_Init_Data_Int_Basic___instance__12;
 lean_object* l_Int_Init_Data_Int_Basic___instance__4;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 lean_object* l_Int_toNat_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_one;
-lean_object* l_Int_Init_Data_Int_Basic___instance__9___closed__1;
+lean_object* l_Int_Init_Data_Int_Basic___instance__15___closed__1;
 lean_object* l_Int_negOfNat(lean_object*);
 lean_object* l_Int_Init_Data_Int_Basic___instance__7;
 lean_object* l_Int_subNatNat_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -106,13 +106,12 @@ lean_object* lean_int_div(lean_object*, lean_object*);
 lean_object* l_Int_repr_match__1(lean_object*);
 lean_object* l_Int_ofNat___boxed(lean_object*);
 lean_object* l_String_toInt_x21___closed__4;
-lean_object* l_Int_Init_Data_Int_Basic___instance__15(lean_object*);
+lean_object* l_Int_Init_Data_Int_Basic___instance__15;
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_Int_Init_Data_Int_Basic___instance__6___closed__1;
-lean_object* l_Int_Init_Data_Int_Basic___instance__17;
 lean_object* l_Int_Init_Data_Int_Basic___instance__7___closed__1;
 lean_object* lean_int_add(lean_object*, lean_object*);
-lean_object* l_Int_Init_Data_Int_Basic___instance__12___boxed(lean_object*, lean_object*);
+lean_object* l_Int_Init_Data_Int_Basic___instance__12___closed__1;
 lean_object* l_String_toNat_x3f(lean_object*);
 lean_object* l_Int_natAbs___boxed(lean_object*);
 lean_object* l_Int_neg___boxed(lean_object*);
@@ -139,14 +138,6 @@ return x_2;
 }
 }
 lean_object* l_Init_Data_Int_Basic___instance__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
-lean_object* l_Init_Data_Int_Basic___instance__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -188,7 +179,7 @@ x_1 = l_Int_one___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__3() {
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__2() {
 _start:
 {
 lean_object* x_1; 
@@ -196,7 +187,7 @@ x_1 = l_Int_zero;
 return x_1;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__4() {
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__3() {
 _start:
 {
 lean_object* x_1; 
@@ -204,7 +195,7 @@ x_1 = l_Int_one;
 return x_1;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__5() {
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__4() {
 _start:
 {
 lean_object* x_1; 
@@ -392,11 +383,27 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__6___closed__1() {
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__5___closed__1() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Int_neg___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Int_Init_Data_Int_Basic___instance__5___closed__1;
+return x_1;
+}
+}
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__6___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Int_add___boxed), 2, 0);
 return x_1;
 }
 }
@@ -412,7 +419,7 @@ static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__7___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_add___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Int_mul___boxed), 2, 0);
 return x_1;
 }
 }
@@ -421,22 +428,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Int_Init_Data_Int_Basic___instance__7___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__8___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_mul___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_Init_Data_Int_Basic___instance__8___closed__1;
 return x_1;
 }
 }
@@ -450,7 +441,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__9___closed__1() {
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__8___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -458,15 +449,15 @@ x_1 = lean_alloc_closure((void*)(l_Int_sub___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__9() {
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_Init_Data_Int_Basic___instance__9___closed__1;
+x_1 = l_Int_Init_Data_Int_Basic___instance__8___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__10() {
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__9() {
 _start:
 {
 lean_object* x_1; 
@@ -474,7 +465,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__11() {
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__10() {
 _start:
 {
 lean_object* x_1; 
@@ -493,7 +484,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-uint8_t l_Int_Init_Data_Int_Basic___instance__12(lean_object* x_1, lean_object* x_2) {
+uint8_t l_Int_Init_Data_Int_Basic___instance__11(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -501,11 +492,11 @@ x_3 = lean_int_dec_eq(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Int_Init_Data_Int_Basic___instance__12___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Int_Init_Data_Int_Basic___instance__11___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Int_Init_Data_Int_Basic___instance__12(x_1, x_2);
+x_3 = l_Int_Init_Data_Int_Basic___instance__11(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -644,7 +635,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__13___closed__1() {
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__12___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -652,23 +643,23 @@ x_1 = lean_alloc_closure((void*)(l_Int_repr___boxed), 1, 0);
 return x_1;
 }
 }
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__12() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Int_Init_Data_Int_Basic___instance__12___closed__1;
+return x_1;
+}
+}
 static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_Init_Data_Int_Basic___instance__13___closed__1;
+x_1 = l_Int_Init_Data_Int_Basic___instance__12___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__14() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_Init_Data_Int_Basic___instance__13___closed__1;
-return x_1;
-}
-}
-lean_object* l_Int_Init_Data_Int_Basic___instance__15(lean_object* x_1) {
+lean_object* l_Int_Init_Data_Int_Basic___instance__14(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -860,11 +851,27 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__16___closed__1() {
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__15___closed__1() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Int_div___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__15() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Int_Init_Data_Int_Basic___instance__15___closed__1;
+return x_1;
+}
+}
+static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__16___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Int_mod___boxed), 2, 0);
 return x_1;
 }
 }
@@ -873,22 +880,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Int_Init_Data_Int_Basic___instance__16___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__17___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_mod___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Int_Init_Data_Int_Basic___instance__17() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_Init_Data_Int_Basic___instance__17___closed__1;
 return x_1;
 }
 }
@@ -1191,7 +1182,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_toInt_x21___closed__1;
 x_2 = l_String_toInt_x21___closed__2;
-x_3 = lean_unsigned_to_nat(179u);
+x_3 = lean_unsigned_to_nat(178u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_String_toInt_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1206,7 +1197,7 @@ x_2 = l_String_toInt_x3f(x_1);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Int_Init_Data_Int_Basic___instance__5;
+x_3 = l_Int_Init_Data_Int_Basic___instance__4;
 x_4 = l_String_toInt_x21___closed__4;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;
@@ -1250,10 +1241,14 @@ l_Int_one___closed__1 = _init_l_Int_one___closed__1();
 lean_mark_persistent(l_Int_one___closed__1);
 l_Int_one = _init_l_Int_one();
 lean_mark_persistent(l_Int_one);
+l_Int_Init_Data_Int_Basic___instance__2 = _init_l_Int_Init_Data_Int_Basic___instance__2();
+lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__2);
 l_Int_Init_Data_Int_Basic___instance__3 = _init_l_Int_Init_Data_Int_Basic___instance__3();
 lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__3);
 l_Int_Init_Data_Int_Basic___instance__4 = _init_l_Int_Init_Data_Int_Basic___instance__4();
 lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__4);
+l_Int_Init_Data_Int_Basic___instance__5___closed__1 = _init_l_Int_Init_Data_Int_Basic___instance__5___closed__1();
+lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__5___closed__1);
 l_Int_Init_Data_Int_Basic___instance__5 = _init_l_Int_Init_Data_Int_Basic___instance__5();
 lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__5);
 l_Int_Init_Data_Int_Basic___instance__6___closed__1 = _init_l_Int_Init_Data_Int_Basic___instance__6___closed__1();
@@ -1268,30 +1263,26 @@ l_Int_Init_Data_Int_Basic___instance__8___closed__1 = _init_l_Int_Init_Data_Int_
 lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__8___closed__1);
 l_Int_Init_Data_Int_Basic___instance__8 = _init_l_Int_Init_Data_Int_Basic___instance__8();
 lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__8);
-l_Int_Init_Data_Int_Basic___instance__9___closed__1 = _init_l_Int_Init_Data_Int_Basic___instance__9___closed__1();
-lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__9___closed__1);
 l_Int_Init_Data_Int_Basic___instance__9 = _init_l_Int_Init_Data_Int_Basic___instance__9();
 lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__9);
 l_Int_Init_Data_Int_Basic___instance__10 = _init_l_Int_Init_Data_Int_Basic___instance__10();
 lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__10);
-l_Int_Init_Data_Int_Basic___instance__11 = _init_l_Int_Init_Data_Int_Basic___instance__11();
-lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__11);
 l_Int_repr___closed__1 = _init_l_Int_repr___closed__1();
 lean_mark_persistent(l_Int_repr___closed__1);
-l_Int_Init_Data_Int_Basic___instance__13___closed__1 = _init_l_Int_Init_Data_Int_Basic___instance__13___closed__1();
-lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__13___closed__1);
+l_Int_Init_Data_Int_Basic___instance__12___closed__1 = _init_l_Int_Init_Data_Int_Basic___instance__12___closed__1();
+lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__12___closed__1);
+l_Int_Init_Data_Int_Basic___instance__12 = _init_l_Int_Init_Data_Int_Basic___instance__12();
+lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__12);
 l_Int_Init_Data_Int_Basic___instance__13 = _init_l_Int_Init_Data_Int_Basic___instance__13();
 lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__13);
-l_Int_Init_Data_Int_Basic___instance__14 = _init_l_Int_Init_Data_Int_Basic___instance__14();
-lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__14);
+l_Int_Init_Data_Int_Basic___instance__15___closed__1 = _init_l_Int_Init_Data_Int_Basic___instance__15___closed__1();
+lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__15___closed__1);
+l_Int_Init_Data_Int_Basic___instance__15 = _init_l_Int_Init_Data_Int_Basic___instance__15();
+lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__15);
 l_Int_Init_Data_Int_Basic___instance__16___closed__1 = _init_l_Int_Init_Data_Int_Basic___instance__16___closed__1();
 lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__16___closed__1);
 l_Int_Init_Data_Int_Basic___instance__16 = _init_l_Int_Init_Data_Int_Basic___instance__16();
 lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__16);
-l_Int_Init_Data_Int_Basic___instance__17___closed__1 = _init_l_Int_Init_Data_Int_Basic___instance__17___closed__1();
-lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__17___closed__1);
-l_Int_Init_Data_Int_Basic___instance__17 = _init_l_Int_Init_Data_Int_Basic___instance__17();
-lean_mark_persistent(l_Int_Init_Data_Int_Basic___instance__17);
 l_String_toInt_x21___closed__1 = _init_l_String_toInt_x21___closed__1();
 lean_mark_persistent(l_String_toInt_x21___closed__1);
 l_String_toInt_x21___closed__2 = _init_l_String_toInt_x21___closed__2();

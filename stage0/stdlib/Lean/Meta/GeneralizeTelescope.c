@@ -40,8 +40,8 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_map___at_Lean_MessageData_Lean_Message___instance__12___spec__1(lean_object*);
 lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
-lean_object* l_List_map___main___at_Lean_MessageData_Lean_Message___instance__12___spec__1(lean_object*);
 lean_object* l_Lean_Meta_GeneralizeTelescope_updateTypes_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_GeneralizeTelescope_updateTypes_match__2(lean_object*);
 extern lean_object* l_Array_iterateMAux___at_Lean_withNestedTraces___spec__5___closed__1;
@@ -1188,7 +1188,7 @@ x_43 = l_Array_umapMAux___at_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAu
 x_44 = x_43;
 x_45 = l_Array_toList___rarg(x_44);
 lean_dec(x_44);
-x_46 = l_List_map___main___at_Lean_MessageData_Lean_Message___instance__12___spec__1(x_45);
+x_46 = l_List_map___at_Lean_MessageData_Lean_Message___instance__12___spec__1(x_45);
 x_47 = l_Lean_MessageData_ofList(x_46);
 lean_dec(x_46);
 x_48 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___rarg___closed__2;
@@ -1284,7 +1284,7 @@ x_71 = l_Array_umapMAux___at_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAu
 x_72 = x_71;
 x_73 = l_Array_toList___rarg(x_72);
 lean_dec(x_72);
-x_74 = l_List_map___main___at_Lean_MessageData_Lean_Message___instance__12___spec__1(x_73);
+x_74 = l_List_map___at_Lean_MessageData_Lean_Message___instance__12___spec__1(x_73);
 x_75 = l_Lean_MessageData_ofList(x_74);
 lean_dec(x_74);
 x_76 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___rarg___closed__2;

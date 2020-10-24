@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_List_elem___main___at_Std_ShareCommon_ObjectSet_insert___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Std_ShareCommon_PersistentState_empty___closed__1;
 lean_object* lean_mk_object_pmap(lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -42,9 +41,7 @@ lean_object* l_Std_PShareCommonM_run___rarg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Std_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
-lean_object* l_List_find_x3f___main___rarg(lean_object*, lean_object*);
 lean_object* lean_object_pset_find(lean_object*, lean_object*);
-lean_object* l_List_replace___main___at_Std_ShareCommon_ObjectSet_insert___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___at_Std_ShareCommon_ObjectPersistentSet_insert___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
@@ -75,10 +72,11 @@ lean_object* l_Std_ShareCommonT_run(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Std_ShareCommon_ObjectPersistentMap_insert___spec__3(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_object_set_insert(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Std_ShareCommon_ObjectMap_find_x3f___spec__1(lean_object*, lean_object*);
+uint8_t l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2(lean_object*, lean_object*);
+lean_object* l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
-uint8_t l_List_elem___main___at_Std_ShareCommon_ObjectSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_ShareCommon_PersistentState_empty;
 lean_object* l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentMap___spec__1___closed__3;
 lean_object* l_Std_ShareCommonT_monadShareCommon(lean_object*);
@@ -115,6 +113,7 @@ size_t lean_ptr_addr(lean_object*);
 lean_object* l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentSet___spec__1;
 lean_object* lean_sharecommon_mk_pstate(lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Std_ShareCommon_ObjectPersistentMap_find_x3f___spec__1(lean_object*, lean_object*);
+lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_find_x3f___at_Std_ShareCommon_ObjectSet_find_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_ShareCommon_Object_ptrEq___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -133,11 +132,11 @@ lean_object* l_Std_HashSetImp_moveEntries___at_Std_ShareCommon_ObjectSet_insert_
 lean_object* l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentMap___spec__1___closed__1;
 lean_object* l_Std_PersistentHashMap_findEntryAux___at_Std_ShareCommon_ObjectPersistentSet_find_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentSet___spec__1___closed__2;
-lean_object* l_List_foldl___main___at_Std_ShareCommon_ObjectSet_insert___spec__5(lean_object*, lean_object*);
 lean_object* l_Std_ShareCommonT_withShareCommon___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 extern size_t l_Std_PersistentHashMap_insertAux___rarg___closed__2;
 lean_object* l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentSet___spec__1___closed__3;
+lean_object* l_List_foldl___at_Std_ShareCommon_ObjectSet_insert___spec__5(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_insert___at_Std_ShareCommon_ObjectSet_insert___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentSet___spec__1___closed__1;
 lean_object* l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentMap___spec__1___closed__2;
@@ -145,6 +144,7 @@ lean_object* l_Std_AssocList_foldlM___at_Std_ShareCommon_ObjectMap_insert___spec
 lean_object* l_Std_HashMapImp_expand___at_Std_ShareCommon_ObjectMap_insert___spec__3(lean_object*, lean_object*);
 lean_object* l_Std_ShareCommonT_withShareCommon(lean_object*);
 lean_object* l_Std_ShareCommon_mkObjectMap___closed__1;
+lean_object* l_List_replace___at_Std_ShareCommon_ObjectSet_insert___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_shareCommonM(lean_object*, lean_object*);
 lean_object* lean_object_pmap_find(lean_object*, lean_object*);
 lean_object* lean_sharecommon_mk_state(lean_object*);
@@ -152,10 +152,10 @@ lean_object* l_Std_PShareCommonT_run(lean_object*);
 lean_object* lean_object_map_find(lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Std_ShareCommonT_monadShareCommon___rarg(lean_object*);
-lean_object* l_List_replace___main___at_Std_ShareCommon_ObjectSet_insert___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_ShareCommonT_run___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Std_ShareCommon_ObjectMap_find_x3f___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_tryFinally___rarg___closed__1;
+lean_object* l_List_replace___at_Std_ShareCommon_ObjectSet_insert___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_ShareCommon_Object_ptrHash___boxed(lean_object*);
 lean_object* l_Std_withShareCommon___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -693,7 +693,7 @@ lean_dec(x_4);
 x_7 = lean_alloc_closure((void*)(l_Std_ShareCommon_Object_eq___boxed), 2, 1);
 lean_closure_set(x_7, 0, x_2);
 x_8 = lean_array_uget(x_3, x_6);
-x_9 = l_List_find_x3f___main___rarg(x_7, x_8);
+x_9 = l_List_find_x3f___rarg(x_7, x_8);
 return x_9;
 }
 }
@@ -715,7 +715,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-uint8_t l_List_elem___main___at_Std_ShareCommon_ObjectSet_insert___spec__2(lean_object* x_1, lean_object* x_2) {
+uint8_t l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -744,7 +744,7 @@ return x_8;
 }
 }
 }
-lean_object* l_List_foldl___main___at_Std_ShareCommon_ObjectSet_insert___spec__5(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_foldl___at_Std_ShareCommon_ObjectSet_insert___spec__5(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -814,7 +814,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_array_fget(x_2, x_1);
 x_7 = lean_box(0);
 x_8 = lean_array_fset(x_2, x_1, x_7);
-x_9 = l_List_foldl___main___at_Std_ShareCommon_ObjectSet_insert___spec__5(x_3, x_6);
+x_9 = l_List_foldl___at_Std_ShareCommon_ObjectSet_insert___spec__5(x_3, x_6);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_add(x_1, x_10);
 lean_dec(x_1);
@@ -843,64 +843,66 @@ lean_ctor_set(x_10, 1, x_9);
 return x_10;
 }
 }
-lean_object* l_List_replace___main___at_Std_ShareCommon_ObjectSet_insert___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_replace___at_Std_ShareCommon_ObjectSet_insert___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
+lean_object* x_4; 
 lean_dec(x_3);
+x_4 = lean_box(0);
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_1);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_1, 1);
+x_8 = lean_sharecommon_eq(x_6, x_2);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+x_9 = l_List_replace___at_Std_ShareCommon_ObjectSet_insert___spec__6(x_7, x_2, x_3);
+lean_ctor_set(x_1, 1, x_9);
 return x_1;
 }
 else
 {
-uint8_t x_4; 
-x_4 = !lean_is_exclusive(x_1);
-if (x_4 == 0)
-{
-lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_ctor_get(x_1, 1);
-x_7 = lean_sharecommon_eq(x_5, x_2);
-if (x_7 == 0)
-{
-lean_object* x_8; 
-x_8 = l_List_replace___main___at_Std_ShareCommon_ObjectSet_insert___spec__6(x_6, x_2, x_3);
-lean_ctor_set(x_1, 1, x_8);
-return x_1;
-}
-else
-{
-lean_dec(x_5);
+lean_dec(x_6);
 lean_ctor_set(x_1, 0, x_3);
 return x_1;
 }
 }
 else
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_9 = lean_ctor_get(x_1, 0);
-x_10 = lean_ctor_get(x_1, 1);
+lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
 lean_inc(x_10);
-lean_inc(x_9);
 lean_dec(x_1);
-x_11 = lean_sharecommon_eq(x_9, x_2);
-if (x_11 == 0)
+x_12 = lean_sharecommon_eq(x_10, x_2);
+if (x_12 == 0)
 {
-lean_object* x_12; lean_object* x_13; 
-x_12 = l_List_replace___main___at_Std_ShareCommon_ObjectSet_insert___spec__6(x_10, x_2, x_3);
-x_13 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_13, 0, x_9);
-lean_ctor_set(x_13, 1, x_12);
-return x_13;
+lean_object* x_13; lean_object* x_14; 
+x_13 = l_List_replace___at_Std_ShareCommon_ObjectSet_insert___spec__6(x_11, x_2, x_3);
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_10);
+lean_ctor_set(x_14, 1, x_13);
+return x_14;
 }
 else
 {
-lean_object* x_14; 
-lean_dec(x_9);
-x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_3);
-lean_ctor_set(x_14, 1, x_10);
-return x_14;
+lean_object* x_15; 
+lean_dec(x_10);
+x_15 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_15, 0, x_3);
+lean_ctor_set(x_15, 1, x_11);
+return x_15;
 }
 }
 }
@@ -920,7 +922,7 @@ x_6 = lean_array_get_size(x_5);
 x_7 = lean_sharecommon_hash(x_2);
 x_8 = lean_usize_modn(x_7, x_6);
 x_9 = lean_array_uget(x_5, x_8);
-x_10 = l_List_elem___main___at_Std_ShareCommon_ObjectSet_insert___spec__2(x_2, x_9);
+x_10 = l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2(x_2, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
@@ -952,7 +954,7 @@ else
 lean_object* x_17; lean_object* x_18; 
 lean_dec(x_6);
 lean_inc(x_2);
-x_17 = l_List_replace___main___at_Std_ShareCommon_ObjectSet_insert___spec__6(x_9, x_2, x_2);
+x_17 = l_List_replace___at_Std_ShareCommon_ObjectSet_insert___spec__6(x_9, x_2, x_2);
 lean_dec(x_2);
 x_18 = lean_array_uset(x_5, x_8, x_17);
 lean_ctor_set(x_1, 1, x_18);
@@ -971,7 +973,7 @@ x_21 = lean_array_get_size(x_20);
 x_22 = lean_sharecommon_hash(x_2);
 x_23 = lean_usize_modn(x_22, x_21);
 x_24 = lean_array_uget(x_20, x_23);
-x_25 = l_List_elem___main___at_Std_ShareCommon_ObjectSet_insert___spec__2(x_2, x_24);
+x_25 = l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2(x_2, x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; 
@@ -1004,7 +1006,7 @@ else
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 lean_dec(x_21);
 lean_inc(x_2);
-x_33 = l_List_replace___main___at_Std_ShareCommon_ObjectSet_insert___spec__6(x_24, x_2, x_2);
+x_33 = l_List_replace___at_Std_ShareCommon_ObjectSet_insert___spec__6(x_24, x_2, x_2);
 lean_dec(x_2);
 x_34 = lean_array_uset(x_20, x_23, x_33);
 x_35 = lean_alloc_ctor(0, 2, 0);
@@ -1023,22 +1025,22 @@ x_3 = l_Std_HashSetImp_insert___at_Std_ShareCommon_ObjectSet_insert___spec__1(x_
 return x_3;
 }
 }
-lean_object* l_List_elem___main___at_Std_ShareCommon_ObjectSet_insert___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_List_elem___main___at_Std_ShareCommon_ObjectSet_insert___spec__2(x_1, x_2);
+x_3 = l_List_elem___at_Std_ShareCommon_ObjectSet_insert___spec__2(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_List_replace___main___at_Std_ShareCommon_ObjectSet_insert___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_replace___at_Std_ShareCommon_ObjectSet_insert___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_List_replace___main___at_Std_ShareCommon_ObjectSet_insert___spec__6(x_1, x_2, x_3);
+x_4 = l_List_replace___at_Std_ShareCommon_ObjectSet_insert___spec__6(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
 }

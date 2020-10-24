@@ -1,53 +1,76 @@
-{ debug ? false, stdenv, stdenvNoCC, lib, runCommand, runCommandLocal, cmake, coreutils, binutils, gmp, bash, gnused, symlinkJoin }:
+{ debug ? false, stdenv, stdenvNoCC, lib, runCommand, runCommandLocal, cmake, coreutils, binutils, gmp, bash, gnused, symlinkJoin, writeScript, lndir }:
 with builtins; rec {
   # "Init.Core" ~> "Init/Core.lean"
   modToLean = mod: replaceStrings ["."] ["/"] mod + ".lean";
-  depRoot = name: deps: symlinkJoin { inherit name; paths = lib.attrValues deps; };
+  mkDerivation = args@{ buildCommand, ... }: derivation (args // {
+    inherit (stdenv) system;
+    builder = stdenv.shell;
+    args = [ "-c" ''
+export PATH=${coreutils}/bin
+set -euo pipefail
+${buildCommand}
+    '' ];
+  });
+  depRoot = name: deps: mkDerivation {
+    name = "${name}-deps";
+    inherit deps;
+    depRoots = map (drv: drv.LEAN_PATH) deps;
+    buildCommand = ''
+      mkdir -p $out
+      for i in $depRoots; do
+        cp -dru --no-preserve=mode $i/. $out
+      done
+      for i in $deps; do
+        cp -drsu --no-preserve=mode $i/. $out
+      done
+    '';
+  };
   buildLeanPackage = { name, src, lean, deps }:
     let
-    fakeDepRoot = mod: runCommandLocal "${name}-dep-root" {} ''
+    fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
       mkdir $out
       cd $out
       mkdir ${lib.concatStringsSep " " ([name] ++ attrNames deps)}
     '';
     # build a file containing the module names of all immediate dependencies of `mod`
-    leanDeps = mod: derivation {
-      inherit (stdenv) system;
+    leanDeps = mod: mkDerivation {
       name ="${mod}-deps";
       src = src + ("/" + modToLean mod);
-      builder = stdenv.shell;
-      args = [ "-c" ''
-export LEAN_PATH=${fakeDepRoot mod};
+      buildCommand = ''
+export LEAN_PATH=${fakeDepRoot};
 ${lean}/bin/lean --deps $src | ${gnused}/bin/sed "s!$LEAN_PATH/!!;s!/!.!g;s!.olean!!" > $out
-      '' ];
+      '';
       preferLocalBuild = true;
       allowSubstitutes = false;
     };
     #${lean}/bin/lean --deps ${src}/${modToLean mod} | sed -n "s!$LEAN_PATH/!!;\!^${name}/!{s!/!.!g;s!.olean!!;p}" > $out
     # build module (.olean and .c) given derivations of all (transitive) dependencies
-    buildMod = mod: deps:
-      let relpath = modToLean mod; in
-      stdenvNoCC.mkDerivation {
+    buildMod = mod: deps: let relpath = modToLean mod; in mkDerivation {
       name = "${mod}";
       LEAN_PATH = depRoot mod deps;
-      relpath = relpath;
+      inherit relpath;
       outputs = [ "out" "c" ];
-      buildInputs = [ lean ];
       src = src + ("/" + relpath);
       buildCommand = ''
+        export PATH=${coreutils}/bin
         mkdir -p $(dirname $relpath) $out/$(dirname $relpath) $c
         cp $src $relpath
-        lean -o $out/''${relpath%.lean}.olean -c $c/out.c $relpath
+        ${lean}/bin/lean -o $out/''${relpath%.lean}.olean -c $c/out.c $relpath
+      '';
+    } // {
+      inherit deps;
+    };
+    compileMod = mod: drv: mkDerivation {
+      name = "${mod}-cc";
+      src = "${drv.c}/out.c";
+      hardeningDisable = [ "all" ];
+      buildCommand = ''
+        export PATH=${coreutils}/bin
+        mkdir -p $out
+        ln -s $src out.c
+        ${lean}/bin/leanc -c -o $out/out.o out.c ${if debug then "-g" else "-O3 -DNDEBUG"}
       '';
     };
-    compileMod = mod: drv: runCommand "${mod}-cc" {
-      hardeningDisable = [ "all" ];
-      buildInputs = [ lean ];
-    } ''
-      mkdir -p $out
-      ln -s ${drv.c}/out.c .
-      leanc -c -o $out/out.o out.c ${if debug then "-g" else "-O3 -DNDEBUG"}
-    '';
     singleton = name: value: listToAttrs [ { inherit name value; } ];
     # Recursively build `mod` and its dependencies. `modMap` maps module names to
     # `{ deps, drv }` pairs of a derivation and its transitive dependencies (as a nested
@@ -55,13 +78,12 @@ ${lean}/bin/lean --deps $src | ${gnused}/bin/sed "s!$LEAN_PATH/!!;s!/!.!g;s!.ole
     # recursion to memoize common dependencies.
     buildModAndDeps = mod: modMap: if modMap ? ${mod} then modMap else
       let
-        immDeps = filter (p: p != "") (lib.splitString "\n" (readFile (leanDeps mod)));
-        modMap' = lib.foldr buildModAndDeps modMap immDeps;
-        deps = lib.foldr (dep: depMap: depMap // modMap'.${dep}.deps // { ${dep} = modMap'.${dep}; }) {} immDeps;
-      in modMap' // { ${mod} = buildMod mod deps // { inherit deps; }; };
+        deps = filter (p: p != "") (lib.splitString "\n" (readFile (leanDeps mod)));
+        modMap' = lib.foldr buildModAndDeps modMap deps;
+      in modMap' // { ${mod} = buildMod mod (map (dep: modMap'.${dep}) deps); };
     in rec {
       mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues deps));
-      modRoot   = depRoot name mods;
+      modRoot   = depRoot name [ mods.${name} ];
       objects   = mapAttrs compileMod mods;
       staticLib = runCommand "${name}-lib" { buildInputs = [ binutils ]; } ''
 mkdir $out

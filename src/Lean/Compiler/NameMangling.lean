@@ -41,7 +41,7 @@ private def Name.mangleAux : Name → String
     let m := String.mangle s
     match p with
     | Name.anonymous => m
-    | _              => mangleAux p ++ "_" ++ m
+    | p              => mangleAux p ++ "_" ++ m
   | Name.num p n _ => mangleAux p ++ "_" ++ toString n ++ "_"
 
 @[export lean_name_mangle]

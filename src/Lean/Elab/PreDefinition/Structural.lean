@@ -246,8 +246,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
         if !containsRecFn recFnName e then
           processApp e
         else
-          /- If we first try to process the `match` as a regular application. If it fails, then we try to `push` the below over the dependent `match`.
-             This is useful for examples such as:
+          /- Here is an example we currently not handle
              ```
              def f (xs : List Nat) : Nat :=
              match xs with
@@ -259,7 +258,9 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
              ```
              We are matching on `ys`, but still using `ys` in the second alternative.
              If we push the `below` argument over the dependent match it will be able to eliminate recursive call using `zs`.
-             This trick is not sufficient for the slightly more complicated example:
+             To make it work, users have to write the second alternative as `| zs => f zs + 1`
+             We considered trying `processApp e` first, and only if fails trying the code below.
+             This trick is sufficient for solving the example above, but it is not sufficient for the slightly more complicated example:
              ```
              def g (xs : List Nat) : Nat :=
              match xs with
@@ -274,21 +275,18 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
              ```
              | zs => g zs + 2
              ```
-
              If this is too annoying in practice, we may replace `ys` with the matching term.
              This may generate weird error messages, when it doesn't work.
           -/
-          processApp e
-          <|>
-          do let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
-             let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-              lambdaTelescope alt fun xs altBody => do
-                trace[Elab.definition.structural]! "altNumParams: {numParams}, xs: {xs}"
-                unless xs.size >= numParams do
-                  throwError! "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let belowForAlt := xs[numParams - 1]
-                mkLambdaFVars xs (← loop belowForAlt altBody)
-             pure { matcherApp with alts := altsNew }.toExpr
+          let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
+          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+            lambdaTelescope alt fun xs altBody => do
+              trace[Elab.definition.structural]! "altNumParams: {numParams}, xs: {xs}"
+              unless xs.size >= numParams do
+                throwError! "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+              let belowForAlt := xs[numParams - 1]
+              mkLambdaFVars xs (← loop belowForAlt altBody)
+          pure { matcherApp with alts := altsNew }.toExpr
       | none => processApp e
     | _, e => ensureNoRecFn recFnName e
   loop below e

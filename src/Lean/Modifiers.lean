@@ -12,11 +12,11 @@ builtin_initialize protectedExt : TagDeclarationExtension ← mkTagDeclarationEx
 
 @[export lean_add_protected]
 def addProtected (env : Environment) (n : Name) : Environment :=
-protectedExt.tag env n
+  protectedExt.tag env n
 
 @[export lean_is_protected]
 def isProtected (env : Environment) (n : Name) : Bool :=
-protectedExt.isTagged env n
+  protectedExt.isTagged env n
 
 builtin_initialize privateExt : EnvExtension Nat ← registerEnvExtension (pure 1)
 
@@ -36,44 +36,44 @@ def privateHeader : Name := `_private
 
 @[export lean_mk_private_prefix]
 def mkUniquePrivatePrefix (env : Environment) : Environment × Name :=
-let idx := privateExt.getState env
-let p   := mkNameNum (privateHeader ++ env.mainModule) idx
-let env := privateExt.setState env (idx+1)
-(env, p)
+  let idx := privateExt.getState env
+  let p   := mkNameNum (privateHeader ++ env.mainModule) idx
+  let env := privateExt.setState env (idx+1)
+  (env, p)
 
 @[export lean_mk_private_name]
 def mkUniquePrivateName (env : Environment) (n : Name) : Environment × Name :=
-let (env, p) := mkUniquePrivatePrefix env
-(env, p ++ n)
+  let (env, p) := mkUniquePrivatePrefix env
+  (env, p ++ n)
 
 def mkPrivateName (env : Environment) (n : Name) : Name :=
-mkNameNum (privateHeader ++ env.mainModule) 0 ++ n
+  mkNameNum (privateHeader ++ env.mainModule) 0 ++ n
 
 def isPrivateName : Name → Bool
-| n@(Name.str p _ _) => n == privateHeader || isPrivateName p
-| Name.num p _ _     => isPrivateName p
-| _                  => false
+  | n@(Name.str p _ _) => n == privateHeader || isPrivateName p
+  | Name.num p _ _     => isPrivateName p
+  | _                  => false
 
 @[export lean_is_private_name]
 def isPrivateNameExport (n : Name) : Bool :=
-isPrivateName n
+  isPrivateName n
 
 private def privateToUserNameAux : Name → Name
-| Name.str p s _ => mkNameStr (privateToUserNameAux p) s
-| _              => Name.anonymous
+  | Name.str p s _ => mkNameStr (privateToUserNameAux p) s
+  | _              => Name.anonymous
 
 @[export lean_private_to_user_name]
 def privateToUserName? (n : Name) : Option Name :=
-if isPrivateName n then privateToUserNameAux n
-else none
+  if isPrivateName n then privateToUserNameAux n
+  else none
 
 private def privatePrefixAux : Name → Name
-| Name.str p _ _ => privatePrefixAux p
-| n              => n
+  | Name.str p _ _ => privatePrefixAux p
+  | n              => n
 
 @[export lean_private_prefix]
 def privatePrefix (n : Name) : Option Name :=
-if isPrivateName n then privatePrefixAux n
-else none
+  if isPrivateName n then privatePrefixAux n
+  else none
 
 end Lean

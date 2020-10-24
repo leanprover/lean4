@@ -61,7 +61,6 @@ def ofSubarray (s : Subarray α) : Array α := do
 def extract (as : Array α) (start stop : Nat) : Array α :=
   ofSubarray (as.toSubarray  start stop)
 
-instance : HasCoe (Subarray α) (Array α) := ⟨ofSubarray⟩
 instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
 
 end Array

@@ -5,14 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #ifdef LEAN_JSON
-#include "frontends/lean/json.h"
+#include "library/json.h"
 #include <string>
 #include "library/protected.h"
 #include "kernel/declaration.h"
 #include "library/type_context.h"
 #include "library/scoped_ext.h"
 #include "kernel/instantiate.h"
-#include "frontends/lean/util.h"
 
 namespace lean {
 

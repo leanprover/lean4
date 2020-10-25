@@ -85,7 +85,7 @@ partial def run : IO.FS.Handle → IO.FS.Handle → IO Unit
 end Webserver
 --}}}
 
-new_frontend
+
 open Lean
 open Lean.Parser
 

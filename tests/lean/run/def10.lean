@@ -1,4 +1,4 @@
-new_frontend
+
 
 def f : Bool → Bool → Nat
 | _, _ => 10

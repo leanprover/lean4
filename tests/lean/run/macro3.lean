@@ -1,4 +1,4 @@
-new_frontend
+
 
 syntax "call" term:max "(" (sepBy1 term ",") ")" : term
 

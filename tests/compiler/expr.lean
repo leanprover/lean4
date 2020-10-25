@@ -1,5 +1,5 @@
 import Lean
-new_frontend
+
 open Lean
 
 def main : IO UInt32 := do

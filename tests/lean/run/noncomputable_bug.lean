@@ -1,4 +1,4 @@
-new_frontend
+
 
 axiom f : ∀ (A : Type), A → Type
 

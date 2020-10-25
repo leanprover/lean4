@@ -1,4 +1,4 @@
-new_frontend
+
 def f (x : Nat) : Nat × (Nat → String) :=
 let x1 := x + 1;
 let x2 := x + 2;

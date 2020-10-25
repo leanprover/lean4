@@ -1,4 +1,4 @@
-new_frontend
+
 
 structure A :=
 (a : Nat)

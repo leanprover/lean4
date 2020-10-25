@@ -1,5 +1,5 @@
 import Lean
-new_frontend
+
 
 -- Test type mismatch error messages for "liftable" methods
 

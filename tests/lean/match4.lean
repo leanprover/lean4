@@ -1,4 +1,4 @@
-new_frontend
+
 
 def f1 (x : Nat × Nat) : Nat :=
 match x with

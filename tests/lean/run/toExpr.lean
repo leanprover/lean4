@@ -1,5 +1,5 @@
 import Lean
-new_frontend
+
 open Lean
 
 unsafe def test {α : Type} [HasToString α] [ToExpr α] [HasBeq α] (a : α) : CoreM Unit := do

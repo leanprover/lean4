@@ -1,4 +1,4 @@
-new_frontend
+
 open Lean
 
 def f : IO Nat :=

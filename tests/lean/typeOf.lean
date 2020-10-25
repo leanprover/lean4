@@ -1,4 +1,4 @@
-new_frontend
+
 
 def f1 (x : Nat) (b : Bool) : typeOf! x :=
 let r : typeOf! (x+1) := x+1;

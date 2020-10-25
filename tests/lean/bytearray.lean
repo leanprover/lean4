@@ -1,4 +1,4 @@
-new_frontend
+
 def tst : IO Unit :=
 do
 let bs := [1, 2, 3].toByteArray;

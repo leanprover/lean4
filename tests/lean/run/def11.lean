@@ -1,4 +1,4 @@
-new_frontend
+
 
 inductive Formula
 | eqf  : Nat → Nat → Formula

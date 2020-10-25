@@ -1,6 +1,6 @@
 /- Benchmark for new code generator -/
 import Init.System.IO
-new_frontend
+
 
 inductive Expr
 | Val : Int → Expr

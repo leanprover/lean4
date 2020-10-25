@@ -1,4 +1,4 @@
-new_frontend
+
 
 def tstGetLine (str : String) : IO Unit := do
 let path := "tmp_file";

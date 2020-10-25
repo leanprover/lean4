@@ -1,4 +1,4 @@
-new_frontend
+
 class Foo (α β : Type) : Type := (u : Unit := ())
 class Bar (α β : Type) : Type := (u : Unit := ())
 class Top : Type := (u : Unit := ())

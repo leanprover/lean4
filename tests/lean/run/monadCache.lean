@@ -1,5 +1,5 @@
 import Lean
-new_frontend
+
 open Lean
 
 partial def mkTower : Nat → Expr

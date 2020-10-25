@@ -1,4 +1,4 @@
-new_frontend
+
 
 inductive Foo : Bool → Type
 | Z  : Foo false

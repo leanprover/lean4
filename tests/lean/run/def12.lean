@@ -1,4 +1,4 @@
-new_frontend
+
 
 def diag : Bool → Bool → Bool → Nat
 | b,  true, false => 1

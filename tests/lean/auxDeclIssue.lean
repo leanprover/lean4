@@ -1,4 +1,4 @@
-new_frontend
+
 
 theorem ex1 : False :=
 by {

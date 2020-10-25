@@ -1,4 +1,4 @@
-new_frontend
+
 
 @[recursor 4]
 def Or.elim2 {p q r : Prop} (major : p ∨ q) (left : p → r) (right : q → r) : r :=

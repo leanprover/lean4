@@ -1,4 +1,4 @@
-new_frontend
+
 
 def main : IO Unit := do
 IO.println ((2 : Float).sin);

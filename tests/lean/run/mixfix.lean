@@ -1,4 +1,4 @@
-new_frontend
+
 
 infix:65 " +' " => HasAdd.add
 infix:70 " *' " => HasMul.mul

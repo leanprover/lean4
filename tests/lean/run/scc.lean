@@ -1,5 +1,5 @@
 import Lean.Util.SCC
-new_frontend
+
 open Lean.SCC
 
 def checkSCC (expected : List (List Nat)) (vertices : List Nat) (successorsOf : Nat → List Nat) : IO Unit := do

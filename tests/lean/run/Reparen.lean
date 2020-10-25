@@ -1,6 +1,6 @@
 /-! Reprint file after removing all parentheses and then passing it through the parenthesizer -/
 import Lean.Parser
-new_frontend
+
 open Lean
 open Lean.Format
 

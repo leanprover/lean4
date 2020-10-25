@@ -1,4 +1,4 @@
-new_frontend
+
 
 structure ConstantFunction (α β : Type) :=
 (f : α → β)

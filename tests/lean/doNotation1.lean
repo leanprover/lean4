@@ -1,4 +1,4 @@
-new_frontend
+
 
 def f1 (x : Nat) : IO Nat := do
 y := 1  -- error 'y' cannot be reassigned

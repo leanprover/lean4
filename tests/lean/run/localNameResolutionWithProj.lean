@@ -1,4 +1,4 @@
-new_frontend
+
 
 macro "foo!" x:term : term => `(let xs := $x; xs.succ + xs)
 

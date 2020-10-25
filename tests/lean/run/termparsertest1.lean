@@ -1,5 +1,5 @@
 import Lean.Parser.Term
-new_frontend
+
 open Lean
 open Lean.Parser
 

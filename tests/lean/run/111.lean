@@ -1,5 +1,5 @@
 import Lean
-new_frontend
+
 open Lean
 #check mkNullNode  -- Lean.Syntax
 #check mkNullNode #[]  -- Lean.Syntax

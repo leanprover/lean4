@@ -1,4 +1,4 @@
-new_frontend
+
 
 def getVal : IO Nat :=
 IO.rand 0 100

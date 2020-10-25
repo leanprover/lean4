@@ -1,4 +1,4 @@
-new_frontend
+
 
 structure Var : Type := (name : String)
 instance Var.nameCoe : Coe String Var := ⟨Var.mk⟩

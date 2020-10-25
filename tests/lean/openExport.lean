@@ -1,4 +1,4 @@
-new_frontend
+
 
 def A.x := 10
 

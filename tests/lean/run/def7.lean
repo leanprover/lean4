@@ -1,4 +1,4 @@
-new_frontend
+
 
 inductive InfTree.{u} (α : Type u)
 | leaf : α → InfTree α

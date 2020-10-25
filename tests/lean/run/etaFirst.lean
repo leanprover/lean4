@@ -2,7 +2,7 @@
 -- theorem tst1 : (fun a b => Nat.add a b) = Nat.add :=
 -- Eq.refl (fun a b => Nat.add a b)
 
-new_frontend
+
 
 theorem tst2 : (fun a b => Nat.add a b) = Nat.add :=
 Eq.refl (fun a b => Nat.add a b)

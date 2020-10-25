@@ -41,7 +41,7 @@ def wlexem : Parser :=
 try (rawIdent >> checkPrev (fun stx => stx.getId.toString.length > 1 && not ([`is].contains stx.getId)) "")
 end Prelim
 
-new_frontend
+
 open Lean
 open Lean.Elab
 open Lean.Elab.Command

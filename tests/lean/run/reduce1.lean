@@ -1,4 +1,4 @@
-new_frontend
+
 
 partial def fact : Nat → Nat
 | 0     => 1

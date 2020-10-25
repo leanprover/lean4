@@ -1,4 +1,4 @@
-new_frontend
+
 def tst1 : IO Unit := do
 IO.println (1 : Float);
 IO.println ((1 : Float) + 2);

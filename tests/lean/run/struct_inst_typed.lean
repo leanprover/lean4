@@ -1,4 +1,4 @@
-new_frontend
+
 #check { fst := 10, snd := 20 : Nat × Nat }
 
 structure S :=

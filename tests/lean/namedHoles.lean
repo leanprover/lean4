@@ -1,4 +1,4 @@
-new_frontend
+
 
 def f (x : Nat) (y : Bool) :=
 x + if y then 1 else 0

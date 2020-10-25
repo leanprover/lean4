@@ -1,4 +1,4 @@
-new_frontend
+
 
 def foo {α} (f : {β : Type _} → β → β) (a : α) : α :=
 f a

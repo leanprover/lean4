@@ -1,4 +1,4 @@
-new_frontend
+
 partial def f : List Nat → Bool
 | []      => false
 | (a::as) => a > 0 && f as

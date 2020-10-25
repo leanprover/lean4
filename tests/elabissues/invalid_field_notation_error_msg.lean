@@ -15,7 +15,7 @@ def Foo.f3 (f : Foo) : Nat := f.n
 def Foo.f4 (f : Foo) : Nat := f.n
 def Foo.f5 (f : Foo) : Nat := f.n
 
-new_frontend
+
 
 #check (λ f g h =>
   let x : Foo := ⟨f.n + 1⟩;

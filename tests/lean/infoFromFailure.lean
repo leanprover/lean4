@@ -1,4 +1,4 @@
-new_frontend
+
 
 def A.foo {α : Type} [HasAdd α] (a : α) : α × α :=
 (a, a + a)

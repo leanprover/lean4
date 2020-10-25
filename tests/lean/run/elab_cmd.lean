@@ -1,6 +1,6 @@
 import Lean
 
-new_frontend
+
 
 open Lean.Elab.Term
 open Lean.Elab.Command

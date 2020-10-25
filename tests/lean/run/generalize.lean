@@ -1,4 +1,4 @@
-new_frontend
+
 
 theorem tst0 (x : Nat) : x + 0 = x + 0 :=
 by {

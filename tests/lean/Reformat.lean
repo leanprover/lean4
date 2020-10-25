@@ -1,6 +1,6 @@
 /-! Parse and reformat file -/
 import Lean.PrettyPrinter
-new_frontend
+
 open Lean
 open Lean.Elab
 open Lean.Elab.Term

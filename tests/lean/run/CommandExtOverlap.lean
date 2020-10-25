@@ -1,4 +1,4 @@
-new_frontend
+
 
 syntax [mycheck] "#check" (sepBy term ",") : command
 

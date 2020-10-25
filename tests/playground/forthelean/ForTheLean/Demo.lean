@@ -1,6 +1,6 @@
 -- -*- origami-fold-style: triple-braces -*-
 import ForTheLean.Prelim
-new_frontend
+
 open Lean
 open Lean.Elab.Command
 open Prelim

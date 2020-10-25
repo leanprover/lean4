@@ -1,4 +1,4 @@
-new_frontend
+
 
 def A.x : Nat := 10
 def B.x : String := "hello"

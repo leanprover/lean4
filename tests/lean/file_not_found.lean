@@ -1,6 +1,6 @@
 prelude
 import Init.System.IO
-new_frontend
+
 open IO.FS
 def usingIO {α} (x : IO α) : IO α := x
 #eval (discard $ IO.FS.Handle.mk "non-existent-file.txt" Mode.read : IO Unit)

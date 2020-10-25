@@ -1,4 +1,4 @@
-new_frontend
+
 
 def c {α} : Sum α Nat :=
 Sum.inr 10

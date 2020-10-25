@@ -1,4 +1,4 @@
-new_frontend
+
 partial def mkAssocArray : Nat → Array (Nat × Bool) → Array (Nat × Bool)
 | 0,   as => as
 | i+1, as  => mkAssocArray i (as.push (i, i % 2 == 0))

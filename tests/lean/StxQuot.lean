@@ -1,5 +1,5 @@
 import Lean
-new_frontend
+
 namespace Lean
 open Lean.Elab
 

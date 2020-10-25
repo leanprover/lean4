@@ -1,4 +1,4 @@
-new_frontend
+
 
 def tst1 : 0 + 1 = 1 := rfl
 def tst2 : 2 + 3 = 5 := rfl

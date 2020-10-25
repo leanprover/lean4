@@ -1,5 +1,5 @@
 import Lean.Meta.Match
-new_frontend
+
 open Lean
 open Lean.Meta
 open Lean.Meta.Match

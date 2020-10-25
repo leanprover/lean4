@@ -1,4 +1,4 @@
-new_frontend
+
 def m1 : IO Bool :=
 pure true
 

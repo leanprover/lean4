@@ -1,4 +1,4 @@
-new_frontend
+
 
 def f {α : Type} [HasAdd α] (x : α) :=
 x + x + x

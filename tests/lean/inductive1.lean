@@ -1,4 +1,4 @@
-new_frontend
+
 
 -- Test1
 inductive T1 : Nat -- Error, resultant type is not a sort

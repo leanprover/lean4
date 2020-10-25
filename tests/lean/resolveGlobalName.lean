@@ -1,6 +1,6 @@
 import Lean
 
-new_frontend
+
 
 def Boo.x := 1
 def Foo.x := 2

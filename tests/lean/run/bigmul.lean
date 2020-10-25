@@ -1,4 +1,4 @@
-new_frontend
+
 
 @[noinline] def f (x : Nat) :=
 1000000000000000000000000000000

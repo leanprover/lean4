@@ -1,4 +1,4 @@
-new_frontend
+
 def f (s : String) : String :=
 s ++ " " ++ s
 

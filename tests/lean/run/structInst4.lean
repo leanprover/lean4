@@ -1,4 +1,4 @@
-new_frontend
+
 universes u
 
 def a : Array ((Nat × Nat) × Bool) := #[]

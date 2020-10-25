@@ -1,4 +1,4 @@
-new_frontend
+
 
 def Bla.x := 10
 

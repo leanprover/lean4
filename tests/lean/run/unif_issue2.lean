@@ -1,6 +1,6 @@
 import Lean
 
-new_frontend
+
 
 open Lean
 

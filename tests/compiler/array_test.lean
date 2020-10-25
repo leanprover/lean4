@@ -1,4 +1,4 @@
-new_frontend
+
 
 def foo (a : Array Nat) : Array Nat :=
 let a := a.push 0

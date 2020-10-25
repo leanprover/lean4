@@ -1,4 +1,4 @@
-new_frontend
+
 
 def f1 :=
 if h:x then 1 else 0

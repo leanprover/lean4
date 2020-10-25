@@ -1,4 +1,4 @@
-new_frontend
+
 
 def p (x : Nat := 0) : Nat × Nat :=
 (x, x)

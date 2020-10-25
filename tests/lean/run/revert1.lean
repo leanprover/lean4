@@ -1,4 +1,4 @@
-new_frontend
+
 
 theorem tst1 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {

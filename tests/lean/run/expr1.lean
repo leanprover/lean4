@@ -1,5 +1,5 @@
 import Lean.Expr
-new_frontend
+
 open Lean
 
 def tst1 : IO Unit :=

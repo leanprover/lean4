@@ -1,5 +1,5 @@
 import Lean
-new_frontend
+
 universe u
 
 inductive Pred : ∀ (α : Type u), List α → Type (u+1)

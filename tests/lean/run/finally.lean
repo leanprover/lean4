@@ -1,4 +1,4 @@
-new_frontend
+
 
 def checkM (b : IO Bool) : IO Unit :=
 unlessM b (throw $ IO.userError "failed")

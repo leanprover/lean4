@@ -1,4 +1,4 @@
-new_frontend
+
 
 syntax:65 term "+!+" term:65 : term
 syntax:70 term "*!*" term:70 : term

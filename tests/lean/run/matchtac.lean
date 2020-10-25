@@ -1,4 +1,4 @@
-new_frontend
+
 
 theorem tst1 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p :=
 by match h:xs with

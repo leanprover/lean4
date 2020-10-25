@@ -1,5 +1,5 @@
 import Std.Data.PersistentHashMap
-new_frontend
+
 open Std
 def m : PersistentHashMap Nat Nat :=
 let m : PersistentHashMap Nat Nat := {};

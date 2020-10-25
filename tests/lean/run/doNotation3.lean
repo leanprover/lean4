@@ -1,4 +1,4 @@
-new_frontend
+
 
 theorem zeroLtOfLt : {a b : Nat} → a < b → 0 < b
 | 0,   _, h => h

@@ -1,4 +1,4 @@
-new_frontend
+
 namespace Repro
 
 def FooM (α : Type) : Type := Unit → α

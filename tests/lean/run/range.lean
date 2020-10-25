@@ -1,4 +1,4 @@
-new_frontend
+
 
 def ex1 : IO Unit := do
 IO.println "example 1"

@@ -1,5 +1,5 @@
 import Std.Data.BinomialHeap
-new_frontend
+
 open Std
 
 abbrev Heap := BinomialHeap Nat (fun a b => a < b)

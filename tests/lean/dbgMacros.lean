@@ -1,4 +1,4 @@
-new_frontend
+
 
 def f (x : Nat) :=
 if x = 0 then panic! "unexpected zero"

@@ -1,6 +1,6 @@
 import Lean
 
-new_frontend
+
 
 theorem ex1 {α} (x : α) (h : x = x) (x : α) : x = x :=
 h

@@ -1,4 +1,4 @@
-new_frontend
+
 
 set_option hygienicIntro false in
 theorem ex1 {a p q r : Prop} : p → (p → q) → (q → r) → r := by

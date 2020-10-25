@@ -2,7 +2,7 @@ prelude
 import Init.System.IO
 import Init.Data.List.Control
 import Init.Data.ToString
-new_frontend
+
 
 open IO.FS
 

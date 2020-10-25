@@ -1,4 +1,4 @@
-new_frontend
+
 
 macro ext_tactic t:tactic "=>" newT:tactic : command => `(macro_rules | `($t) => `($newT))
 

@@ -1,4 +1,4 @@
-new_frontend
+
 
 def tst1 (x : Nat) : IO Unit := do
 if x > 0 then

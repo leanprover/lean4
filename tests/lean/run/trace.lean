@@ -1,5 +1,5 @@
 import Lean.CoreM
-new_frontend
+
 open Lean
 
 structure MyState :=

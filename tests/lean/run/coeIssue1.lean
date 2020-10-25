@@ -1,6 +1,6 @@
 -- From @joehendrix
 -- The imul doesn't type check as Lean won't try to coerce from a reg (bv 64) to a expr (bv ?u)
-new_frontend
+
 
 inductive MCType
 | bv : Nat → MCType

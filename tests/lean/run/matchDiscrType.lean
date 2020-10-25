@@ -1,4 +1,4 @@
-new_frontend
+
 
 def g (x : Nat) : List (Nat × List Nat) :=
 [(x, [x, x]), (x, [])]

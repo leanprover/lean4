@@ -22,7 +22,7 @@ fun stx => do
   if expanded then pure stx
   else Macro.throwUnsupported
 
-new_frontend
+
 
 syntax:max [doHash] "#" : term
 

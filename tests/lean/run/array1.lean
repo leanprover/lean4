@@ -1,4 +1,4 @@
-new_frontend
+
 #check @Array.mk
 
 def v : Array Nat := @Array.mk Nat 10 (fun ⟨i, _⟩ => i)

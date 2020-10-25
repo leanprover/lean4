@@ -1,5 +1,5 @@
 import Std.ShareCommon
-new_frontend
+
 open Std
 def check (b : Bool) : ShareCommonT IO Unit := do
 unless b do throw $ IO.userError "check failed"

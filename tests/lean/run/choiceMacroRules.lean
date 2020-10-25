@@ -1,4 +1,4 @@
-new_frontend
+
 
 syntax:65 [myAdd1] term "+++" term:65 : term
 syntax:65 [myAdd2] term "+++" term:65 : term

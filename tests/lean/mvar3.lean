@@ -1,5 +1,5 @@
 import Lean.MetavarContext
-new_frontend
+
 open Lean
 
 def mkLambdaTest (mctx : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)

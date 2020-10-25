@@ -1,4 +1,4 @@
-new_frontend
+
 
 def f : Nat → Nat → Nat
 | 100, 2 => 0

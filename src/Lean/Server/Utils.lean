@@ -98,3 +98,14 @@ changes.foldr accumulateChanges (oldText, 0xffffffff)
 
 end Server
 end Lean
+
+namespace List
+
+universe u
+variable {α : Type u}
+
+def takeWhile (p : α → Bool) : List α → List α
+| []       => []
+| hd :: tl => if p hd then hd :: takeWhile tl else []
+
+end List

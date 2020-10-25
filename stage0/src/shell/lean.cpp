@@ -35,13 +35,9 @@ Author: Leonardo de Moura
 #include "library/time_task.h"
 #include "library/private.h"
 #include "library/compiler/ir.h"
-#include "frontends/lean/parser.h"
-#include "frontends/lean/pp.h"
-#include "frontends/lean/json.h"
-#include "frontends/lean/util.h"
 #include "library/trace.h"
+#include "library/json.h"
 #include "initialize/init.h"
-#include "frontends/lean/simple_pos_info_provider.h"
 #include "library/compiler/ir_interpreter.h"
 #include "util/path.h"
 #ifdef _MSC_VER
@@ -216,7 +212,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --server           start lean in server mode\n";
     std::cout << "  --server=file      start lean in server mode, redirecting standard input from the specified file (for debugging)\n";
 #endif
-    std::cout << "  --new-frontend     use new frontend\n";
     std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
     std::cout << "  --stats            display environment statistics\n";
     DEBUG_CODE(
@@ -247,7 +242,6 @@ static struct option g_long_options[] = {
     {"json",         no_argument,       0, 'J'},
     {"server",       optional_argument, 0, 'S'},
 #endif
-    {"new-frontend", optional_argument, 0, 'n'},
 #if defined(LEAN_MULTI_THREAD)
     {"tstack",       required_argument, 0, 's'},
 #endif
@@ -389,10 +383,23 @@ void environment_free_regions(environment && env) {
     consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
 }
 
-pos_info get_message_pos(object_ref const & msg);
-message_severity get_message_severity(object_ref const & msg);
-std::string get_message_string(object_ref const & msg);
+extern "C" object * lean_message_pos(object * msg);
+extern "C" uint8 lean_message_severity(object * msg);
+extern "C" object * lean_message_string(object * msg);
 
+pos_info get_message_pos(object_ref const & msg) {
+    auto p = pair_ref<nat, nat>(lean_message_pos(msg.to_obj_arg()));
+    return pos_info(p.fst().get_small_value(), p.snd().get_small_value());
+}
+
+message_severity get_message_severity(object_ref const & msg) {
+    return static_cast<message_severity>(lean_message_severity(msg.to_obj_arg()));
+}
+
+std::string get_message_string(object_ref const & msg) {
+    string_ref r(lean_message_string(msg.to_obj_arg()));
+    return r.to_std_string();
+}
 }
 
 void check_optarg(char const * option_name) {
@@ -434,7 +441,6 @@ int main(int argc, char ** argv) {
     bool use_stdin = false;
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
     bool only_deps = false;
-    bool new_frontend = true;
     bool stats = false;
     unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
@@ -545,9 +551,6 @@ int main(int argc, char ** argv) {
                 lean::enable_debug(optarg);
                 break;
 #endif
-            case 'n':
-                new_frontend = true;
-                break;
             case 'p':
                 check_optarg("p");
                 load_plugin(optarg);
@@ -576,15 +579,7 @@ int main(int argc, char ** argv) {
     }
 
     environment env(trust_lvl);
-
-    io_state ios(opts, lean::mk_pretty_formatter_factory());
-
-    if (json_output) ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
-
     scoped_task_manager scope_task_man(num_threads);
-    scope_global_ios scope_ios(ios);
-    type_context_old trace_ctx(env, opts);
-    scope_trace_env scope_trace(env, opts, trace_ctx);
     optional<name> main_module_name;
 
     std::string mod_fn = "<unknown>";
@@ -626,9 +621,7 @@ int main(int argc, char ** argv) {
             // TODO: trim
             auto lang_id      = contents.substr(6, end_line_pos - 6);
             if (lang_id == "lean4") {
-                new_frontend = true;
-            } else if (lang_id == "lean4old") {
-                new_frontend = false;
+                // do nothing for now
             } else {
                 std::cerr << "unknown language '" << lang_id << "'\n";
                 return 1;
@@ -638,87 +631,30 @@ int main(int argc, char ** argv) {
         }
 
         bool ok = true;
-        if (new_frontend) {
-            if (!main_module_name)
-                main_module_name = name("_stdin");
-            pair_ref<environment, pair_ref<messages, module_stx>> r = run_new_frontend(contents, opts, mod_fn, *main_module_name);
-            env = r.fst();
-            buffer<message> cpp_msgs;
-            // HACK: convert Lean Message into C++ message
-            for (auto msg : r.snd().fst()) {
-                pos_info pos = get_message_pos(msg);
-                message_severity sev = get_message_severity(msg);
-                if (sev == message_severity::ERROR)
-                    ok = false;
-                std::string str = get_message_string(msg);
-                cpp_msgs.push_back(message(mod_fn, pos, sev, str));
-            }
-            if (json_output) {
+        if (!main_module_name)
+            main_module_name = name("_stdin");
+        pair_ref<environment, pair_ref<messages, module_stx>> r = run_new_frontend(contents, opts, mod_fn, *main_module_name);
+        env = r.fst();
+        buffer<message> cpp_msgs;
+        // HACK: convert Lean Message into C++ message
+        for (auto msg : r.snd().fst()) {
+            pos_info pos = get_message_pos(msg);
+            message_severity sev = get_message_severity(msg);
+            if (sev == message_severity::ERROR)
+                ok = false;
+            std::string str = get_message_string(msg);
+            cpp_msgs.push_back(message(mod_fn, pos, sev, str));
+        }
+        if (json_output) {
 #if defined(LEAN_JSON)
-                for (auto msg : cpp_msgs) {
-                    print_json(std::cout, msg);
+            for (auto msg : cpp_msgs) {
+                print_json(std::cout, msg);
 #endif
-                }
-            } else {
-                for (auto msg : cpp_msgs) {
-                    std::cout << msg;
-                }
             }
         } else {
-            scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
-            simple_pos_info_provider pip(mod_fn.c_str());
-            scope_pos_info_provider scope_pip(pip);
-            message_log l;
-            scope_message_log scope_log(l);
-            std::istringstream in(contents);
-            object_ref imports; position pos(0, 0); message_log import_log;
-            std::tie(imports, pos, import_log) = parse_imports(contents, mod_fn);
-            // the C++ message log is printed immediately if --json is not active, so re-report all Lean message log
-            // messages...
-            for (message const & m : import_log.to_buffer()) {
-                report_message(m);
+            for (auto msg : cpp_msgs) {
+                std::cout << msg;
             }
-            if (import_log.has_errors()) {
-                return 1;
-            }
-            parser p(env, ios, in, mod_fn);
-            p.m_scanner.skip_to_pos(pos.to_pos_info());
-
-            try {
-                if (only_deps) {
-                    print_deps(imports);
-                    return 0;
-                }
-
-                if (stats) {
-                    timeit timer(std::cout, "import");
-                    env = import_modules(trust_lvl, opts, imports);
-                } else {
-                    env = import_modules(trust_lvl, opts, imports);
-                }
-                if (main_module_name) {
-                    env.set_main_module(*main_module_name);
-                } else {
-                    env.set_main_module("_stdin");
-                }
-                p.set_env(env);
-                p.parse_commands();
-            } catch (lean::throwable & ex) {
-                report_message(lean::message_builder(env, ios, mod_fn, lean::pos_info(1, 1), lean::ERROR)
-                                       .set_exception(ex).build());
-            }
-
-            if (json_output) {
-#if defined(LEAN_JSON)
-                for (auto const & msg : l.to_buffer()) {
-                    print_json(std::cout, msg);
-#endif
-                }
-            } else {
-                // Messages have already been printed directly to stdout
-            }
-            ok = !l.has_errors();
-            env = p.env();
         }
 
         if (stats) {
@@ -727,7 +663,7 @@ int main(int argc, char ** argv) {
 
         if (run && ok) {
             uint32 ret = ir::run_main(env, opts, argc - optind, argv + optind);
-            environment_free_regions(std::move(env));
+            // environment_free_regions(std::move(env));
             return ret;
         }
         if (olean_fn && ok) {
@@ -755,8 +691,7 @@ int main(int argc, char ** argv) {
 
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
-        std::cerr << lean::message_builder(env, ios, mod_fn, lean::pos_info(1, 1), lean::ERROR).set_exception(
-                ex).build();
+        std::cerr << ex.what() << "\n";
     } catch (std::bad_alloc & ex) {
         std::cerr << "out of memory" << std::endl;
     }

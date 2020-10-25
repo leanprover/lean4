@@ -1,3 +1,4 @@
+#lang lean4
 structure A :=
 (x : Nat := 10)
 

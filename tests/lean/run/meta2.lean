@@ -1,5 +1,5 @@
+#lang lean4
 import Lean.Meta
-new_frontend
 open Lean
 open Lean.Meta
 
@@ -152,20 +152,6 @@ do print "----- tst7 -----";
      pure ()
 
 #eval tst7
-
-def tst8 : MetaM Unit :=
-do print "----- tst8 -----";
-   let add := mkAppN (mkConst `HasAdd.add [levelOne]) #[nat, mkConst `Nat.HasAdd];
-   let t   := mkAppN add #[mkNatLit 2, mkNatLit 3];
-   let t ← withTransparency TransparencyMode.reducible $ whnf t;
-   print t;
-   let t ← whnf t;
-   print t;
-   let t ← reduce t;
-   print t;
-   pure ()
-
-#eval tst8
 
 def tst9 : MetaM Unit :=
 do print "----- tst9 -----";
@@ -369,21 +355,6 @@ do print "----- tst23 -----";
    print v.headBeta
 
 #eval tst23
-
-def tst24 : MetaM Unit :=
-do print "----- tst24 -----";
-   let m1 ← mkFreshExprMVar (← mkArrow nat (← mkArrow type type));
-   let m2 ← mkFreshExprMVar type;
-   let zero ← mkAppM `HasZero.zero #[nat];
-   let idNat ← mkAppM `Id #[nat];
-   let lhs := mkAppB m1 zero m2;
-   print zero;
-   print idNat;
-   print lhs;
-   checkM $ fullApproxDefEq $ isDefEq lhs idNat;
-   pure ()
-
-#eval tst24
 
 def tst25 : MetaM Unit :=
 do print "----- tst25 -----";

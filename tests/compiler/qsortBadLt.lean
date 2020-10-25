@@ -1,3 +1,4 @@
+#lang lean4
 def badLt (a b : Nat) : Bool :=
 a != b
 

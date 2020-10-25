@@ -1,3 +1,4 @@
+#lang lean4
 /- The following definition should fail. -/
 @[class] def Foo (n : Nat) : Prop := n > 2
 

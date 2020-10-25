@@ -1,4 +1,3 @@
-#lang lean4
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -409,13 +408,13 @@ instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (
 }
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Sum α β) := {
-  sizeof := fun
+  sizeof := fun s => match s with
     | Sum.inl a => 1 + sizeof a
     | Sum.inr b => 1 + sizeof b
 }
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (PSum α β) := {
-  sizeof := fun
+  sizeof := fun p => match p with
     | PSum.inl a => 1 + sizeof a
     | PSum.inr b => 1 + sizeof b
 }
@@ -437,7 +436,7 @@ instance : HasSizeof Bool := {
 }
 
 instance (α : Type u) [HasSizeof α] : HasSizeof (Option α) := {
-  sizeof := fun
+  sizeof := fun o => match o with
     | none   => 1
     | some a => 1 + sizeof a
 }
@@ -1069,11 +1068,11 @@ instance (p : Prop) : Subsingleton p :=
   ⟨fun a b => proofIrrel a b⟩
 
 instance (p : Prop) : Subsingleton (Decidable p) :=
-  Subsingleton.intro fun
-    | (isTrue t₁) => fun
+  Subsingleton.intro fun d₁ => match d₁ with
+    | (isTrue t₁) => fun d₂ => match d₂ with
       | (isTrue t₂)  => proofIrrel t₁ t₂ ▸ rfl
       | (isFalse f₂) => absurd t₁ f₂
-    | (isFalse f₁) => fun
+    | (isFalse f₁) => fun d₂ => match d₂ with
       | (isTrue t₂)  => absurd t₂ f₁
       | (isFalse f₂) => proofIrrel f₁ f₂ ▸ rfl
 

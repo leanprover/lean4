@@ -361,9 +361,7 @@ private partial def collectUniversesFromFields (r : Level) (rOffset : Nat) (fiel
     let type ← inferType info.fvar
     let u ← getLevel type
     let u ← instantiateLevelMVars u
-    match accLevelAtCtor u r rOffset us with
-    | Except.error msg => throwError msg
-    | Except.ok us     => pure us
+    accLevelAtCtor u r rOffset us
 
 private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type : Expr) : TermElabM Expr := do
   let r ← getResultUniverse type
@@ -372,7 +370,7 @@ private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type :
   match r with
   | Level.mvar mvarId _ =>
     let us ← collectUniversesFromFields r rOffset fieldInfos
-    let rNew := Level.mkNaryMax us.toList
+    let rNew := mkResultUniverse us rOffset
     assignLevelMVar mvarId rNew
     instantiateMVars type
   | _ => throwError "failed to compute resulting universe level of structure, provide universe explicitly"
@@ -459,7 +457,12 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
     withUsed view.scopeVars view.params fieldInfos $ fun scopeVars => do
       let numParams := scopeVars.size + numExplicitParams
       let fieldInfos ← levelMVarToParam scopeVars view.params fieldInfos
-      let type ← if inferLevel then updateResultingUniverse fieldInfos type else pure type
+      let type ← withRef view.ref do
+        if inferLevel then
+          updateResultingUniverse fieldInfos type
+        else
+          checkResultingUniverse (← getResultUniverse type)
+          pure type
       trace[Elab.structure]! "type: {type}"
       let usedLevelNames ← collectLevelParamsInStructure type scopeVars view.params fieldInfos
       match sortDeclLevelParams view.scopeLevelNames view.allUserLevelNames usedLevelNames with
@@ -520,7 +523,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   let exts      := stx[3]
   let parents   := if exts.isNone then #[] else exts[0][1].getSepArgs
   let optType   := stx[4]
-  let type ← if optType.isNone then `(Type _) else pure optType[0][1]
+  let type ← if optType.isNone then `(Sort _) else pure optType[0][1]
   let scopeLevelNames ← getLevelNames
   let ⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
   let ctor ← expandCtor stx modifiers declName

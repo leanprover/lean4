@@ -16787,7 +16787,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__19;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__20;
-x_3 = lean_unsigned_to_nat(815u);
+x_3 = lean_unsigned_to_nat(814u);
 x_4 = lean_unsigned_to_nat(28u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -18394,7 +18394,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__19;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_continueToTermCore___closed__1;
-x_3 = lean_unsigned_to_nat(828u);
+x_3 = lean_unsigned_to_nat(827u);
 x_4 = lean_unsigned_to_nat(28u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -18571,7 +18571,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__19;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_continueToTermCore___closed__1;
-x_3 = lean_unsigned_to_nat(832u);
+x_3 = lean_unsigned_to_nat(831u);
 x_4 = lean_unsigned_to_nat(28u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -19772,7 +19772,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__19;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_breakToTermCore___closed__1;
-x_3 = lean_unsigned_to_nat(844u);
+x_3 = lean_unsigned_to_nat(843u);
 x_4 = lean_unsigned_to_nat(28u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -19858,7 +19858,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__19;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_breakToTermCore___closed__1;
-x_3 = lean_unsigned_to_nat(848u);
+x_3 = lean_unsigned_to_nat(847u);
 x_4 = lean_unsigned_to_nat(28u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -21137,7 +21137,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__19;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTermCore___closed__8;
-x_3 = lean_unsigned_to_nat(864u);
+x_3 = lean_unsigned_to_nat(863u);
 x_4 = lean_unsigned_to_nat(28u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -26954,7 +26954,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__19;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_mkNestedKind___closed__1;
-x_3 = lean_unsigned_to_nat(1033u);
+x_3 = lean_unsigned_to_nat(1032u);
 x_4 = lean_unsigned_to_nat(27u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -27267,7 +27267,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__19;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_matchNestedTermResult___closed__3;
-x_3 = lean_unsigned_to_nat(1089u);
+x_3 = lean_unsigned_to_nat(1088u);
 x_4 = lean_unsigned_to_nat(27u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

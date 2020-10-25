@@ -975,7 +975,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_quoteAutoTactic___closed__1;
 x_2 = l_Lean_Elab_Term_quoteAutoTactic___closed__2;
-x_3 = lean_unsigned_to_nat(55u);
+x_3 = lean_unsigned_to_nat(54u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -19981,7 +19981,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_quoteAutoTactic___closed__1;
 x_2 = l_Lean_Elab_Term_elabLetDeclCore___closed__7;
-x_3 = lean_unsigned_to_nat(517u);
+x_3 = lean_unsigned_to_nat(516u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

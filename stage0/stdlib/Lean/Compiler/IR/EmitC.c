@@ -1368,7 +1368,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_EmitC_toCType___closed__8;
 x_2 = l_Lean_IR_EmitC_toCType___closed__9;
-x_3 = lean_unsigned_to_nat(66u);
+x_3 = lean_unsigned_to_nat(65u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_IR_EmitC_toCType___closed__10;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1381,7 +1381,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_EmitC_toCType___closed__8;
 x_2 = l_Lean_IR_EmitC_toCType___closed__9;
-x_3 = lean_unsigned_to_nat(67u);
+x_3 = lean_unsigned_to_nat(66u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_IR_EmitC_toCType___closed__10;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

@@ -3117,7 +3117,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = l_Lean_MetavarContext_getDecl___closed__2;
-x_3 = lean_unsigned_to_nat(346u);
+x_3 = lean_unsigned_to_nat(345u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_MetavarContext_getDecl___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4008,7 +4008,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = l_Lean_MetavarContext_getLevelDepth___closed__1;
-x_3 = lean_unsigned_to_nat(369u);
+x_3 = lean_unsigned_to_nat(368u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_MetavarContext_getDecl___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4158,7 +4158,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = l_Lean_MetavarContext_renameMVar___closed__1;
-x_3 = lean_unsigned_to_nat(378u);
+x_3 = lean_unsigned_to_nat(377u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_MetavarContext_getDecl___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8082,7 +8082,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = l_Lean_MetavarContext_isLevelAssignable___closed__1;
-x_3 = lean_unsigned_to_nat(442u);
+x_3 = lean_unsigned_to_nat(441u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_MetavarContext_isLevelAssignable___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8870,7 +8870,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = l_Lean_MetavarContext_hasAssignedMVar___closed__1;
-x_3 = lean_unsigned_to_nat(474u);
+x_3 = lean_unsigned_to_nat(473u);
 x_4 = lean_unsigned_to_nat(28u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -9943,7 +9943,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = l_Lean_MetavarContext_hasAssignableMVar___closed__1;
-x_3 = lean_unsigned_to_nat(499u);
+x_3 = lean_unsigned_to_nat(498u);
 x_4 = lean_unsigned_to_nat(28u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -47880,7 +47880,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = l_Lean_MetavarContext_isWellFormed___closed__1;
-x_3 = lean_unsigned_to_nat(1029u);
+x_3 = lean_unsigned_to_nat(1028u);
 x_4 = lean_unsigned_to_nat(32u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

@@ -4623,7 +4623,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_withAppFn___rarg___closed__3;
-x_3 = lean_unsigned_to_nat(190u);
+x_3 = lean_unsigned_to_nat(189u);
 x_4 = lean_unsigned_to_nat(34u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4722,7 +4722,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_withAppArg___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(194u);
+x_3 = lean_unsigned_to_nat(193u);
 x_4 = lean_unsigned_to_nat(35u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5113,7 +5113,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_withProj___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(214u);
+x_3 = lean_unsigned_to_nat(213u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5212,7 +5212,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_withMDataExpr___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(218u);
+x_3 = lean_unsigned_to_nat(217u);
 x_4 = lean_unsigned_to_nat(35u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10883,7 +10883,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_delabFVar___closed__1;
-x_3 = lean_unsigned_to_nat(254u);
+x_3 = lean_unsigned_to_nat(253u);
 x_4 = lean_unsigned_to_nat(31u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -11064,7 +11064,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_delabBVar___closed__1;
-x_3 = lean_unsigned_to_nat(265u);
+x_3 = lean_unsigned_to_nat(264u);
 x_4 = lean_unsigned_to_nat(34u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -11207,7 +11207,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_delabMVar___closed__1;
-x_3 = lean_unsigned_to_nat(270u);
+x_3 = lean_unsigned_to_nat(269u);
 x_4 = lean_unsigned_to_nat(32u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -11489,7 +11489,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_delabSort___closed__1;
-x_3 = lean_unsigned_to_nat(276u);
+x_3 = lean_unsigned_to_nat(275u);
 x_4 = lean_unsigned_to_nat(32u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -12857,7 +12857,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_delabConst___closed__1;
-x_3 = lean_unsigned_to_nat(308u);
+x_3 = lean_unsigned_to_nat(307u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16704,7 +16704,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_delabLam___lambda__3___closed__2;
-x_3 = lean_unsigned_to_nat(467u);
+x_3 = lean_unsigned_to_nat(466u);
 x_4 = lean_unsigned_to_nat(44u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -17688,7 +17688,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_delabForall___lambda__1___closed__3;
-x_3 = lean_unsigned_to_nat(490u);
+x_3 = lean_unsigned_to_nat(489u);
 x_4 = lean_unsigned_to_nat(33u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -18278,7 +18278,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_delabLetE___closed__1;
-x_3 = lean_unsigned_to_nat(494u);
+x_3 = lean_unsigned_to_nat(493u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -18684,7 +18684,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_delabLit___closed__1;
-x_3 = lean_unsigned_to_nat(505u);
+x_3 = lean_unsigned_to_nat(504u);
 x_4 = lean_unsigned_to_nat(31u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -19103,7 +19103,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_Delaborator_delabProj___closed__1;
-x_3 = lean_unsigned_to_nat(523u);
+x_3 = lean_unsigned_to_nat(522u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -27530,7 +27530,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Delaborator_withAppFn___rarg___closed__2;
 x_2 = l_Lean_delab___closed__1;
-x_3 = lean_unsigned_to_nat(684u);
+x_3 = lean_unsigned_to_nat(683u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

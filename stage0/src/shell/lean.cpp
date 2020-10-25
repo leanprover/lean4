@@ -434,7 +434,7 @@ int main(int argc, char ** argv) {
     bool use_stdin = false;
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
     bool only_deps = false;
-    bool new_frontend = false;
+    bool new_frontend = true;
     bool stats = false;
     unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)

@@ -1697,25 +1697,24 @@ lean_object* x_13; uint8_t x_290;
 x_290 = l_Lean_Expr_hasLooseBVars(x_5);
 if (x_290 == 0)
 {
-lean_object* x_291; uint8_t x_292; 
+lean_object* x_291; uint8_t x_292; lean_object* x_293; lean_object* x_294; uint8_t x_295; 
 x_291 = l_Lean_Expr_toHeadIndex(x_5);
 x_292 = l_Lean_HeadIndex_HeadIndex_beq(x_291, x_3);
 lean_dec(x_291);
+x_293 = lean_unsigned_to_nat(0u);
+x_294 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_5, x_293);
+x_295 = lean_nat_dec_eq(x_294, x_4);
+lean_dec(x_294);
 if (x_292 == 0)
 {
-lean_object* x_293; 
-x_293 = lean_box(0);
-x_13 = x_293;
+lean_object* x_296; 
+x_296 = lean_box(0);
+x_13 = x_296;
 goto block_289;
 }
 else
 {
-lean_object* x_294; lean_object* x_295; uint8_t x_296; 
-x_294 = lean_unsigned_to_nat(0u);
-x_295 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_5, x_294);
-x_296 = lean_nat_dec_eq(x_295, x_4);
-lean_dec(x_295);
-if (x_296 == 0)
+if (x_295 == 0)
 {
 lean_object* x_297; 
 x_297 = lean_box(0);

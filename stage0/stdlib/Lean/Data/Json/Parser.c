@@ -29,6 +29,7 @@ lean_object* l_Lean_Json_Parser_num___lambda__5___closed__1;
 lean_object* l_Lean_Json_Parser_natNumDigits___closed__1;
 lean_object* l_Std_RBNode_singleton___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_str(lean_object*);
+extern lean_object* l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Json_Parser_anyCore___rarg___closed__4;
 extern lean_object* l_Init_Data_Repr___instance__2___closed__2;
@@ -66,7 +67,6 @@ lean_object* l_Lean_Json_Parser_natNumDigits(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_num(lean_object*);
-extern lean_object* l_Int_zero___closed__1;
 lean_object* l_Lean_Json_Parser_natNonZero_match__1(lean_object*);
 lean_object* l_Lean_Json_Parser_num___lambda__3___closed__3___boxed__const__1;
 lean_object* l_String_Iterator_extract(lean_object*, lean_object*);
@@ -101,7 +101,6 @@ lean_object* l_Lean_Quickparse_expectedEndOfInput___closed__1;
 lean_object* l_Init_Data_Option_Basic___instance__5___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__7;
 lean_object* l_Lean_Quickparse_fail(lean_object*);
-extern lean_object* l_Int_one___closed__1;
 lean_object* l_Lean_Json_Parser_arrayCore(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_strCore(lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_num___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -148,6 +147,7 @@ lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_JsonNumber_shiftr(lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_num___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_num___lambda__3___closed__3;
+extern lean_object* l_stdNext___closed__7;
 lean_object* l_Lean_Json_Parser_num___lambda__6___boxed(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 extern lean_object* l_usizeSz;
@@ -3616,8 +3616,8 @@ static lean_object* _init_l_Lean_Json_Parser_num___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_zero___closed__1;
-x_2 = l_Int_one___closed__1;
+x_1 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
+x_2 = l_stdNext___closed__7;
 x_3 = lean_int_sub(x_1, x_2);
 return x_3;
 }
@@ -3646,7 +3646,7 @@ x_8 = x_5 == x_7;
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = l_Int_one___closed__1;
+x_9 = l_stdNext___closed__7;
 x_10 = lean_apply_2(x_6, x_9, x_1);
 return x_10;
 }

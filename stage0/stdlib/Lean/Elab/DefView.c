@@ -1313,21 +1313,19 @@ x_9 = l_Lean_Elab_Command_isDefLike___closed__8;
 x_10 = lean_name_eq(x_2, x_9);
 if (x_10 == 0)
 {
-lean_object* x_11; uint8_t x_12; 
+lean_object* x_11; uint8_t x_12; lean_object* x_13; uint8_t x_14; 
 x_11 = l_Lean_Elab_Command_isDefLike___closed__9;
 x_12 = lean_name_eq(x_2, x_11);
-if (x_12 == 0)
-{
-lean_object* x_13; uint8_t x_14; 
 x_13 = l_Lean_Elab_Command_isDefLike___closed__11;
 x_14 = lean_name_eq(x_2, x_13);
 lean_dec(x_2);
+if (x_12 == 0)
+{
 return x_14;
 }
 else
 {
 uint8_t x_15; 
-lean_dec(x_2);
 x_15 = 1;
 return x_15;
 }

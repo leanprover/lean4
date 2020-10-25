@@ -81,8 +81,6 @@ def land : Fin n → Fin n → Fin n
 def lor : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.lor a b) % n, mlt h⟩
 
-instance : HasZero (Fin (succ n)) := ⟨⟨0, succPos n⟩⟩
-instance : HasOne (Fin (succ n))  := ⟨ofNat 1⟩
 instance : HasAdd (Fin n)         := ⟨Fin.add⟩
 instance : HasSub (Fin n)         := ⟨Fin.sub⟩
 instance : HasMul (Fin n)         := ⟨Fin.mul⟩

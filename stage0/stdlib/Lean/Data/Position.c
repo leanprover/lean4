@@ -17,6 +17,7 @@ lean_object* l_Lean_FileMap_toPosition_match__1(lean_object*);
 lean_object* l_Lean_Position_Lean_Data_Position___instance__1_match__2___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_Position_Lean_Data_Position___instance__4;
+extern lean_object* l_Init_Core___instance__33;
 lean_object* l_Lean_FileMap_ofString_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString___closed__2;
 extern lean_object* l_Array_empty___closed__1;
@@ -69,7 +70,6 @@ extern lean_object* l_Init_Data_Repr___instance__12___rarg___closed__1;
 lean_object* l_Lean_Position_Lean_Data_Position___instance__1_match__2(lean_object*);
 lean_object* l_Lean_FileMap_Lean_Data_Position___instance__5___closed__1;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
-extern lean_object* l_Nat_Inhabited;
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 lean_object* l_Lean_Position_lt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition___boxed(lean_object*, lean_object*);
@@ -547,7 +547,7 @@ lean_object* l_Lean_FileMap_toPosition_loop(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_7 = l_Nat_Inhabited;
+x_7 = l_Init_Core___instance__33;
 x_8 = lean_array_get(x_7, x_3, x_5);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_add(x_5, x_9);
@@ -631,7 +631,7 @@ x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_sub(x_2, x_3);
 lean_dec(x_2);
-x_5 = l_Nat_Inhabited;
+x_5 = l_Init_Core___instance__33;
 x_6 = lean_array_get(x_5, x_1, x_4);
 lean_dec(x_4);
 return x_6;

@@ -23,9 +23,9 @@ partial def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
     let b₂ := m % 2 = 1
     let r  := bitwise f n' m'
     if f b₁ b₂ then
-      bit1 r
+      r+r+1
     else
-      bit0 r
+      r+r
 
 @[extern "lean_nat_land"]
 def land : Nat → Nat → Nat := bitwise and

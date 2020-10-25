@@ -21,7 +21,6 @@ lean_object* l_Monad_seqRight___default___rarg___lambda__1___boxed(lean_object*,
 lean_object* l_Monad_seqRight___default___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_condM___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_whenM___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_Monad_seqLeft___default___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unlessM___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_Init_Control_Monad___instance__1___rarg(lean_object*);
@@ -48,6 +47,7 @@ lean_object* l_joinM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_joinM(lean_object*);
 lean_object* l_coeM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Monad_seqLeft___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Core___instance__1___closed__1;
 lean_object* l_unlessM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Monad_seq___default___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Monad_seqRight___default(lean_object*);
@@ -263,7 +263,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = l_Nat_HasOfNat___closed__1;
+x_5 = l_Init_Core___instance__1___closed__1;
 x_6 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_3, x_5);
 return x_6;
 }

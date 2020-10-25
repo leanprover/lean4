@@ -22,6 +22,7 @@ lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__2___closed__5;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__1___closed__3;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__4(lean_object*);
 lean_object* l_Lean_Json_getNat_x3f(lean_object*);
+extern lean_object* l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__8(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__2(uint8_t);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
@@ -36,7 +37,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_Basic___instance__19___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__4;
-extern lean_object* l_Int_zero___closed__1;
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_Basic___instance__7___closed__2;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__5___boxed(lean_object*);
@@ -52,7 +52,6 @@ lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__7___boxed(lean_object
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__8___closed__1;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__8___boxed(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__7___closed__1;
-extern lean_object* l_Int_one___closed__1;
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_Basic___instance__23___closed__1;
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Basic___instance__7___spec__2(lean_object*, lean_object*);
@@ -83,6 +82,7 @@ lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__7(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Basic___instance__7___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__8;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__3___spec__1(lean_object*, lean_object*);
+extern lean_object* l_stdNext___closed__7;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__2___closed__2;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__2___boxed(lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -341,7 +341,7 @@ static lean_object* _init_l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__2___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_zero___closed__1;
+x_1 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -363,7 +363,7 @@ static lean_object* _init_l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__2___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_one___closed__1;
+x_1 = l_stdNext___closed__7;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

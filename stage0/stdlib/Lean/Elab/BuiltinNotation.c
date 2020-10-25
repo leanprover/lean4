@@ -531,6 +531,7 @@ lean_object* l___regBuiltin_Lean_Elab_Term_expandBOr___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandOrElse___closed__2;
 extern lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_compileStxMatch___lambda__1___closed__7;
 lean_object* l_Lean_Elab_Term_ExpandFComp___closed__2;
+extern lean_object* l_Lean_Meta_evalNat___closed__5;
 lean_object* l_Lean_Core_mkFreshUserName___at_Lean_Elab_Term_elabSubst___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_expandLT___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabDecide___boxed(lean_object*);
@@ -554,7 +555,6 @@ lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserM
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__21;
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabClosedTerm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_expandAssert___closed__6;
-extern lean_object* l_Lean_Meta_evalNat___closed__3;
 lean_object* l_Lean_Elab_Term_expandLE___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabParserMacro___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_mkNativeReflAuxDecl___closed__1;
@@ -8259,7 +8259,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Term_expandMul___closed__2;
-x_2 = l_Lean_Meta_evalNat___closed__3;
+x_2 = l_Lean_Meta_evalNat___closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -8288,7 +8288,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkAppStx___closed__6;
-x_2 = l_Lean_Meta_evalNat___closed__3;
+x_2 = l_Lean_Meta_evalNat___closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

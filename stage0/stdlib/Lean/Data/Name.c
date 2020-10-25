@@ -1438,15 +1438,12 @@ case 1:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_ctor_get(x_2, 1);
 x_9 = l_Lean_Name_lt(x_5, x_7);
-if (x_9 == 0)
-{
-uint8_t x_10; 
 x_10 = lean_name_eq(x_5, x_7);
 if (x_10 == 0)
 {
@@ -1454,16 +1451,18 @@ return x_9;
 }
 else
 {
+if (x_9 == 0)
+{
 uint8_t x_11; 
 x_11 = lean_string_dec_lt(x_6, x_8);
 return x_11;
-}
 }
 else
 {
 uint8_t x_12; 
 x_12 = 1;
 return x_12;
+}
 }
 }
 else
@@ -1490,15 +1489,12 @@ return x_15;
 }
 default: 
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; 
 x_16 = lean_ctor_get(x_1, 0);
 x_17 = lean_ctor_get(x_1, 1);
 x_18 = lean_ctor_get(x_2, 0);
 x_19 = lean_ctor_get(x_2, 1);
 x_20 = l_Lean_Name_lt(x_16, x_18);
-if (x_20 == 0)
-{
-uint8_t x_21; 
 x_21 = lean_name_eq(x_16, x_18);
 if (x_21 == 0)
 {
@@ -1506,16 +1502,18 @@ return x_20;
 }
 else
 {
+if (x_20 == 0)
+{
 uint8_t x_22; 
 x_22 = lean_nat_dec_lt(x_17, x_19);
 return x_22;
-}
 }
 else
 {
 uint8_t x_23; 
 x_23 = 1;
 return x_23;
+}
 }
 }
 }
@@ -1689,15 +1687,12 @@ case 1:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_ctor_get(x_2, 1);
 x_9 = lean_string_dec_lt(x_6, x_8);
-if (x_9 == 0)
-{
-uint8_t x_10; 
 x_10 = lean_string_dec_eq(x_6, x_8);
 if (x_10 == 0)
 {
@@ -1705,16 +1700,18 @@ return x_9;
 }
 else
 {
+if (x_9 == 0)
+{
 x_1 = x_5;
 x_2 = x_7;
 goto _start;
-}
 }
 else
 {
 uint8_t x_12; 
 x_12 = 1;
 return x_12;
+}
 }
 }
 else
@@ -1741,15 +1738,12 @@ return x_15;
 }
 default: 
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; 
 x_16 = lean_ctor_get(x_1, 0);
 x_17 = lean_ctor_get(x_1, 1);
 x_18 = lean_ctor_get(x_2, 0);
 x_19 = lean_ctor_get(x_2, 1);
 x_20 = lean_nat_dec_lt(x_17, x_19);
-if (x_20 == 0)
-{
-uint8_t x_21; 
 x_21 = lean_nat_dec_eq(x_17, x_19);
 if (x_21 == 0)
 {
@@ -1757,16 +1751,18 @@ return x_20;
 }
 else
 {
+if (x_20 == 0)
+{
 x_1 = x_16;
 x_2 = x_18;
 goto _start;
-}
 }
 else
 {
 uint8_t x_23; 
 x_23 = 1;
 return x_23;
+}
 }
 }
 }

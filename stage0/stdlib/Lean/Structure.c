@@ -365,25 +365,24 @@ _start:
 {
 if (lean_obj_tag(x_1) == 1)
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; uint32_t x_6; uint32_t x_7; uint8_t x_8; 
 x_2 = lean_ctor_get(x_1, 1);
 x_3 = lean_string_length(x_2);
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_lt(x_4, x_3);
 lean_dec(x_3);
-if (x_5 == 0)
+x_6 = lean_string_utf8_get(x_2, x_4);
+x_7 = 95;
+x_8 = x_6 == x_7;
+if (x_8 == 0)
 {
-uint8_t x_6; 
-x_6 = 0;
-return x_6;
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
 }
 else
 {
-uint32_t x_7; uint32_t x_8; uint8_t x_9; 
-x_7 = lean_string_utf8_get(x_2, x_4);
-x_8 = 95;
-x_9 = x_7 == x_8;
-return x_9;
+return x_5;
 }
 }
 else
@@ -442,7 +441,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 1)
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint32_t x_7; uint32_t x_8; uint8_t x_9; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
@@ -451,7 +450,10 @@ x_4 = lean_string_length(x_3);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_nat_dec_lt(x_5, x_4);
 lean_dec(x_4);
-if (x_6 == 0)
+x_7 = lean_string_utf8_get(x_3, x_5);
+x_8 = 95;
+x_9 = x_7 == x_8;
+if (x_9 == 0)
 {
 lean_dec(x_3);
 lean_dec(x_2);
@@ -459,11 +461,7 @@ return x_1;
 }
 else
 {
-uint32_t x_7; uint32_t x_8; uint8_t x_9; 
-x_7 = lean_string_utf8_get(x_3, x_5);
-x_8 = 95;
-x_9 = x_7 == x_8;
-if (x_9 == 0)
+if (x_6 == 0)
 {
 lean_dec(x_3);
 lean_dec(x_2);

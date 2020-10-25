@@ -4445,26 +4445,23 @@ x_9 = l___regBuiltin_Lean_Elab_Command_elabUniverses___closed__2;
 x_10 = lean_name_eq(x_2, x_9);
 if (x_10 == 0)
 {
-lean_object* x_11; uint8_t x_12; 
+lean_object* x_11; uint8_t x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; uint8_t x_16; 
 x_11 = l___regBuiltin_Lean_Elab_Command_elabCheck___closed__1;
 x_12 = lean_name_eq(x_2, x_11);
-if (x_12 == 0)
-{
-lean_object* x_13; uint8_t x_14; 
 x_13 = l___regBuiltin_Lean_Elab_Command_elabSetOption___closed__2;
 x_14 = lean_name_eq(x_2, x_13);
-if (x_14 == 0)
-{
-lean_object* x_15; uint8_t x_16; 
 x_15 = l___regBuiltin_Lean_Elab_Command_elabOpen___closed__2;
 x_16 = lean_name_eq(x_2, x_15);
 lean_dec(x_2);
+if (x_12 == 0)
+{
+if (x_14 == 0)
+{
 return x_16;
 }
 else
 {
 uint8_t x_17; 
-lean_dec(x_2);
 x_17 = 1;
 return x_17;
 }
@@ -4472,7 +4469,6 @@ return x_17;
 else
 {
 uint8_t x_18; 
-lean_dec(x_2);
 x_18 = 1;
 return x_18;
 }

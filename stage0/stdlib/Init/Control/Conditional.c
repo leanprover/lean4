@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_notM___rarg___lambda__1___boxed(lean_object*);
 lean_object* l_bool_match__1(lean_object*);
 lean_object* l_andM_match__1___rarg(uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_orM_match__1(lean_object*);
 lean_object* l_andM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_bool_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -37,6 +36,7 @@ lean_object* l_andM_match__1(lean_object*);
 lean_object* l_bool___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_orM_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Init_Control_Conditional___instance__2___closed__1;
+extern lean_object* l_Init_Core___instance__1___closed__1;
 lean_object* l_andM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_andM(lean_object*, lean_object*);
 lean_object* l_orM(lean_object*, lean_object*);
@@ -47,7 +47,7 @@ static lean_object* _init_l_Init_Control_Conditional___instance__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Nat_HasOfNat___closed__1;
+x_1 = l_Init_Core___instance__1___closed__1;
 return x_1;
 }
 }

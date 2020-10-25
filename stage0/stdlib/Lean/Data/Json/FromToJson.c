@@ -30,7 +30,6 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__11;
 lean_object* l_Lean_Json_opt(lean_object*);
 lean_object* l_Lean_Json_Lean_Data_Json_FromToJson___instance__16(lean_object*);
-extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__1(lean_object*);
@@ -60,6 +59,7 @@ lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__6___boxed(lean_object*
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__14(lean_object*);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__3___closed__1;
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__7___closed__1;
+extern lean_object* l_Init_Core___instance__1___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__11___closed__1;
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
@@ -82,7 +82,7 @@ static lean_object* _init_l_Lean_Lean_Data_Json_FromToJson___instance__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Nat_HasOfNat___closed__1;
+x_1 = l_Init_Core___instance__1___closed__1;
 return x_1;
 }
 }

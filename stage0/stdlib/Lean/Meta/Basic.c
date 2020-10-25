@@ -1839,7 +1839,7 @@ return x_2;
 uint8_t l_Lean_Meta_InfoCacheKey_Lean_Meta_Basic___instance__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+uint8_t x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; 
 x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
@@ -1847,21 +1847,21 @@ x_6 = lean_ctor_get_uint8(x_2, sizeof(void*)*2);
 x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_ctor_get(x_2, 1);
 x_9 = l_Lean_Meta_TransparencyMode_beq(x_3, x_6);
-if (x_9 == 0)
-{
-uint8_t x_10; 
-x_10 = 0;
-return x_10;
-}
-else
-{
+x_10 = lean_expr_eqv(x_4, x_7);
 if (lean_obj_tag(x_5) == 0)
 {
 if (lean_obj_tag(x_8) == 0)
 {
+if (x_9 == 0)
+{
 uint8_t x_11; 
-x_11 = lean_expr_eqv(x_4, x_7);
+x_11 = 0;
 return x_11;
+}
+else
+{
+return x_10;
+}
 }
 else
 {
@@ -1880,21 +1880,27 @@ return x_13;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_14 = lean_ctor_get(x_5, 0);
-x_15 = lean_ctor_get(x_8, 0);
-x_16 = lean_nat_dec_eq(x_14, x_15);
-if (x_16 == 0)
+if (x_9 == 0)
 {
-uint8_t x_17; 
-x_17 = 0;
-return x_17;
+uint8_t x_14; 
+x_14 = 0;
+return x_14;
 }
 else
 {
+lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_15 = lean_ctor_get(x_5, 0);
+x_16 = lean_ctor_get(x_8, 0);
+x_17 = lean_nat_dec_eq(x_15, x_16);
+if (x_17 == 0)
+{
 uint8_t x_18; 
-x_18 = lean_expr_eqv(x_4, x_7);
+x_18 = 0;
 return x_18;
+}
+else
+{
+return x_10;
 }
 }
 }

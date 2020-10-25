@@ -38,6 +38,7 @@ lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRec
 lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___at_Lean_Meta_isExprDefEqGuarded___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Core___instance__33;
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2074____spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos_match__1(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;
@@ -337,7 +338,6 @@ lean_object* l_Lean_Meta_mkRecursorInfo_match__2___rarg(lean_object*, lean_objec
 lean_object* l_Lean_Meta_RecursorInfo_Lean_Meta_RecursorInfo___instance__2___closed__4;
 lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux___spec__2___closed__1;
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_Meta_getMajorPos_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Nat_Inhabited;
 lean_object* l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findIdxAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___spec__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
@@ -2215,7 +2215,7 @@ else
 {
 if (lean_obj_tag(x_1) == 1)
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_55; uint8_t x_56; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_55; uint8_t x_56; lean_object* x_57; uint8_t x_58; lean_object* x_59; uint8_t x_60; 
 x_16 = lean_ctor_get(x_1, 0);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_1, 1);
@@ -2223,16 +2223,14 @@ lean_inc(x_17);
 lean_dec(x_1);
 x_55 = l_Lean_Meta_recOnSuffix;
 x_56 = lean_string_dec_eq(x_17, x_55);
-if (x_56 == 0)
-{
-lean_object* x_57; uint8_t x_58; 
 x_57 = l_Lean_Meta_casesOnSuffix;
 x_58 = lean_string_dec_eq(x_17, x_57);
-if (x_58 == 0)
-{
-lean_object* x_59; uint8_t x_60; 
 x_59 = l_Lean_Meta_brecOnSuffix;
 x_60 = lean_string_dec_eq(x_17, x_59);
+if (x_56 == 0)
+{
+if (x_58 == 0)
+{
 if (x_60 == 0)
 {
 lean_object* x_61; 
@@ -2433,7 +2431,7 @@ else
 {
 if (lean_obj_tag(x_1) == 1)
 {
-lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_100; uint8_t x_101; 
+lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_100; uint8_t x_101; lean_object* x_102; uint8_t x_103; lean_object* x_104; uint8_t x_105; 
 x_73 = lean_ctor_get(x_1, 0);
 lean_inc(x_73);
 x_74 = lean_ctor_get(x_1, 1);
@@ -2441,16 +2439,14 @@ lean_inc(x_74);
 lean_dec(x_1);
 x_100 = l_Lean_Meta_recOnSuffix;
 x_101 = lean_string_dec_eq(x_74, x_100);
-if (x_101 == 0)
-{
-lean_object* x_102; uint8_t x_103; 
 x_102 = l_Lean_Meta_casesOnSuffix;
 x_103 = lean_string_dec_eq(x_74, x_102);
-if (x_103 == 0)
-{
-lean_object* x_104; uint8_t x_105; 
 x_104 = l_Lean_Meta_brecOnSuffix;
 x_105 = lean_string_dec_eq(x_74, x_104);
+if (x_101 == 0)
+{
+if (x_103 == 0)
+{
 if (x_105 == 0)
 {
 lean_object* x_106; lean_object* x_107; 
@@ -2705,23 +2701,22 @@ return x_2;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_9; uint8_t x_17; 
+lean_object* x_9; uint8_t x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_17 = l_Lean_Expr_isFVar(x_2);
+x_18 = lean_array_get_size(x_3);
+x_19 = lean_unsigned_to_nat(0u);
+x_20 = l_Array_anyRangeMAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___spec__1(x_3, x_3, x_18, x_19);
+lean_dec(x_18);
+if (x_20 == 0)
+{
 if (x_17 == 0)
 {
-lean_object* x_18; 
-x_18 = lean_box(0);
-x_9 = x_18;
+lean_object* x_21; 
+x_21 = lean_box(0);
+x_9 = x_21;
 goto block_16;
 }
 else
-{
-lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_19 = lean_array_get_size(x_3);
-x_20 = lean_unsigned_to_nat(0u);
-x_21 = l_Array_anyRangeMAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___spec__1(x_3, x_3, x_19, x_20);
-lean_dec(x_19);
-if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
 lean_dec(x_1);
@@ -2731,13 +2726,13 @@ lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_8);
 return x_23;
 }
+}
 else
 {
 lean_object* x_24; 
 x_24 = lean_box(0);
 x_9 = x_24;
 goto block_16;
-}
 }
 block_16:
 {
@@ -5649,24 +5644,23 @@ return x_2;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotiveResultType(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_10; uint8_t x_18; 
+lean_object* x_10; uint8_t x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_18 = l_Lean_Expr_isSort(x_3);
+x_19 = lean_array_get_size(x_2);
+x_20 = lean_array_get_size(x_4);
+x_21 = lean_nat_dec_eq(x_19, x_20);
+lean_dec(x_20);
+lean_dec(x_19);
 if (x_18 == 0)
 {
-lean_object* x_19; 
-x_19 = lean_box(0);
-x_10 = x_19;
+lean_object* x_22; 
+x_22 = lean_box(0);
+x_10 = x_22;
 goto block_17;
 }
 else
 {
-lean_object* x_20; lean_object* x_21; uint8_t x_22; 
-x_20 = lean_array_get_size(x_2);
-x_21 = lean_array_get_size(x_4);
-x_22 = lean_nat_dec_eq(x_20, x_21);
-lean_dec(x_21);
-lean_dec(x_20);
-if (x_22 == 0)
+if (x_21 == 0)
 {
 lean_object* x_23; 
 x_23 = lean_box(0);
@@ -9067,7 +9061,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Init_LeanInit___instance__1;
-x_2 = l_Nat_Inhabited;
+x_2 = l_Init_Core___instance__33;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

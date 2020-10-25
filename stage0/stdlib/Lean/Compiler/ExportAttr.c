@@ -28,7 +28,7 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80__match__1(le
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExportNameFor___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____closed__5;
-lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1___boxed(lean_object*, lean_object*);
+lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____closed__7;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName___boxed(lean_object*);
@@ -68,7 +68,7 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__2
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId(lean_object*);
-uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1(uint8_t, uint32_t);
+uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1(uint32_t);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -88,6 +88,7 @@ lean_object* l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_Compiler_Expor
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isExport(lean_object*, lean_object*);
 uint8_t l_Char_isAlpha(uint32_t);
+lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___closed__1;
 lean_object* l_Lean_exportAttr;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
@@ -116,25 +117,31 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__1
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__1___closed__5;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__2___closed__1;
-uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1(uint8_t x_1, uint32_t x_2) {
+uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1(uint32_t x_1) {
 _start:
 {
-uint8_t x_3; 
-x_3 = l_Char_isAlpha(x_2);
+uint8_t x_2; 
+x_2 = l_Char_isAlpha(x_1);
+if (x_2 == 0)
+{
+uint8_t x_3; uint32_t x_4; uint8_t x_5; 
+x_3 = l_Char_isDigit(x_1);
+x_4 = 95;
+x_5 = x_1 == x_4;
+if (x_5 == 0)
+{
 if (x_3 == 0)
 {
-uint8_t x_4; 
-x_4 = l_Char_isDigit(x_2);
-if (x_4 == 0)
-{
-uint32_t x_5; uint8_t x_6; 
-x_5 = 95;
-x_6 = x_2 == x_5;
-if (x_6 == 0)
+uint8_t x_6; 
+x_6 = 1;
+return x_6;
+}
+else
 {
 uint8_t x_7; 
-x_7 = 1;
+x_7 = 0;
 return x_7;
+}
 }
 else
 {
@@ -145,108 +152,62 @@ return x_8;
 }
 else
 {
-if (x_1 == 0)
-{
 uint8_t x_9; 
-x_9 = 1;
+x_9 = 0;
 return x_9;
 }
-else
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___closed__1() {
+_start:
 {
-uint8_t x_10; 
-x_10 = 0;
-return x_10;
-}
-}
-}
-else
-{
-if (x_1 == 0)
-{
-uint32_t x_11; uint8_t x_12; 
-x_11 = 95;
-x_12 = x_2 == x_11;
-if (x_12 == 0)
-{
-uint8_t x_13; 
-x_13 = 1;
-return x_13;
-}
-else
-{
-uint8_t x_14; 
-x_14 = 0;
-return x_14;
-}
-}
-else
-{
-uint8_t x_15; 
-x_15 = 0;
-return x_15;
-}
-}
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1___boxed), 1, 0);
+return x_1;
 }
 }
 uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint32_t x_3; uint8_t x_4; 
+lean_object* x_2; uint32_t x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
 x_4 = l_Char_isAlpha(x_3);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-lean_dec(x_1);
-x_5 = 0;
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_6 = lean_string_utf8_byte_size(x_1);
-lean_inc(x_6);
+x_5 = lean_string_utf8_byte_size(x_1);
+lean_inc(x_5);
 lean_inc(x_1);
-x_7 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_6);
-x_8 = lean_unsigned_to_nat(1u);
-x_9 = l_Substring_nextn(x_7, x_8, x_2);
-lean_dec(x_7);
-x_10 = lean_box(x_4);
-x_11 = lean_alloc_closure((void*)(l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1___boxed), 2, 1);
-lean_closure_set(x_11, 0, x_10);
-x_12 = l_String_anyAux_loop(x_1, x_6, x_11, x_9);
+x_6 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_5);
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = l_Substring_nextn(x_6, x_7, x_2);
 lean_dec(x_6);
+x_9 = l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___closed__1;
+x_10 = l_String_anyAux_loop(x_1, x_5, x_9, x_8);
+lean_dec(x_5);
 lean_dec(x_1);
-if (x_12 == 0)
+if (x_10 == 0)
 {
-uint8_t x_13; 
-x_13 = 1;
-return x_13;
+return x_4;
 }
 else
 {
-uint8_t x_14; 
-x_14 = 0;
-return x_14;
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
 }
 }
 }
-}
-lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1___boxed(lean_object* x_1) {
 _start:
 {
-uint8_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
+uint32_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
-x_4 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_5 = l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
+x_3 = l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1(x_2);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___boxed(lean_object* x_1) {
@@ -1660,6 +1621,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Attributes(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___closed__1 = _init_l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___closed__1();
+lean_mark_persistent(l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___closed__1);
 l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__5___closed__1 = _init_l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__5___closed__1();
 lean_mark_persistent(l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__5___closed__1);
 l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__2___closed__1 = _init_l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__2___closed__1();

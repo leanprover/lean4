@@ -91,7 +91,6 @@ lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__1_match__1(lean_ob
 lean_object* l_Lean_Lsp_msgToDiagnostic_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Diagnostic_tags_x3f___default;
 lean_object* l_Lean_Lsp_msgToDiagnostic_match__2___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Int_one___closed__1;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Basic___instance__7___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__7(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__1___boxed(lean_object*);
@@ -131,6 +130,7 @@ lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Basic___ins
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__5___closed__2;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__5___closed__1;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__11___spec__2___boxed(lean_object*, lean_object*);
+extern lean_object* l_stdNext___closed__7;
 lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__1_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -453,7 +453,7 @@ static lean_object* _init_l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_one___closed__1;
+x_1 = l_stdNext___closed__7;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

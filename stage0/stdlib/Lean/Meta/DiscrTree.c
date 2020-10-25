@@ -683,15 +683,12 @@ case 0:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_2, 0);
 x_6 = lean_ctor_get(x_2, 1);
 x_7 = l_Lean_Name_quickLt(x_3, x_5);
-if (x_7 == 0)
-{
-uint8_t x_8; 
 x_8 = lean_name_eq(x_3, x_5);
 if (x_8 == 0)
 {
@@ -699,16 +696,18 @@ return x_7;
 }
 else
 {
+if (x_7 == 0)
+{
 uint8_t x_9; 
 x_9 = lean_nat_dec_lt(x_4, x_6);
 return x_9;
-}
 }
 else
 {
 uint8_t x_10; 
 x_10 = 1;
 return x_10;
+}
 }
 }
 else
@@ -726,15 +725,12 @@ case 1:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_19; 
 x_14 = lean_ctor_get(x_1, 0);
 x_15 = lean_ctor_get(x_1, 1);
 x_16 = lean_ctor_get(x_2, 0);
 x_17 = lean_ctor_get(x_2, 1);
 x_18 = l_Lean_Name_quickLt(x_14, x_16);
-if (x_18 == 0)
-{
-uint8_t x_19; 
 x_19 = lean_name_eq(x_14, x_16);
 if (x_19 == 0)
 {
@@ -742,16 +738,18 @@ return x_18;
 }
 else
 {
+if (x_18 == 0)
+{
 uint8_t x_20; 
 x_20 = lean_nat_dec_lt(x_15, x_17);
 return x_20;
-}
 }
 else
 {
 uint8_t x_21; 
 x_21 = 1;
 return x_21;
+}
 }
 }
 else

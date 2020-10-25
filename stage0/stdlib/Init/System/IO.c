@@ -2044,23 +2044,23 @@ return x_15;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+lean_object* x_16; lean_object* x_17; uint32_t x_18; uint32_t x_19; uint8_t x_20; 
 x_16 = lean_unsigned_to_nat(1u);
 x_17 = l_String_dropRight(x_5, x_16);
-x_18 = l_System_Platform_isWindows;
-if (x_18 == 0)
+x_18 = l_String_back(x_17);
+x_19 = 13;
+x_20 = x_18 == x_19;
+if (x_20 == 0)
 {
-lean_object* x_19; lean_object* x_20; 
-x_19 = lean_array_push(x_2, x_17);
-x_20 = l_IO_FS_lines_read___rarg(x_1, x_3, x_4, x_19);
-return x_20;
+lean_object* x_21; lean_object* x_22; 
+x_21 = lean_array_push(x_2, x_17);
+x_22 = l_IO_FS_lines_read___rarg(x_1, x_3, x_4, x_21);
+return x_22;
 }
 else
 {
-uint32_t x_21; uint32_t x_22; uint8_t x_23; 
-x_21 = l_String_back(x_17);
-x_22 = 13;
-x_23 = x_21 == x_22;
+uint8_t x_23; 
+x_23 = l_System_Platform_isWindows;
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; 

@@ -29,6 +29,7 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_searchPathSeparators___closed__2;
 lean_object* l_List_foldr___at_System_FilePath_normalizePath___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_dirName_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_mapAux___at_System_FilePath_normalizePath___spec__4(lean_object*, lean_object*);
 lean_object* l_System_FilePath_pathSeparators;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_System_FilePath_searchPathSeparators___closed__2___boxed__const__1;
@@ -60,8 +61,10 @@ extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_System_FilePath_pathSeparators___closed__3;
 lean_object* l_String_splitAux___at_System_FilePath_splitSearchPath___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_mkFilePath___closed__1;
+lean_object* l_List_foldr___at_System_FilePath_normalizePath___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_searchPathSeparators___closed__3;
 lean_object* l_System_FilePath_pathSeparators___closed__2;
+uint8_t l_List_foldr___at_System_FilePath_normalizePath___spec__3(uint32_t, uint8_t, lean_object*);
 lean_object* l_System_FilePath_pathSeparators___closed__1;
 uint8_t l_List_foldr___at_System_FilePath_normalizePath___spec__1(uint32_t, uint8_t, lean_object*);
 lean_object* l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
@@ -538,6 +541,79 @@ return x_2;
 }
 }
 }
+uint8_t l_List_foldr___at_System_FilePath_normalizePath___spec__3(uint32_t x_1, uint8_t x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+return x_2;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; uint8_t x_6; uint32_t x_7; uint8_t x_8; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_5);
+lean_dec(x_3);
+x_6 = l_List_foldr___at_System_FilePath_normalizePath___spec__3(x_1, x_2, x_5);
+x_7 = lean_unbox_uint32(x_4);
+lean_dec(x_4);
+x_8 = x_1 == x_7;
+if (x_8 == 0)
+{
+return x_6;
+}
+else
+{
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
+}
+}
+}
+}
+lean_object* l_String_mapAux___at_System_FilePath_normalizePath___spec__4(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = lean_string_utf8_at_end(x_2, x_1);
+if (x_3 == 0)
+{
+uint32_t x_4; uint8_t x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = lean_string_utf8_get(x_2, x_1);
+x_5 = 0;
+x_6 = l_System_FilePath_pathSeparators;
+x_7 = l_List_foldr___at_System_FilePath_normalizePath___spec__3(x_4, x_5, x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_string_utf8_set(x_2, x_1, x_4);
+x_9 = lean_string_utf8_next(x_8, x_1);
+lean_dec(x_1);
+x_1 = x_9;
+x_2 = x_8;
+goto _start;
+}
+else
+{
+uint32_t x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = l_System_FilePath_pathSeparator;
+x_12 = lean_string_utf8_set(x_2, x_1, x_11);
+x_13 = lean_string_utf8_next(x_12, x_1);
+lean_dec(x_1);
+x_1 = x_13;
+x_2 = x_12;
+goto _start;
+}
+}
+else
+{
+lean_dec(x_1);
+return x_2;
+}
+}
+}
 static lean_object* _init_l_System_FilePath_normalizePath___closed__1() {
 _start:
 {
@@ -562,29 +638,29 @@ lean_object* l_System_FilePath_normalizePath(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = l_System_FilePath_normalizePath___closed__2;
+x_2 = l_System_FilePath_isCaseInsensitive;
 if (x_2 == 0)
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_String_mapAux___at_System_FilePath_normalizePath___spec__2(x_3, x_1);
-return x_4;
+uint8_t x_3; 
+x_3 = l_System_FilePath_normalizePath___closed__2;
+if (x_3 == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l_String_mapAux___at_System_FilePath_normalizePath___spec__2(x_4, x_1);
+return x_5;
 }
 else
 {
-uint8_t x_5; 
-x_5 = l_System_FilePath_isCaseInsensitive;
-if (x_5 == 0)
-{
 return x_1;
+}
 }
 else
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_String_mapAux___at_System_FilePath_normalizePath___spec__2(x_6, x_1);
+x_7 = l_String_mapAux___at_System_FilePath_normalizePath___spec__4(x_6, x_1);
 return x_7;
-}
 }
 }
 }
@@ -597,6 +673,19 @@ lean_dec(x_1);
 x_5 = lean_unbox(x_2);
 lean_dec(x_2);
 x_6 = l_List_foldr___at_System_FilePath_normalizePath___spec__1(x_4, x_5, x_3);
+x_7 = lean_box(x_6);
+return x_7;
+}
+}
+lean_object* l_List_foldr___at_System_FilePath_normalizePath___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint32_t x_4; uint8_t x_5; uint8_t x_6; lean_object* x_7; 
+x_4 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_5 = lean_unbox(x_2);
+lean_dec(x_2);
+x_6 = l_List_foldr___at_System_FilePath_normalizePath___spec__3(x_4, x_5, x_3);
 x_7 = lean_box(x_6);
 return x_7;
 }

@@ -17,7 +17,6 @@ lean_object* l_Applicative_seqRight___default___rarg(lean_object*, lean_object*,
 lean_object* l_Applicative_seqLeft___default___rarg___closed__1;
 lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_Applicative_seqRight___default(lean_object*);
-extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_Applicative_map___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_when(lean_object*);
 lean_object* l_Function_const___rarg___boxed(lean_object*, lean_object*);
@@ -26,6 +25,7 @@ lean_object* l_when___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Applicative_seqLeft___default(lean_object*);
 lean_object* l_Applicative_map___default(lean_object*);
 lean_object* l_unless(lean_object*);
+extern lean_object* l_Init_Core___instance__1___closed__1;
 lean_object* l_unless___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Applicative_seqLeft___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_when___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -79,7 +79,7 @@ static lean_object* _init_l_Applicative_seqRight___default___rarg___closed__1() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Nat_HasOfNat___closed__1;
+x_1 = l_Init_Core___instance__1___closed__1;
 x_2 = lean_alloc_closure((void*)(l_Function_const___rarg___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

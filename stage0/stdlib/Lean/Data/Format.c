@@ -38,6 +38,7 @@ lean_object* l___private_Lean_Data_Format_0__Lean_Format_be_match__2(lean_object
 lean_object* l_Lean_Format_join(lean_object*);
 lean_object* l_Lean_List_format___rarg___closed__1;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 lean_object* l_Lean_Lean_Data_Format___instance__21___closed__1;
 lean_object* l_Lean_Format_prettyAux___closed__1;
 lean_object* l_List_foldl___at_Lean_Format_join___spec__1(lean_object*, lean_object*);
@@ -77,7 +78,6 @@ lean_object* l_Lean_formatEntry(lean_object*);
 lean_object* l_Lean_Format_repr___closed__11;
 lean_object* l_Lean_Option_format___rarg(lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
-extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be_match__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_repr___closed__18;
 lean_object* l_Lean_Format_repr___closed__15;
@@ -126,7 +126,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Format_repr___closed__9;
 lean_object* l_Lean_Option_format___rarg___closed__2;
 lean_object* l_Lean_Format_joinSep___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Int_zero___closed__1;
 lean_object* l_Lean_formatDataValue___closed__3;
 lean_object* l_Lean_List_format(lean_object*);
 lean_object* l_Lean_Format_Lean_Data_Format___instance__5;
@@ -242,7 +241,6 @@ lean_object* l_Lean_Lean_Data_Format___instance__13(lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_spaceUptoLine(lean_object*, uint8_t, lean_object*);
 extern lean_object* l_Id_Init_Control_Id___instance__1;
 lean_object* l_Lean_Format_Lean_Data_Format___instance__2(lean_object*, lean_object*);
-extern lean_object* l_PUnit_Inhabited;
 lean_object* l_Lean_Lean_Data_Format___instance__7;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_pushGroup(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_Init_Data_Array_Basic___instance__3___rarg___closed__1;
@@ -258,6 +256,7 @@ lean_object* l_Lean_Lean_Data_Format___instance__22;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_spaceUptoLine_x27_match__1(lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__20___closed__1;
 lean_object* l_Lean_Option_format_match__1(lean_object*, lean_object*);
+extern lean_object* l_Init_Core___instance__49;
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_Format_defIndent;
 lean_object* l_Lean_Format_joinArraySep(lean_object*);
@@ -271,6 +270,7 @@ lean_object* l_Lean_Format_paren___closed__3;
 lean_object* l_Lean_formatEntry_match__1(lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__15___boxed(lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_spaceUptoLine_match__1(lean_object*);
+extern lean_object* l_Init_Core___instance__1___closed__1;
 lean_object* l_Lean_Lean_Data_Format___instance__22___closed__1;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Format_joinArraySep_match__1(lean_object*);
@@ -1881,7 +1881,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Data_Format_0__Lean_Format_be___closed__1;
-x_2 = l_PUnit_Inhabited;
+x_2 = l_Init_Core___instance__49;
 x_3 = l_Init_Control_Monad___instance__2___rarg(x_1, x_2);
 return x_3;
 }
@@ -4237,7 +4237,7 @@ lean_object* lean_format_pretty(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_3 = l_Int_zero___closed__1;
+x_3 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
@@ -4340,7 +4340,7 @@ static lean_object* _init_l_Lean_Lean_Data_Format___instance__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Nat_HasOfNat___closed__1;
+x_1 = l_Init_Core___instance__1___closed__1;
 return x_1;
 }
 }

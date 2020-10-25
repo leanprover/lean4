@@ -38,8 +38,6 @@ def UInt8.lor (a b : UInt8) : UInt8 := ⟨Fin.lor a.val b.val⟩
 def UInt8.lt (a b : UInt8) : Prop := a.val < b.val
 def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
 
-instance : HasZero UInt8     := ⟨UInt8.ofNat 0⟩
-instance : HasOne UInt8      := ⟨UInt8.ofNat 1⟩
 instance : HasOfNat UInt8    := ⟨UInt8.ofNat⟩
 instance : HasAdd UInt8      := ⟨UInt8.add⟩
 instance : HasSub UInt8      := ⟨UInt8.sub⟩
@@ -101,8 +99,7 @@ def UInt16.lor (a b : UInt16) : UInt16 := ⟨Fin.lor a.val b.val⟩
 def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
 def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
 
-instance : HasZero UInt16     := ⟨UInt16.ofNat 0⟩
-instance : HasOne UInt16      := ⟨UInt16.ofNat 1⟩
+
 instance : HasOfNat UInt16    := ⟨UInt16.ofNat⟩
 instance : HasAdd UInt16      := ⟨UInt16.add⟩
 instance : HasSub UInt16      := ⟨UInt16.sub⟩
@@ -172,8 +169,6 @@ def UInt32.toUInt16 (a : UInt32) : UInt16 := a.toNat.toUInt16
 @[extern c inline "((uint32_t)#1)"]
 def UInt8.toUInt32 (a : UInt8) : UInt32 := a.toNat.toUInt32
 
-instance : HasZero UInt32     := ⟨UInt32.ofNat 0⟩
-instance : HasOne UInt32      := ⟨UInt32.ofNat 1⟩
 instance : HasOfNat UInt32    := ⟨UInt32.ofNat⟩
 instance : HasAdd UInt32      := ⟨UInt32.add⟩
 instance : HasSub UInt32      := ⟨UInt32.sub⟩
@@ -254,8 +249,6 @@ constant UInt64.shiftLeft (a b : UInt64) : UInt64 := (arbitrary Nat).toUInt64
 @[extern c inline "#1 >> #2"]
 constant UInt64.shiftRight (a b : UInt64) : UInt64 := (arbitrary Nat).toUInt64
 
-instance : HasZero UInt64     := ⟨UInt64.ofNat 0⟩
-instance : HasOne UInt64      := ⟨UInt64.ofNat 1⟩
 instance : HasOfNat UInt64    := ⟨UInt64.ofNat⟩
 instance : HasAdd UInt64      := ⟨UInt64.add⟩
 instance : HasSub UInt64      := ⟨UInt64.sub⟩
@@ -335,8 +328,6 @@ constant USize.shiftRight (a b : USize) : USize := (arbitrary Nat).toUSize
 def USize.lt (a b : USize) : Prop := a.val < b.val
 def USize.le (a b : USize) : Prop := a.val ≤ b.val
 
-instance : HasZero USize     := ⟨USize.ofNat 0⟩
-instance : HasOne USize      := ⟨USize.ofNat 1⟩
 instance : HasOfNat USize    := ⟨USize.ofNat⟩
 instance : HasAdd USize      := ⟨USize.add⟩
 instance : HasSub USize      := ⟨USize.sub⟩

@@ -35,6 +35,7 @@ lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__2___closed__40;
 lean_object* l_IO_FS_Stream_readMessage___closed__1;
 lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__2___closed__9;
 lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__1_match__1___rarg___closed__7;
+extern lean_object* l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__2___closed__33;
 lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__2___closed__22;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
@@ -77,7 +78,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__3(lean_object*);
 lean_object* l_IO_FS_Stream_readRequestAs_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__1_match__1___rarg___closed__6;
-extern lean_object* l_Int_zero___closed__1;
 lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__1___closed__4;
 lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__2___closed__10;
 lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__2___closed__32;
@@ -305,7 +305,7 @@ if (x_15 == 0)
 lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 x_16 = lean_ctor_get(x_14, 0);
 x_17 = lean_ctor_get(x_14, 1);
-x_18 = l_Int_zero___closed__1;
+x_18 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 x_19 = lean_int_dec_lt(x_16, x_18);
 if (x_19 == 0)
 {
@@ -1163,7 +1163,7 @@ x_213 = lean_ctor_get(x_14, 1);
 lean_inc(x_213);
 lean_inc(x_212);
 lean_dec(x_14);
-x_214 = l_Int_zero___closed__1;
+x_214 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 x_215 = lean_int_dec_lt(x_212, x_214);
 if (x_215 == 0)
 {
@@ -1938,7 +1938,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Int_zero___closed__1;
+x_5 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 x_6 = lean_int_dec_lt(x_3, x_5);
 if (x_6 == 0)
 {
@@ -4286,7 +4286,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
 lean_dec(x_6);
-x_9 = l_Int_zero___closed__1;
+x_9 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 x_10 = lean_int_dec_lt(x_7, x_9);
 if (x_10 == 0)
 {

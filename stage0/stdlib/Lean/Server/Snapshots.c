@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Server_Snapshots_Snapshot_toCmdState_match__1(lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_msgLog___boxed(lean_object*);
 lean_object* l___private_Lean_Server_Snapshots_0__Lean_Server_Snapshots_ioErrorFromEmpty_match__1(lean_object*, uint8_t);
+extern lean_object* l_Init_Core___instance__33;
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_withLogging___closed__2;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -65,7 +66,6 @@ lean_object* l_Lean_Server_Snapshots_compileCmdsAfter_match__1(lean_object*);
 uint8_t l_Lean_Parser_isEOI(lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileHeader_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileNextCmd_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l_Nat_Inhabited;
 lean_object* l_Lean_Server_Snapshots_Snapshot_toCmdState_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_env(lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileNextCmd(lean_object*, lean_object*, lean_object*);
@@ -632,7 +632,7 @@ lean_dec(x_123);
 if (lean_obj_tag(x_124) == 0)
 {
 lean_object* x_125; lean_object* x_126; 
-x_125 = l_Nat_Inhabited;
+x_125 = l_Init_Core___instance__33;
 x_126 = lean_panic_fn(x_125, x_122);
 x_16 = x_126;
 goto block_120;
@@ -659,7 +659,7 @@ lean_dec(x_128);
 if (lean_obj_tag(x_129) == 0)
 {
 lean_object* x_130; lean_object* x_131; lean_object* x_132; 
-x_130 = l_Nat_Inhabited;
+x_130 = l_Init_Core___instance__33;
 x_131 = l_Option_get_x21___rarg___closed__4;
 x_132 = lean_panic_fn(x_130, x_131);
 x_16 = x_132;

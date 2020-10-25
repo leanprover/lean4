@@ -1042,29 +1042,28 @@ _start:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_3; uint8_t x_4; uint8_t x_5; 
+lean_object* x_3; uint8_t x_4; uint8_t x_5; uint8_t x_6; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = 0;
 x_5 = l_Lean_KVMap_getBool(x_1, x_2, x_4);
-if (x_5 == 0)
-{
-uint8_t x_6; 
 x_6 = l_Lean_KVMap_contains(x_1, x_2);
 if (x_6 == 0)
+{
+if (x_5 == 0)
 {
 x_2 = x_3;
 goto _start;
 }
 else
 {
-return x_5;
+uint8_t x_8; 
+x_8 = 1;
+return x_8;
 }
 }
 else
 {
-uint8_t x_8; 
-x_8 = 1;
-return x_8;
+return x_5;
 }
 }
 else

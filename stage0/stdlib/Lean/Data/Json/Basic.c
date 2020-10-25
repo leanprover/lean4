@@ -29,6 +29,7 @@ extern lean_object* l_Int_repr___closed__1;
 lean_object* l_Lean_Json_getBool_x3f_match__1(lean_object*);
 lean_object* l_Lean_Json_getObj_x3f___boxed(lean_object*);
 lean_object* l_Lean_Json_getNat_x3f(lean_object*);
+extern lean_object* l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 lean_object* l_Lean_JsonNumber_toString(lean_object*);
 lean_object* l_Lean_Json_Lean_Data_Json_Basic___instance__6(lean_object*);
 lean_object* l_Lean_JsonNumber_Lean_Data_Json_Basic___instance__5(lean_object*);
@@ -64,7 +65,6 @@ lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_shiftl___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getInt_x3f_match__1(lean_object*);
-extern lean_object* l_Int_zero___closed__1;
 lean_object* l_Lean_Json_getArrVal_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObj_x3f(lean_object*);
 lean_object* l_Lean_JsonNumber_Lean_Data_Json_Basic___instance__2___closed__1;
@@ -507,7 +507,7 @@ x_5 = lean_nat_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
-x_6 = l_Int_zero___closed__1;
+x_6 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 x_7 = lean_int_dec_le(x_6, x_2);
 x_8 = lean_nat_abs(x_2);
 lean_dec(x_2);
@@ -3664,7 +3664,7 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec(x_4);
-x_7 = l_Int_zero___closed__1;
+x_7 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 x_8 = lean_int_dec_lt(x_5, x_7);
 if (x_8 == 0)
 {
@@ -3727,7 +3727,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Int_zero___closed__1;
+x_5 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 x_6 = lean_int_dec_lt(x_3, x_5);
 if (x_6 == 0)
 {

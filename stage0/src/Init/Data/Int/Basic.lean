@@ -25,11 +25,6 @@ attribute [extern "lean_int_neg_succ_of_nat"] Int.negSucc
 instance : Coe Nat Int := ⟨Int.ofNat⟩
 
 namespace Int
-protected def zero : Int := ofNat 0
-protected def one  : Int := ofNat 1
-
-instance : HasZero Int := ⟨Int.zero⟩
-instance : HasOne Int  := ⟨Int.one⟩
 instance : Inhabited Int := ⟨ofNat 0⟩
 
 def negOfNat : Nat → Int

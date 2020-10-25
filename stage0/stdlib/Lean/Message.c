@@ -111,7 +111,6 @@ lean_object* l_Lean_MessageData_joinSep(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Message___instance__28(lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1868____lambda__1___closed__4;
 lean_object* l_Lean_KernelException_toMessageData___closed__20;
-extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_Array_iterateMAux___at_Lean_MessageLog_toList___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_Lean_Message___instance__6(lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1868____lambda__1___closed__9;
@@ -365,6 +364,7 @@ lean_object* l_Lean_Lean_Message___instance__25___rarg(lean_object*, lean_object
 lean_object* l_Lean_MessageData_joinSep_match__1(lean_object*);
 lean_object* l_Lean_MessageData_Lean_Message___instance__3;
 uint8_t l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
+extern lean_object* l_Init_Core___instance__1___closed__1;
 lean_object* l_Lean_KernelException_toMessageData_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_KernelException_toMessageData___closed__44;
@@ -7130,7 +7130,7 @@ static lean_object* _init_l_Lean_Lean_Message___instance__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Nat_HasOfNat___closed__1;
+x_1 = l_Init_Core___instance__1___closed__1;
 return x_1;
 }
 }

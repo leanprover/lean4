@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Init_Core___instance__33;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
 uint8_t l_String_isNat(lean_object*);
@@ -28,7 +29,6 @@ lean_object* l_String_toNat_x21___boxed(lean_object*);
 lean_object* l_String_toNat_x21___closed__1;
 lean_object* l_String_toNat_x21___closed__2;
 lean_object* l_String_toNat_x21(lean_object*);
-extern lean_object* l_Nat_Inhabited;
 lean_object* l_String_toNat_x21___closed__3;
 static lean_object* _init_l_String_toNat_x21___closed__1() {
 _start:
@@ -75,7 +75,7 @@ x_2 = l_String_isNat(x_1);
 if (x_2 == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Nat_Inhabited;
+x_3 = l_Init_Core___instance__33;
 x_4 = l_String_toNat_x21___closed__4;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;

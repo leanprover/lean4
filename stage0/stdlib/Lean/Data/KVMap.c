@@ -26,6 +26,7 @@ lean_object* l_Lean_KVMap_findD___boxed(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__3;
 lean_object* l_Lean_Lean_Data_KVMap___instance__4___boxed(lean_object*);
 lean_object* l_Lean_KVMap_getName_match__1(lean_object*);
+extern lean_object* l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 lean_object* l_Lean_Lean_Data_KVMap___instance__2___closed__1;
 lean_object* l_Lean_KVMap_setNat(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Init_Data_Repr___instance__2___closed__2;
@@ -66,7 +67,6 @@ lean_object* l_Lean_KVMap_insert_match__1___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__12;
 lean_object* l_Lean_Lean_Data_KVMap___instance__3(lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__10;
-extern lean_object* l_Int_zero___closed__1;
 lean_object* l_Lean_DataValue_getBoolEx___boxed(lean_object*);
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__15;
@@ -2325,7 +2325,7 @@ static lean_object* _init_l_Lean_KVMap_Lean_Data_KVMap___instance__13___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Int_zero___closed__1;
+x_1 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 x_2 = l_Lean_KVMap_Lean_Data_KVMap___instance__13___closed__1;
 x_3 = l_Lean_KVMap_Lean_Data_KVMap___instance__13___closed__2;
 x_4 = lean_alloc_ctor(0, 3, 0);

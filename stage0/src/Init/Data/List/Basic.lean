@@ -330,7 +330,7 @@ instance hasDecidableLt [HasLess α] [h : DecidableRel (α:=α) (·<·)] : (l₁
 instance [HasLess α] : HasLessEq (List α) := ⟨List.LessEq⟩
 
 instance [HasLess α] [h : DecidableRel (HasLess.Less : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
-  fun a b => Not.Decidable
+  fun a b => inferInstanceAs (Decidable (Not _))
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/
 def isPrefixOf [HasBeq α] : List α → List α → Bool

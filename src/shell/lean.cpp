@@ -612,6 +612,13 @@ int main(int argc, char ** argv) {
             main_module_name = module_name_of_file(mod_fn, root_dir, /* optional */ !olean_fn && !c_output);
         }
 
+        if (only_deps) {
+            object_ref imports; position pos(0, 0); message_log import_log;
+            std::tie(imports, pos, import_log) = parse_imports(contents, mod_fn);
+            print_deps(imports);
+            return 0;
+        }
+
         // Quick and dirty `#lang` support
         // TODO: make it extensible, and add `lean4md`
         if (contents.compare(0, 5, "#lang") == 0) {
@@ -629,10 +636,6 @@ int main(int argc, char ** argv) {
             // Remove up to `\n`
             contents.erase(0, end_line_pos);
         }
-
-        // Temporary HACK until we add support for `--deps` using the new frontend
-        if (only_deps)
-            new_frontend = false;
 
         bool ok = true;
         if (new_frontend) {

@@ -383,10 +383,23 @@ void environment_free_regions(environment && env) {
     consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
 }
 
-pos_info get_message_pos(object_ref const & msg);
-message_severity get_message_severity(object_ref const & msg);
-std::string get_message_string(object_ref const & msg);
+extern "C" object * lean_message_pos(object * msg);
+extern "C" uint8 lean_message_severity(object * msg);
+extern "C" object * lean_message_string(object * msg);
 
+pos_info get_message_pos(object_ref const & msg) {
+    auto p = pair_ref<nat, nat>(lean_message_pos(msg.to_obj_arg()));
+    return pos_info(p.fst().get_small_value(), p.snd().get_small_value());
+}
+
+message_severity get_message_severity(object_ref const & msg) {
+    return static_cast<message_severity>(lean_message_severity(msg.to_obj_arg()));
+}
+
+std::string get_message_string(object_ref const & msg) {
+    string_ref r(lean_message_string(msg.to_obj_arg()));
+    return r.to_std_string();
+}
 }
 
 void check_optarg(char const * option_name) {

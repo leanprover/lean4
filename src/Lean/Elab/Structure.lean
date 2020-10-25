@@ -385,8 +385,10 @@ private def collectLevelParamsInFVar (s : CollectLevelParams.State) (fvar : Expr
 private def collectLevelParamsInFVars (fvars : Array Expr) (s : CollectLevelParams.State) : TermElabM CollectLevelParams.State :=
   fvars.foldlM collectLevelParamsInFVar s
 
-private def collectLevelParamsInStructure (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM (Array Name) := do
-  let s ← collectLevelParamsInFVars scopeVars {}
+private def collectLevelParamsInStructure (structType : Expr) (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
+    : TermElabM (Array Name) := do
+  let s := collectLevelParams {} structType
+  let s ← collectLevelParamsInFVars scopeVars s
   let s ← collectLevelParamsInFVars params s
   let s ← fieldInfos.foldlM (fun (s : CollectLevelParams.State) info => collectLevelParamsInFVar s info.fvar) s
   pure s.params
@@ -458,7 +460,8 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
       let numParams := scopeVars.size + numExplicitParams
       let fieldInfos ← levelMVarToParam scopeVars view.params fieldInfos
       let type ← if inferLevel then updateResultingUniverse fieldInfos type else pure type
-      let usedLevelNames ← collectLevelParamsInStructure scopeVars view.params fieldInfos
+      trace[Elab.structure]! "type: {type}"
+      let usedLevelNames ← collectLevelParamsInStructure type scopeVars view.params fieldInfos
       match sortDeclLevelParams view.scopeLevelNames view.allUserLevelNames usedLevelNames with
       | Except.error msg      => throwError msg
       | Except.ok levelParams =>
@@ -536,5 +539,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
     ctor              := ctor,
     fields            := fields
   }
+
+builtin_initialize registerTraceClass `Elab.structure
 
 end Lean.Elab.Command

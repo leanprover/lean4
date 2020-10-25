@@ -67,13 +67,12 @@ def compileHeader (contents : String) (opts : Options := {}) : IO Snapshot := do
        }
 
 def reparseHeader (contents : String) (header : Snapshot) (opts : Options := {}) : IO Snapshot := do
-let inputCtx := Parser.mkInputContext contents "<input>";
-(_, newHeaderParserState, _) ← Parser.parseHeader inputCtx;
-pure { header with mpState := newHeaderParserState }
+  let inputCtx := Parser.mkInputContext contents "<input>"
+  let (_, newHeaderParserState, _) ← Parser.parseHeader inputCtx
+  pure { header with mpState := newHeaderParserState }
 
 private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
   nomatch ex
-
 
 /-- Compiles the next command occurring after the given snapshot.
 If there is no next command (file ended), returns messages produced
@@ -82,13 +81,13 @@ through the file. -/
 -- over "store snapshots"/"don't store snapshots" would likely result in confusing
 -- isServer? conditionals and not be worth it due to how short it is.
 def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot MessageLog) := do
-  let inputCtx := Parser.mkInputContext contents "<input>";
-  let cmdState := snap.toCmdState;
+  let inputCtx := Parser.mkInputContext contents "<input>"
+  let cmdState := snap.toCmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, cmdParserState, msgLog) :=
-    Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog;
-  let cmdPos := cmdStx.getHeadInfo.get!.pos.get!; -- TODO(WN): always `some`?
+    Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
+  let cmdPos := cmdStx.getHeadInfo.get!.pos.get! -- TODO(WN): always `some`?
   if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
     pure $ Sum.inr msgLog
   else

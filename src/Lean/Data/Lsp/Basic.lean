@@ -20,12 +20,12 @@ open Json
 
 structure CancelParams := (id : JsonRpc.RequestID)
 
-instance CancelParams.hasFromJson : HasFromJson CancelParams :=
+instance CancelParams.hasFromJson : FromJson CancelParams :=
 ⟨fun j => do
-  id ← j.getObjValAs? JsonRpc.RequestID "id";
+  let id ← j.getObjValAs? JsonRpc.RequestID "id";
   pure ⟨id⟩⟩
 
-instance CancelParams.hasToJson : HasToJson CancelParams :=
+instance CancelParams.hasToJson : ToJson CancelParams :=
 ⟨fun o => mkObj $
   ⟨"id", toJson o.id⟩ :: []⟩
 

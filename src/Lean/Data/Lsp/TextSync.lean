@@ -76,7 +76,7 @@ instance : FromJson DidChangeTextDocumentParams := ⟨fun j => do
   let contentChanges ← j.getObjValAs? (Array TextDocumentContentChangeEvent) "contentChanges"
   pure ⟨textDocument, contentChanges⟩⟩
 
-instance DidChangeTextDocumentParams.hasToJson : HasToJson DidChangeTextDocumentParams :=
+instance DidChangeTextDocumentParams.hasToJson : ToJson DidChangeTextDocumentParams :=
 ⟨fun o => mkObj $ [⟨"textDocument", toJson o.textDocument⟩, ⟨"contentChanges", toJson o.contentChanges⟩]⟩
 
 -- TODO: missing:
@@ -95,7 +95,7 @@ structure DidCloseTextDocumentParams where
 instance : FromJson DidCloseTextDocumentParams := ⟨fun j =>
   DidCloseTextDocumentParams.mk <$> j.getObjValAs? TextDocumentIdentifier "textDocument"⟩
 
-instance DidCloseTextDocumentParams.hasToJson : HasToJson DidCloseTextDocumentParams :=
+instance DidCloseTextDocumentParams.hasToJson : ToJson DidCloseTextDocumentParams :=
 ⟨fun o => mkObj $ [⟨"textDocument", toJson o.textDocument⟩]⟩
 
 -- TODO: TextDocumentSyncClientCapabilities

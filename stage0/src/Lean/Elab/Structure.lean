@@ -188,12 +188,13 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         name       := name,
         binders    := binders,
         type?      := type?,
-        value?     := value? }
+        value?     := value?
+      }
 
 private def validStructType (type : Expr) : Bool :=
   match type with
-  | Expr.sort (Level.succ _ _) _ => true
-  | _                            => false
+  | Expr.sort .. => true
+  | _            => false
 
 private def checkParentIsStructure (parent : Expr) : TermElabM Name :=
   match parent.getAppFn with
@@ -430,9 +431,9 @@ private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let hasUnit := env.contains `PUnit
   let hasEq   := env.contains `Eq
   let hasHEq  := env.contains `HEq
-  modifyEnv fun env => mkRecOn env declName
-  if hasUnit then modifyEnv fun env => mkCasesOn env declName
-  if hasUnit && hasEq && hasHEq then modifyEnv fun env => mkNoConfusion env declName
+  mkRecOn declName
+  if hasUnit then mkCasesOn declName
+  if hasUnit && hasEq && hasHEq then mkNoConfusion declName
 
 private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × Expr × Expr)) : TermElabM Unit := do
   let localInsts ← getLocalInstances

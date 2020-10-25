@@ -148,7 +148,7 @@ match ← getRecFromUsingLoop baseRecName (← inferType major) with
 /- Create `RecInfo` assuming builtin recursor -/
 private def getRecInfoDefault (major : Expr) (withAlts : Syntax) (allowMissingAlts : Bool) : TacticM (RecInfo × Array Name) := do
 let indVal ← getInductiveValFromMajor major
-let recName := mkRecFor indVal.name
+let recName := mkRecName indVal.name
 if withAlts.isNone then
   pure ({ recName := recName }, #[])
 else

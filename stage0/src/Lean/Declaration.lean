@@ -352,7 +352,7 @@ constant instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) 
 
 end ConstantInfo
 
-def mkRecFor (declName : Name) : Name :=
+def mkRecName (declName : Name) : Name :=
   mkNameStr declName "rec"
 
 end Lean

@@ -98,7 +98,7 @@ theorem modLt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
      | Or.inr h₁ =>
        have hgt : y > x from gtOfNotLe h₁
        have heq : x % y = x from modEqOfLt hgt
-       rw [← heq] at hgt; -- TODO: remove `;`
+       rw [← heq] at hgt
        exact hgt
 
 theorem modLe (x y : Nat) : x % y ≤ x := by

@@ -75,6 +75,7 @@ lean_object* l_Lean_Parser_Term_if_formatter(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Parser_Term_infixL___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Term_band_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_Term_have_formatter___closed__2;
+extern lean_object* l_Lean_mkRecName___closed__1;
 lean_object* l_Lean_Parser_Term_explicitUniv_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Term_structInstArrayRef___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_parenthesizer___closed__13;
@@ -2330,7 +2331,6 @@ lean_object* l_Lean_Parser_Term_typeAscription___elambda__1___closed__4;
 lean_object* l_Lean_Parser_interpolatedStr(lean_object*);
 lean_object* l_Lean_Parser_Term_letPatDecl___closed__7;
 lean_object* l_Lean_Parser_Term_structInstLVal_formatter___closed__1;
-extern lean_object* l_Lean_mkRecFor___closed__1;
 lean_object* l_Lean_Parser_Tactic_quot___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Term_explicitBinder___boxed(lean_object*);
 lean_object* l_Lean_Parser_Term_seq_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30365,7 +30365,7 @@ static lean_object* _init_l_Lean_Parser_Term_letDecl___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_mkRecFor___closed__1;
+x_1 = l_Lean_mkRecName___closed__1;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -30385,7 +30385,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_letDecl___closed__2;
-x_2 = l_Lean_mkRecFor___closed__1;
+x_2 = l_Lean_mkRecName___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_notFollowedByFn___boxed), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -31075,7 +31075,7 @@ static lean_object* _init_l_Lean_Parser_Term_letDecl_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_mkRecFor___closed__1;
+x_1 = l_Lean_mkRecName___closed__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_nonReservedSymbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -31474,7 +31474,7 @@ static lean_object* _init_l_Lean_Parser_Term_letDecl_parenthesizer___closed__1()
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_mkRecFor___closed__1;
+x_1 = l_Lean_mkRecName___closed__1;
 x_2 = 0;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_nonReservedSymbol_parenthesizer___boxed), 3, 2);

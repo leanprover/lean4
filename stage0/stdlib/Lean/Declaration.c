@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_DefinitionVal_isUnsafeEx___boxed(lean_object*);
+lean_object* l_Lean_mkRecName___closed__1;
 lean_object* l_Lean_mkReducibilityHintsRegularEx___boxed(lean_object*);
 lean_object* l_Lean_Declaration_foldExprM(lean_object*, lean_object*);
 uint8_t lean_definition_val_is_unsafe(lean_object*);
@@ -58,6 +59,7 @@ lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams___boxed(lean_object*
 lean_object* l_Lean_Lean_Declaration___instance__2___closed__1;
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__4(lean_object*);
+lean_object* l_Lean_mkRecName(lean_object*);
 lean_object* l_Lean_QuotVal_kindEx___boxed(lean_object*);
 lean_object* l_Lean_ConstructorVal_isUnsafeEx___boxed(lean_object*);
 lean_object* lean_mk_inductive_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t);
@@ -79,7 +81,6 @@ uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
 lean_object* l_Lean_mkOpaqueValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Declaration_isUnsafeInductiveDeclEx___boxed(lean_object*);
 lean_object* l_Lean_RecursorVal_kEx___boxed(lean_object*);
-lean_object* l_Lean_mkRecFor___closed__1;
 uint8_t lean_recursor_k(lean_object*);
 lean_object* l_Lean_Lean_Declaration___instance__4___closed__1;
 lean_object* l_Lean_ReducibilityHints_getHeightEx_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -153,7 +154,6 @@ uint32_t lean_reducibility_hints_get_height(lean_object*);
 lean_object* l_Lean_ConstantInfo_hasValue_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkInductiveValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_isUnsafe___boxed(lean_object*);
-lean_object* l_Lean_mkRecFor(lean_object*);
 lean_object* l_Lean_ConstantInfo_type___boxed(lean_object*);
 uint8_t l_Lean_ReducibilityHints_lt(lean_object*, lean_object*);
 lean_object* lean_mk_reducibility_hints_regular(uint32_t x_1) {
@@ -2674,7 +2674,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_mkRecFor___closed__1() {
+static lean_object* _init_l_Lean_mkRecName___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2682,11 +2682,11 @@ x_1 = lean_mk_string("rec");
 return x_1;
 }
 }
-lean_object* l_Lean_mkRecFor(lean_object* x_1) {
+lean_object* l_Lean_mkRecName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_mkRecFor___closed__1;
+x_2 = l_Lean_mkRecName___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2724,8 +2724,8 @@ l_Lean_ConstantInfo_value_x21___closed__3 = _init_l_Lean_ConstantInfo_value_x21_
 lean_mark_persistent(l_Lean_ConstantInfo_value_x21___closed__3);
 l_Lean_ConstantInfo_value_x21___closed__4 = _init_l_Lean_ConstantInfo_value_x21___closed__4();
 lean_mark_persistent(l_Lean_ConstantInfo_value_x21___closed__4);
-l_Lean_mkRecFor___closed__1 = _init_l_Lean_mkRecFor___closed__1();
-lean_mark_persistent(l_Lean_mkRecFor___closed__1);
+l_Lean_mkRecName___closed__1 = _init_l_Lean_mkRecName___closed__1();
+lean_mark_persistent(l_Lean_mkRecName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

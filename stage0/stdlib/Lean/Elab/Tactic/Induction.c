@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_generalizeMajor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_mkRecName___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_checkCasesResult_loop___closed__2;
 extern lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_unifyEqsAux___lambda__1___closed__1;
 size_t l_USize_add(size_t, size_t);
@@ -172,7 +173,6 @@ lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_obj
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_processResult___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getInductiveValFromMajor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_dbg_to_string(lean_object*);
-extern lean_object* l_Lean_mkRecFor___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_generalizeMajor_match__2(lean_object*);
 lean_object* l_List_forIn_loop___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getRecInfoDefault___spec__3(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkSimpleThunk___closed__1;
@@ -5127,7 +5127,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
 lean_dec(x_17);
-x_19 = l_Lean_mkRecFor___closed__1;
+x_19 = l_Lean_mkRecName___closed__1;
 x_20 = lean_name_mk_string(x_18, x_19);
 x_21 = l_Lean_Syntax_isNone(x_2);
 if (x_21 == 0)
@@ -5338,7 +5338,7 @@ lean_inc(x_63);
 x_64 = lean_ctor_get(x_63, 0);
 lean_inc(x_64);
 lean_dec(x_63);
-x_65 = l_Lean_mkRecFor___closed__1;
+x_65 = l_Lean_mkRecName___closed__1;
 x_66 = lean_name_mk_string(x_64, x_65);
 x_67 = l_Lean_Syntax_isNone(x_2);
 if (x_67 == 0)

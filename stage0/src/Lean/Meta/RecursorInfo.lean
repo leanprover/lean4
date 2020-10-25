@@ -15,10 +15,10 @@ def recOnSuffix         := "recOn"
 def brecOnSuffix        := "brecOn"
 def binductionOnSuffix  := "binductionOn"
 
-def mkCasesOnFor (indDeclName : Name) : Name := mkNameStr indDeclName casesOnSuffix
-def mkRecOnFor (indDeclName : Name) : Name   := mkNameStr indDeclName recOnSuffix
-def mkBRecOnFor (indDeclName : Name) : Name  := mkNameStr indDeclName brecOnSuffix
-def mkBInductionOnFor (indDeclName : Name) : Name  := mkNameStr indDeclName binductionOnSuffix
+def mkCasesOnName (indDeclName : Name) : Name := mkNameStr indDeclName casesOnSuffix
+def mkRecOnName (indDeclName : Name) : Name   := mkNameStr indDeclName recOnSuffix
+def mkBRecOnName (indDeclName : Name) : Name  := mkNameStr indDeclName brecOnSuffix
+def mkBInductionOnName (indDeclName : Name) : Name  := mkNameStr indDeclName binductionOnSuffix
 
 inductive RecursorUnivLevelPos
 | motive                -- marks where the universe of the motive should go
@@ -112,7 +112,7 @@ else do
     if s != recOnSuffix && s != casesOnSuffix && s != brecOnSuffix then
       pure none
     else do
-      let val ← getConstInfoRec (mkRecFor p)
+      let val ← getConstInfoRec (mkRecName p)
       pure $ some (val.nparams + val.nindices + (if s == casesOnSuffix then 1 else val.nmotives))
   | _ => pure none
 

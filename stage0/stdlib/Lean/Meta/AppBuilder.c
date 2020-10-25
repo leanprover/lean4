@@ -18,6 +18,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMArgs_loop___box
 lean_object* l_Lean_Meta_mkLe___rarg___closed__4;
 extern lean_object* l___private_Init_LeanInit_0__Lean_quoteList___rarg___closed__4;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___rarg___closed__3;
+extern lean_object* l_Lean_mkRecName___closed__1;
 lean_object* l_Lean_Meta_mkAppM___rarg___lambda__1___closed__2;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkProjectionImp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqMP___rarg___closed__2;
@@ -255,7 +256,6 @@ lean_object* l_Array_forMAux___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mk
 extern lean_object* l_Lean_MessageData_Lean_Message___instance__10___closed__2;
 lean_object* l_List_map___at_Lean_MessageData_Lean_Message___instance__12___spec__1(lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkRecFor___closed__1;
 lean_object* l_Lean_Meta_mkAppOptM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkCongrArgImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkArrayLit___rarg(lean_object*, lean_object*, lean_object*);
@@ -10316,7 +10316,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Expr_eq_x3f___closed__2;
-x_2 = l_Lean_mkRecFor___closed__1;
+x_2 = l_Lean_mkRecName___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

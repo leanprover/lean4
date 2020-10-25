@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <lean/sstream.h>
+#include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -237,10 +238,6 @@ environment mk_no_confusion(environment const & env, name const & n) {
 }
 
 extern "C" object * lean_mk_no_confusion(object * env, object * n) {
-    try {
-        return mk_no_confusion(environment(env), name(n, true)).steal();
-    } catch (exception &) {
-        return env;
-    }
+    return catch_kernel_exceptions<environment>([&]() { return mk_no_confusion(environment(env), name(n, true)); });
 }
 }

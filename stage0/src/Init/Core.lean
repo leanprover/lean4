@@ -1,4 +1,3 @@
-#lang lean4
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -149,18 +148,19 @@ structure Iff (a b : Prop) : Prop :=
 
 @[elabAsEliminator]
 theorem Eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
-Eq.ndrec h₂ h₁
+  Eq.ndrec h₂ h₁
 
 theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
-h₂ ▸ h₁
+  h₂ ▸ h₁
 
 theorem Eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
-h ▸ rfl
+  h ▸ rfl
 
 @[macroInline] def cast {α β : Sort u} (h : α = β) (a : α) : β :=
-Eq.rec (motive := fun α _ => α) a h
+  Eq.rec (motive := fun α _ => α) a h
 
-@[matchPattern] def HEq.rfl {α : Sort u} {a : α} : a ≅ a := HEq.refl a
+@[matchPattern] def HEq.rfl {α : Sort u} {a : α} : a ≅ a :=
+  HEq.refl a
 
 theorem eqOfHEq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' := by
   have (α β : Sort u) → (a : α) → (b : β) → a ≅ b → (h : α = β) → cast h a = b by
@@ -409,13 +409,13 @@ instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (
 }
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Sum α β) := {
-  sizeof := fun
+  sizeof := fun s => match s with
     | Sum.inl a => 1 + sizeof a
     | Sum.inr b => 1 + sizeof b
 }
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (PSum α β) := {
-  sizeof := fun
+  sizeof := fun p => match p with
     | PSum.inl a => 1 + sizeof a
     | PSum.inr b => 1 + sizeof b
 }
@@ -437,7 +437,7 @@ instance : HasSizeof Bool := {
 }
 
 instance (α : Type u) [HasSizeof α] : HasSizeof (Option α) := {
-  sizeof := fun
+  sizeof := fun o => match o with
     | none   => 1
     | some a => 1 + sizeof a
 }
@@ -1069,11 +1069,11 @@ instance (p : Prop) : Subsingleton p :=
   ⟨fun a b => proofIrrel a b⟩
 
 instance (p : Prop) : Subsingleton (Decidable p) :=
-  Subsingleton.intro fun
-    | (isTrue t₁) => fun
+  Subsingleton.intro fun d₁ => match d₁ with
+    | (isTrue t₁) => fun d₂ => match d₂ with
       | (isTrue t₂)  => proofIrrel t₁ t₂ ▸ rfl
       | (isFalse f₂) => absurd t₁ f₂
-    | (isFalse f₁) => fun
+    | (isFalse f₁) => fun d₂ => match d₂ with
       | (isTrue t₂)  => absurd t₂ f₁
       | (isFalse f₂) => proofIrrel f₁ f₂ ▸ rfl
 

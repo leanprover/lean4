@@ -79,7 +79,7 @@ partial def moveEntries [Hashable α] : Nat → Array (List α) → HashSetBucke
 
 def expand [Hashable α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
 let nbuckets := buckets.val.size * 2
-have nbuckets > 0 from Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero)
+have nbuckets > 0 from Nat.mulPos buckets.property (decide! : 2 > 0)
 have (mkArray nbuckets ([] : List α)).size = nbuckets from Array.szMkArrayEq _ _
 have Array.size (mkArray nbuckets List.nil) > 0 by rw this; assumption
 let new_buckets : HashSetBucket α := ⟨mkArray nbuckets [], this⟩;

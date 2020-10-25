@@ -148,18 +148,19 @@ structure Iff (a b : Prop) : Prop :=
 
 @[elabAsEliminator]
 theorem Eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
-Eq.ndrec h₂ h₁
+  Eq.ndrec h₂ h₁
 
 theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
-h₂ ▸ h₁
+  h₂ ▸ h₁
 
 theorem Eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
-h ▸ rfl
+  h ▸ rfl
 
 @[macroInline] def cast {α β : Sort u} (h : α = β) (a : α) : β :=
-Eq.rec (motive := fun α _ => α) a h
+  Eq.rec (motive := fun α _ => α) a h
 
-@[matchPattern] def HEq.rfl {α : Sort u} {a : α} : a ≅ a := HEq.refl a
+@[matchPattern] def HEq.rfl {α : Sort u} {a : α} : a ≅ a :=
+  HEq.refl a
 
 theorem eqOfHEq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' := by
   have (α β : Sort u) → (a : α) → (b : β) → a ≅ b → (h : α = β) → cast h a = b by

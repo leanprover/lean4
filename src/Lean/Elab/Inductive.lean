@@ -405,15 +405,15 @@ let hasUnit := env.contains `PUnit
 let hasProd := env.contains `Prod
 for view in views do
   let n := view.declName
-  modifyEnv fun env => mkRecOn env n
-  if hasUnit then modifyEnv fun env => mkCasesOn env n
-  if hasUnit && hasEq && hasHEq then modifyEnv fun env => mkNoConfusion env n
-  if hasUnit && hasProd then modifyEnv fun env => mkBelow env n
-  if hasUnit && hasProd then modifyEnv fun env => mkIBelow env n
+  mkRecOn n
+  if hasUnit then mkCasesOn n
+  if hasUnit && hasEq && hasHEq then mkNoConfusion n
+  if hasUnit && hasProd then mkBelow n
+  if hasUnit && hasProd then mkIBelow n
 for view in views do
   let n := view.declName;
-  if hasUnit && hasProd then modifyEnv fun env => mkBRecOn env n
-  if hasUnit && hasProd then modifyEnv fun env => mkBInductionOn env n
+  if hasUnit && hasProd then mkBRecOn n
+  if hasUnit && hasProd then mkBInductionOn n
 
 private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Unit := do
 let view0 := views[0]

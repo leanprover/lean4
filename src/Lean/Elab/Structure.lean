@@ -431,9 +431,9 @@ private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let hasUnit := env.contains `PUnit
   let hasEq   := env.contains `Eq
   let hasHEq  := env.contains `HEq
-  modifyEnv fun env => mkRecOn env declName
-  if hasUnit then modifyEnv fun env => mkCasesOn env declName
-  if hasUnit && hasEq && hasHEq then modifyEnv fun env => mkNoConfusion env declName
+  mkRecOn declName
+  if hasUnit then mkCasesOn declName
+  if hasUnit && hasEq && hasHEq then mkNoConfusion declName
 
 private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × Expr × Expr)) : TermElabM Unit := do
   let localInsts ← getLocalInstances

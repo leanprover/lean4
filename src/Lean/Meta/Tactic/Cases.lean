@@ -254,7 +254,7 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   withMVarContext mvarId do
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
-  let casesOn := mkCasesOnFor ctx.inductiveVal.name
+  let casesOn := mkCasesOnName ctx.inductiveVal.name
   let ctors   := ctx.inductiveVal.ctors.toArray
   let s ← induction mvarId majorFVarId casesOn givenNames useUnusedNames
   pure $ toCasesSubgoals s ctors majorFVarId us params

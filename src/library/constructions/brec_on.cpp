@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <lean/sstream.h>
+#include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -357,35 +358,18 @@ environment mk_binduction_on(environment const & env, name const & n) {
 }
 
 extern "C" object * lean_mk_below(object * env, object * n) {
-    try {
-        return mk_below(environment(env), name(n, true)).steal();
-    } catch (exception &) {
-        return env;
-    }
+    return catch_kernel_exceptions<environment>([&]() { return mk_below(environment(env), name(n, true)); });
 }
 
 extern "C" object * lean_mk_ibelow(object * env, object * n) {
-    try {
-        return mk_ibelow(environment(env), name(n, true)).steal();
-    } catch (exception &) {
-        return env;
-    }
+    return catch_kernel_exceptions<environment>([&]() { return mk_ibelow(environment(env), name(n, true)); });
 }
 
 extern "C" object * lean_mk_brec_on(object * env, object * n) {
-    try {
-        return mk_brec_on(environment(env), name(n, true)).steal();
-    } catch (exception &) {
-        return env;
-    }
+    return catch_kernel_exceptions<environment>([&]() { return mk_brec_on(environment(env), name(n, true)); });
 }
 
 extern "C" object * lean_mk_binduction_on(object * env, object * n) {
-    try {
-        return mk_binduction_on(environment(env), name(n, true)).steal();
-    } catch (exception &) {
-        return env;
-    }
+    return catch_kernel_exceptions<environment>([&]() { return mk_binduction_on(environment(env), name(n, true)); });
 }
-
 }

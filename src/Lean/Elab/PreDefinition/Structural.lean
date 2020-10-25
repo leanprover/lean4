@@ -75,9 +75,9 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
       else
         let xType ← whnfD localDecl.type
         matchConstInduct xType.getAppFn (fun _ => loop (i+1)) fun indInfo us => do
-        if !(← hasConst (mkBRecOnFor indInfo.name)) then
+        if !(← hasConst (mkBRecOnName indInfo.name)) then
           loop (i+1)
-        else if indInfo.isReflexive && !(← hasConst (mkBInductionOnFor indInfo.name)) then
+        else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) then
           loop (i+1)
         else
           let indArgs    := xType.getAppArgs
@@ -308,9 +308,9 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
   trace[Elab.definition.structural]! "brecOn motive: {motive}"
   let brecOn :=
     if useBInductionOn then
-      Lean.mkConst (mkBInductionOnFor recArgInfo.indName) recArgInfo.indLevels
+      Lean.mkConst (mkBInductionOnName recArgInfo.indName) recArgInfo.indLevels
     else
-      Lean.mkConst (mkBRecOnFor recArgInfo.indName) (brecOnUniv :: recArgInfo.indLevels)
+      Lean.mkConst (mkBRecOnName recArgInfo.indName) (brecOnUniv :: recArgInfo.indLevels)
   let brecOn := mkAppN brecOn recArgInfo.indParams
   let brecOn := mkApp brecOn motive
   let brecOn := mkAppN brecOn recArgInfo.indIndices

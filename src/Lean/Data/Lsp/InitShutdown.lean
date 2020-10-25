@@ -75,9 +75,9 @@ instance : FromJson InitializeParams := ⟨fun j => do
   let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"
   pure ⟨processId?, clientInfo?, rootUri?, initializationOptions?, capabilities, trace, workspaceFolders?⟩⟩
 
-instance InitializeParams.hasToJson : HasToJson InitializeParams :=
+instance InitializeParams.hasToJson : ToJson InitializeParams :=
 ⟨fun o => mkObj $
-  opt "processId" o.processId? ++ 
+  opt "processId" o.processId? ++
   opt "clientInfo" o.clientInfo? ++
   opt "rootUri" o.rootUri? ++
   opt "initializationOptions" o.initializationOptions? ++

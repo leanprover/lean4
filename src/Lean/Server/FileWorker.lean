@@ -12,6 +12,7 @@ import Lean.Server.Snapshots
 import Lean.Server.Utils
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
+import Lean.Server.AsyncList
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -48,7 +49,7 @@ diagnostics ← log.msgs.mapM (msgToDiagnostic text);
 Lsp.writeLspNotification h "textDocument/publishDiagnostics"
   { uri         := uri,
     version?    := version,
-    diagnostics := diagnostics.toArray 
+    diagnostics := diagnostics.toArray
     : PublishDiagnosticsParams }
 
 private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
@@ -59,85 +60,37 @@ inductive TaskError
 | eof
 | ioError (e : IO.Error)
 
-inductive ElabTask
-| mk (snap : Snapshot) (next : Task (Except TaskError ElabTask)) : ElabTask
+instance : Coe IO.Error TaskError := ⟨TaskError.ioError⟩
 
-namespace ElabTask
-
-private def runTask (act : IO (Except TaskError ElabTask)) : IO (Task (Except TaskError ElabTask)) := do
-t ← asTask act;
-pure $ t.map $ fun error => 
-  match error with
-  | Except.ok e => e
-  | Except.error ioError => Except.error (TaskError.ioError ioError)
-
-private partial def runCore (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) 
-  : Snapshot → IO (Except TaskError ElabTask)
-| parent => do
-  result ← compileNextCmd contents.source parent;
-  match result with
+private def nextCmdSnap (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap)
+  : Snapshot → ExceptT TaskError IO Snapshot
+| parentSnap => do
+  maybeSnap ← monadLift $ compileNextCmd contents.source parentSnap;
+  match maybeSnap with
   | Sum.inl snap => do
-    -- TODO(MH): check for interrupt with increased precision
-    canceled ← checkCanceled;
-    if canceled then
-      pure (Except.error TaskError.aborted)
-    else do
-      -- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
-      -- while prefering newer versions over old ones. The former is necessary because we do
-      -- not explicitly clear older diagnostics, while the latter is necessary because we do
-      -- not guarantee that diagnostics are emitted in order. Specifically, it may happen that
-      -- we interrupted this elaboration task right at this point and a newer elaboration task
-      -- emits diagnostics, after which we emit old diagnostics because we did not yet detect
-      -- the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
-      -- because we cannot guarantee that no further diagnostics are emitted after clearing
-      -- them.
-      sendDiagnostics h uri version contents snap.msgLog;
-      t ← runTask (runCore snap);
-      pure (Except.ok ⟨snap, t⟩)
+    -- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
+    -- while prefering newer versions over old ones. The former is necessary because we do
+    -- not explicitly clear older diagnostics, while the latter is necessary because we do
+    -- not guarantee that diagnostics are emitted in order. Specifically, it may happen that
+    -- we interrupted this elaboration task right at this point and a newer elaboration task
+    -- emits diagnostics, after which we emit old diagnostics because we did not yet detect
+    -- the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
+    -- because we cannot guarantee that no further diagnostics are emitted after clearing
+    -- them.
+    monadLift $ sendDiagnostics h uri version contents snap.msgLog;
+    pure snap
   | Sum.inr msgLog => do
-    canceled ← checkCanceled;
-    if canceled then
-      pure (Except.error TaskError.aborted)
-    else do
-      sendDiagnostics h uri version contents msgLog;
-      pure (Except.error TaskError.eof)
+    monadLift $ sendDiagnostics h uri version contents msgLog;
+    throw TaskError.eof
 
-def run (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) (parent : Snapshot) 
-  : IO ElabTask := do
-t ← runTask (runCore h uri version contents parent);
-pure ⟨parent, t⟩
-
-partial def branchOffAt (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap) 
-  : ElabTask → String.Pos → IO ElabTask
-| ⟨snap, nextTask⟩, changePos => do
-  finished ← hasFinished nextTask;
-  if finished then
-    match nextTask.get with
-    | Except.ok (next@⟨nextSnap, _⟩) => do
-       -- if next contains the change ...
-       -- (it will never be the header snap because the
-       -- watchdog will never send didChange notifs with
-       -- header changes to the file worker)
-       if changePos ≤ nextSnap.endPos then
-         -- we do not need to cancel the old task explicitly since tasks without refs are marked as cancelled 
-         -- by the GC
-         run h uri version contents snap
-       else do
-         newNext ← branchOffAt next changePos;
-         pure ⟨snap, Task.pure (Except.ok newNext)⟩
-    | Except.error e => 
-      match e with
-      -- this case should not be possible. only the main task aborts tasks and ensures that aborted tasks
-      -- do not show up in `snapshots` of EditableDocument below.
-      | TaskError.aborted => throwServerError 
-        "Internal server error: reached case that should not be possible during server file worker task branching"
-      | TaskError.eof => run h uri version contents snap
-      | TaskError.ioError ioError => throw ioError
-  else
-    -- we do not need to cancel the old task explicitly since tasks without refs are marked as cancelled by the GC
-    run h uri version contents snap
-
-end ElabTask
+def unfoldCmdSnaps (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap)
+  (initSnap : Snapshot)
+: IO (AsyncList TaskError Snapshot) :=
+  AsyncList.unfoldAsync
+    (nextCmdSnap h uri version contents)
+    initSnap
+    -- TODO(MH): check for interrupt with increased precision
+    (some fun _ => pure TaskError.aborted)
 
 /-- A document editable in the sense that we track the environment
 and parser state after each command so that edits can be applied
@@ -145,8 +98,10 @@ without recompiling code appearing earlier in the file. -/
 structure EditableDocument :=
 (version : Nat)
 (text : FileMap)
+/- The first snapshot is that after the header. -/
+(headerSnap : Snapshot)
 /- Subsequent snapshots occur after each command. -/
-(snapshots : ElabTask)
+(cmdSnaps : AsyncList TaskError Snapshot)
 
 namespace EditableDocument
 
@@ -155,21 +110,37 @@ open Elab
 /-- Compiles the contents of a Lean file. -/
 def compileDocument (h : FS.Stream) (uri : DocumentUri) (version : Nat) (text : FileMap) : IO EditableDocument := do
 headerSnap ← Snapshots.compileHeader text.source;
-task ← ElabTask.run h uri version text headerSnap;
-pure ⟨version, text, task⟩
+cmdSnaps ← unfoldCmdSnaps h uri version text headerSnap;
+pure ⟨version, text, headerSnap, cmdSnaps⟩
 
 /-- Given `changePos`, the UTF-8 offset of a change into the pre-change source,
 and the new document, updates editable doc state. -/
-def updateDocument (h : FS.Stream) (uri : DocumentUri) (doc : EditableDocument) (changePos : String.Pos) 
-  (newVersion : Nat) (newText : FileMap) : IO EditableDocument :=
--- The watchdog only restarts the file worker when the syntax tree of the header changes.
--- If e.g. a newline is deleted, it will not restart this file worker, but we still
--- need to reparse the header so the offsets are correct.
-match doc.snapshots with
-| ⟨headerSnap, next⟩ => do
-  newHeaderSnap ← reparseHeader newText.source headerSnap;
-  newSnapshots ← (ElabTask.mk newHeaderSnap next).branchOffAt h uri newVersion newText changePos;
-  pure ⟨newVersion, newText, newSnapshots⟩
+def updateDocument (h : FS.Stream) (uri : DocumentUri) (doc : EditableDocument) (changePos : String.Pos)
+  (newVersion : Nat) (newText : FileMap) : IO EditableDocument := do
+  -- The watchdog only restarts the file worker when the syntax tree of the header changes.
+  -- If e.g. a newline is deleted, it will not restart this file worker, but we still
+  -- need to reparse the header so the offsets are correct.
+  newHeaderSnap ← reparseHeader newText.source doc.headerSnap;
+
+  ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix;
+  match e? with
+  -- this case should not be possible. only the main task aborts tasks and ensures that aborted tasks
+  -- do not show up in `snapshots` of EditableDocument below.
+  | some TaskError.aborted => throwServerError
+    "Internal server error: reached case that should not be possible during server file worker task branching"
+  | some (TaskError.ioError ioError) => throw ioError
+  | _ => do -- No error or EOF
+    -- NOTE(WN): endPos is greedy in that it consumes input until the next token,
+    -- so a change on some whitespace after a command recompiles it. We could
+    -- be more precise.
+    let validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos);
+    -- NOTE: the watchdog never sends didChange notifs with a header change to the
+    -- worker, so the header snapshot is always valid.
+    let lastSnap := validSnaps.getLastD doc.headerSnap;
+    newSnaps ← unfoldCmdSnaps h uri newVersion newText lastSnap;
+    let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps;
+    -- NOTE: We do not cancel old tasks explicitly, the GC does this for us when no refs remain.
+    pure ⟨newVersion, newText, newHeaderSnap, newCmdSnaps⟩
 
 end EditableDocument
 
@@ -245,7 +216,7 @@ match method with
 | "$/cancelRequest"        => h CancelParams handleCancelRequest
 | _                        => throwServerError $ "Got unsupported notification method: " ++ method
 
-def queueRequest {α : Type*} (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α) 
+def queueRequest {α : Type*} (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α)
   : ServerM Unit := do
 doc ← getDocument;
 requestTask ← monadLift $ asTask (handler params doc);
@@ -300,8 +271,8 @@ _ ← IO.setStderr e; -- TODO(WN): use a stream var in WorkerM instead of global
 doc ← openDocument o param;
 docRef ← IO.mkRef doc;
 pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap);
-runReader (mainLoop ()) 
-  { hIn := i, 
+runReader (mainLoop ())
+  { hIn := i,
     hOut := o,
     docRef := docRef,
     pendingRequestsRef := pendingRequestsRef

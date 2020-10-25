@@ -19,7 +19,7 @@ For general server architecture, see `README.md`. This module implements the wat
 
 ## Watchdog state
 
-Most LSP clients only send us file diffs, so to facilitate sending entire file contents to freshly restarted 
+Most LSP clients only send us file diffs, so to facilitate sending entire file contents to freshly restarted
 workers, the watchdog needs to maintain the current state of each file. It can also use this state to detect changes
 to the header and thus restart the corresponding worker, freeing its imports.
 
@@ -35,7 +35,7 @@ The watchdog process and its file worker processes communicate via LSP. If the n
 we might add non-standard commands similarly based on JSON-RPC. Most requests and notifications
 are forwarded to the corresponding file worker process, with the exception of these notifications:
 
-- textDocument/didOpen: Launch the file worker, create the associated watchdog state and launch a task to 
+- textDocument/didOpen: Launch the file worker, create the associated watchdog state and launch a task to
                         asynchronously receive LSP packets from the worker (e.g. request responses).
 - textDocument/didChange: Update the local file state. If the header was mutated,
                           signal a shutdown to the file worker by closing the I/O channels.
@@ -44,9 +44,9 @@ are forwarded to the corresponding file worker process, with the exception of th
 
 Moreover, we don't implement the full protocol at this level:
 
-- Upon starting, the `initialize` request is forwarded to the worker, but it must not respond with its server 
+- Upon starting, the `initialize` request is forwarded to the worker, but it must not respond with its server
   capabilities. Consequently, the watchdog will not send an `initialized` notification to the worker.
-- After `initialize`, the watchdog sends the corresponding `didOpen` notification with the full current state of 
+- After `initialize`, the watchdog sends the corresponding `didOpen` notification with the full current state of
   the file. No additional `didOpen` notifications will be forwarded to the worker process.
 - `$/cancelRequest` notifications are forwarded to all file workers.
 - File workers are always terminated with an `exit` notification, without previously receiving a `shutdown` request.
@@ -54,7 +54,7 @@ Moreover, we don't implement the full protocol at this level:
 
 ## Watchdog <-> client communication
 
-The watchdog itself should implement the LSP standard as closely as possible. However we reserve the right to add 
+The watchdog itself should implement the LSP standard as closely as possible. However we reserve the right to add
 non-standard extensions in case they're needed, for example to communicate tactic state.
 -/
 
@@ -72,9 +72,9 @@ structure OpenDocument :=
 (text : FileMap)
 (headerAst : Syntax)
 
-def workerCfg : Process.StdioConfig := 
-{ stdin  := Process.Stdio.piped, 
-  stdout := Process.Stdio.piped, 
+def workerCfg : Process.StdioConfig :=
+{ stdin  := Process.Stdio.piped,
+  stdout := Process.Stdio.piped,
   stderr := Process.Stdio.piped }
 
 -- Events that a forwarding task of a worker signals to the main task
@@ -83,12 +83,12 @@ inductive WorkerEvent
 | crashed (e : IO.Error)
 
 inductive WorkerState
--- The watchdog can detect a crashed file worker in two places: When trying to send a message to the file worker 
+-- The watchdog can detect a crashed file worker in two places: When trying to send a message to the file worker
 -- and when reading a request reply.
--- In the latter case, the forwarding task terminates and delegates a `crashed` event to the main task. 
+-- In the latter case, the forwarding task terminates and delegates a `crashed` event to the main task.
 -- Then, in both cases, the file worker has its state set to `crashed` and requests that are in-flight are errored.
--- Upon receiving the next packet for that file worker, the file worker is restarted and the packet is forwarded 
--- to it. If the crash was detected while writing a packet, we queue that packet until the next packet for the file 
+-- Upon receiving the next packet for that file worker, the file worker is restarted and the packet is forwarded
+-- to it. If the crash was detected while writing a packet, we queue that packet until the next packet for the file
 -- worker arrives.
 | crashed (queuedMsgs : Array JsonRpc.Message)
 | running
@@ -130,7 +130,7 @@ writeLspMessage fw.stdin msg
 def writeNotification {α : Type*} [HasToJson α] (fw : FileWorker) (method : String) (param : α) : m Unit :=
 writeLspNotification fw.stdin method param
 
-def writeRequest {α : Type*} [HasToJson α] (fw : FileWorker) (id : RequestID) (method : String) (param : α) 
+def writeRequest {α : Type*} [HasToJson α] (fw : FileWorker) (id : RequestID) (method : String) (param : α)
   : m Unit := do
 writeLspRequest fw.stdin id method param;
 liftIO $ fw.pendingRequestsRef.modify $ fun pendingRequests =>
@@ -187,7 +187,7 @@ partial def fwdMsgAux (fw : FileWorker) (hOut : FS.Stream) : Unit → IO WorkerE
         pure WorkerEvent.terminated
       else do
         -- worker crashed
-        fw.errorPendingRequests hOut ErrorCode.internalError 
+        fw.errorPendingRequests hOut ErrorCode.internalError
           "Server process of file crashed, likely due to a stack overflow in user code";
         pure (WorkerEvent.crashed err))
 
@@ -195,16 +195,15 @@ partial def fwdMsgAux (fw : FileWorker) (hOut : FS.Stream) : Unit → IO WorkerE
 which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
 def fwdMsgTask (fw : FileWorker) : ServerM (Task WorkerEvent) :=
 fun st =>
-  (Task.map (fun either => 
+  (Task.map (fun either =>
     match either with
     | Except.ok ev   => ev
-    | Except.error e => WorkerEvent.crashed e)) 
+    | Except.error e => WorkerEvent.crashed e))
   <$> (IO.asTask (fwdMsgAux fw st.hOut ()) Task.Priority.dedicated)
 
 private def parseHeaderAst (input : String) : IO Syntax := do
-emptyEnv ← mkEmptyEnvironment;
 let inputCtx    := Parser.mkInputContext input "<input>";
-let (stx, _, _) := Parser.parseHeader emptyEnv inputCtx;
+(stx, _, _) ← Parser.parseHeader inputCtx;
 pure stx
 
 def startFileWorker (uri : DocumentUri) (version : Nat) (text : FileMap) : ServerM Unit := do
@@ -213,7 +212,7 @@ headerAst ← monadLift $ parseHeaderAst text.source;
 workerProc ← monadLift $ Process.spawn { workerCfg with cmd := st.workerPath };
 pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap);
 -- the task will never access itself, so this is fine
-let commTaskFw : FileWorker := 
+let commTaskFw : FileWorker :=
   { doc                := ⟨version, text, headerAst⟩,
     proc               := workerProc,
     commTask           := Task.pure WorkerEvent.terminated,
@@ -222,12 +221,12 @@ let commTaskFw : FileWorker :=
 commTask ← fwdMsgTask commTaskFw;
 let fw : FileWorker := { commTaskFw with commTask := commTask };
 writeLspRequest fw.stdin (0 : Nat) "initialize" st.initParams;
-fw.writeNotification "textDocument/didOpen" 
-  { textDocument := 
-     { uri        := uri, 
-       languageId := "lean", 
-       version    := version, 
-       text       := text.source } 
+fw.writeNotification "textDocument/didOpen"
+  { textDocument :=
+     { uri        := uri,
+       languageId := "lean",
+       version    := version,
+       text       := text.source }
     : DidOpenTextDocumentParams };
 updateFileWorkers uri fw
 
@@ -251,7 +250,7 @@ def handleCrash (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) : Serve
 fw ← findFileWorker uri;
 updateFileWorkers uri { fw with state := WorkerState.crashed queuedMsgs }
 
-def restartCrashedFileWorker (uri : DocumentUri) (fw : FileWorker) (queuedMsgs : Array JsonRpc.Message) 
+def restartCrashedFileWorker (uri : DocumentUri) (fw : FileWorker) (queuedMsgs : Array JsonRpc.Message)
   : ServerM Unit := do
 eraseFileWorker uri;
 startFileWorker uri fw.doc.version fw.doc.text;
@@ -308,7 +307,7 @@ terminateFileWorker p.textDocument.uri
 def handleCancelRequest (p : CancelParams) : ServerM Unit := do
 st ← read;
 fileWorkers ← st.fileWorkersRef.get;
-fileWorkers.forM $ fun uri fw => 
+fileWorkers.forM $ fun uri fw =>
   match fw.state with
   | WorkerState.crashed queuedMsgs => restartCrashedFileWorker uri fw queuedMsgs
   | WorkerState.running =>
@@ -354,7 +353,7 @@ inductive ServerEvent
 def runClientTask : ServerM (Task ServerEvent) := do
 st ← read;
 clientTask ← liftIO $ IO.asTask $ ServerEvent.ClientMsg <$> readLspMessage st.hIn;
-let clientTask := clientTask.map $ fun either => 
+let clientTask := clientTask.map $ fun either =>
   match either with
   | Except.ok ev   => ev
   | Except.error e => ServerEvent.ClientError e;
@@ -392,7 +391,7 @@ partial def mainLoop : Task ServerEvent → ServerM Unit
     | WorkerEvent.crashed e => do
       handleCrash uri #[];
       mainLoop clientTask
-    | WorkerEvent.terminated => throwServerError 
+    | WorkerEvent.terminated => throwServerError
       "Internal server error: got termination event for worker that should have been removed"
 
 def mkLeanServerCapabilities : ServerCapabilities :=
@@ -430,13 +429,13 @@ initRequest ← readLspRequestAs i "initialize" InitializeParams;
 writeLspResponse o initRequest.id
 { capabilities := mkLeanServerCapabilities,
   serverInfo?  := some { name     := "Lean 4 server",
-                         version? := "0.0.1" } 
+                         version? := "0.0.1" }
   : InitializeResult };
 runReader
   initAndRunWatchdogAux
   { hIn            := i,
     hOut           := o,
-    hLog           := e, 
+    hLog           := e,
     fileWorkersRef := fileWorkersRef,
     initParams     := initRequest.param,
     workerPath     := workerPath

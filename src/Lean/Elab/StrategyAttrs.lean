@@ -12,10 +12,10 @@ We want to support a more general approach, but we need to provide
 the strategy selection attributes while we rely on the Lean3 elaborator.
 -/
 inductive ElaboratorStrategy
-| simple | withExpectedType | asEliminator
+  | simple | withExpectedType | asEliminator
 
 instance : Inhabited ElaboratorStrategy :=
-⟨ElaboratorStrategy.withExpectedType⟩
+  ⟨ElaboratorStrategy.withExpectedType⟩
 
 builtin_initialize elaboratorStrategyAttrs : EnumAttributes ElaboratorStrategy ←
   registerEnumAttributes `elaboratorStrategy
@@ -25,6 +25,6 @@ builtin_initialize elaboratorStrategyAttrs : EnumAttributes ElaboratorStrategy �
 
 @[export lean_get_elaborator_strategy]
 def getElaboratorStrategy (env : Environment) (n : Name) : Option ElaboratorStrategy :=
-elaboratorStrategyAttrs.getValue env n
+  elaboratorStrategyAttrs.getValue env n
 
 end Lean

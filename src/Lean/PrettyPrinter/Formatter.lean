@@ -367,7 +367,9 @@ def toggleInsideQuot.formatter (p : Formatter) : Formatter := p
 
 @[combinatorFormatter Lean.Parser.checkPrec] def checkPrec.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkStackTop] def checkStackTop.formatter : Formatter := pure ()
-@[combinatorFormatter Lean.Parser.checkNoWsBefore] def checkNoWsBefore.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.checkNoWsBefore] def checkNoWsBefore.formatter : Formatter :=
+  -- prevent automatic whitespace insertion
+  modify fun st => { st with leadWord := "" }
 @[combinatorFormatter Lean.Parser.checkTailWs] def checkTailWs.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkColGe] def checkColGe.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkColGt] def checkColGt.formatter : Formatter := pure ()

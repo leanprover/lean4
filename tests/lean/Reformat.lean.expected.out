@@ -1049,7 +1049,7 @@ instance  : Inhabited Nat :=
 instance  : Inhabited NonScalar :=
 { default := ⟨arbitrary _⟩ }
 
-instance  : Inhabited PNonScalar.{u} :=
+instance  : InhabitedPNonScalar.{u} :=
 { default := ⟨arbitrary _⟩ }
 
 instance  : Inhabited PointedType :=
@@ -1327,10 +1327,10 @@ theorem refl (a : α) : a ≈ a :=
 (Setoid.iseqv α).1 a 
 
 theorem symm {a b : α} (hab : a ≈ b) : b ≈ a :=
-(Setoid.iseqv α).2 .1 hab 
+(Setoid.iseqv α).2.1 hab 
 
 theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
-(Setoid.iseqv α).2 .2 hab hbc 
+(Setoid.iseqv α).2.2 hab hbc 
 
 end Setoid 
 
@@ -1851,6 +1851,102 @@ theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
 
 end Classical
 
-/home/sebastian/lean/lean/src/Init/Core.lean:1330:19: error: expected term
-/home/sebastian/lean/lean/src/Init/Core.lean:1333:19: error: expected term
-Reformat.lean:26:0: error: failed to parse file
+Reformat.lean:26:0: error: reparsing failed:
+(Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.theorem
+  "theorem"
+  (Command.declId `eqOfHEq [])
+  (Command.declSig
+   [(Term.implicitBinder "{" [`α] [":" (Term.sort "Sort" [`u])] "}")
+    (Term.implicitBinder "{" [`a `a'] [":" `α] "}")
+    (Term.explicitBinder "(" [`h] [":" (Term.heq `a "≅" `a')] [] ")")]
+   (Term.typeSpec ":" (Term.eq `a "=" `a')))
+  (Command.declValSimple
+   ":="
+   (Term.byTactic
+    "by"
+    (Tactic.tacticSeq
+     (Tactic.tacticSeq1Indented
+      [[(Tactic.have
+         "have"
+         []
+         (Term.depArrow
+          (Term.explicitBinder "(" [`α `β] [":" (Term.sort "Sort" [`u])] [] ")")
+          "→"
+          (Term.depArrow
+           (Term.explicitBinder "(" [`a] [":" `α] [] ")")
+           "→"
+           (Term.depArrow
+            (Term.explicitBinder "(" [`b] [":" `β] [] ")")
+            "→"
+            (Term.arrow
+             (Term.heq `a "≅" `b)
+             "→"
+             (Term.depArrow
+              (Term.explicitBinder "(" [`h] [":" (Term.eq `α "=" `β)] [] ")")
+              "→"
+              (Term.eq (Term.app `cast [`h `a]) "=" `b))))))
+         (Term.byTactic
+          "by"
+          (Tactic.tacticSeq
+           (Tactic.tacticSeq1Indented
+            [[(Tactic.intro "intro" [`α `β `a `b `h₁ `h₂]) []]
+             [(Tactic.induction "induction" (Tactic.majorPremise [] `h₁) [] [] []) []]
+             [(Tactic.exact "exact" `rfl) []]]))))
+        []]
+       [(Tactic.show "show" (Term.eq (Term.app `cast [`rfl `a]) "=" `a')) []]
+       [(Tactic.exact "exact" (Term.app `this [`α `α `a `a' `h `rfl])) []]]))))))
+(Command.declaration
+ (Command.declModifiers [] [] [] [] [] [])
+ (Command.theorem
+  "theorem"
+  (Command.declId `eqOfHEq [])
+  (Command.declSig
+   [(Term.implicitBinder "{" [`α] [":" (Term.sort "Sort" [`u])] "}")
+    (Term.implicitBinder "{" [`a `a'] [":" `α] "}")
+    (Term.explicitBinder "(" [`h] [":" (Term.heq `a "≅" `a')] [] ")")]
+   (Term.typeSpec ":" (Term.eq `a "=" `a')))
+  (Command.declValSimple
+   ":="
+   (Term.byTactic
+    "by"
+    (Tactic.tacticSeq
+     (Tactic.tacticSeq1Indented
+      [[(Tactic.paren
+         "("
+         (Tactic.seq1
+          [(Tactic.have
+            "have"
+            []
+            (Term.depArrow
+             (Term.explicitBinder "(" [`α `β] [":" (Term.sort "Sort" [`u])] [] ")")
+             "→"
+             (Term.depArrow
+              (Term.explicitBinder "(" [`a] [":" `α] [] ")")
+              "→"
+              (Term.depArrow
+               (Term.explicitBinder "(" [`b] [":" `β] [] ")")
+               "→"
+               (Term.arrow
+                (Term.heq `a "≅" `b)
+                "→"
+                (Term.depArrow
+                 (Term.explicitBinder "(" [`h] [":" (Term.eq `α "=" `β)] [] ")")
+                 "→"
+                 (Term.eq (Term.app `cast [`h `a]) "=" `b))))))
+            (Term.byTactic
+             "by"
+             (Tactic.tacticSeq
+              (Tactic.tacticSeq1Indented
+               [[(Tactic.paren "(" (Tactic.seq1 [(Tactic.intro "intro" [`α `β `a `b `h₁ `h₂])]) ")") []]
+                [(Tactic.paren
+                  "("
+                  (Tactic.seq1 [(Tactic.induction "induction" (Tactic.majorPremise [] `h₁) [] [] [])])
+                  ")")
+                 []]
+                [(Tactic.exact "exact" `rfl) []]]))))])
+         ")")
+        []]
+       [(Tactic.paren "(" (Tactic.seq1 [(Tactic.show "show" (Term.eq (Term.app `cast [`rfl `a]) "=" `a'))]) ")") []]
+       [(Tactic.exact "exact" (Term.app `this [`α `α `a `a' `h `rfl])) []]]))))))

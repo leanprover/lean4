@@ -1049,7 +1049,7 @@ instance  : Inhabited Nat :=
 instance  : Inhabited NonScalar :=
 { default := ⟨arbitrary _⟩ }
 
-instance  : InhabitedPNonScalar.{u} :=
+instance  : Inhabited PNonScalar.{u} :=
 { default := ⟨arbitrary _⟩ }
 
 instance  : Inhabited PointedType :=

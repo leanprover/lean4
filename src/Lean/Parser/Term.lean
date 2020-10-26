@@ -195,12 +195,8 @@ def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected
   stx.isAntiquot || stx.isIdent
 
--- NOTE: `check*` should be used *before* `tparser!` so that it is also applied to the generated
--- antiquotation.
-@[builtinTermParser] def explicitUniv : TrailingParser :=
-  checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '.{'" >> tparser! ".{" >> sepBy1 levelParser ", " >> "}"
-@[builtinTermParser] def namedPattern : TrailingParser :=
-  checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> tparser! "@" >> termParser maxPrec
+@[builtinTermParser] def explicitUniv : TrailingParser := tparser! checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '.{'" >> ".{" >> sepBy1 levelParser ", " >> "}"
+@[builtinTermParser] def namedPattern : TrailingParser := tparser! checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> "@" >> termParser maxPrec
 
 @[builtinTermParser] def dollar     := tparser!:0 «try» (" $" >> checkWsBefore "expected space") >> termParser 0
 @[builtinTermParser] def dollarProj := tparser!:0 " $. " >> (fieldIdx <|> ident)

@@ -31,9 +31,6 @@ instance : MonadResolveName AttrM := {
   getOpenDecls     := do pure (← read).openDecls
 }
 
--- TODO: after we delete the old frontend, we should use `EIO` with a richer exception kind at AttributeImpl.
--- We must perform a similar modification at `PersistentEnvExtension`
-
 structure AttributeImplCore :=
   (name : Name)
   (descr : String)

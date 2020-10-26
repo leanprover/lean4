@@ -209,32 +209,6 @@ unsafe def imp : EnvExtensionInterface := {
   mkInitialExtStates := mkInitialExtStates
 }
 
-/- Auxiliary code for supporting old frontend. It will be deleted -/
-namespace OldFrontend
-/- It is not safe to use "extract closed term" optimization in the following code because of `unsafeIO`.
-   If `compiler.extract_closed` is set to true, then the compiler will cache the result of
-   `exts ← envExtensionsRef.get` during initialization which is incorrect. -/
-set_option compiler.extract_closed false
-@[export lean_register_extension]
-unsafe def registerCPPExtension (initial : EnvExtensionState) : Option Nat :=
-  Except.toOption $ unsafeIO do
-    let ext ← registerExt (pure initial)
-    pure ext.idx
-
-@[export lean_set_extension]
-unsafe def setCPPExtensionState (env : Environment) (idx : Nat) (s : EnvExtensionState) : Option Environment :=
-  Except.toOption $ unsafeIO do
-    let exts ← envExtensionsRef.get
-    pure $ setState (exts.get! idx) env s
-
-@[export lean_get_extension]
-unsafe def getCPPExtensionState (env : Environment) (idx : Nat) : Option EnvExtensionState :=
-  Except.toOption $ unsafeIO do
-    let exts ← envExtensionsRef.get
-    pure $ getState (exts.get! idx) env
-
-end OldFrontend
-
 end EnvExtensionInterfaceUnsafe
 
 @[implementedBy EnvExtensionInterfaceUnsafe.imp]

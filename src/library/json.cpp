@@ -9,7 +9,6 @@ Author: Gabriel Ebner
 #include <string>
 #include "library/protected.h"
 #include "kernel/declaration.h"
-#include "library/scoped_ext.h"
 #include "kernel/instantiate.h"
 
 namespace lean {

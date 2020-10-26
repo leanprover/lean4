@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/module.h"
 #include "library/protected.h"
-#include "library/scoped_ext.h"
 #include "library/io_state.h"
 #include "library/idx_metavar.h"
 #include "library/placeholder.h"
@@ -40,11 +39,9 @@ void initialize_library_core_module() {
     initialize_profiling();
     initialize_trace();
     initialize_module();
-    initialize_scoped_ext();
 }
 
 void finalize_library_core_module() {
-    finalize_scoped_ext();
     finalize_module();
     finalize_trace();
     finalize_profiling();

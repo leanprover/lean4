@@ -92,8 +92,9 @@ structure Context :=
   (contCat : Name := Name.anonymous)
   -- current minimum precedence in this Pratt parser call, if any; see module doc for details
   (minPrec : Option Nat := none)
-  -- precedence of the trailing Pratt parser call if any; see module doc for details
+  -- precedence and category of the trailing Pratt parser call if any; see module doc for details
   (trailPrec : Option Nat := none)
+  (trailCat : Name := Name.anonymous)
   -- true iff we have already visited a token on this parser level; used for detecting trailing parsers
   (visitedToken : Bool := false)
 
@@ -207,11 +208,11 @@ def maybeParenthesize (cat : Name) (mkParen : Syntax → Syntax) (prec : Nat) (x
   set { stxTrav := st.stxTrav : State }
   trace[PrettyPrinter.parenthesize]! "parenthesizing (cont := {(st.contPrec, st.contCat)}){MessageData.nest 2 (line ++ stx)}"
   x
-  let { minPrec := some minPrec, trailPrec := trailPrec, .. } ← get
+  let { minPrec := some minPrec, trailPrec := trailPrec, trailCat := trailCat, .. } ← get
     | panic! "maybeParenthesize: visited a syntax tree without precedences?!"
-  trace[PrettyPrinter.parenthesize]! "...precedences are {prec} >? {minPrec}, {(trailPrec, cat)} <=? {(st.contPrec, st.contCat)}"
+  trace[PrettyPrinter.parenthesize]! "...precedences are {prec} >? {minPrec}, {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}"
   -- Should we parenthesize?
-  if (prec > minPrec || match trailPrec, st.contPrec with some trailPrec, some contPrec => cat == st.contCat && trailPrec <= contPrec | _, _ => false) then
+  if (prec > minPrec || match trailPrec, st.contPrec with some trailPrec, some contPrec => trailCat == st.contCat && trailPrec <= contPrec | _, _ => false) then
       -- The recursive `visit` call, by the invariant, has moved to the preceding node. In order to parenthesize
       -- the original node, we must first move to the right, except if we already were at the left-most child in the first
       -- place.
@@ -232,10 +233,14 @@ def maybeParenthesize (cat : Name) (mkParen : Syntax → Syntax) (prec : Nat) (x
   let { trailPrec := trailPrec, .. } ← get
   -- If we already had a token at this level, keep the trailing parser. Otherwise, use the minimum of
   -- `prec` and `trailPrec`.
-  let trailPrec := if st.visitedToken then st.trailPrec else match trailPrec with
-    | some trailPrec => some (Nat.min trailPrec prec)
-    | _              => some prec
-  modify (fun stP => { stP with minPrec := st.minPrec, trailPrec := trailPrec })
+  if st.visitedToken then
+    modify fun stP => { stP with trailPrec := st.trailPrec, trailCat := st.trailCat }
+  else
+    let trailPrec := match trailPrec with
+    | some trailPrec => Nat.min trailPrec prec
+    | _              => prec
+    modify fun stP => { stP with trailPrec := trailPrec, trailCat := cat }
+  modify fun stP => { stP with minPrec := st.minPrec }
 
 /-- Adjust state and advance. -/
 def visitToken : Parenthesizer := do

@@ -158,10 +158,10 @@ HEq.refl a
 theorem eqOfHEq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' :=
 by 
   (have (α β : Sort u) → (a : α) → (b : β) → a ≅ b → (h : α = β) → cast h a = b by 
-      (intro α β a b h₁ h₂)
-      (induction h₁)
+      intro α β a b h₁ h₂ 
+      induction h₁ 
       exact rfl)
-  (show cast rfl a = a')
+  show cast rfl a = a' 
   exact this α α a a' h rfl 
 
 inductive Sum (α : Type u) (β : Type v)
@@ -689,9 +689,9 @@ ofEqTrue (eqOfHEq h)
 theorem heqOfEqRecEq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) :
   a ≅ b :=
 by 
-  subst h₁
-  (apply heqOfEq)
-  (exact h₂)
+  subst h₁ 
+  apply heqOfEq 
+  exact h₂ 
   done 
 
 theorem castHEq : ∀  {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
@@ -1079,8 +1079,8 @@ match h with
 
 protected def Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : a ≅ b :=
 by 
-  subst h₂
-  (apply heqOfEq)
+  subst h₂ 
+  apply heqOfEq 
   apply Subsingleton.elim 
 
 instance  (p : Prop) : Subsingleton p :=
@@ -1210,7 +1210,7 @@ protected theorem eq : ∀  {a1 a2 : { x // p x }}, val a1 = val a2 → a1 = a2
 
 theorem eta (a : { x // p x }) (h : p (val a)) : mk (val a) h = a :=
 by 
-  (cases a)
+  cases a 
   exact rfl 
 
 instance  {α : Type u} {p : α → Prop} {a : α} (h : p a) : Inhabited { x // p x } :=
@@ -1410,8 +1410,8 @@ Quot.rec f h q
 protected def recOnSubsingleton [h : ∀  a, Subsingleton (β (Quot.mk r a))] (q : Quot r) (f : ∀  a, β (Quot.mk r a)) :
   β q :=
 by 
-  induction q using Quot.rec
-  (apply f)
+  induction q using Quot.rec 
+  apply f 
   apply Subsingleton.elim
 
 @[reducible, elabAsEliminator, inline]
@@ -1581,10 +1581,10 @@ by
   induction q₁ using Quot.recOnSubsingleton 
   induction q₂ using Quot.recOnSubsingleton 
   intro a;
-  (apply s)
+  apply s 
   induction q₂ using Quot.recOnSubsingleton 
   intro a;
-  (apply s)
+  apply s 
   apply g 
 
 end 
@@ -1641,9 +1641,9 @@ Quot.liftOn f (fun (f : ∀  (x : α), β x) => f x) (fun f₁ f₂ h => h x)
 
 theorem funext {f₁ f₂ : ∀  (x : α), β x} (h : ∀  x, f₁ x = f₂ x) : f₁ = f₂ :=
 by 
-  (show extfunApp (Quotient.mk f₁) = extfunApp (Quotient.mk f₂))
-  (apply congrArg)
-  (apply Quotient.sound)
+  show extfunApp (Quotient.mk f₁) = extfunApp (Quotient.mk f₂)
+  apply congrArg 
+  apply Quotient.sound 
   exact h 
 
 end 
@@ -1939,14 +1939,10 @@ Reformat.lean:26:0: error: reparsing failed:
              "by"
              (Tactic.tacticSeq
               (Tactic.tacticSeq1Indented
-               [[(Tactic.paren "(" (Tactic.seq1 [(Tactic.intro "intro" [`α `β `a `b `h₁ `h₂])]) ")") []]
-                [(Tactic.paren
-                  "("
-                  (Tactic.seq1 [(Tactic.induction "induction" (Tactic.majorPremise [] `h₁) [] [] [])])
-                  ")")
-                 []]
+               [[(Tactic.intro "intro" [`α `β `a `b `h₁ `h₂]) []]
+                [(Tactic.induction "induction" (Tactic.majorPremise [] `h₁) [] [] []) []]
                 [(Tactic.exact "exact" `rfl) []]]))))])
          ")")
         []]
-       [(Tactic.paren "(" (Tactic.seq1 [(Tactic.show "show" (Term.eq (Term.app `cast [`rfl `a]) "=" `a'))]) ")") []]
+       [(Tactic.show "show" (Term.eq (Term.app `cast [`rfl `a]) "=" `a')) []]
        [(Tactic.exact "exact" (Term.app `this [`α `α `a `a' `h `rfl])) []]]))))))

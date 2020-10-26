@@ -86,11 +86,11 @@ private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit := do
   let n ← mkFreshLevelMVar
   assignLevelMVar mvarId $ mkMaxArgsDiff mvarId v n
 
-private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : DefEqM Unit :=
-  modify fun postponed => postponed.push { lhs := lhs, rhs := rhs }
+private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit :=
+  modifyPostponed fun postponed => postponed.push { lhs := lhs, rhs := rhs }
 
 mutual
-private partial def solve (u v : Level) : DefEqM LBool := do
+private partial def solve (u v : Level) : MetaM LBool := do
   match u, v with
   | Level.mvar mvarId _, _ =>
     if (← isReadOnlyLevelMVar mvarId) then
@@ -113,7 +113,7 @@ private partial def solve (u v : Level) : DefEqM LBool := do
     | none   => pure LBool.undef
   | _, _ => pure LBool.undef
 
-partial def isLevelDefEqAux : Level → Level → DefEqM Bool
+partial def isLevelDefEqAux : Level → Level → MetaM Bool
   | Level.succ lhs _, Level.succ rhs _ => isLevelDefEqAux lhs rhs
   | lhs, rhs => do
     if lhs == rhs then
@@ -147,22 +147,22 @@ partial def isLevelDefEqAux : Level → Level → DefEqM Bool
               postponeIsLevelDefEq lhs rhs; pure true
 end
 
-def isListLevelDefEqAux : List Level → List Level → DefEqM Bool
+def isListLevelDefEqAux : List Level → List Level → MetaM Bool
   | [],    []    => pure true
   | u::us, v::vs => isLevelDefEqAux u v <&&> isListLevelDefEqAux us vs
   | _,     _     => pure false
 
-private def getNumPostponed : DefEqM Nat := do
-  pure (← get).size
+private def getNumPostponed : MetaM Nat := do
+  pure (← getPostponed).size
 
 open Std (PersistentArray)
 
-private def getResetPostponed : DefEqM (PersistentArray PostponedEntry) := do
-  let ps ← get
-  modify fun _ => {}
+private def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
+  let ps ← getPostponed
+  setPostponed {}
   pure ps
 
-private def processPostponedStep : DefEqM Bool :=
+private def processPostponedStep : MetaM Bool :=
   traceCtx `Meta.isLevelDefEq.postponed.step do
     let ps ← getResetPostponed
     for p in ps do
@@ -170,35 +170,34 @@ private def processPostponedStep : DefEqM Bool :=
         return false
     return true
 
-private partial def processPostponedAux : DefEqM Bool := do
-  let numPostponed ← getNumPostponed
-  if numPostponed == 0 then
-    pure true
-  else
-    trace[Meta.isLevelDefEq.postponed]! "processing #{numPostponed} postponed is-def-eq level constraints"
-    if !(← processPostponedStep) then
-      pure false
-    else
-      let numPostponed' ← getNumPostponed
-      if numPostponed' == 0 then
-        pure true
-      else if numPostponed' < numPostponed then
-        processPostponedAux
-      else do
-        trace[Meta.isLevelDefEq.postponed]! "no progress solving pending is-def-eq level constraints"
-        pure false
-
-private def processPostponed : DefEqM Bool := do
+private partial def processPostponed (mayPostpone : Bool := true) : MetaM Bool := do
 if (← getNumPostponed) == 0 then
   pure true
 else
   traceCtx `Meta.isLevelDefEq.postponed do
-    processPostponedAux
+    let rec loop : MetaM Bool := do
+      let numPostponed ← getNumPostponed
+      if numPostponed == 0 then
+        pure true
+      else
+        trace[Meta.isLevelDefEq.postponed]! "processing #{numPostponed} postponed is-def-eq level constraints"
+        if !(← processPostponedStep) then
+          pure false
+        else
+          let numPostponed' ← getNumPostponed
+          if numPostponed' == 0 then
+            pure true
+          else if numPostponed' < numPostponed then
+            loop
+          else
+            trace[Meta.isLevelDefEq.postponed]! "no progress solving pending is-def-eq level constraints"
+            pure mayPostpone
+    loop
 
-private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : DefEqM Unit := do
+private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit := do
   setEnv env
   setMCtx mctx
-  set postponed
+  setPostponed postponed
 
 /--
   `commitWhen x` executes `x` and process all postponed universe level constraints produced by `x`.
@@ -206,13 +205,13 @@ private def restore (env : Environment) (mctx : MetavarContext) (postponed : Per
 
   Remark: postponed universe level constraints must be solved before returning. Otherwise,
   we don't know whether `x` really succeeded. -/
-@[specialize] def commitWhen (x : DefEqM Bool) : DefEqM Bool := do
+@[specialize] def commitWhen (x : MetaM Bool) (mayPostpone : Bool := true) : MetaM Bool := do
   let env  ← getEnv
   let mctx ← getMCtx
   let postponed ← getResetPostponed
   try
     if (← x) then
-      if (← processPostponed) then
+      if (← processPostponed mayPostpone) then
         pure true
       else
         restore env mctx postponed
@@ -224,18 +223,36 @@ private def restore (env : Environment) (mctx : MetavarContext) (postponed : Per
     restore env mctx postponed
     throw ex
 
-private def runDefEqM (x : DefEqM Bool) : MetaM Bool :=
-  (commitWhen x).run' {}
+private def postponedToMessageData (ps : PersistentArray PostponedEntry) : MessageData := do
+  let r := MessageData.nil
+  for p in ps do
+    r := msg!"{r}\n{p.lhs} =?= {p.rhs}"
+  pure r
+
+@[specialize] def withoutPostponingUniverseConstraintsImp {α} (x : MetaM α) : MetaM α := do
+  let postponed ← getResetPostponed
+  try
+    let a ← x
+    unless (← processPostponed (mayPostpone := false)) do
+      throwError! "stuck at solving universe constraints{MessageData.nestD (postponedToMessageData (← getPostponed))}"
+    setPostponed postponed
+    pure a
+  catch ex =>
+    setPostponed postponed
+    throw ex
+
+@[inline] def withoutPostponingUniverseConstraints {α m} [MonadControlT MetaM m] [Monad m] : m α → m α :=
+  mapMetaM $ withoutPostponingUniverseConstraintsImp
 
 def isLevelDefEq (u v : Level) : m Bool := liftMetaM do
   traceCtx `Meta.isLevelDefEq do
-    let b ← runDefEqM $ Meta.isLevelDefEqAux u v
+    let b ← commitWhen (mayPostpone := true) $ Meta.isLevelDefEqAux u v
     trace[Meta.isLevelDefEq]! "{u} =?= {v} ... {if b then "success" else "failure"}"
     pure b
 
 def isExprDefEq (t s : Expr) : m Bool := liftMetaM do
   traceCtx `Meta.isDefEq $ do
-    let b ← runDefEqM $ Meta.isExprDefEqAux t s
+    let b ← commitWhen (mayPostpone := true) $ Meta.isExprDefEqAux t s
     trace[Meta.isDefEq]! "{t} =?= {s} ... {if b then "success" else "failure"}"
     pure b
 

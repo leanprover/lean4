@@ -93,11 +93,16 @@ structure Cache :=
   (whnfDefault   : PersistentExprStructMap Expr := {}) -- cache for closed terms and `TransparencyMode.default`
   (whnfAll       : PersistentExprStructMap Expr := {}) -- cache for closed terms and `TransparencyMode.all`
 
+structure PostponedEntry :=
+  (lhs       : Level)
+  (rhs       : Level)
+
 structure State :=
   (mctx        : MetavarContext := {})
   (cache       : Cache := {})
   /- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
   (zetaFVarIds : NameSet := {})
+  (postponed   : PersistentArray PostponedEntry := {})
 
 instance : Inhabited State := ⟨{}⟩
 
@@ -107,12 +112,6 @@ structure Context :=
   (localInstances : LocalInstances := #[])
 
 abbrev MetaM  := ReaderT Context $ StateRefT State $ CoreM
-
-structure PostponedEntry :=
-  (lhs       : Level)
-  (rhs       : Level)
-
-abbrev DefEqM := StateRefT (PersistentArray PostponedEntry) MetaM
 
 instance : MonadIO MetaM :=
   { liftIO := fun x => liftM (liftIO x : CoreM _) }
@@ -128,8 +127,9 @@ instance : MonadMCtx MetaM := {
   modifyMCtx := fun f => modify fun s => { s with mctx := f s.mctx }
 }
 
-instance : AddMessageContext MetaM :=
-{ addMessageContext := addMessageContextFull }
+instance : AddMessageContext MetaM := {
+  addMessageContext := addMessageContextFull
+}
 
 @[inline] def MetaM.run {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
   x ctx $.run s
@@ -144,7 +144,7 @@ instance : AddMessageContext MetaM :=
 instance {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
   ⟨fun env opts x _ => MetaHasEval.eval env opts x.run' true⟩
 
-protected def throwIsDefEqStuck {α} : DefEqM α :=
+protected def throwIsDefEqStuck {α} : MetaM α :=
   throw $ Exception.internal isDefEqStuckExceptionId
 
 builtin_initialize
@@ -173,9 +173,18 @@ def setMCtx (mctx : MetavarContext) : m Unit := liftMetaM $ modify fun s => { s 
 def resetZetaFVarIds : m Unit := liftMetaM $ modify fun s => { s with zetaFVarIds := {} }
 def getZetaFVarIds : m NameSet := liftMetaM do pure (← get).zetaFVarIds
 
+def getPostponed : m (PersistentArray PostponedEntry) := liftMetaM do
+  pure (← get).postponed
+
+def setPostponed (postponed : PersistentArray PostponedEntry) : m Unit := liftMetaM $
+  modify fun s => { s with postponed := postponed }
+
+@[inline] def modifyPostponed (f : PersistentArray PostponedEntry → PersistentArray PostponedEntry) : m Unit := liftMetaM $
+  modify fun s => { s with postponed := f s.postponed }
+
 builtin_initialize whnfRef : IO.Ref (Expr → MetaM Expr) ← IO.mkRef fun _ => throwError "whnf implementation was not set"
 builtin_initialize inferTypeRef : IO.Ref (Expr → MetaM Expr) ← IO.mkRef fun _ => throwError "inferType implementation was not set"
-builtin_initialize isExprDefEqAuxRef : IO.Ref (Expr → Expr → DefEqM Bool) ← IO.mkRef fun _ _ => throwError "isDefEq implementation was not set"
+builtin_initialize isExprDefEqAuxRef : IO.Ref (Expr → Expr → MetaM Bool) ← IO.mkRef fun _ _ => throwError "isDefEq implementation was not set"
 builtin_initialize synthPendingRef : IO.Ref (MVarId → MetaM Bool) ← IO.mkRef fun _ => pure false
 
 def whnf (e : Expr) : m Expr :=
@@ -188,7 +197,7 @@ def whnfForall [Monad m] (e : Expr) : m Expr := do
 def inferType (e : Expr) : m Expr :=
   liftMetaM $ withIncRecDepth do (← liftIO inferTypeRef.get) e
 
-protected def isExprDefEqAux (t s : Expr) : DefEqM Bool :=
+protected def isExprDefEqAux (t s : Expr) : MetaM Bool :=
   withIncRecDepth do (← liftIO isExprDefEqAuxRef.get) t s
 
 protected def synthPending (mvarId : MVarId) : MetaM Bool :=

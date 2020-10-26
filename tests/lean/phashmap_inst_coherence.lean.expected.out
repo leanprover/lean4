@@ -6,11 +6,5 @@ has type
   PersistentHashMap Nat Nat
 but is expected to have type
   PersistentHashMap Nat Nat
-phashmap_inst_coherence.lean:12:0: error: application type mismatch
-  Lean.runEval fun («_» : Unit) => sorryAx ?m
-argument
-  fun («_» : Unit) => sorryAx ?m
-has type
-  Unit → ?m
-but is expected to have type
-  Unit → ?m
+phashmap_inst_coherence.lean:12:0: error: failed to synthesize
+  Lean.HasEval ?m

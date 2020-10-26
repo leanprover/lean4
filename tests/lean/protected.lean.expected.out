@@ -10,12 +10,6 @@ protected.lean:28:14: error: unknown identifier 'f'
 8
 protected.lean:38:14: error: unknown identifier 'g'
 protected.lean:47:6: error: unknown identifier 'g'
-protected.lean:47:0: error: application type mismatch
-  Lean.runEval fun («_» : Unit) => sorryAx ?m
-argument
-  fun («_» : Unit) => sorryAx ?m
-has type
-  Unit → ?m
-but is expected to have type
-  Unit → ?m
+protected.lean:47:0: error: failed to synthesize
+  Lean.HasEval ?m
 8

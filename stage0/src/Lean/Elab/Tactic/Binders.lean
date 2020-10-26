@@ -6,8 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Elab.Tactic.Basic
 namespace Lean.Elab.Tactic
 
-private def liftTermBinderSyntax : Macro :=
-fun stx => do
+private def liftTermBinderSyntax : Macro := fun stx => do
   let hole ← `(?_)
   match stx.getKind with
   | Name.str (Name.str p "Tactic" _) s _ =>
@@ -21,8 +20,7 @@ fun stx => do
 @[builtinMacro Lean.Parser.Tactic.«let!»] def expandLetBangTactic : Macro := liftTermBinderSyntax
 @[builtinMacro Lean.Parser.Tactic.suffices] def expandSufficesTactic : Macro := liftTermBinderSyntax
 
-@[builtinMacro Lean.Parser.Tactic.show] def expandShowTactic : Macro :=
-fun stx =>
+@[builtinMacro Lean.Parser.Tactic.show] def expandShowTactic : Macro := fun stx =>
   let type := stx[1]
   `(tactic| refine (show $type from ?_))
 

@@ -435,6 +435,7 @@ lean_object* l_Lean_Elab_Term_StructInst_Struct_allDefault___boxed(lean_object*)
 extern lean_object* l_Lean_Elab_Term_getFVarLocalDecl_x21___closed__1;
 lean_object* l_Array_umapMAux___at_Lean_Elab_Term_StructInst_DefaultFields_reduce___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabStruct___spec__1___closed__1;
+lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_step___closed__1;
 lean_object* l_List_foldlM___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabStruct___spec__1___closed__2;
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getFieldIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isLambda(lean_object*);
@@ -476,7 +477,6 @@ lean_object* l_Lean_Elab_Term_StructInst_Lean_Elab_StructInst___instance__5___cl
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 uint8_t l_Lean_Elab_Term_StructInst_DefaultFields_tryToSynthesizeDefault_loop___lambda__1(lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_findField_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_CheckAssignment_checkFVar___closed__3;
 extern lean_object* l_Lean_Expr_FindImpl_initCache;
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_reduce_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___closed__4;
@@ -678,6 +678,7 @@ lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkFie
 uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_StructInst_DefaultFields_propagateLoop___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_FieldLHS_toSyntax_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg(lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___closed__10;
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__8;
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabStruct_match__1___rarg(lean_object*, lean_object*);
@@ -24791,6 +24792,15 @@ return x_21;
 }
 }
 }
+static lean_object* _init_l_Lean_Elab_Term_StructInst_DefaultFields_step___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_CheckAssignment_checkFVar___closed__2;
+x_2 = l_ReaderT_Init_Control_Reader___instance__4___rarg(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_step(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -24814,7 +24824,7 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20;
 x_17 = lean_ctor_get(x_2, 0);
 x_18 = lean_array_push(x_17, x_1);
 lean_ctor_set(x_2, 0, x_18);
-x_19 = l_Lean_Meta_CheckAssignment_checkFVar___closed__3;
+x_19 = l_Lean_Elab_Term_StructInst_DefaultFields_step___closed__1;
 x_20 = l_List_forM___at_Lean_Elab_Term_StructInst_DefaultFields_step___spec__1(x_19, x_15, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_14);
 return x_20;
 }
@@ -24833,7 +24843,7 @@ x_25 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_22);
 lean_ctor_set(x_25, 2, x_23);
-x_26 = l_Lean_Meta_CheckAssignment_checkFVar___closed__3;
+x_26 = l_Lean_Elab_Term_StructInst_DefaultFields_step___closed__1;
 x_27 = l_List_forM___at_Lean_Elab_Term_StructInst_DefaultFields_step___spec__1(x_26, x_15, x_25, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_14);
 return x_27;
 }
@@ -26731,6 +26741,8 @@ l_List_forM___at_Lean_Elab_Term_StructInst_DefaultFields_step___spec__1___lambda
 lean_mark_persistent(l_List_forM___at_Lean_Elab_Term_StructInst_DefaultFields_step___spec__1___lambda__1___closed__1);
 l_List_forM___at_Lean_Elab_Term_StructInst_DefaultFields_step___spec__1___lambda__1___closed__2 = _init_l_List_forM___at_Lean_Elab_Term_StructInst_DefaultFields_step___spec__1___lambda__1___closed__2();
 lean_mark_persistent(l_List_forM___at_Lean_Elab_Term_StructInst_DefaultFields_step___spec__1___lambda__1___closed__2);
+l_Lean_Elab_Term_StructInst_DefaultFields_step___closed__1 = _init_l_Lean_Elab_Term_StructInst_DefaultFields_step___closed__1();
+lean_mark_persistent(l_Lean_Elab_Term_StructInst_DefaultFields_step___closed__1);
 l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoop___closed__1 = _init_l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoop___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoop___closed__1);
 l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoop___closed__2 = _init_l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoop___closed__2();

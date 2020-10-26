@@ -162,15 +162,16 @@ private partial def elabBindersAux (binders : Array Syntax)
   Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracketedBinder`),
   update the local context, set of local instances, reset instance chache (if needed), and then
   execute `x` with the updated context. -/
-def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α := do
-  if binders.isEmpty then
-    x #[]
-  else
-    let lctx ← getLCtx
-    let localInsts ← getLocalInstances
-    let (fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts
-    resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $ withLCtx lctx newLocalInsts $
-      x fvars
+def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α :=
+  withoutPostponingUniverseConstraints do
+    if binders.isEmpty then
+      x #[]
+    else
+      let lctx ← getLCtx
+      let localInsts ← getLocalInstances
+      let (fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts
+      resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $ withLCtx lctx newLocalInsts $
+        x fvars
 
 @[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
   elabBinders #[binder] (fun fvars => x (fvars.get! 0))

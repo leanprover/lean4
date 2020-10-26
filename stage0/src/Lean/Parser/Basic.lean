@@ -65,8 +65,6 @@ import Lean.Compiler.InitAttr
 
 namespace Lean
 
-def quotedSymbolKind := `quotedSymbol
-
 namespace Parser
 
 def isLitKind (k : SyntaxNodeKind) : Bool :=
@@ -1192,24 +1190,6 @@ def identEqFn (id : Name) : ParserFn := fun c s =>
   fn   := identEqFn id,
   info := mkAtomicInfo "ident"
 }
-
-def quotedSymbolFn : ParserFn :=
-  nodeFn quotedSymbolKind (andthenFn (andthenFn (chFn '`') (rawFn (takeUntilFn (fun c => c == '`')))) (chFn '`' true))
-
--- TODO: remove after old frontend is gone
-def quotedSymbol : Parser :=
-  { fn := quotedSymbolFn }
-
-def unquotedSymbolFn : ParserFn := fun c s =>
-  let iniPos := s.pos
-  let s      := tokenFn c s
-  if s.hasError || s.stxStack.back.isIdent || isLitKind s.stxStack.back.getKind then
-    s.mkErrorAt "symbol" iniPos
-  else
-    s
-
-def unquotedSymbol : Parser :=
-  { fn := unquotedSymbolFn }
 
 instance : Coe String Parser := ⟨fun s => symbol s ⟩
 

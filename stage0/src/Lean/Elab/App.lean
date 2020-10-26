@@ -825,9 +825,10 @@ partial def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × A
       pure (namedArgs, args.push $ Arg.stx stx)
   pure (f, namedArgs, args, ellipsis)
 
-@[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? => do
-  let (f, namedArgs, args, ellipsis) ← expandApp stx
-  elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?
+@[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>
+  withoutPostponingUniverseConstraints do
+    let (f, namedArgs, args, ellipsis) ← expandApp stx
+    elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?
 
 private def elabAtom : TermElab := fun stx expectedType? =>
   elabAppAux stx #[] #[] (ellipsis := false) expectedType?

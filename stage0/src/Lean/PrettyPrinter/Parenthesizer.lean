@@ -448,9 +448,6 @@ def toggleInsideQuot.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 
 @[combinatorParenthesizer Lean.Parser.pushNone] def pushNone.parenthesizer : Parenthesizer := goLeft
 
-@[combinatorParenthesizer Lean.Parser.quotedSymbol] def quotedSymbol.parenthesizer := visitToken
-@[combinatorParenthesizer Lean.Parser.unquotedSymbol] def unquotedSymbol.parenthesizer := visitToken
-
 @[combinatorParenthesizer Lean.Parser.interpolatedStr]
 def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>

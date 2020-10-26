@@ -606,7 +606,6 @@ lean_object* l_Lean_Elab_Term_elabNativeRefl_match__1(lean_object*);
 lean_object* l_Lean_Elab_Term_expandShow___closed__13;
 extern lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__7;
 extern lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_compileStxMatch___lambda__1___closed__12;
-extern lean_object* l_unreachable_x21___rarg___closed__3;
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabTParserMacroAux___closed__7;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandShow(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_expandSubtype___closed__1;
@@ -661,6 +660,7 @@ lean_object* l_Lean_Elab_Term_expandOr___boxed(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Elab_Term_elabAnonymousCtor_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_expandOr___closed__1;
 lean_object* l_Lean_Elab_Term_expandIf___closed__8;
+lean_object* l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__3;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandseqRight(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabNativeDecide___closed__3;
 lean_object* l_Lean_Elab_Term_expandShow___closed__10;
@@ -11398,14 +11398,22 @@ return x_3;
 static lean_object* _init_l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("unreachable");
+return x_1;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkAppStx___closed__6;
-x_2 = l_unreachable_x21___rarg___closed__3;
+x_2 = l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__2() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -11418,8 +11426,8 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_macroAttribute;
-x_3 = l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__1;
-x_4 = l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__2;
+x_3 = l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__2;
+x_4 = l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__3;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -16718,6 +16726,8 @@ l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__1 = _init_l___regBuilt
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__1);
 l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__2 = _init_l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__2();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__2);
+l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__3 = _init_l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__3();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__3);
 res = l___regBuiltin_Lean_Elab_Term_expandUnreachable(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

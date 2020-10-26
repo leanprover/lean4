@@ -15,17 +15,17 @@ open Meta
 /- `elabTerm` for Tactics and basic tactics that use it. -/
 
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr :=
-withRef stx $ liftTermElabM $ Term.withoutErrToSorry do
-  let e ← Term.elabTerm stx expectedType?
-  Term.synthesizeSyntheticMVars mayPostpone
-  instantiateMVars e
+  withRef stx $ liftTermElabM $ Term.withoutErrToSorry do
+    let e ← Term.elabTerm stx expectedType?
+    Term.synthesizeSyntheticMVars mayPostpone
+    instantiateMVars e
 
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
-let e ← elabTerm stx expectedType? mayPostpone
-ensureHasType expectedType? e
+  let e ← elabTerm stx expectedType? mayPostpone
+  ensureHasType expectedType? e
 
-@[builtinTactic «exact»] def evalExact : Tactic :=
-fun stx => match_syntax stx with
+@[builtinTactic «exact»] def evalExact : Tactic := fun stx =>
+  match_syntax stx with
   | `(tactic| exact $e) => do
     let (g, gs) ← getMainGoal
     withMVarContext g do
@@ -36,47 +36,47 @@ fun stx => match_syntax stx with
     setGoals gs
   | _ => throwUnsupportedSyntax
 
-@[builtinMacro Lean.Parser.Tactic.admit] def expandAdmit : Macro :=
-fun _ => `(tactic| exact sorry)
+@[builtinMacro Lean.Parser.Tactic.admit] def expandAdmit : Macro := fun _ =>
+  `(tactic| exact sorry)
 
 def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
-let val ← elabTermEnsuringType stx expectedType?
-let newMVarIds ← getMVarsNoDelayed val
-let newMVarIds ←
-  if allowNaturalHoles then
-    pure newMVarIds.toList
-  else
-    let naturalMVarIds ← newMVarIds.filterM fun mvarId => do return (← getMVarDecl mvarId).kind.isNatural
-    let syntheticMVarIds ← newMVarIds.filterM fun mvarId => do return !(← getMVarDecl mvarId).kind.isNatural
-    Term.logUnassignedUsingErrorInfos naturalMVarIds
-    pure syntheticMVarIds.toList
-tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
-pure (val, newMVarIds)
+  let val ← elabTermEnsuringType stx expectedType?
+  let newMVarIds ← getMVarsNoDelayed val
+  let newMVarIds ←
+    if allowNaturalHoles then
+      pure newMVarIds.toList
+    else
+      let naturalMVarIds ← newMVarIds.filterM fun mvarId => do return (← getMVarDecl mvarId).kind.isNatural
+      let syntheticMVarIds ← newMVarIds.filterM fun mvarId => do return !(← getMVarDecl mvarId).kind.isNatural
+      Term.logUnassignedUsingErrorInfos naturalMVarIds
+      pure syntheticMVarIds.toList
+  tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
+  pure (val, newMVarIds)
 
 /- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
    Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
    filled by typing constraints.
    "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/
 def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : TacticM Unit := do
-let (g, gs) ← getMainGoal
-withMVarContext g do
-  let decl ← getMVarDecl g
-  let (val, gs') ← elabTermWithHoles stx decl.type tagSuffix allowNaturalHoles
-  assignExprMVar g val
-  setGoals (gs ++ gs')
+  let (g, gs) ← getMainGoal
+  withMVarContext g do
+    let decl ← getMVarDecl g
+    let (val, gs') ← elabTermWithHoles stx decl.type tagSuffix allowNaturalHoles
+    assignExprMVar g val
+    setGoals (gs ++ gs')
 
-@[builtinTactic «refine»] def evalRefine : Tactic :=
-fun stx => match_syntax stx with
+@[builtinTactic «refine»] def evalRefine : Tactic := fun stx =>
+  match_syntax stx with
   | `(tactic| refine $e) => refineCore e `refine false
   | _                    => throwUnsupportedSyntax
 
-@[builtinTactic «refine!»] def evalRefineBang : Tactic :=
-fun stx => match_syntax stx with
+@[builtinTactic «refine!»] def evalRefineBang : Tactic := fun stx =>
+  match_syntax stx with
   | `(tactic| refine! $e) => refineCore e `refine true
   | _                     => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic :=
-fun stx => match_syntax stx with
+@[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
+  match_syntax stx with
   | `(tactic| apply $e) => do
     let (g, gs) ← getMainGoal
     let gs' ← withMVarContext g do
@@ -93,21 +93,21 @@ fun stx => match_syntax stx with
   Elaborate `stx`. If it a free variable, return it. Otherwise, assert it, and return the free variable.
   Note that, the main goal is updated when `Meta.assert` is used in the second case. -/
 def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId := do
-let (mvarId, others) ← getMainGoal
-withMVarContext mvarId do
-  let e ← elabTerm stx none
-  match e with
-  | Expr.fvar fvarId _ => pure fvarId
-  | _ =>
-    let type ← inferType e
-    let intro (userName : Name) (preserveBinderNames : Bool) : TacticM FVarId := do
-      let (fvarId, mvarId) ← liftMetaM do
-        mvarId ← Meta.assert mvarId userName type e
-        Meta.intro1Core mvarId preserveBinderNames
-      setGoals $ mvarId::others
-      pure fvarId
-    match userName? with
-    | none          => intro `h false
-    | some userName => intro userName true
+  let (mvarId, others) ← getMainGoal
+  withMVarContext mvarId do
+    let e ← elabTerm stx none
+    match e with
+    | Expr.fvar fvarId _ => pure fvarId
+    | _ =>
+      let type ← inferType e
+      let intro (userName : Name) (preserveBinderNames : Bool) : TacticM FVarId := do
+        let (fvarId, mvarId) ← liftMetaM do
+          mvarId ← Meta.assert mvarId userName type e
+          Meta.intro1Core mvarId preserveBinderNames
+        setGoals $ mvarId::others
+        pure fvarId
+      match userName? with
+      | none          => intro `h false
+      | some userName => intro userName true
 
 end Lean.Elab.Tactic

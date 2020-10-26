@@ -41,10 +41,6 @@ constant panic {α : Type u} [Inhabited α] (msg : String) : α
 @[neverExtract, inline] def panicWithPosWithDecl {α : Type u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessageWithDecl modName declName line col msg)
 
--- TODO: delete after we delete old frontend
-@[neverExtract, noinline, nospecialize] def «unreachable!» {α : Type u} [Inhabited α] : α :=
-  panic! "unreachable"
-
 @[extern "lean_ptr_addr"]
 unsafe def ptrAddrUnsafe {α : Type u} (a : @& α) : USize := 0
 

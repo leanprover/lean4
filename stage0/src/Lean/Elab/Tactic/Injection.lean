@@ -9,15 +9,16 @@ namespace Lean.Elab.Tactic
 
 -- optional (" with " >> many1 ident')
 private def getInjectionNewIds (stx : Syntax) : List Name :=
-if stx.isNone then []
-else stx[1].getArgs.toList.map Syntax.getId
+  if stx.isNone then
+    []
+  else
+    stx[1].getArgs.toList.map Syntax.getId
 
 private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Unit := do
-unless unusedIds.isEmpty do
-  Meta.throwTacticEx `injection mvarId msg!"too many identifiers provided, unused: {unusedIds}"
+  unless unusedIds.isEmpty do
+    Meta.throwTacticEx `injection mvarId msg!"too many identifiers provided, unused: {unusedIds}"
 
-@[builtinTactic «injection»] def evalInjection : Tactic :=
-fun stx => do
+@[builtinTactic «injection»] def evalInjection : Tactic := fun stx => do
   -- parser! nonReservedSymbol "injection " >> termParser >> withIds
   let fvarId ← elabAsFVar stx[1]
   let ids := getInjectionNewIds stx[2]

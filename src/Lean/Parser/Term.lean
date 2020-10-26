@@ -19,9 +19,9 @@ builtin_initialize
 namespace Tactic
 
 def tacticSeq1Indented : Parser :=
-  parser! many1Indent (group (tacticParser >> optional ";" >> ppLine))
+  parser! many1Indent (group (ppLine >> tacticParser >> optional ";"))
 def tacticSeqBracketed : Parser :=
-  parser! "{" >> many (group (tacticParser >> optional ";" >> ppLine)) >> "}"
+  parser! "{" >> many (group (ppLine >> tacticParser >> optional ";")) >> ppDedent (ppLine >> "}")
 def tacticSeq :=
   nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.tacticSeq $ tacticSeqBracketed <|> tacticSeq1Indented
 

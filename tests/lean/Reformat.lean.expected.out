@@ -156,14 +156,13 @@ def HEq.rfl {α : Sort u} {a : α} : a ≅ a :=
 HEq.refl a 
 
 theorem eqOfHEq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' :=
-by
-  (have (α β : Sort u) → (a : α) → (b : β) → a ≅ b → (h : α = β) → cast h a = b by (intro α β a b h₁ h₂)
+by 
+  (have (α β : Sort u) → (a : α) → (b : β) → a ≅ b → (h : α = β) → cast h a = b by 
+      (intro α β a b h₁ h₂)
       (induction h₁)
-      exact rfl
-      )
+      exact rfl)
   (show cast rfl a = a')
   exact this α α a a' h rfl 
-  
 
 inductive Sum (α : Type u) (β : Type v)
 | inl (val : α) : Sum α β
@@ -689,11 +688,11 @@ ofEqTrue (eqOfHEq h)
 
 theorem heqOfEqRecEq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) :
   a ≅ b :=
-by subst h₁
+by 
+  subst h₁
   (apply heqOfEq)
   (exact h₂)
   done 
-  
 
 theorem castHEq : ∀  {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
 | α, _, rfl, a => HEq.refl a 
@@ -1079,10 +1078,10 @@ match h with
 | intro h => h 
 
 protected def Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : a ≅ b :=
-by subst h₂
+by 
+  subst h₂
   (apply heqOfEq)
   apply Subsingleton.elim 
-  
 
 instance  (p : Prop) : Subsingleton p :=
 ⟨fun a b => proofIrrel a b⟩
@@ -1210,9 +1209,9 @@ protected theorem eq : ∀  {a1 a2 : { x // p x }}, val a1 = val a2 → a1 = a2
 | ⟨x, h1⟩, ⟨_, _⟩, rfl => rfl 
 
 theorem eta (a : { x // p x }) (h : p (val a)) : mk (val a) h = a :=
-by (cases a)
+by 
+  (cases a)
   exact rfl 
-  
 
 instance  {α : Type u} {p : α → Prop} {a : α} (h : p a) : Inhabited { x // p x } :=
 { default := ⟨a, h⟩ }
@@ -1221,9 +1220,9 @@ instance  {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq { x : �
 fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
   if h : a = b then
     isTrue
-      (by subst h;
-          exact rfl
-          ) else
+      (by 
+          subst h;
+          exact rfl) else
     isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
 
 end Subtype 
@@ -1290,16 +1289,16 @@ theorem exOfPsig {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → E
 
 protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} {b₁ : β a₁} {b₂ : β a₂} (h₁ : a₁ = a₂)
   (h₂ : Eq.rec (motive := fun a _ => β a) b₁ h₁ = b₂) : PSigma.mk a₁ b₁ = PSigma.mk a₂ b₂ :=
-by subst h₁ 
+by 
+  subst h₁ 
   subst h₂ 
   exact rfl 
-  
 
 theorem punitEq (a b : PUnit) : a = b :=
-by cases a;
+by 
+  cases a;
   cases b;
   exact rfl 
-  
 
 theorem punitEqPUnit (a : PUnit) : a = () :=
 punitEq a ()
@@ -1393,9 +1392,9 @@ fun a b e => PSigma.eta (sound e) (h a b e)
 protected theorem liftIndepPr1 (f : ∀  a, β (Quot.mk r a))
   (h : ∀  (a b : α) (p : r a b), (Eq.rec (motive := fun x _ => β x) (f a) (sound p)) = f b) (q : Quot r) :
   (lift (Quot.indep f) (Quot.indepCoherent f h) q).1 = q :=
-by induction q using Quot.ind 
+by 
+  induction q using Quot.ind 
   exact rfl
-  
 
 @[reducible, elabAsEliminator, inline]
 protected def rec (f : ∀  a, β (Quot.mk r a))
@@ -1410,10 +1409,10 @@ Quot.rec f h q
 @[reducible, elabAsEliminator, inline]
 protected def recOnSubsingleton [h : ∀  a, Subsingleton (β (Quot.mk r a))] (q : Quot r) (f : ∀  a, β (Quot.mk r a)) :
   β q :=
-by induction q using Quot.rec
+by 
+  induction q using Quot.rec
   (apply f)
   apply Subsingleton.elim
-  
 
 @[reducible, elabAsEliminator, inline]
 protected def hrecOn (q : Quot r) (f : ∀  a, β (Quot.mk r a)) (c : ∀  (a b : α) (p : r a b), f a ≅ f b) : β q :=
@@ -1519,28 +1518,28 @@ Quotient.lift₂ f c q₁ q₂
 @[elabAsEliminator]
 protected theorem ind₂ {φ : Quotient s₁ → Quotient s₂ → Prop} (h : ∀  a b, φ (Quotient.mk a) (Quotient.mk b))
   (q₁ : Quotient s₁) (q₂ : Quotient s₂) : φ q₁ q₂ :=
-by induction q₁ using Quotient.ind 
+by 
+  induction q₁ using Quotient.ind 
   induction q₂ using Quotient.ind 
   apply h
-  
 
 @[elabAsEliminator]
 protected theorem inductionOn₂ {φ : Quotient s₁ → Quotient s₂ → Prop} (q₁ : Quotient s₁) (q₂ : Quotient s₂)
   (h : ∀  a b, φ (Quotient.mk a) (Quotient.mk b)) : φ q₁ q₂ :=
-by induction q₁ using Quotient.ind 
+by 
+  induction q₁ using Quotient.ind 
   induction q₂ using Quotient.ind 
   apply h
-  
 
 @[elabAsEliminator]
 protected theorem inductionOn₃ [s₃ : Setoid φ] {δ : Quotient s₁ → Quotient s₂ → Quotient s₃ → Prop} (q₁ : Quotient s₁)
   (q₂ : Quotient s₂) (q₃ : Quotient s₃) (h : ∀  a b c, δ (Quotient.mk a) (Quotient.mk b) (Quotient.mk c)) :
   δ q₁ q₂ q₃ :=
-by induction q₁ using Quotient.ind 
+by 
+  induction q₁ using Quotient.ind 
   induction q₂ using Quotient.ind 
   induction q₃ using Quotient.ind 
   apply h 
-  
 
 end 
 
@@ -1578,7 +1577,8 @@ variables[s₁ : Setoid α][s₂ : Setoid β]
 protected def recOnSubsingleton₂ {φ : Quotient s₁ → Quotient s₂ → Sort uC}
   [s : ∀  a b, Subsingleton (φ (Quotient.mk a) (Quotient.mk b))] (q₁ : Quotient s₁) (q₂ : Quotient s₂)
   (g : ∀  a b, φ (Quotient.mk a) (Quotient.mk b)) : φ q₁ q₂ :=
-by induction q₁ using Quot.recOnSubsingleton 
+by 
+  induction q₁ using Quot.recOnSubsingleton 
   induction q₂ using Quot.recOnSubsingleton 
   intro a;
   (apply s)
@@ -1586,7 +1586,6 @@ by induction q₁ using Quot.recOnSubsingleton
   intro a;
   (apply s)
   apply g 
-  
 
 end 
 
@@ -1641,11 +1640,11 @@ private def extfunApp (f : Quotient $ funSetoid α β) (x : α) : β x :=
 Quot.liftOn f (fun (f : ∀  (x : α), β x) => f x) (fun f₁ f₂ h => h x)
 
 theorem funext {f₁ f₂ : ∀  (x : α), β x} (h : ∀  x, f₁ x = f₂ x) : f₁ = f₂ :=
-by (show extfunApp (Quotient.mk f₁) = extfunApp (Quotient.mk f₂))
+by 
+  (show extfunApp (Quotient.mk f₁) = extfunApp (Quotient.mk f₂))
   (apply congrArg)
   (apply Quotient.sound)
   exact h 
-  
 
 end 
 
@@ -1700,9 +1699,9 @@ instance  {α} : Subsingleton (Squash α) :=
       (fun a =>
           Squash.ind (motive := fun b => Squash.mk a = b)
             (fun b =>
-                show Quot.mk _ a = Quot.mk _ b by apply Quot.sound;
-                  exact trivial
-                  )
+                show Quot.mk _ a = Quot.mk _ b by 
+                  apply Quot.sound;
+                  exact trivial)
             b)
       a⟩
 
@@ -1852,12 +1851,6 @@ theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
 
 end Classical
 
-/Users/leonardodemoura/projects/lean4/src/Init/Core.lean:161:6: error: expected ')'
-/Users/leonardodemoura/projects/lean4/src/Init/Core.lean:1300:9: error: expected term
-/Users/leonardodemoura/projects/lean4/src/Init/Core.lean:1331:19: error: expected term
-/Users/leonardodemoura/projects/lean4/src/Init/Core.lean:1334:19: error: expected term
-/Users/leonardodemoura/projects/lean4/src/Init/Core.lean:1523:15: error: expected term
-/Users/leonardodemoura/projects/lean4/src/Init/Core.lean:1531:15: error: expected term
-/Users/leonardodemoura/projects/lean4/src/Init/Core.lean:1540:15: error: expected term
-/Users/leonardodemoura/projects/lean4/src/Init/Core.lean:1582:15: error: expected term
+/home/sebastian/lean/lean/src/Init/Core.lean:1330:19: error: expected term
+/home/sebastian/lean/lean/src/Init/Core.lean:1333:19: error: expected term
 Reformat.lean:26:0: error: failed to parse file

@@ -62,18 +62,6 @@ def checkSyntaxNodeKind (k : Name) : AttrM Name := do
   if Parser.isValidSyntaxNodeKind (← getEnv) k then pure k
   else throwError "failed"
 
-namespace OldFrontend -- TODO: delete
-
-private def checkSyntaxNodeKindAtNamespacesAux (k : Name) : List Name → AttrM Name
-  | []    => throwError "failed"
-  | n::ns => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespacesAux k ns
-
-def checkSyntaxNodeKindAtNamespaces (k : Name) : AttrM Name := do
-  let env ← getEnv
-  checkSyntaxNodeKindAtNamespacesAux k (Lean.TODELETE.getNamespaces env)
-
-end OldFrontend
-
 def checkSyntaxNodeKindAtNamespacesAux (k : Name) : Name → AttrM Name
   | n@(Name.str p _ _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespacesAux k p
   | _ => throwError "failed"
@@ -88,8 +76,6 @@ def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (arg : Syntax) : A
     checkSyntaxNodeKind k
     <|>
     checkSyntaxNodeKindAtNamespaces k
-    <|>
-    OldFrontend.checkSyntaxNodeKindAtNamespaces k -- TODO: delete the following old frontend support code
     <|>
     checkSyntaxNodeKind (defaultParserNamespace ++ k)
     <|>

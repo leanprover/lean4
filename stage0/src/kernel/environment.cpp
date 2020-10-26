@@ -243,56 +243,6 @@ extern "C" object * lean_add_decl(object * env, object * decl) {
         });
 }
 
-static void env_ext_finalizer(void * ext) {
-    delete static_cast<environment_extension*>(ext);
-}
-
-static void env_ext_foreach(void * /* ext */, b_obj_arg /* fn */) {
-    /* The foreach combinator is used by `mark_mt` when marking values as "multi-threaded".
-       Moreover, it is invoked even when we don't use threads because of global
-       IO.Ref is considered to be "multi-threaded".
-
-       So, we just ignore this issue for now.
-       This is not critical since eventually all environment extensions will be implemented in Lean,
-       and we will be able to delete this code.
-    */
-}
-
-static external_object_class * g_env_ext_class = nullptr;
-
-static environment_extension const & to_env_ext(b_obj_arg o) {
-    lean_assert(external_class(o) == g_env_ext_class);
-    return *static_cast<environment_extension *>(external_data(o));
-}
-
-static obj_res to_object(environment_extension * ext) {
-    return alloc_external(g_env_ext_class, ext);
-}
-
-unsigned environment::register_extension(environment_extension * initial) {
-    object * r = lean_register_extension(to_object(initial));
-    if (is_scalar(r)) { throw exception("error creating empty environment"); }
-    unsigned idx = unbox(cnstr_get(r, 0));
-    dec(r);
-    return idx;
-}
-
-environment_extension const & environment::get_extension(unsigned id) const {
-    object * r = lean_get_extension(to_obj_arg(), box(id));
-    if (is_scalar(r)) { throw exception("invalid extension id"); }
-    object * ext = cnstr_get(r, 0);
-    dec(r);
-    return to_env_ext(ext);
-}
-
-environment environment::update(unsigned id, environment_extension * ext) const {
-    object * r = lean_set_extension(to_obj_arg(), box(id), to_object(ext));
-    if (is_scalar(r)) { throw exception("invalid extension id"); }
-    environment env(cnstr_get(r, 0), true);
-    dec(r);
-    return env;
-}
-
 void environment::for_each_constant(std::function<void(constant_info const & d)> const & f) const {
     smap_foreach(cnstr_get(raw(), 1), [&](object *, object * v) {
             constant_info cinfo(v, true);
@@ -307,7 +257,6 @@ void environment::display_stats() const {
 }
 
 void initialize_environment() {
-    g_env_ext_class = register_external_object_class(env_ext_finalizer, env_ext_foreach);
 }
 
 void finalize_environment() {

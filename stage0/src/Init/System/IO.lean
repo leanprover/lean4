@@ -480,8 +480,4 @@ instance {α : Type} [HasEval α] : HasEval (IO α) :=
 @[noinline, nospecialize] def runEval {α : Type u} [HasEval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
   IO.FS.withIsolatedStreams (HasEval.eval a false)
 
--- TODO: delete aux function old frontend
-def runEvalOld {α : Type u} [HasEval α] (a : α) : IO (String × Except IO.Error Unit) :=
-  runEval (fun _ => a)
-
 end Lean

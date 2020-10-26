@@ -74,23 +74,6 @@ public:
     /** \brief Extends the current environment with the given declaration */
     environment add(declaration const & d, bool check = true) const;
 
-    /** \brief Register an environment extension. Every environment
-        object may contain this extension. The argument \c initial is
-        the initial value for the new extensions. The extension object
-        can be retrieved using the given token (unsigned integer) returned
-        by this method.
-
-        \remark The extension objects are created on demand.
-
-        \see get_extension */
-    static unsigned register_extension(environment_extension * initial);
-
-    /** \brief Return the extension with the given id. */
-    environment_extension const & get_extension(unsigned extid) const;
-
-    /** \brief Update the environment extension with the given id. */
-    environment update(unsigned extid, environment_extension * ext) const;
-
     /** \brief Apply the function \c f to each constant */
     void for_each_constant(std::function<void(constant_info const & d)> const & f) const;
 

@@ -10,16 +10,6 @@ import Lean.Syntax
 import Lean.ResolveName
 import Lean.Elab.Term
 
-/- TODO
-
-Quotations are currently integrated hackily into the old frontend. This implies the following restrictions:
-* quotations have to fit in a single line, because that's how the old scanner works :)
-* `open` commands are not respected (but `export`, `namespace` are)
-* antiquotation terms have to be trivial (locals, consts (w/ projections), and apps, basically)
-
-After removing the old frontend, quotations in this and other files should be cleaned up.
--/
-
 namespace Lean.Elab.Term.Quotation
 
 open Lean.Syntax (isQuot isAntiquot)

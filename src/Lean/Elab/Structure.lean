@@ -441,7 +441,7 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
       /- The identity function is used as "marker". -/
       let value ← mkId value
       mkAuxDefinition declName type value (zeta := true)
-      modifyEnv fun env => setReducibilityStatus env declName ReducibilityStatus.reducible
+      setReducibleAttribute declName
 
 private def elabStructureView (view : StructView) : TermElabM Unit := do
   let numExplicitParams := view.params.size

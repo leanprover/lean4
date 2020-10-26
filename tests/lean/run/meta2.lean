@@ -156,8 +156,8 @@ do print "----- tst7 -----";
 def tst9 : MetaM Unit :=
 do print "----- tst9 -----";
    let env ← getEnv;
-   print (toString $ Lean.isReducible env `Prod.fst);
-   print (toString $ Lean.isReducible env `HasAdd.add);
+   print (toString (← isReducible `Prod.fst))
+   print (toString (← isReducible `HasAdd.add))
    pure ()
 
 #eval tst9

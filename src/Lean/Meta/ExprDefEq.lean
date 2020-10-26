@@ -865,8 +865,8 @@ private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Meta
   if (← shouldReduceReducibleOnly) then
     unfoldDefEq tInfo sInfo t s
   else
-    let tReducible ← Meta.isReducible tInfo.name
-    let sReducible ← Meta.isReducible sInfo.name
+    let tReducible ← isReducible tInfo.name
+    let sReducible ← isReducible sInfo.name
     if tReducible && !sReducible then
       unfold t (unfoldDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
     else if !tReducible && sReducible then

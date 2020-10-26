@@ -3,7 +3,6 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Scopes
 import Lean.Syntax
 import Lean.CoreM
 import Lean.ResolveName
@@ -178,83 +177,10 @@ def registerAttributeOfBuilder (env : Environment) (builderId : Name) (args : Li
   else
     pure $ attributeExtension.addEntry env (AttributeExtensionOLeanEntry.builder builderId args, attrImpl)
 
-namespace Environment
-
-/- Add attribute `attr` to declaration `decl` with arguments `args`. If `persistent == true`, then attribute is saved on .olean file.
-   It throws an error when
-   - `attr` is not the name of an attribute registered in the system.
-   - `attr` does not support `persistent == false`.
-   - `args` is not valid for `attr`.
-
-   TODO: delete after we remove old frontend. -/
-@[export lean_add_attribute]
-def addAttributeOld (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment := do
-  let attr ← IO.ofExcept $ getAttributeImpl env attrName
-  let (_, s) ← ((attr.add decl args persistent).run { currNamespace := Name.anonymous, openDecls := [] }).toIO {} { env := env }
-  pure s.env
-
-/-
-/- Add a scoped attribute `attr` to declaration `decl` with arguments `args` and scope `decl.getPrefix`.
-   Scoped attributes are always persistent.
-   It returns `Except.error` when
-   - `attr` is not the name of an attribute registered in the system.
-   - `attr` does not support scoped attributes.
-   - `args` is not valid for `attr`.
-
-   Remark: the attribute will not be activated if `decl` is not inside the current namespace `env.getNamespace`. -/
-@[export lean_add_scoped_attribute]
-def addScopedAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) : IO Environment := do
-attr ← getAttributeImpl attrName;
-attr.addScoped env decl args
-
-/- Remove attribute `attr` from declaration `decl`. The effect is the current scope.
-   It returns `Except.error` when
-   - `attr` is not the name of an attribute registered in the system.
-   - `attr` does not support erasure.
-   - `args` is not valid for `attr`. -/
-@[export lean_erase_attribute]
-def eraseAttribute (env : Environment) (decl : Name) (attrName : Name) (persistent := true) : IO Environment := do
-attr ← getAttributeImpl attrName;
-attr.erase env decl persistent
-
-/- Activate the scoped attribute `attr` for all declarations in scope `scope`.
-   We use this function to implement the command `open foo`. -/
-@[export lean_activate_scoped_attribute]
-def activateScopedAttribute (env : Environment) (attrName : Name) (scope : Name) : IO Environment := do
-attr ← getAttributeImpl attrName;
-attr.activateScoped env scope
-
-/- Activate all scoped attributes at `scope` -/
-@[export lean_activate_scoped_attributes]
-def activateScopedAttributes (env : Environment) (scope : Name) : IO Environment := do
-attrs ← attributeArrayRef.get;
-attrs.foldlM (fun env attr => attr.activateScoped env scope) env
--/
-
-/- We use this function to implement commands `namespace foo` and `section foo`.
-   It activates scoped attributes in the new resulting namespace. -/
-@[export lean_push_scope]
-def pushScope (env : Environment) (header : Name) (isNamespace : Bool) : IO Environment := do
-  let env := Lean.TODELETE.pushScopeCore env header isNamespace
-  -- attrs ← attributeArrayRef.get;
-  -- attrs.foldlM (fun env attr => do env ← attr.pushScope env; if isNamespace then attr.activateScoped env ns else pure env) env
-  pure env
-
-/- We use this function to implement commands `end foo` for closing namespaces and sections. -/
-@[export lean_pop_scope]
-def popScope (env : Environment) : IO Environment := do
-  let env := Lean.TODELETE.popScopeCore env
-  -- attrs ← attributeArrayRef.get;
-  -- attrs.foldlM (fun env attr => attr.popScope env) env
-  pure env
-
-end Environment
-
 def addAttribute (decl : Name) (attrName : Name) (args : Syntax) (persistent : Bool := true) : AttrM Unit := do
   let env ← getEnv
   let attr ← ofExcept $ getAttributeImpl env attrName
   attr.add decl args persistent
-
 
 /--
   Tag attributes are simple and efficient. They are useful for marking declarations in the modules where

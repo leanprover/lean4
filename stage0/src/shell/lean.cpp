@@ -33,7 +33,6 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/message_builder.h"
 #include "library/time_task.h"
-#include "library/private.h"
 #include "library/compiler/ir.h"
 #include "library/trace.h"
 #include "library/json.h"

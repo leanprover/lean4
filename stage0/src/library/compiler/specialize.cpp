@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "library/class.h"
 #include "library/trace.h"
-#include "library/module.h"
 #include "library/compiler/util.h"
 #include "library/compiler/csimp.h"
 

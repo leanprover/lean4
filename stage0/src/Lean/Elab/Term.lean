@@ -221,11 +221,6 @@ def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   | some d => pure d
   | none   => unreachable!
 
--- TODO: remove
--- instance : Ref TermElabM :=
--- { getRef     := getRef,
---  withRef    := withRef }
-
 instance : AddErrorMessageContext TermElabM := {
   add := fun ref msg => do
     let ctx ← read

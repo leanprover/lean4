@@ -21,7 +21,6 @@ lean_object* l_Lean_closedTermCacheExt___closed__3;
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_getClosedTermName_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_anyRangeMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2730____closed__4;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Array_iterateMAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__18(lean_object*, lean_object*);
@@ -49,6 +48,7 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____lambd
 lean_object* l_Lean_closedTermCacheExt___closed__5;
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2606____closed__4;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__17(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_replace___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__11(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__2(lean_object*, lean_object*, lean_object*);
@@ -1444,7 +1444,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2730____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2606____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

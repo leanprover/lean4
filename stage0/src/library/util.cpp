@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/replace_visitor.h"
 #include "library/type_context.h"
-#include "library/string.h"
+// #include "library/string.h"
 #include "library/num.h"
 #include "version.h"
 #include "githash.h" // NOLINT
@@ -1019,22 +1019,6 @@ name mk_unsafe_rec_name(name const & n) {
 
 optional<name> is_unsafe_rec_name(name const & n) {
     return option_ref<name>(lean_is_unsafe_rec_name(n.to_obj_arg())).get();
-}
-
-optional<name> name_lit_to_name(expr const & name_lit) {
-    if (is_constant(name_lit, get_lean_name_anonymous_name()))
-        return optional<name>(name());
-    if (is_app_of(name_lit, get_lean_name_str_name(), 2)) {
-        if (auto p   = name_lit_to_name(app_arg(app_fn(name_lit))))
-        if (auto str = to_string(app_arg(name_lit)))
-            return optional<name>(name(*p, str->c_str()));
-    }
-    if (is_app_of(name_lit, get_lean_name_num_name(), 2)) {
-        if (auto p = name_lit_to_name(app_arg(app_fn(name_lit))))
-        if (auto n = to_num(app_arg(name_lit)))
-            return optional<name>(name(*p, n->get_unsigned_int()));
-    }
-    return optional<name>();
 }
 
 static std::string * g_version_string = nullptr;

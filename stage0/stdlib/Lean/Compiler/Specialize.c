@@ -35,7 +35,6 @@ lean_object* l_Std_HashMapImp_insert___at_Lean_Compiler_SpecState_addEntry___spe
 lean_object* l_Lean_Compiler_SpecState_cache___default___closed__3;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2730____closed__4;
 lean_object* l_Lean_Compiler_SpecState_switch_match__1(lean_object*);
 extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Array_qsort_sort___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -80,6 +79,7 @@ lean_object* l_Array_qpartition_loop___at_Lean_Compiler_initFn____x40_Lean_Compi
 lean_object* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__1(lean_object*);
 lean_object* l_Std_HashMapImp_expand___at_Lean_Compiler_SpecState_addEntry___spec__8(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecializeAttributeKind_beq_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2606____closed__4;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____closed__2;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_222____spec__4(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__13(lean_object*, lean_object*, lean_object*);
@@ -4362,7 +4362,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____closed__4;
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_222____closed__1;
 x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_222____closed__2;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2730____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2606____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

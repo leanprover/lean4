@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/num.h"
 #include "library/annotation.h"
-#include "library/module.h"
 #include "library/protected.h"
 #include "library/io_state.h"
 #include "library/idx_metavar.h"
@@ -38,11 +37,9 @@ void initialize_library_core_module() {
     initialize_constants();
     initialize_profiling();
     initialize_trace();
-    initialize_module();
 }
 
 void finalize_library_core_module() {
-    finalize_module();
     finalize_trace();
     finalize_profiling();
     finalize_constants();

@@ -444,45 +444,15 @@ def isTagged (ext : TagDeclarationExtension) (env : Environment) (n : Name) : Bo
 
 end TagDeclarationExtension
 
-/- Legacy support for Modification objects -/
-
-/- Opaque modification object. It is essentially a C `void *`.
-   In Lean 3, a .olean file is essentially a collection of modification objects.
-   This type represents the modification objects implemented in C++.
-   We will eventually delete this type as soon as we port the remaining Lean 3
-   legacy code.
-
-   TODO: delete after we remove legacy code -/
-def Modification := NonScalar
-
-instance : Inhabited Modification := inferInstanceAs (Inhabited NonScalar)
-
-builtin_initialize modListExtension : EnvExtension (List Modification) ← registerEnvExtension (pure [])
-
-
-/- The C++ code uses this function to store the given modification object into the environment. -/
-@[export lean_environment_add_modification]
-def addModification (env : Environment) (mod : Modification) : Environment :=
-  modListExtension.modifyState env $ fun mods => mod :: mods
-
-/- mkModuleData invokes this function to convert a list of modification objects into
-   a serialized byte array. -/
-@[extern 2 "lean_serialize_modifications"]
-constant serializeModifications : List Modification → IO ByteArray
-
-@[extern 3 "lean_perform_serialized_modifications"]
-constant performModifications : Environment → ByteArray → IO Environment
-
 /- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData :=
   (imports    : Array Import)
   (constants  : Array ConstantInfo)
   (entries    : Array (Name × Array EnvExtensionEntry))
-  (serialized : ByteArray) -- Legacy support: serialized modification objects
 
 instance : Inhabited ModuleData :=
-  ⟨{imports := arbitrary _, constants := arbitrary _, entries := arbitrary _, serialized := arbitrary _}⟩
+  ⟨{imports := arbitrary _, constants := arbitrary _, entries := arbitrary _}⟩
 
 @[extern 3 "lean_save_module_data"]
 constant saveModuleData (fname : @& String) (m : ModuleData) : IO Unit
@@ -520,12 +490,10 @@ def mkModuleData (env : Environment) : IO ModuleData := do
       let extName    := (pExts.get! i).name
       result.push (extName, exportEntriesFn state))
     #[]
-  let bytes ← serializeModifications (modListExtension.getState env)
   pure {
     imports    := env.header.imports,
     constants  := env.constants.foldStage2 (fun cs _ c => cs.push c) #[],
-    entries    := entries,
-    serialized := bytes
+    entries    := entries
   }
 
 @[export lean_write_module]
@@ -599,8 +567,6 @@ def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 
   }
   let env ← setImportedEntries env mods
   let env ← finalizePersistentExtensions env opts
-  for mod in mods do
-    env ← performModifications env mod.serialized
   pure env
 
 /--

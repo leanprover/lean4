@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/name_set.h"
 #include "library/protected.h"
-#include "library/module.h"
 
 namespace lean {
 extern "C" object * lean_add_protected(object * env, object * n);

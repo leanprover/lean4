@@ -312,9 +312,6 @@ name mk_unsafe_rec_name(name const & n);
 /** Return some(n') if \c n is a name created using mk_unsafe_rec_name(n') */
 optional<name> is_unsafe_rec_name(name const & n);
 
-/** Convert an expression representing a `name` literal into a `name` object. */
-optional<name> name_lit_to_name(expr const & name_lit);
-
 std::string const & get_version_string();
 
 expr const & extract_mdata(expr const &);

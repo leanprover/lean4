@@ -8,27 +8,20 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/class.h"
 #include "library/num.h"
-#include "library/string.h"
 #include "library/annotation.h"
-#include "library/explicit.h"
 #include "library/module.h"
 #include "library/protected.h"
-#include "library/private.h"
 #include "library/scoped_ext.h"
-#include "library/aliases.h"
-#include "library/export_decl.h"
 #include "library/io_state.h"
 #include "library/idx_metavar.h"
 #include "library/placeholder.h"
 #include "library/print.h"
 #include "library/util.h"
 #include "library/pp_options.h"
-#include "library/user_recursors.h"
 #include "library/abstract_context_cache.h"
 #include "library/type_context.h"
 #include "library/local_context.h"
 #include "library/metavar_context.h"
-#include "library/app_builder.h"
 #include "library/fun_info.h"
 #include "library/check.h"
 #include "library/profiling.h"
@@ -69,18 +62,11 @@ void initialize_library_module() {
     initialize_placeholder();
     initialize_idx_metavar();
     initialize_io_state();
-    initialize_string();
     initialize_num();
     initialize_annotation();
-    initialize_explicit();
-    initialize_private();
-    initialize_aliases();
-    initialize_export_decl();
     initialize_class();
     initialize_library_util();
     initialize_pp_options();
-    initialize_user_recursors();
-    initialize_app_builder();
     initialize_fun_info();
     initialize_abstract_context_cache();
     initialize_type_context();
@@ -94,18 +80,11 @@ void finalize_library_module() {
     finalize_type_context();
     finalize_abstract_context_cache();
     finalize_fun_info();
-    finalize_app_builder();
-    finalize_user_recursors();
     finalize_pp_options();
     finalize_library_util();
     finalize_class();
-    finalize_export_decl();
-    finalize_aliases();
-    finalize_private();
-    finalize_explicit();
     finalize_annotation();
     finalize_num();
-    finalize_string();
     finalize_io_state();
     finalize_idx_metavar();
     finalize_placeholder();

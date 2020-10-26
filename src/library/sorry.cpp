@@ -13,11 +13,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 
 namespace lean {
-expr mk_sorry(abstract_type_context & ctx, expr const & ty, bool synthetic) {
-    level u = get_level(ctx, ty);
-    return mk_app(mk_constant(get_sorry_ax_name(), levels(u)), ty, synthetic ? mk_bool_true() : mk_bool_false());
-}
-
 bool is_sorry(expr const & e) {
     return is_app_of(e, get_sorry_ax_name()) && get_app_num_args(e) >= 2;
 }

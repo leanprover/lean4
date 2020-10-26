@@ -382,22 +382,12 @@ def toggleInsideQuot.formatter (p : Formatter) : Formatter := p
 
 @[combinatorFormatter Lean.Parser.pushNone] def pushNone.formatter : Formatter := goLeft
 
--- TODO: delete with old frontend
-@[combinatorFormatter Lean.Parser.quotedSymbol] def quotedSymbol.formatter : Formatter := do
-  checkKind quotedSymbolKind
-  visitArgs do
-    push "`"; goLeft
-    visitAtom Name.anonymous
-    push "`"; goLeft
-
 @[combinatorFormatter Lean.Parser.interpolatedStr]
 def interpolatedStr.formatter (p : Formatter) : Formatter := do
   visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>
     match chunk.isLit? interpolatedStrLitKind with
     | some str => push str *> goLeft
     | none     => p
-
-@[combinatorFormatter Lean.Parser.unquotedSymbol] def unquotedSymbol.formatter := visitAtom Name.anonymous
 
 @[combinatorFormatter ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e

@@ -372,10 +372,6 @@ def expandNotationItemIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
   if k == `Lean.Parser.Command.identPrec then
     pure $ Syntax.node `Lean.Parser.Syntax.cat #[mkIdentFrom stx `term,  stx[1]]
-  else if k == quotedSymbolKind then
-    match stx[1] with
-    | Syntax.atom info val => pure $ Syntax.node `Lean.Parser.Syntax.atom #[mkStxStrLit val info]
-    | _                    => Macro.throwUnsupported
   else if k == strLitKind then
     pure $ Syntax.node `Lean.Parser.Syntax.atom #[stx]
   else
@@ -392,8 +388,6 @@ def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
   if k == `Lean.Parser.Command.identPrec then
     let item := stx[0]
     pure $ mkNode `antiquot #[mkAtom "$", mkNullNode, item, mkNullNode, mkNullNode]
-  else if k == quotedSymbolKind then
-    pure stx[1]
   else if k == strLitKind then
     strLitToPattern stx
   else

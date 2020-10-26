@@ -195,7 +195,7 @@ private def getRecInfoDefault (major : Expr) (withAlts : Syntax) (allowMissingAl
   withAlts : Parser := optional (" with " >> inductionAlts)
   usingRec : Parser := optional (" using " >> ident)
   ``` -/
-private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRef stx do
+private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRef stx $ withMainMVarContext do
   let usingRecStx := stx[2]
   let withAlts    := stx[4]
   if usingRecStx.isNone then

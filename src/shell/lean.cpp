@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "library/compiler/ir.h"
 #include "library/trace.h"
 #include "library/json.h"
+#include "library/print.h"
 #include "initialize/init.h"
 #include "library/compiler/ir_interpreter.h"
 #include "util/path.h"
@@ -579,6 +580,9 @@ int main(int argc, char ** argv) {
     environment env(trust_lvl);
     scoped_task_manager scope_task_man(num_threads);
     optional<name> main_module_name;
+
+    io_state ios(opts, mk_print_formatter_factory());
+    scope_global_ios scoped_ios(ios);
 
     std::string mod_fn = "<unknown>";
     std::string contents;

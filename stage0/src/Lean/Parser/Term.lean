@@ -259,6 +259,9 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def dbgTrace    := parser!:leadPrec withPosition ("dbgTrace! " >> ((interpolatedStr termParser) <|> termParser)) >> optSemicolon termParser
 @[builtinTermParser] def assert      := parser!:leadPrec withPosition ("assert! " >> termParser) >> optSemicolon termParser
 
+-- Macro for avoiding exponentially big terms when using due to `STWorld`
+@[builtinTermParser] def stateRefT   := parser! "StateRefTNew" >> termParser maxPrec >> termParser maxPrec
+
 end Term
 
 @[builtinTermParser 1] def Tactic.quot    : Parser := parser! "`(tactic|" >> toggleInsideQuot tacticParser >> ")"

@@ -259,8 +259,12 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def dbgTrace    := parser!:leadPrec withPosition ("dbgTrace! " >> ((interpolatedStr termParser) <|> termParser)) >> optSemicolon termParser
 @[builtinTermParser] def assert      := parser!:leadPrec withPosition ("assert! " >> termParser) >> optSemicolon termParser
 
+def macroArg       := termParser maxPrec
+def macroDollarArg := parser! "$" >> termParser 0
+def macroLastArg   := macroDollarArg <|> macroArg
+
 -- Macro for avoiding exponentially big terms when using `STWorld`
-@[builtinTermParser] def stateRefT   := parser! "StateRefT" >> termParser maxPrec >> termParser maxPrec
+@[builtinTermParser] def stateRefT   := parser! "StateRefT" >> macroArg >> macroLastArg
 
 end Term
 

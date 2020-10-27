@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "library/module_mgr.h"
 #include "library/st_task_queue.h"
-#include "library/type_context.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"
 #include "init/init.h"

@@ -71,6 +71,15 @@ open Meta
   | `(have $x : $type := $val; $body)           => `(let! $x:ident : $type := $val; $body)
   | _                                           => Macro.throwUnsupported
 
+@[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro := fun stx =>
+  let stx := stx.setArg 4 (mkNullNode #[mkAtomFrom stx ";"]) -- HACK
+  match_syntax stx with
+  | `(suffices $type from $val; $body)              => `(have $type from $body; $val)
+  | `(suffices $type by $tac:tacticSeq; $body)      => `(have $type from $body; by $tac:tacticSeq)
+  | `(suffices $x : $type from $val; $body)         => `(have $x:ident : $type from $body; $val)
+  | `(suffices $x : $type by $tac:tacticSeq; $body) => `(have $x:ident : $type from $body; by $tac:tacticSeq)
+  | _                                           => Macro.throwUnsupported
+
 @[builtinMacro Lean.Parser.Term.where] def expandWhere : Macro := fun stx =>
   match_syntax stx with
   | `($body where $decls:letDecl*) =>  do

@@ -236,16 +236,16 @@ def pushTokenCore (tk : String) : FormatterM Unit := do
 
 def pushToken (tk : String) : FormatterM Unit := do
   let st ← get
-  -- If there is no space between `tk` and the next word, compare parsing `tk` with and without the next word
+  -- If there is no space between `tk` and the next word, see if we would parse more than `tk` as a single token
   if st.leadWord != "" && tk.trimRight == tk then
-    let t1 ← parseToken tk.trimLeft
-    let t2 ← parseToken $ tk.trimLeft ++ st.leadWord
-    if t1.pos == t2.pos then
-      -- same result => use `tk` as is, extend `leadWord` if not prefixed by whitespace
+    let tk' := tk.trimLeft
+    let t ← parseToken $ tk' ++ st.leadWord
+    if t.pos <= tk'.bsize then
+      -- stopped within `tk` => use it as is, extend `leadWord` if not prefixed by whitespace
       pushTokenCore tk
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" }
     else
-      -- different result => add space
+      -- stopped after `tk` => add space
       pushTokenCore $ tk ++ " "
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
   else

@@ -139,7 +139,9 @@ def matchDiscr := parser! optional («try» (ident >> checkNoWsBefore "no space 
 
 def funImplicitBinder := «try» (lookahead ("{" >> many1 binderIdent >> (" : " <|> "}"))) >> implicitBinder
 def funBinder : Parser := funImplicitBinder <|> instBinder <|> termParser maxPrec
-@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ" "fun" >> ((many1 (ppSpace >> funBinder) >> darrow >> termParser) <|> matchAlts false)
+-- NOTE: we use `nodeWithAntiquot` to ensure that `fun $b => ...` remains a `term` antiquotation
+def basicFun : Parser := nodeWithAntiquot "basicFun" `Lean.Parser.Term.basicFun (many1 (ppSpace >> funBinder) >> darrow >> termParser)
+@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ" "fun" >> (checkInsideQuot >> basicFun <|> checkOutsideQuot >> (many1 (ppSpace >> funBinder) >> darrow >> termParser) <|> matchAlts false)
 
 def optExprPrecedence := optional («try» ":" >> termParser maxPrec)
 @[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> optExprPrecedence >> termParser

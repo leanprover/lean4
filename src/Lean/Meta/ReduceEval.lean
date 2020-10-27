@@ -13,6 +13,9 @@ namespace Lean.Meta
 class HasReduceEval (α : Type) :=
   (reduceEval : Expr → MetaM α)
 
+class ReduceEval (α : Type) :=
+  (reduceEval : Expr → MetaM α)
+
 def reduceEval {α : Type} [HasReduceEval α] (e : Expr) : MetaM α :=
   withAtLeastTransparency TransparencyMode.default $
   HasReduceEval.reduceEval e

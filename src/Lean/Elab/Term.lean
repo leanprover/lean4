@@ -660,7 +660,7 @@ def synthesizeInst (type : Expr) : TermElabM Expr := do
   ```
   def f (x : Bool) : IO Nat := do
   IO.prinln x
-  x + x  -- Error: failed to synthesize `HasAdd (IO Nat)`
+  x + x  -- Error: failed to synthesize `Add (IO Nat)`
   ```
 -/
 private def tryPureCoe? (errorMsgHeader? : Option String) (m β α a : Expr) : TermElabM (Option Expr) := do
@@ -729,10 +729,10 @@ Let's assume there is no other occurrence of `v` in `h`.
 Thus, we have that the expected of `g x` is `StateT Nat IO ?α`,
 and the given type is `IO Nat`. So, even if we add a coercion.
 ```
-instance {α m n} [HasLiftT m n] {α} : Coe (m α) (n α) := ...
+instance {α m n} [MonadLiftT m n] {α} : Coe (m α) (n α) := ...
 ```
 It is not applicable because TC would have to assign `?α := Nat`.
-On the other hand, TC can easily solve `[HasLiftT IO (StateT Nat IO)]`
+On the other hand, TC can easily solve `[MonadLiftT IO (StateT Nat IO)]`
 since this goal does not contain any metavariables. And then, we
 convert `g x` into `liftM $ g x`.
 -/
@@ -1226,8 +1226,8 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
   | _                 => pure ()
   let u ← getLevel typeMVar
   let u ← decLevel u
-  let mvar ← mkInstMVar (mkApp (Lean.mkConst `HasOfNat [u]) typeMVar)
-  pure $ mkApp3 (Lean.mkConst `HasOfNat.ofNat [u]) typeMVar mvar val
+  let mvar ← mkInstMVar (mkApp (Lean.mkConst `OfNat [u]) typeMVar)
+  pure $ mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar mvar val
 
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with

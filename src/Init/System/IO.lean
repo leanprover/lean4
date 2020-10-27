@@ -468,6 +468,12 @@ class HasEval (α : Type u) :=
   -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbgTrace!`)
   (eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit)
 
+class Eval (α : Type u) :=
+  -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
+  -- so that `()` output is hidden in chained instances such as for some `m Unit`.
+  -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbgTrace!`)
+  (eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit)
+
 instance {α : Type u} [Repr α] : HasEval α :=
   ⟨fun a _ => IO.println (repr (a ()))⟩
 

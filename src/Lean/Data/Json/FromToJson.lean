@@ -13,7 +13,13 @@ universes u
 class HasFromJson (α : Type u) :=
   (fromJson? : Json → Option α)
 
+class FromJson (α : Type u) :=
+  (fromJson? : Json → Option α)
+
 export HasFromJson (fromJson?)
+
+class ToJson (α : Type u) :=
+  (toJson : α → Json)
 
 class HasToJson (α : Type u) :=
   (toJson : α → Json)

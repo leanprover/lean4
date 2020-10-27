@@ -29,18 +29,18 @@ namespace Lean.Meta.DiscrTree
   discrimination tree.
 
   Recall that projections from classes are **NOT** reducible.
-  For example, the expressions `HasAdd.add α (ringHasAdd ?α ?s) ?x ?x`
-  and `HasAdd.add Nat Nat.hasAdd a b` generates paths with the following keys
+  For example, the expressions `Add.add α (ringHasAdd ?α ?s) ?x ?x`
+  and `Add.add Nat Nat.hasAdd a b` generates paths with the following keys
   respctively
   ```
   ⟨HasAdd.add, 4⟩, *, *, *, *
   ⟨HasAdd.add, 4⟩, *, *, ⟨a,0⟩, ⟨b,0⟩
   ```
-  That is, we don't reduce `HasAdd.add Nat Nat.HasAdd a b` into `Nat.add a b`.
-  We say the `HasAdd.add` applications are the de-facto canonical forms in
+  That is, we don't reduce `Add.add Nat inst a b` into `Nat.add a b`.
+  We say the `Add.add` applications are the de-facto canonical forms in
   the metaprogramming framework.
   Moreover, it is the metaprogrammer's responsibility to re-pack applications such as
-  `Nat.add a b` into `HasAdd.add Nat Nat.hasAdd a b`.
+  `Nat.add a b` into `Add.add Nat inst a b`.
 
   Remark: we store the arity in the keys
   1- To be able to implement the "skip" operation when retrieving "candidate"
@@ -151,7 +151,7 @@ private partial def whnfEta (e : Expr) : MetaM Expr := do
   Then, `DiscrTree` users may control which symbols should be treated as wildcards.
   Different `DiscrTree` users may populate this set using, for example, attributes. -/
 private def shouldAddAsStar (constName : Name) : Bool :=
-  constName == `Nat.zero || constName == `Nat.succ || constName == `Nat.add || constName == `HasAdd.add
+  constName == `Nat.zero || constName == `Nat.succ || constName == `Nat.add || constName == `Add.add
 
 private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
   let e ← whnfEta e

@@ -32,19 +32,19 @@ partial def evalNat : Expr → Option Nat
         let v₁ ← evalNat (e.getArg! 0)
         let v₂ ← evalNat (e.getArg! 1)
         pure $ v₁ * v₂
-      else if c == `HasAdd.add && nargs == 4 then
+      else if c == `Add.add && nargs == 4 then
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
         pure $ v₁ + v₂
-      else if c == `HasAdd.sub && nargs == 4 then
+      else if c == `Sub.sub && nargs == 4 then
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
         pure $ v₁ - v₂
-      else if c == `HasAdd.mul && nargs == 4 then
+      else if c == `Mul.mul && nargs == 4 then
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
         pure $ v₁ * v₂
-      else if c == `HasOfNat.ofNat && nargs == 3 then
+      else if c == `OfNat.ofNat && nargs == 3 then
         evalNat (e.getArg! 2)
       else
         none
@@ -65,7 +65,7 @@ private partial def getOffsetAux : Expr → Bool → Option (Expr × Nat)
         let v      ← evalNat (e.getArg! 1)
         let (s, k) ← getOffsetAux (e.getArg! 0) false
         pure (s, k+v)
-      else if c == `HasAdd.add && nargs == 4 then do
+      else if c == `Add.add && nargs == 4 then do
         let v      ← evalNat (e.getArg! 3)
         let (s, k) ← getOffsetAux (e.getArg! 2) false
         pure (s, k+v)
@@ -82,7 +82,7 @@ private partial def isOffset : Expr → Option (Expr × Nat)
     match fn with
     | Expr.const c _ _ =>
       let nargs := e.getAppNumArgs
-      if (c == `Nat.succ && nargs == 1) || (c == `Nat.add && nargs == 2) || (c == `HasAdd.add && nargs == 4) then
+      if (c == `Nat.succ && nargs == 1) || (c == `Nat.add && nargs == 2) || (c == `Add.add && nargs == 4) then
         getOffset e
       else none
     | _ => none

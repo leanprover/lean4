@@ -42,6 +42,10 @@ class HasWellFounded (α : Sort u) : Type u :=
   (r : α → α → Prop)
   (wf : WellFounded r)
 
+class WellFoundedRelation (α : Sort u) : Type u :=
+  (r : α → α → Prop)
+  (wf : WellFounded r)
+
 namespace WellFounded
 def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   WellFounded.recOn (motive := fun x => (y : α) → Acc r y)

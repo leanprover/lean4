@@ -55,7 +55,7 @@ private def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadRe
     match type with
     | Expr.app m α _ =>
       try
-        let bindInstType ← mkAppM `HasBind #[m]
+        let bindInstType ← mkAppM `Bind #[m]
         let bindInstVal  ← synthesizeInst bindInstType
         pure { m := m, hasBindInst := bindInstVal, α := α }
       catch _ =>
@@ -319,7 +319,7 @@ partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) Te
     -- We use `mkAuxDeclFor` because `e` is not pure.
     mkAuxDeclFor e fun y =>
       let ref := e
-      mkJmp ref rs y (fun yFresh => do pure $ Code.action (← `(HasPure.pure $yFresh)))
+      mkJmp ref rs y (fun yFresh => do pure $ Code.action (← `(Pure.pure $yFresh)))
 
 /-
 Auxiliary operation for adding new variables to the collection of updated variables in a CodeBlock.
@@ -485,7 +485,7 @@ private def mkUnit (ref : Syntax) : MacroM Syntax := do
 
 private def mkPureUnit (ref : Syntax) : MacroM Syntax := do
   let unit ← mkUnit ref
-  let pureUnit ← `(HasPure.pure $(unit.copyInfo ref))
+  let pureUnit ← `(Pure.pure $(unit.copyInfo ref))
   pure $ pureUnit.copyInfo ref
 
 def mkPureUnitAction (ref : Syntax) : MacroM CodeBlock := do
@@ -672,7 +672,7 @@ We use `MProd` instead of `Prod` to group values when expanding the
 The motivation is to generate simpler universe constraints in code
 that was not written by the user.
 Note that we are not restricting the macro power since the
-`HasBind.bind` combinator already forces values computed by monadic
+`Bind.bind` combinator already forces values computed by monadic
 actions to be in the same universe.
 -/
 private def mkTuple (ref : Syntax) (elems : Array Syntax) : MacroM Syntax := do
@@ -808,13 +808,13 @@ def returnToTermCore (ref : Syntax) (val : Syntax) : M Syntax := do
   let ctx ← read
   let u ← mkUVarTuple ref
   match ctx.kind with
-  | Kind.regular         => if ctx.uvars.isEmpty then `(HasPure.pure $val) else `(HasPure.pure (MProd.mk $val $u))
-  | Kind.forIn           => `(HasPure.pure (ForInStep.done $u))
-  | Kind.forInWithReturn => `(HasPure.pure (ForInStep.done (MProd.mk (some $val) $u)))
+  | Kind.regular         => if ctx.uvars.isEmpty then `(Pure.pure $val) else `(Pure.pure (MProd.mk $val $u))
+  | Kind.forIn           => `(Pure.pure (ForInStep.done $u))
+  | Kind.forInWithReturn => `(Pure.pure (ForInStep.done (MProd.mk (some $val) $u)))
   | Kind.nestedBC        => unreachable!
-  | Kind.nestedPR        => `(HasPure.pure (DoResultPR.«return» $val $u))
-  | Kind.nestedSBC       => `(HasPure.pure (DoResultSBC.«pureReturn» $val $u))
-  | Kind.nestedPRBC      => `(HasPure.pure (DoResultPRBC.«return» $val $u))
+  | Kind.nestedPR        => `(Pure.pure (DoResultPR.«return» $val $u))
+  | Kind.nestedSBC       => `(Pure.pure (DoResultSBC.«pureReturn» $val $u))
+  | Kind.nestedPRBC      => `(Pure.pure (DoResultPRBC.«return» $val $u))
 
 def returnToTerm (ref : Syntax) (val : Syntax) : M Syntax := do
   let r ← returnToTermCore ref val
@@ -825,12 +825,12 @@ def continueToTermCore (ref : Syntax) : M Syntax := do
   let u ← mkUVarTuple ref
   match ctx.kind with
   | Kind.regular         => unreachable!
-  | Kind.forIn           => `(HasPure.pure (ForInStep.yield $u))
-  | Kind.forInWithReturn => `(HasPure.pure (ForInStep.yield (MProd.mk none $u)))
-  | Kind.nestedBC        => `(HasPure.pure (DoResultBC.«continue» $u))
+  | Kind.forIn           => `(Pure.pure (ForInStep.yield $u))
+  | Kind.forInWithReturn => `(Pure.pure (ForInStep.yield (MProd.mk none $u)))
+  | Kind.nestedBC        => `(Pure.pure (DoResultBC.«continue» $u))
   | Kind.nestedPR        => unreachable!
-  | Kind.nestedSBC       => `(HasPure.pure (DoResultSBC.«continue» $u))
-  | Kind.nestedPRBC      => `(HasPure.pure (DoResultPRBC.«continue» $u))
+  | Kind.nestedSBC       => `(Pure.pure (DoResultSBC.«continue» $u))
+  | Kind.nestedPRBC      => `(Pure.pure (DoResultPRBC.«continue» $u))
 
 def continueToTerm (ref : Syntax) : M Syntax := do
   let r ← continueToTermCore ref
@@ -841,12 +841,12 @@ def breakToTermCore (ref : Syntax) : M Syntax := do
   let u ← mkUVarTuple ref
   match ctx.kind with
   | Kind.regular         => unreachable!
-  | Kind.forIn           => `(HasPure.pure (ForInStep.done $u))
-  | Kind.forInWithReturn => `(HasPure.pure (ForInStep.done (MProd.mk none $u)))
-  | Kind.nestedBC        => `(HasPure.pure (DoResultBC.«break» $u))
+  | Kind.forIn           => `(Pure.pure (ForInStep.done $u))
+  | Kind.forInWithReturn => `(Pure.pure (ForInStep.done (MProd.mk none $u)))
+  | Kind.nestedBC        => `(Pure.pure (DoResultBC.«break» $u))
   | Kind.nestedPR        => unreachable!
-  | Kind.nestedSBC       => `(HasPure.pure (DoResultSBC.«break» $u))
-  | Kind.nestedPRBC      => `(HasPure.pure (DoResultPRBC.«break» $u))
+  | Kind.nestedSBC       => `(Pure.pure (DoResultSBC.«break» $u))
+  | Kind.nestedPRBC      => `(Pure.pure (DoResultPRBC.«break» $u))
 
 def breakToTerm (ref : Syntax) : M Syntax := do
   let r ← breakToTermCore ref
@@ -857,13 +857,13 @@ def actionTerminalToTermCore (action : Syntax) : M Syntax := withFreshMacroScope
   let ctx ← read
   let u ← mkUVarTuple ref
   match ctx.kind with
-  | Kind.regular         => if ctx.uvars.isEmpty then pure action else `(HasBind.bind $action fun y => HasPure.pure (MProd.mk y $u))
-  | Kind.forIn           => `(HasBind.bind $action fun (_ : PUnit) => HasPure.pure (ForInStep.yield $u))
-  | Kind.forInWithReturn => `(HasBind.bind $action fun (_ : PUnit) => HasPure.pure (ForInStep.yield (MProd.mk none $u)))
+  | Kind.regular         => if ctx.uvars.isEmpty then pure action else `(Bind.bind $action fun y => Pure.pure (MProd.mk y $u))
+  | Kind.forIn           => `(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield $u))
+  | Kind.forInWithReturn => `(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield (MProd.mk none $u)))
   | Kind.nestedBC        => unreachable!
-  | Kind.nestedPR        => `(HasBind.bind $action fun y => (HasPure.pure (DoResultPR.«pure» y $u)))
-  | Kind.nestedSBC       => `(HasBind.bind $action fun y => (HasPure.pure (DoResultSBC.«pureReturn» y $u)))
-  | Kind.nestedPRBC      => `(HasBind.bind $action fun y => (HasPure.pure (DoResultPRBC.«pure» y $u)))
+  | Kind.nestedPR        => `(Bind.bind $action fun y => (Pure.pure (DoResultPR.«pure» y $u)))
+  | Kind.nestedSBC       => `(Bind.bind $action fun y => (Pure.pure (DoResultSBC.«pureReturn» y $u)))
+  | Kind.nestedPRBC      => `(Bind.bind $action fun y => (Pure.pure (DoResultPRBC.«pure» y $u)))
 
 def actionTerminalToTerm (action : Syntax) : M Syntax := do
   let ref := action
@@ -878,7 +878,7 @@ def seqToTermCore (action : Syntax) (k : Syntax) : MacroM Syntax := withFreshMac
     let cond := action[1]
     `(assert! $cond; $k)
   else
-    `(HasBind.bind $action (fun _ => $k))
+    `(Bind.bind $action (fun _ => $k))
 
 def seqToTerm (action : Syntax) (k : Syntax) : MacroM Syntax := do
   let r ← seqToTermCore action k
@@ -902,7 +902,7 @@ def declToTermCore (decl : Syntax) (k : Syntax) : M Syntax := withFreshMacroScop
       let doElem := arg[3]
       -- `doElem` must be a `doExpr action`. See `doLetArrowToCode`
       match isDoExpr? doElem with
-      | some action => `(HasBind.bind $action (fun ($id:ident : $type) => $k))
+      | some action => `(Bind.bind $action (fun ($id:ident : $type) => $k))
       | none        => Macro.throwError decl "unexpected kind of 'do' declaration"
     else
       Macro.throwError decl "unexpected kind of 'do' declaration"
@@ -1287,7 +1287,7 @@ def doForToCode (doSeqToCode : List Syntax → M CodeBlock) (doFor : Syntax) (do
     let auxDo ← `(do let r ← $forInTerm:term;
                      $uvarsTuple:term := r.2;
                      match r.1 with
-                     | none => HasPure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit)
+                     | none => Pure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit)
                      | some a => return ensureExpectedType! "type mismatch, 'for'" a)
     doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
   else
@@ -1295,7 +1295,7 @@ def doForToCode (doSeqToCode : List Syntax → M CodeBlock) (doFor : Syntax) (do
     if doElems.isEmpty then
       let auxDo ← `(do let r ← $forInTerm:term;
                        $uvarsTuple:term := r;
-                       HasPure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit))
+                       Pure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit))
       doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
     else
       let auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r)

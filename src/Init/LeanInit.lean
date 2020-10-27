@@ -849,6 +849,9 @@ class HasQuote (α : Type) :=
 
 export HasQuote (quote)
 
+class Quote (α : Type) :=
+  (quote : α → Syntax)
+
 instance : HasQuote Syntax := ⟨id⟩
 instance : HasQuote String := ⟨mkStxStrLit⟩
 instance : HasQuote Nat := ⟨fun n => mkStxNumLit $ toString n⟩

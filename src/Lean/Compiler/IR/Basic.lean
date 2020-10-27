@@ -494,6 +494,9 @@ abbrev IndexRenaming := RBMap Index Index Index.lt
 class HasAlphaEqv (α : Type) :=
   (aeqv : IndexRenaming → α → α → Bool)
 
+class AlphaEqv (α : Type) :=
+  (aeqv : IndexRenaming → α → α → Bool)
+
 export HasAlphaEqv (aeqv)
 
 def VarId.alphaEqv (ρ : IndexRenaming) (v₁ v₂ : VarId) : Bool :=

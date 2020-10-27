@@ -213,7 +213,7 @@ private partial def getForallBody : Nat → List NamedArg → Expr → Option Ex
   Auxiliary method for propagating the expected type. We call it as soon as we find the first explict
   argument. The goal is to propagate the expected type in applications of functions such as
   ```lean
-  HasAdd.add {α : Type u} : α → α → α
+  Add.add {α : Type u} : α → α → α
   List.cons {α : Type u} : α → List α → List α
   ```
   This is particularly useful when there applicable coercions. For example,

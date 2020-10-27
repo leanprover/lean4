@@ -99,10 +99,10 @@ private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax :
     let p ← `(Lean.Parser.leadingNode $kind $prec $e)
     if scps == [] then
       -- TODO simplify the following quotation as soon as we have coercions
-      `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s (some $kind)) $p)
+      `(OrElse.orElse (Lean.Parser.mkAntiquot $s (some $kind)) $p)
     else
       -- if the parser decl is hidden by hygiene, it doesn't make sense to provide an antiquotation kind
-      `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s none) $p)
+      `(OrElse.orElse (Lean.Parser.mkAntiquot $s none) $p)
   | _  => throwError "invalid `parser!` macro, unexpected declaration name"
 
 @[builtinTermElab «parser!»] def elabParserMacro : TermElab :=
@@ -208,24 +208,24 @@ def expandPrefixOp (op : Name) : Macro := fun stx => do
 @[builtinMacro Lean.Parser.Term.prod] def expandProd : Macro := expandInfixOp `Prod
 @[builtinMacro Lean.Parser.Term.fcomp] def ExpandFComp : Macro := expandInfixOp `Function.comp
 
-@[builtinMacro Lean.Parser.Term.add] def expandAdd : Macro := expandInfixOp `HasAdd.add
-@[builtinMacro Lean.Parser.Term.sub] def expandSub : Macro := expandInfixOp `HasSub.sub
-@[builtinMacro Lean.Parser.Term.mul] def expandMul : Macro := expandInfixOp `HasMul.mul
-@[builtinMacro Lean.Parser.Term.div] def expandDiv : Macro := expandInfixOp `HasDiv.div
-@[builtinMacro Lean.Parser.Term.mod] def expandMod : Macro := expandInfixOp `HasMod.mod
-@[builtinMacro Lean.Parser.Term.modN] def expandModN : Macro := expandInfixOp `HasModN.modn
-@[builtinMacro Lean.Parser.Term.pow] def expandPow : Macro := expandInfixOp `HasPow.pow
+@[builtinMacro Lean.Parser.Term.add] def expandAdd : Macro := expandInfixOp `Add.add
+@[builtinMacro Lean.Parser.Term.sub] def expandSub : Macro := expandInfixOp `Sub.sub
+@[builtinMacro Lean.Parser.Term.mul] def expandMul : Macro := expandInfixOp `Mul.mul
+@[builtinMacro Lean.Parser.Term.div] def expandDiv : Macro := expandInfixOp `Div.div
+@[builtinMacro Lean.Parser.Term.mod] def expandMod : Macro := expandInfixOp `Mod.mod
+@[builtinMacro Lean.Parser.Term.modN] def expandModN : Macro := expandInfixOp `ModN.modn
+@[builtinMacro Lean.Parser.Term.pow] def expandPow : Macro := expandInfixOp `Pow.pow
 
-@[builtinMacro Lean.Parser.Term.le] def expandLE : Macro := expandInfixOp `HasLessEq.LessEq
+@[builtinMacro Lean.Parser.Term.le] def expandLE : Macro := expandInfixOp `LessEq.LessEq
 @[builtinMacro Lean.Parser.Term.ge] def expandGE : Macro := expandInfixOp `GreaterEq
-@[builtinMacro Lean.Parser.Term.lt] def expandLT : Macro := expandInfixOp `HasLess.Less
+@[builtinMacro Lean.Parser.Term.lt] def expandLT : Macro := expandInfixOp `Less.Less
 @[builtinMacro Lean.Parser.Term.gt] def expandGT : Macro := expandInfixOp `Greater
 @[builtinMacro Lean.Parser.Term.eq] def expandEq : Macro := expandInfixOp `Eq
 @[builtinMacro Lean.Parser.Term.ne] def expandNe : Macro := expandInfixOp `Ne
-@[builtinMacro Lean.Parser.Term.beq] def expandBEq : Macro := expandInfixOp `HasBeq.beq
+@[builtinMacro Lean.Parser.Term.beq] def expandBEq : Macro := expandInfixOp `BEq.beq
 @[builtinMacro Lean.Parser.Term.bne] def expandBNe : Macro := expandInfixOp `bne
 @[builtinMacro Lean.Parser.Term.heq] def expandHEq : Macro := expandInfixOp `HEq
-@[builtinMacro Lean.Parser.Term.equiv] def expandEquiv : Macro := expandInfixOp `HasEquiv.Equiv
+@[builtinMacro Lean.Parser.Term.equiv] def expandEquiv : Macro := expandInfixOp `Equiv.Equiv
 
 @[builtinMacro Lean.Parser.Term.and] def expandAnd : Macro := expandInfixOp `And
 @[builtinMacro Lean.Parser.Term.or] def expandOr : Macro := expandInfixOp `Or
@@ -234,26 +234,26 @@ def expandPrefixOp (op : Name) : Macro := fun stx => do
 @[builtinMacro Lean.Parser.Term.band] def expandBAnd : Macro := expandInfixOp `and
 @[builtinMacro Lean.Parser.Term.bor] def expandBOr : Macro := expandInfixOp `or
 
-@[builtinMacro Lean.Parser.Term.append] def expandAppend : Macro := expandInfixOp `HasAppend.append
+@[builtinMacro Lean.Parser.Term.append] def expandAppend : Macro := expandInfixOp `Append.append
 @[builtinMacro Lean.Parser.Term.cons] def expandCons : Macro := expandInfixOp `List.cons
 
-@[builtinMacro Lean.Parser.Term.andthen] def expandAndThen : Macro := expandInfixOp `HasAndthen.andthen
-@[builtinMacro Lean.Parser.Term.bindOp] def expandBind : Macro := expandInfixOp `HasBind.bind
+@[builtinMacro Lean.Parser.Term.andthen] def expandAndThen : Macro := expandInfixOp `AndThen.andThen
+@[builtinMacro Lean.Parser.Term.bindOp] def expandBind : Macro := expandInfixOp `Bind.bind
 
-@[builtinMacro Lean.Parser.Term.seq] def expandseq : Macro := expandInfixOp `HasSeq.seq
-@[builtinMacro Lean.Parser.Term.seqLeft] def expandseqLeft : Macro := expandInfixOp `HasSeqLeft.seqLeft
-@[builtinMacro Lean.Parser.Term.seqRight] def expandseqRight : Macro := expandInfixOp `HasSeqRight.seqRight
+@[builtinMacro Lean.Parser.Term.seq] def expandSeq : Macro := expandInfixOp `Seq.seq
+@[builtinMacro Lean.Parser.Term.seqLeft] def expandSeqLeft : Macro := expandInfixOp `SeqLeft.seqLeft
+@[builtinMacro Lean.Parser.Term.seqRight] def expandSeqRight : Macro := expandInfixOp `SeqRight.seqRight
 
 @[builtinMacro Lean.Parser.Term.map] def expandMap : Macro := expandInfixOp `Functor.map
 @[builtinMacro Lean.Parser.Term.mapRev] def expandMapRev : Macro := expandInfixOp `Functor.mapRev
 
-@[builtinMacro Lean.Parser.Term.orelse] def expandOrElse : Macro := expandInfixOp `HasOrelse.orelse
+@[builtinMacro Lean.Parser.Term.orelse] def expandOrElse : Macro := expandInfixOp `OrElse.orElse
 @[builtinMacro Lean.Parser.Term.orM] def expandOrM : Macro := expandInfixOp `orM
 @[builtinMacro Lean.Parser.Term.andM] def expandAndM : Macro := expandInfixOp `andM
 
 @[builtinMacro Lean.Parser.Term.not] def expandNot : Macro := expandPrefixOp `Not
 @[builtinMacro Lean.Parser.Term.bnot] def expandBNot : Macro := expandPrefixOp `not
-@[builtinMacro Lean.Parser.Term.uminus] def expandUMinus : Macro := expandPrefixOp `HasNeg.neg
+@[builtinMacro Lean.Parser.Term.uminus] def expandUMinus : Macro := expandPrefixOp `Neg.neg
 
 @[builtinTermElab panic] def elabPanic : TermElab := fun stx expectedType? => do
   let arg := stx[1]
@@ -287,7 +287,7 @@ def expandPrefixOp (op : Name) : Macro := fun stx => do
   `(sorryAx _ false)
 
 @[builtinTermElab emptyC] def expandEmptyC : TermElab := fun stx expectedType? => do
-  let stxNew ← `(HasEmptyc.emptyc)
+  let stxNew ← `(EmptyCollection.emptyCollection)
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/

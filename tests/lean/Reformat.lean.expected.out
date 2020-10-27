@@ -1088,18 +1088,15 @@ instance  (p : Prop) : Subsingleton p :=
 
 instance  (p : Prop) : Subsingleton (Decidable p) :=
 Subsingleton.intro
-  fun d₁ =>
-    match d₁ with 
-    | (isTrue t₁) =>
-      fun d₂ =>
-        match d₂ with 
-        | (isTrue t₂) => proofIrrel t₁ t₂ ▸ rfl
-        | (isFalse f₂) => absurd t₁ f₂
-    | (isFalse f₁) =>
-      fun d₂ =>
-        match d₂ with 
-        | (isTrue t₂) => absurd t₂ f₁
-        | (isFalse f₂) => proofIrrel f₁ f₂ ▸ rfl 
+  fun
+  | (isTrue t₁) =>
+    fun
+    | (isTrue t₂) => proofIrrel t₁ t₂ ▸ rfl
+    | (isFalse f₂) => absurd t₁ f₂
+  | (isFalse f₁) =>
+    fun
+    | (isTrue t₂) => absurd t₂ f₁
+    | (isFalse f₂) => proofIrrel f₁ f₂ ▸ rfl 
 
 theorem recSubsingleton {p : Prop} [h : Decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u}
   [h₃ : ∀  (h : p), Subsingleton (h₁ h)] [h₄ : ∀  (h : ¬p), Subsingleton (h₂ h)] :

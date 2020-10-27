@@ -41,21 +41,27 @@ suffices h : p x y from f x; g this
 show p x y from f x
 (Term.show "show" (Term.app `p [`x `y]) (Term.fromTerm "from" (Term.app `f [`x])))
 fun x y => f y x
-(Term.fun "fun" [`x `y] "=>" (Term.app `f [`y `x]))
+(Term.fun "fun" (Term.basicFun [`x `y] "=>" (Term.app `f [`y `x])))
 fun (x y : Nat) => f y x
-(Term.fun "fun" [(Term.paren "(" [(Term.app `x [`y]) [(Term.typeAscription ":" `Nat)]] ")")] "=>" (Term.app `f [`y `x]))
+(Term.fun
+ "fun"
+ (Term.basicFun
+  [(Term.paren "(" [(Term.app `x [`y]) [(Term.typeAscription ":" `Nat)]] ")")]
+  "=>"
+  (Term.app `f [`y `x])))
 fun (x, y) => f y x
-(Term.fun "fun" [(Term.paren "(" [`x [(Term.tupleTail "," [`y])]] ")")] "=>" (Term.app `f [`y `x]))
+(Term.fun "fun" (Term.basicFun [(Term.paren "(" [`x [(Term.tupleTail "," [`y])]] ")")] "=>" (Term.app `f [`y `x])))
 fun z (x, y) => f y x
-(Term.fun "fun" [`z (Term.paren "(" [`x [(Term.tupleTail "," [`y])]] ")")] "=>" (Term.app `f [`y `x]))
+(Term.fun "fun" (Term.basicFun [`z (Term.paren "(" [`x [(Term.tupleTail "," [`y])]] ")")] "=>" (Term.app `f [`y `x])))
 fun ⟨x, y⟩ ⟨z, w⟩ => f y x w z
 (Term.fun
  "fun"
- [(Term.anonymousCtor "⟨" [`x "," `y] "⟩") (Term.anonymousCtor "⟨" [`z "," `w] "⟩")]
- "=>"
- (Term.app `f [`y `x `w `z]))
+ (Term.basicFun
+  [(Term.anonymousCtor "⟨" [`x "," `y] "⟩") (Term.anonymousCtor "⟨" [`z "," `w] "⟩")]
+  "=>"
+  (Term.app `f [`y `x `w `z])))
 fun (Prod.mk x y) => f y x
-(Term.fun "fun" [(Term.paren "(" [(Term.app `Prod.mk [`x `y]) []] ")")] "=>" (Term.app `f [`y `x]))
+(Term.fun "fun" (Term.basicFun [(Term.paren "(" [(Term.app `Prod.mk [`x `y]) []] ")")] "=>" (Term.app `f [`y `x])))
 { x := 10, y := 20 }
 (Term.structInst
  "{"

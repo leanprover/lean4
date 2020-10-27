@@ -401,14 +401,8 @@ def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (tactic := fals
 def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
   expandMatchAltsIntoMatchAux ref matchAlts true (getMatchAltNumPatterns matchAlts) #[]
 
-@[builtinTermElab «fun»] def elabFun : TermElab := fun stx expectedType? => do
-  -- "fun " >> ((many1 funBinder >> darrow >> termParser) <|> matchAlts)
-  if stx[1].isOfKind `Lean.Parser.Term.matchAlts then
-    let stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx stx[1]
-    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-  else
-    let binders := stx[1].getArgs
-    let body := stx[3]
+@[builtinTermElab «fun»] def elabFun : TermElab := fun stx expectedType? => match_syntax stx with
+  | `(fun $binders* => $body) => do
     let (binders, body, expandedPattern) ← expandFunBinders binders body
     if expandedPattern then
       let newStx ← `(fun $binders* => $body)
@@ -420,6 +414,10 @@ def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM 
            and another instance for the dependent version. -/
         let e ← elabTermEnsuringType body expectedType?
         mkLambdaFVars xs e
+  | `(fun $m:matchAlts) => do
+    let stxNew ← liftMacroM $ expandMatchAltsIntoMatch stx m
+    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+  | _ => throwUnsupportedSyntax
 
 /- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
    Otherwise, we create a term of the form `(fun (x : type) => body) val`

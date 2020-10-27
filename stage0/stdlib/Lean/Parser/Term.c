@@ -52916,7 +52916,7 @@ static lean_object* _init_l_Lean_Parser_Term_stateRefT___elambda__1___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("StateRefTNew");
+x_1 = lean_mk_string("StateRefT");
 return x_1;
 }
 }

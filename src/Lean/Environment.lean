@@ -9,6 +9,7 @@ import Lean.Declaration
 import Lean.LocalContext
 import Lean.Util.Path
 import Lean.Util.FindExpr
+import Lean.Util.Profile
 
 namespace Lean
 /- Opaque environment extension state. -/
@@ -514,7 +515,7 @@ private def finalizePersistentExtensions (env : Environment) (opts : Options) : 
   return env
 
 @[export lean_import_modules]
-def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := do
+def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" ⟨0, 0⟩ do
   let (moduleNames, mods, regions) ← importModulesAux imports ({}, #[], #[])
   let modIdx : Nat := 0
   let const2ModIdx : HashMap Name ModuleIdx := {}

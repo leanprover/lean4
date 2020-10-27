@@ -1,5 +1,3 @@
-
-
 def f (v : Nat) : StateRefT Nat IO Nat := do
 IO.println "hello"
 modify fun s => s - v
@@ -41,7 +39,7 @@ instance monadState.hasGetAt (β : Type) (v : β) (α : Type) (m : Type → Type
 
 export HasGetAt (getAt)
 
-abbrev M := StateRefT (Label 0 Nat) $ StateRefT (Label 1 Nat) $ StateRefT (Label 2 Nat) IO
+abbrev M := StateRefT (Label 0 Nat) (StateRefT (Label 1 Nat) (StateRefT (Label 2 Nat) IO))
 
 def f4 : M Nat := do
 let a0 : Nat ← getAt 0
@@ -54,7 +52,7 @@ pure (a0 + a1 + a2)
 
 #eval f4.run' ⟨10⟩ $.run' ⟨20⟩ $.run' ⟨30⟩
 
-abbrev S (ω : Type) := StateRefT Nat $ StateRefT String $ ST ω
+abbrev S (ω : Type) := StateRefT Nat (StateRefT String (ST ω))
 
 def f5 {ω} : S ω Unit := do
 let s ← getThe String

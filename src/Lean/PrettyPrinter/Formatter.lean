@@ -38,7 +38,7 @@ structure State :=
 
 end Formatter
 
-abbrev FormatterM := ReaderT Formatter.Context $ StateRefT Formatter.State $ CoreM
+abbrev FormatterM := ReaderT Formatter.Context $ StateRefT Formatter.State CoreM
 
 @[inline] def FormatterM.orelse {α} (p₁ p₂ : FormatterM α) : FormatterM α := do
   let s ← get

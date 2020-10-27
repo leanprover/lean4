@@ -21,7 +21,7 @@ structure Context :=
 structure State :=
   (nextIdx : Nat := 1)
 
-abbrev M := ReaderT Context $ MonadCacheT Expr Expr $ StateRefT State $ MetaM
+abbrev M := ReaderT Context $ MonadCacheT Expr Expr $ StateRefT State MetaM
 
 private def mkAuxLemma (e : Expr) : M Expr := do
   let ctx ← read

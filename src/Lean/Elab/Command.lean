@@ -50,7 +50,7 @@ structure Context :=
   (currMacroScope : MacroScope := firstFrontendMacroScope)
   (ref            : Syntax := Syntax.missing)
 
-abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
+abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State (EIO ε)
 abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 abbrev Linter := Syntax → CommandElabM Unit

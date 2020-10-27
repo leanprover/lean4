@@ -1,9 +1,7 @@
-
-
 def checkM (b : IO Bool) : IO Unit :=
 unlessM b (throw $ IO.userError "failed")
 
-abbrev M := ExceptT String $ StateRefT Nat $ IO
+abbrev M := ExceptT String $ StateRefT Nat IO
 
 def f1 : M Nat :=
 throw "error 1"

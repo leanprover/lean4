@@ -427,7 +427,10 @@ def sepBy.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 
 @[combinatorParenthesizer Lean.Parser.sepBy1] def sepBy1.parenthesizer := sepBy.parenthesizer
 
-@[combinatorParenthesizer Lean.Parser.withPosition] def withPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := p
+@[combinatorParenthesizer Lean.Parser.withPosition] def withPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+  -- We assume the formatter will indent syntax sufficiently such that parenthesizing a `withPosition` node is never necessary
+  modify fun st => { st with contPrec := none }
+  p
 @[combinatorParenthesizer Lean.Parser.withoutPosition] def withoutPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.withForbidden] def withForbidden.parenthesizer (tk : Parser.Token) (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.withoutForbidden] def withoutForbidden.parenthesizer (p : Parenthesizer) : Parenthesizer := p

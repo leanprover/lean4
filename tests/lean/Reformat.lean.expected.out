@@ -455,7 +455,7 @@ instance  (α : Type u) [HasSizeof α] : HasSizeof (List α) :=
     fun as =>
       let rec loop 
       | List.nil => 1
-      | List.cons x xs => (1 + sizeof x + loop xs)
+      | List.cons x xs => 1 + sizeof x + loop xs 
       loop as }
 
 instance  {α : Type u} [HasSizeof α] (p : α → Prop) : HasSizeof (Subtype p) :=
@@ -615,7 +615,7 @@ fun (hp : p) (h : p = False) => h ▸ hp
 
 theorem neTrueOfNot : ¬p → p ≠ True :=
 fun (hnp : ¬p) (h : p = True) =>
-  have ¬True from (h ▸ hnp)
+  have ¬True from h ▸ hnp 
   this trivial 
 
 theorem trueNeFalse : ¬True = False :=

@@ -113,12 +113,12 @@ a -> b
 (Term.arrow `a "->" `b)
 {x : a} -> b
 (Term.depArrow (Term.implicitBinder "{" [`x] [":" `a] "}") "->" `b)
-{a : Type} -> [HasToString a] -> (x : a) -> b
+{a : Type} -> [ToString a] -> (x : a) -> b
 (Term.depArrow
  (Term.implicitBinder "{" [`a] [":" (Term.type "Type" [])] "}")
  "->"
  (Term.depArrow
-  (Term.instBinder "[" [] (Term.app `HasToString [`a]) "]")
+  (Term.instBinder "[" [] (Term.app `ToString [`a]) "]")
   "->"
   (Term.depArrow (Term.explicitBinder "(" [`x] [":" `a] [] ")") "->" `b)))
 f ({x : a} -> b)

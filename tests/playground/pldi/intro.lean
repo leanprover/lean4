@@ -36,11 +36,11 @@ inductive Tree (α : Type)
 
 namespace Tree
 
-private def toStr {α} [HasToString α] : Tree α → String
+private def toStr {α} [ToString α] : Tree α → String
 | leaf a          => toString a
 | node left right => "(node " ++ toStr left ++ " " ++ toStr right ++ ")"
 
-instance {α} [HasToString α] : HasToString (Tree α) := ⟨toStr⟩
+instance {α} [ToString α] : ToString (Tree α) := ⟨toStr⟩
 
 end Tree
 
@@ -62,7 +62,7 @@ structure Person :=
 (name : String)
 (age  : Nat := 0)
 
-instance : HasToString Person :=
+instance : ToString Person :=
 ⟨fun p => p.name ++ ":" ++ toString p.age⟩
 
 #eval toString { name := "John", age := 30 : Person }

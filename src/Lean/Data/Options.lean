@@ -11,7 +11,7 @@ def Options := KVMap
 
 def Options.empty : Options  := {}
 instance : Inhabited Options := ⟨Options.empty⟩
-instance : HasToString Options := inferInstanceAs (HasToString KVMap)
+instance : ToString Options := inferInstanceAs (ToString KVMap)
 
 structure OptionDecl :=
   (defValue : DataValue)

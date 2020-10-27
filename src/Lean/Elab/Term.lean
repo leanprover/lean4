@@ -272,7 +272,7 @@ inductive LVal
   | fieldName (name : String)
   | getOp     (idx : Syntax)
 
-instance : HasToString LVal := ⟨fun
+instance : ToString LVal := ⟨fun
   | LVal.fieldIdx i => toString i
   | LVal.fieldName n => n
   | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩

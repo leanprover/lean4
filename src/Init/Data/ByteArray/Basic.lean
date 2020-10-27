@@ -84,4 +84,4 @@ def List.toByteArray (bs : List UInt8) : ByteArray :=
     | b::bs, r => loop bs (r.push b)
   loop bs ByteArray.empty
 
-instance : HasToString ByteArray := ⟨fun bs => bs.toList.toString⟩
+instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩

@@ -679,7 +679,7 @@ def replaceFVarId (e : Expr) (fvarId : FVarId) (v : Expr) : Expr :=
 def replaceFVars (e : Expr) (fvars : Array Expr) (vs : Array Expr) : Expr :=
   (e.abstract fvars).instantiateRev vs
 
-instance : HasToString Expr := ⟨Expr.dbgToString⟩
+instance : ToString Expr := ⟨Expr.dbgToString⟩
 
 -- TODO: should not use dbgToString, but constructors.
 instance : HasRepr Expr := ⟨Expr.dbgToString⟩
@@ -737,7 +737,7 @@ protected def hash : ExprStructEq → USize
 instance : Inhabited ExprStructEq := ⟨{ val := arbitrary _ }⟩
 instance : HasBeq ExprStructEq := ⟨ExprStructEq.beq⟩
 instance : Hashable ExprStructEq := ⟨ExprStructEq.hash⟩
-instance : HasToString ExprStructEq := ⟨fun e => toString e.val⟩
+instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
 instance : HasRepr ExprStructEq := ⟨fun e => repr e.val⟩
 
 end ExprStructEq

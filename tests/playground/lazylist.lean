@@ -123,16 +123,16 @@ partial def inits : LazyList α → LazyList (LazyList α)
 private def addOpenBracket (s : String) : String :=
 if s.isEmpty then "[" else s
 
-partial def approxToStringAux [HasToString α] : Nat → LazyList α → String → String
+partial def approxToStringAux [ToString α] : Nat → LazyList α → String → String
 | _     nil          r := (if r.isEmpty then "[" else r) ++ "]"
 | 0     _            r := (if r.isEmpty then "[" else r) ++ ", ..]"
 | (n+1) (cons a as)  r := approxToStringAux n as ((if r.isEmpty then "[" else r ++ ", ") ++ toString a)
 | n     (delayed as) r := approxToStringAux n as.get r
 
-def approxToString [HasToString α] (as : LazyList α) (n : Nat := 10) : String :=
+def approxToString [ToString α] (as : LazyList α) (n : Nat := 10) : String :=
 as.approxToStringAux n ""
 
-instance [HasToString α] : HasToString (LazyList α) :=
+instance [ToString α] : ToString (LazyList α) :=
 ⟨approxToString⟩
 
 end LazyList

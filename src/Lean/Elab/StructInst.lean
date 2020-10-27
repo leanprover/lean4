@@ -232,10 +232,10 @@ partial def formatStruct : Struct → Format
     | Source.explicit _ src => "{" ++ format src ++ " with " ++ fieldsFmt ++ "}"
 
 instance : HasFormat Struct     := ⟨formatStruct⟩
-instance : HasToString Struct := ⟨toString ∘ format⟩
+instance : ToString Struct := ⟨toString ∘ format⟩
 
 instance : HasFormat (Field Struct) := ⟨formatField formatStruct⟩
-instance : HasToString (Field Struct) := ⟨toString ∘ format⟩
+instance : ToString (Field Struct) := ⟨toString ∘ format⟩
 
 /-
 Recall that `structInstField` elements have the form

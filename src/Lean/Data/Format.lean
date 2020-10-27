@@ -207,7 +207,7 @@ export Lean.HasFormat (format)
 
 def fmt {α : Type u} [HasFormat α] : α → Format := format
 
-instance {α : Type u} [HasToString α] : HasFormat α := ⟨text ∘ toString⟩
+instance {α : Type u} [ToString α] : HasFormat α := ⟨text ∘ toString⟩
 
 -- note: must take precendence over the above instance to avoid premature formatting
 instance : HasFormat Format := ⟨id⟩
@@ -271,7 +271,7 @@ protected def Format.repr : Format → Format
   | group f FlattenBehavior.allOrNone => paren $ "Format.group" ++ line ++ Format.repr f
   | group f FlattenBehavior.fill => paren $ "Format.fill" ++ line ++ Format.repr f
 
-instance : HasToString Format := ⟨Format.pretty⟩
+instance : ToString Format := ⟨Format.pretty⟩
 
 instance : HasRepr Format := ⟨Format.pretty ∘ Format.repr⟩
 

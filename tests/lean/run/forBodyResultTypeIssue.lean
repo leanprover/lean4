@@ -23,11 +23,11 @@ abbrev N := ExceptT (ULift.{u} String) Id
 def idM {α : Type u} (a : α) : N α :=
 pure a
 
-def checkEq {α : Type u} [HasBeq α] [HasToString α] (a b : α) : N PUnit := do
+def checkEq {α : Type u} [HasBeq α] [ToString α] (a b : α) : N PUnit := do
 unless a == b do
   throw (ULift.up s!"{a} is not equal to {b}")
 
-def g {α : Type u} [HasBeq α] [HasToString α] (xs : List α) (a : α) : N PUnit := do
+def g {α : Type u} [HasBeq α] [ToString α] (xs : List α) (a : α) : N PUnit := do
 for x in xs do
   let a ← idM a
   checkEq x a

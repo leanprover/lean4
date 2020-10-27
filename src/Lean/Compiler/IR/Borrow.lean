@@ -65,7 +65,7 @@ let fmts := map.fold (fun fmt k ps =>
 "{" ++ (Format.nest 1 fmts) ++ "}"
 
 instance : HasFormat ParamMap := ⟨ParamMap.fmt⟩
-instance : HasToString ParamMap := ⟨fun m => Format.pretty (format m)⟩
+instance : ToString ParamMap := ⟨fun m => Format.pretty (format m)⟩
 
 namespace InitParamMap
 /- Mark parameters that take a reference as borrow -/

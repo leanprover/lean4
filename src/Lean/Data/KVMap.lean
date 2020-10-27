@@ -43,7 +43,7 @@ def DataValue.str : DataValue → String
 | DataValue.ofNat v    => toString v
 | DataValue.ofInt v    => toString v
 
-instance : HasToString DataValue := ⟨DataValue.str⟩
+instance : ToString DataValue := ⟨DataValue.str⟩
 
 instance : Coe String DataValue := ⟨DataValue.ofString⟩
 instance : Coe Bool DataValue   := ⟨DataValue.ofBool⟩
@@ -59,7 +59,7 @@ structure KVMap :=
 
 namespace KVMap
 instance : Inhabited KVMap := ⟨{}⟩
-instance : HasToString KVMap := ⟨fun m => toString m.entries⟩
+instance : ToString KVMap := ⟨fun m => toString m.entries⟩
 
 def empty : KVMap :=
 {}

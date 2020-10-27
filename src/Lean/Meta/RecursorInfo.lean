@@ -23,7 +23,7 @@ inductive RecursorUnivLevelPos
   | motive                -- marks where the universe of the motive should go
   | majorType (idx : Nat) -- marks where the #idx universe of the major premise type goes
 
-instance : HasToString RecursorUnivLevelPos := ⟨fun
+instance : ToString RecursorUnivLevelPos := ⟨fun
   | RecursorUnivLevelPos.motive        => "<motive-univ>"
   | RecursorUnivLevelPos.majorType idx => toString idx⟩
 
@@ -56,7 +56,7 @@ def numMinors (info : RecursorInfo) : Nat :=
   let r := r - info.motivePos - 1
   r - (info.majorPos + 1 - info.firstIndexPos)
 
-instance : HasToString RecursorInfo := ⟨fun info =>
+instance : ToString RecursorInfo := ⟨fun info =>
   "{\n" ++
   "  name           := " ++ toString info.recursorName ++ "\n" ++
   "  type           := " ++ toString info.typeName ++ "\n" ++

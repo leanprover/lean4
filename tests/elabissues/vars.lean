@@ -1,8 +1,8 @@
-def f1 {α} [HasToString α] (a : α) : String := -- works
+def f1 {α} [ToString α] (a : α) : String := -- works
 ">> " ++ toString a
 
--- Moving `{α} [HasToString α]` to a `variables` break the example
-variables {α} [HasToString α]
+-- Moving `{α} [ToString α]` to a `variables` break the example
+variables {α} [ToString α]
 def f2 (a : α) : String :=
 ">> " ++ toString a
 

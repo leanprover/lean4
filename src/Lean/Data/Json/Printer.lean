@@ -79,7 +79,7 @@ partial def compress : Json → String
     "{" ++ ",".intercalate ckvs ++ "}"
 
 instance : HasFormat Json := ⟨render⟩
-instance : HasToString Json := ⟨pretty⟩
+instance : ToString Json := ⟨pretty⟩
 
 end Json
 end Lean

@@ -123,7 +123,7 @@ protected def repr : Int → String
   | negSucc m => "-" ++ Nat.repr (succ m)
 
 instance : HasRepr Int := ⟨Int.repr⟩
-instance : HasToString Int := ⟨Int.repr⟩
+instance : ToString Int := ⟨Int.repr⟩
 instance : HasOfNat Int := ⟨Int.ofNat⟩
 
 @[extern "lean_int_div"]

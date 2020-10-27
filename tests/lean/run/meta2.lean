@@ -226,7 +226,7 @@ def mkStateM (σ : Expr) : MetaM Expr := mkAppC `StateM #[σ]
 def mkMonad (m : Expr) : MetaM Expr := mkAppC `Monad #[m]
 def mkMonadState (σ m : Expr) : MetaM Expr := mkAppC `MonadState #[σ, m]
 def mkHasAdd (a : Expr) : MetaM Expr := mkAppC `HasAdd #[a]
-def mkHasToString (a : Expr) : MetaM Expr := mkAppC `HasToString #[a]
+def mkToString (a : Expr) : MetaM Expr := mkAppC `ToString #[a]
 
 def tst14 : MetaM Unit :=
 do print "----- tst14 -----";
@@ -252,7 +252,7 @@ do print "----- tst15 -----";
 def tst16 : MetaM Unit :=
 do print "----- tst16 -----";
    let prod ← mkProd nat nat;
-   let inst ← mkHasToString prod;
+   let inst ← mkToString prod;
    print inst;
    let r ← synthInstance inst;
    print r;
@@ -264,7 +264,7 @@ def tst17 : MetaM Unit :=
 do print "----- tst17 -----";
    let prod ← mkProd nat nat;
    let prod ← mkProd boolE prod;
-   let inst ← mkHasToString prod;
+   let inst ← mkToString prod;
    print inst;
    let r ← synthInstance inst;
    print r;
@@ -339,7 +339,7 @@ do print "----- tst22 -----";
    print t;
    let t ← mkAppC `HasAdd.add #[y, x];
    print t;
-   let t ← mkAppC `HasToString.toString #[x];
+   let t ← mkAppC `ToString.toString #[x];
    print t;
    pure ()
 

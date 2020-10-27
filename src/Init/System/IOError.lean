@@ -187,7 +187,7 @@ def toString : IO.Error → String
   | unsupportedOperation code details        => otherErrorToString "unsupported operation" code details
   | userError msg                            => msg
 
-instance : HasToString IO.Error := ⟨ IO.Error.toString ⟩
+instance : ToString IO.Error := ⟨ IO.Error.toString ⟩
 instance : Inhabited IO.Error := ⟨ userError "" ⟩
 
 end IO.Error

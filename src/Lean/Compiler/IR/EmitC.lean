@@ -35,13 +35,13 @@ match findEnvDecl env n with
 | some d => pure d
 | none   => throw s!"unknown declaration '{n}'"
 
-@[inline] def emit {α : Type} [HasToString α] (a : α) : M Unit :=
+@[inline] def emit {α : Type} [ToString α] (a : α) : M Unit :=
 modify fun out => out ++ toString a
 
-@[inline] def emitLn {α : Type} [HasToString α] (a : α) : M Unit := do
+@[inline] def emitLn {α : Type} [ToString α] (a : α) : M Unit := do
 emit a; emit "\n"
 
-def emitLns {α : Type} [HasToString α] (as : List α) : M Unit :=
+def emitLns {α : Type} [ToString α] (as : List α) : M Unit :=
 as.forM fun a => emitLn a
 
 def argToCString (x : Arg) : String :=

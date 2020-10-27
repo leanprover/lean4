@@ -37,7 +37,7 @@ pure "hello"
 
 #eval runM
 "universe u universe v
- export HasToString (toString)
+ export ToString (toString)
  section namespace foo.bla end bla end foo
  variable (p q : Prop)
  variable (_ b : _)
@@ -70,12 +70,12 @@ structure S1 :=
 structure S2 extends S1 :=
 (z : Nat := 0)
 
-def fD {α} [HasToString α] (a b : α) : String :=
+def fD {α} [ToString α] (a b : α) : String :=
 toString a ++ toString b
 
 structure S3 :=
 (w : Nat := 0)
-(f : forall {α : Type} [HasToString α], α → α → String := @fD)
+(f : forall {α : Type} [ToString α], α → α → String := @fD)
 
 structure S4 extends S2, S3 :=
 (s : Nat := 0)
@@ -194,8 +194,8 @@ f a
 #eval runM "#check let z := 2; x + y where x := z + 1; where y := x + x"
 
 #eval runM "variables {α β} axiom x (n : Nat) : α → α #check x 1 0"
-#eval runM "#check HasToString.toString 0"
-#eval runM "@[instance] axiom newInst : HasToString Nat #check newInst #check HasToString.toString 0"
+#eval runM "#check ToString.toString 0"
+#eval runM "@[instance] axiom newInst : ToString Nat #check newInst #check ToString.toString 0"
 #eval runM "variables {β σ} universes w1 w2 /-- Testing axiom -/ unsafe axiom Nat.aux (γ : Type w1) (v : Nat) : β → (α : Type _) → v = zero /- Nat.zero -/ → Array α #check @Nat.aux"
 #eval runM "def x : Nat := Nat.zero #check x"
 #eval runM "def x := Nat.zero #check x"

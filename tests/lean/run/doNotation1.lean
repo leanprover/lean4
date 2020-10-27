@@ -23,7 +23,7 @@ let x := g2 b
 IO.println b
 pure (s+a)
 
-def myPrint {α} [HasToString α] (a : α) : IO Unit :=
+def myPrint {α} [ToString α] (a : α) : IO Unit :=
 IO.println s!">> {a}"
 
 def h₂ (x : Nat) : StateT Nat IO Nat := do

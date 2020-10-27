@@ -319,7 +319,7 @@ collectStats m.root {} 1
 def Stats.toString (s : Stats) : String :=
 s!"\{ nodes := {s.numNodes}, null := {s.numNull}, collisions := {s.numCollisions}, depth := {s.maxDepth}}"
 
-instance : HasToString Stats := ⟨Stats.toString⟩
+instance : ToString Stats := ⟨Stats.toString⟩
 
 end PersistentHashMap
 end Std

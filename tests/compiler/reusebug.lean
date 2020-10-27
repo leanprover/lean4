@@ -13,7 +13,7 @@ protected def Expr.toString : Expr → String
 | Add f g   => "(" ++ Expr.toString f ++ " + " ++ Expr.toString g ++ ")"
 | Mul f g   => "(" ++ Expr.toString f ++ " * " ++ Expr.toString g ++ ")"
 
-instance : HasToString Expr :=
+instance : ToString Expr :=
 ⟨Expr.toString⟩
 
 partial def addAux : Expr → Expr → Expr

@@ -153,7 +153,7 @@ protected def toString (e : Error) : String :=
     ["expected " ++ expectedToString expected]
   "; ".intercalate $ unexpected ++ expected
 
-instance : HasToString Error := ⟨Error.toString⟩
+instance : ToString Error := ⟨Error.toString⟩
 
 protected def beq (e₁ e₂ :  Error) : Bool :=
   e₁.unexpected == e₂.unexpected && e₁.expected == e₂.expected
@@ -290,7 +290,7 @@ def toStr : FirstTokens → String
   | tokens tks    => toString tks
   | optTokens tks => "?" ++ toString tks
 
-instance : HasToString FirstTokens := ⟨toStr⟩
+instance : ToString FirstTokens := ⟨toStr⟩
 
 end FirstTokens
 

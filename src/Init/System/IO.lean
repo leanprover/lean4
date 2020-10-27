@@ -85,7 +85,7 @@ instance : MonadIO IO :=
 
 namespace IO
 
-def ofExcept {ε α : Type} [HasToString ε] (e : Except ε α) : IO α :=
+def ofExcept {ε α : Type} [ToString ε] (e : Except ε α) : IO α :=
   match e with
   | Except.ok a    => pure a
   | Except.error e => throw (IO.userError (toString e))
@@ -279,17 +279,17 @@ def withStderr [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStderr h
   try x finally discard $ setStderr prev
 
-def print {α} [HasToString α] (s : α) : m Unit := do
+def print {α} [ToString α] (s : α) : m Unit := do
   let out ← getStdout
   liftIO $ out.putStr $ toString s
 
-def println {α} [HasToString α] (s : α) : m Unit := print ((toString s).push '\n')
+def println {α} [ToString α] (s : α) : m Unit := print ((toString s).push '\n')
 
-def eprint {α} [HasToString α] (s : α) : m Unit := do
+def eprint {α} [ToString α] (s : α) : m Unit := do
   let out ← getStderr
   liftIO $ out.putStr $ toString s
 
-def eprintln {α} [HasToString α] (s : α) : m Unit := eprint ((toString s).push '\n')
+def eprintln {α} [ToString α] (s : α) : m Unit := eprint ((toString s).push '\n')
 
 @[export lean_io_eprintln]
 private def eprintlnAux (s : String) : IO Unit := eprintln s

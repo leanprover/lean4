@@ -322,7 +322,7 @@ def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showInfo := false)
 formatStxAux maxDepth showInfo 0 stx
 
 instance : HasFormat (Syntax)   := ⟨formatStx⟩
-instance : HasToString (Syntax) := ⟨toString ∘ format⟩
+instance : ToString (Syntax) := ⟨toString ∘ format⟩
 
 partial def structEq : Syntax → Syntax → Bool
 | Syntax.missing, Syntax.missing => true

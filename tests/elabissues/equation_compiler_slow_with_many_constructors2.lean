@@ -16,7 +16,7 @@ def hasToString : Op → String
 | add => "add"
 | mul => "mul"
 
-instance : HasToString Op := ⟨hasToString⟩
+instance : ToString Op := ⟨hasToString⟩
 
 def beq : Op → Op → Bool
 | add, add => true

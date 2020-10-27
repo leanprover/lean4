@@ -58,7 +58,7 @@ protected partial def format : Value → Format
 | ctor i vs => fmt "#" ++ if vs.isEmpty then fmt i.name else Format.paren (fmt i.name ++ @formatArray _ ⟨Value.format⟩ vs)
 
 instance : HasFormat Value := ⟨Value.format⟩
-instance : HasToString Value := ⟨Format.pretty ∘ Value.format⟩
+instance : ToString Value := ⟨Format.pretty ∘ Value.format⟩
 
 /- Make sure constructors of recursive inductive datatypes can only occur once in each path.
    We use this function this function to implement a simple widening operation for our abstract

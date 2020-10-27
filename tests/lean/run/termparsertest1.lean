@@ -70,7 +70,7 @@ test [
 "(x : a)",
 "a -> b",
 "{x : a} -> b",
-"{a : Type} -> [HasToString a] -> (x : a) -> b",
+"{a : Type} -> [ToString a] -> (x : a) -> b",
 "f ({x : a} -> b)",
 "f (x : a) -> b",
 "f ((x : a) -> b)",

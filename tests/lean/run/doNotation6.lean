@@ -2,7 +2,7 @@
 
 abbrev M := StateRefT Nat IO
 
-def testM {α} [HasToString α] [HasBeq α] (init : Nat) (expected : α) (x : M α): IO Unit := do
+def testM {α} [ToString α] [HasBeq α] (init : Nat) (expected : α) (x : M α): IO Unit := do
 let v ← x.run' init
 IO.println ("result " ++ toString v)
 unless v == expected do

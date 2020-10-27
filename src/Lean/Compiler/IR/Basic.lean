@@ -28,12 +28,12 @@ structure JoinPointId := (idx : Index)
 abbrev Index.lt (a b : Index) : Bool := a < b
 
 instance : HasBeq VarId := ⟨fun a b => a.idx == b.idx⟩
-instance : HasToString VarId := ⟨fun a => "x_" ++ toString a.idx⟩
+instance : ToString VarId := ⟨fun a => "x_" ++ toString a.idx⟩
 instance : HasFormat VarId := ⟨fun a => toString a⟩
 instance : Hashable VarId := ⟨fun a => hash a.idx⟩
 
 instance : HasBeq JoinPointId := ⟨fun a b => a.idx == b.idx⟩
-instance : HasToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
+instance : ToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
 instance : HasFormat JoinPointId := ⟨fun a => toString a⟩
 instance : Hashable JoinPointId := ⟨fun a => hash a.idx⟩
 

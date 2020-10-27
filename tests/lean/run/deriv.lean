@@ -69,14 +69,14 @@ partial def count : Expr → Nat
 | Ln f      => count f
 
 partial def Expr.toString : Expr → String
-| Val n   => HasToString.toString n
+| Val n   => ToString.toString n
 | Var x   => x
 | Add f g   => "(" ++ toString f ++ " + " ++ toString g ++ ")"
 | Mul f g   => "(" ++ toString f ++ " * " ++ toString g ++ ")"
 | Pow f g   => "(" ++ toString f ++ " ^ " ++ toString g ++ ")"
 | Ln f      => "ln(" ++ toString f ++ ")"
 
-instance : HasToString Expr :=
+instance : ToString Expr :=
 ⟨Expr.toString⟩
 
 unsafe def nest (f : Expr → IO Expr) : Nat → Expr → IO Expr

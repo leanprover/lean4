@@ -74,7 +74,7 @@ protected def Expr.toString : Expr → String
 | Pow f g   => "(" ++ Expr.toString f ++ " ^ " ++ Expr.toString g ++ ")"
 | Ln f      => "ln(" ++ Expr.toString f ++ ")"
 
-instance : HasToString Expr :=
+instance : ToString Expr :=
 ⟨Expr.toString⟩
 
 def nestAux (s : Nat) (f : Nat → Expr → IO Expr) : Nat → Expr → IO Expr

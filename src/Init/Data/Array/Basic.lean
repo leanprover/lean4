@@ -440,7 +440,7 @@ a.foldr List.cons []
 instance [HasRepr α] : HasRepr (Array α) :=
 ⟨fun a => "#" ++ repr a.toList⟩
 
-instance [HasToString α] : HasToString (Array α) :=
+instance [ToString α] : ToString (Array α) :=
 ⟨fun a => "#" ++ toString a.toList⟩
 
 section

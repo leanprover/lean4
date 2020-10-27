@@ -1,6 +1,6 @@
 
 
-#synth HasToString (Nat × (Nat × Bool))
+#synth ToString (Nat × (Nat × Bool))
 
 #synth HasAdd Nat
 

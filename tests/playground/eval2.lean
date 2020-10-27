@@ -12,7 +12,7 @@ unsafe def evalNatFn (fName : Name) (n : Nat) : IO Unit :=
 do f ← evalConst (Nat → Nat) fName,
    IO.println (f n)
 
-unsafe def evalVal (α : Type) [Inhabited α] [HasToString α] (n : Name) : IO Unit :=
+unsafe def evalVal (α : Type) [Inhabited α] [ToString α] (n : Name) : IO Unit :=
 do v ← evalConst α n,
    IO.println v
 

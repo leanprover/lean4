@@ -253,7 +253,7 @@ protected partial def formatStx : Syntax → Format
 | missing := "<missing>"
 
 instance : HasFormat Syntax := ⟨Syntax.formatStx⟩
-instance : HasToString Syntax := ⟨toString ∘ format⟩
+instance : ToString Syntax := ⟨toString ∘ format⟩
 end Syntax
 
 end Parser

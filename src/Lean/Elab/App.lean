@@ -20,7 +20,7 @@ inductive Arg
 
 instance : Inhabited Arg := ⟨Arg.stx (arbitrary _)⟩
 
-instance : HasToString Arg := ⟨fun
+instance : ToString Arg := ⟨fun
   | Arg.stx  val => toString val
   | Arg.expr val => toString val⟩
 
@@ -30,7 +30,7 @@ structure NamedArg :=
   (name : Name)
   (val  : Arg)
 
-instance : HasToString NamedArg :=
+instance : ToString NamedArg :=
   ⟨fun s => "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"⟩
 
 instance : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _ }⟩

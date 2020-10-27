@@ -100,7 +100,7 @@ def toStringWithSep (sep : String) : Name → String
 protected def toString : Name → String :=
 toStringWithSep "."
 
-instance : HasToString Name := ⟨Name.toString⟩
+instance : ToString Name := ⟨Name.toString⟩
 
 protected def append : Name → Name → Name
   | n, anonymous => n

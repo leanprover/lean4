@@ -345,7 +345,7 @@ collectStats r.root { numNodes := 0, depth := 0, tailSize := r.tail.size } 0
 def Stats.toString (s : Stats) : String :=
 s!"\{nodes := {s.numNodes}, depth := {s.depth}, tail size := {s.tailSize}}"
 
-instance : HasToString Stats := ⟨Stats.toString⟩
+instance : ToString Stats := ⟨Stats.toString⟩
 
 end PersistentArray
 

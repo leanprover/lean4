@@ -26,7 +26,7 @@ typeAs
     (a : α) => a
 fun {α : Type}
   [inst :
-    HasToString α]
+    ToString α]
   (a : α) =>
   @toString α inst a
 (α : Type) → α
@@ -38,8 +38,7 @@ Type → Type → Type
 {α : Type} → α
 {α : Type} →
   [inst :
-      HasToString
-        α] →
+      ToString α] →
     α
 0
 1

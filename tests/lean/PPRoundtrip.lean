@@ -65,7 +65,7 @@ def typeAs.{u} (α : Type u) (a : α) := ()
 #eval checkM `(typeAs ({α : Type} → (a : α) → α) fun a => a)
 section
   set_option pp.explicit true
-  #eval checkM `(fun {α : Type} [HasToString α] (a : α) => toString a)
+  #eval checkM `(fun {α : Type} [ToString α] (a : α) => toString a)
 end
 
 #eval checkM `((α : Type) → α)
@@ -74,7 +74,7 @@ end
 #eval checkM `((α : Type) → (a : α) → α)
 #eval checkM `((α : Type) → (a : α) → a = a)
 #eval checkM `({α : Type} → α)
-#eval checkM `({α : Type} → [HasToString α] → α)
+#eval checkM `({α : Type} → [ToString α] → α)
 
 -- TODO: hide `ofNat`
 #eval checkM `(0)

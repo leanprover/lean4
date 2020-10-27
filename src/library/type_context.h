@@ -11,16 +11,17 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "util/fresh_name.h"
 #include "kernel/environment.h"
-#include "library/abstract_type_context.h"
 #include "library/idx_metavar.h"
 #include "library/projection.h"
 #include "library/metavar_context.h"
-#include "library/abstract_context_cache.h"
+#include "library/abstract_type_context.h"
 #include "library/exception.h"
 #include "library/expr_pair.h"
 #include "library/local_instances.h"
 
 namespace lean {
+enum class transparency_mode { All = 0, Semireducible, Reducible };
+
 /* Return `f._sunfold` */
 name mk_smart_unfolding_name_for(name const & f);
 
@@ -77,13 +78,9 @@ public:
     };
 private:
     typedef buffer<scope_data> scopes;
-    typedef abstract_context_cache cache;
-    typedef context_cacheless dummy_cache;
     environment        m_env;
     metavar_context    m_mctx;
     local_context      m_lctx;
-    dummy_cache        m_dummy_cache; /* cache used when user does not provide a cache */
-    cache *            m_cache;
     local_instances    m_local_instances;
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment{false};
@@ -132,14 +129,12 @@ private:
 
     std::function<bool(name const & e)> const * m_transparency_pred{nullptr}; // NOLINT
 
-    static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
-        return !has_metavar(e1) && !has_metavar(e2) && (!is_atomic(e1) || !is_atomic(e2));
+    static bool is_equiv_cache_target(expr const &, expr const &) {
+        lean_unreachable();
     }
-    bool is_cached_equiv(expr const & e1, expr const & e2) {
-        return is_equiv_cache_target(e1, e2) && m_cache->get_equiv(m_transparency_mode, e1, e2);
-    }
-    void cache_equiv(expr const & e1, expr const & e2) {
-        if (is_equiv_cache_target(e1, e2)) m_cache->set_equiv(m_transparency_mode, e1, e2);
+    bool is_cached_equiv(expr const &, expr const &) { lean_unreachable(); }
+    void cache_equiv(expr const &, expr const &) {
+        lean_unreachable();
     }
 
     void cache_failure(expr const & t, expr const & s);
@@ -151,31 +146,23 @@ private:
     optional<projection_info> is_projection(expr const & e);
     optional<expr> reduce_projection_core(optional<projection_info> const & info, expr const & e);
 
-    type_context_old(abstract_context_cache * cache, metavar_context const & mctx, local_context const & lctx,
-                 transparency_mode m);
 public:
-    type_context_old(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                 abstract_context_cache & cache, transparency_mode m = transparency_mode::Reducible);
     type_context_old(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m = transparency_mode::Reducible);
     type_context_old(environment const & env, options const & o, local_context const & lctx,
-                 transparency_mode m = transparency_mode::Reducible):
+                     transparency_mode m = transparency_mode::Reducible):
         type_context_old(env, o, metavar_context(), lctx, m) {}
     explicit type_context_old(environment const & env, transparency_mode m = transparency_mode::Reducible):
         type_context_old(env, options(), metavar_context(), local_context(), m) {}
     type_context_old(environment const & env, options const & o, transparency_mode m = transparency_mode::Reducible):
         type_context_old(env, o, metavar_context(), local_context(), m) {}
-    type_context_old(environment const & env, abstract_context_cache & cache, transparency_mode m = transparency_mode::Reducible):
-        type_context_old(env, metavar_context(), local_context(), cache, m) {}
-    type_context_old(type_context_old const &) = delete;
-    type_context_old(type_context_old &&);
     virtual ~type_context_old();
 
     type_context_old & operator=(type_context_old const &) = delete;
     type_context_old & operator=(type_context_old &&) = delete;
 
     virtual environment const & env() const override { return m_env; }
-    options const & get_options() const { return m_cache->get_options(); }
+    options const & get_options() const { lean_unreachable(); }
 
     // TODO(Leo): avoid ::lean::mk_fresh_name
     virtual name next_name() override { return ::lean::mk_fresh_name(); }
@@ -203,8 +190,6 @@ public:
     void set_mctx(metavar_context const & mctx) { m_mctx = mctx; }
     /* note: env must be a descendant of m_env */
     void set_env(environment const & env);
-
-    abstract_context_cache & get_cache() { return *m_cache; }
 
     /* Store the current local instances in the local context.
        This has the following implications:

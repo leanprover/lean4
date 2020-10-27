@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive.h"
-#include "library/abstract_type_context.h"
 #include "library/locals.h"
 #include "library/util.h"
 #include "library/suffixes.h"

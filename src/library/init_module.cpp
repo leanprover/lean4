@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "library/util.h"
 #include "library/pp_options.h"
-#include "library/abstract_context_cache.h"
 #include "library/type_context.h"
 #include "library/local_context.h"
 #include "library/metavar_context.h"
@@ -57,7 +56,6 @@ void initialize_library_module() {
     initialize_class();
     initialize_library_util();
     initialize_pp_options();
-    initialize_abstract_context_cache();
     initialize_type_context();
     initialize_check();
     initialize_time_task();
@@ -67,7 +65,6 @@ void finalize_library_module() {
     finalize_time_task();
     finalize_check();
     finalize_type_context();
-    finalize_abstract_context_cache();
     finalize_pp_options();
     finalize_library_util();
     finalize_class();

@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <string>
 #include <lean/sstream.h>
 #include "util/name_hash_map.h"
-#include "library/abstract_type_context.h"
 #include "library/annotation.h"
 #include "library/pos_info_provider.h"
 

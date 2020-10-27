@@ -507,8 +507,8 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
     let stxNew ← `(let x : $type := $val; match x with | $pat => $body)
     let stxNew  := match useLetExpr, elabBodyFirst with
       | true,  false => stxNew
-      | true,  true  => stxNew.updateKind `Lean.Parser.Term.«let*»
-      | false, true  => stxNew.updateKind `Lean.Parser.Term.«let!»
+      | true,  true  => stxNew.setKind `Lean.Parser.Term.«let*»
+      | false, true  => stxNew.setKind `Lean.Parser.Term.«let!»
       | false, false => unreachable!
     withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
   else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then

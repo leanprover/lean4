@@ -17,7 +17,7 @@ private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : Sta
   let matchAlts := matchTac[4]
   let alts      := matchAlts[1].getArgs
   let newAlts ← alts.mapSepElemsM fun alt => do
-    let alt    := alt.updateKind `Lean.Parser.Term.matchAlt
+    let alt    := alt.setKind `Lean.Parser.Term.matchAlt
     let holeOrTacticSeq := alt[2]
     if holeOrTacticSeq.isOfKind `Lean.Parser.Term.syntheticHole then
       pure alt
@@ -33,7 +33,7 @@ private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : Sta
       let newCase ← `(tactic| case $newHoleId => $holeOrTacticSeq:tacticSeq )
       modify fun s => { s with cases := s.cases.push newCase }
       pure $ alt.setArg 2 newHole
-  let result  := matchTac.updateKind `Lean.Parser.Term.«match»
+  let result  := matchTac.setKind `Lean.Parser.Term.«match»
   let result  := result.setArg 4 (matchAlts.setArg 1 (mkNullNode newAlts))
   pure result
 

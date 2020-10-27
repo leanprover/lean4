@@ -248,7 +248,7 @@ def getKind (stx : Syntax) : SyntaxNodeKind :=
   | Syntax.atom _ v      => mkNameSimple v
   | Syntax.ident _ _ _ _ => identKind
 
-def updateKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
+def setKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
   match stx with
   | Syntax.node _ args => Syntax.node k args
   | _                  => stx

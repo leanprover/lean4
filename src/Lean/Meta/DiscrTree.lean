@@ -72,7 +72,7 @@ def Key.format : Key → Format
   | Key.const k _              => fmt k
   | Key.fvar k _               => fmt k
 
-instance : HasFormat Key := ⟨Key.format⟩
+instance : ToFormat Key := ⟨Key.format⟩
 
 def Key.arity : Key → Nat
   | Key.const _ a => a
@@ -238,21 +238,21 @@ def insert {α} [HasBeq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (Disc
   let keys ← mkPath e
   pure $ d.insertCore keys v
 
-partial def Trie.format {α} [HasFormat α] : Trie α → Format
+partial def Trie.format {α} [ToFormat α] : Trie α → Format
   | Trie.node vs cs => Format.group $ Format.paren $
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ fmt vs)
     ++ Format.join (cs.toList.map $ fun ⟨k, c⟩ => Format.line ++ Format.paren (fmt k ++ " => " ++ format c))
 
-instance {α} [HasFormat α] : HasFormat (Trie α) := ⟨Trie.format⟩
+instance {α} [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
 
-partial def format {α} [HasFormat α] (d : DiscrTree α) : Format :=
+partial def format {α} [ToFormat α] (d : DiscrTree α) : Format :=
   let (_, r) := d.root.foldl
     (fun (p : Bool × Format) k c =>
       (false, p.2 ++ (if p.1 == true then Format.nil else Format.line) ++ Format.paren (fmt k ++ " => " ++ fmt c))) -- TODO: fix p.1 == true
     (true, Format.nil)
   Format.group r
 
-instance {α} [HasFormat α] : HasFormat (DiscrTree α) := ⟨format⟩
+instance {α} [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
 
 private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) := do
   let e ← whnfEta e

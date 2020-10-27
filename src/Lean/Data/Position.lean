@@ -25,7 +25,7 @@ fun ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ =>
 protected def lt : Position → Position → Bool
 | ⟨l₁, c₁⟩, ⟨l₂, c₂⟩ => (l₁, c₁) < (l₂, c₂)
 
-instance : HasFormat Position :=
+instance : ToFormat Position :=
 ⟨fun ⟨l, c⟩ => "⟨" ++ fmt l ++ ", " ++ fmt c ++ "⟩"⟩
 
 instance : ToString Position :=

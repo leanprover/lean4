@@ -167,7 +167,7 @@ inductive FieldLHS
   | modifyOp   (ref : Syntax) (index : Syntax)
 
 instance : Inhabited FieldLHS := ⟨FieldLHS.fieldName (arbitrary _) (arbitrary _)⟩
-instance : HasFormat FieldLHS := ⟨fun lhs =>
+instance : ToFormat FieldLHS := ⟨fun lhs =>
   match lhs with
   | FieldLHS.fieldName _ n  => fmt n
   | FieldLHS.fieldIndex _ i => fmt i
@@ -231,10 +231,10 @@ partial def formatStruct : Struct → Format
     | Source.implicit _     => "{" ++ fieldsFmt ++ " .. }"
     | Source.explicit _ src => "{" ++ format src ++ " with " ++ fieldsFmt ++ "}"
 
-instance : HasFormat Struct     := ⟨formatStruct⟩
+instance : ToFormat Struct     := ⟨formatStruct⟩
 instance : ToString Struct := ⟨toString ∘ format⟩
 
-instance : HasFormat (Field Struct) := ⟨formatField formatStruct⟩
+instance : ToFormat (Field Struct) := ⟨formatField formatStruct⟩
 instance : ToString (Field Struct) := ⟨toString ∘ format⟩
 
 /-

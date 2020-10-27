@@ -51,7 +51,7 @@ def Modifiers.isProtected : Modifiers → Bool
 def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
 
-instance : HasFormat Modifiers := ⟨fun m =>
+instance : ToFormat Modifiers := ⟨fun m =>
   let components : List Format :=
     (match m.docString with
      | some str => ["/--" ++ str ++ "-/"]

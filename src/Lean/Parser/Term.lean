@@ -79,7 +79,7 @@ def fromTerm   := parser! " from " >> termParser
 def haveAssign := parser! " := " >> termParser
 def haveDecl   := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
 @[builtinTermParser] def «have» := parser!:leadPrec withPosition ("have " >> haveDecl) >> optSemicolon termParser
-def sufficesDecl := optIdent >> termParser >> fromTerm
+def sufficesDecl := optIdent >> termParser >> (fromTerm <|> byTactic)
 @[builtinTermParser] def «suffices» := parser!:leadPrec withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
 @[builtinTermParser] def «show»     := parser!:leadPrec "show " >> termParser >> (fromTerm <|> byTactic)
 def structInstArrayRef := parser! "[" >> termParser >>"]"

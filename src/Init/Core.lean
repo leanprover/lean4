@@ -409,13 +409,13 @@ instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (
 }
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Sum α β) := {
-  sizeof := fun s => match s with
+  sizeof := fun
     | Sum.inl a => 1 + sizeof a
     | Sum.inr b => 1 + sizeof b
 }
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (PSum α β) := {
-  sizeof := fun p => match p with
+  sizeof := fun
     | PSum.inl a => 1 + sizeof a
     | PSum.inr b => 1 + sizeof b
 }
@@ -437,7 +437,7 @@ instance : HasSizeof Bool := {
 }
 
 instance (α : Type u) [HasSizeof α] : HasSizeof (Option α) := {
-  sizeof := fun o => match o with
+  sizeof := fun
     | none   => 1
     | some a => 1 + sizeof a
 }
@@ -1069,11 +1069,11 @@ instance (p : Prop) : Subsingleton p :=
   ⟨fun a b => proofIrrel a b⟩
 
 instance (p : Prop) : Subsingleton (Decidable p) :=
-  Subsingleton.intro fun d₁ => match d₁ with
-    | (isTrue t₁) => fun d₂ => match d₂ with
+  Subsingleton.intro fun
+    | (isTrue t₁) => fun
       | (isTrue t₂)  => proofIrrel t₁ t₂ ▸ rfl
       | (isFalse f₂) => absurd t₁ f₂
-    | (isFalse f₁) => fun d₂ => match d₂ with
+    | (isFalse f₁) => fun
       | (isTrue t₂)  => absurd t₂ f₁
       | (isFalse f₂) => proofIrrel f₁ f₂ ▸ rfl
 

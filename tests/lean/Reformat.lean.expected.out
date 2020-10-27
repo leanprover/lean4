@@ -419,17 +419,15 @@ instance  (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof 
 
 instance  (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Sum α β) :=
 { sizeof :=
-    fun s =>
-      match s with 
-      | Sum.inl a => 1 + sizeof a
-      | Sum.inr b => 1 + sizeof b }
+    fun
+    | Sum.inl a => 1 + sizeof a
+    | Sum.inr b => 1 + sizeof b }
 
 instance  (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (PSum α β) :=
 { sizeof :=
-    fun p =>
-      match p with 
-      | PSum.inl a => 1 + sizeof a
-      | PSum.inr b => 1 + sizeof b }
+    fun
+    | PSum.inl a => 1 + sizeof a
+    | PSum.inr b => 1 + sizeof b }
 
 instance  (α : Type u) (β : α → Type v) [HasSizeof α] [∀  a, HasSizeof (β a)] : HasSizeof (Sigma β) :=
 { sizeof := fun ⟨a, b⟩ => 1 + sizeof a + sizeof b }
@@ -445,10 +443,9 @@ instance  : HasSizeof Bool :=
 
 instance  (α : Type u) [HasSizeof α] : HasSizeof (Option α) :=
 { sizeof :=
-    fun o =>
-      match o with 
-      | none => 1
-      | some a => 1 + sizeof a }
+    fun
+    | none => 1
+    | some a => 1 + sizeof a }
 
 instance  (α : Type u) [HasSizeof α] : HasSizeof (List α) :=
 { sizeof :=

@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/check.h"
 #include "library/profiling.h"
 #include "library/time_task.h"
-#include "library/error_msgs.h"
 #include "library/formatter.h"
 #include "library/pos_info_provider.h"
 #include "library/aux_match.h"
@@ -32,7 +31,6 @@ Author: Leonardo de Moura
 namespace lean {
 void initialize_library_core_module() {
     initialize_pos_info_provider();
-    initialize_error_msgs();
     initialize_formatter();
     initialize_constants();
     initialize_profiling();
@@ -44,7 +42,6 @@ void finalize_library_core_module() {
     finalize_profiling();
     finalize_constants();
     finalize_formatter();
-    finalize_error_msgs();
     finalize_pos_info_provider();
 }
 

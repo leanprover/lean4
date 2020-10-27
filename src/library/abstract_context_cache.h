@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/declaration.h"
 #include "library/projection.h"
-#include "library/fun_info.h"
 
 namespace lean {
 #define LEAN_NUM_TRANSPARENCY_MODES 3
@@ -198,33 +197,6 @@ public:
     virtual optional<expr> get_whnf(transparency_mode, expr const &) = 0;
     virtual void set_whnf(transparency_mode, expr const &, expr const &) = 0;
 
-    /* Cache support for fun_info module */
-
-    virtual optional<fun_info> get_fun_info(transparency_mode, expr const &) = 0;
-    virtual void set_fun_info(transparency_mode, expr const &, fun_info const &) = 0;
-
-    virtual optional<fun_info> get_fun_info_nargs(transparency_mode, expr const &, unsigned) = 0;
-    virtual void set_fun_info_nargs(transparency_mode, expr const &, unsigned, fun_info const &) = 0;
-
-    virtual optional<unsigned> get_specialization_prefix_size(transparency_mode, expr const &, unsigned) = 0;
-    virtual void set_specialization_prefix_size(transparency_mode, expr const &, unsigned, unsigned) = 0;
-
-    virtual optional<ss_param_infos> get_subsingleton_info(transparency_mode, expr const &) = 0;
-    virtual void set_subsingleton_info(transparency_mode, expr const &, ss_param_infos const &) = 0;
-
-    virtual optional<ss_param_infos> get_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) = 0;
-    virtual void set_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) = 0;
-
-    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) = 0;
-    virtual void set_specialization_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) = 0;
-
-    /* Cache support for app_builder */
-
-    virtual optional<app_builder_info> get_app_builder_info(expr const &, unsigned) = 0;
-    virtual void set_app_builder_info(expr const &, unsigned, app_builder_info const &) = 0;
-
-    virtual optional<app_builder_info> get_app_builder_info(expr const &, list<bool> const &) = 0;
-    virtual void set_app_builder_info(expr const &, list<bool> const &, app_builder_info const &) = 0;
 };
 
 /* Dummy implementation of the abstract_context_cache interface that does not do cache anything but configuration options. */
@@ -275,34 +247,6 @@ public:
 
     virtual optional<expr> get_whnf(transparency_mode, expr const &) override { return none_expr(); }
     virtual void set_whnf(transparency_mode, expr const &, expr const &) override {}
-
-    /* Cache support for fun_info module */
-
-    virtual optional<fun_info> get_fun_info(transparency_mode, expr const &) override { return optional<fun_info>(); }
-    virtual void set_fun_info(transparency_mode, expr const &, fun_info const &) override {}
-
-    virtual optional<fun_info> get_fun_info_nargs(transparency_mode, expr const &, unsigned) override { return optional<fun_info>(); }
-    virtual void set_fun_info_nargs(transparency_mode, expr const &, unsigned, fun_info const &) override {}
-
-    virtual optional<unsigned> get_specialization_prefix_size(transparency_mode, expr const &, unsigned) override { return optional<unsigned>(); }
-    virtual void set_specialization_prefix_size(transparency_mode, expr const &, unsigned, unsigned) override {}
-
-    virtual optional<ss_param_infos> get_subsingleton_info(transparency_mode, expr const &) override { return optional<ss_param_infos>(); }
-    virtual void set_subsingleton_info(transparency_mode, expr const &, ss_param_infos const &) override {}
-
-    virtual optional<ss_param_infos> get_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) override { return optional<ss_param_infos>(); }
-    virtual void set_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) override {}
-
-    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) override { return optional<ss_param_infos>(); }
-    virtual void set_specialization_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) override {}
-
-    /* Cache support for app_builder */
-
-    virtual optional<app_builder_info> get_app_builder_info(expr const &, unsigned) override { return optional<app_builder_info>(); }
-    virtual void set_app_builder_info(expr const &, unsigned, app_builder_info const &) override {}
-
-    virtual optional<app_builder_info> get_app_builder_info(expr const &, list<bool> const &) override { return optional<app_builder_info>(); }
-    virtual void set_app_builder_info(expr const &, list<bool> const &, app_builder_info const &) override {}
 };
 
 void initialize_abstract_context_cache();

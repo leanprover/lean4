@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/local_context.h"
 #include "library/metavar_context.h"
-#include "library/fun_info.h"
 #include "library/check.h"
 #include "library/profiling.h"
 #include "library/time_task.h"
@@ -58,7 +57,6 @@ void initialize_library_module() {
     initialize_class();
     initialize_library_util();
     initialize_pp_options();
-    initialize_fun_info();
     initialize_abstract_context_cache();
     initialize_type_context();
     initialize_check();
@@ -70,7 +68,6 @@ void finalize_library_module() {
     finalize_check();
     finalize_type_context();
     finalize_abstract_context_cache();
-    finalize_fun_info();
     finalize_pp_options();
     finalize_library_util();
     finalize_class();

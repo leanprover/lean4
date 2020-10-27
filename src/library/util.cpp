@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/inductive.h"
 #include "library/abstract_type_context.h"
-#include "library/error_msgs.h"
 #include "library/locals.h"
 #include "library/util.h"
 #include "library/suffixes.h"

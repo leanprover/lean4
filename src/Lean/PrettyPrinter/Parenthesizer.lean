@@ -439,8 +439,8 @@ def sepBy.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 @[combinatorParenthesizer Lean.Parser.setExpected]
 def setExpected.parenthesizer (expected : List String) (p : Parenthesizer) : Parenthesizer := p
 
-@[combinatorParenthesizer Lean.Parser.toggleInsideQuot]
-def toggleInsideQuot.parenthesizer (p : Parenthesizer) : Parenthesizer := p
+@[combinatorParenthesizer Lean.Parser.toggleInsideQuot] def toggleInsideQuot.parenthesizer (p : Parenthesizer) : Parenthesizer := p
+@[combinatorParenthesizer Lean.Parser.suppressInsideQuot] def suppressInsideQuot.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 
 @[combinatorParenthesizer Lean.Parser.checkStackTop] def checkStackTop.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer := pure ()

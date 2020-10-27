@@ -124,12 +124,13 @@ instance : Inhabited InputContext := ⟨{
 }⟩
 
 structure ParserContext extends InputContext :=
-  (prec         : Nat)
-  (env          : Environment)
-  (tokens       : TokenTable)
-  (insideQuot   : Bool := false)
-  (savedPos?    : Option Position := none)
-  (forbiddenTk? : Option Token := none)
+  (prec               : Nat)
+  (env                : Environment)
+  (tokens             : TokenTable)
+  (insideQuot         : Bool := false)
+  (suppressInsideQuot : Bool := false)
+  (savedPos?          : Option Position := none)
+  (forbiddenTk?       : Option Token := none)
 
 structure Error :=
   (unexpected : String := "")
@@ -394,11 +395,20 @@ def checkOutsideQuotFn : ParserFn := fun c s =>
 }
 
 def toggleInsideQuotFn (p : ParserFn) : ParserFn := fun c s =>
-  p { c with insideQuot := !c.insideQuot } s
+  if c.suppressInsideQuot then p c s
+  else p { c with insideQuot := !c.insideQuot } s
 
 @[inline] def toggleInsideQuot (p : Parser) : Parser := {
-  info := epsilonInfo,
+  info := p.info,
   fn   := toggleInsideQuotFn p.fn
+}
+
+def suppressInsideQuotFn (p : ParserFn) : ParserFn := fun c s =>
+  p { c with suppressInsideQuot := true } s
+
+@[inline] def suppressInsideQuot (p : Parser) : Parser := {
+  info := p.info,
+  fn   := suppressInsideQuotFn p.fn
 }
 
 @[inline] def leadingNode (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=

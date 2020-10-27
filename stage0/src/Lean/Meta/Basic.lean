@@ -111,7 +111,7 @@ structure Context :=
   (lctx           : LocalContext   := {})
   (localInstances : LocalInstances := #[])
 
-abbrev MetaM  := ReaderT Context $ StateRefT State $ CoreM
+abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
 instance : MonadIO MetaM :=
   { liftIO := fun x => liftM (liftIO x : CoreM _) }

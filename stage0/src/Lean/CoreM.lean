@@ -28,7 +28,7 @@ structure Context :=
   (maxRecDepth    : Nat := 1000)
   (ref            : Syntax := Syntax.missing)
 
-abbrev CoreM := ReaderT Context $ StateRefT State $ EIO Exception
+abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 
 instance {α} : Inhabited (CoreM α) := ⟨fun _ _ => throw $ arbitrary _⟩
 

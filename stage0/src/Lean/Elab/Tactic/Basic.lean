@@ -36,7 +36,7 @@ structure BacktrackableState :=
   (mctx  : MetavarContext)
   (goals : List MVarId)
 
-abbrev TacticM := ReaderT Context $ StateRefT State $ TermElabM
+abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
 def saveBacktrackableState : TacticM BacktrackableState := do

@@ -414,7 +414,7 @@ structure Context :=
   (hasCtxLocals  : Bool)
   (rhs           : Expr)
 
-abbrev CheckAssignmentM := ReaderT Context $ StateRefT State $ MetaM
+abbrev CheckAssignmentM := ReaderT Context $ StateRefT State MetaM
 
 def throwCheckAssignmentFailure {α} : CheckAssignmentM α :=
   throw $ Exception.internal checkAssignmentExceptionId

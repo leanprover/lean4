@@ -366,11 +366,13 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
 
 @[builtinTermElab stateRefT] def elabStateRefT : TermElab := fun stx _ => do
   let σ ← elabType stx[1]
-  let m ← elabTerm stx[2] (← mkArrow (mkSort levelOne) (mkSort levelOne))
+  let m := stx[2]
+  if m.getKind == `Lean.Parser.Term.macroDollarArg then
+    m := m[1]
+  let m ← elabTerm m (← mkArrow (mkSort levelOne) (mkSort levelOne))
   let ω ← mkFreshExprMVar (mkSort levelOne)
   let stWorld ← mkAppM `STWorld #[ω, m]
   mkInstMVar stWorld
   mkAppM `StateRefT' #[ω, σ, m]
-
 
 end Lean.Elab.Term

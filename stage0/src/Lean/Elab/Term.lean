@@ -137,7 +137,7 @@ structure State :=
 
 instance : Inhabited State := ⟨{}⟩
 
-abbrev TermElabM := ReaderT Context $ StateRefT State $ MetaM
+abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
 open Meta

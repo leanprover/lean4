@@ -100,7 +100,7 @@ structure Context :=
 
 end Parenthesizer
 
-abbrev ParenthesizerM := ReaderT Parenthesizer.Context $ StateRefT Parenthesizer.State $ CoreM
+abbrev ParenthesizerM := ReaderT Parenthesizer.Context $ StateRefT Parenthesizer.State CoreM
 abbrev Parenthesizer := ParenthesizerM Unit
 
 @[inline] def ParenthesizerM.orelse {α} (p₁ p₂ : ParenthesizerM α) : ParenthesizerM α := do

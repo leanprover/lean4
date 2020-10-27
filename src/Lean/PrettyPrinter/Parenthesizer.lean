@@ -199,8 +199,10 @@ instance : MonadQuotation ParenthesizerM := {
   withFreshMacroScope := fun x => x,
 }
 
-/-- Run `x` and parenthesize the result using `mkParen` if necessary. -/
-def maybeParenthesize (cat : Name) (mkParen : Syntax → Syntax) (prec : Nat) (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
+/--
+  Run `x` and parenthesize the result using `mkParen` if necessary.
+  If `canJuxtapose` is false, we assume the category does not have a token-less juxtaposition syntax a la function application and deactivate rule 2. -/
+def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → Syntax) (prec : Nat) (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
   let stx ← getCur
   let idx ← getIdx
   let st ← get
@@ -210,9 +212,9 @@ def maybeParenthesize (cat : Name) (mkParen : Syntax → Syntax) (prec : Nat) (x
   x
   let { minPrec := some minPrec, trailPrec := trailPrec, trailCat := trailCat, .. } ← get
     | panic! "maybeParenthesize: visited a syntax tree without precedences?!"
-  trace[PrettyPrinter.parenthesize]! "...precedences are {prec} >? {minPrec}, {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}"
+  trace[PrettyPrinter.parenthesize]! ("...precedences are {prec} >? {minPrec}" ++ if canJuxtapose then msg!", {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}" else "")
   -- Should we parenthesize?
-  if (prec > minPrec || match trailPrec, st.contPrec with some trailPrec, some contPrec => trailCat == st.contCat && trailPrec <= contPrec | _, _ => false) then
+  if (prec > minPrec || canJuxtapose && match trailPrec, st.contPrec with some trailPrec, some contPrec => trailCat == st.contCat && trailPrec <= contPrec | _, _ => false) then
       -- The recursive `visit` call, by the invariant, has moved to the preceding node. In order to parenthesize
       -- the original node, we must first move to the right, except if we already were at the left-most child in the first
       -- place.
@@ -311,17 +313,17 @@ def term.parenthesizer : CategoryParenthesizer | prec => do
   if stx.getKind == nullKind then
     throwBacktrack
   else do
-    maybeParenthesize `term (fun stx => Unhygienic.run `(($stx))) prec $
+    maybeParenthesize `term true (fun stx => Unhygienic.run `(($stx))) prec $
       parenthesizeCategoryCore `term prec
 
 @[builtinCategoryParenthesizer tactic]
 def tactic.parenthesizer : CategoryParenthesizer | prec => do
-  maybeParenthesize `tactic (fun stx => Unhygienic.run `(tactic|($stx))) prec $
+  maybeParenthesize `tactic false (fun stx => Unhygienic.run `(tactic|($stx))) prec $
     parenthesizeCategoryCore `tactic prec
 
 @[builtinCategoryParenthesizer level]
 def level.parenthesizer : CategoryParenthesizer | prec => do
-  maybeParenthesize `level (fun stx => Unhygienic.run `(level|($stx))) prec $
+  maybeParenthesize `level false (fun stx => Unhygienic.run `(level|($stx))) prec $
     parenthesizeCategoryCore `level prec
 
 @[combinatorParenthesizer Lean.Parser.error]

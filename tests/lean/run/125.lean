@@ -17,7 +17,7 @@ match foo with
 | mk1 b => s!"OH {b}"
 | mk2 b => s!"DR {b}"
 
-instance : HasRepr Foo := ⟨fooRepr⟩
+instance : Repr Foo := ⟨fooRepr⟩
 
 #eval elems Foo
 

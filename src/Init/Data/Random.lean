@@ -37,7 +37,7 @@ instance : Inhabited StdGen := ⟨{ s1 := 0, s2 := 0 }⟩
 
 def stdRange := (1, 2147483562)
 
-instance : HasRepr StdGen := {
+instance : Repr StdGen := {
   repr := fun ⟨s1, s2⟩ => "⟨" ++ toString s1 ++ ", " ++ toString s2 ++ "⟩"
 }
 

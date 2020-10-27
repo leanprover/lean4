@@ -468,7 +468,7 @@ class HasEval (α : Type u) :=
   -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbgTrace!`)
   (eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit)
 
-instance {α : Type u} [HasRepr α] : HasEval α :=
+instance {α : Type u} [Repr α] : HasEval α :=
   ⟨fun a _ => IO.println (repr (a ()))⟩
 
 instance : HasEval Unit :=

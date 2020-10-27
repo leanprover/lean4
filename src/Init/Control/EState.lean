@@ -22,7 +22,7 @@ instance [ToString ε] [ToString α] : ToString (Result ε σ α) := {
     | Result.error e _ => "error: " ++ toString e
 }
 
-instance [HasRepr ε] [HasRepr α] : HasRepr (Result ε σ α) := {
+instance [Repr ε] [Repr α] : Repr (Result ε σ α) := {
   repr := fun
     | Result.error e _ => "(error " ++ repr e ++ ")"
     | Result.ok a _    => "(ok " ++ repr a ++ ")"

@@ -257,7 +257,7 @@ def depth (f : Nat → Nat → Nat) (t : RBMap α β lt) : Nat :=
     | some ⟨k, v⟩ => some (k, v)
     | none        => none
 
-instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
+instance [Repr α] [Repr β] : Repr (RBMap α β lt) :=
   ⟨fun t => "rbmapOf " ++ repr t.toList⟩
 
 @[inline] def insert : RBMap α β lt → α → β → RBMap α β lt

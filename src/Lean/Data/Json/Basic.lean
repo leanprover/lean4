@@ -73,7 +73,7 @@ protected def shiftr : JsonNumber → Nat → JsonNumber
 
 instance : ToString JsonNumber := ⟨JsonNumber.toString⟩
 
-instance : HasRepr JsonNumber :=
+instance : Repr JsonNumber :=
   ⟨fun ⟨m, e⟩ => "⟨" ++ m.repr ++ "," ++ e.repr ++ "⟩"⟩
 
 end JsonNumber

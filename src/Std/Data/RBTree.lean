@@ -53,7 +53,7 @@ variables {α : Type u} {β : Type v} {lt : α → α → Bool}
   | some ⟨a, _⟩ => some a
   | none        => none
 
-instance [HasRepr α] : HasRepr (RBTree α lt) :=
+instance [Repr α] : Repr (RBTree α lt) :=
   ⟨fun t => "rbtreeOf " ++ repr t.toList⟩
 
 @[inline] def insert (t : RBTree α lt) (a : α) : RBTree α lt :=

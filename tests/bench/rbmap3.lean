@@ -206,7 +206,7 @@ t.val.depth f
   | some ⟨k, v⟩ => some (k, v)
   | none        => none
 
-instance [HasRepr α] [HasRepr β] : HasRepr (Rbmap α β lt) :=
+instance [Repr α] [Repr β] : Repr (Rbmap α β lt) :=
 ⟨fun t => "rbmapOf " ++ repr t.toList⟩
 
 variables [DecidableRel lt]

@@ -12,61 +12,61 @@ open Sum Subtype Nat
 
 universes u v
 
-class HasRepr (α : Type u) :=
+class Repr (α : Type u) :=
   (repr : α → String)
 
-export HasRepr (repr)
+export Repr (repr)
 
 -- This instance is needed because `id` is not reducible
-instance {α : Type u} [HasRepr α] : HasRepr (id α) :=
-  inferInstanceAs (HasRepr α)
+instance {α : Type u} [Repr α] : Repr (id α) :=
+  inferInstanceAs (Repr α)
 
-instance : HasRepr Bool :=
+instance : Repr Bool :=
   ⟨fun b => cond b "true" "false"⟩
 
-instance {α} [HasRepr α] : HasRepr (Id α) :=
-  inferInstanceAs (HasRepr α)
+instance {α} [Repr α] : Repr (Id α) :=
+  inferInstanceAs (Repr α)
 
-instance {p : Prop} : HasRepr (Decidable p) := {
+instance {p : Prop} : Repr (Decidable p) := {
   repr := fun h => match h with
   | Decidable.isTrue _  => "true"
   | Decidable.isFalse _ => "false"
 }
 
-protected def List.reprAux {α : Type u} [HasRepr α] : Bool → List α → String
+protected def List.reprAux {α : Type u} [Repr α] : Bool → List α → String
   | b,     []    => ""
   | true,  x::xs => repr x ++ List.reprAux false xs
   | false, x::xs => ", " ++ repr x ++ List.reprAux false xs
 
-protected def List.repr {α : Type u} [HasRepr α] : List α → String
+protected def List.repr {α : Type u} [Repr α] : List α → String
   | []    => "[]"
   | x::xs => "[" ++ List.reprAux true (x::xs) ++ "]"
 
-instance {α : Type u} [HasRepr α] : HasRepr (List α) :=
+instance {α : Type u} [Repr α] : Repr (List α) :=
   ⟨List.repr⟩
 
-instance : HasRepr PUnit.{u+1} :=
+instance : Repr PUnit.{u+1} :=
   ⟨fun u => "PUnit.unit"⟩
 
-instance {α : Type u} [HasRepr α] : HasRepr (ULift.{v} α) :=
+instance {α : Type u} [Repr α] : Repr (ULift.{v} α) :=
   ⟨fun v => "ULift.up (" ++ repr v.1 ++ ")"⟩
 
-instance : HasRepr Unit :=
+instance : Repr Unit :=
   ⟨fun u => "()"⟩
 
-instance {α : Type u} [HasRepr α] : HasRepr (Option α) :=
+instance {α : Type u} [Repr α] : Repr (Option α) :=
   ⟨fun | none => "none" | (some a) => "(some " ++ repr a ++ ")"⟩
 
-instance {α : Type u} {β : Type v} [HasRepr α] [HasRepr β] : HasRepr (Sum α β) :=
+instance {α : Type u} {β : Type v} [Repr α] [Repr β] : Repr (Sum α β) :=
   ⟨fun | (inl a) => "(inl " ++ repr a ++ ")" | (inr b) => "(inr " ++ repr b ++ ")"⟩
 
-instance {α : Type u} {β : Type v} [HasRepr α] [HasRepr β] : HasRepr (α × β) :=
+instance {α : Type u} {β : Type v} [Repr α] [Repr β] : Repr (α × β) :=
   ⟨fun ⟨a, b⟩ => "(" ++ repr a ++ ", " ++ repr b ++ ")"⟩
 
-instance {α : Type u} {β : α → Type v} [HasRepr α] [s : ∀ x, HasRepr (β x)] : HasRepr (Sigma β) :=
+instance {α : Type u} {β : α → Type v} [Repr α] [s : ∀ x, Repr (β x)] : Repr (Sigma β) :=
   ⟨fun ⟨a, b⟩ => "⟨"  ++ repr a ++ ", " ++ repr b ++ "⟩"⟩
 
-instance {α : Type u} {p : α → Prop} [HasRepr α] : HasRepr (Subtype p) :=
+instance {α : Type u} {p : α → Prop} [Repr α] : Repr (Subtype p) :=
   ⟨fun s => repr (val s)⟩
 
 namespace Nat
@@ -132,7 +132,7 @@ def toSuperscriptString (n : Nat) : String :=
 
 end Nat
 
-instance : HasRepr Nat :=
+instance : Repr Nat :=
   ⟨Nat.repr⟩
 
 def hexDigitRepr (n : Nat) : String :=
@@ -152,29 +152,29 @@ def Char.quoteCore (c : Char) : String :=
   else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ charToHex c
   else String.singleton c
 
-instance : HasRepr Char :=
+instance : Repr Char :=
   ⟨fun c => "'" ++ Char.quoteCore c ++ "'"⟩
 
 def String.quote (s : String) : String :=
   if s.isEmpty = true then "\"\""
   else s.foldl (fun s c => s ++ c.quoteCore) "\"" ++ "\""
 
-instance : HasRepr String :=
+instance : Repr String :=
   ⟨String.quote⟩
 
-instance : HasRepr Substring :=
+instance : Repr Substring :=
   ⟨fun s => String.quote s.toString ++ ".toSubstring"⟩
 
-instance : HasRepr String.Iterator :=
+instance : Repr String.Iterator :=
   ⟨fun ⟨s, pos⟩ => "(String.Iterator.mk " ++ repr s ++ " " ++ repr pos ++ ")"⟩
 
-instance (n : Nat) : HasRepr (Fin n) :=
+instance (n : Nat) : Repr (Fin n) :=
   ⟨fun f => repr (Fin.val f)⟩
 
-instance : HasRepr UInt16 := ⟨fun n => repr n.toNat⟩
-instance : HasRepr UInt32 := ⟨fun n => repr n.toNat⟩
-instance : HasRepr UInt64 := ⟨fun n => repr n.toNat⟩
-instance : HasRepr USize  := ⟨fun n => repr n.toNat⟩
+instance : Repr UInt16 := ⟨fun n => repr n.toNat⟩
+instance : Repr UInt32 := ⟨fun n => repr n.toNat⟩
+instance : Repr UInt64 := ⟨fun n => repr n.toNat⟩
+instance : Repr USize  := ⟨fun n => repr n.toNat⟩
 
 protected def Char.repr (c : Char) : String :=
   repr c

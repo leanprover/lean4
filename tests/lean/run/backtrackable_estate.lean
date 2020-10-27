@@ -5,7 +5,7 @@ structure MyState :=
 (bs : Nat := 0) -- backtrackable state
 (ps : Nat := 0) -- non backtrackable state
 
-instance : HasRepr MyState :=
+instance : Repr MyState :=
 ⟨fun s => repr (s.bs, s.ps)⟩
 
 instance : EStateM.Backtrackable Nat MyState :=

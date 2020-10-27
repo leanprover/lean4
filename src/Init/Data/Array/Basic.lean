@@ -437,7 +437,7 @@ a.foldlStep (fun r a => Array.push r a) empty 2
 def toList (a : Array α) : List α :=
 a.foldr List.cons []
 
-instance [HasRepr α] : HasRepr (Array α) :=
+instance [Repr α] : Repr (Array α) :=
 ⟨fun a => "#" ++ repr a.toList⟩
 
 instance [ToString α] : ToString (Array α) :=

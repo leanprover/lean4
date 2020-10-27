@@ -30,12 +30,12 @@ protected def Except.toString [ToString ε] [ToString α] : Except ε α → Str
   | Except.error e => "(error " ++ toString e ++ ")"
   | Except.ok a    => "(ok " ++ toString a ++ ")"
 
-protected def Except.repr [HasRepr ε] [HasRepr α] : Except ε α → String
+protected def Except.repr [Repr ε] [Repr α] : Except ε α → String
   | Except.error e => "(error " ++ repr e ++ ")"
   | Except.ok a    => "(ok " ++ repr a ++ ")"
 
 instance [ToString ε] [ToString α] : ToString (Except ε α) := ⟨Except.toString⟩
-instance [HasRepr ε] [HasRepr α] : HasRepr (Except ε α) := ⟨Except.repr⟩
+instance [Repr ε] [Repr α] : Repr (Except ε α) := ⟨Except.repr⟩
 end
 
 namespace Except

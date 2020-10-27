@@ -273,7 +273,7 @@ protected def Format.repr : Format → Format
 
 instance : ToString Format := ⟨Format.pretty⟩
 
-instance : HasRepr Format := ⟨Format.pretty ∘ Format.repr⟩
+instance : Repr Format := ⟨Format.pretty ∘ Format.repr⟩
 
 def formatDataValue : DataValue → Format
   | DataValue.ofString v => format (repr v)

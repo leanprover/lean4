@@ -450,6 +450,12 @@ def orelseFnCore (p q : ParserFn) (mergeErrors : Bool) : ParserFn := fun c s =>
   firstTokens   := p.firstTokens.merge q.firstTokens
 }
 
+/--
+  Run `p`, falling back to `q` if `p` failed without consuming any input.
+
+  NOTE: In order for the pretty printer to retrace an `orelse`, `p` must be a call to `node` or some other parser
+  producing a single node kind. Nested `orelse` calls are flattened for this, i.e. `(node k1 p1 <|> node k2 p2) <|> ...`
+  is fine as well. -/
 @[inline] def orelse (p q : Parser) : Parser := {
   info := orelseInfo p.info q.info,
   fn   := orelseFn p.fn q.fn

@@ -11,16 +11,17 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "util/fresh_name.h"
 #include "kernel/environment.h"
-#include "library/abstract_type_context.h"
 #include "library/idx_metavar.h"
 #include "library/projection.h"
 #include "library/metavar_context.h"
-#include "library/abstract_context_cache.h"
+#include "library/abstract_type_context.h"
 #include "library/exception.h"
 #include "library/expr_pair.h"
 #include "library/local_instances.h"
 
 namespace lean {
+enum class transparency_mode { All = 0, Semireducible, Reducible };
+
 /* Return `f._sunfold` */
 name mk_smart_unfolding_name_for(name const & f);
 
@@ -63,313 +64,6 @@ class type_context_old : public abstract_type_context {
             m_mctx(mctx), m_tmp_uassignment_sz(usz), m_tmp_eassignment_sz(esz), m_tmp_trail_sz(tsz) {}
     };
 public:
-    /*
-      NEW DESIGN notes. (This is work in progress)
-
-      Two kinds of metavariables are supported: regular and temporary.
-
-      *** Regular metavariables ***
-
-      The regular metavariable declarations are stored in the metavariable
-      context object defined at `metavar_context`. Each declaration
-      contain the local context and the type of the metavariable.
-      We use the notation
-
-          ?m : ctx |- type
-
-      to represent a metavariable `?m` with local context `ctx` and
-      type `type`. In the tactic framework, each goal is represented
-      as a regular metavariable. We also have regular universe metavariables.
-      We assign (universe) terms to (universe) metavariables. The assignments
-      are stored in the `metavar_context` object. The context is used
-      to decide whether an assignment is valid or not. For example,
-      given the metavariable
-
-          ?m : (n m : nat) (h : m = n) |- n = m
-
-      The assignment
-
-          ?m := h'
-
-      is not valid since `h'` is not part of the local context, but
-
-          ?m := @eq.symm nat m n h
-
-      is a valid assignment because all locals are in the local context,
-      and the type of the term being assigned to `?m` is definitionally
-      equal to the type of `?m`.
-
-      Regular metavariables are also used to represent `_` holes
-      during the elaboration process.
-
-      *** Temporary metavariables ***
-
-      Several procedures (e.g., type class resolution, simplifier) need
-      to create metavariables that are needed for a short period of time.
-      For example, when applying a simplification lemma such as
-
-         forall x, f x x = x
-
-      to a subterm `t`, we need need to check whether the term
-      `t` is an instance of `f ?x ?x`, where `?x` is a fresh metavariable.
-      That is, we need to find an assignment for `?x` such that `t`
-      and `f ?x ?x` become definitionally equal. If the assignment is found,
-      we replace the term `t` with the term assigned to `?x`. After that,
-      we don't need the metavariable `?x` anymore. We don't want to
-      use regular metavariables for this operation since we don't want
-      to waste time declaring them (i.e., updating `metavar_context`),
-      then creating the term `f ?x ?x` with the newly created metavariable,
-      and then performing the matching operation, and finally deleting `?x`.
-      We avoid this overhead by using temporary metavariables.
-      All temporary metavariables used to solve a particular problem (e.g., matching)
-      share the same local context, the type of a metavariable is stored in
-      the metavariable itself, finally the metavariable uses an unique
-      (usually) small integer as its identifier. The raw API for creating
-      temporary metavariables is defined in the file idx_metavar.h.
-      Since, the identifiers of temporary metavariables are small integers,
-      we implement the temporary metavariable assignment using arrays.
-      This is much more efficient than using a map datastructure.
-
-      *** Temporary metavariable Offsets (discarded) ***
-
-      Remark: this is a feature we considered using, but discarded.
-      We briefly describe it here, and then describe the problems that made
-      us discard it.
-
-      When trying to apply a simplification such as `forall x, f x x = x` to a term `t`,
-      we don't want to create a fresh metavariable `?x` and a new term `f ?x ?x` (called pattern)
-      every single time. This would be too inefficient.  We create the temporary
-      metavariables and the pattern once for each simplification lemma
-      and use them multiple times. However, sometimes we need to solve a subproblem S that
-      requires temporary metavariables while solving a problem P that
-      also requires temporary metavariables. If both S and P use
-      pre-allocated temporary metavariables and patterns, the small
-      integers used to identify temporary metavariables may overlap.
-      We address this issue  by using `offsets`. The operation
-      `lift k t`, where `k` is an offset and `t` is a term, returns
-      the term `t'` where each temporary metavariable with index `i` in `t`
-      is replaced with one with index `i+k`. To avoid the explicit construction of
-      term `t'`, we considered using an `is_def_eq` predicate that takes offsets as parameters.
-      That is, `is_def_eq(k_1, t_1, k_2, t_2)` checks whether
-      the terms `lift k_1 t_1` and `lift k_2 t_2` are definitionally equal
-      without constructing these terms explicitly.
-
-      Remark: when assigning `(k_1, ?x) := (k_2, t)` where `?x` is a temporary metavariable
-      and `k_1` and `k_2` are offsets, we update the array entry `idx(?x) + k_1` with
-      `(lift k_2 t)`.
-
-      Remark: when solving `(k_1, ?x) =?= (k_2, t)` where `?x` is an assigned temporary metavariable,
-      i.e., `assignment[idx(?x) + k_1] := s`, we reduce the constraint to
-      `(0, s) =?= (k_2, t)`.
-
-      This approach is used in several automated first-order theorem provers.
-      However, we found several complications when trying to use it
-      in Lean. Some of the problems affect any prover based on
-      dependent type theory. The main problem is reduction, that is,
-      `is_def_eq` can reduce a constraint `t =?= s` into `t' =?= s`,
-      if `t` reduces to `t'`. Reduction modulo offsets is messy.
-      The problem is that reduction may need to access the assignment, and invoke `is_def_eq` recursively.
-      If reduction tries to substitute a metavar with its assignment, we are in trouble since the offset
-      would not be the same for all subterms. For example, if we have a term `C.rec_on ?x_i h` and offset `k`.
-      If we replace `x_i` with its assignment `v`, the offset for `v` is 0. We would need to have a macro
-      to mark the offset of subterms, but then this macro would have to interact with reduction.
-      Another problem is that `type_context_old` invokes many auxiliary functions and modules.
-      Most of them would have to be offset aware.
-
-      So, we decide to use a different and simpler approach, where we simply cache the
-      result of the lift operation.
-
-      *** Backtracking and scopes ***
-
-      The type context performs "local backtracking" when deciding whether two terms
-      are definitionally equal or not (i.e., at the `is_def_eq` method).
-      When backtracking, assignments have to be undone.
-      For example, when checking `f a =?= f b` (i.e., `f a` is definitionally equal
-      fo `f b`), we first check `a =?= b`, if it fails, we backtrack and try
-      to unfold the `f`-applications. We say the backtracking is local
-      because if `a =?= b` succeeds, we commit to this choice.
-
-      This kind of local backtracking is implemeted using "scope" objects.
-      It saves the current state of `metavar_context` and the size of the
-      trail stack (aka undo stack) for temporary metavariables. Whenever a temporary
-      metavariable is assigned a new entry is inserted into the trail stack.
-
-      Remark: tyhe type class resolution procedure uses "global backtracking",
-      and can be viewed as a (very) basic lambda prolog interpreter.
-
-      *** Unification vs Matching vs pure definitional equality ***
-
-      Suppose we have a simplification lemma `forall x, f x 0 = x`,
-      and a term `f a ?m`, where `?m` is a regular metavariable, from our goal.
-      We don't want to solve the constraint `f ?x 0 =?= f a ?m` by assigning
-      `?x := a` and `?m := 0`. That is, we don't want to restrict the
-      possible interpretations for `?m` based on a simplification rule
-      that is being applied automatically. In this kind of scenario,
-      we want to treat `?m` as a constant instead of a metavariable.
-      We say `f ?x 0 =?= f a ?m` is a matching problem when only the
-      metavariables occurring on the left-hand-side can be assigned.
-
-      If metavariables occurring on both sides can be assigned, we say it is
-      a unification problem.
-
-      If metavariables on both sides cannot be assigned, we say it is
-      a pure definitional equality problem. This mode is used to implement
-      the tactic `tactic.is_def_eq t s` that should only succeed if
-      `t` and `s` are definitionally equal without assigining any
-      metavariables occurring in them.
-
-      The three kinds of problems described above are implemented using the `is_def_eq`
-      method. It uses two flags to track whether metavariables occurring on the
-      right and left hand side can be assigned or not.
-
-      There is a special case where a metavariable can be assigned even
-      if the flag indicates no metavariable can be assigned.
-      Suppose we are trying to solve the following matching problem:
-
-          nat.add ?x_0 (nat.succ ?x_1) =?= nat.add n (@one nat ?m)
-
-      The term `@one nat ?m` cannot be reduced to `nat.succ nat.zero`
-      because the type class instance has not been synthesized yet.
-      This kind of problem occurs in practice. We have considered two
-      solutions
-
-      a) Make sure we solve any pending type class resolution problem
-         before trying to match. Unfortunately, this is too expensive.
-
-      b) Allow metavariables on the right hand side to be assigned
-         by type class resolution during the matching.
-         We use this option. We say this design decision is fine
-         because we are not changing the meaning of the right hand
-         side, we are just solving a pending type class resolution
-         problem that would be solved later anyway.
-         This also forces us to have an offset for the right hand side
-         even if we are solving a matching problem.
-
-         Corner case: we could synthesize `?m`,
-         but the assignment is undone during backtracking.
-         In versions <= 3.3, this would not be a problem if `inout` parameters were not used.
-         In this case, we should produce the same solution again when we
-         try to synthesize `?m` again. Here, we are assuming that the same
-         set of local type class instances will be used. If `inout` parameters
-         were used, we may be in a situation that when we try again we have
-         more information about this parameter and a different instance is
-         selected.
-         We addressed this issue by replacing `inout` parameters with `out` parameters.
-         Then, the result of the type class resolution procedure will not depend on
-         partial information available on `out` parameters.
-
-      *** TMP mode ***
-
-      To be able to use temporary metavariables, the type_context_old must
-      be put into TMP mode. We have an auxiliary object to set/unset
-      TMP mode.
-
-      *** Cache ***
-
-      We only cache results for `is_def_eq` if the terms do not contain
-      metavariables. Thus, the cached results do not depend
-      on whether metavariable assignments are allowed on
-      the left/right hand sides or not.
-
-      Possible improvement: cache results if metavariable assignments
-      did not occur AND we are not in TMP mode.
-      We use this approach for the infer and whnf caches.
-
-      *** Temporary metavariable leaks ***
-
-      When checking `t =?= s` using `is_def_eq`, we want to make sure we
-      cannot assign a term `t` to a regular metavariable `?m` IF `t` contains temporary
-      metavariables. This is important because the scope of temporary metavariable is
-      defined by the problem that created it.
-      Moreover, the same metavariable id may be used by different
-      modules. So, we should make sure a temporary metavariable should not
-      leak into a goal. More generally, the temporary metavariables used to solve
-      a problem P should not leak outside of P.
-
-      Ideally, when checking `t =?= s` we would like to assume that
-      `t` (`s`) contains only regular metavariables OR only temporary metavariables.
-      That is, it cannot mix both.
-      Unfortunately, this property is not true. For example, a local type class instance
-      may contain assigned regular metavariables. So, if we use this local instance
-      during type class resolution, we would have create a term containing regular and temporary
-      metavariables. The refinement
-
-          `t` (`s`) contains only regular metavariables OR (temporary metavariables and assigned regular metavariables)
-
-      is also not sufficient. The problem is universe metavariables. Again, local type class instances
-      and local simplification lemmas may contain regular metavariables. When using them during
-      type class resolution or simplification, we would create terms containing both kinds of
-      metavariables. Here is an example that exposes this problem:
-      ```
-      protected def erase {α} [decidable_eq α] : list α → α → list α
-      | []     b := []
-      | (a::l) b := if a = b then l else a :: erase l b
-      ```
-      We could avoid this particular instances IF we convert unassigned universe metavariables occurring
-      in the type into local universe parameters before we process the body of this definition.
-      However, this is not a general solution because the local instance may be used to resolve type
-      class resolution problems in the type itself.
-
-      Thus, to avoid these problems, when the `type_context_old` is in TMP mode, we do not
-      assign regular metavariables. In TMP mode, regular metavariables are always treated
-      as opaque constants.
-
-      *** Applications ***
-
-      Here we assume the `is_def_eq` general form is
-
-      lctx | (a_1, t_1) =?= (a_2, t_2)
-
-      where `lctx` is the local context for the temporary metavariables occurring in `t_i`;
-      `a_i` is a flag indicating whether metavariables occurring in `t_i` can be assigned or not.
-      The local context `lctx` is only relevant for `t_i` is `a_i` is set to true.
-      `lctx` is only relevant if we are in TMP mode. We use `lctx` to validate
-      whether an assignment to a temporary metavariable is valid or not.
-
-      We use the following shorthands
-
-      `(unify) t =?= s` denotes `_ | (true, t) =?= (true, s)`
-      `(match) t =?= s` denotes `_ | (true, t) =?= (false, s)`
-      `(pure) t =?= s` denotes `_ | (false, t) =?= (false, s)`
-      `(tmp-match) lctx | t =?= s` denotes `lctx | (true, t) =?= (false, s)`
-      `(nested-tmp-match) lctx | (k', t) =?= s` denotes `lctx | (true, lift k' t) =?= (false, s)`
-      `(tmp-unify) lctx | t =?= s` denotes `lctx | (true, t) =?= (true, s)`
-
-      - Elaboration and tactics such as `apply`. We use `(unify) t =?= s`
-
-      - We also want to support a version of `apply` where metavariables
-      in the goal cannot be assigned. This variant does not exist
-      in versions <= 3.3. We use `(match) t =?= s`
-
-      - `rewrite` tactic, we use `(unify) t =?= s`.
-      We also have the a variant (not available in versions <= 3.3) where
-      we use regular metavariables and matching. In this case, we use `(match) t =?= s`
-
-      - `tactic.is_def_eq`: we use `(pure) t =?= s`
-
-      - `app_builder`: a helper procedure for creating applications
-      where missing arguments and universes levels are inferred using type inference.
-      It takes a `type_context_old` `ctx` as argument.
-      We use `(tmp-match) lctx | t =?= s` where `lctx` is `ctx.lctx()`
-
-      - (Internal) Type class resolution: we use temporary metavariables and unification.
-      Before trying to synthesize `?m : C a_1 ... a_n`,
-      we use a preprocessing step that creates `C a_1' ... a_n'` where `a_i'` contains
-      only fresh new temporary metavariables. So, no offsets are needed since
-      we don't use pre-allocated temporary metavars. Thus, we use
-      `(tmp-unify) lctx | t =?= s` where `lctx` is the local context for `?m`.
-    */
-
-    /* This class supports temporary meta-variables "mode". In this "tmp" mode,
-       is_metavar_decl_ref and is_univ_metavar_decl_ref are treated as opaque constants,
-       and temporary metavariables (idx_metavar) are treated as metavariables,
-       and their assignment is stored at m_tmp_eassignment and m_tmp_uassignment.
-
-       m_tmp_eassignment and m_tmp_uassignment store assignment for temporary/idx metavars
-
-       These assignments are only used during type class resolution and matching operations.
-       They are references to stack allocated buffers provided by customers.
-       They are nullptr if type_context_old is not in tmp_mode. */
     struct tmp_data {
         tmp_uassignment & m_uassignment;
         tmp_etype       & m_etype;
@@ -384,13 +78,9 @@ public:
     };
 private:
     typedef buffer<scope_data> scopes;
-    typedef abstract_context_cache cache;
-    typedef context_cacheless dummy_cache;
     environment        m_env;
     metavar_context    m_mctx;
     local_context      m_lctx;
-    dummy_cache        m_dummy_cache; /* cache used when user does not provide a cache */
-    cache *            m_cache;
     local_instances    m_local_instances;
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment{false};
@@ -416,46 +106,6 @@ private:
        occurring in `t` can be assigned. */
     bool               m_update_right{true};
 
-    /*
-      When unfolding recursive functions during `is_def_eq`,
-      we don't want to expose the internal details used to compile
-      recursive equations. The equation compiler uses
-      different strategies, and exposing these internal details
-      may confuse users (see issue #1794). This was a recurrent
-      problem before smart unfolding was implemented.
-      The idea is quite simple, given an application `f a_1 ... a_n`,
-      type_context_old checks whether there is a `f._sunfold` helper
-      definition in the environment, if there is one, it uses it
-      to unfold the term, and then reduces the resulting term until an
-      `id_rhs _ t` application is the head. If this application is found,
-      then `t` is the result of the unfolding. If not, then the application
-      is not unfolded. The helper `f._sunfold` declarations are automatically
-      generated by the equation compiler. Here is an example, given the declaration
-
-      ```
-      def nat.add : nat -> nat -> nat
-      | 0            b := b
-      | (nat.succ a) b := nat.succ (nat.add a b)
-      ```
-
-      the equation compiler generates the auxiliary definition
-
-      ```
-      def nat.add._sunfold (a b : nat) : nat :=
-      nat.cases_on a (id_rhs nat b) (fun a_1, id_rhs nat (nat.succ (nat.add a_1 b)))
-      ```
-
-      Then, when trying to unfold `nat.add x (nat.succ y)`, the term `nat.succ (nat.add x y)`
-      is produced instead of `nat.succ (... incomprehensible mess that uses nat.brec_on ...)`.
-
-      Note that `nat.add._sunfold` and `nat.add` are not definitionally equal.
-      Given an application `f a_1 ... a_n`, the type_context_old only assumes that
-      if `f._sunfold a_1 ... a_n` can be reduced to `id_rhs _ t`, then `f a_1 ... a_n` and
-      `t` are definitionally equal.
-
-      Remark: type_context_old also uses smart unfolding for definitions `f._match_<idx>`
-    */
-
     bool               m_smart_unfolding{true};
     unsigned           m_unfold_depth{0}; // used in tracing messages
 
@@ -471,46 +121,6 @@ private:
         }
     };
 
-    /* Postponed universe constraints.
-       We postpone universe constraints containing max/imax. Examples:
-
-               max 1 ?u =?= max 1 a
-               2        =?= max ?u ?v
-
-       The universe constraint postponement is effective because universe
-       metavariables get assigned later. For example consider the following unification
-       problem
-
-          M.{1 3 3} L.{3} =?= M.{1 ?u ?v} L.{(max 1 ?u ?v)}
-
-       is solved by first solving
-
-              L.{3} =?= L.{(max 1 ?u ?v)}
-
-       which postpones the universe constraint
-
-                3 =?= max 1 ?u ?v
-
-       and then solves
-
-             M.{1 3 3} =?= M.{1 ?u ?v}
-
-       which generates the easy constraints
-
-                ?u =?= 3 and ?v =?= 3
-
-       Now, the postponed contraint (3 =?= max ?u ?v) can be easily solved.
-
-       Note that providing universe levels explicitly is not always a viable workaround.
-       The problem is that unification problems like the one above are often created by
-       automation (e.g., type class resolution, tactics, etc). In these situations, users
-       have no way of providing the universe parameters. The alternative would be to write
-       the whole definition by hand without using any form of automation.
-
-       We also make sure any choice-point only succeeds if all postponed universe
-       constraints created by it are resolved.
-
-       We also only cache results that do not have pending postponed constraints. */
     buffer<pair<level, level>> m_postponed;
     /* If m_full_postponed is false, then postponed constraints involving max and imax
        that cannot be solved precisely are ignored. This step is approximate, and it is
@@ -519,14 +129,12 @@ private:
 
     std::function<bool(name const & e)> const * m_transparency_pred{nullptr}; // NOLINT
 
-    static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
-        return !has_metavar(e1) && !has_metavar(e2) && (!is_atomic(e1) || !is_atomic(e2));
+    static bool is_equiv_cache_target(expr const &, expr const &) {
+        lean_unreachable();
     }
-    bool is_cached_equiv(expr const & e1, expr const & e2) {
-        return is_equiv_cache_target(e1, e2) && m_cache->get_equiv(m_transparency_mode, e1, e2);
-    }
-    void cache_equiv(expr const & e1, expr const & e2) {
-        if (is_equiv_cache_target(e1, e2)) m_cache->set_equiv(m_transparency_mode, e1, e2);
+    bool is_cached_equiv(expr const &, expr const &) { lean_unreachable(); }
+    void cache_equiv(expr const &, expr const &) {
+        lean_unreachable();
     }
 
     void cache_failure(expr const & t, expr const & s);
@@ -538,31 +146,23 @@ private:
     optional<projection_info> is_projection(expr const & e);
     optional<expr> reduce_projection_core(optional<projection_info> const & info, expr const & e);
 
-    type_context_old(abstract_context_cache * cache, metavar_context const & mctx, local_context const & lctx,
-                 transparency_mode m);
 public:
-    type_context_old(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                 abstract_context_cache & cache, transparency_mode m = transparency_mode::Reducible);
     type_context_old(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m = transparency_mode::Reducible);
     type_context_old(environment const & env, options const & o, local_context const & lctx,
-                 transparency_mode m = transparency_mode::Reducible):
+                     transparency_mode m = transparency_mode::Reducible):
         type_context_old(env, o, metavar_context(), lctx, m) {}
     explicit type_context_old(environment const & env, transparency_mode m = transparency_mode::Reducible):
         type_context_old(env, options(), metavar_context(), local_context(), m) {}
     type_context_old(environment const & env, options const & o, transparency_mode m = transparency_mode::Reducible):
         type_context_old(env, o, metavar_context(), local_context(), m) {}
-    type_context_old(environment const & env, abstract_context_cache & cache, transparency_mode m = transparency_mode::Reducible):
-        type_context_old(env, metavar_context(), local_context(), cache, m) {}
-    type_context_old(type_context_old const &) = delete;
-    type_context_old(type_context_old &&);
     virtual ~type_context_old();
 
     type_context_old & operator=(type_context_old const &) = delete;
     type_context_old & operator=(type_context_old &&) = delete;
 
     virtual environment const & env() const override { return m_env; }
-    options const & get_options() const { return m_cache->get_options(); }
+    options const & get_options() const { lean_unreachable(); }
 
     // TODO(Leo): avoid ::lean::mk_fresh_name
     virtual name next_name() override { return ::lean::mk_fresh_name(); }
@@ -590,8 +190,6 @@ public:
     void set_mctx(metavar_context const & mctx) { m_mctx = mctx; }
     /* note: env must be a descendant of m_env */
     void set_env(environment const & env);
-
-    abstract_context_cache & get_cache() { return *m_cache; }
 
     /* Store the current local instances in the local context.
        This has the following implications:
@@ -622,10 +220,19 @@ public:
     void freeze_local_instances();
 
     bool is_def_eq(level const & l1, level const & l2);
-    virtual expr whnf(expr const & e) override;
-    virtual expr infer(expr const & e) override;
-    virtual expr check(expr const & e) override;
-    virtual bool is_def_eq(expr const & e1, expr const & e2) override;
+    virtual expr whnf(expr const &) override {
+        lean_unreachable();
+    }
+
+    virtual expr infer(expr const &) override {
+        lean_unreachable();
+    }
+
+    virtual expr check(expr const &) override {
+        lean_unreachable();
+    }
+
+    virtual bool is_def_eq(expr const &, expr const &) override { lean_unreachable(); }
     bool is_def_eq_at(local_context const & lctx, expr const & a, expr const & b);
 
     bool match(expr const & e1, expr const & e2) {
@@ -640,10 +247,16 @@ public:
         return is_def_eq(e1, e2);
     }
 
-    virtual expr relaxed_whnf(expr const & e) override;
-    virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2) override;
+    virtual expr relaxed_whnf(expr const &) override {
+        lean_unreachable();
+    }
+    virtual bool relaxed_is_def_eq(expr const &, expr const &) override {
+        lean_unreachable();
+    }
 
-    optional<expr> unfold_definition(expr const & e);
+    optional<expr> unfold_definition(expr const &) {
+        lean_unreachable();
+    }
 
     /** Non destructive is_def_eq (i.e., metavariables cannot be assigned) */
     bool pure_is_def_eq(level const & l1, level const & l2) {
@@ -666,16 +279,19 @@ public:
         return relaxed_is_def_eq(e1, e2);
     }
 
-    optional<expr> is_stuck_projection(expr const & e);
-    virtual optional<expr> is_stuck(expr const &) override;
+    optional<expr> is_stuck_projection(expr const &) { lean_unreachable(); }
+    virtual optional<expr> is_stuck(expr const &) override { lean_unreachable(); }
 
-    virtual expr push_local(name const & pp_name, expr const & type, binder_info bi = mk_binder_info()) override;
-    virtual expr push_local_from_binding(expr const & e) {
-        lean_assert(is_binding(e));
-        return push_local(binding_name(e), binding_domain(e), binding_info(e));
+    virtual expr push_local(name const &, expr const &, binder_info) override {
+        lean_unreachable();
+    }
+    virtual expr push_local_from_binding(expr const &) {
+        lean_unreachable();
     }
 
-    virtual void pop_local() override;
+    virtual void pop_local() override {
+        lean_unreachable();
+    }
 
     /** Similar to whnf, but invokes the given predicate before unfolding constant symbols in the head.
         If pred(e') is false, then the method will not unfold definition in the head of e', and will return e'.
@@ -695,7 +311,9 @@ public:
     /** \brief Put \c e in whnf, it is a Pi, then return whnf, otherwise return e */
     expr try_to_pi(expr const & e);
     /** \brief Put \c e in relaxed_whnf, it is a Pi, then return whnf, otherwise return e */
-    expr relaxed_try_to_pi(expr const & e);
+    expr relaxed_try_to_pi(expr const &) {
+        lean_unreachable();
+    }
 
     /** Given a metavariable \c mvar, and local constants in \c locals, return (mvar' C) where
         C is a superset of \c locals and includes all local constants that depend on \c locals.
@@ -724,10 +342,10 @@ public:
     /* Add a let-decl (aka local definition) to the local context */
     expr push_let(name const & ppn, expr const & type, expr const & value);
 
-    bool is_prop(expr const & e);
-    bool is_proof(expr const & e);
+    bool is_prop(expr const &) { lean_unreachable(); }
+    bool is_proof(expr const &) { lean_unreachable(); }
 
-    optional<name> is_class(expr const & type);
+    optional<name> is_class(expr const &) { lean_unreachable(); }
     optional<expr> mk_class_instance(expr const & type);
     optional<expr> mk_subsingleton_instance(expr const & type);
     /* Create type class instance in a different local context */
@@ -856,8 +474,8 @@ private:
     void init_core(transparency_mode m);
     optional<expr> unfold_definition_core(expr const & e);
     expr whnf_core(expr const & e, bool proj_reduce, bool aux_rec_reduce);
-    optional<constant_info> get_decl(transparency_mode m, name const & n);
-    optional<constant_info> get_decl(name const & n);
+    optional<constant_info> get_decl(transparency_mode, name const &) { lean_unreachable(); }
+    optional<constant_info> get_decl(name const &) { lean_unreachable(); }
 
 private:
     pair<local_context, expr> revert_core(buffer<expr> & to_revert, local_context const & ctx,
@@ -898,7 +516,7 @@ public:
     void assign(level const & u, level const & l);
     void assign(expr const & m, expr const & v);
     level instantiate_mvars(level const & l);
-    expr instantiate_mvars(expr const & e);
+    expr instantiate_mvars(expr const &) { lean_unreachable(); }
     /** \brief Instantiate the assigned meta-variables in the type of \c m
         \pre get_metavar_decl(m) is not none */
     void instantiate_mvars_at_type_of(expr const & m) {
@@ -966,7 +584,9 @@ private:
     bool is_def_eq_core_core(expr t, expr s);
     bool is_def_eq_core(expr const & t, expr const & s);
     bool is_def_eq_binding(expr e1, expr e2);
-    expr try_to_unstuck_using_complete_instance(expr const & e);
+    expr try_to_unstuck_using_complete_instance(expr const &) {
+        lean_unreachable();
+    }
     optional<expr> is_eta_unassigned_mvar(expr const & e);
     bool is_def_eq_args(expr const & e1, expr const & e2);
     bool is_def_eq_eta(expr const & e1, expr const & e2);
@@ -986,7 +606,9 @@ private:
     lbool try_nat_offset_cnstrs(expr const & t, expr const & s);
 
 protected:
-    virtual bool on_is_def_eq_failure(expr const & t, expr const & s);
+    virtual bool on_is_def_eq_failure(expr const &, expr const &) {
+        lean_unreachable();
+    }
 
 private:
     /* ------------
@@ -1017,10 +639,8 @@ public:
             return r;
         }
 
-        expr push_let(name const & name, expr const & type, expr const & value) {
-            expr r = m_ctx.push_let(name, type, value);
-            m_locals.push_back(r);
-            return r;
+        expr push_let(name const &, expr const &, expr const &) {
+            lean_unreachable();
         }
 
         expr push_local_from_binding(expr const & e) {
@@ -1028,9 +648,8 @@ public:
             return push_local(binding_name(e), binding_domain(e), binding_info(e));
         }
 
-        expr push_local_from_let(expr const & e) {
-            lean_assert(is_let(e));
-            return push_let(let_name(e), let_type(e), let_value(e));
+        expr push_local_from_let(expr const &) {
+            lean_unreachable();
         }
 
         unsigned size() const { return m_locals.size(); }

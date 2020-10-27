@@ -64,6 +64,8 @@ def «postfix»  := parser! "postfix"
 def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
 @[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> optPrecedence >> ppSpace >> strLit >> darrow >> termParser
 
+-- NOTE: We use `suppressInsideQuot` in the following parsers because quotations inside them are evaluated in the same stage and
+-- thus should be ignored when we use `checkInsideQuot` to prepare the next stage for a builtin syntax change
 def identPrec  := parser! ident >> optPrecedence
 def optKind : Parser := optional ("[" >> ident >> "]")
 def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> identPrec)

@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/option_declarations.h"
-#include "library/error_msgs.h"
 #include "library/pp_options.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
@@ -140,7 +139,6 @@ static name * g_pp_instantiate_mvars = nullptr;
 static name * g_pp_annotations       = nullptr;
 static name * g_pp_compact_let       = nullptr;
 static name * g_pp_all               = nullptr;
-static list<options> * g_distinguishing_pp_options = nullptr;
 
 void initialize_pp_options() {
     g_pp_max_depth         = new name{"pp", "max_depth"};
@@ -269,10 +267,6 @@ void initialize_pp_options() {
     options implicit_coercions = join(coercions_true, implicit_true);
     options implicit_notation  = join(notation_false, implicit_true);
     options all = universes_true + implicit_true + proofs_true + coercions_true + notation_false + full_names_true + binder_types_true;
-    g_distinguishing_pp_options = new list<options>({implicit_true, full_names_true, coercions_true, implicit_coercions,
-                implicit_notation, universes_true, all});
-
-    set_distinguishing_pp_options(*g_distinguishing_pp_options);
 }
 
 void finalize_pp_options() {
@@ -303,7 +297,6 @@ void finalize_pp_options() {
     delete g_pp_all;
     delete g_pp_instantiate_mvars;
     delete g_pp_annotations;
-    delete g_distinguishing_pp_options;
 }
 
 name const & get_pp_implicit_name() { return *g_pp_implicit; }

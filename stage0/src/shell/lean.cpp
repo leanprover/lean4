@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "library/formatter.h"
 #include "library/module.h"
-#include "library/type_context.h"
 #include "library/io_state_stream.h"
 #include "library/message_builder.h"
 #include "library/time_task.h"

@@ -941,7 +941,6 @@ lean_object* l___regBuiltin_Lean_Parser_Command_syntax_formatter(lean_object*);
 lean_object* l_Lean_Parser_precedence_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_Command_syntax_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_Command_elab_parenthesizer___closed__4;
-extern lean_object* l_Lean_Parser_Term_basicFun___closed__6;
 lean_object* l_Lean_Parser_Command_syntax___elambda__1___closed__12;
 lean_object* l_Lean_Parser_Syntax_paren_formatter___closed__2;
 lean_object* l_Lean_Parser_Command_identPrec___elambda__1___closed__2;
@@ -1510,6 +1509,7 @@ lean_object* l___regBuiltin_Lean_Parser_Command_macro__rules_formatter___closed_
 lean_object* l___regBuiltinParser_Lean_Parser_Syntax_notFollowedBy(lean_object*);
 lean_object* l_Lean_Parser_Command_postfix_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Syntax_try___closed__2;
+extern lean_object* l_Lean_Parser_Term_basicFun___closed__4;
 lean_object* l_Lean_Parser_Syntax_notFollowedBy___closed__5;
 lean_object* l_Lean_Parser_Command_elab___elambda__1___closed__10;
 lean_object* l___regBuiltinParser_Lean_Parser_Syntax_ident(lean_object*);
@@ -9834,7 +9834,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Parser_strLit;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Lean_Parser_Term_basicFun___closed__6;
+x_3 = l_Lean_Parser_Term_basicFun___closed__4;
 x_4 = l_Lean_Parser_andthenInfo(x_2, x_3);
 return x_4;
 }
@@ -11387,7 +11387,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_notation___closed__2;
-x_2 = l_Lean_Parser_Term_basicFun___closed__6;
+x_2 = l_Lean_Parser_Term_basicFun___closed__4;
 x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }
@@ -17967,7 +17967,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_elabTail___closed__5;
-x_2 = l_Lean_Parser_Term_basicFun___closed__6;
+x_2 = l_Lean_Parser_Term_basicFun___closed__4;
 x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }

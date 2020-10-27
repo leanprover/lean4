@@ -169,6 +169,7 @@ lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_validStructTyp
 lean_object* l_Lean_Elab_Command_StructFieldInfo_isFromParent___boxed(lean_object*);
 lean_object* l_Array_filterMAux___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_elabStructureView___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_updateResultingUniverse_match__1(lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__13;
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_checkParentIsStructure___closed__2;
 uint8_t l_Lean_Elab_Command_StructFieldInfo_inferMod___default;
 extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_834____closed__1;
@@ -360,7 +361,6 @@ lean_object* l_Array_iterateMAux___at___private_Lean_Elab_Structure_0__Lean_Elab
 lean_object* l_Lean_Elab_Command_elabStructure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Meta_addGlobalInstanceImp___spec__1(lean_object*);
 extern lean_object* l_Lean_Expr_Lean_Expr___instance__11;
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__11;
 lean_object* l_Array_umapMAux___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_elabStructureView___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandFields___spec__2___lambda__2___closed__2;
 lean_object* l_List_forM___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_elabStructureView___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -14019,7 +14019,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Level_elabLevel___closed__6;
-x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__11;
+x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__13;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

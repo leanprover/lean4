@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/replace_visitor.h"
 #include "library/type_context.h"
-// #include "library/string.h"
 #include "library/num.h"
 #include "version.h"
 #include "githash.h" // NOLINT

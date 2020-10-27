@@ -10,4 +10,4 @@ add_library(library OBJECT expr_lt.cpp io_state.cpp
   locals.cpp messages.cpp message_builder.cpp check.cpp
   profiling.cpp time_task.cpp
   scope_pos_info_provider.cpp formatter.cpp json.cpp
-  pos_info_provider.cpp abstract_type_context.cpp aux_match.cpp)
+  pos_info_provider.cpp abstract_type_context.cpp)

@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/constants.h"
 #include "library/projection.h"
-#include "library/aux_match.h"
 #include "library/compiler/util.h"
 #include "library/compiler/implemented_by_attribute.h"
 
@@ -622,8 +621,7 @@ public:
 };
 
 expr to_lcnf_core(environment const & env, local_ctx const & lctx, expr const & e) {
-    expr new_e = unfold_aux_match(env, e);
-    new_e      = unfold_macro_defs(env, new_e);
+    expr new_e = unfold_macro_defs(env, e);
     return to_lcnf_fn(env, lctx)(new_e);
 }
 

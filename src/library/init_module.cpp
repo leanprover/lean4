@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/time_task.h"
 #include "library/formatter.h"
 #include "library/pos_info_provider.h"
-#include "library/aux_match.h"
 
 namespace lean {
 void initialize_library_core_module() {
@@ -44,7 +43,6 @@ void finalize_library_core_module() {
 }
 
 void initialize_library_module() {
-    initialize_aux_match();
     initialize_local_context();
     initialize_metavar_context();
     initialize_print();
@@ -76,6 +74,5 @@ void finalize_library_module() {
     finalize_print();
     finalize_metavar_context();
     finalize_local_context();
-    finalize_aux_match();
 }
 }

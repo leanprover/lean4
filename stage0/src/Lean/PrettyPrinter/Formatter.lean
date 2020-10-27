@@ -236,16 +236,16 @@ def pushTokenCore (tk : String) : FormatterM Unit := do
 
 def pushToken (tk : String) : FormatterM Unit := do
   let st ← get
-  -- If there is no space between `tk` and the next word, compare parsing `tk` with and without the next word
+  -- If there is no space between `tk` and the next word, see if we would parse more than `tk` as a single token
   if st.leadWord != "" && tk.trimRight == tk then
-    let t1 ← parseToken tk.trimLeft
-    let t2 ← parseToken $ tk.trimLeft ++ st.leadWord
-    if t1.pos == t2.pos then
-      -- same result => use `tk` as is, extend `leadWord` if not prefixed by whitespace
+    let tk' := tk.trimLeft
+    let t ← parseToken $ tk' ++ st.leadWord
+    if t.pos <= tk'.bsize then
+      -- stopped within `tk` => use it as is, extend `leadWord` if not prefixed by whitespace
       pushTokenCore tk
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" }
     else
-      -- different result => add space
+      -- stopped after `tk` => add space
       pushTokenCore $ tk ++ " "
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
   else
@@ -357,8 +357,8 @@ def sepBy.formatter (p pSep : Formatter) : Formatter := do
 @[combinatorFormatter Lean.Parser.setExpected]
 def setExpected.formatter (expected : List String) (p : Formatter) : Formatter := p
 
-@[combinatorFormatter Lean.Parser.toggleInsideQuot]
-def toggleInsideQuot.formatter (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.toggleInsideQuot] def toggleInsideQuot.formatter (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.suppressInsideQuot] def suppressInsideQuot.formatter (p : Formatter) : Formatter := p
 
 @[combinatorFormatter Lean.Parser.checkWsBefore] def checkWsBefore.formatter : Formatter := do
   let st ← get
@@ -367,7 +367,9 @@ def toggleInsideQuot.formatter (p : Formatter) : Formatter := p
 
 @[combinatorFormatter Lean.Parser.checkPrec] def checkPrec.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkStackTop] def checkStackTop.formatter : Formatter := pure ()
-@[combinatorFormatter Lean.Parser.checkNoWsBefore] def checkNoWsBefore.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.checkNoWsBefore] def checkNoWsBefore.formatter : Formatter :=
+  -- prevent automatic whitespace insertion
+  modify fun st => { st with leadWord := "" }
 @[combinatorFormatter Lean.Parser.checkTailWs] def checkTailWs.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkColGe] def checkColGe.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkColGt] def checkColGt.formatter : Formatter := pure ()

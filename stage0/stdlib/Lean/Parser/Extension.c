@@ -10490,7 +10490,7 @@ x_3 = l_Lean_Parser_getTokenTable(x_1);
 x_4 = lean_box(0);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = 0;
-x_7 = lean_alloc_ctor(0, 6, 1);
+x_7 = lean_alloc_ctor(0, 6, 2);
 lean_ctor_set(x_7, 0, x_2);
 lean_ctor_set(x_7, 1, x_5);
 lean_ctor_set(x_7, 2, x_1);
@@ -10498,6 +10498,7 @@ lean_ctor_set(x_7, 3, x_3);
 lean_ctor_set(x_7, 4, x_4);
 lean_ctor_set(x_7, 5, x_4);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6, x_6);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 1, x_6);
 return x_7;
 }
 }

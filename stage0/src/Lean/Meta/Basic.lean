@@ -269,11 +269,6 @@ def shouldReduceReducibleOnly : m Bool := liftMetaM do
 def getTransparency : m TransparencyMode := liftMetaM do
   return (← read).config.transparency
 
--- Remark: wanted to use `private`, but in the C++ parser, `private` declarations do not shadow outer public ones.
--- TODO: fix this bug
-def isReducible (constName : Name) : MetaM Bool := do
-  return Lean.isReducible (← getEnv) constName
-
 def getMVarDecl (mvarId : MVarId) : m MetavarDecl := liftMetaM do
   let mctx ← getMCtx
   match mctx.findDecl? mvarId with
@@ -420,11 +415,18 @@ def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
   let env ← getEnv
   match env.find? constName with
   | some (info@(ConstantInfo.thmInfo _)) =>
-    condM shouldReduceAll (pure (some info)) (pure none)
+    if (← shouldReduceAll) then
+      pure (some info)
+    else
+      pure none
   | some (info@(ConstantInfo.defnInfo _)) =>
-    condM shouldReduceReducibleOnly
-      (condM (isReducible constName) (pure (some info)) (pure none))
-      (pure (some info))
+    if (← shouldReduceReducibleOnly) then
+      if (← isReducible constName) then
+        pure (some info)
+      else
+        pure none
+    else
+      pure (some info)
   | some info => pure (some info)
   | none      => throwUnknownConstant constName
 

@@ -72,6 +72,7 @@ lean_object* l_Lean_Meta_Match_MatcherInfo_numAlts___boxed(lean_object*);
 lean_object* l_Lean_Meta_Match_mkMatcher___lambda__2___closed__6;
 extern lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Lean_Message___instance__27___rarg___closed__4;
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVariable___lambda__1___closed__1;
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -182,7 +183,6 @@ lean_object* l_Lean_Meta_Match_Problem_toMessageData___lambda__1___closed__8;
 lean_object* l_Lean_addTrace___at_Lean_Meta_Match_Unify_assign___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Position_Lean_Data_Position___instance__2___spec__1(lean_object*);
-lean_object* l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__4;
 uint8_t l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_hasNatValPattern(lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_hasCtorPattern_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofList(lean_object*);
@@ -704,7 +704,6 @@ lean_object* l_Lean_Meta_matchMatcherApp_x3f_match__1___rarg(lean_object*, lean_
 lean_object* l_List_foldr___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_checkNumPatterns___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAux___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_expandVarIntoCtor_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Format_paren___closed__4;
 lean_object* l_Std_HashMapImp_expand___at_Lean_Meta_Match_Extension_State_addEntry___spec__8(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_Match_Unify_unify___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Extension_extension___elambda__4___boxed(lean_object*, lean_object*);
@@ -2520,16 +2519,6 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Format_paren___closed__4;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 lean_object* l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1(lean_object* x_1) {
 _start:
 {
@@ -2562,7 +2551,7 @@ lean_ctor_set(x_11, 0, x_10);
 x_12 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_12, 0, x_9);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__4;
+x_13 = l_Lean_Lean_Message___instance__27___rarg___closed__4;
 x_14 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
@@ -2593,7 +2582,7 @@ lean_ctor_set(x_23, 0, x_22);
 x_24 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_24, 0, x_21);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__4;
+x_25 = l_Lean_Lean_Message___instance__27___rarg___closed__4;
 x_26 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);
@@ -4659,7 +4648,7 @@ x_18 = l_List_foldl___at_Lean_Meta_Match_Example_toMessageData___spec__1(x_17, x
 x_19 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_19, 0, x_16);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__4;
+x_20 = l_Lean_Lean_Message___instance__27___rarg___closed__4;
 x_21 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
@@ -5070,7 +5059,7 @@ lean_ctor_set(x_18, 0, x_13);
 x_19 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__4;
+x_20 = l_Lean_Lean_Message___instance__27___rarg___closed__4;
 x_21 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
@@ -5192,7 +5181,7 @@ lean_ctor_set(x_44, 0, x_39);
 x_45 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_45, 0, x_43);
 lean_ctor_set(x_45, 1, x_44);
-x_46 = l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__4;
+x_46 = l_Lean_Lean_Message___instance__27___rarg___closed__4;
 x_47 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_47, 0, x_45);
 lean_ctor_set(x_47, 1, x_46);
@@ -49543,8 +49532,6 @@ l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__2 = _init_
 lean_mark_persistent(l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__2);
 l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__3 = _init_l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__3();
 lean_mark_persistent(l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__3);
-l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__4 = _init_l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__4();
-lean_mark_persistent(l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1___closed__4);
 l_Lean_Meta_Match_Alt_toMessageData___closed__1 = _init_l_Lean_Meta_Match_Alt_toMessageData___closed__1();
 lean_mark_persistent(l_Lean_Meta_Match_Alt_toMessageData___closed__1);
 l_Lean_Meta_Match_Alt_toMessageData___closed__2 = _init_l_Lean_Meta_Match_Alt_toMessageData___closed__2();

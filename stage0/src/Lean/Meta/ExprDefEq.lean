@@ -37,8 +37,8 @@ private def isDefEqEta (a b : Expr) : MetaM Bool := do
 /-- Support for `Lean.reduceBool` and `Lean.reduceNat` -/
 def isDefEqNative (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM $ Meta.isExprDefEqAux s t
-  let s? ← liftM $ reduceNative? s
-  let t? ← liftM $ reduceNative? t
+  let s? ← reduceNative? s
+  let t? ← reduceNative? t
   match s?, t? with
   | some s, some t => isDefEq s t
   | some s, none   => isDefEq s t
@@ -51,8 +51,8 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
   if s.hasFVar || s.hasMVar || t.hasFVar || t.hasMVar then
     pure LBool.undef
   else
-    let s? ← liftM $ reduceNat? s
-    let t? ← liftM $ reduceNat? t
+    let s? ← reduceNat? s
+    let t? ← reduceNat? t
     match s?, t? with
     | some s, some t => isDefEq s t
     | some s, none   => isDefEq s t
@@ -143,7 +143,7 @@ private partial def isDefEqArgsFirstPass
 
 private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : MetaM Bool :=
   if h : args₁.size = args₂.size then do
-    let finfo ← liftM $ getFunInfoNArgs f args₁.size
+    let finfo ← getFunInfoNArgs f args₁.size
     let (some postponed) ← isDefEqArgsFirstPass finfo.paramInfo args₁ args₂ | pure false
     let rec processOtherArgs (i : Nat) : MetaM Bool := do
       if h₁ : i < args₁.size then
@@ -464,7 +464,7 @@ private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData
   else match mctx.getExprAssignment? mvarId with
     | some v => check v
     | none   => match mctx.findDecl? mvarId with
-      | none          => liftM $ throwUnknownMVar mvarId
+      | none          => throwUnknownMVar mvarId
       | some mvarDecl =>
         if ctx.hasCtxLocals then
           throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
@@ -533,8 +533,8 @@ partial def check (e : Expr) : CheckAssignmentM Expr := do
             /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
                  Note that `mvarType` may be different from `eType`. -/
             let ctx ← read
-            let newMVar ← liftM $ mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
-            if (← liftM $ assignToConstFun f args.size newMVar) then
+            let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
+            if (← assignToConstFun f args.size newMVar) then
               pure newMVar
             else
               throw ex)
@@ -751,7 +751,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
 
 private def isDeltaCandidate? (t : Expr) : MetaM (Option ConstantInfo) :=
   match t.getAppFn with
-  | Expr.const c _ _ => liftM $ getConst? c
+  | Expr.const c _ _ => getConst? c
   | _                => pure none
 
 /-- Auxiliary method for isDefEqDelta -/
@@ -865,8 +865,8 @@ private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Meta
   if (← shouldReduceReducibleOnly) then
     unfoldDefEq tInfo sInfo t s
   else
-    let tReducible ← liftM $ Meta.isReducible tInfo.name
-    let sReducible ← liftM $ Meta.isReducible sInfo.name
+    let tReducible ← isReducible tInfo.name
+    let sReducible ← isReducible sInfo.name
     if tReducible && !sReducible then
       unfold t (unfoldDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
     else if !tReducible && sReducible then

@@ -9,8 +9,8 @@ import Lean.Meta.Basic
 namespace Lean.Meta
 
 def matchEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
-match e.eq? with
-| r@(some _) => pure r
-| none       => pure (← whnf e).eq?
+  match e.eq? with
+  | r@(some _) => pure r
+  | none       => pure (← whnf e).eq?
 
 end Lean.Meta

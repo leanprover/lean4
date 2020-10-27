@@ -6,31 +6,31 @@ Authors: Leonardo de Moura
 namespace Lean.Meta
 
 inductive TransparencyMode
-| all | default | reducible
+  | all | default | reducible
 
 namespace TransparencyMode
 instance : Inhabited TransparencyMode := ⟨TransparencyMode.default⟩
 
 def beq : TransparencyMode → TransparencyMode → Bool
-| all,       all       => true
-| default,   default   => true
-| reducible, reducible => true
-| _,         _         => false
+  | all,       all       => true
+  | default,   default   => true
+  | reducible, reducible => true
+  | _,         _         => false
 
 instance : HasBeq TransparencyMode := ⟨beq⟩
 
 def hash : TransparencyMode → USize
-| all       => 7
-| default   => 11
-| reducible => 13
+  | all       => 7
+  | default   => 11
+  | reducible => 13
 
 instance : Hashable TransparencyMode := ⟨hash⟩
 
 def lt : TransparencyMode → TransparencyMode → Bool
-| reducible, default => true
-| reducible, all     => true
-| default,   all     => true
-| _,         _       => false
+  | reducible, default => true
+  | reducible, all     => true
+  | default,   all     => true
+  | _,         _       => false
 
 end TransparencyMode
 

@@ -9,12 +9,11 @@ namespace Lean.Meta
 namespace GeneralizeTelescope
 
 structure Entry :=
-(expr     : Expr)
-(type     : Expr)
-(modified : Bool)
+  (expr     : Expr)
+  (type     : Expr)
+  (modified : Bool)
 
-partial def updateTypes (e eNew : Expr) : Array Entry → Nat → MetaM (Array Entry)
-| entries, i =>
+partial def updateTypes (e eNew : Expr) (entries : Array Entry) (i : Nat) : MetaM (Array Entry) :=
   if h : i < entries.size then
     let entry := entries.get ⟨i, h⟩
     match entry with
@@ -29,8 +28,8 @@ partial def updateTypes (e eNew : Expr) : Array Entry → Nat → MetaM (Array E
   else
     pure entries
 
-partial def generalizeTelescopeAux {α} (prefixForNewVars : Name) (k : Array Expr → MetaM α) : Array Entry → Nat → Nat → Array Expr → MetaM α
-| entries, i, nextVarIdx, fvars => do
+partial def generalizeTelescopeAux {α} (prefixForNewVars : Name) (k : Array Expr → MetaM α)
+    (entries : Array Entry) (i : Nat) (nextVarIdx : Nat) (fvars : Array Expr) : MetaM α := do
   if h : i < entries.size then
     let replace (e : Expr) (type : Expr) : MetaM α := do
       let userName := prefixForNewVars.appendIndexAfter nextVarIdx
@@ -87,10 +86,10 @@ open GeneralizeTelescope
   ```
   and the type for the new variable abstracting `h` is `xs = aux_2` which is not type correct. -/
 def generalizeTelescope {α} (es : Array Expr) (prefixForNewVars : Name) (k : Array Expr → MetaM α) : MetaM α := do
-let es ← es.mapM fun e => do
-  let type ← inferType e
-  let type ← instantiateMVars type
-  pure { expr := e, type := type, modified := false : Entry }
-generalizeTelescopeAux prefixForNewVars k es 0 1 #[]
+  let es ← es.mapM fun e => do
+    let type ← inferType e
+    let type ← instantiateMVars type
+    pure { expr := e, type := type, modified := false : Entry }
+  generalizeTelescopeAux prefixForNewVars k es 0 1 #[]
 
 end Lean.Meta

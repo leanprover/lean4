@@ -11,23 +11,21 @@ import Lean.Meta.Offset
 namespace Lean.Meta
 
 class HasReduceEval (α : Type) :=
-(reduceEval : Expr → MetaM α)
+  (reduceEval : Expr → MetaM α)
 
 def reduceEval {α : Type} [HasReduceEval α] (e : Expr) : MetaM α :=
-withAtLeastTransparency TransparencyMode.default $
-HasReduceEval.reduceEval e
+  withAtLeastTransparency TransparencyMode.default $
+  HasReduceEval.reduceEval e
 
 private def throwFailedToEval {α} (e : Expr) : MetaM α :=
-throwError! "reduceEval: failed to evaluate argument{indentExpr e}"
+  throwError! "reduceEval: failed to evaluate argument{indentExpr e}"
 
-instance : HasReduceEval Nat :=
-⟨fun e => do
+instance : HasReduceEval Nat := ⟨fun e => do
   let e ← whnf e
   let some n ← pure $ evalNat e | throwFailedToEval e
   pure n⟩
 
-instance {α : Type} [HasReduceEval α] : HasReduceEval (Option α) :=
-⟨fun e => do
+instance {α : Type} [HasReduceEval α] : HasReduceEval (Option α) := ⟨fun e => do
   let e ← whnf e
   let Expr.const c .. ← pure e.getAppFn | throwFailedToEval e
   let nargs := e.getAppNumArgs
@@ -35,26 +33,25 @@ instance {α : Type} [HasReduceEval α] : HasReduceEval (Option α) :=
   else if c == `Option.some && nargs == 1 then some <$> reduceEval e.appArg!
   else throwFailedToEval e⟩
 
-instance : HasReduceEval String :=
-⟨fun e => do
+instance : HasReduceEval String := ⟨fun e => do
   let Expr.lit (Literal.strVal s) _ ← whnf e | throwFailedToEval e
   pure s⟩
 
 private partial def evalName (e : Expr) : MetaM Name := do
-let e ← whnf e
-let Expr.const c _ _ ← pure e.getAppFn | throwFailedToEval e
-let nargs := e.getAppNumArgs
-if      c == `Lean.Name.anonymous && nargs == 0 then pure Name.anonymous
-else if c == `Lean.Name.str && nargs == 3 then do
-  let n ← evalName $ e.getArg! 0
-  let s ← reduceEval $ e.getArg! 1
-  pure $ mkNameStr n s
-else if c == `Lean.Name.num && nargs == 3 then do
-  let n ← evalName $ e.getArg! 0
-  let u ← reduceEval $ e.getArg! 1
-  pure $ mkNameNum n u
-else
-  throwFailedToEval e
+  let e ← whnf e
+  let Expr.const c _ _ ← pure e.getAppFn | throwFailedToEval e
+  let nargs := e.getAppNumArgs
+  if      c == `Lean.Name.anonymous && nargs == 0 then pure Name.anonymous
+  else if c == `Lean.Name.str && nargs == 3 then do
+    let n ← evalName $ e.getArg! 0
+    let s ← reduceEval $ e.getArg! 1
+    pure $ mkNameStr n s
+  else if c == `Lean.Name.num && nargs == 3 then do
+    let n ← evalName $ e.getArg! 0
+    let u ← reduceEval $ e.getArg! 1
+    pure $ mkNameNum n u
+  else
+    throwFailedToEval e
 
 instance : HasReduceEval Name := ⟨evalName⟩
 

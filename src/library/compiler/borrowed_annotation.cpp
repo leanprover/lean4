@@ -24,12 +24,12 @@ We use the following hacks to make sure we recognize both of them at `is_borrowe
 extern "C" uint8 lean_is_marked_borrowed(lean_object * o);
 
 bool is_borrowed(expr const & e) {
-    expr e2 = unwrap_pos(e);
+    expr e2 = e;
     return is_annotation(e2, *g_borrowed) || lean_is_marked_borrowed(e2.to_obj_arg());
 }
 expr get_borrowed_arg(expr const & e) {
     lean_assert(is_borrowed(e));
-    expr e2 = unwrap_pos(e);
+    expr e2 = e;
     return mdata_expr(e2);
 }
 

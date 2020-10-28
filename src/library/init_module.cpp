@@ -17,11 +17,9 @@ Author: Leonardo de Moura
 #include "library/profiling.h"
 #include "library/time_task.h"
 #include "library/formatter.h"
-#include "library/pos_info_provider.h"
 
 namespace lean {
 void initialize_library_core_module() {
-    initialize_pos_info_provider();
     initialize_formatter();
     initialize_constants();
     initialize_profiling();
@@ -33,7 +31,6 @@ void finalize_library_core_module() {
     finalize_profiling();
     finalize_constants();
     finalize_formatter();
-    finalize_pos_info_provider();
 }
 
 void initialize_library_module() {

@@ -232,10 +232,6 @@ scope_traces_as_messages::scope_traces_as_messages(std::string const & stream_na
     }
 }
 
-scope_traces_as_messages::scope_traces_as_messages(pos_info_provider const *provider, expr const &ref) :
-    scope_traces_as_messages(provider ? provider->get_file_name() : "<unknown>",
-                             provider ? provider->get_pos_info_or_some(ref) : pos_info(1, 0)) {}
-
 scope_traces_as_messages::~scope_traces_as_messages() {
     if (enabled()) {
         auto msg = m_buffer->str();

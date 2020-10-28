@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include <lean/sstream.h>
 #include "util/name_hash_map.h"
 #include "library/annotation.h"
-#include "library/pos_info_provider.h"
 
 namespace lean {
 static name * g_annotation = nullptr;
@@ -28,7 +27,7 @@ void register_annotation(name const & kind) {
 }
 
 optional<expr> is_annotation(expr const & e) {
-    expr e2 = unwrap_pos(e);
+    expr e2 = e;
     if (is_mdata(e2) && get_name(mdata_data(e2), *g_annotation))
         return some_expr(e2);
     else

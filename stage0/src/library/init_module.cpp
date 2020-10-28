@@ -11,20 +11,15 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/protected.h"
 #include "library/io_state.h"
-#include "library/placeholder.h"
 #include "library/print.h"
 #include "library/util.h"
 #include "library/pp_options.h"
-#include "library/type_context.h"
-#include "library/check.h"
 #include "library/profiling.h"
 #include "library/time_task.h"
 #include "library/formatter.h"
-#include "library/pos_info_provider.h"
 
 namespace lean {
 void initialize_library_core_module() {
-    initialize_pos_info_provider();
     initialize_formatter();
     initialize_constants();
     initialize_profiling();
@@ -36,34 +31,27 @@ void finalize_library_core_module() {
     finalize_profiling();
     finalize_constants();
     finalize_formatter();
-    finalize_pos_info_provider();
 }
 
 void initialize_library_module() {
     initialize_print();
-    initialize_placeholder();
     initialize_io_state();
     initialize_num();
     initialize_annotation();
     initialize_class();
     initialize_library_util();
     initialize_pp_options();
-    initialize_type_context();
-    initialize_check();
     initialize_time_task();
 }
 
 void finalize_library_module() {
     finalize_time_task();
-    finalize_check();
-    finalize_type_context();
     finalize_pp_options();
     finalize_library_util();
     finalize_class();
     finalize_annotation();
     finalize_num();
     finalize_io_state();
-    finalize_placeholder();
     finalize_print();
 }
 }

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include <lean/sstream.h>
 #include <lean/flet.h>
 #include "util/lbool.h"
-#include "util/fresh_name.h"
 #include "kernel/type_checker.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"

@@ -55,7 +55,8 @@ lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Util_PPExt___instance__1;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____closed__3;
 extern lean_object* l_String_splitAux___closed__1;
-extern lean_object* l_Lean_sanitizeNamesOption___closed__1;
+extern lean_object* l_Lean_getSanitizeNames___closed__2;
+extern lean_object* l_Lean_getSanitizeNames___closed__1;
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPPRaw___boxed(lean_object*);
 lean_object* l_Lean_ppTerm(lean_object*, lean_object*, lean_object*);
@@ -67,7 +68,6 @@ lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____lambda__1(lean_obj
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____closed__2;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Lean_Environment___instance__10___closed__1;
-extern lean_object* l_Lean_sanitizeNamesOption___closed__2;
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__1() {
 _start:
@@ -131,7 +131,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_sanitizeNamesOption___closed__2;
+x_1 = l_Lean_getSanitizeNames___closed__2;
 x_2 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__6;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -160,7 +160,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__8;
-x_2 = l_Lean_sanitizeNamesOption___closed__1;
+x_2 = l_Lean_getSanitizeNames___closed__1;
 x_3 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__9;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

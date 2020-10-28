@@ -40,7 +40,6 @@ class scope_traces_as_messages {
 
 public:
     scope_traces_as_messages(std::string const & stream_name, pos_info const & pos);
-    scope_traces_as_messages(pos_info_provider const * provider, expr const & ref);
     ~scope_traces_as_messages();
     bool enabled() const { return static_cast<bool>(m_scoped_ios); }
 };

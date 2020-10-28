@@ -74,8 +74,8 @@ instance : MonadTrace CoreM := {
 }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
-  let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 });
-  let env ← getEnv;
+  let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
+  let env ← getEnv
   pure $ addMacroScope env.mainModule n fresh
 
 def mkFreshUserName {m} [MonadLiftT CoreM m] (n : Name) : m Name :=

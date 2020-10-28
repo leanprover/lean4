@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <lean/init_module.h>
 #include "util/ascii.h"
 #include "util/name.h"
-#include "util/fresh_name.h"
 #include "util/name_generator.h"
 #include "util/options.h"
 #include "util/format.h"
@@ -18,14 +17,12 @@ void initialize_util_module() {
     initialize_ascii();
     initialize_name();
     initialize_name_generator();
-    initialize_fresh_name();
     initialize_options();
     initialize_format();
 }
 void finalize_util_module() {
     finalize_format();
     finalize_options();
-    finalize_fresh_name();
     finalize_name_generator();
     finalize_name();
     finalize_ascii();

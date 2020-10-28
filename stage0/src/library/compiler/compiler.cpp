@@ -190,7 +190,7 @@ environment compile(environment const & env, options const & opts, names cs) {
 
     time_task t("compilation",
                 message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
-    type_context_old trace_ctx(env, opts);
+    abstract_type_context trace_ctx(opts);
     scope_trace_env scope_trace(env, opts, trace_ctx);
 
     comp_decls ds = to_comp_decls(env, cs);

@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "util/exception_with_pos.h"
 #include "kernel/expr.h"
 #include "library/formatter.h"
-#include "library/scope_pos_info_provider.h"
 
 namespace lean {
 /**
@@ -68,8 +67,6 @@ protected:
 public:
     explicit formatted_exception(format const & fmt):m_fmt(fmt) {}
     formatted_exception(optional<pos_info> const & p, format const & fmt):m_pos(p), m_fmt(fmt) {}
-    formatted_exception(optional<expr> const & e, format const & fmt):formatted_exception(get_pos_info(e), fmt) {}
-    formatted_exception(expr const & e, format const & fmt):formatted_exception(some(e), fmt) {}
     virtual char const * what() const noexcept override;
     virtual optional<pos_info> get_pos() const override { return m_pos; }
     virtual format pp() const { return m_fmt; }

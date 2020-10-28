@@ -136,13 +136,14 @@ lean_object* l_Lean_Elab_mkElabAttribute(lean_object*);
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacroFns_match__2(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_KeyedDeclsAttribute_Def_evalKey___default___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_sanitizeNamesOption___closed__1;
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__5;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_adaptMacro(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Elab_getBetterRef_match__2(lean_object*);
 uint8_t l_Lean_Parser_isValidSyntaxNodeKind(lean_object*, lean_object*);
+extern lean_object* l_Lean_getSanitizeNames___closed__2;
+extern lean_object* l_Lean_getSanitizeNames___closed__1;
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Elab_getMacros___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacro_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_evalSyntaxConstant(lean_object*, lean_object*, lean_object*);
@@ -185,7 +186,6 @@ lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__4;
 uint8_t l_Lean_Elab_getMacroStackOption(lean_object*);
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacroFns_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_liftMacroM_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_sanitizeNamesOption___closed__2;
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__2;
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__4;
@@ -489,7 +489,7 @@ static lean_object* _init_l_Lean_Elab_getMacroStackOption___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_sanitizeNamesOption___closed__2;
+x_1 = l_Lean_getSanitizeNames___closed__2;
 x_2 = l_Lean_Elab_getMacroStackOption___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -557,7 +557,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_136____closed__1;
-x_2 = l_Lean_sanitizeNamesOption___closed__1;
+x_2 = l_Lean_getSanitizeNames___closed__1;
 x_3 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_136____closed__2;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

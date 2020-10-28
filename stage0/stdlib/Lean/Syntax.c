@@ -124,7 +124,6 @@ lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLast___at_Lean_Syntax_
 lean_object* l_Lean_Syntax_MonadTraverser_getIdx___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_replaceM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___at_Lean_Syntax_reprint___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateFirst_match__2(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_getKind___boxed(lean_object*);
 lean_object* l_Lean_Syntax_Lean_Syntax___instance__3___closed__1;
@@ -159,7 +158,6 @@ lean_object* l_Lean_Syntax_getIdAt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setHeadInfo_match__1(lean_object*);
 lean_object* l_Lean_Syntax_formatStx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLast_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_updateLeading(lean_object*);
 lean_object* l_Array_findSomeRevMAux___at_Lean_Syntax_getTailInfo___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo_match__1(lean_object*);
@@ -247,7 +245,6 @@ lean_object* l_Lean_SourceInfo_updateTrailing(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_rewriteBottomUpM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_rewriteBottomUpM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
-lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLast_match__2(lean_object*);
 lean_object* l_Lean_Syntax_asNode_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___at_Lean_Syntax_rewriteBottomUp___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___at_Lean_Syntax_replaceInfo___spec__1(lean_object*, lean_object*, lean_object*);
@@ -345,7 +342,6 @@ lean_object* l_Lean_Syntax_ifNodeKind_match__1(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goLeft(lean_object*);
-lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateFirst_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_reprint_match__1(lean_object*);
 lean_object* l_Lean_SourceInfo_updateTrailing(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -1096,7 +1092,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Syntax_getAtomVal_x21___closed__1;
 x_2 = l_Lean_Syntax_getAtomVal_x21___closed__2;
 x_3 = lean_unsigned_to_nat(80u);
-x_4 = lean_unsigned_to_nat(16u);
+x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Syntax_getAtomVal_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
@@ -3762,22 +3758,6 @@ x_3 = lean_alloc_closure((void*)(l___private_Lean_Syntax_0__Lean_Syntax_updateLa
 return x_3;
 }
 }
-lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLast_match__2___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_2, x_1);
-return x_3;
-}
-}
-lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLast_match__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Syntax_0__Lean_Syntax_updateLast_match__2___rarg), 2, 0);
-return x_2;
-}
-}
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLast___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -4328,22 +4308,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l___private_Lean_Syntax_0__Lean_Syntax_updateFirst_match__1___rarg), 3, 0);
 return x_3;
-}
-}
-lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateFirst_match__2___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_2, x_1);
-return x_3;
-}
-}
-lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateFirst_match__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Syntax_0__Lean_Syntax_updateFirst_match__2___rarg), 2, 0);
-return x_2;
 }
 }
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateFirst___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

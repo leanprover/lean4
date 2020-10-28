@@ -34,46 +34,49 @@ protected def run {α : Type} (x : Unhygienic α) : α := (x firstFrontendMacroS
 end Unhygienic
 
 private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat) : Name :=
-if unicode then
-  if idx == 0 then
-    name.appendAfter "✝"
+  if unicode then
+    if idx == 0 then
+      name.appendAfter "✝"
+    else
+      name.appendAfter ("✝" ++ idx.toSuperscriptString)
   else
-    name.appendAfter ("✝" ++ idx.toSuperscriptString)
-else
-  name ++ mkNameNum "_inaccessible" idx
+    name ++ mkNameNum "_inaccessible" idx
 
 private def mkInaccessibleUserName (unicode : Bool) : Name → Name
-| Name.num p@(Name.str _ _ _) idx _ =>
-  mkInaccessibleUserNameAux unicode p idx
-| Name.num Name.anonymous idx _     =>
-  mkInaccessibleUserNameAux unicode Name.anonymous idx
-| Name.num p idx _ =>
-  if unicode then
-    (mkInaccessibleUserName unicode p).appendAfter ("⁻" ++ idx.toSuperscriptString)
-  else
-    mkNameNum (mkInaccessibleUserName unicode p) idx
-| n => n
+  | Name.num p@(Name.str _ _ _) idx _ =>
+    mkInaccessibleUserNameAux unicode p idx
+  | Name.num Name.anonymous idx _     =>
+    mkInaccessibleUserNameAux unicode Name.anonymous idx
+  | Name.num p idx _ =>
+    if unicode then
+      (mkInaccessibleUserName unicode p).appendAfter ("⁻" ++ idx.toSuperscriptString)
+    else
+      mkNameNum (mkInaccessibleUserName unicode p) idx
+  | n => n
 
 @[export lean_is_inaccessible_user_name]
 def isInaccessibleUserName : Name → Bool
-| Name.str _ s _   => s.contains '✝' || s == "_inaccessible"
-| Name.num p idx _ => isInaccessibleUserName p
-| _                => false
+  | Name.str _ s _   => s.contains '✝' || s == "_inaccessible"
+  | Name.num p idx _ => isInaccessibleUserName p
+  | _                => false
 
 def sanitizeNamesDefault := true
-@[builtinInit] def sanitizeNamesOption : IO Unit :=
-registerOption `pp.sanitizeNames { defValue := sanitizeNamesDefault, group := "pp", descr := "add suffix '_{<idx>}' to shadowed/inaccessible variables when pretty printing" }
 def getSanitizeNames (o : Options) : Bool:= o.get `pp.sanitizeNames sanitizeNamesDefault
+builtin_initialize
+  registerOption `pp.sanitizeNames {
+    defValue := sanitizeNamesDefault,
+    group := "pp",
+    descr := "add suffix '_{<idx>}' to shadowed/inaccessible variables when pretty printing"
+  }
 
 structure NameSanitizerState :=
-(options            : Options)
--- `x` ~> 2 if we're already using `x✝`, `x✝¹`
-(nameStem2Idx       : NameMap Nat := {})
--- `x._hyg...` ~> `x✝`
-(userName2Sanitized : NameMap Name := {})
+  (options            : Options)
+  -- `x` ~> 2 if we're already using `x✝`, `x✝¹`
+  (nameStem2Idx       : NameMap Nat := {})
+  -- `x._hyg...` ~> `x✝`
+  (userName2Sanitized : NameMap Name := {})
 
-private partial def mkFreshInaccessibleUserName (userName : Name) : Nat → StateM NameSanitizerState Name
-| idx => do
+private partial def mkFreshInaccessibleUserName (userName : Name) (idx : Nat) : StateM NameSanitizerState Name := do
   let s ← get
   let userNameNew := mkInaccessibleUserName (Format.getUnicode s.options) (mkNameNum userName idx)
   if s.nameStem2Idx.contains userNameNew then
@@ -83,24 +86,24 @@ private partial def mkFreshInaccessibleUserName (userName : Name) : Nat → Stat
     pure userNameNew
 
 def sanitizeName (userName : Name) : StateM NameSanitizerState Name := do
-let stem := userName.eraseMacroScopes;
-let idx  := (← get).nameStem2Idx.find? stem $.getD 0
-let san ← mkFreshInaccessibleUserName stem idx
-modify fun s => { s with userName2Sanitized := s.userName2Sanitized.insert userName san }
-pure san
+  let stem := userName.eraseMacroScopes;
+  let idx  := (← get).nameStem2Idx.find? stem $.getD 0
+  let san ← mkFreshInaccessibleUserName stem idx
+  modify fun s => { s with userName2Sanitized := s.userName2Sanitized.insert userName san }
+  pure san
 
 private partial def sanitizeSyntaxAux : Syntax → StateM NameSanitizerState Syntax
-| Syntax.ident _ _ n _ => do
-  mkIdent <$> match (← get).userName2Sanitized.find? n with
-  | some n' => pure n'
-  | none    => if n.hasMacroScopes then sanitizeName n else pure n
-| Syntax.node k args => Syntax.node k <$> args.mapM sanitizeSyntaxAux
-| stx => pure stx
+  | Syntax.ident _ _ n _ => do
+    mkIdent <$> match (← get).userName2Sanitized.find? n with
+    | some n' => pure n'
+    | none    => if n.hasMacroScopes then sanitizeName n else pure n
+  | Syntax.node k args => Syntax.node k <$> args.mapM sanitizeSyntaxAux
+  | stx => pure stx
 
 def sanitizeSyntax (stx : Syntax) : StateM NameSanitizerState Syntax := do
-if getSanitizeNames (← get).options then
-  sanitizeSyntaxAux stx
-else
-  pure stx
+  if getSanitizeNames (← get).options then
+    sanitizeSyntaxAux stx
+  else
+    pure stx
 
 end Lean

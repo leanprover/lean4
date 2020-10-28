@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/option_declarations.h"
 #include "kernel/environment.h"
-#include "library/type_context.h"
+#include "library/abstract_type_context.h"
 #include "library/io_state.h"
 #include "library/trace.h"
 #include "library/messages.h"
@@ -175,7 +175,7 @@ struct silent_ios_helper {
 };
 
 MK_THREAD_LOCAL_GET_DEF(silent_ios_helper, get_silent_ios_helper);
-MK_THREAD_LOCAL_GET(type_context_old, get_dummy_tc, get_dummy_env());
+MK_THREAD_LOCAL_GET_DEF(abstract_type_context, get_dummy_tc);
 
 scope_trace_silent::scope_trace_silent(bool flag) {
     m_old_value = g_silent;
@@ -231,10 +231,6 @@ scope_traces_as_messages::scope_traces_as_messages(std::string const & stream_na
         m_scoped_ios = std::unique_ptr<scope_global_ios>(new scope_global_ios(*m_redirected_ios));
     }
 }
-
-scope_traces_as_messages::scope_traces_as_messages(pos_info_provider const *provider, expr const &ref) :
-    scope_traces_as_messages(provider ? provider->get_file_name() : "<unknown>",
-                             provider ? provider->get_pos_info_or_some(ref) : pos_info(1, 0)) {}
 
 scope_traces_as_messages::~scope_traces_as_messages() {
     if (enabled()) {

@@ -6,14 +6,12 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include "util/fresh_name.h"
 #include "util/option_ref.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive.h"
-#include "library/locals.h"
 #include "library/util.h"
 #include "library/suffixes.h"
 #include "library/annotation.h"
@@ -21,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/projection.h"
 #include "library/replace_visitor.h"
-#include "library/type_context.h"
 #include "library/num.h"
 #include "version.h"
 #include "githash.h" // NOLINT

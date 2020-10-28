@@ -1307,7 +1307,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Expr_toHeadIndex___closed__1;
 x_2 = l_Lean_Expr_toHeadIndex___closed__2;
 x_3 = lean_unsigned_to_nat(80u);
-x_4 = lean_unsigned_to_nat(29u);
+x_4 = lean_unsigned_to_nat(31u);
 x_5 = l_Lean_Expr_toHeadIndex___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;

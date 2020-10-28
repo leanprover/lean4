@@ -22,9 +22,6 @@ message::message(std::string const & filename, pos_info const & pos, optional<po
                                string_ref(caption).to_obj_arg(), string_ref(text).to_obj_arg())) {
 }
 
-message::message(parser_exception const & ex) :
-    message(ex.get_file_name(), *ex.get_pos(), ERROR, ex.get_msg()) {}
-
 message_severity message::get_severity() const {
     return static_cast<message_severity>(lean_message_severity(to_obj_arg()));
 }

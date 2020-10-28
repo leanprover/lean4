@@ -70,9 +70,10 @@ lean_object* l_Array_iterateMAux___at_Lean_ppGoal___spec__13___boxed(lean_object
 lean_object* l_Lean_ppGoal_match__1(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-extern lean_object* l_Lean_sanitizeNamesOption___closed__1;
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_ppGoal___spec__3(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPGoal___hyg_6_(lean_object*);
+extern lean_object* l_Lean_getSanitizeNames___closed__2;
+extern lean_object* l_Lean_getSanitizeNames___closed__1;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_ppGoal___spec__12(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___at_Lean_ppGoal___spec__10(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_joinSep___at_Lean_ppGoal___spec__1(lean_object*, lean_object*);
@@ -105,7 +106,6 @@ lean_object* l_Lean_ppGoal_match__3___rarg(lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_ppGoal___spec__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal___closed__3;
 lean_object* l_Lean_ppGoal___closed__8;
-extern lean_object* l_Lean_sanitizeNamesOption___closed__2;
 lean_object* l_Array_iterateMAux___at_Lean_ppGoal___spec__7___closed__3;
 lean_object* l_Lean_ppGoal___closed__7;
 uint8_t l_Lean_getAuxDeclsOption(lean_object*);
@@ -134,7 +134,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPGoal___hyg_6____close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_sanitizeNamesOption___closed__2;
+x_1 = l_Lean_getSanitizeNames___closed__2;
 x_2 = l_Lean_initFn____x40_Lean_Util_PPGoal___hyg_6____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -163,7 +163,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_initFn____x40_Lean_Util_PPGoal___hyg_6____closed__3;
-x_2 = l_Lean_sanitizeNamesOption___closed__1;
+x_2 = l_Lean_getSanitizeNames___closed__1;
 x_3 = l_Lean_initFn____x40_Lean_Util_PPGoal___hyg_6____closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

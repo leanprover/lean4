@@ -9,24 +9,28 @@ Author: Leonardo de Moura
 
 namespace lean {
 class abstract_type_context {
+    options m_options;
 public:
+    abstract_type_context(options const & opts):m_options(opts) {}
+    abstract_type_context() {}
+    options const & get_options() const { return m_options; }
     virtual ~abstract_type_context() {}
-    virtual environment const & env() const = 0;
-    virtual expr whnf(expr const & e) = 0;
-    virtual name next_name() = 0;
-    virtual expr relaxed_whnf(expr const & e) { return whnf(e); }
-    virtual bool is_def_eq(expr const & e1, expr const & e2) = 0;
-    virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2) { return is_def_eq(e1, e2); }
-    virtual expr infer(expr const & e) = 0;
+    virtual environment const & env() const { lean_unreachable(); }
+    virtual expr whnf(expr const &) { lean_unreachable(); }
+    virtual name next_name() { lean_unreachable(); }
+    virtual expr relaxed_whnf(expr const &) { lean_unreachable(); }
+    virtual bool is_def_eq(expr const &, expr const &) { lean_unreachable(); }
+    virtual bool relaxed_is_def_eq(expr const &, expr const &) { lean_unreachable(); }
+    virtual expr infer(expr const &) { lean_unreachable(); }
     /** \brief Simular to \c infer, but also performs type checking.
         \remark Default implementation just invokes \c infer. */
-    virtual expr check(expr const & e) { return infer(e); }
-    virtual optional<expr> is_stuck(expr const &) { return none_expr(); }
-    virtual optional<name> get_local_pp_name(expr const & e) = 0;
-    virtual expr push_local(name const & pp_name, expr const & type, binder_info bi = mk_binder_info());
-    virtual void pop_local();
+    virtual expr check(expr const &) { lean_unreachable(); }
+    virtual optional<expr> is_stuck(expr const &) { lean_unreachable(); }
+    virtual optional<name> get_local_pp_name(expr const &) { lean_unreachable(); }
+    virtual expr push_local(name const &, expr const &, binder_info) { lean_unreachable(); }
+    virtual void pop_local() { lean_unreachable(); }
 
-    expr check(expr const & e, bool infer_only) { return infer_only ? infer(e) : check(e); }
+    expr check(expr const &, bool) { lean_unreachable(); }
 };
 
 class push_local_fn {

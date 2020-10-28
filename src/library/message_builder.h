@@ -9,13 +9,13 @@ Author: Gabriel Ebner
 #include <lean/exception.h>
 #include "library/io_state_stream.h"
 #include "library/messages.h"
-#include "library/type_context.h"
+#include "library/abstract_type_context.h"
 
 namespace lean {
 
 /** Builder for a message object. */
 class message_builder {
-    std::shared_ptr<abstract_type_context> m_tc;
+    abstract_type_context m_tc;
     std::string                            m_file_name;
     pos_info                               m_pos;
     optional<pos_info>                     m_end_pos;
@@ -25,10 +25,6 @@ class message_builder {
     io_state_stream                        m_text_stream;
 
 public:
-    message_builder(std::shared_ptr<abstract_type_context> const & tc,
-                    environment const & env, io_state const & ios,
-                    std::string const & file_name, pos_info const & pos,
-                    message_severity severity);
     message_builder(environment const & env, io_state const & ios,
                     std::string const & file_name, pos_info const & pos,
                     message_severity severity);

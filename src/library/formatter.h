@@ -9,12 +9,9 @@ Author: Leonardo de Moura
 #include <utility>
 #include "util/options.h"
 #include "util/format.h"
+#include "library/abstract_type_context.h"
 
 namespace lean {
-class expr;
-class environment;
-class abstract_type_context;
-
 name const & get_formatter_hide_full_terms_name();
 bool get_formatter_hide_full_terms(options const & opts);
 

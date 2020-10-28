@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/option_declarations.h"
 #include "kernel/environment.h"
-#include "library/type_context.h"
+#include "library/abstract_type_context.h"
 #include "library/io_state.h"
 #include "library/trace.h"
 #include "library/messages.h"
@@ -175,7 +175,7 @@ struct silent_ios_helper {
 };
 
 MK_THREAD_LOCAL_GET_DEF(silent_ios_helper, get_silent_ios_helper);
-MK_THREAD_LOCAL_GET(type_context_old, get_dummy_tc, get_dummy_env());
+MK_THREAD_LOCAL_GET_DEF(abstract_type_context, get_dummy_tc);
 
 scope_trace_silent::scope_trace_silent(bool flag) {
     m_old_value = g_silent;

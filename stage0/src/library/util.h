@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/environment.h"
 #include "library/expr_pair.h"
+#include "library/abstract_type_context.h"
 
 namespace lean {
 /* If \c n is not in \c env, then return \c. Otherwise, find the first j >= idx s.t.

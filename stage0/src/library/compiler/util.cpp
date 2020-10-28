@@ -416,7 +416,7 @@ bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & t
 
 bool is_irrelevant_type(environment const & env, expr const & type) {
     type_checker::state st(env);
-    return is_irrelevant_type(st, local_context(), type);
+    return is_irrelevant_type(st, local_ctx(), type);
 }
 
 void collect_used(expr const & e, name_hash_set & S) {

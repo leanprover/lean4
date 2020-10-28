@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "util/rb_map.h"
-#include "library/local_context.h"
+#include "kernel/local_ctx.h"
 
 namespace lean {
 /** \brief Total order on expressions.
@@ -18,7 +18,7 @@ namespace lean {
 
     \remark If lctx is not nullptr, then we use the local_decl index to compare local constants.
 */
-bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * lctx = nullptr);
+bool is_lt(expr const & a, expr const & b, bool use_hash, local_ctx const * lctx = nullptr);
 /** \brief Similar to is_lt, but universe level parameter names are ignored. */
 bool is_lt_no_level_params(expr const & a, expr const & b);
 inline bool is_hash_lt(expr const & a, expr const & b) { return is_lt(a, b, true); }

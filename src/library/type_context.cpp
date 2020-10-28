@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/exception.h"
 #include "library/type_context.h"
-#include "library/locals.h"
 #include "library/aux_recursors.h"
 #include "library/num.h"
 #include "library/time_task.h"

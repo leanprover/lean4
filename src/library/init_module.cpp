@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/protected.h"
 #include "library/io_state.h"
-#include "library/placeholder.h"
 #include "library/print.h"
 #include "library/util.h"
 #include "library/pp_options.h"
@@ -40,7 +39,6 @@ void finalize_library_core_module() {
 
 void initialize_library_module() {
     initialize_print();
-    initialize_placeholder();
     initialize_io_state();
     initialize_num();
     initialize_annotation();
@@ -60,7 +58,6 @@ void finalize_library_module() {
     finalize_annotation();
     finalize_num();
     finalize_io_state();
-    finalize_placeholder();
     finalize_print();
 }
 }

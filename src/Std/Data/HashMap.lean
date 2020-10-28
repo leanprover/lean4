@@ -53,19 +53,19 @@ foldBucketsM h.buckets d f
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
 foldBuckets m.buckets d f
 
-def findEntry? [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
+def findEntry? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
 match m with
 | ⟨_, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a)
   (buckets.val.uget i h).findEntry? a
 
-def find? [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
+def find? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
 match m with
 | ⟨_, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a)
   (buckets.val.uget i h).find? a
 
-def contains [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
+def contains [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
 match m with
 | ⟨_, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a)
@@ -92,7 +92,7 @@ let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, this
 { size    := size,
   buckets := moveEntries 0 buckets.val new_buckets }
 
-def insert [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β :=
+def insert [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β :=
 match m with
 | ⟨size, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a)
@@ -106,7 +106,7 @@ match m with
     then { size := size', buckets := buckets' }
     else expand size' buckets'
 
-def erase [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α β :=
+def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α β :=
 match m with
 | ⟨ size, buckets ⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a)
@@ -114,28 +114,28 @@ match m with
   if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
   else m
 
-inductive WellFormed [HasBeq α] [Hashable α] : HashMapImp α β → Prop
+inductive WellFormed [BEq α] [Hashable α] : HashMapImp α β → Prop
 | mkWff     : ∀ n,                    WellFormed (mkHashMapImp n)
 | insertWff : ∀ m a b, WellFormed m → WellFormed (insert m a b)
 | eraseWff  : ∀ m a,   WellFormed m → WellFormed (erase m a)
 
 end HashMapImp
 
-def HashMap (α : Type u) (β : Type v) [HasBeq α] [Hashable α] :=
+def HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] :=
 { m : HashMapImp α β // m.WellFormed }
 
 open Std.HashMapImp
 
-def mkHashMap {α : Type u} {β : Type v} [HasBeq α] [Hashable α] (nbuckets := 8) : HashMap α β :=
+def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (nbuckets := 8) : HashMap α β :=
 ⟨ mkHashMapImp nbuckets, WellFormed.mkWff nbuckets ⟩
 
 namespace HashMap
-variables {α : Type u} {β : Type v} [HasBeq α] [Hashable α]
+variables {α : Type u} {β : Type v} [BEq α] [Hashable α]
 
 instance inhabited : Inhabited (HashMap α β) :=
 ⟨mkHashMap⟩
 
-instance hasEmptyc : HasEmptyc (HashMap α β) :=
+instance hasEmptyc : EmptyCollection (HashMap α β) :=
 ⟨mkHashMap⟩
 
 @[inline] def insert (m : HashMap α β) (a : α) (b : β) : HashMap α β :=

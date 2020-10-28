@@ -12,7 +12,7 @@ rfl
 theorem ex2 : foo.x = 0 :=
 rfl
 
-instance : HasEmptyc A :=
+instance : EmptyCollection A :=
 ⟨{ x := 10 }⟩
 
 def boo : A :=

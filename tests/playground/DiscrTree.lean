@@ -1,7 +1,7 @@
 import Lean.Format
 open Lean
 
-def List.insert {α} [HasBeq α] (as : List α) (a : α) : List α :=
+def List.insert {α} [BEq α] (as : List α) (a : α) : List α :=
 if as.contains a then as else a::as
 
 inductive Term
@@ -21,7 +21,7 @@ def Key.beq : Key → Key → Bool
 | Key.sym k₁ a₁, Key.sym k₂ a₂ => k₁ == k₂ && a₁ == a₂
 | _,             _             => false
 
-instance : HasBeq Key := ⟨Key.beq⟩
+instance : BEq Key := ⟨Key.beq⟩
 
 def Key.lt : Key → Key → Bool
 | Key.var,       Key.var       => false
@@ -29,7 +29,7 @@ def Key.lt : Key → Key → Bool
 | Key.sym k₁ a₁, Key.sym k₂ a₂ => k₁ < k₂ || (k₁ == k₂ && a₁ < a₂)
 | _,             _             => false
 
-instance : HasLess Key := ⟨fun k₁ k₂ => k₁.lt k₂⟩
+instance : Less Key := ⟨fun k₁ k₂ => k₁.lt k₂⟩
 
 def Key.format : Key → Format
 | Key.var     => "*"
@@ -71,7 +71,7 @@ partial def createNodes {α} (v : α) : Array Term → Trie α
     let todo := todo.pop;
     node [] #[(t.key, createNodes (appendTodo todo t.args))]
 
-partial def insertAux {α} [HasBeq α] (v : α) : Array Term → Trie α → Trie α
+partial def insertAux {α} [BEq α] (v : α) : Array Term → Trie α → Trie α
 | todo, node vs cs =>
   if todo.isEmpty then node (vs.insert v) cs
   else
@@ -86,7 +86,7 @@ partial def insertAux {α} [HasBeq α] (v : α) : Array Term → Trie α → Tri
         (fun _ => (k, createNodes v todo))  -- add new node
         (k, arbitrary _)
 
-def insert {α} [HasBeq α] (d : Trie α) (k : Term) (v : α) : Trie α :=
+def insert {α} [BEq α] (d : Trie α) (k : Term) (v : α) : Trie α :=
 let todo : Array Term := Array.mkEmpty 32;
 let todo := todo.push k;
 insertAux v todo d

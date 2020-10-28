@@ -21,12 +21,12 @@ rfl
 theorem ex6 (y : Nat) : f (y := 5) = fun x z => x + 5 + 2 - z :=
 rfl
 
-def g {α} [HasAdd α] (a : α) (b? : Option α := none) (c : α) : α :=
+def g {α} [Add α] (a : α) (b? : Option α := none) (c : α) : α :=
 match b? with
 | none   => a + c
 | some b => a + b + c
 
-variables {α} [HasAdd α]
+variables {α} [Add α]
 
 theorem ex7 : g = fun (a c : α) => a + c :=
 rfl

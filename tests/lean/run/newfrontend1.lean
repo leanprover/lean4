@@ -15,7 +15,7 @@ xs.foldl (init := 10) (· + ·)
 
 #check tst
 
-#check (fun stx => if True then let e := stx; HasPure.pure e else HasPure.pure stx : Nat → Id Nat)
+#check (fun stx => if True then let e := stx; Pure.pure e else Pure.pure stx : Nat → Id Nat)
 
 #check let x : Nat := 1; x
 
@@ -228,9 +228,9 @@ set_option pp.all true
   let myid := fun {α} (a : α) => a;
   myid [myid 1]
 
--- In the following example, we need `@` otherwise we will try to insert mvars for α and [HasAdd α],
--- and will fail to generate instance for [HasAdd α]
-#check @(fun α (s : HasAdd α) (a : α) => a + a)
+-- In the following example, we need `@` otherwise we will try to insert mvars for α and [Add α],
+-- and will fail to generate instance for [Add α]
+#check @(fun α (s : Add α) (a : α) => a + a)
 
 def g1 {α} (a₁ a₂ : α) {β} (b : β) : α × α × β :=
 (a₁, a₂, b)

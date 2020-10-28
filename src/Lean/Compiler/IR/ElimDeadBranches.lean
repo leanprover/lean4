@@ -30,7 +30,7 @@ protected partial def beq : Value → Value → Bool
   vs₂.all (fun v₂ => vs₁.any fun v₁ => Value.beq v₁ v₂)
 | _, _ => false
 
-instance : HasBeq Value := ⟨Value.beq⟩
+instance : BEq Value := ⟨Value.beq⟩
 
 partial def addChoice (merge : Value → Value → Value) : List Value → Value → List Value
 | [], v => [v]

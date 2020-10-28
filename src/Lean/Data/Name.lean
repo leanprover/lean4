@@ -93,10 +93,10 @@ else if n₁.hash > n₂.hash then false
 else quickLtAux n₁ n₂
 
 /- Alternative HasLt instance. -/
-@[inline] protected def hasLtQuick : HasLess Name :=
+@[inline] protected def hasLtQuick : Less Name :=
 ⟨fun a b => Name.quickLt a b = true⟩
 
-@[inline] instance : DecidableRel (@HasLess.Less Name Name.hasLtQuick) :=
+@[inline] instance : DecidableRel (@Less.Less Name Name.hasLtQuick) :=
 inferInstanceAs (DecidableRel (fun a b => Name.quickLt a b = true))
 
 /- The frontend does not allow user declarations to start with `_` in any of its parts.
@@ -135,7 +135,7 @@ def NameMap (α : Type) := Std.RBMap Name α Name.quickLt
 namespace NameMap
 variable {α : Type}
 
-instance (α : Type) : HasEmptyc (NameMap α) := ⟨mkNameMap α⟩
+instance (α : Type) : EmptyCollection (NameMap α) := ⟨mkNameMap α⟩
 
 instance (α : Type) : Inhabited (NameMap α) := ⟨{}⟩
 
@@ -151,7 +151,7 @@ def NameSet := RBTree Name Name.quickLt
 
 namespace NameSet
 def empty : NameSet := mkRBTree Name Name.quickLt
-instance : HasEmptyc NameSet := ⟨empty⟩
+instance : EmptyCollection NameSet := ⟨empty⟩
 instance : Inhabited NameSet := ⟨{}⟩
 def insert (s : NameSet) (n : Name) : NameSet := Std.RBTree.insert s n
 def contains (s : NameSet) (n : Name) : Bool := Std.RBMap.contains s n
@@ -162,7 +162,7 @@ def NameHashSet := Std.HashSet Name
 
 namespace NameHashSet
 @[inline] def empty : NameHashSet := Std.HashSet.empty
-instance : HasEmptyc NameHashSet := ⟨empty⟩
+instance : EmptyCollection NameHashSet := ⟨empty⟩
 instance : Inhabited NameHashSet := ⟨{}⟩
 def insert (s : NameHashSet) (n : Name) := Std.HashSet.insert s n
 def contains (s : NameHashSet) (n : Name) : Bool := Std.HashSet.contains s n

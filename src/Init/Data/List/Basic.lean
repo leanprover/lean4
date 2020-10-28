@@ -40,7 +40,7 @@ def reverse (as : List α) :List α :=
 protected def append (as bs : List α) : List α :=
   reverseAux as.reverse bs
 
-instance : HasAppend (List α) := ⟨List.append⟩
+instance : Append (List α) := ⟨List.append⟩
 
 theorem reverseAuxReverseAuxNil : ∀ (as bs : List α), reverseAux (reverseAux as bs) [] = reverseAux bs as
   | [], bs     => rfl
@@ -70,9 +70,9 @@ theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ 
     rw [consAppend, consAppend, appendAssoc, consAppend]
     exact rfl
 
-instance : HasEmptyc (List α) := ⟨List.nil⟩
+instance : EmptyCollection (List α) := ⟨List.nil⟩
 
-protected def erase {α} [HasBeq α] : List α → α → List α
+protected def erase {α} [BEq α] : List α → α → List α
   | [],    b => []
   | a::as, b => match a == b with
     | true  => as
@@ -156,41 +156,41 @@ def findSome? (f : α → Option β) : List α → Option β
     | some b => some b
     | none   => findSome? f as
 
-def replace [HasBeq α] : List α → α → α → List α
+def replace [BEq α] : List α → α → α → List α
   | [],    _, _ => []
   | a::as, b, c => match a == b with
     | true  => c::as
     | flase => a :: (replace as b c)
 
-def elem [HasBeq α] (a : α) : List α → Bool
+def elem [BEq α] (a : α) : List α → Bool
   | []    => false
   | b::bs => match a == b with
     | true  => true
     | false => elem a bs
 
-def notElem [HasBeq α] (a : α) (as : List α) : Bool :=
+def notElem [BEq α] (a : α) (as : List α) : Bool :=
   !(as.elem a)
 
-abbrev contains [HasBeq α] (as : List α) (a : α) : Bool :=
+abbrev contains [BEq α] (as : List α) (a : α) : Bool :=
   elem a as
 
-def eraseDupsAux {α} [HasBeq α] : List α → List α → List α
+def eraseDupsAux {α} [BEq α] : List α → List α → List α
   | [],    bs => bs.reverse
   | a::as, bs => match bs.elem a with
     | true  => eraseDupsAux as bs
     | false => eraseDupsAux as (a::bs)
 
-def eraseDups {α} [HasBeq α] (as : List α) : List α :=
+def eraseDups {α} [BEq α] (as : List α) : List α :=
   eraseDupsAux as []
 
-def eraseRepsAux {α} [HasBeq α] : α → List α → List α → List α
+def eraseRepsAux {α} [BEq α] : α → List α → List α → List α
   | a, [], rs => (a::rs).reverse
   | a, a'::as, rs => match a == a' with
     | true  => eraseRepsAux a as rs
     | false => eraseRepsAux a' as (a::rs)
 
 /-- Erase repeated adjacent elements. -/
-def eraseReps {α} [HasBeq α] : List α → List α
+def eraseReps {α} [BEq α] : List α → List α
   | []    => []
   | a::as => eraseRepsAux a as []
 
@@ -213,13 +213,13 @@ def eraseReps {α} [HasBeq α] : List α → List α
   | []    => []
   | a::as => groupByAux p as [[a]]
 
-def lookup [HasBeq α] : α → List (α × β) → Option β
+def lookup [BEq α] : α → List (α × β) → Option β
   | _, []        => none
   | a, (k,b)::es => match a == k with
     | true  => some b
     | false => lookup a es
 
-def removeAll [HasBeq α] (xs ys : List α) : List α :=
+def removeAll [BEq α] (xs ys : List α) : List α :=
   xs.filter (fun x => ys.notElem x)
 
 def drop : Nat → List α → List α
@@ -298,47 +298,47 @@ def intercalate (sep : List α) (xs : List (List α)) : List α :=
 
 @[inline] protected def pure {α : Type u} (a : α) : List α := [a]
 
-inductive Less [HasLess α] : List α → List α → Prop
+inductive List.Less [Less α] : List α → List α → Prop
   | nil  (b : α) (bs : List α) : Less [] (b::bs)
   | head {a : α} (as : List α) {b : α} (bs : List α) : a < b → Less (a::as) (b::bs)
   | tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → Less as bs → Less (a::as) (b::bs)
 
-instance less [HasLess α] : HasLess (List α) := ⟨List.Less⟩
+instance less [Less α] : Less (List α) := ⟨List.Less⟩
 
-instance hasDecidableLt [HasLess α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
+instance hasDecidableLt [Less α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
   | [],    []    => isFalse (fun h => nomatch h)
-  | [],    b::bs => isTrue (Less.nil _ _)
+  | [],    b::bs => isTrue (List.Less.nil _ _)
   | a::as, []    => isFalse (fun h => nomatch h)
   | a::as, b::bs =>
     match h a b with
-    | isTrue h₁  => isTrue (Less.head _ _ h₁)
+    | isTrue h₁  => isTrue (List.Less.head _ _ h₁)
     | isFalse h₁ =>
       match h b a with
       | isTrue h₂  => isFalse (fun h => match h with
-         | Less.head _ _ h₁' => absurd h₁' h₁
-         | Less.tail _ h₂' _ => absurd h₂ h₂')
+         | List.Less.head _ _ h₁' => absurd h₁' h₁
+         | List.Less.tail _ h₂' _ => absurd h₂ h₂')
       | isFalse h₂ =>
         match hasDecidableLt as bs with
-        | isTrue h₃  => isTrue (Less.tail h₁ h₂ h₃)
+        | isTrue h₃  => isTrue (List.Less.tail h₁ h₂ h₃)
         | isFalse h₃ => isFalse (fun h => match h with
-           | Less.head _ _ h₁' => absurd h₁' h₁
-           | Less.tail _ _ h₃' => absurd h₃' h₃)
+           | List.Less.head _ _ h₁' => absurd h₁' h₁
+           | List.Less.tail _ _ h₃' => absurd h₃' h₃)
 
-@[reducible] protected def LessEq [HasLess α] (a b : List α) : Prop := ¬ b < a
+@[reducible] protected def LessEq [Less α] (a b : List α) : Prop := ¬ b < a
 
-instance lessEq [HasLess α] : HasLessEq (List α) := ⟨List.LessEq⟩
+instance lessEq [Less α] : LessEq (List α) := ⟨List.LessEq⟩
 
-instance [HasLess α] [h : DecidableRel (HasLess.Less : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
+instance [Less α] [h : DecidableRel (Less.Less : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
   fun a b => inferInstanceAs (Decidable (Not _))
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/
-def isPrefixOf [HasBeq α] : List α → List α → Bool
+def isPrefixOf [BEq α] : List α → List α → Bool
   | [],    _     => true
   | _,     []    => false
   | a::as, b::bs => a == b && isPrefixOf as bs
 
 /--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`. -/
-def isSuffixOf [HasBeq α] (l₁ l₂ : List α) : Bool :=
+def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
   isPrefixOf l₁.reverse l₂.reverse
 
 @[specialize] def isEqv : List α → List α → (α → α → Bool) → Bool
@@ -346,11 +346,11 @@ def isSuffixOf [HasBeq α] (l₁ l₂ : List α) : Bool :=
   | a::as, b::bs, eqv => eqv a b && isEqv as bs eqv
   | _,     _,     eqv => false
 
-protected def beq [HasBeq α] : List α → List α → Bool
+protected def beq [BEq α] : List α → List α → Bool
   | [],    []    => true
   | a::as, b::bs => a == b && List.beq as bs
   | _,     _     => false
 
-instance [HasBeq α] : HasBeq (List α) := ⟨List.beq⟩
+instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
 end List

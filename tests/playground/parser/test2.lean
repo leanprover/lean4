@@ -4,7 +4,7 @@ abbrev Parser (α : Type) := Lean.Parser.ParserM Unit Unit Unit α
 
 open Lean.Parser
 
-def check {α} [HasBeq α] (p : Parser α) (s : String) (e : α) : IO Unit :=
+def check {α} [BEq α] (p : Parser α) (s : String) (e : α) : IO Unit :=
 match p.run () () s with
 | Lean.Parser.Result.ok v i _ _  := do
   IO.println ("Ok at " ++ toString i),

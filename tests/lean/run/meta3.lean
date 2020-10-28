@@ -29,7 +29,7 @@ withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
 
 def nat  := mkConst `Nat
 def succ := mkConst `Nat.succ
-def add  := mkAppN (mkConst `HasAdd.add [levelZero]) #[nat, mkConst `Nat.HasAdd]
+def add  := mkAppN (mkConst `Add.add [levelZero]) #[nat, mkConst `Nat.Add]
 
 def tst1 : MetaM Unit :=
 do let d : DiscrTree Nat := {};

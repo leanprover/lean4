@@ -17,7 +17,7 @@ has type
 but is expected to have type
   Nat
 with resulting expansion
-  HasAdd.add✝ (x + x✝) x✝¹
+  Add.add✝ (x + x✝) x✝¹
 while expanding
   (x + x✝) + x✝¹
 while expanding

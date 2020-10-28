@@ -60,26 +60,26 @@ protected def mul (m n : @& Int) : Int :=
   | negSucc m, ofNat n   => negOfNat (succ m * n)
   | negSucc m, negSucc n => ofNat (succ m * succ n)
 
-instance : HasNeg Int := ⟨Int.neg⟩
-instance : HasAdd Int := ⟨Int.add⟩
-instance : HasMul Int := ⟨Int.mul⟩
+instance : Neg Int := ⟨Int.neg⟩
+instance : Add Int := ⟨Int.add⟩
+instance : Mul Int := ⟨Int.mul⟩
 
 @[extern "lean_int_sub"]
 protected def sub (m n : @& Int) : Int :=
   m + (- n)
 
-instance : HasSub Int := ⟨Int.sub⟩
+instance : Sub Int := ⟨Int.sub⟩
 
 inductive NonNeg : Int → Prop
   | mk (n : Nat) : NonNeg (ofNat n)
 
 protected def LessEq (a b : Int) : Prop := NonNeg (b - a)
 
-instance : HasLessEq Int := ⟨Int.LessEq⟩
+instance : LessEq Int := ⟨Int.LessEq⟩
 
 protected def Less (a b : Int) : Prop := (a + 1) ≤ b
 
-instance : HasLess Int := ⟨Int.Less⟩
+instance : Less Int := ⟨Int.Less⟩
 
 set_option bootstrap.gen_matcher_code false in
 @[extern "lean_int_dec_eq"]
@@ -124,7 +124,7 @@ protected def repr : Int → String
 
 instance : Repr Int := ⟨Int.repr⟩
 instance : ToString Int := ⟨Int.repr⟩
-instance : HasOfNat Int := ⟨Int.ofNat⟩
+instance : OfNat Int := ⟨Int.ofNat⟩
 
 @[extern "lean_int_div"]
 def div : (@& Int) → (@& Int) → Int
@@ -140,8 +140,8 @@ def mod : (@& Int) → (@& Int) → Int
   | negSucc m, ofNat n   => -ofNat (succ m % n)
   | negSucc m, negSucc n => -ofNat (succ m % succ n)
 
-instance : HasDiv Int := ⟨Int.div⟩
-instance : HasMod Int := ⟨Int.mod⟩
+instance : Div Int := ⟨Int.div⟩
+instance : Mod Int := ⟨Int.mod⟩
 
 def toNat : Int → Nat
   | ofNat n   => n

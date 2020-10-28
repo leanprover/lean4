@@ -15,7 +15,7 @@ try
 catch _ =>
   get
 
-def checkE {α ε : Type} [HasBeq α] (x : IO (Except ε α)) (expected : α) : IO Unit := do
+def checkE {α ε : Type} [BEq α] (x : IO (Except ε α)) (expected : α) : IO Unit := do
 let r ← x;
 match r with
 | Except.ok a    => unless a == expected do throw $ IO.userError "unexpected result"

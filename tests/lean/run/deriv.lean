@@ -10,7 +10,7 @@ inductive Expr
 | Pow : Expr → Expr → Expr
 | Ln  : Expr → Expr
 
-open Expr
+namespace Expr
 
 unsafe def pown : Int → Int → Int
 | a, 0 => 1
@@ -90,8 +90,10 @@ do
   IO.println (count f);
   pure d
 
+end Expr
+
 unsafe def main : IO Unit :=
-do let x := Var "x";
-   let f := pow x x;
-   nest deriv 9 f;
+do let x := Expr.Var "x";
+   let f := Expr.pow x x;
+   Expr.nest Expr.deriv 9 f;
    pure ()

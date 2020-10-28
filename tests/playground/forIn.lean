@@ -107,7 +107,7 @@ match b with
 | none      => ⟨0, a⟩
 | some b    => ⟨a, b⟩
 
-instance : HasOfNat (Option Nat) :=
+instance : OfNat (Option Nat) :=
 ⟨fun n => some n⟩
 
 def tst3 : IO Nat :=

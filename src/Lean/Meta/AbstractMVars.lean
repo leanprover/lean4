@@ -17,7 +17,7 @@ instance : Inhabited AbstractMVarsResult := ⟨⟨#[], 0, arbitrary _⟩⟩
 def AbstractMVarsResult.beq (r₁ r₂ : AbstractMVarsResult) : Bool :=
   r₁.paramNames == r₂.paramNames && r₁.numMVars == r₂.numMVars && r₁.expr == r₂.expr
 
-instance : HasBeq AbstractMVarsResult := ⟨AbstractMVarsResult.beq⟩
+instance : BEq AbstractMVarsResult := ⟨AbstractMVarsResult.beq⟩
 
 namespace AbstractMVars
 

@@ -25,10 +25,10 @@ def hello : String := "hello"
 def act1 : IO String :=
 pure "hello"
 
-#eval runM "#check @HasAdd.add"
+#eval runM "#check @Add.add"
 #eval runM "#check [zero, one, two]"
 #eval runM "#check id $ Nat.succ one"
-#eval runM "#check HasAdd.add one two"
+#eval runM "#check Add.add one two"
 #eval runM "#check one + two > one ∧ True"
 #eval runM "#check act1 >>= IO.println"
 #eval runM "#check one + two == one"
@@ -216,7 +216,7 @@ def three := 3
 #eval runM "#check g (z := three)"
 #eval runM "#check g three (z := zero)"
 
-#eval runM "#check (fun stx => if True then let e := stx; HasPure.pure e else HasPure.pure stx : Nat → Id Nat)"
+#eval runM "#check (fun stx => if True then let e := stx; Pure.pure e else Pure.pure stx : Nat → Id Nat)"
 #eval runM "constant n : Nat #check n"
 
 #eval fail "#check Nat.succ 'a'"

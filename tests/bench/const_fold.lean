@@ -5,7 +5,8 @@ inductive Expr
 | Add : Expr → Expr → Expr
 | Mul : Expr → Expr → Expr
 
-open Expr Nat
+namespace Expr
+open Nat
 
 def mkExpr : Nat → Nat → Expr
 | 0,     v => if v = 0 then Var 1 else Val v
@@ -65,6 +66,10 @@ def eval : Expr → Nat
 | Val v   => v
 | Add l r   => eval l + eval r
 | Mul l r   => eval l * eval r
+
+end Expr
+
+open Expr
 
 unsafe def main : List String → IO UInt32
 | [s] => do

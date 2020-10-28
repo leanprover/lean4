@@ -38,9 +38,9 @@ Here is a toy version of this problem:
 @[class] axiom Field : Type → Type
 @[class] axiom Ring : Type → Type
 
-@[instance] axiom FieldToHasDiv (α : Type) [Field α] : HasDiv α
-@[instance] axiom FieldToHasMul (α : Type) [Field α] : HasMul α
-@[instance] axiom RingToHasMul (α : Type) [Ring α] : HasMul α
+@[instance] axiom FieldToDiv (α : Type) [Field α] : Div α
+@[instance] axiom FieldToMul (α : Type) [Field α] : Mul α
+@[instance] axiom RingToMul (α : Type) [Ring α] : Mul α
 
 axiom mkType : Nat → Type
 
@@ -51,7 +51,7 @@ example (α β : mkType 4) : α * β = β * α
 >>
 
 The issue is that (depending on the order the instances are tried),
-the instance involving `FieldToHasMul` will succeed in typeclass resolution,
+the instance involving `FieldToMul` will succeed in typeclass resolution,
 but the proof will fail later on.
 
 I (@dselsam) still thinks this plan is a good compromise.

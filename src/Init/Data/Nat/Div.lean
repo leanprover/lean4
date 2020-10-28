@@ -18,7 +18,7 @@ private def div.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) :
 protected def div (a b : @& Nat) : Nat :=
   WellFounded.fix ltWf div.F a b
 
-instance : HasDiv Nat := ⟨Nat.div⟩
+instance : Div Nat := ⟨Nat.div⟩
 
 private theorem divDefAux (x y : Nat) : x / y = if h : 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
   congrFun (WellFounded.fixEq ltWf div.F x) y
@@ -49,7 +49,7 @@ private def mod.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) :
 protected def mod (a b : @& Nat) : Nat :=
   WellFounded.fix ltWf mod.F a b
 
-instance : HasMod Nat := ⟨Nat.mod⟩
+instance : Mod Nat := ⟨Nat.mod⟩
 
 private theorem modDefAux (x y : Nat) : x % y = if h : 0 < y ∧ y ≤ x then (x - y) % y else x :=
   congrFun (WellFounded.fixEq ltWf mod.F x) y

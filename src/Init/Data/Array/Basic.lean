@@ -59,7 +59,7 @@ theorem szMkArrayEq (n : Nat) (v : α) : (mkArray n v).sz = n :=
 def empty : Array α :=
   mkEmpty 0
 
-instance : HasEmptyc (Array α) := ⟨Array.empty⟩
+instance : EmptyCollection (Array α) := ⟨Array.empty⟩
 instance : Inhabited (Array α) := ⟨Array.empty⟩
 
 def isEmpty (a : Array α) : Bool :=
@@ -324,7 +324,7 @@ match findIdxAux a p 0 with
 | some i => i
 | none   => panic! "failed to find element"
 
-def getIdx? [HasBeq α] (a : Array α) (v : α) : Option Nat :=
+def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
 a.findIdx? $ fun a => a == v
 
 end
@@ -541,7 +541,7 @@ end
 protected def append (a : Array α) (b : Array α) : Array α :=
 b.foldl (fun a v => a.push v) a
 
-instance : HasAppend (Array α) := ⟨Array.append⟩
+instance : Append (Array α) := ⟨Array.append⟩
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) : Nat → Bool
@@ -561,8 +561,8 @@ if h : a.size = b.size then
 else
   false
 
-instance [HasBeq α] : HasBeq (Array α) :=
-⟨fun a b => isEqv a b HasBeq.beq⟩
+instance [BEq α] : BEq (Array α) :=
+⟨fun a b => isEqv a b BEq.beq⟩
 
 -- TODO(Leo): justify termination using wf-rec, and use `swap`
 partial def reverseAux : Array α → Nat → Array α
@@ -628,7 +628,7 @@ filterMapMAux f as 0 Array.empty
 @[inline] def filterMap {α β : Type u} (f : α → Option β) (as : Array α) : Array β :=
 Id.run $ filterMapM f as
 
-partial def indexOfAux {α} [HasBeq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
+partial def indexOfAux {α} [BEq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
 | i =>
   if h : i < a.size then
     let idx : Fin a.size := ⟨i, h⟩;
@@ -636,7 +636,7 @@ partial def indexOfAux {α} [HasBeq α] (a : Array α) (v : α) : Nat → Option
     else indexOfAux a v (i+1)
   else none
 
-def indexOf? {α} [HasBeq α] (a : Array α) (v : α) : Option (Fin a.size) :=
+def indexOf? {α} [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
 indexOfAux a v 0
 
 partial def eraseIdxAux {α} : Nat → Array α → Array α
@@ -679,13 +679,13 @@ end
 def eraseIdx' {α} (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
 eraseIdxSzAux a (i.val + 1) a rfl
 
-def contains [HasBeq α] (as : Array α) (a : α) : Bool :=
+def contains [BEq α] (as : Array α) (a : α) : Bool :=
 as.any $ fun b => a == b
 
-def elem [HasBeq α] (a : α) (as : Array α) : Bool :=
+def elem [BEq α] (a : α) (as : Array α) : Bool :=
 as.contains a
 
-def erase [HasBeq α] (as : Array α) (a : α) : Array α :=
+def erase [BEq α] (as : Array α) (a : α) : Array α :=
 match as.indexOf? a with
 | none   => as
 | some i => as.feraseIdx i
@@ -807,7 +807,7 @@ else
 @[inline] def partition {α : Type u} (p : α → Bool) (as : Array α) : Array α × Array α :=
 partitionAux p as 0 #[] #[]
 
-partial def isPrefixOfAux {α : Type u} [HasBeq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat → Bool
+partial def isPrefixOfAux {α : Type u} [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat → Bool
 | i =>
   if h : i < as.size then
     let a := as.get ⟨i, h⟩;
@@ -820,26 +820,26 @@ partial def isPrefixOfAux {α : Type u} [HasBeq α] (as bs : Array α) (hle : as
     true
 
 /- Return true iff `as` is a prefix of `bs` -/
-def isPrefixOf  {α : Type u} [HasBeq α] (as bs : Array α) : Bool :=
+def isPrefixOf  {α : Type u} [BEq α] (as bs : Array α) : Bool :=
 if h : as.size ≤ bs.size then
   isPrefixOfAux as bs h 0
 else
   false
 
-private def allDiffAuxAux {α} [HasBeq α] (as : Array α) (a : α) : forall (i : Nat), i < as.size → Bool
+private def allDiffAuxAux {α} [BEq α] (as : Array α) (a : α) : forall (i : Nat), i < as.size → Bool
 | 0,   h => true
 | i+1, h =>
   have i < as.size from Nat.ltTrans (Nat.ltSuccSelf _) h;
   a != as.get ⟨i, this⟩ && allDiffAuxAux as a i this
 
-private partial def allDiffAux {α} [HasBeq α] (as : Array α) : Nat → Bool
+private partial def allDiffAux {α} [BEq α] (as : Array α) : Nat → Bool
 | i =>
   if h : i < as.size then
     allDiffAuxAux as (as.get ⟨i, h⟩) i h && allDiffAux as (i+1)
   else
     true
 
-def allDiff {α} [HasBeq α] (as : Array α) : Bool :=
+def allDiff {α} [BEq α] (as : Array α) : Bool :=
 allDiffAux as 0
 
 @[specialize] partial def zipWithAux {α β γ} (f : α → β → γ) (as : Array α) (bs : Array β) : Nat → Array γ → Array γ

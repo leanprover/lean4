@@ -40,7 +40,7 @@ def List.asString (s : List Char) : String :=
   ⟨s⟩
 
 namespace String
-instance : HasLess String :=
+instance : Less String :=
   ⟨fun s₁ s₂ => s₁.data < s₂.data⟩
 
 @[extern "lean_string_dec_lt"]
@@ -197,9 +197,9 @@ def splitOn (s : String) (sep : String := " ") : List String :=
 
 instance : Inhabited String := ⟨""⟩
 
-instance : HasSizeof String := ⟨String.length⟩
+instance : SizeOf String := ⟨String.length⟩
 
-instance : HasAppend String := ⟨String.append⟩
+instance : Append String := ⟨String.append⟩
 
 def str : String → Char → String := push
 
@@ -508,7 +508,7 @@ def toNat? (s : Substring) : Option Nat :=
 def beq (ss1 ss2 : Substring) : Bool :=
   ss1.toString == ss2.toString
 
-instance hasBeq : HasBeq Substring := ⟨beq⟩
+instance hasBeq : BEq Substring := ⟨beq⟩
 
 end Substring
 

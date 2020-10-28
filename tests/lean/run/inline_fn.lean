@@ -1,6 +1,6 @@
 
 
-def f {α : Type} [HasAdd α] (x : α) :=
+def f {α : Type} [Add α] (x : α) :=
 x + x + x
 
 partial def h : Nat → Nat

@@ -1,7 +1,7 @@
 
 
-infix:65 " +' " => HasAdd.add
-infix:70 " *' " => HasMul.mul
+infix:65 " +' " => Add.add
+infix:70 " *' " => Mul.mul
 infixr:30 " OR " => Or
 prefix:40 "NOT " => Not
 

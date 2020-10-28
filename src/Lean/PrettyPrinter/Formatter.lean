@@ -46,7 +46,7 @@ abbrev FormatterM := ReaderT Formatter.Context $ StateRefT Formatter.State CoreM
     p₁
     (fun _ => do set s; p₂)
 
-instance {α} : HasOrelse (FormatterM α) := ⟨FormatterM.orelse⟩
+instance {α} : OrElse (FormatterM α) := ⟨FormatterM.orelse⟩
 
 abbrev Formatter := FormatterM Unit
 

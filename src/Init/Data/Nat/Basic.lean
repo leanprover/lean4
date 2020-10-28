@@ -53,12 +53,12 @@ def ble : Nat → Nat → Bool
 protected def le (n m : Nat) : Prop :=
   ble n m = true
 
-instance : HasLessEq Nat := ⟨Nat.le⟩
+instance : LessEq Nat := ⟨Nat.le⟩
 
 protected def lt (n m : Nat) : Prop :=
   Nat.le (succ n) m
 
-instance : HasLess Nat := ⟨Nat.lt⟩
+instance : Less Nat := ⟨Nat.lt⟩
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "lean_nat_sub(#1, lean_box(1))"]
@@ -78,8 +78,8 @@ protected def mul : (@& Nat) → (@& Nat) → Nat
   | a, 0   => 0
   | a, b+1 => (Nat.mul a b) + a
 
-instance : HasSub Nat := ⟨Nat.sub⟩
-instance : HasMul Nat := ⟨Nat.mul⟩
+instance : Sub Nat := ⟨Nat.sub⟩
+instance : Mul Nat := ⟨Nat.mul⟩
 
 @[specialize] def foldAux {α : Type u} (f : Nat → α → α) (s : Nat) : Nat → α → α
   | 0,      a => a
@@ -117,7 +117,7 @@ protected def pow (m : @& Nat) : (@& Nat) → Nat
   | 0      => 1
   | succ n => Nat.pow m n * m
 
-instance : HasPow Nat Nat := ⟨Nat.pow⟩
+instance : Pow Nat Nat := ⟨Nat.pow⟩
 
 /- Nat.add theorems -/
 
@@ -444,7 +444,7 @@ theorem leAddLeft (n m : Nat): n ≤ m + n :=
 
 theorem le.dest : ∀ {n m : Nat}, n ≤ m → Exists (fun k => n + k = m)
   | zero,   zero,   h => ⟨0, rfl⟩
-  | zero,   succ n, h => ⟨succ n, show 0 + succ n = succ n from (Nat.addComm 0 (succ n)).symm ▸ rfl⟩
+  | zero,   succ n, h => ⟨succ n, Nat.addComm 0 (succ n) ▸ rfl⟩
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
     have n ≤ m from h

@@ -18,7 +18,7 @@ variables {m : Type u → Type v} [Monad m] {α β : Type u}
 } : m (Option β))
 
 @[inline] protected def pure (a : α) : OptionT2 m α :=
-(HasPure.pure (some a) : m (Option α))
+(Pure.pure (some a) : m (Option α))
 
 @[inline] protected def orelse (ma : OptionT2 m α) (mb : OptionT2 m α) : OptionT2 m α :=
 (do { let a? ← ma;

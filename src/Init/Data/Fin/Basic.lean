@@ -24,8 +24,8 @@ protected def lt {n} (a b : Fin n) : Prop :=
 protected def le {n} (a b : Fin n) : Prop :=
   a.val ≤ b.val
 
-instance {n} : HasLess (Fin n)    := ⟨Fin.lt⟩
-instance {n} : HasLessEq (Fin n)  := ⟨Fin.le⟩
+instance {n} : Less (Fin n)    := ⟨Fin.lt⟩
+instance {n} : LessEq (Fin n)  := ⟨Fin.le⟩
 
 instance decLt {n} (a b : Fin n) :  Decidable (a < b) :=
   Nat.decLt ..
@@ -80,12 +80,12 @@ def land : Fin n → Fin n → Fin n
 def lor : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.lor a b) % n, mlt h⟩
 
-instance : HasAdd (Fin n)         := ⟨Fin.add⟩
-instance : HasSub (Fin n)         := ⟨Fin.sub⟩
-instance : HasMul (Fin n)         := ⟨Fin.mul⟩
-instance : HasMod (Fin n)         := ⟨Fin.mod⟩
-instance : HasDiv (Fin n)         := ⟨Fin.div⟩
-instance : HasModN (Fin n)        := ⟨Fin.modn⟩
+instance : Add (Fin n)         := ⟨Fin.add⟩
+instance : Sub (Fin n)         := ⟨Fin.sub⟩
+instance : Mul (Fin n)         := ⟨Fin.mul⟩
+instance : Mod (Fin n)         := ⟨Fin.mod⟩
+instance : Div (Fin n)         := ⟨Fin.div⟩
+instance : ModN (Fin n)        := ⟨Fin.modn⟩
 
 theorem eqOfVeq : ∀ {i j : Fin n}, (val i) = (val j) → i = j
   | ⟨iv, ilt₁⟩, ⟨_, _⟩, rfl => rfl

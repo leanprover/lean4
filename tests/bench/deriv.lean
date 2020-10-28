@@ -8,7 +8,7 @@ inductive Expr
 | Pow : Expr → Expr → Expr
 | Ln  : Expr → Expr
 
-open Expr
+namespace Expr
 
 partial def pown : Int → Int → Int
 | a, 0 => 1
@@ -89,6 +89,10 @@ do
   let d := d "x" f;
   IO.println (toString (i+1) ++ " count: " ++ (toString $ count d));
   pure d
+
+end Expr
+
+open Expr
 
 unsafe def main : List String → IO UInt32
 | [s] => do

@@ -8,7 +8,7 @@ inductive Expr
 | Pow : Expr → Expr → Expr
 | Ln  : Expr → Expr
 
-open Expr
+namespace Expr
 
 protected def Expr.toString : Expr → String
 | Val n   => toString n
@@ -104,11 +104,13 @@ do
   IO.println (toString d);
   pure d
 
+end Expr
+
 def main (xs : List String) : IO UInt32 :=
-do let x := Var "x";
-   let f := add x (mul x (mul x (add x x)));
+do let x := Expr.Var "x";
+   let f := Expr.add x (Expr.mul x (Expr.mul x (Expr.add x x)));
    IO.println f;
-   _ ← nest deriv 3 f;
+   Expr.nest Expr.deriv 3 f;
    pure 0
 
 -- setOption profiler True

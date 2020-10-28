@@ -17,7 +17,7 @@ def beq : TransparencyMode → TransparencyMode → Bool
   | reducible, reducible => true
   | _,         _         => false
 
-instance : HasBeq TransparencyMode := ⟨beq⟩
+instance : BEq TransparencyMode := ⟨beq⟩
 
 def hash : TransparencyMode → USize
   | all       => 7

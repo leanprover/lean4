@@ -14,7 +14,7 @@ inductive FlattenBehavior
   | fill
 
 namespace FlattenBehavior
-instance : HasBeq FlattenBehavior := ⟨fun b₁ b₂ =>
+instance : BEq FlattenBehavior := ⟨fun b₁ b₂ =>
   match b₁, b₂ with
   | allOrNone, allOrNone => true
   | fill,      fill      => true
@@ -45,12 +45,12 @@ protected def appendEx (a b : Format) : Format :=
 protected def groupEx : Format → Format :=
   group
 
-instance : HasAppend Format     := ⟨Format.append⟩
+instance : Append Format     := ⟨Format.append⟩
 instance : Coe String Format    := ⟨text⟩
 instance : Inhabited Format     := ⟨nil⟩
 
 def join (xs : List Format) : Format :=
-  xs.foldl HasAppend.append ""
+  xs.foldl Append.append ""
 
 def isNil : Format → Bool
   | nil => true

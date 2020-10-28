@@ -11,5 +11,5 @@ protected.lean:28:14: error: unknown identifier 'f'
 protected.lean:38:14: error: unknown identifier 'g'
 protected.lean:47:6: error: unknown identifier 'g'
 protected.lean:47:0: error: failed to synthesize
-  Lean.HasEval ?m
+  Lean.Eval ?m
 8

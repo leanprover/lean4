@@ -25,7 +25,7 @@ def Visitor := AtMostOnceData → AtMostOnceData
   | ⟨found, false⟩ => ⟨found, false⟩
   | other          => g other
 
-instance : HasAndthen Visitor := ⟨seq⟩
+instance : AndThen Visitor := ⟨seq⟩
 
 @[inline] def skip : Visitor := id
 

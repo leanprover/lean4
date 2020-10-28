@@ -20,13 +20,13 @@ instance : Inhabited (LOption α) := ⟨none⟩
 instance [ToString α] : ToString (LOption α) :=
 ⟨fun o => match o with | none   => "none" | undef  => "undef" | (some a) => "(some " ++ toString a ++ ")"⟩
 
-def beq [HasBeq α] : LOption α → LOption α → Bool
+def beq [BEq α] : LOption α → LOption α → Bool
 | none,   none   => true
 | undef,  undef  => true
 | some a, some b => a == b
 | _,      _      => false
 
-instance [HasBeq α] : HasBeq (LOption α) := ⟨beq⟩
+instance [BEq α] : BEq (LOption α) := ⟨beq⟩
 
 end LOption
 end Lean

@@ -8,29 +8,26 @@ import Init.Control.Monad
 import Init.Data.Option.Basic
 universes u v
 
-class HasToBool (α : Type u) :=
-  (toBool : α → Bool)
-
 class ToBool (α : Type u) :=
   (toBool : α → Bool)
 
-export HasToBool (toBool)
+export ToBool (toBool)
 
-instance : HasToBool Bool := ⟨id⟩
-instance {α} : HasToBool (Option α) := ⟨Option.toBool⟩
+instance : ToBool Bool := ⟨id⟩
+instance {α} : ToBool (Option α) := ⟨Option.toBool⟩
 
-@[macroInline] def bool {β : Type u} {α : Type v} [HasToBool β] (f t : α) (b : β) : α :=
+@[macroInline] def bool {β : Type u} {α : Type v} [ToBool β] (f t : α) (b : β) : α :=
   match toBool b with
   | true  => t
   | false => f
 
-@[macroInline] def orM {m : Type u → Type v} {β : Type u} [Monad m] [HasToBool β] (x y : m β) : m β := do
+@[macroInline] def orM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
   | true  => pure b
   | false => y
 
-@[macroInline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [HasToBool β] (x y : m β) : m β := do
+@[macroInline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
   | true  => y

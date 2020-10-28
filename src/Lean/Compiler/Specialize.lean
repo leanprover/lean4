@@ -20,7 +20,7 @@ protected def beq : SpecializeAttributeKind → SpecializeAttributeKind → Bool
   | nospecialize, nospecialize => true
   | _, _ => false
 
-instance : HasBeq SpecializeAttributeKind := ⟨SpecializeAttributeKind.beq⟩
+instance : BEq SpecializeAttributeKind := ⟨SpecializeAttributeKind.beq⟩
 
 end SpecializeAttributeKind
 

@@ -20,12 +20,12 @@ variables {α : Type u}
 open List
 
 def ofList (l : List α) : DList α :=
-⟨HasAppend.append l, fun t => by rw appendNil; exact rfl⟩
+⟨Append.append l, fun t => by rw appendNil; exact rfl⟩
 
 def empty : DList α :=
 ⟨id, fun t => rfl⟩
 
-instance : HasEmptyc (DList α) :=
+instance : EmptyCollection (DList α) :=
 ⟨DList.empty⟩
 
 def toList : DList α → List α
@@ -61,7 +61,7 @@ def push : DList α → α → DList α
     rw [h [a], h (a::t), appendAssoc (f []) [a] t]
     exact rfl⟩
 
-instance : HasAppend (DList α) :=
+instance : Append (DList α) :=
 ⟨DList.append⟩
 
 end DList

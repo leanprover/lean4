@@ -229,7 +229,7 @@ match n with
 
 @[specialize] def forIn (t : PersistentArray α) (init : β) (f : α → β → m (ForInStep β)) : m β := do
 match (← forInAux (inh := ⟨init⟩) f t.root init) with
-| ForInStep.done b  => b
+| ForInStep.done b  => pure b
 | ForInStep.yield b =>
   for v in t.tail do
     match (← f v b) with
@@ -279,7 +279,7 @@ def append (t₁ t₂ : PersistentArray α) : PersistentArray α :=
 if t₁.isEmpty then t₂
 else t₂.foldl PersistentArray.push t₁
 
-instance : HasAppend (PersistentArray α) := ⟨append⟩
+instance : Append (PersistentArray α) := ⟨append⟩
 
 @[inline] def findSome? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
 Id.run (t.findSomeM? f)

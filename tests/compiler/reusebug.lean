@@ -5,7 +5,7 @@ inductive Expr
 | Add : Expr → Expr → Expr
 | Mul : Expr → Expr → Expr
 
-open Expr
+namespace Expr
 
 protected def Expr.toString : Expr → String
 | Val n   => toString n
@@ -22,6 +22,10 @@ partial def addAux : Expr → Expr → Expr
 
 def add (a b : Expr) : Expr :=
 addAux a b
+
+end Expr
+
+open Expr
 
 def main (xs : List String) : IO UInt32 :=
 do let x := Var "x";

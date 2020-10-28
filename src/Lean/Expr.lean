@@ -25,7 +25,7 @@ def Literal.beq : Literal → Literal → Bool
   | Literal.strVal v₁, Literal.strVal v₂ => v₁ == v₂
   | _,                 _                 => false
 
-instance : HasBeq Literal := ⟨Literal.beq⟩
+instance : BEq Literal := ⟨Literal.beq⟩
 
 def Literal.lt : Literal → Literal → Bool
   | Literal.natVal _,  Literal.strVal _  => true
@@ -33,7 +33,7 @@ def Literal.lt : Literal → Literal → Bool
   | Literal.strVal v₁, Literal.strVal v₂ => v₁ < v₂
   | _,                 _                 => false
 
-instance : HasLess Literal := ⟨fun a b => a.lt b⟩
+instance : Less Literal := ⟨fun a b => a.lt b⟩
 
 instance (a b : Literal) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.lt b))
@@ -74,7 +74,7 @@ protected def BinderInfo.beq : BinderInfo → BinderInfo → Bool
   | BinderInfo.auxDecl,        BinderInfo.auxDecl        => true
   | _,                         _                         => false
 
-instance : HasBeq BinderInfo := ⟨BinderInfo.beq⟩
+instance : BEq BinderInfo := ⟨BinderInfo.beq⟩
 
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}
@@ -97,7 +97,7 @@ instance: Inhabited Expr.Data :=
 def Expr.Data.hash (c : Expr.Data) : USize :=
   c.toUInt32.toUSize
 
-instance : HasBeq Expr.Data :=
+instance : BEq Expr.Data :=
   ⟨fun (a b : UInt64) => a == b⟩
 
 def Expr.Data.looseBVarRange (c : Expr.Data) : UInt32 :=
@@ -388,7 +388,7 @@ constant lt (a : @& Expr) (b : @& Expr) : Bool
 @[extern "lean_expr_eqv"]
 constant eqv (a : @& Expr) (b : @& Expr) : Bool
 
-instance : HasBeq Expr := ⟨Expr.eqv⟩
+instance : BEq Expr := ⟨Expr.eqv⟩
 
 /- Return true iff `a` and `b` are equal.
    Binder names and annotations are taking into account. -/
@@ -735,7 +735,7 @@ protected def hash : ExprStructEq → USize
   | ⟨e⟩ => e.hash
 
 instance : Inhabited ExprStructEq := ⟨{ val := arbitrary _ }⟩
-instance : HasBeq ExprStructEq := ⟨ExprStructEq.beq⟩
+instance : BEq ExprStructEq := ⟨ExprStructEq.beq⟩
 instance : Hashable ExprStructEq := ⟨ExprStructEq.hash⟩
 instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
 instance : Repr ExprStructEq := ⟨fun e => repr e.val⟩

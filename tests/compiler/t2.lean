@@ -8,7 +8,7 @@ inductive Expr
 | Pow : Expr → Expr → Expr
 | Ln  : Expr → Expr
 
-open Expr
+namespace Expr
 
 partial def pown : Int → Int → Int
 | a, 0 => 1
@@ -90,10 +90,12 @@ do
   IO.println (toString (i+1) ++ " count: " ++ (toString $ count d));
   pure d
 
+end Expr
+
 def main (xs : List String) : IO UInt32 :=
-do let x := Var "x";
-   let f := pow x x;
-   _ ← nest deriv 7 f;
+do let x := Expr.Var "x";
+   let f := Expr.pow x x;
+   Expr.nest Expr.deriv 7 f;
    pure 0
 
 -- setOption profiler True

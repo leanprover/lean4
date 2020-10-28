@@ -38,7 +38,7 @@ set_option trace.Meta.synthInstance.tryResolve false in
 #eval tst1
 
 def tst2 : MetaM Unit := do
-let inst ← mkAppM `HasBind #[mkConst `IO]
+let inst ← mkAppM `Bind #[mkConst `IO]
 -- globalInstances ← getGlobalInstances
 -- print (format globalInstances)
 -- result ← globalInstances.getUnify inst
@@ -52,7 +52,7 @@ set_option trace.Meta.synthInstance.tryResolve false in
 #eval tst2
 
 def tst3 : MetaM Unit := do
-let inst ← mkAppM `HasBeq #[mkConst `Nat]
+let inst ← mkAppM `BEq #[mkConst `Nat]
 let r ← synthInstance inst
 print r
 pure ()

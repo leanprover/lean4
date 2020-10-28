@@ -52,13 +52,13 @@ foldBucketsM h.buckets d f
 @[inline] def fold {δ : Type w} (f : δ → α → δ) (d : δ) (m : HashSetImp α) : δ :=
 foldBuckets m.buckets d f
 
-def find? [HasBeq α] [Hashable α] (m : HashSetImp α) (a : α) : Option α :=
+def find? [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Option α :=
 match m with
 | ⟨_, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a)
   (buckets.val.uget i h).find? (fun a' => a == a')
 
-def contains [HasBeq α] [Hashable α] (m : HashSetImp α) (a : α) : Bool :=
+def contains [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Bool :=
 match m with
 | ⟨_, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a)
@@ -85,7 +85,7 @@ let new_buckets : HashSetBucket α := ⟨mkArray nbuckets [], this⟩;
 { size    := size,
   buckets := moveEntries 0 buckets.val new_buckets }
 
-def insert [HasBeq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
+def insert [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
 match m with
 | ⟨size, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a)
@@ -99,7 +99,7 @@ match m with
     then { size := size', buckets := buckets' }
     else expand size' buckets'
 
-def erase [HasBeq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
+def erase [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
 match m with
 | ⟨ size, buckets ⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a)
@@ -107,28 +107,28 @@ match m with
   if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
   else m
 
-inductive WellFormed [HasBeq α] [Hashable α] : HashSetImp α → Prop
+inductive WellFormed [BEq α] [Hashable α] : HashSetImp α → Prop
 | mkWff     : ∀ n,                  WellFormed (mkHashSetImp n)
 | insertWff : ∀ m a, WellFormed m → WellFormed (insert m a)
 | eraseWff  : ∀ m a, WellFormed m → WellFormed (erase m a)
 
 end HashSetImp
 
-def HashSet (α : Type u) [HasBeq α] [Hashable α] :=
+def HashSet (α : Type u) [BEq α] [Hashable α] :=
 { m : HashSetImp α // m.WellFormed }
 
 open HashSetImp
 
-def mkHashSet {α : Type u} [HasBeq α] [Hashable α] (nbuckets := 8) : HashSet α :=
+def mkHashSet {α : Type u} [BEq α] [Hashable α] (nbuckets := 8) : HashSet α :=
 ⟨ mkHashSetImp nbuckets, WellFormed.mkWff nbuckets ⟩
 
 namespace HashSet
-variables {α : Type u} [HasBeq α] [Hashable α]
+variables {α : Type u} [BEq α] [Hashable α]
 
 instance : Inhabited (HashSet α) :=
 ⟨mkHashSet⟩
 
-instance : HasEmptyc (HashSet α) :=
+instance : EmptyCollection (HashSet α) :=
 ⟨mkHashSet⟩
 
 @[inline] def insert (m : HashSet α) (a : α) : HashSet α :=

@@ -7,16 +7,16 @@ class Ring (α : Type) :=
 instance ringHasOne {α} [Ring α] : HasOne α :=
 ⟨Ring.one α⟩ -- dummy implementation
 
-instance ringHasAdd {α} [Ring α] : HasAdd α :=
+instance ringAdd {α} [Ring α] : Add α :=
 ⟨fun a b => a⟩ -- dummy implementation
 
-instance ringHasMul {α} [Ring α] : HasMul α :=
+instance ringMul {α} [Ring α] : Mul α :=
 ⟨fun a b => a⟩ -- dummy implementation
 
 class Field (α : Type) extends Ring α :=
 (otherStuff : Unit := ()) -- dummy implementation
 
-instance fieldHasDiv {α} [Field α] : HasDiv α :=
+instance fieldDiv {α} [Field α] : Div α :=
 ⟨fun a b => a⟩ -- dummy implementation
 
 def IsPrime (n : Nat) : Prop :=

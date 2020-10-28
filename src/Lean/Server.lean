@@ -97,16 +97,16 @@ def updateOpenDocuments (key : DocumentUri) (val : EditableDocument) : ServerM U
 def readLspMessage : ServerM JsonRpc.Message := fun st =>
   Lsp.readLspMessage st.hIn
 
-def readLspRequestAs (expectedMethod : String) (α : Type) [HasFromJson α] : ServerM (Request α) := fun st =>
+def readLspRequestAs (expectedMethod : String) (α : Type) [FromJson α] : ServerM (Request α) := fun st =>
   Lsp.readLspRequestAs st.hIn expectedMethod α
 
-def readLspNotificationAs (expectedMethod : String) (α : Type) [HasFromJson α] : ServerM α := fun st =>
+def readLspNotificationAs (expectedMethod : String) (α : Type) [FromJson α] : ServerM α := fun st =>
   Lsp.readLspNotificationAs st.hIn expectedMethod α
 
-def writeLspNotification {α : Type} [HasToJson α] (method : String) (params : α) : ServerM Unit := fun st =>
+def writeLspNotification {α : Type} [ToJson α] (method : String) (params : α) : ServerM Unit := fun st =>
   Lsp.writeLspNotification st.hOut method params
 
-def writeLspResponse {α : Type} [HasToJson α] (id : RequestID) (params : α) : ServerM Unit := fun st =>
+def writeLspResponse {α : Type} [ToJson α] (id : RequestID) (params : α) : ServerM Unit := fun st =>
   Lsp.writeLspResponse st.hOut id params
 
 /-- Clears diagnostics for the document version 'version'. -/
@@ -172,13 +172,13 @@ def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit := fun st => 
 
 def handleHover (p : HoverParams) : ServerM Json := pure Json.null
 
-def parseParams (paramType : Type) [HasFromJson paramType] (params : Json) : ServerM paramType :=
+def parseParams (paramType : Type) [FromJson paramType] (params : Json) : ServerM paramType :=
   match fromJson? params with
   | some parsed => pure parsed
   | none        => throw (userError "got param with wrong structure")
 
 def handleNotification (method : String) (params : Json) : ServerM Unit := do
-  let h := (fun paramType [HasFromJson paramType] (handler : paramType → ServerM Unit) =>
+  let h := (fun paramType [FromJson paramType] (handler : paramType → ServerM Unit) =>
     parseParams paramType params >>= handler)
   match method with
   | "textDocument/didOpen"   => h DidOpenTextDocumentParams handleDidOpen
@@ -188,7 +188,7 @@ def handleNotification (method : String) (params : Json) : ServerM Unit := do
   | _                        => throw (userError "got unsupported notification method")
 
 def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-  let h := (fun paramType responseType [HasFromJson paramType] [HasToJson responseType]
+  let h := (fun paramType responseType [FromJson paramType] [ToJson responseType]
                 (handler : paramType → ServerM responseType) =>
              parseParams paramType params >>= handler >>= writeLspResponse id)
   match method with

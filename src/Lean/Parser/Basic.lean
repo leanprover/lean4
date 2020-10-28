@@ -158,7 +158,7 @@ instance : ToString Error := ⟨Error.toString⟩
 protected def beq (e₁ e₂ :  Error) : Bool :=
   e₁.unexpected == e₂.unexpected && e₁.expected == e₂.expected
 
-instance : HasBeq Error := ⟨Error.beq⟩
+instance : BEq Error := ⟨Error.beq⟩
 
 def merge (e₁ e₂ : Error) : Error :=
   match e₂ with
@@ -335,7 +335,7 @@ abbrev TrailingParser := Parser
   fn   := andthenFn p.fn q.fn
 }
 
-instance : HasAndthen Parser := ⟨andthen⟩
+instance : AndThen Parser := ⟨andthen⟩
 
 @[inline] def nodeFn (n : SyntaxNodeKind) (p : ParserFn) : ParserFn := fun c s =>
   let iniSz := s.stackSize
@@ -461,7 +461,7 @@ def orelseFnCore (p q : ParserFn) (mergeErrors : Bool) : ParserFn := fun c s =>
   fn   := orelseFn p.fn q.fn
 }
 
-instance : HasOrelse Parser := ⟨orelse⟩
+instance : OrElse Parser := ⟨orelse⟩
 
 @[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo := {
   collectTokens := info.collectTokens,
@@ -1407,7 +1407,7 @@ def insert {α : Type} (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
 
 instance {α : Type} : Inhabited (TokenMap α) := ⟨RBMap.empty⟩
 
-instance {α : Type} : HasEmptyc (TokenMap α) := ⟨RBMap.empty⟩
+instance {α : Type} : EmptyCollection (TokenMap α) := ⟨RBMap.empty⟩
 
 end TokenMap
 

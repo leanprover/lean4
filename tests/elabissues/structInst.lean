@@ -24,7 +24,7 @@ structure B extends A :=
 
 #print B.y._default
 
-#check { x := 1 : B } -- works, but reduced a `HasAdd.add` into `Nat.add`:  `{toA := {x := 1, y := Nat.add (1+1) 1}, z := 1+1} : B`.
+#check { x := 1 : B } -- works, but reduced a `Add.add` into `Nat.add`:  `{toA := {x := 1, y := Nat.add (1+1) 1}, z := 1+1} : B`.
 
 end Ex2
 
@@ -60,6 +60,6 @@ structure C extends B :=
 #check { y := 1 : C } -- doesn't work, should be { y := 1, z := 2*1, x := 2*1 + 3 }
 #check { z := 1 : C } -- doesn't work, should be { z := 1, x := 1 + 3, y := (1 + 3) + 1 }
 #check { z := 1, x := 2 : C } -- works
-#check { y := 1 : B } -- works, but reduced a `HasAdd.add` into `Nat.add`
+#check { y := 1 : B } -- works, but reduced a `Add.add` into `Nat.add`
 
 end Ex4

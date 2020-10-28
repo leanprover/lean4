@@ -2,7 +2,7 @@
 Problem: existential types do not play well with monads.
 
 ```
-class HasBind (m : Type u → Type v) :=
+class Bind (m : Type u → Type v) :=
 (bind : ∀ {α β : Type u}, m α → (α → m β) → m β)
 ```
 

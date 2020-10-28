@@ -50,7 +50,7 @@ partial def append : LazyList α → LazyList α → LazyList α
 | cons a as,    bs => delayed (cons a (append as bs))
 | delayed as,   bs => delayed (append as.get bs)
 
-instance : HasAppend (LazyList α) :=
+instance : Append (LazyList α) :=
 ⟨LazyList.append⟩
 
 partial def interleave : LazyList α → LazyList α → LazyList α

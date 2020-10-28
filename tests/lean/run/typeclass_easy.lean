@@ -2,7 +2,7 @@
 
 #synth ToString (Nat × (Nat × Bool))
 
-#synth HasAdd Nat
+#synth Add Nat
 
 #synth Coe Bool Prop
 

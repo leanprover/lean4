@@ -22,10 +22,10 @@ rfl
 theorem tst7 : (· + ·) = Nat.add :=
 rfl
 
-theorem tst8 : (· + ·) = @HasAdd.add Nat _ :=
+theorem tst8 : (· + ·) = @Add.add Nat _ :=
 rfl
 
-theorem tst9 : (Nat.add · ·) = @HasAdd.add Nat _ :=
+theorem tst9 : (Nat.add · ·) = @Add.add Nat _ :=
 rfl
 
 axiom p    : (Nat → Nat → Nat) → Prop

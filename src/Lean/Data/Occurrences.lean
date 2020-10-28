@@ -30,7 +30,7 @@ def beq : Occurrences → Occurrences → Bool
 | neg is₁, neg is₂ => is₁ == is₂
 | _,       _       => false
 
-instance : HasBeq Occurrences := ⟨beq⟩
+instance : BEq Occurrences := ⟨beq⟩
 
 end Occurrences
 

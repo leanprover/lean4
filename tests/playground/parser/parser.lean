@@ -39,7 +39,7 @@ namespace TokenConfig
 def beq : TokenConfig → TokenConfig → Bool
 | ⟨val₁, lbp₁⟩ ⟨val₂, lbp₂⟩ := val₁ == val₂ && lbp₁ == lbp₂
 
-instance : HasBeq TokenConfig :=
+instance : BEq TokenConfig :=
 ⟨beq⟩
 
 end TokenConfig
@@ -672,7 +672,7 @@ end RecParserFn
 @[inline] def andthen {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ → AbsParser ρ :=
 mapParser₂ andthenInfo andthenFn
 
-instance absParserAndthen {ρ : Type} [ParserFnLift ρ] : HasAndthen (AbsParser ρ) :=
+instance absParserAndThen {ρ : Type} [ParserFnLift ρ] : AndThen (AbsParser ρ) :=
 ⟨andthen⟩
 
 @[inline] def node {ρ : Type} [ParserFnLift ρ] (k : SyntaxNodeKind) : AbsParser ρ → AbsParser ρ :=
@@ -681,7 +681,7 @@ mapParser nodeInfo (nodeFn k)
 @[inline] def orelse {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ → AbsParser ρ :=
 mapParser₂ orelseInfo orelseFn
 
-instance absParserHasOrelse {ρ : Type} [ParserFnLift ρ] : HasOrelse (AbsParser ρ) :=
+instance absParserOrElse {ρ : Type} [ParserFnLift ρ] : OrElse (AbsParser ρ) :=
 ⟨orelse⟩
 
 @[inline] def try {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ :=

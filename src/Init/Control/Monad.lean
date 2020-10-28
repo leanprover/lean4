@@ -10,18 +10,15 @@ universes u v w
 
 open Function
 
-class HasBind (m : Type u → Type v) :=
-  (bind : {α β : Type u} → m α → (α → m β) → m β)
-
 class Bind (m : Type u → Type v) :=
   (bind : {α β : Type u} → m α → (α → m β) → m β)
 
-export HasBind (bind)
+export Bind (bind)
 
-@[inline] def mcomp {α : Type u} {β δ : Type v} {m : Type v → Type w} [HasBind m] (f : α → m β) (g : β → m δ) : α → m δ :=
+@[inline] def mcomp {α : Type u} {β δ : Type v} {m : Type v → Type w} [Bind m] (f : α → m β) (g : β → m δ) : α → m δ :=
   fun a => f a >>= g
 
-class Monad (m : Type u → Type v) extends Applicative m, HasBind m : Type (max (u+1) v) :=
+class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) :=
   (map      := fun f x => x >>= pure ∘ f)
   (seq      := fun f x => f >>= (fun y => y <$> x))
   (seqLeft  := fun x y => x >>= fun a => y >>= fun _ => pure a)

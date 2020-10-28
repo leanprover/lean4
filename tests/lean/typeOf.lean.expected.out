@@ -1,5 +1,5 @@
 typeOf.lean:11:21: error: application type mismatch
-  HasAdd.add x
+  Add.add x
 argument
   x
 has type
@@ -7,7 +7,7 @@ has type
 but is expected to have type
   Bool
 typeOf.lean:12:0: error: application type mismatch
-  HasAdd.add r
+  Add.add r
 argument
   r
 has type

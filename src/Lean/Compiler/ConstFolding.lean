@@ -61,10 +61,10 @@ def foldBinUInt (fn : NumScalarTypeInfo → Bool → Nat → Nat → Nat) (befor
   let info ← getInfoFromVal a₁
   pure $ mkUIntLit info (fn info beforeErasure n₁ n₂)
 
-def foldUIntAdd := foldBinUInt $ fun _ _ => HasAdd.add
-def foldUIntMul := foldBinUInt $ fun _ _ => HasMul.mul
-def foldUIntDiv := foldBinUInt $ fun _ _ => HasDiv.div
-def foldUIntMod := foldBinUInt $ fun _ _ => HasMod.mod
+def foldUIntAdd := foldBinUInt $ fun _ _ => Add.add
+def foldUIntMul := foldBinUInt $ fun _ _ => Mul.mul
+def foldUIntDiv := foldBinUInt $ fun _ _ => Div.div
+def foldUIntMod := foldBinUInt $ fun _ _ => Mod.mod
 def foldUIntSub := foldBinUInt $ fun info _ a b => (a + (info.size - b))
 
 def preUIntBinFoldFns : List (Name × BinFoldFn) :=
@@ -79,10 +79,10 @@ def foldNatBinOp (fn : Nat → Nat → Nat) (a₁ a₂ : Expr) : Option Expr := 
   let n₂   ← getNumLit a₂
   pure $ mkNatLit (fn n₁ n₂)
 
-def foldNatAdd (_ : Bool) := foldNatBinOp HasAdd.add
-def foldNatMul (_ : Bool) := foldNatBinOp HasMul.mul
-def foldNatDiv (_ : Bool) := foldNatBinOp HasDiv.div
-def foldNatMod (_ : Bool) := foldNatBinOp HasMod.mod
+def foldNatAdd (_ : Bool) := foldNatBinOp Add.add
+def foldNatMul (_ : Bool) := foldNatBinOp Mul.mul
+def foldNatDiv (_ : Bool) := foldNatBinOp Div.div
+def foldNatMod (_ : Bool) := foldNatBinOp Mod.mod
 
 -- TODO: add option for controlling the limit
 def natPowThreshold := 256

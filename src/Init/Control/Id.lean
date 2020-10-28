@@ -26,7 +26,7 @@ instance : Monad Id := {
 
 @[inline] protected def run {α : Type u} (x : Id α) : α := x
 
-instance {α} [HasOfNat α] : HasOfNat (Id α) :=
-inferInstanceAs (HasOfNat α)
+instance {α} [OfNat α] : OfNat (Id α) :=
+inferInstanceAs (OfNat α)
 
 end Id

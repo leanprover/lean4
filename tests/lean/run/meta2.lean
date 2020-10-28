@@ -157,7 +157,7 @@ def tst9 : MetaM Unit :=
 do print "----- tst9 -----";
    let env ← getEnv;
    print (toString (← isReducible `Prod.fst))
-   print (toString (← isReducible `HasAdd.add))
+   print (toString (← isReducible `Add.add))
    pure ()
 
 #eval tst9
@@ -225,7 +225,7 @@ def mkDecEq (type : Expr) : MetaM Expr := mkAppC `DecidableEq #[type]
 def mkStateM (σ : Expr) : MetaM Expr := mkAppC `StateM #[σ]
 def mkMonad (m : Expr) : MetaM Expr := mkAppC `Monad #[m]
 def mkMonadState (σ m : Expr) : MetaM Expr := mkAppC `MonadState #[σ, m]
-def mkHasAdd (a : Expr) : MetaM Expr := mkAppC `HasAdd #[a]
+def mkAdd (a : Expr) : MetaM Expr := mkAppC `Add #[a]
 def mkToString (a : Expr) : MetaM Expr := mkAppC `ToString #[a]
 
 def tst14 : MetaM Unit :=
@@ -242,7 +242,7 @@ do print "----- tst14 -----";
 
 def tst15 : MetaM Unit :=
 do print "----- tst15 -----";
-   let inst ← mkHasAdd nat;
+   let inst ← mkAdd nat;
    let r ← synthInstance inst;
    print r;
    pure ()
@@ -335,9 +335,9 @@ def tst22 : MetaM Unit :=
 do print "----- tst22 -----";
    withLocalDeclD `x nat $ fun x => do
    withLocalDeclD `y nat $ fun y => do
-   let t ← mkAppC `HasAdd.add #[x, y];
+   let t ← mkAppC `Add.add #[x, y];
    print t;
-   let t ← mkAppC `HasAdd.add #[y, x];
+   let t ← mkAppC `Add.add #[y, x];
    print t;
    let t ← mkAppC `ToString.toString #[x];
    print t;
@@ -413,18 +413,18 @@ print "----- tst28 -----";
 withLocalDeclD `x nat $ fun x =>
 withLocalDeclD `y nat $ fun y =>
 withLocalDeclD `z nat $ fun z => do
-  let t1 ← mkAppM `HasAdd.add #[x, y];
-  let t1 ← mkAppM `HasAdd.add #[x, t1];
-  let t1 ← mkAppM `HasAdd.add #[t1, t1];
-  let t2 ← mkAppM `HasAdd.add #[z, y];
+  let t1 ← mkAppM `Add.add #[x, y];
+  let t1 ← mkAppM `Add.add #[x, t1];
+  let t1 ← mkAppM `Add.add #[t1, t1];
+  let t2 ← mkAppM `Add.add #[z, y];
   let t3 ← mkAppM `Eq #[t2, t1];
   let t3 ← mkForallFVars #[z] t3;
   let m  ← mkFreshExprMVar nat;
-  let p  ← mkAppM `HasAdd.add #[x, m];
+  let p  ← mkAppM `Add.add #[x, m];
   print t3;
   let r  ← kabstract t3 p;
   print r;
-  let p ← mkAppM `HasAdd.add #[x, y];
+  let p ← mkAppM `Add.add #[x, y];
   let r  ← kabstract t3 p;
   print r;
   pure ()

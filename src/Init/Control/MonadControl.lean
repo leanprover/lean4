@@ -28,18 +28,18 @@ instance (m n o) [MonadControlT m n] [MonadControl n o] : MonadControlT m o := {
   restoreM := MonadControl.restoreM ∘ restoreM
 }
 
-instance (m : Type u → Type v) [HasPure m] : MonadControlT m m := {
+instance (m : Type u → Type v) [Pure m] : MonadControlT m m := {
   stM      := fun α => α,
   liftWith := fun f => f fun x => x,
   restoreM := fun x => pure x
 }
 
 @[inline]
-def controlAt (m : Type u → Type v) {n : Type u → Type w} [s1 : MonadControlT m n] [s2 : HasBind n] {α : Type u}
+def controlAt (m : Type u → Type v) {n : Type u → Type w} [s1 : MonadControlT m n] [s2 : Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   liftWith f >>= restoreM
 
 @[inline]
-def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [HasBind n] {α : Type u}
+def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   controlAt m f

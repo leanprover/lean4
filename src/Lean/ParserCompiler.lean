@@ -86,7 +86,7 @@ match e with
       setEnv $ ctx.combinatorAttr.setDeclFor env c c'
       mkCall c'
     else
-      -- if this is a generic function, e.g. `HasAndthen.andthen`, it's easier to just unfold it until we are
+      -- if this is a generic function, e.g. `AndThen.andthen`, it's easier to just unfold it until we are
       -- back to parser combinators
       let some e' ← unfoldDefinition? e
         | throwError! "don't know how to generate {ctx.varName} for non-parser combinator '{e}'"

@@ -22,7 +22,7 @@ protected def beq : InlineAttributeKind → InlineAttributeKind → Bool
   | inlineIfReduce, inlineIfReduce => true
   | _, _ => false
 
-instance : HasBeq InlineAttributeKind := ⟨InlineAttributeKind.beq⟩
+instance : BEq InlineAttributeKind := ⟨InlineAttributeKind.beq⟩
 
 end InlineAttributeKind
 

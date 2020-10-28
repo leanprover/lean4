@@ -88,7 +88,7 @@ protected def beq : (@& Name) → (@& Name) → Bool
   | num p₁ n₁ _, num p₂ n₂ _ => n₁ == n₂ && Name.beq p₁ p₂
   | _,           _           => false
 
-instance : HasBeq Name := ⟨Name.beq⟩
+instance : BEq Name := ⟨Name.beq⟩
 
 def toStringWithSep (sep : String) : Name → String
   | anonymous         => "[anonymous]"
@@ -107,7 +107,7 @@ protected def append : Name → Name → Name
   | n, str p s _ => mkNameStr (Name.append n p) s
   | n, num p d _ => mkNameNum (Name.append n p) d
 
-instance : HasAppend Name := ⟨Name.append⟩
+instance : Append Name := ⟨Name.append⟩
 
 def capitalize : Name → Name
 | Name.str p s _ => mkNameStr p s.capitalize
@@ -844,43 +844,40 @@ def find? (stx : Syntax) (p : Syntax → Bool) : Option Syntax :=
 end Syntax
 
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
-class HasQuote (α : Type) :=
-  (quote : α → Syntax)
-
-export HasQuote (quote)
-
 class Quote (α : Type) :=
   (quote : α → Syntax)
 
-instance : HasQuote Syntax := ⟨id⟩
-instance : HasQuote String := ⟨mkStxStrLit⟩
-instance : HasQuote Nat := ⟨fun n => mkStxNumLit $ toString n⟩
-instance : HasQuote Substring := ⟨fun s => mkCAppStx `String.toSubstring #[quote s.toString]⟩
+export Quote (quote)
+
+instance : Quote Syntax := ⟨id⟩
+instance : Quote String := ⟨mkStxStrLit⟩
+instance : Quote Nat := ⟨fun n => mkStxNumLit $ toString n⟩
+instance : Quote Substring := ⟨fun s => mkCAppStx `String.toSubstring #[quote s.toString]⟩
 
 private def quoteName : Name → Syntax
   | Name.anonymous => mkCIdent `Lean.Name.anonymous
   | Name.str n s _ => mkCAppStx `Lean.mkNameStr #[quoteName n, quote s]
   | Name.num n i _ => mkCAppStx `Lean.mkNameNum #[quoteName n, quote i]
 
-instance : HasQuote Name := ⟨quoteName⟩
+instance : Quote Name := ⟨quoteName⟩
 
-instance {α β : Type} [HasQuote α] [HasQuote β] : HasQuote (α × β) :=
+instance {α β : Type} [Quote α] [Quote β] : Quote (α × β) :=
   ⟨fun ⟨a, b⟩ => mkCAppStx `Prod.mk #[quote a, quote b]⟩
 
-private def quoteList {α : Type} [HasQuote α] : List α → Syntax
+private def quoteList {α : Type} [Quote α] : List α → Syntax
   | []      => mkCIdent `List.nil
   | (x::xs) => mkCAppStx `List.cons #[quote x, quoteList xs]
 
-instance {α : Type} [HasQuote α] : HasQuote (List α) := ⟨quoteList⟩
+instance {α : Type} [Quote α] : Quote (List α) := ⟨quoteList⟩
 
-instance {α : Type} [HasQuote α] : HasQuote (Array α) :=
+instance {α : Type} [Quote α] : Quote (Array α) :=
   ⟨fun xs => mkCAppStx `List.toArray #[quote xs.toList]⟩
 
-private def quoteOption {α : Type} [HasQuote α] : Option α → Syntax
+private def quoteOption {α : Type} [Quote α] : Option α → Syntax
   | none     => mkIdent `Option.none
   | (some x) => mkCAppStx `Option.some #[quote x]
 
-instance Option.hasQuote {α : Type} [HasQuote α] : HasQuote (Option α) := ⟨quoteOption⟩
+instance Option.hasQuote {α : Type} [Quote α] : Quote (Option α) := ⟨quoteOption⟩
 
 end Lean
 

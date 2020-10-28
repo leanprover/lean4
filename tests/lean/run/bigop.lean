@@ -1,6 +1,4 @@
-
-
-def Seq (α : Type) := List α
+def Sequence (α : Type) := List α
 
 def BigBody (β α) :=  α × (β → β → β) × Bool × β
 
@@ -8,7 +6,7 @@ def applyBig {α β : Type} (body : BigBody β α) (x : β) : β :=
 let (_, op, b, v) := body;
 if b then op v x else x
 
-def reducebig {α β : Type} (idx : β) (r : Seq α) (body : α → BigBody β α) : β :=
+def reducebig {α β : Type} (idx : β) (r : Sequence α) (body : α → BigBody β α) : β :=
 r.foldr (applyBig ∘ body) idx
 
 def bigop := @reducebig
@@ -39,7 +37,7 @@ partial def finElems : (n : Nat) → List (Fin n)
 instance {n} : Enumerable (Fin n) :=
 { elems := (finElems n).reverse }
 
-instance {n} : HasOfNat (Fin (Nat.succ n)) :=
+instance {n} : OfNat (Fin (Nat.succ n)) :=
 ⟨Fin.ofNat⟩
 
 -- Declare a new syntax category for "indexing" big operators
@@ -60,7 +58,7 @@ macro_rules
 
 -- Define `Sum`
 syntax "Sum" "(" index ")" term : term
-macro_rules `(Sum ($idx) $F) => `(_big [HasAdd.add, 0] ($idx) $F)
+macro_rules `(Sum ($idx) $F) => `(_big [Add.add, 0] ($idx) $F)
 
 -- We can already use `Sum` with the different kinds of index.
 #check Sum (i <- [0, 2, 4] | i != 2) i
@@ -69,7 +67,7 @@ macro_rules `(Sum ($idx) $F) => `(_big [HasAdd.add, 0] ($idx) $F)
 
 -- Define `Prod`
 syntax "Prod" "(" index ")" term : term
-macro_rules `(Prod ($idx) $F) => `(_big [HasMul.mul, 1] ($idx) $F)
+macro_rules `(Prod ($idx) $F) => `(_big [Mul.mul, 1] ($idx) $F)
 
 -- The examples above now also work for `Prod`
 #check Prod (i <- [0, 2, 4] | i != 2) i

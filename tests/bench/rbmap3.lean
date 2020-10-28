@@ -248,14 +248,14 @@ Rbmap.fromList l lt
 
 /- Test -/
 
-@[reducible] def map : Type := Rbmap Nat Bool HasLess.Less
+@[reducible] def map : Type := Rbmap Nat Bool Less.Less
 
 def mkMapAux : Nat → map → map
 | 0, m => m
 | n+1,   m => mkMapAux n (m.insert n (n % 10 = 0))
 
 def mkMap (n : Nat) :=
-mkMapAux n (mkRbmap Nat Bool HasLess.Less)
+mkMapAux n (mkRbmap Nat Bool Less.Less)
 
 def main (xs : List String) : IO UInt32 :=
 let m := mkMap xs.head.toNat;

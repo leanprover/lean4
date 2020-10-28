@@ -8,7 +8,7 @@ open IO.FS
 
 instance : Repr UInt8 := ⟨ toString ⟩
 
-def check_eq {α} [HasBeq α] [Repr α] (tag : String) (expected actual : α) : IO Unit :=
+def check_eq {α} [BEq α] [Repr α] (tag : String) (expected actual : α) : IO Unit :=
 «unless» (expected == actual) $ throw $ IO.userError $
   s!"assertion failure \"{tag}\":\n  expected: {repr expected}\n  actual:   {repr actual}"
 

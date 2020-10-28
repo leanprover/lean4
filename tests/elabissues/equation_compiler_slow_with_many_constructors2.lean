@@ -23,7 +23,7 @@ def beq : Op → Op → Bool
 | mul, mul => true
 | _,   _   => false
 
-instance : HasBeq Op := ⟨beq⟩
+instance : BEq Op := ⟨beq⟩
 
 end Op
 
@@ -44,14 +44,14 @@ def beq : Term → Term → Bool
 | app op₁ x₁ y₁, app op₂ x₂ y₂ => op₁ == op₂ && beq x₁ x₂ && beq y₁ y₂
 | _,             _             => false
 
-instance : HasBeq Term := ⟨beq⟩
+instance : BEq Term := ⟨beq⟩
 
 instance : HasZero Term := ⟨ofInt 0⟩
 instance : HasOne Term := ⟨ofInt 1⟩
-instance : HasAdd Term := ⟨app add⟩
-instance : HasMul Term := ⟨app mul⟩
-instance : HasNeg Term := ⟨app mul (ofInt (-1))⟩
-instance : HasSub Term := ⟨λ x y => app add x (- y)⟩
+instance : Add Term := ⟨app add⟩
+instance : Mul Term := ⟨app mul⟩
+instance : Neg Term := ⟨app mul (ofInt (-1))⟩
+instance : Sub Term := ⟨λ x y => app add x (- y)⟩
 
 end Term
 

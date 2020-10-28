@@ -1,2 +1,2 @@
 attrCmd.lean:6:0: error: failed to synthesize instance
-  HasPure M
+  Pure M

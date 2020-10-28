@@ -32,9 +32,9 @@ test [
 "open Lean (hiding Name)",
 "reserve infixr ` ∨ `:30",
 "reserve prefix `¬`:40",
-"infixr ` ^ ` := HasPow.pow",
+"infixr ` ^ ` := Pow.pow",
 "notation f ` $ `:1 a:0 := f a",
 "notation `Prop` := Sort 0",
-"notation `∅`   := HasEmptyc.emptyc _",
+"notation `∅`   := EmptyCollection.emptyc _",
 "notation `⟦`:max a `⟧`:0 := Quotient.mk a"
 ]

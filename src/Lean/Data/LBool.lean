@@ -30,7 +30,7 @@ def beq : LBool → LBool → Bool
 | undef, undef => Bool.true
 | _,     _     => Bool.false
 
-instance : HasBeq LBool := ⟨beq⟩
+instance : BEq LBool := ⟨beq⟩
 
 def toString : LBool → String
 | true  => "true"

@@ -31,18 +31,18 @@ c.toA
 def f1 (c : C Nat Nat Nat Nat) :=
 c.x + c.w
 
-class Tst (α : Type u) extends HasMul α :=
+class Tst (α : Type u) extends Mul α :=
 (comm : ∀ (a b : α), a * b = b * a)
 
 #check @Tst.comm
-#check @Tst.toHasMul
+#check @Tst.toMul
 
 def foo {α} [Tst α] (a b : α) :=
 a * b
 
 #check { x := 10, y := 20, z := 30 : C Nat Nat Nat Nat }
 
-class Foo (α : Type u) extends HasAdd α :=
+class Foo (α : Type u) extends Add α :=
 (x : α)
 
 class Boo (α : Type u) extends Foo α :=

@@ -44,17 +44,17 @@ def Float.lt  : Float → Float → Prop := fun a b =>
 def Float.le  : Float → Float → Prop := fun a b =>
   floatSpec.le a.val b.val
 
-instance : HasOfNat Float  := ⟨Float.ofNat⟩
-instance : HasAdd Float    := ⟨Float.add⟩
-instance : HasSub Float    := ⟨Float.sub⟩
-instance : HasMul Float    := ⟨Float.mul⟩
-instance : HasDiv Float    := ⟨Float.div⟩
-instance : HasLess Float   := ⟨Float.lt⟩
-instance : HasLessEq Float := ⟨Float.le⟩
+instance : OfNat Float  := ⟨Float.ofNat⟩
+instance : Add Float    := ⟨Float.add⟩
+instance : Sub Float    := ⟨Float.sub⟩
+instance : Mul Float    := ⟨Float.mul⟩
+instance : Div Float    := ⟨Float.div⟩
+instance : Less Float   := ⟨Float.lt⟩
+instance : LessEq Float := ⟨Float.le⟩
 
 @[extern c inline "#1 == #2"] constant Float.beq (a b : Float) : Bool
 
-instance : HasBeq Float := ⟨Float.beq⟩
+instance : BEq Float := ⟨Float.beq⟩
 
 @[extern c inline "#1 < #2"]   constant Float.decLt (a b : Float) : Decidable (a < b) :=
   match a, b with
@@ -96,4 +96,4 @@ abbrev Nat.toFloat (n : Nat) : Float :=
 @[extern "sqrt"] constant Float.sqrt : Float → Float
 @[extern "cbrt"] constant Float.cbrt : Float → Float
 
-instance : HasPow Float Float := ⟨Float.pow⟩
+instance : Pow Float Float := ⟨Float.pow⟩

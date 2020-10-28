@@ -22,7 +22,7 @@ structure SyntaxNodeKind :=
 instance : Inhabited SyntaxNodeKind :=
 ⟨{name := default _, id := default _}⟩
 
-instance : HasBeq SyntaxNodeKind :=
+instance : BEq SyntaxNodeKind :=
 ⟨λ k₁ k₂, k₁.id == k₂.id⟩
 
 def mkNameToKindTable : IO (IO.Ref (NameMap Nat)) :=

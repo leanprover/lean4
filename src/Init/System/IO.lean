@@ -35,7 +35,7 @@ def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 instance (ε : Type) : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
 instance (ε : Type) : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
 instance (ε : Type) : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
-instance (α ε : Type) : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩
+instance (α ε : Type) : OrElse (EIO ε α) := ⟨MonadExcept.orelse⟩
 instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
 
 open IO (Error) in
@@ -462,28 +462,22 @@ universe u
 namespace Lean
 
 /-- Typeclass used for presenting the output of an `#eval` command. -/
-class HasEval (α : Type u) :=
-  -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
-  -- so that `()` output is hidden in chained instances such as for some `m Unit`.
-  -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbgTrace!`)
-  (eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit)
-
 class Eval (α : Type u) :=
   -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
   -- so that `()` output is hidden in chained instances such as for some `m Unit`.
   -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbgTrace!`)
   (eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit)
 
-instance {α : Type u} [Repr α] : HasEval α :=
+instance {α : Type u} [Repr α] : Eval α :=
   ⟨fun a _ => IO.println (repr (a ()))⟩
 
-instance : HasEval Unit :=
+instance : Eval Unit :=
   ⟨fun u hideUnit => if hideUnit then pure () else IO.println (repr (u ()))⟩
 
-instance {α : Type} [HasEval α] : HasEval (IO α) :=
-  ⟨fun x _ => do let a ← x (); HasEval.eval (fun _ => a)⟩
+instance {α : Type} [Eval α] : Eval (IO α) :=
+  ⟨fun x _ => do let a ← x (); Eval.eval (fun _ => a)⟩
 
-@[noinline, nospecialize] def runEval {α : Type u} [HasEval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
-  IO.FS.withIsolatedStreams (HasEval.eval a false)
+@[noinline, nospecialize] def runEval {α : Type u} [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
+  IO.FS.withIsolatedStreams (Eval.eval a false)
 
 end Lean

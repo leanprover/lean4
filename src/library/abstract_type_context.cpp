@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "library/abstract_type_context.h"
 

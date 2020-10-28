@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <tuple>
 #include <lean/interrupt.h>
-#include "util/fresh_name.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/replace_visitor.h"

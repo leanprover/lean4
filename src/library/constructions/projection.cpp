@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <lean/sstream.h>
-#include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive.h"

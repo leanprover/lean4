@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include "util/fresh_name.h"
 #include "util/option_ref.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"

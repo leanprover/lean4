@@ -7,7 +7,6 @@ Author: Gabriel Ebner
 #pragma once
 #include <string>
 #include "util/message_definitions.h"
-#include "util/parser_exception.h"
 #include "util/option_ref.h"
 #include <lean/flet.h>
 
@@ -53,7 +52,6 @@ public:
     message(std::string const & filename, pos_info const & pos,
             message_severity severity) :
         message(filename, pos, severity, std::string()) {}
-    message(parser_exception const & ex);
 
     std::string get_filename() const { return static_cast<string_ref const &>(cnstr_get_ref(*this, 0)).to_std_string(); }
     pos_info get_pos() const { return static_cast<position const &>(cnstr_get_ref(*this, 1)).to_pos_info(); }

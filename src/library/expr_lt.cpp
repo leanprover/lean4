@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 
 namespace lean {
-bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * lctx) {
+bool is_lt(expr const & a, expr const & b, bool use_hash, local_ctx const * lctx) {
     if (is_eqp(a, b))                    return false;
     if (a.kind() != b.kind())            return a.kind() < b.kind();
     if (use_hash) {

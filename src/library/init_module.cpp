@@ -11,14 +11,11 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/protected.h"
 #include "library/io_state.h"
-#include "library/idx_metavar.h"
 #include "library/placeholder.h"
 #include "library/print.h"
 #include "library/util.h"
 #include "library/pp_options.h"
 #include "library/type_context.h"
-#include "library/local_context.h"
-#include "library/metavar_context.h"
 #include "library/check.h"
 #include "library/profiling.h"
 #include "library/time_task.h"
@@ -43,11 +40,8 @@ void finalize_library_core_module() {
 }
 
 void initialize_library_module() {
-    initialize_local_context();
-    initialize_metavar_context();
     initialize_print();
     initialize_placeholder();
-    initialize_idx_metavar();
     initialize_io_state();
     initialize_num();
     initialize_annotation();
@@ -69,10 +63,7 @@ void finalize_library_module() {
     finalize_annotation();
     finalize_num();
     finalize_io_state();
-    finalize_idx_metavar();
     finalize_placeholder();
     finalize_print();
-    finalize_metavar_context();
-    finalize_local_context();
 }
 }

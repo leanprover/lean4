@@ -4,8 +4,7 @@ add_library(library OBJECT expr_lt.cpp io_state.cpp
   class.cpp util.cpp print.cpp annotation.cpp
   protected.cpp reducible.cpp init_module.cpp exception.cpp
   pp_options.cpp projection.cpp
-  idx_metavar.cpp aux_recursors.cpp trace.cpp
-  local_context.cpp metavar_context.cpp
+  aux_recursors.cpp trace.cpp
   type_context.cpp
   locals.cpp messages.cpp message_builder.cpp check.cpp
   profiling.cpp time_task.cpp

@@ -11,13 +11,10 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "util/fresh_name.h"
 #include "kernel/environment.h"
-#include "library/idx_metavar.h"
 #include "library/projection.h"
-#include "library/metavar_context.h"
 #include "library/abstract_type_context.h"
 #include "library/exception.h"
 #include "library/expr_pair.h"
-#include "library/local_instances.h"
 
 namespace lean {
 enum class transparency_mode { All = 0, Semireducible, Reducible };
@@ -51,37 +48,11 @@ class type_context_old : public abstract_type_context {
     typedef buffer<optional<level>> tmp_uassignment;
     typedef buffer<expr>            tmp_etype;
     typedef buffer<optional<expr>>  tmp_eassignment;
-    typedef buffer<metavar_context> mctx_stack;
     enum class tmp_trail_kind { Level, Expr };
     typedef buffer<pair<tmp_trail_kind, unsigned>> tmp_trail;
     friend struct instance_synthesizer;
-    struct scope_data {
-        metavar_context m_mctx;
-        unsigned        m_tmp_uassignment_sz;
-        unsigned        m_tmp_eassignment_sz;
-        unsigned        m_tmp_trail_sz;
-        scope_data(metavar_context const & mctx, unsigned usz, unsigned esz, unsigned tsz):
-            m_mctx(mctx), m_tmp_uassignment_sz(usz), m_tmp_eassignment_sz(esz), m_tmp_trail_sz(tsz) {}
-    };
-public:
-    struct tmp_data {
-        tmp_uassignment & m_uassignment;
-        tmp_etype       & m_etype;
-        tmp_eassignment & m_eassignment;
-        /* m_tmp_mvar_local_context contains m_lctx when tmp mode is activated.
-           This is the context for all temporary meta-variables. */
-        local_context     m_mvar_lctx;
-        /* undo/trail stack for m_tmp_uassignment/m_tmp_eassignment */
-        tmp_trail         m_trail;
-        tmp_data(tmp_uassignment & uassignment, tmp_etype & etype, tmp_eassignment & eassignment, local_context const & lctx):
-            m_uassignment(uassignment), m_etype(etype), m_eassignment(eassignment), m_mvar_lctx(lctx) {}
-    };
 private:
-    typedef buffer<scope_data> scopes;
     environment        m_env;
-    metavar_context    m_mctx;
-    local_context      m_lctx;
-    local_instances    m_local_instances;
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment{false};
     transparency_mode  m_transparency_mode;
@@ -90,8 +61,6 @@ private:
     /* m_is_def_eq_depth is only used for tracing purposes */
     unsigned           m_is_def_eq_depth{0};
     /* Stack of backtracking point (aka scope) */
-    scopes             m_scopes;
-    tmp_data *         m_tmp_data{nullptr};
     /* Higher-order unification approximation options.
 
        Modules that use approximations:
@@ -147,15 +116,9 @@ private:
     optional<expr> reduce_projection_core(optional<projection_info> const & info, expr const & e);
 
 public:
-    type_context_old(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
-                 transparency_mode m = transparency_mode::Reducible);
-    type_context_old(environment const & env, options const & o, local_context const & lctx,
-                     transparency_mode m = transparency_mode::Reducible):
-        type_context_old(env, o, metavar_context(), lctx, m) {}
+    type_context_old(environment const & env, options const & o, transparency_mode m = transparency_mode::Reducible);
     explicit type_context_old(environment const & env, transparency_mode m = transparency_mode::Reducible):
-        type_context_old(env, options(), metavar_context(), local_context(), m) {}
-    type_context_old(environment const & env, options const & o, transparency_mode m = transparency_mode::Reducible):
-        type_context_old(env, o, metavar_context(), local_context(), m) {}
+        type_context_old(env, options(), m) {}
     virtual ~type_context_old();
 
     type_context_old & operator=(type_context_old const &) = delete;
@@ -167,28 +130,11 @@ public:
     // TODO(Leo): avoid ::lean::mk_fresh_name
     virtual name next_name() override { return ::lean::mk_fresh_name(); }
 
-    virtual optional<name> get_local_pp_name(expr const & e) override {
-        if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
-            return optional<name>(decl->get_user_name());
-        }
-        return optional<name>();
+    virtual optional<name> get_local_pp_name(expr const &) override {
+        lean_unreachable();
     }
 
 
-    virtual local_context const & lctx() const override { return m_lctx; }
-    virtual metavar_context const & mctx() const override { return m_mctx; }
-    expr mk_metavar_decl(local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(ctx, type); }
-    expr mk_metavar_decl(name const & pp_n, local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(pp_n, ctx, type); }
-    optional<metavar_decl> find_metavar_decl(expr const & mvar) const { return m_mctx.find_metavar_decl(mvar); }
-
-    level mk_univ_metavar_decl() { return m_mctx.mk_univ_metavar_decl(); }
-
-    name get_unused_name(name const & prefix, unsigned & idx) const { return m_lctx.get_unused_name(prefix, idx); }
-    name get_unused_name(name const & suggestion) const { return m_lctx.get_unused_name(suggestion); }
-
-    /* note: mctx must be a descendant of m_mctx */
-    void set_mctx(metavar_context const & mctx) { m_mctx = mctx; }
-    /* note: env must be a descendant of m_env */
     void set_env(environment const & env);
 
     /* Store the current local instances in the local context.
@@ -233,7 +179,6 @@ public:
     }
 
     virtual bool is_def_eq(expr const &, expr const &) override { lean_unreachable(); }
-    bool is_def_eq_at(local_context const & lctx, expr const & a, expr const & b);
 
     bool match(expr const & e1, expr const & e2) {
         flet<bool> update_left(m_update_left, true);
@@ -325,13 +270,6 @@ public:
     */
     expr revert(buffer<expr> & locals, expr const & mvar, bool preserve_locals_order);
 
-    expr mk_lambda(local_context const & lctx, buffer<expr> const & locals, expr const & e);
-    expr mk_pi(local_context const & lctx, buffer<expr> const & locals, expr const & e);
-    expr mk_lambda(local_context const & lctx, expr const & local, expr const & e);
-    expr mk_pi(local_context const & lctx, expr const & local, expr const & e);
-    expr mk_lambda(local_context const & lctx, std::initializer_list<expr> const & locals, expr const & e);
-    expr mk_pi(local_context const & lctx, std::initializer_list<expr> const & locals, expr const & e);
-
     expr mk_lambda(buffer<expr> const & locals, expr const & e);
     expr mk_pi(buffer<expr> const & locals, expr const & e);
     expr mk_lambda(expr const & local, expr const & e);
@@ -349,7 +287,6 @@ public:
     optional<expr> mk_class_instance(expr const & type);
     optional<expr> mk_subsingleton_instance(expr const & type);
     /* Create type class instance in a different local context */
-    optional<expr> mk_class_instance_at(local_context const & lctx, expr const & type);
 
     transparency_mode mode() const { return m_transparency_mode; }
     unsigned mode_idx() const { return static_cast<unsigned>(mode()); }
@@ -413,33 +350,6 @@ public:
        It is used when performing type class resolution and matching.
        -------------------------- */
 public:
-    struct tmp_mode_scope {
-        type_context_old &      m_ctx;
-        buffer<optional<level>> m_tmp_uassignment;
-        buffer<expr>            m_tmp_etype;
-        buffer<optional<expr>>  m_tmp_eassignment;
-        tmp_data *              m_old_data;
-        tmp_data                m_data;
-        tmp_mode_scope(type_context_old & ctx):
-            m_ctx(ctx), m_old_data(ctx.m_tmp_data), m_data(m_tmp_uassignment, m_tmp_etype, m_tmp_eassignment, ctx.lctx()) {
-            m_ctx.m_tmp_data = &m_data;
-        }
-        ~tmp_mode_scope() {
-            m_ctx.m_tmp_data = m_old_data;
-        }
-    };
-    struct tmp_mode_scope_with_data {
-        type_context_old & m_ctx;
-        tmp_data *     m_old_data;
-        tmp_mode_scope_with_data(type_context_old & ctx, tmp_data & data):
-            m_ctx(ctx), m_old_data(ctx.m_tmp_data) {
-            m_ctx.m_tmp_data = &data;
-        }
-        ~tmp_mode_scope_with_data() {
-            m_ctx.m_tmp_data = m_old_data;
-        }
-    };
-    bool in_tmp_mode() const { return m_tmp_data != nullptr; }
     optional<level> get_tmp_uvar_assignment(unsigned idx) const;
     optional<expr> get_tmp_mvar_assignment(unsigned idx) const;
     optional<level> get_tmp_assignment(level const & l) const;
@@ -478,12 +388,6 @@ private:
     optional<constant_info> get_decl(name const &) { lean_unreachable(); }
 
 private:
-    pair<local_context, expr> revert_core(buffer<expr> & to_revert, local_context const & ctx,
-                                          expr const & type, bool preserve_to_revert_order);
-    expr revert_core(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order);
-    expr elim_mvar_deps(expr const & e, unsigned num, expr const * locals);
-    expr mk_binding(bool is_pi, local_context const & lctx, unsigned num_locals, expr const * locals, expr const & e);
-
     /* ------------
        Temporary metavariable assignment.
        ------------ */
@@ -497,9 +401,6 @@ public:
     bool is_mvar(level const & l) const;
     /* Return true iff `e` is a regular or temporary metavar */
     bool is_mvar(expr const & e) const;
-    bool is_regular_mvar(expr const & e) const { return is_metavar_decl_ref(e); }
-    bool is_tmp_mvar(level const & l) const { return is_idx_metauniv(l); }
-    bool is_tmp_mvar(expr const & e) const { return is_idx_metavar(e); }
     /* Return true iff
        1- `l` is a temporary universe metavariable and type_context_old is in tmp mode, OR
        2- `l` is a regular universe metavariable an type_context_old is not in tmp_mode. */
@@ -519,9 +420,6 @@ public:
     expr instantiate_mvars(expr const &) { lean_unreachable(); }
     /** \brief Instantiate the assigned meta-variables in the type of \c m
         \pre get_metavar_decl(m) is not none */
-    void instantiate_mvars_at_type_of(expr const & m) {
-        m_mctx.instantiate_mvars_at_type_of(m);
-    }
     /** Set the number of tmp metavars.
         \pre in_tmp_mode() */
     void resize_tmp_mvars(unsigned new_sz = 0);
@@ -663,16 +561,6 @@ public:
     };
     friend class tmp_locals;
 };
-
-/** Create a formatting function that can 'decode' metavar_decl_refs and local_decl_refs
-    with declarations stored in mctx and lctx */
-std::function<format(expr const &)>
-mk_pp_ctx(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
-
-/** Create a formatting function that can 'decode' metavar_decl_refs and local_decl_refs
-    with declarations stored in ctx */
-std::function<format(expr const &)>
-mk_pp_ctx(type_context_old const & ctx);
 
 void initialize_type_context();
 void finalize_type_context();

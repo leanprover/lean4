@@ -6,7 +6,7 @@ add_library(library OBJECT expr_lt.cpp io_state.cpp
   pp_options.cpp projection.cpp
   aux_recursors.cpp trace.cpp
   type_context.cpp
-  locals.cpp messages.cpp message_builder.cpp check.cpp
+  locals.cpp messages.cpp message_builder.cpp
   profiling.cpp time_task.cpp
   scope_pos_info_provider.cpp formatter.cpp json.cpp
   pos_info_provider.cpp abstract_type_context.cpp)

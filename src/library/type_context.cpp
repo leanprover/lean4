@@ -26,7 +26,6 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/aux_recursors.h"
 #include "library/num.h"
-#include "library/check.h"
 #include "library/time_task.h"
 
 namespace lean {

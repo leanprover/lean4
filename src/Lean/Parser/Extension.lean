@@ -313,13 +313,17 @@ match getCategory (parserExtension.getState env).categories catName with
 def mkCategoryAntiquotParser (kind : Name) : Parser :=
 mkAntiquot kind.toString none
 
+-- helper decl to work around inlining issue https://github.com/leanprover/lean4/commit/3f6de2af06dd9a25f62294129f64bc05a29ea912#r41340377
+@[inline] private def mkCategoryAntiquotParserFn (kind : Name) : ParserFn :=
+  (mkCategoryAntiquotParser kind).fn
+
 def categoryParserFnImpl (catName : Name) : ParserFn :=
 fun ctx s =>
   let catName := if catName == `syntax then `stx else catName -- temporary Hack
   let categories := (parserExtension.getState ctx.env).categories
   match getCategory categories catName with
   | some cat =>
-    prattParser catName cat.tables cat.leadingIdentAsSymbol (mkCategoryAntiquotParser catName).fn ctx s
+    prattParser catName cat.tables cat.leadingIdentAsSymbol (mkCategoryAntiquotParserFn catName) ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
 
 @[builtinInit] def setCategoryParserFnRef : IO Unit :=

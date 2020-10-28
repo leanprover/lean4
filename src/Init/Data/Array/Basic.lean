@@ -185,23 +185,6 @@ variables {β : Type v} {σ : Type u}
 @[inline] def foldlFromM (f : β → α → m β) (init : β) (beginIdx : Nat) (a : Array α) : m β :=
   iterateMAux a (fun _ b a => f a b) beginIdx init
 
--- TODO(Leo): justify termination using wf-rec
-@[specialize] partial def iterateM₂Aux (a₁ : Array α) (a₂ : Array σ) (f : ∀ (i : Fin a₁.size), α → σ → β → m β) : Nat → β → m β
-  | i, b =>
-    if h₁ : i < a₁.size then
-       let idx₁ : Fin a₁.size := ⟨i, h₁⟩;
-       if h₂ : i < a₂.size then
-         let idx₂ : Fin a₂.size := ⟨i, h₂⟩;
-         f idx₁ (a₁.get idx₁) (a₂.get idx₂) b >>= iterateM₂Aux a₁ a₂ f (i+1)
-       else pure b
-    else pure b
-
-@[inline] def iterateM₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : ∀ (i : Fin a₁.size), α → σ → β → m β) : m β :=
-  iterateM₂Aux a₁ a₂ f 0 b
-
-@[inline] def foldlM₂ (f : β → α → σ → m β) (b : β) (a₁ : Array α) (a₂ : Array σ): m β :=
-  iterateM₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
-
 @[specialize] partial def findSomeMAux (a : Array α) (f : α → m (Option β)) : Nat → m (Option β)
   | i =>
     if h : i < a.size then
@@ -280,12 +263,6 @@ iterate a init (fun _ a b => f b a)
 
 @[inline] def foldlFrom (f : β → α → β) (init : β) (beginIdx : Nat) (a : Array α) : β :=
 Id.run $ foldlFromM f init beginIdx a
-
-@[inline] def iterate₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : ∀ (i : Fin a₁.size), α → σ → β → β) : β :=
-Id.run $ iterateM₂Aux a₁ a₂ f 0 b
-
-@[inline] def foldl₂ (f : β → α → σ → β) (b : β) (a₁ : Array α) (a₂ : Array σ) : β :=
-iterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 
 @[inline] def findSome? (a : Array α) (f : α → Option β) : Option β :=
 Id.run $ findSomeMAux a f 0
@@ -396,31 +373,6 @@ iterateRevMAux a f a.size (Nat.leRefl _) b
 @[inline] def foldrM (f : α → β → m β) (init : β) (a : Array α) : m β :=
 iterateRevM a init (fun _ => f)
 
-@[specialize] private def foldrRangeMAux (a : Array α) (f : α → β → m β) (beginIdx : Nat) : ∀ (i : Nat), i ≤ a.size → β → m β
-| 0,   h, b => pure b
-| j+1, h, b => do
-  let i : Fin a.size := ⟨j, h⟩;
-  let b ← f (a.get i) b;
-  if j == beginIdx then pure b else foldrRangeMAux a f beginIdx j (Nat.leOfLt h) b
-
-@[inline] def foldrRangeM (beginIdx endIdx : Nat) (f : α → β → m β) (ini : β) (a : Array α) : m β :=
-if h : endIdx ≤ a.size then
-  foldrRangeMAux a f beginIdx endIdx h ini
-else
-  foldrRangeMAux a f beginIdx a.size (Nat.leRefl _) ini
-
-@[specialize] partial def foldlStepMAux (step : Nat) (a : Array α) (f : β → α → m β) : Nat → β → m β
-| i, b =>
-  if h : i < a.size then do
-    let curr := a.get ⟨i, h⟩;
-    b ← f b curr;
-    foldlStepMAux step a f (i+step) b
-  else
-    pure b
-
-@[inline] def foldlStepM (f : β → α → m β) (init : β) (step : Nat) (a : Array α) : m β :=
-foldlStepMAux step a f 0 init
-
 end
 
 @[inline] def iterateRev {β} (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → β) : β :=
@@ -429,14 +381,12 @@ Id.run $ iterateRevM a b f
 @[inline] def foldr {β} (f : α → β → β) (init : β) (a : Array α) : β :=
 Id.run $ foldrM f init a
 
-@[inline] def foldrRange {β} (beginIdx endIdx : Nat) (f : α → β → β) (init : β) (a : Array α) : β :=
-Id.run $ foldrRangeM beginIdx endIdx f init a
-
-@[inline] def foldlStep {β} (f : β → α → β) (init : β) (step : Nat) (a : Array α) : β :=
-Id.run $ foldlStepM f init step a
-
-@[inline] def getEvenElems (a : Array α) : Array α :=
-a.foldlStep (fun r a => Array.push r a) empty 2
+@[inline] def getEvenElems (as : Array α) : Array α :=
+  (·.2) $ as.foldl (init := (true, Array.empty)) fun (even, r) a =>
+    if even then
+      (false, r.push a)
+    else
+      (true, r)
 
 def toList (a : Array α) : List α :=
 a.foldr List.cons []

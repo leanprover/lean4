@@ -82,33 +82,30 @@ private def getStructSource (stx : Syntax) : TermElabM Source :=
   def structInstArrayRef := parser! "[" >> termParser >>"]"
   ``` -/
 private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
-  let args := stx[2].getArgs
-  let s? ← args.foldSepByM
-    (fun arg s? =>
-      /- Remark: the syntax for `structInstField` is
-         ```
-         def structInstLVal   := (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
-         def structInstField  := parser! structInstLVal >> " := " >> termParser
-         ``` -/
-      let lval := arg[0]
-      let k    := lval.getKind
-      if k == `Lean.Parser.Term.structInstArrayRef then
-        match s? with
-        | none   => pure (some arg)
-        | some s =>
-          if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-            throwErrorAt arg "invalid {...} notation, at most one `[..]` at a given level"
-          else
-            throwErrorAt arg "invalid {...} notation, can't mix field and `[..]` at a given level"
-      else
-        match s? with
-        | none   => pure (some arg)
-        | some s =>
-          if s.getKind == `Lean.Parser.Term.structInstArrayRef then
-            throwErrorAt arg "invalid {...} notation, can't mix field and `[..]` at a given level"
-          else
-            pure s?)
-    none
+  let s? ← stx[2].getSepArgs.foldlM (init := none) fun s? arg =>
+    /- Remark: the syntax for `structInstField` is
+       ```
+       def structInstLVal   := (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
+       def structInstField  := parser! structInstLVal >> " := " >> termParser
+       ``` -/
+    let lval := arg[0]
+    let k    := lval.getKind
+    if k == `Lean.Parser.Term.structInstArrayRef then
+      match s? with
+      | none   => pure (some arg)
+      | some s =>
+        if s.getKind == `Lean.Parser.Term.structInstArrayRef then
+          throwErrorAt arg "invalid {...} notation, at most one `[..]` at a given level"
+        else
+          throwErrorAt arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+    else
+      match s? with
+      | none   => pure (some arg)
+      | some s =>
+        if s.getKind == `Lean.Parser.Term.structInstArrayRef then
+          throwErrorAt arg "invalid {...} notation, can't mix field and `[..]` at a given level"
+        else
+          pure s?
   match s? with
   | none   => pure none
   | some s => if s[0].getKind == `Lean.Parser.Term.structInstArrayRef then pure s? else pure none

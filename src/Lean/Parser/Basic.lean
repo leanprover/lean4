@@ -1709,23 +1709,6 @@ variables {β : Type} {m : Type → Type} [Monad m]
 
 @[inline] def forArgsM (s : Syntax) (f : Syntax → m Unit) : m Unit :=
   s.foldArgsM (fun s _ => f s) ()
-
-@[inline] def foldSepArgsM (s : Syntax) (f : Syntax → β → m β) (b : β) : m β :=
-  s.getArgs.foldlStepM (flip f) b 2
-
-@[inline] def foldSepArgs (s : Syntax) (f : Syntax → β → β) (b : β) : β :=
-  Id.run (s.foldSepArgsM f b)
-
-@[inline] def forSepArgsM (s : Syntax) (f : Syntax → m Unit) : m Unit :=
-  s.foldSepArgsM (fun s _ => f s) ()
-
-@[inline] def foldSepRevArgsM (s : Syntax) (f : Syntax → β → m β) (b : β) : m β := do
-  let args := foldSepArgs s (fun arg (args : Array Syntax) => args.push arg) #[]
-  args.foldrM f b
-
-@[inline] def foldSepRevArgs (s : Syntax) (f : Syntax → β → β) (b : β) : β := do
-  Id.run $ foldSepRevArgsM s f b
-
 end
 
 end Syntax

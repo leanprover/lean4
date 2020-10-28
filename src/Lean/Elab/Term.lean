@@ -1134,7 +1134,8 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   let closeBkt := stx[2]
   let consId   := mkIdentFrom openBkt `List.cons
   let nilId    := mkIdentFrom closeBkt `List.nil
-  pure $ args.foldSepRevArgs (fun arg r => mkAppStx consId #[arg, r]) nilId
+  pure $ args.getSepArgs.foldr (init := nilId) fun arg r =>
+    mkAppStx consId #[arg, r]
 
 @[builtinMacro Lean.Parser.Term.arrayLit] def expandArrayLit : Macro := fun stx =>
   match_syntax stx with

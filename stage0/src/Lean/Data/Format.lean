@@ -200,51 +200,51 @@ end Format
 
 open Lean.Format
 
-class HasFormat (α : Type u) :=
+class ToFormat (α : Type u) :=
   (format : α → Format)
 
-export Lean.HasFormat (format)
+export Lean.ToFormat (format)
 
-def fmt {α : Type u} [HasFormat α] : α → Format := format
+def fmt {α : Type u} [ToFormat α] : α → Format := format
 
-instance {α : Type u} [HasToString α] : HasFormat α := ⟨text ∘ toString⟩
+instance {α : Type u} [ToString α] : ToFormat α := ⟨text ∘ toString⟩
 
 -- note: must take precendence over the above instance to avoid premature formatting
-instance : HasFormat Format := ⟨id⟩
-instance : HasFormat String := ⟨Format.text⟩
+instance : ToFormat Format := ⟨id⟩
+instance : ToFormat String := ⟨Format.text⟩
 
-def Format.joinSep {α : Type u} [HasFormat α] : List α → Format → Format
+def Format.joinSep {α : Type u} [ToFormat α] : List α → Format → Format
   | [],    sep  => nil
   | [a],   sep => format a
   | a::as, sep => format a ++ sep ++ joinSep as sep
 
-def Format.prefixJoin {α : Type u} [HasFormat α] (pre : Format) : List α → Format
+def Format.prefixJoin {α : Type u} [ToFormat α] (pre : Format) : List α → Format
   | []    => nil
   | a::as => pre ++ format a ++ prefixJoin pre as
 
-def Format.joinSuffix {α : Type u} [HasFormat α] : List α → Format → Format
+def Format.joinSuffix {α : Type u} [ToFormat α] : List α → Format → Format
   | [],    suffix => nil
   | a::as, suffix => format a ++ suffix ++ joinSuffix as suffix
 
-def List.format {α : Type u} [HasFormat α] : List α → Format
+def List.format {α : Type u} [ToFormat α] : List α → Format
   | [] => "[]"
   | xs => sbracket $ Format.joinSep xs ("," ++ line)
 
-instance {α : Type u} [HasFormat α] : HasFormat (List α) := ⟨List.format⟩
+instance {α : Type u} [ToFormat α] : ToFormat (List α) := ⟨List.format⟩
 
-instance {α : Type u} [HasFormat α] : HasFormat (Array α) := ⟨fun a => "#" ++ fmt a.toList⟩
+instance {α : Type u} [ToFormat α] : ToFormat (Array α) := ⟨fun a => "#" ++ fmt a.toList⟩
 
-def Option.format {α : Type u} [HasFormat α] : Option α → Format
+def Option.format {α : Type u} [ToFormat α] : Option α → Format
   | none   => "none"
   | some a => "some " ++ fmt a
 
-instance {α : Type u} [HasFormat α] : HasFormat (Option α) := ⟨Option.format⟩
+instance {α : Type u} [ToFormat α] : ToFormat (Option α) := ⟨Option.format⟩
 
-instance {α : Type u} {β : Type v} [HasFormat α] [HasFormat β] : HasFormat (Prod α β) :=  ⟨fun ⟨a, b⟩ =>
+instance {α : Type u} {β : Type v} [ToFormat α] [ToFormat β] : ToFormat (Prod α β) :=  ⟨fun ⟨a, b⟩ =>
   paren $ format a ++ "," ++ line ++ format b
 ⟩
 
-def Format.joinArraySep {α : Type u} [HasFormat α] (as : Array α) (sep : Format) : Format := do
+def Format.joinArraySep {α : Type u} [ToFormat α] (as : Array α) (sep : Format) : Format := do
   let r := nil
   let i := 0
   for a in as do
@@ -255,12 +255,12 @@ def Format.joinArraySep {α : Type u} [HasFormat α] (as : Array α) (sep : Form
     i := i + 1
   return r
 
-instance : HasFormat Nat    := ⟨fun n => toString n⟩
-instance : HasFormat UInt16 := ⟨fun n => toString n⟩
-instance : HasFormat UInt32 := ⟨fun n => toString n⟩
-instance : HasFormat UInt64 := ⟨fun n => toString n⟩
-instance : HasFormat USize  := ⟨fun n => toString n⟩
-instance : HasFormat Name   := ⟨fun n => n.toString⟩
+instance : ToFormat Nat    := ⟨fun n => toString n⟩
+instance : ToFormat UInt16 := ⟨fun n => toString n⟩
+instance : ToFormat UInt32 := ⟨fun n => toString n⟩
+instance : ToFormat UInt64 := ⟨fun n => toString n⟩
+instance : ToFormat USize  := ⟨fun n => toString n⟩
+instance : ToFormat Name   := ⟨fun n => n.toString⟩
 
 protected def Format.repr : Format → Format
   | nil => "Format.nil"
@@ -271,9 +271,9 @@ protected def Format.repr : Format → Format
   | group f FlattenBehavior.allOrNone => paren $ "Format.group" ++ line ++ Format.repr f
   | group f FlattenBehavior.fill => paren $ "Format.fill" ++ line ++ Format.repr f
 
-instance : HasToString Format := ⟨Format.pretty⟩
+instance : ToString Format := ⟨Format.pretty⟩
 
-instance : HasRepr Format := ⟨Format.pretty ∘ Format.repr⟩
+instance : Repr Format := ⟨Format.pretty ∘ Format.repr⟩
 
 def formatDataValue : DataValue → Format
   | DataValue.ofString v => format (repr v)
@@ -282,17 +282,17 @@ def formatDataValue : DataValue → Format
   | DataValue.ofNat v    => format v
   | DataValue.ofInt v    => format v
 
-instance : HasFormat DataValue := ⟨formatDataValue⟩
+instance : ToFormat DataValue := ⟨formatDataValue⟩
 
 def formatEntry : Name × DataValue → Format
   | (n, v) => format n ++ " := " ++ format v
 
-instance : HasFormat (Name × DataValue) := ⟨formatEntry⟩
+instance : ToFormat (Name × DataValue) := ⟨formatEntry⟩
 
 def formatKVMap (m : KVMap) : Format :=
   sbracket (Format.joinSep m.entries ", ")
 
-instance : HasFormat KVMap := ⟨formatKVMap⟩
+instance : ToFormat KVMap := ⟨formatKVMap⟩
 
 end Lean
 

@@ -11,6 +11,9 @@ universes u v
 class HasToBool (α : Type u) :=
   (toBool : α → Bool)
 
+class ToBool (α : Type u) :=
+  (toBool : α → Bool)
+
 export HasToBool (toBool)
 
 instance : HasToBool Bool := ⟨id⟩

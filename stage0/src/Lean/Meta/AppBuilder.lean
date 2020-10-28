@@ -270,14 +270,14 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat →
 /--
   Similar to `mkAppM`, but it allows us to specify which arguments are provided explicitly using `Option` type.
   Example:
-  Given `HasPure.pure {m : Type u → Type v} [HasPure m] {α : Type u} (a : α) : m α`,
+  Given `Pure.pure {m : Type u → Type v} [HasPure m] {α : Type u} (a : α) : m α`,
   ```
-  mkAppOptM `HasPure.pure #[m, none, none, a]
+  mkAppOptM `Pure.pure #[m, none, none, a]
   ```
-  returns a `HasPure.pure` application if the instance `HasPure m` can be synthesized, and the universes match.
+  returns a `Pure.pure` application if the instance `HasPure m` can be synthesized, and the universes match.
   Note that,
   ```
-  mkAppM `HasPure.pure #[a]
+  mkAppM `Pure.pure #[a]
   ```
   fails because the only explicit argument `(a : α)` is not sufficient for inferring the remaining arguments,
   we would need the expected type. -/
@@ -338,7 +338,7 @@ def mkNoConfusion (target : Expr) (h : Expr) : m Expr :=
   liftMetaM $ mkNoConfusionImp target h
 
 def mkPure (monad : Expr) (e : Expr) : m Expr :=
-  mkAppOptM `HasPure.pure #[monad, none, none, e]
+  mkAppOptM `Pure.pure #[monad, none, none, e]
 
 /--
   `mkProjection s fieldName` return an expression for accessing field `fieldName` of the structure `s`.
@@ -410,11 +410,11 @@ def mkDecideProof (p : Expr) : m Expr := liftMetaM do
 
 /-- Return `a < b` -/
 def mkLt (a b : Expr) : m Expr :=
-  mkAppM `HasLess.Less #[a, b]
+  mkAppM `Less.Less #[a, b]
 
 /-- Return `a <= b` -/
 def mkLe (a b : Expr) : m Expr :=
-  mkAppM `HasLessEq.LessEq #[a, b]
+  mkAppM `LessEq.LessEq #[a, b]
 
 /-- Return `arbitrary α` -/
 def mkArbitrary (α : Expr) : m Expr :=

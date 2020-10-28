@@ -17,7 +17,7 @@ variables {α : Type u}
 
 instance : Inhabited (LOption α) := ⟨none⟩
 
-instance [HasToString α] : HasToString (LOption α) :=
+instance [ToString α] : ToString (LOption α) :=
 ⟨fun o => match o with | none   => "none" | undef  => "undef" | (some a) => "(some " ++ toString a ++ ")"⟩
 
 def beq [HasBeq α] : LOption α → LOption α → Bool

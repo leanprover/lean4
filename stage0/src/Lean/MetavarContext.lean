@@ -697,7 +697,7 @@ protected def Exception.toString : Exception → String
     ++ ", '" ++ toString decl.userName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
     ++ " (possible solution: use tactic 'clear' to remove '" ++ toString decl.userName ++ "' from local context)"
 
-instance : HasToString Exception := ⟨Exception.toString⟩
+instance : ToString Exception := ⟨Exception.toString⟩
 
 /--
  `MkBinding` and `elimMVarDepsAux` are mutually recursive, but `cache` is only used at `elimMVarDepsAux`.

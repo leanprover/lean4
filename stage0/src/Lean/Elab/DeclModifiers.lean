@@ -27,7 +27,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception 
 inductive Visibility
   | regular | «protected» | «private»
 
-instance : HasToString Visibility := ⟨fun
+instance : ToString Visibility := ⟨fun
   | Visibility.regular     => "regular"
   | Visibility.«private»   => "private"
   | Visibility.«protected» => "protected"⟩
@@ -51,7 +51,7 @@ def Modifiers.isProtected : Modifiers → Bool
 def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
 
-instance : HasFormat Modifiers := ⟨fun m =>
+instance : ToFormat Modifiers := ⟨fun m =>
   let components : List Format :=
     (match m.docString with
      | some str => ["/--" ++ str ++ "-/"]
@@ -66,7 +66,7 @@ instance : HasFormat Modifiers := ⟨fun m =>
     ++ m.attrs.toList.map (fun attr => fmt attr)
   Format.bracket "{" (Format.joinSep components ("," ++ Format.line)) "}"⟩
 
-instance : HasToString Modifiers := ⟨toString ∘ format⟩
+instance : ToString Modifiers := ⟨toString ∘ format⟩
 
 section Methods
 

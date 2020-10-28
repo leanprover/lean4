@@ -100,7 +100,7 @@ def toStringWithSep (sep : String) : Name → String
 protected def toString : Name → String :=
 toStringWithSep "."
 
-instance : HasToString Name := ⟨Name.toString⟩
+instance : ToString Name := ⟨Name.toString⟩
 
 protected def append : Name → Name → Name
   | n, anonymous => n
@@ -248,7 +248,7 @@ def getKind (stx : Syntax) : SyntaxNodeKind :=
   | Syntax.atom _ v      => mkNameSimple v
   | Syntax.ident _ _ _ _ => identKind
 
-def updateKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
+def setKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
   match stx with
   | Syntax.node _ args => Syntax.node k args
   | _                  => stx
@@ -848,6 +848,9 @@ class HasQuote (α : Type) :=
   (quote : α → Syntax)
 
 export HasQuote (quote)
+
+class Quote (α : Type) :=
+  (quote : α → Syntax)
 
 instance : HasQuote Syntax := ⟨id⟩
 instance : HasQuote String := ⟨mkStxStrLit⟩

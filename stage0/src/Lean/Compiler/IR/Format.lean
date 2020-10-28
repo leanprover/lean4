@@ -13,16 +13,16 @@ private def formatArg : Arg → Format
   | Arg.var id     => format id
   | Arg.irrelevant => "◾"
 
-instance : HasFormat Arg := ⟨formatArg⟩
+instance : ToFormat Arg := ⟨formatArg⟩
 
-def formatArray {α : Type} [HasFormat α] (args : Array α) : Format :=
+def formatArray {α : Type} [ToFormat α] (args : Array α) : Format :=
   args.foldl (fun r a => r ++ " " ++ format a) Format.nil
 
 private def formatLitVal : LitVal → Format
   | LitVal.num v => format v
   | LitVal.str v => format (repr v)
 
-instance : HasFormat LitVal := ⟨formatLitVal⟩
+instance : ToFormat LitVal := ⟨formatLitVal⟩
 
 private def formatCtorInfo : CtorInfo → Format
   | { name := name, cidx := cidx, usize := usize, ssize := ssize, .. } => do
@@ -33,7 +33,7 @@ private def formatCtorInfo : CtorInfo → Format
       r := f!"{r}[{name}]"
     r
 
-instance : HasFormat CtorInfo := ⟨formatCtorInfo⟩
+instance : ToFormat CtorInfo := ⟨formatCtorInfo⟩
 
 private def formatExpr : Expr → Format
   | Expr.ctor i ys      => format i ++ formatArray ys
@@ -51,8 +51,8 @@ private def formatExpr : Expr → Format
   | Expr.isShared x     => "isShared " ++ format x
   | Expr.isTaggedPtr x  => "isTaggedPtr " ++ format x
 
-instance : HasFormat Expr := ⟨formatExpr⟩
-instance : HasToString Expr := ⟨fun e => Format.pretty (format e)⟩
+instance : ToFormat Expr := ⟨formatExpr⟩
+instance : ToString Expr := ⟨fun e => Format.pretty (format e)⟩
 
 private partial def formatIRType : IRType → Format
   | IRType.float        => "float"
@@ -67,13 +67,13 @@ private partial def formatIRType : IRType → Format
   | IRType.struct _ tys => "struct " ++ Format.bracket "{" (@Format.joinSep _ ⟨formatIRType⟩ tys.toList ", ") "}"
   | IRType.union _ tys  => "union " ++ Format.bracket "{" (@Format.joinSep _ ⟨formatIRType⟩ tys.toList ", ") "}"
 
-instance : HasFormat IRType := ⟨formatIRType⟩
-instance : HasToString IRType := ⟨toString ∘ format⟩
+instance : ToFormat IRType := ⟨formatIRType⟩
+instance : ToString IRType := ⟨toString ∘ format⟩
 
 private def formatParam : Param → Format
   | { x := name, borrow := b, ty := ty } => "(" ++ format name ++ " : " ++ (if b then "@& " else "") ++ format ty ++ ")"
 
-instance : HasFormat Param := ⟨formatParam⟩
+instance : ToFormat Param := ⟨formatParam⟩
 
 def formatAlt (fmt : FnBody → Format) (indent : Nat) : Alt → Format
   | Alt.ctor i b  => format i.name ++ " →" ++ Format.nest indent (Format.line ++ fmt b)
@@ -117,20 +117,20 @@ partial def formatFnBody (fnBody : FnBody) (indent : Nat := 2) : Format :=
     | FnBody.unreachable         => "⊥"
   loop fnBody
 
-instance : HasFormat FnBody := ⟨formatFnBody⟩
-instance : HasToString FnBody := ⟨fun b => (format b).pretty⟩
+instance : ToFormat FnBody := ⟨formatFnBody⟩
+instance : ToString FnBody := ⟨fun b => (format b).pretty⟩
 
 def formatDecl (decl : Decl) (indent : Nat := 2) : Format :=
   match decl with
   | Decl.fdecl f xs ty b  => "def " ++ format f ++ formatParams xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody b indent)
   | Decl.extern f xs ty _ => "extern " ++ format f ++ formatParams xs ++ format " : " ++ format ty
 
-instance : HasFormat Decl := ⟨formatDecl⟩
+instance : ToFormat Decl := ⟨formatDecl⟩
 
 @[export lean_ir_decl_to_string]
 def declToString (d : Decl) : String :=
   (format d).pretty
 
-instance : HasToString Decl := ⟨declToString⟩
+instance : ToString Decl := ⟨declToString⟩
 
 end Lean.IR

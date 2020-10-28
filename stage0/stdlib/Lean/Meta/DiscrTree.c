@@ -1730,7 +1730,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HasAdd");
+x_1 = lean_mk_string("Add");
 return x_1;
 }
 }

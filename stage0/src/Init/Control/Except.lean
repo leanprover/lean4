@@ -26,16 +26,16 @@ instance {ε : Type u} {α : Type v} [Inhabited ε] : Inhabited (Except ε α) :
 section
 variables {ε : Type u} {α : Type v}
 
-protected def Except.toString [HasToString ε] [HasToString α] : Except ε α → String
+protected def Except.toString [ToString ε] [ToString α] : Except ε α → String
   | Except.error e => "(error " ++ toString e ++ ")"
   | Except.ok a    => "(ok " ++ toString a ++ ")"
 
-protected def Except.repr [HasRepr ε] [HasRepr α] : Except ε α → String
+protected def Except.repr [Repr ε] [Repr α] : Except ε α → String
   | Except.error e => "(error " ++ repr e ++ ")"
   | Except.ok a    => "(ok " ++ repr a ++ ")"
 
-instance [HasToString ε] [HasToString α] : HasToString (Except ε α) := ⟨Except.toString⟩
-instance [HasRepr ε] [HasRepr α] : HasRepr (Except ε α) := ⟨Except.repr⟩
+instance [ToString ε] [ToString α] : ToString (Except ε α) := ⟨Except.toString⟩
+instance [Repr ε] [Repr α] : Repr (Except ε α) := ⟨Except.repr⟩
 end
 
 namespace Except

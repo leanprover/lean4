@@ -113,14 +113,17 @@ structure Context :=
 
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
-instance : MonadIO MetaM :=
-  { liftIO := fun x => liftM (liftIO x : CoreM _) }
+instance : MonadIO MetaM := {
+  liftIO := fun x => liftM (liftIO x : CoreM _)
+}
 
-instance {α} : Inhabited (MetaM α) :=
-  ⟨fun _ _ => arbitrary _⟩
+instance {α} : Inhabited (MetaM α) := {
+  default := fun _ _ => arbitrary _
+}
 
-instance : MonadLCtx MetaM :=
-  { getLCtx := do pure (← read).lctx }
+instance : MonadLCtx MetaM := {
+  getLCtx := do pure (← read).lctx
+}
 
 instance : MonadMCtx MetaM := {
   getMCtx    := do pure (← get).mctx,

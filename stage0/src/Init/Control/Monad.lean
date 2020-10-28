@@ -13,6 +13,9 @@ open Function
 class HasBind (m : Type u → Type v) :=
   (bind : {α β : Type u} → m α → (α → m β) → m β)
 
+class Bind (m : Type u → Type v) :=
+  (bind : {α β : Type u} → m α → (α → m β) → m β)
+
 export HasBind (bind)
 
 @[inline] def mcomp {α : Type u} {β δ : Type v} {m : Type v → Type w} [HasBind m] (f : α → m β) (g : β → m δ) : α → m δ :=

@@ -303,7 +303,7 @@ inductive Less [HasLess α] : List α → List α → Prop
   | head {a : α} (as : List α) {b : α} (bs : List α) : a < b → Less (a::as) (b::bs)
   | tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → Less as bs → Less (a::as) (b::bs)
 
-instance [HasLess α] : HasLess (List α) := ⟨List.Less⟩
+instance less [HasLess α] : HasLess (List α) := ⟨List.Less⟩
 
 instance hasDecidableLt [HasLess α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
   | [],    []    => isFalse (fun h => nomatch h)
@@ -326,7 +326,7 @@ instance hasDecidableLt [HasLess α] [h : DecidableRel (α:=α) (·<·)] : (l₁
 
 @[reducible] protected def LessEq [HasLess α] (a b : List α) : Prop := ¬ b < a
 
-instance [HasLess α] : HasLessEq (List α) := ⟨List.LessEq⟩
+instance lessEq [HasLess α] : HasLessEq (List α) := ⟨List.LessEq⟩
 
 instance [HasLess α] [h : DecidableRel (HasLess.Less : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
   fun a b => inferInstanceAs (Decidable (Not _))

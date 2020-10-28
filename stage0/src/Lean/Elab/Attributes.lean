@@ -11,7 +11,7 @@ namespace Lean.Elab
 structure Attribute :=
 (name : Name) (args : Syntax := Syntax.missing)
 
-instance : HasFormat Attribute := ⟨fun attr =>
+instance : ToFormat Attribute := ⟨fun attr =>
   Format.bracket "@[" (toString attr.name ++ (if attr.args.isMissing then "" else toString attr.args)) "]"⟩
 
 instance : Inhabited Attribute := ⟨{ name := arbitrary _ }⟩

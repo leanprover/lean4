@@ -18,7 +18,7 @@ protected def fmt : LogEntry → Format
 | step cls decls => Format.bracket "[" (format cls) "]" ++ decls.foldl (fun fmt decl => fmt ++ Format.line ++ format decl) Format.nil
 | message msg    => msg
 
-instance : HasFormat LogEntry := ⟨LogEntry.fmt⟩
+instance : ToFormat LogEntry := ⟨LogEntry.fmt⟩
 end LogEntry
 
 abbrev Log := Array LogEntry
@@ -54,15 +54,15 @@ if isLogEnabledFor opts optName then
 @[inline] def logDecls (cls : Name) (decl : Array Decl) : CompilerM Unit :=
 logDeclsAux (tracePrefixOptionName ++ cls) cls decl
 
-private def logMessageIfAux {α : Type} [HasFormat α] (optName : Name) (a : α) : CompilerM Unit := do
+private def logMessageIfAux {α : Type} [ToFormat α] (optName : Name) (a : α) : CompilerM Unit := do
 let opts ← read
 if isLogEnabledFor opts optName then
   log (LogEntry.message (format a))
 
-@[inline] def logMessageIf {α : Type} [HasFormat α] (cls : Name) (a : α) : CompilerM Unit :=
+@[inline] def logMessageIf {α : Type} [ToFormat α] (cls : Name) (a : α) : CompilerM Unit :=
 logMessageIfAux (tracePrefixOptionName ++ cls) a
 
-@[inline] def logMessage {α : Type} [HasFormat α] (cls : Name) (a : α) : CompilerM Unit :=
+@[inline] def logMessage {α : Type} [ToFormat α] (cls : Name) (a : α) : CompilerM Unit :=
 logMessageIfAux tracePrefixOptionName a
 
 @[inline] def modifyEnv (f : Environment → Environment) : CompilerM Unit :=

@@ -73,7 +73,7 @@ def throwUnknownConstant {α} (constName : Name) : m α :=
 def throwErrorAt {α} (ref : Syntax) (msg : MessageData) : m α := do
   withRef ref $ throwError msg
 
-def ofExcept {ε α} [HasToString ε] (x : Except ε α) : m α :=
+def ofExcept {ε α} [ToString ε] (x : Except ε α) : m α :=
   match x with
   | Except.ok a    => pure a
   | Except.error e => throwError $ toString e

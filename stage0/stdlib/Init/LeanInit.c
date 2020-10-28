@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Array_foldlStepMAux___at_Lean_Syntax_getSepArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_getSepElems___rarg___boxed(lean_object*);
 lean_object* l_Lean_Syntax_identToAtom_match__1(lean_object*);
-lean_object* l_Lean_Syntax_updateKind(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_simpMacroScopesAux_match__1(lean_object*);
 lean_object* l_Lean_mkCIdentFrom(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_quoteList___rarg___closed__4;
@@ -257,6 +256,7 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_quoteList___rarg___closed__6;
 lean_object* l_Lean_Name_appendAfter_match__1(lean_object*);
 lean_object* l_Lean_Syntax_getArgs___boxed(lean_object*);
+lean_object* l_Lean_Syntax_setKind(lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Array_getSepElems___rarg(lean_object*);
 lean_object* l_Lean_reservedMacroScope;
@@ -332,6 +332,7 @@ lean_object* l_Lean_Name_Init_LeanInit___instance__5;
 lean_object* l_Lean_Name_appendBefore_match__1(lean_object*);
 lean_object* l_Lean_Syntax_getOptionalIdent_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameGenerator_Init_LeanInit___instance__6;
+lean_object* l_Lean_Syntax_setKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameGenerator_mkChild(lean_object*);
 lean_object* l_Lean_mkSepArray_match__2(lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_quoteOption___rarg___closed__6;
@@ -388,6 +389,7 @@ extern lean_object* l_Option_get_x21___rarg___closed__4;
 lean_object* l_Lean_Syntax_isLit_x3f_match__2(lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_Syntax_decodeQuotedChar_match__6(lean_object*);
+lean_object* l_Lean_Syntax_setKind_match__1(lean_object*);
 lean_object* l_Lean_Macro_Init_LeanInit___instance__13___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_mkMacroEnvImp(lean_object*);
 lean_object* l_Lean_Macro_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -517,7 +519,6 @@ lean_object* l___private_Init_LeanInit_0__Lean_quoteName___closed__4;
 lean_object* l_Lean_Init_LeanInit___instance__19_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isInterpolatedStrLit_x3f___boxed(lean_object*);
 lean_object* l___private_Init_LeanInit_0__Array_mapSepElemsMAux___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_updateKind_match__1(lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_quoteName(lean_object*);
 lean_object* l_Lean_Syntax_decodeNameLit___boxed(lean_object*);
 lean_object* lean_string_length(lean_object*);
@@ -598,7 +599,6 @@ lean_object* l_Lean_MonadQuotation_addMacroScope___rarg(lean_object*, lean_objec
 lean_object* l_Lean_Init_LeanInit___instance__17___boxed(lean_object*);
 lean_object* l___private_Init_LeanInit_0__Lean_Syntax_decodeHexLitAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_string_hash(lean_object*);
-lean_object* l_Lean_Syntax_updateKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_hasQuote___rarg(lean_object*);
 lean_object* l_Lean_SourceInfo_trailing___default;
 lean_object* l_Lean_interpolatedStrLitKind;
@@ -3024,7 +3024,7 @@ return x_7;
 }
 }
 }
-lean_object* l_Lean_Syntax_updateKind_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Syntax_setKind_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 1)
@@ -3048,15 +3048,15 @@ return x_7;
 }
 }
 }
-lean_object* l_Lean_Syntax_updateKind_match__1(lean_object* x_1) {
+lean_object* l_Lean_Syntax_setKind_match__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Syntax_updateKind_match__1___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Syntax_setKind_match__1___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Syntax_updateKind(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Syntax_setKind(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 1)

@@ -126,7 +126,6 @@ lean_object* l_Lean_IR_ExplicitBoxing_mkCast_match__2___rarg(lean_object*, lean_
 lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux_match__1(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeeded_match__1(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_importModules___closed__1;
 lean_object* l_Lean_IR_ExplicitBoxing_BoxingState_auxDecls___default;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_withJDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -203,6 +202,7 @@ lean_object* l_Nat_foldM_loop___at_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___sp
 lean_object* l_Lean_IR_ExplicitBoxing_getEnv(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___closed__1;
 lean_object* l___private_Lean_Compiler_IR_Boxing_0__Lean_IR_ExplicitBoxing_isExpensiveConstantValueBoxing_match__1(lean_object*);
+extern lean_object* l_Lean_importModules___closed__2;
 lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_MaxIndex_collectDecl(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_unboxResultIfNeeded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -790,7 +790,7 @@ x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
 x_11 = lean_array_get_size(x_9);
-x_12 = l_Lean_importModules___closed__1;
+x_12 = l_Lean_importModules___closed__2;
 lean_inc(x_11);
 x_13 = l_Nat_foldM_loop___at_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___spec__2(x_3, x_9, x_11, x_11, x_12, x_10);
 lean_dec(x_11);

@@ -20,7 +20,7 @@ inductive Arg
 
 instance : Inhabited Arg := ⟨Arg.stx (arbitrary _)⟩
 
-instance : HasToString Arg := ⟨fun
+instance : ToString Arg := ⟨fun
   | Arg.stx  val => toString val
   | Arg.expr val => toString val⟩
 
@@ -30,7 +30,7 @@ structure NamedArg :=
   (name : Name)
   (val  : Arg)
 
-instance : HasToString NamedArg :=
+instance : ToString NamedArg :=
   ⟨fun s => "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"⟩
 
 instance : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _ }⟩
@@ -213,7 +213,7 @@ private partial def getForallBody : Nat → List NamedArg → Expr → Option Ex
   Auxiliary method for propagating the expected type. We call it as soon as we find the first explict
   argument. The goal is to propagate the expected type in applications of functions such as
   ```lean
-  HasAdd.add {α : Type u} : α → α → α
+  Add.add {α : Type u} : α → α → α
   List.cons {α : Type u} : α → List α → List α
   ```
   This is particularly useful when there applicable coercions. For example,

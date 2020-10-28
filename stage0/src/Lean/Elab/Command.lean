@@ -577,7 +577,7 @@ unsafe def elabEvalUnsafe : CommandElab := fun stx => do
     | Except.error e => throwError e.toString
     | Except.ok env  => do setEnv env; pure ()
   let elabEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
-    -- fall back to non-meta eval if MetaHasEval hasn't been defined yet
+    -- fall back to non-meta eval if MetaEval hasn't been defined yet
     -- modify e to `runEval e`
     let e ← Term.elabTerm term none
     let e := mkSimpleThunk e
@@ -590,7 +590,7 @@ unsafe def elabEvalUnsafe : CommandElab := fun stx => do
     match res with
     | Except.error e => throwError e.toString
     | Except.ok _    => pure ()
-  if (← getEnv).contains `Lean.MetaHasEval then do
+  if (← getEnv).contains `Lean.MetaEval then do
     elabMetaEval
   else
     elabEval

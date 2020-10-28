@@ -275,6 +275,9 @@ class HasOfNat (α : Type u) :=
 
 export HasOfNat (ofNat)
 
+class OfNat (α : Type u) :=
+  (ofNat : Nat → α)
+
 instance : HasOfNat Nat := ⟨id⟩
 
 /- Auxiliary axiom used to implement `sorry`.
@@ -299,6 +302,23 @@ class HasAndthen  (α : Type u) := (andthen : α → α → α)
 class HasEquiv    (α : Sort u) := (Equiv : α → α → Prop)
 class HasEmptyc   (α : Type u) := (emptyc : α)
 class HasPow (α : Type u) (β : Type v) := (pow : α → β → α)
+
+class Add      (α : Type u) := (add : α → α → α)
+class Mul      (α : Type u) := (mul : α → α → α)
+class Neg      (α : Type u) := (neg : α → α)
+class Sub      (α : Type u) := (sub : α → α → α)
+class Div      (α : Type u) := (div : α → α → α)
+class Mod      (α : Type u) := (mod : α → α → α)
+class ModN     (α : Type u) := (modn : α → Nat → α)
+class LessEq   (α : Type u) := (LessEq : α → α → Prop)
+class Less     (α : Type u) := (Less : α → α → Prop)
+class Beq      (α : Type u) := (beq : α → α → Bool)
+class Append   (α : Type u) := (append : α → α → α)
+class OrElse   (α : Type u) := (orElse  : α → α → α)
+class AndThen  (α : Type u) := (andThen : α → α → α)
+class Equiv    (α : Sort u) := (Equiv : α → α → Prop)
+class EmptyCollection (α : Type u) := (emptyCollection : α)
+class Pow (α : Type u) (β : Type v) := (pow : α → β → α)
 
 @[reducible] def GreaterEq {α : Type u} [HasLessEq α] (a b : α) : Prop := HasLessEq.LessEq b a
 @[reducible] def Greater {α : Type u} [HasLess α] (a b : α) : Prop     := HasLess.Less b a
@@ -387,6 +407,9 @@ class HasSizeof (α : Sort u) :=
   (sizeof : α → Nat)
 
 export HasSizeof (sizeof)
+
+class SizeOf (α : Sort u) :=
+  (sizeOf : α → Nat)
 
 /-
 Declare sizeof instances and theorems for types declared before HasSizeof.

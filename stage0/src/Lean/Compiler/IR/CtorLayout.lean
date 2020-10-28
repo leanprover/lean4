@@ -23,7 +23,7 @@ def format : CtorFieldInfo → Format
 | usize i    => f!"usize@{i}"
 | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
 
-instance : HasFormat CtorFieldInfo := ⟨format⟩
+instance : ToFormat CtorFieldInfo := ⟨format⟩
 
 end CtorFieldInfo
 

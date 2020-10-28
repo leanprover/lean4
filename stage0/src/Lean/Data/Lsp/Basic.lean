@@ -37,7 +37,7 @@ instance : HasToJson Position := ⟨fun o =>
     ⟨"line", o.line⟩,
     ⟨"character", o.character⟩]⟩
 
-instance : HasToString Position := ⟨fun p =>
+instance : ToString Position := ⟨fun p =>
   "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
 
 structure Range := (start : Position) («end» : Position)

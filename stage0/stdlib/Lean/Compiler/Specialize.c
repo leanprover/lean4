@@ -93,6 +93,7 @@ lean_object* l_Lean_Compiler_specExtension___elambda__3___boxed(lean_object*, le
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getCachedSpecialization___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____closed__9;
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2538____closed__4;
 lean_object* l_Lean_Compiler_specExtension___elambda__2___boxed(lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,7 +117,6 @@ lean_object* l_List_map___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specializ
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Compiler_getCachedSpecialization___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2532____closed__4;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_222____spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__1___closed__2;
@@ -4362,7 +4362,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____closed__4;
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_222____closed__1;
 x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_222____closed__2;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2532____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2538____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

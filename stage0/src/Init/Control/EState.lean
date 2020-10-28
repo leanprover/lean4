@@ -16,13 +16,13 @@ inductive Result (ε σ α : Type u)
 
 variables {ε σ α : Type u}
 
-instance [HasToString ε] [HasToString α] : HasToString (Result ε σ α) := {
+instance [ToString ε] [ToString α] : ToString (Result ε σ α) := {
   toString := fun
     | Result.ok a _    => "ok: " ++ toString a
     | Result.error e _ => "error: " ++ toString e
 }
 
-instance [HasRepr ε] [HasRepr α] : HasRepr (Result ε σ α) := {
+instance [Repr ε] [Repr α] : Repr (Result ε σ α) := {
   repr := fun
     | Result.error e _ => "(error " ++ repr e ++ ")"
     | Result.ok a _    => "(ok " ++ repr a ++ ")"

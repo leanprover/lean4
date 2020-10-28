@@ -412,8 +412,8 @@ end LevelToFormat
 protected def format (l : Level) : Format :=
   (LevelToFormat.toResult l).format true
 
-instance : HasFormat Level := ⟨Level.format⟩
-instance : HasToString Level := ⟨Format.pretty ∘ Level.format⟩
+instance : ToFormat Level := ⟨Level.format⟩
+instance : ToString Level := ⟨Format.pretty ∘ Level.format⟩
 
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.

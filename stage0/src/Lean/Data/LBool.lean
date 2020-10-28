@@ -37,7 +37,7 @@ def toString : LBool → String
 | false => "false"
 | undef => "undef"
 
-instance : HasToString LBool := ⟨toString⟩
+instance : ToString LBool := ⟨toString⟩
 
 end LBool
 

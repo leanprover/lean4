@@ -18608,7 +18608,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabEvalUnsafe___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("MetaHasEval");
+x_1 = lean_mk_string("MetaEval");
 return x_1;
 }
 }

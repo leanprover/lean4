@@ -77,4 +77,4 @@ def List.toFloatArray (ds : List Float) : FloatArray :=
   loop ds FloatArray.empty
 
 
-instance : HasToString FloatArray := ⟨fun ds => ds.toList.toString⟩
+instance : ToString FloatArray := ⟨fun ds => ds.toList.toString⟩

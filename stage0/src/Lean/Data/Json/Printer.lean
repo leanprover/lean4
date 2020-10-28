@@ -78,8 +78,8 @@ partial def compress : Json → String
     let ckvs := kvs.fold (fun acc k j => (renderString k ++ ":" ++ compress j) :: acc) [];
     "{" ++ ",".intercalate ckvs ++ "}"
 
-instance : HasFormat Json := ⟨render⟩
-instance : HasToString Json := ⟨pretty⟩
+instance : ToFormat Json := ⟨render⟩
+instance : ToString Json := ⟨pretty⟩
 
 end Json
 end Lean

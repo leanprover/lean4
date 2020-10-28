@@ -277,7 +277,7 @@ def stringToMessageData (str : String) : MessageData :=
   let lines := lines.map (MessageData.ofFormat ∘ fmt)
   MessageData.joinSep lines (MessageData.ofFormat Format.line)
 
-instance {α} [HasFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ fmt⟩
+instance {α} [ToFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ fmt⟩
 instance : ToMessageData Expr          := ⟨MessageData.ofExpr⟩
 instance : ToMessageData Level         := ⟨MessageData.ofLevel⟩
 instance : ToMessageData Name          := ⟨MessageData.ofName⟩

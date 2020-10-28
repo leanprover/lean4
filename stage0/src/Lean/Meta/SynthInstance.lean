@@ -17,39 +17,36 @@ namespace SynthInstance
 
 open Std (HashMap)
 
-def mkInferTCGoalsLRAttr : IO TagAttribute :=
-registerTagAttribute `inferTCGoalsLR "instruct type class resolution procedure to solve goals from left to right for this instance"
-
-@[builtinInit mkInferTCGoalsLRAttr]
-constant inferTCGoalsLRAttr : TagAttribute := arbitrary _
+builtin_initialize inferTCGoalsLRAttr : TagAttribute ←
+  registerTagAttribute `inferTCGoalsLR "instruct type class resolution procedure to solve goals from left to right for this instance"
 
 def hasInferTCGoalsLRAttribute (env : Environment) (constName : Name) : Bool :=
-inferTCGoalsLRAttr.hasTag env constName
+  inferTCGoalsLRAttr.hasTag env constName
 
 structure GeneratorNode :=
-(mvar            : Expr)
-(key             : Expr)
-(mctx            : MetavarContext)
-(instances       : Array Expr)
-(currInstanceIdx : Nat)
+  (mvar            : Expr)
+  (key             : Expr)
+  (mctx            : MetavarContext)
+  (instances       : Array Expr)
+  (currInstanceIdx : Nat)
 
 instance : Inhabited GeneratorNode := ⟨⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _, 0⟩⟩
 
 structure ConsumerNode :=
-(mvar     : Expr)
-(key      : Expr)
-(mctx     : MetavarContext)
-(subgoals : List Expr)
+  (mvar     : Expr)
+  (key      : Expr)
+  (mctx     : MetavarContext)
+  (subgoals : List Expr)
 
 instance : Inhabited ConsumerNode := ⟨⟨arbitrary _, arbitrary _, arbitrary _, []⟩⟩
 
 inductive Waiter
-| consumerNode : ConsumerNode → Waiter
-| root         : Waiter
+  | consumerNode : ConsumerNode → Waiter
+  | root         : Waiter
 
 def Waiter.isRoot : Waiter → Bool
-| Waiter.consumerNode _ => false
-| Waiter.root           => true
+  | Waiter.consumerNode _ => false
+  | Waiter.root           => true
 
 /-
   In tabled resolution, we creating a mapping from goals (e.g., `Coe Nat ?x`) to
@@ -74,74 +71,74 @@ def Waiter.isRoot : Waiter → Bool
 namespace  MkTableKey
 
 structure State :=
-(nextIdx : Nat := 0)
-(lmap    : HashMap MVarId Level := {})
-(emap    : HashMap MVarId Expr := {})
+  (nextIdx : Nat := 0)
+  (lmap    : HashMap MVarId Level := {})
+  (emap    : HashMap MVarId Expr := {})
 
 abbrev M := ReaderT MetavarContext (StateM State)
 
 partial def normLevel (u : Level) : M Level := do
-if !u.hasMVar then
-  pure u
-else match u with
-  | Level.succ v _      => return u.updateSucc! (← normLevel v)
-  | Level.max v w _     => return u.updateMax! (← normLevel v) (← normLevel w)
-  | Level.imax v w _    => return u.updateIMax! (← normLevel v) (← normLevel w)
-  | Level.mvar mvarId _ =>
-    let mctx ← read
-    if !mctx.isLevelAssignable mvarId then
-      pure u
-    else
-      let s ← get
-      match s.lmap.find? mvarId with
-      | some u' => pure u'
-      | none    =>
-        let u' := mkLevelParam $ mkNameNum `_tc s.nextIdx
-        modify fun s => { s with nextIdx := s.nextIdx + 1, lmap := s.lmap.insert mvarId u' }
-        pure u'
-  | u => pure u
+  if !u.hasMVar then
+    pure u
+  else match u with
+    | Level.succ v _      => return u.updateSucc! (← normLevel v)
+    | Level.max v w _     => return u.updateMax! (← normLevel v) (← normLevel w)
+    | Level.imax v w _    => return u.updateIMax! (← normLevel v) (← normLevel w)
+    | Level.mvar mvarId _ =>
+      let mctx ← read
+      if !mctx.isLevelAssignable mvarId then
+        pure u
+      else
+        let s ← get
+        match s.lmap.find? mvarId with
+        | some u' => pure u'
+        | none    =>
+          let u' := mkLevelParam $ mkNameNum `_tc s.nextIdx
+          modify fun s => { s with nextIdx := s.nextIdx + 1, lmap := s.lmap.insert mvarId u' }
+          pure u'
+    | u => pure u
 
 partial def normExpr (e : Expr) : M Expr := do
-if !e.hasMVar then
-  pure e
-else match e with
-  | Expr.const _ us _    => return e.updateConst! (← us.mapM normLevel)
-  | Expr.sort u _        => return e.updateSort! (← normLevel u)
-  | Expr.app f a _       => return e.updateApp! (← normExpr f) (← normExpr a)
-  | Expr.letE _ t v b _  => return e.updateLet! (← normExpr t) (← normExpr v) (← normExpr b)
-  | Expr.forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
-  | Expr.lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
-  | Expr.mdata _ b _     => return e.updateMData! (← normExpr b)
-  | Expr.proj _ _ b _    => return e.updateProj! (← normExpr b)
-  | Expr.mvar mvarId _   =>
-    let mctx ← read
-    if !mctx.isExprAssignable mvarId then
-      pure e
-    else
-      let s ← get
-      match s.emap.find? mvarId with
-      | some e' => pure e'
-      | none    => do
-        let e' := mkFVar $ mkNameNum `_tc s.nextIdx
-        modify fun s => { s with nextIdx := s.nextIdx + 1, emap := s.emap.insert mvarId e' }
-        pure e'
-  | _ => pure e
+  if !e.hasMVar then
+    pure e
+  else match e with
+    | Expr.const _ us _    => return e.updateConst! (← us.mapM normLevel)
+    | Expr.sort u _        => return e.updateSort! (← normLevel u)
+    | Expr.app f a _       => return e.updateApp! (← normExpr f) (← normExpr a)
+    | Expr.letE _ t v b _  => return e.updateLet! (← normExpr t) (← normExpr v) (← normExpr b)
+    | Expr.forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
+    | Expr.lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
+    | Expr.mdata _ b _     => return e.updateMData! (← normExpr b)
+    | Expr.proj _ _ b _    => return e.updateProj! (← normExpr b)
+    | Expr.mvar mvarId _   =>
+      let mctx ← read
+      if !mctx.isExprAssignable mvarId then
+        pure e
+      else
+        let s ← get
+        match s.emap.find? mvarId with
+        | some e' => pure e'
+        | none    => do
+          let e' := mkFVar $ mkNameNum `_tc s.nextIdx
+          modify fun s => { s with nextIdx := s.nextIdx + 1, emap := s.emap.insert mvarId e' }
+          pure e'
+    | _ => pure e
 
 end MkTableKey
 
 /- Remark: `mkTableKey` assumes `e` does not contain assigned metavariables. -/
 def mkTableKey (mctx : MetavarContext) (e : Expr) : Expr :=
-(MkTableKey.normExpr e mctx).run' {}
+  MkTableKey.normExpr e mctx $.run' {}
 
 structure Answer :=
-(result     : AbstractMVarsResult)
-(resultType : Expr)
+  (result     : AbstractMVarsResult)
+  (resultType : Expr)
 
 instance : Inhabited Answer := ⟨⟨arbitrary _, arbitrary _⟩⟩
 
 structure TableEntry :=
-(waiters : Array Waiter)
-(answers : Array Answer := #[])
+  (waiters : Array Waiter)
+  (answers : Array Answer := #[])
 
 /-
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.
@@ -151,75 +148,75 @@ structure TableEntry :=
   `M` to `MetaM`.
 -/
 structure State :=
-(result         : Option Expr                   := none)
-(generatorStack : Array GeneratorNode           := #[])
-(resumeStack    : Array (ConsumerNode × Answer) := #[])
-(tableEntries   : HashMap Expr TableEntry       := {})
+  (result         : Option Expr                   := none)
+  (generatorStack : Array GeneratorNode           := #[])
+  (resumeStack    : Array (ConsumerNode × Answer) := #[])
+  (tableEntries   : HashMap Expr TableEntry       := {})
 
 abbrev SynthM := StateRefT State MetaM
 
 @[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
-monadMap @f
+  monadMap @f
 
 instance {α} : Inhabited (SynthM α) :=
-⟨fun _ => arbitrary _⟩
+  ⟨fun _ => arbitrary _⟩
 
 /-- Return globals and locals instances that may unify with `type` -/
 def getInstances (type : Expr) : MetaM (Array Expr) := do
--- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
-let localInstances ← getLocalInstances
-forallTelescopeReducing type fun _ type => do
-  let className? ← isClass? type
-  match className? with
-  | none   => throwError $ "type class instance expected" ++ indentExpr type
-  | some className =>
-    let globalInstances ← getGlobalInstances
-    let result ← globalInstances.getUnify type
-    let result ← result.mapM fun c => match c with
-      | Expr.const constName us _ => do us ← us.mapM (fun _ => mkFreshLevelMVar); pure $ c.updateConst! us
-      | _ => panic! "global instance is not a constant"
-    trace[Meta.synthInstance.globalInstances]! "{type}, {result}"
-    let result := localInstances.foldl (init := result) fun (result : Array Expr) linst =>
-      if linst.className == className then result.push linst.fvar else result
-    pure result
+  -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
+  let localInstances ← getLocalInstances
+  forallTelescopeReducing type fun _ type => do
+    let className? ← isClass? type
+    match className? with
+    | none   => throwError $ "type class instance expected" ++ indentExpr type
+    | some className =>
+      let globalInstances ← getGlobalInstances
+      let result ← globalInstances.getUnify type
+      let result ← result.mapM fun c => match c with
+        | Expr.const constName us _ => do us ← us.mapM (fun _ => mkFreshLevelMVar); pure $ c.updateConst! us
+        | _ => panic! "global instance is not a constant"
+      trace[Meta.synthInstance.globalInstances]! "{type}, {result}"
+      let result := localInstances.foldl (init := result) fun (result : Array Expr) linst =>
+        if linst.className == className then result.push linst.fvar else result
+      pure result
 
 def mkGeneratorNode? (key mvar : Expr) : MetaM (Option GeneratorNode) := do
-let mvarType  ← inferType mvar
-let mvarType  ← instantiateMVars mvarType
-let instances ← getInstances mvarType
-if instances.isEmpty then
-  pure none
-else
-  let mctx ← getMCtx
-  pure $ some {
-    mvar            := mvar,
-    key             := key,
-    mctx            := mctx,
-    instances       := instances,
-    currInstanceIdx := instances.size
-  }
+  let mvarType  ← inferType mvar
+  let mvarType  ← instantiateMVars mvarType
+  let instances ← getInstances mvarType
+  if instances.isEmpty then
+    pure none
+  else
+    let mctx ← getMCtx
+    pure $ some {
+      mvar            := mvar,
+      key             := key,
+      mctx            := mctx,
+      instances       := instances,
+      currInstanceIdx := instances.size
+    }
 
 /-- Create a new generator node for `mvar` and add `waiter` as its waiter.
     `key` must be `mkTableKey mctx mvarType`. -/
 def newSubgoal (mctx : MetavarContext) (key : Expr) (mvar : Expr) (waiter : Waiter) : SynthM Unit :=
-withMCtx mctx do
-  trace[Meta.synthInstance.newSubgoal]! key
-  match (← mkGeneratorNode? key mvar) with
-  | none      => pure ()
-  | some node =>
-    let entry : TableEntry := { waiters := #[waiter] }
-    modify fun s =>
-     { s with
-       generatorStack := s.generatorStack.push node,
-       tableEntries   := s.tableEntries.insert key entry }
+  withMCtx mctx do
+    trace[Meta.synthInstance.newSubgoal]! key
+    match (← mkGeneratorNode? key mvar) with
+    | none      => pure ()
+    | some node =>
+      let entry : TableEntry := { waiters := #[waiter] }
+      modify fun s =>
+       { s with
+         generatorStack := s.generatorStack.push node,
+         tableEntries   := s.tableEntries.insert key entry }
 
 def findEntry? (key : Expr) : SynthM (Option TableEntry) := do
-return (← get).tableEntries.find? key
+  return (← get).tableEntries.find? key
 
 def getEntry (key : Expr) : SynthM TableEntry := do
-match (← findEntry? key) with
-| none       => panic! "invalid key at synthInstance"
-| some entry => pure entry
+  match (← findEntry? key) with
+  | none       => panic! "invalid key at synthInstance"
+  | some entry => pure entry
 
 /--
   Create a `key` for the goal associated with the given metavariable.
@@ -227,10 +224,10 @@ match (← findEntry? key) with
 
   We must instantiate assigned metavariables before we invoke `mkTableKey`. -/
 def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
-withMCtx mctx do
-  let mvarType ← inferType mvar
-  let mvarType ← instantiateMVars mvarType
-  return mkTableKey mctx mvarType
+  withMCtx mctx do
+    let mvarType ← inferType mvar
+    let mvarType ← instantiateMVars mvarType
+    return mkTableKey mctx mvarType
 
 /- See `getSubgoals` and `getSubgoalsAux`
 
@@ -239,28 +236,28 @@ withMCtx mctx do
    Given `getSubgoalsAux args j subgoals instVal type`,
    we have that `type.instantiateRevRange j args.size args` does not have loose bound variables. -/
 structure SubgoalsResult : Type :=
-(subgoals     : List Expr)
-(instVal      : Expr)
-(instTypeBody : Expr)
+  (subgoals     : List Expr)
+  (instVal      : Expr)
+  (instTypeBody : Expr)
 
 private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr)
     : Array Expr → Nat → List Expr → Expr → Expr → MetaM SubgoalsResult
-| args, j, subgoals, instVal, Expr.forallE n d b c => do
-  let d        := d.instantiateRevRange j args.size args
-  let mvarType ← mkForallFVars xs d
-  let mvar     ← mkFreshExprMVarAt lctx localInsts mvarType
-  let arg      := mkAppN mvar xs
-  let instVal  := mkApp instVal arg
-  let subgoals := if c.binderInfo.isInstImplicit then mvar::subgoals else subgoals
-  let args     := args.push (mkAppN mvar xs)
-  getSubgoalsAux lctx localInsts xs args j subgoals instVal b
-| args, j, subgoals, instVal, type => do
-  let type := type.instantiateRevRange j args.size args
-  let type ← whnf type
-  if type.isForall then
-    getSubgoalsAux lctx localInsts xs args args.size subgoals instVal type
-  else
-    pure ⟨subgoals, instVal, type⟩
+  | args, j, subgoals, instVal, Expr.forallE n d b c => do
+    let d        := d.instantiateRevRange j args.size args
+    let mvarType ← mkForallFVars xs d
+    let mvar     ← mkFreshExprMVarAt lctx localInsts mvarType
+    let arg      := mkAppN mvar xs
+    let instVal  := mkApp instVal arg
+    let subgoals := if c.binderInfo.isInstImplicit then mvar::subgoals else subgoals
+    let args     := args.push (mkAppN mvar xs)
+    getSubgoalsAux lctx localInsts xs args j subgoals instVal b
+  | args, j, subgoals, instVal, type => do
+    let type := type.instantiateRevRange j args.size args
+    let type ← whnf type
+    if type.isForall then
+      getSubgoalsAux lctx localInsts xs args args.size subgoals instVal type
+    else
+      pure ⟨subgoals, instVal, type⟩
 
 /--
   `getSubgoals lctx localInsts xs inst` creates the subgoals for the instance `inst`.
@@ -278,35 +275,35 @@ private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInst
     - `inst (?m_1 xs) ... (?m_n xs)` (aka `instVal`)
     - `B (?m_1 xs) ... (?m_n xs)` -/
 def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr) (inst : Expr) : MetaM SubgoalsResult := do
-let instType ← inferType inst
-let result ← getSubgoalsAux lctx localInsts xs #[] 0 [] inst instType
-match inst.getAppFn with
-| Expr.const constName _ _ =>
-  let env ← getEnv
-  if hasInferTCGoalsLRAttribute env constName then
-    pure { result with subgoals := result.subgoals.reverse }
-  else
-    pure result
-| _ => pure result
+  let instType ← inferType inst
+  let result ← getSubgoalsAux lctx localInsts xs #[] 0 [] inst instType
+  match inst.getAppFn with
+  | Expr.const constName _ _ =>
+    let env ← getEnv
+    if hasInferTCGoalsLRAttribute env constName then
+      pure { result with subgoals := result.subgoals.reverse }
+    else
+      pure result
+  | _ => pure result
 
 def tryResolveCore (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) := do
-let mvarType   ← inferType mvar
-let lctx       ← getLCtx
-let localInsts ← getLocalInstances
-forallTelescopeReducing mvarType fun xs mvarTypeBody => do
-  let ⟨subgoals, instVal, instTypeBody⟩ ← getSubgoals lctx localInsts xs inst
-  trace[Meta.synthInstance.tryResolve]! "{mvarTypeBody} =?= {instTypeBody}"
-  if (← isDefEq mvarTypeBody instTypeBody) then
-    let instVal ← mkLambdaFVars xs instVal
-    if (← isDefEq mvar instVal) then
-      trace[Meta.synthInstance.tryResolve]! "success"
-      pure (some ((← getMCtx), subgoals))
+  let mvarType   ← inferType mvar
+  let lctx       ← getLCtx
+  let localInsts ← getLocalInstances
+  forallTelescopeReducing mvarType fun xs mvarTypeBody => do
+    let ⟨subgoals, instVal, instTypeBody⟩ ← getSubgoals lctx localInsts xs inst
+    trace[Meta.synthInstance.tryResolve]! "{mvarTypeBody} =?= {instTypeBody}"
+    if (← isDefEq mvarTypeBody instTypeBody) then
+      let instVal ← mkLambdaFVars xs instVal
+      if (← isDefEq mvar instVal) then
+        trace[Meta.synthInstance.tryResolve]! "success"
+        pure (some ((← getMCtx), subgoals))
+      else
+        trace[Meta.synthInstance.tryResolve]! "failure assigning"
+        pure none
     else
-      trace[Meta.synthInstance.tryResolve]! "failure assigning"
+      trace[Meta.synthInstance.tryResolve]! "failure"
       pure none
-  else
-    trace[Meta.synthInstance.tryResolve]! "failure"
-    pure none
 
 /--
   Try to synthesize metavariable `mvar` using the instance `inst`.
@@ -314,158 +311,158 @@ forallTelescopeReducing mvarType fun xs mvarTypeBody => do
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mctx : MetavarContext) (mvar : Expr) (inst : Expr) : SynthM (Option (MetavarContext × List Expr)) :=
-traceCtx `Meta.synthInstance.tryResolve $ withMCtx mctx $ tryResolveCore mvar inst
+  traceCtx `Meta.synthInstance.tryResolve $ withMCtx mctx $ tryResolveCore mvar inst
 
 /--
   Assign a precomputed answer to `mvar`.
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals. -/
 def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (Option MetavarContext) :=
-withMCtx mctx do
-  let (_, _, val) ← openAbstractMVarsResult answer.result
-  if (← isDefEq mvar val) then
-    pure (some (← getMCtx))
-  else
-    pure none
+  withMCtx mctx do
+    let (_, _, val) ← openAbstractMVarsResult answer.result
+    if (← isDefEq mvar val) then
+      pure (some (← getMCtx))
+    else
+      pure none
 
 /-- Move waiters that are waiting for the given answer to the resume stack. -/
 def wakeUp (answer : Answer) : Waiter → SynthM Unit
-| Waiter.root               => do
-  if answer.result.paramNames.isEmpty && answer.result.numMVars == 0 then
-    modify fun s => { s with result := answer.result.expr }
-  else
-    let (_, _, answerExpr) ← liftM $ openAbstractMVarsResult answer.result
-    trace[Meta.synthInstance]! "skip answer containing metavariables {answerExpr}"
-    pure ()
-| Waiter.consumerNode cNode =>
-  modify fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
+  | Waiter.root               => do
+    if answer.result.paramNames.isEmpty && answer.result.numMVars == 0 then
+      modify fun s => { s with result := answer.result.expr }
+    else
+      let (_, _, answerExpr) ← liftM $ openAbstractMVarsResult answer.result
+      trace[Meta.synthInstance]! "skip answer containing metavariables {answerExpr}"
+      pure ()
+  | Waiter.consumerNode cNode =>
+    modify fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
 
 def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
-oldAnswers.all fun oldAnswer => do
-  -- Remark: isDefEq here is too expensive. TODO: if `==` is too imprecise, add some light normalization to `resultType` at `addAnswer`
-  -- iseq ← isDefEq oldAnswer.resultType answer.resultType; pure (!iseq)
-  oldAnswer.resultType != answer.resultType
+  oldAnswers.all fun oldAnswer => do
+    -- Remark: isDefEq here is too expensive. TODO: if `==` is too imprecise, add some light normalization to `resultType` at `addAnswer`
+    -- iseq ← isDefEq oldAnswer.resultType answer.resultType; pure (!iseq)
+    oldAnswer.resultType != answer.resultType
 
 private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
-withMCtx cNode.mctx do
-  traceM `Meta.synthInstance.newAnswer do pure (← inferType cNode.mvar)
-  let val ← instantiateMVars cNode.mvar
-  let result ← abstractMVars val -- assignable metavariables become parameters
-  let resultType ← inferType result.expr
-  pure { result := result, resultType := resultType }
+  withMCtx cNode.mctx do
+    traceM `Meta.synthInstance.newAnswer do pure (← inferType cNode.mvar)
+    let val ← instantiateMVars cNode.mvar
+    let result ← abstractMVars val -- assignable metavariables become parameters
+    let resultType ← inferType result.expr
+    pure { result := result, resultType := resultType }
 
 /--
   Create a new answer after `cNode` resolved all subgoals.
   That is, `cNode.subgoals == []`.
   And then, store it in the tabled entries map, and wakeup waiters. -/
 def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
-let answer ← mkAnswer cNode
--- Remark: `answer` does not contain assignable or assigned metavariables.
-let key := cNode.key
-let entry ← getEntry key
-if isNewAnswer entry.answers answer then
-  let newEntry := { entry with answers := entry.answers.push answer }
-  modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
-  entry.waiters.forM (wakeUp answer)
+  let answer ← mkAnswer cNode
+  -- Remark: `answer` does not contain assignable or assigned metavariables.
+  let key := cNode.key
+  let entry ← getEntry key
+  if isNewAnswer entry.answers answer then
+    let newEntry := { entry with answers := entry.answers.push answer }
+    modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
+    entry.waiters.forM (wakeUp answer)
 
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit :=
-match cNode.subgoals with
-| []      => addAnswer cNode
-| mvar::_ => do
-   let waiter := Waiter.consumerNode cNode
-   let key ← mkTableKeyFor cNode.mctx mvar
-   let entry? ← findEntry? key
-   match entry? with
-   | none       => newSubgoal cNode.mctx key mvar waiter
-   | some entry => modify fun s =>
-     { s with
-       resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-       tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
+  match cNode.subgoals with
+  | []      => addAnswer cNode
+  | mvar::_ => do
+     let waiter := Waiter.consumerNode cNode
+     let key ← mkTableKeyFor cNode.mctx mvar
+     let entry? ← findEntry? key
+     match entry? with
+     | none       => newSubgoal cNode.mctx key mvar waiter
+     | some entry => modify fun s =>
+       { s with
+         resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+         tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
 
 def getTop : SynthM GeneratorNode := do
-pure (← get).generatorStack.back
+  pure (← get).generatorStack.back
 
 @[inline] def modifyTop (f : GeneratorNode → GeneratorNode) : SynthM Unit :=
-modify fun s => { s with generatorStack := s.generatorStack.modify (s.generatorStack.size - 1) f }
+  modify fun s => { s with generatorStack := s.generatorStack.modify (s.generatorStack.size - 1) f }
 
 /-- Try the next instance in the node on the top of the generator stack. -/
 def generate : SynthM Unit := do
-let gNode ← getTop
-if gNode.currInstanceIdx == 0  then
-  modify fun s => { s with generatorStack := s.generatorStack.pop }
-else do
-  let key  := gNode.key
-  let idx  := gNode.currInstanceIdx - 1
-  let inst := gNode.instances.get! idx
-  let mctx := gNode.mctx
-  let mvar := gNode.mvar
-  trace[Meta.synthInstance.generate]! "instance {inst}"
-  modifyTop fun gNode => { gNode with currInstanceIdx := idx }
-  match (← tryResolve mctx mvar inst) with
-  | none                  => pure ()
-  | some (mctx, subgoals) => consume { key := key, mvar := mvar, subgoals := subgoals, mctx := mctx }
+  let gNode ← getTop
+  if gNode.currInstanceIdx == 0  then
+    modify fun s => { s with generatorStack := s.generatorStack.pop }
+  else do
+    let key  := gNode.key
+    let idx  := gNode.currInstanceIdx - 1
+    let inst := gNode.instances.get! idx
+    let mctx := gNode.mctx
+    let mvar := gNode.mvar
+    trace[Meta.synthInstance.generate]! "instance {inst}"
+    modifyTop fun gNode => { gNode with currInstanceIdx := idx }
+    match (← tryResolve mctx mvar inst) with
+    | none                  => pure ()
+    | some (mctx, subgoals) => consume { key := key, mvar := mvar, subgoals := subgoals, mctx := mctx }
 
 def getNextToResume : SynthM (ConsumerNode × Answer) := do
-let s ← get
-let r := s.resumeStack.back
-modify fun s => { s with resumeStack := s.resumeStack.pop }
-pure r
+  let s ← get
+  let r := s.resumeStack.back
+  modify fun s => { s with resumeStack := s.resumeStack.pop }
+  pure r
 
 /--
   Given `(cNode, answer)` on the top of the resume stack, continue execution by using `answer` to solve the
   next subgoal. -/
 def resume : SynthM Unit := do
-let (cNode, answer) ← getNextToResume
-match cNode.subgoals with
-| []         => panic! "resume found no remaining subgoals"
-| mvar::rest =>
-  match (← tryAnswer cNode.mctx mvar answer) with
-  | none      => pure ()
-  | some mctx =>
-    withMCtx mctx $ traceM `Meta.synthInstance.resume do
-      let goal    ← inferType cNode.mvar
-      let subgoal ← inferType mvar
-      pure (goal ++ " <== " ++ subgoal)
-    consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx := mctx }
+  let (cNode, answer) ← getNextToResume
+  match cNode.subgoals with
+  | []         => panic! "resume found no remaining subgoals"
+  | mvar::rest =>
+    match (← tryAnswer cNode.mctx mvar answer) with
+    | none      => pure ()
+    | some mctx =>
+      withMCtx mctx $ traceM `Meta.synthInstance.resume do
+        let goal    ← inferType cNode.mvar
+        let subgoal ← inferType mvar
+        pure (goal ++ " <== " ++ subgoal)
+      consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx := mctx }
 
 def step : SynthM Bool := do
-let s ← get
-if !s.resumeStack.isEmpty then
-  resume
-  pure true
-else if !s.generatorStack.isEmpty then
-  generate
-  pure true
-else
-  pure false
+  let s ← get
+  if !s.resumeStack.isEmpty then
+    resume
+    pure true
+  else if !s.generatorStack.isEmpty then
+    generate
+    pure true
+  else
+    pure false
 
 def getResult : SynthM (Option Expr) := do
-pure (← get).result
+  pure (← get).result
 
 def synth : Nat → SynthM (Option Expr)
-| 0   => do
-  trace[Meta.synthInstance]! "synthInstance is out of fuel"
-  pure none
-| fuel+1 => do
-  trace[Meta.synthInstance]! "remaining fuel {fuel}"
-  if (← step) then
-    match (← getResult) with
-    | none        => synth fuel
-    | some result => pure result
-  else
-    trace[Meta.synthInstance]! "failed"
+  | 0   => do
+    trace[Meta.synthInstance]! "synthInstance is out of fuel"
     pure none
+  | fuel+1 => do
+    trace[Meta.synthInstance]! "remaining fuel {fuel}"
+    if (← step) then
+      match (← getResult) with
+      | none        => synth fuel
+      | some result => pure result
+    else
+      trace[Meta.synthInstance]! "failed"
+      pure none
 
 def main (type : Expr) (fuel : Nat) : MetaM (Option Expr) :=
-traceCtx `Meta.synthInstance do
-   trace[Meta.synthInstance]! "main goal {type}"
-   let mvar ← mkFreshExprMVar type
-   let mctx ← getMCtx
-   let key    := mkTableKey mctx type
-   let action : SynthM (Option Expr) := do
-     newSubgoal mctx key mvar Waiter.root
-     synth fuel
-   action.run' {}
+  traceCtx `Meta.synthInstance do
+     trace[Meta.synthInstance]! "main goal {type}"
+     let mvar ← mkFreshExprMVar type
+     let mctx ← getMCtx
+     let key    := mkTableKey mctx type
+     let action : SynthM (Option Expr) := do
+       newSubgoal mctx key mvar Waiter.root
+       synth fuel
+     action.run' {}
 
 end SynthInstance
 
@@ -483,22 +480,21 @@ the original type `C a_1 ... a_n` witht the normalized one.
 -/
 
 private def preprocess (type : Expr) : MetaM Expr :=
-forallTelescopeReducing type fun xs type => do
-  let type ← whnf type
-  mkForallFVars xs type
+  forallTelescopeReducing type fun xs type => do
+    let type ← whnf type
+    mkForallFVars xs type
 
 private def preprocessLevels (us : List Level) : MetaM (List Level) := do
-let r := []
-for u in us do
-  let u ← instantiateLevelMVars u
-  if u.hasMVar then
-    r := (← mkFreshLevelMVar)::r
-  else
-    r := u::r
-pure r.reverse
+  let r := []
+  for u in us do
+    let u ← instantiateLevelMVars u
+    if u.hasMVar then
+      r := (← mkFreshLevelMVar)::r
+    else
+      r := u::r
+  pure r.reverse
 
-private partial def preprocessArgs : Expr → Nat → Array Expr → MetaM (Array Expr)
-| type, i, args => do
+private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) : MetaM (Array Expr) := do
   if h : i < args.size then
     let type ← whnf type
     match type with
@@ -513,101 +509,101 @@ private partial def preprocessArgs : Expr → Nat → Array Expr → MetaM (Arra
     pure args
 
 private def preprocessOutParam (type : Expr) : MetaM Expr :=
-forallTelescope type fun xs typeBody => do
-  match typeBody.getAppFn with
-  | c@(Expr.const constName us _) =>
-    let env ← getEnv
-    if !hasOutParams env constName then
-      pure type
-    else do
-      let args := typeBody.getAppArgs
-      let us    ← preprocessLevels us
-      let c := mkConst constName us
-      let cType ← inferType c
-      let args ← preprocessArgs cType 0 args
-      mkForallFVars xs (mkAppN c args)
-  | _ => pure type
+  forallTelescope type fun xs typeBody => do
+    match typeBody.getAppFn with
+    | c@(Expr.const constName us _) =>
+      let env ← getEnv
+      if !hasOutParams env constName then
+        pure type
+      else do
+        let args := typeBody.getAppArgs
+        let us    ← preprocessLevels us
+        let c := mkConst constName us
+        let cType ← inferType c
+        let args ← preprocessArgs cType 0 args
+        mkForallFVars xs (mkAppN c args)
+    | _ => pure type
 
 def maxStepsDefault := 1000
 builtin_initialize
   registerOption `synthInstance.maxSteps { defValue := maxStepsDefault, group := "", descr := "maximum steps for the type class instance synthesis procedure" }
 private def getMaxSteps (opts : Options) : Nat :=
-opts.getNat `synthInstance.maxSteps maxStepsDefault
+  opts.getNat `synthInstance.maxSteps maxStepsDefault
 
 private def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := profileitM Exception "typeclass inference" ⟨0, 0⟩ do
-let opts ← getOptions
-let fuel := getMaxSteps opts
-let inputConfig ← getConfig
-withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.reducible,
-                                        foApprox := true, ctxApprox := true, constApprox := false }) do
-  let type ← instantiateMVars type
-  let type ← preprocess type
-  let s ← get
-  match s.cache.synthInstance.find? type with
-  | some result => pure result
-  | none        =>
-    let result? ← withNewMCtxDepth do
-      let normType ← preprocessOutParam type
-      trace[Meta.synthInstance]! "{type} ==> {normType}"
-      match (← SynthInstance.main normType fuel) with
-      | none        => pure none
-      | some result =>
-        trace[Meta.synthInstance]! "FOUND result {result}"
-        let result ← instantiateMVars result
-        if (← hasAssignableMVar result) then
-          pure none
-        else
-          pure (some result)
-    let result? ← match result? with
-      | none        => pure none
-      | some result => do
-        trace[Meta.synthInstance]! "result {result}"
-        let resultType ← inferType result
-        if (← withConfig (fun _ => inputConfig) $ isDefEq type resultType) then
+  let opts ← getOptions
+  let fuel := getMaxSteps opts
+  let inputConfig ← getConfig
+  withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.reducible,
+                                          foApprox := true, ctxApprox := true, constApprox := false }) do
+    let type ← instantiateMVars type
+    let type ← preprocess type
+    let s ← get
+    match s.cache.synthInstance.find? type with
+    | some result => pure result
+    | none        =>
+      let result? ← withNewMCtxDepth do
+        let normType ← preprocessOutParam type
+        trace[Meta.synthInstance]! "{type} ==> {normType}"
+        match (← SynthInstance.main normType fuel) with
+        | none        => pure none
+        | some result =>
+          trace[Meta.synthInstance]! "FOUND result {result}"
           let result ← instantiateMVars result
-          pure (some result)
-        else
-          pure none
-    if type.hasMVar then
-      pure result?
-    else do
-      modify fun s => { s with cache := { s.cache with synthInstance := s.cache.synthInstance.insert type result? } }
-      pure result?
+          if (← hasAssignableMVar result) then
+            pure none
+          else
+            pure (some result)
+      let result? ← match result? with
+        | none        => pure none
+        | some result => do
+          trace[Meta.synthInstance]! "result {result}"
+          let resultType ← inferType result
+          if (← withConfig (fun _ => inputConfig) $ isDefEq type resultType) then
+            let result ← instantiateMVars result
+            pure (some result)
+          else
+            pure none
+      if type.hasMVar then
+        pure result?
+      else do
+        modify fun s => { s with cache := { s.cache with synthInstance := s.cache.synthInstance.insert type result? } }
+        pure result?
 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if
   instance cannot be synthesized right now because `type` contains metavariables. -/
 private def trySynthInstanceImp (type : Expr) : MetaM (LOption Expr) := do
-catchInternalId isDefEqStuckExceptionId
-  (toLOptionM $ synthInstanceImp? type)
-  (fun _ => pure LOption.undef)
+  catchInternalId isDefEqStuckExceptionId
+    (toLOptionM $ synthInstanceImp? type)
+    (fun _ => pure LOption.undef)
 
 private def synthInstanceImp (type : Expr) : MetaM Expr :=
-catchInternalId isDefEqStuckExceptionId
-  (do
-    let result? ← synthInstanceImp? type
-    match result? with
-    | some result => pure result
-    | none        => throwError! "failed to synthesize{indentExpr type}")
-  (fun _ => throwError! "failed to synthesize{indentExpr type}")
+  catchInternalId isDefEqStuckExceptionId
+    (do
+      let result? ← synthInstanceImp? type
+      match result? with
+      | some result => pure result
+      | none        => throwError! "failed to synthesize{indentExpr type}")
+    (fun _ => throwError! "failed to synthesize{indentExpr type}")
 
 private def synthPendingImp (mvarId : MVarId) : MetaM Bool := do
-let mvarDecl ← getMVarDecl mvarId
-match mvarDecl.kind with
-| MetavarKind.synthetic =>
-  match (← isClass? mvarDecl.type) with
-  | none   => pure false
-  | some _ => do
-    let val? ← catchInternalId isDefEqStuckExceptionId (synthInstanceImp? mvarDecl.type) (fun _ => pure none)
-    match val? with
-    | none     => pure false
-    | some val =>
-      if (← isExprMVarAssigned mvarId) then
-        pure false
-      else
-        assignExprMVar mvarId val
-        pure true
-| _ => pure false
+  let mvarDecl ← getMVarDecl mvarId
+  match mvarDecl.kind with
+  | MetavarKind.synthetic =>
+    match (← isClass? mvarDecl.type) with
+    | none   => pure false
+    | some _ => do
+      let val? ← catchInternalId isDefEqStuckExceptionId (synthInstanceImp? mvarDecl.type) (fun _ => pure none)
+      match val? with
+      | none     => pure false
+      | some val =>
+        if (← isExprMVarAssigned mvarId) then
+          pure false
+        else
+          assignExprMVar mvarId val
+          pure true
+  | _ => pure false
 
 builtin_initialize
   synthPendingRef.set synthPendingImp
@@ -623,12 +619,12 @@ builtin_initialize
 variables {m : Type → Type} [MonadLiftT MetaM m]
 
 def synthInstance? (type : Expr) : m (Option Expr) :=
-liftMetaM $ synthInstanceImp? type
+  liftMetaM $ synthInstanceImp? type
 
 def trySynthInstance (type : Expr) : m (LOption Expr) :=
-liftMetaM $ trySynthInstanceImp type
+  liftMetaM $ trySynthInstanceImp type
 
 def synthInstance (type : Expr) : m Expr :=
-liftMetaM $ synthInstanceImp type
+  liftMetaM $ synthInstanceImp type
 
 end Lean.Meta

@@ -7,7 +7,7 @@ import Lean.Data.Position
 
 namespace Lean
 
-/-- Print and accumulate run time of `act` when Option `profiler` is set to `true`. -/
+/-- Print and accumulate run time of `act` when option `profiler` is set to `true`. -/
 @[extern "lean_profileit"]
 def profileit {α : Type} (category : @& String) (pos : @& Position) (fn : Unit → α) : α := fn ()
 

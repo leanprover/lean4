@@ -101,6 +101,7 @@ lean_object* l_Lean_initFn____x40_Lean_Class___hyg_784____lambda__1___boxed(lean
 lean_object* l_Lean_ClassEntry_lt___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Class_0__Lean_checkOutParam___closed__4;
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2538____closed__4;
 lean_object* l_Std_mkHashMap___at_Lean_ClassState_hasOutParam___default___spec__2(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_ClassState_addEntry___spec__16(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_hasOutParams___spec__6(lean_object*, lean_object*);
@@ -122,7 +123,6 @@ lean_object* l_Std_HashMapImp_moveEntries___at_Lean_ClassState_addEntry___spec__
 lean_object* l_Lean_SMap_insert___at_Lean_ClassState_addEntry___spec__1(lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Class_0__Lean_checkOutParam(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getClassName_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2532____closed__4;
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_784____lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 extern uint8_t l_Init_Core___instance__31;
@@ -3078,7 +3078,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_initFn____x40_Lean_Class___hyg_153____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_Class___hyg_153____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_Class___hyg_153____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2532____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2538____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

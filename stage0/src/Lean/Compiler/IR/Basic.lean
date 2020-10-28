@@ -28,13 +28,13 @@ structure JoinPointId := (idx : Index)
 abbrev Index.lt (a b : Index) : Bool := a < b
 
 instance : HasBeq VarId := ⟨fun a b => a.idx == b.idx⟩
-instance : HasToString VarId := ⟨fun a => "x_" ++ toString a.idx⟩
-instance : HasFormat VarId := ⟨fun a => toString a⟩
+instance : ToString VarId := ⟨fun a => "x_" ++ toString a.idx⟩
+instance : ToFormat VarId := ⟨fun a => toString a⟩
 instance : Hashable VarId := ⟨fun a => hash a.idx⟩
 
 instance : HasBeq JoinPointId := ⟨fun a b => a.idx == b.idx⟩
-instance : HasToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
-instance : HasFormat JoinPointId := ⟨fun a => toString a⟩
+instance : ToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
+instance : ToFormat JoinPointId := ⟨fun a => toString a⟩
 instance : Hashable JoinPointId := ⟨fun a => hash a.idx⟩
 
 abbrev MData := KVMap
@@ -492,6 +492,9 @@ def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
 abbrev IndexRenaming := RBMap Index Index Index.lt
 
 class HasAlphaEqv (α : Type) :=
+  (aeqv : IndexRenaming → α → α → Bool)
+
+class AlphaEqv (α : Type) :=
   (aeqv : IndexRenaming → α → α → Bool)
 
 export HasAlphaEqv (aeqv)

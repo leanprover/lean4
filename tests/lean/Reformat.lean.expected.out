@@ -32,10 +32,6 @@ def outParam (α : Sort u) : Sort u :=
 def typedExpr (α : Sort u) (a : α) : α :=
 a
 
-@[macroInline, reducible]
-def idRhs (α : Sort u) (a : α) : α :=
-a
-
 /--Auxiliary Declaration used to implement the named patterns `x@p` -/
 @[reducible]
 def namedPattern {α : Sort u} (x a : α) : α :=

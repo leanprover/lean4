@@ -38,10 +38,6 @@ end Acc
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop
   | intro (h : ∀ a, Acc r a) : WellFounded r
 
-class HasWellFounded (α : Sort u) : Type u :=
-  (r : α → α → Prop)
-  (wf : WellFounded r)
-
 class WellFoundedRelation (α : Sort u) : Type u :=
   (r : α → α → Prop)
   (wf : WellFounded r)
@@ -174,13 +170,13 @@ def measure {α : Sort u} : (α → Nat) → α → α → Prop :=
 def measureWf {α : Sort u} (f : α → Nat) : WellFounded (measure f) :=
   InvImage.wf f Nat.ltWf
 
-def sizeofMeasure (α : Sort u) [HasSizeof α] : α → α → Prop :=
-  measure sizeof
+def sizeofMeasure (α : Sort u) [SizeOf α] : α → α → Prop :=
+  measure sizeOf
 
-def sizeofMeasureWf (α : Sort u) [HasSizeof α] : WellFounded (sizeofMeasure α) :=
-  measureWf sizeof
+def sizeofMeasureWf (α : Sort u) [SizeOf α] : WellFounded (sizeofMeasure α) :=
+  measureWf sizeOf
 
-instance hasWellFoundedOfHasSizeof (α : Sort u) [HasSizeof α] : HasWellFounded α := {
+instance hasWellFoundedOfSizeOf (α : Sort u) [SizeOf α] : WellFoundedRelation α := {
   r := sizeofMeasure α,
   wf := sizeofMeasureWf α
 }
@@ -237,7 +233,7 @@ def rprodWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Rprod ra 
 
 end
 
-instance {α : Type u} {β : Type v} [s₁ : HasWellFounded α] [s₂ : HasWellFounded β] : HasWellFounded (α × β) := {
+instance {α : Type u} {β : Type v} [s₁ : WellFoundedRelation α] [s₂ : WellFoundedRelation β] : WellFoundedRelation (α × β) := {
   r  := Lex s₁.r s₂.r,
   wf := lexWf s₁.wf s₂.wf
 }
@@ -329,7 +325,7 @@ def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → P
   RevLex.right _ _ h
 end
 
-instance HasWellFounded {α : Type u} {β : α → Type v} [s₁ : HasWellFounded α] [s₂ : ∀ a, HasWellFounded (β a)] : HasWellFounded (PSigma β) := {
+instance WellFoundedRelation {α : Type u} {β : α → Type v} [s₁ : WellFoundedRelation α] [s₂ : ∀ a, WellFoundedRelation (β a)] : WellFoundedRelation (PSigma β) := {
   r  := Lex s₁.r (fun a => (s₂ a).r),
   wf := lexWf s₁.wf (fun a => (s₂ a).wf)
 }

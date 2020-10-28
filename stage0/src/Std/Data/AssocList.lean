@@ -17,7 +17,7 @@ variables {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w} [Mon
 abbrev empty : AssocList α β :=
 nil
 
-instance : HasEmptyc (AssocList α β) := ⟨empty⟩
+instance : EmptyCollection (AssocList α β) := ⟨empty⟩
 
 abbrev insert (m : AssocList α β) (k : α) (v : β) : AssocList α β :=
 m.cons k v
@@ -41,29 +41,29 @@ def mapVal (f : β → δ) : AssocList α β → AssocList α δ
 | nil        => nil
 | cons k v t => cons k (f v) (mapVal f t)
 
-def findEntry? [HasBeq α] (a : α) : AssocList α β → Option (α × β)
+def findEntry? [BEq α] (a : α) : AssocList α β → Option (α × β)
 | nil         => none
 | cons k v es => match k == a with
   | true  => some (k, v)
   | false => findEntry? a es
 
-def find? [HasBeq α] (a : α) : AssocList α β → Option β
+def find? [BEq α] (a : α) : AssocList α β → Option β
 | nil         => none
 | cons k v es => match k == a with
   | true  => some v
   | false => find? a es
 
-def contains [HasBeq α] (a : α) : AssocList α β → Bool
+def contains [BEq α] (a : α) : AssocList α β → Bool
 | nil         => false
 | cons k v es => k == a || contains a es
 
-def replace [HasBeq α] (a : α) (b : β) : AssocList α β → AssocList α β
+def replace [BEq α] (a : α) (b : β) : AssocList α β → AssocList α β
 | nil         => nil
 | cons k v es => match k == a with
   | true  => cons a b es
   | false => cons k v (replace a b es)
 
-def erase [HasBeq α] (a : α) : AssocList α β → AssocList α β
+def erase [BEq α] (a : α) : AssocList α β → AssocList α β
 | nil         => nil
 | cons k v es => match k == a with
   | true  => es

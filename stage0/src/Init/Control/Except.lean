@@ -171,7 +171,7 @@ variables {ε : Type u} {m : Type v → Type w}
 @[inline] protected def orelse [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
   tryCatch t₁ fun _ => t₂
 
-instance [MonadExcept ε m] {α : Type v} : HasOrelse (m α) := ⟨MonadExcept.orelse⟩
+instance [MonadExcept ε m] {α : Type v} : OrElse (m α) := ⟨MonadExcept.orelse⟩
 
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/

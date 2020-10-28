@@ -27,13 +27,13 @@ open Std (HashMap PHashMap)
      that an entry was "removed" from the hashtable.
    - We do not need additional bookkeeping for extracting the local entries.
 -/
-structure SMap (α : Type u) (β : Type v) [HasBeq α] [Hashable α] :=
+structure SMap (α : Type u) (β : Type v) [BEq α] [Hashable α] :=
 (stage₁ : Bool         := true)
 (map₁   : HashMap α β  := {})
 (map₂   : PHashMap α β := {})
 
 namespace SMap
-variables {α : Type u} {β : Type v} [HasBeq α] [Hashable α]
+variables {α : Type u} {β : Type v} [BEq α] [Hashable α]
 
 instance : Inhabited (SMap α β) := ⟨{}⟩
 def empty : SMap α β := {}

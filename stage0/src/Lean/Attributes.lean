@@ -18,7 +18,7 @@ def AttributeApplicationTime.beq : AttributeApplicationTime → AttributeApplica
   | AttributeApplicationTime.beforeElaboration, AttributeApplicationTime.beforeElaboration => true
   | _,                                          _                                          => false
 
-instance : HasBeq AttributeApplicationTime := ⟨AttributeApplicationTime.beq⟩
+instance : BEq AttributeApplicationTime := ⟨AttributeApplicationTime.beq⟩
 
 structure Attr.Context :=
   (currNamespace : Name)

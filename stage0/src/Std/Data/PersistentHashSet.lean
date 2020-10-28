@@ -8,14 +8,14 @@ import Std.Data.PersistentHashMap
 namespace Std
 universes u v
 
-structure PersistentHashSet (α : Type u) [HasBeq α] [Hashable α] :=
+structure PersistentHashSet (α : Type u) [BEq α] [Hashable α] :=
 (set : PersistentHashMap α Unit)
 
-abbrev PHashSet (α : Type u) [HasBeq α] [Hashable α] := PersistentHashSet α
+abbrev PHashSet (α : Type u) [BEq α] [Hashable α] := PersistentHashSet α
 
 namespace PersistentHashSet
 
-variables {α : Type u} [HasBeq α] [Hashable α]
+variables {α : Type u} [BEq α] [Hashable α]
 
 @[inline] def isEmpty (s : PersistentHashSet α) : Bool :=
 s.set.isEmpty
@@ -26,7 +26,7 @@ s.set.isEmpty
 instance : Inhabited (PersistentHashSet α) :=
 ⟨empty⟩
 
-instance : HasEmptyc (PersistentHashSet α) :=
+instance : EmptyCollection (PersistentHashSet α) :=
 ⟨empty⟩
 
 @[inline] def insert (s : PersistentHashSet α) (a : α) : PersistentHashSet α :=

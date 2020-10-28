@@ -19,14 +19,14 @@ inductive TextDocumentSyncKind
   | full
   | incremental
 
-instance : HasFromJson TextDocumentSyncKind := ⟨fun j =>
+instance : FromJson TextDocumentSyncKind := ⟨fun j =>
   match j.getNat? with
   | some 0 => TextDocumentSyncKind.none
   | some 1 => TextDocumentSyncKind.full
   | some 2 => TextDocumentSyncKind.incremental
   | _      => none⟩
 
-instance : HasToJson TextDocumentSyncKind := ⟨fun o =>
+instance : ToJson TextDocumentSyncKind := ⟨fun o =>
   match o with
   | TextDocumentSyncKind.none        => 0
   | TextDocumentSyncKind.full        => 1
@@ -35,17 +35,17 @@ instance : HasToJson TextDocumentSyncKind := ⟨fun o =>
 structure DidOpenTextDocumentParams :=
   (textDocument : TextDocumentItem)
 
-instance : HasFromJson DidOpenTextDocumentParams := ⟨fun j =>
+instance : FromJson DidOpenTextDocumentParams := ⟨fun j =>
   DidOpenTextDocumentParams.mk <$> j.getObjValAs? TextDocumentItem "textDocument"⟩
 
-instance : HasToJson DidOpenTextDocumentParams := ⟨fun o =>
+instance : ToJson DidOpenTextDocumentParams := ⟨fun o =>
   mkObj $ [⟨"textDocument", toJson o.textDocument⟩]⟩
 
 structure TextDocumentChangeRegistrationOptions :=
   (documentSelector? : Option DocumentSelector := none)
   (syncKind : TextDocumentSyncKind)
 
-instance : HasFromJson TextDocumentChangeRegistrationOptions := ⟨fun j => do
+instance : FromJson TextDocumentChangeRegistrationOptions := ⟨fun j => do
   let documentSelector? := j.getObjValAs? DocumentSelector "documentSelector";
   let syncKind ← j.getObjValAs? TextDocumentSyncKind "syncKind";
   pure ⟨documentSelector?, syncKind⟩⟩
@@ -55,7 +55,7 @@ inductive TextDocumentContentChangeEvent
   | rangeChange (range : Range) (text : String)
   | fullChange (text : String)
 
-instance : HasFromJson TextDocumentContentChangeEvent := ⟨fun j =>
+instance : FromJson TextDocumentContentChangeEvent := ⟨fun j =>
   (do
     let range ← j.getObjValAs? Range "range"
     let text ← j.getObjValAs? String "text"
@@ -66,7 +66,7 @@ structure DidChangeTextDocumentParams :=
   (textDocument : VersionedTextDocumentIdentifier)
   (contentChanges : Array TextDocumentContentChangeEvent)
 
-instance : HasFromJson DidChangeTextDocumentParams := ⟨fun j => do
+instance : FromJson DidChangeTextDocumentParams := ⟨fun j => do
   let textDocument ← j.getObjValAs? VersionedTextDocumentIdentifier "textDocument"
   let contentChanges ← j.getObjValAs? (Array TextDocumentContentChangeEvent) "contentChanges"
   pure ⟨textDocument, contentChanges⟩⟩
@@ -77,12 +77,12 @@ instance : HasFromJson DidChangeTextDocumentParams := ⟨fun j => do
 
 structure SaveOptions := (includeText : Bool)
 
-instance : HasToJson SaveOptions := ⟨fun o =>
+instance : ToJson SaveOptions := ⟨fun o =>
   mkObj $ [⟨"includeText", o.includeText⟩]⟩
 
 structure DidCloseTextDocumentParams := (textDocument : TextDocumentIdentifier)
 
-instance : HasFromJson DidCloseTextDocumentParams := ⟨fun j =>
+instance : FromJson DidCloseTextDocumentParams := ⟨fun j =>
   DidCloseTextDocumentParams.mk <$> j.getObjValAs? TextDocumentIdentifier "textDocument"⟩
 
 -- TODO: TextDocumentSyncClientCapabilities
@@ -95,7 +95,7 @@ structure TextDocumentSyncOptions :=
   (willSaveWaitUntil : Bool)
   (save? : Option SaveOptions := none)
 
-instance : HasToJson TextDocumentSyncOptions := ⟨fun o =>
+instance : ToJson TextDocumentSyncOptions := ⟨fun o =>
   mkObj $
     opt "save" o.save? ++ [
       ⟨"openClose", toJson o.openClose⟩,

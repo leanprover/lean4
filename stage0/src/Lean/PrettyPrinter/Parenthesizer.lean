@@ -109,7 +109,7 @@ abbrev Parenthesizer := ParenthesizerM Unit
     p₁
     (fun _ => do set s; p₂)
 
-instance {α} : HasOrelse (ParenthesizerM α) := ⟨ParenthesizerM.orelse⟩
+instance {α} : OrElse (ParenthesizerM α) := ⟨ParenthesizerM.orelse⟩
 
 unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
   KeyedDeclsAttribute.init {

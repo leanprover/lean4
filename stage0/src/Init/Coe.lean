@@ -130,12 +130,12 @@ instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α :=
   coe := fun v => v.val
 }
 
-/- Coe & HasOfNat bridge -/
+/- Coe & OfNat bridge -/
 
 /-
-  Remark: one may question why we use `HasOfNat α` instead of `Coe Nat α`.
-  Reason: `HasOfNat` is for implementing polymorphic numeric literals, and we may
+  Remark: one may question why we use `OfNat α` instead of `Coe Nat α`.
+  Reason: `OfNat` is for implementing polymorphic numeric literals, and we may
   want to have numberic literals for a type α and **no** coercion from `Nat` to `α`. -/
-instance hasOfNatOfCoe {α : Type u} {β : Type v} [HasOfNat α] [Coe α β] : HasOfNat β := {
-  ofNat := fun (n : Nat) => coe (HasOfNat.ofNat n : α)
+instance hasOfNatOfCoe {α : Type u} {β : Type v} [OfNat α] [Coe α β] : OfNat β := {
+  ofNat := fun (n : Nat) => coe (OfNat.ofNat n : α)
 }

@@ -33,7 +33,7 @@ def DataValue.sameCtor : DataValue → DataValue → Bool
 | DataValue.ofInt _,    DataValue.ofInt _    => true
 | _,                    _                    => false
 
-instance : HasBeq DataValue := ⟨DataValue.beq⟩
+instance : BEq DataValue := ⟨DataValue.beq⟩
 
 @[export lean_data_value_to_string]
 def DataValue.str : DataValue → String
@@ -143,7 +143,7 @@ def subset : KVMap → KVMap → Bool
 def eqv (m₁ m₂ : KVMap) : Bool :=
 subset m₁ m₂ && subset m₂ m₁
 
-instance : HasBeq KVMap := ⟨eqv⟩
+instance : BEq KVMap := ⟨eqv⟩
 
 class KVMapVal (α : Type) :=
 (defVal : α)

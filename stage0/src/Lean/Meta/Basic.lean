@@ -78,7 +78,7 @@ namespace InfoCacheKey
 instance : Inhabited InfoCacheKey := ⟨⟨arbitrary _, arbitrary _, arbitrary _⟩⟩
 instance : Hashable InfoCacheKey :=
   ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) $ mixHash (hash expr) (hash nargs)⟩
-instance : HasBeq InfoCacheKey :=
+instance : BEq InfoCacheKey :=
   ⟨fun ⟨t₁, e₁, n₁⟩ ⟨t₂, e₂, n₂⟩ => t₁ == t₂ && n₁ == n₂ && e₁ == e₂⟩
 end InfoCacheKey
 
@@ -144,8 +144,8 @@ instance : AddMessageContext MetaM := {
   let ((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore
   pure (a, sCore, s)
 
-instance {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
-  ⟨fun env opts x _ => MetaHasEval.eval env opts x.run' true⟩
+instance {α} [MetaEval α] : MetaEval (MetaM α) :=
+  ⟨fun env opts x _ => MetaEval.eval env opts x.run' true⟩
 
 protected def throwIsDefEqStuck {α} : MetaM α :=
   throw $ Exception.internal isDefEqStuckExceptionId
@@ -920,10 +920,10 @@ def withMCtx {α} (mctx : MetavarContext) : n α → n α :=
 /--
   Similar to `approxDefEq`, but uses all available approximations.
   We don't use `constApprox` by default at `approxDefEq` because it often produces undesirable solution for monadic code.
-  For example, suppose we have `pure (x > 0)` which has type `?m Prop`. We also have the goal `[HasPure ?m]`.
+  For example, suppose we have `pure (x > 0)` which has type `?m Prop`. We also have the goal `[Pure ?m]`.
   Now, assume the expected type is `IO Bool`. Then, the unification constraint `?m Prop =?= IO Bool` could be solved
   as `?m := fun _ => IO Bool` using `constApprox`, but this spurious solution would generate a failure when we try to
-  solve `[HasPure (fun _ => IO Bool)]` -/
+  solve `[Pure (fun _ => IO Bool)]` -/
 @[inline] def fullApproxDefEq {α} : n α → n α :=
   mapMetaM fullApproxDefEqImp
 
@@ -991,7 +991,7 @@ def ppExpr (e : Expr) : m Format :=
   let mctx ← getMCtx
   try x catch _ => setEnv env; setMCtx mctx; y
 
-instance {α} : HasOrelse (MetaM α) := ⟨Meta.orelse⟩
+instance {α} : OrElse (MetaM α) := ⟨Meta.orelse⟩
 
 @[inline] private def orelseMergeErrorsImp {α} (x y : MetaM α)
     (mergeRef : Syntax → Syntax → Syntax := fun r₁ r₂ => r₁)

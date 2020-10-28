@@ -1276,13 +1276,13 @@ private def mkSomeContext : Context := {
   let ((a, s), sCore, sMeta) ← (x.run ctx s).toIO ctxCore sCore ctxMeta sMeta
   pure (a, sCore, sMeta, s)
 
-instance {α} [MetaHasEval α] : MetaHasEval (TermElabM α) :=
+instance {α} [MetaEval α] : MetaEval (TermElabM α) :=
   ⟨fun env opts x _ =>
     let x : TermElabM α := do
       try x finally
         let s ← get
         liftIO $ s.messages.forM fun msg => msg.toString >>= IO.println
-    MetaHasEval.eval env opts (hideUnit := true) $ x.run' mkSomeContext⟩
+    MetaEval.eval env opts (hideUnit := true) $ x.run' mkSomeContext⟩
 
 end Term
 

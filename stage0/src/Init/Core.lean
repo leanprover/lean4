@@ -270,15 +270,12 @@ inductive Nat
   | succ (n : Nat) : Nat
 
 /- For numeric literals notation -/
-class HasOfNat (α : Type u) :=
-  (ofNat : Nat → α)
-
-export HasOfNat (ofNat)
-
 class OfNat (α : Type u) :=
   (ofNat : Nat → α)
 
-instance : HasOfNat Nat := ⟨id⟩
+export OfNat (ofNat)
+
+instance : OfNat Nat := ⟨id⟩
 
 /- Auxiliary axiom used to implement `sorry`.
    TODO: add this theorem on-demand. That is,
@@ -286,23 +283,6 @@ instance : HasOfNat Nat := ⟨id⟩
 axiom sorryAx (α : Sort u) (synthetic := true) : α
 
 /- Declare builtin and reserved notation -/
-class HasAdd      (α : Type u) := (add : α → α → α)
-class HasMul      (α : Type u) := (mul : α → α → α)
-class HasNeg      (α : Type u) := (neg : α → α)
-class HasSub      (α : Type u) := (sub : α → α → α)
-class HasDiv      (α : Type u) := (div : α → α → α)
-class HasMod      (α : Type u) := (mod : α → α → α)
-class HasModN     (α : Type u) := (modn : α → Nat → α)
-class HasLessEq   (α : Type u) := (LessEq : α → α → Prop)
-class HasLess     (α : Type u) := (Less : α → α → Prop)
-class HasBeq      (α : Type u) := (beq : α → α → Bool)
-class HasAppend   (α : Type u) := (append : α → α → α)
-class HasOrelse   (α : Type u) := (orelse  : α → α → α)
-class HasAndthen  (α : Type u) := (andthen : α → α → α)
-class HasEquiv    (α : Sort u) := (Equiv : α → α → Prop)
-class HasEmptyc   (α : Type u) := (emptyc : α)
-class HasPow (α : Type u) (β : Type v) := (pow : α → β → α)
-
 class Add      (α : Type u) := (add : α → α → α)
 class Mul      (α : Type u) := (mul : α → α → α)
 class Neg      (α : Type u) := (neg : α → α)
@@ -312,7 +292,7 @@ class Mod      (α : Type u) := (mod : α → α → α)
 class ModN     (α : Type u) := (modn : α → Nat → α)
 class LessEq   (α : Type u) := (LessEq : α → α → Prop)
 class Less     (α : Type u) := (Less : α → α → Prop)
-class Beq      (α : Type u) := (beq : α → α → Bool)
+class BEq      (α : Type u) := (beq : α → α → Bool)
 class Append   (α : Type u) := (append : α → α → α)
 class OrElse   (α : Type u) := (orElse  : α → α → α)
 class AndThen  (α : Type u) := (andThen : α → α → α)
@@ -320,8 +300,8 @@ class Equiv    (α : Sort u) := (Equiv : α → α → Prop)
 class EmptyCollection (α : Type u) := (emptyCollection : α)
 class Pow (α : Type u) (β : Type v) := (pow : α → β → α)
 
-@[reducible] def GreaterEq {α : Type u} [HasLessEq α] (a b : α) : Prop := HasLessEq.LessEq b a
-@[reducible] def Greater {α : Type u} [HasLess α] (a b : α) : Prop     := HasLess.Less b a
+@[reducible] def GreaterEq {α : Type u} [LessEq α] (a b : α) : Prop := LessEq.LessEq b a
+@[reducible] def Greater {α : Type u} [Less α] (a b : α) : Prop     := Less.Less b a
 
 /- Nat basic instances -/
 
@@ -333,9 +313,9 @@ protected def Nat.add : (@& Nat) → (@& Nat) → Nat
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
-attribute [matchPattern] Nat.add HasAdd.add HasNeg.neg
+attribute [matchPattern] Nat.add Add.add Neg.neg
 
-instance : HasAdd Nat := ⟨Nat.add⟩
+instance : Add Nat := ⟨Nat.add⟩
 
 def std.priority.default : Nat := 1000
 def std.priority.max     : Nat := 0xFFFFFFFF
@@ -403,78 +383,75 @@ inductive PNonScalar : Type u
 
 /- sizeof -/
 
-class HasSizeof (α : Sort u) :=
-  (sizeof : α → Nat)
-
-export HasSizeof (sizeof)
-
 class SizeOf (α : Sort u) :=
   (sizeOf : α → Nat)
 
+export SizeOf (sizeOf)
+
 /-
-Declare sizeof instances and theorems for types declared before HasSizeof.
-From now on, the inductive Compiler will automatically generate sizeof instances and theorems.
+Declare sizeOf instances and theorems for types declared before SizeOf.
+From now on, the inductive Compiler will automatically generate sizeOf instances and theorems.
 -/
 
-/- Every Type `α` has a default HasSizeof instance that just returns 0 for every element of `α` -/
-protected def default.sizeof (α : Sort u) : α → Nat
+/- Every Type `α` has a default SizeOf instance that just returns 0 for every element of `α` -/
+protected def default.sizeOf (α : Sort u) : α → Nat
   | a => 0
 
-instance (α : Sort u) : HasSizeof α :=
-  ⟨default.sizeof α⟩
+instance (α : Sort u) : SizeOf α :=
+  ⟨default.sizeOf α⟩
 
-instance : HasSizeof Nat := {
-  sizeof := fun n => n
+instance : SizeOf Nat := {
+  sizeOf := fun n => n
 }
 
-instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Prod α β) := {
-  sizeof := fun (a, b) => 1 + sizeof a + sizeof b
+instance (α : Type u) (β : Type v) [SizeOf α] [SizeOf β] : SizeOf (Prod α β) := {
+  sizeOf := fun (a, b) => 1 + sizeOf a + sizeOf b
 }
 
-instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Sum α β) := {
-  sizeof := fun
-    | Sum.inl a => 1 + sizeof a
-    | Sum.inr b => 1 + sizeof b
+instance (α : Type u) (β : Type v) [SizeOf α] [SizeOf β] : SizeOf (Sum α β) := {
+  sizeOf := fun
+    | Sum.inl a => 1 + sizeOf a
+    | Sum.inr b => 1 + sizeOf b
 }
 
-instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (PSum α β) := {
-  sizeof := fun
-    | PSum.inl a => 1 + sizeof a
-    | PSum.inr b => 1 + sizeof b
+instance (α : Type u) (β : Type v) [SizeOf α] [SizeOf β] : SizeOf (PSum α β) := {
+  sizeOf := fun
+    | PSum.inl a => 1 + sizeOf a
+    | PSum.inr b => 1 + sizeOf b
 }
 
-instance (α : Type u) (β : α → Type v) [HasSizeof α] [∀ a, HasSizeof (β a)] : HasSizeof (Sigma β) := {
-  sizeof := fun ⟨a, b⟩ => 1 + sizeof a + sizeof b
+instance (α : Type u) (β : α → Type v) [SizeOf α] [∀ a, SizeOf (β a)] : SizeOf (Sigma β) := {
+  sizeOf := fun ⟨a, b⟩ => 1 + sizeOf a + sizeOf b
 }
 
-instance (α : Type u) (β : α → Type v) [HasSizeof α] [(a : α) → HasSizeof (β a)] : HasSizeof (PSigma β) := {
-  sizeof := fun ⟨a, b⟩ => 1 + sizeof a + sizeof b
+instance (α : Type u) (β : α → Type v) [SizeOf α] [(a : α) → SizeOf (β a)] : SizeOf (PSigma β) := {
+  sizeOf := fun ⟨a, b⟩ => 1 + sizeOf a + sizeOf b
 }
 
-instance : HasSizeof PUnit := {
-  sizeof := fun _ => 1
+instance : SizeOf PUnit := {
+  sizeOf := fun _ => 1
 }
 
-instance : HasSizeof Bool := {
-  sizeof := fun _ => 1
+instance : SizeOf Bool := {
+  sizeOf := fun _ => 1
 }
 
-instance (α : Type u) [HasSizeof α] : HasSizeof (Option α) := {
-  sizeof := fun
+instance (α : Type u) [SizeOf α] : SizeOf (Option α) := {
+  sizeOf := fun
     | none   => 1
-    | some a => 1 + sizeof a
+    | some a => 1 + sizeOf a
 }
 
-instance (α : Type u) [HasSizeof α] : HasSizeof (List α) := {
-  sizeof := fun as =>
+instance (α : Type u) [SizeOf α] : SizeOf (List α) := {
+  sizeOf := fun as =>
     let rec loop
       | List.nil      => 1
-      | List.cons x xs => 1 + sizeof x + loop xs
+      | List.cons x xs => 1 + sizeOf x + loop xs
     loop as
 }
 
-instance {α : Type u} [HasSizeof α] (p : α → Prop) : HasSizeof (Subtype p) := {
-  sizeof := fun ⟨a, _⟩ => sizeof a
+instance {α : Type u} [SizeOf α] (p : α → Prop) : SizeOf (Subtype p) := {
+  sizeOf := fun ⟨a, _⟩ => sizeOf a
 }
 
 theorem natAddZero (n : Nat) : n + 0 = n := rfl
@@ -513,7 +490,7 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
 @[extern c inline "#1 || #2"] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
 @[extern c inline "#1 && #2"] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
 
-@[inline] def bne {α : Type u} [HasBeq α] (a b : α) : Bool :=
+@[inline] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
   !(a == b)
 
 /- Logical connectives an equality -/
@@ -792,7 +769,7 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 
 export Decidable (isTrue isFalse decide)
 
-instance {α : Type u} [DecidableEq α] : HasBeq α :=
+instance {α : Type u} [DecidableEq α] : BEq α :=
   ⟨fun a b => decide (a = b)⟩
 
 theorem decideTrueEqTrue (h : Decidable True) : @decide True h = true :=
@@ -1273,21 +1250,21 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
       | (isFalse n₂) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₂' n₂))
     | (isFalse n₁) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₁' n₁))
 
-instance [HasBeq α] [HasBeq β] : HasBeq (α × β) := {
+instance [BEq α] [BEq β] : BEq (α × β) := {
   beq := fun ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ => a₁ == a₂ && b₁ == b₂
 }
 
-instance [HasLess α] [HasLess β] : HasLess (α × β) := {
+instance [Less α] [Less β] : Less (α × β) := {
   Less := fun s t => s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 }
 
 instance prodHasDecidableLt
-         [HasLess α] [HasLess β] [DecidableEq α] [DecidableEq β]
+         [Less α] [Less β] [DecidableEq α] [DecidableEq β]
          [(a b : α) → Decidable (a < b)] [(a b : β) → Decidable (a < b)]
          : (s t : α × β) → Decidable (s < t) :=
   fun t s => inferInstanceAs (Decidable (_ ∨ _))
 
-theorem Prod.ltDef [HasLess α] [HasLess β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
+theorem Prod.ltDef [Less α] [Less β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
   rfl
 end
 
@@ -1330,7 +1307,7 @@ class Setoid (α : Sort u) :=
   (r : α → α → Prop)
   (iseqv {} : Equivalence r)
 
-instance {α : Sort u} [Setoid α] : HasEquiv α :=
+instance {α : Sort u} [Setoid α] : Equiv α :=
   ⟨Setoid.r⟩
 
 namespace Setoid

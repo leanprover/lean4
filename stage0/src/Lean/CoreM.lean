@@ -93,11 +93,11 @@ def mkFreshUserName {m} [MonadLiftT CoreM m] (n : Name) : m Name :=
   | Except.error (Exception.internal id) => throw $ IO.userError $ "internal exception #" ++ toString id.idx
   | Except.ok a => pure a
 
-instance {α} [MetaHasEval α] : MetaHasEval (CoreM α) := {
+instance {α} [MetaEval α] : MetaEval (CoreM α) := {
   eval := fun env opts x _ => do
     let x : CoreM α := do try x finally printTraces
     let (a, s) ← x.toIO { maxRecDepth := getMaxRecDepth opts, options := opts } { env := env }
-    MetaHasEval.eval s.env opts a (hideUnit := true)
+    MetaEval.eval s.env opts a (hideUnit := true)
 }
 
 end Core

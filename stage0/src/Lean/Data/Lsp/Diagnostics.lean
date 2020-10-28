@@ -21,7 +21,7 @@ open Json
 inductive DiagnosticSeverity
   | error | warning | information | hint
 
-instance : HasFromJson DiagnosticSeverity := ⟨fun j =>
+instance : FromJson DiagnosticSeverity := ⟨fun j =>
   match j.getNat? with
   | some 1 => DiagnosticSeverity.error
   | some 2 => DiagnosticSeverity.warning
@@ -29,7 +29,7 @@ instance : HasFromJson DiagnosticSeverity := ⟨fun j =>
   | some 4 => DiagnosticSeverity.hint
   | _      => none⟩
 
-instance : HasToJson DiagnosticSeverity := ⟨fun o =>
+instance : ToJson DiagnosticSeverity := ⟨fun o =>
   match o with
   | DiagnosticSeverity.error       => 1
   | DiagnosticSeverity.warning     => 2
@@ -40,13 +40,13 @@ inductive DiagnosticCode
   | int (i : Int)
   | string (s : String)
 
-instance : HasFromJson DiagnosticCode := ⟨fun j =>
+instance : FromJson DiagnosticCode := ⟨fun j =>
   match j with
   | num (i : Int) => DiagnosticCode.int i
   | str s         => DiagnosticCode.string s
   | _             => none⟩
 
-instance : HasToJson DiagnosticCode := ⟨fun o =>
+instance : ToJson DiagnosticCode := ⟨fun o =>
   match o with
   | DiagnosticCode.int i    => i
   | DiagnosticCode.string s => s⟩
@@ -55,13 +55,13 @@ inductive DiagnosticTag
   | unnecessary
   | deprecated
 
-instance : HasFromJson DiagnosticTag := ⟨fun j =>
+instance : FromJson DiagnosticTag := ⟨fun j =>
   match j.getNat? with
   | some 1 => DiagnosticTag.unnecessary
   | some 2 => DiagnosticTag.deprecated
   | _      => none⟩
 
-instance : HasToJson DiagnosticTag := ⟨fun o =>
+instance : ToJson DiagnosticTag := ⟨fun o =>
   match o with
   | DiagnosticTag.unnecessary => (1 : Nat)
   | DiagnosticTag.deprecated  => (2 : Nat)⟩
@@ -70,12 +70,12 @@ structure DiagnosticRelatedInformation :=
   (location : Location)
   (message : String)
 
-instance : HasFromJson DiagnosticRelatedInformation := ⟨fun j => do
+instance : FromJson DiagnosticRelatedInformation := ⟨fun j => do
   let location ← j.getObjValAs? Location "location"
   let message ← j.getObjValAs? String "message"
   pure ⟨location, message⟩⟩
 
-instance : HasToJson DiagnosticRelatedInformation := ⟨fun o =>
+instance : ToJson DiagnosticRelatedInformation := ⟨fun o =>
   mkObj [
     ⟨"location", toJson o.location⟩,
     ⟨"message", o.message⟩]⟩
@@ -89,7 +89,7 @@ structure Diagnostic :=
   (tags? : Option (Array DiagnosticTag) := none)
   (relatedInformation? : Option (Array DiagnosticRelatedInformation) := none)
 
-instance : HasFromJson Diagnostic := ⟨fun j => do
+instance : FromJson Diagnostic := ⟨fun j => do
   let range ← j.getObjValAs? Range "range"
   let severity? := j.getObjValAs? DiagnosticSeverity "severity"
   let code? := j.getObjValAs? DiagnosticCode "code"
@@ -99,7 +99,7 @@ instance : HasFromJson Diagnostic := ⟨fun j => do
   let relatedInformation? := j.getObjValAs? (Array DiagnosticRelatedInformation) "relatedInformation"
   pure ⟨range, severity?, code?, source?, message, tags?, relatedInformation?⟩⟩
 
-instance : HasToJson Diagnostic := ⟨fun o => mkObj $
+instance : ToJson Diagnostic := ⟨fun o => mkObj $
   opt "severity" o.severity? ++
   opt "code" o.code? ++
   opt "source" o.source? ++
@@ -113,13 +113,13 @@ structure PublishDiagnosticsParams :=
   (version? : Option Int := none)
   (diagnostics: Array Diagnostic)
 
-instance : HasFromJson PublishDiagnosticsParams := ⟨fun j => do
+instance : FromJson PublishDiagnosticsParams := ⟨fun j => do
   let uri ← j.getObjValAs? DocumentUri "uri"
   let version? := j.getObjValAs? Int "version"
   let diagnostics ← j.getObjValAs? (Array Diagnostic) "diagnostics"
   pure ⟨uri, version?, diagnostics⟩⟩
 
-instance : HasToJson PublishDiagnosticsParams := ⟨fun o => mkObj $
+instance : ToJson PublishDiagnosticsParams := ⟨fun o => mkObj $
   opt "version" o.version? ++ [
     ⟨"uri", toJson o.uri⟩,
     ⟨"diagnostics", toJson o.diagnostics⟩]⟩

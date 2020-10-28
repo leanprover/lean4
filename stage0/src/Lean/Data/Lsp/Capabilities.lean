@@ -19,7 +19,7 @@ open Json
 -- TODO: right now we ignore the client's capabilities
 inductive ClientCapabilities | mk
 
-instance : HasFromJson ClientCapabilities :=
+instance : FromJson ClientCapabilities :=
   ⟨fun j => ClientCapabilities.mk⟩
 
 -- TODO largely unimplemented
@@ -27,7 +27,7 @@ structure ServerCapabilities :=
   (textDocumentSync? : Option TextDocumentSyncOptions := none)
   (hoverProvider : Bool := false)
 
-instance : HasToJson ServerCapabilities := ⟨fun o => mkObj $
+instance : ToJson ServerCapabilities := ⟨fun o => mkObj $
   opt "textDocumentSync" o.textDocumentSync? ++
   [⟨"hoverProvider", o.hoverProvider⟩]⟩
 

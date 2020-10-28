@@ -59,7 +59,7 @@ instance : MonadExcept Exception TacticM := {
   tryCatch := Tactic.tryCatch
 }
 
-instance {α} : HasOrelse (TacticM α) := ⟨Tactic.orelse⟩
+instance {α} : OrElse (TacticM α) := ⟨Tactic.orelse⟩
 
 structure SavedState :=
   (core   : Core.State)

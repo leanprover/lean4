@@ -10,25 +10,22 @@ import Lean.Meta.Offset
 
 namespace Lean.Meta
 
-class HasReduceEval (α : Type) :=
-  (reduceEval : Expr → MetaM α)
-
 class ReduceEval (α : Type) :=
   (reduceEval : Expr → MetaM α)
 
-def reduceEval {α : Type} [HasReduceEval α] (e : Expr) : MetaM α :=
+def reduceEval {α : Type} [ReduceEval α] (e : Expr) : MetaM α :=
   withAtLeastTransparency TransparencyMode.default $
-  HasReduceEval.reduceEval e
+  ReduceEval.reduceEval e
 
 private def throwFailedToEval {α} (e : Expr) : MetaM α :=
   throwError! "reduceEval: failed to evaluate argument{indentExpr e}"
 
-instance : HasReduceEval Nat := ⟨fun e => do
+instance : ReduceEval Nat := ⟨fun e => do
   let e ← whnf e
   let some n ← pure $ evalNat e | throwFailedToEval e
   pure n⟩
 
-instance {α : Type} [HasReduceEval α] : HasReduceEval (Option α) := ⟨fun e => do
+instance {α : Type} [ReduceEval α] : ReduceEval (Option α) := ⟨fun e => do
   let e ← whnf e
   let Expr.const c .. ← pure e.getAppFn | throwFailedToEval e
   let nargs := e.getAppNumArgs
@@ -36,7 +33,7 @@ instance {α : Type} [HasReduceEval α] : HasReduceEval (Option α) := ⟨fun e 
   else if c == `Option.some && nargs == 1 then some <$> reduceEval e.appArg!
   else throwFailedToEval e⟩
 
-instance : HasReduceEval String := ⟨fun e => do
+instance : ReduceEval String := ⟨fun e => do
   let Expr.lit (Literal.strVal s) _ ← whnf e | throwFailedToEval e
   pure s⟩
 
@@ -56,6 +53,6 @@ private partial def evalName (e : Expr) : MetaM Name := do
   else
     throwFailedToEval e
 
-instance : HasReduceEval Name := ⟨evalName⟩
+instance : ReduceEval Name := ⟨evalName⟩
 
 end Lean.Meta

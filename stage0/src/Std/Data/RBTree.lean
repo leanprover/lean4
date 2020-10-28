@@ -13,7 +13,7 @@ def RBTree (α : Type u) (lt : α → α → Bool) : Type u :=
 @[inline] def mkRBTree (α : Type u) (lt : α → α → Bool) : RBTree α lt :=
   mkRBMap α Unit lt
 
-instance (α : Type u) (lt : α → α → Bool) : HasEmptyc (RBTree α lt) :=
+instance (α : Type u) (lt : α → α → Bool) : EmptyCollection (RBTree α lt) :=
   ⟨mkRBTree α lt⟩
 
 namespace RBTree

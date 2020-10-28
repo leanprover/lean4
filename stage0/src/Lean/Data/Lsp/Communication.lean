@@ -51,11 +51,11 @@ def readLspMessage (h : FS.Stream) : IO Message := do
   let nBytes ← readLspHeader h
   h.readMessage nBytes
 
-def readLspRequestAs (h : FS.Stream) (expectedMethod : String) (α : Type) [HasFromJson α] : IO (Request α) := do
+def readLspRequestAs (h : FS.Stream) (expectedMethod : String) (α : Type) [FromJson α] : IO (Request α) := do
   let nBytes ← readLspHeader h
   h.readRequestAs nBytes expectedMethod α
 
-def readLspNotificationAs (h : FS.Stream) (expectedMethod : String) (α : Type) [HasFromJson α] : IO α := do
+def readLspNotificationAs (h : FS.Stream) (expectedMethod : String) (α : Type) [FromJson α] : IO α := do
   let nBytes ← readLspHeader h
   h.readNotificationAs nBytes expectedMethod α
 
@@ -67,10 +67,10 @@ def writeLspMessage (h : FS.Stream) (m : Message) : IO Unit := do
   h.putStr (header ++ j)
   h.flush
 
-def writeLspResponse {α : Type} [HasToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
+def writeLspResponse {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
   writeLspMessage h (Message.response id (toJson r))
 
-def writeLspNotification {α : Type} [HasToJson α] (h : FS.Stream) (method : String) (r : α) : IO Unit :=
+def writeLspNotification {α : Type} [ToJson α] (h : FS.Stream) (method : String) (r : α) : IO Unit :=
   match toJson r with
   | Json.obj o => writeLspMessage h (Message.notification method o)
   | Json.arr a => writeLspMessage h (Message.notification method a)

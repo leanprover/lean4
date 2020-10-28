@@ -69,15 +69,15 @@ class Backtrackable (δ : outParam $ Type u) (σ : Type u) :=
   | Result.error e s => handle e (Backtrackable.restore s d)
   | ok               => ok
 
-@[inline] protected def orelse {δ} [Backtrackable δ σ] (x₁ x₂ : EStateM ε σ α) : EStateM ε σ α := fun s =>
+@[inline] protected def orElse {δ} [Backtrackable δ σ] (x₁ x₂ : EStateM ε σ α) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s;
   match x₁ s with
   | Result.error _ s => x₂ (Backtrackable.restore s d)
   | ok               => ok
 
-/-- Alternative orelse operator that allows to select which exception should be used.
-    The default is to use the first exception since the standard `orelse` uses the second. -/
-@[inline] protected def orelse' {δ} [Backtrackable δ σ] (x₁ x₂ : EStateM ε σ α) (useFirstEx := true) : EStateM ε σ α := fun s =>
+/-- Alternative orElse operator that allows to select which exception should be used.
+    The default is to use the first exception since the standard `orElse` uses the second. -/
+@[inline] protected def orElse' {δ} [Backtrackable δ σ] (x₁ x₂ : EStateM ε σ α) (useFirstEx := true) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s;
   match x₁ s with
   | Result.error e₁ s₁ =>
@@ -113,8 +113,8 @@ instance : Monad (EStateM ε σ) := {
   seqRight := EStateM.seqRight
 }
 
-instance {δ} [Backtrackable δ σ] : HasOrelse (EStateM ε σ α) := {
-  orelse := EStateM.orelse
+instance {δ} [Backtrackable δ σ] : OrElse (EStateM ε σ α) := {
+  orElse := EStateM.orElse
 }
 
 instance : MonadStateOf σ (EStateM ε σ) := {

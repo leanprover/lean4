@@ -21,7 +21,7 @@ variables {α : Type}
 def empty : Trie α :=
 ⟨none, RBNode.leaf⟩
 
-instance : HasEmptyc (Trie α) :=
+instance : EmptyCollection (Trie α) :=
 ⟨empty⟩
 
 instance : Inhabited (Trie α) :=

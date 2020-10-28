@@ -20,7 +20,7 @@ structure ClientInfo :=
   (name : String)
   (version? : Option String := none)
 
-instance : HasFromJson ClientInfo := ⟨fun j => do
+instance : FromJson ClientInfo := ⟨fun j => do
   let name ← j.getObjValAs? String "name"
   let version? := j.getObjValAs? String "version"
   pure ⟨name, version?⟩⟩
@@ -30,7 +30,7 @@ inductive Trace
   | messages
   | verbose
 
-instance : HasFromJson Trace := ⟨fun j =>
+instance : FromJson Trace := ⟨fun j =>
   match j.getStr? with
   | some "off"      => Trace.off
   | some "messages" => Trace.messages
@@ -49,7 +49,7 @@ structure InitializeParams :=
   (trace : Trace := Trace.off)
   (workspaceFolders? : Option (Array WorkspaceFolder) := none)
 
-instance : HasFromJson InitializeParams := ⟨fun j => do
+instance : FromJson InitializeParams := ⟨fun j => do
   /- Many of these params can be null instead of not present.
   For ease of implementation, we're liberal:
   missing params, wrong json types and null all map to none,
@@ -68,14 +68,14 @@ instance : HasFromJson InitializeParams := ⟨fun j => do
 
 inductive InitializedParams | mk
 
-instance : HasFromJson InitializedParams :=
+instance : FromJson InitializedParams :=
   ⟨fun j => InitializedParams.mk⟩
 
 structure ServerInfo :=
   (name : String)
   (version? : Option String := none)
 
-instance : HasToJson ServerInfo := ⟨fun o => mkObj $
+instance : ToJson ServerInfo := ⟨fun o => mkObj $
   ⟨"name", o.name⟩ ::
   opt "version" o.version?⟩
 
@@ -83,7 +83,7 @@ structure InitializeResult :=
   (capabilities : ServerCapabilities)
   (serverInfo? : Option ServerInfo := none)
 
-instance : HasToJson InitializeResult := ⟨fun o =>
+instance : ToJson InitializeResult := ⟨fun o =>
   mkObj $
      ⟨"capabilities", toJson o.capabilities⟩ ::
      opt "serverInfo" o.serverInfo?⟩

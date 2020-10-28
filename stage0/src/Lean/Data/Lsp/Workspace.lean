@@ -16,12 +16,12 @@ structure WorkspaceFolder :=
   (uri : DocumentUri)
   (name : String)
 
-instance : HasFromJson WorkspaceFolder := ⟨fun j => do
+instance : FromJson WorkspaceFolder := ⟨fun j => do
   let uri ← j.getObjValAs? DocumentUri "uri"
   let name ← j.getObjValAs? String "name"
   pure ⟨uri, name⟩⟩
 
-instance : HasToJson WorkspaceFolder := ⟨fun o =>
+instance : ToJson WorkspaceFolder := ⟨fun o =>
   mkObj [
     ⟨"uri", toJson o.uri⟩,
     ⟨"name", toJson o.name⟩]⟩

@@ -58,7 +58,7 @@ protected def append (a : ByteArray) (b : ByteArray) : ByteArray :=
   -- we assume that `append`s may be repeated, so use asymptotic growing; use `copySlice` directly to customize
   b.copySlice 0 a a.size b.size false
 
-instance : HasAppend ByteArray := ⟨ByteArray.append⟩
+instance : Append ByteArray := ⟨ByteArray.append⟩
 
 partial def toList (bs : ByteArray) : List UInt8 :=
   let rec loop (i : Nat) (r : List UInt8) :=

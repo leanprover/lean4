@@ -94,7 +94,7 @@ protected def toString (msgData : MessageData) : IO String := do
   let fmt ← msgData.format
   pure $ toString fmt
 
-instance : HasAppend MessageData := ⟨compose⟩
+instance : Append MessageData := ⟨compose⟩
 
 instance : Coe String MessageData := ⟨ofFormat ∘ format⟩
 instance : Coe Format MessageData := ⟨ofFormat⟩
@@ -182,7 +182,7 @@ def add (msg : Message) (log : MessageLog) : MessageLog :=
 protected def append (l₁ l₂ : MessageLog) : MessageLog :=
   ⟨l₁.msgs ++ l₂.msgs⟩
 
-instance : HasAppend MessageLog :=
+instance : Append MessageLog :=
   ⟨MessageLog.append⟩
 
 def hasErrors (log : MessageLog) : Bool :=

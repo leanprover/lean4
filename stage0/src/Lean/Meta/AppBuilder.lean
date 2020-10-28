@@ -270,11 +270,11 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat →
 /--
   Similar to `mkAppM`, but it allows us to specify which arguments are provided explicitly using `Option` type.
   Example:
-  Given `Pure.pure {m : Type u → Type v} [HasPure m] {α : Type u} (a : α) : m α`,
+  Given `Pure.pure {m : Type u → Type v} [Pure m] {α : Type u} (a : α) : m α`,
   ```
   mkAppOptM `Pure.pure #[m, none, none, a]
   ```
-  returns a `Pure.pure` application if the instance `HasPure m` can be synthesized, and the universes match.
+  returns a `Pure.pure` application if the instance `Pure m` can be synthesized, and the universes match.
   Note that,
   ```
   mkAppM `Pure.pure #[a]

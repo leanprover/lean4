@@ -27,12 +27,12 @@ structure JoinPointId := (idx : Index)
 
 abbrev Index.lt (a b : Index) : Bool := a < b
 
-instance : HasBeq VarId := ⟨fun a b => a.idx == b.idx⟩
+instance : BEq VarId := ⟨fun a b => a.idx == b.idx⟩
 instance : ToString VarId := ⟨fun a => "x_" ++ toString a.idx⟩
 instance : ToFormat VarId := ⟨fun a => toString a⟩
 instance : Hashable VarId := ⟨fun a => hash a.idx⟩
 
-instance : HasBeq JoinPointId := ⟨fun a b => a.idx == b.idx⟩
+instance : BEq JoinPointId := ⟨fun a b => a.idx == b.idx⟩
 instance : ToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
 instance : ToFormat JoinPointId := ⟨fun a => toString a⟩
 instance : Hashable JoinPointId := ⟨fun a => hash a.idx⟩
@@ -94,7 +94,7 @@ partial def beq : IRType → IRType → Bool
   | union n₁ tys₁,  union n₂ tys₂  => n₁ == n₂ && Array.isEqv tys₁ tys₂ beq
   | _,              _              => false
 
-instance : HasBeq IRType := ⟨beq⟩
+instance : BEq IRType := ⟨beq⟩
 
 def isScalar : IRType → Bool
   | float  => true
@@ -137,7 +137,7 @@ protected def Arg.beq : Arg → Arg → Bool
   | irrelevant, irrelevant => true
   | _,          _          => false
 
-instance : HasBeq Arg := ⟨Arg.beq⟩
+instance : BEq Arg := ⟨Arg.beq⟩
 instance : Inhabited Arg := ⟨Arg.irrelevant⟩
 
 @[export lean_ir_mk_var_arg] def mkVarArg (id : VarId) : Arg := Arg.var id
@@ -151,7 +151,7 @@ def LitVal.beq : LitVal → LitVal → Bool
   | str v₁, str v₂ => v₁ == v₂
   | _,      _      => false
 
-instance : HasBeq LitVal := ⟨LitVal.beq⟩
+instance : BEq LitVal := ⟨LitVal.beq⟩
 
 /- Constructor information.
 
@@ -175,7 +175,7 @@ def CtorInfo.beq : CtorInfo → CtorInfo → Bool
   | ⟨n₁, cidx₁, size₁, usize₁, ssize₁⟩, ⟨n₂, cidx₂, size₂, usize₂, ssize₂⟩ =>
     n₁ == n₂ && cidx₁ == cidx₂ && size₁ == size₂ && usize₁ == usize₂ && ssize₁ == ssize₂
 
-instance : HasBeq CtorInfo := ⟨CtorInfo.beq⟩
+instance : BEq CtorInfo := ⟨CtorInfo.beq⟩
 
 def CtorInfo.isRef (info : CtorInfo) : Bool :=
   info.size > 0 || info.usize > 0 || info.ssize > 0
@@ -491,32 +491,29 @@ def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
 
 abbrev IndexRenaming := RBMap Index Index Index.lt
 
-class HasAlphaEqv (α : Type) :=
-  (aeqv : IndexRenaming → α → α → Bool)
-
 class AlphaEqv (α : Type) :=
   (aeqv : IndexRenaming → α → α → Bool)
 
-export HasAlphaEqv (aeqv)
+export AlphaEqv (aeqv)
 
 def VarId.alphaEqv (ρ : IndexRenaming) (v₁ v₂ : VarId) : Bool :=
   match ρ.find? v₁.idx with
   | some v => v == v₂.idx
   | none   => v₁ == v₂
 
-instance : HasAlphaEqv VarId := ⟨VarId.alphaEqv⟩
+instance : AlphaEqv VarId := ⟨VarId.alphaEqv⟩
 
 def Arg.alphaEqv (ρ : IndexRenaming) : Arg → Arg → Bool
   | Arg.var v₁,     Arg.var v₂     => aeqv ρ v₁ v₂
   | Arg.irrelevant, Arg.irrelevant => true
   | _,              _              => false
 
-instance : HasAlphaEqv Arg := ⟨Arg.alphaEqv⟩
+instance : AlphaEqv Arg := ⟨Arg.alphaEqv⟩
 
 def args.alphaEqv (ρ : IndexRenaming) (args₁ args₂ : Array Arg) : Bool :=
   Array.isEqv args₁ args₂ (fun a b => aeqv ρ a b)
 
-instance: HasAlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
+instance: AlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
 def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
   | Expr.ctor i₁ ys₁,        Expr.ctor i₂ ys₂        => i₁ == i₂ && aeqv ρ ys₁ ys₂
@@ -535,7 +532,7 @@ def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
   | Expr.isTaggedPtr x₁,     Expr.isTaggedPtr x₂     => aeqv ρ x₁ x₂
   | _,                        _                      => false
 
-instance : HasAlphaEqv Expr:= ⟨Expr.alphaEqv⟩
+instance : AlphaEqv Expr:= ⟨Expr.alphaEqv⟩
 
 def addVarRename (ρ : IndexRenaming) (x₁ x₂ : Nat) :=
   if x₁ == x₂ then ρ else ρ.insert x₁ x₂
@@ -575,7 +572,7 @@ partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 def FnBody.beq (b₁ b₂ : FnBody) : Bool :=
   FnBody.alphaEqv ∅ b₁ b₂
 
-instance : HasBeq FnBody := ⟨FnBody.beq⟩
+instance : BEq FnBody := ⟨FnBody.beq⟩
 
 abbrev VarIdSet := RBTree VarId (fun x y => x.idx < y.idx)
 instance : Inhabited VarIdSet := ⟨{}⟩

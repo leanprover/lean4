@@ -48,7 +48,7 @@ protected partial def quote : Level → Syntax
   -- HACK: approximation
   | mvar  n _    => Unhygienic.run `(level|_)
 
-instance : HasQuote Level := ⟨Level.quote⟩
+instance : Quote Level := ⟨Level.quote⟩
 end Level
 
 def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types true
@@ -104,7 +104,7 @@ instance : Alternative DelabM := {
   failure := Delaborator.failure
 }
 -- HACK: necessary since it would otherwise prefer the instance from MonadExcept
-instance {α} : HasOrelse (DelabM α) := ⟨Delaborator.orelse⟩
+instance {α} : OrElse (DelabM α) := ⟨Delaborator.orelse⟩
 
 -- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
@@ -507,7 +507,7 @@ def delabLit : Delab := do
   | Literal.strVal s => pure $ quote s
 
 -- `ofNat 0` ~> `0`
-@[builtinDelab app.HasOfNat.ofNat]
+@[builtinDelab app.OfNat.ofNat]
 def delabOfNat : Delab := whenPPOption getPPCoercions do
   let e@(Expr.app _ (Expr.lit (Literal.natVal n) _) _) ← getExpr | failure
   pure $ quote n
@@ -627,24 +627,24 @@ def delabPrefixOp (op : Bool → Syntax → Delab) : Delab := whenPPOption getPP
 @[builtinDelab app.Prod] def delabProd : Delab := delabInfixOp fun _ x y => `($x × $y)
 @[builtinDelab app.Function.comp] def delabFComp : Delab := delabInfixOp fun _ x y => `($x ∘ $y)
 
-@[builtinDelab app.HasAdd.add] def delabAdd : Delab := delabInfixOp fun _ x y => `($x + $y)
-@[builtinDelab app.HasSub.sub] def delabSub : Delab := delabInfixOp fun _ x y => `($x - $y)
-@[builtinDelab app.HasMul.mul] def delabMul : Delab := delabInfixOp fun _ x y => `($x * $y)
-@[builtinDelab app.HasDiv.div] def delabDiv : Delab := delabInfixOp fun _ x y => `($x / $y)
-@[builtinDelab app.HasMod.mod] def delabMod : Delab := delabInfixOp fun _ x y => `($x % $y)
-@[builtinDelab app.HasModN.modn] def delabModN : Delab := delabInfixOp fun _ x y => `($x %ₙ $y)
-@[builtinDelab app.HasPow.pow] def delabPow : Delab := delabInfixOp fun _ x y => `($x ^ $y)
+@[builtinDelab app.Add.add] def delabAdd : Delab := delabInfixOp fun _ x y => `($x + $y)
+@[builtinDelab app.Sub.sub] def delabSub : Delab := delabInfixOp fun _ x y => `($x - $y)
+@[builtinDelab app.Mul.mul] def delabMul : Delab := delabInfixOp fun _ x y => `($x * $y)
+@[builtinDelab app.Div.div] def delabDiv : Delab := delabInfixOp fun _ x y => `($x / $y)
+@[builtinDelab app.Mod.mod] def delabMod : Delab := delabInfixOp fun _ x y => `($x % $y)
+@[builtinDelab app.ModN.modn] def delabModN : Delab := delabInfixOp fun _ x y => `($x %ₙ $y)
+@[builtinDelab app.Pow.pow] def delabPow : Delab := delabInfixOp fun _ x y => `($x ^ $y)
 
-@[builtinDelab app.HasLessEq.LessEq] def delabLE : Delab := delabInfixOp fun b x y => cond b `($x ≤ $y) `($x <= $y)
+@[builtinDelab app.LessEq.LessEq] def delabLE : Delab := delabInfixOp fun b x y => cond b `($x ≤ $y) `($x <= $y)
 @[builtinDelab app.GreaterEq] def delabGE : Delab := delabInfixOp fun b x y => cond b `($x ≥ $y) `($x >= $y)
-@[builtinDelab app.HasLess.Less] def delabLT : Delab := delabInfixOp fun _ x y => `($x < $y)
+@[builtinDelab app.Less.Less] def delabLT : Delab := delabInfixOp fun _ x y => `($x < $y)
 @[builtinDelab app.Greater] def delabGT : Delab := delabInfixOp fun _ x y => `($x > $y)
 @[builtinDelab app.Eq] def delabEq : Delab := delabInfixOp fun _ x y => `($x = $y)
 @[builtinDelab app.Ne] def delabNe : Delab := delabInfixOp fun _ x y => `($x ≠ $y)
-@[builtinDelab app.HasBeq.beq] def delabBEq : Delab := delabInfixOp fun _ x y => `($x == $y)
+@[builtinDelab app.BEq.beq] def delabBEq : Delab := delabInfixOp fun _ x y => `($x == $y)
 @[builtinDelab app.bne] def delabBNe : Delab := delabInfixOp fun _ x y => `($x != $y)
 @[builtinDelab app.HEq] def delabHEq : Delab := delabInfixOp fun b x y => cond b `($x ≅ $y) `($x ~= $y)
-@[builtinDelab app.HasEquiv.Equiv] def delabEquiv : Delab := delabInfixOp fun _ x y => `($x ≈ $y)
+@[builtinDelab app.Equiv.Equiv] def delabEquiv : Delab := delabInfixOp fun _ x y => `($x ≈ $y)
 
 @[builtinDelab app.And] def delabAnd : Delab := delabInfixOp fun b x y => cond b `($x ∧ $y) `($x /\ $y)
 @[builtinDelab app.Or] def delabOr : Delab := delabInfixOp fun b x y => cond b `($x ∨ $y) `($x || $y)
@@ -653,20 +653,20 @@ def delabPrefixOp (op : Bool → Syntax → Delab) : Delab := whenPPOption getPP
 @[builtinDelab app.and] def delabBAnd : Delab := delabInfixOp fun _ x y => `($x && $y)
 @[builtinDelab app.or] def delabBOr : Delab := delabInfixOp fun _ x y => `($x || $y)
 
-@[builtinDelab app.HasAppend.append] def delabAppend : Delab := delabInfixOp fun _ x y => `($x ++ $y)
+@[builtinDelab app.Append.append] def delabAppend : Delab := delabInfixOp fun _ x y => `($x ++ $y)
 @[builtinDelab app.List.cons] def delabCons : Delab := delabInfixOp fun _ x y => `($x :: $y)
 
-@[builtinDelab app.HasAndthen.andthen] def delabAndThen : Delab := delabInfixOp fun _ x y => `($x >> $y)
-@[builtinDelab app.HasBind.bind] def delabBind : Delab := delabInfixOp fun _ x y => `($x >>= $y)
+@[builtinDelab app.AndThen.andthen] def delabAndThen : Delab := delabInfixOp fun _ x y => `($x >> $y)
+@[builtinDelab app.Bind.bind] def delabBind : Delab := delabInfixOp fun _ x y => `($x >>= $y)
 
-@[builtinDelab app.HasSeq.seq] def delabseq : Delab := delabInfixOp fun _ x y => `($x <*> $y)
-@[builtinDelab app.HasSeqLeft.seqLeft] def delabseqLeft : Delab := delabInfixOp fun _ x y => `($x <* $y)
-@[builtinDelab app.HasSeqRight.seqRight] def delabseqRight : Delab := delabInfixOp fun _ x y => `($x *> $y)
+@[builtinDelab app.Seq.seq] def delabseq : Delab := delabInfixOp fun _ x y => `($x <*> $y)
+@[builtinDelab app.SeqLeft.seqLeft] def delabseqLeft : Delab := delabInfixOp fun _ x y => `($x <* $y)
+@[builtinDelab app.SeqRight.seqRight] def delabseqRight : Delab := delabInfixOp fun _ x y => `($x *> $y)
 
 @[builtinDelab app.Functor.map] def delabMap : Delab := delabInfixOp fun _ x y => `($x <$> $y)
 @[builtinDelab app.Functor.mapRev] def delabMapRev : Delab := delabInfixOp fun _ x y => `($x <&> $y)
 
-@[builtinDelab app.HasOrelse.orelse] def delabOrElse : Delab := delabInfixOp fun _ x y => `($x <|> $y)
+@[builtinDelab app.OrElse.orelse] def delabOrElse : Delab := delabInfixOp fun _ x y => `($x <|> $y)
 @[builtinDelab app.orM] def delabOrM : Delab := delabInfixOp fun _ x y => `($x <||> $y)
 @[builtinDelab app.andM] def delabAndM : Delab := delabInfixOp fun _ x y => `($x <&&> $y)
 

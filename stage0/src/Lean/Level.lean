@@ -29,7 +29,7 @@ instance : Inhabited Level.Data :=
 def Level.Data.hash (c : Level.Data) : USize :=
   c.toUInt32.toUSize
 
-instance : HasBeq Level.Data :=
+instance : BEq Level.Data :=
   ⟨fun (a b : UInt64) => a == b⟩
 
 def Level.Data.depth (c : Level.Data) : UInt32 :=
@@ -201,7 +201,7 @@ def toNat (lvl : Level) : Option Nat :=
 @[extern "lean_level_eq"]
 protected constant beq (a : @& Level) (b : @& Level) : Bool := arbitrary _
 
-instance : HasBeq Level := ⟨Level.beq⟩
+instance : BEq Level := ⟨Level.beq⟩
 
 /-- `occurs u l` return `true` iff `u` occurs in `l`. -/
 def occurs : Level → Level → Bool

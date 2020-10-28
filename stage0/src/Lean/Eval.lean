@@ -9,16 +9,16 @@ namespace Lean
 
 universe u
 
-/-- `HasEval` extension that gives access to the current environment & options.
-    The basic `HasEval` class is in the prelude and should not depend on these
+/-- `Eval` extension that gives access to the current environment & options.
+    The basic `Eval` class is in the prelude and should not depend on these
     types. -/
-class MetaHasEval (α : Type u) :=
+class MetaEval (α : Type u) :=
 (eval : Environment → Options → α → (hideUnit : Bool) → IO Environment)
 
-instance {α : Type u} [HasEval α] : MetaHasEval α :=
-⟨fun env opts a hideUnit => do HasEval.eval (fun _ => a) hideUnit; pure env⟩
+instance {α : Type u} [Eval α] : MetaEval α :=
+⟨fun env opts a hideUnit => do Eval.eval (fun _ => a) hideUnit; pure env⟩
 
-def runMetaEval {α : Type u} [MetaHasEval α] (env : Environment) (opts : Options) (a : α) : IO (String × Except IO.Error Environment) :=
-IO.FS.withIsolatedStreams (MetaHasEval.eval env opts a false)
+def runMetaEval {α : Type u} [MetaEval α] (env : Environment) (opts : Options) (a : α) : IO (String × Except IO.Error Environment) :=
+IO.FS.withIsolatedStreams (MetaEval.eval env opts a false)
 
 end Lean

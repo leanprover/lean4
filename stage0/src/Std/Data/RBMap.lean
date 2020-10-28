@@ -217,7 +217,7 @@ def RBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : Type (max u v)
 @[inline] def RBMap.empty {α : Type u} {β : Type v} {lt : α → α → Bool} : RBMap α β lt :=
   mkRBMap ..
 
-instance (α : Type u) (β : Type v) (lt : α → α → Bool) : HasEmptyc (RBMap α β lt) :=
+instance (α : Type u) (β : Type v) (lt : α → α → Bool) : EmptyCollection (RBMap α β lt) :=
   ⟨RBMap.empty⟩
 
 namespace RBMap

@@ -38,7 +38,7 @@ inductive ErrorCode
   | requestCancelled
   | contentModified
 
-instance : HasFromJson ErrorCode := ⟨fun j =>
+instance : FromJson ErrorCode := ⟨fun j =>
   match j with
   | num (-32700 : Int) => ErrorCode.parseError
   | num (-32600 : Int) => ErrorCode.invalidRequest
@@ -53,7 +53,7 @@ instance : HasFromJson ErrorCode := ⟨fun j =>
   | num (-32801 : Int) => ErrorCode.contentModified
   | _  => none⟩
 
-instance : HasToJson ErrorCode := ⟨fun e =>
+instance : ToJson ErrorCode := ⟨fun e =>
   match e with
   | ErrorCode.parseError           => (-32700 : Int)
   | ErrorCode.invalidRequest       => (-32600 : Int)
@@ -85,19 +85,19 @@ structure Error := (id : RequestID) (code : JsonNumber) (message : String) (data
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
 
-instance : HasFromJson RequestID := ⟨fun j =>
+instance : FromJson RequestID := ⟨fun j =>
   match j with
   | str s => RequestID.str s
   | num n => RequestID.num n
   | _     => none⟩
 
-instance : HasToJson RequestID := ⟨fun rid =>
+instance : ToJson RequestID := ⟨fun rid =>
   match rid with
   | RequestID.str s => s
   | RequestID.num n => num n
   | RequestID.null  => null⟩
 
-instance : HasToJson Message := ⟨fun m =>
+instance : ToJson Message := ⟨fun m =>
   mkObj $ ⟨"jsonrpc", "2.0"⟩ :: match m with
   | Message.request id method params? =>
     [ ⟨"id", toJson id⟩,
@@ -143,7 +143,7 @@ def aux4 (j : Json) : Option Message := do
 
 -- HACK: The implementation must be made up of several `auxN`s instead
 -- of one large block because of a bug in the compiler.
-instance : HasFromJson Message := ⟨fun j => do
+instance : FromJson Message := ⟨fun j => do
   let "2.0" ← j.getObjVal? "jsonrpc" | none
   aux1 j <|> aux2 j <|> aux3 j <|> aux4 j⟩
 
@@ -162,7 +162,7 @@ def readMessage (h : FS.Stream) (nBytes : Nat) : IO Message := do
   | some m => pure m
   | none   => throw (userError ("JSON '" ++ j.compress ++ "' did not have the format of a JSON-RPC message"))
 
-def readRequestAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α : Type) [HasFromJson α] : IO (Request α) := do
+def readRequestAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α : Type) [FromJson α] : IO (Request α) := do
   let m ← h.readMessage nBytes
   match m with
   | Message.request id method params? =>
@@ -178,7 +178,7 @@ def readRequestAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α :
       throw (userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'"))
   | _ => throw (userError "expected request, got other type of message")
 
-def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α : Type) [HasFromJson α] : IO α := do
+def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α : Type) [FromJson α] : IO α := do
   let m ← h.readMessage nBytes
   match m with
   | Message.notification method params? =>
@@ -197,7 +197,7 @@ def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) 
 def writeMessage (h : FS.Stream) (m : Message) : IO Unit :=
   h.writeJson (toJson m)
 
-def writeResponse {α} [HasToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
+def writeResponse {α} [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
   h.writeMessage (Message.response id (toJson r))
 
 end IO.FS.Stream

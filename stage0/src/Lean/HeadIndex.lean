@@ -44,7 +44,7 @@ protected def HeadIndex.beq : HeadIndex → HeadIndex → Bool
 | forallE,    forallE    => true
 | _,          _          => false
 
-instance : HasBeq HeadIndex := ⟨HeadIndex.beq⟩
+instance : BEq HeadIndex := ⟨HeadIndex.beq⟩
 
 end HeadIndex
 

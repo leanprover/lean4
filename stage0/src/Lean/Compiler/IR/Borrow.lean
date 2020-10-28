@@ -16,7 +16,7 @@ abbrev Key := FunId × Index
 
 def beq : Key → Key → Bool
 | (f₁, x₁), (f₂, x₂) => f₁ == f₂ && x₁ == x₂
-instance : HasBeq Key := ⟨beq⟩
+instance : BEq Key := ⟨beq⟩
 
 def getHash : Key → USize
 | (f, x) => mixHash (hash f) (hash x)
@@ -43,7 +43,7 @@ def beq : Key → Key → Bool
 | Key.jp n₁ id₁, Key.jp n₂ id₂ => n₁ == n₂ && id₁ == id₂
 | _,         _                 => false
 
-instance : HasBeq Key := ⟨beq⟩
+instance : BEq Key := ⟨beq⟩
 
 def getHash : Key → USize
 | Key.decl n  => hash n

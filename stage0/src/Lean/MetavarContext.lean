@@ -17,14 +17,14 @@ the requirements imposed by these modules.
 - We may invoke TC while executing `isDefEq`. We need this feature to
 be able to solve unification problems such as:
 ```
-f ?a (ringHasAdd ?s) ?x ?y =?= f Int intHasAdd n m
+f ?a (ringAdd ?s) ?x ?y =?= f Int intAdd n m
 ```
 where `(?a : Type) (?s : Ring ?a) (?x ?y : ?a)`
 During `isDefEq` (i.e., unification), it will need to solve the constrain
 ```
-ringHasAdd ?s =?= intHasAdd
+ringAdd ?s =?= intAdd
 ```
-We say `ringHasAdd ?s` is stuck because it cannot be reduced until we
+We say `ringAdd ?s` is stuck because it cannot be reduced until we
 synthesize the term `?s : Ring ?a` using TC. This can be done since we
 have assigned `?a := Int` when solving `?a =?= Int`.
 
@@ -227,7 +227,7 @@ abbrev LocalInstances := Array LocalInstance
 def LocalInstance.beq (i₁ i₂ : LocalInstance) : Bool :=
   i₁.fvar == i₂.fvar
 
-instance : HasBeq LocalInstance := ⟨LocalInstance.beq⟩
+instance : BEq LocalInstance := ⟨LocalInstance.beq⟩
 
 /-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
 def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=

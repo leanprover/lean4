@@ -37,7 +37,7 @@ protected def Key.beq : Key → Key → Bool
   | Key.other,       Key.other       => true
   | _,                _              => false
 
-instance : HasBeq Key := ⟨Key.beq⟩
+instance : BEq Key := ⟨Key.beq⟩
 
 inductive Trie (α : Type)
   | node (vs : Array α) (children : Array (Key × Trie α)) : Trie α

@@ -100,14 +100,12 @@ lean_object* l_Classical_typeDecidable_match__1___rarg___boxed(lean_object*, lea
 lean_object* l_Init_Core___instance__1;
 lean_object* l_Init_Core___instance__3(lean_object*);
 lean_object* l_Init_Core___instance__14_match__1___rarg(lean_object*, lean_object*);
-lean_object* l_default_sizeof(lean_object*, lean_object*);
 lean_object* l_cond___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Quotient_recOnSubsingleton___rarg(lean_object*, lean_object*);
 lean_object* l_Task_get___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__24_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_False_elim(lean_object*, uint8_t);
 lean_object* l_Init_Core___instance__45_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_default_sizeof___boxed(lean_object*, lean_object*);
 lean_object* l_Task_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_prio;
 lean_object* l_Init_Core___instance__45_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -165,7 +163,6 @@ lean_object* l_ite(lean_object*, lean_object*);
 lean_object* l_Quot_hrecOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_not___boxed(lean_object*);
 lean_object* l_Task_Priority_dedicated;
-lean_object* l_default_sizeof_match__1___rarg(lean_object*, lean_object*);
 uint8_t l_Init_Core___instance__31;
 lean_object* l_std_prec_arrow;
 uint8_t l_Init_Core___instance__22___rarg(uint8_t, uint8_t);
@@ -214,7 +211,6 @@ lean_object* l_decEq(lean_object*);
 lean_object* l_Subtype_Init_Core___instance__42_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_or___boxed(lean_object*, lean_object*);
 uint8_t l_strictOr(uint8_t, uint8_t);
-lean_object* l_default_sizeof_match__1(lean_object*, lean_object*);
 lean_object* l_Eq_mpr___rarg(lean_object*);
 lean_object* l_decEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_inferInstance(lean_object*);
@@ -313,6 +309,7 @@ lean_object* l_Function_const(lean_object*, lean_object*);
 lean_object* l_Lean_reduceNat___boxed(lean_object*);
 lean_object* l_and_match__1(lean_object*);
 lean_object* l_and_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*);
+lean_object* l_default_sizeOf___boxed(lean_object*, lean_object*);
 lean_object* l_Eq_ndrecOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Function_combine(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__25_match__1(lean_object*);
@@ -349,8 +346,10 @@ lean_object* l_id(lean_object*);
 lean_object* l_Subtype_Init_Core___instance__41(lean_object*, lean_object*);
 lean_object* l_inline___rarg(lean_object*);
 lean_object* l_dite___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_default_sizeOf_match__1(lean_object*, lean_object*);
 lean_object* l_id___rarg(lean_object*);
 lean_object* l_Init_Core___instance__32;
+lean_object* l_default_sizeOf(lean_object*, lean_object*);
 lean_object* l_arbitrary(lean_object*);
 lean_object* l_Eq_ndrec___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__24(lean_object*);
@@ -390,6 +389,7 @@ lean_object* l_Eq_ndrecOn(lean_object*, lean_object*, lean_object*, lean_object*
 lean_object* l_Init_Core___instance__44___rarg(lean_object*, lean_object*);
 lean_object* lean_task_get_own(lean_object*);
 uint8_t l_decidableOfDecidableOfIff___rarg(uint8_t, lean_object*);
+lean_object* l_default_sizeOf_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_cast___rarg(lean_object*);
 lean_object* l_Function_onFun___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_thunk_bind(lean_object*, lean_object*);
@@ -902,7 +902,7 @@ x_6 = lean_task_bind(x_3, x_4, x_5);
 return x_6;
 }
 }
-lean_object* l_default_sizeof_match__1___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_default_sizeOf_match__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -910,15 +910,15 @@ x_3 = lean_apply_1(x_2, x_1);
 return x_3;
 }
 }
-lean_object* l_default_sizeof_match__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_default_sizeOf_match__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_default_sizeof_match__1___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_default_sizeOf_match__1___rarg), 2, 0);
 return x_3;
 }
 }
-lean_object* l_default_sizeof(lean_object* x_1, lean_object* x_2) {
+lean_object* l_default_sizeOf(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -926,11 +926,11 @@ x_3 = lean_unsigned_to_nat(0u);
 return x_3;
 }
 }
-lean_object* l_default_sizeof___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_default_sizeOf___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_default_sizeof(x_1, x_2);
+x_3 = l_default_sizeOf(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -939,7 +939,7 @@ static lean_object* _init_l_Init_Core___instance__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_default_sizeof___boxed), 2, 1);
+x_1 = lean_alloc_closure((void*)(l_default_sizeOf___boxed), 2, 1);
 lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }

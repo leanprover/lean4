@@ -29,13 +29,14 @@ namespace Lean.Meta.DiscrTree
   discrimination tree.
 
   Recall that projections from classes are **NOT** reducible.
-  For example, the expressions `Add.add α (ringHasAdd ?α ?s) ?x ?x`
+  For example, the expressions `Add.add α (ringAdd ?α ?s) ?x ?x`
   and `Add.add Nat Nat.hasAdd a b` generates paths with the following keys
   respctively
   ```
-  ⟨HasAdd.add, 4⟩, *, *, *, *
-  ⟨HasAdd.add, 4⟩, *, *, ⟨a,0⟩, ⟨b,0⟩
+  ⟨Add.add, 4⟩, *, *, *, *
+  ⟨Add.add, 4⟩, *, *, ⟨a,0⟩, ⟨b,0⟩
   ```
+
   That is, we don't reduce `Add.add Nat inst a b` into `Nat.add a b`.
   We say the `Add.add` applications are the de-facto canonical forms in
   the metaprogramming framework.
@@ -61,7 +62,7 @@ def Key.lt : Key → Key → Bool
   | Key.const n₁ a₁, Key.const n₂ a₂ => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
   | k₁,              k₂              => k₁.ctorIdx < k₂.ctorIdx
 
-instance : HasLess Key := ⟨fun a b => Key.lt a b⟩
+instance : Less Key := ⟨fun a b => Key.lt a b⟩
 instance (a b : Key) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))
 
 def Key.format : Key → Format
@@ -96,7 +97,7 @@ instance {α} : Inhabited (DiscrTree α) := ⟨{}⟩
   - We ignore proofs because of proof irrelevance. It doesn't make sense to try to
     index their structure.
 
-  - We ignore instance implicit arguments (e.g., `[HasAdd α]`) because they are "morally" canonical.
+  - We ignore instance implicit arguments (e.g., `[Add α]`) because they are "morally" canonical.
     Moreover, we may have many definitionally equal terms floating around.
     Example: `Ring.hasAdd Int Int.isRing` and `Int.hasAdd`.
 
@@ -206,10 +207,10 @@ private partial def createNodes {α} (keys : Array Key) (v : α) (i : Nat) : Tri
   else
     Trie.node #[v] #[]
 
-private def insertVal {α} [HasBeq α] (vs : Array α) (v : α) : Array α :=
+private def insertVal {α} [BEq α] (vs : Array α) (v : α) : Array α :=
   if vs.contains v then vs else vs.push v
 
-private partial def insertAux {α} [HasBeq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
+private partial def insertAux {α} [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
   | i, Trie.node vs cs =>
     if h : i < keys.size then
       let k := keys.get ⟨i, h⟩
@@ -222,7 +223,7 @@ private partial def insertAux {α} [HasBeq α] (keys : Array Key) (v : α) : Nat
     else
       Trie.node (insertVal vs v) cs
 
-def insertCore {α} [HasBeq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
+def insertCore {α} [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
   if keys.isEmpty then panic! "invalid key sequence"
   else
     let k := keys[0]
@@ -234,7 +235,7 @@ def insertCore {α} [HasBeq α] (d : DiscrTree α) (keys : Array Key) (v : α) :
       let c := insertAux keys v 1 c
       { root := d.root.insert k c }
 
-def insert {α} [HasBeq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) := do
+def insert {α} [BEq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) := do
   let keys ← mkPath e
   pure $ d.insertCore keys v
 
@@ -278,9 +279,9 @@ private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) 
           we may want to notify the caller that the TC problem may be solveable
           later after it assigns `?m`.
           The method `DiscrTree.getUnify e` returns candidates `c` that may "unify" with `e`.
-          That is, `isDefEq c e` may return true. Now, consider `DiscrTree.getUnify d (HasAdd ?m)`
+          That is, `isDefEq c e` may return true. Now, consider `DiscrTree.getUnify d (Add ?m)`
           where `?m` is a read-only metavariable, and the discrimination tree contains the keys
-          `HadAdd Nat` and `HasAdd Int`. If `isDefEqStuckEx` is set to true, we must treat `?m` as
+          `HadAdd Nat` and `Add Int`. If `isDefEqStuckEx` is set to true, we must treat `?m` as
           a regular metavariable here, otherwise we return the empty set of candidates.
           This is incorrect because it is equivalent to saying that there is no solution even if
           the caller assigns `?m` and try again. -/

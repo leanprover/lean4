@@ -13,9 +13,9 @@ constant closureMaxArgsFn : Unit → Nat
 constant maxSmallNatFn : Unit → Nat
 
 def closureMaxArgs : Nat :=
-closureMaxArgsFn ()
+  closureMaxArgsFn ()
 
 def maxSmallNat : Nat :=
-maxSmallNatFn ()
+  maxSmallNatFn ()
 
 end Lean

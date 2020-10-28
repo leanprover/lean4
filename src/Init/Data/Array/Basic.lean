@@ -13,8 +13,6 @@ import Init.Control.Id
 import Init.Util
 universes u v w
 
--- TODO: CLEANUP
-
 /-
 The Compiler has special support for arrays.
 They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic_array
@@ -45,13 +43,17 @@ def mkEmpty (c : @& Nat) : Array α := {
 def push (a : Array α) (v : α) : Array α := {
   sz   := Nat.succ a.sz,
   data := fun ⟨j, h₁⟩ =>
-    if h₂ : j = a.sz then v
-    else a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩ }
+    if h₂ : j = a.sz then
+      v
+    else
+      a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩
+}
 
 @[extern "lean_mk_array"]
 def mkArray {α : Type u} (n : Nat) (v : α) : Array α := {
   sz   := n,
-  data := fun _ => v}
+  data := fun _ => v
+}
 
 theorem szMkArrayEq (n : Nat) (v : α) : (mkArray n v).sz = n :=
   rfl
@@ -156,9 +158,11 @@ def pop (a : Array α) : Array α := {
   data := fun ⟨j, h⟩ => a.get ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩
 }
 
--- TODO(Leo): justify termination using wf-rec
-partial def shrink : Array α → Nat → Array α
-  | a, n => if n ≥ a.size then a else shrink a.pop n
+def shrink {α : Type u} (a : Array α) (n : Nat) : Array α :=
+  let rec loop
+    | 0,   a => a
+    | n+1, a => loop n a.pop
+  loop (a.size - n) a
 
 section
 variables {m : Type v → Type w} [Monad m]

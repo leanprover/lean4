@@ -1145,6 +1145,13 @@ class csimp_fn {
         lean_assert(!top || m_fvars.size() == 0);
         if (already_simplified(e))
             return e;
+        // Hack to avoid eta-expansion of implicit lambdas
+        // Example: `fun {a} => ReaderT.pure`
+        if (!is_join_point_def && !top) {
+            expr new_e = eta_reduce(e);
+            if (is_app(new_e) && !is_constructor_app(env(), new_e) && !is_proj(new_e) && !is_cases_on_app(env(), new_e) && !is_lc_unreachable_app(new_e))
+                return visit(new_e, true);
+        }
         buffer<expr> binding_fvars;
         while (is_lambda(e)) {
             /* Types are ignored in compilation steps. So, we do not invoke visit for d. */

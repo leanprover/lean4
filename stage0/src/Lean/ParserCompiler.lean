@@ -47,14 +47,17 @@ partial def compileParserBody {α} (ctx : Context α) (e : Expr) (force : Bool :
     -- of type `ty` (i.e. formerly `Parser`)
     let mkCall (p : Name) := do
       let ty ← inferType (mkConst p)
-      forallTelescope ty fun params _ =>
-        params.foldlM₂ (fun p param arg => do
+      forallTelescope ty fun params _ => do
+        let p    := mkConst p
+        let args := e.getAppArgs
+        for i in [:Nat.min params.size args.size] do
+          let param := params[i]
+          let arg   := args[i]
           let paramTy ← inferType param
           let resultTy ← forallTelescope paramTy fun _ b => pure b
           let arg ← if resultTy.isConstOf ctx.tyName then compileParserBody ctx arg else pure arg
-          pure $ mkApp p arg)
-          (mkConst p)
-          e.getAppArgs
+          p := mkApp p arg
+        pure p
     let env ← getEnv
     match ctx.combinatorAttr.getDeclFor env c with
     | some p => mkCall p

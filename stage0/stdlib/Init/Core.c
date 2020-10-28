@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Init_Core___instance__51(lean_object*, lean_object*);
-lean_object* l_idRhs(lean_object*);
 lean_object* l_strictAnd___boxed(lean_object*, lean_object*);
 uint8_t l_Init_Core___instance__17;
 lean_object* l_Init_Core___instance__8_match__1(lean_object*, lean_object*, lean_object*);
@@ -56,7 +55,6 @@ lean_object* l_Quotient_lift___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__22___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Squash_mk___rarg___boxed(lean_object*);
 lean_object* l_Init_Core___instance__7___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_idRhs___rarg___boxed(lean_object*);
 lean_object* l_Lean_reduceBool___boxed(lean_object*);
 lean_object* l_Init_Core___instance__45_match__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__6(lean_object*, lean_object*);
@@ -240,7 +238,6 @@ uint8_t l_Decidable_decide___rarg(uint8_t);
 lean_object* l_Init_Core___instance__2___closed__1;
 lean_object* l_Init_Core___instance__29___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_typedExpr___rarg(lean_object*);
-lean_object* l_idRhs___rarg(lean_object*);
 lean_object* l_Squash_lift(lean_object*, lean_object*, lean_object*);
 lean_object* l_inferInstanceAs___rarg(lean_object*);
 lean_object* l_Eq_mp(lean_object*, lean_object*, lean_object*);
@@ -510,30 +507,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_typedExpr___rarg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_idRhs___rarg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-lean_object* l_idRhs(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_idRhs___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-lean_object* l_idRhs___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_idRhs___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }

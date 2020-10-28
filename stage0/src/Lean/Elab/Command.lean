@@ -476,7 +476,7 @@ def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit := do
   let ns := n.getIdAt 0
   let ns ← resolveNamespace ns
   let rs := (n.getArg 2)
-  rs.forSepArgsM $ fun stx => do
+  rs.getSepArgs.forM fun stx => do
     let fromId   := stx.getIdAt 0
     let toId     := stx.getIdAt 2
     let declName := ns ++ fromId

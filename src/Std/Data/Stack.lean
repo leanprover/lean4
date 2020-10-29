@@ -9,32 +9,31 @@ namespace Std
 universes u v w
 
 structure Stack (α : Type u) :=
-(vals : Array α := #[])
+  (vals : Array α := #[])
 
 namespace Stack
 
 variable {α : Type u}
 
-def empty : Stack α :=
-{}
+def empty : Stack α := {}
 
 def isEmpty (s : Stack α) : Bool :=
-s.vals.isEmpty
+  s.vals.isEmpty
 
 def push (v : α) (s : Stack α) : Stack α :=
-{ s with vals := s.vals.push v }
+  { s with vals := s.vals.push v }
 
 def peek? (s : Stack α) : Option α :=
-if s.vals.isEmpty then none else s.vals.get? (s.vals.size-1)
+  if s.vals.isEmpty then none else s.vals.get? (s.vals.size-1)
 
 def peek! [Inhabited α] (s : Stack α) : α :=
-s.vals.back
+  s.vals.back
 
 def pop [Inhabited α] (s : Stack α) : Stack α :=
-{ s with vals := s.vals.pop }
+  { s with vals := s.vals.pop }
 
 def modify [Inhabited α] (s : Stack α) (f : α → α) : Stack α :=
-{ s with vals := s.vals.modify (s.vals.size-1) f }
+  { s with vals := s.vals.modify (s.vals.size-1) f }
 
 end Stack
 end Std

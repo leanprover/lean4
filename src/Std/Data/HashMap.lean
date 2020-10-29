@@ -8,72 +8,71 @@ namespace Std
 universes u v w
 
 def HashMapBucket (α : Type u) (β : Type v) :=
-{ b : Array (AssocList α β) // b.size > 0 }
+  { b : Array (AssocList α β) // b.size > 0 }
 
 def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β) (h : i.toNat < data.val.size) : HashMapBucket α β :=
-⟨ data.val.uset i d h,
-  transRelRight Greater (Array.szFSetEq (data.val) ⟨USize.toNat i, h⟩ d) data.property ⟩
+  ⟨ data.val.uset i d h,
+    transRelRight Greater (Array.szFSetEq (data.val) ⟨USize.toNat i, h⟩ d) data.property ⟩
 
 structure HashMapImp (α : Type u) (β : Type v) :=
-(size       : Nat)
-(buckets    : HashMapBucket α β)
+  (size       : Nat)
+  (buckets    : HashMapBucket α β)
 
 def mkHashMapImp {α : Type u} {β : Type v} (nbuckets := 8) : HashMapImp α β :=
-let n := if nbuckets = 0 then 8 else nbuckets;
-{ size       := 0,
-  buckets    :=
-  ⟨ mkArray n AssocList.nil,
-    have p₁ : (mkArray n (@AssocList.nil α β)).size = n from Array.szMkArrayEq _ _
-    have p₂ : n = (if nbuckets = 0 then 8 else nbuckets) from rfl
-    have p₃ : (if nbuckets = 0 then 8 else nbuckets) > 0 from
-      match nbuckets with
-      | 0            => Nat.zeroLtSucc _
-      | (Nat.succ x) => Nat.zeroLtSucc _
-    transRelRight Greater (Eq.trans p₁ p₂) p₃ ⟩ }
+  let n := if nbuckets = 0 then 8 else nbuckets;
+  { size       := 0,
+    buckets    :=
+    ⟨ mkArray n AssocList.nil,
+      have p₁ : (mkArray n (@AssocList.nil α β)).size = n from Array.szMkArrayEq _ _
+      have p₂ : n = (if nbuckets = 0 then 8 else nbuckets) from rfl
+      have p₃ : (if nbuckets = 0 then 8 else nbuckets) > 0 from
+        match nbuckets with
+        | 0            => Nat.zeroLtSucc _
+        | (Nat.succ x) => Nat.zeroLtSucc _
+      transRelRight Greater (Eq.trans p₁ p₂) p₃ ⟩ }
 
 namespace HashMapImp
 variables {α : Type u} {β : Type v}
 
 def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
-⟨u %ₙ n, USize.modnLt _ h⟩
+  ⟨u %ₙ n, USize.modnLt _ h⟩
 
 @[inline] def reinsertAux (hashFn : α → USize) (data : HashMapBucket α β) (a : α) (b : β) : HashMapBucket α β :=
-let ⟨i, h⟩ := mkIdx data.property (hashFn a)
-data.update i (AssocList.cons a b (data.val.uget i h)) h
+  let ⟨i, h⟩ := mkIdx data.property (hashFn a)
+  data.update i (AssocList.cons a b (data.val.uget i h)) h
 
 @[inline] def foldBucketsM {δ : Type w} {m : Type w → Type w} [Monad m] (data : HashMapBucket α β) (d : δ) (f : δ → α → β → m δ) : m δ :=
-data.val.foldlM (fun d b => b.foldlM f d) d
+  data.val.foldlM (init := d) fun d b => b.foldlM f d
 
 @[inline] def foldBuckets {δ : Type w} (data : HashMapBucket α β) (d : δ) (f : δ → α → β → δ) : δ :=
-Id.run $ foldBucketsM data d f
+  Id.run $ foldBucketsM data d f
 
 @[inline] def foldM {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (d : δ) (h : HashMapImp α β) : m δ :=
-foldBucketsM h.buckets d f
+  foldBucketsM h.buckets d f
 
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
-foldBuckets m.buckets d f
+  foldBuckets m.buckets d f
 
 def findEntry? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
-match m with
-| ⟨_, buckets⟩ =>
-  let ⟨i, h⟩ := mkIdx buckets.property (hash a)
-  (buckets.val.uget i h).findEntry? a
+  match m with
+  | ⟨_, buckets⟩ =>
+    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    (buckets.val.uget i h).findEntry? a
 
 def find? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
-match m with
-| ⟨_, buckets⟩ =>
-  let ⟨i, h⟩ := mkIdx buckets.property (hash a)
-  (buckets.val.uget i h).find? a
+  match m with
+  | ⟨_, buckets⟩ =>
+    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    (buckets.val.uget i h).find? a
 
 def contains [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
-match m with
-| ⟨_, buckets⟩ =>
-  let ⟨i, h⟩ := mkIdx buckets.property (hash a)
-  (buckets.val.uget i h).contains a
+  match m with
+  | ⟨_, buckets⟩ =>
+    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    (buckets.val.uget i h).contains a
 
 -- TODO: remove `partial` by using well-founded recursion
-partial def moveEntries [Hashable α] : Nat → Array (AssocList α β) → HashMapBucket α β → HashMapBucket α β
-| i, source, target =>
+partial def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (target : HashMapBucket α β) : HashMapBucket α β :=
   if h : i < source.size then
      let idx : Fin source.size := ⟨i, h⟩
      let es  : AssocList α β   := source.get idx
@@ -84,117 +83,116 @@ partial def moveEntries [Hashable α] : Nat → Array (AssocList α β) → Hash
   else target
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
-let nbuckets := buckets.val.size * 2
-have nbuckets > 0 from Nat.mulPos buckets.property (decide! : 2 > 0)
-have (mkArray nbuckets (@AssocList.nil α β)).size = nbuckets from Array.szMkArrayEq _ _
-have Array.size (mkArray nbuckets AssocList.nil) > 0 by rw this; assumption
-let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, this⟩
-{ size    := size,
-  buckets := moveEntries 0 buckets.val new_buckets }
+  let nbuckets := buckets.val.size * 2
+  have nbuckets > 0 from Nat.mulPos buckets.property (decide! : 2 > 0)
+  have (mkArray nbuckets (@AssocList.nil α β)).size = nbuckets from Array.szMkArrayEq _ _
+  have Array.size (mkArray nbuckets AssocList.nil) > 0 by rw this; assumption
+  let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, this⟩
+  { size    := size,
+    buckets := moveEntries 0 buckets.val new_buckets }
 
 def insert [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β :=
-match m with
-| ⟨size, buckets⟩ =>
-  let ⟨i, h⟩ := mkIdx buckets.property (hash a)
-  let bkt    := buckets.val.uget i h
-  if bkt.contains a
-  then ⟨size, buckets.update i (bkt.replace a b) h⟩
-  else
-    let size'    := size + 1
-    let buckets' := buckets.update i (AssocList.cons a b bkt) h
-    if size' ≤ buckets.val.size
-    then { size := size', buckets := buckets' }
-    else expand size' buckets'
+  match m with
+  | ⟨size, buckets⟩ =>
+    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let bkt    := buckets.val.uget i h
+    if bkt.contains a then
+      ⟨size, buckets.update i (bkt.replace a b) h⟩
+    else
+      let size'    := size + 1
+      let buckets' := buckets.update i (AssocList.cons a b bkt) h
+      if size' ≤ buckets.val.size then
+        { size := size', buckets := buckets' }
+      else
+        expand size' buckets'
 
 def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α β :=
-match m with
-| ⟨ size, buckets ⟩ =>
-  let ⟨i, h⟩ := mkIdx buckets.property (hash a)
-  let bkt    := buckets.val.uget i h
-  if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
-  else m
+  match m with
+  | ⟨ size, buckets ⟩ =>
+    let ⟨i, h⟩ := mkIdx buckets.property (hash a)
+    let bkt    := buckets.val.uget i h
+    if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
+    else m
 
 inductive WellFormed [BEq α] [Hashable α] : HashMapImp α β → Prop
-| mkWff     : ∀ n,                    WellFormed (mkHashMapImp n)
-| insertWff : ∀ m a b, WellFormed m → WellFormed (insert m a b)
-| eraseWff  : ∀ m a,   WellFormed m → WellFormed (erase m a)
+  | mkWff     : ∀ n,                    WellFormed (mkHashMapImp n)
+  | insertWff : ∀ m a b, WellFormed m → WellFormed (insert m a b)
+  | eraseWff  : ∀ m a,   WellFormed m → WellFormed (erase m a)
 
 end HashMapImp
 
 def HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] :=
-{ m : HashMapImp α β // m.WellFormed }
+  { m : HashMapImp α β // m.WellFormed }
 
 open Std.HashMapImp
 
 def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (nbuckets := 8) : HashMap α β :=
-⟨ mkHashMapImp nbuckets, WellFormed.mkWff nbuckets ⟩
+  ⟨ mkHashMapImp nbuckets, WellFormed.mkWff nbuckets ⟩
 
 namespace HashMap
 variables {α : Type u} {β : Type v} [BEq α] [Hashable α]
 
-instance inhabited : Inhabited (HashMap α β) :=
-⟨mkHashMap⟩
+instance : Inhabited (HashMap α β) := ⟨mkHashMap⟩
 
-instance hasEmptyc : EmptyCollection (HashMap α β) :=
-⟨mkHashMap⟩
+instance : EmptyCollection (HashMap α β) := ⟨mkHashMap⟩
 
 @[inline] def insert (m : HashMap α β) (a : α) (b : β) : HashMap α β :=
-match m with
-| ⟨ m, hw ⟩ => ⟨ m.insert a b, WellFormed.insertWff m a b hw ⟩
+  match m with
+  | ⟨ m, hw ⟩ => ⟨ m.insert a b, WellFormed.insertWff m a b hw ⟩
 
 @[inline] def erase (m : HashMap α β) (a : α) : HashMap α β :=
-match m with
-| ⟨ m, hw ⟩ => ⟨ m.erase a, WellFormed.eraseWff m a hw ⟩
+  match m with
+  | ⟨ m, hw ⟩ => ⟨ m.erase a, WellFormed.eraseWff m a hw ⟩
 
 @[inline] def findEntry? (m : HashMap α β) (a : α) : Option (α × β) :=
-match m with
-| ⟨ m, _ ⟩ => m.findEntry? a
+  match m with
+  | ⟨ m, _ ⟩ => m.findEntry? a
 
 @[inline] def find? (m : HashMap α β) (a : α) : Option β :=
-match m with
-| ⟨ m, _ ⟩ => m.find? a
+  match m with
+  | ⟨ m, _ ⟩ => m.find? a
 
 @[inline] def findD (m : HashMap α β) (a : α) (b₀ : β) : β :=
-(m.find? a).getD b₀
+  (m.find? a).getD b₀
 
 @[inline] def find! [Inhabited β] (m : HashMap α β) (a : α) : β :=
-match m.find? a with
-| some b => b
-| none   => panic! "key is not in the map"
+  match m.find? a with
+  | some b => b
+  | none   => panic! "key is not in the map"
 
 @[inline] def getOp (self : HashMap α β) (idx : α) : Option β :=
-self.find? idx
+  self.find? idx
 
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=
-match m with
-| ⟨ m, _ ⟩ => m.contains a
+  match m with
+  | ⟨ m, _ ⟩ => m.contains a
 
 @[inline] def foldM {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (init : δ) (h : HashMap α β) : m δ :=
-match h with
-| ⟨ h, _ ⟩ => h.foldM f init
+  match h with
+  | ⟨ h, _ ⟩ => h.foldM f init
 
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (init : δ) (m : HashMap α β) : δ :=
-match m with
-| ⟨ m, _ ⟩ => m.fold f init
+  match m with
+  | ⟨ m, _ ⟩ => m.fold f init
 
 @[inline] def size (m : HashMap α β) : Nat :=
-match m with
-| ⟨ {size := sz, ..}, _ ⟩ => sz
+  match m with
+  | ⟨ {size := sz, ..}, _ ⟩ => sz
 
 @[inline] def isEmpty (m : HashMap α β) : Bool :=
-m.size = 0
+  m.size = 0
 
 @[inline] def empty : HashMap α β :=
-mkHashMap
+  mkHashMap
 
 def toList (m : HashMap α β) : List (α × β) :=
-m.fold (fun r k v => (k, v)::r) []
+  m.fold (init := []) fun r k v => (k, v)::r
 
 def toArray (m : HashMap α β) : Array (α × β) :=
-m.fold (fun r k v => r.push (k, v)) #[]
+  m.fold (init := #[]) fun r k v => r.push (k, v)
 
 def numBuckets (m : HashMap α β) : Nat :=
-m.val.buckets.val.size
+  m.val.buckets.val.size
 
 end HashMap
 end Std

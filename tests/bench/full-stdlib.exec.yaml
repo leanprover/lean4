@@ -1,0 +1,17 @@
+- attributes:
+    description: stdlib
+    tags: [slow]
+    time: &time
+      #runner: time
+      # alternative config: use `perf stat` for extended properties
+      runner: perf_stat
+      perf_stat:
+        properties: ['wall-clock', 'task-clock', 'instructions']
+      rusage_properties: ['maxrss']
+  run_config:
+    <<: *time
+    cwd: ../../src/
+    cmd: |
+      find . -name '*.lean' -exec bash -c 'lean --stats -Dprofiler=true -Dprofiler.threshold=9999 {} 2>&1 | ../tests/bench/accumulate_profile.py {}' \;
+    max_runs: 2
+    parse_output: true

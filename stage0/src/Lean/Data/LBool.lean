@@ -7,35 +7,35 @@ Authors: Leonardo de Moura
 namespace Lean
 
 inductive LBool
-| false
-| true
-| undef
+  | false
+  | true
+  | undef
 
 namespace LBool
 
 instance : Inhabited LBool := ⟨false⟩
 
 def neg : LBool → LBool
-| true  => false
-| false => true
-| undef => undef
+  | true  => false
+  | false => true
+  | undef => undef
 
 def and : LBool → LBool → LBool
-| true,  b  => b
-| a,     _  => a
+  | true,  b  => b
+  | a,     _  => a
 
 def beq : LBool → LBool → Bool
-| true,  true  => Bool.true
-| false, false => Bool.true
-| undef, undef => Bool.true
-| _,     _     => Bool.false
+  | true,  true  => Bool.true
+  | false, false => Bool.true
+  | undef, undef => Bool.true
+  | _,     _     => Bool.false
 
 instance : BEq LBool := ⟨beq⟩
 
 def toString : LBool → String
-| true  => "true"
-| false => "false"
-| undef => "undef"
+  | true  => "true"
+  | false => "false"
+  | undef => "undef"
 
 instance : ToString LBool := ⟨toString⟩
 
@@ -44,9 +44,9 @@ end LBool
 end Lean
 
 def Bool.toLBool : Bool → Lean.LBool
-| true  => Lean.LBool.true
-| false => Lean.LBool.false
+  | true  => Lean.LBool.true
+  | false => Lean.LBool.false
 
 @[inline] def toLBoolM {m : Type → Type} [Monad m] (x : m Bool) : m Lean.LBool := do
-let b ← x
-pure b.toLBool
+  let b ← x
+  pure b.toLBool

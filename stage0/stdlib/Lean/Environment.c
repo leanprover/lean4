@@ -81,7 +81,6 @@ lean_object* l_Lean_Environment_displayStats___closed__8;
 lean_object* l_Lean_Environment_hasUnsafe_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Environment_getModuleIdxFor_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes___at_Lean_Environment_displayStats___spec__7___boxed(lean_object*);
-extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Lean_Lean_Environment___instance__10___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension___closed__1;
@@ -181,6 +180,7 @@ lean_object* l_Lean_EnvExtension_Lean_Environment___instance__7___boxed(lean_obj
 lean_object* l_Lean_Environment_evalConstCheck_match__2(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___closed__1;
+extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_contains___boxed(lean_object*, lean_object*);
@@ -4119,7 +4119,7 @@ _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
-x_2 = l_Std_HashMap_inhabited___closed__1;
+x_2 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_3 = l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
@@ -4152,7 +4152,7 @@ lean_ctor_set(x_11, 2, x_9);
 lean_ctor_set(x_11, 3, x_10);
 lean_ctor_set_uint32(x_11, sizeof(void*)*4, x_1);
 lean_ctor_set_uint8(x_11, sizeof(void*)*4 + 4, x_7);
-x_12 = l_Std_HashMap_inhabited___closed__1;
+x_12 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_13 = l_Lean_mkEmptyEnvironment___lambda__1___closed__1;
 x_14 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_14, 0, x_12);
@@ -4181,7 +4181,7 @@ lean_ctor_set(x_21, 2, x_19);
 lean_ctor_set(x_21, 3, x_20);
 lean_ctor_set_uint32(x_21, sizeof(void*)*4, x_1);
 lean_ctor_set_uint8(x_21, sizeof(void*)*4 + 4, x_17);
-x_22 = l_Std_HashMap_inhabited___closed__1;
+x_22 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_23 = l_Lean_mkEmptyEnvironment___lambda__1___closed__1;
 x_24 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_24, 0, x_22);
@@ -9559,7 +9559,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Std_HashMap_inhabited___closed__1;
+x_2 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

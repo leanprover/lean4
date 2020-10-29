@@ -23,7 +23,6 @@ lean_object* l_ReaderT_tryFinally___rarg___boxed(lean_object*, lean_object*, lea
 lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Util_MonadCache___instance__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -35,6 +34,7 @@ extern lean_object* l_ExceptT_lift___rarg___closed__1;
 lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeM_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__7___rarg(lean_object*);
+extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l_Lean_MonadCacheT_Lean_Util_MonadCache___instance__5___rarg(lean_object*);
 lean_object* l_Lean_Lean_Util_MonadCache___instance__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -529,7 +529,7 @@ static lean_object* _init_l_Lean_MonadCacheT_run___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_HashMap_inhabited___closed__1;
+x_1 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_2 = lean_alloc_closure((void*)(l_ST_Prim_mkRef___boxed), 4, 3);
 lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, lean_box(0));

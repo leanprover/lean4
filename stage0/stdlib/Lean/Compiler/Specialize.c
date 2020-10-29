@@ -36,7 +36,6 @@ lean_object* l_Lean_Compiler_SpecState_cache___default___closed__3;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Lean_Compiler_SpecState_switch_match__1(lean_object*);
-extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Array_qsort_sort___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___at_Lean_registerEnumAttributes___spec__10(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -90,6 +89,7 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getCachedSpecialization___spec__1___boxed(lean_object*, lean_object*);
+extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____closed__9;
 lean_object* l_Lean_Compiler_specExtension___elambda__2___boxed(lean_object*);
@@ -2003,7 +2003,7 @@ _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
-x_2 = l_Std_HashMap_inhabited___closed__1;
+x_2 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_3 = l_Lean_Compiler_SpecState_cache___default___closed__2;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_2);

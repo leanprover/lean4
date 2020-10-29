@@ -201,16 +201,16 @@ protected theorem oneMul (n : Nat) : 1 * n = n :=
   Nat.mulComm n 1 ▸ Nat.mulOne n
 
 protected theorem leftDistrib : ∀ (n m k : Nat), n * (m + k) = n * m + n * k
-| 0,      m, k => (Nat.zeroMul (m + k)).symm ▸ (Nat.zeroMul m).symm ▸ (Nat.zeroMul k).symm ▸ rfl
-| succ n, m, k =>
-  have h₁ : succ n * (m + k) = n * (m + k) + (m + k)              from succMul ..
-  have h₂ : n * (m + k) + (m + k) = (n * m + n * k) + (m + k)     from Nat.leftDistrib n m k ▸ rfl
-  have h₃ : (n * m + n * k) + (m + k) = n * m + (n * k + (m + k)) from Nat.addAssoc ..
-  have h₄ : n * m + (n * k + (m + k)) = n * m + (m + (n * k + k)) from congrArg (fun x => n*m + x) (Nat.addLeftComm ..)
-  have h₅ : n * m + (m + (n * k + k)) = (n * m + m) + (n * k + k) from (Nat.addAssoc ..).symm
-  have h₆ : (n * m + m) + (n * k + k) = (n * m + m) + succ n * k  from succMul n k ▸ rfl
-  have h₇ : (n * m + m) + succ n * k = succ n * m + succ n * k    from succMul n m ▸ rfl
-  (((((h₁.trans h₂).trans h₃).trans h₄).trans h₅).trans h₆).trans h₇
+  | 0,      m, k => (Nat.zeroMul (m + k)).symm ▸ (Nat.zeroMul m).symm ▸ (Nat.zeroMul k).symm ▸ rfl
+  | succ n, m, k =>
+    have h₁ : succ n * (m + k) = n * (m + k) + (m + k)              from succMul ..
+    have h₂ : n * (m + k) + (m + k) = (n * m + n * k) + (m + k)     from Nat.leftDistrib n m k ▸ rfl
+    have h₃ : (n * m + n * k) + (m + k) = n * m + (n * k + (m + k)) from Nat.addAssoc ..
+    have h₄ : n * m + (n * k + (m + k)) = n * m + (m + (n * k + k)) from congrArg (fun x => n*m + x) (Nat.addLeftComm ..)
+    have h₅ : n * m + (m + (n * k + k)) = (n * m + m) + (n * k + k) from (Nat.addAssoc ..).symm
+    have h₆ : (n * m + m) + (n * k + k) = (n * m + m) + succ n * k  from succMul n k ▸ rfl
+    have h₇ : (n * m + m) + succ n * k = succ n * m + succ n * k    from succMul n m ▸ rfl
+    (((((h₁.trans h₂).trans h₃).trans h₄).trans h₅).trans h₆).trans h₇
 
 protected theorem rightDistrib (n m k : Nat) : (n + m) * k = n * k + m * k :=
   have h₁ : (n + m) * k = k * (n + m)     from Nat.mulComm ..

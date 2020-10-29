@@ -8,30 +8,27 @@ import Lean.Compiler.IR.FreeVars
 
 namespace Lean.IR
 
-partial def reshapeWithoutDeadAux : Array FnBody → FnBody → IndexSet → FnBody
-| bs, b, used =>
-  if bs.isEmpty then b
-  else
-    let curr := bs.back
-    let bs   := bs.pop
-    let keep (_ : Unit) :=
-      let used := curr.collectFreeIndices used
-      let b    := curr.setBody b
-      reshapeWithoutDeadAux bs b used
-    let keepIfUsed (vidx : Index) :=
-      if used.contains vidx then keep ()
-      else reshapeWithoutDeadAux bs b used
-    match curr with
-    | FnBody.vdecl x _ _ _  => keepIfUsed x.idx
-    -- TODO: we should keep all struct/union projections because they are used to ensure struct/union values are fully consumed.
-    | FnBody.jdecl j _ _ _  => keepIfUsed j.idx
-    | _                     => keep ()
+partial def reshapeWithoutDead (bs : Array FnBody) (term : FnBody) : FnBody :=
+  let rec reshape (bs : Array FnBody) (b : FnBody) (used : IndexSet) :=
+    if bs.isEmpty then b
+    else
+      let curr := bs.back
+      let bs   := bs.pop
+      let keep (_ : Unit) :=
+        let used := curr.collectFreeIndices used
+        let b    := curr.setBody b
+        reshape bs b used
+      let keepIfUsed (vidx : Index) :=
+        if used.contains vidx then keep ()
+        else reshape bs b used
+      match curr with
+      | FnBody.vdecl x _ _ _  => keepIfUsed x.idx
+      -- TODO: we should keep all struct/union projections because they are used to ensure struct/union values are fully consumed.
+      | FnBody.jdecl j _ _ _  => keepIfUsed j.idx
+      | _                     => keep ()
+  reshape bs term term.freeIndices
 
-def reshapeWithoutDead (bs : Array FnBody) (term : FnBody) : FnBody :=
-reshapeWithoutDeadAux bs term term.freeIndices
-
-partial def FnBody.elimDead : FnBody → FnBody
-| b =>
+partial def FnBody.elimDead (b : FnBody) : FnBody :=
   let (bs, term) := b.flatten
   let bs         := modifyJPs bs elimDead
   let term       := match term with
@@ -43,7 +40,7 @@ partial def FnBody.elimDead : FnBody → FnBody
 
 /-- Eliminate dead let-declarations and join points -/
 def Decl.elimDead : Decl → Decl
-| Decl.fdecl f xs t b => Decl.fdecl f xs t b.elimDead
-| other               => other
+  | Decl.fdecl f xs t b => Decl.fdecl f xs t b.elimDead
+  | other               => other
 
 end Lean.IR

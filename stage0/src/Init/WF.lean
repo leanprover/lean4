@@ -11,7 +11,7 @@ universes u v
 set_option codegen false
 
 inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop
-| intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
+  | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
 
 @[elabAsEliminator, inline, reducible]
 def Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
@@ -289,8 +289,8 @@ variables {α : Sort u} {β : Sort v}
 
 -- Reverse lexicographical order based on r and s
 inductive RevLex (r  : α → α → Prop) (s  : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop
-| left  : {a₁ a₂ : α} → (b : β) → r a₁ a₂ → RevLex r s ⟨a₁, b⟩ ⟨a₂, b⟩
-| right : (a₁ : α) → {b₁ : β} → (a₂ : α) → {b₂ : β} → s b₁ b₂ → RevLex r s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
+  | left  : {a₁ a₂ : α} → (b : β) → r a₁ a₂ → RevLex r s ⟨a₁, b⟩ ⟨a₂, b⟩
+  | right : (a₁ : α) → {b₁ : β} → (a₂ : α) → {b₂ : β} → s b₁ b₂ → RevLex r s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
 end
 
 section

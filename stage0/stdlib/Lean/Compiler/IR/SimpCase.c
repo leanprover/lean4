@@ -31,7 +31,6 @@ lean_object* l_Lean_IR_FnBody_simpCase_match__1___rarg(lean_object*, lean_object
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_mkSimpCase___spec__1(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_IR_FnBody_simpCase_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_simpCase_match__1(lean_object*);
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_maxOccs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
@@ -60,7 +59,6 @@ lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_maxOccs_match__1__
 lean_object* l_Lean_IR_FnBody_simpCase(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_simpCase(lean_object*);
-lean_object* l_Lean_IR_FnBody_simpCase_match__3(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_flatten(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault(lean_object*);
@@ -977,22 +975,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_IR_FnBody_simpCase_match__2___rarg), 2, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_IR_FnBody_simpCase_match__3___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_2, x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_IR_FnBody_simpCase_match__3(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_FnBody_simpCase_match__3___rarg), 2, 0);
 return x_2;
 }
 }

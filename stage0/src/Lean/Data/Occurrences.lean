@@ -7,28 +7,28 @@ Author: Leonardo de Moura
 namespace Lean
 
 inductive Occurrences
-| all
-| pos (idxs : List Nat)
-| neg (idxs : List Nat)
+  | all
+  | pos (idxs : List Nat)
+  | neg (idxs : List Nat)
 
 namespace Occurrences
 
 instance : Inhabited Occurrences := ⟨all⟩
 
 def contains : Occurrences → Nat → Bool
-| all,      _   => true
-| pos idxs, idx => idxs.contains idx
-| neg idxs, idx => !idxs.contains idx
+  | all,      _   => true
+  | pos idxs, idx => idxs.contains idx
+  | neg idxs, idx => !idxs.contains idx
 
 def isAll : Occurrences → Bool
-| all => true
-| _   => false
+  | all => true
+  | _   => false
 
 def beq : Occurrences → Occurrences → Bool
-| all,     all     => true
-| pos is₁, pos is₂ => is₁ == is₂
-| neg is₁, neg is₂ => is₁ == is₂
-| _,       _       => false
+  | all,     all     => true
+  | pos is₁, pos is₂ => is₁ == is₂
+  | neg is₁, neg is₂ => is₁ == is₂
+  | _,       _       => false
 
 instance : BEq Occurrences := ⟨beq⟩
 

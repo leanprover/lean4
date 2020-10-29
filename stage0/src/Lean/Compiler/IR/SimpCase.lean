@@ -9,52 +9,51 @@ import Lean.Compiler.IR.Format
 namespace Lean.IR
 
 def ensureHasDefault (alts : Array Alt) : Array Alt :=
-if alts.any Alt.isDefault then alts
-else if alts.size < 2 then alts
-else
-  let last := alts.back;
-  let alts := alts.pop;
-  alts.push (Alt.default last.body)
+  if alts.any Alt.isDefault then alts
+  else if alts.size < 2 then alts
+  else
+    let last := alts.back;
+    let alts := alts.pop;
+    alts.push (Alt.default last.body)
 
 private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := do
-let aBody := (alts.get! i).body
-let n := 1
-for j in [i+1:alts.size] do
-  if alts[j].body == aBody then
-    n := n+1
-return n
+  let aBody := (alts.get! i).body
+  let n := 1
+  for j in [i+1:alts.size] do
+    if alts[j].body == aBody then
+      n := n+1
+  return n
 
 private def maxOccs (alts : Array Alt) : Alt × Nat := do
-let maxAlt := alts[0]
-let max    := getOccsOf alts 0
-for i in [1:alts.size] do
-  let curr := getOccsOf alts i
-  if curr > max then
-     maxAlt := alts[i]
-     max    := curr
-return (maxAlt, max)
+  let maxAlt := alts[0]
+  let max    := getOccsOf alts 0
+  for i in [1:alts.size] do
+    let curr := getOccsOf alts i
+    if curr > max then
+       maxAlt := alts[i]
+       max    := curr
+  return (maxAlt, max)
 
 private def addDefault (alts : Array Alt) : Array Alt :=
-if alts.size <= 1 || alts.any Alt.isDefault then alts
-else
-  let (max, noccs) := maxOccs alts;
-  if noccs == 1 then alts
+  if alts.size <= 1 || alts.any Alt.isDefault then alts
   else
-    let alts := alts.filter $ (fun alt => alt.body != max.body);
-    alts.push (Alt.default max.body)
+    let (max, noccs) := maxOccs alts;
+    if noccs == 1 then alts
+    else
+      let alts := alts.filter $ (fun alt => alt.body != max.body);
+      alts.push (Alt.default max.body)
 
 private def mkSimpCase (tid : Name) (x : VarId) (xType : IRType) (alts : Array Alt) : FnBody :=
-let alts := alts.filter (fun alt => alt.body != FnBody.unreachable);
-let alts := addDefault alts;
-if alts.size == 0 then
-  FnBody.unreachable
-else if alts.size == 1 then
-  (alts.get! 0).body
-else
-  FnBody.case tid x xType alts
+  let alts := alts.filter (fun alt => alt.body != FnBody.unreachable);
+  let alts := addDefault alts;
+  if alts.size == 0 then
+    FnBody.unreachable
+  else if alts.size == 1 then
+    (alts.get! 0).body
+  else
+    FnBody.case tid x xType alts
 
-partial def FnBody.simpCase : FnBody → FnBody
-| b =>
+partial def FnBody.simpCase (b : FnBody) : FnBody :=
   let (bs, term) := b.flatten;
   let bs         := modifyJPs bs simpCase;
   match term with
@@ -68,7 +67,7 @@ partial def FnBody.simpCase : FnBody → FnBody
   - Remove `case` if there is only one branch.
   - Merge most common branches using `Alt.default`. -/
 def Decl.simpCase : Decl → Decl
-| Decl.fdecl f xs t b => Decl.fdecl f xs t b.simpCase
-| other               => other
+  | Decl.fdecl f xs t b => Decl.fdecl f xs t b.simpCase
+  | other               => other
 
 end Lean.IR

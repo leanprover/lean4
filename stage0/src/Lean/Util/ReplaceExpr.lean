@@ -22,8 +22,8 @@ abbrev ReplaceM := StateM State
   modify fun s => { keys := s.keys.uset i key lcProof, results := s.results.uset i result lcProof };
   pure result
 
-@[specialize] unsafe def replaceUnsafeM (f? : Expr → Option Expr) (size : USize) (e : Expr) : ReplaceM Expr := do
-  let rec visit (e : Expr) := do
+@[inline] unsafe def replaceUnsafeM (f? : Expr → Option Expr) (size : USize) (e : Expr) : ReplaceM Expr := do
+  let rec @[specialize] visit (e : Expr) := do
     let c ← get
     let h := ptrAddrUnsafe e
     let i := h % size

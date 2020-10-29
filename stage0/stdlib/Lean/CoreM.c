@@ -34,7 +34,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Core_Lean_CoreM___instance__11_
 lean_object* l_Lean_MessageData_format(lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_CoreM___instance__10___closed__2;
 lean_object* l_Lean_Core_Lean_CoreM___instance__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Lean_Core_Lean_CoreM___instance__10___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Core_Lean_CoreM___instance__5___closed__1;
@@ -57,6 +56,7 @@ lean_object* l_Lean_catchInternalIds___rarg___lambda__1___boxed(lean_object*, le
 lean_object* l_Lean_Core_Lean_CoreM___instance__4___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_List_elem___at_Lean_catchInternalIds___spec__1___boxed(lean_object*, lean_object*);
+extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l_Lean_Core_Lean_CoreM___instance__11___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_printTraces___at_Lean_Core_Lean_CoreM___instance__11___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_CoreM___instance__3___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -202,7 +202,7 @@ static lean_object* _init_l_Lean_Core_Lean_CoreM___instance__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Std_HashMap_inhabited___closed__1;
+x_1 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_2 = l_Lean_mkEmptyEnvironment___lambda__1___closed__1;
 x_3 = l_Array_empty___closed__1;
 x_4 = l_Lean_Environment_Lean_Environment___instance__4___closed__4;

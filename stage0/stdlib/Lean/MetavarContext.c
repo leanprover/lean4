@@ -131,7 +131,6 @@ lean_object* l_Lean_MetavarContext_getExprAssignmentDomain___boxed(lean_object*)
 lean_object* l_Lean_MetavarContext_instantiateExprMVars_match__1(lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVars___spec__41___rarg___lambda__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_mk_let_decl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_MetavarContext_assignExprCore___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVarDepsAux_elimApp___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_MetavarContext_addExprMVarDecl___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -311,6 +310,7 @@ lean_object* l_Lean_MetavarContext_instantiateLCtxMVars_match__4___rarg(lean_obj
 lean_object* l_Std_PersistentHashMap_contains___at_Lean_MetavarContext_isDelayedAssigned___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_MetavarContext_exprDependsOn___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentHashMap_contains___at_Lean_MetavarContext_isExprAssigned___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l_Lean_MetavarContext_Lean_MetavarContext___instance__5___closed__3;
 lean_object* l_Lean_MetavarKind_isSyntheticOpaque_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
@@ -32325,7 +32325,7 @@ static lean_object* _init_l_Lean_MetavarContext_MkBinding_State_cache___default(
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_HashMap_inhabited___closed__1;
+x_1 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 return x_1;
 }
 }
@@ -41105,7 +41105,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_3, 2);
-x_6 = l_Std_HashMap_inhabited___closed__1;
+x_6 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_ctor_set(x_3, 2, x_6);
 x_7 = lean_box(x_2);
 x_8 = lean_apply_2(x_1, x_7, x_3);
@@ -41211,7 +41211,7 @@ lean_inc(x_29);
 lean_inc(x_28);
 lean_inc(x_27);
 lean_dec(x_3);
-x_30 = l_Std_HashMap_inhabited___closed__1;
+x_30 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_31 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_31, 0, x_27);
 lean_ctor_set(x_31, 1, x_28);
@@ -49134,7 +49134,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_ctor_get(x_4, 2);
-x_9 = l_Std_HashMap_inhabited___closed__1;
+x_9 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_ctor_set(x_4, 2, x_9);
 x_10 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVarDepsAux_elim(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_10) == 0)
@@ -49239,7 +49239,7 @@ lean_inc(x_31);
 lean_inc(x_30);
 lean_inc(x_29);
 lean_dec(x_4);
-x_32 = l_Std_HashMap_inhabited___closed__1;
+x_32 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_33 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_33, 0, x_29);
 lean_ctor_set(x_33, 1, x_30);

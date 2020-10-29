@@ -131,7 +131,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSetImp_foldM___spec__1___rar
 lean_object* l_Std_HashSet_find_x3f_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_insert(lean_object*);
 lean_object* l_Std_HashSetImp_contains_match__2___rarg(lean_object*, lean_object*);
-lean_object* l_Std_HashSetImp_moveEntries_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_foldM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 uint8_t l_Std_HashSet_isEmpty___rarg(lean_object*);
 lean_object* l_Std_HashSetImp_insert_match__2(lean_object*, lean_object*);
@@ -153,7 +152,6 @@ lean_object* l_Std_HashSet_fold_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_insert_match__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashSet_size(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashSet_numBuckets___rarg___boxed(lean_object*);
-lean_object* l_Std_HashSetImp_moveEntries_match__1(lean_object*, lean_object*);
 lean_object* l_Std_HashSet_Std_Data_HashSet___instance__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashSet_erase_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashSet_find_x3f_match__1___rarg(lean_object*, lean_object*);
@@ -1107,22 +1105,6 @@ x_5 = l_Std_HashSetImp_contains___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 x_6 = lean_box(x_5);
 return x_6;
-}
-}
-lean_object* l_Std_HashSetImp_moveEntries_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_apply_3(x_4, x_1, x_2, x_3);
-return x_5;
-}
-}
-lean_object* l_Std_HashSetImp_moveEntries_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_HashSetImp_moveEntries_match__1___rarg), 4, 0);
-return x_3;
 }
 }
 lean_object* l_List_foldl___at_Std_HashSetImp_moveEntries___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

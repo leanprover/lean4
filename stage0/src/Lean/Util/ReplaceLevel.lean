@@ -66,15 +66,15 @@ end ReplaceLevelImpl
 
 @[implementedBy ReplaceLevelImpl.replaceUnsafe]
 partial def replaceLevel (f? : Level → Option Level) : Expr → Expr
-| e@(Expr.forallE _ d b _)   => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateForallE! d b
-| e@(Expr.lam _ d b _)       => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateLambdaE! d b
-| e@(Expr.mdata _ b _)       => let b := replaceLevel f? b; e.updateMData! b
-| e@(Expr.letE _ t v b _)    => let t := replaceLevel f? t; let v := replaceLevel f? v; let b := replaceLevel f? b; e.updateLet! t v b
-| e@(Expr.app f a _)         => let f := replaceLevel f? f; let a := replaceLevel f? a; e.updateApp! f a
-| e@(Expr.proj _ _ b _)      => let b := replaceLevel f? b; e.updateProj! b
-| e@(Expr.sort u _)          => e.updateSort! (u.replace f?)
-| e@(Expr.const n us _)      => e.updateConst! (us.map (Level.replace f?))
-| e                          => e
+  | e@(Expr.forallE _ d b _)   => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateForallE! d b
+  | e@(Expr.lam _ d b _)       => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateLambdaE! d b
+  | e@(Expr.mdata _ b _)       => let b := replaceLevel f? b; e.updateMData! b
+  | e@(Expr.letE _ t v b _)    => let t := replaceLevel f? t; let v := replaceLevel f? v; let b := replaceLevel f? b; e.updateLet! t v b
+  | e@(Expr.app f a _)         => let f := replaceLevel f? f; let a := replaceLevel f? a; e.updateApp! f a
+  | e@(Expr.proj _ _ b _)      => let b := replaceLevel f? b; e.updateProj! b
+  | e@(Expr.sort u _)          => e.updateSort! (u.replace f?)
+  | e@(Expr.const n us _)      => e.updateConst! (us.map (Level.replace f?))
+  | e                          => e
 
 end Expr
 end Lean

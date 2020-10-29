@@ -31,7 +31,6 @@ extern lean_object* l_Lean_Level_LevelToFormat_toResult___closed__3;
 extern lean_object* l_Lean_Level_Lean_Level___instance__4;
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
-extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1___closed__1;
@@ -70,6 +69,7 @@ lean_object* l_Lean_Meta_mkAuxDefinitionFor(lean_object*);
 lean_object* l_Lean_Meta_Closure_pickNextToProcess_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAuxDefinition(lean_object*);
+extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_Closure_visitLevel___spec__2(lean_object*, lean_object*);
 uint32_t l_UInt32_add(uint32_t, uint32_t);
 uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
@@ -11454,7 +11454,7 @@ static lean_object* _init_l_Lean_Meta_Closure_mkValueTypeClosure___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Std_HashMap_inhabited___closed__1;
+x_1 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_2 = l_Array_empty___closed__1;
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_alloc_ctor(0, 12, 0);

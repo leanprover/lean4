@@ -89,7 +89,6 @@ lean_object* l_Lean_IR_EmitC_getDecl_match__1___rarg(lean_object*, lean_object*,
 lean_object* l_Lean_IR_EmitC_emitSProj___closed__2;
 lean_object* l_Lean_IR_EmitC_throwUnknownVar___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitDeclInit_match__1(lean_object*);
-extern lean_object* l_Std_HashMap_inhabited___closed__1;
 lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_collectUsedDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitSSet___closed__6;
@@ -193,6 +192,7 @@ lean_object* l_Nat_foldM_loop___at_Lean_IR_EmitC_emitSimpleExternalCall___spec__
 lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitJmp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitTailCall___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l_Lean_IR_EmitC_toCType___closed__6;
 lean_object* l_Lean_IR_Decl_resultType(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
@@ -673,7 +673,7 @@ static lean_object* _init_l_Lean_IR_EmitC_Context_jpMap___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_HashMap_inhabited___closed__1;
+x_1 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 return x_1;
 }
 }
@@ -1372,7 +1372,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_IR_EmitC_toCType___closed__8;
 x_2 = l_Lean_IR_EmitC_toCType___closed__9;
 x_3 = lean_unsigned_to_nat(65u);
-x_4 = lean_unsigned_to_nat(23u);
+x_4 = lean_unsigned_to_nat(25u);
 x_5 = l_Lean_IR_EmitC_toCType___closed__10;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
@@ -1385,7 +1385,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_IR_EmitC_toCType___closed__8;
 x_2 = l_Lean_IR_EmitC_toCType___closed__9;
 x_3 = lean_unsigned_to_nat(66u);
-x_4 = lean_unsigned_to_nat(23u);
+x_4 = lean_unsigned_to_nat(25u);
 x_5 = l_Lean_IR_EmitC_toCType___closed__10;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
@@ -3577,7 +3577,7 @@ static lean_object* _init_l_Lean_IR_EmitC_emitMainFn___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n#if defined(WIN32) || defined(_WIN32)\n#include <windows.h>\n#endif\n\nint main(int argc, char ** argv) {\n#if defined(WIN32) || defined(_WIN32)\nSetErrorMode(SEM_FAILCRITICALERRORS);\n#endif\nlean_object* in; lean_object* res;");
+x_1 = lean_mk_string("\n  #if defined(WIN32) || defined(_WIN32)\n  #include <windows.h>\n  #endif\n\n  int main(int argc, char ** argv) {\n  #if defined(WIN32) || defined(_WIN32)\n  SetErrorMode(SEM_FAILCRITICALERRORS);\n  #endif\n  lean_object* in; lean_object* res;");
 return x_1;
 }
 }
@@ -15346,7 +15346,7 @@ lean_object* lean_ir_emit_c(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = l_Std_HashMap_inhabited___closed__1;
+x_3 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 x_4 = lean_box(0);
 x_5 = l_Array_empty___closed__1;
 x_6 = lean_alloc_ctor(0, 5, 0);

@@ -13,79 +13,79 @@ namespace Parser
 open Std (RBNode RBNode.leaf RBNode.singleton RBNode.find RBNode.insert)
 
 inductive Trie (α : Type)
-| Node : Option α → RBNode Char (fun _ => Trie α) → Trie α
+  | Node : Option α → RBNode Char (fun _ => Trie α) → Trie α
 
 namespace Trie
 variables {α : Type}
 
 def empty : Trie α :=
-⟨none, RBNode.leaf⟩
+  ⟨none, RBNode.leaf⟩
 
 instance : EmptyCollection (Trie α) :=
-⟨empty⟩
+  ⟨empty⟩
 
 instance : Inhabited (Trie α) :=
-⟨Node none RBNode.leaf⟩
+  ⟨Node none RBNode.leaf⟩
 
 partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
-let rec insertEmpty (i : String.Pos) : Trie α :=
-  match s.atEnd i with
-  | true => Trie.Node (some val) RBNode.leaf
-  | false =>
-    let c := s.get i
-    let t := insertEmpty (s.next i)
-    Trie.Node none (RBNode.singleton c t)
-let rec loop
-  | Trie.Node v m, i =>
+  let rec insertEmpty (i : String.Pos) : Trie α :=
     match s.atEnd i with
-    | true  => Trie.Node (some val) m -- overrides old value
+    | true => Trie.Node (some val) RBNode.leaf
     | false =>
       let c := s.get i
-      let i := s.next i
-      let t := match RBNode.find Char.lt m c with
-        | none   => insertEmpty i
-        | some t => loop t i
-      Trie.Node v (RBNode.insert Char.lt m c t)
-loop t 0
+      let t := insertEmpty (s.next i)
+      Trie.Node none (RBNode.singleton c t)
+  let rec loop
+    | Trie.Node v m, i =>
+      match s.atEnd i with
+      | true  => Trie.Node (some val) m -- overrides old value
+      | false =>
+        let c := s.get i
+        let i := s.next i
+        let t := match RBNode.find Char.lt m c with
+          | none   => insertEmpty i
+          | some t => loop t i
+        Trie.Node v (RBNode.insert Char.lt m c t)
+  loop t 0
 
 partial def find? (t : Trie α) (s : String) : Option α :=
-let rec loop
-  | Trie.Node val m, i =>
-    match s.atEnd i with
-    | true  => val
-    | false =>
-      let c := s.get i
-      let i := s.next i
-      match RBNode.find Char.lt m c with
-      | none   => none
-      | some t => loop t i
-loop t 0
+  let rec loop
+    | Trie.Node val m, i =>
+      match s.atEnd i with
+      | true  => val
+      | false =>
+        let c := s.get i
+        let i := s.next i
+        match RBNode.find Char.lt m c with
+        | none   => none
+        | some t => loop t i
+  loop t 0
 
 private def updtAcc (v : Option α) (i : String.Pos) (acc : String.Pos × Option α) : String.Pos × Option α :=
-match v, acc with
-| some v, (j, w) => (i, some v)  -- we pattern match on `acc` to enable memory reuse
-| none,   acc    => acc
+  match v, acc with
+  | some v, (j, w) => (i, some v)  -- we pattern match on `acc` to enable memory reuse
+  | none,   acc    => acc
 
 partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos × Option α :=
-let rec loop
-  | Trie.Node v m, i, acc =>
-    match s.atEnd i with
-    | true  => updtAcc v i acc
-    | false =>
-      let acc := updtAcc v i acc
-      let c   := s.get i
-      let i   := s.next i
-      match RBNode.find Char.lt m c with
-      | some t => loop t i acc
-      | none   => acc
-loop t i (i, none)
+  let rec loop
+    | Trie.Node v m, i, acc =>
+      match s.atEnd i with
+      | true  => updtAcc v i acc
+      | false =>
+        let acc := updtAcc v i acc
+        let c   := s.get i
+        let i   := s.next i
+        match RBNode.find Char.lt m c with
+        | some t => loop t i acc
+        | none   => acc
+  loop t i (i, none)
 
 private partial def toStringAux {α : Type} : Trie α → List Format
-| Trie.Node val map => map.fold (fun Fs c t =>
-  format (repr c) :: (Format.group $ Format.nest 2 $ flip Format.joinSep Format.line $ toStringAux t) :: Fs) []
+  | Trie.Node val map => map.fold (fun Fs c t =>
+    format (repr c) :: (Format.group $ Format.nest 2 $ flip Format.joinSep Format.line $ toStringAux t) :: Fs) []
 
 instance {α : Type} : ToString (Trie α) :=
-⟨fun t => (flip Format.joinSep Format.line $ toStringAux t).pretty⟩
+  ⟨fun t => (flip Format.joinSep Format.line $ toStringAux t).pretty⟩
 end Trie
 
 end Parser

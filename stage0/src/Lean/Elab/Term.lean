@@ -614,14 +614,10 @@ private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eTyp
 private def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
   let type ← withReducible $ whnf type
   match type with
-  | Expr.app m α _ => pure (some (m, α))
+  | Expr.app m α _ => pure (some ((← instantiateMVars m), (← instantiateMVars α)))
   | _              => pure none
 
-structure IsMonadResult :=
-  (m    : Expr)
-  (α    : Expr)
-  (inst : Expr)
-
+/-
 private def isMonad? (type : Expr) : TermElabM (Option IsMonadResult) := do
   let type ← withReducible $ whnf type
   match type with
@@ -634,6 +630,17 @@ private def isMonad? (type : Expr) : TermElabM (Option IsMonadResult) := do
       | _                 => pure none
     catch _ => pure none
   | _ => pure none
+-/
+
+private def isMonad? (m : Expr) : TermElabM (Option Expr) := do
+  try
+    let monadType ← mkAppM `Monad #[m]
+    let result    ← trySynthInstance monadType
+    match result with
+    | LOption.some inst => pure inst
+    | _                 => pure none
+  catch _ =>
+    pure none
 
 def synthesizeInst (type : Expr) : TermElabM Expr := do
   let type ← instantiateMVars type
@@ -684,14 +691,15 @@ private def tryPureCoe? (errorMsgHeader? : Option String) (m β α a : Expr) : T
 /-
 Try coercions and monad lifts to make sure `e` has type `expectedType`.
 
-If `expectedType` is of the form `n β` where `n` is a Monad, we try monad lifts and other extensions.
+If `expectedType` is of the form `n β`, we try monad lifts and other extensions.
 Otherwise, we just use the basic `tryCoe`.
 
 Extensions for monads.
 
-Given an expected type of the form `n β`, if `eType` is of the form `α`
+Given an expected type of the form `n β`, if `eType` is of the form `α`, but not `m α`
 
 1 - Try to coerce ‵α` into ‵β`, and use `pure` to lift it to `n α`.
+    It only works if `n` implements `Pure`
 
 If `eType` is of the form `m α`. We use the following approaches.
 
@@ -699,10 +707,21 @@ If `eType` is of the form `m α`. We use the following approaches.
    ```
    coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β
    ```
+   `n` must be a `Monad` to use this one.
 
 2- If there is monad lift from `m` to `n` and we can unify `α` and `β`, we use
   ```
   liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : MonadLiftT m n] {α : Type u_1}, m α → n α
+  ```
+  Note that `n` may not be a `Monad` in this case. This happens quite a bit in code such as
+  ```
+  def g (x : Nat) : IO Nat := do
+    IO.println x
+    pure x
+
+  def f {m} [MonadLiftT IO m] : m Nat :=
+    g 10
+
   ```
 
 3- If there is a monad lif from `m` to `n` and a coercion from `α` to `β`, we use
@@ -739,43 +758,48 @@ convert `g x` into `liftM $ g x`.
 private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
   let expectedType ← instantiateMVars expectedType
   let eType ← instantiateMVars eType
-  let some ⟨n, β, monadInst⟩ ← isMonad? expectedType | tryCoe errorMsgHeader? expectedType eType e f?
-  let β ← instantiateMVars β
-  let eNew? ← tryPureCoe? errorMsgHeader? n β eType e
-  match eNew? with
-  | some eNew => pure eNew
-  | none      =>
-    let some (m, α) ← isTypeApp? eType | tryCoe errorMsgHeader? expectedType eType e f?
-    if (← isDefEq m n) then
-      try
-        mkAppOptM `coeM #[m, α, β, none, monadInst, e]
-      catch _ =>
-        throwTypeMismatchError errorMsgHeader? expectedType eType e f?
-    else
-      try
-        -- Construct lift from `m` to `n`
-        let monadLiftType ← mkAppM `MonadLiftT #[m, n]
-        let monadLiftVal  ← synthesizeInst monadLiftType
-        let u_1 ← getDecLevel α
-        let u_2 ← getDecLevel eType
-        let u_3 ← getDecLevel expectedType
-        let eNew := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, n, monadLiftVal, α, e]
+  let throwMismatch {α} : TermElabM α := throwTypeMismatchError errorMsgHeader? expectedType eType e f?
+  let tryCoeSimple : TermElabM Expr :=
+    tryCoe errorMsgHeader? expectedType eType e f?
+  let some (n, β) ← isTypeApp? expectedType | tryCoeSimple
+  let tryPureCoeAndSimple : TermElabM Expr := do
+    match (← tryPureCoe? errorMsgHeader? n β eType e) with
+    | some eNew => pure eNew
+    | none      => tryCoeSimple
+  let some (m, α) ← isTypeApp? eType | tryPureCoeAndSimple
+  if (← isDefEq m n) then
+    let some monadInst ← isMonad? n | tryCoeSimple
+    try mkAppOptM `coeM #[m, α, β, none, monadInst, e] catch _ => throwMismatch
+  else
+    try
+      -- Construct lift from `m` to `n`
+      let monadLiftType ← mkAppM `MonadLiftT #[m, n]
+      let monadLiftVal  ← synthesizeInst monadLiftType
+      let u_1 ← getDecLevel α
+      let u_2 ← getDecLevel eType
+      let u_3 ← getDecLevel expectedType
+      let eNew := mkAppN (Lean.mkConst `liftM [u_1, u_2, u_3]) #[m, n, monadLiftVal, α, e]
+      let eNewType ← inferType eNew
+      if (← isDefEq expectedType eNewType) then
+        pure eNew -- approach 2 worked
+      else
+        let some monadInst ← isMonad? n | tryCoeSimple
+        let u ← getLevel α
+        let v ← getLevel β
+        let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst `CoeT [u, v]) #[α, mkBVar 0, β]
+        let coeTInstVal ← synthesizeInst coeTInstType
+        let eNew := mkAppN (Lean.mkConst `liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e]
         let eNewType ← inferType eNew
-        if (← isDefEq expectedType eNewType) then
-          pure eNew -- approach 2 worked
-        else
-          let u ← getLevel α
-          let v ← getLevel β
-          let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst `CoeT [u, v]) #[α, mkBVar 0, β]
-          let coeTInstVal ← synthesizeInst coeTInstType
-          let eNew := mkAppN (Lean.mkConst `liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e]
-          let eNewType ← inferType eNew
-          if (← isDefEq expectedType eNewType) then
-            pure eNew -- approach 3 worked
-          else
-            throwTypeMismatchError errorMsgHeader? expectedType eType e f?
-      catch _ =>
-        throwTypeMismatchError errorMsgHeader? expectedType eType e f?
+        unless (← isDefEq expectedType eNewType) do throwMismatch
+        pure eNew -- approach 3 worked
+    catch _ =>
+      /-
+        If `m` is not a monad, then we try to use `tryPureCoe?` and then `tryCoe?`.
+        Otherwise, we just try `tryCoe?`.
+      -/
+      match (← isMonad? m) with
+      | none   => tryPureCoeAndSimple
+      | some _ => tryCoeSimple
 
 /--
   If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.

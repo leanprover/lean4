@@ -10,32 +10,30 @@ namespace Lean
 namespace CollectMVars
 
 structure State :=
-(visitedExpr  : ExprSet      := {})
-(result       : Array MVarId := #[])
+  (visitedExpr  : ExprSet      := {})
+  (result       : Array MVarId := #[])
 
 instance : Inhabited State := ⟨{}⟩
 
 abbrev Visitor := State → State
 
-@[inline] def visit (f : Expr → Visitor) (e : Expr) : Visitor :=
-fun s =>
+@[inline] def visit (f : Expr → Visitor) (e : Expr) : Visitor := fun s =>
   if !e.hasMVar || s.visitedExpr.contains e then s
   else f e { s with visitedExpr := s.visitedExpr.insert e }
 
 partial def main : Expr → Visitor
-| Expr.proj _ _ e _    => visit main e
-| Expr.forallE _ d b _ => visit main b ∘ visit main d
-| Expr.lam _ d b _     => visit main b ∘ visit main d
-| Expr.letE _ t v b _  => visit main b ∘ visit main v ∘ visit main t
-| Expr.app f a _       => visit main a ∘ visit main f
-| Expr.mdata _ b _     => visit main b
-| Expr.mvar mvarId _   => fun s => { s with result := s.result.push mvarId }
-| _                    => id
+  | Expr.proj _ _ e _    => visit main e
+  | Expr.forallE _ d b _ => visit main b ∘ visit main d
+  | Expr.lam _ d b _     => visit main b ∘ visit main d
+  | Expr.letE _ t v b _  => visit main b ∘ visit main v ∘ visit main t
+  | Expr.app f a _       => visit main a ∘ visit main f
+  | Expr.mdata _ b _     => visit main b
+  | Expr.mvar mvarId _   => fun s => { s with result := s.result.push mvarId }
+  | _                    => id
 
 end CollectMVars
 
 def Expr.collectMVars (s : CollectMVars.State) (e : Expr) : CollectMVars.State :=
-CollectMVars.visit CollectMVars.main e s
-
+  CollectMVars.visit CollectMVars.main e s
 
 end Lean

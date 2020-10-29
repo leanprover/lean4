@@ -177,7 +177,7 @@ def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
       let sp ← getStackSize
       stx.getArgs.forM fun stx => formatterForKind stx.getKind
       let stack ← getStack
-      if stack.size > sp && stack.anyRange sp stack.size fun f => f.pretty != (stack.get! sp).pretty then
+      if stack.size > sp && stack.any (start := sp) (stop := stack.size) fun f => f.pretty != (stack.get! sp).pretty then
         panic! "Formatter.visit: inequal choice children";
       -- discard all but one child format
       setStack $ stack.extract 0 (sp+1)

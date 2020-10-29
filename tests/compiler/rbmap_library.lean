@@ -57,9 +57,17 @@ do IO.setRandSeed seed
    check (sz m == a.size)
    check (a.all (fun ⟨k, v⟩ => m.find? k == some v))
    IO.println ("tst3 size: " ++ toString a.size)
-   let m := a.iterate m (fun i ⟨k, v⟩ m => if i.val % 2 == 0 then m.erase k else m)
+   let i := 0
+   for (k, b) in a do
+     if i % 2 == 0 then
+       m := m.erase k
+     i := i + 1
    check (sz m == a.size / 2)
-   a.iterateM () (fun i ⟨k, v⟩ _ => when (i.val % 2 == 1) (check (m.find? k == some v)))
+   let i := 0
+   for (k, v) in a do
+     if i % 2 == 1 then
+       check (m.find? k == some v)
+     i := i + 1
    IO.println ("tst3 after, depth: " ++ toString (depth m) ++ ", size: " ++ toString (sz m))
    pure ()
 

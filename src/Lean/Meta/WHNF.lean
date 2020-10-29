@@ -72,7 +72,7 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM (Option Ex
   let majorTypeI := majorType.getAppFn
   if !majorTypeI.isConstOf recVal.getInduct then
     pure none
-  else if majorType.hasExprMVar && majorType.getAppArgs.anyFrom recVal.nparams Expr.hasExprMVar then
+  else if majorType.hasExprMVar && majorType.getAppArgs.any (start := recVal.nparams) Expr.hasExprMVar then
     pure none
   else do
     let (some newCtorApp) ← mkNullaryCtor majorType recVal.nparams | pure none

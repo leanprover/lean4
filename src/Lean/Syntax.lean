@@ -283,7 +283,10 @@ partial def reprint : Syntax → Option String
       if args.size == 0 then failure
       else do
         let s ← reprint args[0]
-        args.foldlFromM (fun s stx => do let s' ← reprint stx; guard (s == s'); pure s) s 1
+        args.foldlM (init := s) (start := 1) fun s stx => do
+          let s' ← reprint stx
+          guard (s == s')
+          pure s
     else args.foldlM (fun r stx => do let s ← reprint stx; pure $ r ++ s) ""
   | _ => ""
 

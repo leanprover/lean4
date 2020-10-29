@@ -25,9 +25,9 @@ lean_object* l_Lean_Meta_reduce(lean_object*, uint8_t, uint8_t, uint8_t, lean_ob
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Meta_reduce_visit___spec__3(lean_object*);
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
-lean_object* l_Array_iterateMAux___at_Lean_mkAppN___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars___at___private_Lean_Meta_InferType_0__Lean_Meta_inferLambdaType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_getMVarDecl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -1165,7 +1165,7 @@ if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 
 x_30 = lean_ctor_get(x_28, 0);
-x_31 = l_Array_iterateMAux___at_Lean_mkAppN___spec__1(x_30, x_30, x_16, x_15);
+x_31 = l_Lean_mkAppN(x_15, x_30);
 lean_dec(x_30);
 lean_ctor_set(x_28, 0, x_31);
 return x_28;
@@ -1178,7 +1178,7 @@ x_33 = lean_ctor_get(x_28, 1);
 lean_inc(x_33);
 lean_inc(x_32);
 lean_dec(x_28);
-x_34 = l_Array_iterateMAux___at_Lean_mkAppN___spec__1(x_32, x_32, x_16, x_15);
+x_34 = l_Lean_mkAppN(x_15, x_32);
 lean_dec(x_32);
 x_35 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_35, 0, x_34);

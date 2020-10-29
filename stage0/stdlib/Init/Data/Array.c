@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array
-// Imports: Init.Data.Array.Basic Init.Data.Array.QSort Init.Data.Array.BinSearch Init.Data.Array.ForIn Init.Data.Array.Macros
+// Imports: Init.Data.Array.Basic Init.Data.Array.QSort Init.Data.Array.BinSearch Init.Data.Array.Macros
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,6 @@ extern "C" {
 lean_object* initialize_Init_Data_Array_Basic(lean_object*);
 lean_object* initialize_Init_Data_Array_QSort(lean_object*);
 lean_object* initialize_Init_Data_Array_BinSearch(lean_object*);
-lean_object* initialize_Init_Data_Array_ForIn(lean_object*);
 lean_object* initialize_Init_Data_Array_Macros(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Array(lean_object* w) {
@@ -30,9 +29,6 @@ res = initialize_Init_Data_Array_QSort(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_BinSearch(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_ForIn(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Macros(lean_io_mk_world());

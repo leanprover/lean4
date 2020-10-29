@@ -23,7 +23,6 @@ lean_object* l_Lean_ForEachExpr_visit___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Expr_forEach_x27___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___lambda__2(lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Expr_forEach___spec__7(lean_object*, lean_object*, lean_object*);
@@ -34,6 +33,7 @@ lean_object* lean_array_get_size(lean_object*);
 extern lean_object* l_Lean_Expr_Lean_Expr___instance__13;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Expr_forEach___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Array_findSomeM_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec__1___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forEach___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -480,7 +480,7 @@ x_8 = lean_alloc_closure((void*)(l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed), 
 lean_closure_set(x_8, 0, x_2);
 lean_closure_set(x_8, 1, x_7);
 x_9 = lean_apply_2(x_3, lean_box(0), x_8);
-x_10 = lean_alloc_closure((void*)(l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__4___boxed), 3, 2);
+x_10 = lean_alloc_closure((void*)(l_Array_findSomeM_x3f___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_10, 0, x_4);
 lean_closure_set(x_10, 1, x_6);
 x_11 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_9, x_10);
@@ -1315,7 +1315,7 @@ x_8 = lean_alloc_closure((void*)(l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed), 
 lean_closure_set(x_8, 0, x_2);
 lean_closure_set(x_8, 1, x_7);
 x_9 = lean_apply_2(x_3, lean_box(0), x_8);
-x_10 = lean_alloc_closure((void*)(l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__4___boxed), 3, 2);
+x_10 = lean_alloc_closure((void*)(l_Array_findSomeM_x3f___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_10, 0, x_4);
 lean_closure_set(x_10, 1, x_6);
 x_11 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_9, x_10);

@@ -7,7 +7,6 @@ prelude
 import Init.Data.Option.BasicAux
 import Init.Data.String.Basic
 import Init.Data.Array.Basic
-import Init.Data.Array.ForIn
 import Init.Data.UInt
 import Init.Data.Hashable
 import Init.Control.Reader

@@ -197,15 +197,15 @@ variable {β : Type v}
 | node cs, i, shift, b => do
   let j    := (div2Shift i shift).toNat
   let b ← foldlFromMAux f (cs.get! j) (mod2Shift i shift) (shift - initShift) b
-  cs.foldlFromM (fun b c => foldlMAux f c b) b (j+1)
-| leaf vs, i, _, b => vs.foldlFromM f b i.toNat
+  cs.foldlM (init := b) (start := j+1) fun b c => foldlMAux f c b
+| leaf vs, i, _, b => vs.foldlM (init := b) (start := i.toNat) f
 
 @[specialize] def foldlM (t : PersistentArray α) (f : β → α → m β) (init : β) (start : Nat := 0) : m β := do
 if start == 0 then
   let b ← foldlMAux f t.root init
   t.tail.foldlM f b
 else if start >= t.tailOff then
-  t.tail.foldlFromM f init (start - t.tailOff)
+  t.tail.foldlM (init := init) (start := start - t.tailOff) f
 else do
   let b ← foldlFromMAux f t.root (USize.ofNat start) t.shift init;
   t.tail.foldlM f b

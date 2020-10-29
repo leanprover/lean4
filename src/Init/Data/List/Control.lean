@@ -16,8 +16,8 @@ Remark: we can define `mapM`, `mapM₂` and `forM` using `Applicative` instead o
 Example:
 ```
 def mapM {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
-| []    => pure []
-| a::as => List.cons <$> (f a) <*> mapM as
+  | []    => pure []
+  | a::as => List.cons <$> (f a) <*> mapM as
 ```
 
 However, we consider `f <$> a <*> b` an anti-idiom because the generated code

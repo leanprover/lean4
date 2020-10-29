@@ -10,32 +10,32 @@ namespace Lean
 namespace IR
 
 inductive CtorFieldInfo
-| irrelevant
-| object (i : Nat)
-| usize  (i : Nat)
-| scalar (sz : Nat) (offset : Nat) (type : IRType)
+  | irrelevant
+  | object (i : Nat)
+  | usize  (i : Nat)
+  | scalar (sz : Nat) (offset : Nat) (type : IRType)
 
 namespace CtorFieldInfo
 
 def format : CtorFieldInfo → Format
-| irrelevant => "◾"
-| object i   => f!"obj@{i}"
-| usize i    => f!"usize@{i}"
-| scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
+  | irrelevant => "◾"
+  | object i   => f!"obj@{i}"
+  | usize i    => f!"usize@{i}"
+  | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
 
 instance : ToFormat CtorFieldInfo := ⟨format⟩
 
 end CtorFieldInfo
 
 structure CtorLayout :=
-(cidx       : Nat)
-(fieldInfo  : List CtorFieldInfo)
-(numObjs    : Nat)
-(numUSize   : Nat)
-(scalarSize : Nat)
+  (cidx       : Nat)
+  (fieldInfo  : List CtorFieldInfo)
+  (numObjs    : Nat)
+  (numUSize   : Nat)
+  (scalarSize : Nat)
 
 @[extern "lean_ir_get_ctor_layout"]
-constant getCtorLayout (env : @& Environment) (ctorName : @& Name) : Except String CtorLayout := arbitrary _
+constant getCtorLayout (env : @& Environment) (ctorName : @& Name) : Except String CtorLayout
 
 end IR
 end Lean

@@ -9,8 +9,7 @@ import Lean.Compiler.IR.NormIds
 
 namespace Lean.IR
 
-partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array FnBody → IndexSet → Array FnBody × Array Alt
-| bs, alts, altsF, ctx, ctxF =>
+partial def pushProjs (bs : Array FnBody) (alts : Array Alt) (altsF : Array IndexSet) (ctx : Array FnBody) (ctxF : IndexSet) : Array FnBody × Array Alt :=
   if bs.isEmpty then (ctx.reverse, alts)
   else
     let b    := bs.back
@@ -37,8 +36,7 @@ partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array 
       | _                  => done ()
     | _ => done ()
 
-partial def FnBody.pushProj : FnBody → FnBody
-| b =>
+partial def FnBody.pushProj (b : FnBody) : FnBody :=
   let (bs, term) := b.flatten
   let bs         := modifyJPs bs pushProj
   match term with
@@ -52,7 +50,7 @@ partial def FnBody.pushProj : FnBody → FnBody
 
 /-- Push projections inside `case` branches. -/
 def Decl.pushProj : Decl → Decl
-| Decl.fdecl f xs t b => (Decl.fdecl f xs t b.pushProj).normalizeIds
-| other               => other
+  | Decl.fdecl f xs t b => (Decl.fdecl f xs t b.pushProj).normalizeIds
+  | other               => other
 
 end Lean.IR

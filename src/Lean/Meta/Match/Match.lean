@@ -111,15 +111,15 @@ def replaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : Alt :=
 
 ```
 inductive Vec (α : Type u) : Nat → Type u
-| nil : Vec α 0
-| cons {n} (head : α) (tail : Vec α n) : Vec α (n+1)
+  | nil : Vec α 0
+  | cons {n} (head : α) (tail : Vec α n) : Vec α (n+1)
 
 inductive VecPred {α : Type u} (P : α → Prop) : {n : Nat} → Vec α n → Prop
-| nil   : VecPred P Vec.nil
-| cons  {n : Nat} {head : α} {tail : Vec α n} : P head → VecPred P tail → VecPred P (Vec.cons head tail)
+  | nil   : VecPred P Vec.nil
+  | cons  {n : Nat} {head : α} {tail : Vec α n} : P head → VecPred P tail → VecPred P (Vec.cons head tail)
 
 theorem ex {α : Type u} (P : α → Prop) : {n : Nat} → (v : Vec α (n+1)) → VecPred P v → Exists P
-| _, Vec.cons head _, VecPred.cons h (w : VecPred P Vec.nil) => ⟨head, h⟩
+  | _, Vec.cons head _, VecPred.cons h (w : VecPred P Vec.nil) => ⟨head, h⟩
 ```
 Recall that `_` in a pattern can be elaborated into pattern variable or an inaccessible term.
 The elaborator uses an inaccessible term when typing constraints restrict its value.
@@ -127,7 +127,7 @@ Thus, in the example above, the `_` at `Vec.cons head _` becomes the inaccessibl
 because the type ascription `(w : VecPred P Vec.nil)` propagates typing constraints that restrict its value to be `Vec.nil`.
 After elaboration the alternative becomes:
 ```
-| .(0), @Vec.cons .(α) .(0) head .(Vec.nil), @VecPred.cons .(α) .(P) .(0) .(head) .(Vec.nil) h w => ⟨head, h⟩
+  | .(0), @Vec.cons .(α) .(0) head .(Vec.nil), @VecPred.cons .(α) .(P) .(0) .(head) .(Vec.nil) h w => ⟨head, h⟩
 ```
 where
 ```
@@ -138,7 +138,7 @@ Then, when we process this alternative in this module, the following check will 
 Note that if we had written
 ```
 theorem ex {α : Type u} (P : α → Prop) : {n : Nat} → (v : Vec α (n+1)) → VecPred P v → Exists P
-| _, Vec.cons head Vec.nil, VecPred.cons h (w : VecPred P Vec.nil) => ⟨head, h⟩
+  | _, Vec.cons head Vec.nil, VecPred.cons h (w : VecPred P Vec.nil) => ⟨head, h⟩
 ```
 we would get the easier to digest error message
 ```

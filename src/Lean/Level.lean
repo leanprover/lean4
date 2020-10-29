@@ -211,12 +211,12 @@ def occurs : Level → Level → Bool
   | u, v                 => u == v
 
 def ctorToNat : Level → Nat
-| zero ..  => 0
-| param .. => 1
-| mvar ..  => 2
-| succ ..  => 3
-| max ..   => 4
-| imax ..  => 5
+  | zero ..  => 0
+  | param .. => 1
+  | mvar ..  => 2
+  | succ ..  => 3
+  | max ..   => 4
+  | imax ..  => 5
 
 /- TODO: use well founded recursion. -/
 partial def normLtAux : Level → Nat → Level → Nat → Bool

@@ -824,13 +824,13 @@ This is a standard trick we use in the elaborator, and it is also used to elabor
 Suppose, we are trying to elaborate
 ```
 match g x with
-| ... => ...
+  | ... => ...
 ```
 `expandNonAtomicDiscrs?` converts it intro
 ```
 let _discr := g x
 match _discr with
-| ... => ...
+  | ... => ...
 ```
 Thus, at `tryPostponeIfDiscrTypeIsMVar` we only need to check whether the type of `_discr` is not of the form `(?m ...)`.
 Note that, the auxiliary variable `_discr` is expanded at `elabAtomicDiscr`.

@@ -26,62 +26,62 @@ abbrev Collector := Index → Index
 instance : AndThen Collector := ⟨seq⟩
 
 private def collectArg : Arg → Collector
-| Arg.var x  => collectVar x
-| irrelevant => skip
+  | Arg.var x  => collectVar x
+  | irrelevant => skip
 
 @[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
-fun m => as.foldl (fun m a => f a m) m
+  fun m => as.foldl (fun m a => f a m) m
 
 private def collectArgs (as : Array Arg) : Collector := collectArray as collectArg
 private def collectParam (p : Param) : Collector := collectVar p.x
 private def collectParams (ps : Array Param) : Collector := collectArray ps collectParam
 
 private def collectExpr : Expr → Collector
-| Expr.ctor _ ys      => collectArgs ys
-| Expr.reset _ x      => collectVar x
-| Expr.reuse x _ _ ys => collectVar x >> collectArgs ys
-| Expr.proj _ x       => collectVar x
-| Expr.uproj _ x      => collectVar x
-| Expr.sproj _ _ x    => collectVar x
-| Expr.fap _ ys       => collectArgs ys
-| Expr.pap _ ys       => collectArgs ys
-| Expr.ap x ys        => collectVar x >> collectArgs ys
-| Expr.box _ x        => collectVar x
-| Expr.unbox x        => collectVar x
-| Expr.lit v          => skip
-| Expr.isShared x     => collectVar x
-| Expr.isTaggedPtr x  => collectVar x
+  | Expr.ctor _ ys      => collectArgs ys
+  | Expr.reset _ x      => collectVar x
+  | Expr.reuse x _ _ ys => collectVar x >> collectArgs ys
+  | Expr.proj _ x       => collectVar x
+  | Expr.uproj _ x      => collectVar x
+  | Expr.sproj _ _ x    => collectVar x
+  | Expr.fap _ ys       => collectArgs ys
+  | Expr.pap _ ys       => collectArgs ys
+  | Expr.ap x ys        => collectVar x >> collectArgs ys
+  | Expr.box _ x        => collectVar x
+  | Expr.unbox x        => collectVar x
+  | Expr.lit v          => skip
+  | Expr.isShared x     => collectVar x
+  | Expr.isTaggedPtr x  => collectVar x
 
 private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
-collectArray alts $ fun alt => f alt.body
+  collectArray alts $ fun alt => f alt.body
 
 partial def collectFnBody : FnBody → Collector
-| FnBody.vdecl x _ v b    => collectVar x >> collectExpr v >> collectFnBody b
-| FnBody.jdecl j ys v b   => collectJP j >> collectFnBody v >> collectParams ys >> collectFnBody b
-| FnBody.set x _ y b      => collectVar x >> collectArg y >> collectFnBody b
-| FnBody.uset x _ y b     => collectVar x >> collectVar y >> collectFnBody b
-| FnBody.sset x _ _ y _ b => collectVar x >> collectVar y >> collectFnBody b
-| FnBody.setTag x _ b     => collectVar x >> collectFnBody b
-| FnBody.inc x _ _ _ b    => collectVar x >> collectFnBody b
-| FnBody.dec x _ _ _ b    => collectVar x >> collectFnBody b
-| FnBody.del x b          => collectVar x >> collectFnBody b
-| FnBody.mdata _ b        => collectFnBody b
-| FnBody.case _ x _ alts  => collectVar x >> collectAlts collectFnBody alts
-| FnBody.jmp j ys         => collectJP j >> collectArgs ys
-| FnBody.ret x            => collectArg x
-| FnBody.unreachable      => skip
+  | FnBody.vdecl x _ v b    => collectVar x >> collectExpr v >> collectFnBody b
+  | FnBody.jdecl j ys v b   => collectJP j >> collectFnBody v >> collectParams ys >> collectFnBody b
+  | FnBody.set x _ y b      => collectVar x >> collectArg y >> collectFnBody b
+  | FnBody.uset x _ y b     => collectVar x >> collectVar y >> collectFnBody b
+  | FnBody.sset x _ _ y _ b => collectVar x >> collectVar y >> collectFnBody b
+  | FnBody.setTag x _ b     => collectVar x >> collectFnBody b
+  | FnBody.inc x _ _ _ b    => collectVar x >> collectFnBody b
+  | FnBody.dec x _ _ _ b    => collectVar x >> collectFnBody b
+  | FnBody.del x b          => collectVar x >> collectFnBody b
+  | FnBody.mdata _ b        => collectFnBody b
+  | FnBody.case _ x _ alts  => collectVar x >> collectAlts collectFnBody alts
+  | FnBody.jmp j ys         => collectJP j >> collectArgs ys
+  | FnBody.ret x            => collectArg x
+  | FnBody.unreachable      => skip
 
 partial def collectDecl : Decl → Collector
-| Decl.fdecl _ xs _ b  => collectParams xs >> collectFnBody b
-| Decl.extern _ xs _ _ => collectParams xs
+  | Decl.fdecl _ xs _ b  => collectParams xs >> collectFnBody b
+  | Decl.extern _ xs _ _ => collectParams xs
 
 end MaxIndex
 
 def FnBody.maxIndex (b : FnBody) : Index :=
-MaxIndex.collectFnBody b 0
+  MaxIndex.collectFnBody b 0
 
 def Decl.maxIndex (d : Decl) : Index :=
-MaxIndex.collectDecl d 0
+  MaxIndex.collectDecl d 0
 
 namespace FreeIndices
 /- We say a variable (join point) index (aka name) is free in a function body
@@ -90,89 +90,89 @@ namespace FreeIndices
 abbrev Collector := IndexSet → IndexSet → IndexSet
 
 @[inline] private def skip : Collector :=
-fun bv fv => fv
+  fun bv fv => fv
 
 @[inline] private def collectIndex (x : Index) : Collector :=
-fun bv fv => if bv.contains x then fv else fv.insert x
+  fun bv fv => if bv.contains x then fv else fv.insert x
 
 @[inline] private def collectVar (x : VarId) : Collector :=
-collectIndex x.idx
+  collectIndex x.idx
 
 @[inline] private def collectJP (x : JoinPointId) : Collector :=
-collectIndex x.idx
+  collectIndex x.idx
 
 @[inline] private def withIndex (x : Index) : Collector → Collector :=
-fun k bv fv => k (bv.insert x) fv
+  fun k bv fv => k (bv.insert x) fv
 
 @[inline] private def withVar (x : VarId) : Collector → Collector :=
-withIndex x.idx
+  withIndex x.idx
 
 @[inline] private def withJP (x : JoinPointId) : Collector → Collector :=
-withIndex x.idx
+  withIndex x.idx
 
 def insertParams (s : IndexSet) (ys : Array Param) : IndexSet :=
-ys.foldl (fun s p => s.insert p.x.idx) s
+  ys.foldl (init := s) fun s p => s.insert p.x.idx
 
 @[inline] private def withParams (ys : Array Param) : Collector → Collector :=
-fun k bv fv => k (insertParams bv ys) fv
+  fun k bv fv => k (insertParams bv ys) fv
 
 @[inline] private def seq : Collector → Collector → Collector :=
-fun k₁ k₂ bv fv => k₂ bv (k₁ bv fv)
+  fun k₁ k₂ bv fv => k₂ bv (k₁ bv fv)
 
 instance : AndThen Collector := ⟨seq⟩
 
 private def collectArg : Arg → Collector
-| Arg.var x  => collectVar x
-| irrelevant => skip
+  | Arg.var x  => collectVar x
+  | irrelevant => skip
 
 @[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
-fun bv fv => as.foldl (fun fv a => f a bv fv) fv
+  fun bv fv => as.foldl (fun fv a => f a bv fv) fv
 
 private def collectArgs (as : Array Arg) : Collector :=
-collectArray as collectArg
+  collectArray as collectArg
 
 private def collectExpr : Expr → Collector
-| Expr.ctor _ ys      => collectArgs ys
-| Expr.reset _ x      => collectVar x
-| Expr.reuse x _ _ ys => collectVar x >> collectArgs ys
-| Expr.proj _ x       => collectVar x
-| Expr.uproj _ x      => collectVar x
-| Expr.sproj _ _ x    => collectVar x
-| Expr.fap _ ys       => collectArgs ys
-| Expr.pap _ ys       => collectArgs ys
-| Expr.ap x ys        => collectVar x >> collectArgs ys
-| Expr.box _ x        => collectVar x
-| Expr.unbox x        => collectVar x
-| Expr.lit v          => skip
-| Expr.isShared x     => collectVar x
-| Expr.isTaggedPtr x  => collectVar x
+  | Expr.ctor _ ys      => collectArgs ys
+  | Expr.reset _ x      => collectVar x
+  | Expr.reuse x _ _ ys => collectVar x >> collectArgs ys
+  | Expr.proj _ x       => collectVar x
+  | Expr.uproj _ x      => collectVar x
+  | Expr.sproj _ _ x    => collectVar x
+  | Expr.fap _ ys       => collectArgs ys
+  | Expr.pap _ ys       => collectArgs ys
+  | Expr.ap x ys        => collectVar x >> collectArgs ys
+  | Expr.box _ x        => collectVar x
+  | Expr.unbox x        => collectVar x
+  | Expr.lit v          => skip
+  | Expr.isShared x     => collectVar x
+  | Expr.isTaggedPtr x  => collectVar x
 
 private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
-collectArray alts $ fun alt => f alt.body
+  collectArray alts $ fun alt => f alt.body
 
 partial def collectFnBody : FnBody → Collector
-| FnBody.vdecl x _ v b    => collectExpr v >> withVar x (collectFnBody b)
-| FnBody.jdecl j ys v b   => withParams ys (collectFnBody v) >> withJP j (collectFnBody b)
-| FnBody.set x _ y b      => collectVar x >> collectArg y >> collectFnBody b
-| FnBody.uset x _ y b     => collectVar x >> collectVar y >> collectFnBody b
-| FnBody.sset x _ _ y _ b => collectVar x >> collectVar y >> collectFnBody b
-| FnBody.setTag x _ b     => collectVar x >> collectFnBody b
-| FnBody.inc x _ _ _ b    => collectVar x >> collectFnBody b
-| FnBody.dec x _ _ _ b    => collectVar x >> collectFnBody b
-| FnBody.del x b          => collectVar x >> collectFnBody b
-| FnBody.mdata _ b        => collectFnBody b
-| FnBody.case _ x _ alts  => collectVar x >> collectAlts collectFnBody alts
-| FnBody.jmp j ys         => collectJP j >> collectArgs ys
-| FnBody.ret x            => collectArg x
-| FnBody.unreachable      => skip
+  | FnBody.vdecl x _ v b    => collectExpr v >> withVar x (collectFnBody b)
+  | FnBody.jdecl j ys v b   => withParams ys (collectFnBody v) >> withJP j (collectFnBody b)
+  | FnBody.set x _ y b      => collectVar x >> collectArg y >> collectFnBody b
+  | FnBody.uset x _ y b     => collectVar x >> collectVar y >> collectFnBody b
+  | FnBody.sset x _ _ y _ b => collectVar x >> collectVar y >> collectFnBody b
+  | FnBody.setTag x _ b     => collectVar x >> collectFnBody b
+  | FnBody.inc x _ _ _ b    => collectVar x >> collectFnBody b
+  | FnBody.dec x _ _ _ b    => collectVar x >> collectFnBody b
+  | FnBody.del x b          => collectVar x >> collectFnBody b
+  | FnBody.mdata _ b        => collectFnBody b
+  | FnBody.case _ x _ alts  => collectVar x >> collectAlts collectFnBody alts
+  | FnBody.jmp j ys         => collectJP j >> collectArgs ys
+  | FnBody.ret x            => collectArg x
+  | FnBody.unreachable      => skip
 
 end FreeIndices
 
 def FnBody.collectFreeIndices (b : FnBody) (vs : IndexSet) : IndexSet :=
-FreeIndices.collectFnBody b {} vs
+  FreeIndices.collectFnBody b {} vs
 
 def FnBody.freeIndices (b : FnBody) : IndexSet :=
-b.collectFreeIndices {}
+  b.collectFreeIndices {}
 
 namespace HasIndex
 /- In principle, we can check whether a function body `b` contains an index `i` using
@@ -183,46 +183,46 @@ def visitVar (w : Index) (x : VarId) : Bool := w == x.idx
 def visitJP (w : Index) (x : JoinPointId) : Bool := w == x.idx
 
 def visitArg (w : Index) : Arg → Bool
-| Arg.var x => visitVar w x
-| _         => false
+  | Arg.var x => visitVar w x
+  | _         => false
 
 def visitArgs (w : Index) (xs : Array Arg) : Bool :=
-xs.any (visitArg w)
+  xs.any (visitArg w)
 
 def visitParams (w : Index) (ps : Array Param) : Bool :=
-ps.any (fun p => w == p.x.idx)
+  ps.any (fun p => w == p.x.idx)
 
 def visitExpr (w : Index) : Expr → Bool
-| Expr.ctor _ ys      => visitArgs w ys
-| Expr.reset _ x      => visitVar w x
-| Expr.reuse x _ _ ys => visitVar w x || visitArgs w ys
-| Expr.proj _ x       => visitVar w x
-| Expr.uproj _ x      => visitVar w x
-| Expr.sproj _ _ x    => visitVar w x
-| Expr.fap _ ys       => visitArgs w ys
-| Expr.pap _ ys       => visitArgs w ys
-| Expr.ap x ys        => visitVar w x || visitArgs w ys
-| Expr.box _ x        => visitVar w x
-| Expr.unbox x        => visitVar w x
-| Expr.lit v          => false
-| Expr.isShared x     => visitVar w x
-| Expr.isTaggedPtr x  => visitVar w x
+  | Expr.ctor _ ys      => visitArgs w ys
+  | Expr.reset _ x      => visitVar w x
+  | Expr.reuse x _ _ ys => visitVar w x || visitArgs w ys
+  | Expr.proj _ x       => visitVar w x
+  | Expr.uproj _ x      => visitVar w x
+  | Expr.sproj _ _ x    => visitVar w x
+  | Expr.fap _ ys       => visitArgs w ys
+  | Expr.pap _ ys       => visitArgs w ys
+  | Expr.ap x ys        => visitVar w x || visitArgs w ys
+  | Expr.box _ x        => visitVar w x
+  | Expr.unbox x        => visitVar w x
+  | Expr.lit v          => false
+  | Expr.isShared x     => visitVar w x
+  | Expr.isTaggedPtr x  => visitVar w x
 
 partial def visitFnBody (w : Index) : FnBody → Bool
-| FnBody.vdecl x _ v b    => visitExpr w v || visitFnBody w b
-| FnBody.jdecl j ys v b   => visitFnBody w v || visitFnBody w b
-| FnBody.set x _ y b      => visitVar w x || visitArg w y || visitFnBody w b
-| FnBody.uset x _ y b     => visitVar w x || visitVar w y || visitFnBody w b
-| FnBody.sset x _ _ y _ b => visitVar w x || visitVar w y || visitFnBody w b
-| FnBody.setTag x _ b     => visitVar w x || visitFnBody w b
-| FnBody.inc x _ _ _ b    => visitVar w x || visitFnBody w b
-| FnBody.dec x _ _ _ b    => visitVar w x || visitFnBody w b
-| FnBody.del x b          => visitVar w x || visitFnBody w b
-| FnBody.mdata _ b        => visitFnBody w b
-| FnBody.jmp j ys         => visitJP w j || visitArgs w ys
-| FnBody.ret x            => visitArg w x
-| FnBody.case _ x _ alts  => visitVar w x || alts.any (fun alt => visitFnBody w alt.body)
-| FnBody.unreachable      => false
+  | FnBody.vdecl x _ v b    => visitExpr w v || visitFnBody w b
+  | FnBody.jdecl j ys v b   => visitFnBody w v || visitFnBody w b
+  | FnBody.set x _ y b      => visitVar w x || visitArg w y || visitFnBody w b
+  | FnBody.uset x _ y b     => visitVar w x || visitVar w y || visitFnBody w b
+  | FnBody.sset x _ _ y _ b => visitVar w x || visitVar w y || visitFnBody w b
+  | FnBody.setTag x _ b     => visitVar w x || visitFnBody w b
+  | FnBody.inc x _ _ _ b    => visitVar w x || visitFnBody w b
+  | FnBody.dec x _ _ _ b    => visitVar w x || visitFnBody w b
+  | FnBody.del x b          => visitVar w x || visitFnBody w b
+  | FnBody.mdata _ b        => visitFnBody w b
+  | FnBody.jmp j ys         => visitJP w j || visitArgs w ys
+  | FnBody.ret x            => visitArg w x
+  | FnBody.case _ x _ alts  => visitVar w x || alts.any (fun alt => visitFnBody w alt.body)
+  | FnBody.unreachable      => false
 
 end HasIndex
 

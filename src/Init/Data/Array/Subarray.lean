@@ -34,6 +34,46 @@ namespace Subarray
 constant forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   pure b
 
+@[inline]
+def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
+  as.as.foldlM f (init := init) (start := as.start) (stop := as.stop)
+
+@[inline]
+def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Subarray α) : m β :=
+  as.as.foldrM f (init := init) (start := as.stop) (stop := as.start)
+
+@[inline]
+def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Subarray α) : m Bool :=
+  as.as.anyM p (start := as.start) (stop := as.stop)
+
+@[inline]
+def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Subarray α) : m Bool :=
+  as.as.allM p (start := as.start) (stop := as.stop)
+
+@[inline]
+def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Subarray α) : m PUnit :=
+  as.as.forM f (start := as.start) (stop := as.stop)
+
+@[inline]
+def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Subarray α) : m PUnit :=
+  as.as.forRevM f (start := as.stop) (stop := as.start)
+
+@[inline]
+def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
+  Id.run $ as.foldlM f (init := init)
+
+@[inline]
+def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Subarray α) : β :=
+  Id.run $ as.foldrM f (init := init)
+
+@[inline]
+def any {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
+  Id.run $ as.anyM p
+
+@[inline]
+def all {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
+  Id.run $ as.allM p
+
 end Subarray
 
 namespace Array

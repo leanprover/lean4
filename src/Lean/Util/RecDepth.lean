@@ -8,8 +8,9 @@ import Lean.Data.Options
 namespace Lean
 
 def getMaxRecDepth (opts : Options) : Nat :=
-opts.getNat `maxRecDepth defaultMaxRecDepth
+  opts.getNat `maxRecDepth defaultMaxRecDepth
 
-builtin_initialize registerOption `maxRecDepth { defValue := defaultMaxRecDepth, group := "", descr := "maximum recursion depth for many Lean procedures" }
+builtin_initialize
+  registerOption `maxRecDepth { defValue := defaultMaxRecDepth, group := "", descr := "maximum recursion depth for many Lean procedures" }
 
 end Lean

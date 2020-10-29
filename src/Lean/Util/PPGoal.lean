@@ -10,7 +10,8 @@ namespace Lean
 def ppAuxDeclsDefault := false
 builtin_initialize
   registerOption `pp.auxDecls { defValue := ppAuxDeclsDefault, group := "pp", descr := "display auxiliary declarations used to compile recursive functions" }
-def getAuxDeclsOption (o : Options) : Bool := o.get `pp.auxDecls ppAuxDeclsDefault
+def getAuxDeclsOption (o : Options) : Bool :=
+  o.get `pp.auxDecls ppAuxDeclsDefault
 
 def ppGoal (ppCtx : PPContext) (mvarId : MVarId) : IO Format :=
   let env  := ppCtx.env

@@ -16,16 +16,16 @@ addresses. Note that the following code is parametric in a monad `m`.
 variables {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m]
 namespace ForEachExpr
 @[specialize] partial def visit (g : Expr → m Bool) (e : Expr) : MonadCacheT Expr Unit m Unit :=
-checkCache e fun e => do
-  if (← g e) then
-    match e with
-    | Expr.forallE _ d b _   => do visit g d; visit g b
-    | Expr.lam _ d b _       => do visit g d; visit g b
-    | Expr.letE _ t v b _    => do visit g t; visit g v; visit g b
-    | Expr.app f a _         => do visit g f; visit g a
-    | Expr.mdata _ b _       => visit g b
-    | Expr.proj _ _ b _      => visit g b
-    | _                      => pure ()
+  checkCache e fun e => do
+    if (← g e) then
+      match e with
+      | Expr.forallE _ d b _   => do visit g d; visit g b
+      | Expr.lam _ d b _       => do visit g d; visit g b
+      | Expr.letE _ t v b _    => do visit g t; visit g v; visit g b
+      | Expr.app f a _         => do visit g f; visit g a
+      | Expr.mdata _ b _       => visit g b
+      | Expr.proj _ _ b _      => visit g b
+      | _                      => pure ()
 
 end ForEachExpr
 

@@ -11,13 +11,13 @@
   run_config:
     <<: *time
     cmd: |
-      bash -c 'bench=$PWD; cd ${BUILD:-../../build/release}/stage1; find lib/lean ! -name libleancpp.a -delete; LEAN_OPTS="--stats -Dprofiler=true -Dprofiler.threshold=9999" make -O -j5 make_stdlib 2>&1 > /dev/null | $bench/accumulate_profile.py'
+      bash -c 'LEAN_OPTS="-Dprofiler=true -Dprofiler.threshold=9999" make -C ${BUILD:-../../build/release}/stage2 --output-sync --always-make -j5 make_stdlib 2>&1 > /dev/null | ./accumulate_profile.py'
     max_runs: 2
     parse_output: true
-  # Warmup. Somehow ccache doesn't reuse the cache from the original build? Weird.
+  # initialize stae2 cmake + warmup
   build_config:
     cmd: |
-      bash -c 'cd ${BUILD:-../../build/release}/stage1; find lib/lean/ ! -name libleancpp.a -type f -delete; make -j5 make_stdlib'
+      bash -c 'make -C ${BUILD:-../../build/release} stage2 -j8'
 - attributes:
     description: stdlib size
     tags: [deterministic, fast]

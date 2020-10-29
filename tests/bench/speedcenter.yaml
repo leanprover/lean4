@@ -246,7 +246,7 @@ run:
     driver: exec
     
     # Input file with the program blocks to benchmark
-    in: speedcenter.exec.yaml
+    in: speedcenter.exec.velcom.yaml
     
     # List of included run blocks (all: include all), or their tag attribute or their number in the file (starting with 0)
     included_blocks: [all]

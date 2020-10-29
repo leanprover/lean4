@@ -16,7 +16,7 @@ instance : DecidableEq Position :=
   fun ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ =>
     if h₁ : l₁ = l₂ then
     if h₂ : c₁ = c₂ then
-      isTrue $ by subst h₁; subst h₂; exact rfl
+      isTrue $ by subst h₁; subst h₂; rfl
     else
       isFalse fun contra => Position.noConfusion contra (fun e₁ e₂ => absurd e₂ h₂)
     else

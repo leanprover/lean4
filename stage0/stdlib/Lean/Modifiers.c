@@ -40,7 +40,6 @@ lean_object* lean_add_protected(lean_object*, lean_object*);
 lean_object* lean_mk_private_prefix(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt;
-lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_31____lambda__1(lean_object*);
 lean_object* l_Lean_mkUniquePrivateName_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkUniquePrivateName_match__1(lean_object*);
@@ -69,6 +68,7 @@ lean_object* l_Lean_isProtected___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux___boxed(lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__1(lean_object*);
+lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_privateHeader___closed__2;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__4(lean_object*, lean_object*);
@@ -264,23 +264,14 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_31____lambda__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_31____closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_initFn____x40_Lean_Modifiers___hyg_31____lambda__1), 1, 0);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = lean_alloc_closure((void*)(l_EStateM_pure___rarg), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_31_(lean_object* x_1) {

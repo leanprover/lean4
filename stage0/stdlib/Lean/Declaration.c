@@ -41,7 +41,6 @@ lean_object* l_List_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_Lean_mkConstructorValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__3___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*);
-lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__9___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getMajorIdx___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___closed__1;
@@ -59,6 +58,7 @@ lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams___boxed(lean_object*
 lean_object* l_Lean_Lean_Declaration___instance__2___closed__1;
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__4(lean_object*);
+lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkRecName(lean_object*);
 lean_object* l_Lean_QuotVal_kindEx___boxed(lean_object*);
 lean_object* l_Lean_ConstructorVal_isUnsafeEx___boxed(lean_object*);
@@ -1263,7 +1263,7 @@ lean_inc(x_20);
 lean_dec(x_1);
 lean_inc(x_2);
 x_21 = lean_apply_1(x_2, x_19);
-x_22 = lean_alloc_closure((void*)(l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__9___boxed), 3, 2);
+x_22 = lean_alloc_closure((void*)(l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__7___boxed), 3, 2);
 lean_closure_set(x_22, 0, x_2);
 lean_closure_set(x_22, 1, x_18);
 x_23 = lean_apply_4(x_20, lean_box(0), lean_box(0), x_21, x_22);

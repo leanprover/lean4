@@ -13,9 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Init_Data_ToString_Basic___instance__13___boxed(lean_object*);
 lean_object* l_Init_Data_ToString_Basic___instance__3___boxed(lean_object*);
-lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_Init_Data_ToString_Basic___instance__19___boxed(lean_object*);
 lean_object* l_String_Iterator_remainingToString(lean_object*);
 lean_object* l_Init_Data_ToString_Basic___instance__22___rarg(lean_object*, lean_object*, lean_object*);
@@ -26,6 +24,7 @@ extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l_Init_Data_ToString_Basic___instance__17(uint32_t);
 uint8_t l_String_anyAux_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Data_ToString_Basic___instance__21_match__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Init_Data_ToString_Basic___instance__13___closed__1;
 extern lean_object* l_Init_Data_Repr___instance__2___closed__2;
 lean_object* l_Init_Data_ToString_Basic___instance__16___boxed(lean_object*);
 lean_object* l_Init_Data_ToString_Basic___instance__21___rarg(lean_object*, lean_object*, lean_object*);
@@ -82,7 +81,7 @@ extern lean_object* l_Init_Data_Repr___instance__12___rarg___closed__2;
 lean_object* l_Init_Data_ToString_Basic___instance__1(lean_object*);
 lean_object* l_Init_Data_ToString_Basic___instance__19(size_t);
 extern lean_object* l_String_splitAux___closed__1;
-lean_object* l_Init_Data_ToString_Basic___instance__13(uint32_t);
+lean_object* l_Init_Data_ToString_Basic___instance__13;
 lean_object* l_List_toStringAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_List_toString(lean_object*);
@@ -107,6 +106,7 @@ lean_object* l_Init_Data_ToString_Basic___instance__8___rarg(lean_object*);
 lean_object* l_Init_Data_ToString_Basic___instance__6___boxed(lean_object*);
 lean_object* l_Init_Data_ToString_Basic___instance__2(lean_object*);
 lean_object* l_addParenHeuristic___closed__3;
+lean_object* l_String_push___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Data_ToString_Basic___instance__24___rarg(lean_object*, lean_object*);
 lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* l_Init_Data_ToString_Basic___instance__23_match__1(lean_object*, lean_object*, lean_object*);
@@ -634,23 +634,22 @@ x_2 = l_Nat_repr(x_1);
 return x_2;
 }
 }
-lean_object* l_Init_Data_ToString_Basic___instance__13(uint32_t x_1) {
+static lean_object* _init_l_Init_Data_ToString_Basic___instance__13___closed__1() {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_String_splitAux___closed__1;
-x_3 = lean_string_push(x_2, x_1);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_String_splitAux___closed__1;
+x_2 = lean_alloc_closure((void*)(l_String_push___boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
-lean_object* l_Init_Data_ToString_Basic___instance__13___boxed(lean_object* x_1) {
+static lean_object* _init_l_Init_Data_ToString_Basic___instance__13() {
 _start:
 {
-uint32_t x_2; lean_object* x_3; 
-x_2 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_3 = l_Init_Data_ToString_Basic___instance__13(x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = l_Init_Data_ToString_Basic___instance__13___closed__1;
+return x_1;
 }
 }
 lean_object* l_Init_Data_ToString_Basic___instance__14___rarg(lean_object* x_1) {
@@ -1167,6 +1166,10 @@ lean_dec_ref(res);
 res = initialize_Init_Control_Id(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Init_Data_ToString_Basic___instance__13___closed__1 = _init_l_Init_Data_ToString_Basic___instance__13___closed__1();
+lean_mark_persistent(l_Init_Data_ToString_Basic___instance__13___closed__1);
+l_Init_Data_ToString_Basic___instance__13 = _init_l_Init_Data_ToString_Basic___instance__13();
+lean_mark_persistent(l_Init_Data_ToString_Basic___instance__13);
 l_addParenHeuristic___closed__1 = _init_l_addParenHeuristic___closed__1();
 lean_mark_persistent(l_addParenHeuristic___closed__1);
 l_addParenHeuristic___closed__2 = _init_l_addParenHeuristic___closed__2();

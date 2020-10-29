@@ -591,9 +591,9 @@ return x_12;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
-x_13 = lean_array_fget(x_1, x_2);
-x_27 = l_Lean_Meta_isDelayedAssigned___at_Lean_Meta_getMVarsNoDelayedImp___spec__2(x_13, x_4, x_5, x_6, x_7, x_8);
+uint8_t x_13; lean_object* x_14; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
+x_26 = lean_array_fget(x_1, x_2);
+x_27 = l_Lean_Meta_isDelayedAssigned___at_Lean_Meta_getMVarsNoDelayedImp___spec__2(x_26, x_4, x_5, x_6, x_7, x_8);
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 x_29 = lean_unbox(x_28);
@@ -605,9 +605,9 @@ x_30 = lean_ctor_get(x_27, 1);
 lean_inc(x_30);
 lean_dec(x_27);
 x_31 = 1;
-x_14 = x_31;
-x_15 = x_30;
-goto block_26;
+x_13 = x_31;
+x_14 = x_30;
+goto block_25;
 }
 else
 {
@@ -616,56 +616,56 @@ x_32 = lean_ctor_get(x_27, 1);
 lean_inc(x_32);
 lean_dec(x_27);
 x_33 = 0;
-x_14 = x_33;
-x_15 = x_32;
-goto block_26;
+x_13 = x_33;
+x_14 = x_32;
+goto block_25;
 }
-block_26:
+block_25:
 {
-uint8_t x_16; lean_object* x_17; lean_object* x_18; 
-x_16 = lean_nat_dec_lt(x_3, x_2);
-x_17 = lean_unsigned_to_nat(1u);
-x_18 = lean_nat_add(x_2, x_17);
-if (x_16 == 0)
+uint8_t x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_nat_dec_lt(x_3, x_2);
+x_16 = lean_unsigned_to_nat(1u);
+x_17 = lean_nat_add(x_2, x_16);
+if (x_15 == 0)
 {
 lean_dec(x_2);
-if (x_14 == 0)
+if (x_13 == 0)
 {
-x_2 = x_18;
-x_8 = x_15;
+x_2 = x_17;
+x_8 = x_14;
 goto _start;
 }
 else
 {
-lean_object* x_20; 
-x_20 = lean_nat_add(x_3, x_17);
+lean_object* x_19; 
+x_19 = lean_nat_add(x_3, x_16);
 lean_dec(x_3);
-x_2 = x_18;
-x_3 = x_20;
-x_8 = x_15;
+x_2 = x_17;
+x_3 = x_19;
+x_8 = x_14;
 goto _start;
 }
 }
 else
 {
-if (x_14 == 0)
+if (x_13 == 0)
 {
 lean_dec(x_2);
-x_2 = x_18;
-x_8 = x_15;
+x_2 = x_17;
+x_8 = x_14;
 goto _start;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; 
-x_23 = lean_array_fswap(x_1, x_2, x_3);
+lean_object* x_22; lean_object* x_23; 
+x_22 = lean_array_fswap(x_1, x_2, x_3);
 lean_dec(x_2);
-x_24 = lean_nat_add(x_3, x_17);
+x_23 = lean_nat_add(x_3, x_16);
 lean_dec(x_3);
-x_1 = x_23;
-x_2 = x_18;
-x_3 = x_24;
-x_8 = x_15;
+x_1 = x_22;
+x_2 = x_17;
+x_3 = x_23;
+x_8 = x_14;
 goto _start;
 }
 }

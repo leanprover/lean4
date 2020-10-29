@@ -17,10 +17,9 @@ lean_object* l_Init_System_IO___instance__6___rarg(lean_object*, lean_object*, l
 lean_object* l_StateRefT_x27_set(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__2___closed__1;
 lean_object* l_ReaderT_tryFinally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__2___rarg(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_modifyGet___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__2___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_StateRef___instance__8(lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -37,9 +36,8 @@ lean_object* l_StateRefT_x27_run_x27_match__1(lean_object*, lean_object*, lean_o
 lean_object* l_StateRefT_x27_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__4___rarg(lean_object*);
 lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__6___rarg(lean_object*);
-lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_lift(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_Init_Control_Reader___instance__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_get(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,13 +56,13 @@ lean_object* l_StateRefT_x27_get___rarg(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__1___rarg(lean_object*);
 lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__3___rarg(lean_object*);
 lean_object* l_StateRefT_x27_run___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__3___rarg___closed__1;
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_StateRef___instance__7(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Init_Control_Reader___instance__10___closed__2;
 lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg(lean_object*);
 lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__6(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_ReaderT_Init_Control_Reader___instance__2___closed__1;
 lean_object* l_ReaderT_Init_Control_Reader___instance__3___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_run___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -260,46 +258,30 @@ x_4 = lean_alloc_closure((void*)(l_StateRefT_x27_Init_Control_StateRef___instanc
 return x_4;
 }
 }
-lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__2___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_StateRefT_x27_Init_Control_StateRef___instance__2___rarg___boxed), 2, 0);
-return x_5;
-}
-}
-lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__2___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_StateRefT_x27_Init_Control_StateRef___instance__2___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_StateRefT_x27_Init_Control_StateRef___instance__3___rarg___closed__1() {
+static lean_object* _init_l_StateRefT_x27_Init_Control_StateRef___instance__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_ReaderT_Init_Control_Reader___instance__2), 3, 2);
+x_1 = lean_alloc_closure((void*)(l_StateRefT_x27_lift), 4, 3);
 lean_closure_set(x_1, 0, lean_box(0));
 lean_closure_set(x_1, 1, lean_box(0));
+lean_closure_set(x_1, 2, lean_box(0));
 return x_1;
+}
+}
+lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_StateRefT_x27_Init_Control_StateRef___instance__2___closed__1;
+return x_4;
 }
 }
 lean_object* l_StateRefT_x27_Init_Control_StateRef___instance__3___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_StateRefT_x27_Init_Control_StateRef___instance__3___rarg___closed__1;
+x_2 = l_ReaderT_Init_Control_Reader___instance__2___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Init_System_IO___instance__6___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -538,8 +520,8 @@ lean_dec_ref(res);
 res = initialize_Init_Control_State(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_StateRefT_x27_Init_Control_StateRef___instance__3___rarg___closed__1 = _init_l_StateRefT_x27_Init_Control_StateRef___instance__3___rarg___closed__1();
-lean_mark_persistent(l_StateRefT_x27_Init_Control_StateRef___instance__3___rarg___closed__1);
+l_StateRefT_x27_Init_Control_StateRef___instance__2___closed__1 = _init_l_StateRefT_x27_Init_Control_StateRef___instance__2___closed__1();
+lean_mark_persistent(l_StateRefT_x27_Init_Control_StateRef___instance__2___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

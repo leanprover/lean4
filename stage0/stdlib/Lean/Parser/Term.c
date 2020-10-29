@@ -1203,6 +1203,7 @@ lean_object* l_Lean_Parser_checkPrecFn(lean_object*, lean_object*, lean_object*)
 lean_object* l_Lean_Parser_Term_panic_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Term_parser_x21___elambda__1___closed__8;
 lean_object* l_Lean_Parser_Term_typeOf_parenthesizer___closed__2;
+extern lean_object* l_Array_iterateMAux___at_Lean_ppGoal___spec__7___closed__5;
 lean_object* l_Lean_Parser_Term_let_x21___elambda__1___closed__10;
 lean_object* l_Lean_Parser_Term_lt_parenthesizer___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -4055,7 +4056,6 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_where(lean_object*);
 lean_object* l_Lean_Parser_Term_attrInstance___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_depArrow___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_app___elambda__1___closed__5;
-extern lean_object* l_Array_iterateMAux___at_Lean_ppGoal___spec__7___closed__4;
 lean_object* l_Lean_Parser_Term_matchAlts_parenthesizer___closed__5;
 lean_object* l_Lean_Parser_Term_gt___elambda__1___closed__4;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpolatedStr_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10781,7 +10781,7 @@ static lean_object* _init_l_Lean_Parser_Term_typeAscription___elambda__1___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_iterateMAux___at_Lean_ppGoal___spec__7___closed__4;
+x_1 = l_Array_iterateMAux___at_Lean_ppGoal___spec__7___closed__5;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -11620,7 +11620,7 @@ static lean_object* _init_l_Lean_Parser_Term_typeAscription_formatter___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_iterateMAux___at_Lean_ppGoal___spec__7___closed__4;
+x_1 = l_Array_iterateMAux___at_Lean_ppGoal___spec__7___closed__5;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -11923,7 +11923,7 @@ static lean_object* _init_l_Lean_Parser_Term_typeAscription_parenthesizer___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_iterateMAux___at_Lean_ppGoal___spec__7___closed__4;
+x_1 = l_Array_iterateMAux___at_Lean_ppGoal___spec__7___closed__5;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_symbol_parenthesizer___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

@@ -76,6 +76,7 @@ lean_object* l_Std_PersistentArray_getOp___rarg(lean_object*, lean_object*, lean
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Std_PersistentArray_append___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_iterateMAux___at_Std_PersistentArray_append___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux(lean_object*, lean_object*);
+lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___at_Std_PersistentArray_any___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_mapMAux___rarg___closed__2;
@@ -460,7 +461,6 @@ lean_object* l_Std_PersistentArray_insertNewLeaf_match__1(lean_object*, lean_obj
 lean_object* l_Std_PersistentArray_forInAux_match__3(lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Std_PersistentArray_toList___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_stats___rarg(lean_object*);
-lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Std_PersistentArray_toList___spec__3(lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Std_PersistentArray_filter___spec__10(lean_object*);
@@ -4010,7 +4010,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 lean_inc(x_1);
-x_6 = lean_alloc_closure((void*)(l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__6___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__4___boxed), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_5);
 x_7 = lean_ctor_get(x_1, 0);

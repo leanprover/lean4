@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_coeTC(lean_object*, lean_object*);
-lean_object* l_coeBase___rarg(lean_object*, lean_object*);
+lean_object* l_coeBase___rarg(lean_object*);
 lean_object* l_coeOfHead___rarg(lean_object*, lean_object*);
 lean_object* l_coeTail___rarg(lean_object*, lean_object*);
 lean_object* l_coeOfDep___rarg___boxed(lean_object*);
@@ -252,19 +252,20 @@ x_4 = lean_alloc_closure((void*)(l_coeTrans___rarg), 3, 0);
 return x_4;
 }
 }
-lean_object* l_coeBase___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_coeBase___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_coeB___rarg), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 lean_object* l_coeBase(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_coeBase___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_coeBase___rarg), 1, 0);
 return x_3;
 }
 }

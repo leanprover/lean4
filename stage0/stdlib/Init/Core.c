@@ -109,7 +109,7 @@ lean_object* l_Nat_prio;
 lean_object* l_Init_Core___instance__45_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_cond_match__1(lean_object*, lean_object*);
 lean_object* l_cond(lean_object*);
-lean_object* l_Init_Core___instance__13___rarg(lean_object*, lean_object*);
+lean_object* l_Init_Core___instance__13___rarg(lean_object*);
 lean_object* l_Decidable_byCases___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__45_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_toBoolUsing___rarg(uint8_t);
@@ -1404,19 +1404,20 @@ x_2 = lean_alloc_closure((void*)(l_Init_Core___instance__13_loop___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Init_Core___instance__13___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Init_Core___instance__13___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Init_Core___instance__13_loop___rarg(x_1, x_2);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Init_Core___instance__13_loop___rarg), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 lean_object* l_Init_Core___instance__13(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Init_Core___instance__13___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Init_Core___instance__13___rarg), 1, 0);
 return x_2;
 }
 }

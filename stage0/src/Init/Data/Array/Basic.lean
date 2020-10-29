@@ -389,6 +389,10 @@ def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as :
     any as.size (Nat.leRefl _)
 
 @[inline]
+def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool := do
+  return !(← as.anyM fun v => do return !(← p v))
+
+@[inline]
 def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m (Option β)) : m (Option β) :=
   let rec @[specialize] find : (i : Nat) → i ≤ as.size → m (Option β)
     | 0,   h => pure none
@@ -405,10 +409,6 @@ def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] 
 @[inline]
 def findRevM? {α : Type} {m : Type → Type w} [Monad m] (as : Array α) (p : α → m Bool) : m (Option α) :=
   as.findSomeRevM? fun a => do return if (← p a) then some a else none
-
-@[inline]
-def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool := do
-  return !(← as.anyM fun v => do return !(← p v))
 
 @[inline]
 def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=

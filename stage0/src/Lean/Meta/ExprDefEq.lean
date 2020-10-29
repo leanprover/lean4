@@ -717,7 +717,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
         let args := args.set ⟨i, h⟩ arg
         match arg with
         | Expr.fvar fvarId _ =>
-          if args.any (start := 0) (stop := i) fun prevArg => prevArg == arg then
+          if args[0:i].any fun prevArg => prevArg == arg then
             useFOApprox args
           else if mvarDecl.lctx.contains fvarId && !cfg.quasiPatternApprox then
             useFOApprox args

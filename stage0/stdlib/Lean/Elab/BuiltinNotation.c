@@ -12396,6 +12396,7 @@ x_4 = lean_unsigned_to_nat(1u);
 x_5 = l_Lean_Syntax_getArg(x_1, x_4);
 x_6 = lean_unsigned_to_nat(3u);
 x_7 = l_Lean_Syntax_getArg(x_1, x_6);
+lean_inc(x_5);
 x_8 = l_Lean_Syntax_reprint(x_5);
 if (lean_obj_tag(x_8) == 0)
 {

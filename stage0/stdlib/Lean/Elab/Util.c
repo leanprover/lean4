@@ -235,7 +235,6 @@ lean_object* x_2; lean_object* x_3;
 lean_inc(x_1);
 x_2 = l_Lean_Syntax_unsetTrailing(x_1);
 x_3 = l_Lean_Syntax_reprint(x_2);
-lean_dec(x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 

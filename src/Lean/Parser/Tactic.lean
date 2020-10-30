@@ -43,6 +43,7 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticSeq
 @[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional («try» (ident >> " : ")) >> termParser 51 >> " = " >> ident
+@[builtinTacticParser] def «unknown»    := parser! withPosition (ident >> errorAtSavedPos "unknown tactic" true)
 
 def locationWildcard := parser! "*"
 def locationTarget   := parser! unicodeSymbol "⊢" "|-"

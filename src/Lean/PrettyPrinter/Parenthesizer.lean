@@ -330,6 +330,10 @@ def level.parenthesizer : CategoryParenthesizer | prec => do
 def error.parenthesizer (msg : String) : Parenthesizer :=
   pure ()
 
+@[combinatorParenthesizer Lean.Parser.errorAtSavedPos]
+def errorAtSavedPos.parenthesizer (msg : String) (delta : Bool) : Parenthesizer :=
+  pure ()
+
 @[combinatorParenthesizer Lean.Parser.try]
 def try.parenthesizer (p : Parenthesizer) : Parenthesizer :=
   p

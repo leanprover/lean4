@@ -1,0 +1,5 @@
+unknownTactic.lean:3:3: error: unknown tactic
+---
+unknownTactic.lean:8:17: error: unknown tactic
+---
+unknownTactic.lean:14:17: error: unknown tactic

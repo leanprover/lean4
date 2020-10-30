@@ -125,5 +125,26 @@ jobs:
           cd build
           make update-stage0 && make -j4
         if: matrix.name == 'Linux'
+      - name: Install cargo
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+        if: matrix.name == 'Linux release'
+      - name: Build manual
+        run: |
+          cargo install --git https://github.com/leanprover/mdBook mdbook
+          export PATH=~/.cargo/bin:$PWD/build/stage1/bin:$PATH
+          cd doc
+          mdbook build
+          mdbook test
+        if: matrix.name == 'Linux release'
+      - name: Publish manual
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./doc/out
+          destination_dir: ./doc
+        if: matrix.name == 'Linux release' && github.ref == 'refs/heads/master' && github.event_name == 'push'
       - name: CCache stats
         run: ccache -s

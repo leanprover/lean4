@@ -37,8 +37,10 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_printTraces___spec__6(lean_obje
 lean_object* l_Std_PersistentArray_get_x21___at___private_Lean_Util_Trace_0__Lean_TraceState_toFormat___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__7;
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_traceCtx___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_tactic____x40_Init_Tactics___hyg_461____closed__10;
 size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_withNestedTraces___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,7 +73,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_printTraces___spec__5___rarg___
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_printTraces___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_889____closed__3;
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__18;
-lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__22;
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_889____closed__7;
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__6;
@@ -79,6 +80,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Array_findSomeM_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__8;
 lean_object* l_Lean_withNestedTraces___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Tactics___hyg_502____closed__7;
 lean_object* l_Lean_traceM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1247____closed__7;
@@ -106,14 +108,12 @@ lean_object* l_Lean_withNestedTraces(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_addNode(lean_object*);
 lean_object* l_Lean_traceM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__1;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__22;
 lean_object* l_Lean_enableTracing___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_modifyTraces(lean_object*);
 lean_object* l_Std_PersistentArray_forM___at_Lean_printTraces___spec__2(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Data_Format_0__Lean_Format_pushNewline___closed__1;
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1247____closed__1;
-extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 lean_object* l_Nat_foldM_loop___at___private_Lean_Util_Trace_0__Lean_TraceState_toFormat___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_889____closed__8;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5(lean_object*, size_t, size_t, lean_object*);
@@ -123,9 +123,9 @@ lean_object* l_Lean_Lean_Util_Trace___instance__3___rarg(lean_object*, lean_obje
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_889____closed__4;
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_682____closed__4;
-lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__21;
 lean_object* l_Std_PersistentArray_forM___at_Lean_printTraces___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__17;
+extern lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__2;
 lean_object* l_Lean_enableTracing___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass___closed__2;
@@ -182,7 +182,6 @@ lean_object* l_Lean_modifyTraces___rarg(lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_889____closed__11;
 size_t l_USize_land(size_t, size_t);
 extern lean_object* l_Lean_nullKind___closed__2;
-extern lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__4;
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__8;
 lean_object* l_fix1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
@@ -240,7 +239,6 @@ extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed
 lean_object* l_Lean_trace___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_traceCtx___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1247____closed__3;
-extern lean_object* l_Lean_mkHole___closed__2;
 lean_object* l___private_Init_LeanInit_0__Lean_quoteName(lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_1315_(lean_object*, lean_object*, lean_object*);
@@ -274,9 +272,7 @@ lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_889____closed__10;
 lean_object* l_Lean_traceCtx___rarg___lambda__3(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_checkTraceOption___closed__2;
 extern lean_object* l_tryFinally___rarg___closed__1;
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__18;
 uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOptionAux(lean_object*, lean_object*);
-lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__20;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__10;
 lean_object* l_Lean_TraceState_Lean_Util_Trace___instance__2___closed__1;
@@ -2612,7 +2608,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_889____closed__9;
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__18;
+x_2 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__10;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2760,11 +2756,9 @@ static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
-x_2 = l_Lean_Name_appendIndexAfter___closed__1;
-x_3 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+x_1 = l_Array_empty___closed__1;
+x_2 = l_myMacro____x40_Init_Tactics___hyg_502____closed__7;
+x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
@@ -2772,9 +2766,11 @@ static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_empty___closed__1;
+x_1 = l_Lean_nullKind___closed__2;
 x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__12;
-x_3 = lean_array_push(x_1, x_2);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -2782,31 +2778,27 @@ static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkHole___closed__2;
+x_1 = l_Array_empty___closed__1;
 x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__13;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__15() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_empty___closed__1;
-x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__14;
-x_3 = lean_array_push(x_1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string("=>");
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_nullKind___closed__2;
+x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
 x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__15;
-x_3 = lean_alloc_ctor(1, 2, 0);
+x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -2816,7 +2808,7 @@ static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_empty___closed__1;
+x_1 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__14;
 x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__16;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
@@ -2825,51 +2817,21 @@ return x_3;
 static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__18() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("=>");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__19() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
-x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__18;
-x_3 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__20() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__17;
-x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__19;
-x_3 = lean_array_push(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__21() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__6;
+x_2 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__7;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__22() {
+static lean_object* _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__21;
+x_2 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__18;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2943,16 +2905,16 @@ x_26 = l_Array_empty___closed__1;
 x_27 = lean_array_push(x_26, x_25);
 x_28 = lean_array_push(x_26, x_15);
 x_29 = lean_array_push(x_26, x_17);
-x_30 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__5;
+x_30 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__6;
 x_31 = l_Lean_addMacroScope(x_19, x_30, x_18);
-x_32 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__4;
-x_33 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__22;
+x_32 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__5;
+x_33 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__19;
 x_34 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_34, 0, x_22);
 lean_ctor_set(x_34, 1, x_32);
 lean_ctor_set(x_34, 2, x_31);
 lean_ctor_set(x_34, 3, x_33);
-x_35 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__22;
+x_35 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__2;
 x_36 = lean_array_push(x_35, x_34);
 x_37 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__8;
 x_38 = lean_alloc_ctor(1, 2, 0);
@@ -2975,7 +2937,7 @@ x_48 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__4;
 x_49 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_49, 0, x_48);
 lean_ctor_set(x_49, 1, x_47);
-x_50 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__20;
+x_50 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__17;
 x_51 = lean_array_push(x_50, x_49);
 x_52 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__11;
 x_53 = lean_alloc_ctor(1, 2, 0);
@@ -3217,16 +3179,16 @@ lean_dec(x_15);
 x_32 = l___private_Init_LeanInit_0__Lean_quoteName(x_31);
 x_33 = lean_array_push(x_29, x_32);
 x_34 = lean_array_push(x_29, x_17);
-x_35 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__5;
+x_35 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__6;
 x_36 = l_Lean_addMacroScope(x_22, x_35, x_21);
-x_37 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__4;
-x_38 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__22;
+x_37 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__5;
+x_38 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__19;
 x_39 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_39, 0, x_25);
 lean_ctor_set(x_39, 1, x_37);
 lean_ctor_set(x_39, 2, x_36);
 lean_ctor_set(x_39, 3, x_38);
-x_40 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__22;
+x_40 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__2;
 x_41 = lean_array_push(x_40, x_39);
 x_42 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__8;
 x_43 = lean_alloc_ctor(1, 2, 0);
@@ -3249,7 +3211,7 @@ x_53 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__4;
 x_54 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_54, 0, x_53);
 lean_ctor_set(x_54, 1, x_52);
-x_55 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__20;
+x_55 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__17;
 x_56 = lean_array_push(x_55, x_54);
 x_57 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__11;
 x_58 = lean_alloc_ctor(1, 2, 0);
@@ -3305,7 +3267,7 @@ x_84 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__7;
 x_85 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_85, 0, x_84);
 lean_ctor_set(x_85, 1, x_83);
-x_86 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__20;
+x_86 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__17;
 x_87 = lean_array_push(x_86, x_85);
 x_88 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__11;
 x_89 = lean_alloc_ctor(1, 2, 0);
@@ -4192,12 +4154,6 @@ l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__18 = _init_l_Lean_myM
 lean_mark_persistent(l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__18);
 l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__19 = _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__19();
 lean_mark_persistent(l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__19);
-l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__20 = _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__20();
-lean_mark_persistent(l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__20);
-l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__21 = _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__21();
-lean_mark_persistent(l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__21);
-l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__22 = _init_l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__22();
-lean_mark_persistent(l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__22);
 l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1247____closed__1 = _init_l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1247____closed__1();
 lean_mark_persistent(l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1247____closed__1);
 l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1247____closed__2 = _init_l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1247____closed__2();

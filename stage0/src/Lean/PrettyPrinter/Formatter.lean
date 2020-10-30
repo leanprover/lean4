@@ -192,6 +192,8 @@ def categoryParserOfStack.formatter (offset : Nat) : Formatter := do
 
 @[combinatorFormatter Lean.Parser.error]
 def error.formatter (msg : String) : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.errorAtSavedPos]
+def errorAtSavedPos.formatter (msg : String) (delta : Bool) : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.try]
 def try.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.lookahead]

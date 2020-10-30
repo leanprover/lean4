@@ -129,7 +129,7 @@ structure ParserContext extends InputContext :=
   (tokens             : TokenTable)
   (insideQuot         : Bool := false)
   (suppressInsideQuot : Bool := false)
-  (savedPos?          : Option Position := none)
+  (savedPos?          : Option String.Pos := none)
   (forbiddenTk?       : Option Token := none)
 
 structure Error :=
@@ -364,6 +364,21 @@ def errorFn (msg : String) : ParserFn := fun _ s =>
 @[inline] def error (msg : String) : Parser := {
   info := epsilonInfo,
   fn   := errorFn msg
+}
+
+def errorAtSavedPosFn (msg : String) (delta : Bool) : ParserFn := fun c s =>
+  match c.savedPos? with
+  | none     => s
+  | some pos =>
+    let pos := if delta then c.input.next pos else pos
+    match s with
+    | ⟨stack, _, cache, _⟩ => ⟨stack, pos, cache, some { unexpected := msg }⟩
+
+/- Generate an error at the position saved with the `withPosition` combinator.
+   If `delta == true`, then it reports at saved position+1.
+   This useful to make sure a parser consumed at least one character.  -/
+@[inline] def errorAtSavedPos (msg : String) (delta : Bool) : Parser := {
+  fn := errorAtSavedPosFn msg delta
 }
 
 /- Succeeds if `c.prec <= prec` -/
@@ -1332,7 +1347,8 @@ def anyOfFn : List Parser → ParserFn
   match c.savedPos? with
   | none => s
   | some savedPos =>
-    let pos := c.fileMap.toPosition s.pos
+    let savedPos := c.fileMap.toPosition savedPos
+    let pos      := c.fileMap.toPosition s.pos
     if pos.column ≥ savedPos.column then s
     else s.mkError errorMsg
 
@@ -1343,7 +1359,8 @@ def anyOfFn : List Parser → ParserFn
   match c.savedPos? with
   | none => s
   | some savedPos =>
-    let pos := c.fileMap.toPosition s.pos
+    let savedPos := c.fileMap.toPosition savedPos
+    let pos      := c.fileMap.toPosition s.pos
     if pos.column > savedPos.column then s
     else s.mkError errorMsg
 
@@ -1354,7 +1371,8 @@ def anyOfFn : List Parser → ParserFn
   match c.savedPos? with
   | none => s
   | some savedPos =>
-    let pos := c.fileMap.toPosition s.pos
+    let savedPos := c.fileMap.toPosition savedPos
+    let pos      := c.fileMap.toPosition s.pos
     if pos.line == savedPos.line then s
     else s.mkError errorMsg
 
@@ -1364,8 +1382,7 @@ def anyOfFn : List Parser → ParserFn
 @[inline] def withPosition (p : Parser) : Parser := {
   info := p.info,
   fn   := fun c s =>
-    let pos := c.fileMap.toPosition s.pos
-    p.fn { c with savedPos? := pos } s
+    p.fn { c with savedPos? := s.pos } s
 }
 
 @[inline] def withoutPosition (p : Parser) : Parser := {

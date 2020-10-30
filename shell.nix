@@ -27,7 +27,7 @@ exit 0
   };
   shell = pkgs.mkShell.override { stdenv = lean.stdenv; } rec {
     inputsFrom = [ lean ];
-    buildInputs = with pkgs; [ temci ccache ];
+    buildInputs = with pkgs; [ temci ccache mdbook ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     # more convenient `ctest` output

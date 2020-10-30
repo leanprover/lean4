@@ -1,0 +1,12 @@
+[book]
+authors = ["Leonardo de Moura", "Sebastian Ullrich"]
+language = "en"
+multilingual = false
+src = "."
+title = "Lean Manual"
+
+[build]
+build-dir = "out"
+
+[output.html]
+git-repository-url = "https://github.com/leanprover/lean4"

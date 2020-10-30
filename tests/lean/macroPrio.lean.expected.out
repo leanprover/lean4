@@ -1,0 +1,7 @@
+0 + 1 : Nat
+macroPrio.lean:12:7: error: ambiguous, possible interpretations 
+  1 * 2
+  
+  1 + 1
+sorryAx ?m : ?m
+2 - 2 : Nat

@@ -290,15 +290,15 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 void lean_initialize();
 
-#if defined(WIN32) || defined(_WIN32)
-#include <windows.h>
-#endif
+  #if defined(WIN32) || defined(_WIN32)
+  #include <windows.h>
+  #endif
 
-int main(int argc, char ** argv) {
-#if defined(WIN32) || defined(_WIN32)
-SetErrorMode(SEM_FAILCRITICALERRORS);
-#endif
-lean_object* in; lean_object* res;
+  int main(int argc, char ** argv) {
+  #if defined(WIN32) || defined(_WIN32)
+  SetErrorMode(SEM_FAILCRITICALERRORS);
+  #endif
+  lean_object* in; lean_object* res;
 lean_initialize();
 res = initialize_Lean_Server_ServerBin(lean_io_mk_world());
 lean_io_mark_end_initialization();

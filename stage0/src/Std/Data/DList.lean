@@ -20,7 +20,7 @@ variables {α : Type u}
 open List
 
 def ofList (l : List α) : DList α :=
-  ⟨Append.append l, fun t => by rw appendNil; exact rfl⟩
+  ⟨Append.append l, fun t => by rw appendNil; rfl⟩
 
 def empty : DList α :=
   ⟨id, fun t => rfl⟩
@@ -43,7 +43,7 @@ def cons : α → DList α → DList α
       intro t
       show a :: f t = a :: f [] ++ t
       rw [consAppend, h]
-      exact rfl
+      rfl
   }
 
 def append : DList α → DList α → DList α
@@ -53,7 +53,7 @@ def append : DList α → DList α → DList α
       intro t
       show f (g t) = (f (g [])) ++ t
       rw [h₁ (g t), h₂ t, ← appendAssoc (f []) (g []) t, ← h₁ (g [])]
-      exact rfl
+      rfl
     }
 
 def push : DList α → α → DList α
@@ -63,7 +63,7 @@ def push : DList α → α → DList α
       intro t
       show f (a :: t) = f (a :: nil) ++ t
       rw [h [a], h (a::t), appendAssoc (f []) [a] t]
-      exact rfl
+      rfl
   }
 
 instance : Append (DList α) := ⟨DList.append⟩

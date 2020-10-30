@@ -451,11 +451,18 @@ def expandMacroHeadIntoPattern (stx : Syntax) : MacroM Syntax :=
   else
     expandMacroArgIntoPattern stx
 
+def expandOptPrio (stx : Syntax) : Nat :=
+  if stx.isNone then
+    0
+  else
+    stx[1].isNatLit?.getD 0
+
 @[builtinMacro Lean.Parser.Command.macro] def expandMacro : Macro := fun stx => do
   let prec := stx[1].getArgs
-  let head := stx[2]
-  let args := stx[3].getArgs
-  let cat  := stx[5]
+  let prio := expandOptPrio stx[2]
+  let head := stx[3]
+  let args := stx[4].getArgs
+  let cat  := stx[6]
   let kind ← Macro.mkFreshKind (cat.getId).eraseMacroScopes
   -- build parser
   let stxPart  ← expandMacroHeadIntoSyntaxItem head
@@ -465,15 +472,15 @@ def expandMacroHeadIntoPattern (stx : Syntax) : MacroM Syntax :=
   let patHead ← expandMacroHeadIntoPattern head
   let patArgs ← args.mapM expandMacroArgIntoPattern
   let pat := Syntax.node kind (#[patHead] ++ patArgs)
-  if stx.getArgs.size == 8 then
+  if stx.getArgs.size == 9 then
     -- `stx` is of the form `macro $head $args* : $cat => term`
-    let rhs := stx[7]
-    `(syntax $prec* [$(mkIdentFrom stx kind):ident] $stxParts* : $cat
+    let rhs := stx[8]
+    `(syntax $prec* [$(mkIdentFrom stx kind):ident, $(quote prio):numLit] $stxParts* : $cat
       macro_rules | `($pat) => $rhs)
   else
     -- `stx` is of the form `macro $head $args* : $cat => `( $body )`
-    let rhsBody := stx[8]
-    `(syntax $prec* [$(mkIdentFrom stx kind):ident] $stxParts* : $cat
+    let rhsBody := stx[9]
+    `(syntax $prec* [$(mkIdentFrom stx kind):ident, $(quote prio):numLit] $stxParts* : $cat
       macro_rules | `($pat) => `($rhsBody))
 
 builtin_initialize
@@ -492,11 +499,12 @@ parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
 @[builtinMacro Lean.Parser.Command.elab] def expandElab : Macro := fun stx => do
   let ref := stx
   let prec    := stx[1].getArgs
-  let head    := stx[2]
-  let args    := stx[3].getArgs
-  let cat     := stx[5]
-  let expectedTypeSpec := stx[6]
-  let rhs     := stx[8]
+  let prio    := expandOptPrio stx[2]
+  let head    := stx[3]
+  let args    := stx[4].getArgs
+  let cat     := stx[6]
+  let expectedTypeSpec := stx[7]
+  let rhs     := stx[9]
   let catName := cat.getId
   let kind ← Macro.mkFreshKind catName.eraseMacroScopes
   -- build parser
@@ -511,7 +519,7 @@ parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
   if expectedTypeSpec.hasArgs then
     if catName == `term then
       let expId := expectedTypeSpec[1]
-      `(syntax $prec* [$kindId:ident] $stxParts* : $cat
+      `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
         @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab :=
         fun stx expectedType? => match_syntax stx with
           | `($pat) => Lean.Elab.Command.withExpectedType expectedType? fun $expId => $rhs
@@ -519,19 +527,19 @@ parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
     else
       Macro.throwError expectedTypeSpec s!"syntax category '{catName}' does not support expected type specification"
   else if catName == `term then
-    `(syntax $prec* [$kindId:ident] $stxParts* : $cat
+    `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
       @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab :=
       fun stx _ => match_syntax stx with
         | `($pat) => $rhs
         | _ => throwUnsupportedSyntax)
   else if catName == `command then
-    `(syntax $prec* [$kindId:ident] $stxParts* : $cat
+    `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
       @[commandElab $kindId:ident] def elabFn : Lean.Elab.Command.CommandElab :=
       fun stx => match_syntax stx with
         | `($pat) => $rhs
         | _ => throwUnsupportedSyntax)
   else if catName == `tactic then
-    `(syntax $prec* [$kindId:ident] $stxParts* : $cat
+    `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
       @[tactic $kindId:ident] def elabFn : Lean.Elab.Tactic.Tactic :=
       fun stx => match_syntax stx with
         | `(tactic|$pat) => $rhs

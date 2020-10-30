@@ -85,13 +85,14 @@ def macroTailTactic   : Parser := «try» (" : " >> identEq "tactic") >> darrow 
 def macroTailCommand  : Parser := «try» (" : " >> identEq "command") >> darrow >> ("`(" >> toggleInsideQuot (many1Unbox commandParser) >> ")" <|> termParser)
 def macroTailDefault  : Parser := «try» (" : " >> ident) >> darrow >> (("`(" >> toggleInsideQuot (categoryParserOfStack 2) >> ")") <|> termParser)
 def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
-@[builtinCommandParser] def «macro»       := parser! suppressInsideQuot ("macro " >> optPrecedence >> macroHead >> many macroArg >> macroTail)
+def optPrio   := optional ("[" >> numLit >> "]")
+@[builtinCommandParser] def «macro»       := parser! suppressInsideQuot ("macro " >> optPrecedence >> optPrio >> macroHead >> many macroArg >> macroTail)
 
 @[builtinCommandParser] def «elab_rules» := parser! suppressInsideQuot ("elab_rules" >> optKind >> optional (" : " >> ident) >> Term.matchAlts)
 def elabHead := macroHead
 def elabArg  := macroArg
 def elabTail := «try» (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
-@[builtinCommandParser] def «elab»       := parser! suppressInsideQuot ("elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail)
+@[builtinCommandParser] def «elab»       := parser! suppressInsideQuot ("elab " >> optPrecedence >> optPrio >> elabHead >> many elabArg >> elabTail)
 
 end Command
 

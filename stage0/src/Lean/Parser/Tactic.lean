@@ -40,7 +40,6 @@ def ident' : Parser := ident <|> underscore
 @[builtinTacticParser] def «focus»      := parser! nonReservedSymbol "focus " >> tacticSeq
 @[builtinTacticParser] def «skip»       := parser! nonReservedSymbol "skip"
 @[builtinTacticParser] def «done»       := parser! nonReservedSymbol "done"
-@[builtinTacticParser] def «admit»      := parser! nonReservedSymbol "admit"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticSeq
 @[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional («try» (ident >> " : ")) >> termParser 51 >> " = " >> ident
@@ -73,7 +72,7 @@ def matchAlts : Parser := group $ withPosition $ (optional "| ") >> sepBy1 match
 @[builtinTacticParser] def «match»      := parser! nonReservedSymbol "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
 @[builtinTacticParser] def «introMatch» := parser! nonReservedSymbol "intro " >> matchAlts
 
-def withIds : Parser := optional (" with " >> many1 ident')
+def withIds : Parser := optional (" with " >> many1 (checkColGt >> ident'))
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
 @[builtinTacticParser] def paren        := parser! "(" >> seq1 >> ")"
 @[builtinTacticParser] def nestedTactic := tacticSeqBracketed

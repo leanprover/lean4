@@ -19,13 +19,14 @@ lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_727____closed__5;
 extern lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__8;
 lean_object* l_Lean_InternalExceptionId_toString(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
-extern lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__5;
 lean_object* l_Lean_Exception_getRef_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
 lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_682____closed__1;
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__3;
 lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_682____closed__2;
+extern lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__7;
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__1;
 lean_object* l_Lean_throwError_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_withRef___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,7 +68,6 @@ lean_object* l_Lean_replaceRef_match__1(lean_object*);
 lean_object* l_Lean_Lean_Exception___instance__1;
 lean_object* l_Lean_ofExcept_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Exception___instance__1___closed__1;
-extern lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__1;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_643____closed__6;
 lean_object* l_Lean_Lean_Exception___instance__4___rarg___lambda__3(lean_object*, lean_object*);
@@ -98,6 +98,7 @@ extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_Lean_replaceRef___boxed(lean_object*, lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_643____closed__3;
 lean_object* l_Lean_throwError(lean_object*);
+extern lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__10;
 lean_object* l_Lean_Lean_Exception___instance__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Exception___instance__4___rarg(lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_643____closed__9;
@@ -126,7 +127,6 @@ uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_throwUnknownConstant(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__4;
 lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_643____closed__1;
-extern lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__6;
 lean_object* l_Lean_withRef(lean_object*);
 lean_object* l_Lean_throwError___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -1011,7 +1011,7 @@ static lean_object* _init_l_Lean___kind_term____x40_Lean_Exception___hyg_643____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__1;
+x_1 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__3;
 x_2 = l_Lean___kind_term____x40_Lean_Exception___hyg_643____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1059,7 +1059,7 @@ static lean_object* _init_l_Lean___kind_term____x40_Lean_Exception___hyg_643____
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__8;
+x_1 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__10;
 x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__18;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1267,7 +1267,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
-x_2 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__6;
+x_2 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__8;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -1390,7 +1390,7 @@ x_44 = l_Array_empty___closed__1;
 x_45 = lean_array_push(x_44, x_43);
 x_46 = l_Lean_myMacro____x40_Lean_Exception___hyg_727____closed__9;
 x_47 = lean_array_push(x_46, x_15);
-x_48 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__5;
+x_48 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__7;
 x_49 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_49, 0, x_48);
 lean_ctor_set(x_49, 1, x_47);
@@ -1612,7 +1612,7 @@ x_48 = lean_array_push(x_47, x_46);
 x_49 = lean_array_push(x_47, x_15);
 x_50 = l_Lean_myMacro____x40_Lean_Exception___hyg_727____closed__9;
 x_51 = lean_array_push(x_50, x_17);
-x_52 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__5;
+x_52 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__7;
 x_53 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_53, 0, x_52);
 lean_ctor_set(x_53, 1, x_51);

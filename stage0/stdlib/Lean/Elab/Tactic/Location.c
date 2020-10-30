@@ -20,10 +20,9 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandLocation___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-extern lean_object* l_Lean_mkAppStx___closed__4;
 lean_object* l_Lean_Elab_Tactic_expandLocation___closed__2;
+extern lean_object* l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
 uint8_t l_USize_decLt(size_t, size_t);
-lean_object* l_Lean_Elab_Tactic_expandLocation___closed__6;
 lean_object* l_Lean_Elab_Tactic_expandLocation___closed__1;
 lean_object* l_Lean_Elab_Tactic_expandOptLocation(lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandLocation(lean_object*);
@@ -35,7 +34,6 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_expandLocation___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
-lean_object* l_Lean_Elab_Tactic_expandLocation___closed__5;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -74,7 +72,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string("locationWildcard");
 return x_1;
 }
 }
@@ -82,7 +80,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkAppStx___closed__4;
+x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
 x_2 = l_Lean_Elab_Tactic_expandLocation___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -92,7 +90,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("locationWildcard");
+x_1 = lean_mk_string("locationTarget");
 return x_1;
 }
 }
@@ -100,26 +98,8 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_expandLocation___closed__2;
+x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
 x_2 = l_Lean_Elab_Tactic_expandLocation___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("locationTarget");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_expandLocation___closed__2;
-x_2 = l_Lean_Elab_Tactic_expandLocation___closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -132,12 +112,12 @@ x_2 = lean_unsigned_to_nat(1u);
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
 lean_inc(x_3);
 x_4 = l_Lean_Syntax_getKind(x_3);
-x_5 = l_Lean_Elab_Tactic_expandLocation___closed__4;
+x_5 = l_Lean_Elab_Tactic_expandLocation___closed__2;
 x_6 = lean_name_eq(x_4, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; 
-x_7 = l_Lean_Elab_Tactic_expandLocation___closed__6;
+x_7 = l_Lean_Elab_Tactic_expandLocation___closed__4;
 x_8 = lean_name_eq(x_4, x_7);
 lean_dec(x_4);
 if (x_8 == 0)
@@ -246,10 +226,6 @@ l_Lean_Elab_Tactic_expandLocation___closed__3 = _init_l_Lean_Elab_Tactic_expandL
 lean_mark_persistent(l_Lean_Elab_Tactic_expandLocation___closed__3);
 l_Lean_Elab_Tactic_expandLocation___closed__4 = _init_l_Lean_Elab_Tactic_expandLocation___closed__4();
 lean_mark_persistent(l_Lean_Elab_Tactic_expandLocation___closed__4);
-l_Lean_Elab_Tactic_expandLocation___closed__5 = _init_l_Lean_Elab_Tactic_expandLocation___closed__5();
-lean_mark_persistent(l_Lean_Elab_Tactic_expandLocation___closed__5);
-l_Lean_Elab_Tactic_expandLocation___closed__6 = _init_l_Lean_Elab_Tactic_expandLocation___closed__6();
-lean_mark_persistent(l_Lean_Elab_Tactic_expandLocation___closed__6);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

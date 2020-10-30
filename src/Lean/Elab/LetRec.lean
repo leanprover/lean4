@@ -73,7 +73,7 @@ private partial def withAuxLocalDecls {α} (views : Array LetRecDeclView) (k : A
   let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α :=
     if h : i < views.size then
       let view := views.get ⟨i, h⟩
-      withLetDecl view.shortDeclName view.type view.mvar fun fvar => loop (i+1) (fvars.push fvar)
+      withLocalDeclD view.shortDeclName view.type fun fvar => loop (i+1) (fvars.push fvar)
     else
       k fvars
   loop 0 #[]
@@ -112,6 +112,7 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
     let values ← elabLetRecDeclValues view
     let body ← elabTermEnsuringType view.body expectedType?
     registerLetRecsToLift view.decls fvars values
-    mkLetFVars fvars body
+    let mvars := view.decls.map (·.mvar)
+    pure $ mkAppN (← mkLambdaFVars fvars body) mvars
 
 end Lean.Elab.Term

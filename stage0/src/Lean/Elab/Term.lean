@@ -1075,6 +1075,16 @@ def mkAuxName (suffix : Name) : TermElabM Name := do
   | none          => throwError "auxiliary declaration cannot be created when declaration name is not available"
   | some declName => Lean.mkAuxName (declName ++ suffix) 1
 
+builtin_initialize registerTraceClass `Elab.letrec
+
+/- Return true if mvarId is an auxiliary metavariable created for compiling `let rec` or it
+   is delayed assigned to one. -/
+def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
+  trace[Elab.letrec]! "mvarId: {mkMVar mvarId} letrecMVars: {(← get).letRecsToLift.map (mkMVar $ ·.mvarId)}"
+  let mvarId := (← getMCtx).getDelayedRoot mvarId
+  trace[Elab.letrec]! "mvarId root: {mkMVar mvarId}"
+  return (← get).letRecsToLift.any (·.mvarId == mvarId)
+
 /- =======================================
        Builtin elaboration functions
    ======================================= -/

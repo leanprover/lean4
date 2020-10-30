@@ -39,6 +39,8 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
 def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
   let val ← elabTermEnsuringType stx expectedType?
   let newMVarIds ← getMVarsNoDelayed val
+  /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
+  let newMVarIds ← newMVarIds.filterM fun mvarId => do return !(← Term.isLetRecAuxMVar mvarId)
   let newMVarIds ←
     if allowNaturalHoles then
       pure newMVarIds.toList
@@ -64,12 +66,12 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
 
 @[builtinTactic «refine»] def evalRefine : Tactic := fun stx =>
   match_syntax stx with
-  | `(tactic| refine $e) => refineCore e `refine false
+  | `(tactic| refine $e) => refineCore e `refine (allowNaturalHoles := false)
   | _                    => throwUnsupportedSyntax
 
 @[builtinTactic «refine!»] def evalRefineBang : Tactic := fun stx =>
   match_syntax stx with
-  | `(tactic| refine! $e) => refineCore e `refine true
+  | `(tactic| refine! $e) => refineCore e `refine (allowNaturalHoles := true)
   | _                     => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>

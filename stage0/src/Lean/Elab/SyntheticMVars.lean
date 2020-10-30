@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+import Lean.Util.ForEachExpr
 import Lean.Elab.Term
 import Lean.Elab.Tactic.Basic
 
@@ -20,10 +21,6 @@ def liftTacticElabM {α} (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
     finally
       modify fun s => { s with syntheticMVars := savedSyntheticMVars }
 
-def ensureAssignmentHasNoMVars (mvarId : MVarId) : TermElabM Unit := do
-  let val ← instantiateMVars (mkMVar mvarId)
-  if val.hasExprMVar then throwError! "tactic failed, result still contain metavariables{indentExpr val}"
-
 def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
   /- Recall, `tacticCode` is the whole `by ...` expression.
      We store the `by` because in the future we want to save the initial state information at the `by` position. -/
@@ -31,7 +28,6 @@ def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
   modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
   let remainingGoals ← liftTacticElabM mvarId do evalTactic code; getUnsolvedGoals
   unless remainingGoals.isEmpty do reportUnsolvedGoals remainingGoals
-  ensureAssignmentHasNoMVars mvarId
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=

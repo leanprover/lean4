@@ -19,6 +19,7 @@ private def liftTermBinderSyntax : Macro := fun stx => do
 @[builtinMacro Lean.Parser.Tactic.let] def expandLetTactic : Macro := liftTermBinderSyntax
 @[builtinMacro Lean.Parser.Tactic.«let!»] def expandLetBangTactic : Macro := liftTermBinderSyntax
 @[builtinMacro Lean.Parser.Tactic.suffices] def expandSufficesTactic : Macro := liftTermBinderSyntax
+@[builtinMacro Lean.Parser.Tactic.letrec] def expandLetRecTactic : Macro := liftTermBinderSyntax
 
 @[builtinMacro Lean.Parser.Tactic.show] def expandShowTactic : Macro := fun stx =>
   let type := stx[1]

@@ -108,8 +108,12 @@ open Elab
 /-- Compiles the contents of a Lean file. -/
 def compileDocument (h : FS.Stream) (uri : DocumentUri) (version : Nat) (text : FileMap)
 : IO EditableDocument := do
-  let headerSnap ← Snapshots.compileHeader text.source
-  let cmdSnaps ← unfoldCmdSnaps h uri version text headerSnap
+  let headerSnap@⟨_, _, SnapshotData.headerData env msgLog opts⟩ ← Snapshots.compileHeader text.source
+    | throwServerError "Internal server error: invalid header snapshot"
+  -- TODO(WN): Remove the hardcoded option once the server is linked against stage0
+  let opts' := opts.setBool `interpreter.prefer_native false
+  let headerSnap' := { headerSnap with data := SnapshotData.headerData env msgLog opts' }
+  let cmdSnaps ← unfoldCmdSnaps h uri version text headerSnap'
   pure ⟨version, text, headerSnap, cmdSnaps⟩
 
 /-- Given `changePos`, the UTF-8 offset of a change into the pre-change source,

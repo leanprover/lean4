@@ -10,3 +10,6 @@ build-dir = "out"
 
 [output.html]
 git-repository-url = "https://github.com/leanprover/lean4"
+
+[output.html.playground.boring-prefixes]
+lean = "# "

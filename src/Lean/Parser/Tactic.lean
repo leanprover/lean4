@@ -85,6 +85,7 @@ def withIds : Parser := optional (" with " >> many1 (checkColGt >> ident'))
 @[builtinTacticParser] def «show»     := parser! "show " >> termParser
 @[builtinTacticParser] def «let»      := parser! "let "  >> Term.letDecl
 @[builtinTacticParser] def «let!»     := parser! "let! " >> Term.letDecl
+@[builtinTacticParser] def «letrec»   := parser! withPosition (group ("let " >> nonReservedSymbol "rec ") >> Term.letRecDecls)
 
 end Tactic
 end Parser

@@ -35,7 +35,7 @@ def declModifiers (inline : Bool) := parser! optional docComment >> optional (Te
 def declId           := parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 def declSig          := parser! many (ppSpace >> Term.bracketedBinder) >> Term.typeSpec
 def optDeclSig       := parser! many (ppSpace >> Term.bracketedBinder) >> Term.optType
-def declValSimple    := parser! ppDedent $ " :=\n" >> termParser
+def declValSimple    := parser! " :=\n" >> termParser
 def declValEqns      := parser! Term.matchAlts false
 def declVal          := declValSimple <|> declValEqns
 def «abbrev»         := parser! "abbrev " >> declId >> optDeclSig >> declVal
@@ -47,7 +47,7 @@ def «axiom»          := parser! "axiom " >> declId >> declSig
 def «example»        := parser! "example " >> declSig >> declVal
 def inferMod         := parser! «try» ("{" >> "}")
 def ctor             := parser! "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
-def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> ppDedent (many ctor)
+def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> many ctor
 def classInductive   := parser! «try» ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
 def structExplicitBinder := parser! «try» (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
 def structImplicitBinder := parser! «try» (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
@@ -57,7 +57,7 @@ def structCtor           := parser! «try» (declModifiers true >> ident >> opti
 def structureTk          := parser! "structure "
 def classTk              := parser! "class "
 def «extends»            := parser! " extends " >> sepBy1 termParser ", "
-def «structure»          := parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> optional (" := " >> optional structCtor >> ppDedent structFields)
+def «structure»          := parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> optional (" := " >> optional structCtor >> structFields)
 @[builtinCommandParser] def declaration := parser!
 declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
 

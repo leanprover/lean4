@@ -73,7 +73,7 @@ def matchAlts : Parser := group $ withPosition $ (optional "| ") >> sepBy1 match
 @[builtinTacticParser] def «match»      := parser! nonReservedSymbol "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
 @[builtinTacticParser] def «introMatch» := parser! nonReservedSymbol "intro " >> matchAlts
 
-def withIds : Parser := optional (" with " >> many1 ident')
+def withIds : Parser := optional (" with " >> many1 (checkColGt >> ident'))
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
 @[builtinTacticParser] def paren        := parser! "(" >> seq1 >> ")"
 @[builtinTacticParser] def nestedTactic := tacticSeqBracketed

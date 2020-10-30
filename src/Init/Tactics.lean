@@ -8,3 +8,4 @@ import Init.LeanInit
 
 macro "rfl" : tactic => `(exact rfl)
 macro "decide!" : tactic => `(exact decide!)
+macro "admit" : tactic => `(exact sorry)

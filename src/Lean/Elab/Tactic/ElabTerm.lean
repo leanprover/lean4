@@ -36,9 +36,6 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
     setGoals gs
   | _ => throwUnsupportedSyntax
 
-@[builtinMacro Lean.Parser.Tactic.admit] def expandAdmit : Macro := fun _ =>
-  `(tactic| exact sorry)
-
 def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
   let val ← elabTermEnsuringType stx expectedType?
   let newMVarIds ← getMVarsNoDelayed val

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+awk 'BEGIN { lean = 0 } /```/ { if (lean == 1) lean = 0; } { if (lean == 1) { sub(/# /, ""); print $0 } } /```lean/ && !/```lean,ignore/ { lean = 1 }' $1 | lean --stdin

@@ -21,7 +21,7 @@ fun (a : Nat)
 fun {a b : Nat} => a
 typeAs
   ({α : Type} →
-      α → α)
+    α → α)
   fun {α : Type}
     (a : α) => a
 fun {α : Type}
@@ -52,5 +52,5 @@ Type → Type → Type
 1 < 2 || true
 id
   (fun (a : Nat) =>
-      a)
+    a)
   0

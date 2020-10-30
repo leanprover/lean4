@@ -880,10 +880,10 @@ theorem notNotIff (p) [Decidable p] : (¬¬p) ↔ p :=
 theorem notAndIffOrNot (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : ¬(p ∧ q) ↔ ¬p ∨ ¬q :=
   Iff.intro
     (fun h =>
-        match d₁, d₂ with 
-        | isTrue h₁, isTrue h₂ => absurd (And.intro h₁ h₂) h
-        | _, isFalse h₂ => Or.inr h₂
-        | isFalse h₁, _ => Or.inl h₁)
+      match d₁, d₂ with 
+      | isTrue h₁, isTrue h₂ => absurd (And.intro h₁ h₂) h
+      | _, isFalse h₂ => Or.inr h₂
+      | isFalse h₁, _ => Or.inl h₁)
     (fun (h) ⟨hp, hq⟩ => Or.elim h (fun h => h hp) (fun h => h hq))
 
 end Decidable 
@@ -1211,8 +1211,8 @@ instance  {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq { x : �
     if h : a = b then
       isTrue
         (by 
-            subst h;
-            exact rfl) else
+          subst h;
+          exact rfl) else
       isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
 
 end Subtype 
@@ -1493,11 +1493,11 @@ protected def lift₂ (f : α → β → φ) (c : ∀  a₁ a₂ b₁ b₂, a₁
   (q₂ : Quotient s₂) : φ :=
   Quotient.lift (fun (a₁ : α) => Quotient.lift (f a₁) (fun (a b : β) => c a₁ a a₁ b (Setoid.refl a₁)) q₂)
     (fun (a b : α) (h : a ≈ b) =>
-        @Quotient.ind β s₂
-          (fun (a1 : Quotient s₂) =>
-              (Quotient.lift (f a) (fun (a1 b : β) => c a a1 a b (Setoid.refl a)) a1) =
-                (Quotient.lift (f b) (fun (a b1 : β) => c b a b b1 (Setoid.refl b)) a1))
-          (fun (a' : β) => c a a' b a' h (Setoid.refl a')) q₂)
+      @Quotient.ind β s₂
+        (fun (a1 : Quotient s₂) =>
+          (Quotient.lift (f a) (fun (a1 b : β) => c a a1 a b (Setoid.refl a)) a1) =
+            (Quotient.lift (f b) (fun (a b1 : β) => c b a b b1 (Setoid.refl b)) a1))
+        (fun (a' : β) => c a a' b a' h (Setoid.refl a')) q₂)
     q₁
 
 @[reducible, elabAsEliminator, inline]
@@ -1540,9 +1540,9 @@ variable{α : Sort u}
 private def rel [s : Setoid α] (q₁ q₂ : Quotient s) : Prop :=
   Quotient.liftOn₂ q₁ q₂ (fun a₁ a₂ => a₁ ≈ a₂)
     (fun a₁ a₂ b₁ b₂ a₁b₁ a₂b₂ =>
-        propext
-          (Iff.intro (fun a₁a₂ => Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
-              (fun b₁b₂ => Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
+      propext
+        (Iff.intro (fun a₁a₂ => Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
+          (fun b₁b₂ => Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
 
 private theorem rel.refl [s : Setoid α] (q : Quotient s) : rel q q :=
   Quot.inductionOn (β := fun q => rel q q) q (fun a => Setoid.refl a)
@@ -1591,9 +1591,9 @@ instance  {α : Sort u} {s : Setoid α} [d : ∀  (a b : α), Decidable (a ≈ b
   fun (q₁ q₂ : Quotient s) =>
     Quotient.recOnSubsingleton₂ (φ := fun a b => Decidable (a = b)) q₁ q₂
       (fun a₁ a₂ =>
-          match (d a₁ a₂) with 
-          | (isTrue h₁) => isTrue (Quotient.sound h₁)
-          | (isFalse h₂) => isFalse (fun h => absurd (Quotient.exact h) h₂))
+        match (d a₁ a₂) with 
+        | (isTrue h₁) => isTrue (Quotient.sound h₁)
+        | (isFalse h₂) => isFalse (fun h => absurd (Quotient.exact h) h₂))
 
 namespace Function 
 
@@ -1687,12 +1687,12 @@ instance  {α} : Subsingleton (Squash α) :=
   ⟨fun a b =>
       Squash.ind (motive := fun a => a = b)
         (fun a =>
-            Squash.ind (motive := fun b => Squash.mk a = b)
-              (fun b =>
-                  show Quot.mk _ a = Quot.mk _ b by 
-                    apply Quot.sound;
-                    exact trivial)
-              b)
+          Squash.ind (motive := fun b => Squash.mk a = b)
+            (fun b =>
+              show Quot.mk _ a = Quot.mk _ b by 
+                apply Quot.sound;
+                exact trivial)
+            b)
         a⟩
 
 namespace Lean
@@ -1759,11 +1759,11 @@ theorem em (p : Prop) : p ∨ ¬p :=
   have notUvOrP : u ≠ v ∨ p from
     Or.elim uDef
       (fun hut =>
-          Or.elim vDef
-            (fun hvf =>
-                have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse;
-                Or.inl hne)
-            Or.inr)
+        Or.elim vDef
+          (fun hvf =>
+            have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse;
+            Or.inl hne)
+          Or.inr)
       Or.inr;
   have pImpliesUv : p → u = v from
     fun hp =>
@@ -1804,9 +1804,9 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h
   { x : α // Exists (fun (y : α) => p y) → p x } :=
   @dite _ (Exists (fun (x : α) => p x)) (propDecidable _)
     (fun (hp : Exists (fun (x : α) => p x)) =>
-        show { x : α // Exists (fun (y : α) => p y) → p x } from
-          let xp := indefiniteDescription _ hp;
-          ⟨xp.val, fun h' => xp.property⟩)
+      show { x : α // Exists (fun (y : α) => p y) → p x } from
+        let xp := indefiniteDescription _ hp;
+        ⟨xp.val, fun h' => xp.property⟩)
     (fun hp => ⟨choice h, fun h => absurd h hp⟩)
 
 noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α :=

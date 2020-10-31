@@ -23,7 +23,7 @@ def doSeqBracketed := parser! "{" >> withoutPosition (many1 (group (doElemParser
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
 def notFollowedByRedefinedTermToken :=
-  notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!") "token at 'do' element"
+  notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> "try") "token at 'do' element"
 
 @[builtinDoElemParser] def doLet      := parser! "let " >> letDecl
 @[builtinDoElemParser] def doLetRec   := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
@@ -98,6 +98,12 @@ parser is succeeding.
 @[builtinTermParser] def «do»  := parser!:maxPrec "do " >> doSeq
 
 @[builtinTermParser] def doElem.quot : Parser := parser! "`(doElem|" >> toggleInsideQuot doElemParser >> ")"
+
+/- macros for using `unless`, `for`, `try`, `return` as terms. They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...` -/
+@[builtinTermParser] def termUnless := parser! "unless " >> withForbidden "do" termParser >> "do " >> doSeq
+@[builtinTermParser] def termFor    := parser! "for " >> termParser >> " in " >> withForbidden "do" termParser >> "do " >> doSeq
+@[builtinTermParser] def termTry    := parser! "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
+@[builtinTermParser] def termReturn := parser!:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
 
 end Term
 end Parser

@@ -28,25 +28,25 @@ partial def updateTypes (e eNew : Expr) (entries : Array Entry) (i : Nat) : Meta
   else
     pure entries
 
-partial def generalizeTelescopeAux {α} (prefixForNewVars : Name) (k : Array Expr → MetaM α)
-    (entries : Array Entry) (i : Nat) (nextVarIdx : Nat) (fvars : Array Expr) : MetaM α := do
+partial def generalizeTelescopeAux {α} (k : Array Expr → MetaM α)
+    (entries : Array Entry) (i : Nat) (fvars : Array Expr) : MetaM α := do
   if h : i < entries.size then
-    let replace (e : Expr) (type : Expr) : MetaM α := do
-      let userName := prefixForNewVars.appendIndexAfter nextVarIdx
+    let replace (baseUserName : Name) (e : Expr) (type : Expr) : MetaM α := do
+      let userName ← mkFreshUserName baseUserName
       withLocalDeclD userName type fun x => do
         entries ← updateTypes e x entries (i+1)
-        generalizeTelescopeAux prefixForNewVars k entries (i+1) (nextVarIdx+1) (fvars.push x)
+        generalizeTelescopeAux k entries (i+1) (fvars.push x)
     match entries.get ⟨i, h⟩ with
     | ⟨e@(Expr.fvar fvarId _), type, false⟩ =>
       let localDecl ← getLocalDecl fvarId
       match localDecl with
-      | LocalDecl.cdecl .. => generalizeTelescopeAux prefixForNewVars k entries (i+1) nextVarIdx (fvars.push e)
-      | LocalDecl.ldecl .. => replace e type
+      | LocalDecl.cdecl .. => generalizeTelescopeAux k entries (i+1) (fvars.push e)
+      | LocalDecl.ldecl .. => replace localDecl.userName e type
     | ⟨e, type, modified⟩ =>
       if modified then
         unless (← isTypeCorrect type) do
           throwError! "failed to create telescope generalizing {entries.map Entry.expr}"
-      replace e type
+      replace `x e type
   else
     k fvars
 
@@ -71,25 +71,23 @@ open GeneralizeTelescope
   Moreover, for any type correct lambda abstraction `f` constructed using `mkForall #[x_1, ..., x_n] ...`,
   The application `f e_1 ... e_n` is also type correct.
 
-  The parameter `prefixForNewVars` is used to create new user facing names for the (new) variables `x_i`.
-
   The `kabstract` method is used to "locate" and abstract forward dependencies.
   That is, an occurrence of `e_i` in the of `e_j` for `j > i`.
 
   The method checks whether the abstract types `A_i` are type correct. Here is an example
   where `generalizeTelescope` fails to create the telescope `x_1 ... x_n`.
   Assume the local context contains `(n : Nat := 10) (xs : Vec Nat n) (ys : Vec Nat 10) (h : xs = ys)`.
-  Then, assume we invoke `generalizeTelescope` with `es := #[10, xs, ys, h]` and `prefixForNewVars := aux`.
+  Then, assume we invoke `generalizeTelescope` with `es := #[10, xs, ys, h]`
   A type error is detected when processing `h`'s type. At this point, the method had successfully produced
   ```
-    (aux_1 : Nat) (xs : Vec Nat n) (aux_2 : Vec Nat aux_1)
+    (x_1 : Nat) (xs : Vec Nat n) (x_2 : Vec Nat x_1)
   ```
-  and the type for the new variable abstracting `h` is `xs = aux_2` which is not type correct. -/
-def generalizeTelescope {α} (es : Array Expr) (prefixForNewVars : Name) (k : Array Expr → MetaM α) : MetaM α := do
+  and the type for the new variable abstracting `h` is `xs = x_2` which is not type correct. -/
+def generalizeTelescope {α} (es : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
   let es ← es.mapM fun e => do
     let type ← inferType e
     let type ← instantiateMVars type
     pure { expr := e, type := type, modified := false : Entry }
-  generalizeTelescopeAux prefixForNewVars k es 0 1 #[]
+  generalizeTelescopeAux k es 0 #[]
 
 end Lean.Meta

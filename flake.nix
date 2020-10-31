@@ -7,18 +7,22 @@
 
     packages.x86_64-linux.lean =
       with import nixpkgs { system = "x86_64-linux"; };
-      let cc = ccacheWrapper.override rec {
-            cc = llvmPackages_10.clang;
-            extraConfig = ''
+      let
+        cc = ccacheWrapper.override rec {
+          cc = llvmPackages_10.clang.override {
+            # linker go brrr
+            bintools = llvmPackages_10.lldClang.bintools;
+          };
+          extraConfig = ''
 export CCACHE_DIR=/var/cache/ccache
 export CCACHE_UMASK=007
 export CCACHE_BASE_DIR=$NIX_BUILD_TOP
 [ -d $CCACHE_DIR ] || exec ${cc}/bin/$(basename "$0") "$@"
           '';
-          };
-          lean = callPackage (import ./new.nix) {
-            stdenv = overrideCC stdenv cc;
-          };
+        };
+        lean = callPackage (import ./new.nix) {
+          stdenv = overrideCC stdenv cc;
+        };
       in lean.stage1 // lean;
 
     defaultPackage.x86_64-linux = self.packages.x86_64-linux.lean;

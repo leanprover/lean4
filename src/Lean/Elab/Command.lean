@@ -167,7 +167,7 @@ protected def getMainModule     : CommandElabM Name := do pure (← getEnv).main
 instance : MonadQuotation CommandElabM := {
   getCurrMacroScope   := Command.getCurrMacroScope,
   getMainModule       := Command.getMainModule,
-  withFreshMacroScope := @Command.withFreshMacroScope
+  withFreshMacroScope := Command.withFreshMacroScope
 }
 
 unsafe def mkCommandElabAttributeUnsafe : IO (KeyedDeclsAttribute CommandElab) :=
@@ -192,14 +192,16 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
 instance : MonadMacroAdapter CommandElabM := {
   getCurrMacroScope := getCurrMacroScope,
   getNextMacroScope := do pure (← get).nextMacroScope,
-  setNextMacroScope := fun next => modify fun s => { s with nextMacroScope := next } }
+  setNextMacroScope := fun next => modify fun s => { s with nextMacroScope := next }
+}
 
 instance : MonadRecDepth CommandElabM := {
   withRecDepth   := fun d x => withReader (fun ctx => { ctx with currRecDepth := d }) x,
-  getRecDepth    := do pure (← read).currRecDepth,
-  getMaxRecDepth := do pure (← get).maxRecDepth }
+  getRecDepth    := return (← read).currRecDepth,
+  getMaxRecDepth := return (← get).maxRecDepth
+}
 
-@[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit := do
+@[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
   try
     x
   catch ex => match ex with
@@ -213,8 +215,8 @@ instance : MonadRecDepth CommandElabM := {
 
 builtin_initialize registerTraceClass `Elab.command
 
-partial def elabCommand : Syntax → CommandElabM Unit
-  | stx => withLogging $ withRef stx $ withIncRecDepth $ withFreshMacroScope do
+partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
+  withLogging $ withRef stx $ withIncRecDepth $ withFreshMacroScope do
     runLinters stx
     match stx with
     | Syntax.node k args =>
@@ -371,8 +373,8 @@ private def checkEndHeader : Name → List Scope → Bool
       | h::t => f h :: t
       | []   => unreachable! }
 
-def getLevelNames : CommandElabM (List Name) := do
-  pure (← getScope).levelNames
+def getLevelNames : CommandElabM (List Name) :=
+  return (← getScope).levelNames
 
 def addUnivLevel (idStx : Syntax) : CommandElabM Unit := withRef idStx do
   let id := idStx.getId

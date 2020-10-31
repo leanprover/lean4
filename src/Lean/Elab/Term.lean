@@ -167,11 +167,11 @@ instance : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbit
 def setMessageLog (messages : MessageLog) : TermElabM Unit :=
   modify fun s => { s with messages := messages }
 
-def resetMessageLog : TermElabM Unit := do
+def resetMessageLog : TermElabM Unit :=
   setMessageLog {}
 
-def getMessageLog : TermElabM MessageLog := do
-  pure (← get).messages
+def getMessageLog : TermElabM MessageLog :=
+  return (← get).messages
 
 /--
   Execute `x`, save resulting expression and new state.
@@ -204,7 +204,7 @@ def applyResult (result : TermElabResult) : TermElabM Expr :=
 instance : MonadIO TermElabM :=
 { liftIO := fun x => liftMetaM $ liftIO x }
 
-@[inline] protected def liftMetaM {α} (x : MetaM α) : TermElabM α := do
+@[inline] protected def liftMetaM {α} (x : MetaM α) : TermElabM α :=
   liftM x
 
 @[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
@@ -213,8 +213,8 @@ instance : MonadIO TermElabM :=
 instance : MonadLiftT MetaM TermElabM :=
   ⟨Term.liftMetaM⟩
 
-def getLevelNames : TermElabM (List Name) := do
-  pure (← read).levelNames
+def getLevelNames : TermElabM (List Name) :=
+  return (← read).levelNames
 
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   match (← getLCtx).find? fvar.fvarId! with
@@ -282,8 +282,8 @@ instance : MonadResolveName TermElabM := {
   getOpenDecls     := do pure (← read).openDecls
 }
 
-def getDeclName? : TermElabM (Option Name) := do pure (← read).declName?
-def getLetRecsToLift : TermElabM (List LetRecToLift) := do pure (← get).letRecsToLift
+def getDeclName? : TermElabM (Option Name) := return (← read).declName?
+def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecsToLift
 def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := return (← getMCtx).isExprAssigned mvarId
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx).getDecl mvarId
 def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State fun s => { s with mctx := s.mctx.assignLevel mvarId val }
@@ -445,9 +445,8 @@ def mkFreshBinderName : TermElabM Name :=
   Auxiliary method for creating a `Syntax.ident` containing
   a fresh name. This method is intended for creating fresh binder names.
   It is just a thin layer on top of `mkFreshUserName`. -/
-def mkFreshIdent (ref : Syntax) : TermElabM Syntax := do
-  let n ← mkFreshBinderName
-  pure $ mkIdentFrom ref n
+def mkFreshIdent (ref : Syntax) : TermElabM Syntax :=
+  return mkIdentFrom ref (← mkFreshBinderName)
 
 /--
   Auxiliary method for creating binder names for local instances. -/
@@ -458,8 +457,9 @@ private def liftAttrM {α} (x : AttrM α) : TermElabM α := do
   let ctx ← read
   liftCoreM $ x.run { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls }
 
-private def applyAttributesCore (declName : Name) (attrs : Array Attribute)
-    (applicationTime? : Option AttributeApplicationTime) (persistent : Bool) : TermElabM Unit := do
+private def applyAttributesCore
+    (declName : Name) (attrs : Array Attribute)
+    (applicationTime? : Option AttributeApplicationTime) (persistent : Bool) : TermElabM Unit :=
   for attr in attrs do
    let env ← getEnv
    match getAttributeImpl env attr.name with
@@ -632,7 +632,7 @@ private def isMonad? (type : Expr) : TermElabM (Option IsMonadResult) := do
   | _ => pure none
 -/
 
-private def isMonad? (m : Expr) : TermElabM (Option Expr) := do
+private def isMonad? (m : Expr) : TermElabM (Option Expr) :=
   try
     let monadType ← mkAppM `Monad #[m]
     let result    ← trySynthInstance monadType
@@ -839,8 +839,7 @@ private def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : Te
 
 /-- If `mayPostpone == true`, throw `Expection.postpone`. -/
 def tryPostpone : TermElabM Unit := do
-  let ctx ← read
-  if ctx.mayPostpone then
+  if (← read).mayPostpone then
     throwPostpone
 
 /-- If `mayPostpone == true` and `e`'s head is a metavariable, throw `Exception.postpone`. -/
@@ -873,8 +872,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
       elabFn stx expectedType?
     catch ex => match ex with
       | Exception.error _ _ =>
-        let ctx ← read
-        if ctx.errToSorry then
+        if (← read).errToSorry then
           exceptionToSorry ex expectedType?
         else
           throw ex
@@ -904,8 +902,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
 
 private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
   let s ← saveAllState
-  let env ← getEnv
-  let table := termElabAttribute.ext.getState env $.table
+  let table := termElabAttribute.ext.getState (← getEnv) $.table
   let k := stx.getKind
   match table.find? k with
   | some elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
@@ -913,7 +910,7 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
 
 instance : MonadMacroAdapter TermElabM := {
   getCurrMacroScope := getCurrMacroScope,
-  getNextMacroScope := do pure (← getThe Core.State).nextMacroScope,
+  getNextMacroScope := return (← getThe Core.State).nextMacroScope,
   setNextMacroScope := fun next => modifyThe Core.State fun s => { s with nextMacroScope := next }
 }
 
@@ -1070,8 +1067,7 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   withRef stx $ ensureType type
 
 def mkAuxName (suffix : Name) : TermElabM Name := do
-  let ctx ← read
-  match ctx.declName? with
+  match (← read).declName? with
   | none          => throwError "auxiliary declaration cannot be created when declaration name is not available"
   | some declName => Lean.mkAuxName (declName ++ suffix) 1
 
@@ -1090,21 +1086,19 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
    ======================================= -/
 
 @[builtinTermElab «prop»] def elabProp : TermElab := fun _ _ =>
-  pure $ mkSort levelZero
+  return mkSort levelZero
 
 private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   if stx.isNone then
     pure levelZero
   else
-    elabLevel $ stx.getArg 0
+    elabLevel stx[0]
 
-@[builtinTermElab «sort»] def elabSort : TermElab := fun stx _ => do
-  let u ← elabOptLevel stx[1]
-  pure $ mkSort u
+@[builtinTermElab «sort»] def elabSort : TermElab := fun stx _ =>
+  return mkSort (← elabOptLevel stx[1])
 
-@[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ => do
-  let u ← elabOptLevel stx[1]
-  pure $ mkSort (mkLevelSucc u)
+@[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ =>
+  return mkSort (mkLevelSucc (← elabOptLevel stx[1]))
 
 @[builtinTermElab «hole»] def elabHole : TermElab := fun stx expectedType? => do
   let mvar ← mkFreshExprMVar expectedType?
@@ -1168,7 +1162,7 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   let closeBkt := stx[2]
   let consId   := mkIdentFrom openBkt `List.cons
   let nilId    := mkIdentFrom closeBkt `List.nil
-  pure $ args.getSepArgs.foldr (init := nilId) fun arg r =>
+  return args.getSepArgs.foldr (init := nilId) fun arg r =>
     mkAppStx consId #[arg, r]
 
 @[builtinMacro Lean.Parser.Term.arrayLit] def expandArrayLit : Macro := fun stx =>
@@ -1198,9 +1192,8 @@ def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
   | _ => pure none
 
 private def mkFreshLevelMVars (num : Nat) : TermElabM (List Level) :=
-  num.foldM (init := []) fun _ us => do
-    let u ← mkFreshLevelMVar
-    pure $ u::us
+  num.foldM (init := []) fun _ us =>
+    return (← mkFreshLevelMVar)::us
 
 /--
   Create an `Expr.const` using the given name and explicit levels.
@@ -1216,15 +1209,13 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
     pure $ Lean.mkConst constName (explicitLevels ++ us)
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
-  let env ← getEnv
   candidates.foldlM (init := []) fun result (constName, projs) => do
     -- TODO: better suppor for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
    let const ← mkConst constName explicitLevels
    pure $ (const, projs) :: result
 
 def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
-  let result? ← resolveLocalName n
-  match result? with
+  match (← resolveLocalName n) with
   | some (e, projs) =>
     unless explicitLevels.isEmpty do
       throwError! "invalid use of explicit universe parameters, '{e}' is a local"
@@ -1237,8 +1228,7 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
         throwError! "unknown identifier '{view.format mainModule}'"
       mkConsts candidates explicitLevels
     if preresolved.isEmpty then
-      let r ← resolveGlobalName n
-      process r
+      process (← resolveGlobalName n)
     else
       process preresolved
 
@@ -1257,7 +1247,7 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
   let typeMVar ← mkFreshTypeMVar MetavarKind.synthetic
   registerSyntheticMVar stx typeMVar.mvarId! (SyntheticMVarKind.withDefault (Lean.mkConst `Nat))
   match expectedType? with
-  | some expectedType => do isDefEq expectedType typeMVar; pure ()
+  | some expectedType => isDefEq expectedType typeMVar; pure ()
   | _                 => pure ()
   let u ← getLevel typeMVar
   let u ← decLevel u
@@ -1266,7 +1256,7 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
 
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with
-  | some val => pure $ mkApp (Lean.mkConst `Char.ofNat) (mkNatLit val.toNat)
+  | some val => return mkApp (Lean.mkConst `Char.ofNat) (mkNatLit val.toNat)
   | none     => throwIllFormedSyntax
 
 @[builtinTermElab quotedName] def elabQuotedName : TermElab :=
@@ -1276,8 +1266,7 @@ fun stx _ =>
   | none     => throwIllFormedSyntax
 
 @[builtinTermElab typeOf] def elabTypeOf : TermElab := fun stx _ => do
-  let e ← elabTerm stx[1] none;
-  inferType e
+  inferType (← elabTerm stx[1] none)
 
 @[builtinTermElab ensureTypeOf] def elabEnsureTypeOf : TermElab := fun stx expectedType? =>
   match stx[2].isStrLit? with

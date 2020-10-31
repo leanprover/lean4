@@ -25,7 +25,7 @@ ${buildCommand}
       done
     '';
   };
-  buildLeanPackage = { name, src, lean, deps }:
+  buildLeanPackage = { name, src, lean, leanc ? lean, deps }:
     let
     fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
       mkdir $out
@@ -68,7 +68,7 @@ ${lean}/bin/lean --deps $src | ${gnused}/bin/sed "s!$LEAN_PATH/!!;s!/!.!g;s!.ole
         export PATH=${coreutils}/bin
         mkdir -p $out
         ln -s $src out.c
-        ${lean}/bin/leanc -c -o $out/out.o out.c ${if debug then "-g" else "-O3 -DNDEBUG"}
+        ${leanc}/bin/leanc -c -o $out/out.o out.c ${if debug then "-g" else "-O3 -DNDEBUG"}
       '';
     };
     singleton = name: value: listToAttrs [ { inherit name value; } ];
@@ -90,38 +90,53 @@ mkdir $out
 ar rcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (attrValues objects))}
       '';
     };
-  buildCMake = args: stdenv.mkDerivation (args // {
-    src = lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ];
+  buildCMake = args: stdenv.mkDerivation ({
+    cmakeFlags = [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" ] ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
+    dontStrip = (args.debug or debug);
+    postConfigure = ''
+      patchShebangs bin
+    '';
+  } // args // {
+    src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
 
     nativeBuildInputs = [ cmake ];
     buildInputs = [ gmp ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
 
-    postConfigure = ''
-      patchShebangs bin
-    '';
     installPhase = ''
       mkdir $out
       mv bin/ lib/ include/ $out/
     '';
   });
+  leanc = buildCMake {
+    name = "leanc";
+    src = ./src;
+    dontBuild = true;
+  };
+  leancpp = buildCMake {
+    name = "leancpp";
+    src = ./src;
+    preConfigure = ''
+      echo "target_sources(leancpp PRIVATE shell/lean.cpp)" >> CMakeLists.txt
+    '';
+    buildFlags = [ "leancpp" ];
+  };
+  stage0 = buildCMake {
+    name = "lean-stage0";
+    src = ./stage0/src;
+    debug = false;
+    cmakeFlags = [ "-DSTAGE=0" ];
+    preConfigure = ''
+      ln -s ${./stage0/stdlib} ../stdlib
+    '';
+  };
   stage = { stage, prevStage }:
-    let
-      desc = "stage${toString stage}";
-      leancpp = buildCMake {
-        name = "leancpp-${desc}";
-        src = ./src;
-        cmakeFlags = [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" ] ++ lib.optional debug [ "-DCMAKE_BUILD_TYPE=Debug" ];
-        dontStrip = debug;
-        preConfigure = ''
-          echo "target_sources(leancpp PRIVATE shell/lean.cpp)" >> CMakeLists.txt
-        '';
-        buildFlags = [ "leancpp" ];
-      };
-      Init = buildLeanPackage { name = "Init"; src = ./src; lean = prevStage; deps = {}; };
-      Std  = buildLeanPackage { name = "Std";  src = ./src; lean = prevStage; deps = { inherit Init; }; };
-      Lean = buildLeanPackage { name = "Lean"; src = ./src; lean = prevStage; deps = { inherit Init Std; }; };
+    let desc = "stage${toString stage}";
+    in (all: all // all.lean) rec {
+      Init = buildLeanPackage { name = "Init"; src = ./src; lean = prevStage; inherit leanc; deps = {}; };
+      Std  = buildLeanPackage { name = "Std";  src = ./src; lean = prevStage; inherit leanc; deps = { inherit Init; }; };
+      Lean = buildLeanPackage { name = "Lean"; src = ./src; lean = prevStage; inherit leanc; deps = { inherit Init Std; }; };
       lean = mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''
@@ -148,15 +163,7 @@ ar rcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (
           ctest --output-on-failure -E style_check -j$NIX_BUILD_CORES
         '';
       };
-    in { inherit leancpp Init Std Lean; } // lean;
-  stage0 = buildCMake {
-    name = "lean-stage0";
-    src = ./stage0/src;
-    cmakeFlags = [ "-DSTAGE=0" ];
-    preConfigure = ''
-      ln -s ${./stage0/stdlib} ../stdlib
-    '';
-  };
+    };
   stage1 = stage { stage = 1; prevStage = stage0; };
   stage2 = stage { stage = 2; prevStage = stage1; };
   stage3 = stage { stage = 3; prevStage = stage2; };

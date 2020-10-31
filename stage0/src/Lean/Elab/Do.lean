@@ -25,12 +25,20 @@ private def getDoSeq (doStx : Syntax) : Syntax :=
 @[builtinTermElab liftMethod] def elabLiftMethod : TermElab := fun stx _ =>
   throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
 
+/-- Return true if we should not lift `(<- ...)` actions nested in the syntax nodes with the given kind. -/
+private def liftMethodDelimiter (k : SyntaxNodeKind) : Bool :=
+  k == `Lean.Parser.Term.do ||
+  k == `Lean.Parser.Term.doSeqIndent ||
+  k == `Lean.Parser.Term.doSeqBracketed ||
+  k == `Lean.Parser.Term.quot ||
+  k == `Lean.Parser.Term.termReturn ||
+  k == `Lean.Parser.Term.termUnless ||
+  k == `Lean.Parser.Term.termTry ||
+  k == `Lean.Parser.Term.termFor
+
 private partial def hasLiftMethod : Syntax → Bool
   | Syntax.node k args =>
-    if k == `Lean.Parser.Term.do then false
-    else if k == `Lean.Parser.Term.doSeqIndent then false
-    else if k == `Lean.Parser.Term.doSeqBracketed then false
-    else if k == `Lean.Parser.Term.quot then false
+    if liftMethodDelimiter k then false
     else if k == `Lean.Parser.Term.liftMethod then true
     else args.any hasLiftMethod
   | _ => false
@@ -1124,21 +1132,18 @@ def mkForInBody  (x : Syntax) (forInBody : CodeBlock) : M ToForInTermResult := d
   let term ← liftMacroM $ ToTerm.run forInBody.code ctx.m uvars (if hasReturn forInBody.code then ToTerm.Kind.forInWithReturn else ToTerm.Kind.forIn)
   pure ⟨uvars, term⟩
 
-def ensureInsideFor : M Unit := do
-  let ctx ← read
-  unless ctx.insideFor do
+def ensureInsideFor : M Unit :=
+  unless (← read).insideFor do
     throwError "invalid 'do' element, it must be inside 'for'"
 
-def ensureEOS (doElems : List Syntax) : M Unit := do
+def ensureEOS (doElems : List Syntax) : M Unit :=
   unless doElems.isEmpty do
     throwError "must be last element in a 'do' sequence"
 
 private partial def expandLiftMethodAux : Syntax → StateT (List Syntax) MacroM Syntax
   | stx@(Syntax.node k args) =>
-    if k == `Lean.Parser.Term.do then pure stx
-    else if k == `Lean.Parser.Term.doSeqIndent then pure stx
-    else if k == `Lean.Parser.Term.doSeqBracketed then pure stx
-    else if k == `Lean.Parser.Term.quot then pure stx
+    if liftMethodDelimiter k then
+      pure stx
     else if k == `Lean.Parser.Term.liftMethod then withFreshMacroScope do
       let term := args[1]
       let term ← expandLiftMethodAux term

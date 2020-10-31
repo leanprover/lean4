@@ -44,7 +44,7 @@ def empty : SMap α β := {}
 
 @[specialize] def find? : SMap α β → α → Option β
   | ⟨true, m₁, _⟩, k   => m₁.find? k
-  | ⟨false, m₁, m₂⟩, k => (m₂.find? k).orelse (m₁.find? k)
+  | ⟨false, m₁, m₂⟩, k => (m₂.find? k).orElse (m₁.find? k)
 
 @[inline] def findD (m : SMap α β) (a : α) (b₀ : β) : β :=
   (m.find? a).getD b₀
@@ -62,7 +62,7 @@ def empty : SMap α β := {}
    So, the result is correct only if we never "overwrite" `map₁` entries using `map₂`. -/
 @[specialize] def find?' : SMap α β → α → Option β
   | ⟨true, m₁, _⟩, k   => m₁.find? k
-  | ⟨false, m₁, m₂⟩, k => (m₁.find? k).orelse (m₂.find? k)
+  | ⟨false, m₁, m₂⟩, k => (m₁.find? k).orElse (m₂.find? k)
 
 /- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β) : SMap α β :=

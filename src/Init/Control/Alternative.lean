@@ -10,9 +10,9 @@ universes u v
 
 class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) :=
   (failure : {α : Type u} → f α)
-  (orelse  : {α : Type u} → f α → f α → f α)
+  (orElse  : {α : Type u} → f α → f α → f α)
 
-instance (f : Type u → Type v) (α : Type u) [Alternative f] : OrElse (f α) := ⟨Alternative.orelse⟩
+instance (f : Type u → Type v) (α : Type u) [Alternative f] : OrElse (f α) := ⟨Alternative.orElse⟩
 
 variables {f : Type u → Type v} [Alternative f] {α : Type u}
 

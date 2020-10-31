@@ -40,7 +40,7 @@ instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) := {
   tryCatch := fun x c r => tryCatchThe ε (x r) (fun e => (c e) r)
 }
 
-@[inline] protected def orelse [Alternative m] {α : Type u} (x₁ x₂ : ReaderT ρ m α) : ReaderT ρ m α :=
+@[inline] protected def orElse [Alternative m] {α : Type u} (x₁ x₂ : ReaderT ρ m α) : ReaderT ρ m α :=
   fun s => x₁ s <|> x₂ s
 
 @[inline] protected def failure [Alternative m] {α : Type u} : ReaderT ρ m α :=
@@ -76,7 +76,7 @@ instance (ρ m) [Monad m] : MonadFunctor m (ReaderT ρ m) := ⟨fun f x r => f (
 
 instance [Alternative m] : Alternative (ReaderT ρ m) := {
   failure := ReaderT.failure,
-  orelse  := ReaderT.orelse
+  orElse  := ReaderT.orElse
 }
 
 end

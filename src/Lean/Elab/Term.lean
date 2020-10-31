@@ -881,7 +881,7 @@ private def isExplicit (stx : Syntax) : Bool :=
   | _      => false
 
 private def isExplicitApp (stx : Syntax) : Bool :=
-  stx.getKind == `Lean.Parser.Term.app && isExplicit (stx.getArg 0)
+  stx.getKind == `Lean.Parser.Term.app && isExplicit stx[0]
 
 /--
   Return true if `stx` if a lambda abstraction containing a `{}` or `[]` binder annotation.
@@ -905,7 +905,8 @@ def blockImplicitLambda (stx : Syntax) : Bool :=
   Return normalized expected type if it is of the form `{a : α} → β` or `[a : α] → β` and
   `blockImplicitLambda stx` is not true, else return `none`. -/
 private def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) :=
-  if blockImplicitLambda stx then pure none
+  if blockImplicitLambda stx then
+    pure none
   else match expectedType? with
     | some expectedType => do
       let expectedType ← whnfForall expectedType
@@ -916,6 +917,7 @@ private def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : Te
 
 private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expectedType : Expr) (fvars : Array Expr) : TermElabM Expr := do
   let body ← elabUsingElabFns stx expectedType catchExPostpone
+  let body ← ensureHasType expectedType body
   let r ← mkLambdaFVars fvars body
   trace[Elab.implicitForall]! r
   pure r

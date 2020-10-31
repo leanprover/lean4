@@ -32,7 +32,7 @@ instance : Monad (OptionT m) := {
   bind := OptionT.bind
 }
 
-@[inline] protected def orelse (x : OptionT m α) (y : OptionT m α) : OptionT m α := id (α := m (Option α)) do
+@[inline] protected def orElse (x : OptionT m α) (y : OptionT m α) : OptionT m α := id (α := m (Option α)) do
   match (← x) with
   | some a => pure (some a)
   | _      => y
@@ -42,7 +42,7 @@ instance : Monad (OptionT m) := {
 
 instance : Alternative (OptionT m) := {
   failure := OptionT.fail,
-  orelse  := OptionT.orelse
+  orElse  := OptionT.orElse
 }
 
 @[inline] protected def lift (x : m α) : OptionT m α := id (α := m (Option α)) do

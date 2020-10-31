@@ -302,6 +302,43 @@ partial def mkPairs (elems : Array Syntax) : MacroM Syntax :=
       pure acc
   loop (elems.size - 1) elems.back
 
+private partial def hasCDot : Syntax → Bool
+  | Syntax.node k args =>
+    if k == `Lean.Parser.Term.paren then false
+    else if k == `Lean.Parser.Term.cdot then true
+    else args.any hasCDot
+  | _ => false
+
+/--
+  Auxiliary function for expandind the `·` notation.
+  The extra state `Array Syntax` contains the new binder names.
+  If `stx` is a `·`, we create a fresh identifier, store in the
+  extra state, and return it. Otherwise, we just return `stx`. -/
+private partial def expandCDot : Syntax → StateT (Array Syntax) MacroM Syntax
+  | stx@(Syntax.node k args) =>
+    if k == `Lean.Parser.Term.paren then pure stx
+    else if k == `Lean.Parser.Term.cdot then withFreshMacroScope do
+      let id ← `(a)
+      modify fun s => s.push id;
+      pure id
+    else do
+      let args ← args.mapM expandCDot
+      pure $ Syntax.node k args
+  | stx => pure stx
+
+/--
+  Return `some` if succeeded expanding `·` notation occurring in
+  the given syntax. Otherwise, return `none`.
+  Examples:
+  - `· + 1` => `fun _a_1 => _a_1 + 1`
+  - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
+def expandCDot? (stx : Syntax) : MacroM (Option Syntax) := do
+  if hasCDot stx then
+    let (newStx, binders) ← (expandCDot stx).run #[];
+    `(fun $binders* => $newStx)
+  else
+    pure none
+
 /--
   Try to expand `·` notation, and if successful elaborate result.
   This method is used to elaborate the Lean parentheses notation.

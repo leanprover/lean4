@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
+import Lean.Meta.MatchUtil
 import Lean.Meta.KAbstract
 import Lean.Meta.Check
 import Lean.Meta.Tactic.Apply
@@ -22,8 +23,8 @@ def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr) (symm : Bool := false) (oc
     let (newMVars, binderInfos, heqType) ← forallMetaTelescopeReducing heqType
     let heq := mkAppN heq newMVars
     let cont (heq heqType : Expr) : MetaM RewriteResult :=
-      match heqType.eq? with
-      | none => throwTacticEx `rewrite mvarId msg!"equality of iff proof expected{indentExpr heqType}"
+      match (← matchEq? heqType) with
+      | none => throwTacticEx `rewrite mvarId msg!"equality or iff proof expected{indentExpr heqType}"
       | some (α, lhs, rhs) =>
         let cont (heq heqType lhs rhs : Expr) : MetaM RewriteResult := do
           if lhs.getAppFn.isMVar then

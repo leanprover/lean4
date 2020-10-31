@@ -1,7 +1,7 @@
 α : Type _
 as bs : List α
 ⊢ as ++ bs ++ bs = as ++ (bs ++ bs)
-rewrite.lean:14:20: error: tactic 'rewrite' failed, did not find instance of the pattern in the target expression
+rewrite.lean:12:20: error: tactic 'rewrite' failed, did not find instance of the pattern in the target expression
   List.reverse (List.reverse ?m)
 α : Type _
 as bs : List α
@@ -10,7 +10,7 @@ x y z : Nat
 h₁ : x = y
 h₂ : y = z
 ⊢ x = z
-rewrite.lean:33:0: error: tactic 'rewrite' failed, did not find instance of the pattern in the current goal
+rewrite.lean:31:0: error: tactic 'rewrite' failed, did not find instance of the pattern in the current goal
 x y z : Nat
 h₁ : 0 + x = y
 h₂ : 0 + y = z

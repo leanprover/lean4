@@ -22,7 +22,7 @@ def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr) (symm : Bool := false) (oc
     let heqType ← inferType heq
     let (newMVars, binderInfos, heqType) ← forallMetaTelescopeReducing heqType
     let heq := mkAppN heq newMVars
-    let cont (heq heqType : Expr) : MetaM RewriteResult :=
+    let cont (heq heqType : Expr) : MetaM RewriteResult := do
       match (← matchEq? heqType) with
       | none => throwTacticEx `rewrite mvarId msg!"equality or iff proof expected{indentExpr heqType}"
       | some (α, lhs, rhs) =>

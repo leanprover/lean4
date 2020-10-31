@@ -190,8 +190,6 @@ f a
 #eval runM "#check have x : Nat from one + zero; x + x"
 #eval runM "#check have Nat := one + zero; this + this"
 #eval runM "#check have x : Nat := one + zero; x + x"
-#eval runM "#check x + y where x := 1; where y := x + x"
-#eval runM "#check let z := 2; x + y where x := z + 1; where y := x + x"
 
 #eval runM "variables {α β} axiom x (n : Nat) : α → α #check x 1 0"
 #eval runM "#check ToString.toString 0"

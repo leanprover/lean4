@@ -1,4 +1,3 @@
-
 def x := 1
 
 #check x
@@ -263,13 +262,13 @@ def id8 : {α : Type} → α → α :=
 fun {α} x => id (@id α x)
 
 def altTst1 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
-⟨StateT.failure, StateT.orelse⟩
+⟨StateT.failure, StateT.orElse⟩
 
 def altTst2 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
-⟨@(fun α => StateT.failure), @(fun α => StateT.orelse)⟩
+⟨@(fun α => StateT.failure), @(fun α => StateT.orElse)⟩
 
 def altTst3 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
-⟨fun {α} => StateT.failure, fun {α} => StateT.orelse⟩
+⟨fun {α} => StateT.failure, fun {α} => StateT.orElse⟩
 
 #check_failure 1 + true
 

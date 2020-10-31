@@ -1,5 +1,3 @@
-
-
 syntax "[" ident "↦" term "]" : term
 macro_rules `([$x ↦ $v]) => `(fun $x => $v)
 
@@ -19,5 +17,3 @@ syntax "test" term : term
 macro_rules `(test $x:ident) => `(let $x := 0; $x)
 
 #check fun (x : Nat) => test x
-
-#check x where y := 1; where x := y + 1

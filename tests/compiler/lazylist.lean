@@ -87,7 +87,7 @@ instance isMonad : Monad LazyList :=
 instance : Alternative LazyList :=
 { LazyList.isMonad with
   failure := nil,
-  orelse  := LazyList.append }
+  orElse  := LazyList.append }
 
 partial def approx : Nat → LazyList α → List α
 | 0,     as           => []

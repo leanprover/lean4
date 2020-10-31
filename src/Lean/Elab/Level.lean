@@ -20,7 +20,7 @@ structure State :=
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
 instance : Ref LevelElabM := {
-  getRef      := do return (← read).ref,
+  getRef      := return (← read).ref,
   withRef     := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
 }
 
@@ -29,7 +29,7 @@ instance : AddMessageContext LevelElabM := {
 }
 
 instance : MonadNameGenerator LevelElabM := {
-  getNGen := do return (← get).ngen,
+  getNGen := return (← get).ngen,
   setNGen := fun ngen => modify fun s => { s with ngen := ngen }
 }
 

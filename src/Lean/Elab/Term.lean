@@ -284,8 +284,8 @@ instance : MonadResolveName TermElabM := {
 
 def getDeclName? : TermElabM (Option Name) := do pure (← read).declName?
 def getLetRecsToLift : TermElabM (List LetRecToLift) := do pure (← get).letRecsToLift
-def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do return (← getMCtx).isExprAssigned mvarId
-def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do return (← getMCtx).getDecl mvarId
+def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := return (← getMCtx).isExprAssigned mvarId
+def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx).getDecl mvarId
 def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
 def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=

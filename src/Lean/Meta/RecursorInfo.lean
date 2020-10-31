@@ -113,7 +113,7 @@ private def getMajorPosIfAuxRecursor? (declName : Name) (majorPos? : Option Nat)
         pure $ some (val.nparams + val.nindices + (if s == casesOnSuffix then 1 else val.nmotives))
     | _ => pure none
 
-private def checkMotive (declName : Name) (motive : Expr) (motiveArgs : Array Expr) : MetaM Unit := do
+private def checkMotive (declName : Name) (motive : Expr) (motiveArgs : Array Expr) : MetaM Unit :=
   unless motive.isFVar && motiveArgs.all Expr.isFVar do
     throwError! "invalid user defined recursor '{declName}', result type must be of the form (C t), where C is a bound variable, and t is a (possibly empty) sequence of bound variables"
 

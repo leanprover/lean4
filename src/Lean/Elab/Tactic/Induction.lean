@@ -92,7 +92,7 @@ private def getAltRHS (alt : Syntax) : Syntax := alt[3]
   ```
   esnure the first `ident'` is `_` or a constructor name.
 -/
-private def checkAltCtorNames (alts : Array Syntax) (ctorNames : List Name) : TacticM Unit := do
+private def checkAltCtorNames (alts : Array Syntax) (ctorNames : List Name) : TacticM Unit :=
   for alt in alts do
     let n := getAltName alt
     withRef alt $ trace[Elab.checkAlt]! "{n} , {alt}"

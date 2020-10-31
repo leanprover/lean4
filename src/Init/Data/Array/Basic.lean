@@ -166,8 +166,8 @@ def shrink {α : Type u} (a : Array α) (n : Nat) : Array α :=
   loop (a.size - n) a
 
 @[inline]
-def modifyM {m : Type u → Type v} [Monad m] [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) :=
-  if h : i < a.size then do
+def modifyM {m : Type u → Type v} [Monad m] [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
+  if h : i < a.size then
     let idx : Fin a.size := ⟨i, h⟩
     let v                := a.get idx
     let a                := a.set idx (arbitrary α)
@@ -389,8 +389,8 @@ def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as :
     any as.size (Nat.leRefl _)
 
 @[inline]
-def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool := do
-  return !(← as.anyM fun v => do return !(← p v))
+def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=
+  return !(← as.anyM fun v => return !(← p v))
 
 @[inline]
 def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m (Option β)) : m (Option β) :=
@@ -408,7 +408,7 @@ def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] 
 
 @[inline]
 def findRevM? {α : Type} {m : Type → Type w} [Monad m] (as : Array α) (p : α → m Bool) : m (Option α) :=
-  as.findSomeRevM? fun a => do return if (← p a) then some a else none
+  as.findSomeRevM? fun a => return if (← p a) then some a else none
 
 @[inline]
 def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=

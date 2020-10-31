@@ -154,9 +154,9 @@ def mkNewLevelParam (u : Level) : ClosureM Level := do
   pure $ mkLevelParam p
 
 partial def collectLevelAux : Level → ClosureM Level
-  | u@(Level.succ v _)      => do return u.updateSucc! (← visitLevel collectLevelAux v)
-  | u@(Level.max v w _)     => do return u.updateMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
-  | u@(Level.imax v w _)    => do return u.updateIMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
+  | u@(Level.succ v _)      => return u.updateSucc! (← visitLevel collectLevelAux v)
+  | u@(Level.max v w _)     => return u.updateMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
+  | u@(Level.imax v w _)    => return u.updateIMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
   | u@(Level.mvar mvarId _) => mkNewLevelParam u
   | u@(Level.param _ _)     => mkNewLevelParam u
   | u@(Level.zero _)        => pure u

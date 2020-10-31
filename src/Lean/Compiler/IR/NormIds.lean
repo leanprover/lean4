@@ -92,24 +92,24 @@ instance : MonadLift M N :=
   ⟨fun x m => pure $ x m⟩
 
 partial def normFnBody : FnBody → N FnBody
-  | FnBody.vdecl x t v b    => do let v ← normExpr v; withVar x fun x => do return FnBody.vdecl x t v (← normFnBody b)
+  | FnBody.vdecl x t v b    => do let v ← normExpr v; withVar x fun x => return FnBody.vdecl x t v (← normFnBody b)
   | FnBody.jdecl j ys v b   => do
     let (ys, v) ← withParams ys fun ys => do let v ← normFnBody v; pure (ys, v)
-    withJP j fun j => do return FnBody.jdecl j ys v (← normFnBody b)
-  | FnBody.set x i y b      => do return FnBody.set (← normVar x) i (← normArg y) (← normFnBody b)
-  | FnBody.uset x i y b     => do return FnBody.uset (← normVar x) i (← normVar y) (← normFnBody b)
-  | FnBody.sset x i o y t b => do return FnBody.sset (← normVar x) i o (← normVar y) t (← normFnBody b)
-  | FnBody.setTag x i b     => do return FnBody.setTag (← normVar x) i (← normFnBody b)
-  | FnBody.inc x n c p b    => do return FnBody.inc (← normVar x) n c p (← normFnBody b)
-  | FnBody.dec x n c p b    => do return FnBody.dec (← normVar x) n c p (← normFnBody b)
-  | FnBody.del x b          => do return FnBody.del (← normVar x) (← normFnBody b)
-  | FnBody.mdata d b        => do return FnBody.mdata d (← normFnBody b)
+    withJP j fun j => return FnBody.jdecl j ys v (← normFnBody b)
+  | FnBody.set x i y b      => return FnBody.set (← normVar x) i (← normArg y) (← normFnBody b)
+  | FnBody.uset x i y b     => return FnBody.uset (← normVar x) i (← normVar y) (← normFnBody b)
+  | FnBody.sset x i o y t b => return FnBody.sset (← normVar x) i o (← normVar y) t (← normFnBody b)
+  | FnBody.setTag x i b     => return FnBody.setTag (← normVar x) i (← normFnBody b)
+  | FnBody.inc x n c p b    => return FnBody.inc (← normVar x) n c p (← normFnBody b)
+  | FnBody.dec x n c p b    => return FnBody.dec (← normVar x) n c p (← normFnBody b)
+  | FnBody.del x b          => return FnBody.del (← normVar x) (← normFnBody b)
+  | FnBody.mdata d b        => return FnBody.mdata d (← normFnBody b)
   | FnBody.case tid x xType alts => do
     let x ← normVar x
     let alts ← alts.mapM fun alt => alt.mmodifyBody normFnBody
     return FnBody.case tid x xType alts
-  | FnBody.jmp j ys        => do return FnBody.jmp (← normJP j) (← normArgs ys)
-  | FnBody.ret x           => do return FnBody.ret (← normArg x)
+  | FnBody.jmp j ys        => return FnBody.jmp (← normJP j) (← normArgs ys)
+  | FnBody.ret x           => return FnBody.ret (← normArg x)
   | FnBody.unreachable     => pure FnBody.unreachable
 
 def normDecl : Decl → N Decl

@@ -712,20 +712,21 @@ partial def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Ar
       pure false
   loop 0 0
 
-partial def step (struct : Struct) : M Unit := do
-  unlessM isRoundDone $ withReader (fun ctx => { ctx with structs := ctx.structs.push struct }) do
-    struct.fields.forM fun field => do
-      match field.val with
-      | FieldVal.nested struct => step struct
-      | _ => match field.expr? with
-        | none      => unreachable!
-        | some expr => match defaultMissing? expr with
-          | some (Expr.mvar mvarId _) =>
-            unless (← isExprMVarAssigned mvarId) do
-              let ctx ← read
-              if (← withRef field.ref $ tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) then
-                modify fun s => { s with progress := true }
-          | _ => pure ()
+partial def step (struct : Struct) : M Unit :=
+  unless (← isRoundDone) do
+    withReader (fun ctx => { ctx with structs := ctx.structs.push struct }) do
+      for field in struct.fields do
+        match field.val with
+        | FieldVal.nested struct => step struct
+        | _ => match field.expr? with
+          | none      => unreachable!
+          | some expr => match defaultMissing? expr with
+            | some (Expr.mvar mvarId _) =>
+              unless (← isExprMVarAssigned mvarId) do
+                let ctx ← read
+                if (← withRef field.ref $ tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) then
+                  modify fun s => { s with progress := true }
+            | _ => pure ()
 
 partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M Unit := do
   match findDefaultMissing? (← getMCtx) struct with

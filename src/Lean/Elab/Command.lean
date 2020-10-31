@@ -107,7 +107,7 @@ def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
   let Eα := Except Exception α
-  let x : CoreM Eα := do try let a ← x; pure $ Except.ok a catch ex => pure $ Except.error ex
+  let x : CoreM Eα := try let a ← x; pure $ Except.ok a catch ex => pure $ Except.error ex
   let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s)).run { env := s.env, ngen := s.ngen }
   let (ea, coreS) ← liftM x
   modify fun s => { s with env := coreS.env, ngen := coreS.ngen }

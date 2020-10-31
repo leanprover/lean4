@@ -24,7 +24,7 @@ def assumptionAux (mvarId : MVarId) : MetaM Bool :=
     | some h => do assignExprMVar mvarId h; pure true
     | none   => pure false
 
-def assumption (mvarId : MVarId) : MetaM Unit := do
+def assumption (mvarId : MVarId) : MetaM Unit :=
   unless (← assumptionAux mvarId) do
     throwTacticEx `assumption mvarId ""
 

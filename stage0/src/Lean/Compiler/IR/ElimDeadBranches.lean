@@ -150,8 +150,8 @@ partial def projValue : Value → Nat → Value
   | v, _         => v
 
 def interpExpr : Expr → M Value
-  | Expr.ctor i ys => do return ctor i (← ys.mapM fun y => findArgValue y)
-  | Expr.proj i x  => do return projValue (← findVarValue x) i
+  | Expr.ctor i ys => return ctor i (← ys.mapM fun y => findArgValue y)
+  | Expr.proj i x  => return projValue (← findVarValue x) i
   | Expr.fap fid ys => do
     let ctx ← read
     match getFunctionSummary? ctx.env fid with

@@ -498,9 +498,9 @@ def hasAssignableMVar (mctx : MetavarContext) : Expr → Bool
   | Expr.localE _ _ _ _  => unreachable!
 
 partial def instantiateLevelMVars {m} [Monad m] [MonadMCtx m] : Level → m Level
-  | lvl@(Level.succ lvl₁ _)      => do return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
-  | lvl@(Level.max lvl₁ lvl₂ _)  => do return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
-  | lvl@(Level.imax lvl₁ lvl₂ _) => do return Level.updateIMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
+  | lvl@(Level.succ lvl₁ _)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
+  | lvl@(Level.max lvl₁ lvl₂ _)  => return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
+  | lvl@(Level.imax lvl₁ lvl₂ _) => return Level.updateIMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
   | lvl@(Level.mvar mvarId _)    => do
     match getLevelAssignment? (← getMCtx) mvarId with
     | some newLvl =>

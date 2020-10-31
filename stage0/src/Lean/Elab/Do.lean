@@ -1155,9 +1155,10 @@ private partial def expandLiftMethodAux : Syntax → StateT (List Syntax) MacroM
       pure $ Syntax.node k args
   | stx => pure stx
 
-def expandLiftMethod (doElem : Syntax) : MacroM (List Syntax × Syntax) :=
-  if !hasLiftMethod doElem then pure ([], doElem)
-  else do
+def expandLiftMethod (doElem : Syntax) : MacroM (List Syntax × Syntax) := do
+  if !hasLiftMethod doElem then
+    pure ([], doElem)
+  else
     let (doElem, doElemsNew) ← (expandLiftMethodAux doElem).run []
     pure (doElemsNew, doElem)
 

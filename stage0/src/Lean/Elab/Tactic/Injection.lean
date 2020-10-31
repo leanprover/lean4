@@ -14,7 +14,7 @@ private def getInjectionNewIds (stx : Syntax) : List Name :=
   else
     stx[1].getArgs.toList.map Syntax.getId
 
-private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Unit := do
+private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Unit :=
   unless unusedIds.isEmpty do
     Meta.throwTacticEx `injection mvarId msg!"too many identifiers provided, unused: {unusedIds}"
 

@@ -44,7 +44,7 @@ Users that want to use `mapM` with `Applicative` should use `mapA` instead.
 @[specialize]
 def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
   | []    => pure []
-  | a::as => do return (← f a) :: (← mapM f as)
+  | a::as => return (← f a) :: (← mapM f as)
 
 @[specialize]
 def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)

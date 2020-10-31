@@ -286,7 +286,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 
 @[builtinTactic failIfSuccess] def evalFailIfSuccess : Tactic := fun stx => do
   let tactic := stx[1]
-  if (← do try evalTactic tactic; pure true catch _ => pure false) then
+  if (← try evalTactic tactic; pure true catch _ => pure false) then
     throwError "tactic succeeded"
 
 @[builtinTactic traceState] def evalTraceState : Tactic := fun stx => do

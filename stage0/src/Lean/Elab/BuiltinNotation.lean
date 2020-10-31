@@ -51,7 +51,7 @@ open Meta
 
 @[builtinTermElab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>
   match_syntax stx with
-  | `(@& $e) => do return markBorrowed (← elabTerm e expectedType?)
+  | `(@& $e) => return markBorrowed (← elabTerm e expectedType?)
   | _ => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Term.show] def expandShow : Macro := fun stx =>

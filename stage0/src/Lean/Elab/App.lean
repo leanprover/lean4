@@ -74,7 +74,7 @@ private def tryCoeFun? (α : Expr) (a : Expr) : TermElabM (Option Expr) := do
   catch _ =>
     pure none
 
-def synthesizeAppInstMVars (instMVars : Array MVarId) : TermElabM Unit := do
+def synthesizeAppInstMVars (instMVars : Array MVarId) : TermElabM Unit :=
   for mvarId in instMVars do
     unless (← synthesizeInstMVarCore mvarId) do
       registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
@@ -141,10 +141,10 @@ private def normalizeFunType : M Expr := do
   pure fType
 
 /- Return the binder name at `fType`. This method assumes `fType` is a function type. -/
-private def getBindingName : M Name := do return (← get).fType.bindingName!
+private def getBindingName : M Name := return (← get).fType.bindingName!
 
 /- Return the next argument expected type. This method assumes `fType` is a function type. -/
-private def getArgExpectedType : M Expr := do return (← get).fType.bindingDomain!
+private def getArgExpectedType : M Expr := return (← get).fType.bindingDomain!
 
 def eraseNamedArgCore (namedArgs : List NamedArg) (binderName : Name) : List NamedArg :=
   namedArgs.filter (·.name != binderName)

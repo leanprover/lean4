@@ -1514,6 +1514,24 @@ end Do
 
 builtin_initialize registerTraceClass `Elab.do
 
+private def toDoElem (newKind : SyntaxNodeKind) : Macro := fun stx => do
+  let stx := stx.setKind newKind
+  let stxNew ← `(do $stx:doElem)
+  return stxNew.copyInfo stx
+
+@[builtinMacro Lean.Parser.Term.termFor]
+def expandTermFor : Macro := toDoElem `Lean.Parser.Term.doFor
+
+@[builtinMacro Lean.Parser.Term.termTry]
+def expandTermTry : Macro := toDoElem `Lean.Parser.Term.doTry
+
+@[builtinMacro Lean.Parser.Term.termUnless]
+def expandTermUnless : Macro := toDoElem `Lean.Parser.Term.doUnless
+
+@[builtinMacro Lean.Parser.Term.termReturn]
+def expandTermReturn : Macro := toDoElem `Lean.Parser.Term.doReturn
+
+
 end Term
 end Elab
 end Lean

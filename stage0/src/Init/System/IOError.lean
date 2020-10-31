@@ -56,6 +56,8 @@ inductive IO.Error
 def IO.userError (s : String) : IO.Error :=
   IO.Error.userError s
 
+instance : Coe String IO.Error := ⟨IO.userError⟩
+
 namespace IO.Error
 
 @[export lean_mk_io_error_eof]

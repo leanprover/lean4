@@ -144,7 +144,6 @@ lean_object* l_Lean_IR_tracePrefixOptionName___closed__3;
 extern lean_object* l_Lean_Format_sbracket___closed__3;
 lean_object* l_Lean_IR_addDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_tracePrefixOptionName;
-extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_addDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_IR_declMapExt___closed__2;
@@ -226,6 +225,7 @@ extern lean_object* l_Lean_checkTraceOption___closed__2;
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_IR_findEnvDecl___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_getDecl_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__3___boxed(lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 extern lean_object* l_Array_findSomeM_x3f___rarg___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_334____spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_334____lambda__1(lean_object*, lean_object*);
@@ -2564,7 +2564,7 @@ lean_object* l_Lean_IR_declMapExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

@@ -45,7 +45,6 @@ lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_ob
 lean_object* l_Lean_mkUniquePrivateName_match__1(lean_object*);
 lean_object* l_Lean_isPrivateName_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__2(lean_object*);
-extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* lean_private_prefix(lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privateToUserNameAux_match__1(lean_object*);
@@ -73,6 +72,7 @@ lean_object* l_Lean_privateHeader___closed__2;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__4(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___closed__4;
+extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_privateHeader___closed__1;
 lean_object* l_Lean_protectedExt___closed__2;
@@ -130,7 +130,7 @@ lean_object* l_Lean_protectedExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

@@ -384,7 +384,6 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_importModules___spec__8___closed
 lean_object* l_Lean_namespacesExt___elambda__2___boxed(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Environment_addAux___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Lean_Environment_Lean_Environment___instance__4___closed__3;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2___closed__1;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -599,6 +598,7 @@ lean_object* l_Lean_Lean_Environment___instance__10___closed__1;
 uint32_t l_Lean_EnvironmentHeader_trustLevel___default;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension___closed__3;
+extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 lean_object* l_Std_HashMap_numBuckets___at_Lean_Environment_displayStats___spec__9___boxed(lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_Environment_addAux___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Environment___instance__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2996,7 +2996,7 @@ lean_object* l_Lean_EnvExtensionInterfaceUnsafe_Lean_Environment___instance__6__
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -4370,7 +4370,7 @@ lean_object* l_Lean_Lean_Environment___instance__10___lambda__1(lean_object* x_1
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_4 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_5 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
@@ -5147,7 +5147,7 @@ lean_object* l_Lean_registerPersistentEnvExtension___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -10356,7 +10356,7 @@ lean_object* l_Lean_namespacesExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

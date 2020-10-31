@@ -116,7 +116,6 @@ lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_Environment_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addMacroStack___rarg___lambda__1___closed__3;
-extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Lean_Elab_setMacroStackOption(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_unsetTrailing(lean_object*);
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__1;
@@ -187,6 +186,7 @@ uint8_t l_Lean_Elab_getMacroStackOption(lean_object*);
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacroFns_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_liftMacroM_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__2;
+extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__4;
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__8;
@@ -1399,7 +1399,7 @@ lean_object* l_Lean_Elab_mkMacroAttribute(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

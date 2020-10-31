@@ -582,7 +582,6 @@ lean_object* l_Lean_Meta_Match_isCurrVarInductive___lambda__1(lean_object*, lean
 lean_object* l_Lean_Meta_Match_Alt_Lean_Meta_Match_Match___instance__2;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_Match_Extension_getMatcherInfo_x3f___spec__5___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Unify_assign___closed__2;
-extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_List_map___at_Lean_Meta_Match_counterExamplesToMessageData___spec__1(lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_traceState___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -950,6 +949,7 @@ extern lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_throwInducti
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__1;
 lean_object* l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__3;
 uint8_t l_List_foldr___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_isArrayLitTransition___spec__1(uint8_t, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor_match__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Extension_extension___elambda__2(lean_object*);
 lean_object* l_Lean_Meta_Match_Unify_isAltVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -29007,7 +29007,7 @@ lean_object* l_Lean_Meta_Match_Extension_extension___elambda__4___rarg(lean_obje
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

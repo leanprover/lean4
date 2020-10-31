@@ -45,7 +45,6 @@ lean_object* l_Lean_auxRecExt___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_noConfusionExt___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_noConfusionExt___elambda__1___boxed(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Lean_noConfusionExt___elambda__4___rarg(lean_object*);
 lean_object* l_Lean_auxRecExt___elambda__2___boxed(lean_object*);
 lean_object* l_Lean_auxRecExt___closed__5;
@@ -61,6 +60,7 @@ uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean
 extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_Lean_Environment___instance__6___closed__2;
 lean_object* l_Lean_isAuxRecursor___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_auxRecExt___elambda__4___boxed(lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 lean_object* l_Lean_noConfusionExt___elambda__2(lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_3____closed__1() {
 _start:
@@ -116,7 +116,7 @@ lean_object* l_Lean_auxRecExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -304,7 +304,7 @@ lean_object* l_Lean_noConfusionExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

@@ -367,7 +367,6 @@ lean_object* l_Lean_Parser_mkParserAttributeImpl___elambda__1___boxed(lean_objec
 lean_object* l_Lean_Parser_sepBy1Info(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_categoryParserFnImpl_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_sepBy1Fn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 extern lean_object* l_Lean_mkAppStx___closed__3;
 lean_object* l_Lean_Parser_declareLeadingBuiltinParser(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_ParserExtension_addImported___boxed(lean_object*, lean_object*, lean_object*);
@@ -529,6 +528,7 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___lambda__2___closed__3;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3115____closed__1;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1658____closed__1;
+extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3135____closed__1;
 extern lean_object* l_Lean_mkAppStx___closed__1;
 extern lean_object* l_Lean_Parser_Lean_Parser_Basic___instance__14___closed__1;
@@ -9718,7 +9718,7 @@ lean_object* l_Lean_Parser_parserExtension___elambda__4___rarg(lean_object* x_1)
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

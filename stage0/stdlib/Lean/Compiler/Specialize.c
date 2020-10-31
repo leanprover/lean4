@@ -165,7 +165,6 @@ lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, l
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_222____spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___at___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_cache_specialization(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_222____spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_addEntry_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -254,6 +253,7 @@ lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____
 lean_object* l_List_map___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__7___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Compiler_getSpecializationInfo___spec__3(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__3(lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__1___lambda__2___boxed(lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__4___rarg(lean_object*);
 lean_object* l_List_map___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____spec__7___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4631,7 +4631,7 @@ lean_object* l_Lean_Compiler_specExtension___elambda__4___rarg(lean_object* x_1)
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

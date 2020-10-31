@@ -236,7 +236,6 @@ lean_object* l_List_foldl___at_Lean_IR_UnreachableBranches_Value_merge___spec__2
 extern lean_object* l_Lean_Format_sbracket___closed__3;
 lean_object* l_Lean_IR_UnreachableBranches_updateJPParamsAssignment(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_Value_truncate_match__1(lean_object*);
-extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Std_AssocList_contains___at_Lean_IR_UnreachableBranches_updateVarAssignment___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_updateVarAssignment___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Lean_IR_UnreachableBranches_projValue___spec__1(lean_object*, lean_object*, lean_object*);
@@ -361,6 +360,7 @@ lean_object* l_Lean_IR_UnreachableBranches_functionSummariesExt___closed__1;
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__1;
 lean_object* l_Lean_IR_UnreachableBranches_Value_Lean_Compiler_IR_ElimDeadBranches___instance__3;
 lean_object* l_Lean_IR_UnreachableBranches_findVarValue___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 lean_object* l_Std_AssocList_replace___at_Lean_IR_UnreachableBranches_updateVarAssignment___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_elimDead_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_Value_Lean_Compiler_IR_ElimDeadBranches___instance__1;
@@ -4579,7 +4579,7 @@ lean_object* l_Lean_IR_UnreachableBranches_functionSummariesExt___elambda__4___r
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

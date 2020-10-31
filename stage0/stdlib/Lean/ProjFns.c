@@ -76,7 +76,6 @@ lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_ob
 lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_ProjFns___hyg_42____spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt;
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
-extern lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_ProjFns___hyg_42____closed__6;
 lean_object* l_Lean_Lean_ProjFns___instance__1;
 lean_object* l_Lean_Environment_getProjectionStructureName_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -119,6 +118,7 @@ lean_object* l_Lean_projectionFnInfoExt___elambda__4___boxed(lean_object*, lean_
 lean_object* lean_mk_projection_info(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_initFn____x40_Lean_ProjFns___hyg_42____spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 lean_object* l_Lean_projectionFnInfoExt___elambda__1___boxed(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ProjFns___hyg_42____lambda__3(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -838,7 +838,7 @@ lean_object* l_Lean_projectionFnInfoExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_Init_System_IOError___instance__2___closed__1;
+x_2 = l_IO_Error_Init_System_IOError___instance__3___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

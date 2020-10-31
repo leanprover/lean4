@@ -90,48 +90,47 @@ mkdir $out
 ar rcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (attrValues objects))}
       '';
     };
-  stage = { stage, src ? ./src, prevStage ? null }:
+  buildCMake = args: stdenv.mkDerivation (args // {
+    src = lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ];
+
+    nativeBuildInputs = [ cmake ];
+    buildInputs = [ gmp ];
+    # https://github.com/NixOS/nixpkgs/issues/60919
+    hardeningDisable = [ "all" ];
+
+    postConfigure = ''
+      patchShebangs bin
+    '';
+    installPhase = ''
+      mkdir $out
+      mv bin/ lib/ include/ $out/
+    '';
+  });
+  stage = { stage, prevStage }:
     let
       desc = "stage${toString stage}";
-      Init = buildLeanPackage { name = "Init"; src = src; lean = prevStage; deps = {}; };
-      Std  = buildLeanPackage { name = "Std";  src = src; lean = prevStage; deps = { inherit Init; }; };
-      Lean = buildLeanPackage { name = "Lean"; src = src; lean = prevStage; deps = { inherit Init Std; }; };
-      leanBin = stdenv.mkDerivation {
-        name = "lean-bin-${desc}";
-
-        src = lib.sourceByRegex src [ "[a-z].*" "CMakeLists\.txt" "CTestCustom\.cmake\.in" ];
-
-        nativeBuildInputs = [ cmake ];
-        buildInputs = [ gmp ];
+      leancpp = buildCMake {
+        name = "leancpp-${desc}";
+        src = ./src;
+        cmakeFlags = [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" ] ++ lib.optional debug [ "-DCMAKE_BUILD_TYPE=Debug" ];
         dontStrip = debug;
-        # https://github.com/NixOS/nixpkgs/issues/60919
-        hardeningDisable = [ "all" ];
-
-        cmakeFlags = [ (if prevStage != null then "-DSTAGE=1" else "-DSTAGE=0") ] ++
-                     lib.optional (prevStage != null) [ "-DPREV_STAGE=${prevStage}" ] ++
-                     lib.optional debug [ "-DCMAKE_BUILD_TYPE=Debug" ];
-        preConfigure =
-          if prevStage != null then ''
-            substituteInPlace CMakeLists.txt --replace '$(MAKE) -f ''${CMAKE_BINARY_DIR}/stdlib.make' 'ln -s ${Init.staticLib}/* ${Std.staticLib}/* ${Lean.staticLib}/* ''${CMAKE_BINARY_DIR}/lib/lean'
-          '' else ''
-            ln -s ${./stage0/stdlib} ../stdlib
-          '';
-        postConfigure = ''
-          patchShebangs bin
+        preConfigure = ''
+          echo "target_sources(leancpp PRIVATE shell/lean.cpp)" >> CMakeLists.txt
         '';
-        buildFlags = [ "lean" ];
-        installPhase = ''
-          mkdir $out
-          mv bin include $out/
-          mv lib/lean $out/lib/
+        buildFlags = [ "leancpp" ];
+      };
+      Init = buildLeanPackage { name = "Init"; src = ./src; lean = prevStage; deps = {}; };
+      Std  = buildLeanPackage { name = "Std";  src = ./src; lean = prevStage; deps = { inherit Init; }; };
+      Lean = buildLeanPackage { name = "Lean"; src = ./src; lean = prevStage; deps = { inherit Init Std; }; };
+      lean = mkDerivation {
+        name = "lean-${desc}";
+        buildCommand = ''
+          mkdir -p $out/bin $out/lib/lean
+          ln -s ${leancpp}/lib/lean/* ${Init.staticLib}/* ${Std.staticLib}/* ${Lean.staticLib}/* ${Lean.modRoot}/* $out/lib/lean
+          ${leancpp}/bin/leanc -x none -L${gmp}/lib -L$out/lib/lean ${leancpp}/lib/lean/* -o $out/bin/lean
+          ln -s ${leancpp}/bin/{leanc,lean-gdb.py} $out/bin/
         '';
       };
-      bundle = runCommand "lean-${desc}" {} ''
-        mkdir -p $out/lib/lean
-        ln -s ${Init.staticLib}/* ${Std.staticLib}/* ${Lean.staticLib}/* ${Lean.modRoot}/* $out/lib/lean
-        cp -r ${leanBin}/bin $out/bin
-        ln -s ${leanBin}/include $out/include
-      '';
       test = stdenv.mkDerivation {
         name = "lean-test-${desc}";
 
@@ -149,8 +148,15 @@ ar rcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (
           ctest --output-on-failure -E style_check -j$NIX_BUILD_CORES
         '';
       };
-    in { inherit leanBin Init Std Lean; } // bundle;
-  stage0 = (stage { stage = 0; src = ./stage0/src; }).leanBin;
+    in { inherit leancpp Init Std Lean; } // lean;
+  stage0 = buildCMake {
+    name = "lean-stage0";
+    src = ./stage0/src;
+    cmakeFlags = [ "-DSTAGE=0" ];
+    preConfigure = ''
+      ln -s ${./stage0/stdlib} ../stdlib
+    '';
+  };
   stage1 = stage { stage = 1; prevStage = stage0; };
   stage2 = stage { stage = 2; prevStage = stage1; };
   stage3 = stage { stage = 3; prevStage = stage2; };

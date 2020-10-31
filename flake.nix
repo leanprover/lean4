@@ -27,5 +27,7 @@ export CCACHE_BASE_DIR=$NIX_BUILD_TOP
 
     defaultPackage.x86_64-linux = self.packages.x86_64-linux.lean;
 
+    checks.x86_64-linux.lean = self.packages.x86_64-linux.lean.test;
+
   };
 }

@@ -141,26 +141,25 @@ ar rcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -s ${leancpp}/lib/lean/* ${Init.staticLib}/* ${Std.staticLib}/* ${Lean.staticLib}/* ${Lean.modRoot}/* $out/lib/lean
-          ${leancpp}/bin/leanc -x none -L${gmp}/lib -L$out/lib/lean ${leancpp}/lib/lean/* -o $out/bin/lean
+          ln -sf ${leancpp}/lib/lean/* ${Init.staticLib}/* ${Init.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* $out/lib/lean
+          ${leancpp}/bin/leanc -x none -rdynamic -L${gmp}/lib -L$out/lib/lean ${leancpp}/lib/lean/* -o $out/bin/lean
           ln -s ${leancpp}/bin/{leanc,lean-gdb.py} $out/bin/
+          ln -s ${leancpp}/include $out/include
         '';
       };
-      test = stdenv.mkDerivation {
+      test = buildCMake {
         name = "lean-test-${desc}";
-
-        inherit src;
-        nativeBuildInputs = leanBin.nativeBuildInputs ++ leanBin.buildInputs ++ [ bash ];
-
+        realSrc = lib.sourceByRegex ./. [ "src.*" "tests.*" ];
+        preConfigure = ''
+          cd src
+        '';
         postConfigure = ''
-          patchShebangs tests
-          #ln -s ${install}/bin ../../bin
-          #ln -s ${install}/bin/lean shell/lean
-          #rm -r ../../library
-          #ln -s ${install}/lib/lean/library ../../library
+          patchShebangs ../../tests
+          rm -r bin lib include
+          ln -sf ${lean}/* .
         '';
         buildPhase = ''
-          ctest --output-on-failure -E style_check -j$NIX_BUILD_CORES
+          ctest --output-on-failure -E leancomptest_foreign -j$NIX_BUILD_CORES
         '';
       };
     };

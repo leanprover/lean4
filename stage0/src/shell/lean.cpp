@@ -590,11 +590,10 @@ int main(int argc, char ** argv) {
     try {
         if (use_stdin) {
             if (argc - optind != 0) {
-                std::cerr << "Expected exactly one of file name or --stdin\n";
-                display_help(std::cerr);
-                return 1;
+                mod_fn = argv[optind++];
+            } else {
+                mod_fn = "<stdin>";
             }
-            mod_fn = "<stdin>";
             std::stringstream buf;
             buf << std::cin.rdbuf();
             contents = buf.str();

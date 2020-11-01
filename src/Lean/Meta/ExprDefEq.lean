@@ -478,11 +478,35 @@ private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData
         else
           let ctxMeta ← readThe Meta.Context
           if ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then
-            let mvarType ← check mvarDecl.type
             /- Create an auxiliary metavariable with a smaller context and "checked" type.
                Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
-               a metavariable that we also need to reduce the context. -/
-            let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType mvarDecl.numScopeArgs
+               a metavariable that we also need to reduce the context.
+
+               We remove from `ctx.mvarDecl.lctx` any variable that is not in `mvarDecl.lctx`
+               or in `ctx.fvars`. We don't need to remove the ones in `ctx.fvars` because
+               `elimMVarDeps` will take care of them.
+
+               First, we collect `toErase` the variables that need to be erased.
+               Notat that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
+               we must also erase it.
+            -/
+            let toErase := mvarDecl.lctx.foldl (init := #[]) fun toErase localDecl =>
+              if ctx.mvarDecl.lctx.contains localDecl.fvarId then
+                toErase
+              else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
+                if mctx.findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId then
+                  -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
+                  toErase.push localDecl.fvarId
+                else
+                  toErase
+              else
+                toErase.push localDecl.fvarId
+            let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
+              lctx.erase toEraseFVar
+            /- Compute new set of local instances. -/
+            let localInsts := mvarDecl.localInstances.filter fun localInst => toErase.contains localInst.fvar.fvarId!
+            let mvarType ← check mvarDecl.type
+            let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
             modifyThe Meta.State fun s => { s with mctx := s.mctx.assignExpr mvarId newMVar }
             pure newMVar
           else

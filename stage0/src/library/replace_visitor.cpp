@@ -17,10 +17,6 @@ expr replace_visitor::visit_lit(expr const & e) { lean_assert(is_lit(e)); return
 expr replace_visitor::visit_constant(expr const & e) { lean_assert(is_constant(e)); return e; }
 expr replace_visitor::visit_meta(expr const & e) { lean_assert(is_mvar(e)); return e; }
 expr replace_visitor::visit_fvar(expr const & e) { lean_assert(is_fvar(e)); return e; }
-expr replace_visitor::visit_local(expr const & e) {
-    lean_assert(is_local(e));
-    return update_local(e, visit(local_type(e)));
-}
 expr replace_visitor::visit_mdata(expr const & e) {
     return update_mdata(e, visit(mdata_expr(e)));
 }
@@ -76,7 +72,6 @@ expr replace_visitor::visit(expr const & e) {
     case expr_kind::Lambda:  return save_result(e, visit_lambda(e), shared);
     case expr_kind::Pi:      return save_result(e, visit_pi(e), shared);
     case expr_kind::Let:     return save_result(e, visit_let(e), shared);
-    case expr_kind::Local:   return save_result(e, visit_local(e), shared);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

@@ -62,7 +62,7 @@ instance : Monad Option := {
   | some a => p a
   | none   => false
 
-@[macroInline] protected def orelse {α : Type u} : Option α → Option α → Option α
+@[macroInline] protected def orElse {α : Type u} : Option α → Option α → Option α
   | some a, _ => some a
   | none,   b => b
 
@@ -70,7 +70,7 @@ instance : Monad Option := {
    Thus, `a <|> b` will make `Option.orelse` to behave like it was marked as `[inline]`. -/
 instance : Alternative Option := {
   failure := none,
-  orelse  := Option.orelse
+  orElse  := Option.orElse
 }
 
 @[inline] protected def lt {α : Type u} (r : α → α → Prop) : Option α → Option α → Prop

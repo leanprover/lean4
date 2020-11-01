@@ -26,8 +26,8 @@ def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
   let tag ← getMVarTag mvarId
   setMVarTag mvarId (appendTag tag suffix)
 
-def mkFreshExprSyntheticOpaqueMVar (type : Expr) (userName : Name := Name.anonymous) : MetaM Expr :=
-  mkFreshExprMVar type MetavarKind.syntheticOpaque userName
+def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) : MetaM Expr :=
+  mkFreshExprMVar type MetavarKind.syntheticOpaque tag
 
 def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ref := Syntax.missing) : MetaM α :=
   throwError! "tactic '{tacticName}' failed, {msg}\n{MessageData.ofGoal mvarId}"

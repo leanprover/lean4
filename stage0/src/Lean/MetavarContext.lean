@@ -470,7 +470,6 @@ def hasAssignedMVar (mctx : MetavarContext) : Expr → Bool
   | Expr.mdata _ e _     => e.hasMVar && hasAssignedMVar mctx e
   | Expr.proj _ _ e _    => e.hasMVar && hasAssignedMVar mctx e
   | Expr.mvar mvarId _   => mctx.isExprAssigned mvarId || mctx.isDelayedAssigned mvarId
-  | Expr.localE _ _ _ _  => unreachable!
 
 /-- Return true iff the given level contains a metavariable that can be assigned. -/
 def hasAssignableLevelMVar (mctx : MetavarContext) : Level → Bool
@@ -495,7 +494,6 @@ def hasAssignableMVar (mctx : MetavarContext) : Expr → Bool
   | Expr.mdata _ e _     => e.hasMVar && hasAssignableMVar mctx e
   | Expr.proj _ _ e _    => e.hasMVar && hasAssignableMVar mctx e
   | Expr.mvar mvarId _   => mctx.isExprAssignable mvarId
-  | Expr.localE _ _ _ _  => unreachable!
 
 partial def instantiateLevelMVars {m} [Monad m] [MonadMCtx m] : Level → m Level
   | lvl@(Level.succ lvl₁ _)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
@@ -1025,8 +1023,6 @@ partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr �
       | none   => false
       | some v => isWellFormed mctx lctx v
   | Expr.fvar fvarId _       => lctx.contains fvarId
-  | Expr.localE _ _ _ _      => unreachable!
-
 
 namespace LevelMVarToParam
 

@@ -222,7 +222,6 @@ private partial def getStuckMVarImp? : Expr → MetaM (Option MVarId)
   | e@(Expr.const _ _ _),     k => k e
   | e@(Expr.app _ _ _),       k => k e
   | e@(Expr.proj _ _ _ _),    k => k e
-  | Expr.localE _ _ _ _,      _ => unreachable!
 
 /-- Return true iff term is of the form `idRhs ...` -/
 private def isIdRhsApp (e : Expr) : Bool :=

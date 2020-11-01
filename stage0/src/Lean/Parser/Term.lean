@@ -203,9 +203,6 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def dollar     := tparser!:0 «try» (" $" >> checkWsBefore "expected space") >> termParser 0
 @[builtinTermParser] def dollarProj := tparser!:0 " $. " >> (fieldIdx <|> ident)
 
--- TODO: fix
-@[builtinTermParser] def «where»    := tparser!:0 " where " >> sepBy1 letDecl (group (";\n" >> symbol " where "))
-
 @[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90
 
 @[builtinTermParser] def prod  := tparser! infixR " × " 35

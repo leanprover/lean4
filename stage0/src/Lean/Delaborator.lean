@@ -96,15 +96,15 @@ abbrev Delab := DelabM Syntax
 
 instance {α} : Inhabited (DelabM α) := ⟨throw $ arbitrary _⟩
 
-@[inline] protected def orelse {α} (d₁ d₂ : DelabM α) : DelabM α := do
+@[inline] protected def orElse {α} (d₁ d₂ : DelabM α) : DelabM α := do
 catchInternalId delabFailureId d₁ (fun _ => d₂)
 protected def failure {α} : DelabM α := throw $ Exception.internal delabFailureId
 instance : Alternative DelabM := {
-  orelse  := Delaborator.orelse,
+  orElse  := Delaborator.orElse,
   failure := Delaborator.failure
 }
 -- HACK: necessary since it would otherwise prefer the instance from MonadExcept
-instance {α} : OrElse (DelabM α) := ⟨Delaborator.orelse⟩
+instance {α} : OrElse (DelabM α) := ⟨Delaborator.orElse⟩
 
 -- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
@@ -155,7 +155,6 @@ def getExprKind : DelabM Name := do
     | [(key, _)] => `mdata ++ key
     | _   => `mdata
   | Expr.proj _ _ _ _    => `proj
-  | Expr.localE _ _ _ _  => `localE
 
 /-- Evaluate option accessor, using subterm-specific options if set. Default to `true` if `pp.all` is set. -/
 def getPPOption (opt : Options → Bool) : DelabM Bool := do

@@ -490,7 +490,6 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
     | Expr.const n _ _  => isClassQuickConst? n
     | Expr.lam _ _ _ _  => pure LOption.undef
     | _                 => pure LOption.none
-  | Expr.localE _ _ _ _ => unreachable!
 
 def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
   let s ← get

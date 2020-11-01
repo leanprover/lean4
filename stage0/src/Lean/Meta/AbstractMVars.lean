@@ -102,7 +102,6 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
             fvars := s.fvars.push fvar,
             lctx  := s.lctx.mkLocalDecl fvarId userName type }
           return fvar
-    | Expr.localE .. => unreachable!
 
 end AbstractMVars
 

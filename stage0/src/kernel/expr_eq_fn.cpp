@@ -91,12 +91,6 @@ class expr_eq_fn {
             return mvar_name(a) == mvar_name(b);
         case expr_kind::FVar:
             return fvar_name(a) == fvar_name(b);
-        case expr_kind::Local:
-            return
-                local_name(a) == local_name(b) &&
-                apply(local_type(a), local_type(b)) &&
-                (!CompareBinderInfo || local_pp_name(a) == local_pp_name(b)) &&
-                (!CompareBinderInfo || local_info(a) == local_info(b));
         case expr_kind::App:
             check_system();
             return

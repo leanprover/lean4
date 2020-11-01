@@ -38,7 +38,6 @@ abbrev ReplaceM := StateM State
         | Expr.letE _ t v b _    => cache i e $ e.updateLet! (← visit t) (← visit v) (← visit b)
         | Expr.app f a _         => cache i e $ e.updateApp! (← visit f) (← visit a)
         | Expr.proj _ _ b _      => cache i e $ e.updateProj! (← visit b)
-        | Expr.localE _ _ _ _    => unreachable!
         | e                      => pure e
   visit e
 

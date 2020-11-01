@@ -19,7 +19,6 @@ lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addInstanceEntry___
 size_t l_USize_add(size_t, size_t);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallMetaTelescopeReducing___at___private_Lean_Meta_Instances_0__Lean_Meta_mkInstanceKey___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_784____spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t l_Array_contains___at_Lean_Meta_addInstanceEntry___spec__11(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____lambda__2___closed__2;
@@ -38,6 +37,7 @@ lean_object* l_Lean_Meta_addGlobalInstanceImp_match__1___rarg(lean_object*, lean
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_19____spec__6(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallMetaTelescopeReducing___at___private_Lean_Meta_Instances_0__Lean_Meta_mkInstanceKey___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_768____spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____closed__5;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____closed__3;
@@ -2853,7 +2853,7 @@ lean_inc(x_10);
 lean_dec(x_8);
 lean_inc(x_1);
 x_11 = lean_add_instance_old(x_10, x_1);
-x_12 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_784____spec__1(x_11, x_3, x_4, x_5, x_9);
+x_12 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_768____spec__1(x_11, x_3, x_4, x_5, x_9);
 lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {

@@ -66,8 +66,6 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_ctx const * lctx
         return fvar_name(a) < fvar_name(b);
     case expr_kind::MVar:
         return mvar_name(a) < mvar_name(b);
-    case expr_kind::Local:
-        return local_name(a) < local_name(b);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -171,11 +169,6 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
             return is_lt_no_level_params(let_body(a), let_body(b));
     case expr_kind::Sort:
         return is_lt_no_level_params(sort_level(a), sort_level(b));
-    case expr_kind::Local:
-        if (local_name(a) != local_name(b))
-            return local_name(a) < local_name(b);
-        else
-            return is_lt_no_level_params(local_type(a), local_type(b));
     case expr_kind::FVar:
         return fvar_name(a) < fvar_name(b);
     case expr_kind::MVar:

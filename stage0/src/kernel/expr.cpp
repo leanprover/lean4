@@ -67,7 +67,6 @@ bool is_atomic(expr const & e) {
     case expr_kind::Lambda:
     case expr_kind::Pi:    case expr_kind::Let:
     case expr_kind::MData: case expr_kind::Proj:
-    case expr_kind::Local:
         return false;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -568,30 +567,6 @@ void finalize_expr() {
 // =======================================
 // Legacy
 
-binder_info local_info(expr const & e) { lean_assert(is_local(e)); return static_cast<binder_info>(lean_expr_binder_info(e.to_obj_arg())); }
-extern "C" object * lean_expr_mk_local(obj_arg n, obj_arg u, obj_arg t, uint8 bi);
-expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi) {
-    return expr(lean_expr_mk_local(n.to_obj_arg(), pp_n.to_obj_arg(), t.to_obj_arg(), static_cast<uint8>(bi)));
-}
-
-expr update_local(expr const & e, expr const & new_type, binder_info bi) {
-    if (is_eqp(local_type(e), new_type) && local_info(e) == bi)
-        return e;
-    else
-        return mk_local(local_name(e), local_pp_name(e), new_type, bi);
-}
-
-expr update_local(expr const & e, binder_info bi) {
-    return update_local(e, local_type(e), bi);
-}
-
-expr update_local(expr const & e, expr const & new_type) {
-    if (is_eqp(local_type(e), new_type))
-        return e;
-    else
-        return mk_local(local_name(e), local_pp_name(e), new_type, local_info(e));
-}
-
 optional<expr> has_expr_metavar_strict(expr const & e) {
     if (!has_expr_metavar(e))
         return none_expr();
@@ -599,7 +574,6 @@ optional<expr> has_expr_metavar_strict(expr const & e) {
     for_each(e, [&](expr const & e, unsigned) {
             if (r || !has_expr_metavar(e)) return false;
             if (is_metavar_app(e)) { r = e; return false; }
-            if (is_local(e)) return false; // do not visit type
             return true;
         });
     return r;

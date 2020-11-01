@@ -80,11 +80,6 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
     case expr_kind::FVar:
         result = fvar_name(a) == fvar_name(b);
         break;
-    case expr_kind::Local:
-        result =
-            local_name(a) == local_name(b) &&
-            is_equiv_core(local_type(a), local_type(b));
-        break;
     case expr_kind::App:
         result =
             is_equiv_core(app_fn(a), app_fn(b)) &&

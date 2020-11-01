@@ -26,9 +26,11 @@ lean_object* l_Option_Init_Data_Option_Basic___instance__1___lambda__5(lean_obje
 lean_object* l_Option_getD(lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__1___lambda__3(lean_object*, lean_object*);
 lean_object* l_Option_toBool_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_orElse(lean_object*);
 lean_object* l_Init_Data_Option_Basic___instance__7(lean_object*, lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__1___lambda__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_isSome___rarg___boxed(lean_object*);
+lean_object* l_Option_orElse___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Option_isNone_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_filter___rarg(lean_object*, lean_object*);
 lean_object* l_Option_bind___rarg(lean_object*, lean_object*);
@@ -37,7 +39,6 @@ lean_object* l_Init_Data_Option_Basic___instance__5(lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__2;
 lean_object* l_Init_Data_Option_Basic___instance__6(lean_object*);
 lean_object* l_Option_toBool(lean_object*);
-lean_object* l_Option_orelse_match__1(lean_object*, lean_object*);
 lean_object* l_Option_all_match__1(lean_object*, lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__1___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_filter_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -51,6 +52,8 @@ lean_object* l_Option_isSome(lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__1;
 lean_object* l_Init_Data_Option_Basic___instance__6___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__3_match__1(lean_object*, lean_object*);
+lean_object* l_Option_orElse_match__1(lean_object*, lean_object*);
+lean_object* l_Option_orElse___rarg(lean_object*, lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__1___closed__9;
 lean_object* l_Option_Init_Data_Option_Basic___instance__3(lean_object*, lean_object*);
 lean_object* l_Option_isNone___rarg___boxed(lean_object*);
@@ -77,9 +80,7 @@ lean_object* l_Option_toMonad_match__1___rarg(lean_object*, lean_object*, lean_o
 lean_object* l_Option_Init_Data_Option_Basic___instance__1___closed__6;
 lean_object* l_Option_isNone(lean_object*);
 lean_object* l_Option_any___rarg(lean_object*, lean_object*);
-lean_object* l_Option_orelse_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__1___closed__3;
-lean_object* l_Option_orelse___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Data_Option_Basic___instance__6_match__1(lean_object*, lean_object*);
 lean_object* l_Option_getD_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Data_Option_Basic___instance__5_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,6 +88,7 @@ lean_object* l_Option_Init_Data_Option_Basic___instance__1___lambda__1(lean_obje
 lean_object* l_Option_map___rarg(lean_object*, lean_object*);
 lean_object* l_Option_map(lean_object*, lean_object*);
 lean_object* l_Init_Data_Option_Basic___instance__7___boxed(lean_object*, lean_object*);
+lean_object* l_Option_orElse_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Option_isNone___rarg(lean_object*);
 lean_object* l_Option_getD_match__1(lean_object*, lean_object*);
 uint8_t l_Option_toBool___rarg(lean_object*);
@@ -99,14 +101,12 @@ lean_object* l_Option_Init_Data_Option_Basic___instance__1___closed__10;
 lean_object* l_Option_isSome_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_getD___rarg(lean_object*, lean_object*);
 lean_object* l_Init_Data_Option_Basic___instance__5_match__1___rarg(uint8_t, lean_object*, lean_object*);
-lean_object* l_Option_orelse(lean_object*);
 lean_object* l_Init_Data_Option_Basic___instance__5_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_bind_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_filter(lean_object*);
 lean_object* l_Option_all_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_toBool___rarg___boxed(lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__2___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Option_orelse___rarg(lean_object*, lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__1___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_Init_Data_Option_Basic___instance__2___closed__1;
 lean_object* l_Option_toMonad_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1111,7 +1111,7 @@ x_2 = lean_alloc_closure((void*)(l_Option_any___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Option_orelse_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Option_orElse_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1133,15 +1133,15 @@ return x_7;
 }
 }
 }
-lean_object* l_Option_orelse_match__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Option_orElse_match__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Option_orelse_match__1___rarg), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Option_orElse_match__1___rarg), 4, 0);
 return x_3;
 }
 }
-lean_object* l_Option_orelse___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Option_orElse___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1170,19 +1170,19 @@ return x_5;
 }
 }
 }
-lean_object* l_Option_orelse(lean_object* x_1) {
+lean_object* l_Option_orElse(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Option_orelse___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Option_orElse___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Option_orelse___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Option_orElse___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Option_orelse___rarg(x_1, x_2);
+x_3 = l_Option_orElse___rarg(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

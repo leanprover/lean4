@@ -64,6 +64,7 @@ lean_object* l_Lean_Meta_inferType___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__6___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfD___at___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkForall___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10;
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkLambdaLet___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Check_0__Lean_Meta_checkAux___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Check_0__Lean_Meta_checkAux___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -127,14 +128,14 @@ lean_object* l_Lean_Meta_throwAppTypeMismatch___at___private_Lean_Meta_Check_0__
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2;
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuick_x3f___closed__1;
 lean_object* l_Lean_Meta_throwIncorrectNumberOfLevels___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9;
 lean_object* l_Lean_indentExpr(lean_object*);
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_945_(lean_object*);
+lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_933_(lean_object*);
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4;
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8;
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkLambdaLet___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -255,7 +256,8 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Check");
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Lean_Meta_Basic___instance__7___boxed), 5, 1);
+lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }
 }
@@ -263,16 +265,24 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.throwLetTypeMismatchMessage");
+x_1 = lean_mk_string("Lean.Meta.Check");
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("Lean.Meta.throwLetTypeMismatchMessage");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1;
-x_2 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2;
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__2;
+x_2 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3;
 x_3 = lean_unsigned_to_nat(26u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
@@ -280,7 +290,7 @@ x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -288,16 +298,16 @@ x_1 = lean_mk_string("invalid let declaration, term");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4;
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -305,16 +315,16 @@ x_1 = lean_mk_string("\nhas type");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6;
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -322,11 +332,11 @@ x_1 = lean_mk_string("\nbut is expected to have type");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9() {
+static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8;
+x_1 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -341,8 +351,8 @@ x_8 = lean_local_ctx_find(x_7, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = l___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuick_x3f___closed__1;
-x_10 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3;
+x_9 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1;
+x_10 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4;
 x_11 = lean_panic_fn(x_9, x_10);
 x_12 = lean_apply_5(x_11, x_2, x_3, x_4, x_5, x_6);
 return x_12;
@@ -357,8 +367,8 @@ if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_dec(x_13);
-x_14 = l___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuick_x3f___closed__1;
-x_15 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3;
+x_14 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1;
+x_15 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__4;
 x_16 = lean_panic_fn(x_14, x_15);
 x_17 = lean_apply_5(x_16, x_2, x_3, x_4, x_5, x_6);
 return x_17;
@@ -386,11 +396,11 @@ x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
 x_23 = l_Lean_indentExpr(x_19);
-x_24 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__5;
+x_24 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6;
 x_25 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_23);
-x_26 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7;
+x_26 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8;
 x_27 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
@@ -398,7 +408,7 @@ x_28 = l_Lean_indentExpr(x_21);
 x_29 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
-x_30 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9;
+x_30 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10;
 x_31 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
@@ -1637,7 +1647,7 @@ x_15 = l_Lean_indentExpr(x_2);
 x_16 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7;
+x_17 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8;
 x_18 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
@@ -1645,7 +1655,7 @@ x_19 = l_Lean_indentExpr(x_3);
 x_20 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9;
+x_21 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10;
 x_22 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
@@ -2315,7 +2325,7 @@ x_21 = l_Lean_indentExpr(x_2);
 x_22 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7;
+x_23 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8;
 x_24 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
@@ -2323,7 +2333,7 @@ x_25 = l_Lean_indentExpr(x_11);
 x_26 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);
-x_27 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9;
+x_27 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10;
 x_28 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
@@ -5510,7 +5520,7 @@ return x_53;
 }
 }
 }
-lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_945_(lean_object* x_1) {
+lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_933_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -5585,6 +5595,8 @@ l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8 = _init_l_Lean_Meta_t
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__8);
 l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9();
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__9);
+l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10 = _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10();
+lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__10);
 l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1 = _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1);
 l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2 = _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__2();
@@ -5603,7 +5615,7 @@ l_Lean_Meta_isTypeCorrect___closed__1 = _init_l_Lean_Meta_isTypeCorrect___closed
 lean_mark_persistent(l_Lean_Meta_isTypeCorrect___closed__1);
 l_Lean_Meta_isTypeCorrect___closed__2 = _init_l_Lean_Meta_isTypeCorrect___closed__2();
 lean_mark_persistent(l_Lean_Meta_isTypeCorrect___closed__2);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_945_(lean_io_mk_world());
+res = l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_933_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -52,7 +52,7 @@ instance : Monad (StateT σ m) := {
    map := StateT.map
 }
 
-@[inline] protected def orelse [Alternative m] {α : Type u} (x₁ x₂ : StateT σ m α) : StateT σ m α :=
+@[inline] protected def orElse [Alternative m] {α : Type u} (x₁ x₂ : StateT σ m α) : StateT σ m α :=
   fun s => x₁ s <|> x₂ s
 
 @[inline] protected def failure [Alternative m] {α : Type u} : StateT σ m α :=
@@ -60,7 +60,7 @@ instance : Monad (StateT σ m) := {
 
 instance [Alternative m] : Alternative (StateT σ m) := {
   failure := StateT.failure,
-  orelse  := StateT.orelse
+  orElse  := StateT.orElse
 }
 
 @[inline] protected def get : StateT σ m σ :=

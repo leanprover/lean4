@@ -181,8 +181,6 @@ inductive Expr
   | lit     : Literal → Data → Expr                   -- literals
   | mdata   : MData → Expr → Data → Expr              -- metadata
   | proj    : Name → Nat → Expr → Data → Expr         -- projection
-  -- IMPORTANT: the following constructor will be deleted
-  | localE  : Name → Name → Expr → Data → Expr        -- Lean2 legacy. TODO: delete
 
 namespace Expr
 
@@ -202,7 +200,6 @@ instance : Inhabited Expr :=
   | lit _ d         => d
   | mdata _ _ d     => d
   | proj _ _ _ d    => d
-  | localE _ _ _ d  => d
 
 def ctorName : Expr → String
   | bvar _ _        => "bvar"
@@ -217,7 +214,6 @@ def ctorName : Expr → String
   | lit _ _         => "lit"
   | mdata _ _ _     => "mdata"
   | proj _ _ _ _    => "proj"
-  | localE _ _ _ _  => "localE"
 
 protected def hash (e : Expr) : USize :=
   e.data.hash
@@ -341,10 +337,6 @@ def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) :
     (t.hasLevelParam || v.hasLevelParam || b.hasLevelParam)
     nonDep
 
--- TODO: delete
-def mkLocal (x u : Name) (t : Expr) (bi : BinderInfo) : Expr :=
-  Expr.localE x u t $ mkDataForBinder (mixHash 43 $ hash t) t.looseBVarRange true t.hasExprMVar t.hasLevelMVar t.hasLevelParam bi
-
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
 @[export lean_expr_mk_fvar] def mkFVarEx : FVarId → Expr := mkFVar
 @[export lean_expr_mk_mvar] def mkMVarEx : MVarId → Expr := mkMVar
@@ -357,7 +349,6 @@ def mkLocal (x u : Name) (t : Expr) (bi : BinderInfo) : Expr :=
 @[export lean_expr_mk_lit] def mkLitEx : Literal → Expr := mkLit
 @[export lean_expr_mk_mdata] def mkMDataEx : MData → Expr → Expr := mkMData
 @[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
-@[export lean_expr_mk_local] def mkLocalEx : Name → Name → Expr → BinderInfo → Expr := mkLocal
 
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
@@ -847,7 +838,6 @@ def isAutoParam (e : Expr) : Bool :=
     | Expr.letE _ t v b _    => visit t || visit v || visit b
     | Expr.app f a _         => visit f || visit a
     | Expr.proj _ _ e _      => visit e
-    | Expr.localE _ _ _ _    => unreachable!
     | e@(Expr.fvar fvarId _) => p fvarId
     | e                      => false
   visit e
@@ -966,7 +956,6 @@ def updateFn : Expr → Expr → Expr
     | mdata _ b _     => e.updateMData! (visit b)
     | const _ us _    => e.updateConst! (us.map (fun u => u.instantiateParams s))
     | sort u _        => e.updateSort! (u.instantiateParams s)
-    | localE ..       => unreachable!
     | e               => e
   visit e
 

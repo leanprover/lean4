@@ -32,6 +32,7 @@ lean_object* l_readThe___rarg___boxed(lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__3___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_adapt___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_Reader___instance__13___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_orElse___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_Reader___instance__11(lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Function_const___rarg___boxed(lean_object*, lean_object*);
@@ -51,12 +52,10 @@ lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__4(lean
 lean_object* l_ReaderT_run___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__3___rarg(lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__3(lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_orelse___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_Reader___instance__8___rarg(lean_object*, lean_object*);
 lean_object* l_readThe(lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_orelse(lean_object*, lean_object*);
 lean_object* l_ReaderT_tryFinally(lean_object*, lean_object*);
 lean_object* l_ReaderT_read(lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__3___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,6 +72,7 @@ lean_object* l_ReaderT_pure___rarg___boxed(lean_object*, lean_object*, lean_obje
 lean_object* l_ReaderT_map(lean_object*, lean_object*);
 lean_object* l_Init_Control_Reader___instance__10___closed__1;
 lean_object* l_Init_Control_Reader___instance__9(lean_object*, lean_object*);
+lean_object* l_ReaderT_orElse(lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_adapt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -244,7 +244,7 @@ lean_dec(x_4);
 return x_5;
 }
 }
-lean_object* l_ReaderT_orelse___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_ReaderT_orElse___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -258,11 +258,11 @@ x_9 = lean_apply_3(x_6, lean_box(0), x_7, x_8);
 return x_9;
 }
 }
-lean_object* l_ReaderT_orelse(lean_object* x_1, lean_object* x_2) {
+lean_object* l_ReaderT_orElse(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_ReaderT_orelse___rarg), 5, 0);
+x_3 = lean_alloc_closure((void*)(l_ReaderT_orElse___rarg), 5, 0);
 return x_3;
 }
 }
@@ -647,7 +647,7 @@ lean_dec(x_3);
 lean_inc(x_2);
 x_5 = lean_alloc_closure((void*)(l_ReaderT_failure___rarg___boxed), 3, 1);
 lean_closure_set(x_5, 0, x_2);
-x_6 = lean_alloc_closure((void*)(l_ReaderT_orelse___rarg), 5, 1);
+x_6 = lean_alloc_closure((void*)(l_ReaderT_orElse___rarg), 5, 1);
 lean_closure_set(x_6, 0, x_2);
 x_7 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_7, 0, x_4);

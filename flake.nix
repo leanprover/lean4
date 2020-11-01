@@ -20,10 +20,14 @@ export CCACHE_BASE_DIR=$NIX_BUILD_TOP
 [ -d $CCACHE_DIR ] || exec ${cc}/bin/$(basename "$0") "$@"
           '';
         };
-        lean = callPackage (import ./new.nix) {
+        lean = callPackage (import ./nix/bootstrap.nix) {
           stdenv = overrideCC stdenv cc;
+          inherit buildLeanPackage;
         };
-      in lean.stage1 // lean;
+        buildLeanPackage = callPackage (import ./nix/buildLeanPackage.nix) {
+          inherit (lean) stdenv lean leanc;
+        };
+      in lean.lean // lean // { inherit buildLeanPackage; };
 
     defaultPackage.x86_64-linux = self.packages.x86_64-linux.lean;
 

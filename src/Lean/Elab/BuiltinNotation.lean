@@ -80,15 +80,6 @@ open Meta
   | `(suffices $x : $type by $tac:tacticSeq; $body) => `(have $x:ident : $type from $body; by $tac:tacticSeq)
   | _                                           => Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Term.where] def expandWhere : Macro := fun stx =>
-  match_syntax stx with
-  | `($body where $decls:letDecl*) =>  do
-    let decls := decls.getEvenElems
-    decls.foldrM
-      (fun decl body => `(let $decl:letDecl; $body))
-      body
-  | _                      => Macro.throwUnsupported
-
 private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
   let (some declName) ← getDeclName?
     | throwError "invalid `parser!` macro, it must be used in definitions"

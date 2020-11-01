@@ -539,7 +539,6 @@ partial def check (e : Expr) : CheckAssignmentM Expr := do
   | Expr.lit ..          => return e
   | Expr.fvar ..         => visit (checkFVar check) e
   | Expr.mvar ..         => visit (checkMVar check) e
-  | Expr.localE ..       => unreachable!
   | Expr.app ..          => e.withApp fun f args => do
     let ctxMeta ← readThe Meta.Context
     if f.isMVar && ctxMeta.config.ctxApprox && args.all Expr.isFVar then
@@ -617,7 +616,6 @@ partial def check
             else if mvarDecl'.depth != mctx.depth || mvarDecl'.kind.isSyntheticOpaque then false  -- use CheckAssignment.check
             else if ctxApprox && mvarDecl.lctx.isSubPrefixOf mvarDecl'.lctx then false  -- use CheckAssignment.check
             else true
-    | Expr.localE .. => unreachable!
   visit e
 
 end CheckAssignmentQuick

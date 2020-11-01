@@ -95,10 +95,6 @@ class for_each_fn {
             case expr_kind::Proj:
                 todo.emplace_back(proj_expr(e), offset);
                 goto begin_loop;
-            case expr_kind::Local:
-                // TODO(Leo): delete after refactoring
-                todo.emplace_back(local_type(e), offset);
-                goto begin_loop;
             case expr_kind::App:
                 todo.emplace_back(app_arg(e), offset);
                 todo.emplace_back(app_fn(e), offset);

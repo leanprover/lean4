@@ -155,7 +155,6 @@ def getExprKind : DelabM Name := do
     | [(key, _)] => `mdata ++ key
     | _   => `mdata
   | Expr.proj _ _ _ _    => `proj
-  | Expr.localE _ _ _ _  => `localE
 
 /-- Evaluate option accessor, using subterm-specific options if set. Default to `true` if `pp.all` is set. -/
 def getPPOption (opt : Options → Bool) : DelabM Bool := do

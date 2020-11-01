@@ -136,7 +136,6 @@ def inferTypeImp (e : Expr) : MetaM Expr :=
     | e@(Expr.forallE _ _ _ _) => checkInferTypeCache e (inferForallType e)
     | e@(Expr.lam _ _ _ _)     => checkInferTypeCache e (inferLambdaType e)
     | e@(Expr.letE _ _ _ _ _)  => checkInferTypeCache e (inferLambdaType e)
-    | Expr.localE _ _ _ _      => unreachable!
   withTransparency TransparencyMode.default (infer e)
 
 @[builtinInit] def setInferTypeRef : IO Unit :=
@@ -195,7 +194,6 @@ partial def isPropQuick : Expr → MetaM LBool
   | Expr.fvar fvarId _    => do let fvarType  ← inferFVarType fvarId;  isArrowProp fvarType 0
   | Expr.mvar mvarId _    => do let mvarType  ← inferMVarType mvarId;  isArrowProp mvarType 0
   | Expr.app f _ _        => isPropQuickApp f 1
-  | Expr.localE _ _ _ _   => unreachable!
 
 /-- `isProp whnf e` return `true` if `e` is a proposition.
 
@@ -260,7 +258,7 @@ partial def isProofQuick : Expr → MetaM LBool
   | Expr.fvar fvarId _    => do let fvarType  ← inferFVarType fvarId;  isArrowProposition fvarType 0
   | Expr.mvar mvarId _    => do let mvarType  ← inferMVarType mvarId;  isArrowProposition mvarType 0
   | Expr.app f _ _        => isProofQuickApp f 1
-  | Expr.localE _ _ _ _   => unreachable!
+
 end
 
 private def isProofImp (e : Expr) : MetaM Bool := do
@@ -317,7 +315,6 @@ partial def isTypeQuick : Expr → MetaM LBool
   | Expr.fvar fvarId _    => do let fvarType  ← inferFVarType fvarId;  isArrowType fvarType 0
   | Expr.mvar mvarId _    => do let mvarType  ← inferMVarType mvarId;  isArrowType mvarType 0
   | Expr.app f _ _        => isTypeQuickApp f 1
-  | Expr.localE _ _ _ _   => unreachable!
 
 private def isTypeImp (e : Expr) : m Bool := liftMetaM do
   let r ← isTypeQuick e

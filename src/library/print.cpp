@@ -21,13 +21,10 @@ bool is_used_name(expr const & t, name const & n) {
     for_each(t, [&](expr const & e, unsigned) {
             if (found) return false; // already found
             if ((is_constant(e) && const_name(e).get_root() == n)  // t has a constant starting with n
-                || (is_fvar(e) && fvar_name(e) == n)
-                || (is_local(e) && (local_name(e) == n || local_pp_name(e) == n))) { // t has a local constant named n
+                || (is_fvar(e) && fvar_name(e) == n)) {
                 found = true;
                 return false; // found it
             }
-            if (is_local(e))
-                return false; // do not search their types
             return true; // continue search
         });
     return found;
@@ -75,7 +72,7 @@ pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
     lean_assert(is_binding(b));
     name n = cleanup_name(binding_name(b));
     n = pick_unused_name(binding_body(b), n);
-    expr c = mk_local(n, preserve_type ? binding_domain(b) : expr(), binding_info(b));
+    expr c = mk_fvar(n); // HACK
     return mk_pair(instantiate(binding_body(b), c), c);
 }
 
@@ -83,7 +80,7 @@ pair<expr, expr> let_body_fresh(expr const & b, bool preserve_type) {
     lean_assert(is_let(b));
     name n = cleanup_name(let_name(b));
     n = pick_unused_name(let_body(b), n);
-    expr c = mk_local(n, preserve_type ? let_type(b) : expr());
+    expr c = mk_fvar(n); // HACK
     return mk_pair(instantiate(let_body(b), c), c);
 }
 
@@ -114,7 +111,7 @@ struct print_expr_fn {
     std::ostream & out() { return m_out; }
 
     static bool is_atomic(expr const & a) {
-        if (::lean::is_atomic(a) || is_mlocal(a)) return true;
+        if (::lean::is_atomic(a)) return true;
         if (is_proj(a)) return is_atomic(proj_expr(a));
         return false;
     }
@@ -243,9 +240,6 @@ struct print_expr_fn {
         switch (a.kind()) {
         case expr_kind::MVar:
             out() << "?" << fix_name(mvar_name(a));
-            break;
-        case expr_kind::Local:
-            out() << fix_name(local_pp_name(a));
             break;
         case expr_kind::FVar:
             out() << fvar_name(a);

@@ -383,7 +383,6 @@ public:
         case expr_kind::Const: case expr_kind::Lit:
         case expr_kind::Pi:
             return false;
-        case expr_kind::Local:  lean_unreachable();
         default:
             break;
         }
@@ -568,7 +567,6 @@ public:
         case expr_kind::FVar:  case expr_kind::Sort:
         case expr_kind::Lit:   case expr_kind::Pi:
             return e;
-        case expr_kind::Local:  lean_unreachable();
         default:
             break;
         }

@@ -51,7 +51,6 @@ abbrev ReplaceM := StateM State
         | Expr.proj _ _ b _      => cache i e $ e.updateProj! (← visit b)
         | Expr.sort u _          => cache i e $ e.updateSort! (u.replace f?)
         | Expr.const n us _      => cache i e $ e.updateConst! (us.map (Level.replace f?))
-        | Expr.localE _ _ _ _    => unreachable!
         | e                      => pure e
   visit e
 

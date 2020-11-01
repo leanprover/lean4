@@ -87,12 +87,8 @@ inductive Expr
 | lit     : Literal → Expr                            -- literals
 | mdata   : MData → Expr → Expr                       -- metadata
 | proj    : Name → Nat → Expr → Expr                  -- projection
-
-| local   : Name → Name → Expr → BinderInfo → Expr    -- Lean2 local constants
 */
-enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj,
-                       /* Extra constructor used in legacy code. */
-                       Local };
+enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj };
 class expr : public object_ref {
     explicit expr(object_ref && o):object_ref(o) {}
 
@@ -108,8 +104,6 @@ class expr : public object_ref {
     friend expr mk_lambda(name const & n, expr const & t, expr const & e, binder_info bi);
     friend expr mk_pi(name const & n, expr const & t, expr const & e, binder_info bi);
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
-    /* legacy constructors */
-    friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi);
 public:
     expr();
     expr(expr const & other):object_ref(other) {}
@@ -345,27 +339,12 @@ inline bool is_var(expr const & e, unsigned idx) { return is_bvar(e, idx); }
 inline bool is_metavar(expr const & e) { return is_mvar(e); }
 inline bool is_metavar_app(expr const & e) { return is_mvar_app(e); }
 inline expr mk_metavar(name const & n) { return mk_mvar(n); }
-expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi);
-inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, mk_binder_info()); }
-inline expr mk_local(name const & n, expr const & t, binder_info bi) { return mk_local(n, n, t, bi); }
-inline bool is_local(expr const & e) { return e.kind() == expr_kind::Local; }
-inline name const & local_name(expr const & e) { lean_assert(is_local(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
-inline name const & local_pp_name(expr const & e) { lean_assert(is_local(e)); return static_cast<name const &>(cnstr_get_ref(e, 1)); }
-inline expr const & local_type(expr const & e) { lean_assert(is_local(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 inline expr mk_constant(name const & n, levels const & ls) { return mk_const(n, ls); }
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline bool is_constant(expr const & e) { return is_const(e); }
-expr update_local(expr const & e, expr const & new_type, binder_info bi);
-expr update_local(expr const & e, expr const & new_type);
-expr update_local(expr const & e, binder_info bi);
-binder_info local_info(expr const & e);
 inline expr update_constant(expr const & e, levels const & new_levels) { return update_const(e, new_levels); }
 /** \brief Similar to \c has_expr_metavar, but ignores metavariables occurring in local constant types.
     It also returns the meta-variable application found in \c e. */
 optional<expr> has_expr_metavar_strict(expr const & e);
 inline bool is_constant(expr const & e, name const & n) { return is_const(e, n); }
-inline bool is_mlocal(expr const & e) { return is_local(e) || is_metavar(e); }
-inline bool has_local(expr const & e) { return has_fvar(e); }
-inline bool is_local_or_fvar(expr const & e) { return e.kind() == expr_kind::Local || e.kind() == expr_kind::FVar; }
-inline name const & local_or_fvar_name(expr const & e) { lean_assert(is_local_or_fvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 }

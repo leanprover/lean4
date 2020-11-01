@@ -91,10 +91,6 @@ class replace_rec_fn {
                 expr new_e = apply(proj_expr(e), offset);
                 return save_result(e, offset, update_proj(e, new_e), shared);
             }
-            case expr_kind::Local: {
-                expr new_t = apply(local_type(e), offset); // TODO(Leo): delete after refactoring
-                return save_result(e, offset, update_local(e, new_t), shared);
-            }
             case expr_kind::App: {
                 expr new_f = apply(app_fn(e), offset);
                 expr new_a = apply(app_arg(e), offset);

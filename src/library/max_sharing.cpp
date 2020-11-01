@@ -92,9 +92,6 @@ struct max_sharing_fn::imp {
             res = update_let(a, new_t, new_v, new_b);
             break;
         }
-        case expr_kind::Local:
-            res = update_local(a, apply(local_type(a)));
-            break;
         }
         m_expr_cache.insert(res);
         return res;

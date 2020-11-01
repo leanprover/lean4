@@ -3,6 +3,7 @@ with builtins; rec {
   # "Init.Core" ~> "Init/Core.lean"
   modToLean = mod: replaceStrings ["."] ["/"] mod + ".lean";
   mkDerivation = args@{ buildCommand, ... }: derivation (args // {
+    inherit stdenv;
     inherit (stdenv) system;
     builder = stdenv.shell;
     args = [ "-c" ''
@@ -48,14 +49,14 @@ ${lean}/bin/lean --deps $src | ${gnused}/bin/sed "s!$LEAN_PATH/!!;s!/!.!g;s!.ole
     buildMod = mod: deps: let relpath = modToLean mod; in mkDerivation {
       name = "${mod}";
       LEAN_PATH = depRoot mod deps;
-      inherit relpath;
+      inherit lean relpath;
       outputs = [ "out" "c" ];
       src = src + ("/" + relpath);
       buildCommand = ''
         export PATH=${coreutils}/bin
         mkdir -p $(dirname $relpath) $out/$(dirname $relpath) $c
         cp $src $relpath
-        ${lean}/bin/lean -o $out/''${relpath%.lean}.olean -c $c/out.c $relpath
+        $lean/bin/lean -o $out/''${relpath%.lean}.olean -c $c/out.c $relpath
       '';
     } // {
       inherit deps;

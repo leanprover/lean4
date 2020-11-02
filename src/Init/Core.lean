@@ -92,12 +92,10 @@ def Not (a : Prop) : Prop := a → False
 inductive Eq {α : Sort u} (a : α) : α → Prop
   | refl {} : Eq a a
 
-@[elabAsEliminator, inline, reducible]
-def Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
+abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
   Eq.rec (motive := fun α _ => motive α) m h
 
-@[elabAsEliminator, inline, reducible]
-def Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : Eq a b) (m : motive a) : motive b :=
+abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : Eq a b) (m : motive a) : motive b :=
   Eq.ndrec m h
 
 /-
@@ -142,7 +140,6 @@ structure Iff (a b : Prop) : Prop :=
 
 @[matchPattern] def rfl {α : Sort u} {a : α} : a = a := Eq.refl a
 
-@[elabAsEliminator]
 theorem Eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
   Eq.ndrec h₂ h₁
 
@@ -456,7 +453,7 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
 
 /-- Like `by applyInstance`, but not dependent on the tactic framework. -/
 @[reducible] def inferInstance {α : Type u} [i : α] : α := i
-@[reducible, elabSimple] def inferInstanceAs (α : Type u) [i : α] : α := i
+@[reducible] def inferInstanceAs (α : Type u) [i : α] : α := i
 
 /- Boolean operators -/
 
@@ -520,7 +517,6 @@ theorem id.def {α : Sort u} (a : α) : id a = a := rfl
 @[macroInline] def Eq.mpr {α β : Sort u} (h : α = β) (b : β) : α :=
   h ▸ b
 
-@[elabAsEliminator]
 theorem Eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) (h₂ : p a) : p b :=
   h₁ ▸ h₂
 
@@ -601,11 +597,9 @@ theorem neTrueOfEqFalse : ∀ {b : Bool}, b = false → b ≠ true
 section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
-@[elabAsEliminator]
 theorem HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : a ≅ b) : motive b :=
   @HEq.rec α a (fun b _ => motive b) m β b h
 
-@[elabAsEliminator]
 theorem HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : a ≅ b) (m : motive a) : motive b :=
   @HEq.rec α a (fun b _ => motive b) m β b h
 
@@ -1130,14 +1124,12 @@ inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop
   | base  : ∀ a b, r a b → TC r a b
   | trans : ∀ a b c, TC r a b → TC r b c → TC r a c
 
-@[elabAsEliminator]
 theorem TC.ndrec {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
                 (m₁ : ∀ (a b : α), r a b → C a b)
                 (m₂ : ∀ (a b c : α), TC r a b → TC r b c → C a b → C b c → C a c)
                 {a b : α} (h : TC r a b) : C a b :=
   @TC.rec α r (fun a b _ => C a b) m₁ m₂ a b h
 
-@[elabAsEliminator]
 theorem TC.ndrecOn {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
                 {a b : α} (h : TC r a b)
                 (m₁ : ∀ (a b : α), r a b → C a b)
@@ -1341,8 +1333,6 @@ theorem iffSubst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a) 
 namespace Quot
 axiom sound : ∀ {α : Sort u} {r : α → α → Prop} {a b : α}, r a b → Quot.mk r a = Quot.mk r b
 
-attribute [elabAsEliminator] lift ind
-
 protected theorem liftBeta {α : Sort u} {r : α → α → Prop} {β : Sort v}
     (f : α → β)
     (c : (a b : α) → r a b → f a = f b)
@@ -1356,11 +1346,9 @@ protected theorem indBeta {α : Sort u} {r : α → α → Prop} {motive : Quot 
     : (ind p (Quot.mk r a) : motive (Quot.mk r a)) = p a :=
   rfl
 
-@[reducible, elabAsEliminator, inline]
-protected def liftOn {α : Sort u} {β : Sort v} {r : α → α → Prop} (q : Quot r) (f : α → β) (c : (a b : α) → r a b → f a = f b) : β :=
+protected abbrev liftOn {α : Sort u} {β : Sort v} {r : α → α → Prop} (q : Quot r) (f : α → β) (c : (a b : α) → r a b → f a = f b) : β :=
   lift f c q
 
-@[elabAsEliminator]
 protected theorem inductionOn {α : Sort u} {r : α → α → Prop} {motive : Quot r → Prop}
     (q : Quot r)
     (h : (a : α) → motive (Quot.mk r a))
@@ -1393,23 +1381,20 @@ protected theorem liftIndepPr1
  induction q using Quot.ind
  exact rfl
 
-@[reducible, elabAsEliminator, inline]
-protected def rec
+protected abbrev rec
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
     (q : Quot r) : motive q :=
   Eq.ndrecOn (Quot.liftIndepPr1 f h q) ((lift (Quot.indep f) (Quot.indepCoherent f h) q).2)
 
-@[reducible, elabAsEliminator, inline]
-protected def recOn
+protected abbrev recOn
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
     : motive q :=
  Quot.rec f h q
 
-@[reducible, elabAsEliminator, inline]
-protected def recOnSubsingleton
+protected abbrev recOnSubsingleton
     [h : (a : α) → Subsingleton (motive (Quot.mk r a))]
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
@@ -1418,8 +1403,7 @@ protected def recOnSubsingleton
   apply f
   apply Subsingleton.elim
 
-@[reducible, elabAsEliminator, inline]
-protected def hrecOn
+protected abbrev hrecOn
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
     (c : (a b : α) → (p : r a b) → f a ≅ f b)
@@ -1443,19 +1427,15 @@ protected def mk {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
 def sound {α : Sort u} [s : Setoid α] {a b : α} : a ≈ b → Quotient.mk a = Quotient.mk b :=
   Quot.sound
 
-@[reducible, elabAsEliminator]
-protected def lift {α : Sort u} {β : Sort v} [s : Setoid α] (f : α → β) : ((a b : α) → a ≈ b → f a = f b) → Quotient s → β :=
+protected abbrev lift {α : Sort u} {β : Sort v} [s : Setoid α] (f : α → β) : ((a b : α) → a ≈ b → f a = f b) → Quotient s → β :=
   Quot.lift f
 
-@[elabAsEliminator]
 protected theorem ind {α : Sort u} [s : Setoid α] {motive : Quotient s → Prop} : ((a : α) → motive (Quotient.mk a)) → (q : Quot Setoid.r) → motive q :=
   Quot.ind
 
-@[reducible, elabAsEliminator, inline]
-protected def liftOn {α : Sort u} {β : Sort v} [s : Setoid α] (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
+protected abbrev liftOn {α : Sort u} {β : Sort v} [s : Setoid α] (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
   Quot.liftOn q f c
 
-@[elabAsEliminator]
 protected theorem inductionOn {α : Sort u} [s : Setoid α] {motive : Quotient s → Prop}
     (q : Quotient s)
     (h : (a : α) → motive (Quotient.mk a))
@@ -1478,24 +1458,21 @@ protected def rec
     : motive q :=
   Quot.rec f h q
 
-@[reducible, elabAsEliminator, inline]
-protected def recOn
+protected abbrev recOn
     (q : Quotient s)
     (f : (a : α) → motive (Quotient.mk a))
     (h : (a b : α) → (p : a ≈ b) → Eq.ndrec (f a) (Quotient.sound p) = f b)
     : motive q :=
   Quot.recOn q f h
 
-@[reducible, elabAsEliminator, inline]
-protected def recOnSubsingleton
+protected abbrev recOnSubsingleton
     [h : (a : α) → Subsingleton (motive (Quotient.mk a))]
     (q : Quotient s)
     (f : (a : α) → motive (Quotient.mk a))
     : motive q :=
   Quot.recOnSubsingleton (h := h) q f
 
-@[reducible, elabAsEliminator, inline]
-protected def hrecOn
+protected abbrev hrecOn
     (q : Quotient s)
     (f : (a : α) → motive (Quotient.mk a))
     (c : (a b : α) → (p : a ≈ b) → f a ≅ f b)
@@ -1508,8 +1485,7 @@ universes uA uB uC
 variables {α : Sort uA} {β : Sort uB} {φ : Sort uC}
 variables [s₁ : Setoid α] [s₂ : Setoid β]
 
-@[reducible, elabAsEliminator, inline]
-protected def lift₂
+protected abbrev lift₂
     (f : α → β → φ)
     (c : (a₁ : α) → (b₁ : β) → (a₂ : α) → (b₂ : β) → a₁ ≈ a₂ → b₁ ≈ b₂ → f a₁ b₁ = f a₂ b₂)
     (q₁ : Quotient s₁) (q₂ : Quotient s₂)
@@ -1519,8 +1495,7 @@ protected def lift₂
   induction q₂ using Quotient.ind
   apply c; assumption; apply Setoid.refl
 
-@[reducible, elabAsEliminator, inline]
-protected def liftOn₂
+protected abbrev liftOn₂
     (q₁ : Quotient s₁)
     (q₂ : Quotient s₂)
     (f : α → β → φ)
@@ -1528,7 +1503,6 @@ protected def liftOn₂
     : φ :=
   Quotient.lift₂ f c q₁ q₂
 
-@[elabAsEliminator]
 protected theorem ind₂
     {motive : Quotient s₁ → Quotient s₂ → Prop}
     (h : (a : α) → (b : β) → motive (Quotient.mk a) (Quotient.mk b))
@@ -1539,7 +1513,6 @@ protected theorem ind₂
   induction q₂ using Quotient.ind
   apply h
 
-@[elabAsEliminator]
 protected theorem inductionOn₂
     {motive : Quotient s₁ → Quotient s₂ → Prop}
     (q₁ : Quotient s₁)
@@ -1550,7 +1523,6 @@ protected theorem inductionOn₂
   induction q₂ using Quotient.ind
   apply h
 
-@[elabAsEliminator]
 protected theorem inductionOn₃
     [s₃ : Setoid φ]
     {motive : Quotient s₁ → Quotient s₂ → Quotient s₃ → Prop}
@@ -1594,8 +1566,7 @@ universes uA uB uC
 variables {α : Sort uA} {β : Sort uB}
 variables [s₁ : Setoid α] [s₂ : Setoid β]
 
-@[reducible, elabAsEliminator]
-protected def recOnSubsingleton₂
+protected abbrev recOnSubsingleton₂
     {motive : Quotient s₁ → Quotient s₂ → Sort uC}
     [s : (a : α) → (b : β) → Subsingleton (motive (Quotient.mk a) (Quotient.mk b))]
     (q₁ : Quotient s₁)

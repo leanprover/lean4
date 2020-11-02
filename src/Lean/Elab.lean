@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Import
 import Lean.Elab.Exception
-import Lean.Elab.StrategyAttrs
 import Lean.Elab.Command
 import Lean.Elab.Term
 import Lean.Elab.App

@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr abstract(expr const & e, unsigned n, expr const * subst) {
-    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && is_local_or_fvar(e); }));
+    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && is_fvar(e); }));
     if (!has_fvar(e))
         return e;
     return replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {

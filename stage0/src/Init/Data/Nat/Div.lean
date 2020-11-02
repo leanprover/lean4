@@ -33,7 +33,6 @@ private theorem div.induction.F.{u}
         (x : Nat) (f : ∀ (x₁ : Nat), x₁ < x → ∀ (y : Nat), C x₁ y) (y : Nat) : C x y :=
   if h : 0 < y ∧ y ≤ x then h₁ x y h (f (x - y) (divRecLemma h) y) else h₂ x y h
 
-@[elabAsEliminator]
 theorem div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y : Nat)
@@ -57,7 +56,6 @@ private theorem modDefAux (x y : Nat) : x % y = if h : 0 < y ∧ y ≤ x then (x
 theorem modDef (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x :=
   difEqIf (0 < y ∧ y ≤ x) ((x - y) % y) x ▸ modDefAux x y
 
-@[elabAsEliminator]
 theorem mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y : Nat)

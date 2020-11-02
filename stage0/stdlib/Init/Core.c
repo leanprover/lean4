@@ -17,7 +17,6 @@ lean_object* l_Init_Core___instance__51(lean_object*, lean_object*);
 lean_object* l_strictAnd___boxed(lean_object*, lean_object*);
 uint8_t l_Init_Core___instance__17;
 lean_object* l_Init_Core___instance__8_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Quotient_recOnSubsingleton_u2082___at_Init_Core___instance__52___spec__1(lean_object*, lean_object*);
 lean_object* lean_thunk_map(lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__29___rarg(lean_object*, lean_object*);
 lean_object* l_condEq___rarg(uint8_t, lean_object*, lean_object*);
@@ -25,7 +24,6 @@ lean_object* l_Quotient_hrecOn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_lift(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__43_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_reduceBool(uint8_t);
-lean_object* l_Init_Core___instance__52___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_inline(lean_object*);
 lean_object* l_Quotient_lift_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__7_match__1(lean_object*, lean_object*, lean_object*);
@@ -73,6 +71,7 @@ lean_object* l_Init_Core___instance__5_match__1___rarg(lean_object*, lean_object
 lean_object* l_Subtype_Init_Core___instance__42_match__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__27___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_idDelta___rarg(lean_object*);
+lean_object* l_Init_Core___instance__52___boxed(lean_object*, lean_object*);
 lean_object* l_Quot_liftOn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_id___rarg___boxed(lean_object*);
 lean_object* l_Init_Core___instance__9(lean_object*, lean_object*);
@@ -124,7 +123,7 @@ uint8_t l_and(uint8_t, uint8_t);
 lean_object* l_Quot_rec___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_lift_u2082___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Task_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Init_Core___instance__52(lean_object*);
+lean_object* l_Init_Core___instance__52(lean_object*, lean_object*);
 lean_object* lean_thunk_pure(lean_object*);
 lean_object* l_Init_Core___instance__7(lean_object*, lean_object*);
 lean_object* l_Nat_prio___closed__1;
@@ -186,7 +185,7 @@ lean_object* l_flip___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__15(lean_object*);
 lean_object* l_Quotient_hrecOn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Subtype_Init_Core___instance__42_match__1___rarg(lean_object*, lean_object*);
-lean_object* l_Init_Core___instance__52___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Init_Core___instance__52___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__27_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_rec(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__45_match__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -331,7 +330,6 @@ lean_object* l_Decidable_byCases___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__13_loop(lean_object*);
 lean_object* l_prodHasDecidableLt(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_decidableOfDecidableOfIff___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Quotient_recOnSubsingleton_u2082___at_Init_Core___instance__52___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_flip(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__2;
 uint8_t l_Init_Core___instance__16;
@@ -394,7 +392,6 @@ lean_object* l_Quotient_recOn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Decidable_decide(lean_object*);
 lean_object* l_Quot_recOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_std_prec_maxPlus___closed__1;
-lean_object* l_Quotient_recOnSubsingleton_u2082___at_Init_Core___instance__52___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__9_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__45(lean_object*, lean_object*);
 lean_object* l_Quot_hrecOn___rarg(lean_object*, lean_object*, lean_object*);
@@ -4154,54 +4151,29 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* l_Quotient_recOnSubsingleton_u2082___at_Init_Core___instance__52___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Init_Core___instance__52___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_apply_2(x_3, x_1, x_2);
+x_4 = lean_apply_2(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* l_Quotient_recOnSubsingleton_u2082___at_Init_Core___instance__52___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Init_Core___instance__52(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Quotient_recOnSubsingleton_u2082___at_Init_Core___instance__52___spec__1___rarg), 3, 0);
+x_3 = lean_alloc_closure((void*)(l_Init_Core___instance__52___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_Init_Core___instance__52___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Init_Core___instance__52(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Init_Core___instance__52___rarg___boxed), 4, 0);
-return x_2;
-}
-}
-lean_object* l_Quotient_recOnSubsingleton_u2082___at_Init_Core___instance__52___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Init_Core___instance__52___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Quotient_recOnSubsingleton_u2082___at_Init_Core___instance__52___spec__1(x_1, x_2);
+x_3 = l_Init_Core___instance__52(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-lean_object* l_Init_Core___instance__52___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Init_Core___instance__52___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
-return x_5;
 }
 }
 lean_object* l___private_Init_Core_0__funSetoid(lean_object* x_1, lean_object* x_2) {

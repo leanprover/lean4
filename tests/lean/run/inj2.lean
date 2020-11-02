@@ -1,5 +1,3 @@
-
-
 universes u v
 
 inductive Vec2 (α : Type u) (β : Type v) : Nat → Type (max u v)
@@ -31,10 +29,10 @@ by {
 theorem test4 {α} (v : Fin2 0) : α :=
 by cases v
 
-def test5 {α β} {n} (v : Vec2 α β (n+1)) : α :=
-by cases v with
-   | cons h1 h2 n tail => exact h1
+def test5 {α β} {n} (v : Vec2 α β (n+1)) : α := by
+  cases v
+  | cons h1 h2 n tail => exact h1
 
-def test6 {α β} {n} (v : Vec2 α β (n+2)) : α :=
-by cases v with
-   | cons h1 h2 n tail => exact h1
+def test6 {α β} {n} (v : Vec2 α β (n+2)) : α := by
+  cases v
+  | cons h1 h2 n tail => exact h1

@@ -9,14 +9,14 @@ theorem ex1 (m : Nat) : Le m 0 → m = 0 := by
 
 theorem ex2 (m n : Nat) : Le m n → Le m.succ n.succ := by
   intro h
-  induction h with
+  induction h
   | base n => apply Le.base
   | succ n m ih =>
     apply Le.succ
     apply ih
 
 theorem ex3 (m : Nat) : Le 0 m := by
-  induction m with
+  induction m
   | zero => apply Le.base
   | succ m ih =>
     apply Le.succ
@@ -28,22 +28,22 @@ theorem ex4 (m : Nat) : ¬ Le m.succ 0 := by
 
 theorem ex5 {m n : Nat} : Le m n.succ → m = n.succ ∨ Le m n := by
   intro h
-  cases h with
+  cases h
   | base => apply Or.inl; rfl
   | succ => apply Or.inr; assumption
 
 theorem ex6 {m n : Nat} : Le m.succ n.succ → Le m n := by
   revert m
-  induction n with
+  induction n
   | zero =>
     intros m h;
-    cases h with
+    cases h
     | base => apply Le.base
     | succ n h => exact absurd h (ex4 _)
   | succ n ih =>
     intros m h
     have aux := ih (m := m)
-    cases ex5 h with
+    cases ex5 h
     | inl h =>
       injection h with h
       subst h
@@ -54,7 +54,7 @@ theorem ex6 {m n : Nat} : Le m.succ n.succ → Le m n := by
 
 theorem ex7 {m n o : Nat} : Le m n → Le n o → Le m o := by
   intro h
-  induction h with
+  induction h
   | base => intros; assumption
   | succ n s ih =>
     intro h₂
@@ -71,7 +71,7 @@ theorem ex8 {m n : Nat} : Le m.succ n → Le m n := by
 
 theorem ex9 {m n : Nat} : Le m n → m = n ∨ Le m.succ n := by
   intro h
-  cases h with
+  cases h
   | base => apply Or.inl; rfl
   | succ n s =>
     apply Or.inr
@@ -86,12 +86,12 @@ theorem ex10 (n : Nat) : ¬ Le n.succ n := by
 -/
 
 theorem ex10 (n : Nat) : n.succ ≠ n := by
-  induction n with
+  induction n
   | zero => intro h; injection h; done
   | succ n ih => intro h; injection h with h; apply ih h
 
 theorem ex11 (n : Nat) : ¬ Le n.succ n := by
-  induction n with
+  induction n
   | zero => intro h; cases h; done
   | succ n ih =>
     intro h
@@ -101,12 +101,12 @@ theorem ex11 (n : Nat) : ¬ Le n.succ n := by
 
 theorem ex12 (m n : Nat) : Le m n → Le n m → m = n := by
   revert m
-  induction n with
+  induction n
   | zero => intro m h1 h2; apply ex1; assumption; done
   | succ n ih =>
     intro m h1 h2
     have ih := ih m
-    cases ex5 h1 with
+    cases ex5 h1
     | inl h => assumption
     | inr h =>
       have ih := ih h

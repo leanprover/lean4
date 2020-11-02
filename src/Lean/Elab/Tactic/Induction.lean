@@ -29,7 +29,7 @@ private def elabMajor (h? : Option Name) (major : Syntax) : TacticM Expr := do
   | none   => withMainMVarContext $ elabTerm major none
   | some h => withMainMVarContext do
     let lctx ← getLCtx
-    let x := lctx.getUnusedName `x
+    let x ← mkFreshUserName `x
     let major ← elabTerm major none
     evalGeneralizeAux h? major x
     withMainMVarContext do
@@ -74,7 +74,7 @@ private def generalizeVars (stx : Syntax) (major : Expr) : TacticM Nat := do
     pure (fvarIds.size, [mvarId'])
 
 private def getAlts (withAlts : Syntax) : Array Syntax :=
-  withAlts[2].getSepArgs
+  withAlts[1].getSepArgs
 
 /-
   Given an `inductionAlt` of the form

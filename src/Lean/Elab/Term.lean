@@ -815,6 +815,16 @@ def tryPostponeIfNoneOrMVar (e? : Option Expr) : TermElabM Unit :=
   | some e => tryPostponeIfMVar e
   | none   => tryPostpone
 
+def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermElabM Expr := do
+  tryPostponeIfNoneOrMVar expectedType?
+  let some expectedType ← pure expectedType? |
+    throwError! "{msg}, expected type must be known"
+  let expectedType ← instantiateMVars expectedType
+  if expectedType.hasExprMVar then
+    tryPostpone
+    throwError! "{msg}, expected type contains metavariables{indentExpr expectedType}"
+  pure expectedType
+
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   trace[Elab.postpone]! "{stx} : {expectedType?}"
   let mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque

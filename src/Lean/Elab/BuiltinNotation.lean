@@ -358,13 +358,7 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
   | _ => throwError "unexpected parentheses notation"
 
 @[builtinTermElab subst] def elabSubst : TermElab := fun stx expectedType? => do
-  tryPostponeIfNoneOrMVar expectedType?
-  let some expectedType ← pure expectedType? |
-    throwError! "invalid `▸` notation, expected type must be known"
-  let expectedType ← instantiateMVars expectedType
-  if expectedType.hasExprMVar then
-    tryPostpone
-    throwError! "invalid `▸` notation, expected type contains metavariables{indentExpr expectedType}"
+  let expectedType ← tryPostponeIfHasMVars expectedType? "invalid `▸` notation"
   match_syntax stx with
   | `($heq ▸ $h) => do
      let heq ← elabTerm heq none

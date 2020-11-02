@@ -32,7 +32,7 @@ exact h
 
 -- Hygienic versions
 example {p q : Prop} (h₁ : p → q) (h₂ : p ∨ q) : q := by
-cases h₂ with
+cases h₂
 | inl h => apply h₁; exact h
 | inr h => exact h
 

@@ -14,3 +14,4 @@ import Lean.Meta.Tactic.Generalize
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.ElimInfo

@@ -31,17 +31,31 @@ private def mkEqAndProof (lhs rhs : Expr) : MetaM (Expr × Expr) := do
   else
     pure (mkApp4 (mkConst `HEq [u]) lhsType lhs rhsType rhs, mkApp2 (mkConst `HEq.refl [u]) lhsType lhs)
 
-private partial def withNewIndexEqs {α} (indices newIndices : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
+private partial def withNewEqs {α} (targets targetsNew : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
   let rec loop (i : Nat) (newEqs : Array Expr) (newRefls : Array Expr) := do
-    if h : i < indices.size then
-      let index    := indices[i]
-      let newIndex := newIndices[i]
-      let (newEqType, newRefl) ← mkEqAndProof index newIndex
-      withLocalDeclD `h newEqType $ fun newEq => do
-      loop (i+1) (newEqs.push newEq) (newRefls.push newRefl)
+    if h : i < targets.size then
+      let (newEqType, newRefl) ← mkEqAndProof targets[i] targetsNew[i]
+      withLocalDeclD `h newEqType fun newEq => do
+        loop (i+1) (newEqs.push newEq) (newRefls.push newRefl)
     else
       k newEqs newRefls
   loop 0 #[] #[]
+
+def generalizeTargets (mvarId : MVarId) (motiveType : Expr) (targets : Array Expr) : MetaM MVarId :=
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `generalizeTargets
+    let (typeNew, eqRefls) ←
+      forallTelescopeReducing motiveType fun targetsNew _ => do
+        unless targetsNew.size == targets.size do
+          throwError! "invalid number of targets #{targets.size}, motive expects #{targetsNew.size}"
+        withNewEqs targets targetsNew fun eqs eqRefls => do
+          let type    ← getMVarType mvarId
+          let typeNew ← mkForallFVars eqs type
+          let typeNew ← mkForallFVars targetsNew typeNew
+          pure (typeNew, eqRefls)
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar typeNew (← getMVarTag mvarId)
+    assignExprMVar mvarId (mkAppN (mkAppN mvarNew targets) eqRefls)
+    pure mvarNew.mvarId!
 
 structure GeneralizeIndicesSubgoal :=
   (mvarId         : MVarId)
@@ -50,6 +64,7 @@ structure GeneralizeIndicesSubgoal :=
   (numEqs         : Nat)
 
 /--
+  Similar to `generalizeTargets` but customized for the `casesOn` motive.
   Given a metavariable `mvarId` representing the
   ```
   Ctx, h : I A j, D |- T
@@ -82,7 +97,7 @@ def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndi
       forallTelescopeReducing IAType fun newIndices _ => do
       let newType := mkAppN IA newIndices
       withLocalDeclD fvarDecl.userName newType fun h' =>
-      withNewIndexEqs indices newIndices fun newEqs newRefls => do
+      withNewEqs indices newIndices fun newEqs newRefls => do
       let (newEqType, newRefl) ← mkEqAndProof fvarDecl.toExpr h'
       let newRefls := newRefls.push newRefl
       withLocalDeclD `h newEqType fun newEq => do
@@ -185,68 +200,76 @@ private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name
     { ctorName           := ctorName,
       toInductionSubgoal := s }
 
-private partial def unifyEqsAux : Nat → CasesSubgoal → MetaM (Option CasesSubgoal)
-  | 0,   s => do
-    trace[Meta.Tactic.cases]! "unifyEqs {MessageData.ofGoal s.mvarId}"
-    pure (some s)
-  | n+1, s => do
-    trace[Meta.Tactic.cases]! "unifyEqs [{n+1}] {MessageData.ofGoal s.mvarId}"
-    let (eqFVarId, mvarId) ← intro1 s.mvarId
+/- Convert heterogeneous equality into a homegeneous one -/
+private def heqToEq (mvarId : MVarId) (eqDecl : LocalDecl) : MetaM MVarId := do
+  /- Convert heterogeneous equality into a homegeneous one -/
+  let prf    ← mkEqOfHEq (mkFVar eqDecl.fvarId)
+  let aEqb   ← whnf (← inferType prf)
+  let mvarId ← assert mvarId eqDecl.userName aEqb prf
+  clear mvarId eqDecl.fvarId
+
+partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : MetaM (Option (MVarId × FVarSubst)) := do
+  if numEqs == 0 then
+    pure (some (mvarId, subst))
+  else
+    let (eqFVarId, mvarId) ← intro1 mvarId
     withMVarContext mvarId do
       let eqDecl ← getLocalDecl eqFVarId
-      match eqDecl.type.heq? with
-      | some (α, a, β, b) => do
-        let prf    ← mkEqOfHEq (mkFVar eqFVarId)
-        let aEqb   ← mkEq a b
-        let mvarId ← assert mvarId eqDecl.userName aEqb prf
-        let mvarId ← clear mvarId eqFVarId
-        unifyEqsAux (n+1) { s with mvarId := mvarId }
-      | none => match eqDecl.type.eq? with
+      if eqDecl.type.isHEq then
+        let mvarId ← heqToEq mvarId eqDecl
+        unifyEqs numEqs mvarId subst
+      else match eqDecl.type.eq? with
+        | none => throwError! "equality expected{indentExpr eqDecl.type}"
         | some (α, a, b) =>
-          let skip : Unit → MetaM (Option CasesSubgoal) := fun _ => do
-            let mvarId ← clear mvarId eqFVarId
-            unifyEqsAux n { s with mvarId := mvarId }
-          let substEq (symm : Bool) : MetaM (Option CasesSubgoal) := do
-            let (newSubst, mvarId) ← substCore mvarId eqFVarId symm s.subst
-            unifyEqsAux n {
-              s with
-              mvarId := mvarId,
-              subst  := newSubst,
-              fields := s.fields.map $ fun field => newSubst.apply field
-            }
-          let inj : Unit → MetaM (Option CasesSubgoal) := fun _ => do
-            let r ← injectionCore mvarId eqFVarId
-            match r with
-            | InjectionResultCore.solved                => pure none -- this alternative has been solved
-            | InjectionResultCore.subgoal mvarId numEqs => unifyEqsAux (n+numEqs) { s with mvarId := mvarId }
           if (← isDefEq a b) then
-            skip ()
+            /- Skip equality -/
+            unifyEqs (numEqs - 1) (← clear mvarId eqFVarId) subst
           else
-            let a' ← whnf a
-            let b' ← whnf b
-            if a' != a || b' != b then do
-              let prf := mkFVar eqFVarId
-              let aEqb'  ← mkEq a' b'
-              let mvarId ← assert mvarId eqDecl.userName aEqb' prf
-              let mvarId ← clear mvarId eqFVarId
-              unifyEqsAux (n+1) { s with mvarId := mvarId }
-            else
-              match a, b with
-              | Expr.fvar aFVarId _, Expr.fvar bFVarId _ => do
-                let aDecl ← getLocalDecl aFVarId
-                let bDecl ← getLocalDecl bFVarId
-                substEq (aDecl.index < bDecl.index)
-              | Expr.fvar _ _,       _                   => substEq false
-              | _,                   Expr.fvar _ _       => substEq true
-              | _,                   _                   => inj ()
-        | none => throwTacticEx `cases mvarId "equality expected"
+            -- Remark: we use `let rec` here because otherwise the compiler would generate an insane amount of code.
+            -- We can remove the `rec` after we fix the eagerly inlining issue in the compiler.
+            let rec substEq (symm : Bool) := do
+              /- TODO: support for acyclicity (e.g., `xs ≠ x :: xs`) -/
+              let (substNew, mvarId) ← substCore mvarId eqFVarId symm subst
+              unifyEqs (numEqs - 1) mvarId substNew
+            let rec injection (a b : Expr) := do
+              let env ← getEnv
+              if a.isConstructorApp env && b.isConstructorApp env then
+                /- ctor_i ... = ctor_j ... -/
+                match (← injectionCore mvarId eqFVarId) with
+                | InjectionResultCore.solved                   => pure none -- this alternative has been solved
+                | InjectionResultCore.subgoal mvarId numEqsNew => unifyEqs (numEqs - 1 + numEqsNew) mvarId subst
+              else
+                let a' ← whnf a
+                let b' ← whnf b
+                if a' != a || b' != b then
+                  /- Reduced lhs/rhs of current equality -/
+                  let prf := mkFVar eqFVarId
+                  let aEqb'  ← mkEq a' b'
+                  let mvarId ← assert mvarId eqDecl.userName aEqb' prf
+                  let mvarId ← clear mvarId eqFVarId
+                  unifyEqs numEqs mvarId subst
+                else
+                  throwError! "dependent elimination failed, stuck at auxiliary equation{eqDecl.type}"
+            match a, b with
+            | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
+              /- x = y -/
+              let aDecl ← getLocalDecl aFVarId
+              let bDecl ← getLocalDecl bFVarId
+              substEq (aDecl.index < bDecl.index)
+            | Expr.fvar .., _   => /- x = t -/ substEq (symm := false)
+            | _, Expr.fvar ..   => /- t = x -/ substEq (symm := true)
+            | a, b              => injection a b
 
-private def unifyEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
+private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
   subgoals.foldlM (init := #[]) fun subgoals s => do
-    let s? ← unifyEqsAux numEqs s
-    match s? with
-    | none   => pure $ subgoals
-    | some s => pure $ subgoals.push s
+    match (← unifyEqs numEqs s.mvarId s.subst) with
+    | none                 => pure subgoals
+    | some (mvarId, subst) =>
+      pure $ subgoals.push { s with
+        mvarId := mvarId,
+        subst  := subst,
+        fields := s.fields.map (subst.apply ·)
+      }
 
 private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Name)) (useUnusedNames : Bool) (ctx : Context)
     : MetaM (Array CasesSubgoal) := do
@@ -276,7 +299,7 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array (List Nam
         trace[Meta.Tactic.cases]! "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
         let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames useUnusedNames ctx
         let s₂ ← elimAuxIndices s₁ s₂
-        unifyEqs s₁.numEqs s₂
+        unifyCasesEqs s₁.numEqs s₂
 
 end Cases
 

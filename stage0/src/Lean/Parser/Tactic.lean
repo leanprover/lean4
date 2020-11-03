@@ -9,6 +9,10 @@ namespace Lean
 namespace Parser
 namespace Tactic
 
+-- Auxiliary parsing category just to expose the nonterminal `tacticSeq` to the `syntax` command
+builtin_initialize
+  registerBuiltinParserAttribute `builtinTacticSeqParser `tacticSeq
+
 def underscoreFn : ParserFn := fun c s =>
   let s   := symbolFn "_" c s;
   let stx := s.stxStack.back;
@@ -65,8 +69,8 @@ def inductionAlts : Parser := withPosition $ "| " >> sepBy1 inductionAlt (checkC
 def withAlts : Parser := optional inductionAlts
 def usingRec : Parser := optional (" using " >> ident)
 def generalizingVars := optional (" generalizing " >> many1 ident)
-@[builtinTacticParser] def «induction»  := parser! nonReservedSymbol "induction " >> majorPremise >> usingRec >> generalizingVars >> withAlts
-@[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> withAlts
+@[builtinTacticParser] def «induction»  := parser! nonReservedSymbol "induction " >> sepBy1 majorPremise ", " >> usingRec >> generalizingVars >> withAlts
+@[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> sepBy1 majorPremise ", " >> usingRec >> withAlts
 
 def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> altRHS
 def matchAlts : Parser := group $ withPosition $ (optional "| ") >> sepBy1 matchAlt (checkColGe "alternatives must be indented" >> "| ")

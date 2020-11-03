@@ -45,6 +45,12 @@ namespace Expr
   | Expr.forallE _ α β _ => if β.hasLooseBVars then none else some (α, β)
   | _                    => none
 
+def isEq (e : Expr) :=
+  e.isAppOfArity `Eq 3
+
+def isHEq (e : Expr) :=
+  e.isAppOfArity `HEq 4
+
 partial def listLit? (e : Expr) : Option (Expr × List Expr) :=
   let rec loop (e : Expr) (acc : List Expr) :=
     if e.isAppOfArity `List.nil 1 then
@@ -78,6 +84,9 @@ def isConstructorApp? (env : Environment) (e : Expr) : Option ConstructorVal :=
       | some v => if v.nparams + v.nfields == e.getAppNumArgs then some v else none
       | none   => none
     | _ => none
+
+def isConstructorApp (env : Environment) (e : Expr) : Bool :=
+  e.isConstructorApp? env $.isSome
 
 def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × Array Expr) :=
   match e with

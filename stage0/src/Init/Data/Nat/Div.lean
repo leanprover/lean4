@@ -77,9 +77,9 @@ theorem modEqOfLt {a b : Nat} (h : a < b) : a % b = a :=
   (modDef a b).symm ▸ this
 
 theorem modEqSubMod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
-  Or.elim (eqZeroOrPos b)
-    (fun h₁ => h₁.symm ▸ (Nat.subZero a).symm ▸ rfl)
-    (fun h₁ => (modDef a b).symm ▸ ifPos ⟨h₁, h⟩)
+  match eqZeroOrPos b with
+  | Or.inl h₁ => h₁.symm ▸ (Nat.subZero a).symm ▸ rfl
+  | Or.inr h₁ => (modDef a b).symm ▸ ifPos ⟨h₁, h⟩
 
 theorem modLt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
    refine mod.inductionOn (motive := fun x y => y > 0 → x % y < y) x y ?k1 ?k2

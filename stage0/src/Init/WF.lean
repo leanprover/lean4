@@ -134,12 +134,9 @@ def accessible {z : α} (ac : Acc r z) : Acc (TC r) z := by
   | intro x acx ih =>
     apply Acc.intro x
     intro y rel
-    revert acx ih
-    induction rel
-    | base a b rab => intro acx ih; exact ih a rab
-    | trans a b c rab rbc ih₁ ih₂ =>
-      intro acx ih
-      apply Acc.inv (ih₂ acx ih) rab
+    induction rel generalizing acx ih
+    | base a b rab => exact ih a rab
+    | trans a b c rab rbc ih₁ ih₂ => apply Acc.inv (ih₂ acx ih) rab
 
 def wf (h : WellFounded r) : WellFounded (TC r) :=
   ⟨fun a => accessible (apply h a)⟩
@@ -202,10 +199,8 @@ variables {α : Type u} {β : Type v}
 variables {ra  : α → α → Prop} {rb  : β → β → Prop}
 
 def lexAccessible {a} (aca : Acc ra a) (acb : ∀ b, Acc rb b) (b : β) : Acc (Lex ra rb) (a, b) := by
-  revert b
-  induction aca
+  induction aca generalizing b
   | intro xa aca iha =>
-    intro b
     induction (acb b)
     | intro xb acb ihb =>
       apply Acc.intro (xa, xb)
@@ -255,10 +250,8 @@ variables {α : Sort u} {β : α → Sort v}
 variables {r  : α → α → Prop} {s : ∀ (a : α), β a → β a → Prop}
 
 def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b : β a) : Acc (Lex r s) ⟨a, b⟩ := by
-  revert b
-  induction aca
+  induction aca generalizing b
   | intro xa aca iha =>
-    intro b
     induction (WellFounded.apply (acb xa) b)
     | intro xb acb ihb =>
       apply Acc.intro

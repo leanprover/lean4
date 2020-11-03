@@ -1,5 +1,3 @@
-
-
 universe u
 
 inductive Vec (α : Type u) : Nat → Type u
@@ -29,8 +27,9 @@ def fmin1 : {n : Nat} → (x y : F n) → F n
 def fmin2 : {n : Nat} → (x y : F n) → F n
 | _, fzero, fzero => fzero
 
-def fmin3 : {n : Nat} → (x y : F n) → F n
-| n+1, fzero, fzero => fzero
+-- TODO: uncomment after we implement smart unfolding
+-- def fmin3 : {n : Nat} → (x y : F n) → F n
+-- | n+1, fzero, fzero => fzero
 
 def fmin4 : {n : Nat} → (x y : F n) → F n
 | .(n+1), @fzero n, @fzero .(n) => fzero
@@ -44,8 +43,9 @@ def fmin6 : {n : Nat} → (x y : F n) → F n
 theorem ex1 (n : Nat) (x y : F n) : fmin1 x y = fmin2 x y :=
 rfl
 
-theorem ex2 (n : Nat) (x y : F n) : fmin1 x y = fmin3 x y := by
-cases x; exact rfl
+-- TODO: see comment above
+-- theorem ex2 (n : Nat) (x y : F n) : fmin1 x y = fmin3 x y := by
+-- cases x; exact rfl
 
 theorem ex3 (n : Nat) (x y : F n) : fmin1 x y = fmin4 x y :=
 rfl

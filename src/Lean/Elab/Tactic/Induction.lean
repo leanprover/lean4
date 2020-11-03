@@ -424,7 +424,7 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focusAux do
   let targets ← stx[1].getSepArgs.mapM fun target => do
-    let target ← elabTerm target none
+    let target ← withMainMVarContext $ elabTerm target none
     generalizeTerm target
   let n ← generalizeVars stx targets
   if targets.size == 1 then

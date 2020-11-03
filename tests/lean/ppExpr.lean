@@ -10,3 +10,12 @@ PrettyPrinter.ppExpr Name.anonymous [] e >>= IO.println
 
 #eval test (mkBVar 0)
 #eval test (mkLambda Name.anonymous BinderInfo.default (mkSort levelZero) (mkBVar 0))
+#eval test $
+  mkAppN (mkConst `id [levelZero]) #[
+    mkConst `Nat,
+    mkMData (KVMap.empty.set `pp.explicit true) $ mkAppN (mkConst `id [levelZero]) #[
+      mkConst `Nat,
+      mkAppN (mkConst `id [levelZero]) #[
+        mkConst `Nat,
+        mkConst `Nat.zero
+  ]]]

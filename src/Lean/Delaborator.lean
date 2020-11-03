@@ -376,9 +376,17 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
   if argStxs.isEmpty then pure fnStx else `($fnStx $argStxs*)
 
 @[builtinDelab mdata]
-def elabMData : Delab :=
-  -- ignore mdata by default
-  withMDataExpr delab
+def delabMData : Delab := do
+  -- only interpret `pp.` values by default
+  let Expr.mdata m _ _ ← getExpr | unreachable!
+  let posOpts := (← read).optionsPerPos
+  let pos := (← read).pos
+  for (k, v) in m do
+    if (`pp).isPrefixOf k then
+      let opts := posOpts.find? pos $.getD {}
+      posOpts := posOpts.insert pos (opts.insert k v)
+  withReader ({ · with optionsPerPos := posOpts }) $
+    withMDataExpr delab
 
 /--
 Check for a `Syntax.ident` of the given name anywhere in the tree.

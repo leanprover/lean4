@@ -193,11 +193,11 @@ private def getGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :=
       getFVarIds vars
 
 -- process `generalizingVars` subterm of induction Syntax `stx`.
-private def generalizeVars (stx : Syntax) (major : Expr) : TacticM Nat := do
+private def generalizeVars (stx : Syntax) (targets : Array Expr) : TacticM Nat := do
   let fvarIds ← getGeneralizingFVarIds stx
   liftMetaTacticAux fun mvarId => do
     let (fvarIds, mvarId') ← Meta.revert mvarId fvarIds
-    if fvarIds.contains major.fvarId! then
+    if targets.any fun target => fvarIds.contains target.fvarId! then
       Meta.throwTacticEx `induction mvarId "major premise depends on variable being generalized"
     pure (fvarIds.size, [mvarId'])
 
@@ -419,17 +419,30 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
       pure (mkFVar fvarId, [mvarId])
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focusAux do
-  let targets := stx[1].getSepArgs
+  let targets ← stx[1].getSepArgs.mapM fun target => do
+    let target ← elabTerm target none
+    generalizeTerm target
+  let n ← generalizeVars stx targets
   if targets.size == 1 then
-    let major ← withMainMVarContext $ elabTerm targets[0] none
-    let major ← generalizeTerm major
-    let n ← generalizeVars stx major
-    let recInfo ← getRecInfo stx major
+    let recInfo ← getRecInfo stx targets[0]
     let (mvarId, _) ← getMainGoal
-    let result ← Meta.induction mvarId major.fvarId! recInfo.recName recInfo.altVars
+    let result ← Meta.induction mvarId targets[0].fvarId! recInfo.recName recInfo.altVars
     processResult recInfo.altRHSs result (numToIntro := n)
   else
-    throwError! "WIP"
+    if stx[2].isNone then
+      throwError! "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>')"
+    let elimName := stx[2][1].getId
+    let elimInfo ← getElimInfo elimName
+    let (mvarId, _) ← getMainGoal
+    let tag ← getMVarTag mvarId
+    withMVarContext mvarId do
+      let result ← ElimApp.mkElimApp elimName elimInfo targets tag
+      assignExprMVar mvarId result.elimApp
+      let elimArgs := result.elimApp.getAppArgs
+      let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
+      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! (targets.map (·.fvarId!))
+      let withAlts := stx[4]
+      ElimApp.evalAlts elimInfo result.alts (getAlts withAlts) (numGeneralized := n)
 
 private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (altRHSs : Array Syntax) : TacticM Unit := do
   let rec loop (i j : Nat) : TacticM Unit :=

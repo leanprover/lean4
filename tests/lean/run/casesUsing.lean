@@ -77,3 +77,17 @@ theorem ex9 {α} (xs : List α) (h : xs = [] → False) : Nonempty α := by
   cases xs using List.rec
   | nil      => apply False.elim; apply h; rfl
   | cons x _ => apply Nonempty.intro; assumption
+
+theorem modLt (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
+  induction x, y using Nat.mod.inductionOn generalizing h
+  | ind x y h₁ ih =>
+    rw [Nat.modEqSubMod h₁.2]
+    exact ih h
+  | base x y h₁ =>
+    match Iff.mp (Decidable.notAndIffOrNot ..) h₁ with
+    | Or.inl h₁ => exact absurd h h₁
+    | Or.inr h₁ =>
+      have hgt := Nat.gtOfNotLe h₁
+      have heq := Nat.modEqOfLt hgt
+      rw [← heq] at hgt
+      assumption

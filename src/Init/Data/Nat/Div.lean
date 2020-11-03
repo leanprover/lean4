@@ -28,18 +28,18 @@ theorem divDef (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 e
 
 private theorem div.induction.F.{u}
         (C : Nat → Nat → Sort u)
-        (h₁ : ∀ x y, 0 < y ∧ y ≤ x → C (x - y) y → C x y)
-        (h₂ : ∀ x y, ¬(0 < y ∧ y ≤ x) → C x y)
+        (ind  : ∀ x y, 0 < y ∧ y ≤ x → C (x - y) y → C x y)
+        (base : ∀ x y, ¬(0 < y ∧ y ≤ x) → C x y)
         (x : Nat) (f : ∀ (x₁ : Nat), x₁ < x → ∀ (y : Nat), C x₁ y) (y : Nat) : C x y :=
-  if h : 0 < y ∧ y ≤ x then h₁ x y h (f (x - y) (divRecLemma h) y) else h₂ x y h
+  if h : 0 < y ∧ y ≤ x then ind x y h (f (x - y) (divRecLemma h) y) else base x y h
 
 theorem div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y : Nat)
-      (h₁ : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)
-      (h₂ : ∀ x y, ¬(0 < y ∧ y ≤ x) → motive x y)
+      (ind  : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)
+      (base : ∀ x y, ¬(0 < y ∧ y ≤ x) → motive x y)
       : motive x y :=
-  WellFounded.fix Nat.ltWf (div.induction.F motive h₁ h₂) x y
+  WellFounded.fix Nat.ltWf (div.induction.F motive ind base) x y
 
 private def mod.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
   if h : 0 < y ∧ y ≤ x then f (x - y) (divRecLemma h) y else x
@@ -58,11 +58,11 @@ theorem modDef (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else 
 
 theorem mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
-      (x y : Nat)
-      (h₁ : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)
-      (h₂ : ∀ x y, ¬(0 < y ∧ y ≤ x) → motive x y)
+      (x y  : Nat)
+      (ind  : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)
+      (base : ∀ x y, ¬(0 < y ∧ y ≤ x) → motive x y)
       : motive x y :=
-  div.inductionOn x y h₁ h₂
+  div.inductionOn x y ind base
 
 theorem modZero (a : Nat) : a % 0 = a :=
   have (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a from

@@ -409,8 +409,10 @@ protected theorem leTotal (m n : Nat) : m ≤ n ∨ n ≤ m :=
   | Or.inl h => Or.inl (Nat.leOfLt h)
   | Or.inr h => Or.inr h
 
-protected theorem ltOfLeAndNe {m n : Nat} (h1 : m ≤ n) : m ≠ n → m < n :=
-  resolveRight (Or.swap (Nat.eqOrLtOfLe h1))
+protected theorem ltOfLeAndNe {m n : Nat} (h₁ : m ≤ n) (h₂ : m ≠ n) : m < n :=
+  match Nat.eqOrLtOfLe h₁ with
+  | Or.inl h => absurd h h₂
+  | Or.inr h => h
 
 theorem eqZeroOfLeZero {n : Nat} (h : n ≤ 0) : n = 0 :=
   Nat.leAntisymm h (zeroLe _)

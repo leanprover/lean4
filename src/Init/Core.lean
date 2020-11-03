@@ -646,32 +646,9 @@ theorem castHEq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
 
 variables {a b c d : Prop}
 
-theorem And.elim (h₁ : a ∧ b) (h₂ : a → b → c) : c :=
-  h₂ h₁.1 h₁.2
-
-theorem And.swap : a ∧ b → b ∧ a :=
-  fun ⟨ha, hb⟩ => ⟨hb, ha⟩
-
-def And.symm := @And.swap
-
-theorem Or.elim (h₁ : a ∨ b) (h₂ : a → c) (h₃ : b → c) : c :=
-  match h₁ with
-  | Or.inl h => h₂ h
-  | Or.inr h => h₃ h
-
-theorem Or.swap (h : a ∨ b) : b ∨ a :=
-  Or.elim h Or.inr Or.inl
-
-def Or.symm :=
-  @Or.swap
-
 /- xor -/
 def Xor (a b : Prop) : Prop :=
   (a ∧ ¬ b) ∨ (b ∧ ¬ a)
-
-@[recursor 5]
-theorem Iff.elim (h₁ : (a → b) → (b → a) → c) (h₂ : a ↔ b) : c :=
-  h₁ h₂.1 h₂.2
 
 theorem Iff.left : (a ↔ b) → a → b :=
   Iff.mp
@@ -731,20 +708,6 @@ theorem notNotIntro (ha : a) : ¬¬a :=
 
 theorem notTrue : (¬ True) ↔ False :=
   iffFalseIntro (notNotIntro trivial)
-
-/- or resolution rulses -/
-
-theorem resolveLeft {a b : Prop} (h : a ∨ b) (na : ¬ a) : b :=
-  Or.elim h (fun ha => absurd ha na) id
-
-theorem negResolveLeft {a b : Prop} (h : ¬ a ∨ b) (ha : a) : b :=
-  Or.elim h (fun na => absurd ha na) id
-
-theorem resolveRight {a b : Prop} (h : a ∨ b) (nb : ¬ b) : a :=
-  Or.elim h id (fun hb => absurd hb nb)
-
-theorem negResolveRight {a b : Prop} (h : a ∨ ¬ b) (hb : b) : a :=
-  Or.elim h id (fun nb => absurd hb nb)
 
 /- Exists -/
 
@@ -845,7 +808,9 @@ theorem notAndIffOrNot (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : 
       | isTrue h₁,  isTrue h₂   => absurd (And.intro h₁ h₂) h
       | _,           isFalse h₂ => Or.inr h₂
       | isFalse h₁, _           => Or.inl h₁)
-    (fun (h) ⟨hp, hq⟩ => Or.elim h (fun h => h hp) (fun h => h hq))
+    (fun (h) ⟨hp, hq⟩ => match h with
+      | Or.inl h => h hp
+      | Or.inr h => h hq)
 
 end Decidable
 
@@ -869,9 +834,14 @@ variables {p q : Prop}
   else isFalse (fun h => hp (And.left h))
 
 @[macroInline] instance [Decidable p] [Decidable q] : Decidable (p ∨ q) :=
-  if hp : p then isTrue (Or.inl hp) else
-    if hq : q then isTrue (Or.inr hq) else
-      isFalse (fun h => Or.elim h hp hq)
+  if hp : p then
+    isTrue (Or.inl hp)
+  else if hq : q then
+    isTrue (Or.inr hq)
+  else
+    isFalse fun h => match h with
+      | Or.inl h => hp h
+      | Or.inr h => hq h
 
 instance [Decidable p] : Decidable (¬p) :=
   if hp : p then isFalse (absurd hp) else isTrue hp
@@ -884,20 +854,30 @@ instance [Decidable p] : Decidable (¬p) :=
 
 instance [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
   if hp : p then
-    if hq : q then isTrue ⟨fun _ => hq, fun _ => hp⟩
-    else isFalse $ fun h => hq (h.1 hp)
+    if hq : q then
+      isTrue ⟨fun _ => hq, fun _ => hp⟩
+    else
+      isFalse fun h => hq (h.1 hp)
   else
-    if hq : q then isFalse $ fun h => hp (h.2 hq)
-    else isTrue $ ⟨fun h => absurd h hp, fun h => absurd h hq⟩
+    if hq : q then
+      isFalse fun h => hp (h.2 hq)
+    else
+      isTrue ⟨fun h => absurd h hp, fun h => absurd h hq⟩
 
 instance [Decidable p] [Decidable q] : Decidable (Xor p q) :=
   if hp : p then
-    if hq : q then isFalse (fun h => Or.elim h (fun ⟨_, h⟩ => h hq : ¬(p ∧ ¬ q)) (fun ⟨_, h⟩ => h hp : ¬(q ∧ ¬ p)))
-    else isTrue $ Or.inl ⟨hp, hq⟩
+    if hq : q then
+      isFalse fun h => match h with
+        | Or.inl ⟨_, h⟩ => h hq
+        | Or.inr ⟨_, h⟩ => h hp
+    else
+      isTrue $ Or.inl ⟨hp, hq⟩
+  else if hq : q then
+    isTrue $ Or.inr ⟨hq, hp⟩
   else
-    if hq : q then isTrue $ Or.inr ⟨hq, hp⟩
-    else isFalse (fun h => Or.elim h (fun ⟨h, _⟩ => hp h : ¬(p ∧ ¬ q)) (fun ⟨h, _⟩ => hq h : ¬(q ∧ ¬ p)))
-
+    isFalse fun h => match h with
+      | Or.inl ⟨h, _⟩ => hp h
+      | Or.inr ⟨h, _⟩ => hq h
 end
 
 @[inline] instance {α : Sort u} [DecidableEq α] (a b : α) : Decidable (a ≠ b) :=
@@ -1743,18 +1723,16 @@ theorem em (p : Prop) : p ∨ ¬p :=
   have uDef : U u from chooseSpec exU;
   have vDef : V v from chooseSpec exV;
   have notUvOrP : u ≠ v ∨ p from
-    Or.elim uDef
-      (fun hut =>
-        Or.elim vDef
-          (fun hvf =>
-            have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse;
-            Or.inl hne)
-          Or.inr)
-      Or.inr;
+    match uDef, vDef with
+    | Or.inr h, _ => Or.inr h
+    | _, Or.inr h => Or.inr h
+    | Or.inl hut, Or.inl hvf =>
+      have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse
+      Or.inl hne
   have pImpliesUv : p → u = v from
     fun hp =>
     have hpred : U = V from
-      funext $ fun x =>
+      funext fun x =>
         have hl : (x = True ∨ p) → (x = False ∨ p) from
           fun a => Or.inr hp;
         have hr : (x = False ∨ p) → (x = True ∨ p) from
@@ -1763,10 +1741,10 @@ theorem em (p : Prop) : p ∨ ¬p :=
           propext (Iff.intro hl hr);
     have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV from
       hpred ▸ fun exU exV => rfl;
-    show u = v from h₀ _ _;
-  Or.elim notUvOrP
-    (fun (hne : u ≠ v) => Or.inr (mt pImpliesUv hne))
-    Or.inl
+    show u = v from h₀ ..;
+  match notUvOrP with
+  | Or.inl hne => Or.inr (mt pImpliesUv hne)
+  | Or.inr h   => Or.inl h
 
 theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → Exists (fun (x : α) => True)
   | ⟨x⟩ => ⟨x, trivial⟩
@@ -1779,9 +1757,9 @@ noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : Exists 
 
 /- all propositions are Decidable -/
 noncomputable def propDecidable (a : Prop) : Decidable a :=
-  choice $ Or.elim (em a)
-    (fun ha => ⟨isTrue ha⟩)
-    (fun hna => ⟨isFalse hna⟩)
+  choice $ match em a with
+    | Or.inl h => ⟨isTrue h⟩
+    | Or.inr h => ⟨isFalse h⟩
 
 noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) :=
   ⟨propDecidable a⟩
@@ -1825,9 +1803,9 @@ theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (�
   ⟨axiomOfChoice, fun ⟨f, hw⟩ (x) => ⟨f x, hw x⟩⟩
 
 theorem propComplete (a : Prop) : a = True ∨ a = False :=
-  Or.elim (em a)
-    (fun t => Or.inl (eqTrueIntro t))
-    (fun f => Or.inr (eqFalseIntro f))
+  match em a with
+  | Or.inl t => Or.inl (eqTrueIntro t)
+  | Or.inr f => Or.inr (eqFalseIntro f)
 
 -- this supercedes byCases in Decidable
 theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=

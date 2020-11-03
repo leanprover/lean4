@@ -25,7 +25,6 @@ extern lean_object* l_Lean_Level_LevelToFormat_Result_format___closed__5;
 lean_object* l_Lean_Parser_Level_addLit___closed__2;
 lean_object* l_Lean_Parser_Level_num_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Level_max_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
 lean_object* l_Lean_Parser_Level_paren___closed__2;
 lean_object* l_Lean_Parser_Level_num___closed__2;
 extern lean_object* l_Lean_identKind___closed__1;
@@ -79,6 +78,7 @@ lean_object* l_Lean_Parser_Level_paren___closed__3;
 lean_object* l_Lean_Parser_checkPrecFn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_max___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Level_paren___elambda__1___closed__2;
+extern lean_object* l_myMacro____x40_Init_Tactics___hyg_720____closed__3;
 lean_object* l_Lean_Parser_Level_num___closed__1;
 lean_object* l_Lean_Parser_Level_paren_formatter___closed__3;
 lean_object* l___regBuiltin_Lean_Parser_Level_max_formatter(lean_object*);
@@ -338,7 +338,7 @@ static lean_object* _init_l_Lean_Parser_Level_paren___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
+x_1 = l_myMacro____x40_Init_Tactics___hyg_720____closed__3;
 x_2 = l_Lean_Parser_Level_paren___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -583,7 +583,7 @@ static lean_object* _init_l_Lean_Parser_Level_paren_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
+x_1 = l_myMacro____x40_Init_Tactics___hyg_720____closed__3;
 x_2 = l_Lean_Parser_Level_paren___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -682,7 +682,7 @@ static lean_object* _init_l_Lean_Parser_Level_paren_parenthesizer___closed__1() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__3;
+x_1 = l_myMacro____x40_Init_Tactics___hyg_720____closed__3;
 x_2 = l_Lean_Parser_Level_paren___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);

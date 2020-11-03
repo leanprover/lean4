@@ -23,7 +23,8 @@ private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : Sta
       pure alt
     else if holeOrTacticSeq.isOfKind `Lean.Parser.Term.hole then
       let s ← get
-      let holeName := mkIdentFrom holeOrTacticSeq (parentTag ++ (`match).appendIndexAfter s.nextIdx)
+      let tag := if alts.size > 1 then parentTag ++ (`match).appendIndexAfter s.nextIdx else parentTag
+      let holeName := mkIdentFrom holeOrTacticSeq tag
       let newHole ← `(?$holeName:ident)
       modify fun s => { s with nextIdx := s.nextIdx + 1}
       pure $ alt.setArg 2 newHole

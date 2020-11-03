@@ -159,6 +159,9 @@ export KVMapVal (set)
 @[inline] def get {α : Type} [s : KVMapVal α] (m : KVMap) (k : Name) (defVal := s.defVal) : α :=
   KVMapVal.get m k defVal
 
+@[inline] def set {α : Type} [s : KVMapVal α] (m : KVMap) (k : Name) (v : α) : KVMap :=
+  KVMapVal.set m k v
+
 instance : KVMapVal Bool := {
   defVal := false,
   set := setBool,

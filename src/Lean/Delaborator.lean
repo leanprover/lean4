@@ -214,7 +214,8 @@ def withProj {α} (d : DelabM α) : DelabM α := do
 
 def withMDataExpr {α} (d : DelabM α) : DelabM α := do
   let Expr.mdata _ e _ ← getExpr | unreachable!
-  descend e 0 d
+  -- do not change position so that options on an mdata are automatically forwarded to the child
+  withReader ({ · with expr := e }) d
 
 partial def annotatePos (pos : Nat) : Syntax → Syntax
   | stx@(Syntax.ident _ _ _ _)                   => stx.setInfo { pos := pos }

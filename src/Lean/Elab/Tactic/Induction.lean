@@ -169,8 +169,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
         for fvarId in toClear do
           altMVarId ← tryClear altMVarId fvarId
         setGoals [altMVarId]
-        evalTactic altRhs
-        done
+        closeUsingOrAdmit altRhs
   if usedWildcard then
     altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_
   unless altsSyntax.isEmpty do
@@ -409,8 +408,7 @@ private def processResult (altRHSs : Array Syntax) (result : Array Meta.Inductio
         gs := gs ++ gs'
       else
         setGoals [mvarId]
-        evalTactic rhs
-        done
+        closeUsingOrAdmit rhs
     setGoals gs
 
 private def generalizeTerm (term : Expr) : TacticM Expr := do

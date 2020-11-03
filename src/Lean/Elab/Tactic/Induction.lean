@@ -30,8 +30,8 @@ private def getAltRHS (alt : Syntax) : Syntax := alt[3]
 namespace ElimApp
 
 structure Context :=
-  (elimInfo    : ElimInfo)
-  (targetTerms : Array Syntax) -- targets provided by the user
+  (elimInfo : ElimInfo)
+  (targets  : Array Expr) -- targets provided by the user
 
 structure State :=
   (argPos    : Nat := 0) -- current argument position
@@ -54,13 +54,6 @@ private def getBindingName : M Name := return (← get).fType.bindingName!
 /- Return the next argument expected type. This method assumes `fType` is a function type. -/
 private def getArgExpectedType : M Expr := return (← get).fType.bindingDomain!
 
-private def elabNextTarget : M Unit := do
-  unless (← get).targetPos < (← read).targetTerms.size do
-    throwError! "invalid 'eliminate', insufficient number of targets"
-  let target ← Term.elabTerm (← read).targetTerms[(← get).targetPos] (← getArgExpectedType)
-  modify fun s => { s with targetPos := s.targetPos + 1 }
-  addNewArg target
-
 private def getFType : M Expr := do
   let fType ← whnfForall (← get).fType
   modify fun s => { s with fType := fType }
@@ -70,7 +63,7 @@ structure Result :=
   (elimApp : Expr)
   (alts    : Array (Name × MVarId) := #[])
 
-partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targetTerms : Array Syntax) (tag : Name) : TermElabM Result := do
+partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) : TermElabM Result := do
   let rec loop : M Unit := do
     match (← getFType) with
     | Expr.forallE binderName _ _ c =>
@@ -81,7 +74,15 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targetTerms : Arr
         addNewArg motive
       else if ctx.elimInfo.targetsPos.contains argPos then
         if c.binderInfo.isExplicit then
-          elabNextTarget
+          let s ← get
+          let ctx ← read
+          unless s.targetPos < ctx.targets.size do
+            throwError! "invalid 'eliminate', insufficient number of targets"
+          let target := ctx.targets[s.targetPos]
+          let expectedType ← getArgExpectedType
+          let target ← Term.ensureHasType expectedType target
+          modify fun s => { s with targetPos := s.targetPos + 1 }
+          addNewArg target
         else
           let target ← mkFreshExprMVar (← getArgExpectedType)
           addNewArg target
@@ -102,7 +103,7 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targetTerms : Arr
       pure ()
   let f ← Term.mkConst elimName
   let fType ← inferType f
-  let (_, s) ← loop.run { elimInfo := elimInfo, targetTerms := targetTerms } $.run { f := f, fType := fType }
+  let (_, s) ← loop.run { elimInfo := elimInfo, targets := targets } $.run { f := f, fType := fType }
   Lean.Elab.Term.synthesizeAppInstMVars s.instMVars
   pure { elimApp := (← instantiateMVars s.f), alts := s.alts }
 
@@ -408,21 +409,20 @@ private def processResult (altRHSs : Array Syntax) (result : Array Meta.Inductio
         done
     setGoals gs
 
-private def generalizeMajor (major : Expr) : TacticM Expr := do
-  match major with
-  | Expr.fvar .. => pure major
+private def generalizeTerm (term : Expr) : TacticM Expr := do
+  match term with
+  | Expr.fvar .. => pure term
   | _ =>
     liftMetaTacticAux fun mvarId => do
-      mvarId ← Meta.generalize mvarId major `x false
+      mvarId ← Meta.generalize mvarId term `x false
       let (fvarId, mvarId) ← Meta.intro1 mvarId
       pure (mkFVar fvarId, [mvarId])
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focusAux do
   let targets := stx[1].getSepArgs
   if targets.size == 1 then
-    let target := targets[0]
-    let major ← withMainMVarContext $ elabTerm target none
-    let major ← generalizeMajor major
+    let major ← withMainMVarContext $ elabTerm targets[0] none
+    let major ← generalizeTerm major
     let n ← generalizeVars stx major
     let recInfo ← getRecInfo stx major
     let (mvarId, _) ← getMainGoal
@@ -466,39 +466,43 @@ private def getTargetHypothesisName? (target : Syntax) : Option Name :=
 private def getTargetTerm (target : Syntax) : Syntax :=
   target[1]
 
-private def elabMajor (h? : Option Name) (major : Syntax) : TacticM Expr := do
-  match h? with
-  | none   => withMainMVarContext $ elabTerm major none
-  | some h => withMainMVarContext do
-    let lctx ← getLCtx
-    let x ← mkFreshUserName `x
-    let major ← elabTerm major none
-    evalGeneralizeAux h? major x
-    withMainMVarContext do
+private def elabTaggedTerm (h? : Option Name) (termStx : Syntax) : TacticM Expr :=
+  withMainMVarContext $ withRef termStx do
+    let term ← elabTerm termStx none
+    match h? with
+    | none   => pure term
+    | some h =>
       let lctx ← getLCtx
-      match lctx.findFromUserName? x with
-      | some decl => pure decl.toExpr
-      | none      => throwError "failed to generalize"
+      let x ← mkFreshUserName `x
+      evalGeneralizeAux h? term x
+      withMainMVarContext do
+        let lctx ← getLCtx
+        match lctx.findFromUserName? x with
+        | some decl => pure decl.toExpr
+        | none      => throwError "failed to generalize"
+
+def elabTargets (targets : Array Syntax) : TacticM (Array Expr) :=
+  targets.mapM fun target => do
+    let h?    := getTargetHypothesisName? target
+    let term ← elabTaggedTerm h? (getTargetTerm target)
+    generalizeTerm term
 
 /- Default `cases` tactic that uses `casesOn` eliminator -/
-def evalCasesOn (target : Syntax) (withAlts : Syntax) : TacticM Unit := do
-  let h?    := getTargetHypothesisName? target
-  let major ← elabMajor h? (getTargetTerm target)
-  let major ← generalizeMajor major
+def evalCasesOn (target : Expr) (withAlts : Syntax) : TacticM Unit := do
   let (mvarId, _) ← getMainGoal
-  let (recInfo, ctorNames) ← getRecInfoDefault major withAlts true
-  let result ← Meta.cases mvarId major.fvarId! recInfo.altVars
+  let (recInfo, ctorNames) ← getRecInfoDefault target withAlts true
+  let result ← Meta.cases mvarId target.fvarId! recInfo.altVars
   checkCasesResult result ctorNames recInfo.altRHSs
   let result  := result.map (fun s => s.toInductionSubgoal)
   let altRHSs := recInfo.altRHSs.filter fun stx => !stx.isMissing
   processResult altRHSs result
 
-def evalCasesUsing (targets : Array Syntax) (elimName : Name) (withAlts : Syntax) : TacticM Unit := do
+def evalCasesUsing (elimName : Name) (targets : Array Expr) (withAlts : Syntax) : TacticM Unit := do
   let elimInfo ← getElimInfo elimName
   let (mvarId, _) ← getMainGoal
   let tag ← getMVarTag mvarId
   withMVarContext mvarId do
-    let result ← ElimApp.mkElimApp elimName elimInfo (targets.map (·[1])) tag
+    let result ← ElimApp.mkElimApp elimName elimInfo targets tag
     let elimArgs := result.elimApp.getAppArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
     let motiveType ← inferType elimArgs[elimInfo.motivePos]
@@ -511,14 +515,14 @@ def evalCasesUsing (targets : Array Syntax) (elimName : Name) (withAlts : Syntax
 
 @[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focusAux do
   -- parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> withAlts
-  let targets  := stx[1].getSepArgs
+  let targets ← elabTargets stx[1].getSepArgs
   let withAlts := stx[3]
   checkAlts withAlts
   if stx[2].isNone then
     unless targets.size == 1 do
-      throwErrorAt targets[1] "multiple targets are only supported when a user-defined eliminator is provided with 'using'"
+      throwErrorAt stx[1] "multiple targets are only supported when a user-defined eliminator is provided with 'using'"
     evalCasesOn targets[0] withAlts
   else
-    evalCasesUsing targets stx[2][1].getId withAlts
+    evalCasesUsing stx[2][1].getId targets withAlts
 
 end Lean.Elab.Tactic

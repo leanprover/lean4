@@ -47,3 +47,33 @@ theorem ex3 (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
     apply Or.inr
     rw time2Eq
     rfl
+
+def ex4 {α} (xs : List α) (h : xs = [] → False) : α := by
+  cases he:xs
+  | nil      => apply False.elim; exact h he; done
+  | cons x _ => exact x
+
+def ex5 {α} (xs : List α) (h : xs = [] → False) : α := by
+  cases he:xs using List.casesOn
+  | nil      => apply False.elim; exact h he; done
+  | cons x _ => exact x
+
+theorem ex6 {α} (f : List α → Bool) (h₁ : {xs : List α} → f xs = true → xs = []) (xs : List α) (h₂ : xs ≠ []) : f xs = false :=
+  match he:f xs with
+  | true  => False.elim (h₂ (h₁ he))
+  | false => rfl
+
+theorem ex7 {α} (f : List α → Bool) (h₁ : {xs : List α} → f xs = true → xs = []) (xs : List α) (h₂ : xs ≠ []) : f xs = false := by
+  cases he:f xs
+  | true  => exact False.elim (h₂ (h₁ he))
+  | false => rfl
+
+theorem ex8 {α} (f : List α → Bool) (h₁ : {xs : List α} → f xs = true → xs = []) (xs : List α) (h₂ : xs ≠ []) : f xs = false := by
+  cases he:f xs using Bool.casesOn
+  | true  => exact False.elim (h₂ (h₁ he))
+  | false => rfl
+
+theorem ex9 {α} (xs : List α) (h : xs = [] → False) : Nonempty α := by
+  cases xs using List.rec
+  | nil      => apply False.elim; apply h; rfl
+  | cons x _ => apply Nonempty.intro; assumption

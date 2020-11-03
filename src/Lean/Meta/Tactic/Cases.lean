@@ -222,33 +222,37 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : Meta
             /- Skip equality -/
             unifyEqs (numEqs - 1) (← clear mvarId eqFVarId) subst
           else
-            let a' ← whnf a
-            let b' ← whnf b
-            if a' != a || b' != b then
-              /- Reduced lhs/rhs of current equality -/
-              let prf := mkFVar eqFVarId
-              let aEqb'  ← mkEq a' b'
-              let mvarId ← assert mvarId eqDecl.userName aEqb' prf
-              let mvarId ← clear mvarId eqFVarId
-              unifyEqs numEqs mvarId subst
-            else
-              let substEq (symm : Bool) := do
-                /- TODO: support for acyclicity (e.g., `xs ≠ x :: xs`) -/
-                let (substNew, mvarId) ← substCore mvarId eqFVarId symm subst
-                unifyEqs (numEqs - 1) mvarId substNew
-              match a, b with
-              | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
-                /- x = y -/
-                let aDecl ← getLocalDecl aFVarId
-                let bDecl ← getLocalDecl bFVarId
-                substEq (aDecl.index < bDecl.index)
-              | Expr.fvar .., _   => /- x = t -/ substEq (symm := false)
-              | _, Expr.fvar ..   => /- t = x -/ substEq (symm := true)
-              | _, _              =>
-                /- t = s -/
+            let substEq (symm : Bool) := do
+              /- TODO: support for acyclicity (e.g., `xs ≠ x :: xs`) -/
+              let (substNew, mvarId) ← substCore mvarId eqFVarId symm subst
+              unifyEqs (numEqs - 1) mvarId substNew
+            match a, b with
+            | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
+              /- x = y -/
+              let aDecl ← getLocalDecl aFVarId
+              let bDecl ← getLocalDecl bFVarId
+              substEq (aDecl.index < bDecl.index)
+            | Expr.fvar .., _   => /- x = t -/ substEq (symm := false)
+            | _, Expr.fvar ..   => /- t = x -/ substEq (symm := true)
+            | _, _              =>
+              let env ← getEnv
+              if a.isConstructorApp env && b.isConstructorApp env then
+                /- ctor_i ... = ctor_j ... -/
                 match (← injectionCore mvarId eqFVarId) with
                 | InjectionResultCore.solved                   => pure none -- this alternative has been solved
                 | InjectionResultCore.subgoal mvarId numEqsNew => unifyEqs (numEqs - 1 + numEqsNew) mvarId subst
+              else
+                let a' ← whnf a
+                let b' ← whnf b
+                if a' != a || b' != b then
+                  /- Reduced lhs/rhs of current equality -/
+                  let prf := mkFVar eqFVarId
+                  let aEqb'  ← mkEq a' b'
+                  let mvarId ← assert mvarId eqDecl.userName aEqb' prf
+                  let mvarId ← clear mvarId eqFVarId
+                  unifyEqs numEqs mvarId subst
+                else
+                  throwError! "dependent elimination failed, stuck at auxiliary equation{eqDecl.type}"
 
 private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
   subgoals.foldlM (init := #[]) fun subgoals s => do

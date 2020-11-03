@@ -79,6 +79,9 @@ def isConstructorApp? (env : Environment) (e : Expr) : Option ConstructorVal :=
       | none   => none
     | _ => none
 
+def isConstructorApp (env : Environment) (e : Expr) : Bool :=
+  e.isConstructorApp? env $.isSome
+
 def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × Array Expr) :=
   match e with
   | Expr.lit (Literal.natVal n) _ =>

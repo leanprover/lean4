@@ -130,6 +130,10 @@ def setBool (m : KVMap) (k : Name) (v : Bool) : KVMap :=
 def setName (m : KVMap) (k : Name) (v : Name) : KVMap :=
   m.insert k (DataValue.ofName v)
 
+@[inline] def forIn.{w, w'} {δ : Type w} {m : Type w → Type w'} [Monad m]
+  (kv : KVMap) (init : δ) (f : Name × DataValue → δ → m (ForInStep δ)) : m δ :=
+  kv.entries.forIn init f
+
 def subsetAux : List (Name × DataValue) → KVMap → Bool
   | [],          m₂ => true
   | (k, v₁)::m₁, m₂ =>

@@ -66,7 +66,7 @@ def withAlts : Parser := optional inductionAlts
 def usingRec : Parser := optional (" using " >> ident)
 def generalizingVars := optional (" generalizing " >> many1 ident)
 @[builtinTacticParser] def «induction»  := parser! nonReservedSymbol "induction " >> majorPremise >> usingRec >> generalizingVars >> withAlts
-@[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
+@[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> withAlts
 
 def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> altRHS
 def matchAlts : Parser := group $ withPosition $ (optional "| ") >> sepBy1 matchAlt (checkColGe "alternatives must be indented" >> "| ")

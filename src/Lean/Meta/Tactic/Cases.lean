@@ -200,6 +200,14 @@ private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name
     { ctorName           := ctorName,
       toInductionSubgoal := s }
 
+/- Convert heterogeneous equality into a homegeneous one -/
+private def heqToEq (mvarId : MVarId) (eqDecl : LocalDecl) : MetaM MVarId := do
+  /- Convert heterogeneous equality into a homegeneous one -/
+  let prf    ← mkEqOfHEq (mkFVar eqDecl.fvarId)
+  let aEqb   ← whnf (← inferType prf)
+  let mvarId ← assert mvarId eqDecl.userName aEqb prf
+  clear mvarId eqDecl.fvarId
+
 partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : MetaM (Option (MVarId × FVarSubst)) := do
   if numEqs == 0 then
     pure (some (mvarId, subst))
@@ -207,34 +215,23 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : Meta
     let (eqFVarId, mvarId) ← intro1 mvarId
     withMVarContext mvarId do
       let eqDecl ← getLocalDecl eqFVarId
-      match eqDecl.type.heq? with
-      | some (α, a, β, b) => do
-        /- Convert heterogeneous equality into a homegeneous one -/
-        let prf    ← mkEqOfHEq (mkFVar eqFVarId)
-        let aEqb   ← mkEq a b
-        let mvarId ← assert mvarId eqDecl.userName aEqb prf
-        let mvarId ← clear mvarId eqFVarId
+      if eqDecl.type.isHEq then
+        let mvarId ← heqToEq mvarId eqDecl
         unifyEqs numEqs mvarId subst
-      | none => match eqDecl.type.eq? with
+      else match eqDecl.type.eq? with
         | none => throwError! "equality expected{indentExpr eqDecl.type}"
         | some (α, a, b) =>
           if (← isDefEq a b) then
             /- Skip equality -/
             unifyEqs (numEqs - 1) (← clear mvarId eqFVarId) subst
           else
-            let substEq (symm : Bool) := do
+            -- Remark: we use `let rec` here because otherwise the compiler would generate an insane amount of code.
+            -- We can remove the `rec` after we fix the eagerly inlining issue in the compiler.
+            let rec substEq (symm : Bool) := do
               /- TODO: support for acyclicity (e.g., `xs ≠ x :: xs`) -/
               let (substNew, mvarId) ← substCore mvarId eqFVarId symm subst
               unifyEqs (numEqs - 1) mvarId substNew
-            match a, b with
-            | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
-              /- x = y -/
-              let aDecl ← getLocalDecl aFVarId
-              let bDecl ← getLocalDecl bFVarId
-              substEq (aDecl.index < bDecl.index)
-            | Expr.fvar .., _   => /- x = t -/ substEq (symm := false)
-            | _, Expr.fvar ..   => /- t = x -/ substEq (symm := true)
-            | _, _              =>
+            let rec injection (a b : Expr) := do
               let env ← getEnv
               if a.isConstructorApp env && b.isConstructorApp env then
                 /- ctor_i ... = ctor_j ... -/
@@ -253,6 +250,15 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) : Meta
                   unifyEqs numEqs mvarId subst
                 else
                   throwError! "dependent elimination failed, stuck at auxiliary equation{eqDecl.type}"
+            match a, b with
+            | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
+              /- x = y -/
+              let aDecl ← getLocalDecl aFVarId
+              let bDecl ← getLocalDecl bFVarId
+              substEq (aDecl.index < bDecl.index)
+            | Expr.fvar .., _   => /- x = t -/ substEq (symm := false)
+            | _, Expr.fvar ..   => /- t = x -/ substEq (symm := true)
+            | a, b              => injection a b
 
 private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
   subgoals.foldlM (init := #[]) fun subgoals s => do

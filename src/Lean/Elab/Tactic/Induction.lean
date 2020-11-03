@@ -328,8 +328,8 @@ private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ct
 
 /- Default `cases` tactic that uses `casesOn` eliminator -/
 def evalCasesOn (target : Syntax) (withAlts : Syntax) : TacticM Unit := do
-  let h?    := if target[0][0].isNone then none else some target[0][0][0].getId
-  let major ← elabMajor h? target[0][1]
+  let h?    := if target[0].isNone then none else some target[0][0].getId
+  let major ← elabMajor h? target[1]
   let major ← generalizeMajor major
   let (mvarId, _) ← getMainGoal
   let (recInfo, ctorNames) ← getRecInfoDefault major withAlts true
@@ -424,7 +424,7 @@ def eval (targets : Array Syntax) (elimName : Name) (withAlts : Syntax) : Tactic
   let elimInfo ← getElimInfo elimName
   let (mvarId, rest) ← getMainGoal
   withMVarContext mvarId do
-    let result ← processArgs elimName elimInfo (targets.map (·[0][1]))
+    let result ← processArgs elimName elimInfo (targets.map (·[1]))
     let elimArgs := result.elim.getAppArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
     let motiveType ← inferType elimArgs[elimInfo.motivePos]

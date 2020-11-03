@@ -21,7 +21,7 @@ private def getAuxHypothesisName (stx : Syntax) : Option Name :=
   else
     some stx[1][0][0].getId
 
-private def getMajor (stx : Syntax) : Syntax :=
+private def getInductionMajor (stx : Syntax) : Syntax :=
   stx[1][1]
 
 private def elabMajor (h? : Option Name) (major : Syntax) : TacticM Expr := do
@@ -244,7 +244,7 @@ private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRe
 def isHoleRHS (rhs : Syntax) : Bool :=
   rhs.isOfKind `Lean.Parser.Term.syntheticHole || rhs.isOfKind `Lean.Parser.Term.hole
 
-private def processResult (altRHSs : Array Syntax) (result : Array Meta.InductionSubgoal) : TacticM Unit := do
+private def processResult (altRHSs : Array Syntax) (result : Array Meta.InductionSubgoal) (numToIntro : Nat := 0) : TacticM Unit := do
   if altRHSs.isEmpty then
     setGoals $ result.toList.map fun s => s.mvarId
   else
@@ -256,6 +256,8 @@ private def processResult (altRHSs : Array Syntax) (result : Array Meta.Inductio
       let rhs     := altRHSs[i]
       let ref     := rhs
       let mvarId  := subgoal.mvarId
+      if numToIntro > 0 then
+        (_, mvarId) ← introNP mvarId numToIntro
       if isHoleRHS rhs then
         let gs' ← withMVarContext mvarId $ withRef rhs do
           let mvarDecl ← getMVarDecl mvarId
@@ -274,13 +276,13 @@ private def processResult (altRHSs : Array Syntax) (result : Array Meta.Inductio
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focusAux do
   let h? := getAuxHypothesisName stx
-  let major ← elabMajor h? (getMajor stx)
+  let major ← elabMajor h? (getInductionMajor stx)
   let major ← generalizeMajor major
   let n ← generalizeVars stx major
   let recInfo ← getRecInfo stx major
   let (mvarId, _) ← getMainGoal
   let result ← Meta.induction mvarId major.fvarId! recInfo.recName recInfo.altVars
-  processResult recInfo.altRHSs result
+  processResult recInfo.altRHSs result (numToIntro := n)
 
 private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (altRHSs : Array Syntax) : TacticM Unit := do
   let rec loop (i j : Nat) : TacticM Unit :=
@@ -307,17 +309,24 @@ private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ct
     loop 0 0
 
 @[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focusAux do
-  -- parser! nonReservedSymbol "cases " >> majorPremise >> withAlts
-  let h? := getAuxHypothesisName stx
-  let major ← elabMajor h? (getMajor stx)
-  let major ← generalizeMajor major
-  let (mvarId, _) ← getMainGoal
-  let withAlts := stx[2]
-  let (recInfo, ctorNames) ← getRecInfoDefault major withAlts true
-  let result ← Meta.cases mvarId major.fvarId! recInfo.altVars
-  checkCasesResult result ctorNames recInfo.altRHSs
-  let result  := result.map (fun s => s.toInductionSubgoal)
-  let altRHSs := recInfo.altRHSs.filter fun stx => !stx.isMissing
-  processResult altRHSs result
+  -- parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> withAlts
+  let targets := stx[1].getSepArgs
+  if !stx[2].isNone then
+    throwError! "'using' has not been implemented yet"
+  else
+    unless targets.size == 1 do
+      throwErrorAt targets[1] "multiple targets are only supported when a user-defined eliminator is provided with 'using'"
+    let target := targets[0]
+    let h?    := if target[0][0].isNone then none else some target[0][0][0].getId
+    let major ← elabMajor h? target[0][1]
+    let major ← generalizeMajor major
+    let (mvarId, _) ← getMainGoal
+    let withAlts := stx[3]
+    let (recInfo, ctorNames) ← getRecInfoDefault major withAlts true
+    let result ← Meta.cases mvarId major.fvarId! recInfo.altVars
+    checkCasesResult result ctorNames recInfo.altRHSs
+    let result  := result.map (fun s => s.toInductionSubgoal)
+    let altRHSs := recInfo.altRHSs.filter fun stx => !stx.isMissing
+    processResult altRHSs result
 
 end Lean.Elab.Tactic

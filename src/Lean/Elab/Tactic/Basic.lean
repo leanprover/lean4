@@ -34,17 +34,21 @@ instance : Inhabited State := ⟨{ goals := [] }⟩
 structure BacktrackableState :=
   (env   : Environment)
   (mctx  : MetavarContext)
+  (term  : Term.State)
   (goals : List MVarId)
 
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
 def saveBacktrackableState : TacticM BacktrackableState := do
-  pure { env := (← getEnv), mctx := (← getMCtx), goals := (← get).goals }
+  pure { env := (← getEnv), mctx := (← getMCtx), term := (← getThe Term.State), goals := (← get).goals }
 
 def BacktrackableState.restore (b : BacktrackableState) : TacticM Unit := do
   setEnv b.env
   setMCtx b.mctx
+  let msgLog ← Term.getMessageLog -- we do not backtrack the message log
+  set b.term
+  Term.setMessageLog msgLog
   modify fun s => { s with goals := b.goals }
 
 @[inline] protected def tryCatch {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do

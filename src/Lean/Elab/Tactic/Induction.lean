@@ -125,7 +125,7 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
   throwError! "unknown alternative name '{altName}'"
 
 def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax)
-    (numEqs : Nat := 0) (numGeneralized : Nat := 0) : TacticM Unit := do
+    (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
   let usedWildcard := false
   let hasAlts      := altsSyntax.size > 0
   let subgoals     := #[] -- when alternatives are not provided, we accumulate subgoals here
@@ -152,6 +152,8 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
         if !hasAlts then
           -- User did not provide alternatives using `|`
           let (_, altMVarId) ← introNP altMVarId numGeneralized
+          for fvarId in toClear do
+            altMVarId ← tryClear altMVarId fvarId
           trace[Meta.debug]! "new subgoal {MessageData.ofGoal altMVarId}"
           subgoals := subgoals.push altMVarId
         else
@@ -164,6 +166,8 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
       | none   => throwError! "alternative '{altName}' is not needed"
       | some (altMVarId, _) =>
         let (_, altMVarId) ← introNP altMVarId numGeneralized
+        for fvarId in toClear do
+          altMVarId ← tryClear altMVarId fvarId
         setGoals [altMVarId]
         evalTactic altRhs
         done
@@ -440,9 +444,10 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
       assignExprMVar mvarId result.elimApp
       let elimArgs := result.elimApp.getAppArgs
       let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
-      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! (targets.map (·.fvarId!))
+      let targetFVarIds := targets.map (·.fvarId!)
+      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
       let withAlts := stx[4]
-      ElimApp.evalAlts elimInfo result.alts (getAlts withAlts) (numGeneralized := n)
+      ElimApp.evalAlts elimInfo result.alts (getAlts withAlts) (numGeneralized := n) (toClear := targetFVarIds)
 
 private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (altRHSs : Array Syntax) : TacticM Unit := do
   let rec loop (i j : Nat) : TacticM Unit :=

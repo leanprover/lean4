@@ -187,7 +187,7 @@ def ellipsis       := parser! ".."
 @[builtinTermParser] def app      := tparser!:(maxPrec-1) many1 $
   checkWsBefore "expected space" >>
   checkColGt "expected to be indented" >>
-  (namedArgument <|> termParser maxPrec <|> ellipsis)
+  (namedArgument <|> ellipsis <|> termParser maxPrec)
 
 @[builtinTermParser] def proj     := tparser! checkNoWsBefore >> "." >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrayRef := tparser! checkNoWsBefore >> "[" >> termParser >>"]"

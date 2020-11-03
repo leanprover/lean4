@@ -7,9 +7,14 @@ import Lean.Meta.Basic
 
 namespace Lean.Meta
 
+structure ElimAltInfo :=
+  (name      : Name)
+  (numFields : Nat)
+
 structure ElimInfo :=
   (motivePos   : Nat)
-  (targetsPos  : Array Nat)
+  (targetsPos  : Array Nat := #[])
+  (altsInfo    : Array ElimAltInfo := #[])
 
 def getElimInfo (declName : Name) : MetaM ElimInfo := do
   let declInfo ← getConstInfo declName
@@ -24,13 +29,20 @@ def getElimInfo (declName : Name) : MetaM ElimInfo := do
         throwError! "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError! "motive result type must be a sort{indentExpr motiveType}"
-    match xs.indexOf? motive with
-    | none => throwError! "unexpected eliminator type{indentExpr declInfo.type}"
-    | some motivePos =>
-      let targetsPos ← targets.mapM fun target => do
-        match xs.indexOf? target with
-        | none => throwError! "unexpected eliminator type{indentExpr declInfo.type}"
-        | some targetPos => pure targetPos.val
-      pure { motivePos := motivePos, targetsPos := targetsPos }
+    let some motivePos ← pure (xs.indexOf? motive) |
+      throwError! "unexpected eliminator type{indentExpr declInfo.type}"
+    let targetsPos ← targets.mapM fun target => do
+      match xs.indexOf? target with
+      | none => throwError! "unexpected eliminator type{indentExpr declInfo.type}"
+      | some targetPos => pure targetPos.val
+    let altsInfo := #[]
+    for i in [:xs.size] do
+      let x := xs[i]
+      if x != motive && !targets.contains x then
+        let xDecl ← getLocalDecl x.fvarId!
+        if xDecl.binderInfo.isExplicit then
+          let numFields ← forallTelescopeReducing xDecl.type fun args _ => pure args.size
+          altsInfo := altsInfo.push { name := xDecl.userName, numFields := numFields : ElimAltInfo }
+    pure { motivePos := motivePos, targetsPos := targetsPos, altsInfo := altsInfo }
 
 end Lean.Meta

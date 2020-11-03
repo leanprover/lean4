@@ -295,9 +295,9 @@ protected theorem eqOrLtOfLe : ∀ {n m: Nat}, n ≤ m → n = m ∨ n < m
   | succ n, succ m, h =>
     have n ≤ m from h
     have n = m ∨ n < m from Nat.eqOrLtOfLe this
-    Or.elim this
-     (fun h => Or.inl $ congrArg succ h)
-     (fun h => Or.inr $ succLtSucc h)
+    match this with
+    | Or.inl h => Or.inl $ congrArg succ h
+    | Or.inr h => Or.inr $ succLtSucc h
 
 theorem ltSuccOfLe {n m : Nat} : n ≤ m → n < succ m :=
   succLeSucc
@@ -398,16 +398,16 @@ protected theorem ltOrGe (n m : Nat) : n < m ∨ n ≥ m := by
   | zero => apply Or.inr; apply zeroLe n
   | succ m ih =>
     cases ih
-    | Or.inl h => apply Or.inl; apply leSuccOfLe h
-    | Or.inr h =>
+    | inl h => apply Or.inl; apply leSuccOfLe h
+    | inr h =>
       cases Nat.eqOrLtOfLe h
-      | Or.inl h1 => apply Or.inl; subst h1; apply ltSuccSelf m
-      | Or.inr h1 => apply Or.inr h1
+      | inl h1 => apply Or.inl; subst h1; apply ltSuccSelf m
+      | inr h1 => apply Or.inr h1
 
 protected theorem leTotal (m n : Nat) : m ≤ n ∨ n ≤ m :=
-  Or.elim (Nat.ltOrGe m n)
-    (fun h => Or.inl (Nat.leOfLt h))
-    Or.inr
+  match Nat.ltOrGe m n with
+  | Or.inl h => Or.inl (Nat.leOfLt h)
+  | Or.inr h => Or.inr h
 
 protected theorem ltOfLeAndNe {m n : Nat} (h1 : m ≤ n) : m ≠ n → m < n :=
   resolveRight (Or.swap (Nat.eqOrLtOfLe h1))
@@ -455,22 +455,22 @@ theorem le.dest : ∀ {n m : Nat}, n ≤ m → Exists (fun k => n + k = m)
 theorem le.intro {n m k : Nat} (h : n + k = m) : n ≤ m :=
   h ▸ leAddRight n k
 
-protected theorem notLeOfGt {n m : Nat} (h : n > m) : ¬ n ≤ m :=
-  fun h₁ => Or.elim (Nat.ltOrGe n m)
-    (fun h₂ => absurd (Nat.ltTrans h h₂) (Nat.ltIrrefl _))
-    (fun h₂ =>
-      have Heq : n = m from Nat.leAntisymm h₁ h₂
-      absurd (@Eq.subst _ _ _ _ Heq h) (Nat.ltIrrefl m))
+protected theorem notLeOfGt {n m : Nat} (h : n > m) : ¬ n ≤ m := fun h₁ =>
+  match Nat.ltOrGe n m with
+  | Or.inl h₂ => absurd (Nat.ltTrans h h₂) (Nat.ltIrrefl _)
+  | Or.inr h₂ =>
+    have Heq : n = m from Nat.leAntisymm h₁ h₂
+    absurd (@Eq.subst _ _ _ _ Heq h) (Nat.ltIrrefl m)
 
 theorem gtOfNotLe {n m : Nat} (h : ¬ n ≤ m) : n > m :=
-  Or.elim (Nat.ltOrGe m n)
-    (fun h₁ => h₁)
-    (fun h₁ => absurd h₁ h)
+  match Nat.ltOrGe m n with
+  | Or.inl h₁ => h₁
+  | Or.inr h₁ => absurd h₁ h
 
 protected theorem ltOfLeOfNe {n m : Nat} (h₁ : n ≤ m) (h₂ : n ≠ m) : n < m :=
-  Or.elim (Nat.ltOrGe n m)
-    (fun h₃ => h₃)
-    (fun h₃ => absurd (Nat.leAntisymm h₁ h₃) h₂)
+  match Nat.ltOrGe n m with
+  | Or.inl h₃ => h₃
+  | Or.inr h₃ => absurd (Nat.leAntisymm h₁ h₃) h₂
 
 protected theorem addLeAddLeft {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
   match le.dest h with
@@ -557,11 +557,12 @@ theorem powLePowOfLeRight {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j �
     have i = 0 from eqZeroOfLeZero h
     this.symm ▸ Nat.leRefl _
   | succ j, h =>
-    Or.elim (ltOrEqOrLeSucc h)
-      (fun h => show n^i ≤ n^j * n from
-        have n^i * 1 ≤ n^j * n from Nat.mulLeMul (powLePowOfLeRight hx h) hx
-        Nat.mulOne (n^i) ▸ this)
-      (fun h => h.symm ▸ Nat.leRefl _)
+    match ltOrEqOrLeSucc h with
+    | Or.inl h => show n^i ≤ n^j * n from
+      have n^i * 1 ≤ n^j * n from Nat.mulLeMul (powLePowOfLeRight hx h) hx
+      Nat.mulOne (n^i) ▸ this
+    | Or.inr h =>
+      h.symm ▸ Nat.leRefl _
 
 theorem posPowOfPos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
   powLePowOfLeRight h (Nat.zeroLe _)

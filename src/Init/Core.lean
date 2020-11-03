@@ -1741,7 +1741,7 @@ theorem em (p : Prop) : p ∨ ¬p :=
           propext (Iff.intro hl hr);
     have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV from
       hpred ▸ fun exU exV => rfl;
-    show u = v from h₀ ..;
+    show u = v from h₀ _ _;
   match notUvOrP with
   | Or.inl hne => Or.inr (mt pImpliesUv hne)
   | Or.inr h   => Or.inl h

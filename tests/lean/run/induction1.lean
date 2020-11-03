@@ -114,3 +114,15 @@ theorem tst14 (x : Tree) (h : x = Tree.leaf₁) : x.isLeaf₁ = true := by
   induction x
   | leaf₁ => rfl
   | _     => injection h
+
+inductive Vec (α : Type) : Nat → Type
+  | nil  : Vec α 0
+  | cons : (a : α) → {n : Nat} → (as : Vec α n) → Vec α (n+1)
+
+def getHeads {α β} {n} (xs : Vec α (n+1)) (ys : Vec β (n+1)) : α × β := by
+  cases xs
+  cases ys
+  apply Prod.mk
+  assumption
+  assumption
+  done

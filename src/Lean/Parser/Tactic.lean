@@ -9,6 +9,10 @@ namespace Lean
 namespace Parser
 namespace Tactic
 
+-- Auxiliary parsing category just to expose the nonterminal `tacticSeq` to the `syntax` command
+builtin_initialize
+  registerBuiltinParserAttribute `builtinTacticSeqParser `tacticSeq
+
 def underscoreFn : ParserFn := fun c s =>
   let s   := symbolFn "_" c s;
   let stx := s.stxStack.back;

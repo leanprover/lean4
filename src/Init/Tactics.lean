@@ -16,3 +16,5 @@ syntax "repeat " tacticSeq : tactic
 
 macro_rules
   | `(tactic| repeat $seq) => `(tactic| (($seq); repeat $seq) <|> skip)
+
+macro "try " t:tacticSeq : tactic => `(($t) <|> skip)

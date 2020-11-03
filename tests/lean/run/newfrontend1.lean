@@ -134,8 +134,6 @@ by {
   assumption
 }
 
-macro «try» t:tactic : tactic => `($t <|> skip)
-
 theorem simple12 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
   intro h1; intro h2; intro h3;
@@ -183,7 +181,7 @@ by {
 theorem simple16 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
   intros h1 h2 h3;
-  try (clear x); -- should fail
+  try clear x; -- should fail
   clear h2;
   traceState;
   apply Eq.trans;
@@ -333,7 +331,7 @@ function α β a b => (a, b)
 
 theorem simple20 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by intros h1 h2 h3;
-   try (clear x); -- should fail
+   try clear x; -- should fail
    clear h2;
    traceState;
    apply Eq.trans;

@@ -1729,7 +1729,7 @@ theorem em (p : Prop) : p ∨ ¬p :=
             have hr : (x = False ∨ p) → (x = True ∨ p) from fun a => Or.inr hp;
             show (x = True ∨ p) = (x = False ∨ p) from propext (Iff.intro hl hr);
       have h₀ : ∀  exU exV, @choose _ U exU = @choose _ V exV from hpred ▸ fun exU exV => rfl;
-      show u = v from h₀ _ _;
+      show u = v from h₀ ..;
   match notUvOrP with 
   | Or.inl hne => Or.inr (mt pImpliesUv hne)
   | Or.inr h => Or.inl h 

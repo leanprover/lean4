@@ -13,6 +13,8 @@ namespace Tactic
 builtin_initialize
   registerBuiltinParserAttribute `builtinTacticSeqParser `tacticSeq
 
+@[builtinTacticSeqParser] def tacticSeqElem := tacticSeq
+
 def underscoreFn : ParserFn := fun c s =>
   let s   := symbolFn "_" c s;
   let stx := s.stxStack.back;
@@ -79,7 +81,7 @@ def matchAlts : Parser := group $ withPosition $ (optional "| ") >> sepBy1 match
 
 def withIds : Parser := optional (" with " >> many1 (checkColGt >> ident'))
 @[builtinTacticParser] def «injection»  := parser! nonReservedSymbol "injection " >> termParser >> withIds
-@[builtinTacticParser] def paren        := parser! "(" >> seq1 >> ")"
+@[builtinTacticParser] def paren        := parser! "(" >> tacticSeq >> ")"
 @[builtinTacticParser] def nestedTactic := tacticSeqBracketed
 @[builtinTacticParser] def orelse := tparser!:2 " <|> " >> tacticParser 1
 

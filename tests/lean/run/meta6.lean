@@ -34,8 +34,8 @@ set_option trace.Meta.debug true
 
 def tst2 : MetaM Unit := do
 print "----- tst2 -----";
-let ps ← getParamNames `Or.elim; print (toString ps);
-let ps ← getParamNames `Iff.elim; print (toString ps);
+let ps ← getParamNames `Or.casesOn; print (toString ps);
+let ps ← getParamNames `Iff.rec; print (toString ps);
 let ps ← getParamNames `checkM; print (toString ps);
 pure ()
 

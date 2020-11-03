@@ -174,40 +174,6 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
 
 end ElimApp
 
--- Recall that
--- majorPremise := parser! optional (try (ident >> " : ")) >> termParser
-private def getTargetHypothesisName? (target : Syntax) : Option Name :=
-  if target[0].isNone then
-    none
-  else
-    some target[0][0].getId
-
-private def getTargetTerm (target : Syntax) : Syntax :=
-  target[1]
-
-private def elabMajor (h? : Option Name) (major : Syntax) : TacticM Expr := do
-  match h? with
-  | none   => withMainMVarContext $ elabTerm major none
-  | some h => withMainMVarContext do
-    let lctx ← getLCtx
-    let x ← mkFreshUserName `x
-    let major ← elabTerm major none
-    evalGeneralizeAux h? major x
-    withMainMVarContext do
-      let lctx ← getLCtx
-      match lctx.findFromUserName? x with
-      | some decl => pure decl.toExpr
-      | none      => throwError "failed to generalize"
-
-private def generalizeMajor (major : Expr) : TacticM Expr := do
-  match major with
-  | Expr.fvar _ _ => pure major
-  | _ =>
-    liftMetaTacticAux fun mvarId => do
-      mvarId ← Meta.generalize mvarId major `x false
-      let (fvarId, mvarId) ← Meta.intro1 mvarId
-      pure (mkFVar fvarId, [mvarId])
-
 /-
   Recall that
   ```
@@ -442,12 +408,20 @@ private def processResult (altRHSs : Array Syntax) (result : Array Meta.Inductio
         done
     setGoals gs
 
+private def generalizeMajor (major : Expr) : TacticM Expr := do
+  match major with
+  | Expr.fvar .. => pure major
+  | _ =>
+    liftMetaTacticAux fun mvarId => do
+      mvarId ← Meta.generalize mvarId major `x false
+      let (fvarId, mvarId) ← Meta.intro1 mvarId
+      pure (mkFVar fvarId, [mvarId])
+
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focusAux do
   let targets := stx[1].getSepArgs
   if targets.size == 1 then
     let target := targets[0]
-    let h? := getTargetHypothesisName? target
-    let major ← elabMajor h? (getTargetTerm target)
+    let major ← withMainMVarContext $ elabTerm target none
     let major ← generalizeMajor major
     let n ← generalizeVars stx major
     let recInfo ← getRecInfo stx major
@@ -480,6 +454,31 @@ private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ct
       pure ()
   unless altRHSs.isEmpty do
     loop 0 0
+
+-- Recall that
+-- majorPremise := parser! optional (try (ident >> " : ")) >> termParser
+private def getTargetHypothesisName? (target : Syntax) : Option Name :=
+  if target[0].isNone then
+    none
+  else
+    some target[0][0].getId
+
+private def getTargetTerm (target : Syntax) : Syntax :=
+  target[1]
+
+private def elabMajor (h? : Option Name) (major : Syntax) : TacticM Expr := do
+  match h? with
+  | none   => withMainMVarContext $ elabTerm major none
+  | some h => withMainMVarContext do
+    let lctx ← getLCtx
+    let x ← mkFreshUserName `x
+    let major ← elabTerm major none
+    evalGeneralizeAux h? major x
+    withMainMVarContext do
+      let lctx ← getLCtx
+      match lctx.findFromUserName? x with
+      | some decl => pure decl.toExpr
+      | none      => throwError "failed to generalize"
 
 /- Default `cases` tactic that uses `casesOn` eliminator -/
 def evalCasesOn (target : Syntax) (withAlts : Syntax) : TacticM Unit := do

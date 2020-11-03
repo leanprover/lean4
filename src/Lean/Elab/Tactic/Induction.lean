@@ -88,6 +88,20 @@ private def getAltVarNames (alt : Syntax) : Array Name := alt[1].getArgs.map Syn
 private def getAltRHS (alt : Syntax) : Syntax := alt[3]
 
 /-
+  We may have at most one `| _ => ...` (wildcard alternative), and it must not set variable names.
+  The idea is to make sure users do not write unstructured tactics. -/
+private def checkAlts (withAlts : Syntax) : TacticM Unit := do
+  let found := false
+  for alt in getAlts withAlts do
+    let n := getAltName alt
+    if n == `_ then
+      unless (getAltVarNames alt).isEmpty do
+        throwErrorAt! alt "wildcard alternative must not specify variable names"
+      if found then
+        throwErrorAt! alt "more than one wildcard alternative '| _ => ...' used"
+      found := true
+
+/-
   Given alts of the form
   ```
   nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> termParser
@@ -157,6 +171,7 @@ private def getRecInfoDefault (major : Expr) (withAlts : Syntax) (allowMissingAl
     checkAltCtorNames alts ctorNames
     let altVars := #[]
     let altRHSs := #[]
+    -- This code can be simplified if we decide to keep `checkAlts`
     let remainingAlts := alts
     let prevAnonymousAlt? := none
     for ctorName in ctorNames do
@@ -200,6 +215,7 @@ private def getRecInfoDefault (major : Expr) (withAlts : Syntax) (allowMissingAl
 private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRef stx $ withMainMVarContext do
   let usingRecStx := stx[2]
   let withAlts    := stx[4]
+  checkAlts withAlts
   if usingRecStx.isNone then
     let (rinfo, _) ← getRecInfoDefault major withAlts false
     pure rinfo
@@ -428,12 +444,14 @@ end CasesUsing
 
 @[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focusAux do
   -- parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> withAlts
-  let targets := stx[1].getSepArgs
+  let targets  := stx[1].getSepArgs
+  let withAlts := stx[3]
+  checkAlts withAlts
   if stx[2].isNone then
     unless targets.size == 1 do
       throwErrorAt targets[1] "multiple targets are only supported when a user-defined eliminator is provided with 'using'"
-    evalCasesOn targets[0] stx[3]
+    evalCasesOn targets[0] withAlts
   else
-    CasesUsing.eval targets stx[2][1].getId stx[3]
+    CasesUsing.eval targets stx[2][1].getId withAlts
 
 end Lean.Elab.Tactic

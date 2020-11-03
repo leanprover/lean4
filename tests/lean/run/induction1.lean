@@ -1,6 +1,8 @@
 @[recursor 4]
 def Or.elim2 {p q r : Prop} (major : p ∨ q) (left : p → r) (right : q → r) : r :=
-Or.elim major left right
+  match  major with
+  | Or.inl h => left h
+  | Or.inr h => right h
 
 theorem tst0 {p q : Prop } (h : p ∨ q) : q ∨ p :=
 by {
@@ -23,11 +25,15 @@ induction h
 | inr h2 => exact Or.inl h2
 | inl h1 => exact Or.inr h1
 
-
 theorem tst2 {p q : Prop } (h : p ∨ q) : q ∨ p := by
 induction h using elim2
 | left _  => apply Or.inr; assumption
 | right _ => apply Or.inl; assumption
+
+theorem tst2b {p q : Prop } (h : p ∨ q) : q ∨ p := by
+induction h using elim2
+| left => apply Or.inr; assumption
+| _ => apply Or.inl; assumption
 
 theorem tst3 {p q : Prop } (h : p ∨ q) : q ∨ p := by
 induction h using elim2
@@ -75,17 +81,36 @@ theorem tst9 {α : Type} (xs : List α) (h : (a : α) → (as : List α) → xs 
      | cons z zs => exact absurd rfl (h z zs)
 
 theorem tst10 {p q : Prop } (h₁ : p ↔ q) (h₂ : p) : q := by
-  induction h₁ using Iff.elim
-  | _ h _ => exact h h₂
+  induction h₁
+  | intro h _ => exact h h₂
 
 def Iff2 (m p q : Prop) := p ↔ q
 
 theorem tst11 {p q r : Prop } (h₁ : Iff2 r p q) (h₂ : p) : q := by
-  induction h₁ using Iff.elim
-  | _ h _ => exact h h₂
+  induction h₁ using Iff.rec
+  | intro h _ => exact h h₂
 
 theorem tst12 {p q : Prop } (h₁ : p ∨ q) (h₂ : p ↔ q) (h₃ : p) : q := by
-  failIfSuccess induction h₁ using Iff.elim
-  induction h₂ using Iff.elim
-  | _ h _ =>
+  failIfSuccess induction h₁ using Iff.casesOn
+  induction h₂ using Iff.casesOn
+  | intro h _ =>
     exact h h₃
+
+inductive Tree
+  | leaf₁
+  | leaf₂
+  | node : Tree → Tree → Tree
+
+def Tree.isLeaf₁ : Tree → Bool
+  | leaf₁ => true
+  | _     => false
+
+theorem tst13 (x : Tree) (h : x = Tree.leaf₁) : x.isLeaf₁ = true := by
+  cases x
+  | leaf₁ => rfl
+  | _     => injection h
+
+theorem tst14 (x : Tree) (h : x = Tree.leaf₁) : x.isLeaf₁ = true := by
+  induction x
+  | leaf₁ => rfl
+  | _     => injection h

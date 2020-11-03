@@ -123,6 +123,12 @@ def getHeads {α β} {n} (xs : Vec α (n+1)) (ys : Vec β (n+1)) : α × β := b
   cases xs
   cases ys
   apply Prod.mk
-  assumption
-  assumption
+  repeat
+    traceState
+    assumption
   done
+
+theorem ex1 (n m o : Nat) : n = m + 0 → m = o → m = o := by
+  intro (h₁ : n = m) h₂
+  rw [← h₁, ← h₂]
+  assumption

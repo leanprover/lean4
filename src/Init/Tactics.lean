@@ -11,3 +11,8 @@ macro "decide!" : tactic => `(exact decide!)
 macro "admit" : tactic => `(exact sorry)
 /- We use a priority > 0, to avoid ambiguity with the builtin `have` notation -/
 macro[1] "have" x:ident ":=" p:term : tactic => `(have $x:ident : _ := $p)
+
+syntax "repeat " tacticSeq : tactic
+
+macro_rules
+  | `(tactic| repeat $seq) => `(tactic| (($seq); repeat $seq) <|> skip)

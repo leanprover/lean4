@@ -256,7 +256,7 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
   stx[0].getSepArgs.forM evalTactic
 
 @[builtinTactic paren] def evalParen : Tactic := fun stx =>
-  evalSeq1 stx[1]
+  evalTactic stx[1]
 
 @[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
   stx[0].forArgsM fun seqElem => evalTactic seqElem[0]

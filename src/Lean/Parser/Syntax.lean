@@ -10,8 +10,7 @@ namespace Lean
 namespace Parser
 
 builtin_initialize
-  let leadingIdentAsSymbol := true
-  registerBuiltinParserAttribute `builtinSyntaxParser `stx leadingIdentAsSymbol
+  registerBuiltinParserAttribute `builtinSyntaxParser `stx (leadingIdentAsSymbol := true)
 
 builtin_initialize
   registerBuiltinDynamicParserAttribute `stxParser `stx

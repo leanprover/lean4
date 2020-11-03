@@ -244,7 +244,7 @@ private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRe
 def isHoleRHS (rhs : Syntax) : Bool :=
   rhs.isOfKind `Lean.Parser.Term.syntheticHole || rhs.isOfKind `Lean.Parser.Term.hole
 
-private def processResult (altRHSs : Array Syntax) (result : Array Meta.InductionSubgoal) : TacticM Unit := do
+private def processResult (altRHSs : Array Syntax) (result : Array Meta.InductionSubgoal) (numToIntro : Nat := 0) : TacticM Unit := do
   if altRHSs.isEmpty then
     setGoals $ result.toList.map fun s => s.mvarId
   else
@@ -256,6 +256,8 @@ private def processResult (altRHSs : Array Syntax) (result : Array Meta.Inductio
       let rhs     := altRHSs[i]
       let ref     := rhs
       let mvarId  := subgoal.mvarId
+      if numToIntro > 0 then
+        (_, mvarId) ← introNP mvarId numToIntro
       if isHoleRHS rhs then
         let gs' ← withMVarContext mvarId $ withRef rhs do
           let mvarDecl ← getMVarDecl mvarId
@@ -280,7 +282,7 @@ private def processResult (altRHSs : Array Syntax) (result : Array Meta.Inductio
   let recInfo ← getRecInfo stx major
   let (mvarId, _) ← getMainGoal
   let result ← Meta.induction mvarId major.fvarId! recInfo.recName recInfo.altVars
-  processResult recInfo.altRHSs result
+  processResult recInfo.altRHSs result (numToIntro := n)
 
 private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (altRHSs : Array Syntax) : TacticM Unit := do
   let rec loop (i j : Nat) : TacticM Unit :=

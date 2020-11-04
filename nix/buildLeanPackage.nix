@@ -1,4 +1,4 @@
-{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean }:
+{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, writeScriptBin, bash, lean-emacs }:
 with builtins; let
   # "Init.Core" ~> "Init/Core.lean"
   modToLean = mod: replaceStrings ["."] ["/"] mod + ".lean";
@@ -35,8 +35,7 @@ with builtins; let
     '';
   };
 in
-  { name, src, deps }:
-    let
+  { name, src, srcDir ? "", deps }: let
     fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
       mkdir $out
       cd $out
@@ -92,12 +91,53 @@ in
         deps = filter (p: p != "") (lib.splitString "\n" (readFile (leanDeps mod)));
         modMap' = lib.foldr buildModAndDeps modMap deps;
       in modMap' // { ${mod} = buildMod mod (map (dep: modMap'.${dep}) deps); };
-    in rec {
-      mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues deps));
-      modRoot   = depRoot name [ mods.${name} ];
-      objects   = mapAttrs compileMod mods;
-      staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
-        mkdir $out
-        ar rcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (attrValues objects))}
-      '';
+  in rec {
+    mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues deps));
+    modRoot   = depRoot name [ mods.${name} ];
+    objects   = mapAttrs compileMod mods;
+    staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
+      mkdir $out
+      ar rcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (attrValues objects))}
+    '';
+    leanPackage = writeScriptBin "lean" ''
+      #!${bash}/bin/bash
+      set -euo pipefail
+      LEAN_PATH=${modRoot} ${lean}/bin/lean $@
+    '';
+    leanInteractive = writeScriptBin "lean" ''
+      #!${bash}/bin/bash
+      set -euo pipefail
+      call() {
+        if [[ -n $json ]]; then
+          nix develop $@ 2>&1 | awk '/{/ { print $0; next } { gsub(/"/, "\\\"", $0); gsub(/\n/, "\\n", $0); printf "{\"severity\": \"warning\", \"pos_line\": 0, \"pos_col\": 0, \"file_name\": \"<stdin>\", \"text\": \"%s\"}\n", $0 }'
+        else
+          nix develop $@
+        fi
+      }
+
+      json=0
+      input=
+      for p in "$@"; do
+        [[ "$p" == --json ]] && json=1
+        [[ "$p" != -* ]] && input="$(realpath "$p")"
+      done
+
+      root=.
+      while [[ "$root" != / ]]; do
+        [ -f "$root/flake.nix" ] && break
+        root="$(realpath "$root/..")"
+      done
+      if [[ "$root" == / || "$input" != "$root${srcDir}/"* ]]; then
+         ${leanPackage}/bin/lean $@
+      else
+        input="$(realpath --relative-to="$root${srcDir}" "$input")"
+        input="''${input%.lean}"
+        input="''${input//\//.}"
+        call "$root#mods.\"$input\"" -c lean $@
+      fi
+     '';
+    emacs = writeScriptBin "run-emacs" ''
+      #!${bash}/bin/bash
+      ${lean-emacs}/bin/emacs --eval '(setq lean4-rootdir "${leanInteractive}")' $@
+    '';
   }

@@ -12,7 +12,7 @@ namespace Lean
 namespace ParserCompiler
 
 structure CombinatorAttribute :=
-  (attr : AttributeImpl)
+  (impl : AttributeImpl)
   (ext  : SimplePersistentEnvExtension (Name × Name) (NameMap Name))
 
 -- TODO(Sebastian): We'll probably want priority support here at some point
@@ -36,17 +36,22 @@ def registerCombinatorAttribute (name : Name) (descr : String)
       | none            => throwError $ "invalid [" ++ name ++ "] argument, expected identifier"
   }
   registerBuiltinAttribute attrImpl
-  pure { attr := attrImpl, ext := ext }
+  pure { impl := attrImpl, ext := ext }
 
 namespace CombinatorAttribute
 
-instance : Inhabited CombinatorAttribute := ⟨{attr := arbitrary _, ext := arbitrary _}⟩
+instance : Inhabited CombinatorAttribute := ⟨{impl := arbitrary _, ext := arbitrary _}⟩
 
-def getDeclFor (attr : CombinatorAttribute) (env : Environment) (parserDecl : Name) : Option Name :=
+def getDeclFor? (attr : CombinatorAttribute) (env : Environment) (parserDecl : Name) : Option Name :=
   (attr.ext.getState env).find? parserDecl
 
 def setDeclFor (attr : CombinatorAttribute) (env : Environment) (parserDecl : Name) (decl : Name) : Environment :=
   attr.ext.addEntry env (parserDecl, decl)
+
+unsafe def runDeclFor {α} (attr : CombinatorAttribute) (parserDecl : Name) : CoreM α := do
+  match attr.getDeclFor? (← getEnv) parserDecl with
+  | some d => evalConst α d
+  | _      => throwError! "no declaration of attribute [{attr.impl.name}] found for '{parserDecl}'"
 
 end CombinatorAttribute
 

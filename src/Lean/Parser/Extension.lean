@@ -246,7 +246,7 @@ builtin_initialize
     descr := "explicitly run hooks normally activated by builtin parser attributes",
     add   := fun decl args persistent => do
       if args.hasArgs then throwError "invalid attribute 'runBuiltinParserAttributeHooks', unexpected argument"
-      runParserAttributeHooks `Name.anonymous decl (builtin := true)
+      runParserAttributeHooks Name.anonymous decl (builtin := true)
   }
 
 builtin_initialize
@@ -255,7 +255,7 @@ builtin_initialize
     descr := "explicitly run hooks normally activated by parser attributes",
     add   := fun decl args persistent => do
       if args.hasArgs then throwError "invalid attribute 'runParserAttributeHooks', unexpected argument"
-      runParserAttributeHooks `Name.anonymous decl (builtin := false)
+      runParserAttributeHooks Name.anonymous decl (builtin := false)
   }
 
 private def ParserExtension.addImported (es : Array (Array ParserExtensionOleanEntry)) : ImportM ParserExtensionState := do

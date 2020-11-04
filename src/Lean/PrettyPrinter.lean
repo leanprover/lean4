@@ -7,6 +7,7 @@ import Lean.Delaborator
 import Lean.PrettyPrinter.Parenthesizer
 import Lean.PrettyPrinter.Formatter
 import Lean.Parser.Module
+import Lean.ParserCompiler
 
 namespace Lean
 
@@ -64,7 +65,12 @@ builtin_initialize
   }
 
 builtin_initialize
-  registerTraceClass `PrettyPrinter;
+  registerTraceClass `PrettyPrinter
+
+@[builtinInit]
+unsafe def registerParserCompilers : IO Unit := do
+  ParserCompiler.registerParserCompiler ⟨`parenthesizer, parenthesizerAttribute, combinatorParenthesizerAttribute⟩
+  ParserCompiler.registerParserCompiler ⟨`formatter, formatterAttribute, combinatorFormatterAttribute⟩
 
 end PrettyPrinter
 end Lean

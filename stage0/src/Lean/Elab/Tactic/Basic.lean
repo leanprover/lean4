@@ -34,32 +34,36 @@ instance : Inhabited State := ⟨{ goals := [] }⟩
 structure BacktrackableState :=
   (env   : Environment)
   (mctx  : MetavarContext)
+  (term  : Term.State)
   (goals : List MVarId)
 
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
 def saveBacktrackableState : TacticM BacktrackableState := do
-  pure { env := (← getEnv), mctx := (← getMCtx), goals := (← get).goals }
+  pure { env := (← getEnv), mctx := (← getMCtx), term := (← getThe Term.State), goals := (← get).goals }
 
 def BacktrackableState.restore (b : BacktrackableState) : TacticM Unit := do
   setEnv b.env
   setMCtx b.mctx
+  let msgLog ← Term.getMessageLog -- we do not backtrack the message log
+  set b.term
+  Term.setMessageLog msgLog
   modify fun s => { s with goals := b.goals }
 
 @[inline] protected def tryCatch {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do
   let b ← saveBacktrackableState
   try x catch ex => b.restore; h ex
 
-@[inline] protected def orelse {α} (x y : TacticM α) : TacticM α := do
-  try x catch _ => y
-
 instance : MonadExcept Exception TacticM := {
   throw    := throw,
   tryCatch := Tactic.tryCatch
 }
 
-instance {α} : OrElse (TacticM α) := ⟨Tactic.orelse⟩
+@[inline] protected def orElse {α} (x y : TacticM α) : TacticM α := do
+  try x catch _ => y
+
+instance {α} : OrElse (TacticM α) := ⟨Tactic.orElse⟩
 
 structure SavedState :=
   (core   : Core.State)
@@ -221,6 +225,18 @@ def focusAux {α} (tactic : TacticM α) : TacticM α := do
 
 def focus {α} (tactic : TacticM α) : TacticM α :=
   focusAux do let a ← tactic; done; pure a
+
+/- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
+def closeUsingOrAdmit (tac : Syntax) : TacticM Unit := do
+  let (mvarId, rest) ← getMainGoal
+  try
+    evalTactic tac
+    done
+  catch ex =>
+    logException ex
+    let mvarType ← inferType (mkMVar mvarId)
+    assignExprMVar mvarId (← mkSorry mvarType (synthetic := true))
+    setGoals rest
 
 def try? {α} (tactic : TacticM α) : TacticM (Option α) := do
   try pure (some (← tactic))
@@ -413,7 +429,7 @@ private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) :
      let savedTag ← liftM $ getMVarTag g
      liftM $ setMVarTag g Name.anonymous
      try
-       evalTactic tac
+       closeUsingOrAdmit tac
      finally
        liftM $ setMVarTag g savedTag
      done

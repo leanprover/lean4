@@ -38354,8 +38354,8 @@ static lean_object* _init_l_Lean_Parser_Term_app___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_explicit___elambda__1___closed__8;
-x_2 = l_Lean_Parser_Term_ellipsis___closed__4;
+x_1 = l_Lean_Parser_Term_ellipsis___closed__4;
+x_2 = l_Lean_Parser_Term_explicit___elambda__1___closed__8;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_orelseFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -38548,10 +38548,10 @@ static lean_object* _init_l_Lean_Parser_Term_app___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Term_explicit___closed__2;
+x_1 = l_Lean_Parser_Term_ellipsis;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Lean_Parser_Term_ellipsis;
+x_3 = l_Lean_Parser_Term_explicit___closed__2;
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = l_Lean_Parser_orelseInfo(x_2, x_4);
@@ -38787,8 +38787,8 @@ static lean_object* _init_l_Lean_Parser_Term_app_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_antiquotNestedExpr_formatter___closed__2;
-x_2 = l_Lean_Parser_Term_app_formatter___closed__1;
+x_1 = l_Lean_Parser_Term_app_formatter___closed__1;
+x_2 = l_Lean_Parser_antiquotNestedExpr_formatter___closed__2;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_orelse_formatter), 7, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -39023,8 +39023,8 @@ static lean_object* _init_l_Lean_Parser_Term_app_parenthesizer___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_explicit_parenthesizer___closed__3;
-x_2 = l_Lean_Parser_Term_app_parenthesizer___closed__1;
+x_1 = l_Lean_Parser_Term_app_parenthesizer___closed__1;
+x_2 = l_Lean_Parser_Term_explicit_parenthesizer___closed__3;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer), 7, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);

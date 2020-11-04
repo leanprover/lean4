@@ -429,7 +429,7 @@ private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) :
      let savedTag ← liftM $ getMVarTag g
      liftM $ setMVarTag g Name.anonymous
      try
-       evalTactic tac
+       closeUsingOrAdmit tac
      finally
        liftM $ setMVarTag g savedTag
      done

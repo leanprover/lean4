@@ -24,6 +24,25 @@ private def getAltName (alt : Syntax) : Name := alt[0].getId.eraseMacroScopes
 private def getAltVarNames (alt : Syntax) : Array Name := alt[1].getArgs.map Syntax.getId
 private def getAltRHS (alt : Syntax) : Syntax := alt[3]
 
+-- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
+def isHoleRHS (rhs : Syntax) : Bool :=
+  rhs.isOfKind `Lean.Parser.Term.syntheticHole || rhs.isOfKind `Lean.Parser.Term.hole
+
+def evalAltRhs (mvarId : MVarId) (rhs : Syntax) (remainingGoals : Array MVarId) : TacticM (Array MVarId) := do
+  if isHoleRHS rhs then
+    let gs' ← withMVarContext mvarId $ withRef rhs do
+      let mvarDecl ← getMVarDecl mvarId
+      let val ← elabTermEnsuringType rhs mvarDecl.type
+      assignExprMVar mvarId val
+      let gs' ← getMVarsNoDelayed val
+      tagUntaggedGoals mvarDecl.userName `induction gs'.toList
+      pure gs'
+    pure (remainingGoals ++ gs')
+  else
+    setGoals [mvarId]
+    closeUsingOrAdmit rhs
+    pure remainingGoals
+
 /-
   Helper method for creating an user-defined eliminator/recursor application.
 -/
@@ -77,7 +96,7 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
           let s ← get
           let ctx ← read
           unless s.targetPos < ctx.targets.size do
-            throwError! "invalid 'eliminate', insufficient number of targets"
+            throwError! "insufficient number of targets for '{elimName}'"
           let target := ctx.targets[s.targetPos]
           let expectedType ← getArgExpectedType
           let target ← Term.ensureHasType expectedType target
@@ -124,8 +143,16 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
       return altInfo.numFields
   throwError! "unknown alternative name '{altName}'"
 
+private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax) : TacticM Unit :=
+  for altStx in altsSyntax do
+    let altName := getAltName altStx
+    if altName != `_ then
+      unless alts.any fun (n, _) => n == altName do
+        throwErrorAt! altStx "invalid alternative name '{altName}'"
+
 def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
+  checkAltNames alts altsSyntax
   let usedWildcard := false
   let hasAlts      := altsSyntax.size > 0
   let subgoals     := #[] -- when alternatives are not provided, we accumulate subgoals here
@@ -158,18 +185,19 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
           subgoals := subgoals.push altMVarId
         else
           throwError! "alternative '{altName}' has not been provided"
-    | some altStx => withRef altStx do
-      let altRhs := getAltRHS altStx
-      let altVarNames := getAltVarNames altStx
-      let (_, altMVarId) ← introN altMVarId numFields altVarNames.toList
-      match (← Cases.unifyEqs numEqs altMVarId {}) with
-      | none   => throwError! "alternative '{altName}' is not needed"
-      | some (altMVarId, _) =>
-        let (_, altMVarId) ← introNP altMVarId numGeneralized
-        for fvarId in toClear do
-          altMVarId ← tryClear altMVarId fvarId
-        setGoals [altMVarId]
-        closeUsingOrAdmit altRhs
+    | some altStx =>
+      subgoals ← withRef altStx do
+        let altRhs := getAltRHS altStx
+        let altVarNames := getAltVarNames altStx
+        let (_, altMVarId) ← introN altMVarId numFields altVarNames.toList
+        match (← Cases.unifyEqs numEqs altMVarId {}) with
+        | none   => throwError! "alternative '{altName}' is not needed"
+        | some (altMVarId, _) =>
+          let (_, altMVarId) ← introNP altMVarId numGeneralized
+          for fvarId in toClear do
+            altMVarId ← tryClear altMVarId fvarId
+          withRef altStx[2] do -- use `=>` position to report errors
+            evalAltRhs altMVarId altRhs subgoals
   if usedWildcard then
     altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_
   unless altsSyntax.isEmpty do
@@ -378,17 +406,13 @@ private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRe
         throwErrorAt remainingAlts[0] "unused alternative"
       pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
 
--- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
-def isHoleRHS (rhs : Syntax) : Bool :=
-  rhs.isOfKind `Lean.Parser.Term.syntheticHole || rhs.isOfKind `Lean.Parser.Term.hole
-
 private def processResult (altRHSs : Array Syntax) (result : Array Meta.InductionSubgoal) (numToIntro : Nat := 0) : TacticM Unit := do
   if altRHSs.isEmpty then
     setGoals $ result.toList.map fun s => s.mvarId
   else
     unless altRHSs.size == result.size do
       throwError! "mistmatch on the number of subgoals produced ({result.size}) and alternatives provided ({altRHSs.size})"
-    let gs := []
+    let gs := #[]
     for i in [:result.size] do
       let subgoal := result[i]
       let rhs     := altRHSs[i]
@@ -396,20 +420,8 @@ private def processResult (altRHSs : Array Syntax) (result : Array Meta.Inductio
       let mvarId  := subgoal.mvarId
       if numToIntro > 0 then
         (_, mvarId) ← introNP mvarId numToIntro
-      if isHoleRHS rhs then
-        let gs' ← withMVarContext mvarId $ withRef rhs do
-          let mvarDecl ← getMVarDecl mvarId
-          let val ← elabTermEnsuringType rhs mvarDecl.type
-          assignExprMVar mvarId val
-          let gs' ← getMVarsNoDelayed val
-          let gs' := gs'.toList
-          tagUntaggedGoals mvarDecl.userName `induction gs'
-          pure gs'
-        gs := gs ++ gs'
-      else
-        setGoals [mvarId]
-        closeUsingOrAdmit rhs
-    setGoals gs
+      gs ← evalAltRhs mvarId rhs gs
+    setGoals gs.toList
 
 private def generalizeTerm (term : Expr) : TacticM Expr := do
   match term with
@@ -433,12 +445,14 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
   else
     if stx[2].isNone then
       throwError! "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>')"
-    let elimName := stx[2][1].getId
-    let elimInfo ← getElimInfo elimName
+    let elimId := stx[2][1]
+    let elimName := elimId.getId
+    let elimInfo ← withRef elimId do getElimInfo elimName
     let (mvarId, _) ← getMainGoal
     let tag ← getMVarTag mvarId
     withMVarContext mvarId do
-      let result ← ElimApp.mkElimApp elimName elimInfo targets tag
+      let result ← withRef stx[1] do -- use target position as reference
+        ElimApp.mkElimApp elimName elimInfo targets tag
       assignExprMVar mvarId result.elimApp
       let elimArgs := result.elimApp.getAppArgs
       let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
@@ -513,12 +527,13 @@ def evalCasesOn (target : Expr) (withAlts : Syntax) : TacticM Unit := do
   let altRHSs := recInfo.altRHSs.filter fun stx => !stx.isMissing
   processResult altRHSs result
 
-def evalCasesUsing (elimName : Name) (targets : Array Expr) (withAlts : Syntax) : TacticM Unit := do
-  let elimInfo ← getElimInfo elimName
+def evalCasesUsing (elimId : Syntax) (targetRef : Syntax) (targets : Array Expr) (withAlts : Syntax) : TacticM Unit := do
+  let elimName := elimId.getId
+  let elimInfo ← withRef elimId do getElimInfo elimName
   let (mvarId, _) ← getMainGoal
   let tag ← getMVarTag mvarId
   withMVarContext mvarId do
-    let result ← ElimApp.mkElimApp elimName elimInfo targets tag
+    let result ← withRef targetRef $ ElimApp.mkElimApp elimName elimInfo targets tag
     let elimArgs := result.elimApp.getAppArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
     let motiveType ← inferType elimArgs[elimInfo.motivePos]
@@ -539,6 +554,6 @@ def evalCasesUsing (elimName : Name) (targets : Array Expr) (withAlts : Syntax) 
       throwErrorAt stx[1] "multiple targets are only supported when a user-defined eliminator is provided with 'using'"
     evalCasesOn targets[0] withAlts
   else
-    evalCasesUsing stx[2][1].getId targets withAlts
+    evalCasesUsing stx[2][1] (targetRef := stx[1]) targets withAlts
 
 end Lean.Elab.Tactic

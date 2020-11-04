@@ -91,3 +91,44 @@ theorem modLt (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
       have heq := Nat.modEqOfLt hgt
       rw [← heq] at hgt
       assumption
+
+theorem ex11 {p q : Prop } (h : p ∨ q) : q ∨ p := by
+  induction h using Or.casesOn
+  | inr h  => ?myright
+  | inl h  => ?myleft
+  case myleft  => exact Or.inr h
+  case myright => exact Or.inl h
+
+theorem ex12 {p q : Prop } (h : p ∨ q) : q ∨ p := by
+  cases h using Or.casesOn
+  | inr h  => ?myright
+  | inl h  => ?myleft
+  case myleft  => exact Or.inr h
+  case myright => exact Or.inl h
+
+theorem ex13 (p q : Nat) : p ≤ q ∨ p > q := by
+  cases p, q using elimEx
+  | diag    => ?hdiag
+  | lower d => ?hlower
+  | upper d => ?hupper
+  case hdiag  => apply Or.inl; apply Nat.leRefl
+  case hlower => apply Or.inl; show p ≤ p + d.succ; admit
+  case hupper => apply Or.inr; show q + d.succ > q; admit
+
+theorem ex14 (p q : Nat) : p ≤ q ∨ p > q := by
+  cases p, q using elimEx
+  | diag    => ?hdiag
+  | lower d => _
+  | upper d => ?hupper
+  case hdiag  => apply Or.inl; apply Nat.leRefl
+  case lower => apply Or.inl; show p ≤ p + d.succ; admit
+  case hupper => apply Or.inr; show q + d.succ > q; admit
+
+theorem ex15 (p q : Nat) : p ≤ q ∨ p > q := by
+  cases p, q using elimEx
+  | diag    => ?hdiag
+  | lower d => _
+  | upper d => ?hupper
+  { apply Or.inl; apply Nat.leRefl }
+  { apply Or.inr; show q + d.succ > q; admit }
+  { apply Or.inl; show p ≤ p + d.succ; admit }

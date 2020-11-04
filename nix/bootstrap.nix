@@ -47,9 +47,12 @@ rec {
       desc = "stage${toString stage}";
       build = buildLeanPackage.override { lean = prevStage; };
     in (all: all // all.lean) rec {
-      Init = build { name = "Init"; src = ../src; deps = {}; };
-      Std  = build { name = "Std";  src = ../src; deps = { inherit Init; }; };
-      Lean = build { name = "Lean"; src = ../src; deps = { inherit Init Std; }; };
+      Init = build { name = "Init"; src = ../src; srcDir = "/src"; deps = {}; };
+      Std  = build { name = "Std";  src = ../src; srcDir = "/src"; deps = { inherit Init; }; };
+      Lean = build { name = "Lean"; src = ../src; srcDir = "/src"; deps = { inherit Init Std; }; };
+      stdlib = {
+        mods = Init.mods // Std.mods // Lean.mods;
+      };
       lean = stdenv.mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''
@@ -79,5 +82,4 @@ rec {
   stage1 = stage { stage = 1; prevStage = stage0; };
   stage2 = stage { stage = 2; prevStage = stage1; };
   stage3 = stage { stage = 3; prevStage = stage2; };
-  lean = stage1;
 }

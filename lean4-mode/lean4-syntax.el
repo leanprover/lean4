@@ -9,18 +9,16 @@
 
 (defconst lean4-keywords1
   '("import" "prelude" "protected" "private" "noncomputable"
-    "unsafe" "partial" "renaming" "hiding" "exposing" "begin" "constant"
-    "variable" "variables" "theorem" "example" "abbreviation" "abbrev"
-    "open" "export" "axiom" "inductive" "coinductive" "with" "without"
-    "structure" "universe" "universes" "hide" "new_frontend"
-    "precedence" "reserve"
-    "match_syntax" "match" "nomatch" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
+    "unsafe" "partial" "renaming" "hiding" "begin" "constant"
+    "variable" "variables" "theorem" "example" "abbrev"
+    "open" "export" "axiom" "inductive" "with"
+    "structure" "universe" "universes" "hide"
+    "precedence" "match_syntax" "match" "nomatch" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
     "end" "this" "using" "using_well_founded" "namespace" "section"
-    "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
-    "attributes" "raw" "replacing" "generalizing"
-    "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "for" "unless" "break" "continue"
-    "try" "catch" "finally" "where" "rec" "forall" "Pi" "fun"
-    "exists" "if" "then" "else" "assume" "from" "init_quot" "return"
+    "attribute" "local" "set_option" "extends" "include" "class"
+    "attributes" "raw" "have" "show" "suffices" "by" "in" "at" "do" "let" "for" "unless" "break" "continue"
+    "try" "catch" "finally" "where" "rec" "forall" "fun"
+    "exists" "if" "then" "else" "from" "init_quot" "return"
     "mutual" "def" "run_cmd" "declare_syntax_cat" "syntax" "macro_rules" "macro"
     "initialize" "builtin_initialize")
   "lean keywords ending with 'word' (not symbol)")

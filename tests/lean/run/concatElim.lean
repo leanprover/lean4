@@ -14,17 +14,19 @@ def dropLast {α} : List α → List α
   | [a]   => []
   | a::as => a :: dropLast as
 
-theorem concatEq {α} (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs h) = xs := by
-  revert h
-  match xs with
-  | []         => intro h; exact absurd rfl h
-  | [x]        => intro h; rfl
-  | x₁::x₂::xs =>
-    intro h
+variables {α}
+
+theorem concatEq (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs h) = xs := by
+  match xs, h with
+  | [],  h        =>
+    apply False.elim
+    apply h rfl
+  | [x], h        => rfl
+  | x₁::x₂::xs, h =>
     have x₂::xs ≠ [] by intro h; injection h
     have ih := concatEq (x₂::xs) this
     show x₁ :: concat (dropLast (x₂::xs)) (last (x₂::xs) this) = x₁ :: x₂ :: xs
-    rw ih
+    rewrite ih
     rfl
 
 theorem lengthCons {α} (x : α) (xs : List α) : (x::xs).length = xs.length + 1 :=

@@ -195,11 +195,12 @@ inductive Rprod : α × β → α × β → Prop
 end
 
 section
+
 variables {α : Type u} {β : Type v}
 variables {ra  : α → α → Prop} {rb  : β → β → Prop}
 
-def lexAccessible {a} (aca : Acc ra a) (acb : ∀ b, Acc rb b) (b : β) : Acc (Lex ra rb) (a, b) := by
-  induction aca generalizing b
+def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a : α) (b : β) : Acc (Lex ra rb) (a, b) := by
+  induction (aca a) generalizing b
   | intro xa aca iha =>
     induction (acb b)
     | intro xb acb ihb =>
@@ -211,7 +212,7 @@ def lexAccessible {a} (aca : Acc ra a) (acb : ∀ b, Acc rb b) (b : β) : Acc (L
 
 -- The lexicographical order of well founded relations is well-founded
 def lexWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Lex ra rb) :=
-  ⟨fun (a, b) => lexAccessible (apply ha a) (WellFounded.apply hb) b⟩
+  ⟨fun (a, b) => lexAccessible (WellFounded.apply ha) (WellFounded.apply hb) a b⟩
 
 -- relational product is a Subrelation of the Lex
 def rprodSubLex (a : α × β) (b : α × β) (h : Rprod ra rb a b) : Lex ra rb a b := by

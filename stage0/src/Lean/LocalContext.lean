@@ -32,43 +32,43 @@ def isLet : LocalDecl → Bool
   | ldecl .. => true
 
 def index : LocalDecl → Nat
-  | cdecl idx .. => idx
-  | ldecl idx .. => idx
+  | cdecl (index := i) .. => i
+  | ldecl (index := i) .. => i
 
 def setIndex : LocalDecl → Nat → LocalDecl
   | cdecl _  id n t bi,   idx => cdecl idx id n t bi
   | ldecl _  id n t v nd, idx => ldecl idx id n t v nd
 
 def fvarId : LocalDecl → FVarId
-  | cdecl _ id _ _ _   => id
-  | ldecl _ id _ _ _ _ => id
+  | cdecl (fvarId := id) .. => id
+  | ldecl (fvarId := id) .. => id
 
 def userName : LocalDecl → Name
-  | cdecl _ _ n _ _   => n
-  | ldecl _ _ n _ _ _ => n
+  | cdecl (userName := n) .. => n
+  | ldecl (userName := n) .. => n
 
 def type : LocalDecl → Expr
-  | cdecl _ _ _ t _   => t
-  | ldecl _ _ _ t _ _ => t
+  | cdecl (type := t) .. => t
+  | ldecl (type := t) .. => t
 
 def setType : LocalDecl → Expr → LocalDecl
   | cdecl idx id n _ bi, t   => cdecl idx id n t bi
   | ldecl idx id n _ v nd, t => ldecl idx id n t v nd
 
 def binderInfo : LocalDecl → BinderInfo
-  | cdecl _ _ _ _ bi  => bi
-  | ldecl _ _ _ _ _ _ => BinderInfo.default
+  | cdecl (bi := bi) .. => bi
+  | ldecl ..            => BinderInfo.default
 
 def isAuxDecl (d : LocalDecl) : Bool :=
   d.binderInfo.isAuxDecl
 
 def value? : LocalDecl → Option Expr
-  | cdecl _ _ _ _ _   => none
-  | ldecl _ _ _ _ v _ => some v
+  | cdecl ..              => none
+  | ldecl (value := v) .. => some v
 
 def value : LocalDecl → Expr
-  | cdecl _ _ _ _ _   => panic! "let declaration expected"
-  | ldecl _ _ _ _ v _ => v
+  | cdecl ..              => panic! "let declaration expected"
+  | ldecl (value := v) .. => v
 
 def setValue : LocalDecl → Expr → LocalDecl
   | ldecl idx id n t _ nd, v => ldecl idx id n t v nd
@@ -80,7 +80,7 @@ def updateUserName : LocalDecl → Name → LocalDecl
 
 def updateBinderInfo : LocalDecl → BinderInfo → LocalDecl
   | cdecl index id n type _,  bi => cdecl index id n type bi
-  | ldecl _ _ _ _ _ _, _         => panic! "unexpected let declaration"
+  | ldecl .., _                  => panic! "unexpected let declaration"
 
 def toExpr (decl : LocalDecl) : Expr :=
   mkFVar decl.fvarId
@@ -152,11 +152,9 @@ def containsFVar (lctx : LocalContext) (e : Expr) : Bool :=
   lctx.contains e.fvarId!
 
 def getFVarIds (lctx : LocalContext) : Array FVarId :=
-  lctx.decls.foldl
-    (fun (r : Array FVarId) decl? => match decl? with
-      | some decl => r.push decl.fvarId
-      | none      => r)
-    #[]
+  lctx.decls.foldl (init := #[]) fun r decl? => match decl? with
+    | some decl => r.push decl.fvarId
+    | none      => r
 
 def getFVars (lctx : LocalContext) : Array Expr :=
   lctx.getFVarIds.map mkFVar
@@ -263,17 +261,17 @@ variable {β : Type u}
     | some decl => f b decl
 
 @[specialize] def forM (lctx : LocalContext) (f : LocalDecl → m PUnit) : m PUnit :=
-  lctx.decls.forM $ fun decl => match decl with
+  lctx.decls.forM fun decl => match decl with
     | none      => pure PUnit.unit
     | some decl => f decl
 
 @[specialize] def findDeclM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
-  lctx.decls.findSomeM? $ fun decl => match decl with
+  lctx.decls.findSomeM? fun decl => match decl with
     | none      => pure none
     | some decl => f decl
 
 @[specialize] def findDeclRevM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
-  lctx.decls.findSomeRevM? $ fun decl => match decl with
+  lctx.decls.findSomeRevM? fun decl => match decl with
     | none      => pure none
     | some decl => f decl
 
@@ -310,7 +308,7 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
 
 @[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
   let b := b.abstract xs
-  xs.size.foldRev (fun i b =>
+  xs.size.foldRev (init := b) fun i b =>
     let x := xs[i]
     match lctx.findFVar? x with
     | some (LocalDecl.cdecl _ _ n ty bi)  =>
@@ -326,7 +324,7 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
         mkLet n ty val b nonDep
       else
         b.lowerLooseBVars 1 1
-    | none => panic! "unknown free variable") b
+    | none => panic! "unknown free variable"
 
 def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
   mkBinding true lctx xs b

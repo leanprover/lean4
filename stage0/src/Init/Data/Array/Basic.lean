@@ -461,7 +461,8 @@ def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
   let rec loop (i : Nat) (j : Nat) (inv : i + j = as.size) : Option Nat :=
     if hlt : j < as.size then
       match i, inv with
-      | 0, inv => False.elim $ by
+      | 0, inv => by
+        apply False.elim
         rw [Nat.zeroAdd] at inv
         rw [inv] at hlt
         exact absurd hlt (Nat.ltIrrefl _)
@@ -611,10 +612,8 @@ theorem ext {α} (a b : Array α)
     (h₁ : a.size = b.size)
     (h₂ : (i : Nat) → (hi₁ : i < a.size) → (hi₂ : i < b.size) → a.get ⟨i, hi₁⟩ = b.get ⟨i, hi₂⟩)
     : a = b := by
-  revert h₁ h₂
-  match a, b with
-  | ⟨sz₁, f₁⟩, ⟨sz₂, f₂⟩ =>
-    intro h₁ h₂
+  match a, b, h₁, h₂ with
+  | ⟨sz₁, f₁⟩, ⟨sz₂, f₂⟩, h₁, h₂ =>
     subst h₁
     have f₁ = f₂ from funext fun ⟨i, hi₁⟩ => h₂ i hi₁ hi₁
     subst this

@@ -203,40 +203,24 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   setEnv env
   declareSyntaxCatQuotParser catName
 
-def mkKindName (catName : Name) : Name :=
-  `_kind ++ catName
-
-def mkFreshKind (catName : Name) : CommandElabM Name := do
-  let scp ← getCurrMacroScope
-  let mainModule ← getMainModule
-  pure $ Lean.addMacroScope mainModule (mkKindName catName) scp
-
-def Macro.mkFreshKind (catName : Name) : MacroM Name :=
-  Macro.addMacroScope (mkKindName catName)
-
-def mkKind (stx : Syntax) : CommandElabM Name := do
-  let kind := stx.getId
-  if kind.hasMacroScopes then
-    pure kind
-  else
-    let currNamespace ← getCurrNamespace
-    pure (currNamespace ++ kind)
+def mkFreshKind (catName : Name) : MacroM Name :=
+  Macro.addMacroScope (`_kind ++ catName.eraseMacroScopes)
 
 private def elabKindPrio (stx : Syntax) (catName : Name) : CommandElabM (Name × Nat) := do
   if stx.isNone then
-    let k ← mkFreshKind catName
+    let k ← liftMacroM $ mkFreshKind catName
     pure (k, 0)
   else
     let arg := stx[1]
     if arg.getKind == `Lean.Parser.Command.parserKind then
-      let k ← mkKind arg[0]
+      let k := arg[0].getId
       pure (k, 0)
     else if arg.getKind == `Lean.Parser.Command.parserPrio then
-      let k ← mkFreshKind catName
+      let k ← liftMacroM $ mkFreshKind catName
       let prio := arg[0].isNatLit?.getD 0
       pure (k, prio)
     else if arg.getKind == `Lean.Parser.Command.parserKindPrio then
-      let k ← mkKind arg[0]
+      let k := arg[0].getId
       let prio := arg[2].isNatLit?.getD 0
       pure (k, prio)
     else
@@ -273,15 +257,19 @@ def «syntax»      := parser! "syntax " >> optPrecedence >> optKindPrio >> many
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec
   let prec := (Term.expandOptPrecedence stx[1]).getD precDefault
   let (kind, prio) ← elabKindPrio stx[2] cat
+  /-
+    The declaration name and the syntax node kind should be the same.
+    We are using `def $kind ...`. So, we must append the current namespace to create the name fo the Syntax `node`. -/
+  let stxNodeKind := (← getCurrNamespace) ++ kind
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser")
   let (val, trailingParser) ← runTermElabM none fun _ => Term.toParserDescr syntaxParser cat
   let d ←
     if trailingParser then
       `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.TrailingParserDescr :=
-         ParserDescr.trailingNode $(quote kind) $(quote prec) $val)
+         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $val)
     else
       `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.ParserDescr :=
-         ParserDescr.node $(quote kind) $(quote prec) $val)
+         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d $ elabCommand d
 
@@ -294,6 +282,10 @@ def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
   let stx' ← `(def $declName : Lean.ParserDescr := $val)
   withMacroExpansion stx stx' $ elabCommand stx'
 
+/-
+  Remark: `k` is the user provided kind with the current namespace included.
+  Recall that syntax node kinds contain the current namespace.
+-/
 def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM Syntax := do
   alts ← alts.mapSepElemsM fun alt => do
     let lhs := alt[0]
@@ -342,8 +334,8 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
   adaptExpander fun stx => match_syntax stx with
   | `(macro_rules $alts:matchAlt*)           => elabNoKindMacroRulesAux alts
   | `(macro_rules | $alts:matchAlt*)         => elabNoKindMacroRulesAux alts
-  | `(macro_rules [$kind] $alts:matchAlt*)   => do elabMacroRulesAux (← mkKind kind) alts
-  | `(macro_rules [$kind] | $alts:matchAlt*) => do elabMacroRulesAux (← mkKind kind) alts
+  | `(macro_rules [$kind] $alts:matchAlt*)   => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
+  | `(macro_rules [$kind] | $alts:matchAlt*) => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
   | _                                        => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro :=
@@ -393,8 +385,8 @@ def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
   else
     Macro.throwUnsupported
 
-private def expandNotationAux (ref : Syntax) (prec? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : MacroM Syntax := do
-  let kind ← Macro.mkFreshKind `term
+private def expandNotationAux (ref : Syntax) (currNamespace : Name) (prec? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : MacroM Syntax := do
+  let kind ← mkFreshKind `term
   -- build parser
   let syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem
   let cat := mkIdentFrom ref `term
@@ -403,16 +395,20 @@ private def expandNotationAux (ref : Syntax) (prec? : Option Syntax) (items : Ar
   let vars := vars.map fun var => var[0]
   let rhs := antiquote vars rhs
   let patArgs ← items.mapM expandNotationItemIntoPattern
-  let pat := Syntax.node kind patArgs
+  /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
+     So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
+  let pat := Syntax.node (currNamespace ++ kind) patArgs
   match prec? with
   | none      => `(syntax [$(mkIdentFrom ref kind):ident] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
   | some prec => `(syntax:$prec [$(mkIdentFrom ref kind):ident] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
 
-@[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro := fun stx =>
-  match_syntax stx with
-  | `(notation:$prec $items* => $rhs)    => expandNotationAux stx prec items rhs
-  | `(notation $items:notationItem* => $rhs) => expandNotationAux stx none items rhs
-  | _ => Macro.throwUnsupported
+@[builtinCommandElab «notation»] def expandNotation : CommandElab :=
+  adaptExpander fun stx => do
+    let currNamespace ← getCurrNamespace
+    match_syntax stx with
+    | `(notation:$prec $items* => $rhs)        => liftMacroM $ expandNotationAux stx currNamespace prec items rhs
+    | `(notation $items:notationItem* => $rhs) => liftMacroM $ expandNotationAux stx currNamespace none items rhs
+    | _ => throwUnsupportedSyntax
 
 /- Convert `macro` argument into a `syntax` command item -/
 def expandMacroArgIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
@@ -457,13 +453,13 @@ def expandOptPrio (stx : Syntax) : Nat :=
   else
     stx[1].isNatLit?.getD 0
 
-@[builtinMacro Lean.Parser.Command.macro] def expandMacro : Macro := fun stx => do
+def expandMacro (currNamespace : Name) (stx : Syntax) : MacroM Syntax := do
   let prec := stx[1].getArgs
   let prio := expandOptPrio stx[2]
   let head := stx[3]
   let args := stx[4].getArgs
   let cat  := stx[6]
-  let kind ← Macro.mkFreshKind (cat.getId).eraseMacroScopes
+  let kind ← mkFreshKind cat.getId
   -- build parser
   let stxPart  ← expandMacroHeadIntoSyntaxItem head
   let stxParts ← args.mapM expandMacroArgIntoSyntaxItem
@@ -471,7 +467,9 @@ def expandOptPrio (stx : Syntax) : Nat :=
   -- build macro rules
   let patHead ← expandMacroHeadIntoPattern head
   let patArgs ← args.mapM expandMacroArgIntoPattern
-  let pat := Syntax.node kind (#[patHead] ++ patArgs)
+  /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
+     So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
+  let pat := Syntax.node (currNamespace ++ kind) (#[patHead] ++ patArgs)
   if stx.getArgs.size == 9 then
     -- `stx` is of the form `macro $head $args* : $cat => term`
     let rhs := stx[8]
@@ -482,6 +480,10 @@ def expandOptPrio (stx : Syntax) : Nat :=
     let rhsBody := stx[9]
     `(syntax $prec* [$(mkIdentFrom stx kind):ident, $(quote prio):numLit] $stxParts* : $cat
       macro_rules | `($pat) => `($rhsBody))
+
+@[builtinCommandElab «macro»] def elabMacro : CommandElab :=
+  adaptExpander fun stx => do
+    liftMacroM $ expandMacro (← getCurrNamespace) stx
 
 builtin_initialize
   registerTraceClass `Elab.syntax
@@ -496,7 +498,7 @@ builtin_initialize
 def elabTail := try (" : " >> ident) >> darrow >> termParser
 parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
 -/
-@[builtinMacro Lean.Parser.Command.elab] def expandElab : Macro := fun stx => do
+def expandElab (currNamespace : Name) (stx : Syntax) : MacroM Syntax := do
   let ref := stx
   let prec    := stx[1].getArgs
   let prio    := expandOptPrio stx[2]
@@ -506,7 +508,7 @@ parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
   let expectedTypeSpec := stx[7]
   let rhs     := stx[9]
   let catName := cat.getId
-  let kind ← Macro.mkFreshKind catName.eraseMacroScopes
+  let kind ← mkFreshKind catName
   -- build parser
   let stxPart  ← expandMacroHeadIntoSyntaxItem head
   let stxParts ← args.mapM expandMacroArgIntoSyntaxItem
@@ -514,7 +516,7 @@ parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
   -- build pattern for `martch_syntax
   let patHead ← expandMacroHeadIntoPattern head
   let patArgs ← args.mapM expandMacroArgIntoPattern
-  let pat := Syntax.node kind (#[patHead] ++ patArgs)
+  let pat := Syntax.node (currNamespace ++ kind) (#[patHead] ++ patArgs)
   let kindId    := mkIdentFrom ref kind
   if expectedTypeSpec.hasArgs then
     if catName == `term then
@@ -548,5 +550,9 @@ parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
     -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
     -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.
     Macro.throwError ref s!"unsupported syntax category '{catName}'"
+
+@[builtinCommandElab «elab»] def elabElab : CommandElab :=
+  adaptExpander fun stx => do
+    liftMacroM $ expandElab (← getCurrNamespace) stx
 
 end Lean.Elab.Command

@@ -1110,13 +1110,24 @@ abbrev M := ReaderT Context TermElabM
 @[inline] def withNewVars {α} (newVars : Array Name) (x : M α) : M α :=
   withReader (fun ctx => { ctx with varSet := insertVars ctx.varSet newVars }) x
 
+builtin_initialize
+  registerOption `relaxedReassignments { defValue := false, group := "do", descr := "if set to true, then any variable in the local context may be reassigned" }
+
+def getRelaxedReassigments : M Bool := do
+  return (← getOptions).get `relaxedReassignments false
+
 def checkReassignable (xs : Array Name) : M Unit := do
+  let throwInvalidReassignment (x : Name) : M Unit :=
+    throwError! "'{x.simpMacroScopes}' cannot be reassigned"
   let ctx ← read
   for x in xs do
     unless ctx.varSet.contains x do
-      match (← resolveLocalName x) with
-      | some (_, []) => pure ()
-      | _ => throwError! "'{x.simpMacroScopes}' cannot be reassigned"
+      if (← getRelaxedReassigments) then
+        match (← resolveLocalName x) with
+        | some (_, []) => pure ()
+        | _ => throwInvalidReassignment x
+      else
+        throwInvalidReassignment x
 
 @[inline] def withFor {α} (x : M α) : M α :=
   withReader (fun ctx => { ctx with insideFor := true }) x

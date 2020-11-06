@@ -56,6 +56,7 @@ extern lean_object* l___private_Init_LeanInit_0__Lean_quoteName___closed__7;
 extern lean_object* l___private_Init_LeanInit_0__Lean_quoteOption___rarg___closed__2;
 lean_object* l_Lean_Lean_ToExpr___instance__11___rarg___closed__1;
 lean_object* l_Lean_Lean_ToExpr___instance__3___lambda__1___boxed(lean_object*);
+extern lean_object* l_Array___kind_term____x40_Init_Data_Array_Macros___hyg_3____closed__2;
 extern lean_object* l___private_Init_LeanInit_0__Lean_quoteList___rarg___closed__6;
 lean_object* l_Lean_Lean_ToExpr___instance__1___closed__4;
 lean_object* l_Lean_Lean_ToExpr___instance__11_match__1___rarg(lean_object*, lean_object*);
@@ -82,7 +83,6 @@ lean_object* l_Lean_Lean_ToExpr___instance__10___rarg(lean_object*);
 lean_object* l_Lean_Lean_ToExpr___instance__3___lambda__1___closed__6;
 lean_object* l_Lean_Lean_ToExpr___instance__1;
 lean_object* l_Lean_Lean_ToExpr___instance__8_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_141____closed__4;
 lean_object* l_Lean_List_toExprAux_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_ToExpr___instance__3___lambda__1___closed__5;
 lean_object* l_Lean_Lean_ToExpr___instance__7___closed__1;
@@ -990,7 +990,7 @@ static lean_object* _init_l_Lean_Lean_ToExpr___instance__10___rarg___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_141____closed__4;
+x_1 = l_Array___kind_term____x40_Init_Data_Array_Macros___hyg_3____closed__2;
 x_2 = l_Lean_Lean_ToExpr___instance__8___rarg___lambda__1___closed__1;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;

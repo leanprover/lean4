@@ -224,7 +224,6 @@ lean_object* l_Lean_Format_initFn____x40_Lean_Data_Format___hyg_979____closed__3
 lean_object* l_Lean_formatDataValue_match__1(lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be_match__2___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Format_sbracket___closed__1;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____closed__8;
 lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_Lean_Data_Format___instance__14(uint16_t);
 lean_object* l_Lean_Format_prefixJoin_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -275,6 +274,7 @@ lean_object* l_Lean_Lean_Data_Format___instance__22___closed__1;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Format_joinArraySep_match__1(lean_object*);
 lean_object* lean_uint16_to_nat(uint16_t);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_548____closed__8;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_spaceUptoLine_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__10(lean_object*);
 lean_object* l_Lean_Format_prefixJoin___rarg(lean_object*, lean_object*, lean_object*);
@@ -4645,7 +4645,7 @@ static lean_object* _init_l_Lean_List_format___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____closed__8;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_548____closed__8;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

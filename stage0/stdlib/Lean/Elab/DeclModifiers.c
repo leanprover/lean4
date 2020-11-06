@@ -67,7 +67,6 @@ uint8_t l_Lean_Elab_Modifiers_isNoncomputable___default;
 lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2_match__2___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_expandDeclId___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_expandDeclId_match__1(lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
 lean_object* l_Lean_Elab_expandDeclId_match__2(lean_object*);
 lean_object* l_Lean_Elab_mkDeclName___rarg___closed__2;
 lean_object* l_Lean_Elab_mkDeclName___rarg___lambda__1___closed__3;
@@ -179,6 +178,7 @@ lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabModifiers_match__4(lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__7;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_315____closed__25;
 lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__1___closed__1;
 lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2___closed__2;
 lean_object* l_Lean_Elab_applyVisibility___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1154,7 +1154,7 @@ static lean_object* _init_l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_299____closed__28;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_315____closed__25;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

@@ -22,8 +22,7 @@ lean_object* l_Lean_Elab_Tactic_expandHaveTactic(lean_object*, lean_object*, lea
 extern lean_object* l_myMacro____x40_Init_Tactics___hyg_502____closed__1;
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandSufficesTactic___closed__3;
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__1;
-extern lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_38____closed__2;
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_474____closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandLetRecTactic___closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandSufficesTactic___closed__2;
@@ -35,6 +34,7 @@ extern lean_object* l_myMacro____x40_Init_Tactics___hyg_31____closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandHaveTactic(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandLetBangTactic___closed__2;
+extern lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__3;
 extern lean_object* l_myMacro____x40_Init_Tactics___hyg_720____closed__18;
 lean_object* l_Lean_Elab_Tactic_expandShowTactic___closed__6;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandLetTactic(lean_object*);
@@ -411,7 +411,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
-x_2 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_464____closed__1;
+x_2 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_474____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -717,7 +717,7 @@ x_18 = l_myMacro____x40_Init_Tactics___hyg_720____closed__6;
 x_19 = lean_array_push(x_18, x_17);
 x_20 = l_myMacro____x40_Init_Tactics___hyg_720____closed__10;
 x_21 = lean_array_push(x_19, x_20);
-x_22 = l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_38____closed__2;
+x_22 = l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__3;
 x_23 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_21);

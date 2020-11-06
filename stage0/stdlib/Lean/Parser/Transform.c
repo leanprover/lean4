@@ -22,6 +22,7 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setTailInfo(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1877____closed__3;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -30,7 +31,6 @@ lean_object* l_Lean_Syntax_manyToSepBy_match__1(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern lean_object* l_Init_Data_Repr___instance__7___rarg___closed__2;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__2;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Syntax_manyToSepBy___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_manyToSepBy(lean_object*, lean_object*);
@@ -909,7 +909,7 @@ x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
-x_4 = l_Lean_myMacro____x40_Lean_Message___hyg_1875____closed__2;
+x_4 = l_Lean_myMacro____x40_Lean_Message___hyg_1877____closed__3;
 x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {

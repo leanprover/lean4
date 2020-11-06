@@ -453,7 +453,7 @@ def expandOptPrio (stx : Syntax) : Nat :=
   else
     stx[1].isNatLit?.getD 0
 
-@[builtinMacro Lean.Parser.Command.macro] def expandMacro : Macro := fun stx => do
+def expandMacro (currNamespace : Name) (stx : Syntax) : MacroM Syntax := do
   let prec := stx[1].getArgs
   let prio := expandOptPrio stx[2]
   let head := stx[3]
@@ -467,7 +467,9 @@ def expandOptPrio (stx : Syntax) : Nat :=
   -- build macro rules
   let patHead ← expandMacroHeadIntoPattern head
   let patArgs ← args.mapM expandMacroArgIntoPattern
-  let pat := Syntax.node kind (#[patHead] ++ patArgs)
+  /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
+     So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
+  let pat := Syntax.node (currNamespace ++ kind) (#[patHead] ++ patArgs)
   if stx.getArgs.size == 9 then
     -- `stx` is of the form `macro $head $args* : $cat => term`
     let rhs := stx[8]
@@ -478,6 +480,10 @@ def expandOptPrio (stx : Syntax) : Nat :=
     let rhsBody := stx[9]
     `(syntax $prec* [$(mkIdentFrom stx kind):ident, $(quote prio):numLit] $stxParts* : $cat
       macro_rules | `($pat) => `($rhsBody))
+
+@[builtinCommandElab «macro»] def elabMacro : CommandElab :=
+  adaptExpander fun stx => do
+    liftMacroM $ expandMacro (← getCurrNamespace) stx
 
 builtin_initialize
   registerTraceClass `Elab.syntax
@@ -492,7 +498,7 @@ builtin_initialize
 def elabTail := try (" : " >> ident) >> darrow >> termParser
 parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
 -/
-@[builtinMacro Lean.Parser.Command.elab] def expandElab : Macro := fun stx => do
+def expandElab (currNamespace : Name) (stx : Syntax) : MacroM Syntax := do
   let ref := stx
   let prec    := stx[1].getArgs
   let prio    := expandOptPrio stx[2]
@@ -510,7 +516,7 @@ parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
   -- build pattern for `martch_syntax
   let patHead ← expandMacroHeadIntoPattern head
   let patArgs ← args.mapM expandMacroArgIntoPattern
-  let pat := Syntax.node kind (#[patHead] ++ patArgs)
+  let pat := Syntax.node (currNamespace ++ kind) (#[patHead] ++ patArgs)
   let kindId    := mkIdentFrom ref kind
   if expectedTypeSpec.hasArgs then
     if catName == `term then
@@ -544,5 +550,9 @@ parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
     -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
     -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.
     Macro.throwError ref s!"unsupported syntax category '{catName}'"
+
+@[builtinCommandElab «elab»] def elabElab : CommandElab :=
+  adaptExpander fun stx => do
+    liftMacroM $ expandElab (← getCurrNamespace) stx
 
 end Lean.Elab.Command

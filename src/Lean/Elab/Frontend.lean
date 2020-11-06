@@ -27,7 +27,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
   let ctx ← read
   let s ← get
   let cmdCtx : Command.Context := { cmdPos := s.cmdPos, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap }
-  let sNew? ← liftM $ EIO.toIO (fun _ => IO.Error.userError "unexpected error") (do (_, s) ← (x cmdCtx).run s.commandState; pure $ some s)
+  let sNew? ← liftM $ EIO.toIO (fun _ => IO.Error.userError "unexpected error") (do let (_, s) ← (x cmdCtx).run s.commandState; pure $ some s)
   match sNew? with
   | some sNew => setCommandState sNew
   | none      => pure ()

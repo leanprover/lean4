@@ -157,7 +157,7 @@ private def isAlwaysZero : Level → Bool
    if `type` is of the form `A_1 -> ... -> A_n -> Prop`.
    Remark: `type` can be a dependent arrow. -/
 private partial def isArrowProp : Expr → Nat → MetaM LBool
-  | Expr.sort u _,        0   => do u ← instantiateLevelMVars u; pure $ (isAlwaysZero u).toLBool
+  | Expr.sort u _,        0   => return isAlwaysZero (← instantiateLevelMVars u) $.toLBool
   | Expr.forallE _ _ _ _, 0   => pure LBool.false
   | Expr.forallE _ _ b _, n+1 => isArrowProp b n
   | Expr.letE _ _ _ b _,  n   => isArrowProp b n

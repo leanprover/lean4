@@ -258,7 +258,8 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
     if mctx.isAnonymousMVar g then
       numAnonymous := numAnonymous + 1
   modifyMCtx fun mctx => do
-    let idx := 1
+    let mctx := mctx
+    let idx  := 1
     for g in newGoals do
       if mctx.isAnonymousMVar g then
         if numAnonymous == 1 then
@@ -319,7 +320,7 @@ private def introStep (n : Name) : TacticM Unit :=
 
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx =>
   match_syntax stx with
-  | `(tactic| intro)           => liftMetaTactic fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
+  | `(tactic| intro)           => liftMetaTactic fun mvarId => do let (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
   | `(tactic| intro $h:ident)  => introStep h.getId
   | `(tactic| intro _)         => introStep `_
   | `(tactic| intro $pat:term) => do
@@ -392,7 +393,7 @@ private def sortFVarIds (fvarIds : Array FVarId) : TacticM (Array FVarId) :=
     for fvarId in fvarIds do
       let (g, gs) ← getMainGoal
       withMVarContext g do
-        g ← clear g fvarId
+        let g ← clear g fvarId
         setGoals (g :: gs)
   | _ => throwUnsupportedSyntax
 

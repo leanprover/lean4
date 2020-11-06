@@ -54,7 +54,7 @@ def ppGoal (ppCtx : PPContext) (mvarId : MVarId) : IO Format :=
              pure ([varName], some type, fmt)
          | LocalDecl.ldecl _ _ varName type val _ => do
            let varName := varName.simpMacroScopes
-           fmt ←  pushPending varNames prevType? fmt
+           let fmt ← pushPending varNames prevType? fmt
            let fmt  := addLine fmt
            let type := instMVars type
            let val  := instMVars val

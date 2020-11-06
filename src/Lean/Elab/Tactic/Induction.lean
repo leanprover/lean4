@@ -156,6 +156,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
   let usedWildcard := false
   let hasAlts      := altsSyntax.size > 0
   let subgoals     := #[] -- when alternatives are not provided, we accumulate subgoals here
+  let altsSyntax   := altsSyntax
   for (altName, altMVarId) in alts do
     let numFields ← getAltNumFields elimInfo altName
     let altStx? ←
@@ -428,7 +429,7 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
   | Expr.fvar .. => pure term
   | _ =>
     liftMetaTacticAux fun mvarId => do
-      mvarId ← Meta.generalize mvarId term `x false
+      let mvarId ← Meta.generalize mvarId term `x false
       let (fvarId, mvarId) ← Meta.intro1 mvarId
       pure (mkFVar fvarId, [mvarId])
 

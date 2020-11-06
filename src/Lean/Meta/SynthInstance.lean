@@ -173,7 +173,7 @@ def getInstances (type : Expr) : MetaM (Array Expr) := do
       let globalInstances ← getGlobalInstances
       let result ← globalInstances.getUnify type
       let result ← result.mapM fun c => match c with
-        | Expr.const constName us _ => do us ← us.mapM (fun _ => mkFreshLevelMVar); pure $ c.updateConst! us
+        | Expr.const constName us _ => return c.updateConst! (← us.mapM (fun _ => mkFreshLevelMVar))
         | _ => panic! "global instance is not a constant"
       trace[Meta.synthInstance.globalInstances]! "{type}, {result}"
       let result := localInstances.foldl (init := result) fun (result : Array Expr) linst =>

@@ -545,6 +545,7 @@ def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option In
   if ps₁.size != ps₂.size then
     none
   else
+    let ρ := ρ
     for i in [:ps₁.size] do
       ρ ← addParamRename ρ ps₁[i] ps₂[i]
     pure ρ

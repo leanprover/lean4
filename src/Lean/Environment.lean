@@ -499,6 +499,7 @@ private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : 
     #[]
 
 private def setImportedEntries (env : Environment) (mods : Array ModuleData) : IO Environment := do
+  let env := env
   let pExtDescrs ← persistentEnvExtensionsRef.get
   for mod in mods do
     for extDescr in pExtDescrs do
@@ -507,6 +508,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) : I
   return env
 
 private def finalizePersistentExtensions (env : Environment) (opts : Options) : IO Environment := do
+  let env := env
   let pExtDescrs ← persistentEnvExtensionsRef.get
   for extDescr in pExtDescrs do
     let s := extDescr.toEnvExtension.getState env

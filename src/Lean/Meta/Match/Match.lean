@@ -951,7 +951,7 @@ def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
     let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
       let motiveArg := motiveArgs[i]
       let discr     := matcherApp.discrs[i]
-      eTypeAbst ← kabstract eTypeAbst discr
+      let eTypeAbst ← kabstract eTypeAbst discr
       pure $ eTypeAbst.instantiate1 motiveArg
     let motiveBody ← mkArrow eTypeAbst motiveBody
     let matcherLevels ← match matcherApp.uElimPos? with

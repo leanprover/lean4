@@ -101,7 +101,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
       let type ← inferType e
       let intro (userName : Name) (preserveBinderNames : Bool) : TacticM FVarId := do
         let (fvarId, mvarId) ← liftMetaM do
-          mvarId ← Meta.assert mvarId userName type e
+          let mvarId ← Meta.assert mvarId userName type e
           Meta.intro1Core mvarId preserveBinderNames
         setGoals $ mvarId::others
         pure fvarId

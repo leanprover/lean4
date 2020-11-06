@@ -141,7 +141,7 @@ private def throwToBelowFailed {α} : MetaM α :=
 /- See toBelow -/
 private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Expr
   | belowDict, arg, F => do
-    belowDict ← whnf belowDict
+    let belowDict ← whnf belowDict
     trace[Elab.definition.structural]! "belowDict: {belowDict}, arg: {arg}"
     match belowDict with
     | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>

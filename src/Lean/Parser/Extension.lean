@@ -435,7 +435,7 @@ private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : N
     let parser     := p.2
     let tokens     := parser.info.collectTokens []
     tokens.forM fun token => do
-      env ← getEnv
+      let env ← getEnv
       match addToken env token with
         | Except.ok env    => setEnv env
         | Except.error msg => throwError! "invalid parser '{declName}', {msg}"

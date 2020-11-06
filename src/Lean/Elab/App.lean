@@ -572,6 +572,7 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
   match getPathToBaseStructure? env baseStructName structName with
   | none => throwError "failed to access field in parent structure"
   | some path =>
+    let e := e
     for projFunName in path do
       let projFn ← mkConst projFunName
       e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false)
@@ -583,13 +584,15 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
 private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (fType : Expr)
     : TermElabM (Array Arg) :=
   forallTelescopeReducing fType fun xs _ => do
-    let i := 0
+    let i         := 0
+    let namedArgs := namedArgs
     for x in xs do
       let xDecl ← getLocalDecl x.fvarId!
       if xDecl.binderInfo.isExplicit then
         /- If there is named argument with name `xDecl.userName`, then we skip it. -/
         match namedArgs.findIdx? (fun namedArg => namedArg.name == xDecl.userName) with
-        | some idx => namedArgs := namedArgs.eraseIdx idx
+        | some idx =>
+          namedArgs := namedArgs.eraseIdx idx
         | none =>
           let type := xDecl.type
           if type.consumeMData.isAppOf baseName then

@@ -525,7 +525,7 @@ partial def expandMacros : Syntax → MacroM Syntax
     match (← expandMacro? stx) with
     | some stxNew => expandMacros stxNew
     | none        => do
-      args ← Macro.withIncRecDepth stx $ args.mapM expandMacros
+      let args ← Macro.withIncRecDepth stx $ args.mapM expandMacros
       pure $ Syntax.node k args
   | stx => pure stx
 
@@ -746,7 +746,7 @@ def isStrLit? (stx : Syntax) : Option String :=
 def decodeCharLit (s : String) : Option Char :=
   let c := s.get 1
   if c == '\\' then do
-    (c, _) ← decodeQuotedChar s 2
+    let (c, _) ← decodeQuotedChar s 2
     pure c
   else
     pure c

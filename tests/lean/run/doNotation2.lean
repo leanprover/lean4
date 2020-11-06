@@ -1,5 +1,3 @@
-
-
 def f (x : Nat) : IO Nat := do
 IO.println "hello world"
 let aux (y : Nat) (z : Nat) : IO Nat := do
@@ -17,6 +15,7 @@ aux x x;
 #eval f 10
 
 def g (xs : List Nat) : StateT Nat Id Nat := do
+let xs := xs
 if xs.isEmpty then
   xs := [← get]
 dbgTrace! ">>> xs: {xs}"
@@ -32,6 +31,8 @@ theorem ex2 : (g [] $.run' 0) = 1 :=
 rfl
 
 def h (x : Nat) (y : Nat) : Nat := do
+let x := x
+let y := y
 if x > 0 then
   let y := x + 1 -- this is a new `y` that shadows the one above
   x := y
@@ -118,6 +119,7 @@ def f3 (x : Nat) : IO Bool := do
 let y ← cond (x == 0) (do IO.println "hello"; true) false;
 !y
 
+set_option relaxedReassignments true in
 def f4 (x y : Nat) : Nat × Nat := do
 match x with
 | 0 => y := y + 1
@@ -133,6 +135,7 @@ rfl
 theorem ex10 (x y : Nat) : f4 (x+1) y = ((x+1)+y, y) :=
 rfl
 
+set_option relaxedReassignments true in
 def f5 (x y : Nat) : Nat × Nat := do
 match x with
 | 0   => y := y + 1
@@ -145,6 +148,7 @@ theorem ex11 (x y : Nat) : f5 (x+1) y = ((x+1)+y, y) :=
 rfl
 
 def f6 (x : Nat) : Nat := do
+let x := x
 if x > 10 then
   return 0
 x := x + 1

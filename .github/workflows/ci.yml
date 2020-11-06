@@ -136,6 +136,7 @@ jobs:
           cargo install --git https://github.com/leanprover/mdBook mdbook
           export PATH=~/.cargo/bin:$PWD/build/stage1/bin:$PATH
           cd doc
+          git clean -fx .  # clean up test artifacts in doc/example
           mdbook build
           mdbook test
         if: matrix.name == 'Linux release'

@@ -1,5 +1,3 @@
-
-
 def map {α β} (f : α → β) : List α → List β
 | []    => []
 | a::as => f a :: map f as
@@ -54,3 +52,10 @@ else
 
 theorem blaEq (y : Nat) (ys : List Nat) : bla 4 (y::ys) = (y+2) :: bla 2 ys :=
 rfl
+
+def f : Nat → Nat → Nat
+ | 0, y   => y
+ | x+1, y =>
+   match f x y with
+   | 0 => f x y
+   | v => f x v + 1

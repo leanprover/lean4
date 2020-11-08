@@ -131,6 +131,13 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := do
   else if kind == `Lean.Parser.Syntax.try then
     let d ← withoutLeftRec $ toParserDescrAux stx[1]
     `(ParserDescr.try $d)
+  else if kind == `Lean.Parser.Syntax.withPosition then
+    let d ← withoutLeftRec $ toParserDescrAux stx[1]
+    `(ParserDescr.withPosition $d)
+  else if kind == `Lean.Parser.Syntax.checkColGt then
+    `(ParserDescr.checkCol true)
+  else if kind == `Lean.Parser.Syntax.checkColGe then
+    `(ParserDescr.checkCol false)
   else if kind == `Lean.Parser.Syntax.notFollowedBy then
     let d ← withoutLeftRec $ toParserDescrAux stx[1]
     `(ParserDescr.notFollowedBy $d)

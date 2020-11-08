@@ -678,7 +678,7 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
           | Pattern.var _ :: _         => true
           | _                          => false
         let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
-        newAlts ← newAlts.mapM fun alt => match alt.patterns with
+        let newAlts ← newAlts.mapM fun alt => match alt.patterns with
           | Pattern.arrayLit _ pats :: ps => pure { alt with patterns := pats ++ ps }
           | Pattern.var fvarId :: ps      => do let α ← getArrayArgType x; expandVarIntoArrayLit { alt with patterns := ps } fvarId α size
           | _  => unreachable!

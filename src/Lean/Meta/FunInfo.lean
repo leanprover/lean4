@@ -55,7 +55,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
     let fnType ← inferType fn
     withTransparency TransparencyMode.default $
       forallBoundedTelescope fnType maxArgs? fun fvars type => do
-        let pinfo := #[]
+        let mut pinfo := #[]
         for i in [:fvars.size] do
           let fvar := fvars[i]
           let decl ← getFVarLocalDecl fvar

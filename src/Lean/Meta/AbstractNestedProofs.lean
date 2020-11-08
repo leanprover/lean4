@@ -36,7 +36,7 @@ partial def visit (e : Expr) : M Expr := do
   else
     let visitBinders (xs : Array Expr) (k : M Expr) : M Expr := do
       let localInstances ← getLocalInstances
-      let lctx ← getLCtx
+      let mut lctx ← getLCtx
       for x in xs do
         let xFVarId := x.fvarId!
         let localDecl ← getLocalDecl xFVarId

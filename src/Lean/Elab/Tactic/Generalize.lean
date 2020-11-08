@@ -27,7 +27,7 @@ private def evalGeneralizeFinalize (mvarId : MVarId) (e : Expr) (target : Expr) 
   let val    := mkApp2 mvar' e rfl
   assignExprMVar mvarId val
   let mvarId' := mvar'.mvarId!
-  (_, mvarId') ← Meta.introNP mvarId' 2
+  let (_, mvarId') ← Meta.introNP mvarId' 2
   pure [mvarId']
 
 private def evalGeneralizeWithEq (h : Name) (e : Expr) (x : Name) : TacticM Unit :=

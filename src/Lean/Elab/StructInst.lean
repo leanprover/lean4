@@ -529,7 +529,7 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
           -- if all fields of `s` are marked as `default`, then try to synthesize instance
           match (← trySynthStructInstance? s d) with
           | some val => cont val { field with val := FieldVal.term (mkHole field.ref) }
-          | none     => do let (val, sNew) ← elabStruct s (some d); val ← ensureHasType d val; cont val { field with val := FieldVal.nested sNew }
+          | none     => do let (val, sNew) ← elabStruct s (some d); let val ← ensureHasType d val; cont val { field with val := FieldVal.nested sNew }
         | FieldVal.default  => do let val ← withRef field.ref $ mkFreshExprMVar (some d); cont (markDefaultMissing val) field
       | _ => withRef field.ref $ throwFailedToElabField fieldName s.structName msg!"unexpected constructor type{indentExpr type}"
     | _ => throwErrorAt field.ref "unexpected unexpanded structure field"

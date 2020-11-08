@@ -49,9 +49,9 @@ private def expandSimpleMatchWithType (stx discr lhsVar type rhs : Syntax) (expe
   withMacroExpansion stx newStx $ elabTerm newStx expectedType?
 
 private def elabDiscrsWitMatchType (discrStxs : Array Syntax) (matchType : Expr) (expectedType : Expr) : TermElabM (Array Expr) := do
-  let discrs := #[]
-  let i := 0
-  let matchType := matchType
+  let mut discrs := #[]
+  let mut i := 0
+  let mut matchType := matchType
   for discrStx in discrStxs do
     i := i + 1
     matchType ← whnf matchType
@@ -134,10 +134,11 @@ def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array Matc
   private def getMatchAlts (stx : Syntax) : Array MatchAltView := do
   let matchAlts  := stx[4]
   let firstVBar  := matchAlts[0]
-  let ref        := firstVBar
-  let result     := #[]
+  let mut ref    := firstVBar
+  let mut result := #[]
   for arg in matchAlts[1].getArgs do
-    if ref.isNone then ref := arg -- The first vertical bar is optional
+    if ref.isNone then
+      ref := arg -- The first vertical bar is optional
     if arg.getKind == `Lean.Parser.Term.matchAlt then
       result := result.push (mkMatchAltView ref arg)
     else
@@ -220,7 +221,7 @@ private def throwCtorExpected {α} : M α :=
 
 private def getNumExplicitCtorParams (ctorVal : ConstructorVal) : TermElabM Nat :=
   forallBoundedTelescope ctorVal.type ctorVal.nparams fun ps _ => do
-    let result := 0
+    let mut result := 0
     for p in ps do
       let localDecl ← getLocalDecl p.fvarId!
       if localDecl.binderInfo.isExplicit then
@@ -463,7 +464,7 @@ partial def collect : Syntax → M Syntax
       let id := stx[0]
       processVar id
       let pat := stx[2]
-      pat ← collect pat
+      let pat ← collect pat
       `(namedPattern $id $pat)
     else if k == `Lean.Parser.Term.inaccessible then
       pure stx
@@ -547,8 +548,8 @@ private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array P
   loop 0 #[]
 
 private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr × Expr) := do
-  let patterns  := #[]
-  let matchType := matchType
+  let mut patterns  := #[]
+  let mut matchType := matchType
   for patternStx in patternStxs do
     matchType ← whnf matchType
     match matchType with
@@ -560,7 +561,7 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : TermE
   pure (patterns, matchType)
 
 def finalizePatternDecls (patternVarDecls : Array PatternVarDecl) : TermElabM (Array LocalDecl) := do
-  let decls := #[]
+  let mut decls := #[]
   for pdecl in patternVarDecls do
     match pdecl with
     | PatternVarDecl.localVar fvarId =>

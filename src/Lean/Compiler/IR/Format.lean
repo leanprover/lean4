@@ -26,7 +26,7 @@ instance : ToFormat LitVal := ⟨formatLitVal⟩
 
 private def formatCtorInfo : CtorInfo → Format
   | { name := name, cidx := cidx, usize := usize, ssize := ssize, .. } => do
-    let r := f!"ctor_{cidx}"
+    let mut r := f!"ctor_{cidx}"
     if usize > 0 || ssize > 0 then
       r := f!"{r}.{usize}.{ssize}"
     if name != Name.anonymous then

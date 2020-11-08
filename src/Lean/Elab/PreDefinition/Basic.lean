@@ -46,7 +46,7 @@ def levelMVarToParamPreDecls (preDefs : Array PreDefinition) : TermElabM (Array 
   (levelMVarToParamPreDeclsAux preDefs).run' 1
 
 private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) := do
-  let s : CollectLevelParams.State := {}
+  let mut s : CollectLevelParams.State := {}
   for preDef in preDefs do
     s := collectLevelParams s preDef.type
     s := collectLevelParams s preDef.value

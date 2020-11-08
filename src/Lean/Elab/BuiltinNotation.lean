@@ -361,16 +361,18 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
   let expectedType ← tryPostponeIfHasMVars expectedType? "invalid `▸` notation"
   match_syntax stx with
   | `($heq ▸ $h) => do
-     let heq ← elabTerm heq none
+     let mut heq ← elabTerm heq none
      let heqType ← inferType heq
      let heqType ← instantiateMVars heqType
      match (← Meta.matchEq? heqType) with
      | none => throwError! "invalid `▸` notation, argument{indentExpr heq}\nhas type{indentExpr heqType}\nequality expected"
      | some (α, lhs, rhs) =>
+       let mut lhs := lhs
+       let mut rhs := rhs
        let mkMotive (typeWithLooseBVar : Expr) :=
          withLocalDeclD (← mkFreshUserName `x) α fun x => do
            mkLambdaFVars #[x] $ typeWithLooseBVar.instantiate1 x
-       let expectedAbst ← kabstract expectedType rhs
+       let mut expectedAbst ← kabstract expectedType rhs
        unless expectedAbst.hasLooseBVars do
          expectedAbst ← kabstract expectedType lhs
          unless expectedAbst.hasLooseBVars do
@@ -397,7 +399,7 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
 
 @[builtinTermElab stateRefT] def elabStateRefT : TermElab := fun stx _ => do
   let σ ← elabType stx[1]
-  let m := stx[2]
+  let mut m := stx[2]
   if m.getKind == `Lean.Parser.Term.macroDollarArg then
     m := m[1]
   let m ← elabTerm m (← mkArrow (mkSort levelOne) (mkSort levelOne))

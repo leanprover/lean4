@@ -158,8 +158,8 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
       let (majorFVarId', mvarId) ← intro1P mvarId
       -- Create FVarSubst with indices
       let baseSubst := do
-        let subst : FVarSubst := {}
-        let i := 0
+        let mut subst : FVarSubst := {}
+        let mut i := 0
         for index in indices do
           subst := subst.insert index.fvarId! (mkFVar indices'[i])
           i     := i + 1

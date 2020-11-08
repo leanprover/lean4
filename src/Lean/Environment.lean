@@ -499,7 +499,7 @@ private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : 
     #[]
 
 private def setImportedEntries (env : Environment) (mods : Array ModuleData) : IO Environment := do
-  let env := env
+  let mut env := env
   let pExtDescrs ← persistentEnvExtensionsRef.get
   for mod in mods do
     for extDescr in pExtDescrs do
@@ -508,7 +508,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) : I
   return env
 
 private def finalizePersistentExtensions (env : Environment) (opts : Options) : IO Environment := do
-  let env := env
+  let mut env := env
   let pExtDescrs ← persistentEnvExtensionsRef.get
   for extDescr in pExtDescrs do
     let s := extDescr.toEnvExtension.getState env
@@ -519,9 +519,9 @@ private def finalizePersistentExtensions (env : Environment) (opts : Options) : 
 @[export lean_import_modules]
 def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" ⟨0, 0⟩ do
   let (moduleNames, mods, regions) ← importModulesAux imports ({}, #[], #[])
-  let modIdx : Nat := 0
-  let const2ModIdx : HashMap Name ModuleIdx := {}
-  let constants : ConstMap := SMap.empty
+  let mut modIdx : Nat := 0
+  let mut const2ModIdx : HashMap Name ModuleIdx := {}
+  let mut constants : ConstMap := SMap.empty
   for mod in mods do
     for cinfo in mod.constants do
       const2ModIdx := const2ModIdx.insert cinfo.name modIdx

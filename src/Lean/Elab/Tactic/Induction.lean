@@ -153,10 +153,10 @@ private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Sy
 def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
   checkAltNames alts altsSyntax
-  let usedWildcard := false
-  let hasAlts      := altsSyntax.size > 0
-  let subgoals     := #[] -- when alternatives are not provided, we accumulate subgoals here
-  let altsSyntax   := altsSyntax
+  let mut usedWildcard := false
+  let hasAlts := altsSyntax.size > 0
+  let mut subgoals := #[] -- when alternatives are not provided, we accumulate subgoals here
+  let mut altsSyntax := altsSyntax
   for (altName, altMVarId) in alts do
     let numFields ← getAltNumFields elimInfo altName
     let altStx? ←
@@ -173,7 +173,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
           pure none
     match altStx? with
     | none =>
-      let (_, altMVarId) ← introN altMVarId numFields
+      let mut (_, altMVarId) ← introN altMVarId numFields
       match (← Cases.unifyEqs numEqs altMVarId {}) with
       | none   => pure () -- alternative is not reachable
       | some (altMVarId, _) =>
@@ -190,7 +190,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
       subgoals ← withRef altStx do
         let altRhs := getAltRHS altStx
         let altVarNames := getAltVarNames altStx
-        let (_, altMVarId) ← introN altMVarId numFields altVarNames.toList
+        let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList
         match (← Cases.unifyEqs numEqs altMVarId {}) with
         | none   => throwError! "alternative '{altName}' is not needed"
         | some (altMVarId, _) =>
@@ -240,7 +240,7 @@ private def getAlts (withAlts : Syntax) : Array Syntax :=
   We may have at most one `| _ => ...` (wildcard alternative), and it must not set variable names.
   The idea is to make sure users do not write unstructured tactics. -/
 private def checkAlts (withAlts : Syntax) : TacticM Unit := do
-  let found := false
+  let mut found := false
   for alt in getAlts withAlts do
     let n := getAltName alt
     if n == `_ then
@@ -318,11 +318,11 @@ private def getRecInfoDefault (major : Expr) (withAlts : Syntax) (allowMissingAl
     let ctorNames := indVal.ctors
     let alts      := getAlts withAlts
     checkAltCtorNames alts ctorNames
-    let altVars := #[]
-    let altRHSs := #[]
+    let mut altVars := #[]
+    let mut altRHSs := #[]
     -- This code can be simplified if we decide to keep `checkAlts`
-    let remainingAlts := alts
-    let prevAnonymousAlt? := none
+    let mut remainingAlts := alts
+    let mut prevAnonymousAlt? := none
     for ctorName in ctorNames do
       match remainingAlts.findIdx? (fun alt => (getAltName alt).isSuffixOf ctorName) with
       | some idx =>
@@ -377,10 +377,10 @@ private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRe
     else
       let alts := getAlts withAlts
       let paramNames ← liftMetaMAtMain fun _ => getParamNames recInfo.recursorName
-      let altVars           := #[]
-      let altRHSs           := #[]
-      let remainingAlts     := alts
-      let prevAnonymousAlt? := none
+      let mut altVars           := #[]
+      let mut altRHSs           := #[]
+      let mut remainingAlts     := alts
+      let mut prevAnonymousAlt? := none
       for i in [:paramNames.size] do
         if recInfo.isMinor i then
           let paramName := paramNames[i]
@@ -413,12 +413,12 @@ private def processResult (altRHSs : Array Syntax) (result : Array Meta.Inductio
   else
     unless altRHSs.size == result.size do
       throwError! "mistmatch on the number of subgoals produced ({result.size}) and alternatives provided ({altRHSs.size})"
-    let gs := #[]
+    let mut gs := #[]
     for i in [:result.size] do
       let subgoal := result[i]
       let rhs     := altRHSs[i]
       let ref     := rhs
-      let mvarId  := subgoal.mvarId
+      let mut mvarId := subgoal.mvarId
       if numToIntro > 0 then
         (_, mvarId) ← introNP mvarId numToIntro
       gs ← evalAltRhs mvarId rhs gs

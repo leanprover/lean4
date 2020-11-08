@@ -224,9 +224,9 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
   | _         => k x
 
 @[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) := do
-  let xs' := #[]
-  let bs  := #[]
-  let i   := 0
+  let mut xs' := #[]
+  let mut bs  := #[]
+  let mut i   := 0
   for x in xs do
     let expected := typeFromIdx i
     match x with

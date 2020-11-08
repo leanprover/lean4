@@ -292,8 +292,8 @@ private def addEtaArg (k : M Expr) : M Expr := do
 /- This method execute after all application arguments have been processed. -/
 private def finalize : M Expr := do
   let s ← get
-  let e     := s.f
-  let eType := s.fType
+  let mut e     := s.f
+  let mut eType := s.fType
   -- all user explicit arguments have been consumed
   trace[Elab.app.finalize]! e
   let ref ← getRef
@@ -572,7 +572,7 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
   match getPathToBaseStructure? env baseStructName structName with
   | none => throwError "failed to access field in parent structure"
   | some path =>
-    let e := e
+    let mut e := e
     for projFunName in path do
       let projFn ← mkConst projFunName
       e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false)
@@ -584,8 +584,8 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
 private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (fType : Expr)
     : TermElabM (Array Arg) :=
   forallTelescopeReducing fType fun xs _ => do
-    let i         := 0
-    let namedArgs := namedArgs
+    let mut i := 0
+    let mut namedArgs := namedArgs
     for x in xs do
       let xDecl ← getLocalDecl x.fvarId!
       if xDecl.binderInfo.isExplicit then

@@ -25,7 +25,7 @@ private def mkParserSeq (ds : Array Syntax) : TermElabM Syntax := do
   else if ds.size == 1 then
     pure ds[0]
   else
-    let r := ds[0]
+    let mut r := ds[0]
     for d in ds[1:ds.size] do
       r ← `(ParserDescr.andthen $r $d)
     return r

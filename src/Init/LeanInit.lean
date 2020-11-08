@@ -568,8 +568,8 @@ def mkIdent (val : Name) : Syntax :=
   Syntax.node nullKind args
 
 def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := do
-  let i := 0
-  let r := #[]
+  let mut i := 0
+  let mut r := #[]
   for a in as do
     if i > 0 then
       r := r.push sep $.push a
@@ -913,7 +913,7 @@ private partial def mapSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syn
   if h : i < a.size then
     let stx := a.get ⟨i, h⟩
     if i % 2 == 0 then do
-      stx ← f stx
+      let stx ← f stx
       mapSepElemsMAux a f (i+1) (acc.push stx)
     else
       mapSepElemsMAux a f (i+1) (acc.push stx)
@@ -968,8 +968,8 @@ partial def isInterpolatedStrLit? (stx : Syntax) : Option String :=
   | some val => decodeInterpStrLit val
 
 def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → Syntax → MacroM Syntax) (mkElem : Syntax → MacroM Syntax) : MacroM Syntax := do
-  let i      := 0
-  let result := Syntax.missing
+  let mut i := 0
+  let mut result := Syntax.missing
   for elem in chunks do
     let elem ← match elem.isInterpolatedStrLit? with
       | none     => mkElem elem

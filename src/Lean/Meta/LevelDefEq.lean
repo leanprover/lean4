@@ -224,7 +224,7 @@ private def restore (env : Environment) (mctx : MetavarContext) (postponed : Per
     throw ex
 
 private def postponedToMessageData (ps : PersistentArray PostponedEntry) : MessageData := do
-  let r := MessageData.nil
+  let mut r := MessageData.nil
   for p in ps do
     r := msg!"{r}\n{p.lhs} =?= {p.rhs}"
   pure r

@@ -87,7 +87,7 @@ private def reduceRec {α} (recVal : RecursorVal) (recLvls : List Level) (recArg
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs.get ⟨majorIdx, h⟩
-    let major ← whnf major
+    let mut major ← whnf major
     if recVal.k then
       let newMajor ← toCtorWhenK recVal major
       major := newMajor.getD major
@@ -121,7 +121,7 @@ private def reduceRec {α} (recVal : RecursorVal) (recLvls : List Level) (recArg
     let majorIdx := recVal.getMajorIdx
     if h : majorIdx < recArgs.size then do
       let major := recArgs.get ⟨majorIdx, h⟩
-      major ← whnf major
+      let major ← whnf major
       isStuck? major
     else
       pure none
@@ -135,7 +135,7 @@ private def reduceQuotRec {α} (recVal  : QuotVal) (recLvls : List Level) (recAr
   let process (majorPos argPos : Nat) : MetaM α :=
     if h : majorPos < recArgs.size then do
       let major := recArgs.get ⟨majorPos, h⟩
-      major ← whnf major
+      let major ← whnf major
       match major with
       | Expr.app (Expr.app (Expr.app (Expr.const majorFn _ _) _ _) _ _) majorArg _ => do
         let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getConstNoEx? majorFn | failK ()
@@ -156,7 +156,7 @@ private def reduceQuotRec {α} (recVal  : QuotVal) (recLvls : List Level) (recAr
   let process? (majorPos : Nat) : MetaM (Option MVarId) :=
     if h : majorPos < recArgs.size then do
       let major := recArgs.get ⟨majorPos, h⟩
-      major ← whnf major
+      let major ← whnf major
       isStuck? major
     else
       pure none

@@ -14,7 +14,7 @@ def manyToSepBy (stx : Syntax) (sepTk : String) : Syntax := do
     if args.size == 0 then
       stx
     else
-      let argsNew := #[args[0]]
+      let mut argsNew := #[args[0]]
       for i in [1:args.size] do
         let arg  := args[i]
         let prev := argsNew.back

@@ -92,7 +92,7 @@ def toSubarray (as : Array α) (start stop : Nat) : Subarray α :=
        { as := as, start := as.size, stop := as.size, h₁ := Nat.leRefl _, h₂ := Nat.leRefl _ }
 
 def ofSubarray (s : Subarray α) : Array α := do
-  let as := mkEmpty (s.stop - s.start)
+  let mut as := mkEmpty (s.stop - s.start)
   for a in s do
     as := as.push a
   return as

@@ -42,7 +42,7 @@ def rewriteLocalDecl (stx : Syntax) (symm : Bool) (userName : Name) : TacticM Un
 def rewriteAll (stx : Syntax) (symm : Bool) : TacticM Unit := do
   let worked ← «try» $ rewriteTarget stx symm
   withMainMVarContext do
-    let worked := worked
+    let mut worked := worked
     -- We must traverse backwards because `replaceLocalDecl` uses the revert/intro idiom
     for fvarId in (← getLCtx).getFVarIds.reverse do
       worked := worked || (← «try» $ rewriteLocalDeclFVarId stx symm fvarId)

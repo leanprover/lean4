@@ -15,7 +15,7 @@ private def lparamsToMessageData (lparams : List Name) : MessageData :=
   match lparams with
   | []    => ""
   | u::us => do
-    let m : MessageData := ".{" ++ u
+    let mut m : MessageData := ".{" ++ u
     for u in us do
       m := m ++ ", " ++ u
     return m ++ "}"
@@ -42,8 +42,8 @@ private def printQuot (kind : QuotKind) (id : Name) (lparams : List Name) (type 
 
 private def printInduct (id : Name) (lparams : List Name) (nparams : Nat) (nindices : Nat) (type : Expr)
     (ctors : List Name) (isUnsafe : Bool) : CommandElabM Unit := do
-  let m ← mkHeader "inductive" id lparams type isUnsafe
-  let m := m ++ Format.line ++ "constructors:"
+  let mut m ← mkHeader "inductive" id lparams type isUnsafe
+  m := m ++ Format.line ++ "constructors:"
   for ctor in ctors do
     let cinfo ← getConstInfo ctor
     m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type

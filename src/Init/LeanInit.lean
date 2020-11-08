@@ -851,6 +851,7 @@ class Quote (α : Type) :=
 export Quote (quote)
 
 instance : Quote Syntax := ⟨id⟩
+instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
 instance : Quote String := ⟨mkStxStrLit⟩
 instance : Quote Nat := ⟨fun n => mkStxNumLit $ toString n⟩
 instance : Quote Substring := ⟨fun s => mkCAppStx `String.toSubstring #[quote s.toString]⟩

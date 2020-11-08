@@ -35,7 +35,7 @@ def getElimInfo (declName : Name) : MetaM ElimInfo := do
       match xs.indexOf? target with
       | none => throwError! "unexpected eliminator type{indentExpr declInfo.type}"
       | some targetPos => pure targetPos.val
-    let altsInfo := #[]
+    let mut altsInfo := #[]
     for i in [:xs.size] do
       let x := xs[i]
       if x != motive && !targets.contains x then

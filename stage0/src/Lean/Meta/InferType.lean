@@ -12,8 +12,8 @@ def throwFunctionExpected {α} (f : Expr) : MetaM α :=
   throwError! "function expected{indentExpr f}"
 
 private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
-  let fType ← inferType f
-  let j := 0
+  let mut fType ← inferType f
+  let mut j := 0
   for i in [:args.size] do
     match fType with
     | Expr.forallE _ _ b _ => fType := b
@@ -43,7 +43,7 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
     let structParams := structType.getAppArgs
     if n != structParams.size then failed ()
     else do
-      let ctorType ← inferAppType (mkConst ctorVal.name structLvls) structParams
+      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structParams
       for i in [:idx] do
         ctorType ← whnf ctorType
         match ctorType with
@@ -210,7 +210,7 @@ private def isPropImp (e : Expr) : MetaM Bool := do
     let type ← inferType e
     let type ← whnfD type
     match type with
-    | Expr.sort u _ => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
+    | Expr.sort u _ => return isAlwaysZero (← instantiateLevelMVars u)
     | _             => pure false
 
 def isProp (e : Expr) : m Bool :=

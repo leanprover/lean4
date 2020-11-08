@@ -48,8 +48,8 @@ partial def compileParserBody {α} (ctx : Context α) (e : Expr) (force : Bool :
     let mkCall (p : Name) := do
       let ty ← inferType (mkConst p)
       forallTelescope ty fun params _ => do
-        let p    := mkConst p
-        let args := e.getAppArgs
+        let mut p := mkConst p
+        let args  := e.getAppArgs
         for i in [:Nat.min params.size args.size] do
           let param := params[i]
           let arg   := args[i]

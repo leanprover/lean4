@@ -245,8 +245,8 @@ instance {α : Type u} {β : Type v} [ToFormat α] [ToFormat β] : ToFormat (Pro
 ⟩
 
 def Format.joinArraySep {α : Type u} [ToFormat α] (as : Array α) (sep : Format) : Format := do
-  let r := nil
-  let i := 0
+  let mut r := nil
+  let mut i := 0
   for a in as do
     if i > 0 then
       r := r ++ sep ++ format a

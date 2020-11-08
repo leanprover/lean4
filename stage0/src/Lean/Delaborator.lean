@@ -379,7 +379,7 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
 def delabMData : Delab := do
   -- only interpret `pp.` values by default
   let Expr.mdata m _ _ ← getExpr | unreachable!
-  let posOpts := (← read).optionsPerPos
+  let mut posOpts := (← read).optionsPerPos
   let pos := (← read).pos
   for (k, v) in m do
     if (`pp).isPrefixOf k then

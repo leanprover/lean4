@@ -485,7 +485,7 @@ private def preprocess (type : Expr) : MetaM Expr :=
     mkForallFVars xs type
 
 private def preprocessLevels (us : List Level) : MetaM (List Level) := do
-  let r := []
+  let mut r := []
   for u in us do
     let u ← instantiateLevelMVars u
     if u.hasMVar then

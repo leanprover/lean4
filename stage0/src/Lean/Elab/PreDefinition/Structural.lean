@@ -36,7 +36,7 @@ structure RecArgInfo :=
   (reflexive   : Bool)        -- true if we are recursing over a reflexive inductive datatype
 
 private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat := do
-  let minPos := xs.size
+  let mut minPos := xs.size
   for index in indices do
     match xs.indexOf? index with
     | some pos => if pos.val < minPos then minPos := pos.val
@@ -232,7 +232,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
             let argsNonFixed := args.extract numFixed args.size
             -- The function `f` does not explicitly take `recArg` and its indices as arguments. So, we skip them too.
-            let fArgs := #[]
+            let mut fArgs := #[]
             for i in [:argsNonFixed.size] do
               if recArgInfo.pos != i && !recArgInfo.indicesPos.contains i then
                 let arg := argsNonFixed[i]
@@ -281,7 +281,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
              This may generate weird error messages, when it doesn't work.
           -/
           let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
-          let discrs := matcherApp.discrs
+          let mut discrs := matcherApp.discrs
           for i in [:discrs.size] do
             let discr ← processApp discrs[i]
             trace[Elab.definition.structural]! "new discr [{i}]: {discr}"
@@ -304,7 +304,7 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
   let major := recArgInfo.ys[recArgInfo.pos]
   let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
   let motive ← mkForallFVars otherArgs type
-  let brecOnUniv ← getLevel motive
+  let mut brecOnUniv ← getLevel motive
   trace[Elab.definition.structural]! "brecOn univ: {brecOnUniv}"
   let useBInductionOn := recArgInfo.reflexive && brecOnUniv == levelZero
   if recArgInfo.reflexive && brecOnUniv != levelZero then

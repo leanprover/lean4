@@ -145,7 +145,7 @@ private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : 
     | none          => throwError! "ill-formed recursor '{declName}'"
 
 private def getParamsPos (declName : Name) (xs : Array Expr) (numParams : Nat) (Iargs : Array Expr) : MetaM (List (Option Nat)) := do
-  let paramsPos := #[]
+  let mut paramsPos := #[]
   for i in [:numParams] do
     let x := xs[i]
     match (← Iargs.findIdxM? fun Iarg => isDefEq Iarg x) with
@@ -159,7 +159,7 @@ private def getParamsPos (declName : Name) (xs : Array Expr) (numParams : Nat) (
   pure paramsPos.toList
 
 private def getIndicesPos (declName : Name) (xs : Array Expr) (majorPos numIndices : Nat) (Iargs : Array Expr) : MetaM (List Nat) := do
-  let indicesPos := #[]
+  let mut indicesPos := #[]
   for i in [:numIndices] do
     let i := majorPos - numIndices + i
     let x := xs[i]
@@ -177,7 +177,7 @@ private def getMotiveLevel (declName : Name) (motiveResultType : Expr) : MetaM L
 
 private def getUnivLevelPos (declName : Name) (lparams : List Name) (motiveLvl : Level) (Ilevels : List Level) : MetaM (List RecursorUnivLevelPos) := do
   let Ilevels := Ilevels.toArray
-  let univLevelPos := #[]
+  let mut univLevelPos := #[]
   for p in lparams do
     if motiveLvl == mkLevelParam p then
       univLevelPos := univLevelPos.push RecursorUnivLevelPos.motive
@@ -189,8 +189,8 @@ private def getUnivLevelPos (declName : Name) (lparams : List Name) (motiveLvl :
   pure univLevelPos.toList
 
 private def getProduceMotiveAndRecursive (xs : Array Expr) (numParams numIndices majorPos : Nat) (motive : Expr) : MetaM (List Bool × Bool) := do
-  let produceMotive := #[]
-  let recursor      := false
+  let mut produceMotive := #[]
+  let mut recursor      := false
   for i in [:xs.size] do
     if i < numParams + 1 then
       continue --skip parameters and motive

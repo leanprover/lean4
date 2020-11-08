@@ -202,8 +202,8 @@ private partial def splitMutualPreamble (elems : Array Syntax) : Option (Array S
 
 @[builtinMacro Lean.Parser.Command.mutual]
 def expandMutualNamespace : Macro := fun stx => do
-  let ns?      := none
-  let elemsNew := #[]
+  let mut ns?      := none
+  let mut elemsNew := #[]
   for elem in stx[1].getArgs do
     match ns?, expandDeclNamespace? elem with
     | _, none                         => elemsNew := elemsNew.push elem
@@ -222,8 +222,8 @@ def expandMutualNamespace : Macro := fun stx => do
 
 @[builtinMacro Lean.Parser.Command.mutual]
 def expandMutualElement : Macro := fun stx => do
-  let elemsNew := #[]
-  let modified := false
+  let mut elemsNew := #[]
+  let mut modified := false
   for elem in stx[1].getArgs do
     match (← expandMacro? elem) with
     | some elemNew => elemsNew := elemsNew.push elemNew; modified := true

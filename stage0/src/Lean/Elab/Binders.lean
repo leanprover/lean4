@@ -44,7 +44,7 @@ partial def quoteAutoTactic : Syntax → TermElabM Syntax
     if stx.isAntiquot then
       throwErrorAt stx "invalic auto tactic, antiquotation is not allowed"
     else
-      let quotedArgs ← `(Array.empty)
+      let mut quotedArgs ← `(Array.empty)
       for arg in args do
         if k == nullKind && Quotation.isAntiquotSplice arg then
           throwErrorAt arg "invalic auto tactic, antiquotation is not allowed"

@@ -171,7 +171,7 @@ def modifyM {m : Type u → Type v} [Monad m] [Inhabited α] (a : Array α) (i :
     let idx : Fin a.size := ⟨i, h⟩
     let v                := a.get idx
     let a                := a.set idx (arbitrary α)
-    v ← f v
+    let v ← f v
     pure $ (a.set idx v)
   else
     pure a
@@ -343,7 +343,7 @@ def findM? {α : Type} {m : Type → Type} [Monad m] (as : Array α) (p : α →
 
 @[inline]
 def findIdxM? {m : Type → Type u} [Monad m] (as : Array α) (p : α → m Bool) : m (Option Nat) := do
-  let i := 0
+  let mut i := 0
   for a in as do
     if (← p a) then
       return i
@@ -599,8 +599,8 @@ def getMax? {α : Type u} (as : Array α) (lt : α → α → Bool) : Option α 
 
 @[inline]
 def partition {α : Type u} (p : α → Bool) (as : Array α) : Array α × Array α := do
-  let bs := #[]
-  let cs := #[]
+  let mut bs := #[]
+  let mut cs := #[]
   for a in as do
     if p a then
       bs := bs.push a

@@ -79,7 +79,7 @@ def apply (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) :=
     checkNotAssigned mvarId `apply
     let targetType ← getMVarType mvarId
     let eType      ← inferType e
-    let (numArgs, hasMVarHead) ← getExpectedNumArgsAux eType
+    let mut (numArgs, hasMVarHead) ← getExpectedNumArgsAux eType
     if hasMVarHead then
       let targetTypeNumArgs ← getExpectedNumArgs targetType
       numArgs := numArgs - targetTypeNumArgs

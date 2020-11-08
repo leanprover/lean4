@@ -88,7 +88,7 @@ private def elabFunType (ref : Syntax) (xs : Array Expr) (view : DefView) : Term
     mkForallFVars xs type
 
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
-  let headers := #[]
+  let mut headers := #[]
   for view in views do
     let newHeader ← withRef view.ref do
       let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
@@ -262,16 +262,16 @@ Note that `g` is not a free variable at `(let g : B := ?m₂; body)`. We recover
 -/
 private def mkInitialUsedFVarsMap (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : List LetRecToLift)
     : UsedFVarsMap := do
-  let sectionVarSet := {}
+  let mut sectionVarSet := {}
   for var in sectionVars do
     sectionVarSet := sectionVarSet.insert var.fvarId!
-  let usedFVarMap := {}
+  let mut usedFVarMap := {}
   for mainFVarId in mainFVarIds do
     usedFVarMap := usedFVarMap.insert mainFVarId sectionVarSet
   for toLift in letRecsToLift do
     let state := Lean.collectFVars {} toLift.val
     let state := Lean.collectFVars state toLift.type
-    let set   := state.fvarSet
+    let mut set := state.fvarSet
     /- toLift.val may contain metavariables that are placeholders for nested let-recs. We should collect the fvarId
        for the associated let-rec because we need this information to compute the fixpoint later. -/
     let mvarIds := (toLift.val.collectMVars {}).result
@@ -363,7 +363,7 @@ private def mkFreeVarMap
   let usedFVarsMap  := mkInitialUsedFVarsMap mctx sectionVars mainFVarIds letRecsToLift
   let letRecFVarIds := letRecsToLift.map fun toLift => toLift.fvarId
   let usedFVarsMap  := FixPoint.run letRecFVarIds usedFVarsMap
-  let freeVarMap := {}
+  let mut freeVarMap := {}
   for toLift in letRecsToLift do
     let lctx       := toLift.lctx
     let fvarIdsSet := (usedFVarsMap.find? toLift.fvarId).get!

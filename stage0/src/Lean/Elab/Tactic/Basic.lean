@@ -253,13 +253,13 @@ def «try» {α} (tactic : TacticM α) : TacticM Bool := do
   If there is only one new untagged goal, then we just use `parentTag` -/
 def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVarId) : TacticM Unit := do
   let mctx ← getMCtx
-  let numAnonymous := 0
+  let mut numAnonymous := 0
   for g in newGoals do
     if mctx.isAnonymousMVar g then
       numAnonymous := numAnonymous + 1
   modifyMCtx fun mctx => do
-    let mctx := mctx
-    let idx  := 1
+    let mut mctx := mctx
+    let mut idx  := 1
     for g in newGoals do
       if mctx.isAnonymousMVar g then
         if numAnonymous == 1 then

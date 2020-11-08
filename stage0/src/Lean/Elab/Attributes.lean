@@ -24,7 +24,7 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [Add
     | some str => pure $ mkNameSimple str
   unless isAttribute (← getEnv) attrName do
     throwError! "unknown attribute [{attrName}]"
-  let args := stx[1]
+  let mut args := stx[1]
   -- the old frontend passes Syntax.missing for empty args, for reasons
   if args.getNumArgs == 0 then
     args := Syntax.missing
@@ -32,7 +32,7 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [Add
 
 -- sepBy1 attrInstance ", "
 def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) := do
-  let attrs := #[]
+  let mut attrs := #[]
   for attr in stx.getSepArgs do
     attrs := attrs.push (← elabAttr attr)
   return attrs

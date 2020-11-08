@@ -573,7 +573,7 @@ def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Name) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
   let letRecDecls := doLetRec[1].getSepArgs
   let letDecls := letRecDecls.map fun p => p[1]
-  let allVars := #[]
+  let mut allVars := #[]
   for letDecl in letDecls do
     let vars ← getLetDeclVars letDecl
     allVars := allVars ++ vars
@@ -1007,7 +1007,7 @@ partial def toTerm : Code → M Syntax
   | Code.seq stx k          => do seqToTerm stx (← toTerm k)
   | Code.ite ref _ o c t e  => do pure $ mkIte ref o c (← toTerm t) (← toTerm e)
   | Code.«match» ref discrs optType alts => do
-    let termSepAlts := #[]
+    let mut termSepAlts := #[]
     for alt in alts do
       termSepAlts := termSepAlts.push $ mkAtomFrom alt.ref "|"
       let rhs ← toTerm alt.rhs

@@ -1,5 +1,3 @@
-
-
 abbrev M := StateRefT Nat IO
 
 def testM {α} [ToString α] [BEq α] (init : Nat) (expected : α) (x : M α): IO Unit := do
@@ -52,7 +50,7 @@ catch
 #eval testM 0 2000 $ f3 10
 
 def f4 (xs : List Nat) : M Nat := do
-let y := 0
+let mut y := 0
 for x in xs do
   IO.println s!"x: {x}"
   try
@@ -67,7 +65,7 @@ get
 #eval testM 40 19 $ f4 [1, 2, 3, 4, 5, 6]
 
 def f5 (xs : List Nat) : M Nat := do
-let y := 0
+let mut y := 0
 for x in xs do
   IO.println s!"x: {x}"
   try

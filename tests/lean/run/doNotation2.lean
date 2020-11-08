@@ -15,7 +15,7 @@ aux x x;
 #eval f 10
 
 def g (xs : List Nat) : StateT Nat Id Nat := do
-let xs := xs
+let mut xs := xs
 if xs.isEmpty then
   xs := [← get]
 dbgTrace! ">>> xs: {xs}"
@@ -31,8 +31,8 @@ theorem ex2 : (g [] $.run' 0) = 1 :=
 rfl
 
 def h (x : Nat) (y : Nat) : Nat := do
-let x := x
-let y := y
+let mut x := x
+let mut y := y
 if x > 0 then
   let y := x + 1 -- this is a new `y` that shadows the one above
   x := y
@@ -47,7 +47,7 @@ theorem ex4 (y : Nat) : h 1 y = (1 + 1) + y :=
 rfl
 
 def sumOdd (xs : List Nat) (threshold : Nat) : Nat := do
-let sum := 0
+let mut sum := 0
 for x in xs do
   if x % 2 == 1 then
     sum := sum + x
@@ -65,7 +65,7 @@ rfl
 
 -- We need `Id.run` because we still have `Monad Option`
 def find? (xs : List Nat) (p : Nat → Bool) : Option Nat := Id.run do
-let result := none
+let mut result := none
 for x in xs do
   if p x then
     result := x
@@ -73,7 +73,7 @@ for x in xs do
 return result
 
 def sumDiff (ps : List (Nat × Nat)) : Nat := do
-let sum := 0
+let mut sum := 0
 for (x, y) in ps do
   sum := sum + x - y
 return sum
@@ -103,8 +103,8 @@ IO.println ("isOdd(" ++ toString x ++ "): " ++ toString (isOdd x))
 #eval f2 10
 
 def split (xs : List Nat) : List Nat × List Nat := do
-let evens := []
-let odds  := []
+let mut evens := []
+let mut odds  := []
 for x in xs.reverse do
   if x % 2 == 0 then
     evens := x :: evens
@@ -119,12 +119,12 @@ def f3 (x : Nat) : IO Bool := do
 let y ← cond (x == 0) (do IO.println "hello"; true) false;
 !y
 
-set_option relaxedReassignments true in
 def f4 (x y : Nat) : Nat × Nat := do
-match x with
-| 0 => y := y + 1
-| _ => x := x + y
-return (x, y)
+  let mut (x, y) := (x, y)
+  match x with
+  | 0 => y := y + 1
+  | _ => x := x + y
+  return (x, y)
 
 #eval f4 0 10
 #eval f4 5 10
@@ -135,12 +135,12 @@ rfl
 theorem ex10 (x y : Nat) : f4 (x+1) y = ((x+1)+y, y) :=
 rfl
 
-set_option relaxedReassignments true in
 def f5 (x y : Nat) : Nat × Nat := do
-match x with
-| 0   => y := y + 1
-| z+1 => dbgTrace! "z: {z}"; x := x + y
-return (x, y)
+  let mut (x, y) := (x, y)
+  match x with
+  | 0   => y := y + 1
+  | z+1 => dbgTrace! "z: {z}"; x := x + y
+  return (x, y)
 
 #eval f5 5 6
 
@@ -148,11 +148,11 @@ theorem ex11 (x y : Nat) : f5 (x+1) y = ((x+1)+y, y) :=
 rfl
 
 def f6 (x : Nat) : Nat := do
-let x := x
-if x > 10 then
-  return 0
-x := x + 1
-return x
+  let mut x := x
+  if x > 10 then
+    return 0
+  x := x + 1
+  return x
 
 theorem ex12 : f6 11 = 0 :=
 rfl

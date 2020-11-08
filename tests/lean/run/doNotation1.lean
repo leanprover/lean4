@@ -1,4 +1,3 @@
-
 open Lean
 
 def f : IO Nat :=
@@ -122,8 +121,8 @@ else
 
 def f1 (x : Nat) : StateT Nat IO Nat := do
 IO.println "hello"
-let z := x
-let y := x
+let mut z := x
+let mut y := x
 modify (· + 10)
 if x > 0 then
   y := 3*y

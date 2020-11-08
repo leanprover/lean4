@@ -1,5 +1,3 @@
-
-
 abbrev M := StateRefT Nat IO
 
 def testM {α} [ToString α] [BEq α] (init : Nat) (expected : α) (x : M α): IO Unit := do
@@ -22,7 +20,7 @@ let v ←
     return 1
 
 def f2 (xs : List Nat) : M Nat := do
-let sum := 0
+let mut sum := 0
 for x in xs do
   try
     dec x
@@ -39,7 +37,7 @@ return sum
 #eval testM 1 1 $ f2 [1, 100, 200, 300]
 
 def f3 (xs : List Nat) : M Nat := do
-let sum := 0
+let mut sum := 0
 for x in xs do
   try
     dec x
@@ -56,7 +54,7 @@ return sum
 #eval testM 1 1 $ f3 [1, 100, 200, 300]
 
 def f4 (xs : Array Nat) : IO Nat := do
-let sum := 0
+let mut sum := 0
 for x in xs do
   sum := sum + x
   IO.println x
@@ -65,7 +63,7 @@ return sum
 #eval f4 #[1, 2, 3]
 
 def f5 (xs : Array Nat) : IO Nat := do
-let sum := 0
+let mut sum := 0
 for x in xs[1 : xs.size - 1] do
   sum := sum + x
   IO.println x

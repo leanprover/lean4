@@ -14,13 +14,13 @@ for p in xs do
 inductive Vector (α : Type) : Nat → Type
 | nil  : Vector α 0
 | cons : α → {n : Nat} → Vector α n → Vector α (n+1)
-set_option relaxedReassignments true in
 def f4 (b : Bool) (n : Nat) (v : Vector Nat n) : Vector Nat (n+1) := do
+let mut v := v
 if b then
   v := Vector.cons 1 v
 Vector.cons 1 v
-set_option relaxedReassignments true in
 def f5 (y : Nat) (xs : List Nat) : List Bool := do
+let mut y := y
 for x in xs do
   y := true -- invalid reassigned
 
@@ -49,8 +49,8 @@ def f11 (x : Nat) : IO Unit := do
 if x > 0 then
   IO.println "x is not zero"
 IO.mkRef true -- error here as expected
-set_option relaxedReassignments true in
 def f12 (x : Nat) : IO Unit := do
+let mut x := x
 if x > 0 then
   pure true
 else

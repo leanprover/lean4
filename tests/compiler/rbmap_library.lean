@@ -53,11 +53,11 @@ def mkRandMap (max : Nat) : Nat → Map → Array (Nat × Nat) → IO (Map × Ar
 
 def tst3 (seed : Nat) (n : Nat) (max : Nat) : IO Unit :=
 do IO.setRandSeed seed
-   let (m, a) ← mkRandMap max n {} Array.empty
+   let mut (m, a) ← mkRandMap max n {} Array.empty
    check (sz m == a.size)
    check (a.all (fun ⟨k, v⟩ => m.find? k == some v))
    IO.println ("tst3 size: " ++ toString a.size)
-   let i := 0
+   let mut i := 0
    for (k, b) in a do
      if i % 2 == 0 then
        m := m.erase k

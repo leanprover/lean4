@@ -139,7 +139,7 @@ registerTraceClass `Meta.mkElim
 /- Helper methods for testins mkElim -/
 
 private def getUnusedLevelParam (majors : List Expr) (lhss : List AltLHS) : MetaM Level := do
-let s := {}
+let mut s := {}
 for major in majors do
   let major ← instantiateMVars major
   let majorType ← inferType major

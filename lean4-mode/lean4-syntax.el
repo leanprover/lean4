@@ -17,7 +17,7 @@
     "end" "this" "using" "using_well_founded" "namespace" "section"
     "attribute" "local" "set_option" "extends" "include" "class"
     "attributes" "raw" "have" "show" "suffices" "by" "in" "at" "do" "let" "for" "unless" "break" "continue"
-    "try" "catch" "finally" "where" "rec" "forall" "fun"
+    "try" "catch" "finally" "where" "rec" "mut" "forall" "fun"
     "exists" "if" "then" "else" "from" "init_quot" "return"
     "mutual" "def" "run_cmd" "declare_syntax_cat" "syntax" "macro_rules" "macro"
     "initialize" "builtin_initialize")

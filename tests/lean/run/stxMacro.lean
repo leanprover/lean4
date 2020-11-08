@@ -1,5 +1,3 @@
-
-
 -- Macro for the `syntax` category
 macro "many " x:stx : stx => `(stx| ($x)*)
 
@@ -7,7 +5,7 @@ syntax "sum! " (many term:max) : term
 
 macro_rules
 | `(sum! $xs*) => do
-  let r ← `(0)
+  let mut r ← `(0)
   for x in xs do
     r ← `($r + $x)
   return r

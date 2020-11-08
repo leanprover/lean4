@@ -4,7 +4,7 @@
 
 # Language Manual
 
-- [Significant Changes from Lean 3]()
+- [Significant Changes from Lean 3](./lean3changes.md)
 - [The `do` Notation]()
 
 # Tools

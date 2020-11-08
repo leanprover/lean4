@@ -1097,37 +1097,32 @@ def matchNestedTermResult (ref : Syntax) (term : Syntax) (uvars : Array Name) (a
 
 end ToTerm
 
+def isMutableLet (doElem : Syntax) : Bool :=
+  let kind := doElem.getKind
+  (kind == `Lean.Parser.Term.doLetArrow || kind == `Lean.Parser.Term.doLet)
+  &&
+  !doElem[1].isNone
+
 namespace ToCodeBlock
 
 structure Context :=
-  (ref       : Syntax)
-  (m         : Syntax) -- Syntax representing the monad associated with the do notation.
-  (varSet    : NameSet := {})
-  (insideFor : Bool := false)
+  (ref         : Syntax)
+  (m           : Syntax) -- Syntax representing the monad associated with the do notation.
+  (mutableVars : NameSet := {})
+  (insideFor   : Bool := false)
 
 abbrev M := ReaderT Context TermElabM
 
-@[inline] def withNewVars {α} (newVars : Array Name) (x : M α) : M α :=
-  withReader (fun ctx => { ctx with varSet := insertVars ctx.varSet newVars }) x
-
-builtin_initialize
-  registerOption `relaxedReassignments { defValue := false, group := "do", descr := "if set to true, then any variable in the local context may be reassigned" }
-
-def getRelaxedReassigments : M Bool := do
-  return (← getOptions).get `relaxedReassignments false
+@[inline] def withNewMutableVars {α} (newVars : Array Name) (mutable : Bool) (x : M α) : M α :=
+  withReader (fun ctx => if mutable then { ctx with mutableVars := insertVars ctx.mutableVars newVars } else ctx) x
 
 def checkReassignable (xs : Array Name) : M Unit := do
   let throwInvalidReassignment (x : Name) : M Unit :=
     throwError! "'{x.simpMacroScopes}' cannot be reassigned"
   let ctx ← read
   for x in xs do
-    unless ctx.varSet.contains x do
-      if (← getRelaxedReassigments) then
-        match (← resolveLocalName x) with
-        | some (_, []) => pure ()
-        | _ => throwInvalidReassignment x
-      else
-        throwInvalidReassignment x
+    unless ctx.mutableVars.contains x do
+      throwInvalidReassignment x
 
 @[inline] def withFor {α} (x : M α) : M α :=
   withReader (fun ctx => { ctx with insideFor := true }) x
@@ -1203,12 +1198,12 @@ def checkLetArrowRHS (doElem : Syntax) : M Unit := do
    def doPatDecl  := parser! termParser >> leftArrow >> doElemParser >> optional (" | " >> doElemParser)
    ``` -/
 def doLetArrowToCode (doSeqToCode : List Syntax → M CodeBlock) (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
-  let ref  := doLetArrow
-  let decl := doLetArrow[2]
+  let ref     := doLetArrow
+  let decl    := doLetArrow[2]
   if decl.getKind == `Lean.Parser.Term.doIdDecl then
     let y := decl[0].getId
     let doElem := decl[3]
-    let k ← withNewVars #[y] (doSeqToCode doElems)
+    let k ← withNewMutableVars #[y] (isMutableLet doLetArrow) (doSeqToCode doElems)
     match isDoExpr? doElem with
     | some action => pure $ mkVarDeclCore #[y] doLetArrow k
     | none =>
@@ -1222,9 +1217,15 @@ def doLetArrowToCode (doSeqToCode : List Syntax → M CodeBlock) (doLetArrow : S
     let doElem  := decl[2]
     let optElse := decl[3]
     if optElse.isNone then withFreshMacroScope do
-      let auxDo ← `(do let discr ← $doElem; let $pattern:term := discr)
+      let auxDo ←
+        if isMutableLet doLetArrow then
+          `(do let discr ← $doElem; let mut $pattern:term := discr)
+        else
+          `(do let discr ← $doElem; let $pattern:term := discr)
       doSeqToCode $ getDoSeqElems (getDoSeq auxDo) ++ doElems
     else
+      if isMutableLet doLetArrow then
+        throwError! "'mut' is currently not supported in let-decls with 'else' case"
       let contSeq := mkDoSeq doElems.toArray
       let elseSeq := mkSingletonDoSeq optElse[1]
       let auxDo ← `(do let discr ← $doElem; match discr with | $pattern:term => $contSeq | _ => $elseSeq)
@@ -1295,8 +1296,7 @@ def doForToCode (doSeqToCode : List Syntax → M CodeBlock) (doFor : Syntax) (do
   let x         := doFor[1]
   let xs        := doFor[3]
   let forElems  := getDoSeqElems doFor[5]
-  let newVars   := if x.isIdent then #[x.getId] else #[]
-  let forInBodyCodeBlock  ← withNewVars newVars $ withFor (doSeqToCode forElems)
+  let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
   let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
   let uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref))
   if hasReturn forInBodyCodeBlock.code then
@@ -1335,7 +1335,7 @@ def doMatchToCode (doSeqToCode : List Syntax → M CodeBlock) (doMatch : Syntax)
     let pvars ← getPatternsVars patterns.getSepArgs
     let vars := getPatternVarNames pvars
     let rhs  := matchAlt[2]
-    let rhs ← withNewVars vars $ doSeqToCode (getDoSeqElems rhs)
+    let rhs ← doSeqToCode (getDoSeqElems rhs)
     pure { ref := matchAlt, vars := vars, patterns := patterns, rhs := rhs : Alt CodeBlock }
   let matchCode ← mkMatch ref discrs optType alts
   concatWith doSeqToCode matchCode doElems
@@ -1450,13 +1450,13 @@ partial def doSeqToCode : List Syntax → M CodeBlock
         let k := doElem.getKind
         if k == `Lean.Parser.Term.doLet then
           let vars ← getDoLetVars doElem
-          mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
+          mkVarDeclCore vars doElem <$> withNewMutableVars vars (isMutableLet doElem) (doSeqToCode doElems)
         else if k == `Lean.Parser.Term.doHave then
           let var := getDoHaveVar doElem
-          mkVarDeclCore #[var] doElem <$> withNewVars #[var] (doSeqToCode doElems)
+          mkVarDeclCore #[var] doElem <$> (doSeqToCode doElems)
         else if k == `Lean.Parser.Term.doLetRec then
           let vars ← getDoLetRecVars doElem
-          mkVarDeclCore vars doElem <$> withNewVars vars (doSeqToCode doElems)
+          mkVarDeclCore vars doElem <$> (doSeqToCode doElems)
         else if k == `Lean.Parser.Term.doReassign then
           let vars ← liftM $ getDoReassignVars doElem
           checkReassignable vars

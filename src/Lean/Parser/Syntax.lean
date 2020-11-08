@@ -39,6 +39,9 @@ namespace Syntax
 @[builtinSyntaxParser] def sepBy           := parser! nonReservedSymbol "sepBy " >> syntaxParser maxPrec >> syntaxParser maxPrec
 @[builtinSyntaxParser] def sepBy1          := parser! nonReservedSymbol "sepBy1 " >> syntaxParser maxPrec >> syntaxParser maxPrec
 @[builtinSyntaxParser] def notFollowedBy   := parser! nonReservedSymbol "notFollowedBy " >> syntaxParser maxPrec
+@[builtinSyntaxParser] def withPosition    := parser! nonReservedSymbol "withPosition " >> syntaxParser maxPrec
+@[builtinSyntaxParser] def checkColGt      := parser! ">" >> nonReservedSymbol "col"
+@[builtinSyntaxParser] def checkColGe      := parser! unicodeSymbol "≥" ">=" >> nonReservedSymbol "col"
 
 @[builtinSyntaxParser] def optional        := tparser! "?"
 @[builtinSyntaxParser] def many            := tparser! "*"

@@ -272,8 +272,8 @@ def shouldInferResultUniverse (u : Level) : TermElabM Bool := do
 
   This method is used to infer the resulting universe level of an inductive datatype. -/
 def accLevelAtCtor : Level → Level → Nat → Array Level → TermElabM (Array Level)
-  | Level.max u v _,  r, rOffset,   us => do us ← accLevelAtCtor u r rOffset us; accLevelAtCtor v r rOffset us
-  | Level.imax u v _, r, rOffset,   us => do us ← accLevelAtCtor u r rOffset us; accLevelAtCtor v r rOffset us
+  | Level.max u v _,  r, rOffset,   us => do let us ← accLevelAtCtor u r rOffset us; accLevelAtCtor v r rOffset us
+  | Level.imax u v _, r, rOffset,   us => do let us ← accLevelAtCtor u r rOffset us; accLevelAtCtor v r rOffset us
   | Level.zero _,     _, _,         us => pure us
   | Level.succ u _,   r, rOffset+1, us => accLevelAtCtor u r rOffset us
   | u,                r, rOffset,   us =>

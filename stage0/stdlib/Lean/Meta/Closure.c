@@ -146,7 +146,6 @@ lean_object* l_Lean_Meta_getMVarDecl___at_Lean_Meta_Closure_collectExprAux___spe
 extern lean_object* l_Lean_Expr_updateProj_x21___closed__3;
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_getMaxHeight(lean_object*, lean_object*);
-extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__5;
 lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_Closure_visitLevel___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverse___rarg(lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -255,6 +254,7 @@ lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__1___boxed(lean_object*, l
 lean_object* l_Lean_Meta_mkAuxDefinition___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRev_loop___at_Lean_Meta_Closure_mkForall___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAuxDefinition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
+extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__4;
 lean_object* lean_compile_decl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___at_Lean_Meta_Closure_visitExpr___spec__4___boxed(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -11744,7 +11744,7 @@ static lean_object* _init_l___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefini
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__5;
+x_1 = l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__4;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

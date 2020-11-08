@@ -284,8 +284,8 @@ def parenthesizeCategoryCore (cat : Name) (prec : Nat) : Parenthesizer :=
   withReader (fun ctx => { ctx with cat := cat }) do
     let stx ← getCur
     if stx.getKind == `choice then
-      visitArgs $ stx.getArgs.size.forM $ fun _ => do
-        stx ← getCur
+      visitArgs $ stx.getArgs.size.forM fun _ => do
+        let stx ← getCur
         parenthesizerForKind stx.getKind
     else
       withAntiquot.parenthesizer (mkAntiquot.parenthesizer' cat.toString none) (parenthesizerForKind stx.getKind)

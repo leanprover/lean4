@@ -54,7 +54,7 @@ class AddErrorMessageContext (m : Type → Type) :=
 
 instance (m : Type → Type) [AddMessageContext m] [Monad m] : AddErrorMessageContext m := {
   add := fun ref msg => do
-    msg ← addMessageContext msg
+    let msg ← addMessageContext msg
     pure (ref, msg)
 }
 

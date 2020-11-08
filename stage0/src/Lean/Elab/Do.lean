@@ -1396,7 +1396,7 @@ def doTryToCode (doSeqToCode : List Syntax → M CodeBlock) (doTry : Syntax) (do
   let r     := tryCatchPred tryCode catches finallyCode? hasReturn
   let bc    := tryCatchPred tryCode catches finallyCode? hasBreakContinue
   let toTerm (codeBlock : CodeBlock) : M Syntax := do
-    codeBlock ← liftM $ extendUpdatedVars codeBlock ws
+    let codeBlock ← liftM $ extendUpdatedVars codeBlock ws
     liftMacroM $ ToTerm.mkNestedTerm codeBlock.code ctx.m uvars a r bc
   let term ← toTerm tryCode
   let term ← catches.foldlM

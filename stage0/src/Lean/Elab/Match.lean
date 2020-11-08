@@ -51,6 +51,7 @@ private def expandSimpleMatchWithType (stx discr lhsVar type rhs : Syntax) (expe
 private def elabDiscrsWitMatchType (discrStxs : Array Syntax) (matchType : Expr) (expectedType : Expr) : TermElabM (Array Expr) := do
   let discrs := #[]
   let i := 0
+  let matchType := matchType
   for discrStx in discrStxs do
     i := i + 1
     matchType ← whnf matchType
@@ -546,7 +547,8 @@ private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array P
   loop 0 #[]
 
 private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : TermElabM (Array Expr × Expr) := do
-  let patterns := #[]
+  let patterns  := #[]
+  let matchType := matchType
   for patternStx in patternStxs do
     matchType ← whnf matchType
     match matchType with

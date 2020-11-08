@@ -141,7 +141,7 @@ private def throwToBelowFailed {α} : MetaM α :=
 /- See toBelow -/
 private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Expr
   | belowDict, arg, F => do
-    belowDict ← whnf belowDict
+    let belowDict ← whnf belowDict
     trace[Elab.definition.structural]! "belowDict: {belowDict}, arg: {arg}"
     match belowDict with
     | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
@@ -281,6 +281,12 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
              This may generate weird error messages, when it doesn't work.
           -/
           let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
+          let discrs := matcherApp.discrs
+          for i in [:discrs.size] do
+            let discr ← processApp discrs[i]
+            trace[Elab.definition.structural]! "new discr [{i}]: {discr}"
+            discrs := discrs.set! i discr
+          trace[Elab.definition.structural]! "discrs: {discrs}"
           let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do
               trace[Elab.definition.structural]! "altNumParams: {numParams}, xs: {xs}"
@@ -288,7 +294,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
                 throwError! "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let belowForAlt := xs[numParams - 1]
               mkLambdaFVars xs (← loop belowForAlt altBody)
-          pure { matcherApp with alts := altsNew }.toExpr
+          pure { matcherApp with discrs := discrs, alts := altsNew }.toExpr
       | none => processApp e
     | _, e => ensureNoRecFn recFnName e
   loop below e

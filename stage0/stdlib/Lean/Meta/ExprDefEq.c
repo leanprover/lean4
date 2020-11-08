@@ -385,7 +385,6 @@ lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_simpAssignmentArg(lean
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_Meta_commitWhen___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_tryHeuristic___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignment_process_match__1(lean_object*);
-extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__5;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignmentFOApprox_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgsFirstPass_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_checkMVar___closed__2;
@@ -635,6 +634,7 @@ lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Array_back___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignmentFOApproxAux___spec__1___boxed(lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_checkFVar___closed__1;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isAssigned_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__4;
 lean_object* l_Lean_Meta_shouldReduceReducibleOnly___at_Lean_Meta_getConst_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_checkFVar___closed__2;
@@ -5412,7 +5412,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkType
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__5;
+x_1 = l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__4;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

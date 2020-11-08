@@ -568,7 +568,7 @@ unsafe def elabEvalUnsafe : CommandElab := fun stx => do
     Term.synthesizeSyntheticMVarsNoPostponing
     let e ← withLocalDeclD `env (mkConst `Lean.Environment) fun env =>
         withLocalDeclD `opts (mkConst `Lean.Options) fun opts => do
-          e ← mkAppM `Lean.runMetaEval #[env, opts, e];
+          let e ← mkAppM `Lean.runMetaEval #[env, opts, e];
           mkLambdaFVars #[env, opts] e
     let env ← getEnv
     let opts ← getOptions

@@ -130,7 +130,6 @@ lean_object* l_Std_HashMapImp_find_x3f___at_Lean_IR_UnreachableBranches_findVarV
 lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_UnreachableBranches_findVarValue___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_List_elem___at_Lean_IR_UnreachableBranches_Value_truncate___spec__12___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2539____closed__4;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_Value_format(lean_object*);
 lean_object* l_Nat_foldAux___at_Lean_IR_UnreachableBranches_Value_merge___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -173,6 +172,7 @@ lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 lean_object* l_Lean_SMap_insert___at_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_539____spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_Value_widening(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2547____closed__4;
 lean_object* l_Lean_IR_UnreachableBranches_updateCurrFnSummary(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_UnreachableBranches_findVarValue___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_findVarValue(lean_object*, lean_object*, lean_object*);
@@ -4440,7 +4440,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_539____closed__2;
 x_2 = l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_539____closed__3;
 x_3 = l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_539____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2539____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2547____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

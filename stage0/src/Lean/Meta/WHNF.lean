@@ -172,7 +172,7 @@ private def reduceQuotRec {α} (recVal  : QuotVal) (recLvls : List Level) (recAr
 /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
 private partial def getStuckMVarImp? : Expr → MetaM (Option MVarId)
   | Expr.mdata _ e _       => getStuckMVarImp? e
-  | Expr.proj _ _ e _      => do e ← whnf e; getStuckMVarImp? e
+  | Expr.proj _ _ e _      => do getStuckMVarImp? (← whnf e)
   | e@(Expr.mvar mvarId _) => pure (some mvarId)
   | e@(Expr.app f _ _) =>
     let f := f.getAppFn

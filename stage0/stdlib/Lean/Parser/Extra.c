@@ -101,6 +101,7 @@ lean_object* l_Lean_Parser_termParser_formatter___boxed(lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_charLit_formatter___closed__1;
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___closed__12;
 lean_object* l_Lean_Parser_antiquotNestedExpr_parenthesizer___closed__2;
+extern lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3073____closed__4;
 lean_object* l_Lean_Parser_ppSpace_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_ppSpace_formatter___closed__3;
 extern lean_object* l___private_Lean_Data_Format_0__Lean_Format_pushNewline___closed__1;
@@ -230,7 +231,6 @@ lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___closed__6;
 lean_object* l_Lean_Parser_charLit_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_notSymbol_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_getIndent(lean_object*);
-extern lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3117____closed__4;
 lean_object* l_Lean_Parser_many1Indent(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkNoImmediateColon_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_pushNone_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -374,7 +374,7 @@ lean_object* l_Lean_Parser_commandParser_formatter___rarg(lean_object* x_1, lean
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3117____closed__4;
+x_6 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3073____closed__4;
 x_7 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter(x_6, x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
@@ -400,7 +400,7 @@ lean_object* l_Lean_Parser_commandParser_parenthesizer(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3117____closed__4;
+x_7 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3073____closed__4;
 x_8 = l_Lean_PrettyPrinter_Parenthesizer_categoryParser_parenthesizer(x_7, x_1, x_2, x_3, x_4, x_5, x_6);
 return x_8;
 }

@@ -43,7 +43,7 @@ structure InductionSubgoal :=
 instance : Inhabited InductionSubgoal := ⟨{ mvarId := arbitrary _ }⟩
 
 private def getTypeBody (mvarId : MVarId) (type : Expr) (x : Expr) : MetaM Expr := do
-  type ← whnfForall type
+  let type ← whnfForall type
   match type with
   | Expr.forallE _ _ b _ => pure $ b.instantiate1 x
   | _                    => throwTacticEx `induction mvarId "ill-formed recursor"

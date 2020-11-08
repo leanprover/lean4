@@ -34,7 +34,7 @@ partial def generalizeTelescopeAux {α} (k : Array Expr → MetaM α)
     let replace (baseUserName : Name) (e : Expr) (type : Expr) : MetaM α := do
       let userName ← mkFreshUserName baseUserName
       withLocalDeclD userName type fun x => do
-        entries ← updateTypes e x entries (i+1)
+        let entries ← updateTypes e x entries (i+1)
         generalizeTelescopeAux k entries (i+1) (fvars.push x)
     match entries.get ⟨i, h⟩ with
     | ⟨e@(Expr.fvar fvarId _), type, false⟩ =>

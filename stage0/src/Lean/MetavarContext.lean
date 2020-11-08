@@ -931,7 +931,7 @@ private partial def elimMVarDepsAux (xs : Array Expr) (e : Expr) : M Expr :=
             | some { fvars := fvars, .. } => cont fvars
       | _ =>
         let f ← visit f
-        args ← args.mapM visit
+        let args ← args.mapM visit
         pure (mkAppN f args)
   elim e
 

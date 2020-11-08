@@ -210,6 +210,7 @@ variable {β : Type v}
 @[specialize]
 partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
     (f : α → β → m (ForInStep β)) (n : PersistentArrayNode α) (b : β) : m (ForInStep β) := do
+  let b := b
   match n with
   | leaf vs =>
     for v in vs do

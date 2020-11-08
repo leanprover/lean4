@@ -100,7 +100,7 @@ def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
      we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
      including it literally in a syntax quotation. -/
   -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
-  stx ← quoteSyntax (elimAntiquotChoices quoted);
+  let stx ← quoteSyntax (elimAntiquotChoices quoted);
   `(Bind.bind getCurrMacroScope (fun scp => Bind.bind getMainModule (fun mainModule => Pure.pure $stx)))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,

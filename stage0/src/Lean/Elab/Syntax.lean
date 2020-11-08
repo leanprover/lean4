@@ -287,7 +287,7 @@ def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
   Recall that syntax node kinds contain the current namespace.
 -/
 def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM Syntax := do
-  alts ← alts.mapSepElemsM fun alt => do
+  let alts ← alts.mapSepElemsM fun alt => do
     let lhs := alt[0]
     let pat := lhs[0]
     if !pat.isQuot then

@@ -15,7 +15,7 @@ open System.FilePath (pathSeparator extSeparator)
 private def pathSep : String := toString pathSeparator
 
 def realPathNormalized (fname : String) : IO String := do
-  fname ← IO.realPath fname
+  let fname ← IO.realPath fname
   pure (System.FilePath.normalizePath fname)
 
 abbrev SearchPath := List String

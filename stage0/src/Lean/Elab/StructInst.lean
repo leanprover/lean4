@@ -286,7 +286,7 @@ private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : 
 
 def Struct.modifyFieldsM {m : Type → Type} [Monad m] (s : Struct) (f : Fields → m Fields) : m Struct :=
   match s with
-  | ⟨ref, structName, fields, source⟩ => do fields ← f fields; pure ⟨ref, structName, fields, source⟩
+  | ⟨ref, structName, fields, source⟩ => return ⟨ref, structName, (← f fields), source⟩
 
 @[inline] def Struct.modifyFields (s : Struct) (f : Fields → Fields) : Struct :=
   Id.run $ s.modifyFieldsM f

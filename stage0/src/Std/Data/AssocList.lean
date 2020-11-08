@@ -28,7 +28,9 @@ def isEmpty : AssocList α β → Bool
 
 @[specialize] def foldlM (f : δ → α → β → m δ) : (init : δ) → AssocList α β → m δ
   | d, nil         => pure d
-  | d, cons a b es => do d ← f d a b; foldlM f d es
+  | d, cons a b es => do
+    let d ← f d a b
+    foldlM f d es
 
 @[inline] def foldl (f : δ → α → β → δ) (init : δ) (as : AssocList α β) : δ :=
   Id.run (foldlM f init as)

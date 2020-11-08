@@ -551,8 +551,8 @@ def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Name) := do
     throwError "unexpected kind of let declaration"
 
 def getDoLetVars (doLet : Syntax) : TermElabM (Array Name) :=
-  -- parser! "let " >> letDecl
-  getLetDeclVars doLet[1]
+  -- parser! "let " >> optional "mut " >> letDecl
+  getLetDeclVars doLet[2]
 
 def getDoHaveVar (doHave : Syntax) : Name :=
   /-
@@ -594,9 +594,9 @@ def getDoPatDeclVars (doPatDecl : Syntax) : TermElabM (Array Name) := do
   let patternVars ← getPatternVars pattern
   pure $ getPatternVarNames patternVars
 
--- parser! "let " >> (doIdDecl <|> doPatDecl)
+-- parser! "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
 def getDoLetArrowVars (doLetArrow : Syntax) : TermElabM (Array Name) := do
-  let decl := doLetArrow[1]
+  let decl := doLetArrow[2]
   if decl.getKind == `Lean.Parser.Term.doIdDecl then
     pure #[getDoIdDeclVar decl]
   else if decl.getKind == `Lean.Parser.Term.doPatDecl then
@@ -895,14 +895,14 @@ def seqToTerm (action : Syntax) (k : Syntax) : MacroM Syntax := do
 def declToTermCore (decl : Syntax) (k : Syntax) : M Syntax := withFreshMacroScope do
   let kind := decl.getKind
   if kind == `Lean.Parser.Term.doLet then
-    let letDecl := decl[1]
+    let letDecl := decl[2]
     `(let $letDecl:letDecl; $k)
   else if kind == `Lean.Parser.Term.doLetRec then
     let letRecToken := decl[0]
     let letRecDecls := decl[1]
     pure $ mkNode `Lean.Parser.Term.letrec #[letRecToken, letRecDecls, mkNullNode, k]
   else if kind == `Lean.Parser.Term.doLetArrow then
-    let arg := decl[1]
+    let arg := decl[2]
     let ref := arg
     if arg.getKind == `Lean.Parser.Term.doIdDecl then
       let id     := arg[0]
@@ -1195,7 +1195,7 @@ def checkLetArrowRHS (doElem : Syntax) : M Unit := do
 /- Generate `CodeBlock` for `doLetArrow; doElems`
    `doLetArrow` is of the form
    ```
-   "let " >> (doIdDecl <|> doPatDecl)
+   "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
    ```
    where
    ```
@@ -1204,7 +1204,7 @@ def checkLetArrowRHS (doElem : Syntax) : M Unit := do
    ``` -/
 def doLetArrowToCode (doSeqToCode : List Syntax → M CodeBlock) (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
   let ref  := doLetArrow
-  let decl := doLetArrow[1]
+  let decl := doLetArrow[2]
   if decl.getKind == `Lean.Parser.Term.doIdDecl then
     let y := decl[0].getId
     let doElem := decl[3]

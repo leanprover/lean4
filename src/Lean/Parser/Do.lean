@@ -25,18 +25,12 @@ def doSeq          := doSeqBracketed <|> doSeqIndent
 def notFollowedByRedefinedTermToken :=
   notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> "try") "token at 'do' element"
 
-@[builtinDoElemParser] def doLet      := parser!
-  (checkInsideQuot >> "let " >> optional "mut " >> letDecl)
-  <|>
-  (checkOutsideQuot >> "let " >> letDecl)
+@[builtinDoElemParser] def doLet      := parser! "let " >> optional "mut " >> letDecl
 
 @[builtinDoElemParser] def doLetRec   := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
 def doIdDecl   := parser! «try» (ident >> optType >> leftArrow) >> doElemParser
 def doPatDecl  := parser! «try» (termParser >> leftArrow) >> doElemParser >> optional (" | " >> doElemParser)
-@[builtinDoElemParser] def doLetArrow      := parser!
-  (checkInsideQuot >> "let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
-  <|>
-  (checkOutsideQuot >> "let " >> (doIdDecl <|> doPatDecl))
+@[builtinDoElemParser] def doLetArrow      := parser! "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
 
 @[builtinDoElemParser] def doReassign      := parser! notFollowedByRedefinedTermToken >> (letIdDecl <|> letPatDecl)
 @[builtinDoElemParser] def doReassignArrow := parser! notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)

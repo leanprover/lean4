@@ -175,8 +175,8 @@ inductive ParserDescr
   | «try»             : ParserDescr → ParserDescr
   | many              : ParserDescr → ParserDescr
   | many1             : ParserDescr → ParserDescr
-  | sepBy             : ParserDescr → ParserDescr → ParserDescr
-  | sepBy1            : ParserDescr → ParserDescr → ParserDescr
+  | sepBy             : ParserDescr → ParserDescr → Bool → ParserDescr
+  | sepBy1            : ParserDescr → ParserDescr → Bool → ParserDescr
   | node              : Name → Nat → ParserDescr → ParserDescr
   | trailingNode      : Name → Nat → ParserDescr → ParserDescr
   | symbol            : String → ParserDescr

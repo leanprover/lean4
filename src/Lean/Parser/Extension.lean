@@ -214,6 +214,8 @@ partial def compileParserDescr (env : Environment) (opts : Options) (categories 
     | ParserDescr.nameLit                             => pure $ nameLit
     | ParserDescr.interpolatedStr d                   => interpolatedStr <$> visit d
     | ParserDescr.ident                               => pure $ ident
+    | ParserDescr.checkCol strict                     => pure $ if strict then checkColGt else checkColGe
+    | ParserDescr.withPosition d                      => withPosition <$> visit d
     | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
     | ParserDescr.parser constName                    => do
       let (_, p) ← mkParserOfConstantAux env opts categories constName visit;

@@ -423,6 +423,8 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.interpolatedStr d                   => interpolatedStr.formatter <$> interpretParserDescr d
   | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.formatter tk
   | ParserDescr.noWs                                => pure $ checkNoWsBefore.formatter
+  | ParserDescr.withPosition d                      => withPosition.formatter <$> interpretParserDescr d
+  | ParserDescr.checkCol strict                     => pure $ if strict then checkColGt.formatter else checkColGe.formatter
   | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
   | ParserDescr.cat catName prec                    => pure $ categoryParser.formatter catName
 

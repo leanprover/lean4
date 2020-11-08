@@ -129,6 +129,8 @@ def compileEmbeddedParsers : ParserDescr → MetaM Unit
   | ParserDescr.node k prec d                       => compileEmbeddedParsers d
   | ParserDescr.trailingNode k prec d               => compileEmbeddedParsers d
   | ParserDescr.interpolatedStr d                   => compileEmbeddedParsers d
+  | ParserDescr.withPosition d                      => compileEmbeddedParsers d
+  | ParserDescr.checkCol _                          => pure ()
   | ParserDescr.symbol tk                           => pure ()
   | ParserDescr.numLit                              => pure ()
   | ParserDescr.strLit                              => pure ()

@@ -500,6 +500,8 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
   | ParserDescr.interpolatedStr d                   => interpolatedStr.parenthesizer <$> interpretParserDescr d
   | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer tk includeIdent
   | ParserDescr.noWs                                => pure $ checkNoWsBefore.parenthesizer
+  | ParserDescr.checkCol strict                     => pure $ if strict then checkColGt.parenthesizer else checkColGe.parenthesizer
+  | ParserDescr.withPosition d                      => withPosition.parenthesizer <$> interpretParserDescr d
   | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
   | ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec
 

@@ -191,6 +191,8 @@ inductive ParserDescr
   | cat               : Name → Nat → ParserDescr
   | parser            : Name → ParserDescr
   | notFollowedBy     : ParserDescr → ParserDescr
+  | withPosition      : ParserDescr → ParserDescr
+  | checkCol          : Bool → ParserDescr
 
 instance : Inhabited ParserDescr := ⟨ParserDescr.symbol ""⟩
 abbrev TrailingParserDescr := ParserDescr

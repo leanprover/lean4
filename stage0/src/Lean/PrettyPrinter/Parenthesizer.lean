@@ -75,7 +75,7 @@ import Lean.CoreM
 import Lean.KeyedDeclsAttribute
 import Lean.Parser.Extension
 import Lean.ParserCompiler.Attribute
-import Lean.PrettyPrinter.Backtrack
+import Lean.PrettyPrinter.Basic
 
 namespace Lean
 namespace PrettyPrinter
@@ -268,11 +268,15 @@ constant mkAntiquot.parenthesizer' (name : String) (kind : Option SyntaxNodeKind
 def throwError {α} (msg : MessageData) : ParenthesizerM α :=
   liftCoreM $ Lean.throwError msg
 
-def parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer := do
-  let env ← getEnv
-  let p::_ ← pure $ parenthesizerAttribute.getValues env k
-    | throwError! "no known parenthesizer for kind '{k}'"
-  p
+-- break up big mutual recursion
+@[extern "lean_pretty_printer_parenthesizer_interpret_parser_descr"]
+constant interpretParserDescr' : ParserDescr → CoreM Parenthesizer := arbitrary _
+
+unsafe def parenthesizerForKindUnsafe (k : SyntaxNodeKind) : Parenthesizer := do
+  (← liftM $ runForNodeKind parenthesizerAttribute k interpretParserDescr')
+
+@[implementedBy parenthesizerForKindUnsafe]
+constant parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer := arbitrary _
 
 @[combinatorParenthesizer Lean.Parser.withAntiquot]
 def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer :=
@@ -472,6 +476,34 @@ def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 
 @[combinatorParenthesizer ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e
+
+@[export lean_pretty_printer_parenthesizer_interpret_parser_descr]
+unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
+  | ParserDescr.andthen d₁ d₂                       => andthen.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.orelse d₁ d₂                        => orelse.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.optional d                          => optional.parenthesizer <$> interpretParserDescr d
+  | ParserDescr.lookahead d                         => lookahead.parenthesizer <$> interpretParserDescr d
+  | ParserDescr.try d                               => try.parenthesizer <$> interpretParserDescr d
+  | ParserDescr.notFollowedBy d                     => notFollowedBy.parenthesizer <$> interpretParserDescr d
+  | ParserDescr.many d                              => many.parenthesizer <$> interpretParserDescr d
+  | ParserDescr.many1 d                             => many1.parenthesizer <$> interpretParserDescr d
+  | ParserDescr.sepBy d₁ d₂                         => sepBy.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.sepBy1 d₁ d₂                        => sepBy1.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.node k prec d                       => leadingNode.parenthesizer k prec <$> interpretParserDescr d
+  | ParserDescr.trailingNode k prec d               => trailingNode.parenthesizer k prec <$> interpretParserDescr d
+  | ParserDescr.symbol tk                           => pure $ symbol.parenthesizer tk
+  | ParserDescr.numLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer
+  | ParserDescr.strLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer
+  | ParserDescr.charLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer
+  | ParserDescr.nameLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer
+  | ParserDescr.ident                               => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer
+  | ParserDescr.interpolatedStr d                   => interpolatedStr.parenthesizer <$> interpretParserDescr d
+  | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer tk includeIdent
+  | ParserDescr.noWs                                => pure $ checkNoWsBefore.parenthesizer
+  | ParserDescr.checkCol strict                     => pure $ if strict then checkColGt.parenthesizer else checkColGe.parenthesizer
+  | ParserDescr.withPosition d                      => withPosition.parenthesizer <$> interpretParserDescr d
+  | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
+  | ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec
 
 end Parenthesizer
 open Parenthesizer

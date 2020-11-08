@@ -214,6 +214,8 @@ partial def compileParserDescr (env : Environment) (opts : Options) (categories 
     | ParserDescr.nameLit                             => pure $ nameLit
     | ParserDescr.interpolatedStr d                   => interpolatedStr <$> visit d
     | ParserDescr.ident                               => pure $ ident
+    | ParserDescr.checkCol strict                     => pure $ if strict then checkColGt else checkColGe
+    | ParserDescr.withPosition d                      => withPosition <$> visit d
     | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
     | ParserDescr.parser constName                    => do
       let (_, p) ← mkParserOfConstantAux env opts categories constName visit;
@@ -246,7 +248,7 @@ builtin_initialize
     descr := "explicitly run hooks normally activated by builtin parser attributes",
     add   := fun decl args persistent => do
       if args.hasArgs then throwError "invalid attribute 'runBuiltinParserAttributeHooks', unexpected argument"
-      runParserAttributeHooks `Name.anonymous decl (builtin := true)
+      runParserAttributeHooks Name.anonymous decl (builtin := true)
   }
 
 builtin_initialize
@@ -255,7 +257,7 @@ builtin_initialize
     descr := "explicitly run hooks normally activated by parser attributes",
     add   := fun decl args persistent => do
       if args.hasArgs then throwError "invalid attribute 'runParserAttributeHooks', unexpected argument"
-      runParserAttributeHooks `Name.anonymous decl (builtin := false)
+      runParserAttributeHooks Name.anonymous decl (builtin := false)
   }
 
 private def ParserExtension.addImported (es : Array (Array ParserExtensionOleanEntry)) : ImportM ParserExtensionState := do

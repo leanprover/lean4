@@ -17,7 +17,7 @@ import Lean.CoreM
 import Lean.Parser.Extension
 import Lean.KeyedDeclsAttribute
 import Lean.ParserCompiler.Attribute
-import Lean.PrettyPrinter.Backtrack
+import Lean.PrettyPrinter.Basic
 
 namespace Lean
 namespace PrettyPrinter
@@ -156,11 +156,15 @@ def group (x : Formatter) : Formatter := do
 @[extern "lean_mk_antiquot_formatter"]
 constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Formatter
 
-def formatterForKind (k : SyntaxNodeKind) : Formatter := do
-  let env ← getEnv
-  let p::_ ← pure $ formatterAttribute.getValues env k
-    | throwError! "no known formatter for kind '{k}'"
-  p
+-- break up big mutual recursion
+@[extern "lean_pretty_printer_formatter_interpret_parser_descr"]
+constant interpretParserDescr' : ParserDescr → CoreM Formatter := arbitrary _
+
+unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
+  (← liftM $ runForNodeKind formatterAttribute k interpretParserDescr')
+
+@[implementedBy formatterForKindUnsafe]
+constant formatterForKind (k : SyntaxNodeKind) : Formatter := arbitrary _
 
 @[combinatorFormatter Lean.Parser.withAntiquot]
 def withAntiquot.formatter (antiP p : Formatter) : Formatter :=
@@ -395,6 +399,34 @@ def interpolatedStr.formatter (p : Formatter) : Formatter := do
 
 @[combinatorFormatter ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e
+
+@[export lean_pretty_printer_formatter_interpret_parser_descr]
+unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
+  | ParserDescr.andthen d₁ d₂                       => andthen.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.orelse d₁ d₂                        => orelse.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.optional d                          => optional.formatter <$> interpretParserDescr d
+  | ParserDescr.lookahead d                         => lookahead.formatter <$> interpretParserDescr d
+  | ParserDescr.try d                               => try.formatter <$> interpretParserDescr d
+  | ParserDescr.notFollowedBy d                     => notFollowedBy.formatter <$> interpretParserDescr d
+  | ParserDescr.many d                              => many.formatter <$> interpretParserDescr d
+  | ParserDescr.many1 d                             => many1.formatter <$> interpretParserDescr d
+  | ParserDescr.sepBy d₁ d₂                         => sepBy.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.sepBy1 d₁ d₂                        => sepBy1.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.node k prec d                       => node.formatter k <$> interpretParserDescr d
+  | ParserDescr.trailingNode k prec d               => trailingNode.formatter k prec <$> interpretParserDescr d
+  | ParserDescr.symbol tk                           => pure $ symbol.formatter tk
+  | ParserDescr.numLit                              => pure $ withAntiquot.formatter (mkAntiquot.formatter' "numLit" `numLit) numLitNoAntiquot.formatter
+  | ParserDescr.strLit                              => pure $ withAntiquot.formatter (mkAntiquot.formatter' "strLit" `strLit) strLitNoAntiquot.formatter
+  | ParserDescr.charLit                             => pure $ withAntiquot.formatter (mkAntiquot.formatter' "charLit" `charLit) charLitNoAntiquot.formatter
+  | ParserDescr.nameLit                             => pure $ withAntiquot.formatter (mkAntiquot.formatter' "nameLit" `nameLit) nameLitNoAntiquot.formatter
+  | ParserDescr.ident                               => pure $ withAntiquot.formatter (mkAntiquot.formatter' "ident" `ident) identNoAntiquot.formatter
+  | ParserDescr.interpolatedStr d                   => interpolatedStr.formatter <$> interpretParserDescr d
+  | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.formatter tk
+  | ParserDescr.noWs                                => pure $ checkNoWsBefore.formatter
+  | ParserDescr.withPosition d                      => withPosition.formatter <$> interpretParserDescr d
+  | ParserDescr.checkCol strict                     => pure $ if strict then checkColGt.formatter else checkColGe.formatter
+  | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
+  | ParserDescr.cat catName prec                    => pure $ categoryParser.formatter catName
 
 end Formatter
 open Formatter

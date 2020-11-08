@@ -19,11 +19,10 @@ namespace ParserCompiler
 
 structure Context (α : Type) :=
   (varName : Name)
-  (runtimeAttr : KeyedDeclsAttribute α)
+  (categoryAttr : KeyedDeclsAttribute α)
   (combinatorAttr : CombinatorAttribute)
-  (interpretParserDescr : ParserDescr → AttrM α)
 
-def Context.tyName {α} (ctx : Context α) : Name := ctx.runtimeAttr.defn.valueTypeName
+def Context.tyName {α} (ctx : Context α) : Name := ctx.categoryAttr.defn.valueTypeName
 
 -- replace all references of `Parser` with `tyName` as a first approximation
 def preprocessParserBody {α} (ctx : Context α) (e : Expr) : Expr :=
@@ -32,11 +31,14 @@ def preprocessParserBody {α} (ctx : Context α) (e : Expr) : Expr :=
 section
 open Meta
 
--- translate an expression of type `Parser` into one of type `tyName`
-partial def compileParserBody {α} (ctx : Context α) (e : Expr) (force : Bool := false) : MetaM Expr := do
+variables {α} (ctx : Context α) (force : Bool := false) in
+/--
+  Translate an expression of type `Parser` into one of type `tyName`, tagging intermediary constants with
+  `ctx.combinatorAttr`. If `force` is `false`, refuse to do so for imported constants. -/
+partial def compileParserExpr (e : Expr) : MetaM Expr := do
   let e ← whnfCore e
   match e with
-  | e@(Expr.lam _ _ _ _)     => lambdaLetTelescope e fun xs b => compileParserBody ctx b >>= mkLambdaFVars xs
+  | e@(Expr.lam _ _ _ _)     => lambdaLetTelescope e fun xs b => compileParserExpr b >>= mkLambdaFVars xs
   | e@(Expr.fvar _ _)        => pure e
   | _ => do
     let fn := e.getAppFn
@@ -55,11 +57,11 @@ partial def compileParserBody {α} (ctx : Context α) (e : Expr) (force : Bool :
           let arg   := args[i]
           let paramTy ← inferType param
           let resultTy ← forallTelescope paramTy fun _ b => pure b
-          let arg ← if resultTy.isConstOf ctx.tyName then compileParserBody ctx arg else pure arg
+          let arg ← if resultTy.isConstOf ctx.tyName then compileParserExpr arg else pure arg
           p := mkApp p arg
         pure p
     let env ← getEnv
-    match ctx.combinatorAttr.getDeclFor env c with
+    match ctx.combinatorAttr.getDeclFor? env c with
     | some p => mkCall p
     | none   =>
       let c' := c ++ ctx.varName
@@ -71,7 +73,7 @@ partial def compileParserBody {α} (ctx : Context α) (e : Expr) (force : Bool :
           | throwError! "don't know how to generate {ctx.varName} for non-definition '{e}'"
         unless (env.getModuleIdxFor? c).isNone || force do
           throwError! "refusing to generate code for imported parser declaration '{c}'; use `@[runParserAttributeHooks]` on its definition instead."
-        let value ← compileParserBody ctx $ preprocessParserBody ctx value
+        let value ← compileParserExpr $ preprocessParserBody ctx value
         let ty ← forallTelescope cinfo.type fun params _ =>
           params.foldrM (init := mkConst ctx.tyName) fun param ty => do
             let paramTy ← inferType param;
@@ -93,51 +95,67 @@ partial def compileParserBody {α} (ctx : Context α) (e : Expr) (force : Bool :
         -- back to parser combinators
         let some e' ← unfoldDefinition? e
           | throwError! "don't know how to generate {ctx.varName} for non-parser combinator '{e}'"
-        compileParserBody ctx e'
+        compileParserExpr e'
 end
 
 open Core
 
-/-- Compile the given declaration into a `[(builtin)runtimeAttr declName]` -/
-def compileParser {α} (ctx : Context α) (declName : Name) (builtin : Bool) (force := false) : AttrM Unit := do
+/-- Compile the given declaration into a `[(builtin)categoryAttr declName]` -/
+def compileCategoryParser {α} (ctx : Context α) (declName : Name) (builtin : Bool) : AttrM Unit := do
   -- This will also tag the declaration as a `[combinatorParenthesizer declName]` in case the parser is used by other parsers.
   -- Note that simply having `[(builtin)Parenthesizer]` imply `[combinatorParenthesizer]` is not ideal since builtin
   -- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
   -- call them at compile time but only reference them).
-  let (Expr.const c' _ _) ← (compileParserBody ctx (mkConst declName) force).run'
+  let (Expr.const c' _ _) ← (compileParserExpr ctx (mkConst declName) (force := false)).run'
     | unreachable!
   -- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
   -- using `parser!` or `syntax`.
   let kind := declName
-  addAttribute c' (if builtin then ctx.runtimeAttr.defn.builtinName else ctx.runtimeAttr.defn.name) (mkNullNode #[mkIdent kind])
-  -- When called from `interpretParserDescr`, `declName` might not be a tagged parser, so ignore "not a valid syntax kind" failures
-  <|> pure ()
+  addAttribute c' (if builtin then ctx.categoryAttr.defn.builtinName else ctx.categoryAttr.defn.name) (mkNullNode #[mkIdent kind])
 
-unsafe def interpretParser {α} (ctx : Context α) (constName : Name) (force := false) : AttrM α := do
-  let info ← getConstInfo constName
-  let env ← getEnv
-  if info.type.isConstOf `Lean.Parser.TrailingParser || info.type.isConstOf `Lean.Parser.Parser then
-    match ctx.runtimeAttr.getValues env constName with
-    | p::_ => pure p
-    | _    =>
-      compileParser ctx constName (builtin := false) force
-      evalConst α (constName ++ ctx.varName)
-  else
-    let d ← evalConst TrailingParserDescr constName
-    ctx.interpretParserDescr d
+variables {α} (ctx : Context α) in
+def compileEmbeddedParsers : ParserDescr → MetaM Unit
+  | ParserDescr.parser constName                    => discard $ compileParserExpr ctx (mkConst constName) (force := false)
+  | ParserDescr.andthen d₁ d₂                       => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
+  | ParserDescr.orelse d₁ d₂                        => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
+  | ParserDescr.optional d                          => compileEmbeddedParsers d
+  | ParserDescr.lookahead d                         => compileEmbeddedParsers d
+  | ParserDescr.try d                               => compileEmbeddedParsers d
+  | ParserDescr.notFollowedBy d                     => compileEmbeddedParsers d
+  | ParserDescr.many d                              => compileEmbeddedParsers d
+  | ParserDescr.many1 d                             => compileEmbeddedParsers d
+  | ParserDescr.sepBy d₁ d₂                         => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
+  | ParserDescr.sepBy1 d₁ d₂                        => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
+  | ParserDescr.node k prec d                       => compileEmbeddedParsers d
+  | ParserDescr.trailingNode k prec d               => compileEmbeddedParsers d
+  | ParserDescr.interpolatedStr d                   => compileEmbeddedParsers d
+  | ParserDescr.withPosition d                      => compileEmbeddedParsers d
+  | ParserDescr.checkCol _                          => pure ()
+  | ParserDescr.symbol tk                           => pure ()
+  | ParserDescr.numLit                              => pure ()
+  | ParserDescr.strLit                              => pure ()
+  | ParserDescr.charLit                             => pure ()
+  | ParserDescr.nameLit                             => pure ()
+  | ParserDescr.ident                               => pure ()
+  | ParserDescr.nonReservedSymbol tk includeIdent   => pure ()
+  | ParserDescr.noWs                                => pure ()
+  | ParserDescr.cat catName prec                    => pure ()
 
+/-- Precondition: `α` must match `ctx.tyName`. -/
 unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
   Parser.registerParserAttributeHook {
-    postAdd := fun catName declName builtin => do
-      -- force compilation of parser even if imported, which can be the case with `[runBuiltinParserAttributeHooks]`
-      if builtin then
-        compileParser ctx declName builtin (force := true)
+    postAdd := fun catName constName builtin => do
+      let info ← getConstInfo constName
+      if info.type.isConstOf `Lean.ParserDescr || info.type.isConstOf `Lean.TrailingParserDescr then
+        let d ← evalConstCheck ParserDescr `Lean.ParserDescr constName <|>
+          evalConstCheck TrailingParserDescr `Lean.TrailingParserDescr constName
+        compileEmbeddedParsers ctx d $.run'
       else
-        let p ← interpretParser ctx declName (force := true)
-        -- Register `p` without exporting it to the .olean file. It will be re-interpreted and registered
-        -- when the parser is imported.
-        let env ← getEnv
-        setEnv $ ctx.runtimeAttr.ext.modifyState env fun st => { st with table := st.table.insert declName p }
+        if catName.isAnonymous then
+          -- `[runBuiltinParserAttributeHooks]` => force compilation even if imported, do not apply `ctx.categoryAttr`.
+          discard (compileParserExpr ctx (mkConst constName) (force := true)).run'
+        else
+          compileCategoryParser ctx constName builtin
   }
 
 end ParserCompiler

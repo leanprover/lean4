@@ -234,15 +234,14 @@ def annotateCurPos (stx : Syntax) : Delab := do
   liftM x
 
 partial def delabFor : Name → Delab
-  | k => do
+  | Name.anonymous => failure
+  | k              => do
     let env ← getEnv
     (match (delabAttribute.ext.getState env).table.find? k with
      | some delabs => delabs.firstM id >>= annotateCurPos
      | none        => failure) <|>
-    (match k with
-     | Name.str Name.anonymous _ _ => failure
-     | Name.str n              _ _ => delabFor n.getRoot  -- have `app.Option.some` fall back to `app` etc.
-     | _                           => failure)
+      -- have `app.Option.some` fall back to `app` etc.
+      delabFor k.getRoot
 
 def delab : Delab := do
   let k ← getExprKind

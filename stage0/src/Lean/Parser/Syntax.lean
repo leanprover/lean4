@@ -36,8 +36,9 @@ namespace Syntax
 @[builtinSyntaxParser] def interpolatedStr := parser! nonReservedSymbol "interpolatedStr " >> syntaxParser maxPrec
 @[builtinSyntaxParser] def «try»           := parser! nonReservedSymbol "try " >> syntaxParser maxPrec
 @[builtinSyntaxParser] def lookahead       := parser! nonReservedSymbol "lookahead " >> syntaxParser maxPrec
-@[builtinSyntaxParser] def sepBy           := parser! nonReservedSymbol "sepBy " >> syntaxParser maxPrec >> syntaxParser maxPrec
-@[builtinSyntaxParser] def sepBy1          := parser! nonReservedSymbol "sepBy1 " >> syntaxParser maxPrec >> syntaxParser maxPrec
+def allowTrailingSep := parser! "(" >> nonReservedSymbol "allowTrailingSep" >> ":=" >> nonReservedSymbol "true" >>  ")"
+@[builtinSyntaxParser] def sepBy           := parser! nonReservedSymbol "sepBy " >> optional allowTrailingSep >> syntaxParser maxPrec >> syntaxParser maxPrec
+@[builtinSyntaxParser] def sepBy1          := parser! nonReservedSymbol "sepBy1 " >> optional allowTrailingSep >> syntaxParser maxPrec >> syntaxParser maxPrec
 @[builtinSyntaxParser] def notFollowedBy   := parser! nonReservedSymbol "notFollowedBy " >> syntaxParser maxPrec
 @[builtinSyntaxParser] def withPosition    := parser! nonReservedSymbol "withPosition " >> syntaxParser maxPrec
 @[builtinSyntaxParser] def checkColGt      := parser! ">" >> nonReservedSymbol "col"

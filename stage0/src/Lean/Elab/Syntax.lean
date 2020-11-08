@@ -148,13 +148,15 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := do
     let d ← withoutLeftRec $ toParserDescrAux stx[1]
     `(ParserDescr.interpolatedStr $d)
   else if kind == `Lean.Parser.Syntax.sepBy then
-    let d₁ ← withoutLeftRec $ toParserDescrAux stx[1]
-    let d₂ ← withoutLeftRec $ toParserDescrAux stx[2]
-    `(ParserDescr.sepBy $d₁ $d₂)
+    let allowTrailingSep := !stx[1].isNone
+    let d₁ ← withoutLeftRec $ toParserDescrAux stx[2]
+    let d₂ ← withoutLeftRec $ toParserDescrAux stx[3]
+    `(ParserDescr.sepBy $d₁ $d₂ $(quote allowTrailingSep))
   else if kind == `Lean.Parser.Syntax.sepBy1 then
-    let d₁ ← withoutLeftRec $ toParserDescrAux stx[1]
-    let d₂ ← withoutLeftRec $ toParserDescrAux stx[2]
-    `(ParserDescr.sepBy1 $d₁ $d₂)
+    let allowTrailingSep := !stx[1].isNone
+    let d₁ ← withoutLeftRec $ toParserDescrAux stx[2]
+    let d₂ ← withoutLeftRec $ toParserDescrAux stx[3]
+    `(ParserDescr.sepBy1 $d₁ $d₂ $(quote allowTrailingSep))
   else if kind == `Lean.Parser.Syntax.many then
     let d ← withoutLeftRec $ toParserDescrAux stx[0]
     `(ParserDescr.many $d)

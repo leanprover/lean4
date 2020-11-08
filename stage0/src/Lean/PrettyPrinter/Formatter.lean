@@ -410,8 +410,8 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.notFollowedBy d                     => notFollowedBy.formatter <$> interpretParserDescr d
   | ParserDescr.many d                              => many.formatter <$> interpretParserDescr d
   | ParserDescr.many1 d                             => many1.formatter <$> interpretParserDescr d
-  | ParserDescr.sepBy d₁ d₂                         => sepBy.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
-  | ParserDescr.sepBy1 d₁ d₂                        => sepBy1.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.sepBy d₁ d₂ _                       => sepBy.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.sepBy1 d₁ d₂ _                      => sepBy1.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
   | ParserDescr.node k prec d                       => node.formatter k <$> interpretParserDescr d
   | ParserDescr.trailingNode k prec d               => trailingNode.formatter k prec <$> interpretParserDescr d
   | ParserDescr.symbol tk                           => pure $ symbol.formatter tk

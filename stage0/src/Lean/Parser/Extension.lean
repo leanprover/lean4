@@ -202,8 +202,8 @@ partial def compileParserDescr (env : Environment) (opts : Options) (categories 
     | ParserDescr.notFollowedBy d                     => do let p ← visit d; pure $ notFollowedBy p "element" -- TODO allow user to set msg at ParserDescr
     | ParserDescr.many d                              => many <$> visit d
     | ParserDescr.many1 d                             => many1 <$> visit d
-    | ParserDescr.sepBy d₁ d₂                         => sepBy <$> visit d₁ <*> visit d₂
-    | ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> visit d₁ <*> visit d₂
+    | ParserDescr.sepBy d₁ d₂ b                       => sepBy (allowTrailingSep := b) <$> visit d₁ <*> visit d₂
+    | ParserDescr.sepBy1 d₁ d₂ b                      => sepBy1 (allowTrailingSep := b) <$> visit d₁ <*> visit d₂
     | ParserDescr.node k prec d                       => leadingNode k prec <$> visit d
     | ParserDescr.trailingNode k prec d               => trailingNode k prec <$> visit d
     | ParserDescr.symbol tk                           => pure $ symbol tk

@@ -487,8 +487,8 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
   | ParserDescr.notFollowedBy d                     => notFollowedBy.parenthesizer <$> interpretParserDescr d
   | ParserDescr.many d                              => many.parenthesizer <$> interpretParserDescr d
   | ParserDescr.many1 d                             => many1.parenthesizer <$> interpretParserDescr d
-  | ParserDescr.sepBy d₁ d₂                         => sepBy.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
-  | ParserDescr.sepBy1 d₁ d₂                        => sepBy1.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.sepBy d₁ d₂ _                       => sepBy.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
+  | ParserDescr.sepBy1 d₁ d₂ _                      => sepBy1.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
   | ParserDescr.node k prec d                       => leadingNode.parenthesizer k prec <$> interpretParserDescr d
   | ParserDescr.trailingNode k prec d               => trailingNode.parenthesizer k prec <$> interpretParserDescr d
   | ParserDescr.symbol tk                           => pure $ symbol.parenthesizer tk

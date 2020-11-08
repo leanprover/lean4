@@ -175,8 +175,8 @@ inductive ParserDescr
   | «try»             : ParserDescr → ParserDescr
   | many              : ParserDescr → ParserDescr
   | many1             : ParserDescr → ParserDescr
-  | sepBy             : ParserDescr → ParserDescr → ParserDescr
-  | sepBy1            : ParserDescr → ParserDescr → ParserDescr
+  | sepBy             : ParserDescr → ParserDescr → Bool → ParserDescr
+  | sepBy1            : ParserDescr → ParserDescr → Bool → ParserDescr
   | node              : Name → Nat → ParserDescr → ParserDescr
   | trailingNode      : Name → Nat → ParserDescr → ParserDescr
   | symbol            : String → ParserDescr
@@ -851,6 +851,7 @@ class Quote (α : Type) :=
 export Quote (quote)
 
 instance : Quote Syntax := ⟨id⟩
+instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
 instance : Quote String := ⟨mkStxStrLit⟩
 instance : Quote Nat := ⟨fun n => mkStxNumLit $ toString n⟩
 instance : Quote Substring := ⟨fun s => mkCAppStx `String.toSubstring #[quote s.toString]⟩

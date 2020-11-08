@@ -685,7 +685,7 @@ lean_object* l_Lean_Parser_doElemParser_parenthesizer(lean_object*, lean_object*
 lean_object* l_Lean_Parser_Term_termTry___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Term_doReassign___closed__3;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Do___hyg_14____closed__2;
-extern lean_object* l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 lean_object* l_Lean_Parser_Term_doSeqIndent___closed__5;
 lean_object* l_Lean_Parser_Term_doFor_formatter___closed__5;
 lean_object* l___regBuiltin_Lean_Parser_Term_doFor_formatter(lean_object*);
@@ -1956,7 +1956,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_liftMethod(lean_object* x_1) 
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_3 = l_Lean_Parser_Term_liftMethod___elambda__1___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_liftMethod;
@@ -7644,7 +7644,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Parser_Term_if___elambda__1___closed__6;
-x_2 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_3 = l_Lean_Parser_Term_if___elambda__1___closed__9;
 x_4 = l_Lean_Parser_Term_doIf___elambda__1___closed__12;
 x_5 = l_Lean_Parser_Term_doIf___elambda__1___closed__16;
@@ -9193,7 +9193,7 @@ static lean_object* _init_l_Lean_Parser_Term_doUnless___elambda__1___closed__8()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_Term_doUnless___elambda__1___lambda__1), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -15721,7 +15721,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_do(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_3 = l_Lean_Parser_Term_do___elambda__1___closed__1;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_do;
@@ -16080,7 +16080,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_doElem_quot(lean_object* x_1)
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_3 = l_Lean_Parser_Term_doElem_quot___elambda__1___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_doElem_quot;
@@ -16433,7 +16433,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_termUnless(lean_object* x_1) 
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_3 = l_Lean_Parser_Term_termUnless___elambda__1___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_termUnless;
@@ -16698,7 +16698,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_termFor(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_3 = l_Lean_Parser_Term_termFor___elambda__1___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_termFor;
@@ -16963,7 +16963,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_termTry(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_3 = l_Lean_Parser_Term_termTry___elambda__1___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_termTry;
@@ -17228,7 +17228,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_termReturn(lean_object* x_1) 
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_3 = l_Lean_Parser_Term_termReturn___elambda__1___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_termReturn;

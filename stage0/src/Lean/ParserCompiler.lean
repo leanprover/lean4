@@ -124,8 +124,8 @@ def compileEmbeddedParsers : ParserDescr → MetaM Unit
   | ParserDescr.notFollowedBy d                     => compileEmbeddedParsers d
   | ParserDescr.many d                              => compileEmbeddedParsers d
   | ParserDescr.many1 d                             => compileEmbeddedParsers d
-  | ParserDescr.sepBy d₁ d₂                         => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
-  | ParserDescr.sepBy1 d₁ d₂                        => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
+  | ParserDescr.sepBy d₁ d₂ _                       => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
+  | ParserDescr.sepBy1 d₁ d₂ _                      => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
   | ParserDescr.node k prec d                       => compileEmbeddedParsers d
   | ParserDescr.trailingNode k prec d               => compileEmbeddedParsers d
   | ParserDescr.interpolatedStr d                   => compileEmbeddedParsers d

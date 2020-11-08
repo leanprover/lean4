@@ -447,7 +447,7 @@ lean_object* l_Lean_Parser_antiquotExpr___closed__1;
 lean_object* l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__5;
 lean_object* l_Lean_Parser_categoryParserOfStack(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot___closed__20;
-extern lean_object* l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 lean_object* l_Lean_Parser_checkWsBefore(lean_object*);
 lean_object* l_Lean_Parser_checkNoWsBeforeFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_setCache(lean_object*, lean_object*);
@@ -26153,7 +26153,7 @@ lean_object* l_Lean_Parser_termParser(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_3 = l_Lean_Parser_categoryParser(x_2, x_1);
 return x_3;
 }
@@ -26601,7 +26601,7 @@ static lean_object* _init_l_Lean_Parser_antiquotNestedExpr___elambda__1___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_categoryParser___elambda__1), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -26724,7 +26724,7 @@ static lean_object* _init_l_Lean_Parser_antiquotNestedExpr___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___kind_tactic____x40_Init_Tactics___hyg_461____closed__9;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Parser_categoryParser(x_1, x_2);
 return x_3;

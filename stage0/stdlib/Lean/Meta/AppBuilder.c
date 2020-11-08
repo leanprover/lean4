@@ -59,6 +59,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkProjectionImp___clo
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkListLitAux_match__1(lean_object*);
 lean_object* l_Lean_Meta_mkLt___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqRecImp_match__1(lean_object*);
+extern lean_object* l_Lean_Lean_ToExpr___instance__3___lambda__1___closed__2;
 lean_object* l_Lean_Meta_mkAppM(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMArgs_loop___closed__3;
 lean_object* l_Lean_Meta_mkPure___rarg___closed__2;
@@ -174,7 +175,6 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMArgs_loop_match
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkHEqSymmImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_synthInstance___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMFinal___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Lean_ToExpr___instance__3___lambda__1___closed__3;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkHEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSorry(lean_object*);
 lean_object* l_Lean_Meta_mkAppM___rarg___lambda__1___closed__6;
@@ -208,10 +208,12 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux_match__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkFun___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkExpectedTypeHint___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_LeanInit___instance__15___closed__3;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux_match__2(lean_object*);
 lean_object* l_List_mapM___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkFun___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqSymmImp___closed__4;
+extern lean_object* l_Lean_Init_LeanInit___instance__15___closed__5;
 lean_object* l_Lean_Meta_mkArbitrary(lean_object*);
 lean_object* l_Lean_Meta_mkCongrFun___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkNoConfusionImp_match__1(lean_object*);
@@ -267,7 +269,6 @@ lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp(lean_objec
 lean_object* l_Lean_Meta_mkId___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqSymmImp___closed__3;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkHEqReflImp___closed__1;
-extern lean_object* l_Lean_Lean_ToExpr___instance__3___lambda__1___closed__6;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux___closed__7;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMFinal___closed__2;
 uint8_t l_Lean_Expr_isForall(lean_object*);
@@ -301,7 +302,6 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkCongrFunImp___close
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkProjectionImp_match__2(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkNoConfusionImp___closed__2;
-extern lean_object* l_Lean_Lean_ToExpr___instance__3___lambda__1___closed__5;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqNDRecImp___closed__2;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkCongrFunImp___closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp___lambda__1___closed__2;
@@ -367,6 +367,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkExpectedTypeHintImp
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_hasTypeMsg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSorry___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_AppBuilder___hyg_4084_(lean_object*);
+extern lean_object* l_Lean_Init_LeanInit___instance__22___rarg___closed__2;
 lean_object* l_Lean_Meta_mkSorry___rarg___lambda__1___closed__2;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkProjectionImp___lambda__1___closed__3;
@@ -387,7 +388,6 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux_match__4
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkIdImp___closed__2;
 lean_object* l_Lean_Meta_mkListLit___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__21___rarg___closed__2;
 lean_object* l_Lean_Meta_mkExpectedTypeHint(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkProjectionImp___closed__3;
 lean_object* l_Lean_Meta_mkPure___rarg(lean_object*, lean_object*, lean_object*);
@@ -10887,7 +10887,7 @@ x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_12);
-x_14 = l_Lean_Init_LeanInit___instance__21___rarg___closed__2;
+x_14 = l_Lean_Init_LeanInit___instance__22___rarg___closed__2;
 x_15 = l_Lean_mkConst(x_14, x_13);
 x_16 = l_Lean_mkApp(x_15, x_1);
 x_17 = l_Lean_mkApp(x_16, x_11);
@@ -10906,7 +10906,7 @@ x_20 = lean_box(0);
 x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_3);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_Init_LeanInit___instance__21___rarg___closed__2;
+x_22 = l_Lean_Init_LeanInit___instance__22___rarg___closed__2;
 x_23 = l_Lean_mkConst(x_22, x_21);
 x_24 = l_Lean_mkApp(x_23, x_1);
 x_25 = l_Lean_mkApp(x_24, x_18);
@@ -10990,7 +10990,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Lean_ToExpr___instance__3___lambda__1___closed__3;
+x_2 = l_Lean_Init_LeanInit___instance__15___closed__3;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -11000,7 +11000,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Lean_ToExpr___instance__3___lambda__1___closed__5;
+x_2 = l_Lean_Init_LeanInit___instance__15___closed__5;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -12888,7 +12888,7 @@ lean_object* l_Lean_Meta_mkDecideProof___rarg___lambda__1(lean_object* x_1, lean
 _start:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = l_Lean_Lean_ToExpr___instance__3___lambda__1___closed__6;
+x_7 = l_Lean_Lean_ToExpr___instance__3___lambda__1___closed__2;
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);

@@ -549,6 +549,7 @@ lean_object* l_Lean_Expr_Data_looseBVarRange___boxed(lean_object*);
 lean_object* l_Lean_mkAppRev(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateConst_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_mkDataForBinder___boxed__const__1;
+extern lean_object* l_Lean_Init_LeanInit___instance__18___closed__2;
 lean_object* l_Lean_Expr_bvarIdx_x21___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 uint32_t l_USize_toUInt32(size_t);
@@ -753,7 +754,6 @@ uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isLet___boxed(lean_object*);
 lean_object* l_Lean_Expr_bindingInfo_x21___closed__2;
 lean_object* l_Lean_ExprStructEq_hash___boxed(lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__17___closed__2;
 lean_object* l_Lean_Expr_isCharLit___closed__1;
 lean_object* l_Lean_Expr_isCharLit___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -4457,7 +4457,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Init_LeanInit___instance__17___closed__2;
+x_2 = l_Lean_Init_LeanInit___instance__18___closed__2;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

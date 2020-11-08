@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.LeanInit
+import Init.Data.Array.Macros
 
 macro "rfl" : tactic => `(exact rfl)
 macro "decide!" : tactic => `(exact decide!)
@@ -18,3 +19,12 @@ macro_rules
   | `(tactic| repeat $seq) => `(tactic| (($seq); repeat $seq) <|> skip)
 
 macro "try " t:tacticSeq : tactic => `(($t) <|> skip)
+
+syntax "funext " (>col term:max)+ : tactic
+
+macro_rules
+  | `(tactic|funext $xs*) =>
+    if xs.size == 1 then
+      `(tactic| apply funext; intro $(xs[0]):term)
+    else
+      `(tactic| apply funext; intro $(xs[0]):term; funext $(xs[1:])*)

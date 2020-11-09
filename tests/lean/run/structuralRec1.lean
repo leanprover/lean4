@@ -59,3 +59,23 @@ def f : Nat → Nat → Nat
    match f x y with
    | 0 => f x y
    | v => f x v + 1
+
+def g (xs : List Nat) : Nat :=
+  match xs with
+  | [] => 0
+  | y::ys =>
+    match ys with
+    | [] => 1
+    | _ => g ys + 1
+
+def aux : Nat → Nat → Nat
+ | 0, y   => y
+ | x+1, y =>
+   match f x y with
+   | 0 => f x y
+   | v => f x v + 1
+
+theorem ex (x y : Nat) : f x y = aux x y := by
+  cases x
+  rfl
+  rfl

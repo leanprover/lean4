@@ -20,6 +20,7 @@ In Lean 4, one can easily create new notation that abbreviates commonly used idi
 `fun` followed by a `match`. In the following examples, we define a few functions using `fun`+`match` notation.
 
 ```lean
+# namespace ex1
 def Prod.str : Nat × Nat → String :=
   fun (a, b) => "(" ++ toString a ++ ", " ++ toString b ++ ")"
 
@@ -33,17 +34,19 @@ def Sum.str : Option Nat → String :=
   fun
     | some a => "some " ++ toString a
     | none   => "none"
+# end ex1
 ```
 
 * Implicit lambdas
 
-In Lean 3 stdlib, we find many [instances](https://github.com/leanprover/lean/blob/master/library/init/category/reader.lean#L39) of dreaful `@`+`_` idiom.
+In Lean 3 stdlib, we find many [instances](https://github.com/leanprover/lean/blob/master/library/init/category/reader.lean#L39) of the dreaful `@`+`_` idiom.
 It is often used when we the expected type is a function type with implicit arguments,
 and we have a constant (`reader_t.pure` in the example) which also takes implicit arguments. In Lean 4, the elaborator automatically introduces lambda's
 for consuming implicit arguments. We are still exploring this feature and analyzing its impact, but the experience so far has been very positive. As an example,
 here is the example in the link above using Lean 4 implicit lambdas.
 
 ```lean
+# variables (ρ : Type) (m : Type → Type) [Monad m]
 instance : Monad (ReaderT ρ m) := {
   pure := ReaderT.pure,
   bind := ReaderT.bind
@@ -54,13 +57,15 @@ Users can disable the implicit lambda feature by using `@` or writing a lambda e
 Here are few examples
 
 ```lean
+# namespace ex2
 def id1 : {α : Type} → α → α :=
   fun x => x
 
 def listId : List ({α : Type} → α → α) :=
   (fun x => x) :: []
 
--- In this example, implicit lambda introduction has been disabled because we use `@` before `fun`
+-- In this example, implicit lambda introduction has been disabled because
+-- we use `@` before `fun`
 def id2 : {α : Type} → α → α :=
   @fun α (x : α) => id1 x
 
@@ -74,6 +79,7 @@ def id4 : {α : Type} → α → α :=
 -- because we used the binder annotation `{...}`
 def id5 : {α : Type} → α → α :=
   fun {α} x => id1 x
+# end ex2
 ```
 
 * Sugar for simple functions
@@ -81,6 +87,7 @@ def id5 : {α : Type} → α → α :=
 In Lean 3, we can creating simple functions from infix operators by using parentheses. For example, `(+1)` is sugar for `fun x, x + 1`. In Lean 4, we generalize this notation using `·` as a placeholder. Here are a few examples:
 
 ```lean
+# namespace ex3
 #check (· + 1)
 -- fun a => a + 1
 #check (2 - ·)
@@ -96,6 +103,7 @@ def f (x y z : Nat) :=
 
 #eval [(1, 2), (3, 4), (5, 6)].map (·.1)
 -- [1, 3, 5]
+# end ex3
 ```
 
 As in Lean 3, the notation is activated using parentheses, and the lambda abstraction is created by collecting the nested `·`s.
@@ -123,10 +131,10 @@ def sum (xs : List Nat) :=
 #eval sum [1, 2, 3, 4]
 -- 10
 
-example {a b : Nat} {p : Nat → Nat → Nat → Prop} (h₁ : p a b b) (h₂ : b = a) : p a a b :=
+example {a b : Nat} {p : Nat → Nat → Nat → Prop} (h₁ : p a b b) (h₂ : b = a)
+    : p a a b :=
   Eq.subst (motive := fun x => p a x b) h₂ h₁
 ```
-
 In the following examples, we illustrate the interaction between named and default arguments.
 
 ```lean
@@ -185,4 +193,146 @@ to avoid a sequence of `_`s.
 ```lean
 example (f : Nat → Nat) (a b c : Nat) : f (a + b + c) = f (a + (b + c)) :=
   congrArg f (Nat.addAssoc ..)
+```
+
+## Dependent function types
+
+Given `α : Type` and `β : α → Type`, `(x : α) → β x` denotes the type of functions `f` with the property that,
+for each `a : α`, `f a` is an element of `β a`. In other words, the type of the value returned by `f` depends on its input.
+We say `(x : α) → β x` is a dependent function type. In Lean 3, we write the dependent function type `(x : α) → β x` using
+one of the following three equivalent notations:
+`forall x : α, β x` or `∀ x : α, β x` or `Π x : α, β x`.
+The first two were intended to be used for writing propositions, and the latter for writing code.
+Although the notation `Π x : α, β x` has historical significance, we have removed it from Lean 4 because
+it is awkward to use and often confuses new users. We can still write `forall (x : α), β x` and `∀ (x : α), β x`,
+but the parentheses are not optional when the type is provided explicitly.
+
+```lean
+#check forall (α : Type), α → α
+#check ∀ (α : Type), α → α
+-- #check ∀ α : Type, α → α -- Not valid in Lean 4
+#check ∀ α, α → α
+#check (α : Type) → α → α
+#check {α : Type} → (a : Array α) → (i : Nat) → i < a.size → α
+#check {α : Type} → [ToString α] → α → String
+#check forall {α : Type} (a : Array α) (i : Nat), i < a.size → α
+#check {α β : Type} → α → β → α × β
+```
+
+## The `meta` keyword
+
+In Lean 3, the keyword `meta` is used to mark definitions that can use primitives implemented in C/C++.
+These metadefinitions can also call themselves recursively, relaxing the termination
+restriction imposed by ordinary type theory. Metadefinitions may also use unsafe primitives such as
+`eval_expr (α : Type u) [reflected α] : expr → tactic α`, or primitives that break referential transparency
+`tactic.unsafe_run_io`.
+
+The keyword `meta` has been currently removed from Lean 4. However, we may re-introduce it in the future,
+but with a much more limited purpose: marking meta code that should not be included in the executables produced by Lean.
+
+The keywords `axiom` and `constant` are not equivalent in Lean 4. In Lean 4, `constant` is used to define
+an opaque definition. Here are two simple examples:
+```lean
+# namespace meta1
+constant x : Nat := 1
+-- The following example will not type check since `x` is opaque
+-- example : x = 1 := rfl
+
+-- We can evaluate `x`
+#eval x
+-- 1
+
+-- When no value is provided, the elaborator tries to build one automatically for us
+-- using the `Inhabited` type class
+constant y : Nat
+# end meta1
+```
+
+We can instruct Lean to use a foreign function as the implementation for any constant or definition
+using the attribute `@[extern "foreign_function"]`. It is the user's reponsability to ensure the
+foreign implementation is correct.
+However, a user mistake here will only impact the code generated by Lean, and
+it will **not** compromise the logical soundness of the system.
+That is, you cannot prove `False` using the `@[extern]` attribute.
+We use `@[extern]` with definitions when we want to provide a reference implementation in Lean
+that can be used for reasoning. When we write a definition such as
+```lean
+@[extern "lean_nat_add"]
+def add : Nat → Nat → Nat
+  | a, Nat.zero   => a
+  | a, Nat.succ b => Nat.succ (add a b)
+```
+Lean assumes that the foreign function `lean_nat_add` implements the reference implementation above.
+
+The `unsafe` keyword allows us to define functions using unsafe features such as general recursion,
+and arbitrary type casting. Regular (safe) functions cannot directly use `unsafe` ones since it would
+compromise the logical soundness of the system. As in regular programming languages, programs written
+using unsafe features may crash at runtime. Here are a few unsafe examples:
+```lean
+unsafe def unsound : False :=
+  unsound
+
+#check @unsafeCast
+-- {α : Type _} → {β : Type _} → α → β
+
+unsafe def nat2String (x : Nat) : String :=
+  unsafeCast x
+
+-- The following definition doesn't type check because it is not marked as `unsafe`
+-- def nat2StringSafe (x : Nat) : String :=
+--   unsafeCast x
+```
+
+The `unsafe` keyword is particularly useful when we want to take advantage of an implementation detail of the
+Lean execution runtime. For example, we cannot prove in Lean that arrays have a maximum size, but
+the runtime used to execute Lean programs guarantees that an array cannot have more than 2^64 (2^32) elements
+in a 64-bit (32-bit) machine. We can take advantage of this fact to provide a more efficient implementation for
+array functions. However, the efficient version would not be very useful if it can only be used in
+unsafe code. Thus, Lean 4 provides the attribute `@[implementedBy functionName]`. The idea is to provide
+an unsafe (and potentially more efficient) version of a safe definition or constant. The function `f`
+at the attribute `@[implementedBy f]` is very similar to an extern/foreign function,
+the key difference is that it is implemented in Lean itself. Again, the logical soundness of the system
+cannot be compromised by using the attribute `implementedBy`, but if the implementation is incorrect your
+program may crash at runtime. In the following example, we define `withPtrUnsafe a k h` which
+executes `k` using the memory address where `a` is stored in memory. The argument `h` is proof
+that `k` is a constant function. Then, we "seal" this unsafe implementation at `withPtr`. The proof `h`
+ensures the reference implementation `k 0` is correct. For more information, see the article
+"Sealing Pointer-Based Optimizations Behind Pure Functions".
+```lean
+unsafe
+def withPtrUnsafe {α β : Type} (a : α) (k : USize → β) (h : ∀ u, k u = k 0) : β :=
+  k (ptrAddrUnsafe a)
+
+@[implementedBy withPtrUnsafe]
+def withPtr {α β : Type} (a : α) (k : USize → β) (h : ∀ u, k u = k 0) : β :=
+  k 0
+```
+
+General recursion is very useful in practice, and it would be impossible to implement Lean 4 without it.
+The keyword `partial` implements a very simple and efficient approach for supporting general recursion.
+Simplicity was key here because of the bootstrapping problem. That is, we had to implement Lean in Lean before
+many of its features were implemented (e.g., the tactic framework or support for wellfounded recursion).
+Another requirement for us was performance. Functions tagged with `partial` should be as efficient as the ones implemented in mainstream functional programming
+languages such as OCaml. When the `partial` keyword is used, Lean generates an auxiliary `unsafe` definition that
+uses general recursion, and then defines an opaque constant that is implemented by this auxiliary definition.
+This is very simple, efficient, and is sufficient for users that want to use Lean as a regular programming language.
+A `partial` definition cannot use unsafe features such as `unsafeCast` and `ptrAddrUnsafe`, and it can only be used to
+implement types we already known to be inhabited. Finally, since we "seal" the auxiliary definition using an opaque
+constant, we cannot reason about `partial` definitions.
+
+We are aware that proof assistants such as Isabelle provide a framework for defining partial functions that does not
+prevent users from proving properties about them. This kind of framework can be implemented in Lean 4. Actually,
+it can be implemented by users since Lean 4 is an extensible system. The developers current have no plans to implement
+this kind of support for Lean 4. However, we remark that users can implement it using a function that traverses
+the auxiliary unsafe definition generated by Lean, and produces a safe one using an approach similar to the one used in Isabelle.
+
+```lean
+# namespace partial1
+partial def f (x : Nat) : IO Unit := do
+  IO.println x
+  if x < 100 then
+     f (x+1)
+
+#eval f 98
+# end partial1
 ```

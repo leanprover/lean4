@@ -132,7 +132,7 @@ structure Iff(a b : Prop) : Prop := intro ::
 def rfl {α : Sort u} {a : α} : a = a :=
   Eq.refl a 
 
-theorem Eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
+theorem Eq.subst {α : Sort u} {motive : α → Prop} {a b : α} (h₁ : a = b) (h₂ : motive a) : motive b :=
   Eq.ndrec h₂ h₁ 
 
 theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=

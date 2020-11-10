@@ -28,6 +28,7 @@ The delaborator is extensible via the `[delab]` attribute.
 import Lean.KeyedDeclsAttribute
 import Lean.ProjFns
 import Lean.Syntax
+import Lean.Meta.Match
 import Lean.Elab.Term
 
 namespace Lean
@@ -372,6 +373,80 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
         pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
   mkAppStx fnStx argStxs
 
+private def getUnusedName (suggestion : Name) : DelabM Name := do
+  -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
+  let suggestion := if suggestion.isAnonymous then `a else suggestion;
+  let lctx ← getLCtx
+  pure $ lctx.getUnusedName suggestion
+
+/-- State for `delabAppMatch` and helpers. -/
+structure AppMatchState :=
+(info      : MatcherInfo)
+(matcherTy : Expr)
+(params    : Array Expr := #[])
+(hasMotive : Bool := false)
+(discrs    : Array Syntax := #[])
+(rhss      : Array Syntax := #[])
+-- additional arguments applied to the result of the `match` expression
+(moreArgs  : Array Syntax := #[])
+
+/-- Skip `numParams` binders. -/
+private def skippingBinders {α} : (numParams : Nat) → (x : DelabM α) → DelabM α
+  | 0,           x => x
+  | numParams+1, x => do
+    let e ← getExpr
+    let n ← getUnusedName e.bindingName!
+    withBindingBody n $
+      skippingBinders numParams x
+
+/--
+  Extract arguments of motive applications from the matcher type.
+  For the example below: `#[`([]), `(a::as)]` -/
+private def delabPatterns (st : AppMatchState) : DelabM (Array Syntax) := do
+  let ty ← instantiateForall st.matcherTy st.params
+  forallTelescope ty fun params _ => do
+    -- skip motive and discriminators
+    let alts := Array.ofSubarray $ params[1 + st.discrs.size:]
+    alts.mapIdxM fun idx alt => do
+      let ty ← inferType alt
+      withReader ({ · with expr := ty }) $
+        skippingBinders st.info.altNumParams[idx] do
+          let pats ← withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
+          mkSepStx pats (mkAtom ",")
+
+/--
+  Delaborate applications of "matchers" such as
+  ```
+  List.map.match_1 : {α : Type _} →
+    (motive : List α → Sort _) →
+      (x : List α) → (Unit → motive List.nil) → ((a : α) → (as : List α) → motive (a :: as)) → motive x
+  ``` -/
+@[builtinDelab app]
+def delabAppMatch : Delab := whenPPOption getPPNotation do
+  -- incrementally fill `AppMatchState` from arguments
+  let st ← withAppFnArgs
+    (do
+      let (Expr.const c us _) ← getExpr | failure
+      let (some info) ← getMatcherInfo? c | failure
+      { matcherTy := (← getConstInfo c).instantiateTypeLevelParams us, info := info, : AppMatchState })
+    (fun st => do
+      if st.params.size < st.info.numParams then
+        pure { st with params := st.params.push (← getExpr) }
+      else if !st.hasMotive then
+        -- discard motive argument
+        pure { st with hasMotive := true }
+      else if st.discrs.size < st.info.numDiscrs then
+        pure { st with discrs := st.discrs.push (← delab) }
+      else if st.rhss.size < st.info.altNumParams.size then
+        pure { st with rhss := st.rhss.push (← skippingBinders st.info.altNumParams[st.rhss.size] delab) }
+      else
+        pure { st with moreArgs := st.moreArgs.push (← delab) })
+  let pats ← delabPatterns st
+  let discrs := st.discrs.map fun discr => mkNode `Lean.Parser.Term.matchDiscr #[mkNullNode, discr]
+  let alts := pats.zipWith st.rhss fun pat rhs => mkNode `Lean.Parser.Term.matchAlt #[pat, mkAtom "=>", rhs]
+  let stx ← `(match $(mkSepArray discrs (mkAtom ",")):matchDiscr* with | $(mkSepArray alts (mkAtom "|")):matchAlt*)
+  mkAppStx stx st.moreArgs
+
 @[builtinDelab mdata]
 def delabMData : Delab := do
   -- only interpret `pp.` values by default
@@ -417,12 +492,6 @@ private def shouldGroupWithNext : DelabM Bool := do
   | Expr.lam _ _     e'@(Expr.lam _ _ _ _) _     => go e'
   | Expr.forallE _ _ e'@(Expr.forallE _ _ _ _) _ => go e'
   | _ => pure false
-
-private def getUnusedName (suggestion : Name) : DelabM Name := do
-  -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
-  let suggestion := if suggestion.isAnonymous then `a else suggestion;
-  let lctx ← getLCtx
-  pure $ lctx.getUnusedName suggestion
 
 private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab) : optParam (Array Syntax) #[] → Delab
   -- Accumulate names (`Syntax.ident`s with position information) of the current, unfinished

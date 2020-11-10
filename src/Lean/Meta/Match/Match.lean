@@ -772,7 +772,7 @@ A "matcher" auxiliary declaration has the following structure:
 - `numParams` parameters
 - motive
 - `numDiscrs` discriminators (aka major premises)
-- `altNumParams.size` alternatives (aka minor premises) where alternative `i` has `altNumParams[i]` alternatives
+- `altNumParams.size` alternatives (aka minor premises) where alternative `i` has `altNumParams[i]` parameters
 - `uElimPos?` is `some pos` when the matcher can eliminate in different universe levels, and
    `pos` is the position of the universe level parameter that specifies the elimination universe.
    It is `none` if the matcher only eliminates into `Prop`. -/

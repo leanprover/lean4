@@ -97,13 +97,25 @@ private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
     else
       throwErrorAt id "identifier or `_` expected"
 
+/-
+  Recall that
+  ```
+  def typeSpec := parser! " : " >> termParser
+  def optType : Parser := optional typeSpec
+  ``` -/
+def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
+  if optType.isNone then
+    mkHole ref
+  else
+    optType[0][1]
+
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
   match stx with
   | Syntax.node k args => do
     if k == `Lean.Parser.Term.simpleBinder then
-      -- binderIdent+
+      -- binderIdent+ >> optType
       let ids ← getBinderIds args[0]
-      let type := mkHole stx
+      let type := expandOptType stx args[1]
       ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := type, bi := BinderInfo.default }
     else if k == `Lean.Parser.Term.explicitBinder then
       -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
@@ -244,6 +256,7 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElab
       | Syntax.node `Lean.Parser.Term.implicitBinder _ => loop body (i+1) (newBinders.push binder)
       | Syntax.node `Lean.Parser.Term.instBinder _     => loop body (i+1) (newBinders.push binder)
       | Syntax.node `Lean.Parser.Term.explicitBinder _ => loop body (i+1) (newBinders.push binder)
+      | Syntax.node `Lean.Parser.Term.simpleBinder _   => loop body (i+1) (newBinders.push binder)
       | Syntax.node `Lean.Parser.Term.hole _ =>
         let ident ← mkFreshIdent binder
         let type := binder
@@ -339,18 +352,6 @@ def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (
     let s ← FunBinders.elabFunBindersAux binders 0 { lctx := lctx, localInsts := localInsts, expectedType? := expectedType? }
     resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) $ withLCtx s.lctx s.localInsts $
       x s.fvars s.expectedType?
-
-/-
-  Recall that
-  ```
-  def typeSpec := parser! " : " >> termParser
-  def optType : Parser := optional typeSpec
-  ``` -/
-def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
-  if optType.isNone then
-    mkHole ref
-  else
-    optType[0][1]
 
 /- Helper function for `expandEqnsIntoMatch` -/
 private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=

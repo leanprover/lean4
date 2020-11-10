@@ -140,7 +140,7 @@ f ((x : a) -> b)
 ∀ x y (z : Nat), x > y -> x > y - z
 (Term.forall
  "∀"
- [(Term.simpleBinder [`x `y]) (Term.explicitBinder "(" [`z] [":" `Nat] [] ")")]
+ [(Term.simpleBinder [`x `y] []) (Term.explicitBinder "(" [`z] [":" `Nat] [] ")")]
  ","
  (Term.arrow (Term.gt `x ">" `y) "->" (Term.gt `x ">" (Term.sub `y "-" `z))))
 

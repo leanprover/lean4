@@ -204,13 +204,12 @@ one of the following three equivalent notations:
 `forall x : α, β x` or `∀ x : α, β x` or `Π x : α, β x`.
 The first two were intended to be used for writing propositions, and the latter for writing code.
 Although the notation `Π x : α, β x` has historical significance, we have removed it from Lean 4 because
-it is awkward to use and often confuses new users. We can still write `forall (x : α), β x` and `∀ (x : α), β x`,
-but the parentheses are not optional when the type is provided explicitly.
+it is awkward to use and often confuses new users. We can still write `forall x : α, β x` and `∀ x : α, β x`.
 
 ```lean
 #check forall (α : Type), α → α
 #check ∀ (α : Type), α → α
--- #check ∀ α : Type, α → α -- Not valid in Lean 4
+#check ∀ α : Type, α → α
 #check ∀ α, α → α
 #check (α : Type) → α → α
 #check {α : Type} → (a : Array α) → (i : Nat) → i < a.size → α

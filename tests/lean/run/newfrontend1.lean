@@ -12,6 +12,8 @@ xs.foldl (init := 10) (· + ·)
 
 #check tst [1, 2, 3]
 
+#check fun x y : Nat => x + y
+
 #check tst
 
 #check (fun stx => if True then let e := stx; Pure.pure e else Pure.pure stx : Nat → Id Nat)

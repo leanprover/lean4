@@ -670,9 +670,10 @@ def mkOptionalNode (arg : Option Syntax) : Syntax :=
   | some arg => Syntax.node nullKind #[arg]
   | none     => Syntax.node nullKind #[]
 
-/-- Create syntax representing a Lean term application -/
-def mkAppStx (fn : Syntax) (args : Array Syntax) : Syntax :=
-  Syntax.node `Lean.Parser.Term.app #[fn, mkNullNode args]
+/-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
+def mkAppStx (fn : Syntax) : (args : Array Syntax) → Syntax
+  | #[]  => fn
+  | args => Syntax.node `Lean.Parser.Term.app #[fn, mkNullNode args]
 
 def mkHole (ref : Syntax) : Syntax :=
   Syntax.node `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]

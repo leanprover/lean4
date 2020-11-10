@@ -747,6 +747,27 @@ def delabPrefixOp (op : Bool → Syntax → Delab) : Delab := whenPPOption getPP
 @[builtinDelab app.Not] def delabNot : Delab := delabPrefixOp fun _ x => `(¬ $x)
 @[builtinDelab app.not] def delabBNot : Delab := delabPrefixOp fun _ x => `(! $x)
 
+@[builtinDelab app.List.nil]
+def delabNil : Delab := whenPPOption getPPNotation do
+  guard $ (← getExpr).getAppNumArgs == 1
+  `([])
+
+@[builtinDelab app.List.cons]
+def delabConsList : Delab := whenPPOption getPPNotation do
+  guard $ (← getExpr).getAppNumArgs == 3
+  let x ← withAppFn (withAppArg delab)
+  match_syntax (← withAppArg delab) with
+  | `([])     => `([$x])
+  | `([$xs*]) => `([$x, $xs*])
+  | _         => failure
+
+@[builtinDelab app.List.toArray]
+def delabListToArray : Delab := whenPPOption getPPNotation do
+  guard $ (← getExpr).getAppNumArgs == 2
+  match_syntax (← withAppArg delab) with
+  | `([$xs*]) => `(#[$xs*])
+  | _         => failure
+
 end Delaborator
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/

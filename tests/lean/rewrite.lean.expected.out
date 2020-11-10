@@ -5,7 +5,7 @@ rewrite.lean:12:20: error: tactic 'rewrite' failed, did not find instance of the
   List.reverse (List.reverse ?m)
 α : Type _
 as bs : List α
-⊢ as ++ List.nil ++ List.nil ++ bs ++ bs = as ++ (bs ++ bs)
+⊢ as ++ [] ++ [] ++ bs ++ bs = as ++ (bs ++ bs)
 x y z : Nat
 h₁ : x = y
 h₂ : y = z

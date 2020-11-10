@@ -128,3 +128,16 @@ match n, parity n with
 #check fun (a, b) => a && b
 
 #check fun ((a : Nat), (b : Nat)) => a + b
+
+#check fun
+  | some a, some b => some (a + b : Nat)
+  | _,      _      => none
+
+-- overapplied matcher
+#check fun x => (match x with 0 => id | x+1 => id) x
+
+#check fun
+  | #[1, 2]    => 2
+  | #[]        => 0
+  | #[3, 4, 5] => 3
+  | _          => 4

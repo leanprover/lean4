@@ -22,7 +22,12 @@ constructor expected
 match1.lean:124:0: error: invalid match-expression, type of pattern variable 'a' contains metavariables
   ?m
 fun (x : ?m × ?m) => ?m x : ?m × ?m → ?m
-fun (x : Nat × Nat) => _check.match_1 (fun (x_1 : Nat × Nat) => Nat) x fun (a b : Nat) => a + b : Nat × Nat → Nat
+fun (x : Nat × Nat) =>
+  match x with 
+  | (a, b) => a + b : Nat × Nat → Nat
 fun (x : Bool × Bool) =>
-  _check.match_1 (fun (x_1 : Bool × Bool) => Bool) x fun (a b : Bool) => a && b : Bool × Bool → Bool
-fun (x : Nat × Nat) => _check.match_1 (fun (x_1 : Nat × Nat) => Nat) x fun (a b : Nat) => a + b : Nat × Nat → Nat
+  match x with 
+  | (a, b) => a && b : Bool × Bool → Bool
+fun (x : Nat × Nat) =>
+  match x with 
+  | (a, b) => a + b : Nat × Nat → Nat

@@ -8,8 +8,13 @@ open Lean
 def test (e : Expr) : MetaM Unit :=
 PrettyPrinter.ppExpr Name.anonymous [] e >>= IO.println
 
+-- loose bound variable
 #eval test (mkBVar 0)
+
+-- anonymous binder
 #eval test (mkLambda Name.anonymous BinderInfo.default (mkSort levelZero) (mkBVar 0))
+
+-- pp annotations
 #eval test $
   mkAppN (mkConst `id [levelZero]) #[
     mkConst `Nat,

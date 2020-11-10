@@ -896,6 +896,7 @@ lean_object* l_Lean_Delaborator_delabAppExplicit___lambda__2___closed__2;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 extern lean_object* l_Lean_setOptionFromString___closed__1;
 lean_object* l_Lean_getPPUniverses___closed__2;
+lean_object* l___regBuiltin_Lean_Delaborator_delabEquiv___closed__5;
 lean_object* l_Lean_Delaborator_delabLT___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 extern lean_object* l_Lean_getSanitizeNames___closed__1;
@@ -1104,6 +1105,7 @@ lean_object* l_Lean_Delaborator_delabBEq___lambda__1(uint8_t, lean_object*, lean
 lean_object* l_Lean_Delaborator_delabEquiv___lambda__1___closed__1;
 lean_object* l_Lean_Delaborator_delabLam___lambda__3___closed__3;
 lean_object* l___regBuiltin_Lean_Delaborator_delabseqRight___closed__3;
+extern lean_object* l_Lean_Meta_mkLe___rarg___closed__3;
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_955____closed__16;
 lean_object* l_Lean_Delaborator_delabAppend___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabGE___lambda__1___closed__4;
@@ -1151,6 +1153,7 @@ lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Delaborator_delabForall___spec_
 lean_object* l_Lean_Delaborator_delabMapRev(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabNe___lambda__1___closed__3;
 lean_object* l_Lean_Delaborator_delabBNot(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_mkLt___rarg___closed__3;
 uint8_t l_Lean_getPPAll(lean_object*);
 lean_object* l_Lean_Delaborator_getExprKind___closed__3;
 lean_object* l_Lean_Level_quote___closed__1;
@@ -26862,7 +26865,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___regBuiltin_Lean_Delaborator_delabLE___closed__1;
-x_2 = l_Lean_Meta_mkLe___rarg___closed__1;
+x_2 = l_Lean_Meta_mkLe___rarg___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -27156,7 +27159,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___regBuiltin_Lean_Delaborator_delabLT___closed__1;
-x_2 = l_Lean_Meta_mkLt___rarg___closed__1;
+x_2 = l_Lean_Meta_mkLt___rarg___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -28039,7 +28042,7 @@ static lean_object* _init_l___regBuiltin_Lean_Delaborator_delabEquiv___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Equiv");
+x_1 = lean_mk_string("HasEquiv");
 return x_1;
 }
 }
@@ -28056,14 +28059,22 @@ return x_3;
 static lean_object* _init_l___regBuiltin_Lean_Delaborator_delabEquiv___closed__3() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("Equiv");
+return x_1;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Delaborator_delabEquiv___closed__4() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___regBuiltin_Lean_Delaborator_delabEquiv___closed__2;
-x_2 = l___regBuiltin_Lean_Delaborator_delabEquiv___closed__1;
+x_2 = l___regBuiltin_Lean_Delaborator_delabEquiv___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Delaborator_delabEquiv___closed__4() {
+static lean_object* _init_l___regBuiltin_Lean_Delaborator_delabEquiv___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -28076,8 +28087,8 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Delaborator_delabAttribute;
-x_3 = l___regBuiltin_Lean_Delaborator_delabEquiv___closed__3;
-x_4 = l___regBuiltin_Lean_Delaborator_delabEquiv___closed__4;
+x_3 = l___regBuiltin_Lean_Delaborator_delabEquiv___closed__4;
+x_4 = l___regBuiltin_Lean_Delaborator_delabEquiv___closed__5;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -31603,6 +31614,8 @@ l___regBuiltin_Lean_Delaborator_delabEquiv___closed__3 = _init_l___regBuiltin_Le
 lean_mark_persistent(l___regBuiltin_Lean_Delaborator_delabEquiv___closed__3);
 l___regBuiltin_Lean_Delaborator_delabEquiv___closed__4 = _init_l___regBuiltin_Lean_Delaborator_delabEquiv___closed__4();
 lean_mark_persistent(l___regBuiltin_Lean_Delaborator_delabEquiv___closed__4);
+l___regBuiltin_Lean_Delaborator_delabEquiv___closed__5 = _init_l___regBuiltin_Lean_Delaborator_delabEquiv___closed__5();
+lean_mark_persistent(l___regBuiltin_Lean_Delaborator_delabEquiv___closed__5);
 res = l___regBuiltin_Lean_Delaborator_delabEquiv(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

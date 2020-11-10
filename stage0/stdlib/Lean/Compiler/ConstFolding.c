@@ -101,6 +101,7 @@ lean_object* l_Lean_Compiler_foldNatDecLe___boxed(lean_object*, lean_object*, le
 lean_object* l_Lean_Compiler_foldNatDiv(uint8_t);
 extern lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_mkNatLe___closed__9;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__19;
 lean_object* l_Lean_Compiler_mkUInt32Lit(lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes___closed__17;
@@ -305,6 +306,7 @@ extern lean_object* l_Nat_Init_Data_Nat_Basic___instance__5___closed__1;
 lean_object* l_Lean_Compiler_mkUInt32Lit___boxed(lean_object*);
 lean_object* l_List_foldr___at_Lean_Compiler_isToNat___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatDecEq___closed__1;
+lean_object* l_Lean_Compiler_mkNatLt___closed__11;
 lean_object* l_Lean_Compiler_foldBinUInt(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldUIntAdd(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldBinOp_match__1(lean_object*);
@@ -2358,7 +2360,7 @@ static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Less");
+x_1 = lean_mk_string("HasLess");
 return x_1;
 }
 }
@@ -2375,14 +2377,22 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__3() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("Less");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__4() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_mkNatLt___closed__2;
-x_2 = l_Lean_Compiler_mkNatLt___closed__1;
+x_2 = l_Lean_Compiler_mkNatLt___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__4() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2394,17 +2404,17 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__5() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_mkNatLt___closed__3;
-x_2 = l_Lean_Compiler_mkNatLt___closed__4;
+x_1 = l_Lean_Compiler_mkNatLt___closed__4;
+x_2 = l_Lean_Compiler_mkNatLt___closed__5;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__6() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -2412,27 +2422,27 @@ x_1 = lean_mk_string("less");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Literal_type___closed__2;
-x_2 = l_Lean_Compiler_mkNatLt___closed__6;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Literal_type___closed__2;
 x_2 = l_Lean_Compiler_mkNatLt___closed__7;
-x_3 = l_Lean_mkConst(x_2, x_1);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_mkNatLt___closed__8;
+x_3 = l_Lean_mkConst(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2442,12 +2452,12 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__10() {
+static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_mkNatLt___closed__9;
-x_2 = l_Lean_Compiler_mkNatLt___closed__8;
+x_1 = l_Lean_Compiler_mkNatLt___closed__10;
+x_2 = l_Lean_Compiler_mkNatLt___closed__9;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -2456,10 +2466,10 @@ lean_object* l_Lean_Compiler_mkNatLt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = l_Lean_Compiler_mkNatLt___closed__10;
+x_3 = l_Lean_Compiler_mkNatLt___closed__11;
 x_4 = lean_array_push(x_3, x_1);
 x_5 = lean_array_push(x_4, x_2);
-x_6 = l_Lean_Compiler_mkNatLt___closed__5;
+x_6 = l_Lean_Compiler_mkNatLt___closed__6;
 x_7 = l_Lean_mkAppN(x_6, x_5);
 lean_dec(x_5);
 return x_7;
@@ -2469,7 +2479,7 @@ static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("LessEq");
+x_1 = lean_mk_string("HasLessEq");
 return x_1;
 }
 }
@@ -2486,24 +2496,32 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_mkNatLe___closed__2;
-x_2 = l_Lean_Compiler_mkNatLe___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string("LessEq");
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_mkNatLe___closed__3;
-x_2 = l_Lean_Compiler_mkNatLt___closed__4;
-x_3 = l_Lean_mkConst(x_1, x_2);
+x_1 = l_Lean_Compiler_mkNatLe___closed__2;
+x_2 = l_Lean_Compiler_mkNatLe___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_mkNatLe___closed__4;
+x_2 = l_Lean_Compiler_mkNatLt___closed__5;
+x_3 = l_Lean_mkConst(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -2511,23 +2529,13 @@ x_1 = lean_mk_string("lessEq");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Literal_type___closed__2;
-x_2 = l_Lean_Compiler_mkNatLe___closed__5;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Literal_type___closed__2;
 x_2 = l_Lean_Compiler_mkNatLe___closed__6;
-x_3 = l_Lean_mkConst(x_2, x_1);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
@@ -2535,8 +2543,18 @@ static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_mkNatLt___closed__9;
+x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_mkNatLe___closed__7;
+x_3 = l_Lean_mkConst(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_mkNatLt___closed__10;
+x_2 = l_Lean_Compiler_mkNatLe___closed__8;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -2545,10 +2563,10 @@ lean_object* l_Lean_Compiler_mkNatLe(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = l_Lean_Compiler_mkNatLe___closed__8;
+x_3 = l_Lean_Compiler_mkNatLe___closed__9;
 x_4 = lean_array_push(x_3, x_1);
 x_5 = lean_array_push(x_4, x_2);
-x_6 = l_Lean_Compiler_mkNatLe___closed__4;
+x_6 = l_Lean_Compiler_mkNatLe___closed__5;
 x_7 = l_Lean_mkAppN(x_6, x_5);
 lean_dec(x_5);
 return x_7;
@@ -5308,6 +5326,8 @@ l_Lean_Compiler_mkNatLt___closed__9 = _init_l_Lean_Compiler_mkNatLt___closed__9(
 lean_mark_persistent(l_Lean_Compiler_mkNatLt___closed__9);
 l_Lean_Compiler_mkNatLt___closed__10 = _init_l_Lean_Compiler_mkNatLt___closed__10();
 lean_mark_persistent(l_Lean_Compiler_mkNatLt___closed__10);
+l_Lean_Compiler_mkNatLt___closed__11 = _init_l_Lean_Compiler_mkNatLt___closed__11();
+lean_mark_persistent(l_Lean_Compiler_mkNatLt___closed__11);
 l_Lean_Compiler_mkNatLe___closed__1 = _init_l_Lean_Compiler_mkNatLe___closed__1();
 lean_mark_persistent(l_Lean_Compiler_mkNatLe___closed__1);
 l_Lean_Compiler_mkNatLe___closed__2 = _init_l_Lean_Compiler_mkNatLe___closed__2();
@@ -5324,6 +5344,8 @@ l_Lean_Compiler_mkNatLe___closed__7 = _init_l_Lean_Compiler_mkNatLe___closed__7(
 lean_mark_persistent(l_Lean_Compiler_mkNatLe___closed__7);
 l_Lean_Compiler_mkNatLe___closed__8 = _init_l_Lean_Compiler_mkNatLe___closed__8();
 lean_mark_persistent(l_Lean_Compiler_mkNatLe___closed__8);
+l_Lean_Compiler_mkNatLe___closed__9 = _init_l_Lean_Compiler_mkNatLe___closed__9();
+lean_mark_persistent(l_Lean_Compiler_mkNatLe___closed__9);
 l_Lean_Compiler_toDecidableExpr___closed__1 = _init_l_Lean_Compiler_toDecidableExpr___closed__1();
 lean_mark_persistent(l_Lean_Compiler_toDecidableExpr___closed__1);
 l_Lean_Compiler_toDecidableExpr___closed__2 = _init_l_Lean_Compiler_toDecidableExpr___closed__2();

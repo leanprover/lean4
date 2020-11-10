@@ -113,10 +113,10 @@ theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : ∀ x, β x → Pr
 theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (∀ x, Exists (fun y => p x y)) ↔ Exists (fun (f : ∀ x, b x) => ∀ x, p x (f x)) :=
   ⟨axiomOfChoice, fun ⟨f, hw⟩ (x) => ⟨f x, hw x⟩⟩
 
-theorem propComplete (a : Prop) : a = True ∨ a = False :=
-  match em a with
-  | Or.inl t => Or.inl (eqTrueIntro t)
-  | Or.inr f => Or.inr (eqFalseIntro f)
+theorem propComplete (a : Prop) : a = True ∨ a = False := by
+  cases em a
+  | inl _  => apply Or.inl; apply propext; apply Iff.intro; { intros; apply True.intro }; { intro; assumption }
+  | inr hn => apply Or.inr; apply propext; apply Iff.intro; { intro h; exact hn h }; { intro h; apply False.elim h }
 
 -- this supercedes byCases in Decidable
 theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=

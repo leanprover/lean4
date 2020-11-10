@@ -12,7 +12,7 @@ def HashMapBucket (α : Type u) (β : Type v) :=
 
 def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β) (h : i.toNat < data.val.size) : HashMapBucket α β :=
   ⟨ data.val.uset i d h,
-    transRelRight Greater (Array.szFSetEq (data.val) ⟨USize.toNat i, h⟩ d) data.property ⟩
+    by rw [Array.szFSetEq]; exact data.property ⟩
 
 structure HashMapImp (α : Type u) (β : Type v) :=
   (size       : Nat)
@@ -23,13 +23,7 @@ def mkHashMapImp {α : Type u} {β : Type v} (nbuckets := 8) : HashMapImp α β 
   { size       := 0,
     buckets    :=
     ⟨ mkArray n AssocList.nil,
-      have p₁ : (mkArray n (@AssocList.nil α β)).size = n from Array.szMkArrayEq _ _
-      have p₂ : n = (if nbuckets = 0 then 8 else nbuckets) from rfl
-      have p₃ : (if nbuckets = 0 then 8 else nbuckets) > 0 from
-        match nbuckets with
-        | 0            => Nat.zeroLtSucc _
-        | (Nat.succ x) => Nat.zeroLtSucc _
-      transRelRight Greater (Eq.trans p₁ p₂) p₃ ⟩ }
+      by rw [Array.sizeMkArrayEq]; cases nbuckets; decide!; apply Nat.zeroLtSucc; done ⟩ }
 
 namespace HashMapImp
 variables {α : Type u} {β : Type v}
@@ -85,9 +79,7 @@ partial def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let nbuckets := buckets.val.size * 2
   have nbuckets > 0 from Nat.mulPos buckets.property (decide! : 2 > 0)
-  have (mkArray nbuckets (@AssocList.nil α β)).size = nbuckets from Array.szMkArrayEq _ _
-  have Array.size (mkArray nbuckets AssocList.nil) > 0 by rw this; assumption
-  let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, this⟩
+  let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, by rw [Array.sizeMkArrayEq]; assumption⟩
   { size    := size,
     buckets := moveEntries 0 buckets.val new_buckets }
 

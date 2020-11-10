@@ -322,13 +322,6 @@ protected def Nat.prio := std.priority.default + 100
 def std.prec.max   : Nat := 1024 -- the strength of application, identifiers, (, [, etc.
 def std.prec.arrow : Nat := 25
 
-/-
-The next def is "max + 10". It can be used e.g. for postfix operations that should
-be stronger than application.
--/
-
-def std.prec.maxPlus : Nat := std.prec.max + 10
-
 /- Remark: tasks have an efficient implementation in the runtime. -/
 structure Task (α : Type u) : Type u := pure ::
   (get : α)
@@ -449,21 +442,6 @@ theorem congrFun {α : Sort u} {β : α → Sort v} {f g : ∀ x, β x} (h : f =
 theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : a₁ = a₂) : f a₁ = f a₂ :=
   congr rfl h
 
-theorem transRelLeft {α : Sort u} {a b c : α} (r : α → α → Prop) (h₁ : r a b) (h₂ : b = c) : r a c :=
-  h₂ ▸ h₁
-
-theorem transRelRight {α : Sort u} {a b c : α} (r : α → α → Prop) (h₁ : a = b) (h₂ : r b c) : r a c :=
-  h₁ ▸ h₂
-
-theorem ofEqTrue {p : Prop} (h : p = True) : p :=
-  h ▸ trivial
-
-theorem notOfEqFalse {p : Prop} (h : p = False) : ¬p :=
-  fun hp => h ▸ hp
-
-theorem castProofIrrel {α β : Sort u} (h₁ h₂ : α = β) (a : α) : cast h₁ a = cast h₂ a :=
-  rfl
-
 theorem castEq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
   rfl
 
@@ -552,9 +530,6 @@ end
 theorem eqRecHEq {α : Sort u} {φ : α → Sort v} : {a a' : α} → (h : a = a') → (p : φ a) → (Eq.recOn (motive := fun x _ => φ x) h p) ≅ p
   | a, _, rfl, p => HEq.refl p
 
-theorem ofHEqTrue {a : Prop} (h : a ≅ True) : a :=
-  ofEqTrue (eqOfHEq h)
-
 theorem heqOfEqRecEq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : a ≅ b := by
   subst h₁
   apply heqOfEq
@@ -565,16 +540,6 @@ theorem castHEq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
   | α, _, rfl, a => HEq.refl a
 
 variables {a b c d : Prop}
-
-/- xor -/
-def Xor (a b : Prop) : Prop :=
-  (a ∧ ¬ b) ∨ (b ∧ ¬ a)
-
-theorem Iff.left : (a ↔ b) → a → b :=
-  Iff.mp
-
-theorem Iff.right : (a ↔ b) → b → a :=
-  Iff.mpr
 
 theorem iffIffImpliesAndImplies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
   Iff.intro (fun h => And.intro h.mp h.mpr) (fun h => Iff.intro h.left h.right)
@@ -591,43 +556,10 @@ theorem Iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=
     (fun hc => Iff.mpr h₁ (Iff.mpr h₂ hc))
 
 theorem Iff.symm (h : a ↔ b) : b ↔ a :=
-  Iff.intro (Iff.right h) (Iff.left h)
+  Iff.intro (Iff.mpr h) (Iff.mp h)
 
 theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) :=
   Iff.intro Iff.symm Iff.symm
-
-theorem Eq.toIff {a b : Prop} (h : a = b) : a ↔ b :=
-  h ▸ Iff.rfl
-
-theorem neqOfNotIff {a b : Prop} : ¬(a ↔ b) → a ≠ b :=
-  fun h₁ h₂ =>
-    have a ↔ b from Eq.subst h₂ (Iff.refl a);
-    absurd this h₁
-
-theorem notIffNotOfIff (h₁ : a ↔ b) : ¬a ↔ ¬b :=
-  Iff.intro
-   (fun (hna : ¬ a) (hb : b) => hna (Iff.right h₁ hb))
-   (fun (hnb : ¬ b) (ha : a) => hnb (Iff.left h₁ ha))
-
-theorem ofIffTrue (h : a ↔ True) : a :=
-  Iff.mp (Iff.symm h) trivial
-
-theorem notOfIffFalse : (a ↔ False) → ¬a :=
-  Iff.mp
-
-theorem iffTrueIntro (h : a) : a ↔ True :=
-  Iff.intro
-    (fun hl => trivial)
-    (fun hr => h)
-
-theorem iffFalseIntro (h : ¬a) : a ↔ False :=
-  Iff.intro h (False.rec (fun _ => a))
-
-theorem notNotIntro (ha : a) : ¬¬a :=
-  fun hna => hna ha
-
-theorem notTrue : (¬ True) ↔ False :=
-  iffFalseIntro (notNotIntro trivial)
 
 /- Exists -/
 
@@ -648,7 +580,7 @@ instance {α : Type u} [DecidableEq α] : BEq α :=
 theorem decideTrueEqTrue (h : Decidable True) : @decide True h = true :=
   match h with
   | isTrue h  => rfl
-  | isFalse h => False.elim (Iff.mp notTrue h)
+  | isFalse h => False.elim $ h ⟨⟩
 
 theorem decideFalseEqFalse (h : Decidable False) : @decide False h = false :=
   match h with
@@ -719,9 +651,6 @@ theorem byContradiction [dec : Decidable p] (h : ¬p → False) : p :=
 theorem ofNotNot [Decidable p] : ¬ ¬ p → p :=
   fun hnn => byContradiction (fun hn => absurd hn hnn)
 
-theorem notNotIff (p) [Decidable p] : (¬ ¬ p) ↔ p :=
-  Iff.intro ofNotNot notNotIntro
-
 theorem notAndIffOrNot (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
   Iff.intro
     (fun h => match d₁, d₂ with
@@ -737,11 +666,13 @@ end Decidable
 section
 variables {p q : Prop}
 @[inline] def  decidableOfDecidableOfIff (hp : Decidable p) (h : p ↔ q) : Decidable q :=
-  if hp : p then isTrue (Iff.mp h hp)
-  else isFalse (Iff.mp (notIffNotOfIff h) hp)
+  if hp : p then
+    isTrue (Iff.mp h hp)
+  else
+    isFalse fun hq => absurd (Iff.mpr h hq) hp
 
 @[inline] def  decidableOfDecidableOfEq (hp : Decidable p) (h : p = q) : Decidable q :=
-  decidableOfDecidableOfIff hp h.toIff
+  h ▸ hp
 end
 
 section
@@ -783,21 +714,6 @@ instance [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
       isFalse fun h => hp (h.2 hq)
     else
       isTrue ⟨fun h => absurd h hp, fun h => absurd h hq⟩
-
-instance [Decidable p] [Decidable q] : Decidable (Xor p q) :=
-  if hp : p then
-    if hq : q then
-      isFalse fun h => match h with
-        | Or.inl ⟨_, h⟩ => h hq
-        | Or.inr ⟨_, h⟩ => h hp
-    else
-      isTrue $ Or.inl ⟨hp, hq⟩
-  else if hq : q then
-    isTrue $ Or.inr ⟨hq, hp⟩
-  else
-    isFalse fun h => match h with
-      | Or.inl ⟨h, _⟩ => hp h
-      | Or.inr ⟨h, _⟩ => hq h
 end
 
 @[inline] instance {α : Sort u} [DecidableEq α] (a b : α) : Decidable (a ≠ b) :=
@@ -805,14 +721,11 @@ end
   | isTrue h  => isFalse $ fun h' => absurd h h'
   | isFalse h => isTrue h
 
-theorem Bool.falseNeTrue (h : false = true) : False :=
-  Bool.noConfusion h
-
 @[inline] instance : DecidableEq Bool :=
   fun a b => match a, b with
    | false, false => isTrue rfl
-   | false, true  => isFalse Bool.falseNeTrue
-   | true, false  => isFalse (Ne.symm Bool.falseNeTrue)
+   | false, true  => isFalse fun h => Bool.noConfusion h
+   | true, false  => isFalse fun h => Bool.noConfusion h
    | true, true   => isTrue rfl
 
 /- if-then-else expression theorems -/
@@ -996,32 +909,6 @@ inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop
   | base  : ∀ a b, r a b → TC r a b
   | trans : ∀ a b c, TC r a b → TC r b c → TC r a c
 
-section Binary
-variables {α : Type u} {β : Type v}
-variable (f : α → α → α)
-
-def Commutative :=
-  ∀ a b, f a b = f b a
-
-def Associative :=
-  ∀ a b c, f (f a b) c = f a (f b c)
-
-def RightCommutative (h : β → α → β) :=
-  ∀ b a₁ a₂, h (h b a₁) a₂ = h (h b a₂) a₁
-
-def LeftCommutative (h : α → β → β) :=
-  ∀ a₁ a₂ b, h a₁ (h a₂ b) = h a₂ (h a₁ b)
-
-theorem leftComm : Commutative f → Associative f → LeftCommutative f :=
-  fun hcomm hassoc a b c =>
-    ((Eq.symm (hassoc a b c)).trans (hcomm a b ▸ rfl : f (f a b) c = f (f b a) c)).trans (hassoc b a c)
-
-theorem rightComm : Commutative f → Associative f → RightCommutative f :=
-  fun hcomm hassoc a b c =>
-    ((hassoc a b c).trans (hcomm b c ▸ rfl : f a (f b c) = f a (f c b))).trans (Eq.symm (hassoc a c b))
-
-end Binary
-
 /- Subtype -/
 
 namespace Subtype
@@ -1029,9 +916,6 @@ def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (f
   | ⟨a, h⟩ => ⟨a, h⟩
 
 variables {α : Type u} {p : α → Prop}
-
-theorem tagIrrelevant {a : α} (h1 h2 : p a) : mk a h1 = mk a h2 :=
-  rfl
 
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
   | ⟨x, h1⟩, ⟨_, _⟩, rfl => rfl
@@ -1174,12 +1058,6 @@ end Setoid
 /- Propositional extensionality -/
 
 axiom propext {a b : Prop} : (a ↔ b) → a = b
-
-theorem eqTrueIntro {a : Prop} (h : a) : a = True :=
-  propext (iffTrueIntro h)
-
-theorem eqFalseIntro {a : Prop} (h : ¬a) : a = False :=
-  propext (iffFalseIntro h)
 
 /- Quotients -/
 

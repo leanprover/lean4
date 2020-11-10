@@ -91,7 +91,6 @@ lean_object* l_Lean_Level_quote___lambda__2___boxed(lean_object*, lean_object*, 
 lean_object* l_Lean_Delaborator_delabProjectionApp_match__2(lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabBind___closed__1;
 lean_object* l_Lean_Delaborator_delabseqLeft___lambda__1___closed__2;
-extern lean_object* l_Init_Core___instance__33;
 lean_object* l_Lean_Delaborator_getExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabseqRight___closed__2;
 lean_object* l_Lean_Delaborator_getExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1046,6 +1045,7 @@ lean_object* l___regBuiltin_Lean_Delaborator_delabOrM(lean_object*);
 lean_object* l_Lean_Delaborator_delabMData(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_delabFailureId;
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
+extern lean_object* l_Init_Core___instance__20;
 lean_object* l_Lean_Delaborator_delabOfNat___closed__3;
 lean_object* l___regBuiltin_Lean_Delaborator_delabseq___closed__3;
 lean_object* l_Lean_getPPFullNames___closed__2;
@@ -16043,7 +16043,7 @@ lean_inc(x_21);
 lean_dec(x_19);
 x_22 = lean_ctor_get(x_1, 0);
 x_23 = lean_ctor_get(x_22, 2);
-x_24 = l_Init_Core___instance__33;
+x_24 = l_Init_Core___instance__20;
 x_25 = lean_array_get(x_24, x_23, x_5);
 x_26 = lean_ctor_get(x_8, 1);
 x_27 = lean_ctor_get(x_8, 2);
@@ -16963,7 +16963,7 @@ return x_39;
 else
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_40 = l_Init_Core___instance__33;
+x_40 = l_Init_Core___instance__20;
 x_41 = lean_array_get(x_40, x_25, x_24);
 lean_dec(x_24);
 lean_dec(x_25);
@@ -17269,7 +17269,7 @@ return x_105;
 else
 {
 lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; 
-x_106 = l_Init_Core___instance__33;
+x_106 = l_Init_Core___instance__20;
 x_107 = lean_array_get(x_106, x_92, x_91);
 lean_dec(x_91);
 lean_dec(x_92);

@@ -152,11 +152,13 @@ protected theorem addAssoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
   | n, m, 0      => rfl
   | n, m, succ k => congrArg succ (Nat.addAssoc n m k)
 
-protected theorem addLeftComm : ∀ (n m k : Nat), n + (m + k) = m + (n + k) :=
-  leftComm Nat.add Nat.addComm Nat.addAssoc
+protected theorem addLeftComm (n m k : Nat) : n + (m + k) = m + (n + k) := by
+  rw [← Nat.addAssoc, Nat.addComm n m, Nat.addAssoc]
+  exact rfl
 
-protected theorem addRightComm : ∀ (n m k : Nat), (n + m) + k = (n + k) + m :=
-  rightComm Nat.add Nat.addComm Nat.addAssoc
+protected theorem addRightComm (n m k : Nat) : (n + m) + k = (n + k) + m := by
+  rw [Nat.addAssoc, Nat.addComm m k, ← Nat.addAssoc]
+  exact rfl
 
 protected theorem addLeftCancel : ∀ {n m k : Nat}, n + m = n + k → m = k
   | 0,      m, k, h => Nat.zeroAdd m ▸ Nat.zeroAdd k ▸ h
@@ -481,11 +483,10 @@ protected theorem addLeAddLeft {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k
     have h₂ : k + (n + w) = k + m     from congrArg _ hw
     le.intro $ h₁.trans h₂
 
-protected theorem addLeAddRight {n m : Nat} (h : n ≤ m) (k : Nat) : n + k ≤ m + k :=
-  have h₁ : n + k = k + n from Nat.addComm _ _
-  have h₂ : k + n ≤ k + m from Nat.addLeAddLeft h k
-  have h₃ : k + m = m + k from Nat.addComm _ _
-  transRelLeft (fun a b => a ≤ b) (transRelRight (fun a b => a ≤ b) h₁ h₂) h₃
+protected theorem addLeAddRight {n m : Nat} (h : n ≤ m) (k : Nat) : n + k ≤ m + k := by
+  rw [Nat.addComm n k, Nat.addComm m k]
+  apply Nat.addLeAddLeft
+  assumption
 
 protected theorem addLtAddLeft {n m : Nat} (h : n < m) (k : Nat) : k + n < k + m :=
   ltOfSuccLe (addSucc k n ▸ Nat.addLeAddLeft (succLeOfLt h) k)

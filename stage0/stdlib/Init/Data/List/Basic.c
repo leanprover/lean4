@@ -95,6 +95,7 @@ lean_object* l_List_Init_Data_List_Basic___instance__3___closed__1;
 lean_object* l_List_Init_Data_List_Basic___instance__6___rarg(lean_object*);
 lean_object* l_List_elem_match__2(lean_object*, lean_object*);
 lean_object* l_List_pure___rarg(lean_object*);
+uint8_t l_Init_Core___instance__8___rarg(uint8_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_List_Init_Data_List_Basic___instance__4(lean_object*);
 lean_object* l_List_eraseRepsAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -222,7 +223,6 @@ lean_object* l_List_removeAll___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr_match__1(lean_object*, lean_object*);
 lean_object* l_List_isSuffixOf___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr___at_List_or___spec__1___boxed(lean_object*, lean_object*);
-uint8_t l_Init_Core___instance__20___rarg(uint8_t);
 lean_object* l_List_partitionAux___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_spanAux_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_List_eraseRepsAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6270,7 +6270,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; 
 x_5 = l_List_hasDecidableLt___rarg(x_1, x_2, x_4, x_3);
-x_6 = l_Init_Core___instance__20___rarg(x_5);
+x_6 = l_Init_Core___instance__8___rarg(x_5);
 return x_6;
 }
 }

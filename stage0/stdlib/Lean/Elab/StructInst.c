@@ -295,6 +295,7 @@ lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, lean
 lean_object* l_Lean_mkAnnotation(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_Struct_source_match__1(lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabStruct_match__4(lean_object*);
+extern lean_object* l_Init_Core___instance__36;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_Source_isNone_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -631,7 +632,6 @@ lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkFie
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__3;
 extern lean_object* l_Lean_Lean_Data_Format___instance__20___closed__1;
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_propagateExpectedType_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Init_Core___instance__49;
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandParentFields_match__3___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__25;
 extern lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkIdImp___closed__2;
@@ -24987,7 +24987,7 @@ if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_dec(x_1);
-x_26 = l_Init_Core___instance__49;
+x_26 = l_Init_Core___instance__36;
 x_27 = l_Init_Control_Monad___instance__2___rarg(x_2, x_26);
 x_28 = lean_alloc_closure((void*)(l_Init_Control_Reader___instance__1___rarg___boxed), 2, 1);
 lean_closure_set(x_28, 0, x_27);

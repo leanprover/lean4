@@ -136,6 +136,7 @@ lean_object* l_Lean_Format_fill(lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_pushGroup___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_format_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__21;
+extern lean_object* l_Init_Core___instance__36;
 lean_object* l_Lean_Lean_Data_Format___instance__23;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be___closed__4;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be___closed__1;
@@ -256,7 +257,6 @@ lean_object* l_Lean_Lean_Data_Format___instance__22;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_spaceUptoLine_x27_match__1(lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__20___closed__1;
 lean_object* l_Lean_Option_format_match__1(lean_object*, lean_object*);
-extern lean_object* l_Init_Core___instance__49;
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_Format_defIndent;
 lean_object* l_Lean_Format_joinArraySep(lean_object*);
@@ -1881,7 +1881,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Data_Format_0__Lean_Format_be___closed__1;
-x_2 = l_Init_Core___instance__49;
+x_2 = l_Init_Core___instance__36;
 x_3 = l_Init_Control_Monad___instance__2___rarg(x_1, x_2);
 return x_3;
 }

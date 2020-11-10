@@ -21,7 +21,6 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_qsort_sort___at___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_contains___at___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit___spec__2(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-extern lean_object* l_Init_Core___instance__33;
 lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -84,6 +83,7 @@ lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_whenHasVar(lean_object*)
 lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallBoundedTelescopeImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Core___instance__20;
 lean_object* l_Array_mapIdxM_map___at___private_Lean_Meta_FunInfo_0__Lean_Meta_updateHasFwdDeps___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getFunInfoNArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -2510,7 +2510,7 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_10 = l_Init_Core___instance__33;
+x_10 = l_Init_Core___instance__20;
 x_11 = lean_array_get(x_10, x_4, x_6);
 lean_inc(x_1);
 lean_inc(x_3);
@@ -2560,7 +2560,7 @@ x_14 = lean_nat_add(x_2, x_3);
 x_15 = lean_unsigned_to_nat(2u);
 x_16 = lean_nat_div(x_14, x_15);
 lean_dec(x_14);
-x_41 = l_Init_Core___instance__33;
+x_41 = l_Init_Core___instance__20;
 x_42 = lean_array_get(x_41, x_1, x_16);
 x_43 = lean_array_get(x_41, x_1, x_2);
 x_44 = lean_nat_dec_lt(x_42, x_43);
@@ -2581,7 +2581,7 @@ goto block_40;
 block_40:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_18 = l_Init_Core___instance__33;
+x_18 = l_Init_Core___instance__20;
 x_19 = lean_array_get(x_18, x_17, x_3);
 x_20 = lean_array_get(x_18, x_17, x_2);
 x_21 = lean_nat_dec_lt(x_19, x_20);

@@ -61,7 +61,6 @@ lean_object* l_Lean_Expr_withAppAux___rarg(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_Expr_updateForall_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsFalse___closed__1;
-extern lean_object* l_Init_Core___instance__33;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_etaExpandedAux_match__1(lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -587,6 +586,7 @@ lean_object* l_Lean_Expr_bvarIdx_x21___boxed(lean_object*);
 lean_object* l_Lean_Expr_updateLambdaE_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasLooseBVarInExplicitDomain_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Core___instance__20;
 lean_object* l_Lean_Expr_isStringLit___boxed(lean_object*);
 lean_object* l_Lean_Expr_withAppRev(lean_object*);
 lean_object* l_Lean_Expr_quickLt___boxed(lean_object*, lean_object*);
@@ -8940,7 +8940,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Init_Core___instance__33;
+x_3 = l_Init_Core___instance__20;
 x_4 = l_Lean_Expr_bvarIdx_x21___closed__3;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;

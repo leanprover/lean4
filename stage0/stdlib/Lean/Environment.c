@@ -52,7 +52,6 @@ lean_object* lean_environment_free_regions(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceImp___elambda__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_setState(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___lambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Init_Core___instance__33;
 lean_object* l_Lean_importModulesAux___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_setImportedEntries(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_displayStats___closed__1;
@@ -466,6 +465,7 @@ lean_object* l_Lean_importModules___lambda__1(lean_object*, uint32_t, lean_objec
 lean_object* l_Lean_Environment_Lean_Environment___instance__4___closed__4;
 lean_object* l_Lean_SimplePersistentEnvExtension_setState_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___boxed(lean_object*);
+extern lean_object* l_Init_Core___instance__20;
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_mkModuleData___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_hasUnsafe_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_importModules___lambda__1___closed__1;
@@ -642,7 +642,7 @@ static lean_object* _init_l_Lean_Lean_Environment___instance__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Init_Core___instance__33;
+x_1 = l_Init_Core___instance__20;
 return x_1;
 }
 }

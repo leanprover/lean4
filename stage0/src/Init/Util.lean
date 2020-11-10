@@ -56,9 +56,9 @@ def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () =
 /-- `withPtrEq` for `DecidableEq` -/
 @[inline] def withPtrEqDecEq {α : Type u} (a b : α) (k : Unit → Decidable (a = b)) : Decidable (a = b) :=
   let b := withPtrEq a b (fun _ => toBoolUsing (k ())) (toBoolUsingEqTrue (k ()));
-  condEq b
-    (fun h => isTrue (ofBoolUsingEqTrue h))
-    (fun h => isFalse (ofBoolUsingEqFalse h))
+  match h:b with
+  | true  => isTrue (ofBoolUsingEqTrue h)
+  | false => isFalse (ofBoolUsingEqFalse h)
 
 @[implementedBy withPtrAddrUnsafe]
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β := k 0

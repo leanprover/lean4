@@ -226,6 +226,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_visitAtom(lean_object*, lean_object*
 lean_object* l_Lean_Syntax_MonadTraverser_goLeft___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__6;
 lean_object* l_Lean_PrettyPrinter_Formatter_notFollowedBy_formatter___rarg(lean_object*);
+extern lean_object* l_Init_Core___instance__36;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__5;
 lean_object* l_Lean_PrettyPrinter_Formatter_Lean_PrettyPrinter_Formatter___instance__2___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -442,7 +443,6 @@ extern lean_object* l_Lean_ParserCompiler_CombinatorAttribute_Lean_ParserCompile
 lean_object* l_Lean_PrettyPrinter_Formatter_symbol_formatter___closed__1;
 lean_object* lean_pretty_printer_formatter_interpret_parser_descr(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goLeft___at_Lean_PrettyPrinter_Formatter_pushNone_formatter___spec__1(lean_object*);
-extern lean_object* l_Init_Core___instance__49;
 lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_charLitNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3665,7 +3665,7 @@ return x_34;
 else
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
-x_35 = l_Init_Core___instance__49;
+x_35 = l_Init_Core___instance__36;
 x_36 = l_Init_Control_Monad___instance__2___rarg(x_1, x_35);
 x_37 = lean_alloc_closure((void*)(l_Init_Control_Reader___instance__1___rarg___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_36);

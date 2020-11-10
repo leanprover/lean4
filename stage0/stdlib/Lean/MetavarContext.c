@@ -75,7 +75,6 @@ lean_object* l_Lean_Lean_MetavarContext___instance__2___closed__1;
 lean_object* l_Lean_MetavarContext_levelMVarToParam_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__20___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_expand___at_Lean_MetavarContext_instantiateExprMVars___spec__5(lean_object*, lean_object*);
-extern lean_object* l_Init_Core___instance__33;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__20(lean_object*, lean_object*);
 lean_object* l_Array_indexOfAux___at_Lean_MetavarContext_eraseDelayed___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
@@ -417,7 +416,6 @@ lean_object* l_Lean_Expr_withAppAux___at_Lean_MetavarContext_instantiateExprMVar
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_collectDeps___spec__54(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_collectDeps___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern uint8_t l_Init_Core___instance__31;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__32___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_MetavarContext_localDeclDependsOn___spec__21(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_MetavarContext_LevelMVarToParam_main(lean_object*, lean_object*, lean_object*);
@@ -893,6 +891,7 @@ lean_object* l_Array_eraseIdx_x27___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_MetavarContext_getLevelAssignment_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyM___at_Lean_MetavarContext_localDeclDependsOn___spec__38___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_MetavarContext_localDeclDependsOn___spec__26___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Core___instance__20;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__36___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_MetavarContext_localDeclDependsOn___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -1108,6 +1107,7 @@ lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_MetavarC
 lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__29___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_collectDeps___spec__21(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Lean_MetavarContext___instance__1___closed__1;
+extern uint8_t l_Init_Core___instance__18;
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_MetavarContext_assignExprCore___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_collectDeps___spec__23___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_collectDeps___spec__36(lean_object*, lean_object*, size_t, size_t);
@@ -4027,7 +4027,7 @@ x_3 = l_Lean_MetavarContext_findLevelDepth_x3f(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_Init_Core___instance__33;
+x_4 = l_Init_Core___instance__20;
 x_5 = l_Lean_MetavarContext_getLevelDepth___closed__2;
 x_6 = lean_panic_fn(x_4, x_5);
 return x_6;
@@ -8104,7 +8104,7 @@ if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 lean_dec(x_1);
-x_5 = l_Init_Core___instance__31;
+x_5 = l_Init_Core___instance__18;
 x_6 = l_Lean_MetavarContext_isLevelAssignable___closed__3;
 x_7 = lean_box(x_5);
 x_8 = lean_panic_fn(x_7, x_6);

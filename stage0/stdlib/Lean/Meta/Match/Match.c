@@ -83,7 +83,6 @@ lean_object* l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_
 lean_object* l_Lean_Meta_isExprDefEq___at_Lean_Meta_isExprDefEqGuarded___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapM___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processArrayLit___spec__8___closed__2;
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_throwInductiveTypeExpected(lean_object*);
-extern lean_object* l_Init_Core___instance__33;
 lean_object* l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processArrayLit___spec__1(lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___lambda__3___closed__2;
 extern lean_object* l_Lean_MessageData_ofList___closed__3;
@@ -322,7 +321,6 @@ extern lean_object* l_Init_Data_Repr___instance__7___rarg___closed__2;
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_hasVarPattern_match__1(lean_object*);
 lean_object* l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processValue___spec__6___closed__2;
 extern lean_object* l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__3;
-lean_object* l_Init_Core___instance__15___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAltsAux___rarg___closed__2;
 lean_object* l_Lean_Meta_Match_Pattern_toMessageData___closed__5;
 lean_object* l_Lean_Meta_Match_Problem_toMessageData___lambda__1___closed__9;
@@ -754,6 +752,7 @@ extern lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAs
 lean_object* l_Array_indexOfAux___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_getUElimPos_x3f___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_Match___hyg_6636____spec__3(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_List_map___at_Lean_Meta_Match_Pattern_toMessageData___spec__2(lean_object*);
+extern lean_object* l_Init_Core___instance__20;
 lean_object* l_List_map___at_Lean_Meta_Match_Example_applyFVarSubst___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_CheckAssignment_assignToConstFun___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MatcherApp_addArg___lambda__4___closed__2;
@@ -843,6 +842,7 @@ lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_hasAsPattern_m
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_expandVarIntoArrayLit___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_isConstructorTransition_match__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Meta_Match_Extension_State_addEntry___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Init_Core___instance__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_throwNonSupported(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_mkMatcher___lambda__1___closed__5;
 lean_object* l_List_toStringAux___at_Lean_Meta_Match_mkMatcher___spec__11___boxed(lean_object*, lean_object*);
@@ -25401,7 +25401,7 @@ goto _start;
 else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
-x_33 = l_Init_Core___instance__33;
+x_33 = l_Init_Core___instance__20;
 x_34 = lean_array_get(x_33, x_4, x_8);
 x_35 = lean_ctor_get(x_20, 0);
 lean_inc(x_35);
@@ -34022,7 +34022,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Position_lt___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Init_Core___instance__15___rarg), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Init_Core___instance__3___rarg), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -36237,7 +36237,7 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_14 = lean_array_fget(x_3, x_4);
-x_15 = l_Init_Core___instance__33;
+x_15 = l_Init_Core___instance__20;
 x_16 = lean_array_get(x_15, x_2, x_4);
 lean_inc(x_8);
 lean_inc(x_7);

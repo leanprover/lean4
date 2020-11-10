@@ -55,7 +55,7 @@ def mkArray {α : Type u} (n : Nat) (v : α) : Array α := {
   data := fun _ => v
 }
 
-theorem szMkArrayEq (n : Nat) (v : α) : (mkArray n v).sz = n :=
+theorem sizeMkArrayEq (n : Nat) (v : α) : (mkArray n v).size = n :=
   rfl
 
 def empty : Array α :=

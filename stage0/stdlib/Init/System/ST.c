@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.ST
-// Imports: Init.Control.EState Init.Control.Reader
+// Imports: Init.Classical Init.Control.EState Init.Control.Reader
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1035,6 +1035,7 @@ x_3 = lean_alloc_closure((void*)(l_ST_Ref_modifyGet___rarg), 5, 0);
 return x_3;
 }
 }
+lean_object* initialize_Init_Classical(lean_object*);
 lean_object* initialize_Init_Control_EState(lean_object*);
 lean_object* initialize_Init_Control_Reader(lean_object*);
 static bool _G_initialized = false;
@@ -1042,6 +1043,9 @@ lean_object* initialize_Init_System_ST(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Classical(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Control_EState(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

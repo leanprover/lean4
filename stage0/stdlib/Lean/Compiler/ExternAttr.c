@@ -73,6 +73,7 @@ lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternEntries_
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_parseOptNum_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_ProjFns___hyg_42____spec__1___closed__1;
 lean_object* l_Lean_getExternNameFor_match__1(lean_object*);
+uint8_t l_Init_Core___instance__8___rarg(uint8_t);
 uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_353____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -168,7 +169,6 @@ lean_object* l_Lean_getExternEntryForAux_match__1___rarg(lean_object*, lean_obje
 extern lean_object* l_String_splitAux___closed__1;
 lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_353____spec__2(lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_match__4___rarg(lean_object*, lean_object*);
-uint8_t l_Init_Core___instance__20___rarg(uint8_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_353____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__7;
@@ -2873,7 +2873,7 @@ goto block_28;
 block_28:
 {
 uint8_t x_11; 
-x_11 = l_Init_Core___instance__20___rarg(x_10);
+x_11 = l_Init_Core___instance__8___rarg(x_10);
 if (x_11 == 0)
 {
 uint32_t x_12; uint32_t x_13; uint8_t x_14; 

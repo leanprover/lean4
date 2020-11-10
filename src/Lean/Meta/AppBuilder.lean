@@ -410,11 +410,11 @@ def mkDecideProof (p : Expr) : m Expr := liftMetaM do
 
 /-- Return `a < b` -/
 def mkLt (a b : Expr) : m Expr :=
-  mkAppM `Less.Less #[a, b]
+  mkAppM `HasLess.Less #[a, b]
 
 /-- Return `a <= b` -/
 def mkLe (a b : Expr) : m Expr :=
-  mkAppM `LessEq.LessEq #[a, b]
+  mkAppM `HasLessEq.LessEq #[a, b]
 
 /-- Return `arbitrary α` -/
 def mkArbitrary (α : Expr) : m Expr :=

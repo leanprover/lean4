@@ -37,16 +37,16 @@ def UInt8.lor (a b : UInt8) : UInt8 := ⟨Fin.lor a.val b.val⟩
 def UInt8.lt (a b : UInt8) : Prop := a.val < b.val
 def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
 
-instance : OfNat UInt8    := ⟨UInt8.ofNat⟩
-instance : Add UInt8      := ⟨UInt8.add⟩
-instance : Sub UInt8      := ⟨UInt8.sub⟩
-instance : Mul UInt8      := ⟨UInt8.mul⟩
-instance : Mod UInt8      := ⟨UInt8.mod⟩
-instance : ModN UInt8     := ⟨UInt8.modn⟩
-instance : Div UInt8      := ⟨UInt8.div⟩
-instance : Less UInt8     := ⟨UInt8.lt⟩
-instance : LessEq UInt8   := ⟨UInt8.le⟩
-instance : Inhabited UInt8   := ⟨0⟩
+instance : OfNat UInt8     := ⟨UInt8.ofNat⟩
+instance : Add UInt8       := ⟨UInt8.add⟩
+instance : Sub UInt8       := ⟨UInt8.sub⟩
+instance : Mul UInt8       := ⟨UInt8.mul⟩
+instance : Mod UInt8       := ⟨UInt8.mod⟩
+instance : ModN UInt8      := ⟨UInt8.modn⟩
+instance : Div UInt8       := ⟨UInt8.div⟩
+instance : HasLess UInt8   := ⟨UInt8.lt⟩
+instance : HasLessEq UInt8 := ⟨UInt8.le⟩
+instance : Inhabited UInt8 := ⟨0⟩
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
@@ -99,16 +99,16 @@ def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
 def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
 
 
-instance : OfNat UInt16    := ⟨UInt16.ofNat⟩
-instance : Add UInt16      := ⟨UInt16.add⟩
-instance : Sub UInt16      := ⟨UInt16.sub⟩
-instance : Mul UInt16      := ⟨UInt16.mul⟩
-instance : Mod UInt16      := ⟨UInt16.mod⟩
-instance : ModN UInt16     := ⟨UInt16.modn⟩
-instance : Div UInt16      := ⟨UInt16.div⟩
-instance : Less UInt16     := ⟨UInt16.lt⟩
-instance : LessEq UInt16   := ⟨UInt16.le⟩
-instance : Inhabited UInt16   := ⟨0⟩
+instance : OfNat UInt16     := ⟨UInt16.ofNat⟩
+instance : Add UInt16       := ⟨UInt16.add⟩
+instance : Sub UInt16       := ⟨UInt16.sub⟩
+instance : Mul UInt16       := ⟨UInt16.mul⟩
+instance : Mod UInt16       := ⟨UInt16.mod⟩
+instance : ModN UInt16      := ⟨UInt16.modn⟩
+instance : Div UInt16       := ⟨UInt16.div⟩
+instance : HasLess UInt16   := ⟨UInt16.lt⟩
+instance : HasLessEq UInt16 := ⟨UInt16.le⟩
+instance : Inhabited UInt16 := ⟨0⟩
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
@@ -168,16 +168,16 @@ def UInt32.toUInt16 (a : UInt32) : UInt16 := a.toNat.toUInt16
 @[extern c inline "((uint32_t)#1)"]
 def UInt8.toUInt32 (a : UInt8) : UInt32 := a.toNat.toUInt32
 
-instance : OfNat UInt32    := ⟨UInt32.ofNat⟩
-instance : Add UInt32      := ⟨UInt32.add⟩
-instance : Sub UInt32      := ⟨UInt32.sub⟩
-instance : Mul UInt32      := ⟨UInt32.mul⟩
-instance : Mod UInt32      := ⟨UInt32.mod⟩
-instance : ModN UInt32     := ⟨UInt32.modn⟩
-instance : Div UInt32      := ⟨UInt32.div⟩
-instance : Less UInt32     := ⟨UInt32.lt⟩
-instance : LessEq UInt32   := ⟨UInt32.le⟩
-instance : Inhabited UInt32   := ⟨0⟩
+instance : OfNat UInt32     := ⟨UInt32.ofNat⟩
+instance : Add UInt32       := ⟨UInt32.add⟩
+instance : Sub UInt32       := ⟨UInt32.sub⟩
+instance : Mul UInt32       := ⟨UInt32.mul⟩
+instance : Mod UInt32       := ⟨UInt32.mod⟩
+instance : ModN UInt32      := ⟨UInt32.modn⟩
+instance : Div UInt32       := ⟨UInt32.div⟩
+instance : HasLess UInt32   := ⟨UInt32.lt⟩
+instance : HasLessEq UInt32 := ⟨UInt32.le⟩
+instance : Inhabited UInt32 := ⟨0⟩
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
@@ -248,16 +248,16 @@ constant UInt64.shiftLeft (a b : UInt64) : UInt64 := (arbitrary Nat).toUInt64
 @[extern c inline "#1 >> #2"]
 constant UInt64.shiftRight (a b : UInt64) : UInt64 := (arbitrary Nat).toUInt64
 
-instance : OfNat UInt64    := ⟨UInt64.ofNat⟩
-instance : Add UInt64      := ⟨UInt64.add⟩
-instance : Sub UInt64      := ⟨UInt64.sub⟩
-instance : Mul UInt64      := ⟨UInt64.mul⟩
-instance : Mod UInt64      := ⟨UInt64.mod⟩
-instance : ModN UInt64     := ⟨UInt64.modn⟩
-instance : Div UInt64      := ⟨UInt64.div⟩
-instance : Less UInt64     := ⟨UInt64.lt⟩
-instance : LessEq UInt64   := ⟨UInt64.le⟩
-instance : Inhabited UInt64   := ⟨0⟩
+instance : OfNat UInt64     := ⟨UInt64.ofNat⟩
+instance : Add UInt64       := ⟨UInt64.add⟩
+instance : Sub UInt64       := ⟨UInt64.sub⟩
+instance : Mul UInt64       := ⟨UInt64.mul⟩
+instance : Mod UInt64       := ⟨UInt64.mod⟩
+instance : ModN UInt64      := ⟨UInt64.modn⟩
+instance : Div UInt64       := ⟨UInt64.div⟩
+instance : HasLess UInt64   := ⟨UInt64.lt⟩
+instance : HasLessEq UInt64 := ⟨UInt64.le⟩
+instance : Inhabited UInt64 := ⟨0⟩
 
 @[extern c inline "(uint64_t)#1"]
 def Bool.toUInt64 (b : Bool) : UInt64 := if b then 1 else 0
@@ -327,16 +327,16 @@ constant USize.shiftRight (a b : USize) : USize := (arbitrary Nat).toUSize
 def USize.lt (a b : USize) : Prop := a.val < b.val
 def USize.le (a b : USize) : Prop := a.val ≤ b.val
 
-instance : OfNat USize    := ⟨USize.ofNat⟩
-instance : Add USize      := ⟨USize.add⟩
-instance : Sub USize      := ⟨USize.sub⟩
-instance : Mul USize      := ⟨USize.mul⟩
-instance : Mod USize      := ⟨USize.mod⟩
-instance : ModN USize     := ⟨USize.modn⟩
-instance : Div USize      := ⟨USize.div⟩
-instance : Less USize     := ⟨USize.lt⟩
-instance : LessEq USize   := ⟨USize.le⟩
-instance : Inhabited USize   := ⟨0⟩
+instance : OfNat USize     := ⟨USize.ofNat⟩
+instance : Add USize       := ⟨USize.add⟩
+instance : Sub USize       := ⟨USize.sub⟩
+instance : Mul USize       := ⟨USize.mul⟩
+instance : Mod USize       := ⟨USize.mod⟩
+instance : ModN USize      := ⟨USize.modn⟩
+instance : Div USize       := ⟨USize.div⟩
+instance : HasLess USize   := ⟨USize.lt⟩
+instance : HasLessEq USize := ⟨USize.le⟩
+instance : Inhabited USize := ⟨0⟩
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]

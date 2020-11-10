@@ -276,25 +276,28 @@ instance : OfNat Nat := ⟨id⟩
 axiom sorryAx (α : Sort u) (synthetic := true) : α
 
 /- Declare builtin and reserved notation -/
-class Add      (α : Type u) := (add : α → α → α)
-class Mul      (α : Type u) := (mul : α → α → α)
-class Neg      (α : Type u) := (neg : α → α)
-class Sub      (α : Type u) := (sub : α → α → α)
-class Div      (α : Type u) := (div : α → α → α)
-class Mod      (α : Type u) := (mod : α → α → α)
-class ModN     (α : Type u) := (modn : α → Nat → α)
-class LessEq   (α : Type u) := (LessEq : α → α → Prop)
-class Less     (α : Type u) := (Less : α → α → Prop)
-class BEq      (α : Type u) := (beq : α → α → Bool)
-class Append   (α : Type u) := (append : α → α → α)
-class OrElse   (α : Type u) := (orElse  : α → α → α)
-class AndThen  (α : Type u) := (andThen : α → α → α)
-class Equiv    (α : Sort u) := (Equiv : α → α → Prop)
+class Add       (α : Type u) := (add : α → α → α)
+class Mul       (α : Type u) := (mul : α → α → α)
+class Neg       (α : Type u) := (neg : α → α)
+class Sub       (α : Type u) := (sub : α → α → α)
+class Div       (α : Type u) := (div : α → α → α)
+class Mod       (α : Type u) := (mod : α → α → α)
+class ModN      (α : Type u) := (modn : α → Nat → α)
+class HasLessEq (α : Type u) := (LessEq : α → α → Prop)
+class HasLess   (α : Type u) := (Less : α → α → Prop)
+class BEq       (α : Type u) := (beq : α → α → Bool)
+class Append    (α : Type u) := (append : α → α → α)
+class OrElse    (α : Type u) := (orElse  : α → α → α)
+class AndThen   (α : Type u) := (andThen : α → α → α)
+class HasEquiv  (α : Sort u) := (Equiv : α → α → Prop)
 class EmptyCollection (α : Type u) := (emptyCollection : α)
 class Pow (α : Type u) (β : Type v) := (pow : α → β → α)
 
-@[reducible] def GreaterEq {α : Type u} [LessEq α] (a b : α) : Prop := LessEq.LessEq b a
-@[reducible] def Greater {α : Type u} [Less α] (a b : α) : Prop     := Less.Less b a
+export HasLess (Less)
+export HasLessEq (LessEq)
+
+@[reducible] def GreaterEq {α : Type u} [HasLessEq α] (a b : α) : Prop := LessEq b a
+@[reducible] def Greater {α : Type u} [HasLess α] (a b : α) : Prop     := Less b a
 
 /- Nat basic instances -/
 
@@ -1222,17 +1225,17 @@ instance [BEq α] [BEq β] : BEq (α × β) := {
   beq := fun ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ => a₁ == a₂ && b₁ == b₂
 }
 
-instance [Less α] [Less β] : Less (α × β) := {
+instance [HasLess α] [HasLess β] : HasLess (α × β) := {
   Less := fun s t => s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 }
 
 instance prodHasDecidableLt
-    [Less α] [Less β] [DecidableEq α] [DecidableEq β]
+    [HasLess α] [HasLess β] [DecidableEq α] [DecidableEq β]
     [(a b : α) → Decidable (a < b)] [(a b : β) → Decidable (a < b)]
     : (s t : α × β) → Decidable (s < t) :=
   fun t s => inferInstanceAs (Decidable (_ ∨ _))
 
-theorem Prod.ltDef [Less α] [Less β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
+theorem Prod.ltDef [HasLess α] [HasLess β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
   rfl
 end
 
@@ -1275,7 +1278,7 @@ class Setoid (α : Sort u) :=
   (r : α → α → Prop)
   (iseqv {} : Equivalence r)
 
-instance {α : Sort u} [Setoid α] : Equiv α :=
+instance {α : Sort u} [Setoid α] : HasEquiv α :=
   ⟨Setoid.r⟩
 
 namespace Setoid

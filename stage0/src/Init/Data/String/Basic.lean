@@ -40,7 +40,7 @@ def List.asString (s : List Char) : String :=
   ⟨s⟩
 
 namespace String
-instance : Less String :=
+instance : HasLess String :=
   ⟨fun s₁ s₂ => s₁.data < s₂.data⟩
 
 @[extern "lean_string_dec_lt"]

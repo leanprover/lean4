@@ -24,8 +24,8 @@ protected def lt {n} (a b : Fin n) : Prop :=
 protected def le {n} (a b : Fin n) : Prop :=
   a.val ≤ b.val
 
-instance {n} : Less (Fin n)    := ⟨Fin.lt⟩
-instance {n} : LessEq (Fin n)  := ⟨Fin.le⟩
+instance {n} : HasLess (Fin n)    := ⟨Fin.lt⟩
+instance {n} : HasLessEq (Fin n)  := ⟨Fin.le⟩
 
 instance decLt {n} (a b : Fin n) :  Decidable (a < b) :=
   Nat.decLt ..

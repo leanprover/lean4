@@ -298,14 +298,14 @@ def intercalate (sep : List α) (xs : List (List α)) : List α :=
 
 @[inline] protected def pure {α : Type u} (a : α) : List α := [a]
 
-inductive List.Less [Less α] : List α → List α → Prop
+inductive List.Less [HasLess α] : List α → List α → Prop
   | nil  (b : α) (bs : List α) : Less [] (b::bs)
   | head {a : α} (as : List α) {b : α} (bs : List α) : a < b → Less (a::as) (b::bs)
   | tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → Less as bs → Less (a::as) (b::bs)
 
-instance less [Less α] : Less (List α) := ⟨List.Less⟩
+instance less [HasLess α] : HasLess (List α) := ⟨List.Less⟩
 
-instance hasDecidableLt [Less α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
+instance hasDecidableLt [HasLess α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
   | [],    []    => isFalse (fun h => nomatch h)
   | [],    b::bs => isTrue (List.Less.nil _ _)
   | a::as, []    => isFalse (fun h => nomatch h)
@@ -324,11 +324,11 @@ instance hasDecidableLt [Less α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l�
            | List.Less.head _ _ h₁' => absurd h₁' h₁
            | List.Less.tail _ _ h₃' => absurd h₃' h₃)
 
-@[reducible] protected def LessEq [Less α] (a b : List α) : Prop := ¬ b < a
+@[reducible] protected def LessEq [HasLess α] (a b : List α) : Prop := ¬ b < a
 
-instance lessEq [Less α] : LessEq (List α) := ⟨List.LessEq⟩
+instance lessEq [HasLess α] : HasLessEq (List α) := ⟨List.LessEq⟩
 
-instance [Less α] [h : DecidableRel (Less.Less : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
+instance [HasLess α] [h : DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
   fun a b => inferInstanceAs (Decidable (Not _))
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/

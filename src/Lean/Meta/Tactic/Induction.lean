@@ -134,7 +134,7 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
       let indices ← recursorInfo.indicesPos.toArray.mapM fun idxPos => do
         if idxPos ≥ majorTypeArgs.size then throwTacticEx `induction mvarId msg!"major premise type is ill-formed{indentExpr majorType}"
         let idx := majorTypeArgs.get! idxPos
-        unless idx.isFVar do throwTacticEx `induction mvarId msg!"major premise type index {idx} is not variable{indentExpr majorType}"
+        unless idx.isFVar do throwTacticEx `induction mvarId msg!"major premise type index {idx} is not a variable{indentExpr majorType}"
         majorTypeArgs.size.forM fun i => do
           let arg := majorTypeArgs[i]
           if i != idxPos && arg == idx then

@@ -1,5 +1,3 @@
-
-
 open Function Bool
 
 
@@ -12,10 +10,6 @@ constant g : Nat → Nat := arbitrary _
 
 constant h : Nat → Bool → Nat := arbitrary _
 
-#check swap h
-#check swap h false Nat.zero
-
-#check (swap h false Nat.zero : Nat)
 
 constant f1 : Nat → Nat → Bool := arbitrary _
 constant f2 : Bool → Nat := arbitrary _

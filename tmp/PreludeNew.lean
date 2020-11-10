@@ -55,9 +55,6 @@ inductive Eq {α : Sort u} (a : α) : α → Prop
 abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
   Eq.rec (motive := fun α _ => motive α) m h
 
-abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : Eq a b) (m : motive a) : motive b :=
-  Eq.ndrec m h
-
 @[matchPattern] def rfl {α : Sort u} {a : α} : Eq a a := Eq.refl a
 
 theorem Eq.subst {α : Sort u} {motive : α → Prop} {a b : α} (h₁ : Eq a b) (h₂ : motive a) : motive b :=
@@ -69,14 +66,8 @@ theorem Eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
 @[macroInline] def cast {α β : Sort u} (h : α = β) (a : α) : β :=
   Eq.rec (motive := fun α _ => α) a h
 
-theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : α} (h₁ : Eq f₁ f₂) (h₂ : Eq a₁ a₂) : Eq (f₁ a₁) (f₂ a₂) :=
-  h₁ ▸ h₂ ▸ rfl
-
-theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
-  h ▸ rfl
-
 theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
-  congr rfl h
+  h ▸ rfl
 
 /-
 Initialize the Quotient Module, which effectively adds the following definitions:
@@ -99,13 +90,13 @@ inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop
 @[matchPattern] def HEq.rfl {α : Sort u} {a : α} : a ≅ a :=
   HEq.refl a
 
-theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' := by
-  have (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b by
-    intro α β a b h₁ h₂
-    induction h₁
-    exact rfl
-  show cast rfl a = a'
-  exact this α α a a' h rfl
+theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
+  have (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b from
+    fun α β a b h₁ =>
+      HEq.rec (motive := fun {β} (b : β) (h : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
+        (fun (h₂ : Eq α α) => rfl)
+        h₁
+  this α α a a' h rfl
 
 structure Prod (α : Type u) (β : Type v) :=
   (fst : α) (snd : β)
@@ -317,10 +308,6 @@ instance {p} [Decidable p] : Decidable (Not p) :=
   | true  => false
   | false => true
 
-@[macroInline] def xor : Bool → Bool → Bool
-  | true,  b => not b
-  | false, b => b
-
 inductive Nat
   | zero : Nat
   | succ (n : Nat) : Nat
@@ -510,16 +497,16 @@ protected def Nat.leRefl : (n : Nat) → LessEq n n
   | zero   => rfl
   | succ n => Nat.leRefl n
 
-protected theorem Nat.ltOrGe (n m : Nat) : Or (Less n m) (GreaterEq n m) := by
-  induction m
-  | zero => apply Or.inr; apply zeroLe n
-  | succ m ih =>
-    cases ih
-    | Or.inl h => apply Or.inl; apply leSuccOfLe h
+protected theorem Nat.ltOrGe (n m : Nat) : Or (Less n m) (GreaterEq n m) :=
+  match m with
+  | zero   => Or.inr (zeroLe n)
+  | succ m =>
+    match Nat.ltOrGe n m with
+    | Or.inl h => Or.inl (leSuccOfLe h)
     | Or.inr h =>
-      cases Nat.eqOrLtOfLe h
-      | Or.inl h1 => apply Or.inl; subst h1; apply Nat.leRefl
-      | Or.inr h1 => apply Or.inr h1
+      match Nat.eqOrLtOfLe h with
+      | Or.inl h1 => Or.inl (h1 ▸ Nat.leRefl _)
+      | Or.inr h1 => Or.inr h1
 
 protected theorem Nat.leAntisymm : {n m : Nat} → LessEq n m → LessEq m n → Eq n m
   | zero,   zero,   h₁, h₂ => rfl
@@ -538,7 +525,7 @@ protected theorem Nat.ltOfLeOfNe {n m : Nat} (h₁ : LessEq n m) (h₂ : Not (Eq
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "lean_nat_sub(#1, lean_box(1))"]
 def Nat.pred : Nat → Nat
-  | 0   => 0
+  | 0      => 0
   | succ a => a
 
 theorem Nat.predLePred : {n m : Nat} → LessEq n m → LessEq (pred n) (pred m)
@@ -1450,6 +1437,12 @@ class MonadQuotation (m : Type → Type) :=
 
 export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
+instance {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctorT m n] : MonadQuotation n := {
+  getCurrMacroScope   := liftM (m := m) getCurrMacroScope,
+  getMainModule       := liftM (m := m) getMainModule,
+  withFreshMacroScope := monadMap (m := m) withFreshMacroScope
+}
+
 /-
 We represent a name with macro scopes as
 ```
@@ -1628,12 +1621,6 @@ instance : MonadQuotation MacroM := {
   getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,
   getMainModule       := fun ctx => pure ctx.mainModule,
   withFreshMacroScope := Macro.withFreshMacroScope
-}
-
-instance {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctorT m n] : MonadQuotation n := {
-  getCurrMacroScope   := liftM (m := m) getCurrMacroScope,
-  getMainModule       := liftM (m := m) getMainModule,
-  withFreshMacroScope := monadMap (m := m) withFreshMacroScope
 }
 
 unsafe def mkMacroEnvImp (expandMacro? : Syntax → MacroM (Option Syntax)) : MacroEnv :=

@@ -142,6 +142,7 @@ uint8_t l_UInt64_decLt(uint64_t, uint64_t);
 uint64_t l_Nat_toUInt64(lean_object*);
 lean_object* l_Init_Data_UInt___instance__11___boxed(lean_object*, lean_object*);
 uint8_t l_Init_Data_UInt___instance__64(size_t, size_t);
+size_t lean_usize_of_nat(lean_object*);
 lean_object* l_UInt64_mul___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Data_UInt___instance__16;
 size_t l_USize_shiftLeft(size_t, size_t);
@@ -256,6 +257,7 @@ lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* l_Init_Data_UInt___instance__9;
 lean_object* l_UInt16_mod___boxed(lean_object*, lean_object*);
 lean_object* l_USize_toUInt32___boxed(lean_object*);
+lean_object* l_USize_ofNatCore___boxed(lean_object*, lean_object*);
 uint32_t l_UInt32_lor(uint32_t, uint32_t);
 lean_object* l_Init_Data_UInt___instance__5;
 lean_object* l_UInt16_lor___boxed(lean_object*, lean_object*);
@@ -293,9 +295,11 @@ uint8_t l_UInt16_decLe(uint16_t, uint16_t);
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
 lean_object* l_Init_Data_UInt___instance__12___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Data_UInt___instance__17;
+lean_object* l_USize_ofNat32___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Data_UInt___instance__7___closed__1;
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Init_Data_UInt___instance__55___closed__1;
+size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Init_Data_UInt___instance__47;
 lean_object* l_UInt8_decEq___boxed(lean_object*, lean_object*);
 uint8_t l_Init_Data_UInt___instance__26(uint16_t, uint16_t);
@@ -2472,6 +2476,26 @@ lean_dec(x_2);
 x_5 = l_Init_Data_UInt___instance__65(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+lean_object* l_USize_ofNat32___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+size_t x_3; lean_object* x_4; 
+x_3 = lean_usize_of_nat(x_1);
+lean_dec(x_1);
+x_4 = lean_box_usize(x_3);
+return x_4;
+}
+}
+lean_object* l_USize_ofNatCore___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+size_t x_3; lean_object* x_4; 
+x_3 = lean_usize_of_nat(x_1);
+lean_dec(x_1);
+x_4 = lean_box_usize(x_3);
+return x_4;
 }
 }
 lean_object* initialize_Init_Data_Fin_Basic(lean_object*);

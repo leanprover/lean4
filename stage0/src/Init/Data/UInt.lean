@@ -362,3 +362,24 @@ instance (a b : USize) : Decidable (a ≤ b) := USize.decLe a b
 
 theorem USize.modnLt {m : Nat} : ∀ (u : USize), m > 0 → USize.toNat (u %ₙ m) < m
   | ⟨u⟩, h => Fin.modnLt u h
+
+theorem usizeSzEq : usizeSz = 4294967296 ∨ usizeSz = 18446744073709551616 :=
+  show (2 : Nat) ^ System.Platform.numBits = 4294967296 ∨ (2 : Nat) ^ System.Platform.numBits = 18446744073709551616 from
+  match System.Platform.numBits, System.Platform.numBitsEq with
+  | _, Or.inl rfl => Or.inl (decide! : (2 : Nat) ^ 32 = 4294967296)
+  | _, Or.inr rfl => Or.inr (decide! : (2 : Nat) ^ 64 = 18446744073709551616)
+
+@[extern "lean_usize_of_nat"]
+def USize.ofNat32 (n : @& Nat) (h : n < 4294967296) : USize := {
+  val := {
+    val  := n,
+    isLt := match usizeSz, usizeSzEq with
+      | _, Or.inl rfl => h
+      | _, Or.inr rfl => Nat.ltTrans h (decide! : Less 4294967296 18446744073709551616)
+  }
+}
+
+@[extern "lean_usize_of_nat"]
+def USize.ofNatCore (n : @& Nat) (h : n < usizeSz) : USize := {
+  val := { val := n, isLt := h }
+}

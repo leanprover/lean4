@@ -42,7 +42,7 @@ fun (x : Nat) =>
     x : Nat → Nat
 fun (x : Array Nat) =>
   match x with 
-  | #[1,2] => 2
+  | #[1, 2] => 2
   | #[] => 0
-  | #[3,4,5] => 3
+  | #[3, 4, 5] => 3
   | x_1 => 4 : Array Nat → Nat

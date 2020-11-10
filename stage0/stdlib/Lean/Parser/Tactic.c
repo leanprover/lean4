@@ -875,7 +875,6 @@ extern lean_object* l_Lean_Parser_Term_structInstArrayRef_parenthesizer___closed
 lean_object* l___regBuiltin_Lean_Parser_Tactic_cases_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_Tactic_injection___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Tactic_apply___elambda__1___closed__1;
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 lean_object* l_Lean_Parser_Tactic_intro___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_revert___closed__6;
 lean_object* l___regBuiltin_Lean_Parser_Tactic_show_parenthesizer___closed__1;
@@ -921,6 +920,7 @@ lean_object* l___regBuiltin_Lean_Parser_Tactic_intros_parenthesizer(lean_object*
 lean_object* l_Lean_Parser_Tactic_cases___elambda__1___closed__12;
 extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 lean_object* l_Lean_Parser_Tactic_change_formatter___closed__4;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 lean_object* l_Lean_Parser_Tactic_location___closed__4;
 lean_object* l_Lean_Parser_Tactic_location_formatter___closed__4;
 lean_object* l_Lean_Parser_Tactic_show_parenthesizer___closed__1;
@@ -8898,7 +8898,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_generalize___elambda__1___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 x_2 = lean_unsigned_to_nat(51u);
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_categoryParser___elambda__1), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -9014,7 +9014,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 x_2 = lean_unsigned_to_nat(51u);
 x_3 = l_Lean_Parser_categoryParser(x_1, x_2);
 return x_3;

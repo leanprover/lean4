@@ -164,7 +164,6 @@ lean_object* l_Lean_Parser_Command_macroTailDefault___closed__8;
 lean_object* l_Lean_Parser_Command_elab___elambda__1___closed__9;
 lean_object* l_Lean_Parser_maxSymbol___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Term_stx_quot_formatter___closed__2;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_315____closed__16;
 lean_object* l_Lean_Parser_Command_syntaxAbbrev___closed__1;
 lean_object* l_Lean_Parser_Command_parserKindPrio___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Command_infixl_parenthesizer___closed__1;
@@ -219,6 +218,7 @@ lean_object* l_Lean_Parser_Syntax_paren_formatter___closed__4;
 lean_object* l_Lean_Parser_Syntax_sepBy1_formatter___closed__2;
 lean_object* l_Lean_Parser_Command_elab__rules_formatter___closed__8;
 lean_object* l_Lean_Parser_Command_macroArgSimple___closed__5;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__16;
 lean_object* l_Lean_Parser_Syntax_ident_formatter___closed__1;
 lean_object* l_Lean_Parser_Syntax_many1___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_macro_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -900,7 +900,6 @@ extern lean_object* l_Lean_Parser_mkAntiquot___closed__20;
 lean_object* l_Lean_Parser_precedence_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Command_infixr___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Command_infixl___closed__6;
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 lean_object* l_Lean_Parser_Command_infixl___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Command_notation___elambda__1___closed__11;
 lean_object* l_Lean_Parser_Term_stx_quot___closed__6;
@@ -949,6 +948,7 @@ lean_object* l_Lean_Parser_Command_macro_parenthesizer___closed__11;
 lean_object* l_Lean_Parser_Command_macroTailDefault_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Syntax_paren___elambda__1___closed__9;
 extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 lean_object* l_Lean_Parser_Command_infix___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_precedence_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Command_mixfix_formatter___closed__1;
@@ -6570,7 +6570,7 @@ static lean_object* _init_l_Lean_Parser_Syntax_allowTrailingSep___elambda__1___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_315____closed__16;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__16;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -7092,7 +7092,7 @@ static lean_object* _init_l_Lean_Parser_Syntax_allowTrailingSep_formatter___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_315____closed__16;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__16;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -7323,7 +7323,7 @@ static lean_object* _init_l_Lean_Parser_Syntax_allowTrailingSep_parenthesizer___
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_315____closed__16;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__16;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_symbol_parenthesizer___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -10512,7 +10512,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_stx_quot(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 x_3 = l_Lean_Parser_Term_stx_quot___elambda__1___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_stx_quot;
@@ -20079,7 +20079,7 @@ lean_inc(x_7);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
+x_8 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_Lean_Parser_categoryParser___elambda__1(x_8, x_9, x_1, x_6);
 return x_10;

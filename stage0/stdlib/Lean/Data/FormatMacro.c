@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__12;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__12;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__2;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__5;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40_(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__12;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__9;
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__4;
@@ -29,14 +29,14 @@ lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____lambda__2__
 extern lean_object* l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__5;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__21;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__3;
 extern lean_object* l_myMacro____x40_Init_Tactics___hyg_720____closed__3;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____lambda__2___closed__1;
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__21;
 extern lean_object* l_Lean_mkAppStx___closed__7;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__5;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__7;
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__5;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__6;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3_;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__10;
@@ -56,7 +56,7 @@ extern lean_object* l_Lean_nullKind___closed__2;
 extern lean_object* l_Lean_mkAppStx___closed__3;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__5;
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__7;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__7;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__2;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____lambda__1___closed__4;
@@ -85,7 +85,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkAppStx___closed__2;
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__5;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -95,7 +95,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__1;
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__7;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -125,7 +125,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__4;
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__12;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__12;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -190,7 +190,7 @@ static lean_object* _init_l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__21;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__21;
 x_2 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

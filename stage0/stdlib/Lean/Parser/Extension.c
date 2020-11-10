@@ -287,7 +287,6 @@ lean_object* l_Lean_Parser_addToken(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_categoryParserFnImpl___closed__4;
 lean_object* l_Lean_Parser_notFollowedByCategoryToken(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 lean_object* l_Lean_Parser_registerBuiltinParserAttribute___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_compileParserDescr_visit_match__3(lean_object*);
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_ParserExtension_addImported(lean_object*, lean_object*, lean_object*);
@@ -303,6 +302,7 @@ lean_object* l_Lean_Parser_compileParserDescr_visit___closed__13;
 extern lean_object* l_Lean_charLitKind;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Parser_getCategory___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_throwParserCategoryAlreadyDefined___rarg___closed__2;
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -14506,7 +14506,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3079____closed__2;
-x_3 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
+x_3 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 x_4 = 0;
 x_5 = l_Lean_Parser_registerBuiltinParserAttribute(x_2, x_3, x_4, x_1);
 return x_5;
@@ -14535,7 +14535,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3089____closed__2;
-x_3 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
+x_3 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 x_4 = l_Lean_Parser_registerBuiltinDynamicParserAttribute(x_2, x_3, x_1);
 return x_4;
 }
@@ -15012,7 +15012,7 @@ static lean_object* _init_l_Lean_Parser_notFollowedByTermToken___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_notFollowedByCategoryTokenFn), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

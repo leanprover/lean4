@@ -227,6 +227,7 @@ lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__6___boxed(lean_object*
 extern lean_object* l_Lean_Elab_Term_Lean_Elab_Term___instance__1___closed__1;
 lean_object* l_Lean_Elab_Command_elabUniverses___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_833____closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabCheckFailure(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabCheck___closed__3;
@@ -244,7 +245,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec
 lean_object* l_Lean_Elab_Command_elabOpen___closed__6;
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Command_0__Lean_Elab_Command_addTraceAsMessages___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabCommand___lambda__1___closed__1;
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_834____closed__1;
 lean_object* l_Lean_Elab_Command_liftTermElabM_match__1(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Lean_Elab_Command_elabExport___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_runLinters___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5627,7 +5627,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_834____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_833____closed__1;
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3099____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

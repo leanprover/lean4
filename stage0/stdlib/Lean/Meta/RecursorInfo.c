@@ -325,9 +325,9 @@ lean_object* l_Lean_Meta_RecursorInfo_Lean_Meta_RecursorInfo___instance__2___clo
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getIndicesPos___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_315____closed__25;
 lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux___spec__2___closed__2;
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__25;
 lean_object* l_Lean_Meta_mkRecOnName(lean_object*);
 extern lean_object* l_Lean_getConstInfoRec___rarg___lambda__1___closed__2;
 lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1518,7 +1518,7 @@ x_82 = lean_string_append(x_80, x_81);
 x_83 = lean_string_append(x_82, x_40);
 lean_dec(x_40);
 x_84 = lean_string_append(x_83, x_7);
-x_85 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_315____closed__25;
+x_85 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__25;
 x_86 = lean_string_append(x_84, x_85);
 return x_86;
 }

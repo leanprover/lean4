@@ -247,7 +247,6 @@ lean_object* l_Lean_PrettyPrinter_Formatter_checkOutsideQuot_formatter(lean_obje
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_checkLineEq_formatter___rarg(lean_object*);
 lean_object* l_ReaderT_map___at_Lean_PrettyPrinter_Formatter_Lean_PrettyPrinter_Formatter___instance__2___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 lean_object* l_Lean_PrettyPrinter_Formatter_visitAtom_match__1(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_symbol_formatter___closed__3;
@@ -261,6 +260,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_skip_formatter(lean_object*, lean_ob
 extern lean_object* l_Lean_charLitKind;
 lean_object* l_Lean_PrettyPrinter_Formatter_withoutForbidden_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 lean_object* l_Lean_PrettyPrinter_Formatter_checkColGt_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_lookahead_formatter___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_combinatorFormatterAttribute;
@@ -10828,7 +10828,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_formatTerm___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
+x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_categoryParser_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

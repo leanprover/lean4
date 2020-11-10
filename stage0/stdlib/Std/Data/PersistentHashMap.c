@@ -228,7 +228,6 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_Std_PersistentHashMap_insertAux___rarg___closed__2;
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_315____closed__25;
 lean_object* l_Std_PersistentHashMap_forM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse(lean_object*, lean_object*, lean_object*);
@@ -236,6 +235,7 @@ lean_object* l_Std_PersistentHashMap_find_x21___rarg(lean_object*, lean_object*,
 lean_object* l_Std_PersistentHashMap_getCollisionNodeSize_match__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_isUnaryEntries_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__25;
 lean_object* l_Std_PersistentHashMap_insert_match__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_eraseAux_match__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_eraseAux_match__4(lean_object*, lean_object*, lean_object*);
@@ -5010,7 +5010,7 @@ lean_dec(x_1);
 x_19 = l_Nat_repr(x_18);
 x_20 = lean_string_append(x_17, x_19);
 lean_dec(x_19);
-x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_315____closed__25;
+x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__25;
 x_22 = lean_string_append(x_20, x_21);
 return x_22;
 }

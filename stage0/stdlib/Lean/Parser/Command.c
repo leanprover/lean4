@@ -1173,7 +1173,6 @@ lean_object* l_Lean_Parser_Command_structureTk___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Command_export___closed__1;
 lean_object* l_Lean_Parser_Command_set__option___elambda__1(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Command_check__failure_formatter(lean_object*);
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
 lean_object* l_Lean_Parser_Command_exit_parenthesizer___closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Command_check__failure_formatter___closed__1;
 lean_object* l_Lean_Parser_Command_section___closed__2;
@@ -1244,6 +1243,7 @@ lean_object* l_Lean_Parser_Command_set__option_parenthesizer___closed__6;
 lean_object* l_Lean_Parser_Command_openRenaming___elambda__1___closed__1;
 extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 lean_object* l_Lean_Parser_Command_eval;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 lean_object* l_Lean_Parser_Command_end_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Command_visibility___closed__3;
 lean_object* l_Lean_Parser_Command_declaration_parenthesizer___closed__22;
@@ -2943,7 +2943,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Term_quot(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_109____closed__20;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 x_3 = l_Lean_Parser_Term_quot___elambda__1___closed__1;
 x_4 = 1;
 x_5 = l_Lean_Parser_Term_quot;

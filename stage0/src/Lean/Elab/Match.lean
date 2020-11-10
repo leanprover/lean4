@@ -748,12 +748,23 @@ private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltVi
    ```
   -/
   synthesizeUsingDefault
-  -- TODO report error if matchType or altLHSS.toList have metavars
   let rhss := alts.map Prod.snd
-  let altLHSS := alts.map Prod.fst
+  let matchType ← instantiateMVars matchType
+  let altLHSS ← alts.toList.mapM fun alt => do
+    let altLHS ← Match.instantiateAltLHSMVars alt.1
+    withRef altLHS.ref do
+      for d in altLHS.fvarDecls do
+        if d.hasExprMVar then
+          withExistingLocalDecls altLHS.fvarDecls do
+            throwError! "invalid match-expression, type of pattern variable '{d.toExpr}' contains metavariables{indentExpr d.type}"
+      for p in altLHS.patterns do
+        if p.hasExprMVar then
+          withExistingLocalDecls altLHS.fvarDecls do
+            throwError! "invalid match-expression, pattern contains metavariables{indentExpr (← p.toExpr)}"
+      pure altLHS
   let numDiscrs := discrs.size
   let matcherName ← mkAuxName `match
-  let matcherResult ← mkMatcher matcherName matchType numDiscrs altLHSS.toList
+  let matcherResult ← mkMatcher matcherName matchType numDiscrs altLHSS
   let motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
   reportMatcherResultErrors matcherResult
   let r := mkApp matcherResult.matcher motive

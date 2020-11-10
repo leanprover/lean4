@@ -5420,7 +5420,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_induction___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" is not variable");
+x_1 = lean_mk_string(" is not a variable");
 return x_1;
 }
 }

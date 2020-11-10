@@ -206,6 +206,21 @@ private partial def toBelow (below : Expr) (numIndParams : Nat) (recArg : Expr) 
   withBelowDict below numIndParams fun C belowDict =>
     toBelowAux C belowDict recArg below
 
+/--
+  Return true iff `e` contains an application `recFnName .. t ..` where the term `t` is
+  the argument we are trying to recurse on, and it contains loose bound variables.
+
+  We use this test to decide whether we should process a matcher-application as a regular
+  applicaton or not. That is, whether we should push the `below` argument should be affected by the matcher or not.
+  If `e` does not contain an application of the form `recFnName .. t ..`, then we know
+  the recursion doesn't depend on any pattern variable in this matcher.
+-/
+private def recArgHasLooseBVarsAt (recFnName : Name) (recArgInfo : RecArgInfo) (e : Expr) : Bool :=
+  let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos
+  let app?   := e.find? fun e =>
+     e.isAppOf recFnName && e.getAppNumArgs > recArgPos && (e.getArg! recArgPos).hasLooseBVars
+  app?.isSome
+
 private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : MetaM Expr :=
   let rec loop : Expr → Expr → MetaM Expr
     | below, e@(Expr.lam n d b c) => do
@@ -244,25 +259,10 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
       let matcherApp? ← matchMatcherApp? e
       match matcherApp? with
       | some matcherApp =>
-        /- If none of the alternatives contain a recursive application, we process it as a regular one. -/
-        if matcherApp.alts.all fun alt => !containsRecFn recFnName alt then
+        if !recArgHasLooseBVarsAt recFnName recArgInfo e then
           processApp e
         else
           /- Here is an example we currently not handle
-             ```
-             def f (xs : List Nat) : Nat :=
-             match xs with
-             | [] => 0
-             | y::ys =>
-               match ys with
-               | [] => 1
-               | zs => f ys + 1
-             ```
-             We are matching on `ys`, but still using `ys` in the second alternative.
-             If we push the `below` argument over the dependent match it will be able to eliminate recursive call using `zs`.
-             To make it work, users have to write the second alternative as `| zs => f zs + 1`
-             We considered trying `processApp e` first, and only if fails trying the code below.
-             This trick is sufficient for solving the example above, but it is not sufficient for the slightly more complicated example:
              ```
              def g (xs : List Nat) : Nat :=
              match xs with
@@ -271,22 +271,14 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
                match ys with
                | []       => 1
                | _::_::zs => g zs + 1
-               | _        => g ys + 2
+               | zs       => g ys + 2
              ```
-             To make it work, users would have to write the last alternative as
-             ```
-             | zs => g zs + 2
-             ```
-             If this is too annoying in practice, we may replace `ys` with the matching term.
-             This may generate weird error messages, when it doesn't work.
-          -/
+             We are matching on `ys`, but still using `ys` in the third alternative.
+             If we push the `below` argument over the dependent match it will be able to eliminate recursive call using `zs`.
+             To make it work, users have to write the third alternative as `| zs => g zs + 2`
+             If this is too annoying in practice, we may replace `ys` with the matching term, but
+             this may generate weird error messages, when it doesn't work. -/
           let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
-          let mut discrs := matcherApp.discrs
-          for i in [:discrs.size] do
-            let discr ← processApp discrs[i]
-            trace[Elab.definition.structural]! "new discr [{i}]: {discr}"
-            discrs := discrs.set! i discr
-          trace[Elab.definition.structural]! "discrs: {discrs}"
           let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do
               trace[Elab.definition.structural]! "altNumParams: {numParams}, xs: {xs}"
@@ -294,7 +286,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
                 throwError! "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let belowForAlt := xs[numParams - 1]
               mkLambdaFVars xs (← loop belowForAlt altBody)
-          pure { matcherApp with discrs := discrs, alts := altsNew }.toExpr
+          pure { matcherApp with alts := altsNew }.toExpr
       | none => processApp e
     | _, e => ensureNoRecFn recFnName e
   loop below e

@@ -119,7 +119,10 @@ Note that we did not add a `explicitShortBinder` parser since `(α) → α → �
 -/
 @[builtinTermParser] def depArrow := parser! bracketedBinder true >> checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser
 
-def simpleBinder := parser! many1 binderIdent
+def simpleBinder := parser!
+  (checkInsideQuot >> many1 binderIdent >> optType)
+  <|>
+  (checkOutsideQuot >> many1 binderIdent)
 @[builtinTermParser]
 def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall" >> many1 (ppSpace >> (simpleBinder <|> bracketedBinder)) >> ", " >> termParser
 
@@ -138,7 +141,8 @@ def matchDiscr := parser! optional («try» (ident >> checkNoWsBefore "no space 
 @[builtinTermParser] def «nomatch»  := parser!:leadPrec "nomatch " >> termParser
 
 def funImplicitBinder := «try» (lookahead ("{" >> many1 binderIdent >> (" : " <|> "}"))) >> implicitBinder
-def funBinder : Parser := funImplicitBinder <|> instBinder <|> termParser maxPrec
+def funSimpleBinder   := parser! «try» (lookahead (many1 binderIdent >> " : ")) >> many1 binderIdent >> optType
+def funBinder : Parser := funImplicitBinder <|> instBinder <|> (checkInsideQuot >> funSimpleBinder) <|> termParser maxPrec
 -- NOTE: we use `nodeWithAntiquot` to ensure that `fun $b => ...` remains a `term` antiquotation
 def basicFun : Parser := nodeWithAntiquot "basicFun" `Lean.Parser.Term.basicFun (many1 (ppSpace >> funBinder) >> darrow >> termParser)
 @[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts false)

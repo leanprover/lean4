@@ -197,77 +197,6 @@ partial def getTailWithPos : Syntax → Option Syntax
   | node _ args                          => args.findSomeRev? getTailWithPos
   | _                                    => none
 
-partial def getTailInfo : Syntax → Option SourceInfo
-  | atom info _   => info
-  | ident info .. => info
-  | node _ args   => args.findSomeRev? getTailInfo
-  | _             => none
-
-@[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
-  if i == 0 then none
-  else
-    let i := i - 1;
-    let v := a.get! i;
-    match f v with
-    | some v => some $ a.set! i v
-    | none   => updateLast a f i
-
-partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
-  | atom _ val             => some $ atom info val
-  | ident _ rawVal val pre => some $ ident info rawVal val pre
-  | node k args            =>
-    match updateLast args (setTailInfoAux info) args.size with
-    | some args => some $ node k args
-    | none      => none
-  | stx                    => none
-
-def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
-  match setTailInfoAux info stx with
-  | some stx => stx
-  | none     => stx
-
-def unsetTrailing (stx : Syntax) : Syntax :=
-  match stx.getTailInfo with
-  | none      => stx
-  | some info => stx.setTailInfo { info with trailing := none }
-
-@[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
-  if h : i < a.size then
-    let v := a.get ⟨i, h⟩;
-    match f v with
-    | some v => some $ a.set ⟨i, h⟩ v
-    | none   => updateFirst a f (i+1)
-  else
-    none
-
-partial def setHeadInfoAux (info : SourceInfo) : Syntax → Option Syntax
-  | atom _ val             => some $ atom info val
-  | ident _ rawVal val pre => some $ ident info rawVal val pre
-  | node k args            =>
-    match updateFirst args (setHeadInfoAux info) 0 with
-    | some args => some $ node k args
-    | noxne     => none
-  | stx                    => none
-
-def setHeadInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
-  match setHeadInfoAux info stx with
-  | some stx => stx
-  | none     => stx
-
-def setInfo (info : SourceInfo) : Syntax → Syntax
-  | atom _ val             => atom info val
-  | ident _ rawVal val pre => ident info rawVal val pre
-  | stx                    => stx
-
-partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
-  | node k args => node k $ args.map (replaceInfo info)
-  | stx         => setInfo info stx
-
-def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
-  match source.getHeadInfo with
-  | none      => s
-  | some info => s.setHeadInfo info
-
 private def reprintLeaf (info : SourceInfo) (val : String) : String :=
   -- no source info => add gracious amounts of whitespace to definitely separate tokens
   -- Note that the proper pretty printer does not use this function.
@@ -422,12 +351,6 @@ def mkSimpleAtom (val : String) : Syntax :=
 @[export lean_mk_syntax_list]
 def mkListNode (args : Array Syntax) : Syntax :=
   Syntax.node nullKind args
-
-def mkAtom (val : String) : Syntax :=
-  Syntax.atom {} val
-
-@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
-  Syntax.node k args
 
 @[export lean_mk_syntax_str_lit]
 def mkStxStrLitAux (val : String) : Syntax :=

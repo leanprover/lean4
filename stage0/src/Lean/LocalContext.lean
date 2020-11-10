@@ -85,6 +85,10 @@ def updateBinderInfo : LocalDecl → BinderInfo → LocalDecl
 def toExpr (decl : LocalDecl) : Expr :=
   mkFVar decl.fvarId
 
+def hasExprMVar : LocalDecl → Bool
+  | cdecl (type := t) ..              => t.hasExprMVar
+  | ldecl (type := t) (value := v) .. => t.hasExprMVar || v.hasExprMVar
+
 end LocalDecl
 
 open Std (PersistentHashMap PersistentArray PArray)

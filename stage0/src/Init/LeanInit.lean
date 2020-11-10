@@ -278,7 +278,89 @@ partial def getHeadInfo : Syntax → Option SourceInfo
   | node _ args      => args.findSome? getHeadInfo
   | _                => none
 
+partial def getTailInfo : Syntax → Option SourceInfo
+  | atom info _   => info
+  | ident info .. => info
+  | node _ args   => args.findSomeRev? getTailInfo
+  | _             => none
+
+@[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
+  if i == 0 then none
+  else
+    let i := i - 1;
+    let v := a.get! i;
+    match f v with
+    | some v => some $ a.set! i v
+    | none   => updateLast a f i
+
+partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
+  | atom _ val             => some $ atom info val
+  | ident _ rawVal val pre => some $ ident info rawVal val pre
+  | node k args            =>
+    match updateLast args (setTailInfoAux info) args.size with
+    | some args => some $ node k args
+    | none      => none
+  | stx                    => none
+
+def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
+  match setTailInfoAux info stx with
+  | some stx => stx
+  | none     => stx
+
+def unsetTrailing (stx : Syntax) : Syntax :=
+  match stx.getTailInfo with
+  | none      => stx
+  | some info => stx.setTailInfo { info with trailing := none }
+
+@[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
+  if h : i < a.size then
+    let v := a.get ⟨i, h⟩;
+    match f v with
+    | some v => some $ a.set ⟨i, h⟩ v
+    | none   => updateFirst a f (i+1)
+  else
+    none
+
+partial def setHeadInfoAux (info : SourceInfo) : Syntax → Option Syntax
+  | atom _ val             => some $ atom info val
+  | ident _ rawVal val pre => some $ ident info rawVal val pre
+  | node k args            =>
+    match updateFirst args (setHeadInfoAux info) 0 with
+    | some args => some $ node k args
+    | noxne     => none
+  | stx                    => none
+
+def setHeadInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
+  match setHeadInfoAux info stx with
+  | some stx => stx
+  | none     => stx
+
+def setInfo (info : SourceInfo) : Syntax → Syntax
+  | atom _ val             => atom info val
+  | ident _ rawVal val pre => ident info rawVal val pre
+  | stx                    => stx
+
+partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
+  | node k args => node k $ args.map (replaceInfo info)
+  | stx         => setInfo info stx
+
+def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
+  match source.getHeadInfo with
+  | none      => s
+  | some info => s.setHeadInfo info
+
+def copyTailInfo (s : Syntax) (source : Syntax) : Syntax :=
+  match source.getTailInfo with
+  | none      => s
+  | some info => s.setTailInfo info
+
 end Syntax
+
+def mkAtom (val : String) : Syntax :=
+  Syntax.atom {} val
+
+@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
+  Syntax.node k args
 
 /- Syntax objects for a Lean module. -/
 structure Module :=

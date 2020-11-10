@@ -1119,7 +1119,7 @@ instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState 
 @[inline] def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m PUnit :=
   modifyGet fun s => (PUnit.unit, f s)
 
-@[inline] def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] [Monad m] (f : σ → σ) : m σ := do
+@[inline] def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
   modifyGet fun s => (s, f s)
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
@@ -1555,7 +1555,7 @@ def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
   match n.hasMacroScopes with
   | true =>
     let view := extractMacroScopes n
-    match view.mainModule == mainModule with
+    match beq view.mainModule mainModule with
     | true  => mkNameNum n scp
     | false =>
       { view with
@@ -1648,8 +1648,8 @@ def expandMacroNotAvailable? (stx : Syntax) : MacroM (Option Syntax) :=
 def mkMacroEnvSimple : MacroEnv :=
   mkMacroEnv expandMacroNotAvailable?
 
-unsafe def expandMacro?Imp (stx : Syntax) : MacroM (Option Syntax) := do
-  let ctx ← read
+unsafe def expandMacro?Imp (stx : Syntax) : MacroM (Option Syntax) :=
+  bind read fun ctx =>
   let f : Syntax → MacroM (Option Syntax) := unsafeCast (ctx.macroEnv)
   f stx
 

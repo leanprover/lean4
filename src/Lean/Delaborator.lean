@@ -349,8 +349,7 @@ def delabAppExplicit : Delab := do
     (fun ⟨fnStx, argStxs⟩ => do
       let argStx ← delab
       pure (fnStx, argStxs.push argStx))
-  -- avoid degenerate `app` node
-  if argStxs.isEmpty then pure fnStx else `($fnStx $argStxs*)
+  mkAppStx fnStx argStxs
 
 @[builtinDelab app]
 def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
@@ -371,8 +370,7 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
       else do
         let argStx ← delab
         pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
-  -- avoid degenerate `app` node
-  if argStxs.isEmpty then pure fnStx else `($fnStx $argStxs*)
+  mkAppStx fnStx argStxs
 
 @[builtinDelab mdata]
 def delabMData : Delab := do

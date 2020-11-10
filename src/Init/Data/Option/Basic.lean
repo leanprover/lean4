@@ -105,4 +105,4 @@ instance {α : Type u} [BEq α] : BEq (Option α) := ⟨fun a b =>
   | (some v₁), none      => false
   | (some v₁), (some v₂) => v₁ == v₂⟩
 
-instance {α : Type u} [Less α] : Less (Option α) := ⟨Option.lt Less.Less⟩
+instance {α : Type u} [HasLess α] : HasLess (Option α) := ⟨Option.lt (· < ·)⟩

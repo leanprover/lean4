@@ -33,7 +33,7 @@ def Literal.lt : Literal → Literal → Bool
   | Literal.strVal v₁, Literal.strVal v₂ => v₁ < v₂
   | _,                 _                 => false
 
-instance : Less Literal := ⟨fun a b => a.lt b⟩
+instance : HasLess Literal := ⟨fun a b => a.lt b⟩
 
 instance (a b : Literal) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.lt b))

@@ -75,11 +75,11 @@ inductive NonNeg : Int → Prop
 
 protected def LessEq (a b : Int) : Prop := NonNeg (b - a)
 
-instance : LessEq Int := ⟨Int.LessEq⟩
+instance : HasLessEq Int := ⟨Int.LessEq⟩
 
 protected def Less (a b : Int) : Prop := (a + 1) ≤ b
 
-instance : Less Int := ⟨Int.Less⟩
+instance : HasLess Int := ⟨Int.Less⟩
 
 set_option bootstrap.gen_matcher_code false in
 @[extern "lean_int_dec_eq"]

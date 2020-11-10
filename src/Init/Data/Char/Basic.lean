@@ -28,8 +28,8 @@ def utf8Size (c : Char) : UInt32 :=
 protected def Less (a b : Char) : Prop := a.val < b.val
 protected def LessEq (a b : Char) : Prop := a.val ≤ b.val
 
-instance : Less Char   := ⟨Char.Less⟩
-instance : LessEq Char := ⟨Char.LessEq⟩
+instance : HasLess Char   := ⟨Char.Less⟩
+instance : HasLessEq Char := ⟨Char.LessEq⟩
 
 protected def lt (a b : Char) : Bool := a.val < b.val
 

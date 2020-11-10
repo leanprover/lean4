@@ -53,12 +53,12 @@ def ble : Nat → Nat → Bool
 protected def le (n m : Nat) : Prop :=
   ble n m = true
 
-instance : LessEq Nat := ⟨Nat.le⟩
+instance : HasLessEq Nat := ⟨Nat.le⟩
 
 protected def lt (n m : Nat) : Prop :=
   Nat.le (succ n) m
 
-instance : Less Nat := ⟨Nat.lt⟩
+instance : HasLess Nat := ⟨Nat.lt⟩
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "lean_nat_sub(#1, lean_box(1))"]

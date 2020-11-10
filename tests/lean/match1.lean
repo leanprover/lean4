@@ -1,4 +1,4 @@
-
+--
 
 #print "---- h1"
 
@@ -120,3 +120,11 @@ match n, parity n with
 | _, Parity.odd  j => true  :: natToBin j
 
 #eval natToBin2 6
+
+#check fun (a, b) => a -- Error type of pattern variable contains metavariables
+
+#check fun (a, b) => (a:Nat) + b
+
+#check fun (a, b) => a && b
+
+#check fun ((a : Nat), (b : Nat)) => a + b

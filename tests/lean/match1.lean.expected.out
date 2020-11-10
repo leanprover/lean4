@@ -19,3 +19,6 @@ match1.lean:113:0: error: dependent match elimination failed, inaccessible patte
   .(j + j)
 constructor expected
 [false, true, true]
+match1.lean:124:0: error: invalid match-expression, type of pattern variable 'a' contains metavariables
+  ?m
+fun (x : ?m × ?m) => ?m x : ?m × ?m → ?m

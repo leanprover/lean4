@@ -66,12 +66,34 @@ def replaceFVarId (fvarId : FVarId) (v : Expr) (p : Pattern) : Pattern :=
   let s : FVarSubst := {}
   p.applyFVarSubst (s.insert fvarId v)
 
+partial def hasExprMVar : Pattern → Bool
+  | inaccessible e => e.hasExprMVar
+  | ctor _ _ ps fs => ps.any (·.hasExprMVar) || fs.any hasExprMVar
+  | val e          => e.hasExprMVar
+  | as _ p         => hasExprMVar p
+  | arrayLit t xs  => t.hasExprMVar || xs.any hasExprMVar
+  | _              => false
+
 end Pattern
+
+partial def instantiatePatternMVars : Pattern → MetaM Pattern
+  | Pattern.inaccessible e      => return Pattern.inaccessible (← instantiateMVars e)
+  | Pattern.val e               => return Pattern.val (← instantiateMVars e)
+  | Pattern.ctor n us ps fields => return Pattern.ctor n us (← ps.mapM instantiateMVars) (← fields.mapM instantiatePatternMVars)
+  | Pattern.as x p              => return Pattern.as x (← instantiatePatternMVars p)
+  | Pattern.arrayLit t xs       => return Pattern.arrayLit (← instantiateMVars t) (← xs.mapM instantiatePatternMVars)
+  | p                   => return p
 
 structure AltLHS :=
   (ref        : Syntax)
   (fvarDecls  : List LocalDecl) -- Free variables used in the patterns.
   (patterns   : List Pattern)   -- We use `List Pattern` since we have nary match-expressions.
+
+def instantiateAltLHSMVars (altLHS : AltLHS) : MetaM AltLHS :=
+  return { altLHS with
+    fvarDecls := (← altLHS.fvarDecls.mapM instantiateLocalDeclMVars),
+    patterns  := (← altLHS.patterns.mapM instantiatePatternMVars)
+  }
 
 structure Alt :=
   (ref       : Syntax)

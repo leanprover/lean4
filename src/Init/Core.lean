@@ -175,12 +175,6 @@ inductive Or (a b : Prop) : Prop
   | inl (h : a) : Or a b
   | inr (h : b) : Or a b
 
-def Or.introLeft {a : Prop} (b : Prop) (ha : a) : Or a b :=
-  Or.inl ha
-
-def Or.introRight (a : Prop) {b : Prop} (hb : b) : Or a b :=
-  Or.inr hb
-
 structure Sigma {α : Type u} (β : α → Type v) :=
   mk :: (fst : α) (snd : β fst)
 
@@ -196,7 +190,6 @@ inductive Bool : Type
 /- Remark: Subtype must take a Sort instead of Type because of the axiom strongIndefiniteDescription. -/
 structure Subtype {α : Sort u} (p : α → Prop) :=
   (val : α) (property : p val)
-
 
 inductive Exists {α : Sort u} (p : α → Prop) : Prop
   | intro (w : α) (h : p w) : Exists p
@@ -376,79 +369,6 @@ structure NonScalar :=
 /- Some type that is not a scalar value in our runtime and is universe polymorphic. -/
 inductive PNonScalar : Type u
   | mk (v : Nat) : PNonScalar
-
-/- sizeof -/
-
-class SizeOf (α : Sort u) :=
-  (sizeOf : α → Nat)
-
-export SizeOf (sizeOf)
-
-/-
-Declare sizeOf instances and theorems for types declared before SizeOf.
-From now on, the inductive Compiler will automatically generate sizeOf instances and theorems.
--/
-
-/- Every Type `α` has a default SizeOf instance that just returns 0 for every element of `α` -/
-protected def default.sizeOf (α : Sort u) : α → Nat
-  | a => 0
-
-instance (α : Sort u) : SizeOf α :=
-  ⟨default.sizeOf α⟩
-
-instance : SizeOf Nat := {
-  sizeOf := fun n => n
-}
-
-instance (α : Type u) (β : Type v) [SizeOf α] [SizeOf β] : SizeOf (Prod α β) := {
-  sizeOf := fun (a, b) => 1 + sizeOf a + sizeOf b
-}
-
-instance (α : Type u) (β : Type v) [SizeOf α] [SizeOf β] : SizeOf (Sum α β) := {
-  sizeOf := fun
-    | Sum.inl a => 1 + sizeOf a
-    | Sum.inr b => 1 + sizeOf b
-}
-
-instance (α : Type u) (β : Type v) [SizeOf α] [SizeOf β] : SizeOf (PSum α β) := {
-  sizeOf := fun
-    | PSum.inl a => 1 + sizeOf a
-    | PSum.inr b => 1 + sizeOf b
-}
-
-instance (α : Type u) (β : α → Type v) [SizeOf α] [∀ a, SizeOf (β a)] : SizeOf (Sigma β) := {
-  sizeOf := fun ⟨a, b⟩ => 1 + sizeOf a + sizeOf b
-}
-
-instance (α : Type u) (β : α → Type v) [SizeOf α] [(a : α) → SizeOf (β a)] : SizeOf (PSigma β) := {
-  sizeOf := fun ⟨a, b⟩ => 1 + sizeOf a + sizeOf b
-}
-
-instance : SizeOf PUnit := {
-  sizeOf := fun _ => 1
-}
-
-instance : SizeOf Bool := {
-  sizeOf := fun _ => 1
-}
-
-instance (α : Type u) [SizeOf α] : SizeOf (Option α) := {
-  sizeOf := fun
-    | none   => 1
-    | some a => 1 + sizeOf a
-}
-
-instance (α : Type u) [SizeOf α] : SizeOf (List α) := {
-  sizeOf := fun as =>
-    let rec loop
-      | List.nil      => 1
-      | List.cons x xs => 1 + sizeOf x + loop xs
-    loop as
-}
-
-instance {α : Type u} [SizeOf α] (p : α → Prop) : SizeOf (Subtype p) := {
-  sizeOf := fun ⟨a, _⟩ => sizeOf a
-}
 
 theorem natAddZero (n : Nat) : n + 0 = n := rfl
 

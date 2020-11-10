@@ -384,9 +384,6 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
   | true,  x, y => x
   | false, x, y => y
 
-@[inline] def condEq {β : Sort u} (b : Bool) (h₁ : b = true → β) (h₂ : b = false → β) : β :=
-  @Bool.casesOn (λ x => b = x → β) b h₂ h₁ rfl
-
 @[macroInline] def or : Bool → Bool → Bool
   | true,  _ => true
   | false, b => b
@@ -981,66 +978,23 @@ theorem recSubsingleton
   | (isTrue h)  => h₃ h
   | (isFalse h) => h₄ h
 
-section relation
-variables {α : Sort u} {β : Sort v} (r : β → β → Prop)
+structure Equivalence {α : Sort u} (r : α → α → Prop) : Prop :=
+  (refl  : ∀ x, r x x)
+  (symm  : ∀ {x y}, r x y → r y x)
+  (trans : ∀ {x y z}, r x y → r y z → r x z)
 
-def Reflexive :=
-  ∀ x, r x x
-
-def Symmetric :=
-  ∀ {x y}, r x y → r y x
-
-def Transitive :=
-  ∀ {x y z}, r x y → r y z → r x z
-
-def Equivalence :=  -- TODO: use structure?
-  Reflexive r ∧ Symmetric r ∧ Transitive r
-
-def Total :=
-  ∀ x y, r x y ∨ r y x
-
-def mkEquivalence (rfl : Reflexive r) (symm : Symmetric r) (trans : Transitive r) : Equivalence r :=
-  ⟨rfl, ⟨symm, trans⟩⟩
-
-def Irreflexive :=
-  ∀ x, ¬ r x x
-
-def AntiSymmetric :=
-  ∀ {x y}, r x y → r y x → x = y
-
-def emptyRelation (a₁ a₂ : α) : Prop :=
+def emptyRelation {α : Sort u} (a₁ a₂ : α) : Prop :=
   False
 
-def Subrelation (q r : β → β → Prop) :=
+def Subrelation {α : Sort u} (q r : α → α → Prop) :=
   ∀ {x y}, q x y → r x y
 
-def InvImage (f : α → β) : α → α → Prop :=
+def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
   fun a₁ a₂ => r (f a₁) (f a₂)
-
-theorem InvImage.Transitive (f : α → β) (h : Transitive r) : Transitive (InvImage r f) :=
-  fun h₁ h₂ => h h₁ h₂
-
-theorem InvImage.Irreflexive (f : α → β) (h : Irreflexive r) : Irreflexive (InvImage r f) :=
-  fun (a : α) (h₁ : InvImage r f a a) => h (f a) h₁
 
 inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop
   | base  : ∀ a b, r a b → TC r a b
   | trans : ∀ a b c, TC r a b → TC r b c → TC r a c
-
-theorem TC.ndrec {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
-                (m₁ : ∀ (a b : α), r a b → C a b)
-                (m₂ : ∀ (a b c : α), TC r a b → TC r b c → C a b → C b c → C a c)
-                {a b : α} (h : TC r a b) : C a b :=
-  @TC.rec α r (fun a b _ => C a b) m₁ m₂ a b h
-
-theorem TC.ndrecOn {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
-                {a b : α} (h : TC r a b)
-                (m₁ : ∀ (a b : α), r a b → C a b)
-                (m₂ : ∀ (a b c : α), TC r a b → TC r b c → C a b → C b c → C a c)
-                : C a b :=
-  @TC.rec α r (fun a b _ => C a b) m₁ m₂ a b h
-
-end relation
 
 section Binary
 variables {α : Type u} {β : Type v}
@@ -1206,13 +1160,13 @@ namespace Setoid
 variables {α : Sort u} [Setoid α]
 
 theorem refl (a : α) : a ≈ a :=
-  (Setoid.iseqv α).1 a
+  (Setoid.iseqv α).refl a
 
 theorem symm {a b : α} (hab : a ≈ b) : b ≈ a :=
-  (Setoid.iseqv α).2.1 hab
+  (Setoid.iseqv α).symm hab
 
 theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
-  (Setoid.iseqv α).2.2 hab hbc
+  (Setoid.iseqv α).trans hab hbc
 
 end Setoid
 
@@ -1514,8 +1468,12 @@ protected theorem Equiv.symm {f₁ f₂ : ∀ (x : α), β x} : Equiv f₁ f₂ 
 protected theorem Equiv.trans {f₁ f₂ f₃ : ∀ (x : α), β x} : Equiv f₁ f₂ → Equiv f₂ f₃ → Equiv f₁ f₃ :=
   fun h₁ h₂ x => Eq.trans (h₁ x) (h₂ x)
 
-protected theorem Equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.Equiv α β) :=
-  mkEquivalence (@Function.Equiv α β) (@Equiv.refl α β) (@Equiv.symm α β) (@Equiv.trans α β)
+protected theorem Equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.Equiv α β) := {
+  refl := Equiv.refl,
+  symm := Equiv.symm,
+  trans := Equiv.trans
+}
+
 end Function
 
 section
@@ -1550,17 +1508,8 @@ variables {α : Sort u₁} {β : Sort u₂} {φ : Sort u₃} {δ : Sort u₄} {�
 @[inline, reducible] def comp (f : β → φ) (g : α → β) : α → φ :=
   fun x => f (g x)
 
-@[inline, reducible] def onFun (f : β → β → φ) (g : α → β) : α → α → φ :=
-  fun x y => f (g x) (g y)
-
-@[inline, reducible] def combine (f : α → β → φ) (op : φ → δ → ζ) (g : α → β → δ) : α → β → ζ :=
-  fun x y => op (f x y) (g x y)
-
 @[inline, reducible] def const (β : Sort u₂) (a : α) : β → α :=
   fun x => a
-
-@[inline, reducible] def swap {φ : α → β → Sort u₃} (f : ∀ x y, φ x y) : ∀ y x, φ x y :=
-  fun y x => f x y
 
 end Function
 
@@ -1619,123 +1568,3 @@ axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b)    : a = b
 
 end Lean
-
-/- Classical reasoning support -/
-
-namespace Classical
-
-axiom choice {α : Sort u} : Nonempty α → α
-
-noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : Exists (fun x => p x)) : {x // p x} :=
-  choice $ let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
-
-noncomputable def choose {α : Sort u} {p : α → Prop} (h : Exists (fun x => p x)) : α :=
-  (indefiniteDescription p h).val
-
-theorem chooseSpec {α : Sort u} {p : α → Prop} (h : Exists (fun x => p x)) : p (choose h) :=
-  (indefiniteDescription p h).property
-
-/- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
-theorem em (p : Prop) : p ∨ ¬p :=
-  let U (x : Prop) : Prop := x = True ∨ p;
-  let V (x : Prop) : Prop := x = False ∨ p;
-  have exU : Exists (fun x => U x) from ⟨True, Or.inl rfl⟩;
-  have exV : Exists (fun x => V x) from ⟨False, Or.inl rfl⟩;
-  let u : Prop := choose exU;
-  let v : Prop := choose exV;
-  have uDef : U u from chooseSpec exU;
-  have vDef : V v from chooseSpec exV;
-  have notUvOrP : u ≠ v ∨ p from
-    match uDef, vDef with
-    | Or.inr h, _ => Or.inr h
-    | _, Or.inr h => Or.inr h
-    | Or.inl hut, Or.inl hvf =>
-      have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse
-      Or.inl hne
-  have pImpliesUv : p → u = v from
-    fun hp =>
-    have hpred : U = V from
-      funext fun x =>
-        have hl : (x = True ∨ p) → (x = False ∨ p) from
-          fun a => Or.inr hp;
-        have hr : (x = False ∨ p) → (x = True ∨ p) from
-          fun a => Or.inr hp;
-        show (x = True ∨ p) = (x = False ∨ p) from
-          propext (Iff.intro hl hr);
-    have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV from
-      hpred ▸ fun exU exV => rfl;
-    show u = v from h₀ ..;
-  match notUvOrP with
-  | Or.inl hne => Or.inr (mt pImpliesUv hne)
-  | Or.inr h   => Or.inl h
-
-theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → Exists (fun (x : α) => True)
-  | ⟨x⟩ => ⟨x, trivial⟩
-
-noncomputable def inhabitedOfNonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
-  ⟨choice h⟩
-
-noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : Exists (fun x => p x)) : Inhabited α :=
-  inhabitedOfNonempty (Exists.elim h (fun w hw => ⟨w⟩))
-
-/- all propositions are Decidable -/
-noncomputable def propDecidable (a : Prop) : Decidable a :=
-  choice $ match em a with
-    | Or.inl h => ⟨isTrue h⟩
-    | Or.inr h => ⟨isFalse h⟩
-
-noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) :=
-  ⟨propDecidable a⟩
-
-noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
-  fun x y => propDecidable (x = y)
-
-noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
-  match (propDecidable (Nonempty α)) with
-  | (isTrue hp)  => PSum.inl (@arbitrary _ (inhabitedOfNonempty hp))
-  | (isFalse hn) => PSum.inr (fun a => absurd (Nonempty.intro a) hn)
-
-noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h : Nonempty α) : {x : α // Exists (fun (y : α) => p y) → p x} :=
-  @dite _ (Exists (fun (x : α) => p x)) (propDecidable _)
-    (fun (hp : Exists (fun (x : α) => p x)) =>
-      show {x : α // Exists (fun (y : α) => p y) → p x} from
-      let xp := indefiniteDescription _ hp;
-      ⟨xp.val, fun h' => xp.property⟩)
-    (fun hp => ⟨choice h, fun h => absurd h hp⟩)
-
-/- the Hilbert epsilon Function -/
-
-noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α :=
-  (strongIndefiniteDescription p h).val
-
-theorem epsilonSpecAux {α : Sort u} (h : Nonempty α) (p : α → Prop) : Exists (fun y => p y) → p (@epsilon α h p) :=
-  (strongIndefiniteDescription p h).property
-
-theorem epsilonSpec {α : Sort u} {p : α → Prop} (hex : Exists (fun y => p y)) : p (@epsilon α (nonemptyOfExists hex) p) :=
-  epsilonSpecAux (nonemptyOfExists hex) p hex
-
-theorem epsilonSingleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (fun y => y = x) = x :=
-  @epsilonSpec α (fun y => y = x) ⟨x, rfl⟩
-
-/- the axiom of choice -/
-
-theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : ∀ x, β x → Prop} (h : ∀ x, Exists (fun y => r x y)) : Exists (fun (f : ∀ x, β x) => ∀ x, r x (f x)) :=
-  ⟨_, fun x => chooseSpec (h x)⟩
-
-theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (∀ x, Exists (fun y => p x y)) ↔ Exists (fun (f : ∀ x, b x) => ∀ x, p x (f x)) :=
-  ⟨axiomOfChoice, fun ⟨f, hw⟩ (x) => ⟨f x, hw x⟩⟩
-
-theorem propComplete (a : Prop) : a = True ∨ a = False :=
-  match em a with
-  | Or.inl t => Or.inl (eqTrueIntro t)
-  | Or.inr f => Or.inr (eqFalseIntro f)
-
--- this supercedes byCases in Decidable
-theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
-  Decidable.byCases (dec := propDecidable _) hpq hnpq
-
--- this supercedes byContradiction in Decidable
-theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
-  Decidable.byContradiction (dec := propDecidable _) h
-
-end Classical

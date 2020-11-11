@@ -185,7 +185,7 @@ def expandInfix (f : Syntax) : Macro := fun stx => do
   -- term `op` term
   let a := stx[0]
   let b := stx[2]
-  pure (mkAppStx f #[a, b])
+  pure (Syntax.mkApp f #[a, b])
 
 def expandInfixOp (op : Name) : Macro := fun stx =>
   expandInfix (mkCIdentFrom stx[1] op) stx
@@ -193,7 +193,7 @@ def expandInfixOp (op : Name) : Macro := fun stx =>
 def expandPrefixOp (op : Name) : Macro := fun stx => do
   -- `op` term
   let a := stx[1]
-  pure (mkAppStx (mkCIdentFrom stx[0] op) #[a])
+  pure (Syntax.mkApp (mkCIdentFrom stx[0] op) #[a])
 
 @[builtinMacro Lean.Parser.Term.not] def expandNot : Macro := expandPrefixOp `Not
 @[builtinMacro Lean.Parser.Term.bnot] def expandBNot : Macro := expandPrefixOp `not

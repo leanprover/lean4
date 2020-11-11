@@ -403,7 +403,7 @@ private def mkSubstructSource (structName : Name) (fieldNames : Array Name) (fie
           let valStx := s.ref -- construct substructure syntax using s.ref as template
           let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type
           let args   := substructFields.toArray.map Field.toSyntax
-          let valStx := valStx.setArg 2 (mkSepStx args (mkAtomFrom s.ref ","))
+          let valStx := valStx.setArg 2 (Syntax.mkSep args (mkAtomFrom s.ref ","))
           let valStx := setStructSourceSyntax valStx substructSource
           pure { field with lhs := [field.lhs.head!], val := FieldVal.term valStx }
 

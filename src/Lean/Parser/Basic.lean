@@ -780,7 +780,7 @@ def mkNodeToken (n : SyntaxNodeKind) (startPos : Nat) : ParserFn := fun c s =>
   let wsStopPos := s.pos
   let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring }
   let info      := { leading := leading, pos := startPos, trailing := trailing : SourceInfo }
-  s.pushSyntax (mkStxLit n val info)
+  s.pushSyntax (Syntax.mkLit n val info)
 
 def charLitFnAux (startPos : Nat) : ParserFn := fun c s =>
   let input := c.input

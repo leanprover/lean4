@@ -277,7 +277,7 @@ private def isDone (ctx : Context) : Bool :=
 private def finalize (ctx : Context) : M Syntax := do
   if ctx.namedArgs.isEmpty && ctx.args.isEmpty then
     let fStx ← `(@$(ctx.funId):ident)
-    pure $ mkAppStx fStx ctx.newArgs
+    pure $ Syntax.mkApp fStx ctx.newArgs
   else
     throwError "too many arguments"
 
@@ -790,7 +790,7 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
       let rec loop (discrs : List Syntax) (discrsNew : Array Syntax) := do
         match discrs with
         | [] =>
-          let discrs := mkSepStx discrsNew (mkAtomFrom matchStx ", ");
+          let discrs := Syntax.mkSep discrsNew (mkAtomFrom matchStx ", ");
           pure (matchStx.setArg 1 discrs)
         | discr :: discrs =>
           -- Recall that

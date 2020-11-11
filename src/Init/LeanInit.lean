@@ -279,36 +279,36 @@ def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := do
     i := i + 1
   return r
 
-def mkSepStx (a : Array Syntax) (sep : Syntax) : Syntax :=
-  mkNullNode $ mkSepArray a sep
-
 def mkOptionalNode (arg : Option Syntax) : Syntax :=
   match arg with
   | some arg => Syntax.node nullKind #[arg]
   | none     => Syntax.node nullKind #[]
 
-/-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
-def mkAppStx (fn : Syntax) : (args : Array Syntax) → Syntax
-  | #[]  => fn
-  | args => Syntax.node `Lean.Parser.Term.app #[fn, mkNullNode args]
-
 def mkHole (ref : Syntax) : Syntax :=
   Syntax.node `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
 
-def mkCAppStx (fn : Name) (args : Array Syntax) : Syntax :=
-  mkAppStx (mkCIdent fn) args
+namespace Syntax
 
-def mkStxLit (kind : SyntaxNodeKind) (val : String) (info : SourceInfo := {}) : Syntax :=
+def mkSep (a : Array Syntax) (sep : Syntax) : Syntax :=
+  mkNullNode $ mkSepArray a sep
+
+/-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
+def mkApp (fn : Syntax) : (args : Array Syntax) → Syntax
+  | #[]  => fn
+  | args => Syntax.node `Lean.Parser.Term.app #[fn, mkNullNode args]
+
+def mkCApp (fn : Name) (args : Array Syntax) : Syntax :=
+  mkApp (mkCIdent fn) args
+
+def mkLit (kind : SyntaxNodeKind) (val : String) (info : SourceInfo := {}) : Syntax :=
   let atom : Syntax := Syntax.atom info val
   Syntax.node kind #[atom]
 
-def mkStxStrLit (val : String) (info : SourceInfo := {}) : Syntax :=
-  mkStxLit strLitKind (repr val) info
+def mkStrLit (val : String) (info : SourceInfo := {}) : Syntax :=
+  mkLit strLitKind (repr val) info
 
-def mkStxNumLit (val : String) (info : SourceInfo := {}) : Syntax :=
-  mkStxLit numLitKind val info
-
-namespace Syntax
+def mkNumLit (val : String) (info : SourceInfo := {}) : Syntax :=
+  mkLit numLitKind val info
 
 /- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
    The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
@@ -496,7 +496,7 @@ def hasArgs : Syntax → Bool
 
 def identToStrLit (stx : Syntax) : Syntax :=
   match stx with
-  | Syntax.ident info _ val _ => mkStxStrLit (toString val) info
+  | Syntax.ident info _ val _ => mkStrLit (toString val) info
   | _                         => stx
 
 def strLitToAtom (stx : Syntax) : Syntax :=
@@ -552,32 +552,32 @@ export Quote (quote)
 
 instance : Quote Syntax := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
-instance : Quote String := ⟨mkStxStrLit⟩
-instance : Quote Nat := ⟨fun n => mkStxNumLit $ toString n⟩
-instance : Quote Substring := ⟨fun s => mkCAppStx `String.toSubstring #[quote s.toString]⟩
+instance : Quote String := ⟨Syntax.mkStrLit⟩
+instance : Quote Nat := ⟨fun n => Syntax.mkNumLit $ toString n⟩
+instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[quote s.toString]⟩
 
 private def quoteName : Name → Syntax
   | Name.anonymous => mkCIdent `Lean.Name.anonymous
-  | Name.str n s _ => mkCAppStx `Lean.mkNameStr #[quoteName n, quote s]
-  | Name.num n i _ => mkCAppStx `Lean.mkNameNum #[quoteName n, quote i]
+  | Name.str n s _ => Syntax.mkCApp `Lean.mkNameStr #[quoteName n, quote s]
+  | Name.num n i _ => Syntax.mkCApp `Lean.mkNameNum #[quoteName n, quote i]
 
 instance : Quote Name := ⟨quoteName⟩
 
 instance {α β : Type} [Quote α] [Quote β] : Quote (α × β) :=
-  ⟨fun ⟨a, b⟩ => mkCAppStx `Prod.mk #[quote a, quote b]⟩
+  ⟨fun ⟨a, b⟩ => Syntax.mkCApp `Prod.mk #[quote a, quote b]⟩
 
 private def quoteList {α : Type} [Quote α] : List α → Syntax
   | []      => mkCIdent `List.nil
-  | (x::xs) => mkCAppStx `List.cons #[quote x, quoteList xs]
+  | (x::xs) => Syntax.mkCApp `List.cons #[quote x, quoteList xs]
 
 instance {α : Type} [Quote α] : Quote (List α) := ⟨quoteList⟩
 
 instance {α : Type} [Quote α] : Quote (Array α) :=
-  ⟨fun xs => mkCAppStx `List.toArray #[quote xs.toList]⟩
+  ⟨fun xs => Syntax.mkCApp `List.toArray #[quote xs.toList]⟩
 
 private def quoteOption {α : Type} [Quote α] : Option α → Syntax
   | none     => mkIdent `Option.none
-  | (some x) => mkCAppStx `Option.some #[quote x]
+  | (some x) => Syntax.mkCApp `Option.some #[quote x]
 
 instance Option.hasQuote {α : Type} [Quote α] : Quote (Option α) := ⟨quoteOption⟩
 
@@ -676,7 +676,7 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
   for elem in chunks do
     let elem ← match elem.isInterpolatedStrLit? with
       | none     => mkElem elem
-      | some str => mkElem (mkStxStrLit str)
+      | some str => mkElem (Syntax.mkStrLit str)
     if i == 0 then
       result := elem
     else

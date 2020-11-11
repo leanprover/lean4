@@ -37,8 +37,8 @@ namespace Level
 protected partial def quote : Level → Syntax
   | zero _       => Unhygienic.run `(level|0)
   | l@(succ _ _) => match l.toNat with
-    | some n => Unhygienic.run `(level|$(mkStxNumLitAux n):numLit)
-    | none   => Unhygienic.run `(level|$(Level.quote l.getLevelOffset) + $(mkStxNumLitAux l.getOffset):numLit)
+    | some n => Unhygienic.run `(level|$(quote n):numLit)
+    | none   => Unhygienic.run `(level|$(Level.quote l.getLevelOffset) + $(quote l.getOffset):numLit)
   | max l1 l2 _  => match_syntax Level.quote l2 with
     | `(level|max $ls*) => Unhygienic.run `(level|max $(Level.quote l1) $ls*)
     | l2                => Unhygienic.run `(level|max $(Level.quote l1) $l2)
@@ -350,7 +350,7 @@ def delabAppExplicit : Delab := do
     (fun ⟨fnStx, argStxs⟩ => do
       let argStx ← delab
       pure (fnStx, argStxs.push argStx))
-  mkAppStx fnStx argStxs
+  Syntax.mkApp fnStx argStxs
 
 @[builtinDelab app]
 def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
@@ -371,7 +371,7 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
       else do
         let argStx ← delab
         pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
-  mkAppStx fnStx argStxs
+  Syntax.mkApp fnStx argStxs
 
 private def getUnusedName (suggestion : Name) : DelabM Name := do
   -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
@@ -412,7 +412,7 @@ private def delabPatterns (st : AppMatchState) : DelabM (Array Syntax) := do
       withReader ({ · with expr := ty }) $
         skippingBinders st.info.altNumParams[idx] do
           let pats ← withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
-          mkSepStx pats (mkAtom ",")
+          Syntax.mkSep pats (mkAtom ",")
 
 /--
   Delaborate applications of "matchers" such as
@@ -445,7 +445,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
   let discrs := st.discrs.map fun discr => mkNode `Lean.Parser.Term.matchDiscr #[mkNullNode, discr]
   let alts := pats.zipWith st.rhss fun pat rhs => mkNode `Lean.Parser.Term.matchAlt #[pat, mkAtom "=>", rhs]
   let stx ← `(match $(mkSepArray discrs (mkAtom ",")):matchDiscr* with | $(mkSepArray alts (mkAtom "|")):matchAlt*)
-  mkAppStx stx st.moreArgs
+  Syntax.mkApp stx st.moreArgs
 
 @[builtinDelab mdata]
 def delabMData : Delab := do
@@ -599,7 +599,7 @@ def delabProj : Delab := do
   -- not perfectly authentic: elaborates to the `idx`-th named projection
   -- function (e.g. `e.1` is `Prod.fst e`), which unfolds to the actual
   -- `proj`.
-  let idx := mkStxLit fieldIdxKind (toString (idx + 1));
+  let idx := Syntax.mkLit fieldIdxKind (toString (idx + 1));
   `($(e).$idx:fieldIdx)
 
 /-- Delaborate a call to a projection function such as `Prod.fst`. -/

@@ -6,7 +6,7 @@ open Lean
 open Lean.Meta
 
 def checkM (x : MetaM Bool) : MetaM Unit :=
-unlessM x $ throwError "check failed"
+unless (← x) do throwError "check failed"
 
 def tst1 : MetaM Unit := do
 let nat := mkConst `Nat

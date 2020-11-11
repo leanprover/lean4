@@ -7,7 +7,7 @@ def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg
 
 def checkM (x : MetaM Bool) : MetaM Unit :=
-unlessM x $ throwError "check failed"
+unless (← x) do throwError "check failed"
 
 axiom Ax : forall (α β : Type), α → β → DecidableEq β
 

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Control.Monad
 import Init.Control.Alternative
 import Init.Data.Nat.Basic
 
@@ -38,13 +37,19 @@ universes u v
 @[inline] def allM {m} [Monad m] (n : Nat) (p : Nat → m Bool) : m Bool :=
   let rec @[specialize] loop
     | 0   => pure true
-    | i+1 => condM (p (n-i-1)) (loop i) (pure false)
+    | i+1 => do
+      match (← p (n-i-1)) with
+      | true  => loop i
+      | false => pure false
   loop n
 
 @[inline] def anyM {m} [Monad m] (n : Nat) (p : Nat → m Bool) : m Bool :=
   let rec @[specialize] loop
     | 0   => pure false
-    | i+1 => condM (p (n-i-1)) (pure true) (loop i)
+    | i+1 => do
+      match (← p (n-i-1)) with
+      | true  => pure true
+      | false => loop i
   loop n
 
 end Nat

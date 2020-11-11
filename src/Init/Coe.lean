@@ -139,3 +139,11 @@ instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α :=
 instance hasOfNatOfCoe {α : Type u} {β : Type v} [OfNat α] [Coe α β] : OfNat β := {
   ofNat := fun (n : Nat) => coe (OfNat.ofNat n : α)
 }
+
+@[inline] def liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
+  let a ← liftM x
+  pure (coe a)
+
+@[inline] def coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β := do
+  let a ← x
+  pure $ coe a

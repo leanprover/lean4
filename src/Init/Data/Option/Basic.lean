@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Core
-import Init.Control.Monad
 import Init.Control.Alternative
 import Init.Coe
 open Decidable

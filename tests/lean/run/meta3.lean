@@ -13,7 +13,7 @@ def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg
 
 def check (x : MetaM Bool) : MetaM Unit :=
-unlessM x $ throwError "check failed"
+unless (← x) do throwError "check failed"
 
 def getAssignment (m : Expr) : MetaM Expr :=
 do let v? ← getExprMVarAssignment? m.mvarId!;

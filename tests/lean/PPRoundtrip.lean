@@ -21,7 +21,7 @@ let env ← getEnv;
 | Except.error e => throwErrorAt stx e
 | Except.ok stx'' => do
   let e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors;
-  unlessM (isDefEq e e') $
+  unless (← isDefEq e e') do
     throwErrorAt stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e'))
 
 -- set_option trace.PrettyPrinter.parenthesize true

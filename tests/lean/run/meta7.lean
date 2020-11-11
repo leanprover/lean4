@@ -14,7 +14,7 @@ def print (msg : MessageData) : MetaM Unit :=
 trace! `Meta.debug msg
 
 def checkM (x : MetaM Bool) : MetaM Unit :=
-unlessM x $ throwError "check failed"
+unless (← x) do throwError "check failed"
 
 def ex (x_1 x_2 x_3 : Nat) : Nat × Nat :=
 let x  := fact (10 + x_1 + x_2 + x_3);

@@ -7,9 +7,6 @@ prelude
 import Init.Control.Applicative
 import Init.Control.Functor
 import Init.Control.Alternative
-import Init.Control.Monad
-import Init.Control.MonadLift
-import Init.Control.MonadFunctor
 import Init.Control.MonadControl
 import Init.Control.State
 import Init.Control.StateRef

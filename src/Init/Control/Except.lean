@@ -10,7 +10,6 @@ import Init.Data.ToString.Basic
 import Init.Control.Alternative
 import Init.Control.MonadControl
 import Init.Control.Id
-import Init.Control.MonadFunctor
 
 universes u v w u'
 

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Control.Monad
 import Init.Control.Alternative
 import Init.Data.List.Basic
 
@@ -125,14 +124,17 @@ def allM {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Bool) : Lis
 @[specialize]
 def findM? {m : Type → Type u} [Monad m] {α : Type} (p : α → m Bool) : List α → m (Option α)
   | []    => pure none
-  | a::as => condM (p a) (pure (some a)) (findM? p as)
+  | a::as => do
+    match (← p a) with
+    | true  => pure (some a)
+    | false => findM? p as
 
 @[specialize]
 def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β)) : List α → m (Option β)
   | []    => pure none
   | a::as => do
     match (← f a) with
-    | some b => pure b
+    | some b => pure (some b)
     | none   => findSomeM? f as
 
 @[inline] def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : m β :=

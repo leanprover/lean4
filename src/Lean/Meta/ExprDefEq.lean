@@ -1160,19 +1160,20 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := do
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
   else do
-    condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
-    condM (isDefEqProj t s) (pure true) $
+    if (← (isDefEqEta t s <||> isDefEqEta s t)) then pure true else
+    if (← isDefEqProj t s) then pure true else
     whenUndefDo (isDefEqNative t s) do
     whenUndefDo (isDefEqNat t s) do
     whenUndefDo (isDefEqOffset t s) do
-    whenUndefDo (isDefEqDelta t s) $
+    whenUndefDo (isDefEqDelta t s) do
     match t, s with
     | Expr.const c us _, Expr.const d vs _ => if c == d then isListLevelDefEqAux us vs else pure false
     | Expr.app _ _ _,    Expr.app _ _ _    =>
       let tFn := t.getAppFn
-      condM (commitWhen (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs))
-        (pure true)
-        (isDefEqOnFailure t s)
+      if (← commitWhen (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
+        pure true
+      else
+        isDefEqOnFailure t s
     | _, _ =>
       whenUndefDo (isDefEqStringLit t s) $
       isDefEqOnFailure t s

@@ -39,7 +39,6 @@ lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__2(lean_object*, lean_
 extern lean_object* l_myMacro____x40_Init_Tactics___hyg_720____closed__3;
 lean_object* l_Lean_Elab_Level_mkFreshLevelMVar___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_Lean_Elab_Level___instance__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkAppStx___closed__4;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Level_Lean_Elab_Level___instance__1___spec__2(lean_object*, lean_object*);
@@ -85,6 +84,7 @@ lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___s
 lean_object* l_Lean_Elab_Level_elabLevel___closed__5;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__4;
 lean_object* l_Lean_Elab_Level_elabLevel___closed__14;
 lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Elab_Level_elabLevel___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___boxed(lean_object*);
@@ -850,7 +850,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkAppStx___closed__4;
+x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__4;
 x_2 = l_Lean_Elab_Level_elabLevel___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

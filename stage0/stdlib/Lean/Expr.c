@@ -213,7 +213,6 @@ lean_object* lean_expr_mk_forall(lean_object*, lean_object*, lean_object*, uint8
 lean_object* lean_expr_instantiate(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingName_x21___closed__2;
 extern lean_object* l_Lean_levelZero;
-extern lean_object* l_Lean_mkAppStx___closed__7;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasExprMVarEx___boxed(lean_object*);
 lean_object* l_Lean_Expr_hasExprMVar___boxed(lean_object*);
@@ -287,6 +286,7 @@ lean_object* l_Lean_ExprStructEq_Lean_Expr___instance__17;
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* l_Lean_Expr_etaExpandedStrict_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateConst_x21(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__7;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
@@ -3303,7 +3303,7 @@ return x_6;
 case 5:
 {
 lean_object* x_7; 
-x_7 = l_Lean_mkAppStx___closed__7;
+x_7 = l_myMacro____x40_Init_Notation___hyg_37____closed__7;
 return x_7;
 }
 case 6:

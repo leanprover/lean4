@@ -43,7 +43,6 @@ lean_object* l_Lean_Elab_Lean_Elab_Util___instance__1___rarg(lean_object*, lean_
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_liftMacroM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__12;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg(lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___closed__1;
 lean_object* lean_array_get_size(lean_object*);
@@ -148,6 +147,7 @@ lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Elab_getMacros___spec__3_
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacro_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_evalSyntaxConstant(lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__2;
 lean_object* l_Lean_Elab_adaptMacro___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos(lean_object*);
 lean_object* l_Lean_Elab_getBetterRef___closed__1;
@@ -167,6 +167,7 @@ lean_object* l_Lean_Elab_getMacros_match__1(lean_object*);
 lean_object* l_Lean_Elab_adaptMacro___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKind___closed__3;
 lean_object* l_Lean_Elab_checkSyntaxNodeKind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__5;
 extern lean_object* l_Lean_KeyedDeclsAttribute_Lean_KeyedDeclsAttribute___instance__3___closed__1;
 lean_object* l_Lean_Elab_getBetterRef_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__2;
@@ -177,7 +178,6 @@ lean_object* l_Lean_KeyedDeclsAttribute_init___rarg(lean_object*, lean_object*, 
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_Elab_liftMacroM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addMacroStack___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkAppStx___closed__2;
 lean_object* l_Lean_Elab_addMacroStack___rarg___lambda__1___closed__1;
 lean_object* l_Lean_Elab_addMacroStack___rarg___lambda__1___closed__2;
 lean_object* l_Lean_Elab_Lean_Elab_Util___instance__1(lean_object*, lean_object*);
@@ -1199,7 +1199,7 @@ static lean_object* _init_l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxCons
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkAppStx___closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__2;
 x_2 = l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxConstantUnsafe___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1311,7 +1311,7 @@ static lean_object* _init_l_Lean_Elab_mkMacroAttributeUnsafe___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkAppStx___closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__2;
 x_2 = l_Lean_Elab_mkMacroAttributeUnsafe___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1375,8 +1375,8 @@ static lean_object* _init_l_Lean_Elab_mkMacroAttributeUnsafe___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkAppStx___closed__2;
-x_2 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__12;
+x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__2;
+x_2 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

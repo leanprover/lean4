@@ -7,6 +7,7 @@ notation, basic datatypes and type classes
 -/
 prelude
 import Init.Prelude
+import Init.Notation
 
 universes u v w
 
@@ -55,6 +56,9 @@ abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b 
 
 structure Iff (a b : Prop) : Prop :=
   intro :: (mp : a → b) (mpr : b → a)
+
+infix:20 " <-> " => Iff
+infix:20 " ↔ "   => Iff
 
 /- Eq basic support -/
 
@@ -109,6 +113,8 @@ inductive DoResultSBC (α σ : Type u)
   | «continue»   : σ → DoResultSBC α σ
 
 class HasEquiv  (α : Sort u) := (Equiv : α → α → Prop)
+infix:50 " ≈ "  => HasEquiv.Equiv
+
 class EmptyCollection (α : Type u) := (emptyCollection : α)
 
 /- Remark: tasks have an efficient implementation in the runtime. -/
@@ -164,6 +170,8 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
 @[inline] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
   !(a == b)
 
+infix:50 " != " => bne
+
 /- Logical connectives an equality -/
 
 def implies (a b : Prop) := a → b
@@ -203,6 +211,8 @@ theorem castEq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
 
 @[reducible] def Ne {α : Sort u} (a b : α) :=
   ¬(a = b)
+
+infix:50 " ≠ "  => Ne
 
 section Ne
 variable {α : Sort u}

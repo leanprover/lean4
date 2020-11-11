@@ -17,7 +17,6 @@ lean_object* l_Lean_Meta_mkNoConfusion___at_Lean_Meta_injectionCore___spec__1(le
 lean_object* l_Lean_Meta_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore___closed__1;
 lean_object* l_Lean_Meta_injectionCore_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_eq_x3f___closed__2;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
@@ -26,6 +25,7 @@ lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__6;
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore_match__2(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2533____closed__4;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_injectionIntro_match__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Injection_0__Lean_Meta_heqToEq_match__2(lean_object*);
@@ -47,7 +47,6 @@ lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*, l
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_tryClear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_headBeta(lean_object*);
-extern lean_object* l_Lean_Expr_heq_x3f___closed__2;
 lean_object* l_Lean_Meta_injection_match__1(lean_object*);
 lean_object* l_Lean_Meta_injectionCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_clear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -63,6 +62,7 @@ lean_object* l_Lean_Meta_getLocalDecl___at_Lean_Meta_getFVarLocalDecl___spec__1_
 lean_object* l_Lean_Meta_mkEqOfHEq___at___private_Lean_Meta_Tactic_Injection_0__Lean_Meta_heqToEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionIntro_match__5(lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2865____closed__4;
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injectionCore___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -309,7 +309,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = l_Lean_Expr_eq_x3f___closed__2;
+x_17 = l_myMacro____x40_Init_Notation___hyg_2533____closed__4;
 x_18 = lean_unsigned_to_nat(3u);
 x_19 = l_Lean_Expr_isAppOfArity(x_15, x_17, x_18);
 if (x_19 == 0)
@@ -1064,7 +1064,7 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_12 = lean_ctor_get(x_10, 0);
 x_13 = lean_ctor_get(x_10, 1);
-x_14 = l_Lean_Expr_heq_x3f___closed__2;
+x_14 = l_myMacro____x40_Init_Notation___hyg_2865____closed__4;
 x_15 = lean_unsigned_to_nat(4u);
 x_16 = l_Lean_Expr_isAppOfArity(x_12, x_14, x_15);
 if (x_16 == 0)
@@ -1358,7 +1358,7 @@ x_72 = lean_ctor_get(x_10, 1);
 lean_inc(x_72);
 lean_inc(x_71);
 lean_dec(x_10);
-x_73 = l_Lean_Expr_heq_x3f___closed__2;
+x_73 = l_myMacro____x40_Init_Notation___hyg_2865____closed__4;
 x_74 = lean_unsigned_to_nat(4u);
 x_75 = l_Lean_Expr_isAppOfArity(x_71, x_73, x_74);
 if (x_75 == 0)

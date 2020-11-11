@@ -229,6 +229,7 @@ lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_Lean_CoreM___instanc
 lean_object* l_Lean_KeyedDeclsAttribute_init_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__11;
 lean_object* l_Std_mkHashMap___at_Lean_KeyedDeclsAttribute_Lean_KeyedDeclsAttribute___instance__2___spec__1___rarg(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__2;
 lean_object* l_Lean_SMap_find_x3f___at_Lean_KeyedDeclsAttribute_getValues___spec__1(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkSimpleThunkType___closed__2;
@@ -283,7 +284,6 @@ lean_object* l_Lean_KeyedDeclsAttribute_init_match__1(lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__2;
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_KeyedDeclsAttribute_Table_insert___spec__28___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_KeyedDeclsAttribute_Table_insert___spec__29(lean_object*);
-extern lean_object* l_Lean_mkAppStx___closed__2;
 lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3___closed__5;
 lean_object* l_IO_ofExcept___at_Lean_KeyedDeclsAttribute_declareBuiltin___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -4000,7 +4000,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkAppStx___closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__2;
 x_2 = l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

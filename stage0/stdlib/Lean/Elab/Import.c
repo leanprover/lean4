@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__6;
 lean_object* l_List_forIn_loop___at_Lean_Elab_printDeps___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
@@ -32,7 +33,6 @@ lean_object* l_Lean_Elab_headerToImports___closed__3;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__10;
 lean_object* lean_print_deps(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString(lean_object*);
@@ -154,7 +154,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__10;
+x_2 = l___kind_term____x40_Init_Notation___hyg_3____closed__6;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

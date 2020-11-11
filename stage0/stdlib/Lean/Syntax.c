@@ -78,7 +78,6 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_getArg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setArg_match__1(lean_object*);
 lean_object* l_Lean_Syntax_replaceM_match__1(lean_object*);
-extern lean_object* l_Lean_mkAppStx___closed__4;
 extern lean_object* l_Init_Data_Repr___instance__9___rarg___closed__2;
 lean_object* l_Lean_Syntax_rewriteBottomUpM(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__2;
@@ -225,6 +224,7 @@ lean_object* l_String_quote(lean_object*);
 lean_object* l_Lean_Syntax_asNode_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__4;
 lean_object* l_Lean_Syntax_formatStxAux___closed__9;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__4;
 lean_object* l_Lean_Syntax_Traverser_right(lean_object*);
 lean_object* l_Lean_SyntaxNode_withArgs___rarg(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -4846,7 +4846,7 @@ x_11 = lean_name_eq(x_6, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; 
-x_12 = l_Lean_mkAppStx___closed__4;
+x_12 = l_myMacro____x40_Init_Notation___hyg_37____closed__4;
 x_13 = lean_box(0);
 x_14 = l_Lean_Name_replacePrefix(x_6, x_12, x_13);
 x_15 = l_System_FilePath_dirName___closed__1;

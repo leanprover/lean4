@@ -17,6 +17,9 @@ abbrev Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (
 abbrev Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
   fun x => a
 
+@[reducible] def inferInstance {α : Type u} [i : α] : α := i
+@[reducible] def inferInstanceAs (α : Type u) [i : α] : α := i
+
 set_option bootstrap.inductiveCheckResultingUniverse false in
 inductive PUnit : Sort u
   | unit : PUnit
@@ -572,6 +575,15 @@ instance (n : Nat) : DecidableEq (Fin n) :=
     | isTrue h  => isTrue (Fin.eqOfVeq h)
     | isFalse h => isFalse (Fin.neOfVne h)
 
+protected def Fin.lt {n} (a b : Fin n) : Prop := Less a.val b.val
+protected def Fin.le {n} (a b : Fin n) : Prop := LessEq a.val b.val
+
+instance {n} : HasLess (Fin n)    := ⟨Fin.lt⟩
+instance {n} : HasLessEq (Fin n)  := ⟨Fin.le⟩
+
+instance Fin.decLt {n} (a b : Fin n) :  Decidable (Less a b)  := Nat.decLt ..
+instance Fin.decLe {n} (a b : Fin n) : Decidable (LessEq a b) := Nat.decLe ..
+
 def uint8Sz : Nat := 256
 structure UInt8 :=
   (val : Fin uint8Sz)
@@ -621,6 +633,32 @@ instance : DecidableEq UInt32 := UInt32.decEq
 
 instance : Inhabited UInt32 := {
   default := { val := { val := 0, isLt := decide! } }
+}
+
+def UInt32.lt (a b : UInt32) : Prop := Less a.val b.val
+def UInt32.le (a b : UInt32) : Prop := LessEq a.val b.val
+
+instance : HasLess UInt32   := ⟨UInt32.lt⟩
+instance : HasLessEq UInt32 := ⟨UInt32.le⟩
+
+set_option bootstrap.gen_matcher_code false in
+@[extern c inline "#1 < #2"]
+def UInt32.decLt (a b : UInt32) : Decidable (Less a b) :=
+  match a, b with
+  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (Less n m))
+
+set_option bootstrap.gen_matcher_code false in
+@[extern c inline "#1 <= #2"]
+def UInt32.decLe (a b : UInt32) : Decidable (LessEq a b) :=
+  match a, b with
+  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (LessEq n m))
+
+instance (a b : UInt32) : Decidable (Less a b) := UInt32.decLt a b
+instance (a b : UInt32) : Decidable (LessEq a b) := UInt32.decLe a b
+
+@[extern "lean_uint32_of_nat"]
+def UInt32.ofNatCore (n : @& Nat) (h : Less n uint32Sz) : UInt32 := {
+  val := { val := n, isLt := h }
 }
 
 def uint64Sz : Nat := 18446744073709551616
@@ -723,6 +761,13 @@ instance : DecidableEq Char :=
     | isTrue h  => isTrue (Char.eqOfVeq h)
     | isFalse h => isFalse (Char.neOfVne h)
 
+def Char.utf8Size (c : Char) : UInt32 :=
+  let v := c.val;
+  if LessEq v (UInt32.ofNatCore 0x7F decide!) then UInt32.ofNatCore 1 decide!
+  else if LessEq v (UInt32.ofNatCore 0x7FF decide!) then UInt32.ofNatCore 2 decide!
+  else if LessEq v (UInt32.ofNatCore 0xFFFF decide!) then UInt32.ofNatCore 3 decide!
+  else UInt32.ofNatCore 4 decide!
+
 inductive Option (α : Type u)
   | none : Option α
   | some (val : α) : Option α
@@ -788,6 +833,26 @@ structure Substring :=
   (str : String)
   (startPos : String.Pos)
   (stopPos : String.Pos)
+
+private def String.csize (c : Char) : Nat :=
+  c.utf8Size.toNat
+
+private def String.utf8ByteSizeAux : List Char → Nat → Nat
+  | [],    r => r
+  | c::cs, r => utf8ByteSizeAux cs (r + csize c)
+
+@[extern "lean_string_utf8_byte_size"]
+def String.utf8ByteSize : (@& String) → Nat
+  | ⟨s⟩ => utf8ByteSizeAux s 0
+
+@[inline] def String.bsize (s : String) : Nat :=
+  utf8ByteSize s
+
+@[inline] def String.toSubstring (s : String) : Substring := {
+  str := s,
+  startPos := 0,
+  stopPos  := s.bsize
+}
 
 @[extern c inline "#3"]
 unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=

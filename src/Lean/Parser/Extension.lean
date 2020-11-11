@@ -92,7 +92,7 @@ def addLeadingParser (categories : ParserCategories) (catName : Name) (parserNam
     throwUnknownParserCategory catName
   | some cat =>
     let addTokens (tks : List Token) : Except String ParserCategories :=
-      let tks    := tks.map $ fun tk => mkNameSimple tk
+      let tks    := tks.map $ fun tk => Name.mkSimple tk
       let tables := tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with leadingTable := tables.leadingTable.insert tk (p, prio) }) cat.tables
       pure $ categories.insert catName { cat with tables := tables }
     match p.info.firstTokens with
@@ -104,7 +104,7 @@ def addLeadingParser (categories : ParserCategories) (catName : Name) (parserNam
 
 private def addTrailingParserAux (tables : PrattParsingTables) (p : TrailingParser) (prio : Nat) : PrattParsingTables :=
   let addTokens (tks : List Token) : PrattParsingTables :=
-    let tks := tks.map fun tk => mkNameSimple tk
+    let tks := tks.map fun tk => Name.mkSimple tk
     tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with trailingTable := tables.trailingTable.insert tk (p, prio) }) tables
   match p.info.firstTokens with
   | FirstTokens.tokens tks    => addTokens tks
@@ -492,7 +492,7 @@ def notFollowedByCategoryTokenFn (catName : Name) : ParserFn := fun ctx s =>
     match stx with
     | some (Syntax.atom _ sym) =>
       if ctx.insideQuot && sym == "$" then s
-      else match cat.tables.leadingTable.find? (mkNameSimple sym) with
+      else match cat.tables.leadingTable.find? (Name.mkSimple sym) with
       | some _ => s.mkUnexpectedError (toString catName)
       | _      => s
     | _ => s

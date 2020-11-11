@@ -40,7 +40,7 @@ private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat)
     else
       name.appendAfter ("✝" ++ idx.toSuperscriptString)
   else
-    name ++ mkNameNum "_inaccessible" idx
+    name ++ Name.mkNum "_inaccessible" idx
 
 private def mkInaccessibleUserName (unicode : Bool) : Name → Name
   | Name.num p@(Name.str _ _ _) idx _ =>
@@ -51,7 +51,7 @@ private def mkInaccessibleUserName (unicode : Bool) : Name → Name
     if unicode then
       (mkInaccessibleUserName unicode p).appendAfter ("⁻" ++ idx.toSuperscriptString)
     else
-      mkNameNum (mkInaccessibleUserName unicode p) idx
+      Name.mkNum (mkInaccessibleUserName unicode p) idx
   | n => n
 
 @[export lean_is_inaccessible_user_name]
@@ -78,7 +78,7 @@ structure NameSanitizerState :=
 
 private partial def mkFreshInaccessibleUserName (userName : Name) (idx : Nat) : StateM NameSanitizerState Name := do
   let s ← get
-  let userNameNew := mkInaccessibleUserName (Format.getUnicode s.options) (mkNameNum userName idx)
+  let userNameNew := mkInaccessibleUserName (Format.getUnicode s.options) (Name.mkNum userName idx)
   if s.nameStem2Idx.contains userNameNew then
     mkFreshInaccessibleUserName userName (idx+1)
   else do

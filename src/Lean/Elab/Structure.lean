@@ -234,7 +234,7 @@ private partial def withParents {α} (view : StructView) (i : Nat) (infos : Arra
     withRef parentStx do
     let parent ← Term.elabType parentStx
     let parentName ← checkParentIsStructure parent
-    let toParentName := mkNameSimple $ "to" ++ parentName.eraseMacroScopes.getString! -- erase macro scopes?
+    let toParentName := Name.mkSimple $ "to" ++ parentName.eraseMacroScopes.getString! -- erase macro scopes?
     if containsFieldName infos toParentName then
       throwErrorAt! parentStx "field '{toParentName}' has already been declared"
     let env ← getEnv

@@ -21,7 +21,7 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [Add
   let nameStx := stx[0]
   let attrName ← match nameStx.isIdOrAtom? with
     | none     => withRef nameStx $ throwError "identifier expected"
-    | some str => pure $ mkNameSimple str
+    | some str => pure $ Name.mkSimple str
   unless isAttribute (← getEnv) attrName do
     throwError! "unknown attribute [{attrName}]"
   let mut args := stx[1]

@@ -60,7 +60,7 @@ private partial def abstractLevelMVars (u : Level) : M Level := do
         match s.lmap.find? mvarId with
         | some u => pure u
         | none   =>
-          let paramId := mkNameNum `_abstMVar s.nextParamIdx
+          let paramId := Name.mkNum `_abstMVar s.nextParamIdx
           let u := mkLevelParam paramId
           modify fun s => { s with nextParamIdx := s.nextParamIdx + 1, lmap := s.lmap.insert mvarId u, paramNames := s.paramNames.push paramId }
           return u

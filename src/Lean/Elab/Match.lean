@@ -476,7 +476,7 @@ partial def collect : Syntax → M Syntax
       pure stx
     else if k == `Lean.Parser.Term.quotedName then
       /- Quoted names have an elaboration function associated with them, and they will not be macro expanded.
-         Note that macro expansion is not a good option since it produces a term using the smart constructors `mkNameStr`, `mkNameNum`
+         Note that macro expansion is not a good option since it produces a term using the smart constructors `Name.mkStr`, `Name.mkNum`
          instead of the constructors `Name.str` and `Name.num` -/
       quotedNameToPattern stx
     else if k == choiceKind then

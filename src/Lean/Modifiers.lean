@@ -36,7 +36,7 @@ def privateHeader : Name := `_private
 @[export lean_mk_private_prefix]
 def mkUniquePrivatePrefix (env : Environment) : Environment × Name :=
   let idx := privateExt.getState env
-  let p   := mkNameNum (privateHeader ++ env.mainModule) idx
+  let p   := Name.mkNum (privateHeader ++ env.mainModule) idx
   let env := privateExt.setState env (idx+1)
   (env, p)
 
@@ -46,7 +46,7 @@ def mkUniquePrivateName (env : Environment) (n : Name) : Environment × Name :=
   (env, p ++ n)
 
 def mkPrivateName (env : Environment) (n : Name) : Name :=
-  mkNameNum (privateHeader ++ env.mainModule) 0 ++ n
+  Name.mkNum (privateHeader ++ env.mainModule) 0 ++ n
 
 def isPrivateName : Name → Bool
   | n@(Name.str p _ _) => n == privateHeader || isPrivateName p
@@ -58,7 +58,7 @@ def isPrivateNameExport (n : Name) : Bool :=
   isPrivateName n
 
 private def privateToUserNameAux : Name → Name
-  | Name.str p s _ => mkNameStr (privateToUserNameAux p) s
+  | Name.str p s _ => Name.mkStr (privateToUserNameAux p) s
   | _              => Name.anonymous
 
 @[export lean_private_to_user_name]

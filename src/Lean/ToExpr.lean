@@ -46,8 +46,8 @@ instance : ToExpr Unit := {
 
 def Name.toExprAux : Name → Expr
   | Name.anonymous  => mkConst `Lean.Name.anonymous
-  | Name.str p s _  => mkAppB (mkConst `Lean.mkNameStr) (toExprAux p) (toExpr s)
-  | Name.num p n _  => mkAppB (mkConst `Lean.mkNameNum) (toExprAux p) (toExpr n)
+  | Name.str p s _  => mkAppB (mkConst `Lean.Name.mkStr) (toExprAux p) (toExpr s)
+  | Name.num p n _  => mkAppB (mkConst `Lean.Name.mkNum) (toExprAux p) (toExpr n)
 
 instance : ToExpr Name := {
   toExpr     := Name.toExprAux,

@@ -77,7 +77,7 @@ def moduleNameOfFileName (fname : String) (rootDir : Option String) : IO Name :=
   let modNameStr := fnameSuffix.extract 0 extPos
   let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize
   let parts      := modNameStr.splitOn pathSep
-  let modName    := parts.foldl mkNameStr Name.anonymous
+  let modName    := parts.foldl Name.mkStr Name.anonymous
   pure modName
 
 end Lean

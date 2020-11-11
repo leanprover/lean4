@@ -17,7 +17,7 @@ namespace Lean.Meta
 def smartUnfoldingSuffix := "_sunfold"
 
 @[inline] def mkSmartUnfoldingNameFor (n : Name) : Name :=
-  mkNameStr n smartUnfoldingSuffix
+  Name.mkStr n smartUnfoldingSuffix
 
 /- ===========================
    Helper methods

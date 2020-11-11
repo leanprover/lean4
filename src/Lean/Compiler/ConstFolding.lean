@@ -14,13 +14,13 @@ def BinFoldFn := Bool → Expr → Expr → Option Expr
 def UnFoldFn  := Bool → Expr → Option Expr
 
 def mkUIntTypeName (nbytes : Nat) : Name :=
-  mkNameSimple ("UInt" ++ toString nbytes)
+  Name.mkSimple ("UInt" ++ toString nbytes)
 
 structure NumScalarTypeInfo :=
   (nbits : Nat)
   (id : Name      := mkUIntTypeName nbits)
-  (ofNatFn : Name := mkNameStr id "ofNat")
-  (toNatFn : Name := mkNameStr id "toNat")
+  (ofNatFn : Name := Name.mkStr id "ofNat")
+  (toNatFn : Name := Name.mkStr id "toNat")
   (size : Nat     := 2^nbits)
 
 def numScalarTypes : List NumScalarTypeInfo :=

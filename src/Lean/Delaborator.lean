@@ -262,7 +262,7 @@ catch _ =>
 @[builtinDelab bvar]
 def delabBVar : Delab := do
   let Expr.bvar idx _ ← getExpr | unreachable!
-  pure $ mkIdent $ mkNameSimple $ "#" ++ toString idx
+  pure $ mkIdent $ Name.mkSimple $ "#" ++ toString idx
 
 @[builtinDelab mvar]
 def delabMVar : Delab := do

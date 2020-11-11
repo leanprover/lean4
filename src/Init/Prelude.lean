@@ -1339,11 +1339,9 @@ protected def Name.hash : Name → USize
 
 instance : Hashable Name := ⟨Name.hash⟩
 
-@[export lean_name_mk_string]
 def mkNameStr (p : Name) (s : String) : Name :=
   Name.str p s (mixHash (hash p) (hash s))
 
-@[export lean_name_mk_numeral]
 def mkNameNum (p : Name) (v : Nat) : Name :=
   Name.num p v (mixHash (hash p) (if h : Less v usizeSz then USize.ofNatCore v h else USize.ofNat32 17 decide!))
 
@@ -1351,6 +1349,18 @@ def mkNameSimple (s : String) : Name :=
   mkNameStr Name.anonymous s
 
 namespace Name
+
+@[export lean_name_mk_string]
+def mkStr (p : Name) (s : String) : Name :=
+  Name.str p s (mixHash (hash p) (hash s))
+
+@[export lean_name_mk_numeral]
+def mkNum (p : Name) (v : Nat) : Name :=
+  Name.num p v (mixHash (hash p) (if h : Less v usizeSz then USize.ofNatCore v h else USize.ofNat32 17 decide!))
+
+def mkSimple (s : String) : Name :=
+  mkStr Name.anonymous s
+
 @[extern "lean_name_eq"]
 protected def beq : (@& Name) → (@& Name) → Bool
   | anonymous,   anonymous   => true
@@ -1362,8 +1372,8 @@ instance : BEq Name := ⟨Name.beq⟩
 
 protected def append : Name → Name → Name
   | n, anonymous => n
-  | n, str p s _ => mkNameStr (Name.append n p) s
-  | n, num p d _ => mkNameNum (Name.append n p) d
+  | n, str p s _ => Name.mkStr (Name.append n p) s
+  | n, num p d _ => Name.mkNum (Name.append n p) d
 
 instance : Append Name := ⟨Name.append⟩
 
@@ -1418,7 +1428,7 @@ def getKind (stx : Syntax) : SyntaxNodeKind :=
   -- For example, an antiquotation `$id:ident` (using Lean.Parser.Term.ident)
   -- is compiled to ``if stx.isOfKind `ident ...``
   | Syntax.missing       => `missing
-  | Syntax.atom _ v      => mkNameSimple v
+  | Syntax.atom _ v      => Name.mkSimple v
   | Syntax.ident _ _ _ _ => identKind
 
 def setKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
@@ -1556,7 +1566,7 @@ def Name.eraseMacroScopes (n : Name) : Name :=
   | false => n
 
 private def simpMacroScopesAux : Name → Name
-  | Name.num p i _ => mkNameNum (simpMacroScopesAux p) i
+  | Name.num p i _ => Name.mkNum (simpMacroScopesAux p) i
   | n              => eraseMacroScopesAux n
 
 /- Helper function we use to create binder names that do not need to be unique. -/
@@ -1578,13 +1588,13 @@ def MacroScopesView.review (view : MacroScopesView) : Name :=
   match view.scopes with
   | List.nil      => view.name
   | List.cons _ _ =>
-    let base := (mkNameStr (append (append (mkNameStr view.name "_@") view.imported) view.mainModule) "_hyg")
-    view.scopes.foldl mkNameNum base
+    let base := (Name.mkStr (append (append (Name.mkStr view.name "_@") view.imported) view.mainModule) "_hyg")
+    view.scopes.foldl Name.mkNum base
 
 private def assembleParts : List Name → Name → Name
   | List.nil,                      acc => acc
-  | List.cons (Name.str _ s _) ps, acc => assembleParts ps (mkNameStr acc s)
-  | List.cons (Name.num _ n _) ps, acc => assembleParts ps (mkNameNum acc n)
+  | List.cons (Name.str _ s _) ps, acc => assembleParts ps (Name.mkStr acc s)
+  | List.cons (Name.num _ n _) ps, acc => assembleParts ps (Name.mkNum acc n)
   | _,                             acc => panic "unreachable @ assembleParts"
 
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
@@ -1624,15 +1634,15 @@ def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
   | true =>
     let view := extractMacroScopes n
     match beq view.mainModule mainModule with
-    | true  => mkNameNum n scp
+    | true  => Name.mkNum n scp
     | false =>
       { view with
-        imported   := view.scopes.foldl mkNameNum (append view.imported view.mainModule),
+        imported   := view.scopes.foldl Name.mkNum (append view.imported view.mainModule),
         mainModule := mainModule,
         scopes     := List.cons scp List.nil
       }.review
   | false =>
-    mkNameNum (mkNameStr (append (mkNameStr n "_@") mainModule) "_hyg") scp
+    Name.mkNum (Name.mkStr (append (Name.mkStr n "_@") mainModule) "_hyg") scp
 
 @[inline] def MonadQuotation.addMacroScope {m : Type → Type} [MonadQuotation m] [Monad m] (n : Name) : m Name :=
   bind getMainModule     fun mainModule =>

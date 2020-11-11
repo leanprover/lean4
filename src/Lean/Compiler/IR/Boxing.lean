@@ -30,7 +30,7 @@ Assumptions:
 open Std (AssocList)
 
 def mkBoxedName (n : Name) : Name :=
-  mkNameStr n "_boxed"
+  Name.mkStr n "_boxed"
 
 def isBoxedName : Name → Bool
   | Name.str _ "_boxed" _ => true

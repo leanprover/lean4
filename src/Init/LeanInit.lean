@@ -67,21 +67,21 @@ toStringWithSep "."
 instance : ToString Name := ⟨Name.toString⟩
 
 def capitalize : Name → Name
-  | Name.str p s _ => mkNameStr p s.capitalize
+  | Name.str p s _ => Name.mkStr p s.capitalize
   | n              => n
 
 def appendAfter : Name → String → Name
-  | str p s _, suffix => mkNameStr p (s ++ suffix)
-  | n,         suffix => mkNameStr n suffix
+  | str p s _, suffix => Name.mkStr p (s ++ suffix)
+  | n,         suffix => Name.mkStr n suffix
 
 def appendIndexAfter : Name → Nat → Name
-  | str p s _, idx => mkNameStr p (s ++ "_" ++ toString idx)
-  | n,         idx => mkNameStr n ("_" ++ toString idx)
+  | str p s _, idx => Name.mkStr p (s ++ "_" ++ toString idx)
+  | n,         idx => Name.mkStr n ("_" ++ toString idx)
 
 def appendBefore : Name → String → Name
-  | anonymous, pre => mkNameStr anonymous pre
-  | str p s _, pre => mkNameStr p (pre ++ s)
-  | num p n _, pre => mkNameNum (mkNameStr p pre) n
+  | anonymous, pre => Name.mkStr anonymous pre
+  | str p s _, pre => Name.mkStr p (pre ++ s)
+  | num p n _, pre => Name.mkNum (Name.mkStr p pre) n
 
 end Name
 
@@ -94,13 +94,13 @@ namespace NameGenerator
 instance : Inhabited NameGenerator := ⟨{}⟩
 
 @[inline] def curr (g : NameGenerator) : Name :=
-  mkNameNum g.namePrefix g.idx
+  Name.mkNum g.namePrefix g.idx
 
 @[inline] def next (g : NameGenerator) : NameGenerator :=
   { g with idx := g.idx + 1 }
 
 @[inline] def mkChild (g : NameGenerator) : NameGenerator × NameGenerator :=
-  ({ namePrefix := mkNameNum g.namePrefix g.idx, idx := 1 },
+  ({ namePrefix := Name.mkNum g.namePrefix g.idx, idx := 1 },
    { g with idx := g.idx + 1 })
 
 end NameGenerator
@@ -471,11 +471,11 @@ private partial def decodeNameLitAux (s : String) (i : Nat) (r : Name) : Option 
     let startPart := s.next i
     let stopPart  := s.nextUntil isIdEndEscape startPart
     if !isIdEndEscape (s.get stopPart) then none
-    else continue? (s.next stopPart) (mkNameStr r (s.extract startPart stopPart))
+    else continue? (s.next stopPart) (Name.mkStr r (s.extract startPart stopPart))
   else if isIdFirst curr then
     let startPart := i
     let stopPart  := s.nextWhile isIdRest startPart
-    continue? stopPart (mkNameStr r (s.extract startPart stopPart))
+    continue? stopPart (Name.mkStr r (s.extract startPart stopPart))
   else
     none
 
@@ -558,8 +558,8 @@ instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[qu
 
 private def quoteName : Name → Syntax
   | Name.anonymous => mkCIdent `Lean.Name.anonymous
-  | Name.str n s _ => Syntax.mkCApp `Lean.mkNameStr #[quoteName n, quote s]
-  | Name.num n i _ => Syntax.mkCApp `Lean.mkNameNum #[quoteName n, quote i]
+  | Name.str n s _ => Syntax.mkCApp `Lean.Name.mkStr #[quoteName n, quote s]
+  | Name.num n i _ => Syntax.mkCApp `Lean.Name.mkNum #[quoteName n, quote i]
 
 instance : Quote Name := ⟨quoteName⟩
 

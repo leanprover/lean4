@@ -45,11 +45,11 @@ private partial def evalName (e : Expr) : MetaM Name := do
   else if c == `Lean.Name.str && nargs == 3 then do
     let n ← evalName $ e.getArg! 0
     let s ← reduceEval $ e.getArg! 1
-    pure $ mkNameStr n s
+    pure $ Name.mkStr n s
   else if c == `Lean.Name.num && nargs == 3 then do
     let n ← evalName $ e.getArg! 0
     let u ← reduceEval $ e.getArg! 1
-    pure $ mkNameNum n u
+    pure $ Name.mkNum n u
   else
     throwFailedToEval e
 

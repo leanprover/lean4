@@ -316,7 +316,7 @@ private def addScopes (kind : String) (updateNamespace : Bool) : Name → Comman
   | Name.str p header _ => do
     addScopes kind updateNamespace p
     let currNamespace ← getCurrNamespace
-    addScope kind header (if updateNamespace then mkNameStr currNamespace header else currNamespace)
+    addScope kind header (if updateNamespace then Name.mkStr currNamespace header else currNamespace)
   | _ => throwError "invalid scope"
 
 private def addNamespace (header : Name) : CommandElabM Unit :=

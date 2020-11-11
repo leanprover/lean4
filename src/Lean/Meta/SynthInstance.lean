@@ -93,7 +93,7 @@ partial def normLevel (u : Level) : M Level := do
         match s.lmap.find? mvarId with
         | some u' => pure u'
         | none    =>
-          let u' := mkLevelParam $ mkNameNum `_tc s.nextIdx
+          let u' := mkLevelParam $ Name.mkNum `_tc s.nextIdx
           modify fun s => { s with nextIdx := s.nextIdx + 1, lmap := s.lmap.insert mvarId u' }
           pure u'
     | u => pure u
@@ -119,7 +119,7 @@ partial def normExpr (e : Expr) : M Expr := do
         match s.emap.find? mvarId with
         | some e' => pure e'
         | none    => do
-          let e' := mkFVar $ mkNameNum `_tc s.nextIdx
+          let e' := mkFVar $ Name.mkNum `_tc s.nextIdx
           modify fun s => { s with nextIdx := s.nextIdx + 1, emap := s.emap.insert mvarId e' }
           pure e'
     | _ => pure e

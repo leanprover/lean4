@@ -928,7 +928,7 @@ partial def identFnAux (startPos : Nat) (tk : Option Token) (r : Name) : ParserF
         let s         := satisfyFn isIdEndEscape "missing end of escaped identifier" c s
         if s.hasError then s
         else
-          let r := mkNameStr r (input.extract startPart stopPart)
+          let r := Name.mkStr r (input.extract startPart stopPart)
           if isIdCont input s then
             let s := s.next input s.pos
             parse r c s
@@ -938,7 +938,7 @@ partial def identFnAux (startPos : Nat) (tk : Option Token) (r : Name) : ParserF
         let startPart := i
         let s         := takeWhileFn isIdRest c (s.next input i)
         let stopPart  := s.pos
-        let r := mkNameStr r (input.extract startPart stopPart)
+        let r := Name.mkStr r (input.extract startPart stopPart)
         if isIdCont input s then
           let s := s.next input s.pos
           parse r c s
@@ -1479,7 +1479,7 @@ def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState
     | some as => (s, as)
     | _       => (s, [])
   match stx with
-  | some (Syntax.atom _ sym)      => find (mkNameSimple sym)
+  | some (Syntax.atom _ sym)      => find (Name.mkSimple sym)
   | some (Syntax.ident _ _ val _) =>
     if leadingIdentAsSymbol then
       match map.find? val with

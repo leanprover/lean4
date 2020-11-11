@@ -113,7 +113,7 @@ def emitFnDecl (decl : Decl) (addExternForConsts : Bool) : M Unit := do
   emitFnDeclAux decl cppBaseName addExternForConsts
 
 def emitExternDeclAux (decl : Decl) (cNameStr : String) : M Unit := do
-  let cName := mkNameSimple cNameStr
+  let cName := Name.mkSimple cNameStr
   let env ← getEnv
   let extC := isExternC env decl.name
   emitFnDeclAux decl cNameStr (!extC)

@@ -352,6 +352,6 @@ constant instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) 
 end ConstantInfo
 
 def mkRecName (declName : Name) : Name :=
-  mkNameStr declName "rec"
+  Name.mkStr declName "rec"
 
 end Lean

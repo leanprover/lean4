@@ -283,6 +283,7 @@ lean_object* l_Lean_Expr_constLevels_x21_match__1___rarg(lean_object*, lean_obje
 lean_object* l_Lean_Expr_updateSort_x21(lean_object*, lean_object*);
 uint8_t lean_expr_has_expr_mvar(lean_object*);
 lean_object* l_Lean_Expr_constName_x21___closed__3;
+extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_476____closed__3;
 lean_object* l_Lean_ExprStructEq_Lean_Expr___instance__17;
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* l_Lean_Expr_etaExpandedStrict_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -508,7 +509,6 @@ lean_object* l_Lean_Expr_isForall_match__1___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_Expr_bindingName_x21(lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21___boxed(lean_object*);
 lean_object* l_Lean_Expr_ctorName___closed__10;
-extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__3;
 lean_object* l_Lean_Expr_constLevels_x21___closed__1;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t l_Lean_Lean_Expr___instance__7;
@@ -15533,7 +15533,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_Lean_KVMap_empty;
-x_4 = l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__3;
+x_4 = l_Lean_initFn____x40_Lean_Data_Options___hyg_476____closed__3;
 x_5 = l_Lean_KVMap_insertCore(x_3, x_1, x_4);
 x_6 = l_Lean_mkMData(x_5, x_2);
 return x_6;

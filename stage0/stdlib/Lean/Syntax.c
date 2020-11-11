@@ -149,6 +149,7 @@ extern lean_object* l_Lean_Format_join___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_reprint___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setArgs(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_structEq_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Util_0__mkPanicMessage___closed__2;
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_reprintLeaf___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux_match__1(lean_object*);
@@ -226,7 +227,6 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__4;
 lean_object* l_Lean_Syntax_Traverser_right(lean_object*);
 lean_object* l_Lean_SyntaxNode_withArgs___rarg(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
 lean_object* l_Lean_SyntaxNode_modifyArgs_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg___closed__1;
@@ -4218,7 +4218,7 @@ static lean_object* _init_l___private_Lean_Syntax_0__Lean_Syntax_formatInfo___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
+x_1 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

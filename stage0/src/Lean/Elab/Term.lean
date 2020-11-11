@@ -1129,20 +1129,6 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   | some expectedType => mkTacticMVar expectedType stx
   | none => throwError ("invalid 'by' tactic, expected type has not been provided")
 
-@[builtinMacro Lean.Parser.Term.listLit] def expandListLit : Macro := fun stx =>
-  let openBkt  := stx[0]
-  let args     := stx[1]
-  let closeBkt := stx[2]
-  let consId   := mkIdentFrom openBkt `List.cons
-  let nilId    := mkIdentFrom closeBkt `List.nil
-  return args.getSepArgs.foldr (init := nilId) fun arg r =>
-    Syntax.mkApp consId #[arg, r]
-
-@[builtinMacro Lean.Parser.Term.arrayLit] def expandArrayLit : Macro := fun stx =>
-  match_syntax stx with
-  | `(#[$args*]) => `(List.toArray [$args*])
-  | _            => throw $ Macro.Exception.error stx "unexpected array literal syntax"
-
 def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   let lctx ← getLCtx
   let view := extractMacroScopes n

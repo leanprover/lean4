@@ -92,6 +92,7 @@ lean_object* l___kind_tactic____x40_Init_Tactics___hyg_157____closed__2;
 lean_object* l___kind_tactic____x40_Init_Tactics___hyg_461____closed__1;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_720____closed__2;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_1240____closed__2;
+extern lean_object* l___private_Init_Util_0__mkPanicMessage___closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5695____closed__7;
 lean_object* l___kind_tactic____x40_Init_Tactics___hyg_461____closed__8;
 lean_object* l___kind_tactic____x40_Init_Tactics___hyg_461____closed__4;
@@ -143,7 +144,6 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l___kind_tactic____x40_Init_Tactics___hyg_687____closed__3;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__4;
 lean_object* l___kind_tactic____x40_Init_Tactics___hyg_2____closed__1;
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_338____closed__2;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_1240____closed__11;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_338____boxed(lean_object*, lean_object*, lean_object*);
@@ -1118,7 +1118,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Init_Prelude___instance__71___closed__1;
-x_2 = l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
+x_2 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

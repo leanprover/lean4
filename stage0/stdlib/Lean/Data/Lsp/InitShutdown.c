@@ -16,12 +16,12 @@ extern "C" {
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__6___closed__1;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__6___boxed(lean_object*);
 size_t l_USize_add(size_t, size_t);
+extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_476____closed__1;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__2_match__1___rarg___closed__1;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__2_match__1___rarg___closed__2;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__2___closed__1;
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__6___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__2___boxed(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Lsp_InitializeResult_serverInfo_x3f___default;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -196,7 +196,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
 lean_dec(x_3);
-x_12 = l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__1;
+x_12 = l_Lean_initFn____x40_Lean_Data_Options___hyg_476____closed__1;
 x_13 = lean_string_dec_eq(x_7, x_12);
 lean_dec(x_7);
 if (x_13 == 0)
@@ -311,7 +311,7 @@ x_8 = lean_string_dec_eq(x_4, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__1;
+x_9 = l_Lean_initFn____x40_Lean_Data_Options___hyg_476____closed__1;
 x_10 = lean_string_dec_eq(x_4, x_9);
 lean_dec(x_4);
 if (x_10 == 0)
@@ -549,7 +549,7 @@ x_12 = lean_string_dec_eq(x_8, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__1;
+x_13 = l_Lean_initFn____x40_Lean_Data_Options___hyg_476____closed__1;
 x_14 = lean_string_dec_eq(x_8, x_13);
 lean_dec(x_8);
 if (x_14 == 0)

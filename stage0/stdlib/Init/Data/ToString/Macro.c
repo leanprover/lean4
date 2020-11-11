@@ -38,6 +38,7 @@ lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____lambda__2___c
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5695____closed__8;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__4;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__8;
+extern lean_object* l___private_Init_Util_0__mkPanicMessage___closed__2;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__1;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__2;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__7;
@@ -54,7 +55,6 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__6;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____lambda__2___closed__8;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____lambda__2___closed__4;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
 extern lean_object* l_Lean_Name_hasMacroScopes___closed__1;
 extern lean_object* l_Lean_Init_Prelude___instance__71___closed__1;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__3;
@@ -420,7 +420,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Init_Prelude___instance__71___closed__1;
-x_2 = l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
+x_2 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

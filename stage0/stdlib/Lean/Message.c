@@ -116,6 +116,7 @@ lean_object* l_Lean_addMessageContextFull___rarg___lambda__4(lean_object*, lean_
 lean_object* l_Lean_addMessageContextFull___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__22;
+extern lean_object* l___private_Init_Util_0__mkPanicMessage___closed__3;
 lean_object* l_Lean_KernelException_toMessageData___closed__37;
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__2;
@@ -289,7 +290,6 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Lean_Message___instance__27___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_Lean_Message___instance__7(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MessageLog_toList___spec__5(lean_object*, size_t, size_t, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1877____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Message___instance__27___rarg___closed__3;
 lean_object* l_Lean_MessageData_Lean_Message___instance__3___lambda__1(lean_object*);
@@ -424,7 +424,7 @@ lean_object* l_Lean_mkErrorStringWithPos(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_5 = l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
+x_5 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_6 = lean_string_append(x_1, x_5);
 x_7 = l_Nat_repr(x_2);
 x_8 = lean_string_append(x_6, x_7);
@@ -433,7 +433,7 @@ x_9 = lean_string_append(x_8, x_5);
 x_10 = l_Nat_repr(x_3);
 x_11 = lean_string_append(x_9, x_10);
 lean_dec(x_10);
-x_12 = l___private_Init_Util_0__mkPanicMessage___closed__2;
+x_12 = l___private_Init_Util_0__mkPanicMessage___closed__3;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_string_append(x_13, x_4);
 return x_14;

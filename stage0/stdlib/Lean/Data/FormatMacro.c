@@ -66,8 +66,8 @@ extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__3;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5695____closed__11;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__1;
+extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_107____closed__9;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__9;
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__4;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -122,7 +122,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__4;
-x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__9;
+x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_107____closed__9;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

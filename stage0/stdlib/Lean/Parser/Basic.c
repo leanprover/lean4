@@ -437,6 +437,7 @@ lean_object* l_Lean_Parser_strLitFn(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot___closed__12;
 lean_object* l_Lean_Parser_ParserState_mkErrorAt_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_charLit___closed__3;
+extern lean_object* l___private_Init_Util_0__mkPanicMessage___closed__2;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_5896____lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_FirstTokens_seq_match__1(lean_object*);
 lean_object* l_Lean_Parser_ParserContext_savedPos_x3f___default;
@@ -696,7 +697,6 @@ lean_object* l_Lean_Parser_mkAntiquot___closed__14;
 lean_object* l_Lean_Parser_FirstTokens_toStr___closed__1;
 lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_sepByFnAux(lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_setExpectedFn___boxed(lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
 lean_object* l_Lean_Parser_withResultOf(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_TokenMap_Lean_Parser_Basic___instance__13(lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__6___rarg___boxed(lean_object*, lean_object*);
@@ -26814,7 +26814,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
+x_1 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

@@ -6,9 +6,9 @@ open Lean
 open Lean.Parser
 
 def regBlaParserAttribute : IO Unit :=
-registerBuiltinDynamicParserAttribute (mkNameSimple "blaParser") (mkNameSimple "bla")
+registerBuiltinDynamicParserAttribute (Name.mkSimple "blaParser") (Name.mkSimple "bla")
 
 @[inline] def parser : Parser :=
-categoryParser (mkNameSimple "bla") 0
+categoryParser (Name.mkSimple "bla") 0
 
 #check @parser

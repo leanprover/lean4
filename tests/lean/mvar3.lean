@@ -86,7 +86,7 @@ def mctx6 := R2.1
 #print "assigning ?m1 and ?n.1"
 def R3 :=
 let mctx := mctx6.assignExpr `m3 x;
-let mctx := mctx.assignExpr (mkNameNum `n 1) (mkLambda `_ bi typeE natE);
+let mctx := mctx.assignExpr (Name.mkNum `n 1) (mkLambda `_ bi typeE natE);
 -- ?n.2 is instantiated because we have the delayed assignment `?n.2 α x := ?m1`
 (mctx.instantiateMVars e2)
 def e3    := R3.1

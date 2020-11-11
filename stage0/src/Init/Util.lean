@@ -22,13 +22,6 @@ def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α := a
 @[extern "lean_dbg_sleep"]
 def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 
-@[extern c inline "#3"]
-unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=
-  cast lcProof (PUnit.{v})
-
-@[neverExtract, extern "lean_panic_fn"]
-constant panic {α : Type u} [Inhabited α] (msg : String) : α
-
 @[noinline] private def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
   "PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
 

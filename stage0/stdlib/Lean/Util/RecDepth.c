@@ -19,7 +19,7 @@ lean_object* l_Lean_getMaxRecDepth___closed__2;
 lean_object* l_Lean_getMaxRecDepth___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_Lean_getMaxRecDepth(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_9____closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_9____closed__1;
@@ -86,7 +86,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_9____closed__1;
-x_2 = l_String_splitAux___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_3 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_9____closed__2;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

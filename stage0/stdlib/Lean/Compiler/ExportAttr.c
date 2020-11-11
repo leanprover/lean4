@@ -83,7 +83,6 @@ extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__2;
 lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__1;
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_ParametricAttribute_Lean_Attributes___instance__6___closed__1;
 lean_object* l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,6 +112,7 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__1
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__2___lambda__1(lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__61;
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__4(lean_object*, lean_object*, lean_object*);
@@ -127,13 +127,14 @@ uint8_t x_2;
 x_2 = l_Char_isAlpha(x_1);
 if (x_2 == 0)
 {
-uint8_t x_3; uint32_t x_4; uint8_t x_5; 
+uint8_t x_3; 
 x_3 = l_Char_isDigit(x_1);
+if (x_3 == 0)
+{
+uint32_t x_4; uint8_t x_5; 
 x_4 = 95;
 x_5 = x_1 == x_4;
 if (x_5 == 0)
-{
-if (x_3 == 0)
 {
 uint8_t x_6; 
 x_6 = 1;
@@ -437,7 +438,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_C
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Init_LeanInit___instance__1;
+x_1 = l_Lean_Init_Prelude___instance__61;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Init_Prelude___instance__65___closed__1;
 lean_object* l_Lean_Lean_Exception___instance__4___rarg___lambda__2(lean_object*, lean_object*);
 extern lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__8;
 lean_object* l_Lean_InternalExceptionId_toString(lean_object*);
@@ -110,7 +111,6 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_637____closed__7;
 lean_object* l_Lean_throwKernelException___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__8___closed__1;
 lean_object* l_Lean_throwError___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Exception___instance__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Exception_getRef(lean_object*);
@@ -1266,7 +1266,7 @@ static lean_object* _init_l_Lean_myMacro____x40_Lean_Exception___hyg_725____clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_2 = l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__9;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1343,7 +1343,7 @@ lean_inc(x_20);
 lean_dec(x_2);
 x_21 = l_Lean_myMacro____x40_Lean_Exception___hyg_725____closed__4;
 x_22 = l_Lean_addMacroScope(x_20, x_21, x_19);
-x_23 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_23 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_24 = l_Lean_myMacro____x40_Lean_Exception___hyg_725____closed__3;
 x_25 = l_Lean_myMacro____x40_Lean_Exception___hyg_725____closed__7;
 x_26 = lean_alloc_ctor(3, 4, 0);
@@ -1378,7 +1378,7 @@ lean_inc(x_37);
 lean_dec(x_2);
 x_38 = l_Lean_myMacro____x40_Lean_Exception___hyg_725____closed__4;
 x_39 = l_Lean_addMacroScope(x_37, x_38, x_36);
-x_40 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_40 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_41 = l_Lean_myMacro____x40_Lean_Exception___hyg_725____closed__3;
 x_42 = l_Lean_myMacro____x40_Lean_Exception___hyg_725____closed__7;
 x_43 = lean_alloc_ctor(3, 4, 0);
@@ -1563,7 +1563,7 @@ lean_inc(x_22);
 lean_dec(x_2);
 x_23 = l_Lean_myMacro____x40_Lean_Exception___hyg_976____closed__4;
 x_24 = l_Lean_addMacroScope(x_22, x_23, x_21);
-x_25 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_25 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_26 = l_Lean_myMacro____x40_Lean_Exception___hyg_976____closed__3;
 x_27 = l_Lean_myMacro____x40_Lean_Exception___hyg_976____closed__7;
 x_28 = lean_alloc_ctor(3, 4, 0);
@@ -1599,7 +1599,7 @@ lean_inc(x_40);
 lean_dec(x_2);
 x_41 = l_Lean_myMacro____x40_Lean_Exception___hyg_976____closed__4;
 x_42 = l_Lean_addMacroScope(x_40, x_41, x_39);
-x_43 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_43 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_44 = l_Lean_myMacro____x40_Lean_Exception___hyg_976____closed__3;
 x_45 = l_Lean_myMacro____x40_Lean_Exception___hyg_976____closed__7;
 x_46 = lean_alloc_ctor(3, 4, 0);

@@ -67,7 +67,6 @@ lean_object* l_Lean_projectionFnInfoExt___closed__3;
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
 lean_object* l_Lean_initFn____x40_Lean_ProjFns___hyg_42____closed__1;
 uint8_t l_Array_binSearchAux___at_Lean_Environment_isProjectionFn___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__1;
 lean_object* l_Lean_Environment_getProjectionFnInfo_x3f_match__2___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Array_binSearchAux___at_Lean_Environment_isProjectionFn___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -117,6 +116,7 @@ lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_ProjFns___hyg_42___
 lean_object* l_Lean_projectionFnInfoExt___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_projection_info(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__61;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_initFn____x40_Lean_ProjFns___hyg_42____spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
 lean_object* l_Lean_projectionFnInfoExt___elambda__1___boxed(lean_object*);
@@ -189,7 +189,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_P
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_LeanInit___instance__1;
+x_1 = l_Lean_Init_Prelude___instance__61;
 x_2 = l_Lean_Lean_ProjFns___instance__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

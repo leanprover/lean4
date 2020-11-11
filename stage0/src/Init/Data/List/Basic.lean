@@ -16,20 +16,6 @@ variables {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List
 
-protected def hasDecEq [DecidableEq α] : (a b : List α) → Decidable (a = b)
-  | [],    []    => isTrue rfl
-  | a::as, []    => isFalse (fun h => List.noConfusion h)
-  | [],    b::bs => isFalse (fun h => List.noConfusion h)
-  | a::as, b::bs =>
-    match decEq a b with
-    | isTrue hab  =>
-      match List.hasDecEq as bs with
-      | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
-      | isFalse nabs => isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
-    | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
-
-instance [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
-
 def reverseAux : List α → List α → List α
   | [],   r => r
   | a::l, r => reverseAux l (a::r)
@@ -231,10 +217,6 @@ def take : Nat → List α → List α
   | 0,   a     => []
   | n+1, []    => []
   | n+1, a::as => a :: take n as
-
-@[specialize] def foldl (f : α → β → α) : forall (init : α), List β → α
-  | a, []     => a
-  | a, b :: l => foldl f (f a b) l
 
 @[specialize] def foldr (f : α → β → β) (init : β) : List α → β
   | []     => init

@@ -47,9 +47,10 @@ lean_object* l_Lean_Server_Snapshots_Snapshot_endPos___boxed(lean_object*);
 lean_object* l_IO_mkRef___at_Lean_Server_Snapshots_compileNextCmd___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_InternalExceptionId_getName(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileNextCmd_match__1(lean_object*);
+extern lean_object* l_Init_Prelude___instance__10;
 extern lean_object* l_Option_get_x21___rarg___closed__4;
 lean_object* l_Lean_Parser_parseCommand_parse(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__8;
+extern lean_object* l_Lean_Init_Prelude___instance__65;
 lean_object* l___private_Lean_Server_Snapshots_0__Lean_Server_Snapshots_ioErrorFromEmpty___boxed(lean_object*);
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5___closed__1;
 lean_object* l_Lean_Elab_logException___at_Lean_Elab_Command_runLinters___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -57,7 +58,6 @@ uint8_t l_Lean_Parser_isExitCommand(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_msgLog_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_env_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Init_Core___instance__20;
 lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object*);
 lean_object* l___private_Lean_Server_Snapshots_0__Lean_Server_Snapshots_ioErrorFromEmpty_match__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_abortExceptionId;
@@ -623,7 +623,7 @@ x_15 = l_Lean_Parser_isEOI(x_11);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; 
-x_121 = l_Lean_Init_LeanInit___instance__8;
+x_121 = l_Lean_Init_Prelude___instance__65;
 x_122 = l_Option_get_x21___rarg___closed__4;
 x_123 = lean_panic_fn(x_121, x_122);
 x_124 = lean_ctor_get(x_123, 1);
@@ -632,7 +632,7 @@ lean_dec(x_123);
 if (lean_obj_tag(x_124) == 0)
 {
 lean_object* x_125; lean_object* x_126; 
-x_125 = l_Init_Core___instance__20;
+x_125 = l_Init_Prelude___instance__10;
 x_126 = lean_panic_fn(x_125, x_122);
 x_16 = x_126;
 goto block_120;
@@ -659,7 +659,7 @@ lean_dec(x_128);
 if (lean_obj_tag(x_129) == 0)
 {
 lean_object* x_130; lean_object* x_131; lean_object* x_132; 
-x_130 = l_Init_Core___instance__20;
+x_130 = l_Init_Prelude___instance__10;
 x_131 = l_Option_get_x21___rarg___closed__4;
 x_132 = lean_panic_fn(x_130, x_131);
 x_16 = x_132;

@@ -22,11 +22,11 @@ lean_object* l_Init_Control_MonadControl___instance__2___rarg___lambda__2(lean_o
 lean_object* l_Init_Control_MonadControl___instance__2___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Init_Control_MonadControl___instance__1___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_MonadControl___instance__2___rarg___closed__1;
+lean_object* l_Init_Prelude___instance__37___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_MonadControl___instance__1___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_MonadControl___instance__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_MonadControl___instance__2___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Control_MonadControl___instance__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Init_Control_MonadControl___instance__2___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_MonadControl___instance__2___rarg___lambda__2___closed__1;
 lean_object* l_Init_Control_MonadControl___instance__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_MonadControl___instance__1___rarg(lean_object*, lean_object*);
@@ -145,14 +145,6 @@ x_4 = lean_apply_1(x_2, x_3);
 return x_4;
 }
 }
-lean_object* l_Init_Control_MonadControl___instance__2___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_apply_2(x_1, lean_box(0), x_3);
-return x_4;
-}
-}
 static lean_object* _init_l_Init_Control_MonadControl___instance__2___rarg___closed__1() {
 _start:
 {
@@ -165,7 +157,7 @@ lean_object* l_Init_Control_MonadControl___instance__2___rarg(lean_object* x_1) 
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_alloc_closure((void*)(l_Init_Control_MonadControl___instance__2___rarg___lambda__3), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Init_Prelude___instance__37___rarg___lambda__1), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 x_3 = l_Init_Control_MonadControl___instance__2___rarg___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 0);

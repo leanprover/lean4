@@ -66,7 +66,7 @@ extern lean_object* l_Lean_formatDataValue___closed__2;
 lean_object* l_Lean_Json_render___closed__3;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 extern lean_object* l_Lean_Format_sbracket___closed__4;
 lean_object* l_Lean_Json_render_match__1(lean_object*);
 lean_object* l_Lean_Json_render___closed__4;
@@ -157,7 +157,7 @@ goto block_31;
 else
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; 
-x_46 = l_String_splitAux___closed__1;
+x_46 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_47 = lean_string_push(x_46, x_1);
 x_48 = lean_string_append(x_47, x_2);
 return x_48;
@@ -271,7 +271,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_string_utf8_byte_size(x_1);
 x_3 = l_Lean_Json_escape___closed__1;
-x_4 = l_String_splitAux___closed__1;
+x_4 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l_String_foldrAux_loop___rarg(x_3, x_4, x_1, x_2, x_5);
 lean_dec(x_2);

@@ -33,7 +33,7 @@ extern lean_object* l_List_repr___rarg___closed__2;
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2_match__1(lean_object*);
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2(lean_object*);
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 extern lean_object* l_List_reprAux___rarg___closed__1;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___closed__1;
@@ -155,7 +155,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_String_splitAux___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__67___closed__1;
 return x_3;
 }
 else
@@ -183,7 +183,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_13; 
-x_13 = l_String_splitAux___closed__1;
+x_13 = l_Lean_Init_Prelude___instance__67___closed__1;
 return x_13;
 }
 else
@@ -299,7 +299,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_3);
-x_12 = l_String_splitAux___closed__1;
+x_12 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_13 = lean_string_append(x_5, x_12);
 return x_13;
 }

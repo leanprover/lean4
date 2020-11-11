@@ -14,15 +14,6 @@ import Init.Control.MonadFunctor
 
 universes u v w u'
 
-inductive Except (ε : Type u) (α : Type v)
-  | error : ε → Except ε α
-  | ok    : α → Except ε α
-
-attribute [unbox] Except
-
-instance {ε : Type u} {α : Type v} [Inhabited ε] : Inhabited (Except ε α) :=
-  ⟨Except.error (arbitrary ε)⟩
-
 section
 variables {ε : Type u} {α : Type v}
 
@@ -127,17 +118,6 @@ instance : Monad (ExceptT ε m) := {
 
 end ExceptT
 
-/-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
-class MonadExceptOf (ε : Type u) (m : Type v → Type w) :=
-  (throw {α : Type v} : ε → m α)
-  (tryCatch {α : Type v} : m α → (ε → m α) → m α)
-
-abbrev throwThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (e : ε) : m α :=
-  MonadExceptOf.throw e
-
-abbrev tryCatchThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
-  MonadExceptOf.tryCatch x handle
-
 instance (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [Monad m] [MonadExceptOf ε₁ m] : MonadExceptOf ε₁ (ExceptT ε₂ m) := {
   throw    := fun e        => ExceptT.mk $ throwThe ε₁ e,
   tryCatch := fun x handle => ExceptT.mk $ tryCatchThe ε₁ x handle
@@ -153,25 +133,8 @@ instance (ε) : MonadExceptOf ε (Except ε) := {
   tryCatch := Except.tryCatch
 }
 
-/-- Similar to `MonadExceptOf`, but `ε` is an outParam for convenience -/
-class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
-  (throw {α : Type v} : ε → m α)
-  (tryCatch {α : Type v} : m α → (ε → m α) → m α)
-
-export MonadExcept (throw tryCatch)
-
-instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m := {
-  throw    := throwThe ε,
-  tryCatch := tryCatchThe ε
-}
-
 namespace MonadExcept
 variables {ε : Type u} {m : Type v → Type w}
-
-@[inline] protected def orelse [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
-  tryCatch t₁ fun _ => t₂
-
-instance [MonadExcept ε m] {α : Type v} : OrElse (m α) := ⟨MonadExcept.orelse⟩
 
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/

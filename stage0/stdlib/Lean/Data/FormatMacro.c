@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Init_Prelude___instance__65___closed__1;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__12;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__2;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__5;
@@ -26,7 +27,6 @@ lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__1;
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_myMacro____x40_Init_Tactics___hyg_502____closed__4;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____lambda__2___closed__2;
-extern lean_object* l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__5;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__21;
@@ -60,7 +60,6 @@ extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__2;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____lambda__1___closed__4;
-extern lean_object* l_Lean_Init_LeanInit___instance__8___closed__1;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__13;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_hasMacroScopes___closed__1;
@@ -74,6 +73,7 @@ extern lean_object* l_myMacro____x40_Init_Tactics___hyg_720____closed__10;
 extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_39____closed__8;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__11;
 extern lean_object* l_Lean_mkAppStx___closed__2;
+extern lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___closed__1;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkAppStx___closed__1;
@@ -105,7 +105,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__2;
-x_2 = l___private_Init_LeanInit_0__Lean_eraseMacroScopesAux___closed__5;
+x_2 = l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -322,7 +322,7 @@ lean_ctor_set(x_18, 1, x_17);
 x_19 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_17);
-x_20 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_20 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_21 = l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____lambda__2___closed__3;
 x_22 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_22, 0, x_20);
@@ -529,7 +529,7 @@ x_24 = l_Array_empty___closed__1;
 x_25 = lean_array_push(x_24, x_21);
 x_26 = l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__8;
 x_27 = l_Lean_addMacroScope(x_23, x_26, x_22);
-x_28 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_28 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_29 = l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__7;
 x_30 = l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__11;
 x_31 = lean_alloc_ctor(3, 4, 0);
@@ -580,7 +580,7 @@ x_51 = l_Array_empty___closed__1;
 x_52 = lean_array_push(x_51, x_47);
 x_53 = l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__8;
 x_54 = l_Lean_addMacroScope(x_50, x_53, x_49);
-x_55 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_55 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_56 = l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__7;
 x_57 = l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_40____closed__11;
 x_58 = lean_alloc_ctor(3, 4, 0);

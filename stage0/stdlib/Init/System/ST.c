@@ -20,18 +20,19 @@ lean_object* l_ST_Prim_Ref_modify___rarg___boxed(lean_object*, lean_object*, lea
 lean_object* l_ST_Ref_get(lean_object*, lean_object*);
 lean_object* l_Init_System_ST___instance__7_match__1___boxed(lean_object*, lean_object*);
 lean_object* l_runEST_match__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_Init_Prelude___instance__55___rarg(lean_object*, lean_object*);
 lean_object* l_runST_match__1(lean_object*, uint8_t);
 lean_object* l_Init_System_ST___instance__7_match__1(lean_object*, uint8_t);
 lean_object* l_ST_Prim_Ref_ptrEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__5(lean_object*, lean_object*);
 lean_object* l_runEST___rarg(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_EStateM_Init_Prelude___instance__59___rarg(lean_object*);
 lean_object* l_Init_System_ST___instance__7___rarg(lean_object*, lean_object*);
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Ref_swap___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__8___rarg(lean_object*);
 lean_object* l_runST(lean_object*);
 lean_object* l_Init_System_ST___instance__3___rarg(lean_object*);
+lean_object* l_EStateM_Init_Prelude___instance__56(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_mkRef___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_System_ST___instance__2(lean_object*, lean_object*);
@@ -39,7 +40,6 @@ lean_object* l_ST_Ref_modifyGet___rarg(lean_object*, lean_object*, lean_object*,
 lean_object* l_Init_System_ST___instance__4(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_ST_Ref_take(lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__4___rarg(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_modifyGet_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_take___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -95,7 +95,7 @@ static lean_object* _init_l_Init_System_ST___instance__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_EStateM_Init_Control_EState___instance__5(lean_box(0), lean_box(0));
+x_1 = l_EStateM_Init_Prelude___instance__56(lean_box(0), lean_box(0));
 return x_1;
 }
 }
@@ -120,7 +120,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Init_System_ST___instance__2___closed__1;
-x_2 = l_EStateM_Init_Control_EState___instance__8___rarg(x_1);
+x_2 = l_EStateM_Init_Prelude___instance__59___rarg(x_1);
 return x_2;
 }
 }
@@ -136,7 +136,7 @@ lean_object* l_Init_System_ST___instance__3___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_EStateM_Init_Control_EState___instance__4___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_EStateM_Init_Prelude___instance__55___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

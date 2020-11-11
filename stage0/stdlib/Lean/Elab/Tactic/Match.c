@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Init_Prelude___instance__65___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalMatch(lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalMatch___closed__2;
@@ -66,7 +67,6 @@ lean_object* lean_environment_main_module(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_evalCase___closed__2;
-extern lean_object* l_Lean_Init_LeanInit___instance__8___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalMatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -219,7 +219,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_2 = l_Lean_Level_LevelToFormat_toResult___closed__4;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -241,7 +241,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_2 = l_Lean_Elab_Tactic_evalCase___closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -288,7 +288,7 @@ lean_dec(x_5);
 x_18 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_letBindRhss___closed__4;
 x_19 = l_Lean_addMacroScope(x_17, x_18, x_6);
 x_20 = lean_box(0);
-x_21 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_21 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_22 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_letBindRhss___closed__3;
 x_23 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_23, 0, x_21);
@@ -818,7 +818,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalMatch___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_2 = l_Lean_Elab_Tactic_evalRefine___closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

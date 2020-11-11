@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Init_Prelude___instance__65___closed__1;
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_expandOptDeclSig(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefView___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,7 +95,6 @@ lean_object* l_Lean_Elab_Command_mkDefViewOfConstant_match__1(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Elab_Command_mkFreshInstanceName___boxed(lean_object*);
 lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_662_(lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__8___closed__1;
 lean_object* l_Lean_Elab_Command_isDefLike___closed__6;
 lean_object* l_Lean_Elab_Command_getMainModule___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfDef_match__1___rarg(lean_object*, lean_object*);
@@ -876,7 +876,7 @@ lean_inc(x_19);
 lean_dec(x_17);
 x_20 = l_Lean_Meta_mkArbitrary___rarg___closed__2;
 x_21 = l_Lean_addMacroScope(x_18, x_20, x_15);
-x_22 = l_Lean_Init_LeanInit___instance__8___closed__1;
+x_22 = l_Lean_Init_Prelude___instance__65___closed__1;
 x_23 = l_Lean_Elab_Command_mkDefViewOfConstant___closed__2;
 x_24 = l_Lean_Elab_Command_mkDefViewOfConstant___closed__4;
 x_25 = lean_alloc_ctor(3, 4, 0);

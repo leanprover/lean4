@@ -196,7 +196,7 @@ lean_object* l_Lean_SMap_insert___at_Lean_KeyedDeclsAttribute_Table_insert___spe
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_KeyedDeclsAttribute_getValues___spec__5(lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_KeyedDeclsAttribute_getValues___spec__7(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_KeyedDeclsAttribute_Table_insert___spec__23___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_KeyedDeclsAttribute_Table_insert___spec__21___rarg(lean_object*, lean_object*, lean_object*);
@@ -516,7 +516,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
-x_2 = l_String_splitAux___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_3 = l_Lean_KeyedDeclsAttribute_Lean_KeyedDeclsAttribute___instance__1___closed__1;
 x_4 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -4117,7 +4117,7 @@ x_38 = l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__13;
 x_39 = lean_string_append(x_37, x_38);
 x_40 = lean_string_append(x_39, x_33);
 lean_dec(x_33);
-x_41 = l_String_splitAux___closed__1;
+x_41 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_42 = lean_string_append(x_40, x_41);
 x_43 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_43, 0, x_42);
@@ -4142,7 +4142,7 @@ x_50 = l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__13;
 x_51 = lean_string_append(x_49, x_50);
 x_52 = lean_string_append(x_51, x_44);
 lean_dec(x_44);
-x_53 = l_String_splitAux___closed__1;
+x_53 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_54 = lean_string_append(x_52, x_53);
 x_55 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_55, 0, x_54);

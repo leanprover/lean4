@@ -88,7 +88,6 @@ lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(l
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkSimpleThunk___closed__1;
-extern lean_object* l_Lean_Init_LeanInit___instance__1;
 lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___rarg___closed__3;
@@ -126,6 +125,7 @@ lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___at
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___at_Lean_Meta_introNCore___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarTag___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFreshId___at_Lean_Meta_mkFreshExprMVarAt___spec__1___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__61;
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar___at___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2251,7 +2251,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = lean_ctor_get(x_14, 0);
-x_17 = l_Lean_Init_LeanInit___instance__1;
+x_17 = l_Lean_Init_Prelude___instance__61;
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_array_get(x_17, x_16, x_18);
 lean_dec(x_16);
@@ -2266,7 +2266,7 @@ x_21 = lean_ctor_get(x_14, 1);
 lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_14);
-x_22 = l_Lean_Init_LeanInit___instance__1;
+x_22 = l_Lean_Init_Prelude___instance__61;
 x_23 = lean_unsigned_to_nat(0u);
 x_24 = lean_array_get(x_22, x_20, x_23);
 lean_dec(x_20);
@@ -2297,7 +2297,7 @@ if (lean_is_exclusive(x_26)) {
  lean_dec_ref(x_26);
  x_30 = lean_box(0);
 }
-x_31 = l_Lean_Init_LeanInit___instance__1;
+x_31 = l_Lean_Init_Prelude___instance__61;
 x_32 = lean_unsigned_to_nat(0u);
 x_33 = lean_array_get(x_31, x_28, x_32);
 lean_dec(x_28);
@@ -2379,7 +2379,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_14 = lean_ctor_get(x_12, 0);
-x_15 = l_Lean_Init_LeanInit___instance__1;
+x_15 = l_Lean_Init_Prelude___instance__61;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_get(x_15, x_14, x_16);
 lean_dec(x_14);
@@ -2394,7 +2394,7 @@ x_19 = lean_ctor_get(x_12, 1);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_12);
-x_20 = l_Lean_Init_LeanInit___instance__1;
+x_20 = l_Lean_Init_Prelude___instance__61;
 x_21 = lean_unsigned_to_nat(0u);
 x_22 = lean_array_get(x_20, x_18, x_21);
 lean_dec(x_18);
@@ -2425,7 +2425,7 @@ if (lean_is_exclusive(x_24)) {
  lean_dec_ref(x_24);
  x_28 = lean_box(0);
 }
-x_29 = l_Lean_Init_LeanInit___instance__1;
+x_29 = l_Lean_Init_Prelude___instance__61;
 x_30 = lean_unsigned_to_nat(0u);
 x_31 = lean_array_get(x_29, x_26, x_30);
 lean_dec(x_26);

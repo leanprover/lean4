@@ -13,99 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Applicative_seqRight___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Applicative_seqLeft___default___rarg___closed__1;
-lean_object* l_Applicative_seqRight___default___rarg___closed__1;
-lean_object* l_Applicative_seqRight___default(lean_object*);
-lean_object* l_Applicative_map___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_when(lean_object*);
-lean_object* l_Function_const___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_unless___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_when___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* l_Applicative_seqLeft___default(lean_object*);
-lean_object* l_Applicative_map___default(lean_object*);
 lean_object* l_unless(lean_object*);
-extern lean_object* l_Init_Core___instance__1___closed__1;
 lean_object* l_unless___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* l_Applicative_seqLeft___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_when___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Applicative_map___default___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_apply_2(x_1, lean_box(0), x_5);
-x_8 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_7, x_6);
-return x_8;
-}
-}
-lean_object* l_Applicative_map___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Applicative_map___default___rarg), 6, 0);
-return x_2;
-}
-}
-static lean_object* _init_l_Applicative_seqLeft___default___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Function_const___rarg___boxed), 2, 0);
-return x_1;
-}
-}
-lean_object* l_Applicative_seqLeft___default___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = l_Applicative_seqLeft___default___rarg___closed__1;
-x_8 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_7, x_4);
-x_9 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_8, x_5);
-return x_9;
-}
-}
-lean_object* l_Applicative_seqLeft___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Applicative_seqLeft___default___rarg), 5, 0);
-return x_2;
-}
-}
-static lean_object* _init_l_Applicative_seqRight___default___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Init_Core___instance__1___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Function_const___rarg___boxed), 2, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-lean_object* l_Applicative_seqRight___default___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = l_Applicative_seqRight___default___rarg___closed__1;
-x_8 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_7, x_4);
-x_9 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_8, x_5);
-return x_9;
-}
-}
-lean_object* l_Applicative_seqRight___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Applicative_seqRight___default___rarg), 5, 0);
-return x_2;
-}
-}
 lean_object* l_when___rarg(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
 _start:
 {
@@ -195,10 +108,6 @@ _G_initialized = true;
 res = initialize_Init_Control_Functor(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Applicative_seqLeft___default___rarg___closed__1 = _init_l_Applicative_seqLeft___default___rarg___closed__1();
-lean_mark_persistent(l_Applicative_seqLeft___default___rarg___closed__1);
-l_Applicative_seqRight___default___rarg___closed__1 = _init_l_Applicative_seqRight___default___rarg___closed__1();
-lean_mark_persistent(l_Applicative_seqRight___default___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

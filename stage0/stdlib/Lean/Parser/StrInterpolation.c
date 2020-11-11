@@ -141,25 +141,9 @@ x_14 = 92;
 x_15 = x_9 == x_14;
 if (x_15 == 0)
 {
-uint32_t x_16; uint8_t x_17; uint8_t x_30; 
+uint32_t x_16; uint8_t x_17; 
 x_16 = 123;
-x_30 = x_9 == x_16;
-if (x_30 == 0)
-{
-uint8_t x_31; 
-x_31 = 0;
-x_17 = x_31;
-goto block_29;
-}
-else
-{
-uint8_t x_32; 
-x_32 = 1;
-x_17 = x_32;
-goto block_29;
-}
-block_29:
-{
+x_17 = x_9 == x_16;
 if (x_17 == 0)
 {
 x_6 = x_11;
@@ -211,53 +195,52 @@ return x_21;
 }
 }
 }
-}
 else
 {
-lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-x_33 = l_Lean_Parser_interpolatedStrFn_parse___closed__3;
-x_34 = l_Lean_Parser_quotedCharCoreFn(x_33, x_5, x_11);
-x_35 = lean_ctor_get(x_34, 3);
-lean_inc(x_35);
-if (lean_obj_tag(x_35) == 0)
+lean_object* x_29; lean_object* x_30; lean_object* x_31; 
+x_29 = l_Lean_Parser_interpolatedStrFn_parse___closed__3;
+x_30 = l_Lean_Parser_quotedCharCoreFn(x_29, x_5, x_11);
+x_31 = lean_ctor_get(x_30, 3);
+lean_inc(x_31);
+if (lean_obj_tag(x_31) == 0)
 {
-x_6 = x_34;
+x_6 = x_30;
 goto _start;
 }
 else
 {
-lean_dec(x_35);
+lean_dec(x_31);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
-return x_34;
+return x_30;
 }
 }
 }
 else
 {
-lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_1);
-x_37 = l_Lean_interpolatedStrLitKind;
-x_38 = l_Lean_Parser_mkNodeToken(x_37, x_4, x_5, x_11);
+x_33 = l_Lean_interpolatedStrLitKind;
+x_34 = l_Lean_Parser_mkNodeToken(x_33, x_4, x_5, x_11);
 lean_dec(x_5);
-x_39 = l_Lean_interpolatedStrKind;
-x_40 = l_Lean_Parser_ParserState_mkNode(x_38, x_39, x_3);
-return x_40;
+x_35 = l_Lean_interpolatedStrKind;
+x_36 = l_Lean_Parser_ParserState_mkNode(x_34, x_35, x_3);
+return x_36;
 }
 }
 else
 {
-lean_object* x_41; lean_object* x_42; 
+lean_object* x_37; lean_object* x_38; 
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
-x_41 = l_Lean_Parser_ParserState_mkEOIError___closed__1;
-x_42 = l_Lean_Parser_ParserState_mkUnexpectedError(x_6, x_41);
-return x_42;
+x_37 = l_Lean_Parser_ParserState_mkEOIError___closed__1;
+x_38 = l_Lean_Parser_ParserState_mkUnexpectedError(x_6, x_37);
+return x_38;
 }
 }
 }

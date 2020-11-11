@@ -17,7 +17,6 @@ lean_object* l_Fin_modn_match__1___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_land_match__1(lean_object*, lean_object*);
 lean_object* l_Fin_decLe___boxed(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Init_Data_Fin_Basic___instance__9___boxed(lean_object*);
 lean_object* l_Fin_decLt___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_ofNat(lean_object*, lean_object*);
 lean_object* l_Fin_elim0___boxed(lean_object*, lean_object*);
@@ -37,7 +36,6 @@ lean_object* l_Fin_ofNat___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_Init_Data_Fin_Basic___instance__1(lean_object*);
 lean_object* l_Fin_sub_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_modn___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Fin_ofNat_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_Init_Data_Fin_Basic___instance__8(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -54,7 +52,6 @@ lean_object* l_Fin_div_match__1___rarg(lean_object*, lean_object*, lean_object*)
 lean_object* l_Fin_mul_match__1(lean_object*, lean_object*);
 lean_object* l_Fin_div_match__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
-lean_object* l_Init_Data_Fin_Basic___instance__9(lean_object*);
 uint8_t l_Fin_decLt___rarg(lean_object*, lean_object*);
 lean_object* l_Fin_decLe(lean_object*);
 lean_object* l_Fin_sub___boxed(lean_object*, lean_object*, lean_object*);
@@ -69,7 +66,6 @@ lean_object* l_Fin_elim0_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Fin_div_match__1(lean_object*, lean_object*);
 lean_object* l_Fin_decLt(lean_object*);
 lean_object* l_Fin_land_match__1___boxed(lean_object*, lean_object*);
-lean_object* l_Init_Data_Fin_Basic___instance__9___rarg___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Fin_Init_Data_Fin_Basic___instance__6(lean_object*);
 lean_object* l_Fin_add_match__1___boxed(lean_object*, lean_object*);
@@ -90,7 +86,6 @@ lean_object* l_Fin_mul___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
 lean_object* l_Fin_add_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-uint8_t l_Init_Data_Fin_Basic___instance__9___rarg(lean_object*, lean_object*);
 lean_object* l_Fin_Init_Data_Fin_Basic___instance__7(lean_object*);
 lean_object* l_Fin_div___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_sub_match__1___boxed(lean_object*, lean_object*);
@@ -723,42 +718,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Fin_modn___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-uint8_t l_Init_Data_Fin_Basic___instance__9___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_nat_dec_eq(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_Init_Data_Fin_Basic___instance__9(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Init_Data_Fin_Basic___instance__9___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-lean_object* l_Init_Data_Fin_Basic___instance__9___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Init_Data_Fin_Basic___instance__9___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
-lean_object* l_Init_Data_Fin_Basic___instance__9___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Init_Data_Fin_Basic___instance__9(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }

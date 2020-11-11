@@ -92,7 +92,6 @@ lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54___
 extern lean_object* l_Lean_registerTagAttribute___lambda__5___closed__4;
 lean_object* l_Lean_EnumAttributes_getValue___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__24;
-extern lean_object* l_Lean_Init_LeanInit___instance__1;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__10;
 size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___lambda__6___closed__2;
@@ -140,6 +139,7 @@ lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54_(l
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__23;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__2___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__61;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__6;
 lean_object* l_Array_binSearchAux___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -452,7 +452,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_Compiler_initFn____x
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Init_LeanInit___instance__1;
+x_1 = l_Lean_Init_Prelude___instance__61;
 x_2 = l_Lean_Compiler_InlineAttributeKind_Lean_Compiler_InlineAttrs___instance__1;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);

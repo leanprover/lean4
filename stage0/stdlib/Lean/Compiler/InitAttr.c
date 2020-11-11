@@ -116,7 +116,6 @@ lean_object* l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__2;
 lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__1;
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__3;
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getInitFnNameForCore_x3f___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_527____closed__1;
@@ -142,7 +141,7 @@ lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType_match__1(lean
 lean_object* l_Std_RBNode_fold___at_Lean_registerInitAttrUnsafe___spec__10(lean_object*, lean_object*);
 extern lean_object* l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__1;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 extern lean_object* l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__2;
 uint8_t l___private_Lean_Compiler_InitAttr_0__Lean_isIOUnit(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
@@ -185,6 +184,7 @@ lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__2;
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__1;
 uint8_t l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType(lean_object*);
 lean_object* l_Lean_getInitFnNameForCore_x3f(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__61;
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_IO_Error_Init_System_IOError___instance__3___closed__1;
@@ -976,7 +976,7 @@ x_16 = l_List_map___at_Lean_resolveGlobalConstNoOverload___spec__1(x_9, x_7);
 x_17 = l_List_toString___at_Lean_resolveGlobalConstNoOverload___spec__2(x_16);
 x_18 = lean_string_append(x_15, x_17);
 lean_dec(x_17);
-x_19 = l_String_splitAux___closed__1;
+x_19 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
@@ -1043,7 +1043,7 @@ x_39 = l_List_map___at_Lean_resolveGlobalConstNoOverload___spec__1(x_32, x_7);
 x_40 = l_List_toString___at_Lean_resolveGlobalConstNoOverload___spec__2(x_39);
 x_41 = lean_string_append(x_38, x_40);
 lean_dec(x_40);
-x_42 = l_String_splitAux___closed__1;
+x_42 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_43 = lean_string_append(x_41, x_42);
 x_44 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_44, 0, x_43);
@@ -1321,7 +1321,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_registerInitAttrUnsa
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Init_LeanInit___instance__1;
+x_1 = l_Lean_Init_Prelude___instance__61;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);

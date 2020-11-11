@@ -10,76 +10,12 @@ universes u
 namespace Nat
 
 set_option bootstrap.gen_matcher_code false in
-@[extern "lean_nat_dec_eq"]
-  def beq : Nat → Nat → Bool
-  | zero,   zero   => true
-  | zero,   succ m => false
-  | succ n, zero   => false
-  | succ n, succ m => beq n m
-
-theorem eqOfBeqEqTt : ∀ {n m : Nat}, beq n m = true → n = m
-  | zero,   zero,   h => rfl
-  | zero,   succ m, h => Bool.noConfusion h
-  | succ n, zero,   h => Bool.noConfusion h
-  | succ n, succ m, h =>
-    have beq n m = true from h;
-    have n = m from eqOfBeqEqTt this;
-    congrArg succ this
-
-theorem neOfBeqEqFf : ∀ {n m : Nat}, beq n m = false → n ≠ m
-  | zero,   zero,   h₁, h₂ => Bool.noConfusion h₁
-  | zero,   succ m, h₁, h₂ => Nat.noConfusion h₂
-  | succ n, zero,   h₁, h₂ => Nat.noConfusion h₂
-  | succ n, succ m, h₁, h₂ =>
-    have beq n m = false from h₁;
-    have n ≠ m from neOfBeqEqFf this;
-    Nat.noConfusion h₂ (fun h₂ => absurd h₂ this)
-
-@[extern "lean_nat_dec_eq"]
-protected def decEq (n m : @& Nat) : Decidable (n = m) :=
-  if h : beq n m = true then isTrue (eqOfBeqEqTt h)
-  else isFalse (neOfBeqEqFf (eqFalseOfNeTrue h))
-
-@[inline] instance : DecidableEq Nat := Nat.decEq
-
-set_option bootstrap.gen_matcher_code false in
-@[extern "lean_nat_dec_le"]
-def ble : Nat → Nat → Bool
-  | zero,   zero   => true
-  | zero,   succ m => true
-  | succ n, zero   => false
-  | succ n, succ m => ble n m
-
-protected def le (n m : Nat) : Prop :=
-  ble n m = true
-
-instance : HasLessEq Nat := ⟨Nat.le⟩
-
-protected def lt (n m : Nat) : Prop :=
-  Nat.le (succ n) m
-
-instance : HasLess Nat := ⟨Nat.lt⟩
-
-set_option bootstrap.gen_matcher_code false in
-@[extern c inline "lean_nat_sub(#1, lean_box(1))"]
-def pred : Nat → Nat
-  | 0   => 0
-  | a+1 => a
-
-set_option bootstrap.gen_matcher_code false in
 @[extern "lean_nat_sub"]
 protected def sub : (@& Nat) → (@& Nat) → Nat
   | a, 0   => a
   | a, b+1 => pred (Nat.sub a b)
 
-set_option bootstrap.gen_matcher_code false in
-@[extern "lean_nat_mul"]
-protected def mul : (@& Nat) → (@& Nat) → Nat
-  | a, 0   => 0
-  | a, b+1 => (Nat.mul a b) + a
-
 instance : Sub Nat := ⟨Nat.sub⟩
-instance : Mul Nat := ⟨Nat.mul⟩
 
 @[specialize] def foldAux {α : Type u} (f : Nat → α → α) (s : Nat) : Nat → α → α
   | 0,      a => a
@@ -110,14 +46,6 @@ instance : Mul Nat := ⟨Nat.mul⟩
     | 0,      a => a
     | succ n, a => loop n (f a)
   loop n a
-
-set_option bootstrap.gen_matcher_code false in
-@[extern "lean_nat_pow"]
-protected def pow (m : @& Nat) : (@& Nat) → Nat
-  | 0      => 1
-  | succ n => Nat.pow m n * m
-
-instance : Pow Nat Nat := ⟨Nat.pow⟩
 
 /- Nat.add theorems -/
 
@@ -234,72 +162,8 @@ protected theorem mulAssoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
 
 /- Inequalities -/
 
-protected def leRefl : ∀ (n : Nat), n ≤ n
-  | zero   => rfl
-  | succ n => Nat.leRefl n
-
-theorem leSucc : ∀ (n : Nat), n ≤ succ n
-  | zero   => rfl
-  | succ n => leSucc n
-
-theorem succLeSucc {n m : Nat} (h : n ≤ m) : succ n ≤ succ m :=
-  h
-
 theorem succLtSucc {n m : Nat} : n < m → succ n < succ m :=
   succLeSucc
-
-theorem leStep : ∀ {n m : Nat}, n ≤ m → n ≤ succ m
-  | zero,   zero,   h => rfl
-  | zero,   succ n, h => rfl
-  | succ n, zero,   h => Bool.noConfusion h
-  | succ n, succ m, h =>
-    have n ≤ m from h
-    have n ≤ succ m from leStep this
-    succLeSucc this
-
-theorem zeroLe : ∀ (n : Nat), 0 ≤ n
-  | zero   => rfl
-  | succ n => rfl
-
-theorem zeroLtSucc (n : Nat) : 0 < succ n :=
-  succLeSucc (zeroLe n)
-
-def succPos := zeroLtSucc
-
-theorem notSuccLeZero : ∀ (n : Nat), succ n ≤ 0 → False
-  | 0,   h => nomatch h
-  | n+1, h => nomatch h
-
-theorem notLtZero (n : Nat) : ¬ n < 0 :=
-  notSuccLeZero n
-
-theorem predLePred : ∀ {n m : Nat}, n ≤ m → pred n ≤ pred m
-  | zero,   zero,   h => rfl
-  | zero,   succ n, h => zeroLe n
-  | succ n, zero,   h => Bool.noConfusion h
-  | succ n, succ m, h => h
-
-theorem leOfSuccLeSucc {n m : Nat} : succ n ≤ succ m → n ≤ m :=
-  predLePred
-
-@[extern "lean_nat_dec_le"]
-instance decLe (n m : @& Nat) : Decidable (n ≤ m) :=
-  decEq (ble n m) true
-
-@[extern "lean_nat_dec_lt"]
-instance decLt (n m : @& Nat) : Decidable (n < m) :=
-  Nat.decLe (succ n) m
-
-protected theorem eqOrLtOfLe : ∀ {n m: Nat}, n ≤ m → n = m ∨ n < m
-  | zero,   zero,   h => Or.inl rfl
-  | zero,   succ n, h => Or.inr $ zeroLe n
-  | succ n, zero,   h => Bool.noConfusion h
-  | succ n, succ m, h =>
-    have n ≤ m from h
-    have n = m ∨ n < m from Nat.eqOrLtOfLe this
-    match this with
-    | Or.inl h => Or.inl $ congrArg succ h
-    | Or.inr h => Or.inr $ succLtSucc h
 
 theorem ltSuccOfLe {n m : Nat} : n ≤ m → n < succ m :=
   succLeSucc
@@ -319,16 +183,6 @@ theorem notSuccLeSelf (n : Nat) : ¬succ n ≤ n := by
 
 protected theorem ltIrrefl (n : Nat) : ¬n < n :=
   notSuccLeSelf n
-
-protected theorem leTrans : ∀ {n m k : Nat}, n ≤ m → m ≤ k → n ≤ k
-  | zero,   m,      k,      h₁, h₂ => zeroLe _
-  | succ n, zero,   k,      h₁, h₂ => Bool.noConfusion h₁
-  | succ n, succ m, zero,   h₁, h₂ => Bool.noConfusion h₂
-  | succ n, succ m, succ k, h₁, h₂ =>
-    have h₁' : n ≤ m from h₁
-    have h₂' : m ≤ k from h₂
-    have n ≤ k from Nat.leTrans h₁' h₂'
-    succLeSucc this
 
 theorem predLe : ∀ (n : Nat), pred n ≤ n
   | zero   => rfl
@@ -360,9 +214,6 @@ protected theorem ltOfLtOfEq {n m k : Nat} : n < m → m = k → n < k :=
 protected theorem leOfEq {n m : Nat} (p : n = m) : n ≤ m :=
   p ▸ Nat.leRefl n
 
-theorem leSuccOfLe {n m : Nat} (h : n ≤ m) : n ≤ succ m :=
-  Nat.leTrans h (leSucc m)
-
 theorem leOfSuccLe {n m : Nat} (h : succ n ≤ m) : n ≤ m :=
   Nat.leTrans (leSucc n) h
 
@@ -371,12 +222,11 @@ protected theorem leOfLt {n m : Nat} (h : n < m) : n ≤ m :=
 
 def lt.step {n m : Nat} : n < m → n < succ m := leStep
 
+def succPos := zeroLtSucc
+
 theorem eqZeroOrPos : ∀ (n : Nat), n = 0 ∨ n > 0
   | 0   => Or.inl rfl
   | n+1 => Or.inr (succPos _)
-
-protected theorem ltTrans {n m k : Nat} (h₁ : n < m) : m < k → n < k :=
-  Nat.leTrans (leStep h₁)
 
 protected theorem ltOfLeOfLt {n m k : Nat} (h₁ : n ≤ m) : m < k → n < k :=
   Nat.leTrans (succLeSucc h₁)
@@ -384,27 +234,6 @@ protected theorem ltOfLeOfLt {n m k : Nat} (h₁ : n ≤ m) : m < k → n < k :=
 def lt.base (n : Nat) : n < succ n := Nat.leRefl (succ n)
 
 theorem ltSuccSelf (n : Nat) : n < succ n := lt.base n
-
-protected theorem leAntisymm : ∀ {n m : Nat}, n ≤ m → m ≤ n → n = m
-  | zero,   zero,   h₁, h₂ => rfl
-  | succ n, zero,   h₁, h₂ => Bool.noConfusion h₁
-  | zero,   succ m, h₁, h₂ => Bool.noConfusion h₂
-  | succ n, succ m, h₁, h₂ =>
-    have h₁' : n ≤ m from h₁
-    have h₂' : m ≤ n from h₂
-    have n = m from Nat.leAntisymm h₁' h₂'
-    congrArg succ this
-
-protected theorem ltOrGe (n m : Nat) : n < m ∨ n ≥ m := by
-  induction m
-  | zero => apply Or.inr; apply zeroLe n
-  | succ m ih =>
-    cases ih
-    | inl h => apply Or.inl; apply leSuccOfLe h
-    | inr h =>
-      cases Nat.eqOrLtOfLe h
-      | inl h1 => apply Or.inl; subst h1; apply ltSuccSelf m
-      | inr h1 => apply Or.inr h1
 
 protected theorem leTotal (m n : Nat) : m ≤ n ∨ n ≤ m :=
   match Nat.ltOrGe m n with
@@ -471,11 +300,6 @@ theorem gtOfNotLe {n m : Nat} (h : ¬ n ≤ m) : n > m :=
   | Or.inl h₁ => h₁
   | Or.inr h₁ => absurd h₁ h
 
-protected theorem ltOfLeOfNe {n m : Nat} (h₁ : n ≤ m) (h₂ : n ≠ m) : n < m :=
-  match Nat.ltOrGe n m with
-  | Or.inl h₃ => h₃
-  | Or.inr h₃ => absurd (Nat.leAntisymm h₁ h₃) h₂
-
 protected theorem addLeAddLeft {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
   match le.dest h with
   | ⟨w, hw⟩ =>
@@ -496,9 +320,6 @@ protected theorem addLtAddRight {n m : Nat} (h : n < m) (k : Nat) : n + k < m + 
 
 protected theorem zeroLtOne : 0 < (1:Nat) :=
   zeroLtSucc 0
-
-theorem leOfLtSucc {m n : Nat} : m < succ n → m ≤ n :=
-  leOfSuccLeSucc
 
 theorem addLeAdd {a b c d : Nat} (h₁ : a ≤ b) (h₂ : c ≤ d) : a + c ≤ b + d :=
   Nat.leTrans (Nat.addLeAddRight h₁ c) (Nat.addLeAddLeft h₂ b)

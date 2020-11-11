@@ -3034,7 +3034,7 @@ lean_object* l_Lean_Parser_Term_uminus___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Term_funBinder_quot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_bor___closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Term_sort_formatter(lean_object*);
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_Lean_Parser_Term_cdot___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Term_dollar___closed__3;
 lean_object* l_Lean_Parser_Term_eq_parenthesizer___closed__1;
@@ -7929,7 +7929,7 @@ static lean_object* _init_l_Lean_Parser_Term_type___elambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_String_splitAux___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_checkWsBefore___elambda__1___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

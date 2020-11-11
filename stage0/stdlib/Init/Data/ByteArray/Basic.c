@@ -54,7 +54,7 @@ lean_object* l_ByteArray_append___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Data_ByteArray_Basic___instance__3___boxed(lean_object*);
 lean_object* l_ByteArray_size_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_List_toByteArray_loop_match__1(lean_object*);
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_ByteArray_Init_Data_ByteArray_Basic___instance__2___closed__1;
 extern lean_object* l_List_reprAux___rarg___closed__1;
 lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -562,7 +562,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_String_splitAux___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__67___closed__1;
 return x_3;
 }
 else
@@ -592,7 +592,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_14; 
-x_14 = l_String_splitAux___closed__1;
+x_14 = l_Lean_Init_Prelude___instance__67___closed__1;
 return x_14;
 }
 else

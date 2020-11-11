@@ -43,7 +43,7 @@ uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_ob
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_InternalExceptionId_getName(lean_object*, lean_object*);
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_InternalExceptionId_getName___closed__2;
 lean_object* l_Lean_InternalExceptionId_idx___default;
@@ -378,7 +378,7 @@ x_2 = l_Nat_repr(x_1);
 x_3 = l_Lean_InternalExceptionId_toString___closed__1;
 x_4 = lean_string_append(x_3, x_2);
 lean_dec(x_2);
-x_5 = l_String_splitAux___closed__1;
+x_5 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_6 = lean_string_append(x_4, x_5);
 return x_6;
 }

@@ -79,7 +79,7 @@ lean_object* l_IO_Error_Init_System_IOError___instance__2;
 lean_object* l_IO_Error_Init_System_IOError___instance__2___closed__1;
 lean_object* lean_mk_io_error_resource_vanished(uint32_t, lean_object*);
 lean_object* l_IO_Error_toString_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_IO_Error_toString___closed__15;
 lean_object* lean_mk_io_error_unsatisfied_constraints(uint32_t, lean_object*);
 lean_object* l_IO_Error_toString___closed__5;
@@ -2168,7 +2168,7 @@ static lean_object* _init_l_IO_Error_Init_System_IOError___instance__3___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_String_splitAux___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_2 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

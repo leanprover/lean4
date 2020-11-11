@@ -34,6 +34,7 @@ uint8_t l_Float_beq(double, double);
 double sqrt(double);
 lean_object* l_Init_Data_Float___instance__4;
 lean_object* l_Float_log10___boxed(lean_object*);
+extern uint8_t l_Init_Core___instance__1;
 lean_object* l_Init_Data_Float___instance__8;
 lean_object* l_Float_div___boxed(lean_object*, lean_object*);
 lean_object* l_Float_pow___boxed(lean_object*, lean_object*);
@@ -46,7 +47,6 @@ lean_object* l_Float_atanh___boxed(lean_object*);
 double atanh(double);
 lean_object* l_floatSpec___closed__1;
 uint8_t l_Float_decLe(double, double);
-extern uint8_t l_Init_Core___instance__4;
 double sinh(double);
 lean_object* l_floatSpec___closed__2;
 lean_object* l_Init_Data_Float___instance__1___closed__1;
@@ -109,7 +109,7 @@ uint8_t l_floatSpec___elambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
-x_3 = l_Init_Core___instance__4;
+x_3 = l_Init_Core___instance__1;
 return x_3;
 }
 }

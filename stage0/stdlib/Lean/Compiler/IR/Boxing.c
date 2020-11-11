@@ -65,6 +65,7 @@ lean_object* l_Lean_IR_ExplicitBoxing_castArgIfNeeded(lean_object*, lean_object*
 lean_object* l_Lean_IR_LocalContext_addParams(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_addBoxedVersions___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_resultType(lean_object*);
+lean_object* l_ReaderT_Init_Prelude___instance__44___rarg(lean_object*);
 lean_object* l_Lean_IR_Decl_name(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___boxed__const__1;
 lean_object* l_Lean_IR_ExplicitBoxing_castArgIfNeeded_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -199,7 +200,6 @@ lean_object* l_Lean_IR_ExplicitBoxing_castVarIfNeeded(lean_object*, lean_object*
 extern lean_object* l_Lean_mkSepArray___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_ExplicitBoxing_addBoxedVersions___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_BoxingContext_localCtx___default;
-lean_object* l_ReaderT_Init_Control_Reader___instance__4___rarg(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkCast___closed__3;
 lean_object* l_Lean_IR_Decl_params(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_getJPParams(lean_object*, lean_object*, lean_object*);
@@ -3398,7 +3398,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Data_Format_0__Lean_Format_be___closed__1;
-x_2 = l_ReaderT_Init_Control_Reader___instance__4___rarg(x_1);
+x_2 = l_ReaderT_Init_Prelude___instance__44___rarg(x_1);
 return x_2;
 }
 }

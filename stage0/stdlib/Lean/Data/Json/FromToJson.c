@@ -34,6 +34,7 @@ lean_object* l_Lean_Json_Lean_Data_Json_FromToJson___instance__16(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lean_Data_Json_FromToJson___instance__14___spec__1(lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__2;
+extern lean_object* l_Init_Prelude___instance__9___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lean_Data_Json_FromToJson___instance__14___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__1(lean_object*);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__13_match__1(lean_object*);
@@ -61,7 +62,6 @@ lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__6___boxed(lean_object*
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__14(lean_object*);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__3___closed__1;
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__7___closed__1;
-extern lean_object* l_Init_Core___instance__1___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lean_Data_Json_FromToJson___instance__14___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lean_Data_Json_FromToJson___instance__13___spec__1(lean_object*);
@@ -85,7 +85,7 @@ static lean_object* _init_l_Lean_Lean_Data_Json_FromToJson___instance__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Init_Core___instance__1___closed__1;
+x_1 = l_Init_Prelude___instance__9___closed__1;
 return x_1;
 }
 }

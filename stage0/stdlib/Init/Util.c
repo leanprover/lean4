@@ -20,7 +20,6 @@ lean_object* l_withPtrEqUnsafe___rarg___boxed(lean_object*, lean_object*, lean_o
 lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* l_withPtrAddr(lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrEq___rarg(lean_object*, lean_object*);
 lean_object* l_withPtrEqUnsafe(lean_object*);
 lean_object* lean_dbg_trace(lean_object*, lean_object*);
@@ -59,12 +58,10 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_panicWithPosWithDecl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddr___rarg___boxed__const__1;
 lean_object* l_withPtrAddr___rarg(lean_object*, lean_object*);
-lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgSleep___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddrUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ptrAddrUnsafe___boxed(lean_object*, lean_object*);
 lean_object* l_dbgTraceVal(lean_object*);
-lean_object* l_unsafeCast___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -109,22 +106,6 @@ x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
 x_5 = lean_dbg_sleep(x_4, x_3);
 return x_5;
-}
-}
-lean_object* l_unsafeCast___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = x_3;
-return x_4;
-}
-}
-lean_object* l_panic___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_panic_fn(x_2, x_3);
-return x_4;
 }
 }
 static lean_object* _init_l___private_Init_Util_0__mkPanicMessage___closed__1() {

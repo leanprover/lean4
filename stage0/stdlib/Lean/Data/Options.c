@@ -84,7 +84,7 @@ lean_object* l_Lean_KVMap_setName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__5;
 lean_object* l_Std_RBNode_find___at_Lean_getOptionDecl___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__14;
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_Lean_setOptionFromString(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__3;
 lean_object* l_Lean_setOptionFromString___closed__6;
@@ -151,7 +151,7 @@ static lean_object* _init_l_Lean_OptionDecl_group___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_String_splitAux___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__67___closed__1;
 return x_1;
 }
 }
@@ -159,7 +159,7 @@ static lean_object* _init_l_Lean_OptionDecl_descr___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_String_splitAux___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__67___closed__1;
 return x_1;
 }
 }
@@ -1505,7 +1505,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__3;
-x_2 = l_String_splitAux___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_3 = l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -1555,7 +1555,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__8;
-x_2 = l_String_splitAux___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_3 = l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__9;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -1605,7 +1605,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__13;
-x_2 = l_String_splitAux___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_3 = l_Lean_initFn____x40_Lean_Data_Options___hyg_479____closed__14;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

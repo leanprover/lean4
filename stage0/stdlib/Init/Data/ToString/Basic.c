@@ -80,7 +80,7 @@ lean_object* l_Init_Data_ToString_Basic___instance__21_match__1___rarg(lean_obje
 extern lean_object* l_Init_Data_Repr___instance__12___rarg___closed__2;
 lean_object* l_Init_Data_ToString_Basic___instance__1(lean_object*);
 lean_object* l_Init_Data_ToString_Basic___instance__19(size_t);
-extern lean_object* l_String_splitAux___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_Init_Data_ToString_Basic___instance__13;
 lean_object* l_List_toStringAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
@@ -400,7 +400,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; 
 lean_dec(x_1);
-x_4 = l_String_splitAux___closed__1;
+x_4 = l_Lean_Init_Prelude___instance__67___closed__1;
 return x_4;
 }
 else
@@ -429,7 +429,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_13; 
 lean_dec(x_1);
-x_13 = l_String_splitAux___closed__1;
+x_13 = l_Lean_Init_Prelude___instance__67___closed__1;
 return x_13;
 }
 else
@@ -638,7 +638,7 @@ static lean_object* _init_l_Init_Data_ToString_Basic___instance__13___closed__1(
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_String_splitAux___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__67___closed__1;
 x_2 = lean_alloc_closure((void*)(l_String_push___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

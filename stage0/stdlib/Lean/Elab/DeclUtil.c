@@ -72,7 +72,6 @@ extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Lean_Elab_sortDeclLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_sortDeclLevelParams_match__1(lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__1;
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__3;
 lean_object* l_Lean_Elab_sortDeclLevelParams(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___closed__3;
@@ -122,6 +121,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_sortDeclLevelParams___spec
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3(uint64_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint64_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l_Lean_Elab_isFreshInstanceName_match__1(lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__61;
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___closed__4;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_sortDeclLevelParams___closed__4;
@@ -1250,7 +1250,7 @@ x_14 = lean_nat_add(x_2, x_3);
 x_15 = lean_unsigned_to_nat(2u);
 x_16 = lean_nat_div(x_14, x_15);
 lean_dec(x_14);
-x_41 = l_Lean_Init_LeanInit___instance__1;
+x_41 = l_Lean_Init_Prelude___instance__61;
 x_42 = lean_array_get(x_41, x_1, x_16);
 x_43 = lean_array_get(x_41, x_1, x_2);
 x_44 = l_Lean_Name_lt(x_42, x_43);
@@ -1271,7 +1271,7 @@ goto block_40;
 block_40:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_18 = l_Lean_Init_LeanInit___instance__1;
+x_18 = l_Lean_Init_Prelude___instance__61;
 x_19 = lean_array_get(x_18, x_17, x_3);
 x_20 = lean_array_get(x_18, x_17, x_2);
 x_21 = l_Lean_Name_lt(x_19, x_20);

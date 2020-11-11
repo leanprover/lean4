@@ -240,7 +240,7 @@ private partial def compileStxMatch : List Syntax → List Alt → TermElabM Syn
     let cond ← match info.argPats with
     | some pats => `(and (Syntax.isOfKind discr $(quote kind)) (BEq.beq (Array.size (Syntax.getArgs discr)) $(quote pats.size)))
     | none      => `(Syntax.isOfKind discr $(quote kind))
-    `(let discr := $discr; if Eq $cond true then $yes else $no)
+    `(let discr := $discr; ite (Eq $cond true) $yes $no)
   | _, _ => unreachable!
 
 private partial def getPatternVarsAux : Syntax → List Syntax

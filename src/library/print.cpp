@@ -68,7 +68,7 @@ static name cleanup_name(name const & n) {
         return n;
 }
 
-pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
+pair<expr, expr> binding_body_fresh(expr const & b, bool /* preserve_type */) {
     lean_assert(is_binding(b));
     name n = cleanup_name(binding_name(b));
     n = pick_unused_name(binding_body(b), n);
@@ -76,7 +76,7 @@ pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
     return mk_pair(instantiate(binding_body(b), c), c);
 }
 
-pair<expr, expr> let_body_fresh(expr const & b, bool preserve_type) {
+pair<expr, expr> let_body_fresh(expr const & b, bool /* preserve_type */) {
     lean_assert(is_let(b));
     name n = cleanup_name(let_name(b));
     n = pick_unused_name(let_body(b), n);

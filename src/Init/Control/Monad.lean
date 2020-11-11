@@ -10,23 +10,8 @@ universes u v w
 
 open Function
 
-class Bind (m : Type u → Type v) :=
-  (bind : {α β : Type u} → m α → (α → m β) → m β)
-
-export Bind (bind)
-
 @[inline] def mcomp {α : Type u} {β δ : Type v} {m : Type v → Type w} [Bind m] (f : α → m β) (g : β → m δ) : α → m δ :=
   fun a => f a >>= g
-
-class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) :=
-  (map      := fun f x => x >>= pure ∘ f)
-  (seq      := fun f x => f >>= (fun y => y <$> x))
-  (seqLeft  := fun x y => x >>= fun a => y >>= fun _ => pure a)
-  (seqRight := fun x y => x >>= fun _ => y)
-
-instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) := ⟨pure⟩
-
-instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) := ⟨pure $ arbitrary _⟩
 
 def joinM {m : Type u → Type u} [Monad m] {α : Type u} (a : m (m α)) : m α :=
   bind a id

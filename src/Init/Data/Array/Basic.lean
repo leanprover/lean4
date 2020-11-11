@@ -13,41 +13,8 @@ import Init.Control.Id
 import Init.Util
 universes u v w
 
-/-
-The Compiler has special support for arrays.
-They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic_array
--/
-structure Array (α : Type u) :=
-  (sz   : Nat)
-  (data : Fin sz → α)
-
-attribute [extern "lean_array_mk"] Array.mk
-attribute [extern "lean_array_data"] Array.data
-attribute [extern "lean_array_sz"] Array.sz
-
-@[reducible, extern "lean_array_get_size"]
-def Array.size {α : Type u} (a : @& Array α) : Nat :=
-  a.sz
-
 namespace Array
 variables {α : Type u}
-
-/- The parameter `c` is the initial capacity -/
-@[extern "lean_mk_empty_array_with_capacity"]
-def mkEmpty (c : @& Nat) : Array α := {
-  sz   := 0,
-  data := fun ⟨x, h⟩ => absurd h (Nat.notLtZero x)
-}
-
-@[extern "lean_array_push"]
-def push (a : Array α) (v : α) : Array α := {
-  sz   := Nat.succ a.sz,
-  data := fun ⟨j, h₁⟩ =>
-    if h₂ : j = a.sz then
-      v
-    else
-      a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩
-}
 
 @[extern "lean_mk_array"]
 def mkArray {α : Type u} (n : Nat) (v : α) : Array α := {
@@ -58,9 +25,6 @@ def mkArray {α : Type u} (n : Nat) (v : α) : Array α := {
 theorem sizeMkArrayEq (n : Nat) (v : α) : (mkArray n v).size = n :=
   rfl
 
-def empty : Array α :=
-  mkEmpty 0
-
 instance : EmptyCollection (Array α) := ⟨Array.empty⟩
 instance : Inhabited (Array α) := ⟨Array.empty⟩
 
@@ -70,21 +34,12 @@ def isEmpty (a : Array α) : Bool :=
 def singleton (v : α) : Array α :=
   mkArray 1 v
 
-@[extern "lean_array_fget"]
-def get (a : @& Array α) (i : @& Fin a.size) : α :=
-  a.data i
-
 /- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
 @[extern "lean_array_uget"]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
   a.get ⟨i.toNat, h⟩
-
-/- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
-@[extern "lean_array_get"]
-def get! [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-  if h : i < a.size then a.get ⟨i, h⟩ else arbitrary α
 
 def back [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)

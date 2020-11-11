@@ -87,61 +87,8 @@ instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) := {
 end
 end StateT
 
-/-- An implementation of [MonadState](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Class.html).
-    In contrast to the Haskell implementation, we use overlapping instances to derive instances
-    automatically from `monadLift`. -/
-class MonadStateOf (σ : Type u) (m : Type u → Type v) :=
-  /- Obtain the top-most State of a Monad stack. -/
-  (get : m σ)
-  /- Set the top-most State of a Monad stack. -/
-  (set : σ → m PUnit)
-  /- Map the top-most State of a Monad stack.
-
-     Note: `modifyGet f` may be preferable to `do s <- get; let (a, s) := f s; put s; pure a`
-     because the latter does not use the State linearly (without sufficient inlining). -/
-  (modifyGet {α : Type u} : (σ → α × σ) → m α)
-
-export MonadStateOf (set)
-
-abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] : m σ :=
-  MonadStateOf.get
-
-@[inline] abbrev modifyThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → σ) : m PUnit :=
-  MonadStateOf.modifyGet fun s => (PUnit.unit, f s)
-
-@[inline] abbrev modifyGetThe {α : Type u} (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → α × σ) : m α :=
-  MonadStateOf.modifyGet f
-
-/-- Similar to `MonadStateOf`, but `σ` is an outParam for convenience -/
-class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
-  (get : m σ)
-  (set : σ → m PUnit)
-  (modifyGet {α : Type u} : (σ → α × σ) → m α)
-
-export MonadState (get modifyGet)
-
-instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState σ m := {
-  set       := MonadStateOf.set,
-  get       := getThe σ,
-  modifyGet := fun f => MonadStateOf.modifyGet f
-}
-
 section
 variables {σ : Type u} {m : Type u → Type v}
-
-@[inline] def modify [MonadState σ m] (f : σ → σ) : m PUnit :=
-  modifyGet fun s => (PUnit.unit, f s)
-
-@[inline] def getModify [MonadState σ m] [Monad m] (f : σ → σ) : m σ := do
-  modifyGet fun s => (s, f s)
-
--- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
--- will be picked first
-instance {n : Type u → Type w} [MonadStateOf σ m] [MonadLift m n] : MonadStateOf σ n := {
-  get       := liftM (m := m) MonadStateOf.get,
-  set       := fun s => liftM (m := m) $ MonadStateOf.set s,
-  modifyGet := fun f => monadLift (m := m) $ MonadState.modifyGet f
-}
 
 instance [Monad m] : MonadStateOf σ (StateT σ m) := {
   get       := StateT.get,

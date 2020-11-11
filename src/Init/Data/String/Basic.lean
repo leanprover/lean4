@@ -9,32 +9,11 @@ import Init.Data.Char.Basic
 import Init.Data.Option.Basic
 universes u
 
-structure String :=
-  (data : List Char)
-
 /-- A byte position in a `String`. Internally, `String`s are UTF-8 encoded.
 Codepoint positions (counting the Unicode codepoints rather than bytes)
 are represented by plain `Nat`s instead.
 Indexing a `String` by a byte position is constant-time, while codepoint
 positions need to be translated internally to byte positions in linear-time. -/
-abbrev String.Pos := Nat
-
-structure Substring :=
-  (str : String)
-  (startPos : String.Pos)
-  (stopPos : String.Pos)
-
-attribute [extern "lean_string_mk"] String.mk
-attribute [extern "lean_string_data"] String.data
-
-@[extern "lean_string_dec_eq"]
-def String.decEq (s₁ s₂ : @& String) : Decidable (s₁ = s₂) :=
-  match s₁, s₂ with
-  | ⟨s₁⟩, ⟨s₂⟩ =>
-   if h : s₁ = s₂ then isTrue (congrArg _ h)
-   else isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h))
-
-instance : DecidableEq String := String.decEq
 
 def List.asString (s : List Char) : String :=
   ⟨s⟩

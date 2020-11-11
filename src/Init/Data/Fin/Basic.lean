@@ -9,9 +9,6 @@ import Init.Data.Nat.Bitwise
 import Init.Coe
 
 open Nat
-structure Fin (n : Nat) :=
-  (val : Nat)
-  (isLt : val < n)
 
 namespace Fin
 
@@ -87,15 +84,6 @@ instance : Mod (Fin n)         := ⟨Fin.mod⟩
 instance : Div (Fin n)         := ⟨Fin.div⟩
 instance : ModN (Fin n)        := ⟨Fin.modn⟩
 
-theorem eqOfVeq : ∀ {i j : Fin n}, (val i) = (val j) → i = j
-  | ⟨iv, ilt₁⟩, ⟨_, _⟩, rfl => rfl
-
-theorem veqOfEq : ∀ {i j : Fin n}, i = j → (val i) = (val j)
-  | ⟨iv, ilt⟩, _, rfl => rfl
-
-theorem neOfVne {i j : Fin n} (h : val i ≠ val j) : i ≠ j :=
-  fun h' => absurd (veqOfEq h') h
-
 theorem vneOfNe {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eqOfVeq h') h
 
@@ -105,6 +93,3 @@ theorem modnLt : ∀ {m : Nat} (i : Fin n), m > 0 → (i %ₙ m).val < m
 end Fin
 
 open Fin
-
-instance (n : Nat) : DecidableEq (Fin n) := fun i j =>
-  decidableOfDecidableOfIff (decEq i.val j.val) ⟨eqOfVeq, veqOfEq⟩

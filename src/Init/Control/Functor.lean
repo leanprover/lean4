@@ -9,10 +9,6 @@ import Init.Core
 open Function
 universes u v
 
-class Functor (f : Type u → Type v) : Type (max (u+1) v) :=
-  (map      : {α β : Type u} → (α → β) → f α → f β)
-  (mapConst : {α β : Type u} → α → f β → f α := map ∘ const _)
-
 @[reducible] def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a
 

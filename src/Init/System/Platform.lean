@@ -9,20 +9,10 @@ import Init.Data.Nat.Basic
 namespace System
 namespace Platform
 
-@[extern "lean_system_platform_nbits"] constant getNumBits : Unit → { n : Nat // n = 32 ∨ n = 64 } :=
-  fun _ => ⟨64, Or.inr rfl⟩ -- inhabitant
-
 @[extern "lean_system_platform_windows"] constant getIsWindows : Unit → Bool
 @[extern "lean_system_platform_osx"] constant getIsOSX : Unit → Bool
 
-def numBits : Nat := getNumBits () $.val
-
-theorem numBitsEq : numBits = 32 ∨ numBits = 64 :=
-  getNumBits () $.property
-
 def isWindows : Bool := getIsWindows ()
-
-
 def isOSX : Bool := getIsOSX ()
 
 end Platform

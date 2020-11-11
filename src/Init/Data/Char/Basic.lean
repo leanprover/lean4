@@ -9,12 +9,6 @@ import Init.Data.UInt
 @[inline, reducible] def isValidChar (n : UInt32) : Prop :=
   n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
-/-- The `Char` Type represents an unicode scalar value.
-    See http://www.unicode.org/glossary/#unicode_scalar_value). -/
-structure Char :=
-  (val : UInt32)
-  (valid : isValidChar val)
-
 instance : SizeOf Char := ⟨fun c => c.val.toNat⟩
 
 namespace Char
@@ -59,29 +53,8 @@ theorem isValidCharOfValidNat (n : Nat) (h : isValidCharNat n) : isValidChar (UI
 theorem isValidChar0 : isValidChar 0 :=
   Or.inl decide!
 
-@[noinline, matchPattern] def ofNat (n : Nat) : Char :=
-  if h : isValidCharNat n then
-    { val := UInt32.ofNat' n (isValidUInt32 n h), valid := isValidCharOfValidNat n h }
-  else
-    { val := 0, valid := isValidChar0 }
-
 @[inline] def toNat (c : Char) : Nat :=
   c.val.toNat
-
-theorem eqOfVeq : ∀ {c d : Char}, c.val = d.val → c = d
-  | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
-
-theorem veqOfEq : ∀ {c d : Char}, c = d → c.val = d.val
-  | _, _, rfl => rfl
-
-theorem neOfVne {c d : Char} (h : c.val ≠ d.val) : c ≠ d :=
-  fun h' => absurd (veqOfEq h') h
-
-theorem vneOfNe {c d : Char} (h : c ≠ d) : c.val ≠ d.val :=
-  fun h' => absurd (eqOfVeq h') h
-
-@[inline] instance : DecidableEq Char :=
-  fun i j => decidableOfDecidableOfIff (decEq i.val j.val) ⟨Char.eqOfVeq, Char.veqOfEq⟩
 
 instance : Inhabited Char :=
   ⟨'A'⟩

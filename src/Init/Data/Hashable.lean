@@ -8,19 +8,6 @@ import Init.Data.UInt
 import Init.Data.String
 universes u
 
-class Hashable (α : Type u) :=
-  (hash : α → USize)
-
-export Hashable (hash)
-
-@[extern "lean_usize_mix_hash"]
-constant mixHash (u₁ u₂ : USize) : USize
-
-@[extern "lean_string_hash"]
-protected constant String.hash (s : @& String) : USize
-
-instance : Hashable String := ⟨String.hash⟩
-
 instance : Hashable Nat := {
   hash := fun n => USize.ofNat n
 }

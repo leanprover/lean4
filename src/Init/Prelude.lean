@@ -537,6 +537,16 @@ def Nat.pred : Nat → Nat
   | 0      => 0
   | succ a => a
 
+set_option bootstrap.gen_matcher_code false in
+@[extern "lean_nat_sub"]
+protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
+  | a, 0      => a
+  | a, succ b => pred (Nat.sub a b)
+
+instance : Sub Nat := {
+  sub := Nat.sub
+}
+
 theorem Nat.predLePred : {n m : Nat} → LessEq n m → LessEq (pred n) (pred m)
   | zero,   zero,   h => rfl
   | zero,   succ n, h => zeroLe n
@@ -903,6 +913,9 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   dite (Less i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => arbitrary α)
+
+def Array.getOp {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
+  self.get! idx
 
 @[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α := {

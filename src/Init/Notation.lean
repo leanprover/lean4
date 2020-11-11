@@ -54,3 +54,15 @@ macro "if" h:ident " : " c:term " then " t:term " else " e:term : term =>
 
 macro "if" c:term " then " t:term " else " e:term : term =>
   `(ite $c $t $e)
+
+syntax "[" sepBy term ", " "]"  : term
+
+open Lean in
+macro_rules
+  | `([ $elems* ]) => do
+    let rec expandListLit (i : Nat) (skip : Bool) (result : Syntax) : MacroM Syntax := do
+      match i, skip with
+      | 0,   _     => pure result
+      | i+1, true  => expandListLit i false result
+      | i+1, false => expandListLit i true  (← `(List.cons $(elems[i]) $result))
+    expandListLit elems.size false (← `(List.nil))

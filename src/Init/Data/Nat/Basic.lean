@@ -9,14 +9,6 @@ universes u
 
 namespace Nat
 
-set_option bootstrap.gen_matcher_code false in
-@[extern "lean_nat_sub"]
-protected def sub : (@& Nat) → (@& Nat) → Nat
-  | a, 0   => a
-  | a, b+1 => pred (Nat.sub a b)
-
-instance : Sub Nat := ⟨Nat.sub⟩
-
 @[specialize] def foldAux {α : Type u} (f : Nat → α → α) (s : Nat) : Nat → α → α
   | 0,      a => a
   | succ n, a => foldAux f s n (f (s - (succ n)) a)

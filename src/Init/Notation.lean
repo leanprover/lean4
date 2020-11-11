@@ -49,7 +49,7 @@ infixl:60  " <* "  => SeqLeft.seqLeft
 infixr:60  " *> "  => SeqRight.seqRight
 infixr:100 " <$> " => Functor.map
 
-macro "if" h:ident ":" c:term " then " t:term " else " e:term : term =>
+macro "if" h:ident " : " c:term " then " t:term " else " e:term : term =>
   `(dite $c (fun $h => $t) (fun $h => $e))
 
 macro "if" c:term " then " t:term " else " e:term : term =>

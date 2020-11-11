@@ -204,51 +204,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def dollar     := tparser!:0 «try» (" $" >> checkWsBefore "expected space") >> termParser 0
 @[builtinTermParser] def dollarProj := tparser!:0 " $. " >> (fieldIdx <|> ident)
 
-@[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90
-
-@[builtinTermParser] def prod  := tparser! infixR " × " 35
-
-@[builtinTermParser] def add   := tparser! infixL " + "  65
-@[builtinTermParser] def sub   := tparser! infixL " - "  65
-@[builtinTermParser] def mul   := tparser! infixL " * "  70
-@[builtinTermParser] def div   := tparser! infixL " / "  70
-@[builtinTermParser] def mod   := tparser! infixL " % "  70
-@[builtinTermParser] def modN  := tparser! infixL " %ₙ " 70
-@[builtinTermParser] def pow   := tparser! infixR " ^ " 80
-
-@[builtinTermParser] def le    := tparser! unicodeInfixL " ≤ " " <= " 50
-@[builtinTermParser] def ge    := tparser! unicodeInfixL " ≥ " " >= " 50
-@[builtinTermParser] def lt    := tparser! infixL " < " 50
-@[builtinTermParser] def gt    := tparser! infixL " > " 50
-@[builtinTermParser] def eq    := tparser! infixL " = " 50
-@[builtinTermParser] def ne    := tparser! infixL " ≠ " 50
-@[builtinTermParser] def beq   := tparser! infixL " == " 50
-@[builtinTermParser] def bne   := tparser! infixL " != " 50
-@[builtinTermParser] def heq   := tparser! unicodeInfixL " ≅ " " ~= " 50
-@[builtinTermParser] def equiv := tparser! infixL " ≈ " 50
-
 @[builtinTermParser] def subst := tparser!:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "
-
-@[builtinTermParser] def and   := tparser! unicodeInfixR " ∧ " " /\\ " 35
-@[builtinTermParser] def or    := tparser! unicodeInfixR " ∨ " " \\/ " 30
-@[builtinTermParser] def iff   := tparser! unicodeInfixL " ↔ " " <-> " 20
-
-@[builtinTermParser] def band  := tparser! infixL " && " 35
-@[builtinTermParser] def bor   := tparser! infixL " || " 30
-
-@[builtinTermParser] def append := tparser! infixL " ++ " 65
-@[builtinTermParser] def cons   := tparser! infixR " :: " 67
-
-@[builtinTermParser] def orelse      := tparser! infixR " <|> " 2
-@[builtinTermParser] def orM         := tparser! infixR " <||> " 30
-@[builtinTermParser] def andM        := tparser! infixR " <&&> " 35
-@[builtinTermParser] def andthen     := tparser! infixR " >> "  60
-@[builtinTermParser] def bindOp      := tparser! infixL " >>= " 55
-@[builtinTermParser] def mapRev      := tparser! infixR " <&> " 100
-@[builtinTermParser] def seq         := tparser! infixL " <*> " 60
-@[builtinTermParser] def seqLeft     := tparser! infixL " <* "  60
-@[builtinTermParser] def seqRight    := tparser! infixR " *> "  60
-@[builtinTermParser] def map         := tparser! infixR " <$> " 100
 
 @[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot funBinder >> ")"
 

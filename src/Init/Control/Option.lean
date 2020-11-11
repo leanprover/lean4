@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import Init.Control.Alternative
+import Init.Control.Basic
 import Init.Control.Except
 
 universes u v
+
+instance {α} : ToBool (Option α) := ⟨Option.toBool⟩
 
 def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
   m (Option α)

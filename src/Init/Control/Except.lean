@@ -7,8 +7,7 @@ The Except monad transformer.
 -/
 prelude
 import Init.Data.ToString.Basic
-import Init.Control.Alternative
-import Init.Control.MonadControl
+import Init.Control.Basic
 import Init.Control.Id
 
 universes u v w u'

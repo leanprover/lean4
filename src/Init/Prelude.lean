@@ -832,7 +832,7 @@ structure Substring :=
   (startPos : String.Pos)
   (stopPos : String.Pos)
 
-private def String.csize (c : Char) : Nat :=
+def String.csize (c : Char) : Nat :=
   c.utf8Size.toNat
 
 private def String.utf8ByteSizeAux : List Char → Nat → Nat

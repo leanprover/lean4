@@ -31,7 +31,6 @@ lean_object* l_withPtrEqDecEq_match__1___rarg___boxed(lean_object*, lean_object*
 lean_object* l_withPtrEqDecEq_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrEqDecEq(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessage___closed__3;
 extern lean_object* l_Init_Data_Repr___instance__18___closed__2;
 lean_object* l_dbgTraceVal___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,6 +54,7 @@ lean_object* l_withPtrEqUnsafe___rarg(lean_object*, lean_object*, lean_object*, 
 lean_object* l_panicWithPos(lean_object*);
 lean_object* l_panicWithPosWithDecl(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
 lean_object* l_panicWithPosWithDecl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddr___rarg___boxed__const__1;
 lean_object* l_withPtrAddr___rarg(lean_object*, lean_object*);
@@ -120,14 +120,6 @@ static lean_object* _init_l___private_Init_Util_0__mkPanicMessage___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Util_0__mkPanicMessage___closed__3() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string(": ");
 return x_1;
 }
@@ -138,7 +130,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_5 = l___private_Init_Util_0__mkPanicMessage___closed__1;
 x_6 = lean_string_append(x_5, x_1);
-x_7 = l___private_Init_Util_0__mkPanicMessage___closed__2;
+x_7 = l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Nat_repr(x_2);
 x_10 = lean_string_append(x_8, x_9);
@@ -147,7 +139,7 @@ x_11 = lean_string_append(x_10, x_7);
 x_12 = l_Nat_repr(x_3);
 x_13 = lean_string_append(x_11, x_12);
 lean_dec(x_12);
-x_14 = l___private_Init_Util_0__mkPanicMessage___closed__3;
+x_14 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 x_16 = lean_string_append(x_15, x_4);
 return x_16;
@@ -199,7 +191,7 @@ x_7 = lean_string_append(x_6, x_2);
 x_8 = l_Init_Data_Repr___instance__18___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 x_10 = lean_string_append(x_9, x_1);
-x_11 = l___private_Init_Util_0__mkPanicMessage___closed__2;
+x_11 = l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l_Nat_repr(x_3);
 x_14 = lean_string_append(x_12, x_13);
@@ -208,7 +200,7 @@ x_15 = lean_string_append(x_14, x_11);
 x_16 = l_Nat_repr(x_4);
 x_17 = lean_string_append(x_15, x_16);
 lean_dec(x_16);
-x_18 = l___private_Init_Util_0__mkPanicMessage___closed__3;
+x_18 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = lean_string_append(x_19, x_5);
 return x_20;
@@ -500,8 +492,6 @@ l___private_Init_Util_0__mkPanicMessage___closed__1 = _init_l___private_Init_Uti
 lean_mark_persistent(l___private_Init_Util_0__mkPanicMessage___closed__1);
 l___private_Init_Util_0__mkPanicMessage___closed__2 = _init_l___private_Init_Util_0__mkPanicMessage___closed__2();
 lean_mark_persistent(l___private_Init_Util_0__mkPanicMessage___closed__2);
-l___private_Init_Util_0__mkPanicMessage___closed__3 = _init_l___private_Init_Util_0__mkPanicMessage___closed__3();
-lean_mark_persistent(l___private_Init_Util_0__mkPanicMessage___closed__3);
 l_withPtrAddr___rarg___boxed__const__1 = _init_l_withPtrAddr___rarg___boxed__const__1();
 lean_mark_persistent(l_withPtrAddr___rarg___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));

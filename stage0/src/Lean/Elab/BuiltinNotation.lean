@@ -19,12 +19,6 @@ open Meta
   | `($f $ $a)        => `($f $a)
   | _                 => Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Term.if] def expandIf : Macro := fun stx =>
-  match_syntax stx with
-  | `(if $h : $cond then $t else $e) => `(dite $cond (fun $h:ident => $t) (fun $h:ident => $e))
-  | `(if $cond then $t else $e)      => `(ite $cond $t $e)
-  | _                                => Macro.throwUnsupported
-
 @[builtinMacro Lean.Parser.Term.subtype] def expandSubtype : Macro := fun stx =>
   match_syntax stx with
   | `({ $x : $type // $p }) => `(Subtype (fun ($x:ident : $type) => $p))

@@ -951,8 +951,14 @@ def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := do
   let r ← reassignToTermCore reassign k
   pure $ r.copyInfo reassign
 
-def mkIte (ref : Syntax) (optIdent : Syntax) (cond : Syntax) (thenBranch : Syntax) (elseBranch : Syntax) : Syntax :=
-  mkNode `Lean.Parser.Term.«if» #[mkAtomFrom ref "if", optIdent, cond, mkAtomFrom ref "then", thenBranch, mkAtomFrom ref "else", elseBranch]
+def mkIte (ref : Syntax) (optIdent : Syntax) (cond : Syntax) (thenBranch : Syntax) (elseBranch : Syntax) : MacroM Syntax := do
+  let r ←
+    if optIdent.isNone then
+      `(ite $cond $thenBranch $elseBranch)
+    else
+      let h := optIdent[0]
+      `(dite $cond (fun $h => $thenBranch) (fun $h => $elseBranch))
+  return r.copyInfo ref
 
 def mkJoinPointCore (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Syntax) : M Syntax := withFreshMacroScope do
   let ref := body
@@ -1005,7 +1011,7 @@ partial def toTerm : Code → M Syntax
   | Code.decl _ stx k       => do declToTerm stx (← toTerm k)
   | Code.reassign _ stx k   => do reassignToTerm stx (← toTerm k)
   | Code.seq stx k          => do seqToTerm stx (← toTerm k)
-  | Code.ite ref _ o c t e  => do pure $ mkIte ref o c (← toTerm t) (← toTerm e)
+  | Code.ite ref _ o c t e  => do mkIte ref o c (← toTerm t) (← toTerm e)
   | Code.«match» ref discrs optType alts => do
     let mut termSepAlts := #[]
     for alt in alts do

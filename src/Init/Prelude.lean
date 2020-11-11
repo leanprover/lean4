@@ -1,9 +1,7 @@
 /-
-Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
-
-notation, basic datatypes and type classes
 -/
 prelude
 
@@ -63,10 +61,10 @@ abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : 
 theorem Eq.subst {α : Sort u} {motive : α → Prop} {a b : α} (h₁ : Eq a b) (h₂ : motive a) : motive b :=
   Eq.ndrec h₂ h₁
 
-theorem Eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
+theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
-@[macroInline] def cast {α β : Sort u} (h : α = β) (a : α) : β :=
+@[macroInline] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
   Eq.rec (motive := fun α _ => α) a h
 
 theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
@@ -90,7 +88,7 @@ init_quot
 inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop
   | refl {} : HEq a a
 
-@[matchPattern] def HEq.rfl {α : Sort u} {a : α} : a ≅ a :=
+@[matchPattern] def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
   HEq.refl a
 
 theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
@@ -147,11 +145,11 @@ structure Subtype {α : Sort u} (p : α → Prop) :=
 /- Auxiliary axiom used to implement `sorry`. -/
 axiom sorryAx (α : Sort u) (synthetic := true) : α
 
-theorem eqFalseOfNeTrue : {b : Bool} → Not (Eq b true) → b = false
+theorem eqFalseOfNeTrue : {b : Bool} → Not (Eq b true) → Eq b false
   | true, h => False.elim (h rfl)
   | false, h => rfl
 
-theorem eqTrueOfNeFalse : {b : Bool} → Not (Eq b false) → b = true
+theorem eqTrueOfNeFalse : {b : Bool} → Not (Eq b false) → Eq b true
   | true, h => rfl
   | false, h => False.elim (h rfl)
 
@@ -182,10 +180,10 @@ structure PLift (α : Sort u) : Type u :=
   up :: (down : α)
 
 /- Bijection between α and PLift α -/
-theorem PLift.upDown {α : Sort u} : ∀ (b : PLift α), up (down b) = b
+theorem PLift.upDown {α : Sort u} : ∀ (b : PLift α), Eq (up (down b)) b
   | up a => rfl
 
-theorem PLift.downUp {α : Sort u} (a : α) : down (up a) = a :=
+theorem PLift.downUp {α : Sort u} (a : α) : Eq (down (up a)) a :=
   rfl
 
 /- Pointed types -/
@@ -202,10 +200,10 @@ structure ULift.{r, s} (α : Type s) : Type (max s r) :=
   up :: (down : α)
 
 /- Bijection between α and ULift.{v} α -/
-theorem ULift.upDown {α : Type u} : ∀ (b : ULift.{v} α), up (down b) = b
+theorem ULift.upDown {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
   | up a => rfl
 
-theorem ULift.downUp {α : Type u} (a : α) : down (up.{v} a) = a :=
+theorem ULift.downUp {α : Type u} (a : α) : Eq (down (up.{v} a)) a :=
   rfl
 
 class inductive Decidable (p : Prop)
@@ -409,12 +407,12 @@ theorem Nat.neOfBeqEqFf : {n m : Nat} → Eq (beq n m) false → Not (Eq n m)
   | zero,   succ m, h₁, h₂ => Nat.noConfusion h₂
   | succ n, zero,   h₁, h₂ => Nat.noConfusion h₂
   | succ n, succ m, h₁, h₂ =>
-    have beq n m = false from h₁
+    have Eq (beq n m) false from h₁
     Nat.noConfusion h₂ (fun h₂ => absurd h₂ (neOfBeqEqFf this))
 
 @[extern "lean_nat_dec_eq"]
-protected def Nat.decEq (n m : @& Nat) : Decidable (n = m) :=
-  if h : beq n m = true then isTrue (eqOfBeqEqTt h)
+protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
+  if h : Eq (beq n m) true then isTrue (eqOfBeqEqTt h)
   else isFalse (neOfBeqEqFf (eqFalseOfNeTrue h))
 
 @[inline] instance : DecidableEq Nat := Nat.decEq
@@ -428,7 +426,7 @@ def Nat.ble : Nat → Nat → Bool
   | succ n, succ m => ble n m
 
 protected def Nat.le (n m : Nat) : Prop :=
-  ble n m = true
+  Eq (ble n m) true
 
 instance : HasLessEq Nat := ⟨Nat.le⟩
 
@@ -563,7 +561,7 @@ structure Fin (n : Nat) :=
 theorem Fin.eqOfVeq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
   | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
 
-theorem Fin.veqOfEq {n} {i j : Fin n} (h : Eq i j) : i.val = j.val :=
+theorem Fin.veqOfEq {n} {i j : Fin n} (h : Eq i j) : Eq i.val j.val :=
   h ▸ rfl
 
 theorem Fin.neOfVne {n} {i j : Fin n} (h : Not (Eq i.val j.val)) : Not (Eq i j) :=
@@ -814,10 +812,10 @@ attribute [extern "lean_string_mk"] String.mk
 attribute [extern "lean_string_data"] String.data
 
 @[extern "lean_string_dec_eq"]
-def String.decEq (s₁ s₂ : @& String) : Decidable (s₁ = s₂) :=
+def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   match s₁, s₂ with
   | ⟨s₁⟩, ⟨s₂⟩ =>
-   if h : s₁ = s₂ then isTrue (congrArg _ h)
+   if h : Eq s₁ s₂ then isTrue (congrArg _ h)
    else isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h))
 
 instance : DecidableEq String := String.decEq
@@ -900,7 +898,7 @@ def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α 
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α := {
   sz   := Nat.succ a.sz,
   data := fun ⟨j, h₁⟩ =>
-    if h₂ : j = a.sz then
+    if h₂ : Eq j a.sz then
       v
     else
       a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩
@@ -1153,7 +1151,7 @@ class MonadStateOf (σ : Type u) (m : Type u → Type v) :=
 
      Note: `modifyGet f` may be preferable to `do s <- get; let (a, s) := f s; put s; pure a`
      because the latter does not use the State linearly (without sufficient inlining). -/
-  (modifyGet {α : Type u} : (σ → α × σ) → m α)
+  (modifyGet {α : Type u} : (σ → Prod α σ) → m α)
 
 export MonadStateOf (set)
 
@@ -1163,14 +1161,14 @@ abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] : m σ :
 @[inline] abbrev modifyThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → σ) : m PUnit :=
   MonadStateOf.modifyGet fun s => (PUnit.unit, f s)
 
-@[inline] abbrev modifyGetThe {α : Type u} (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → α × σ) : m α :=
+@[inline] abbrev modifyGetThe {α : Type u} (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → Prod α σ) : m α :=
   MonadStateOf.modifyGet f
 
 /-- Similar to `MonadStateOf`, but `σ` is an outParam for convenience -/
 class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
   (get : m σ)
   (set : σ → m PUnit)
-  (modifyGet {α : Type u} : (σ → α × σ) → m α)
+  (modifyGet {α : Type u} : (σ → Prod α σ) → m α)
 
 export MonadState (get modifyGet)
 
@@ -1225,7 +1223,7 @@ instance [Inhabited ε] : Inhabited (EStateM ε σ α) := ⟨fun s =>
 @[inline] protected def get : EStateM ε σ σ := fun s =>
   Result.ok s s
 
-@[inline] protected def modifyGet (f : σ → α × σ) : EStateM ε σ α := fun s =>
+@[inline] protected def modifyGet (f : σ → Prod α σ) : EStateM ε σ α := fun s =>
   match f s with
   | (a, s) => Result.ok a s
 
@@ -1356,8 +1354,8 @@ namespace Name
 @[extern "lean_name_eq"]
 protected def beq : (@& Name) → (@& Name) → Bool
   | anonymous,   anonymous   => true
-  | str p₁ s₁ _, str p₂ s₂ _ => BEq.beq s₁ s₂ && Name.beq p₁ p₂
-  | num p₁ n₁ _, num p₂ n₂ _ => BEq.beq n₁ n₂ && Name.beq p₁ p₂
+  | str p₁ s₁ _, str p₂ s₂ _ => and (BEq.beq s₁ s₂) (Name.beq p₁ p₂)
+  | num p₁ n₁ _, num p₂ n₂ _ => and (BEq.beq n₁ n₂) (Name.beq p₁ p₂)
   | _,           _           => false
 
 instance : BEq Name := ⟨Name.beq⟩
@@ -1547,7 +1545,7 @@ def Name.hasMacroScopes : Name → Bool
   | _           => false
 
 private def eraseMacroScopesAux : Name → Name
-  | Name.str p s _   => if s = "_@" then p else eraseMacroScopesAux p
+  | Name.str p s _   => if Eq s "_@" then p else eraseMacroScopesAux p
   | Name.num p _ _   => eraseMacroScopesAux p
   | Name.anonymous   => Name.anonymous
 
@@ -1591,7 +1589,7 @@ private def assembleParts : List Name → Name → Name
 
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
   | n@(Name.str p str _), parts =>
-    if str = "_@" then
+    if Eq str "_@" then
       { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     else
       extractImported scps mainModule p (List.cons n parts)
@@ -1600,7 +1598,7 @@ private def extractImported (scps : List MacroScope) (mainModule : Name) : Name 
 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
   | n@(Name.str p str _), parts =>
-    if str = "_@" then
+    if Eq str "_@" then
       { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     else
       extractMainModule scps p (List.cons n parts)
@@ -1689,7 +1687,7 @@ def throwError {α} (ref : Syntax) (msg : String) : MacroM α :=
 
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α :=
   bind read fun ctx =>
-  if ctx.currRecDepth = ctx.maxRecDepth then
+  if Eq ctx.currRecDepth ctx.maxRecDepth then
     throw (Exception.error ref maxRecDepthErrorMessage)
   else
     withReader (fun ctx => { ctx with currRecDepth := add ctx.currRecDepth 1 }) x

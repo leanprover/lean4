@@ -32,7 +32,7 @@ uint8_t l_Lean_Exception_hasSyntheticSorry(lean_object*);
 lean_object* l_Lean_Expr_isSyntheticSorry_match__1(lean_object*);
 lean_object* l_Lean_Expr_isSyntheticSorry_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Init_LeanInit___instance__4___closed__1;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Lean_Exception_hasSyntheticSorry_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
 lean_object* l_Lean_MessageData_hasSorry___boxed(lean_object*);
@@ -3102,7 +3102,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Expr_isSorry_match__1___rarg___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }

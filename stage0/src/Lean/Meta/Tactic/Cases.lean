@@ -143,7 +143,7 @@ private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := d
     let majorType ← whnf majorDecl.type
     majorType.withApp fun f args => matchConstInduct f (fun _ => pure none) fun ival _ =>
       if args.size != ival.nindices + ival.nparams then pure none
-      else match env.find? (mkNameStr ival.name "casesOn") with
+      else match env.find? (Name.mkStr ival.name "casesOn") with
         | ConstantInfo.defnInfo cval =>
           pure $ some {
             inductiveVal  := ival,

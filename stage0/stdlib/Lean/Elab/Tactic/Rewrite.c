@@ -62,7 +62,7 @@ lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRewrite___closed__1;
 lean_object* l_Lean_Elab_Tactic_rewriteTarget_match__1(lean_object*);
 lean_object* l_Lean_Elab_Tactic_rewriteAll___lambda__1___closed__3;
 lean_object* l_Lean_Elab_Tactic_rewriteTarget___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_rewriteLocalDeclFVarId___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic___closed__2;
@@ -118,7 +118,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
 x_2 = l_Lean_Meta_rewrite___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -235,7 +235,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
 x_2 = l___regBuiltin_Lean_Elab_Tactic_expandRewriteTactic___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }

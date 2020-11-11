@@ -75,7 +75,7 @@ lean_object* l_List_map___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10_
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getReducibilityStatus(lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10____spec__1___closed__1;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setReducibilityStatus___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_setReducibleAttribute___rarg(lean_object*, lean_object*);
@@ -1031,7 +1031,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -1049,7 +1049,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10____closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -1092,7 +1092,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10____closed__7;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -1135,7 +1135,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10____closed__11;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }

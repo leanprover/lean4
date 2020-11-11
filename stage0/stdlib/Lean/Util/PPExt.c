@@ -43,7 +43,7 @@ extern lean_object* l_Lean_LocalContext_Lean_LocalContext___instance__2___closed
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_129____closed__1;
 lean_object* l_Lean_ppFnsRef;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_Lean_ppExpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____closed__1;
@@ -83,7 +83,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -133,7 +133,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_getSanitizeNames___closed__2;
 x_2 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__6;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }

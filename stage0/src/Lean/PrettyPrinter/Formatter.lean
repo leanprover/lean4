@@ -304,7 +304,7 @@ def identNoAntiquot.formatter : Formatter := do
     else
       let n := stx.getId
       -- TODO: do something better than escaping all parts
-      let n := (n.components.map fun c => "«" ++ toString c ++ "»").foldl mkNameStr Name.anonymous
+      let n := (n.components.map fun c => "«" ++ toString c ++ "»").foldl Name.mkStr Name.anonymous
       pushToken n.toString
   goLeft
 

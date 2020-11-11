@@ -339,7 +339,7 @@ private def expandParentFields (s : Struct) : TermElabM Struct := do
         else match getPathToBaseStructure? env baseStructName s.structName with
           | some path => do
             let path := path.map $ fun funName => match funName with
-              | Name.str _ s _ => FieldLHS.fieldName ref (mkNameSimple s)
+              | Name.str _ s _ => FieldLHS.fieldName ref (Name.mkSimple s)
               | _              => unreachable!
             pure { field with lhs := path ++ field.lhs }
           | _ => throwErrorAt! ref "failed to access field '{fieldName}' in parent structure"
@@ -403,7 +403,7 @@ private def mkSubstructSource (structName : Name) (fieldNames : Array Name) (fie
           let valStx := s.ref -- construct substructure syntax using s.ref as template
           let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type
           let args   := substructFields.toArray.map Field.toSyntax
-          let valStx := valStx.setArg 2 (mkSepStx args (mkAtomFrom s.ref ","))
+          let valStx := valStx.setArg 2 (Syntax.mkSep args (mkAtomFrom s.ref ","))
           let valStx := setStructSourceSyntax valStx substructSource
           pure { field with lhs := [field.lhs.head!], val := FieldVal.term valStx }
 

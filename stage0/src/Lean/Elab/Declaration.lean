@@ -20,7 +20,7 @@ def expandDeclIdNamespace? (declId : Syntax) : Option (Name × Syntax) :=
   match scpView.name with
   | Name.str Name.anonymous s _ => none
   | Name.str pre s _            =>
-    let nameNew := { scpView with name := mkNameSimple s }.review
+    let nameNew := { scpView with name := Name.mkSimple s }.review
     if declId.isIdent then
       some (pre, mkIdentFrom declId nameNew)
     else

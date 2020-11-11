@@ -333,7 +333,7 @@ private def mkNoConfusionImp (target : Expr) (h : Expr) : MetaM Expr := do
     let α ← whnf α
     matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun v us => do
       let u ← getLevel target
-      pure $ mkAppN (mkConst (mkNameStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
+      pure $ mkAppN (mkConst (Name.mkStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
 def mkNoConfusion (target : Expr) (h : Expr) : m Expr :=
   liftMetaM $ mkNoConfusionImp target h
 

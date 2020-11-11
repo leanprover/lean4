@@ -63,7 +63,7 @@ lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_852_(lean_object*,
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_547_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
 lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__20;
 lean_object* l_Std_Range_forIn_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,7 +132,7 @@ lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_547____closed__4;
 lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__3;
 extern lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___closed__1;
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__3;
-lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameNum(lean_object*, lean_object*);
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__15;
 lean_object* l_Std_Range_forIn_loop___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_addParenHeuristic___closed__1;
@@ -396,7 +396,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -414,7 +414,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__2;
 x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -424,7 +424,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__4;
 x_2 = l___kind_term____x40_Init_Notation___hyg_3____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -434,7 +434,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__5;
 x_2 = l___kind_term____x40_Init_Notation___hyg_3____closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -444,7 +444,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__6;
 x_2 = l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -454,7 +454,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__7;
 x_2 = l___kind_term____x40_Init_Notation___hyg_3____closed__6;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -472,7 +472,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__8;
 x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__9;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -482,7 +482,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__10;
 x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -492,7 +492,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__11;
 x_2 = l_Lean_Name_hasMacroScopes___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -502,7 +502,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__12;
 x_2 = lean_unsigned_to_nat(108u);
-x_3 = lean_name_mk_numeral(x_1, x_2);
+x_3 = l_Lean_mkNameNum(x_1, x_2);
 return x_3;
 }
 }
@@ -612,7 +612,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__12;
 x_2 = lean_unsigned_to_nat(152u);
-x_3 = lean_name_mk_numeral(x_1, x_2);
+x_3 = l_Lean_mkNameNum(x_1, x_2);
 return x_3;
 }
 }
@@ -692,7 +692,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__12;
 x_2 = lean_unsigned_to_nat(202u);
-x_3 = lean_name_mk_numeral(x_1, x_2);
+x_3 = l_Lean_mkNameNum(x_1, x_2);
 return x_3;
 }
 }
@@ -760,7 +760,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__12;
 x_2 = lean_unsigned_to_nat(255u);
-x_3 = lean_name_mk_numeral(x_1, x_2);
+x_3 = l_Lean_mkNameNum(x_1, x_2);
 return x_3;
 }
 }
@@ -836,7 +836,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__6;
 x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -898,7 +898,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__6;
 x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__7;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -939,7 +939,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__9;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -949,7 +949,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__4;
 x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_314____closed__9;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -1048,7 +1048,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -1242,7 +1242,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_547____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -1252,7 +1252,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__4;
 x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_547____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -1493,7 +1493,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_852____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -1503,7 +1503,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__4;
 x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_852____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }

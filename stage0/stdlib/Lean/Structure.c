@@ -28,6 +28,7 @@ lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsAux_match__1(l
 lean_object* l_Lean_getPathToBaseStructureAux_match__1(lean_object*);
 lean_object* l_Lean_isInternalSubobjectFieldName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStructureCtor___closed__4;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux_match__1(lean_object*);
@@ -61,7 +62,6 @@ lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux___closed__3;
 lean_object* l_Lean_getStructureCtor___closed__5;
 lean_object* l_Lean_getStructureCtor___closed__3;
 lean_object* l_Lean_getPathToBaseStructureAux_match__2___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_Array_contains___at_Lean_findField_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_getStructureFields(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_getProjFnForField_x3f___spec__1(lean_object*, lean_object*, size_t, size_t);

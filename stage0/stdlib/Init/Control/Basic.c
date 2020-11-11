@@ -71,7 +71,7 @@ lean_object* l_bool_match__1___rarg___boxed(lean_object*, lean_object*, lean_obj
 lean_object* l_bool_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_notM___rarg___closed__1;
 lean_object* l___kind_term____x40_Init_Control_Basic___hyg_512____closed__3;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_guard___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_74____closed__4;
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_564____closed__3;
@@ -140,7 +140,7 @@ lean_object* l_orM(lean_object*, lean_object*);
 lean_object* l_assert___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_control(lean_object*, lean_object*);
 lean_object* l_when___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameNum(lean_object*, lean_object*);
 lean_object* l___kind_term____x40_Init_Control_Basic___hyg_38____closed__3;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_5472____closed__4;
 lean_object* l_andM_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -178,7 +178,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___kind_term____x40_Init_Notation___hyg_3____closed__7;
 x_2 = l___kind_term____x40_Init_Control_Basic___hyg_38____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -196,7 +196,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___kind_term____x40_Init_Control_Basic___hyg_38____closed__2;
 x_2 = l___kind_term____x40_Init_Control_Basic___hyg_38____closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -206,7 +206,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___kind_term____x40_Init_Control_Basic___hyg_38____closed__4;
 x_2 = l_Lean_Name_hasMacroScopes___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -216,7 +216,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___kind_term____x40_Init_Control_Basic___hyg_38____closed__5;
 x_2 = lean_unsigned_to_nat(38u);
-x_3 = lean_name_mk_numeral(x_1, x_2);
+x_3 = l_Lean_mkNameNum(x_1, x_2);
 return x_3;
 }
 }
@@ -317,7 +317,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_myMacro____x40_Init_Control_Basic___hyg_74____closed__4;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -335,7 +335,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Control_Basic___hyg_74____closed__5;
 x_2 = l_myMacro____x40_Init_Control_Basic___hyg_74____closed__6;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -868,7 +868,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___kind_term____x40_Init_Control_Basic___hyg_38____closed__5;
 x_2 = lean_unsigned_to_nat(512u);
-x_3 = lean_name_mk_numeral(x_1, x_2);
+x_3 = l_Lean_mkNameNum(x_1, x_2);
 return x_3;
 }
 }
@@ -961,7 +961,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_myMacro____x40_Init_Control_Basic___hyg_564____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -1176,7 +1176,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___kind_term____x40_Init_Control_Basic___hyg_38____closed__5;
 x_2 = lean_unsigned_to_nat(752u);
-x_3 = lean_name_mk_numeral(x_1, x_2);
+x_3 = l_Lean_mkNameNum(x_1, x_2);
 return x_3;
 }
 }
@@ -1269,7 +1269,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_myMacro____x40_Init_Control_Basic___hyg_804____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }

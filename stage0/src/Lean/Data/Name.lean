@@ -8,7 +8,7 @@ import Std.Data.RBMap
 import Std.Data.RBTree
 namespace Lean
 
-instance : Coe String Name := ⟨mkNameSimple⟩
+instance : Coe String Name := ⟨Name.mkSimple⟩
 
 namespace Name
 
@@ -38,13 +38,13 @@ def getNumParts : Name → Nat
 
 def updatePrefix : Name → Name → Name
   | anonymous, newP => anonymous
-  | str p s _, newP => mkNameStr newP s
-  | num p s _, newP => mkNameNum newP s
+  | str p s _, newP => Name.mkStr newP s
+  | num p s _, newP => Name.mkNum newP s
 
 def components' : Name → List Name
   | anonymous => []
-  | str n s _ => mkNameStr anonymous s :: components' n
-  | num n v _ => mkNameNum anonymous v :: components' n
+  | str n s _ => Name.mkStr anonymous s :: components' n
+  | num n v _ => Name.mkNum anonymous v :: components' n
 
 def components (n : Name) : List Name :=
   n.components'.reverse
@@ -56,8 +56,8 @@ def eqStr : Name → String → Bool
 def replacePrefix : Name → Name → Name → Name
   | anonymous,     anonymous, newP => newP
   | anonymous,     _,         _    => anonymous
-  | n@(str p s _), queryP,    newP => if n == queryP then newP else mkNameStr (p.replacePrefix queryP newP) s
-  | n@(num p s _), queryP,    newP => if n == queryP then newP else mkNameNum (p.replacePrefix queryP newP) s
+  | n@(str p s _), queryP,    newP => if n == queryP then newP else Name.mkStr (p.replacePrefix queryP newP) s
+  | n@(num p s _), queryP,    newP => if n == queryP then newP else Name.mkNum (p.replacePrefix queryP newP) s
 
 def isPrefixOf : Name → Name → Bool
   | p, anonymous      => p == anonymous
@@ -174,4 +174,4 @@ open Lean
 
 def String.toName (s : String) : Name :=
   let ps := s.splitOn ".";
-  ps.foldl (fun n p => mkNameStr n p.trim) Name.anonymous
+  ps.foldl (fun n p => Name.mkStr n p.trim) Name.anonymous

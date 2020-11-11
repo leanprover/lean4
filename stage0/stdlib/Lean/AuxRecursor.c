@@ -37,7 +37,7 @@ lean_object* lean_mark_no_confusion(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_3____closed__1;
 lean_object* l_Lean_noConfusionExt___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_auxRecExt___elambda__1(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_3_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_31_(lean_object*);
 lean_object* l_Lean_noConfusionExt___closed__4;
@@ -76,7 +76,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_3____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -264,7 +264,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_31____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }

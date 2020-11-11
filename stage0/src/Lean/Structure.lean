@@ -32,7 +32,7 @@ def isInternalSubobjectFieldName : Name → Bool
   | _              => false
 
 def deinternalizeFieldName : Name → Name
-  | n@(Name.str p s _) => if s.length > 0 && s.get 0 == '_' then mkNameStr p (s.drop 1) else n
+  | n@(Name.str p s _) => if s.length > 0 && s.get 0 == '_' then Name.mkStr p (s.drop 1) else n
   | n                  => n
 
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=

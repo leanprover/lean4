@@ -277,7 +277,7 @@ private def isDone (ctx : Context) : Bool :=
 private def finalize (ctx : Context) : M Syntax := do
   if ctx.namedArgs.isEmpty && ctx.args.isEmpty then
     let fStx ← `(@$(ctx.funId):ident)
-    pure $ mkAppStx fStx ctx.newArgs
+    pure $ Syntax.mkApp fStx ctx.newArgs
   else
     throwError "too many arguments"
 
@@ -476,7 +476,7 @@ partial def collect : Syntax → M Syntax
       pure stx
     else if k == `Lean.Parser.Term.quotedName then
       /- Quoted names have an elaboration function associated with them, and they will not be macro expanded.
-         Note that macro expansion is not a good option since it produces a term using the smart constructors `mkNameStr`, `mkNameNum`
+         Note that macro expansion is not a good option since it produces a term using the smart constructors `Name.mkStr`, `Name.mkNum`
          instead of the constructors `Name.str` and `Name.num` -/
       quotedNameToPattern stx
     else if k == choiceKind then
@@ -790,7 +790,7 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
       let rec loop (discrs : List Syntax) (discrsNew : Array Syntax) := do
         match discrs with
         | [] =>
-          let discrs := mkSepStx discrsNew (mkAtomFrom matchStx ", ");
+          let discrs := Syntax.mkSep discrsNew (mkAtomFrom matchStx ", ");
           pure (matchStx.setArg 1 discrs)
         | discr :: discrs =>
           -- Recall that

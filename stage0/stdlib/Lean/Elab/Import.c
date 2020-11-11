@@ -31,7 +31,7 @@ lean_object* l_Lean_MessageLog_toList(lean_object*);
 lean_object* l_Lean_Elab_parseImports_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_headerToImports___closed__3;
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_print_deps(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
@@ -155,7 +155,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___kind_term____x40_Init_Notation___hyg_3____closed__6;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }

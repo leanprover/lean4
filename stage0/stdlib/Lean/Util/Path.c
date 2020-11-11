@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_moduleNameOfFileName___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__6;
 lean_object* l_IO_isDir___at_Lean_findOLean___spec__1___boxed(lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_io_is_dir(lean_object*, lean_object*);
 lean_object* l_String_revPosOf(lean_object*, uint32_t);
 lean_object* l_Lean_modPathToFilePath_match__1(lean_object*);
@@ -57,7 +58,6 @@ lean_object* l_Lean_getBuiltinSearchPath___closed__5;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_modPathToFilePath___closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_30_(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 lean_object* l_Lean_findOLean___closed__2;
 lean_object* l_Lean_modPathToFilePath___boxed(lean_object*);

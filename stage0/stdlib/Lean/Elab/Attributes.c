@@ -18,6 +18,7 @@ size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Elab_Lean_Elab_Attributes___instance__1___closed__1;
 lean_object* l_Lean_Elab_Lean_Elab_Attributes___instance__1___closed__2;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Attribute_args___default;
@@ -39,7 +40,6 @@ lean_object* l_Lean_Elab_elabAttrs___rarg___boxed(lean_object*, lean_object*, le
 lean_object* l_Lean_Elab_elabAttrs___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_join___closed__1;
 lean_object* l_Lean_Elab_elabAttrs(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabAttr(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1(lean_object*);
 size_t lean_usize_of_nat(lean_object*);

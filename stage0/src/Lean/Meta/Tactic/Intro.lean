@@ -72,7 +72,7 @@ private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (lctx : 
     else
       pure (lctx.getUnusedName binderName, [])
   | n :: rest  => do
-    if n != mkNameSimple "_" then
+    if n != Name.mkSimple "_" then
       pure (n, rest)
     else if preserveBinderNames then
       pure (binderName, rest)

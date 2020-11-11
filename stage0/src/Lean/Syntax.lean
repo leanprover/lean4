@@ -342,22 +342,10 @@ namespace SyntaxNode
 
 end SyntaxNode
 
-/- Helper functions for creating Syntax objects using C++ -/
-
-@[export lean_mk_syntax_atom]
 def mkSimpleAtom (val : String) : Syntax :=
   Syntax.atom {} val
 
-@[export lean_mk_syntax_list]
 def mkListNode (args : Array Syntax) : Syntax :=
   Syntax.node nullKind args
-
-@[export lean_mk_syntax_str_lit]
-def mkStxStrLitAux (val : String) : Syntax :=
-  mkStxStrLit val
-
-@[export lean_mk_syntax_num_lit]
-def mkStxNumLitAux (val : Nat) : Syntax :=
-  mkStxNumLit (toString val)
 
 end Lean

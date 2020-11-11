@@ -434,7 +434,7 @@ def expandMacroHeadIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
   if stx.isIdent then
     let info := stx.getHeadInfo.getD {}
     let id   := stx.getId
-    pure $ Syntax.node `Lean.Parser.Syntax.atom #[mkStxStrLit (toString id) info]
+    pure $ Syntax.node `Lean.Parser.Syntax.atom #[Syntax.mkStrLit (toString id) info]
   else
     expandMacroArgIntoSyntaxItem stx
 

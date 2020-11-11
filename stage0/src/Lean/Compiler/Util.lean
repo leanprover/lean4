@@ -57,7 +57,7 @@ def atMostOnce (e : Expr) (x : Name) : Bool :=
 
 @[export lean_mk_eager_lambda_lifting_name]
 def mkEagerLambdaLiftingName (n : Name) (idx : Nat) : Name :=
-  mkNameStr n ("_elambda_" ++ toString idx)
+  Name.mkStr n ("_elambda_" ++ toString idx)
 
 @[export lean_is_eager_lambda_lifting_name]
 def isEagerLambdaLiftingName : Name → Bool
@@ -88,7 +88,7 @@ match env.find? n with
   This function returns the auxiliary unsafe definition name for the given name. -/
 @[export lean_mk_unsafe_rec_name]
 def mkUnsafeRecName (declName : Name) : Name :=
-  mkNameStr declName "_unsafe_rec"
+  Name.mkStr declName "_unsafe_rec"
 
 /-- Return `some _` if the given name was created using `mkUnsafeRecName` -/
 @[export lean_is_unsafe_rec_name]

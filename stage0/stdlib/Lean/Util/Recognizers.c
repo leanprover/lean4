@@ -48,7 +48,7 @@ lean_object* l_Lean_Expr_app4_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isConstructorApp_x3f_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_eq_x3f(lean_object*);
 lean_object* l_Lean_Expr_iff_x3f___boxed(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app3_x3f___boxed(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_4337____closed__7;
 lean_object* l_Lean_Expr_app2_x3f(lean_object*, lean_object*);
@@ -910,7 +910,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Literal_type___closed__2;
 x_2 = l_Lean_Expr_isConstructorApp_x3f___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -928,7 +928,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Literal_type___closed__2;
 x_2 = l_Lean_Expr_isConstructorApp_x3f___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }

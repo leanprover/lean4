@@ -993,7 +993,7 @@ def mkJoinPoint (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Synt
   pure $ r.copyInfo body
 
 def mkJmp (ref : Syntax) (j : Name) (args : Array Syntax) : Syntax :=
-  mkAppStx (mkIdentFrom ref j) args
+  Syntax.mkApp (mkIdentFrom ref j) args
 
 partial def toTerm : Code → M Syntax
   | Code.«return» ref val   => returnToTerm ref val

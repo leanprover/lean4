@@ -19,6 +19,7 @@ size_t l_USize_add(size_t, size_t);
 lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Lean_NameSanitizerState_userName2Sanitized___default;
 lean_object* l_Lean_getSanitizeNames___closed__4;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 uint8_t l_Lean_Format_getUnicode(lean_object*);
@@ -54,7 +55,7 @@ lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_
 lean_object* l_Lean_Unhygienic_Lean_Hygiene___instance__1___closed__5;
 lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_238_(lean_object*);
 lean_object* l___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_sanitizeName___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_toSuperscriptString(lean_object*);
 lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2(lean_object*, lean_object*);
@@ -80,6 +81,7 @@ lean_object* l_Lean_getSanitizeNames___closed__1;
 lean_object* l_Lean_Unhygienic_Lean_Hygiene___instance__1___closed__4;
 lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__2;
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_NameSanitizerState_nameStem2Idx___default;
 uint8_t l_Lean_sanitizeNamesDefault;
 lean_object* l___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,7 +96,6 @@ lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isInaccessibleUserName_match__1(lean_object*);
 lean_object* l_ReaderT_pure___at_Lean_Unhygienic_Lean_Hygiene___instance__1___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___at_Lean_Unhygienic_Lean_Hygiene___instance__1___spec__2(lean_object*);
-lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_Lean_Hygiene___instance__1;
 lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_238____closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -150,7 +151,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Unhygienic_Lean_Hygiene___instance__1___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -612,7 +613,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_getSanitizeNames___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }
@@ -630,7 +631,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_getSanitizeNames___closed__2;
 x_2 = l_Lean_getSanitizeNames___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_mkNameStr(x_1, x_2);
 return x_3;
 }
 }

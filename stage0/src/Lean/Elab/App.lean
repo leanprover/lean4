@@ -496,14 +496,14 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | Expr.const structName _ _, LVal.fieldName fieldName =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
-      match findMethod? env structName (mkNameSimple fieldName) with
+      match findMethod? env structName (Name.mkSimple fieldName) with
       | some (baseStructName, fullName) => pure $ LValResolution.const baseStructName structName fullName
       | none   =>
         throwLValError e eType
-          msg!"invalid field notation, '{fieldName}' is not a valid \"field\" because environment does not contain '{mkNameStr structName fieldName}'"
+          msg!"invalid field notation, '{fieldName}' is not a valid \"field\" because environment does not contain '{Name.mkStr structName fieldName}'"
     -- search local context first, then environment
     let searchCtx : Unit → TermElabM LValResolution := fun _ => do
-      let fullName := mkNameStr structName fieldName
+      let fullName := Name.mkStr structName fieldName
       let currNamespace ← getCurrNamespace
       let localName := fullName.replacePrefix currNamespace Name.anonymous
       let lctx ← getLCtx
@@ -516,14 +516,14 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
           searchEnv ()
       | none => searchEnv ()
     if isStructure env structName then
-      match findField? env structName (mkNameSimple fieldName) with
-      | some baseStructName => pure $ LValResolution.projFn baseStructName structName (mkNameSimple fieldName)
+      match findField? env structName (Name.mkSimple fieldName) with
+      | some baseStructName => pure $ LValResolution.projFn baseStructName structName (Name.mkSimple fieldName)
       | none                => searchCtx ()
     else
       searchCtx ()
   | Expr.const structName _ _, LVal.getOp idx =>
     let env ← getEnv
-    let fullName := mkNameStr structName "getOp"
+    let fullName := Name.mkStr structName "getOp"
     match env.find? fullName with
     | some _ => pure $ LValResolution.getOp fullName idx
     | none   => throwLValError e eType msg!"invalid [..] notation because environment does not contain '{fullName}'"

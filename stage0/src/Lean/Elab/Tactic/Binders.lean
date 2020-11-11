@@ -10,7 +10,7 @@ private def liftTermBinderSyntax : Macro := fun stx => do
   let hole ← `(?_)
   match stx.getKind with
   | Name.str (Name.str p "Tactic" _) s _ =>
-    let kind := mkNameStr (mkNameStr p "Term") s
+    let kind := Name.mkStr (Name.mkStr p "Term") s
     let termStx := Syntax.node kind (stx.getArgs ++ #[mkAtomFrom stx "; ", hole])
     `(tactic| refine $termStx)
   | _ => Macro.throwError stx "unexpected binder syntax"

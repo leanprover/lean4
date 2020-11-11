@@ -94,7 +94,7 @@ def isOutParam (e : Expr) : Bool :=
 private partial def checkOutParam : Nat → Array FVarId → Expr → Except String Bool
   | i, outParams, Expr.forallE _ d b _ =>
     if isOutParam d then
-      let fvarId    := mkNameNum `_fvar outParams.size
+      let fvarId    := Name.mkNum `_fvar outParams.size
       let outParams := outParams.push fvarId
       let fvar      := mkFVar fvarId
       let b         := b.instantiate1 fvar

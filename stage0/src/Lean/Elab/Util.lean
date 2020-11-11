@@ -20,9 +20,9 @@ def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format
     if view.scopes.isEmpty then
       view.name
     else if view.mainModule == mainModule then
-      view.scopes.foldl mkNameNum (view.name ++ view.imported)
+      view.scopes.foldl Name.mkNum (view.name ++ view.imported)
     else
-      view.scopes.foldl mkNameNum (view.name ++ view.imported ++ view.mainModule)
+      view.scopes.foldl Name.mkNum (view.name ++ view.imported ++ view.mainModule)
 
 namespace Elab
 

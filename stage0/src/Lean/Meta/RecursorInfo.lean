@@ -14,10 +14,10 @@ def recOnSuffix         := "recOn"
 def brecOnSuffix        := "brecOn"
 def binductionOnSuffix  := "binductionOn"
 
-def mkCasesOnName (indDeclName : Name) : Name := mkNameStr indDeclName casesOnSuffix
-def mkRecOnName (indDeclName : Name) : Name   := mkNameStr indDeclName recOnSuffix
-def mkBRecOnName (indDeclName : Name) : Name  := mkNameStr indDeclName brecOnSuffix
-def mkBInductionOnName (indDeclName : Name) : Name  := mkNameStr indDeclName binductionOnSuffix
+def mkCasesOnName (indDeclName : Name) : Name := Name.mkStr indDeclName casesOnSuffix
+def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuffix
+def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
+def mkBInductionOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName binductionOnSuffix
 
 inductive RecursorUnivLevelPos
   | motive                -- marks where the universe of the motive should go

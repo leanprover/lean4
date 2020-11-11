@@ -269,27 +269,30 @@ instance {α : Type u} [DecidableEq α] : BEq α :=
 @[macroInline] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
   Decidable.casesOn (motive := fun _ => α) h (fun _ => e) (fun _ => t)
 
-@[macroInline] instance {p q} [Decidable p] [Decidable q] : Decidable (And p q) :=
-  if hp : p then
-    if hq : q then
-      isTrue ⟨hp, hq⟩
-    else
-      isFalse (fun h => hq (And.right h))
-  else
+@[macroInline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) :=
+  match dp with
+  | isTrue  hp =>
+    match dq with
+    | isTrue hq  => isTrue ⟨hp, hq⟩
+    | isFalse hq => isFalse (fun h => hq (And.right h))
+  | isFalse hp =>
     isFalse (fun h => hp (And.left h))
 
-@[macroInline] instance {p q} [Decidable p] [Decidable q] : Decidable (Or p q) :=
-  if hp : p then
-    isTrue (Or.inl hp)
-  else if hq : q then
-    isTrue (Or.inr hq)
-  else
-    isFalse fun h => match h with
-      | Or.inl h => hp h
-      | Or.inr h => hq h
+@[macroInline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (Or p q) :=
+  match dp with
+  | isTrue  hp => isTrue (Or.inl hp)
+  | isFalse hp =>
+    match dq with
+    | isTrue hq  => isTrue (Or.inr hq)
+    | isFalse hq =>
+      isFalse fun h => match h with
+        | Or.inl h => hp h
+        | Or.inr h => hq h
 
-instance {p} [Decidable p] : Decidable (Not p) :=
-  if hp : p then isFalse (absurd hp) else isTrue hp
+instance {p} [dp : Decidable p] : Decidable (Not p) :=
+  match dp with
+  | isTrue hp  => isFalse (absurd hp)
+  | isFalse hp => isTrue hp
 
 /- Boolean operators -/
 
@@ -393,27 +396,28 @@ def Nat.beq : Nat → Nat → Bool
   | succ n, zero   => false
   | succ n, succ m => beq n m
 
-theorem Nat.eqOfBeqEqTt : {n m : Nat} → Eq (beq n m) true → Eq n m
+theorem Nat.eqOfBeqEqTrue : {n m : Nat} → Eq (beq n m) true → Eq n m
   | zero,   zero,   h => rfl
   | zero,   succ m, h => Bool.noConfusion h
   | succ n, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
     have Eq (beq n m) true from h
-    have Eq n m from eqOfBeqEqTt this
+    have Eq n m from eqOfBeqEqTrue this
     this ▸ rfl
 
-theorem Nat.neOfBeqEqFf : {n m : Nat} → Eq (beq n m) false → Not (Eq n m)
+theorem Nat.neOfBeqEqFalse : {n m : Nat} → Eq (beq n m) false → Not (Eq n m)
   | zero,   zero,   h₁, h₂ => Bool.noConfusion h₁
   | zero,   succ m, h₁, h₂ => Nat.noConfusion h₂
   | succ n, zero,   h₁, h₂ => Nat.noConfusion h₂
   | succ n, succ m, h₁, h₂ =>
     have Eq (beq n m) false from h₁
-    Nat.noConfusion h₂ (fun h₂ => absurd h₂ (neOfBeqEqFf this))
+    Nat.noConfusion h₂ (fun h₂ => absurd h₂ (neOfBeqEqFalse this))
 
 @[extern "lean_nat_dec_eq"]
 protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
-  if h : Eq (beq n m) true then isTrue (eqOfBeqEqTt h)
-  else isFalse (neOfBeqEqFf (eqFalseOfNeTrue h))
+  match h:beq n m with
+  | true  => isTrue (eqOfBeqEqTrue h)
+  | false => isFalse (neOfBeqEqFalse h)
 
 @[inline] instance : DecidableEq Nat := Nat.decEq
 
@@ -590,7 +594,8 @@ set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
 def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
   match a, b with
-  | ⟨n⟩, ⟨m⟩ => if h : Eq n m then isTrue (h ▸ rfl) else isFalse (fun h' => UInt8.noConfusion h' (fun h' => absurd h' h))
+  | ⟨n⟩, ⟨m⟩ =>
+    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt8.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt8 := UInt8.decEq
 
@@ -606,7 +611,8 @@ set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
 def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
   match a, b with
-  | ⟨n⟩, ⟨m⟩ => if h : Eq n m then isTrue (h ▸ rfl) else isFalse (fun h' => UInt16.noConfusion h' (fun h' => absurd h' h))
+  | ⟨n⟩, ⟨m⟩ =>
+    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt16.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt16 := UInt16.decEq
 
@@ -625,7 +631,8 @@ set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
 def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
   match a, b with
-  | ⟨n⟩, ⟨m⟩ => if h : Eq n m then isTrue (h ▸ rfl) else isFalse (fun h' => UInt32.noConfusion h' (fun h' => absurd h' h))
+  | ⟨n⟩, ⟨m⟩ =>
+    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt32.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt32 := UInt32.decEq
 
@@ -667,7 +674,8 @@ set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
 def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
   match a, b with
-  | ⟨n⟩, ⟨m⟩ => if h : Eq n m then isTrue (h ▸ rfl) else isFalse (fun h' => UInt64.noConfusion h' (fun h' => absurd h' h))
+  | ⟨n⟩, ⟨m⟩ =>
+    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt64.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt64 := UInt64.decEq
 
@@ -690,7 +698,8 @@ set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
 def USize.decEq (a b : USize) : Decidable (Eq a b) :=
   match a, b with
-  | ⟨n⟩, ⟨m⟩ => if h : Eq n m then isTrue (h ▸ rfl) else isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h))
+  | ⟨n⟩, ⟨m⟩ =>
+    dite (Eq n m) (fun h =>isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq USize := USize.decEq
 
@@ -736,10 +745,9 @@ private def Char.ofNatAux (n : Nat) (h : n.isValidChar) : Char :=
 
 @[noinline, matchPattern]
 def Char.ofNat (n : Nat) : Char :=
-  if h : n.isValidChar then
-    Char.ofNatAux n h
-  else
-    { val := ⟨{ val := 0, isLt := decide! }⟩, valid := Or.inl decide! }
+  dite (n.isValidChar)
+    (fun h => Char.ofNatAux n h)
+    (fun _ => { val := ⟨{ val := 0, isLt := decide! }⟩, valid := Or.inl decide! })
 
 theorem Char.eqOfVeq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
@@ -760,11 +768,14 @@ instance : DecidableEq Char :=
     | isFalse h => isFalse (Char.neOfVne h)
 
 def Char.utf8Size (c : Char) : UInt32 :=
-  let v := c.val;
-  if LessEq v (UInt32.ofNatCore 0x7F decide!) then UInt32.ofNatCore 1 decide!
-  else if LessEq v (UInt32.ofNatCore 0x7FF decide!) then UInt32.ofNatCore 2 decide!
-  else if LessEq v (UInt32.ofNatCore 0xFFFF decide!) then UInt32.ofNatCore 3 decide!
-  else UInt32.ofNatCore 4 decide!
+  let v := c.val
+  ite (LessEq v (UInt32.ofNatCore 0x7F decide!))
+    (UInt32.ofNatCore 1 decide!)
+    (ite (LessEq v (UInt32.ofNatCore 0x7FF decide!))
+      (UInt32.ofNatCore 2 decide!)
+      (ite (LessEq v (UInt32.ofNatCore 0xFFFF decide!))
+        (UInt32.ofNatCore 3 decide!)
+        (UInt32.ofNatCore 4 decide!)))
 
 inductive Option (α : Type u)
   | none : Option α
@@ -815,8 +826,7 @@ attribute [extern "lean_string_data"] String.data
 def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   match s₁, s₂ with
   | ⟨s₁⟩, ⟨s₂⟩ =>
-   if h : Eq s₁ s₂ then isTrue (congrArg _ h)
-   else isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h))
+   dite (Eq s₁ s₂) (fun h => isTrue (congrArg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq String := String.decEq
 
@@ -892,16 +902,12 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-  if h : Less i a.size then a.get ⟨i, h⟩ else arbitrary α
+  dite (Less i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => arbitrary α)
 
 @[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α := {
   sz   := Nat.succ a.sz,
-  data := fun ⟨j, h₁⟩ =>
-    if h₂ : Eq j a.sz then
-      v
-    else
-      a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩
+  data := fun ⟨j, h₁⟩ => dite (Eq j a.sz) (fun _ => v) (fun h₂ => a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩)
 }
 
 class Bind (m : Type u → Type v) :=
@@ -1347,7 +1353,7 @@ def mkStr (p : Name) (s : String) : Name :=
 
 @[export lean_name_mk_numeral]
 def mkNum (p : Name) (v : Nat) : Name :=
-  Name.num p v (mixHash (hash p) (if h : Less v usizeSz then USize.ofNatCore v h else USize.ofNat32 17 decide!))
+  Name.num p v (mixHash (hash p) (dite (Less v usizeSz) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 decide!)))
 
 def mkSimple (s : String) : Name :=
   mkStr Name.anonymous s
@@ -1546,7 +1552,9 @@ def Name.hasMacroScopes : Name → Bool
   | _           => false
 
 private def eraseMacroScopesAux : Name → Name
-  | Name.str p s _   => if Eq s "_@" then p else eraseMacroScopesAux p
+  | Name.str p s _   => match beq s "_@" with
+    | true  => p
+    | false => eraseMacroScopesAux p
   | Name.num p _ _   => eraseMacroScopesAux p
   | Name.anonymous   => Name.anonymous
 
@@ -1590,19 +1598,17 @@ private def assembleParts : List Name → Name → Name
 
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
   | n@(Name.str p str _), parts =>
-    if Eq str "_@" then
-      { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
-    else
-      extractImported scps mainModule p (List.cons n parts)
+    match beq str "_@" with
+    | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
+    | false => extractImported scps mainModule p (List.cons n parts)
   | n@(Name.num p str _), parts => extractImported scps mainModule p (List.cons n parts)
   | _,                    _     => panic "unreachable @ extractImported"
 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
   | n@(Name.str p str _), parts =>
-    if Eq str "_@" then
-      { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
-    else
-      extractMainModule scps p (List.cons n parts)
+    match beq str "_@" with
+    | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
+    | false => extractMainModule scps p (List.cons n parts)
   | n@(Name.num p num _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
   | _,                    _   => panic "unreachable @ extractMainModule"
 
@@ -1688,10 +1694,9 @@ def throwError {α} (ref : Syntax) (msg : String) : MacroM α :=
 
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α :=
   bind read fun ctx =>
-  if Eq ctx.currRecDepth ctx.maxRecDepth then
-    throw (Exception.error ref maxRecDepthErrorMessage)
-  else
-    withReader (fun ctx => { ctx with currRecDepth := add ctx.currRecDepth 1 }) x
+  match beq ctx.currRecDepth ctx.maxRecDepth with
+  | true  => throw (Exception.error ref maxRecDepthErrorMessage)
+  | false => withReader (fun ctx => { ctx with currRecDepth := add ctx.currRecDepth 1 }) x
 
 instance : MonadQuotation MacroM := {
   getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,

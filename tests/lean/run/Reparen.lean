@@ -34,7 +34,7 @@ cmds.forM $ fun cmd => do
   let some s ← pure cmd.reprint | throw $ IO.userError "cmd reprint failed";
   IO.print s
 
-#eval main ["../../../src/Init/Core.lean"]
+#eval main ["../../../src/Init/Prelude.lean"]
 
 def check (stx : Syntax) : CoreM Unit := do
 let stx' := unparen stx;

@@ -836,8 +836,8 @@ def String.csize (c : Char) : Nat :=
   c.utf8Size.toNat
 
 private def String.utf8ByteSizeAux : List Char → Nat → Nat
-  | [],    r => r
-  | c::cs, r => utf8ByteSizeAux cs (r + csize c)
+  | List.nil,       r => r
+  | List.cons c cs, r => utf8ByteSizeAux cs (add r (csize c))
 
 @[extern "lean_string_utf8_byte_size"]
 def String.utf8ByteSize : (@& String) → Nat

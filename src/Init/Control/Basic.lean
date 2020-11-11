@@ -11,6 +11,8 @@ universes u v w
 @[reducible] def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a
 
+infixr:100 " <&> " => Fuctor.mapRev
+
 def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
   Functor.mapConst PUnit.unit x
 
@@ -61,11 +63,15 @@ instance : ToBool Bool := ⟨id⟩
   | true  => pure b
   | false => y
 
+infixr:30 " <||> " => orM
+
 @[macroInline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
   | true  => y
   | false => pure b
+
+infixr:35 " <&&> " => andM
 
 @[macroInline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
   not <$> x

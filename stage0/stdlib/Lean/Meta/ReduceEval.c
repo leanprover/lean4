@@ -36,7 +36,6 @@ lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___r
 lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__2_match__1(lean_object*);
 lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassExpensive_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__4;
-lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__2;
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval(lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__1;
@@ -3161,7 +3160,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_LeanInit_0__Lean_quoteName___closed__2;
 x_2 = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__1;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
@@ -3179,7 +3178,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_LeanInit_0__Lean_quoteName___closed__2;
 x_2 = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__3;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }

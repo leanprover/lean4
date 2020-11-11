@@ -35,6 +35,7 @@ lean_object* l_Lean_Level_mvarId_x21___boxed(lean_object*);
 size_t l_UInt32_toUSize(uint32_t);
 lean_object* l_Lean_Level_instantiateParams_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_toResult___closed__5;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_toResult___closed__3;
 lean_object* l_Lean_Level_Lean_Level___instance__4;
 lean_object* l_Lean_Level_isMVar___boxed(lean_object*);
@@ -156,7 +157,6 @@ lean_object* l_Lean_Level_addOffset(lean_object*, lean_object*);
 size_t l_Lean_Level_Data_hash(uint64_t);
 lean_object* l_Lean_Level_addOffsetAux(lean_object*, lean_object*);
 lean_object* l_Lean_Level_updateMax___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_isExplicitSubsumedAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_occurs___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_isMaxIMax_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5668,7 +5668,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Level_LevelToFormat_toResult___closed__2;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }

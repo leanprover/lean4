@@ -39,7 +39,6 @@ lean_object* l___private_Lean_Modifiers_0__Lean_privateToUserNameAux_match__1___
 lean_object* l_Lean_protectedExt___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* lean_add_protected(lean_object*, lean_object*);
 lean_object* lean_mk_private_prefix(lean_object*);
-lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt;
 lean_object* l_Lean_mkUniquePrivateName_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
@@ -91,7 +90,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
@@ -298,7 +297,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_privateHeader___closed__1;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }

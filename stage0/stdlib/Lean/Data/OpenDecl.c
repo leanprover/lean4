@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_rootNamespace;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_List_toString___at_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___spec__2(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___closed__2;
@@ -28,7 +29,6 @@ lean_object* l_Lean_rootNamespace___closed__2;
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_removeRoot(lean_object*);
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__1___closed__1;
-lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2_match__1(lean_object*);
@@ -358,7 +358,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_rootNamespace___closed__1;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }

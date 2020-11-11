@@ -29,6 +29,7 @@ lean_object* l_Lean_ClassState_switch(lean_object*);
 lean_object* l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__5(lean_object*);
 lean_object* l_Lean_classExtension___closed__3;
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__2(lean_object*, lean_object*, uint8_t);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_ClassState_switch_match__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_containsAtAux___at_Lean_isInstance___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
@@ -143,7 +144,6 @@ lean_object* l_Lean_initFn____x40_Lean_Class___hyg_153____lambda__1___boxed(lean
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Std_PersistentHashMap_contains___at_Lean_isInstance___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_ClassState_instances___default___spec__1___closed__1;
-lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_Class___hyg_153____spec__2(lean_object*, size_t, size_t, lean_object*);
 lean_object* l___private_Lean_Class_0__Lean_checkOutParam___closed__2;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -3152,7 +3152,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_Class___hyg_153____closed__1;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
@@ -4323,7 +4323,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_isOutParam___closed__1;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
@@ -4613,7 +4613,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___private_Lean_Class_0__Lean_checkOutParam___closed__3;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
@@ -5538,7 +5538,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_Class___hyg_768____closed__1;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }

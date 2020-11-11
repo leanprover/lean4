@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__5;
 lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind(lean_object*);
@@ -36,7 +37,6 @@ lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__3__
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__3;
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__6;
 lean_object* l_Lean_getConstInfo___at_Lean_PrettyPrinter_runForNodeKind___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_getValues___rarg(lean_object*, lean_object*, lean_object*);
@@ -69,7 +69,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_4____closed__1;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
@@ -330,7 +330,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__2;
 x_2 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
@@ -348,7 +348,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__2;
 x_2 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__3;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }

@@ -15,6 +15,7 @@ extern "C" {
 #endif
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Elab_Tactic_expandOptLocation___boxed(lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -27,7 +28,6 @@ lean_object* l_Lean_Elab_Tactic_expandLocation___closed__1;
 lean_object* l_Lean_Elab_Tactic_expandOptLocation(lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandLocation(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandLocation___closed__4;
 lean_object* l_Lean_Elab_Tactic_expandLocation___closed__3;
 size_t lean_usize_of_nat(lean_object*);
@@ -82,7 +82,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
 x_2 = l_Lean_Elab_Tactic_expandLocation___closed__1;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
@@ -100,7 +100,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
 x_2 = l_Lean_Elab_Tactic_expandLocation___closed__3;
-x_3 = l_Lean_mkNameStr(x_1, x_2);
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Control
-// Imports: Init.Control.Monad Init.Control.Alternative Init.Data.Nat.Basic
+// Imports: Init.Control.Basic Init.Data.Nat.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,12 +25,14 @@ lean_object* l_Nat_forM_loop_match__1(lean_object*);
 lean_object* l_Nat_forM_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forRevM_loop___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRevM(lean_object*, lean_object*);
+lean_object* l_Nat_allM_loop_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRevM_loop_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forM_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_allM_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_allM_loop_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Nat_foldM(lean_object*, lean_object*);
 lean_object* l_Nat_forM_loop___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_anyM___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_anyM_loop_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_anyM_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_anyM_loop_match__1(lean_object*);
@@ -43,8 +45,9 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Nat_foldM_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forRevM_loop_match__1(lean_object*);
 lean_object* l_Nat_foldRevM_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_anyM_loop_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldM_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_anyM_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_anyM_loop_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Nat_forM_loop(lean_object*);
 lean_object* l_Nat_forRevM_loop___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forRevM___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -57,7 +60,9 @@ lean_object* l_Nat_forRevM_loop_match__1___rarg___boxed(lean_object*, lean_objec
 lean_object* l_Nat_forRevM_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forRevM_loop___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forM_loop_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_allM_loop_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_anyM(lean_object*);
+lean_object* l_Nat_allM_loop_match__2(lean_object*);
 lean_object* l_Nat_allM_loop___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRevM_loop_match__1(lean_object*, lean_object*);
 lean_object* l_Nat_forM_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -71,6 +76,7 @@ lean_object* l_Nat_allM_loop(lean_object*);
 lean_object* l_Nat_forRevM(lean_object*);
 lean_object* l_Nat_foldRevM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRevM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_anyM_loop_match__2(lean_object*);
 lean_object* l_Nat_foldRevM_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_allM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forM_loop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -591,7 +597,46 @@ lean_dec(x_4);
 return x_5;
 }
 }
-lean_object* l_Nat_allM_loop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Nat_allM_loop_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_2);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_3);
+x_6 = lean_box(0);
+x_7 = lean_apply_1(x_2, x_6);
+return x_7;
+}
+}
+}
+lean_object* l_Nat_allM_loop_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Nat_allM_loop_match__1___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Nat_allM_loop_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l_Nat_allM_loop_match__1___rarg(x_4, x_2, x_3);
+return x_5;
+}
+}
+lean_object* l_Nat_allM_loop_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -616,19 +661,19 @@ return x_10;
 }
 }
 }
-lean_object* l_Nat_allM_loop_match__1(lean_object* x_1) {
+lean_object* l_Nat_allM_loop_match__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Nat_allM_loop_match__1___rarg___boxed), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Nat_allM_loop_match__2___rarg___boxed), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Nat_allM_loop_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Nat_allM_loop_match__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Nat_allM_loop_match__1___rarg(x_1, x_2, x_3);
+x_4 = l_Nat_allM_loop_match__2___rarg(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -750,7 +795,46 @@ x_2 = lean_alloc_closure((void*)(l_Nat_allM___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Nat_anyM_loop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Nat_anyM_loop_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_2);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_3);
+x_6 = lean_box(0);
+x_7 = lean_apply_1(x_2, x_6);
+return x_7;
+}
+}
+}
+lean_object* l_Nat_anyM_loop_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Nat_anyM_loop_match__1___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Nat_anyM_loop_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l_Nat_anyM_loop_match__1___rarg(x_4, x_2, x_3);
+return x_5;
+}
+}
+lean_object* l_Nat_anyM_loop_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -775,19 +859,19 @@ return x_10;
 }
 }
 }
-lean_object* l_Nat_anyM_loop_match__1(lean_object* x_1) {
+lean_object* l_Nat_anyM_loop_match__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Nat_anyM_loop_match__1___rarg___boxed), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Nat_anyM_loop_match__2___rarg___boxed), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Nat_anyM_loop_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Nat_anyM_loop_match__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Nat_anyM_loop_match__1___rarg(x_1, x_2, x_3);
+x_4 = l_Nat_anyM_loop_match__2___rarg(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -909,18 +993,14 @@ x_2 = lean_alloc_closure((void*)(l_Nat_anyM___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* initialize_Init_Control_Monad(lean_object*);
-lean_object* initialize_Init_Control_Alternative(lean_object*);
+lean_object* initialize_Init_Control_Basic(lean_object*);
 lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Nat_Control(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Monad(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Alternative(lean_io_mk_world());
+res = initialize_Init_Control_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Basic(lean_io_mk_world());

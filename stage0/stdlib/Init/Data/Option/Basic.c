@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option.Basic
-// Imports: Init.Core Init.Control.Monad Init.Control.Alternative Init.Coe
+// Imports: Init.Core Init.Control.Basic Init.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1764,8 +1764,7 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Core(lean_object*);
-lean_object* initialize_Init_Control_Monad(lean_object*);
-lean_object* initialize_Init_Control_Alternative(lean_object*);
+lean_object* initialize_Init_Control_Basic(lean_object*);
 lean_object* initialize_Init_Coe(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Option_Basic(lean_object* w) {
@@ -1775,10 +1774,7 @@ _G_initialized = true;
 res = initialize_Init_Core(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Monad(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Alternative(lean_io_mk_world());
+res = initialize_Init_Control_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Coe(lean_io_mk_world());

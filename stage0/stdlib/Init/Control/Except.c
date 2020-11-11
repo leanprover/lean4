@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Except
-// Imports: Init.Data.ToString.Basic Init.Control.Alternative Init.Control.MonadControl Init.Control.Id Init.Control.MonadFunctor
+// Imports: Init.Data.ToString.Basic Init.Control.Basic Init.Control.Id
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -57,6 +57,7 @@ lean_object* l_ExceptT_lift___rarg___closed__1;
 lean_object* l_observing___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_MonadExcept_orelse_x27___rarg___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_Except___instance__8(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_Init_Control_Id___instance__1___closed__4;
 lean_object* l_Except_repr(lean_object*, lean_object*);
 lean_object* l_Except_Init_Control_Except___instance__3___closed__9;
 lean_object* l_ExceptT_Init_Control_Except___instance__7___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,7 +132,6 @@ lean_object* l_ExceptT_mk___rarg___boxed(lean_object*);
 lean_object* l_Except_Init_Control_Except___instance__3(lean_object*);
 lean_object* l_Except_Init_Control_Except___instance__3___closed__3;
 lean_object* l_Except_tryCatch(lean_object*, lean_object*);
-extern lean_object* l_Init_Control_MonadControl___instance__2___rarg___lambda__2___closed__1;
 lean_object* l_ExceptT_run(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_Init_Control_Except___instance__7___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_map_match__1(lean_object*, lean_object*, lean_object*);
@@ -2559,7 +2559,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_alloc_closure((void*)(l_Init_Control_Except___instance__11___rarg___lambda__1), 3, 1);
 lean_closure_set(x_2, 0, x_1);
-x_3 = l_Init_Control_MonadControl___instance__2___rarg___lambda__2___closed__1;
+x_3 = l_Id_Init_Control_Id___instance__1___closed__4;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
@@ -3107,10 +3107,8 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_ToString_Basic(lean_object*);
-lean_object* initialize_Init_Control_Alternative(lean_object*);
-lean_object* initialize_Init_Control_MonadControl(lean_object*);
+lean_object* initialize_Init_Control_Basic(lean_object*);
 lean_object* initialize_Init_Control_Id(lean_object*);
-lean_object* initialize_Init_Control_MonadFunctor(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control_Except(lean_object* w) {
 lean_object * res;
@@ -3119,16 +3117,10 @@ _G_initialized = true;
 res = initialize_Init_Data_ToString_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Alternative(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_MonadControl(lean_io_mk_world());
+res = initialize_Init_Control_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Id(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_MonadFunctor(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Except_toString___rarg___closed__1 = _init_l_Except_toString___rarg___closed__1();

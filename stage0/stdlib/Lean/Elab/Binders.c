@@ -449,7 +449,7 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_expandFunBinders_loop___
 lean_object* lean_compile_decl(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_elabBinderViews_match__1(lean_object*);
-lean_object* l_Init_Control_MonadControl___instance__1___rarg(lean_object*, lean_object*);
+lean_object* l_Init_Control_Basic___instance__3___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_955____closed__16;
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_matchBinder_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabArrow___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5678,7 +5678,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___rarg___closed__5;
 x_2 = l_Init_Control_Reader___instance__2___closed__2;
-x_3 = l_Init_Control_MonadControl___instance__1___rarg(x_1, x_2);
+x_3 = l_Init_Control_Basic___instance__3___rarg(x_1, x_2);
 return x_3;
 }
 }

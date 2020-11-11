@@ -305,14 +305,14 @@ private def unresolveOpenDecls (c : Name) : List OpenDecl → DelabM Name
 -- NOTE: not a registered delaborator, as `const` is never called (see [delab] description)
 def delabConst : Delab := do
   let Expr.const c ls _ ← getExpr | unreachable!
-  let c ← condM (getPPOption getPPFullNames) (pure c) do
+  let c ← if (← getPPOption getPPFullNames) then pure c else
     let ctx ← read
     let env ← getEnv
     let as := getRevAliases env c
     -- might want to use a more clever heuristic such as selecting the shortest alias...
     let c := as.headD c
     unresolveUsingNamespace c ctx.currNamespace <|> unresolveOpenDecls c ctx.openDecls <|> pure c
-  let c ← condM (getPPOption getPPPrivateNames) (pure c) (pure $ (privateToUserName? c).getD c)
+  let c ← if (← getPPOption getPPPrivateNames) then pure c else pure $ (privateToUserName? c).getD c
   let ppUnivs ← getPPOption getPPUniverses
   if ls.isEmpty || !ppUnivs then
     pure $ mkIdent c
@@ -502,11 +502,12 @@ private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab
     let n ← getUnusedName e.bindingName!
     let stxN ← annotateCurPos (mkIdent n)
     let curNames := curNames.push stxN
-    condM shouldGroupWithNext
+    if (← shouldGroupWithNext) then
       -- group with nested binder => recurse immediately
-      (withBindingBody n $ delabBinders delabGroup curNames)
+      withBindingBody n $ delabBinders delabGroup curNames
+    else
       -- don't group => delab body and prepend current binder group
-      (withBindingBody n delab >>= delabGroup curNames)
+      withBindingBody n delab >>= delabGroup curNames
 
 @[builtinDelab lam]
 def delabLam : Delab :=
@@ -644,13 +645,13 @@ def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
         ]
         pure (idx + 1, fields.push field)
   let fields := mkSepArray fields (mkAtom ",")
-  condM (getPPOption getPPStructureInstanceType)
-    (do
-      let ty ← inferType e
-      -- `ty` is not actually part of `e`, but since `e` must be an application or constant, we know that
-      -- index 2 is unused.
-      let stxTy ← descend ty 2 delab
-      `({ $fields:structInstField* : $stxTy }))
+  if (← getPPOption getPPStructureInstanceType) then
+    let ty ← inferType e
+    -- `ty` is not actually part of `e`, but since `e` must be an application or constant, we know that
+    -- index 2 is unused.
+    let stxTy ← descend ty 2 delab
+    `({ $fields:structInstField* : $stxTy })
+  else
     `({ $fields:structInstField* })
 
 @[builtinDelab app.Prod.mk]

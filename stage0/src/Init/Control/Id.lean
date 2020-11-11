@@ -6,7 +6,7 @@ Authors: Sebastian Ullrich
 The identity Monad.
 -/
 prelude
-import Init.Control.MonadLift
+import Init.Core
 
 universe u
 

@@ -1339,15 +1339,6 @@ protected def Name.hash : Name → USize
 
 instance : Hashable Name := ⟨Name.hash⟩
 
-def mkNameStr (p : Name) (s : String) : Name :=
-  Name.str p s (mixHash (hash p) (hash s))
-
-def mkNameNum (p : Name) (v : Nat) : Name :=
-  Name.num p v (mixHash (hash p) (if h : Less v usizeSz then USize.ofNatCore v h else USize.ofNat32 17 decide!))
-
-def mkNameSimple (s : String) : Name :=
-  mkNameStr Name.anonymous s
-
 namespace Name
 
 @[export lean_name_mk_string]

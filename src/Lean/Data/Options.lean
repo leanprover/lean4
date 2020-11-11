@@ -60,7 +60,7 @@ def getOptionDescr (name : Name) : IO String := do
 def setOptionFromString (opts : Options) (entry : String) : IO Options := do
   let ps := (entry.splitOn "=").map String.trim
   let [key, val] ← pure ps | throw $ IO.userError "invalid configuration option entry, it must be of the form '<key> = <value>'"
-  let key := mkNameSimple key
+  let key := Name.mkSimple key
   let defValue ← getOptionDefaulValue key
   match defValue with
   | DataValue.ofString v => pure $ opts.setString key val

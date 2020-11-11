@@ -46,26 +46,6 @@ def append : String → (@& String) → String
 def toList (s : String) : List Char :=
   s.data
 
-private def csize (c : Char) : Nat :=
-  c.utf8Size.toNat
-
-private def utf8ByteSizeAux : List Char → Nat → Nat
-  | [],    r => r
-  | c::cs, r => utf8ByteSizeAux cs (r + csize c)
-
-@[extern "lean_string_utf8_byte_size"]
-def utf8ByteSize : (@& String) → Nat
-  | ⟨s⟩ => utf8ByteSizeAux s 0
-
-@[inline] def bsize (s : String) : Nat :=
-  utf8ByteSize s
-
-@[inline] def toSubstring (s : String) : Substring := {
-  str := s,
-  startPos := 0,
-  stopPos := s.bsize
-}
-
 private def utf8GetAux : List Char → Pos → Pos → Char
   | [],    i, p => arbitrary Char
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + csize c) p

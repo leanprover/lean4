@@ -52,6 +52,7 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_353____lambda__
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternEntries___closed__1;
 lean_object* l_Lean_getExternConstArityExport_match__1(lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_match__3(lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__72;
 lean_object* l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_353____spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_getExternConstArity___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -151,6 +152,7 @@ lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternEntries_
 lean_object* l_Lean_getConstInfo___at_Lean_getExternConstArity___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 uint8_t l_String_Iterator_hasNext(lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 extern lean_object* l_Lean_NameGenerator_Init_LeanInit___instance__2___closed__1;
 lean_object* l_Lean_throwError___at_Lean_getExternConstArity___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isExternC_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -167,9 +169,9 @@ extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed_
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_match__2(lean_object*);
 lean_object* l_Lean_getExternNameFor_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getExternEntryForAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_353____spec__2(lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_match__4___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__67;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_353____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__7;
@@ -223,7 +225,6 @@ lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_parseOptNum_match__1(l
 lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_353____spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__11___rarg___closed__1;
 lean_object* l_Lean_externAttr;
-extern lean_object* l_Lean_Init_Prelude___instance__61;
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternEntries___closed__6;
@@ -238,7 +239,6 @@ lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___s
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_getExternConstArity(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__66;
 static lean_object* _init_l_Lean_ExternAttrData_arity_x3f___default() {
 _start:
 {
@@ -500,7 +500,7 @@ x_5 = lean_nat_dec_eq(x_2, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Lean_Init_Prelude___instance__66;
+x_6 = l_Lean_Init_Prelude___instance__72;
 x_7 = lean_array_get(x_6, x_1, x_2);
 if (lean_obj_tag(x_7) == 3)
 {
@@ -986,7 +986,7 @@ x_35 = lean_nat_dec_eq(x_4, x_34);
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_36 = l_Lean_Init_Prelude___instance__66;
+x_36 = l_Lean_Init_Prelude___instance__72;
 x_37 = lean_array_get(x_36, x_3, x_34);
 x_38 = l_Lean_numLitKind;
 x_39 = l_Lean_Syntax_isNatLitAux(x_38, x_37);
@@ -1044,7 +1044,7 @@ lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec(x_5);
-x_8 = l_Lean_Init_Prelude___instance__66;
+x_8 = l_Lean_Init_Prelude___instance__72;
 x_9 = lean_array_get(x_8, x_3, x_7);
 x_10 = l_Lean_Syntax_isStrLit_x3f(x_9);
 lean_dec(x_9);
@@ -1274,7 +1274,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_C
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__61;
+x_1 = l_Lean_Init_Prelude___instance__67;
 x_2 = l_Lean_Lean_Compiler_ExternAttr___instance__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2900,7 +2900,7 @@ lean_inc(x_19);
 lean_dec(x_17);
 x_20 = lean_nat_sub(x_19, x_7);
 lean_dec(x_19);
-x_21 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_21 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_22 = l_List_getD___rarg(x_20, x_1, x_21);
 x_23 = lean_string_append(x_4, x_22);
 lean_dec(x_22);
@@ -2951,7 +2951,7 @@ lean_inc(x_37);
 lean_dec(x_35);
 x_38 = lean_nat_sub(x_37, x_7);
 lean_dec(x_37);
-x_39 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_39 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_40 = l_List_getD___rarg(x_38, x_1, x_39);
 x_41 = lean_string_append(x_4, x_40);
 lean_dec(x_40);
@@ -3005,7 +3005,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_4);
-x_6 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_6 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_7 = l_Lean_expandExternPatternAux(x_2, x_3, x_5, x_6);
 return x_7;
 }
@@ -3046,7 +3046,7 @@ x_3 = l_Init_Data_Repr___instance__11___rarg___closed__1;
 x_4 = lean_string_append(x_1, x_3);
 x_5 = l_List_reprAux___rarg___closed__1;
 x_6 = l_List_intersperse___rarg(x_5, x_2);
-x_7 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_7 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_8 = l_List_foldl___at_Lean_mkSimpleFnCall___spec__1(x_7, x_6);
 lean_dec(x_6);
 x_9 = lean_string_append(x_4, x_8);

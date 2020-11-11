@@ -15,19 +15,19 @@ extern "C" {
 #endif
 lean_object* l_ReaderT_tryFinally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Id_Init_Control_Id___instance__1___closed__5;
+lean_object* l_ReaderT_Init_Prelude___instance__49___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_Reader___instance__2___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_failure(lean_object*, lean_object*);
 lean_object* l_Init_Control_Reader___instance__2___closed__2;
 lean_object* l_Init_Control_Reader___instance__2___closed__1;
-lean_object* l_ReaderT_Init_Prelude___instance__44___rarg(lean_object*);
 lean_object* l_ReaderT_orElse___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_failure___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_Reader___instance__2___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_Reader___instance__2(lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__1___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_tryFinally(lean_object*, lean_object*);
+lean_object* l_ReaderT_Init_Prelude___instance__50___rarg(lean_object*);
 lean_object* l_ReaderT_failure___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_Init_Prelude___instance__43___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_orElse(lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Control_Reader___instance__1(lean_object*, lean_object*);
 lean_object* l_ReaderT_tryFinally___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,7 +85,7 @@ lean_object* l_ReaderT_Init_Control_Reader___instance__1___rarg(lean_object* x_1
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = l_ReaderT_Init_Prelude___instance__44___rarg(x_1);
+x_3 = l_ReaderT_Init_Prelude___instance__50___rarg(x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec(x_3);
@@ -161,7 +161,7 @@ _start:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_inc(x_7);
 x_8 = lean_apply_1(x_5, x_7);
-x_9 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__43___rarg___lambda__2), 3, 2);
+x_9 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__49___rarg___lambda__2), 3, 2);
 lean_closure_set(x_9, 0, x_6);
 lean_closure_set(x_9, 1, x_7);
 x_10 = lean_apply_4(x_1, lean_box(0), lean_box(0), x_8, x_9);

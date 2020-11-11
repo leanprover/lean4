@@ -15,21 +15,6 @@ namespace Fin
 instance coeToNat {n} : Coe (Fin n) Nat :=
   ⟨fun v => v.val⟩
 
-protected def lt {n} (a b : Fin n) : Prop :=
-  a.val < b.val
-
-protected def le {n} (a b : Fin n) : Prop :=
-  a.val ≤ b.val
-
-instance {n} : HasLess (Fin n)    := ⟨Fin.lt⟩
-instance {n} : HasLessEq (Fin n)  := ⟨Fin.le⟩
-
-instance decLt {n} (a b : Fin n) :  Decidable (a < b) :=
-  Nat.decLt ..
-
-instance decLe {n} (a b : Fin n) : Decidable (a ≤ b) :=
-  Nat.decLe ..
-
 def elim0.{u} {α : Sort u} : Fin 0 → α
   | ⟨_, h⟩ => absurd h (notLtZero _)
 

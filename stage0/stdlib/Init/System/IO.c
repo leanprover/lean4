@@ -29,6 +29,7 @@ lean_object* l_IO_mkRef___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_stdin(lean_object*);
 extern uint8_t l_System_Platform_isWindows;
 lean_object* l_IO_appPath___rarg___closed__1;
+lean_object* l_EStateM_Init_Prelude___instance__61___rarg(lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_get_line(lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_println___at_Lean_Init_System_IO___instance__9___spec__1(lean_object*, lean_object*);
@@ -45,7 +46,6 @@ lean_object* lean_io_wait_any(lean_object*, lean_object*);
 lean_object* l_Init_System_IO___instance__2(lean_object*);
 lean_object* l_IO_bindTask___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
-lean_object* l_EStateM_Init_Prelude___instance__55___rarg(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_ofBuffer___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_println(lean_object*);
 lean_object* l_IO_Prim_fopenFlags_match__1(lean_object*);
@@ -244,6 +244,7 @@ lean_object* l_IO_print___rarg___lambda__1(lean_object*, lean_object*, lean_obje
 lean_object* l_IO_setStdout___rarg(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_ofHandle___elambda__2(lean_object*, lean_object*);
 lean_object* l_IO_Process_run(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 uint8_t l_IO_AccessRight_write___default;
 lean_object* l_IO_Init_System_IO___instance__8(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_ofBuffer___elambda__6(lean_object*, lean_object*);
@@ -271,7 +272,6 @@ lean_object* l_IO_FS_Handle_putStr(lean_object*);
 lean_object* l_IO_Prim_setAccessRights___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_isDir___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_IO_getEnv(lean_object*);
 lean_object* l_IO_FS_Stream_ofHandle___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeEIO___rarg(lean_object*);
@@ -576,7 +576,7 @@ lean_object* l_Init_System_IO___instance__5___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_EStateM_Init_Prelude___instance__55___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_EStateM_Init_Prelude___instance__61___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1954,7 +1954,7 @@ lean_object* l_IO_FS_Handle_readToEnd___rarg(lean_object* x_1, lean_object* x_2,
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_4 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_5 = l_IO_FS_Handle_readToEnd_read___rarg(x_1, x_2, x_3, x_4);
 return x_5;
 }
@@ -3199,7 +3199,7 @@ lean_inc(x_9);
 lean_dec(x_7);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
-x_11 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_11 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_12 = lean_alloc_closure((void*)(l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__1___boxed), 3, 2);
 lean_closure_set(x_12, 0, x_10);
 lean_closure_set(x_12, 1, x_11);
@@ -3423,7 +3423,7 @@ lean_inc(x_60);
 lean_dec(x_58);
 x_61 = lean_ctor_get(x_59, 1);
 lean_inc(x_61);
-x_62 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_62 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_63 = lean_alloc_closure((void*)(l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__1___boxed), 3, 2);
 lean_closure_set(x_63, 0, x_61);
 lean_closure_set(x_63, 1, x_62);
@@ -3676,7 +3676,7 @@ lean_inc(x_115);
 lean_dec(x_113);
 x_116 = lean_ctor_get(x_114, 1);
 lean_inc(x_116);
-x_117 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_117 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_118 = lean_alloc_closure((void*)(l_IO_FS_Handle_readToEnd_read___at_IO_Process_output___spec__1___boxed), 3, 2);
 lean_closure_set(x_118, 0, x_116);
 lean_closure_set(x_118, 1, x_117);

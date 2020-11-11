@@ -21,15 +21,15 @@ end Char
 
 namespace String
 
-private def csize (c : Char) : Nat :=
+private def csize16 (c : Char) : Nat :=
   c.utf16Size.toNat
 
 def utf16Length (s : String) : Nat :=
-  s.foldr (fun c acc => csize c + acc) 0
+  s.foldr (fun c acc => csize16 c + acc) 0
 
 private def codepointPosToUtf16PosFromAux (s : String) : Nat → Pos → Nat → Nat
   | 0,    utf8pos, utf16pos => utf16pos
-  | cp+1, utf8pos, utf16pos => codepointPosToUtf16PosFromAux s cp (s.next utf8pos) (utf16pos + csize (s.get utf8pos))
+  | cp+1, utf8pos, utf16pos => codepointPosToUtf16PosFromAux s cp (s.next utf8pos) (utf16pos + csize16 (s.get utf8pos))
 
 /-- Computes the UTF-16 offset of the `n`-th Unicode codepoint
 in the substring of `s` starting at UTF-8 offset `off`.
@@ -42,7 +42,7 @@ def codepointPosToUtf16Pos (s : String) (pos : Nat) : Nat :=
 
 private partial def utf16PosToCodepointPosFromAux (s : String) : Nat → Pos → Nat → Nat
   | 0,        utf8pos, cp => cp
-  | utf16pos, utf8pos, cp => utf16PosToCodepointPosFromAux s (utf16pos - csize (s.get utf8pos)) (s.next utf8pos) (cp + 1)
+  | utf16pos, utf8pos, cp => utf16PosToCodepointPosFromAux s (utf16pos - csize16 (s.get utf8pos)) (s.next utf8pos) (cp + 1)
 
 /-- Computes the position of the Unicode codepoint at UTF-16 offset
 `utf16pos` in the substring of `s` starting at UTF-8 offset `off`. -/

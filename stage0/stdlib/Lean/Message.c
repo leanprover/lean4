@@ -17,7 +17,6 @@ lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__32;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MessageLog_toList___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__10;
-extern lean_object* l_Lean_Init_Prelude___instance__65___closed__1;
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Lean_Message___instance__19(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__51;
@@ -237,6 +236,7 @@ lean_object* l_Lean_MessageData_arrayExpr_toMessageData(lean_object*, lean_objec
 lean_object* l_Lean_addMessageContextFull(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__9;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1877____closed__8;
 lean_object* l_Lean_MessageData_mkPPContext(lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_toList___boxed(lean_object*);
@@ -272,7 +272,6 @@ lean_object* l_Lean_KernelException_toMessageData___closed__8;
 extern lean_object* l_Lean_mkAppStx___closed__5;
 extern lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_108____closed__7;
 lean_object* l_Lean_MessageLog_empty;
-extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_Lean_KernelException_toMessageData___closed__4;
 lean_object* l_Lean_MessageData_ofList_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_nestD(lean_object*);
@@ -311,6 +310,7 @@ lean_object* l_Lean_Message_endPos___default;
 extern lean_object* l_Lean_Name_hasMacroScopes___closed__1;
 lean_object* l_Lean_MessageData_joinSep___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Message___instance__21___closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__71___closed__1;
 lean_object* l_Lean_KernelException_toMessageData___closed__31;
 lean_object* l_Lean_MessageLog_getInfoMessages_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__35;
@@ -3370,7 +3370,7 @@ static lean_object* _init_l_Lean_Message_caption___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__73___closed__1;
 return x_1;
 }
 }
@@ -3466,7 +3466,7 @@ static lean_object* _init_l_Lean_Message_toString___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_2 = lean_string_append(x_1, x_1);
 return x_2;
 }
@@ -3484,7 +3484,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Message_toString___closed__3;
-x_2 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -3494,7 +3494,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_EStateM_Init_Control_EState___instance__1___rarg___closed__2;
-x_2 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -3527,7 +3527,7 @@ x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*5);
 x_12 = lean_ctor_get(x_1, 3);
 lean_inc(x_12);
 lean_dec(x_1);
-x_13 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_13 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_14 = lean_string_dec_eq(x_12, x_13);
 switch (x_11) {
 case 0:
@@ -3642,7 +3642,7 @@ x_47 = lean_ctor_get_uint8(x_1, sizeof(void*)*5);
 x_48 = lean_ctor_get(x_1, 3);
 lean_inc(x_48);
 lean_dec(x_1);
-x_49 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_49 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_50 = lean_string_dec_eq(x_48, x_49);
 switch (x_47) {
 case 0:
@@ -3791,7 +3791,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_3 = l_Lean_Message_Lean_Message___instance__13___closed__1;
 x_4 = 2;
 x_5 = l_Lean_MessageData_nil___closed__1;
@@ -6994,7 +6994,7 @@ lean_dec(x_2);
 x_26 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_4);
-x_27 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_27 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_28 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_26);
@@ -7682,7 +7682,7 @@ lean_ctor_set(x_20, 1, x_19);
 x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_19);
-x_22 = l_Lean_Init_Prelude___instance__65___closed__1;
+x_22 = l_Lean_Init_Prelude___instance__71___closed__1;
 x_23 = l_Lean_myMacro____x40_Lean_Message___hyg_1877____lambda__2___closed__3;
 x_24 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_24, 0, x_22);
@@ -7889,7 +7889,7 @@ x_24 = l_Array_empty___closed__1;
 x_25 = lean_array_push(x_24, x_21);
 x_26 = l_Lean_myMacro____x40_Lean_Message___hyg_1877____closed__8;
 x_27 = l_Lean_addMacroScope(x_23, x_26, x_22);
-x_28 = l_Lean_Init_Prelude___instance__65___closed__1;
+x_28 = l_Lean_Init_Prelude___instance__71___closed__1;
 x_29 = l_Lean_myMacro____x40_Lean_Message___hyg_1877____closed__7;
 x_30 = l_Lean_myMacro____x40_Lean_Message___hyg_1877____closed__11;
 x_31 = lean_alloc_ctor(3, 4, 0);
@@ -7940,7 +7940,7 @@ x_51 = l_Array_empty___closed__1;
 x_52 = lean_array_push(x_51, x_47);
 x_53 = l_Lean_myMacro____x40_Lean_Message___hyg_1877____closed__8;
 x_54 = l_Lean_addMacroScope(x_50, x_53, x_49);
-x_55 = l_Lean_Init_Prelude___instance__65___closed__1;
+x_55 = l_Lean_Init_Prelude___instance__71___closed__1;
 x_56 = l_Lean_myMacro____x40_Lean_Message___hyg_1877____closed__7;
 x_57 = l_Lean_myMacro____x40_Lean_Message___hyg_1877____closed__11;
 x_58 = lean_alloc_ctor(3, 4, 0);

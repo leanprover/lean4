@@ -65,6 +65,7 @@ lean_object* l_String_dropRight(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_writeLspNotification(lean_object*);
 lean_object* l_Lean_Lsp_readLspNotificationAs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lookup___at___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_IO_FS_Stream_readNotificationAs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___closed__2;
 lean_object* l_Lean_Json_opt___at_Lean_JsonRpc_Lean_Data_JsonRpc___instance__7___spec__1(lean_object*, lean_object*);
@@ -72,7 +73,6 @@ lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_parseHeaderFiel
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 extern lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__7___closed__4;
-extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_Lean_Lsp_writeLspResponse___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readHeaderFields(lean_object*, lean_object*);
 extern lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__2___closed__16;
@@ -165,7 +165,7 @@ lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_parseHeaderFiel
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_3 = lean_string_dec_eq(x_1, x_2);
 if (x_3 == 0)
 {
@@ -640,7 +640,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__73___closed__1;
 return x_3;
 }
 else
@@ -671,7 +671,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_19; 
-x_19 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_19 = l_Lean_Init_Prelude___instance__73___closed__1;
 return x_19;
 }
 else

@@ -71,6 +71,7 @@ lean_object* l_Lean_modPathToFilePath___closed__3;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_realPathNormalized(lean_object*, lean_object*);
 lean_object* l_IO_getEnv___at_Lean_addSearchPathFromEnv___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_Lean_initSearchPath_match__1(lean_object*);
 lean_object* lean_init_search_path(lean_object*, lean_object*);
 lean_object* l_Lean_addSearchPathFromEnv_match__1(lean_object*);
@@ -78,7 +79,6 @@ lean_object* l_IO_isDir___at_Lean_findOLean___spec__1(lean_object*, lean_object*
 lean_object* l_Lean_findOLean___closed__1;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_findOLean___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_IO_currentDir___at_Lean_moduleNameOfFileName___spec__2(lean_object*);
 lean_object* l_Lean_modPathToFilePath_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -386,7 +386,7 @@ x_10 = l_Lean_getBuiltinSearchPath___closed__2;
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_11 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_11 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_12 = lean_string_append(x_8, x_11);
 x_13 = lean_string_append(x_12, x_5);
 x_14 = l_Lean_getBuiltinSearchPath___closed__3;
@@ -435,7 +435,7 @@ x_36 = l_Lean_getBuiltinSearchPath___closed__2;
 if (x_36 == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
-x_37 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_37 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_38 = lean_string_append(x_34, x_37);
 x_39 = lean_string_append(x_38, x_31);
 x_40 = l_Lean_getBuiltinSearchPath___closed__3;
@@ -883,7 +883,7 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__73___closed__1;
 return x_2;
 }
 case 1:

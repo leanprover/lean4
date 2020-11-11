@@ -74,7 +74,6 @@ lean_object* l_decidableOfDecidableOfEq___rarg___boxed(lean_object*, lean_object
 lean_object* l_toBoolUsing___rarg___boxed(lean_object*);
 lean_object* l_idDelta(lean_object*);
 lean_object* l_strictOr___boxed(lean_object*, lean_object*);
-lean_object* l_inferInstance___rarg(lean_object*);
 lean_object* l_Init_Core___instance__4(lean_object*, lean_object*);
 lean_object* l_Quotient_recOnSubsingleton_u2082___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_mk___boxed(lean_object*, lean_object*);
@@ -100,7 +99,6 @@ lean_object* l_Quotient_lift___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Subtype_Init_Core___instance__17___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__20_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_recOnSubsingleton_u2082___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_inferInstanceAs___rarg___boxed(lean_object*);
 lean_object* l_Init_Core___instance__25___boxed(lean_object*, lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__6___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -112,7 +110,6 @@ lean_object* l_Quotient_rec(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__10;
 lean_object* l_Init_Core___instance__21_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_liftOn_u2082___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_inferInstance___rarg___boxed(lean_object*);
 lean_object* l_Init_Core___instance__26(lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__27(lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__12(lean_object*);
@@ -121,7 +118,6 @@ lean_object* l_Init_Core___instance__21_match__2___rarg(lean_object*, lean_objec
 uint8_t l_Init_Core___instance__4___rarg(uint8_t, uint8_t);
 uint8_t l_strictOr(uint8_t, uint8_t);
 lean_object* l_Eq_mpr___rarg(lean_object*);
-lean_object* l_inferInstance(lean_object*);
 lean_object* l_decidableOfDecidableOfEq(lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__21___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Squash_mk(lean_object*);
@@ -133,14 +129,12 @@ lean_object* l_Thunk_mk___boxed(lean_object*, lean_object*);
 lean_object* l_Prod_map_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__21_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Squash_lift(lean_object*, lean_object*, lean_object*);
-lean_object* l_inferInstanceAs___rarg(lean_object*);
 lean_object* l_Eq_mp(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__6_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Init_Core___instance__20_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_toBoolUsing(lean_object*);
 lean_object* l_idDelta___rarg___boxed(lean_object*);
 lean_object* l_Decidable_byCases_match__1___rarg(uint8_t, lean_object*, lean_object*);
-lean_object* l_inferInstanceAs(lean_object*);
 lean_object* l_Init_Core___instance__20_match__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_prodHasDecidableLt___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_mk___rarg(lean_object*);
@@ -426,54 +420,6 @@ _start:
 lean_object* x_6; 
 x_6 = lean_task_bind(x_3, x_4, x_5);
 return x_6;
-}
-}
-lean_object* l_inferInstance___rarg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-lean_object* l_inferInstance(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_inferInstance___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-lean_object* l_inferInstance___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_inferInstance___rarg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_inferInstanceAs___rarg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-lean_object* l_inferInstanceAs(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_inferInstanceAs___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-lean_object* l_inferInstanceAs___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_inferInstanceAs___rarg(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_strictOr___boxed(lean_object* x_1, lean_object* x_2) {

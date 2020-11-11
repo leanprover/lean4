@@ -54,10 +54,10 @@ lean_object* l_System_FilePath_searchPathSeparators;
 lean_object* l_String_split___at_System_FilePath_splitSearchPath___spec__2___boxed(lean_object*);
 lean_object* l_String_mapAux___at_System_FilePath_normalizePath___spec__2(lean_object*, lean_object*);
 uint32_t l_System_FilePath_extSeparator;
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 uint32_t l_System_FilePath_searchPathSeparator;
-extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_System_FilePath_pathSeparators___closed__3;
 lean_object* l_String_splitAux___at_System_FilePath_splitSearchPath___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_mkFilePath___closed__1;
@@ -367,7 +367,7 @@ lean_dec(x_2);
 x_26 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_4);
-x_27 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_27 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_28 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_26);
@@ -761,7 +761,7 @@ static lean_object* _init_l_System_mkFilePath___closed__1() {
 _start:
 {
 lean_object* x_1; uint32_t x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_2 = l_System_FilePath_pathSeparator;
 x_3 = lean_string_push(x_1, x_2);
 return x_3;

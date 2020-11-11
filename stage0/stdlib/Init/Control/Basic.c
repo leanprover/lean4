@@ -43,7 +43,6 @@ lean_object* l_when___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_bool_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_bool_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_notM___rarg___closed__1;
-lean_object* l_Init_Prelude___instance__37___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_guard___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_orM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_orM_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -73,6 +72,7 @@ lean_object* l_Init_Control_Basic___instance__3___rarg(lean_object*, lean_object
 lean_object* l_unless___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_andM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_andM(lean_object*, lean_object*);
+lean_object* l_Init_Prelude___instance__43___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_guard(lean_object*);
 lean_object* l_optional(lean_object*);
 lean_object* l_orM(lean_object*, lean_object*);
@@ -824,7 +824,7 @@ lean_object* l_Init_Control_Basic___instance__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_alloc_closure((void*)(l_Init_Prelude___instance__37___rarg___lambda__1), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Init_Prelude___instance__43___rarg___lambda__1), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 x_3 = l_Init_Control_Basic___instance__4___rarg___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 0);

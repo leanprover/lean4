@@ -102,6 +102,7 @@ lean_object* l_Lean_KVMap_set___rarg(lean_object*, lean_object*, lean_object*, l
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__11___closed__1;
 lean_object* l_List_toStringAux___at_Lean_KVMap_Lean_Data_KVMap___instance__9___spec__2(uint8_t, lean_object*);
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__14___closed__1;
 lean_object* l_Lean_KVMap_subset_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__14___closed__2;
@@ -117,7 +118,6 @@ lean_object* l_Lean_KVMap_setBool___boxed(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_KVMap_subset___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_isEmpty_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getString_match__1(lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_Lean_DataValue_str_match__1(lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__12___closed__2;
 lean_object* l_Lean_KVMap_get(lean_object*);
@@ -924,7 +924,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__73___closed__1;
 return x_3;
 }
 else
@@ -966,7 +966,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_22; 
-x_22 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_22 = l_Lean_Init_Prelude___instance__73___closed__1;
 return x_22;
 }
 else
@@ -2441,7 +2441,7 @@ static lean_object* _init_l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_2 = l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__1;
 x_3 = l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__2;
 x_4 = lean_alloc_ctor(0, 3, 0);

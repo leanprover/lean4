@@ -87,6 +87,7 @@ lean_object* l_Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec_
 lean_object* l_Lean_JsonNumber_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_Json_mkObj___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Json_getObjVal_x3f___spec__1___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_547____closed__8;
 lean_object* l_Lean_JsonNumber_decEq_match__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
@@ -94,7 +95,6 @@ extern lean_object* l_Init_Data_Repr___instance__12___rarg___closed__2;
 lean_object* l_Lean_Json_getNum_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Lean_Data_Json_Basic___instance__10(lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
@@ -596,7 +596,7 @@ else
 {
 lean_object* x_45; lean_object* x_46; 
 lean_dec(x_18);
-x_45 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_45 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_46 = lean_string_append(x_40, x_45);
 return x_46;
 }
@@ -604,7 +604,7 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
-x_47 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_47 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_48 = lean_string_append(x_47, x_31);
 lean_dec(x_31);
 x_49 = l_System_FilePath_dirName___closed__1;

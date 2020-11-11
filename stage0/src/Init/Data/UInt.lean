@@ -129,8 +129,6 @@ def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨a.val %ₙ n⟩
 def UInt32.land (a b : UInt32) : UInt32 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def UInt32.lor (a b : UInt32) : UInt32 := ⟨Fin.lor a.val b.val⟩
-def UInt32.lt (a b : UInt32) : Prop := a.val < b.val
-def UInt32.le (a b : UInt32) : Prop := a.val ≤ b.val
 @[extern c inline "((uint8_t)#1)"]
 def UInt32.toUInt8 (a : UInt32) : UInt8 := a.toNat.toUInt8
 @[extern c inline "((uint16_t)#1)"]
@@ -145,28 +143,11 @@ instance : Mul UInt32       := ⟨UInt32.mul⟩
 instance : Mod UInt32       := ⟨UInt32.mod⟩
 instance : ModN UInt32      := ⟨UInt32.modn⟩
 instance : Div UInt32       := ⟨UInt32.div⟩
-instance : HasLess UInt32   := ⟨UInt32.lt⟩
-instance : HasLessEq UInt32 := ⟨UInt32.le⟩
-
-set_option bootstrap.gen_matcher_code false in
-@[extern c inline "#1 < #2"]
-def UInt32.decLt (a b : UInt32) : Decidable (a < b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n < m))
-
-set_option bootstrap.gen_matcher_code false in
-@[extern c inline "#1 <= #2"]
-def UInt32.decLe (a b : UInt32) : Decidable (a ≤ b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n <= m))
 
 @[extern c inline "#1 << #2"]
 constant UInt32.shiftLeft (a b : UInt32) : UInt32 := (arbitrary Nat).toUInt32
 @[extern c inline "#1 >> #2"]
 constant UInt32.shiftRight (a b : UInt32) : UInt32 := (arbitrary Nat).toUInt32
-
-instance (a b : UInt32) : Decidable (a < b) := UInt32.decLt a b
-instance (a b : UInt32) : Decidable (a ≤ b) := UInt32.decLe a b
 
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨Fin.ofNat n⟩

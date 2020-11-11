@@ -156,10 +156,6 @@ theorem natAddZero (n : Nat) : n + 0 = n := rfl
 
 theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rfl
 
-/-- Like `by applyInstance`, but not dependent on the tactic framework. -/
-@[reducible] def inferInstance {α : Type u} [i : α] : α := i
-@[reducible] def inferInstanceAs (α : Type u) [i : α] : α := i
-
 /- Boolean operators -/
 
 @[extern c inline "#1 || #2"] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂

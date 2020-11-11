@@ -51,12 +51,12 @@ lean_object* l_FloatArray_set_x21_match__1(lean_object*);
 lean_object* l_FloatArray_mk___boxed(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
 double lean_float_array_fget(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_FloatArray_size_match__1(lean_object*);
 lean_object* l_List_toStringAux___at_Init_Data_FloatArray_Basic___instance__2___spec__2(uint8_t, lean_object*);
 lean_object* l_FloatArray_get_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_float_array_mk(lean_object*);
 lean_object* l_FloatArray_set_x21___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__67___closed__1;
 uint8_t l_FloatArray_isEmpty(lean_object*);
 lean_object* l_FloatArray_get_x21___boxed(lean_object*, lean_object*);
 lean_object* l_FloatArray_get_x21_match__1(lean_object*);
@@ -512,7 +512,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__73___closed__1;
 return x_3;
 }
 else
@@ -541,7 +541,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_13; 
-x_13 = l_Lean_Init_Prelude___instance__67___closed__1;
+x_13 = l_Lean_Init_Prelude___instance__73___closed__1;
 return x_13;
 }
 else

@@ -238,9 +238,9 @@ private partial def compileStxMatch : List Syntax → List Alt → TermElabM Syn
     let noAlts  := (alts.filter $ fun (alt : HeadInfo × Alt) => !info.generalizes alt.1).map (·.2)
     let no ← withFreshMacroScope $ compileStxMatch (discr::discrs) noAlts
     let cond ← match info.argPats with
-    | some pats => `(Syntax.isOfKind discr $(quote kind) && Array.size (Syntax.getArgs discr) == $(quote pats.size))
+    | some pats => `(and (Syntax.isOfKind discr $(quote kind)) (BEq.beq (Array.size (Syntax.getArgs discr)) $(quote pats.size)))
     | none      => `(Syntax.isOfKind discr $(quote kind))
-    `(let discr := $discr; if $cond = true then $yes else $no)
+    `(let discr := $discr; if Eq $cond true then $yes else $no)
   | _, _ => unreachable!
 
 private partial def getPatternVarsAux : Syntax → List Syntax

@@ -26,7 +26,7 @@ def underscoreFn : ParserFn := fun c s =>
 @[combinatorParenthesizer Lean.Parser.Tactic.underscore] def underscore.parenthesizer := PrettyPrinter.Parenthesizer.rawIdent.parenthesizer
 @[combinatorFormatter Lean.Parser.Tactic.underscore] def underscore.formatter := PrettyPrinter.Formatter.rawIdent.formatter
 
-def ident' : Parser := ident <|> underscore
+def ident' : Parser := ident <|> (checkInsideQuot >> Term.hole) <|> (checkOutsideQuot >> underscore)
 
 @[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> notSymbol "|" >> many (checkColGt >> termParser maxPrec)
 @[builtinTacticParser] def «intros»     := parser! nonReservedSymbol "intros " >> many (checkColGt >> ident')

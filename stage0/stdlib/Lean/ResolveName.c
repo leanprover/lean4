@@ -80,7 +80,6 @@ lean_object* lean_add_alias(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getAliases___boxed(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_getRevAliases___spec__13___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__4;
-extern lean_object* l_List_repr___rarg___closed__3;
 lean_object* l_Lean_aliasExtension;
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_addAliasEntry___spec__5(lean_object*, lean_object*);
@@ -154,7 +153,6 @@ lean_object* l_Lean_SMap_fold___at_Lean_getRevAliases___spec__1___rarg___boxed(l
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_getRevAliases___spec__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveNamespace_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addAliasEntry(lean_object*, lean_object*);
-extern lean_object* l_List_repr___rarg___closed__2;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Lean_getRevAliases___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -187,7 +185,7 @@ lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_getRevAliases___spec__1
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__3;
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_getRevAliases___spec__8___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_6240____closed__8;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
@@ -204,6 +202,7 @@ lean_object* l_Lean_aliasExtension___closed__1;
 lean_object* l_Lean_SMap_find_x3f___at_Lean_addAliasEntry___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__1;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 lean_object* l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__2;
 extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2542____closed__4;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -216,6 +215,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__4(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_6240____closed__2;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_MacroScopesView_review(lean_object*);
 lean_object* l_Lean_aliasExtension___elambda__4(lean_object*, lean_object*);
@@ -230,7 +230,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_getRevAliases___spec__13(lean_o
 lean_object* l_Lean_getRevAliases___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst(lean_object*);
 lean_object* l_Lean_resolveNamespace___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_List_reprAux___rarg___closed__1;
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveQualifiedName___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveNamespace_match__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_addAliasEntry___spec__11(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -267,6 +266,7 @@ lean_object* l_List_map___at_Lean_ResolveName_resolveGlobalName_loop___spec__4(l
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_addAliasEntry___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalName___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -5248,7 +5248,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
 return x_3;
 }
 else
@@ -5257,7 +5257,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_expr_dbg_to_string(x_4);
-x_7 = l_List_reprAux___rarg___closed__1;
+x_7 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
 x_9 = 0;
@@ -5272,7 +5272,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_12; 
-x_12 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_12 = l_Lean_Init_Prelude___instance__74___closed__1;
 return x_12;
 }
 else
@@ -5309,10 +5309,10 @@ uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* 
 x_4 = 1;
 x_5 = l_List_toStringAux___at_Lean_resolveGlobalConstNoOverload___spec__3(x_4, x_1);
 lean_dec(x_1);
-x_6 = l_List_repr___rarg___closed__2;
+x_6 = l___kind_term____x40_Init_Notation___hyg_6240____closed__2;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_List_repr___rarg___closed__3;
+x_8 = l___kind_term____x40_Init_Notation___hyg_6240____closed__8;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -5330,10 +5330,10 @@ lean_ctor_set(x_12, 1, x_11);
 x_13 = 1;
 x_14 = l_List_toStringAux___at_Lean_resolveGlobalConstNoOverload___spec__3(x_13, x_12);
 lean_dec(x_12);
-x_15 = l_List_repr___rarg___closed__2;
+x_15 = l___kind_term____x40_Init_Notation___hyg_6240____closed__2;
 x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);
-x_17 = l_List_repr___rarg___closed__3;
+x_17 = l___kind_term____x40_Init_Notation___hyg_6240____closed__8;
 x_18 = lean_string_append(x_16, x_17);
 return x_18;
 }
@@ -5375,7 +5375,7 @@ x_14 = l_List_map___at_Lean_resolveGlobalConstNoOverload___spec__1(x_7, x_6);
 x_15 = l_List_toString___at_Lean_resolveGlobalConstNoOverload___spec__2(x_14);
 x_16 = lean_string_append(x_13, x_15);
 lean_dec(x_15);
-x_17 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_17 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -5425,7 +5425,7 @@ x_34 = l_List_map___at_Lean_resolveGlobalConstNoOverload___spec__1(x_27, x_6);
 x_35 = l_List_toString___at_Lean_resolveGlobalConstNoOverload___spec__2(x_34);
 x_36 = lean_string_append(x_33, x_35);
 lean_dec(x_35);
-x_37 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_37 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_38 = lean_string_append(x_36, x_37);
 x_39 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_39, 0, x_38);

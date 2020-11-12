@@ -28,7 +28,6 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Lean_Attributes___instance__3___closed__3;
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__4;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor_match__1(lean_object*);
@@ -51,6 +50,7 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(lean
 lean_object* l_Lean_evalConst___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__2(lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Lean_Attributes___instance__4___closed__3;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -801,7 +801,7 @@ static lean_object* _init_l_Lean_ParserCompiler_CombinatorAttribute_Lean_ParserC
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Lean_Attributes___instance__3___closed__3;
+x_1 = l_Lean_Lean_Attributes___instance__4___closed__3;
 x_2 = l_Lean_Lean_Environment___instance__10___closed__5;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

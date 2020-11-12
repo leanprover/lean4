@@ -400,6 +400,16 @@ def interpolatedStr.formatter (p : Formatter) : Formatter := do
 @[combinatorFormatter ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e
 
+abbrev FormatterAliasValue := AliasValue Formatter
+
+builtin_initialize formatterAliasesRef : IO.Ref (NameMap FormatterAliasValue) ← IO.mkRef {}
+
+def registerFormatterAlias (aliasName : Name) (v : FormatterAliasValue) : IO Unit := do
+  registerAlias formatterAliasesRef aliasName v
+
+def getFormatterAlias (aliasName : Name) : IO (Option FormatterAliasValue) :=
+  getAlias formatterAliasesRef aliasName
+
 @[export lean_pretty_printer_formatter_interpret_parser_descr]
 unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.andthen d₁ d₂                       => andthen.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂

@@ -29,7 +29,6 @@ lean_object* l_Lean_Elab_elabAttr___rarg___lambda__1___boxed(lean_object*, lean_
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_List_repr___rarg___closed__3;
 lean_object* l_Lean_Elab_Lean_Elab_Attributes___instance__2;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Elab_elabAttr___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44,6 +43,7 @@ lean_object* l_Lean_Elab_elabAttr(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Elab_elabAttr___rarg___closed__2;
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_6240____closed__8;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabAttr___rarg___closed__1;
 lean_object* l_Lean_Elab_elabDeclAttrs___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -335,7 +335,7 @@ static lean_object* _init_l_Lean_Elab_elabAttr___rarg___lambda__3___closed__3() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_List_repr___rarg___closed__3;
+x_1 = l___kind_term____x40_Init_Notation___hyg_6240____closed__8;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

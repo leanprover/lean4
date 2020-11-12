@@ -31,6 +31,7 @@ lean_object* l_Lean_Lean_ProjFns___instance__1___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__68;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -83,7 +84,6 @@ lean_object* l_Lean_initFn____x40_Lean_ProjFns___hyg_42____lambda__2(lean_object
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__67;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_isProjectionFn_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Environment_getProjectionFnInfo_x3f___spec__1___boxed(lean_object*, lean_object*);
@@ -189,7 +189,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_P
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__67;
+x_1 = l_Lean_Init_Prelude___instance__68;
 x_2 = l_Lean_Lean_ProjFns___instance__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

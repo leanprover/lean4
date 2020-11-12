@@ -30,7 +30,6 @@ lean_object* l_StateT_monadControl_match__1(lean_object*, lean_object*, lean_obj
 lean_object* l_StateT_tryFinally(lean_object*, lean_object*);
 lean_object* l_StateT_map_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_State___instance__7(lean_object*, lean_object*);
-lean_object* l_ReaderT_Init_Prelude___instance__49___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_pure___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_Init_Control_State___instance__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,6 +49,7 @@ lean_object* l_StateT_Init_Control_State___instance__2___rarg___lambda__5(lean_o
 lean_object* l_StateT_Init_Control_State___instance__2___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_Init_Control_State___instance__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_lift___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_Init_Prelude___instance__50___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_tryFinally_match__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Control_State___instance__7___rarg(lean_object*);
 lean_object* l_StateT_Init_Control_State___instance__2___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -751,7 +751,7 @@ lean_inc(x_3);
 x_4 = lean_alloc_closure((void*)(l_StateT_Init_Control_State___instance__6___rarg___lambda__1), 5, 2);
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_1);
-x_5 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__49___rarg___lambda__3), 5, 1);
+x_5 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__50___rarg___lambda__3), 5, 1);
 lean_closure_set(x_5, 0, x_3);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_4);

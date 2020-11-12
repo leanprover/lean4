@@ -19,6 +19,7 @@ lean_object* l___private_Lean_Server_Snapshots_0__Lean_Server_Snapshots_ioErrorF
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_withLogging___closed__2;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__72;
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_toCmdState(lean_object*);
 lean_object* l_Lean_Elab_log___at_Lean_Elab_Command_runLinters___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -55,7 +56,6 @@ extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec_
 lean_object* l_Lean_Elab_logException___at_Lean_Elab_Command_runLinters___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Parser_isExitCommand(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__71;
 lean_object* l_Lean_Server_Snapshots_Snapshot_msgLog_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_env_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object*);
@@ -623,7 +623,7 @@ x_15 = l_Lean_Parser_isEOI(x_11);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; 
-x_121 = l_Lean_Init_Prelude___instance__71;
+x_121 = l_Lean_Init_Prelude___instance__72;
 x_122 = l_Option_get_x21___rarg___closed__4;
 x_123 = lean_panic_fn(x_121, x_122);
 x_124 = lean_ctor_get(x_123, 1);

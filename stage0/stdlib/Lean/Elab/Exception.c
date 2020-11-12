@@ -35,7 +35,6 @@ lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_31____closed__2
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_31____closed__1;
 extern lean_object* l_Lean_registerAttributeImplBuilder___closed__2;
-extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_17____closed__2;
@@ -51,6 +50,7 @@ lean_object* l_Lean_Elab_abortExceptionId;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_3____closed__1;
 lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_17____closed__1;
+extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_3____closed__1() {
@@ -327,7 +327,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = l_Lean_FileMap_toPosition(x_2, x_5);
 x_7 = lean_box(0);
-x_8 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_8 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_9 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_9, 0, x_1);
 lean_ctor_set(x_9, 1, x_6);

@@ -4063,7 +4063,7 @@ x_13 = l_Array_swapAt_x21___rarg___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Array_swapAt_x21___rarg___closed__3;
 x_16 = l_Array_swapAt_x21___rarg___closed__4;
-x_17 = lean_unsigned_to_nat(109u);
+x_17 = lean_unsigned_to_nat(106u);
 x_18 = lean_unsigned_to_nat(4u);
 x_19 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_15, x_16, x_17, x_18, x_14);
 lean_dec(x_14);

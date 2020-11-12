@@ -87,7 +87,6 @@ lean_object* l_Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec_
 lean_object* l_Lean_JsonNumber_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_Json_mkObj___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Json_getObjVal_x3f___spec__1___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_Lean_JsonNumber_decEq_match__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 extern lean_object* l_Init_Data_Repr___instance__12___rarg___closed__2;
@@ -141,6 +140,7 @@ lean_object* l_Lean_JsonNumber_Lean_Data_Json_Basic___instance__3;
 lean_object* l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_countDigits(lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Json_getArr_x3f___boxed(lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f___boxed(lean_object*, lean_object*);
@@ -596,7 +596,7 @@ else
 {
 lean_object* x_45; lean_object* x_46; 
 lean_dec(x_18);
-x_45 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_45 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_46 = lean_string_append(x_40, x_45);
 return x_46;
 }
@@ -604,7 +604,7 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
-x_47 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_47 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_48 = lean_string_append(x_47, x_31);
 lean_dec(x_31);
 x_49 = l_System_FilePath_dirName___closed__1;

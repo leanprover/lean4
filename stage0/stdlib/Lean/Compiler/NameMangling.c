@@ -28,7 +28,6 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_mkModuleInitializationFunctionName___closed__1;
 uint32_t l_Nat_digitChar(lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 uint8_t l_Char_isAlpha(uint32_t);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_String_mangle(lean_object*);
@@ -43,6 +42,7 @@ lean_object* lean_string_length(lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux___closed__3;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux_match__1(lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
@@ -249,7 +249,7 @@ x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
-x_5 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_5 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux(x_2, x_4, x_5);
 return x_6;
 }
@@ -343,7 +343,7 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__74___closed__1;
 return x_2;
 }
 case 1:
@@ -412,7 +412,7 @@ lean_object* lean_mk_module_initialization_function_name(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_3 = lean_name_mangle(x_1, x_2);
 x_4 = l_Lean_mkModuleInitializationFunctionName___closed__1;
 x_5 = lean_string_append(x_4, x_3);

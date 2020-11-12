@@ -38,6 +38,7 @@ lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___close
 lean_object* l_Lean_Elab_sortDeclLevelParams___closed__3;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___closed__6;
+extern lean_object* l_Lean_Init_Prelude___instance__68;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_Elab_sortDeclLevelParams___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
@@ -88,7 +89,6 @@ uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
 lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5___closed__1;
 lean_object* lean_environment_main_module(lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__67;
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -1250,7 +1250,7 @@ x_14 = lean_nat_add(x_2, x_3);
 x_15 = lean_unsigned_to_nat(2u);
 x_16 = lean_nat_div(x_14, x_15);
 lean_dec(x_14);
-x_41 = l_Lean_Init_Prelude___instance__67;
+x_41 = l_Lean_Init_Prelude___instance__68;
 x_42 = lean_array_get(x_41, x_1, x_16);
 x_43 = lean_array_get(x_41, x_1, x_2);
 x_44 = l_Lean_Name_lt(x_42, x_43);
@@ -1271,7 +1271,7 @@ goto block_40;
 block_40:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_18 = l_Lean_Init_Prelude___instance__67;
+x_18 = l_Lean_Init_Prelude___instance__68;
 x_19 = lean_array_get(x_18, x_17, x_3);
 x_20 = lean_array_get(x_18, x_17, x_2);
 x_21 = l_Lean_Name_lt(x_19, x_20);

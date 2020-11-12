@@ -97,7 +97,6 @@ lean_object* l_Lean_Quickparse_ws(lean_object*);
 extern lean_object* l_Lean_nullKind___closed__1;
 uint8_t l_String_Iterator_hasNext(lean_object*);
 lean_object* l_Lean_Quickparse_bind___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_Lean_Quickparse_expectedEndOfInput___closed__1;
 lean_object* l_Init_Data_Option_Basic___instance__5___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__7;
@@ -154,6 +153,7 @@ extern lean_object* l_usizeSz;
 lean_object* l_Lean_Json_Parser_natCore(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Quickparse_peek_x21(lean_object*);
 lean_object* l_Lean_Json_parse_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Lean_Quickparse_unexpectedEndOfInput___closed__1;
 lean_object* l_Lean_Json_Parser_num___closed__2;
 lean_object* l_Lean_Json_Parser_natNumDigits___closed__2;
@@ -186,7 +186,7 @@ lean_object* l_Lean_Lean_Data_Json_Parser___instance__1___rarg(lean_object* x_1)
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2372,7 +2372,7 @@ lean_object* l_Lean_Json_Parser_str(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_3 = l_Lean_Json_Parser_strCore(x_2, x_1);
 return x_3;
 }
@@ -3946,7 +3946,7 @@ else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = l_String_Iterator_next(x_2);
-x_12 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_12 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_13 = l_Lean_Json_Parser_strCore(x_12, x_11);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -4944,7 +4944,7 @@ else
 {
 lean_object* x_103; lean_object* x_104; lean_object* x_105; 
 x_103 = l_String_Iterator_next(x_1);
-x_104 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_104 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_105 = l_Lean_Json_Parser_strCore(x_104, x_103);
 if (lean_obj_tag(x_105) == 0)
 {

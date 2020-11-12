@@ -43,6 +43,7 @@ lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54___
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__18;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__5;
+extern lean_object* l_Lean_Init_Prelude___instance__68;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_InlineAttributeKind_beq_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__2___lambda__2(lean_object*);
@@ -84,6 +85,7 @@ lean_object* l_Array_qsort_sort___at_Lean_Compiler_initFn____x40_Lean_Compiler_I
 lean_object* l_Lean_Compiler_hasInlineIfReduceAttribute___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_InlineAttributeKind_beq_match__1(lean_object*);
+extern lean_object* l_Lean_EnumAttributes_Lean_Attributes___instance__8___closed__1;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__25;
 lean_object* l_List_map___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__8___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
@@ -110,7 +112,6 @@ uint8_t l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux(
 lean_object* l_Lean_Compiler_setInlineAttribute___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___lambda__5___closed__2;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__19;
-extern lean_object* l_Lean_Init_Prelude___instance__67;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__8___lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnumAttributes___rarg___closed__2;
@@ -128,7 +129,6 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean
 lean_object* l_Array_qpartition_loop___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnumAttributes_setValue___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__11;
-extern lean_object* l_Lean_EnumAttributes_Lean_Attributes___instance__7___closed__1;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__21;
 extern lean_object* l_System_FilePath_dirName___closed__1;
@@ -452,7 +452,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_Compiler_initFn____x
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Init_Prelude___instance__67;
+x_1 = l_Lean_Init_Prelude___instance__68;
 x_2 = l_Lean_Compiler_InlineAttributeKind_Lean_Compiler_InlineAttrs___instance__1;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);

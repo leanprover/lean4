@@ -53,6 +53,7 @@ lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_SpecS
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Compiler_SpecState_addEntry___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux(lean_object*, uint8_t, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__68;
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_SpecState_addEntry___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -135,6 +136,7 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean
 size_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_hasSpecializeAttribute___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_EnumAttributes_Lean_Attributes___instance__8___closed__1;
 uint8_t lean_has_specialize_attribute(lean_object*, lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
@@ -177,7 +179,6 @@ uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_222_(lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48_(lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_48____closed__13;
-extern lean_object* l_Lean_Init_Prelude___instance__67;
 uint8_t lean_has_nospecialize_attribute(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
@@ -230,7 +231,6 @@ lean_object* l_Lean_Compiler_SpecState_specInfo___default___closed__1;
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_SpecState_addEntry___spec__15(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Compiler_SpecState_addEntry___spec__16(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_switch(lean_object*);
-extern lean_object* l_Lean_EnumAttributes_Lean_Attributes___instance__7___closed__1;
 lean_object* l_Lean_Compiler_SpecState_addEntry(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Compiler_SpecState_addEntry___spec__14(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -434,7 +434,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_Compiler_initFn____x
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Init_Prelude___instance__67;
+x_1 = l_Lean_Init_Prelude___instance__68;
 x_2 = l_Lean_Compiler_SpecializeAttributeKind_Lean_Compiler_Specialize___instance__1;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);

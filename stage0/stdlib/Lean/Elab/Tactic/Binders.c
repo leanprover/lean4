@@ -50,6 +50,7 @@ lean_object* l_Lean_Elab_Tactic_expandLetRecTactic(lean_object*, lean_object*, l
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandLetTactic___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__5;
 lean_object* l_Lean_Elab_Tactic_expandShowTactic___closed__7;
+extern lean_object* l_Lean_Init_Prelude___instance__72___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandLetTactic___closed__2;
 lean_object* l_Lean_Elab_Tactic_expandShowTactic___closed__10;
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__5;
@@ -77,7 +78,6 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__7;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandShowTactic___closed__2;
-extern lean_object* l_Lean_Init_Prelude___instance__71___closed__1;
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__2;
 extern lean_object* l_Lean_Level_LevelToFormat_toResult___closed__4;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5695____closed__11;
@@ -171,7 +171,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__71___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__72___closed__1;
 x_2 = l_Lean_Level_LevelToFormat_toResult___closed__4;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -241,7 +241,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__71___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__72___closed__1;
 x_2 = l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__6;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -603,7 +603,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__71___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__72___closed__1;
 x_2 = l_Lean_Elab_Tactic_expandShowTactic___closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -651,7 +651,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandShowTactic___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__71___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__72___closed__1;
 x_2 = l_Lean_Elab_Tactic_expandShowTactic___closed__7;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

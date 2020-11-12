@@ -19,7 +19,6 @@ lean_object* l_Lean_Expr_eq_x3f___boxed(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_204____closed__4;
 lean_object* l___private_Lean_Util_Recognizers_0__Lean_Expr_getConstructorVal_x3f_match__1(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-extern lean_object* l___private_Init_LeanInit_0__Lean_quoteList___rarg___closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_2533____closed__4;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
@@ -32,7 +31,6 @@ lean_object* l_Lean_Expr_arrayLit_x3f_match__1(lean_object*);
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_Expr_app4_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__11___rarg___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isConstructorApp_x3f___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
@@ -62,6 +60,7 @@ lean_object* l_Lean_Expr_app3_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_heq_x3f___boxed(lean_object*);
 lean_object* l_Lean_Expr_app1_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app2_x3f___boxed(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3415____closed__5;
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_arrow_x3f(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Core___hyg_189____closed__4;
@@ -91,6 +90,7 @@ lean_object* l___private_Lean_Util_Recognizers_0__Lean_Expr_getConstructorVal_x3
 lean_object* l_Lean_Expr_listLit_x3f_loop(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_arrow_x3f_match__1(lean_object*);
 lean_object* l_Lean_Expr_isConstructorApp_x3f(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_6283____closed__5;
 lean_object* l_Lean_Expr_isConstructorApp_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app1_x3f(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -513,7 +513,7 @@ lean_object* l_Lean_Expr_listLit_x3f_loop(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l___private_Init_LeanInit_0__Lean_quoteList___rarg___closed__2;
+x_3 = l_myMacro____x40_Init_Notation___hyg_6283____closed__5;
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = l_Lean_Expr_isAppOfArity(x_1, x_3, x_4);
 if (x_5 == 0)
@@ -610,7 +610,7 @@ lean_object* l_Lean_Expr_arrayLit_x3f(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_Lean_Init_LeanInit___instance__11___rarg___closed__2;
+x_2 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3415____closed__5;
 x_3 = lean_unsigned_to_nat(2u);
 x_4 = l_Lean_Expr_isAppOfArity(x_1, x_2, x_3);
 if (x_4 == 0)

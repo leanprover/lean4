@@ -393,7 +393,6 @@ lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitArgs___spec__1(lean_object*,
 lean_object* l_Lean_IR_EmitC_emitUProj___closed__1;
 lean_object* l_Lean_IR_EmitC_emitUnbox___closed__3;
 lean_object* l_Lean_IR_EmitC_emitBoxFn___closed__3;
-extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_Lean_IR_EmitC_emitNumLit(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitExternCall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitTailCall___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -423,6 +422,7 @@ lean_object* l_Lean_IR_EmitC_quoteString___lambda__1___boxed(lean_object*, lean_
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_IR_EmitC_emitTailCall___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_toList___at_Lean_IR_usesModuleFrom___spec__1(lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 lean_object* l_Lean_IR_EmitC_emitLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitJmp___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitTailCall___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -481,7 +481,6 @@ uint8_t l_Lean_IR_ExplicitBoxing_isBoxedName(lean_object*);
 lean_object* l_List_forM___at_Lean_IR_EmitC_emitFnDecls___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__2___closed__4;
 lean_object* l_Lean_IR_EmitC_emitIsTaggedPtr(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_List_reprAux___rarg___closed__1;
 lean_object* l_Lean_IR_EmitC_emitInitFn___closed__6;
 lean_object* l_Lean_IR_EmitC_emitProj___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_EmitC_overwriteParam(lean_object*, lean_object*);
@@ -588,6 +587,7 @@ lean_object* l_Lean_IR_EmitC_emitOffset(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_IR_EmitC_emitExternDeclAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_IR_EmitC_emitFnDecls_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_EmitC_emitInitFn___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitSSet___closed__4;
 lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitTailCall___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2161,7 +2161,7 @@ goto _start;
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_17 = l_List_reprAux___rarg___closed__1;
+x_17 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_18 = lean_string_append(x_5, x_17);
 x_19 = lean_box(0);
 x_20 = l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___lambda__1(x_1, x_11, x_19, x_4, x_18);
@@ -2218,7 +2218,7 @@ goto _start;
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_17 = l_List_reprAux___rarg___closed__1;
+x_17 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_18 = lean_string_append(x_5, x_17);
 x_19 = lean_box(0);
 x_20 = l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___lambda__1(x_1, x_11, x_19, x_4, x_18);
@@ -4111,7 +4111,7 @@ lean_dec(x_8);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; size_t x_18; size_t x_19; lean_object* x_20; 
-x_13 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_13 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_14 = lean_string_append(x_11, x_13);
 x_15 = l_Init_Data_Repr___instance__18___closed__2;
 x_16 = lean_string_append(x_15, x_14);
@@ -4471,7 +4471,7 @@ goto block_13;
 block_13:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_4 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_4 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_5 = lean_string_append(x_3, x_4);
 x_6 = l___private_Lean_Data_Format_0__Lean_Format_pushNewline___closed__1;
 x_7 = lean_string_append(x_5, x_6);
@@ -5349,7 +5349,7 @@ lean_dec(x_8);
 if (x_11 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_17 = l_List_reprAux___rarg___closed__1;
+x_17 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = l_Nat_repr(x_2);
 x_20 = lean_string_append(x_18, x_19);
@@ -5428,7 +5428,7 @@ lean_dec(x_8);
 if (x_11 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_17 = l_List_reprAux___rarg___closed__1;
+x_17 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = l_Nat_repr(x_2);
 x_20 = lean_string_append(x_18, x_19);
@@ -5458,7 +5458,7 @@ lean_dec(x_8);
 if (x_11 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-x_30 = l_List_reprAux___rarg___closed__1;
+x_30 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_31 = lean_string_append(x_29, x_30);
 x_32 = l_Nat_repr(x_2);
 x_33 = lean_string_append(x_31, x_32);
@@ -5548,7 +5548,7 @@ x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
 x_10 = lean_string_append(x_6, x_9);
 lean_dec(x_9);
-x_11 = l_List_reprAux___rarg___closed__1;
+x_11 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l_Nat_repr(x_2);
 x_14 = lean_string_append(x_12, x_13);
@@ -5593,7 +5593,7 @@ x_10 = lean_string_append(x_9, x_8);
 lean_dec(x_8);
 x_11 = lean_string_append(x_7, x_10);
 lean_dec(x_10);
-x_12 = l_List_reprAux___rarg___closed__1;
+x_12 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = l_Nat_repr(x_2);
 x_15 = lean_string_append(x_13, x_14);
@@ -5735,7 +5735,7 @@ x_10 = lean_string_append(x_9, x_8);
 lean_dec(x_8);
 x_11 = lean_string_append(x_7, x_10);
 lean_dec(x_10);
-x_12 = l_List_reprAux___rarg___closed__1;
+x_12 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = l_Nat_repr(x_2);
 x_15 = lean_string_append(x_13, x_14);
@@ -5864,7 +5864,7 @@ x_12 = lean_string_append(x_11, x_10);
 lean_dec(x_10);
 x_13 = lean_string_append(x_9, x_12);
 lean_dec(x_12);
-x_14 = l_List_reprAux___rarg___closed__1;
+x_14 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_15 = lean_string_append(x_13, x_14);
 x_16 = l_Lean_IR_EmitC_emitOffset(x_2, x_3, x_6, x_15);
 x_17 = !lean_is_exclusive(x_16);
@@ -6377,7 +6377,7 @@ goto _start;
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_17 = l_List_reprAux___rarg___closed__1;
+x_17 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_18 = lean_string_append(x_5, x_17);
 x_19 = lean_box(0);
 x_20 = l_Nat_forM_loop___at_Lean_IR_EmitC_emitArgs___spec__1___lambda__1(x_1, x_11, x_19, x_4, x_18);
@@ -6542,7 +6542,7 @@ lean_inc(x_6);
 x_7 = l_Nat_repr(x_6);
 x_8 = lean_string_append(x_5, x_7);
 lean_dec(x_7);
-x_9 = l_List_reprAux___rarg___closed__1;
+x_9 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_ctor_get(x_1, 2);
 lean_inc(x_11);
@@ -6623,7 +6623,7 @@ x_17 = lean_string_append(x_16, x_15);
 lean_dec(x_15);
 x_18 = lean_string_append(x_14, x_17);
 lean_dec(x_17);
-x_19 = l_List_reprAux___rarg___closed__1;
+x_19 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_20 = lean_string_append(x_18, x_19);
 lean_inc(x_12);
 x_21 = l_Nat_repr(x_12);
@@ -6905,7 +6905,7 @@ lean_dec(x_10);
 x_12 = l_Nat_forM_loop___at_Lean_IR_EmitC_emitReset___spec__1___closed__1;
 x_13 = lean_string_append(x_5, x_12);
 x_14 = lean_string_append(x_13, x_1);
-x_15 = l_List_reprAux___rarg___closed__1;
+x_15 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = l_Nat_repr(x_11);
 x_18 = lean_string_append(x_16, x_17);
@@ -7152,7 +7152,7 @@ x_39 = lean_string_append(x_11, x_38);
 lean_dec(x_38);
 x_40 = lean_string_append(x_37, x_39);
 lean_dec(x_39);
-x_41 = l_List_reprAux___rarg___closed__1;
+x_41 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_42 = lean_string_append(x_40, x_41);
 x_43 = lean_ctor_get(x_3, 1);
 lean_inc(x_43);
@@ -7220,7 +7220,7 @@ x_14 = lean_string_append(x_13, x_12);
 lean_dec(x_12);
 x_15 = lean_string_append(x_11, x_14);
 lean_dec(x_14);
-x_16 = l_List_reprAux___rarg___closed__1;
+x_16 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_17 = lean_string_append(x_15, x_16);
 x_18 = l_Nat_repr(x_2);
 x_19 = lean_string_append(x_17, x_18);
@@ -7248,7 +7248,7 @@ x_30 = lean_string_append(x_29, x_28);
 lean_dec(x_28);
 x_31 = lean_string_append(x_27, x_30);
 lean_dec(x_30);
-x_32 = l_List_reprAux___rarg___closed__1;
+x_32 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_33 = lean_string_append(x_31, x_32);
 x_34 = l_Nat_repr(x_2);
 x_35 = lean_string_append(x_33, x_34);
@@ -7302,7 +7302,7 @@ x_14 = lean_string_append(x_13, x_12);
 lean_dec(x_12);
 x_15 = lean_string_append(x_11, x_14);
 lean_dec(x_14);
-x_16 = l_List_reprAux___rarg___closed__1;
+x_16 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_17 = lean_string_append(x_15, x_16);
 x_18 = l_Nat_repr(x_2);
 x_19 = lean_string_append(x_17, x_18);
@@ -7330,7 +7330,7 @@ x_30 = lean_string_append(x_29, x_28);
 lean_dec(x_28);
 x_31 = lean_string_append(x_27, x_30);
 lean_dec(x_30);
-x_32 = l_List_reprAux___rarg___closed__1;
+x_32 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_33 = lean_string_append(x_31, x_32);
 x_34 = l_Nat_repr(x_2);
 x_35 = lean_string_append(x_33, x_34);
@@ -7454,7 +7454,7 @@ x_11 = lean_string_append(x_10, x_9);
 lean_dec(x_9);
 x_12 = lean_string_append(x_8, x_11);
 lean_dec(x_11);
-x_13 = l_List_reprAux___rarg___closed__1;
+x_13 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Lean_IR_EmitC_emitOffset(x_2, x_3, x_5, x_14);
 x_16 = !lean_is_exclusive(x_15);
@@ -7770,7 +7770,7 @@ if (x_17 == 0)
 if (x_5 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_18 = l_List_reprAux___rarg___closed__1;
+x_18 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_19 = lean_string_append(x_7, x_18);
 x_20 = lean_box(0);
 x_21 = l_Nat_foldM_loop___at_Lean_IR_EmitC_emitSimpleExternalCall___spec__1___lambda__1(x_2, x_13, x_20, x_6, x_19);
@@ -8299,7 +8299,7 @@ x_19 = lean_string_append(x_18, x_17);
 lean_dec(x_17);
 x_20 = lean_string_append(x_16, x_19);
 lean_dec(x_19);
-x_21 = l_List_reprAux___rarg___closed__1;
+x_21 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_22 = lean_string_append(x_20, x_21);
 x_23 = l_Nat_repr(x_12);
 x_24 = lean_string_append(x_22, x_23);
@@ -8383,7 +8383,7 @@ x_18 = lean_string_append(x_16, x_17);
 x_19 = l_Nat_repr(x_10);
 x_20 = lean_string_append(x_18, x_19);
 lean_dec(x_19);
-x_21 = l_List_reprAux___rarg___closed__1;
+x_21 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_22 = lean_string_append(x_20, x_21);
 x_23 = lean_array_get_size(x_3);
 lean_inc(x_23);
@@ -8538,7 +8538,7 @@ x_19 = lean_string_append(x_18, x_17);
 lean_dec(x_17);
 x_20 = lean_string_append(x_16, x_19);
 lean_dec(x_19);
-x_21 = l_List_reprAux___rarg___closed__1;
+x_21 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_22 = lean_string_append(x_20, x_21);
 x_23 = l_Lean_IR_EmitC_emitArgs(x_3, x_4, x_22);
 x_24 = !lean_is_exclusive(x_23);
@@ -8603,7 +8603,7 @@ x_55 = lean_string_append(x_54, x_53);
 lean_dec(x_53);
 x_56 = lean_string_append(x_52, x_55);
 lean_dec(x_55);
-x_57 = l_List_reprAux___rarg___closed__1;
+x_57 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_58 = lean_string_append(x_56, x_57);
 x_59 = l_Nat_repr(x_6);
 x_60 = lean_string_append(x_58, x_59);
@@ -8630,7 +8630,7 @@ x_70 = lean_string_append(x_69, x_68);
 lean_dec(x_68);
 x_71 = lean_string_append(x_67, x_70);
 lean_dec(x_70);
-x_72 = l_List_reprAux___rarg___closed__1;
+x_72 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_73 = lean_string_append(x_71, x_72);
 x_74 = l_Nat_repr(x_6);
 x_75 = lean_string_append(x_73, x_74);
@@ -9277,7 +9277,7 @@ _start:
 {
 uint32_t x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Nat_digitChar(x_1);
-x_3 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_4 = lean_string_push(x_3, x_2);
 return x_4;
 }
@@ -9317,7 +9317,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_9);
-x_12 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_12 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_13 = lean_string_push(x_12, x_2);
 x_14 = lean_string_append(x_1, x_13);
 lean_dec(x_13);
@@ -11696,7 +11696,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean
 x_15 = lean_ctor_get(x_9, 1);
 lean_inc(x_15);
 lean_dec(x_9);
-x_16 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_16 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_17 = lean_string_append(x_15, x_16);
 x_18 = lean_string_append(x_17, x_6);
 x_19 = lean_box(0);
@@ -12903,7 +12903,7 @@ goto _start;
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_17 = l_List_reprAux___rarg___closed__1;
+x_17 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_18 = lean_string_append(x_5, x_17);
 x_19 = lean_box(0);
 x_20 = l_Nat_forM_loop___at_Lean_IR_EmitC_emitDeclAux___spec__2___lambda__1(x_1, x_11, x_19, x_4, x_18);
@@ -12960,7 +12960,7 @@ goto _start;
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_17 = l_List_reprAux___rarg___closed__1;
+x_17 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 x_18 = lean_string_append(x_5, x_17);
 x_19 = lean_box(0);
 x_20 = l_Nat_forM_loop___at_Lean_IR_EmitC_emitDeclAux___spec__2___lambda__1(x_1, x_11, x_19, x_4, x_18);
@@ -13665,7 +13665,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_7 = lean_ctor_get(x_5, 0);
-x_8 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_8 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
 x_10 = l_Lean_IR_EmitC_emitDecl___closed__1;
@@ -13685,7 +13685,7 @@ x_16 = lean_ctor_get(x_5, 1);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_5);
-x_17 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_17 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_18 = lean_string_append(x_17, x_15);
 lean_dec(x_15);
 x_19 = l_Lean_IR_EmitC_emitDecl___closed__1;
@@ -15314,7 +15314,7 @@ lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_4);
 lean_ctor_set(x_6, 4, x_5);
-x_7 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_7 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_8 = l_Lean_IR_EmitC_main(x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {

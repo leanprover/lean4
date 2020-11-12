@@ -12,7 +12,7 @@ private def getInjectionNewIds (stx : Syntax) : List Name :=
   if stx.isNone then
     []
   else
-    stx[1].getArgs.toList.map Syntax.getId
+    stx[1].getArgs.toList.map getNameOfIdent'
 
 private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Unit :=
   unless unusedIds.isEmpty do

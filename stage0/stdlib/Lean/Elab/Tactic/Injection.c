@@ -28,8 +28,8 @@ lean_object* l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_getInjec
 lean_object* l_StateRefT_x27_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjection(lean_object*);
 lean_object* l_List_map___at___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___spec__1(lean_object*);
-lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_List_map___at___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_getInjectionNewIds___spec__1(lean_object*);
+lean_object* l_Lean_Elab_Tactic_getNameOfIdent_x27(lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalInjection_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalInjection___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,7 +73,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
-x_6 = l_Lean_Syntax_getId(x_4);
+x_6 = l_Lean_Elab_Tactic_getNameOfIdent_x27(x_4);
 lean_dec(x_4);
 x_7 = l_List_map___at___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_getInjectionNewIds___spec__1(x_5);
 lean_ctor_set(x_1, 1, x_7);
@@ -88,7 +88,7 @@ x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_dec(x_1);
-x_10 = l_Lean_Syntax_getId(x_8);
+x_10 = l_Lean_Elab_Tactic_getNameOfIdent_x27(x_8);
 lean_dec(x_8);
 x_11 = l_List_map___at___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_getInjectionNewIds___spec__1(x_9);
 x_12 = lean_alloc_ctor(1, 2, 0);

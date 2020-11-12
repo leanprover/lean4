@@ -343,6 +343,10 @@ private def getIntrosSize : Expr → Nat
   | Expr.letE _ _ _ b _  => getIntrosSize b + 1
   | _                    => 0
 
+/- Recall that `ident' := ident <|> Term.hole` -/
+def getNameOfIdent' (id : Syntax) : Name :=
+  if id.isIdent then id.getId else `_
+
 @[builtinTactic «intros»] def evalIntros : Tactic := fun stx =>
   match_syntax stx with
   | `(tactic| intros)       => liftMetaTactic fun mvarId => do
@@ -352,7 +356,7 @@ private def getIntrosSize : Expr → Nat
     let (_, mvarId) ← Meta.introN mvarId n
     pure [mvarId]
   | `(tactic| intros $ids*) => liftMetaTactic fun mvarId => do
-    let (_, mvarId) ← Meta.introN mvarId ids.size (ids.map Syntax.getId).toList
+    let (_, mvarId) ← Meta.introN mvarId ids.size (ids.map getNameOfIdent').toList
     pure [mvarId]
   | _                       => throwUnsupportedSyntax
 

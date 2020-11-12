@@ -12,21 +12,7 @@ namespace Tactic
 builtin_initialize
   registerParserAlias! "tacticSeq" tacticSeq
 
-def underscoreFn : ParserFn := fun c s =>
-  let s   := symbolFn "_" c s;
-  let stx := s.stxStack.back;
-  let s   := s.popSyntax;
-  s.pushSyntax $ mkIdentFrom stx `_
-
-@[inline] def underscore : Parser := {
-  fn   := underscoreFn,
-  info := mkAtomicInfo "ident"
-}
-
-@[combinatorParenthesizer Lean.Parser.Tactic.underscore] def underscore.parenthesizer := PrettyPrinter.Parenthesizer.rawIdent.parenthesizer
-@[combinatorFormatter Lean.Parser.Tactic.underscore] def underscore.formatter := PrettyPrinter.Formatter.rawIdent.formatter
-
-def ident' : Parser := ident <|> (checkInsideQuot >> Term.hole) <|> (checkOutsideQuot >> underscore)
+def ident' : Parser := ident <|> "_"
 
 @[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> notSymbol "|" >> many (checkColGt >> termParser maxPrec)
 @[builtinTacticParser] def «intros»     := parser! nonReservedSymbol "intros " >> many (checkColGt >> ident')

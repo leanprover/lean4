@@ -19,9 +19,12 @@ open Meta
   Given an `inductionAlt` of the form
   ```
   nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> termParser
-  ``` -/
-private def getAltName (alt : Syntax) : Name := alt[0].getId.eraseMacroScopes
-private def getAltVarNames (alt : Syntax) : Array Name := alt[1].getArgs.map Syntax.getId
+  ```
+-/
+private def getAltName (alt : Syntax) : Name :=
+  getNameOfIdent' alt[0] $.eraseMacroScopes
+private def getAltVarNames (alt : Syntax) : Array Name :=
+  alt[1].getArgs.map getNameOfIdent'
 private def getAltRHS (alt : Syntax) : Syntax := alt[3]
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic

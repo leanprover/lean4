@@ -30,6 +30,7 @@ namespace Syntax
 @[builtinSyntaxParser] def unary           := parser! ident >> checkNoWsBefore >> "(" >> syntaxParser >> ")"
 @[builtinSyntaxParser] def binary          := parser! ident >> checkNoWsBefore >> "(" >> syntaxParser >> ", " >> syntaxParser >> ")"
 @[builtinSyntaxParser] def atom            := parser! strLit
+@[builtinSyntaxParser] def nonReserved     := parser! "!" >> strLit
 
 end Syntax
 

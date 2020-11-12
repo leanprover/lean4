@@ -675,6 +675,7 @@ private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) 
       pure false
     else
       trace[Meta.isDefEq.foApprox]! "{mvar} {args} := {v}"
+      let v := v.headBeta
       if (← commitWhen $ processAssignmentFOApproxAux mvar args v) then
         pure true
       else

@@ -55,6 +55,8 @@ abbrev coeTC {α : Sort u} {β : Sort v} [CoeTC α β] (a : α) : β :=
 abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β :=
   CoeT.coe a
 
+prefix:max "↑" => coe
+
 abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a :=
   CoeFun.coe a
 

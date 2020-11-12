@@ -114,41 +114,25 @@ def compileCategoryParser {α} (ctx : Context α) (declName : Name) (builtin : B
   addAttribute c' (if builtin then ctx.categoryAttr.defn.builtinName else ctx.categoryAttr.defn.name) (mkNullNode #[mkIdent kind])
 
 variables {α} (ctx : Context α) in
-def compileEmbeddedParsers : ParserDescr → MetaM Unit
-  | ParserDescr.parser constName                    => discard $ compileParserExpr ctx (mkConst constName) (force := false)
-  | ParserDescr.andthen d₁ d₂                       => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
-  | ParserDescr.orelse d₁ d₂                        => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
-  | ParserDescr.optional d                          => compileEmbeddedParsers d
-  | ParserDescr.lookahead d                         => compileEmbeddedParsers d
-  | ParserDescr.try d                               => compileEmbeddedParsers d
-  | ParserDescr.notFollowedBy d                     => compileEmbeddedParsers d
-  | ParserDescr.many d                              => compileEmbeddedParsers d
-  | ParserDescr.many1 d                             => compileEmbeddedParsers d
-  | ParserDescr.sepBy d₁ d₂ _                       => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
-  | ParserDescr.sepBy1 d₁ d₂ _                      => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
-  | ParserDescr.node k prec d                       => compileEmbeddedParsers d
-  | ParserDescr.trailingNode k prec d               => compileEmbeddedParsers d
-  | ParserDescr.interpolatedStr d                   => compileEmbeddedParsers d
-  | ParserDescr.withPosition d                      => compileEmbeddedParsers d
-  | ParserDescr.checkCol _                          => pure ()
-  | ParserDescr.symbol tk                           => pure ()
-  | ParserDescr.numLit                              => pure ()
-  | ParserDescr.strLit                              => pure ()
-  | ParserDescr.charLit                             => pure ()
-  | ParserDescr.nameLit                             => pure ()
-  | ParserDescr.ident                               => pure ()
-  | ParserDescr.nonReservedSymbol tk includeIdent   => pure ()
-  | ParserDescr.noWs                                => pure ()
-  | ParserDescr.cat catName prec                    => pure ()
+def compileEmbeddedParsers : ParserDescrNew → MetaM Unit
+  | ParserDescrNew.const _                => pure ()
+  | ParserDescrNew.unary _ d              => compileEmbeddedParsers d
+  | ParserDescrNew.binary _ d₁ d₂         => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
+  | ParserDescrNew.parser constName       => discard $ compileParserExpr ctx (mkConst constName) (force := false)
+  | ParserDescrNew.node _ _ d             => compileEmbeddedParsers d
+  | ParserDescrNew.trailingNode _ _ d     => compileEmbeddedParsers d
+  | ParserDescrNew.symbol _               => pure ()
+  | ParserDescrNew.nonReservedSymbol _ _  => pure ()
+  | ParserDescrNew.cat _ _                => pure ()
 
 /-- Precondition: `α` must match `ctx.tyName`. -/
 unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
   Parser.registerParserAttributeHook {
     postAdd := fun catName constName builtin => do
       let info ← getConstInfo constName
-      if info.type.isConstOf `Lean.ParserDescr || info.type.isConstOf `Lean.TrailingParserDescr then
-        let d ← evalConstCheck ParserDescr `Lean.ParserDescr constName <|>
-          evalConstCheck TrailingParserDescr `Lean.TrailingParserDescr constName
+      if info.type.isConstOf `Lean.ParserDescrNew || info.type.isConstOf `Lean.TrailingParserDescrNew then
+        let d ← evalConstCheck ParserDescrNew `Lean.ParserDescrNew constName <|>
+          evalConstCheck TrailingParserDescrNew `Lean.TrailingParserDescrNew constName
         compileEmbeddedParsers ctx d $.run'
       else
         if catName.isAnonymous then

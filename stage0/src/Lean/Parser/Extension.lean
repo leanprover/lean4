@@ -163,7 +163,7 @@ private def ParserExtensionAddEntry (s : ParserExtensionState) (e : ParserExtens
     | _ => unreachable!
 
 unsafe def mkParserOfConstantUnsafe
-    (categories : ParserCategories) (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser) := do
+    (categories : ParserCategories) (constName : Name) (compileParserDescr : ParserDescrNew → ImportM Parser) : ImportM (Bool × Parser) := do
   let env  := (← read).env
   let opts := (← read).opts
   match env.find? constName with
@@ -176,19 +176,19 @@ unsafe def mkParserOfConstantUnsafe
     | Expr.const `Lean.Parser.Parser _ _ =>
       let p ← IO.ofExcept $ env.evalConst Parser opts constName
       pure ⟨true, p⟩
-    | Expr.const `Lean.ParserDescr _ _ =>
-      let d ← IO.ofExcept $ env.evalConst ParserDescr opts constName
+    | Expr.const `Lean.ParserDescrNew _ _ =>
+      let d ← IO.ofExcept $ env.evalConst ParserDescrNew opts constName
       let p ← compileParserDescr d
       pure ⟨true, p⟩
-    | Expr.const `Lean.TrailingParserDescr _ _ =>
-      let d ← IO.ofExcept $ env.evalConst TrailingParserDescr opts constName
+    | Expr.const `Lean.TrailingParserDescrNew _ _ =>
+      let d ← IO.ofExcept $ env.evalConst TrailingParserDescrNew opts constName
       let p ← compileParserDescr d
       pure ⟨false, p⟩
     | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected"
 
 @[implementedBy mkParserOfConstantUnsafe]
 constant mkParserOfConstantAux
-    (categories : ParserCategories) (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
+    (categories : ParserCategories) (constName : Name) (compileParserDescr : ParserDescrNew → ImportM Parser) : ImportM (Bool × Parser)
 
 /- Parser aliases for making `ParserDescr` extensible -/
 inductive AliasValue (α : Type)
@@ -207,6 +207,24 @@ def registerAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) (val
 def getAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (Option (AliasValue α)) := do
   return (← mapRef.get).find? aliasName
 
+def getConstAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO α := do
+  match (← getAlias mapRef aliasName) with
+  | some (AliasValue.const v) => pure v
+  | some _ => throw ↑s!"parser '{aliasName}' is not a constant"
+  | none   => throw ↑s!"parser '{aliasName}' was not found"
+
+def getUnaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (α → α) := do
+  match (← getAlias mapRef aliasName) with
+  | some (AliasValue.unary v) => pure v
+  | some _ => throw ↑s!"parser '{aliasName}' does not take one argument"
+  | none   => throw ↑s!"parser '{aliasName}' was not found"
+
+def getBinaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (α → α → α) := do
+  match (← getAlias mapRef aliasName) with
+  | some (AliasValue.binary v) => pure v
+  | some _ => throw ↑s!"parser '{aliasName}' does not take two arguments"
+  | none   => throw ↑s!"parser '{aliasName}' was not found"
+
 abbrev ParserAliasValue := AliasValue Parser
 
 builtin_initialize parserAliasesRef : IO.Ref (NameMap ParserAliasValue) ← IO.mkRef {}
@@ -215,38 +233,44 @@ builtin_initialize parserAliasesRef : IO.Ref (NameMap ParserAliasValue) ← IO.m
 def registerParserAliasCore (aliasName : Name) (p : ParserAliasValue) : IO Unit := do
   registerAlias parserAliasesRef aliasName p
 
-def getParserAlias (aliasName : Name) : IO (Option ParserAliasValue) :=
-  getAlias parserAliasesRef aliasName
+builtin_initialize
+  registerParserAliasCore "ws" (AliasValue.const checkWsBefore)
+  registerParserAliasCore "noWs" (AliasValue.const checkNoWsBefore)
+  registerParserAliasCore "num" (AliasValue.const numLit)
+  registerParserAliasCore "str" (AliasValue.const strLit)
+  registerParserAliasCore "char" (AliasValue.const charLit)
+  registerParserAliasCore "name" (AliasValue.const nameLit)
+  registerParserAliasCore "ident" (AliasValue.const ident)
+  registerParserAliasCore "colGt" (AliasValue.const checkColGt)
+  registerParserAliasCore "colGe" (AliasValue.const checkColGe)
+  registerParserAliasCore "lookahead" (AliasValue.unary lookahead)
+  registerParserAliasCore "try" (AliasValue.unary «try»)
+  registerParserAliasCore "many" (AliasValue.unary many)
+  registerParserAliasCore "many1" (AliasValue.unary many1)
+  registerParserAliasCore "notFollowedBy" (AliasValue.unary (notFollowedBy · "element"))
+  registerParserAliasCore "optional" (AliasValue.unary optional)
+  registerParserAliasCore "withPosition" (AliasValue.unary withPosition)
+  registerParserAliasCore "interpolatedStr" (AliasValue.unary interpolatedStr)
+  registerParserAliasCore "sepBy" (AliasValue.binary sepBy)
+  registerParserAliasCore "sepBy1" (AliasValue.binary sepBy1)
+  registerParserAliasCore "orelse" (AliasValue.binary orelse)
+  registerParserAliasCore "andthen" (AliasValue.binary andthen)
+  registerParserAliasCore "sepByT" (AliasValue.binary (sepBy (allowTrailingSep := true)))
+  registerParserAliasCore "sepBy1T" (AliasValue.binary (sepBy1 (allowTrailingSep := true)))
 
-partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser :=
-  let rec visit : ParserDescr → ImportM Parser
-    | ParserDescr.andthen d₁ d₂                       => andthen <$> visit d₁ <*> visit d₂
-    | ParserDescr.orelse d₁ d₂                        => orelse <$> visit d₁ <*> visit d₂
-    | ParserDescr.optional d                          => optional <$> visit d
-    | ParserDescr.lookahead d                         => lookahead <$> visit d
-    | ParserDescr.«try» d                               => «try» <$> visit d
-    | ParserDescr.notFollowedBy d                     => do let p ← visit d; pure $ notFollowedBy p "element" -- TODO allow user to set msg at ParserDescr
-    | ParserDescr.many d                              => many <$> visit d
-    | ParserDescr.many1 d                             => many1 <$> visit d
-    | ParserDescr.sepBy d₁ d₂ b                       => sepBy (allowTrailingSep := b) <$> visit d₁ <*> visit d₂
-    | ParserDescr.sepBy1 d₁ d₂ b                      => sepBy1 (allowTrailingSep := b) <$> visit d₁ <*> visit d₂
-    | ParserDescr.node k prec d                       => leadingNode k prec <$> visit d
-    | ParserDescr.trailingNode k prec d               => trailingNode k prec <$> visit d
-    | ParserDescr.symbol tk                           => pure $ symbol tk
-    | ParserDescr.noWs                                => pure $ checkNoWsBefore
-    | ParserDescr.numLit                              => pure $ numLit
-    | ParserDescr.strLit                              => pure $ strLit
-    | ParserDescr.charLit                             => pure $ charLit
-    | ParserDescr.nameLit                             => pure $ nameLit
-    | ParserDescr.interpolatedStr d                   => interpolatedStr <$> visit d
-    | ParserDescr.ident                               => pure $ ident
-    | ParserDescr.checkCol strict                     => pure $ if strict then checkColGt else checkColGe
-    | ParserDescr.withPosition d                      => withPosition <$> visit d
-    | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol tk includeIdent
-    | ParserDescr.parser constName                    => do
+partial def compileParserDescr (categories : ParserCategories) (d : ParserDescrNew) : ImportM Parser :=
+  let rec visit : ParserDescrNew → ImportM Parser
+    | ParserDescrNew.const n                             => getConstAlias parserAliasesRef n
+    | ParserDescrNew.unary n d                           => return (← getUnaryAlias parserAliasesRef n) (← visit d)
+    | ParserDescrNew.binary n d₁ d₂                      => return (← getBinaryAlias parserAliasesRef n) (← visit d₁) (← visit d₂)
+    | ParserDescrNew.node k prec d                       => return leadingNode k prec (← visit d)
+    | ParserDescrNew.trailingNode k prec d               => return trailingNode k prec (← visit d)
+    | ParserDescrNew.symbol tk                           => return symbol tk
+    | ParserDescrNew.nonReservedSymbol tk includeIdent   => return nonReservedSymbol tk includeIdent
+    | ParserDescrNew.parser constName                    => do
       let (_, p) ← mkParserOfConstantAux categories constName visit;
       pure p
-    | ParserDescr.cat catName prec                    =>
+    | ParserDescrNew.cat catName prec                    =>
       match getCategory categories catName with
       | some _ => pure $ categoryParser catName prec
       | none   => IO.ofExcept $ throwUnknownParserCategory catName

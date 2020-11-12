@@ -1465,6 +1465,20 @@ def getArgs (stx : Syntax) : Array Syntax :=
 
 end Syntax
 
+inductive ParserDescrNew
+  | const  (name : Name)
+  | unary  (name : Name) (p : ParserDescrNew)
+  | binary (name : Name) (p₁ p₂ : ParserDescrNew)
+  | node (kind : SyntaxNodeKind) (prec : Nat) (p : ParserDescrNew)
+  | trailingNode (kind : SyntaxNodeKind) (prec : Nat) (p : ParserDescrNew)
+  | symbol (val : String)
+  | nonReservedSymbol (val : String) (includeIdent : Bool)
+  | cat (catName : Name) (rbp : Nat)
+  | parser (declName : Name)
+
+instance : Inhabited ParserDescrNew := ⟨ParserDescrNew.symbol ""⟩
+abbrev TrailingParserDescrNew := ParserDescrNew
+
 inductive ParserDescr
   | andthen           : ParserDescr → ParserDescr → ParserDescr
   | orelse            : ParserDescr → ParserDescr → ParserDescr

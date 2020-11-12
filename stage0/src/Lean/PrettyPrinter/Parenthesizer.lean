@@ -270,7 +270,7 @@ def throwError {α} (msg : MessageData) : ParenthesizerM α :=
 
 -- break up big mutual recursion
 @[extern "lean_pretty_printer_parenthesizer_interpret_parser_descr"]
-constant interpretParserDescr' : ParserDescr → CoreM Parenthesizer := arbitrary _
+constant interpretParserDescr' : ParserDescrNew → CoreM Parenthesizer := arbitrary _
 
 unsafe def parenthesizerForKindUnsafe (k : SyntaxNodeKind) : Parenthesizer := do
   (← liftM $ runForNodeKind parenthesizerAttribute k interpretParserDescr')
@@ -477,43 +477,51 @@ def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 @[combinatorParenthesizer ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e
 
-abbrev ParenthesizerAliasValue := Parser.AliasValue Parenthesizer
+open Parser
+
+abbrev ParenthesizerAliasValue := AliasValue Parenthesizer
 
 builtin_initialize parenthesizerAliasesRef : IO.Ref (NameMap ParenthesizerAliasValue) ← IO.mkRef {}
 
 def registerParenthesizerAlias (aliasName : Name) (v : ParenthesizerAliasValue) : IO Unit := do
-  Parser.registerAlias parenthesizerAliasesRef aliasName v
+  registerAlias parenthesizerAliasesRef aliasName v
 
-def getParenthesizerAlias (aliasName : Name) : IO (Option ParenthesizerAliasValue) :=
-  Parser.getAlias parenthesizerAliasesRef aliasName
+builtin_initialize
+  registerParenthesizerAlias "ws" (AliasValue.const checkWsBefore.parenthesizer)
+  registerParenthesizerAlias "noWs" (AliasValue.const checkNoWsBefore.parenthesizer)
+  registerParenthesizerAlias "num" (AliasValue.const $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer)
+  registerParenthesizerAlias "str" (AliasValue.const $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer)
+  registerParenthesizerAlias "char" (AliasValue.const $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer)
+  registerParenthesizerAlias "name" (AliasValue.const $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer)
+  registerParenthesizerAlias "ident" (AliasValue.const $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer)
+  registerParenthesizerAlias "colGt" (AliasValue.const checkColGt.parenthesizer)
+  registerParenthesizerAlias "colGe" (AliasValue.const checkColGe.parenthesizer)
+  registerParenthesizerAlias "lookahead" (AliasValue.unary lookahead.parenthesizer)
+  registerParenthesizerAlias "try" (AliasValue.unary try.parenthesizer)
+  registerParenthesizerAlias "many" (AliasValue.unary many.parenthesizer)
+  registerParenthesizerAlias "many1" (AliasValue.unary many1.parenthesizer)
+  registerParenthesizerAlias "notFollowedBy" (AliasValue.unary notFollowedBy.parenthesizer)
+  registerParenthesizerAlias "optional" (AliasValue.unary optional.parenthesizer)
+  registerParenthesizerAlias "withPosition" (AliasValue.unary withPosition.parenthesizer)
+  registerParenthesizerAlias "interpolatedStr" (AliasValue.unary interpolatedStr.parenthesizer)
+  registerParenthesizerAlias "sepBy" (AliasValue.binary sepBy.parenthesizer)
+  registerParenthesizerAlias "sepBy1" (AliasValue.binary sepBy1.parenthesizer)
+  registerParenthesizerAlias "orelse" (AliasValue.binary orelse.parenthesizer)
+  registerParenthesizerAlias "andthen" (AliasValue.binary andthen.parenthesizer)
+  registerParenthesizerAlias "sepByT" (AliasValue.binary sepBy.parenthesizer)
+  registerParenthesizerAlias "sepBy1T" (AliasValue.binary sepBy1.parenthesizer)
 
 @[export lean_pretty_printer_parenthesizer_interpret_parser_descr]
-unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
-  | ParserDescr.andthen d₁ d₂                       => andthen.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
-  | ParserDescr.orelse d₁ d₂                        => orelse.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
-  | ParserDescr.optional d                          => optional.parenthesizer <$> interpretParserDescr d
-  | ParserDescr.lookahead d                         => lookahead.parenthesizer <$> interpretParserDescr d
-  | ParserDescr.try d                               => try.parenthesizer <$> interpretParserDescr d
-  | ParserDescr.notFollowedBy d                     => notFollowedBy.parenthesizer <$> interpretParserDescr d
-  | ParserDescr.many d                              => many.parenthesizer <$> interpretParserDescr d
-  | ParserDescr.many1 d                             => many1.parenthesizer <$> interpretParserDescr d
-  | ParserDescr.sepBy d₁ d₂ _                       => sepBy.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
-  | ParserDescr.sepBy1 d₁ d₂ _                      => sepBy1.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
-  | ParserDescr.node k prec d                       => leadingNode.parenthesizer k prec <$> interpretParserDescr d
-  | ParserDescr.trailingNode k prec d               => trailingNode.parenthesizer k prec <$> interpretParserDescr d
-  | ParserDescr.symbol tk                           => pure $ symbol.parenthesizer tk
-  | ParserDescr.numLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer
-  | ParserDescr.strLit                              => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer
-  | ParserDescr.charLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer
-  | ParserDescr.nameLit                             => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer
-  | ParserDescr.ident                               => pure $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer
-  | ParserDescr.interpolatedStr d                   => interpolatedStr.parenthesizer <$> interpretParserDescr d
-  | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.parenthesizer tk includeIdent
-  | ParserDescr.noWs                                => pure $ checkNoWsBefore.parenthesizer
-  | ParserDescr.checkCol strict                     => pure $ if strict then checkColGt.parenthesizer else checkColGe.parenthesizer
-  | ParserDescr.withPosition d                      => withPosition.parenthesizer <$> interpretParserDescr d
-  | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
-  | ParserDescr.cat catName prec                    => pure $ categoryParser.parenthesizer catName prec
+unsafe def interpretParserDescr : ParserDescrNew → CoreM Parenthesizer
+  | ParserDescrNew.const n                             => liftIO $ getConstAlias parenthesizerAliasesRef n
+  | ParserDescrNew.unary n d                           => return (← liftIO $ getUnaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d)
+  | ParserDescrNew.binary n d₁ d₂                      => return (← liftIO $ getBinaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
+  | ParserDescrNew.node k prec d                       => return leadingNode.parenthesizer k prec (← interpretParserDescr d)
+  | ParserDescrNew.trailingNode k prec d               => return trailingNode.parenthesizer k prec (← interpretParserDescr d)
+  | ParserDescrNew.symbol tk                           => return symbol.parenthesizer tk
+  | ParserDescrNew.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.parenthesizer tk includeIdent
+  | ParserDescrNew.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
+  | ParserDescrNew.cat catName prec                    => return categoryParser.parenthesizer catName prec
 
 end Parenthesizer
 open Parenthesizer

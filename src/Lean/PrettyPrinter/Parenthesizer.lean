@@ -270,7 +270,7 @@ def throwError {α} (msg : MessageData) : ParenthesizerM α :=
 
 -- break up big mutual recursion
 @[extern "lean_pretty_printer_parenthesizer_interpret_parser_descr"]
-constant interpretParserDescr' : ParserDescrNew → CoreM Parenthesizer := arbitrary _
+constant interpretParserDescr' : ParserDescr → CoreM Parenthesizer := arbitrary _
 
 unsafe def parenthesizerForKindUnsafe (k : SyntaxNodeKind) : Parenthesizer := do
   (← liftM $ runForNodeKind parenthesizerAttribute k interpretParserDescr')
@@ -512,16 +512,16 @@ builtin_initialize
   registerParenthesizerAlias "sepBy1T" (AliasValue.binary sepBy1.parenthesizer)
 
 @[export lean_pretty_printer_parenthesizer_interpret_parser_descr]
-unsafe def interpretParserDescr : ParserDescrNew → CoreM Parenthesizer
-  | ParserDescrNew.const n                             => liftIO $ getConstAlias parenthesizerAliasesRef n
-  | ParserDescrNew.unary n d                           => return (← liftIO $ getUnaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d)
-  | ParserDescrNew.binary n d₁ d₂                      => return (← liftIO $ getBinaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
-  | ParserDescrNew.node k prec d                       => return leadingNode.parenthesizer k prec (← interpretParserDescr d)
-  | ParserDescrNew.trailingNode k prec d               => return trailingNode.parenthesizer k prec (← interpretParserDescr d)
-  | ParserDescrNew.symbol tk                           => return symbol.parenthesizer tk
-  | ParserDescrNew.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.parenthesizer tk includeIdent
-  | ParserDescrNew.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
-  | ParserDescrNew.cat catName prec                    => return categoryParser.parenthesizer catName prec
+unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
+  | ParserDescr.const n                             => liftIO $ getConstAlias parenthesizerAliasesRef n
+  | ParserDescr.unary n d                           => return (← liftIO $ getUnaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d)
+  | ParserDescr.binary n d₁ d₂                      => return (← liftIO $ getBinaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
+  | ParserDescr.node k prec d                       => return leadingNode.parenthesizer k prec (← interpretParserDescr d)
+  | ParserDescr.trailingNode k prec d               => return trailingNode.parenthesizer k prec (← interpretParserDescr d)
+  | ParserDescr.symbol tk                           => return symbol.parenthesizer tk
+  | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.parenthesizer tk includeIdent
+  | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
+  | ParserDescr.cat catName prec                    => return categoryParser.parenthesizer catName prec
 
 end Parenthesizer
 open Parenthesizer

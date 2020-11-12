@@ -13,14 +13,14 @@ namespace PrettyPrinter
    See `orelse.parenthesizer` for example -/
 builtin_initialize backtrackExceptionId : InternalExceptionId ← registerInternalExceptionId `backtrackFormatter
 
-unsafe def runForNodeKind {α} (attr : KeyedDeclsAttribute α) (k : SyntaxNodeKind) (interp : ParserDescrNew → CoreM α) : CoreM α := do
+unsafe def runForNodeKind {α} (attr : KeyedDeclsAttribute α) (k : SyntaxNodeKind) (interp : ParserDescr → CoreM α) : CoreM α := do
   match attr.getValues (← getEnv) k with
   | p::_ => pure p
   | _ =>
     -- assume `k` is from a `ParserDescr`, in which case we assume it's also the declaration name
     let info ← getConstInfo k
-    if info.type.isConstOf `Lean.ParserDescrNew || info.type.isConstOf `Lean.TrailingParserDescrNew then
-      let d ← evalConst ParserDescrNew k
+    if info.type.isConstOf `Lean.ParserDescr || info.type.isConstOf `Lean.TrailingParserDescr then
+      let d ← evalConst ParserDescr k
       interp d
     else
       throwError! "no declaration of attribute [{attr.defn.name}] found for '{k}'"

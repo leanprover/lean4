@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Data.Format
 namespace Lean
 
-syntax:max "f!" (interpolatedStr term) : term
+syntax:max "f!" interpolatedStr(term) : term
 
 macro_rules
   | `(f! $interpStr) => do

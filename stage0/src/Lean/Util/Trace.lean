@@ -141,7 +141,7 @@ def registerTraceClass (traceClassName : Name) : IO Unit :=
 macro:max "trace!" id:term:max msg:term : term =>
   `(trace $id fun _ => ($msg : MessageData))
 
-syntax "trace[" ident "]!" ((interpolatedStr term) <|> term) : term
+syntax "trace[" ident "]!" (interpolatedStr(term) <|> term) : term
 
 macro_rules
   | `(trace[$id]! $s) =>

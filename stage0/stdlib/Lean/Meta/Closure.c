@@ -168,6 +168,7 @@ lean_object* l_Lean_Meta_Closure_preprocess___boxed(lean_object*, lean_object*, 
 lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 size_t lean_usize_of_nat(lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_6293____closed__6;
 lean_object* l_Lean_replaceFVarIdAtLocalDecl(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_Closure_visitExpr___spec__2___boxed(lean_object*, lean_object*);
@@ -226,7 +227,6 @@ lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 lean_object* l_Nat_foldRev_loop___at_Lean_Meta_Closure_mkLambda___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_collectExprAux_match__2(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
 lean_object* l_Lean_Meta_Closure_mkNextUserName___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRev_loop___at_Lean_Meta_Closure_mkBinding___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -11744,7 +11744,7 @@ static lean_object* _init_l___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefini
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
+x_1 = l___kind_term____x40_Init_Notation___hyg_6293____closed__6;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

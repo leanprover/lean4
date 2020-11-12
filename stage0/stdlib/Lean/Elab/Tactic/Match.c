@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l___kind_stx____x40_Init_Notation___hyg_5726____closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalMatch(lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalMatch___closed__2;
@@ -27,7 +28,6 @@ extern lean_object* l_Lean_Elab_Tactic_evalCase___closed__1;
 lean_object* l_Lean_Elab_Tactic_AuxMatchTermState_cases___default;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5737____closed__19;
 lean_object* l_Lean_Elab_Tactic_evalTactic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*);
@@ -51,6 +51,7 @@ lean_object* l___private_Init_LeanInit_0__Array_mapSepElemsMAux___at___private_L
 lean_object* l_Array_mapSepElemsM___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setKind(lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_6360____closed__17;
 extern lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandMatchAltsIntoMatchAux___closed__8;
 extern lean_object* l_Lean_Init_Prelude___instance__72___closed__1;
 lean_object* l_Lean_Elab_Term_getCurrMacroScope(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,7 +74,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__2;
 extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__18;
-extern lean_object* l_Lean_Level_LevelToFormat_toResult___closed__4;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkHole___closed__2;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -220,7 +220,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Init_Prelude___instance__72___closed__1;
-x_2 = l_Lean_Level_LevelToFormat_toResult___closed__4;
+x_2 = l___kind_stx____x40_Init_Notation___hyg_5726____closed__2;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -303,7 +303,7 @@ lean_ctor_set(x_26, 1, x_25);
 x_27 = l_Lean_Syntax_getArg(x_26, x_15);
 x_28 = l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___lambda__1___closed__4;
 x_29 = lean_array_push(x_28, x_27);
-x_30 = l_myMacro____x40_Init_Notation___hyg_5737____closed__19;
+x_30 = l_myMacro____x40_Init_Notation___hyg_6360____closed__17;
 x_31 = lean_array_push(x_29, x_30);
 x_32 = lean_array_push(x_31, x_10);
 x_33 = l_Lean_Elab_Tactic_evalCase___closed__2;

@@ -422,6 +422,7 @@ lean_object* l_Lean_Meta_commitWhen___at___private_Lean_Meta_ExprDefEq_0__Lean_M
 lean_object* l_Array_anyMUnsafe_any___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t);
 size_t lean_usize_of_nat(lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_CheckAssignment_check___spec__17(lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_6293____closed__6;
 lean_object* l_Lean_Meta_CheckAssignment_throwOutOfScopeFVar___rarg___closed__1;
 lean_object* l_Lean_Meta_commitWhen___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickMVarMVar___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_CheckAssignmentQuick_check_visit(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -564,7 +565,6 @@ extern lean_object* l_Lean_Meta_isLevelDefEqAux___closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_CheckAssignment_check___spec__43(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isSynthetic_match__1(lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
 lean_object* l_Lean_Meta_CheckAssignment_checkMVar_match__2(lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__41___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5417,7 +5417,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkType
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
+x_1 = l___kind_term____x40_Init_Notation___hyg_6293____closed__6;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

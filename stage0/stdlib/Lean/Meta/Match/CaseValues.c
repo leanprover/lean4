@@ -21,6 +21,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqImp(lean_object*,
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_appendTagSuffix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Lean_Meta_Match_CaseValues___instance__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_6360____closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -117,7 +118,6 @@ lean_object* l_Lean_Meta_getMVarTag___boxed(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__6;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5737____closed__4;
 lean_object* l_Lean_Meta_assignExprMVar___at___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__8___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isLevelDefEq___rarg___closed__2;
@@ -650,7 +650,7 @@ x_38 = lean_array_push(x_37, x_34);
 x_39 = lean_array_push(x_38, x_33);
 x_40 = lean_array_push(x_39, x_35);
 x_41 = lean_array_push(x_40, x_36);
-x_42 = l_myMacro____x40_Init_Notation___hyg_5737____closed__4;
+x_42 = l_myMacro____x40_Init_Notation___hyg_6360____closed__4;
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);

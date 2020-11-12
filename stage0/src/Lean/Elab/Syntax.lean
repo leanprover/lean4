@@ -134,6 +134,10 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := do
       else
         `(ParserDescr.symbol $(quote atom))
     | none => throwUnsupportedSyntax
+  else if kind == `Lean.Parser.Syntax.nonReserved then
+    match stx[1].isStrLit? with
+    | some atom => `(ParserDescr.nonReservedSymbol $(quote atom) false)
+    | none      => throwUnsupportedSyntax
   else
     let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
     match stxNew? with

@@ -64,6 +64,7 @@ uint8_t l_Lean_ppAuxDeclsDefault;
 lean_object* l_Lean_ppGoal_match__6(lean_object*);
 uint8_t l_Lean_Format_isNil(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_6293____closed__6;
 size_t l_USize_land(size_t, size_t);
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__2;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__3;
@@ -83,7 +84,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__10(lean_object*,
 lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__14(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal_match__4___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
 lean_object* l_Lean_LocalContext_foldlM___at_Lean_ppGoal___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal___closed__5;
 lean_object* l_Lean_getAuxDeclsOption___boxed(lean_object*);
@@ -559,7 +559,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
+x_1 = l___kind_term____x40_Init_Notation___hyg_6293____closed__6;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

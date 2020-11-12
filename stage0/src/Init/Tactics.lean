@@ -20,7 +20,7 @@ macro_rules
 
 macro "try " t:tacticSeq : tactic => `(($t) <|> skip)
 
-syntax "funext " (>col term:max)+ : tactic
+syntax "funext " (colGt term:max)+ : tactic
 
 macro_rules
   | `(tactic|funext $xs*) =>

@@ -243,11 +243,11 @@ def ex6 (α : Type u) (n : Nat) (xs : Vec α n) :
 × LHS (forall (N : Nat) (XS : Vec α N), Pat (inaccessible N) × Pat XS) :=
 arbitrary _
 
-set_option trace.Meta.Match.match true
-set_option trace.Meta.Match.debug true
+-- set_option trace.Meta.Match.match true
+-- set_option trace.Meta.Match.debug true
 
 #eval test `ex6 2 `elimTest6
-#print elimTest6
+-- #print elimTest6
 
 def ex7 (α : Type u) (n : Nat) (xs : Vec α n) :
   LHS (forall (a : α), Pat (inaccessible 1) × Pat (Vec.cons a Vec.nil))
@@ -255,7 +255,7 @@ def ex7 (α : Type u) (n : Nat) (xs : Vec α n) :
 arbitrary _
 
 #eval test `ex7 2 `elimTest7
-#check elimTest7
+-- #check elimTest7
 
 def isSizeOne {n : Nat} (xs : Vec Nat n) : Bool :=
 elimTest7 _ (fun _ _ => Bool) n xs (fun _ => true) (fun _ _ => false)
@@ -351,7 +351,7 @@ def ex14 (x y : Nat) :
 × LHS (forall (x y : Nat), Pat x × Pat y) :=
 arbitrary _
 
-set_option trace.Meta.Match true
+-- set_option trace.Meta.Match true
 
 #eval test `ex14 2 `elimTest14
 #print elimTest14
@@ -372,7 +372,7 @@ def ex15 (xs : Array (List Nat)) :
 arbitrary _
 
 #eval test `ex15 1 `elimTest15
-#check elimTest15
+-- #check elimTest15
 
 def h3 (xs : Array (List Nat)) : Nat :=
 elimTest15 (fun _ => Nat) xs
@@ -393,8 +393,10 @@ arbitrary _
 
 #eval test `ex16 1 `elimTest16
 
-#check elimTest16
+-- #check elimTest16
 #print elimTest16
+
+
 
 def h4 (xs : List Nat) : List Nat :=
 elimTest16 (fun _ => List Nat) xs

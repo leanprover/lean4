@@ -32,7 +32,11 @@ def doIdDecl   := parser! «try» (ident >> optType >> leftArrow) >> doElemParse
 def doPatDecl  := parser! «try» (termParser >> leftArrow) >> doElemParser >> optional (" | " >> doElemParser)
 @[builtinDoElemParser] def doLetArrow      := parser! "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
 
-@[builtinDoElemParser] def doReassign      := parser! notFollowedByRedefinedTermToken >> (letIdDecl <|> letPatDecl)
+-- We use `letIdDeclNoBinders` to define `doReassign`.
+-- Motivation: we do not reassign functions, and avoid parser conflict
+def letIdDeclNoBinders := node `Lean.Parser.Term.letIdDecl $ «try» (ident >> pushNone >> optType >> " := ") >> termParser
+
+@[builtinDoElemParser] def doReassign      := parser! notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
 @[builtinDoElemParser] def doReassignArrow := parser! notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtinDoElemParser] def doHave     := parser! "have " >> Term.haveDecl
 /-

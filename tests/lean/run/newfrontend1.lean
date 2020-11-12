@@ -361,3 +361,13 @@ theorem simple24 (x y z : Nat) : y = z → x = x → y = x → x = z :=
 fun h1 _ h3 =>
   have h : x = y by apply Eq.symm; assumption
   Eq.trans h (by assumption)
+
+def f1 (x : Nat) : Nat :=
+  let double x := x + x
+  let rec loop x :=
+    match x with
+    | 0   => 0
+    | x+1 => loop x + double x
+  loop x
+
+#eval f1 5

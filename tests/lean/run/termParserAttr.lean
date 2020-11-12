@@ -20,9 +20,9 @@ def tst2 : Parser := symbol "(||" >> termParser >> symbol "||)"
 
 @[termParser] def boo : ParserDescr :=
 ParserDescr.node `boo 10
-  (ParserDescr.andthen
+  (ParserDescr.binary `andthen
     (ParserDescr.symbol "[|")
-    (ParserDescr.andthen
+    (ParserDescr.binary `andthen
       (ParserDescr.cat `term 0)
       (ParserDescr.symbol "|]")))
 

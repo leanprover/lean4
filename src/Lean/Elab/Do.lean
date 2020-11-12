@@ -44,15 +44,16 @@ private partial def hasLiftMethod : Syntax → Bool
   | _ => false
 
 structure ExtractMonadResult :=
-  (m           : Expr)
-  (α           : Expr)
-  (hasBindInst : Expr)
+  (m            : Expr)
+  (α            : Expr)
+  (hasBindInst  : Expr)
+  (expectedType : Expr)
 
 private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
   let u ← getDecLevel type
   let id        := Lean.mkConst `Id [u]
   let idBindVal := Lean.mkConst `Id.hasBind [u]
-  pure { m := id, hasBindInst := idBindVal, α := type }
+  pure { m := id, hasBindInst := idBindVal, α := type, expectedType := mkApp id type }
 
 private def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
   match expectedType? with
@@ -65,7 +66,7 @@ private def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadRe
       try
         let bindInstType ← mkAppM `Bind #[m]
         let bindInstVal  ← synthesizeInst bindInstType
-        pure { m := m, hasBindInst := bindInstVal, α := α }
+        pure { m := m, hasBindInst := bindInstVal, α := α, expectedType := expectedType }
       catch _ =>
         mkIdBindFor type
     | _ => mkIdBindFor type
@@ -1530,8 +1531,7 @@ def elabDo : TermElab := fun stx expectedType? => do
   let codeBlock ← ToCodeBlock.run stx m
   let stxNew ← liftMacroM $ ToTerm.run codeBlock.code m
   trace[Elab.do]! stxNew
-  let expectedType := mkApp bindInfo.m bindInfo.α
-  withMacroExpansion stx stxNew $ elabTermEnsuringType stxNew expectedType
+  withMacroExpansion stx stxNew $ elabTermEnsuringType stxNew bindInfo.expectedType
 
 end Do
 

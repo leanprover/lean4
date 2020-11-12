@@ -88,7 +88,7 @@ def concatElim {α}
 def test (xs : List Nat) : IO Unit :=
   concatElim (motive := fun _ => IO Unit)
     (fun _ => pure ())
-    (fun xs x r => do IO.println s!"step xs: {xs} x: {x}"; r)
+    (fun xs x (r : IO Unit) => do IO.println s!"step xs: {xs} x: {x}"; r) -- TODO: check why we need (r : IO Unit)
     xs
 
 #eval test [1, 2, 3, 4]

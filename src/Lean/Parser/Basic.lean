@@ -1109,7 +1109,7 @@ def checkWsBeforeFn (errorMsg : String) : ParserFn := fun c s =>
   let prev := s.stxStack.back
   if checkTailWs prev then s else s.mkError errorMsg
 
-def checkWsBefore (errorMsg : String := "space expected") : Parser := {
+def checkWsBefore (errorMsg : String := "space before") : Parser := {
   info := epsilonInfo,
   fn   := checkWsBeforeFn errorMsg
 }
@@ -1128,7 +1128,7 @@ def checkNoWsBeforeFn (errorMsg : String) : ParserFn := fun c s =>
   let prev := pickNonNone s.stxStack
   if checkTailNoWs prev then s else s.mkError errorMsg
 
-def checkNoWsBefore (errorMsg : String := "no space") : Parser := {
+def checkNoWsBefore (errorMsg : String := "no space before") : Parser := {
   info := epsilonInfo,
   fn   := checkNoWsBeforeFn errorMsg
 }

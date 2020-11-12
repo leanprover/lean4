@@ -237,6 +237,17 @@ instance : Coe Parser ParserAliasValue := { coe := AliasValue.const }
 instance : Coe (Parser → Parser) ParserAliasValue := { coe := AliasValue.unary }
 instance : Coe (Parser → Parser → Parser) ParserAliasValue := { coe := AliasValue.binary }
 
+def isConstParserAlias (aliasName : Name) : IO Bool := do
+  match (← getAlias parserAliasesRef aliasName) with
+  | some (AliasValue.const v) => pure true
+  | _ => pure false
+
+def ensureUnaryParserAlias (aliasName : Name) : IO Unit :=
+  discard $ getUnaryAlias parserAliasesRef aliasName
+
+def ensureBinaryParserAlias (aliasName : Name) : IO Unit :=
+  discard $ getBinaryAlias parserAliasesRef aliasName
+
 builtin_initialize
   registerAlias "ws" checkWsBefore
   registerAlias "noWs" checkNoWsBefore
@@ -261,6 +272,8 @@ builtin_initialize
   registerAlias "andthen" andthen
   registerAlias "sepByT" (sepBy (allowTrailingSep := true))
   registerAlias "sepBy1T" (sepBy1 (allowTrailingSep := true))
+
+
 
 partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser :=
   let rec visit : ParserDescr → ImportM Parser

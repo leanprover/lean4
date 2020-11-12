@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Level
-// Imports: Init Lean.Parser.Extra Lean.PrettyPrinter.Parenthesizer Lean.PrettyPrinter.Formatter
+// Imports: Init Lean.Parser.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -37,7 +37,6 @@ lean_object* l_Lean_Parser_Level_imax_parenthesizer(lean_object*, lean_object*, 
 lean_object* l_Lean_Parser_Level_hole___closed__5;
 lean_object* l_Lean_Parser_Level_hole___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1743____closed__9;
 lean_object* l_Lean_Parser_Level_max_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_Level_hole_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Level_imax_formatter___closed__1;
@@ -51,6 +50,7 @@ extern lean_object* l_Lean_Parser_ident;
 lean_object* l_Lean_Parser_Level_paren___elambda__1___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Level_ident_formatter(lean_object*);
 lean_object* l_Lean_Parser_Level_imax_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1841____closed__9;
 lean_object* l_Lean_Parser_Level_imax___closed__7;
 lean_object* l_Lean_Parser_Level_imax_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_nonReservedSymbolFn(lean_object*, lean_object*, lean_object*);
@@ -1938,7 +1938,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer___lambda__1___closed__2;
-x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1743____closed__9;
+x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1841____closed__9;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2483,8 +2483,6 @@ return x_5;
 }
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Parser_Extra(lean_object*);
-lean_object* initialize_Lean_PrettyPrinter_Parenthesizer(lean_object*);
-lean_object* initialize_Lean_PrettyPrinter_Formatter(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Parser_Level(lean_object* w) {
 lean_object * res;
@@ -2494,12 +2492,6 @@ res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Extra(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Parenthesizer(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Formatter(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_4____closed__1 = _init_l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_4____closed__1();

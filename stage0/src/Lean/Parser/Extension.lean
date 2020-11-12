@@ -198,7 +198,7 @@ inductive AliasValue (α : Type)
 
 abbrev AliasTable (α) := NameMap (AliasValue α)
 
-def registerAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) (value : AliasValue α) : IO Unit := do
+def registerAliasCore {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) (value : AliasValue α) : IO Unit := do
   unless (← IO.initializing) do throw ↑"aliases can only be registered during initialization"
   if (← mapRef.get).contains aliasName then
     throw ↑s!"alias '{aliasName}' has already been declared"
@@ -229,34 +229,51 @@ abbrev ParserAliasValue := AliasValue Parser
 
 builtin_initialize parserAliasesRef : IO.Ref (NameMap ParserAliasValue) ← IO.mkRef {}
 
--- Later, we define registerParserAlias which registers a parser, formatter and parenthesizer
-def registerParserAliasCore (aliasName : Name) (p : ParserAliasValue) : IO Unit := do
-  registerAlias parserAliasesRef aliasName p
+-- Later, we define macro registerParserAlias! which registers a parser, formatter and parenthesizer
+def registerAlias (aliasName : Name) (p : ParserAliasValue) : IO Unit := do
+  registerAliasCore parserAliasesRef aliasName p
+
+instance : Coe Parser ParserAliasValue := { coe := AliasValue.const }
+instance : Coe (Parser → Parser) ParserAliasValue := { coe := AliasValue.unary }
+instance : Coe (Parser → Parser → Parser) ParserAliasValue := { coe := AliasValue.binary }
+
+def isConstParserAlias (aliasName : Name) : IO Bool := do
+  match (← getAlias parserAliasesRef aliasName) with
+  | some (AliasValue.const v) => pure true
+  | _ => pure false
+
+def ensureUnaryParserAlias (aliasName : Name) : IO Unit :=
+  discard $ getUnaryAlias parserAliasesRef aliasName
+
+def ensureBinaryParserAlias (aliasName : Name) : IO Unit :=
+  discard $ getBinaryAlias parserAliasesRef aliasName
 
 builtin_initialize
-  registerParserAliasCore "ws" (AliasValue.const checkWsBefore)
-  registerParserAliasCore "noWs" (AliasValue.const checkNoWsBefore)
-  registerParserAliasCore "num" (AliasValue.const numLit)
-  registerParserAliasCore "str" (AliasValue.const strLit)
-  registerParserAliasCore "char" (AliasValue.const charLit)
-  registerParserAliasCore "name" (AliasValue.const nameLit)
-  registerParserAliasCore "ident" (AliasValue.const ident)
-  registerParserAliasCore "colGt" (AliasValue.const checkColGt)
-  registerParserAliasCore "colGe" (AliasValue.const checkColGe)
-  registerParserAliasCore "lookahead" (AliasValue.unary lookahead)
-  registerParserAliasCore "try" (AliasValue.unary «try»)
-  registerParserAliasCore "many" (AliasValue.unary many)
-  registerParserAliasCore "many1" (AliasValue.unary many1)
-  registerParserAliasCore "notFollowedBy" (AliasValue.unary (notFollowedBy · "element"))
-  registerParserAliasCore "optional" (AliasValue.unary optional)
-  registerParserAliasCore "withPosition" (AliasValue.unary withPosition)
-  registerParserAliasCore "interpolatedStr" (AliasValue.unary interpolatedStr)
-  registerParserAliasCore "sepBy" (AliasValue.binary sepBy)
-  registerParserAliasCore "sepBy1" (AliasValue.binary sepBy1)
-  registerParserAliasCore "orelse" (AliasValue.binary orelse)
-  registerParserAliasCore "andthen" (AliasValue.binary andthen)
-  registerParserAliasCore "sepByT" (AliasValue.binary (sepBy (allowTrailingSep := true)))
-  registerParserAliasCore "sepBy1T" (AliasValue.binary (sepBy1 (allowTrailingSep := true)))
+  registerAlias "ws" checkWsBefore
+  registerAlias "noWs" checkNoWsBefore
+  registerAlias "num" numLit
+  registerAlias "str" strLit
+  registerAlias "char" charLit
+  registerAlias "name" nameLit
+  registerAlias "ident" ident
+  registerAlias "colGt" checkColGt
+  registerAlias "colGe" checkColGe
+  registerAlias "lookahead" lookahead
+  registerAlias "try" «try»
+  registerAlias "many" many
+  registerAlias "many1" many1
+  registerAlias "notFollowedBy" (notFollowedBy · "element")
+  registerAlias "optional" optional
+  registerAlias "withPosition" withPosition
+  registerAlias "interpolatedStr" interpolatedStr
+  registerAlias "sepBy" sepBy
+  registerAlias "sepBy1" sepBy1
+  registerAlias "orelse" orelse
+  registerAlias "andthen" andthen
+  registerAlias "sepByT" (sepBy (allowTrailingSep := true))
+  registerAlias "sepBy1T" (sepBy1 (allowTrailingSep := true))
+
+
 
 partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser :=
   let rec visit : ParserDescr → ImportM Parser

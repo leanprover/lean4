@@ -80,36 +80,52 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := do
     toParserDescrAux stx[0]
   else if kind == `Lean.Parser.Syntax.paren then
     toParserDescrAux stx[1]
+  else if kind == `Lean.Parser.Syntax.unary then
+    let aliasName := (stx[0].getId).eraseMacroScopes
+    liftIO $ Parser.ensureUnaryParserAlias aliasName
+    let d ← withoutLeftRec $ toParserDescrAux stx[2]
+    `(ParserDescr.unary $(quote aliasName) $d)
+  else if kind == `Lean.Parser.Syntax.binary then
+    let aliasName := (stx[0].getId).eraseMacroScopes
+    liftIO $ Parser.ensureBinaryParserAlias aliasName
+    let d₁ ← withoutLeftRec $ toParserDescrAux stx[2]
+    let d₂ ← withoutLeftRec $ toParserDescrAux stx[4]
+    `(ParserDescr.binary $(quote aliasName) $d₁ $d₂)
   else if kind == `Lean.Parser.Syntax.cat then
-    let cat := stx[0].getId.eraseMacroScopes
-    let ctx ← read
-    if ctx.first && cat == ctx.catName then
-      throwErrorAt stx "invalid atomic left recursive syntax"
+    let cat   := stx[0].getId.eraseMacroScopes
+    let prec? : Option Nat  := expandOptPrecedence stx[1]
+    if (← liftIO $ Parser.isConstParserAlias cat) then
+      if prec?.isSome then
+        throwErrorAt! stx[1] "unexpected precedence in atomic parser"
+      `(ParserDescr.const $(quote cat))
     else
-      let prec? : Option Nat  := expandOptPrecedence stx[1]
-      let env ← getEnv
-      if Parser.isParserCategory env cat then
-        let prec := prec?.getD 0
-        `(ParserDescr.cat $(quote cat) $(quote prec))
+      let ctx ← read
+      if ctx.first && cat == ctx.catName then
+        throwErrorAt stx "invalid atomic left recursive syntax"
       else
-        -- `cat` is not a valid category name. Thus, we test whether it is a valid constant
-        let candidates ← resolveGlobalConst cat
-        let candidates := candidates.filter fun c =>
-            match env.find? c with
-            | none      => false
-            | some info =>
-              match info.type with
-              | Expr.const `Lean.Parser.TrailingParser _ _ => true
-              | Expr.const `Lean.Parser.Parser _ _         => true
-              | Expr.const `Lean.ParserDescr _ _           => true
-              | Expr.const `Lean.TrailingParserDescr _ _   => true
-              | _                                          => false
-         match candidates with
-         | []  => throwErrorAt! stx[3] "unknown category '{cat}' or parser declaration"
-         | [c] =>
-           unless prec?.isNone do throwErrorAt stx[3] "unexpected precedence"
-           `(ParserDescr.parser $(quote c))
-         | cs  => throwErrorAt! stx[3] "ambiguous parser declaration {cs}"
+        let env ← getEnv
+        if Parser.isParserCategory env cat then
+          let prec := prec?.getD 0
+          `(ParserDescr.cat $(quote cat) $(quote prec))
+        else
+          -- `cat` is not a valid category name. Thus, we test whether it is a valid constant
+          let candidates ← resolveGlobalConst cat
+          let candidates := candidates.filter fun c =>
+              match env.find? c with
+              | none      => false
+              | some info =>
+                match info.type with
+                | Expr.const `Lean.Parser.TrailingParser _ _ => true
+                | Expr.const `Lean.Parser.Parser _ _         => true
+                | Expr.const `Lean.ParserDescr _ _           => true
+                | Expr.const `Lean.TrailingParserDescr _ _   => true
+                | _                                          => false
+           match candidates with
+           | []  => throwErrorAt! stx[3] "unknown category '{cat}' or parser declaration"
+           | [c] =>
+             unless prec?.isNone do throwErrorAt stx[3] "unexpected precedence"
+             `(ParserDescr.parser $(quote c))
+           | cs  => throwErrorAt! stx[3] "ambiguous parser declaration {cs}"
   else if kind == `Lean.Parser.Syntax.atom then
     match stx[0].isStrLit? with
     | some atom =>
@@ -118,64 +134,6 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := do
       else
         `(ParserDescr.symbol $(quote atom))
     | none => throwUnsupportedSyntax
-  else if kind == `Lean.Parser.Syntax.num then
-    `(ParserDescr.const `num)
-  else if kind == `Lean.Parser.Syntax.str then
-    `(ParserDescr.const `str)
-  else if kind == `Lean.Parser.Syntax.char then
-    `(ParserDescr.const `char)
-  else if kind == `Lean.Parser.Syntax.ident then
-    `(ParserDescr.const `ident)
-  else if kind == `Lean.Parser.Syntax.noWs then
-    `(ParserDescr.const `noWs)
-  else if kind == `Lean.Parser.Syntax.try then
-    let d ← withoutLeftRec $ toParserDescrAux stx[1]
-    `(ParserDescr.unary `try $d)
-  else if kind == `Lean.Parser.Syntax.withPosition then
-    let d ← withoutLeftRec $ toParserDescrAux stx[1]
-    `(ParserDescr.unary `withPosition $d)
-  else if kind == `Lean.Parser.Syntax.checkColGt then
-    `(ParserDescr.const `colGt)
-  else if kind == `Lean.Parser.Syntax.checkColGe then
-    `(ParserDescr.const `colGe)
-  else if kind == `Lean.Parser.Syntax.notFollowedBy then
-    let d ← withoutLeftRec $ toParserDescrAux stx[1]
-    `(ParserDescr.unary `notFollowedBy $d)
-  else if kind == `Lean.Parser.Syntax.lookahead then
-    let d ← withoutLeftRec $ toParserDescrAux stx[1]
-    `(ParserDescr.unary `lookahead $d)
-  else if kind == `Lean.Parser.Syntax.interpolatedStr then
-    let d ← withoutLeftRec $ toParserDescrAux stx[1]
-    `(ParserDescr.unary `interpolatedStr $d)
-  else if kind == `Lean.Parser.Syntax.sepBy then
-    let allowTrailingSep := !stx[1].isNone
-    let d₁ ← withoutLeftRec $ toParserDescrAux stx[2]
-    let d₂ ← withoutLeftRec $ toParserDescrAux stx[3]
-    if allowTrailingSep then
-      `(ParserDescr.binary `sepByT $d₁ $d₂)
-    else
-      `(ParserDescr.binary `sepBy $d₁ $d₂)
-  else if kind == `Lean.Parser.Syntax.sepBy1 then
-    let allowTrailingSep := !stx[1].isNone
-    let d₁ ← withoutLeftRec $ toParserDescrAux stx[2]
-    let d₂ ← withoutLeftRec $ toParserDescrAux stx[3]
-    if allowTrailingSep then
-      `(ParserDescr.binary `sepByT $d₁ $d₂)
-    else
-      `(ParserDescr.binary `sepBy1 $d₁ $d₂)
-  else if kind == `Lean.Parser.Syntax.many then
-    let d ← withoutLeftRec $ toParserDescrAux stx[0]
-    `(ParserDescr.unary `many $d)
-  else if kind == `Lean.Parser.Syntax.many1 then
-    let d ← withoutLeftRec $ toParserDescrAux stx[0]
-    `(ParserDescr.unary `many1 $d)
-  else if kind == `Lean.Parser.Syntax.optional then
-    let d ← withoutLeftRec $ toParserDescrAux stx[0]
-    `(ParserDescr.unary `optional $d)
-  else if kind == `Lean.Parser.Syntax.orelse then
-    let d₁ ← withoutLeftRec $ toParserDescrAux stx[0]
-    let d₂ ← withoutLeftRec $ toParserDescrAux stx[2]
-    `(ParserDescr.binary `orelse $d₁ $d₂)
   else
     let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
     match stxNew? with

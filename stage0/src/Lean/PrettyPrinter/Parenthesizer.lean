@@ -483,33 +483,37 @@ abbrev ParenthesizerAliasValue := AliasValue Parenthesizer
 
 builtin_initialize parenthesizerAliasesRef : IO.Ref (NameMap ParenthesizerAliasValue) ← IO.mkRef {}
 
-def registerParenthesizerAlias (aliasName : Name) (v : ParenthesizerAliasValue) : IO Unit := do
-  registerAlias parenthesizerAliasesRef aliasName v
+def registerAlias (aliasName : Name) (v : ParenthesizerAliasValue) : IO Unit := do
+  Parser.registerAliasCore parenthesizerAliasesRef aliasName v
+
+instance : Coe Parenthesizer ParenthesizerAliasValue := { coe := AliasValue.const }
+instance : Coe (Parenthesizer → Parenthesizer) ParenthesizerAliasValue := { coe := AliasValue.unary }
+instance : Coe (Parenthesizer → Parenthesizer → Parenthesizer) ParenthesizerAliasValue := { coe := AliasValue.binary }
 
 builtin_initialize
-  registerParenthesizerAlias "ws" (AliasValue.const checkWsBefore.parenthesizer)
-  registerParenthesizerAlias "noWs" (AliasValue.const checkNoWsBefore.parenthesizer)
-  registerParenthesizerAlias "num" (AliasValue.const $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer)
-  registerParenthesizerAlias "str" (AliasValue.const $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer)
-  registerParenthesizerAlias "char" (AliasValue.const $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer)
-  registerParenthesizerAlias "name" (AliasValue.const $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer)
-  registerParenthesizerAlias "ident" (AliasValue.const $ withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer)
-  registerParenthesizerAlias "colGt" (AliasValue.const checkColGt.parenthesizer)
-  registerParenthesizerAlias "colGe" (AliasValue.const checkColGe.parenthesizer)
-  registerParenthesizerAlias "lookahead" (AliasValue.unary lookahead.parenthesizer)
-  registerParenthesizerAlias "try" (AliasValue.unary try.parenthesizer)
-  registerParenthesizerAlias "many" (AliasValue.unary many.parenthesizer)
-  registerParenthesizerAlias "many1" (AliasValue.unary many1.parenthesizer)
-  registerParenthesizerAlias "notFollowedBy" (AliasValue.unary notFollowedBy.parenthesizer)
-  registerParenthesizerAlias "optional" (AliasValue.unary optional.parenthesizer)
-  registerParenthesizerAlias "withPosition" (AliasValue.unary withPosition.parenthesizer)
-  registerParenthesizerAlias "interpolatedStr" (AliasValue.unary interpolatedStr.parenthesizer)
-  registerParenthesizerAlias "sepBy" (AliasValue.binary sepBy.parenthesizer)
-  registerParenthesizerAlias "sepBy1" (AliasValue.binary sepBy1.parenthesizer)
-  registerParenthesizerAlias "orelse" (AliasValue.binary orelse.parenthesizer)
-  registerParenthesizerAlias "andthen" (AliasValue.binary andthen.parenthesizer)
-  registerParenthesizerAlias "sepByT" (AliasValue.binary sepBy.parenthesizer)
-  registerParenthesizerAlias "sepBy1T" (AliasValue.binary sepBy1.parenthesizer)
+  registerAlias "ws" checkWsBefore.parenthesizer
+  registerAlias "noWs" checkNoWsBefore.parenthesizer
+  registerAlias "num" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer)
+  registerAlias "str" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer)
+  registerAlias "char" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer)
+  registerAlias "name" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer)
+  registerAlias "ident" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer)
+  registerAlias "colGt" checkColGt.parenthesizer
+  registerAlias "colGe" checkColGe.parenthesizer
+  registerAlias "lookahead" lookahead.parenthesizer
+  registerAlias "try" try.parenthesizer
+  registerAlias "many" many.parenthesizer
+  registerAlias "many1" many1.parenthesizer
+  registerAlias "notFollowedBy" notFollowedBy.parenthesizer
+  registerAlias "optional" optional.parenthesizer
+  registerAlias "withPosition" withPosition.parenthesizer
+  registerAlias "interpolatedStr" interpolatedStr.parenthesizer
+  registerAlias "sepBy" sepBy.parenthesizer
+  registerAlias "sepBy1" sepBy1.parenthesizer
+  registerAlias "orelse" orelse.parenthesizer
+  registerAlias "andthen" andthen.parenthesizer
+  registerAlias "sepByT" sepBy.parenthesizer
+  registerAlias "sepBy1T" sepBy1.parenthesizer
 
 @[export lean_pretty_printer_parenthesizer_interpret_parser_descr]
 unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer

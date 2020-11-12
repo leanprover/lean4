@@ -5,10 +5,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Parser.Extra
 
--- necessary for auto-generation
-import Lean.PrettyPrinter.Parenthesizer
-import Lean.PrettyPrinter.Formatter
-
 namespace Lean
 namespace Parser
 

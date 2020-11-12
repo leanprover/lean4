@@ -49,13 +49,25 @@ infixl:60  " <* "  => SeqLeft.seqLeft
 infixr:60  " *> "  => SeqRight.seqRight
 infixr:100 " <$> " => Functor.map
 
+-- Basic notation for defining parsers
+syntax   stx "+" : stx
+syntax   stx "*" : stx
+syntax   stx "?" : stx
+syntax:2 stx " <|> " stx:1 : stx
+
+macro_rules
+  | `(stx| $p +) => `(stx| many1($p))
+  | `(stx| $p *) => `(stx| many($p))
+  | `(stx| $p ?) => `(stx| optional($p))
+  | `(stx| $p₁ <|> $p₂) => `(stx| orelse($p₁, $p₂))
+
 macro "if" h:ident " : " c:term " then " t:term " else " e:term : term =>
   `(dite $c (fun $h => $t) (fun $h => $e))
 
 macro "if" c:term " then " t:term " else " e:term : term =>
   `(ite $c $t $e)
 
-syntax "[" sepBy term ", " "]"  : term
+syntax "[" sepBy(term, ", ") "]"  : term
 
 open Lean in
 macro_rules

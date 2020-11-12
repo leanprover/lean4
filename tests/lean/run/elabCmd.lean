@@ -24,7 +24,7 @@ def elabAnonCtor (args : Syntax) (τ : Expr) : TermElabM Expr :=
     | _ => unreachable!)
   | _ => unreachable!
 
-elab "foo⟨" args:(sepBy term ", ") "⟩" : term <= τ => do
+elab "foo⟨" args:sepBy(term, ", ") "⟩" : term <= τ => do
   elabAnonCtor args τ
 
 example : Nat × Nat := foo⟨1, 2⟩

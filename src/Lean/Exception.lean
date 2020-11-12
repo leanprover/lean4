@@ -104,8 +104,8 @@ instance {ω σ m} [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ
   if curr == max then throwError maxRecDepthErrorMessage
   MonadRecDepth.withRecDepth (curr+1) x
 
-syntax "throwError! " ((interpolatedStr term) <|> term) : term
-syntax "throwErrorAt! " term:max ((interpolatedStr term) <|> term) : term
+syntax "throwError! " (interpolatedStr(term) <|> term) : term
+syntax "throwErrorAt! " term:max (interpolatedStr(term) <|> term) : term
 
 macro_rules
   | `(throwError! $msg) =>

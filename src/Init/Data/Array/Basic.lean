@@ -496,7 +496,7 @@ def List.toArray {α : Type u} (as : List α) : Array α :=
 
 export Array (mkArray)
 
-syntax "#[" sepBy term ", " "]" : term
+syntax "#[" sepBy(term, ", ") "]" : term
 
 macro_rules
   | `(#[ $elems* ]) => `(List.toArray [ $elems* ])

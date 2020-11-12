@@ -7,7 +7,7 @@ prelude
 import Init.LeanInit
 import Init.Data.ToString.Basic
 
-syntax:max "s!" (interpolatedStr term) : term
+syntax:max "s!" interpolatedStr(term) : term
 
 macro_rules
   | `(s! $interpStr) => do

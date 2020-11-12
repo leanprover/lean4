@@ -1,4 +1,4 @@
-syntax[beginEndKind] "begin " (sepBy (allowTrailingSep := true) tactic ", ") "end" : term
+syntax[beginEndKind] "begin " sepByT(tactic, ", ") "end" : term
 
 open Lean in
 @[macro beginEndKind] def expandBeginEnd : Lean.Macro := fun stx =>
@@ -13,5 +13,5 @@ theorem ex1 (x : Nat) : x + 0 = 0 + x :=
   begin
     rw Nat.zeroAdd,
     rw Nat.addZero,
-    rfl
+    rfl,
   end

@@ -3,9 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-
-import Lean.Parser.Basic
-
+import Lean.Parser.Extension
 -- necessary for auto-generation
 import Lean.PrettyPrinter.Parenthesizer
 import Lean.PrettyPrinter.Formatter
@@ -70,6 +68,11 @@ namespace Parser
 -- now synthesize parenthesizers
 attribute [runBuiltinParserAttributeHooks]
   ppHardSpace ppSpace ppLine ppGroup ppIndent ppDedent
+
+macro "registerParserAlias!" aliasName:strLit declName:ident : term =>
+  `(do Parser.registerAlias $aliasName $declName
+       PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
+       PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
 
 end Parser
 end Lean

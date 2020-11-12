@@ -404,33 +404,37 @@ abbrev FormatterAliasValue := AliasValue Formatter
 
 builtin_initialize formatterAliasesRef : IO.Ref (NameMap FormatterAliasValue) ← IO.mkRef {}
 
-def registerFormatterAlias (aliasName : Name) (v : FormatterAliasValue) : IO Unit := do
-  registerAlias formatterAliasesRef aliasName v
+def registerAlias (aliasName : Name) (v : FormatterAliasValue) : IO Unit := do
+  Parser.registerAliasCore formatterAliasesRef aliasName v
+
+instance : Coe Formatter FormatterAliasValue := { coe := AliasValue.const }
+instance : Coe (Formatter → Formatter) FormatterAliasValue := { coe := AliasValue.unary }
+instance : Coe (Formatter → Formatter → Formatter) FormatterAliasValue := { coe := AliasValue.binary }
 
 builtin_initialize
-  registerFormatterAlias "ws" (AliasValue.const checkWsBefore.formatter)
-  registerFormatterAlias "noWs" (AliasValue.const checkNoWsBefore.formatter)
-  registerFormatterAlias "num" (AliasValue.const $ withAntiquot.formatter (mkAntiquot.formatter' "numLit" `numLit) numLitNoAntiquot.formatter)
-  registerFormatterAlias "str" (AliasValue.const $ withAntiquot.formatter (mkAntiquot.formatter' "strLit" `strLit) strLitNoAntiquot.formatter)
-  registerFormatterAlias "char" (AliasValue.const $ withAntiquot.formatter (mkAntiquot.formatter' "charLit" `charLit) charLitNoAntiquot.formatter)
-  registerFormatterAlias "name" (AliasValue.const $ withAntiquot.formatter (mkAntiquot.formatter' "nameLit" `nameLit) nameLitNoAntiquot.formatter)
-  registerFormatterAlias "ident" (AliasValue.const $ withAntiquot.formatter (mkAntiquot.formatter' "ident" `ident) identNoAntiquot.formatter)
-  registerFormatterAlias "colGt" (AliasValue.const checkColGt.formatter)
-  registerFormatterAlias "colGe" (AliasValue.const checkColGe.formatter)
-  registerFormatterAlias "lookahead" (AliasValue.unary lookahead.formatter)
-  registerFormatterAlias "try" (AliasValue.unary try.formatter)
-  registerFormatterAlias "many" (AliasValue.unary many.formatter)
-  registerFormatterAlias "many1" (AliasValue.unary many1.formatter)
-  registerFormatterAlias "notFollowedBy" (AliasValue.unary notFollowedBy.formatter)
-  registerFormatterAlias "optional" (AliasValue.unary optional.formatter)
-  registerFormatterAlias "withPosition" (AliasValue.unary withPosition.formatter)
-  registerFormatterAlias "interpolatedStr" (AliasValue.unary interpolatedStr.formatter)
-  registerFormatterAlias "sepBy" (AliasValue.binary sepBy.formatter)
-  registerFormatterAlias "sepBy1" (AliasValue.binary sepBy1.formatter)
-  registerFormatterAlias "orelse" (AliasValue.binary orelse.formatter)
-  registerFormatterAlias "andthen" (AliasValue.binary andthen.formatter)
-  registerFormatterAlias "sepByT" (AliasValue.binary sepBy.formatter)
-  registerFormatterAlias "sepBy1T" (AliasValue.binary sepBy1.formatter)
+  registerAlias "ws" checkWsBefore.formatter
+  registerAlias "noWs" checkNoWsBefore.formatter
+  registerAlias "num" (withAntiquot.formatter (mkAntiquot.formatter' "numLit" `numLit) numLitNoAntiquot.formatter)
+  registerAlias "str" (withAntiquot.formatter (mkAntiquot.formatter' "strLit" `strLit) strLitNoAntiquot.formatter)
+  registerAlias "char" (withAntiquot.formatter (mkAntiquot.formatter' "charLit" `charLit) charLitNoAntiquot.formatter)
+  registerAlias "name" (withAntiquot.formatter (mkAntiquot.formatter' "nameLit" `nameLit) nameLitNoAntiquot.formatter)
+  registerAlias "ident" (withAntiquot.formatter (mkAntiquot.formatter' "ident" `ident) identNoAntiquot.formatter)
+  registerAlias "colGt" checkColGt.formatter
+  registerAlias "colGe" checkColGe.formatter
+  registerAlias "lookahead" lookahead.formatter
+  registerAlias "try" try.formatter
+  registerAlias "many" many.formatter
+  registerAlias "many1" many1.formatter
+  registerAlias "notFollowedBy" notFollowedBy.formatter
+  registerAlias "optional" optional.formatter
+  registerAlias "withPosition" withPosition.formatter
+  registerAlias "interpolatedStr" interpolatedStr.formatter
+  registerAlias "sepBy" sepBy.formatter
+  registerAlias "sepBy1" sepBy1.formatter
+  registerAlias "orelse" orelse.formatter
+  registerAlias "andthen" andthen.formatter
+  registerAlias "sepByT" sepBy.formatter
+  registerAlias "sepBy1T" sepBy1.formatter
 
 @[export lean_pretty_printer_formatter_interpret_parser_descr]
 unsafe def interpretParserDescr : ParserDescr → CoreM Formatter

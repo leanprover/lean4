@@ -27,7 +27,7 @@ private def mkParserSeq (ds : Array Syntax) : TermElabM Syntax := do
   else
     let mut r := ds[0]
     for d in ds[1:ds.size] do
-      r ← `(ParserDescr.andthen $r $d)
+      r ← `(ParserDescrNew.binary `andthen $r $d)
     return r
 
 structure ToParserDescrContext :=
@@ -90,7 +90,7 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := do
       let env ← getEnv
       if Parser.isParserCategory env cat then
         let prec := prec?.getD 0
-        `(ParserDescr.cat $(quote cat) $(quote prec))
+        `(ParserDescrNew.cat $(quote cat) $(quote prec))
       else
         -- `cat` is not a valid category name. Thus, we test whether it is a valid constant
         let candidates ← resolveGlobalConst cat
@@ -101,75 +101,81 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := do
               match info.type with
               | Expr.const `Lean.Parser.TrailingParser _ _ => true
               | Expr.const `Lean.Parser.Parser _ _         => true
-              | Expr.const `Lean.ParserDescr _ _           => true
-              | Expr.const `Lean.TrailingParserDescr _ _   => true
+              | Expr.const `Lean.ParserDescrNew _ _           => true
+              | Expr.const `Lean.TrailingParserDescrNew _ _   => true
               | _                                          => false
          match candidates with
          | []  => throwErrorAt! stx[3] "unknown category '{cat}' or parser declaration"
          | [c] =>
            unless prec?.isNone do throwErrorAt stx[3] "unexpected precedence"
-           `(ParserDescr.parser $(quote c))
+           `(ParserDescrNew.parser $(quote c))
          | cs  => throwErrorAt! stx[3] "ambiguous parser declaration {cs}"
   else if kind == `Lean.Parser.Syntax.atom then
     match stx[0].isStrLit? with
     | some atom =>
       if (← read).leadingIdentAsSymbol then
-        `(ParserDescr.nonReservedSymbol $(quote atom) false)
+        `(ParserDescrNew.nonReservedSymbol $(quote atom) false)
       else
-        `(ParserDescr.symbol $(quote atom))
+        `(ParserDescrNew.symbol $(quote atom))
     | none => throwUnsupportedSyntax
   else if kind == `Lean.Parser.Syntax.num then
-    `(ParserDescr.numLit)
+    `(ParserDescrNew.const `num)
   else if kind == `Lean.Parser.Syntax.str then
-    `(ParserDescr.strLit)
+    `(ParserDescrNew.const `str)
   else if kind == `Lean.Parser.Syntax.char then
-    `(ParserDescr.charLit)
+    `(ParserDescrNew.const `char)
   else if kind == `Lean.Parser.Syntax.ident then
-    `(ParserDescr.ident)
+    `(ParserDescrNew.const `ident)
   else if kind == `Lean.Parser.Syntax.noWs then
-    `(ParserDescr.noWs)
+    `(ParserDescrNew.const `noWs)
   else if kind == `Lean.Parser.Syntax.try then
     let d ← withoutLeftRec $ toParserDescrAux stx[1]
-    `(ParserDescr.try $d)
+    `(ParserDescrNew.unary `try $d)
   else if kind == `Lean.Parser.Syntax.withPosition then
     let d ← withoutLeftRec $ toParserDescrAux stx[1]
-    `(ParserDescr.withPosition $d)
+    `(ParserDescrNew.unary `withPosition $d)
   else if kind == `Lean.Parser.Syntax.checkColGt then
-    `(ParserDescr.checkCol true)
+    `(ParserDescrNew.const `colGt)
   else if kind == `Lean.Parser.Syntax.checkColGe then
-    `(ParserDescr.checkCol false)
+    `(ParserDescrNew.const `colGe)
   else if kind == `Lean.Parser.Syntax.notFollowedBy then
     let d ← withoutLeftRec $ toParserDescrAux stx[1]
-    `(ParserDescr.notFollowedBy $d)
+    `(ParserDescrNew.unary `notFollowedBy $d)
   else if kind == `Lean.Parser.Syntax.lookahead then
     let d ← withoutLeftRec $ toParserDescrAux stx[1]
-    `(ParserDescr.lookahead $d)
+    `(ParserDescrNew.unary `lookahead $d)
   else if kind == `Lean.Parser.Syntax.interpolatedStr then
     let d ← withoutLeftRec $ toParserDescrAux stx[1]
-    `(ParserDescr.interpolatedStr $d)
+    `(ParserDescrNew.unary `interpolatedStr $d)
   else if kind == `Lean.Parser.Syntax.sepBy then
     let allowTrailingSep := !stx[1].isNone
     let d₁ ← withoutLeftRec $ toParserDescrAux stx[2]
     let d₂ ← withoutLeftRec $ toParserDescrAux stx[3]
-    `(ParserDescr.sepBy $d₁ $d₂ $(quote allowTrailingSep))
+    if allowTrailingSep then
+      `(ParserDescrNew.binary `sepByT $d₁ $d₂)
+    else
+      `(ParserDescrNew.binary `sepBy $d₁ $d₂)
   else if kind == `Lean.Parser.Syntax.sepBy1 then
     let allowTrailingSep := !stx[1].isNone
     let d₁ ← withoutLeftRec $ toParserDescrAux stx[2]
     let d₂ ← withoutLeftRec $ toParserDescrAux stx[3]
-    `(ParserDescr.sepBy1 $d₁ $d₂ $(quote allowTrailingSep))
+    if allowTrailingSep then
+      `(ParserDescrNew.binary `sepByT $d₁ $d₂)
+    else
+      `(ParserDescrNew.binary `sepBy1 $d₁ $d₂)
   else if kind == `Lean.Parser.Syntax.many then
     let d ← withoutLeftRec $ toParserDescrAux stx[0]
-    `(ParserDescr.many $d)
+    `(ParserDescrNew.unary `many $d)
   else if kind == `Lean.Parser.Syntax.many1 then
     let d ← withoutLeftRec $ toParserDescrAux stx[0]
-    `(ParserDescr.many1 $d)
+    `(ParserDescrNew.unary `many1 $d)
   else if kind == `Lean.Parser.Syntax.optional then
     let d ← withoutLeftRec $ toParserDescrAux stx[0]
-    `(ParserDescr.optional $d)
+    `(ParserDescrNew.unary `optional $d)
   else if kind == `Lean.Parser.Syntax.orelse then
     let d₁ ← withoutLeftRec $ toParserDescrAux stx[0]
     let d₂ ← withoutLeftRec $ toParserDescrAux stx[2]
-    `(ParserDescr.orelse $d₁ $d₂)
+    `(ParserDescrNew.binary `orelse $d₁ $d₂)
   else
     let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
     match stxNew? with
@@ -198,10 +204,10 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   let quotSymbol := "`(" ++ getCatSuffix catName ++ "|"
   let kind := catName ++ `quot
   let cmd ← `(
-    @[termParser] def $(mkIdent kind) : Lean.ParserDescr :=
-      Lean.ParserDescr.node $(quote kind) $(quote Lean.Parser.maxPrec)
-        (Lean.ParserDescr.andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
-          (Lean.ParserDescr.andthen (Lean.ParserDescr.cat $(quote catName) 0) (Lean.ParserDescr.symbol ")"))))
+    @[termParser] def $(mkIdent kind) : Lean.ParserDescrNew :=
+      Lean.ParserDescrNew.node $(quote kind) $(quote Lean.Parser.maxPrec)
+        (Lean.ParserDescrNew.binary `andthen (Lean.ParserDescrNew.symbol $(quote quotSymbol))
+          (Lean.ParserDescrNew.binary `andthen (Lean.ParserDescrNew.cat $(quote catName) 0) (Lean.ParserDescrNew.symbol ")"))))
   elabCommand cmd
 
 @[builtinCommandElab syntaxCat] def elabDeclareSyntaxCat : CommandElab := fun stx => do
@@ -274,11 +280,11 @@ def «syntax»      := parser! "syntax " >> optPrecedence >> optKindPrio >> many
   let (val, trailingParser) ← runTermElabM none fun _ => Term.toParserDescr syntaxParser cat
   let d ←
     if trailingParser then
-      `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.TrailingParserDescr :=
-         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $val)
+      `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.TrailingParserDescrNew :=
+         ParserDescrNew.trailingNode $(quote stxNodeKind) $(quote prec) $val)
     else
-      `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.ParserDescr :=
-         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
+      `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.ParserDescrNew :=
+         ParserDescrNew.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d $ elabCommand d
 
@@ -288,7 +294,7 @@ def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
   let declName := stx[1]
   let (val, _) ← runTermElabM none $ fun _ => Term.toParserDescr stx[3] Name.anonymous
-  let stx' ← `(def $declName : Lean.ParserDescr := $val)
+  let stx' ← `(def $declName : Lean.ParserDescrNew := $val)
   withMacroExpansion stx stx' $ elabCommand stx'
 
 /-

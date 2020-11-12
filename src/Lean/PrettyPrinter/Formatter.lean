@@ -158,7 +158,7 @@ constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (a
 
 -- break up big mutual recursion
 @[extern "lean_pretty_printer_formatter_interpret_parser_descr"]
-constant interpretParserDescr' : ParserDescr → CoreM Formatter := arbitrary _
+constant interpretParserDescr' : ParserDescrNew → CoreM Formatter := arbitrary _
 
 unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
   (← liftM $ runForNodeKind formatterAttribute k interpretParserDescr')
@@ -407,36 +407,42 @@ builtin_initialize formatterAliasesRef : IO.Ref (NameMap FormatterAliasValue) �
 def registerFormatterAlias (aliasName : Name) (v : FormatterAliasValue) : IO Unit := do
   registerAlias formatterAliasesRef aliasName v
 
-def getFormatterAlias (aliasName : Name) : IO (Option FormatterAliasValue) :=
-  getAlias formatterAliasesRef aliasName
+builtin_initialize
+  registerFormatterAlias "ws" (AliasValue.const checkWsBefore.formatter)
+  registerFormatterAlias "noWs" (AliasValue.const checkNoWsBefore.formatter)
+  registerFormatterAlias "num" (AliasValue.const $ withAntiquot.formatter (mkAntiquot.formatter' "numLit" `numLit) numLitNoAntiquot.formatter)
+  registerFormatterAlias "str" (AliasValue.const $ withAntiquot.formatter (mkAntiquot.formatter' "strLit" `strLit) strLitNoAntiquot.formatter)
+  registerFormatterAlias "char" (AliasValue.const $ withAntiquot.formatter (mkAntiquot.formatter' "charLit" `charLit) charLitNoAntiquot.formatter)
+  registerFormatterAlias "name" (AliasValue.const $ withAntiquot.formatter (mkAntiquot.formatter' "nameLit" `nameLit) nameLitNoAntiquot.formatter)
+  registerFormatterAlias "ident" (AliasValue.const $ withAntiquot.formatter (mkAntiquot.formatter' "ident" `ident) identNoAntiquot.formatter)
+  registerFormatterAlias "colGt" (AliasValue.const checkColGt.formatter)
+  registerFormatterAlias "colGe" (AliasValue.const checkColGe.formatter)
+  registerFormatterAlias "lookahead" (AliasValue.unary lookahead.formatter)
+  registerFormatterAlias "try" (AliasValue.unary try.formatter)
+  registerFormatterAlias "many" (AliasValue.unary many.formatter)
+  registerFormatterAlias "many1" (AliasValue.unary many1.formatter)
+  registerFormatterAlias "notFollowedBy" (AliasValue.unary notFollowedBy.formatter)
+  registerFormatterAlias "optional" (AliasValue.unary optional.formatter)
+  registerFormatterAlias "withPosition" (AliasValue.unary withPosition.formatter)
+  registerFormatterAlias "interpolatedStr" (AliasValue.unary interpolatedStr.formatter)
+  registerFormatterAlias "sepBy" (AliasValue.binary sepBy.formatter)
+  registerFormatterAlias "sepBy1" (AliasValue.binary sepBy1.formatter)
+  registerFormatterAlias "orelse" (AliasValue.binary orelse.formatter)
+  registerFormatterAlias "andthen" (AliasValue.binary andthen.formatter)
+  registerFormatterAlias "sepByT" (AliasValue.binary sepBy.formatter)
+  registerFormatterAlias "sepBy1T" (AliasValue.binary sepBy1.formatter)
 
 @[export lean_pretty_printer_formatter_interpret_parser_descr]
-unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
-  | ParserDescr.andthen d₁ d₂                       => andthen.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
-  | ParserDescr.orelse d₁ d₂                        => orelse.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
-  | ParserDescr.optional d                          => optional.formatter <$> interpretParserDescr d
-  | ParserDescr.lookahead d                         => lookahead.formatter <$> interpretParserDescr d
-  | ParserDescr.try d                               => try.formatter <$> interpretParserDescr d
-  | ParserDescr.notFollowedBy d                     => notFollowedBy.formatter <$> interpretParserDescr d
-  | ParserDescr.many d                              => many.formatter <$> interpretParserDescr d
-  | ParserDescr.many1 d                             => many1.formatter <$> interpretParserDescr d
-  | ParserDescr.sepBy d₁ d₂ _                       => sepBy.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
-  | ParserDescr.sepBy1 d₁ d₂ _                      => sepBy1.formatter <$> interpretParserDescr d₁ <*> interpretParserDescr d₂
-  | ParserDescr.node k prec d                       => node.formatter k <$> interpretParserDescr d
-  | ParserDescr.trailingNode k prec d               => trailingNode.formatter k prec <$> interpretParserDescr d
-  | ParserDescr.symbol tk                           => pure $ symbol.formatter tk
-  | ParserDescr.numLit                              => pure $ withAntiquot.formatter (mkAntiquot.formatter' "numLit" `numLit) numLitNoAntiquot.formatter
-  | ParserDescr.strLit                              => pure $ withAntiquot.formatter (mkAntiquot.formatter' "strLit" `strLit) strLitNoAntiquot.formatter
-  | ParserDescr.charLit                             => pure $ withAntiquot.formatter (mkAntiquot.formatter' "charLit" `charLit) charLitNoAntiquot.formatter
-  | ParserDescr.nameLit                             => pure $ withAntiquot.formatter (mkAntiquot.formatter' "nameLit" `nameLit) nameLitNoAntiquot.formatter
-  | ParserDescr.ident                               => pure $ withAntiquot.formatter (mkAntiquot.formatter' "ident" `ident) identNoAntiquot.formatter
-  | ParserDescr.interpolatedStr d                   => interpolatedStr.formatter <$> interpretParserDescr d
-  | ParserDescr.nonReservedSymbol tk includeIdent   => pure $ nonReservedSymbol.formatter tk
-  | ParserDescr.noWs                                => pure $ checkNoWsBefore.formatter
-  | ParserDescr.withPosition d                      => withPosition.formatter <$> interpretParserDescr d
-  | ParserDescr.checkCol strict                     => pure $ if strict then checkColGt.formatter else checkColGe.formatter
-  | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
-  | ParserDescr.cat catName prec                    => pure $ categoryParser.formatter catName
+unsafe def interpretParserDescr : ParserDescrNew → CoreM Formatter
+  | ParserDescrNew.const n                             => liftIO $ getConstAlias formatterAliasesRef n
+  | ParserDescrNew.unary n d                           => return (← liftIO $ getUnaryAlias formatterAliasesRef n) (← interpretParserDescr d)
+  | ParserDescrNew.binary n d₁ d₂                      => return (← liftIO $ getBinaryAlias formatterAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
+  | ParserDescrNew.node k prec d                       => return node.formatter k (← interpretParserDescr d)
+  | ParserDescrNew.trailingNode k prec d               => return trailingNode.formatter k prec (← interpretParserDescr d)
+  | ParserDescrNew.symbol tk                           => return symbol.formatter tk
+  | ParserDescrNew.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.formatter tk
+  | ParserDescrNew.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
+  | ParserDescrNew.cat catName prec                    => return categoryParser.formatter catName
 
 end Formatter
 open Formatter

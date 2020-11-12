@@ -76,7 +76,6 @@ lean_object* l_Lean_initFn____x40_Lean_Util_PPGoal___hyg_6_(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__6(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_getSanitizeNames___closed__2;
 extern lean_object* l_Lean_getSanitizeNames___closed__1;
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_ppGoal___spec__12(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_joinSep___at_Lean_ppGoal___spec__1(lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
@@ -84,6 +83,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__10(lean_object*,
 lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__14(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal_match__4___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
 lean_object* l_Lean_LocalContext_foldlM___at_Lean_ppGoal___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal___closed__5;
 lean_object* l_Lean_getAuxDeclsOption___boxed(lean_object*);
@@ -559,7 +559,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_5638____closed__5;
+x_1 = l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

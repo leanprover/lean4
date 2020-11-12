@@ -254,7 +254,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Parser_Module_0__Lean
 lean_object* l_Lean_Parser_Module_module_formatter___closed__7;
 lean_object* l_Lean_Parser_Lean_Parser_Module___instance__1;
 lean_object* l_Lean_Parser_Module_prelude___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__4;
 lean_object* l_Lean_Parser_Module_header_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_header___closed__7;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -269,6 +268,7 @@ lean_object* l_Lean_Parser_symbolInfo(lean_object*);
 lean_object* l_Lean_Parser_orelseFnCore(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_epsilonInfo;
 lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__6;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__4;
 lean_object* l_Lean_Parser_Module_prelude___closed__2;
 lean_object* l_Lean_Parser_topLevelCommandParserFn___closed__1;
 lean_object* l_Lean_Parser_Module_module_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -369,7 +369,7 @@ static lean_object* _init_l_Lean_Parser_Module_prelude___elambda__1___closed__2(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__4;
+x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__4;
 x_2 = l_Lean_Parser_Module_prelude___elambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

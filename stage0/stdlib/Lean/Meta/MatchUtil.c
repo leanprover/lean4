@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2549____closed__4;
 lean_object* l_Lean_Meta_matchEq_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2533____closed__4;
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassExpensive_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,7 +55,7 @@ lean_object* l_Lean_Meta_matchEq_x3f(lean_object* x_1, lean_object* x_2, lean_ob
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_myMacro____x40_Init_Notation___hyg_2533____closed__4;
+x_7 = l_myMacro____x40_Init_Notation___hyg_2549____closed__4;
 x_8 = lean_unsigned_to_nat(3u);
 x_9 = l_Lean_Expr_isAppOfArity(x_1, x_7, x_8);
 if (x_9 == 0)

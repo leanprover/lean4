@@ -49,8 +49,8 @@ lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_4____closed__2;
 lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__7;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_Lean_CoreM___instance__6___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__2;
 lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_PrettyPrinter_runForNodeKind___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_backtrackExceptionId;
@@ -320,7 +320,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ParserDescrNew");
+x_1 = lean_mk_string("ParserDescr");
 return x_1;
 }
 }
@@ -328,7 +328,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__2
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 x_2 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -338,7 +338,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("TrailingParserDescrNew");
+x_1 = lean_mk_string("TrailingParserDescr");
 return x_1;
 }
 }
@@ -346,7 +346,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__4
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 x_2 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

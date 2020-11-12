@@ -114,25 +114,25 @@ def compileCategoryParser {α} (ctx : Context α) (declName : Name) (builtin : B
   addAttribute c' (if builtin then ctx.categoryAttr.defn.builtinName else ctx.categoryAttr.defn.name) (mkNullNode #[mkIdent kind])
 
 variables {α} (ctx : Context α) in
-def compileEmbeddedParsers : ParserDescrNew → MetaM Unit
-  | ParserDescrNew.const _                => pure ()
-  | ParserDescrNew.unary _ d              => compileEmbeddedParsers d
-  | ParserDescrNew.binary _ d₁ d₂         => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
-  | ParserDescrNew.parser constName       => discard $ compileParserExpr ctx (mkConst constName) (force := false)
-  | ParserDescrNew.node _ _ d             => compileEmbeddedParsers d
-  | ParserDescrNew.trailingNode _ _ d     => compileEmbeddedParsers d
-  | ParserDescrNew.symbol _               => pure ()
-  | ParserDescrNew.nonReservedSymbol _ _  => pure ()
-  | ParserDescrNew.cat _ _                => pure ()
+def compileEmbeddedParsers : ParserDescr → MetaM Unit
+  | ParserDescr.const _                => pure ()
+  | ParserDescr.unary _ d              => compileEmbeddedParsers d
+  | ParserDescr.binary _ d₁ d₂         => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
+  | ParserDescr.parser constName       => discard $ compileParserExpr ctx (mkConst constName) (force := false)
+  | ParserDescr.node _ _ d             => compileEmbeddedParsers d
+  | ParserDescr.trailingNode _ _ d     => compileEmbeddedParsers d
+  | ParserDescr.symbol _               => pure ()
+  | ParserDescr.nonReservedSymbol _ _  => pure ()
+  | ParserDescr.cat _ _                => pure ()
 
 /-- Precondition: `α` must match `ctx.tyName`. -/
 unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
   Parser.registerParserAttributeHook {
     postAdd := fun catName constName builtin => do
       let info ← getConstInfo constName
-      if info.type.isConstOf `Lean.ParserDescrNew || info.type.isConstOf `Lean.TrailingParserDescrNew then
-        let d ← evalConstCheck ParserDescrNew `Lean.ParserDescrNew constName <|>
-          evalConstCheck TrailingParserDescrNew `Lean.TrailingParserDescrNew constName
+      if info.type.isConstOf `Lean.ParserDescr || info.type.isConstOf `Lean.TrailingParserDescr then
+        let d ← evalConstCheck ParserDescr `Lean.ParserDescr constName <|>
+          evalConstCheck TrailingParserDescr `Lean.TrailingParserDescr constName
         compileEmbeddedParsers ctx d $.run'
       else
         if catName.isAnonymous then

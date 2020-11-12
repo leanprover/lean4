@@ -158,7 +158,7 @@ constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (a
 
 -- break up big mutual recursion
 @[extern "lean_pretty_printer_formatter_interpret_parser_descr"]
-constant interpretParserDescr' : ParserDescrNew → CoreM Formatter := arbitrary _
+constant interpretParserDescr' : ParserDescr → CoreM Formatter := arbitrary _
 
 unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
   (← liftM $ runForNodeKind formatterAttribute k interpretParserDescr')
@@ -433,16 +433,16 @@ builtin_initialize
   registerFormatterAlias "sepBy1T" (AliasValue.binary sepBy1.formatter)
 
 @[export lean_pretty_printer_formatter_interpret_parser_descr]
-unsafe def interpretParserDescr : ParserDescrNew → CoreM Formatter
-  | ParserDescrNew.const n                             => liftIO $ getConstAlias formatterAliasesRef n
-  | ParserDescrNew.unary n d                           => return (← liftIO $ getUnaryAlias formatterAliasesRef n) (← interpretParserDescr d)
-  | ParserDescrNew.binary n d₁ d₂                      => return (← liftIO $ getBinaryAlias formatterAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
-  | ParserDescrNew.node k prec d                       => return node.formatter k (← interpretParserDescr d)
-  | ParserDescrNew.trailingNode k prec d               => return trailingNode.formatter k prec (← interpretParserDescr d)
-  | ParserDescrNew.symbol tk                           => return symbol.formatter tk
-  | ParserDescrNew.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.formatter tk
-  | ParserDescrNew.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
-  | ParserDescrNew.cat catName prec                    => return categoryParser.formatter catName
+unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
+  | ParserDescr.const n                             => liftIO $ getConstAlias formatterAliasesRef n
+  | ParserDescr.unary n d                           => return (← liftIO $ getUnaryAlias formatterAliasesRef n) (← interpretParserDescr d)
+  | ParserDescr.binary n d₁ d₂                      => return (← liftIO $ getBinaryAlias formatterAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
+  | ParserDescr.node k prec d                       => return node.formatter k (← interpretParserDescr d)
+  | ParserDescr.trailingNode k prec d               => return trailingNode.formatter k prec (← interpretParserDescr d)
+  | ParserDescr.symbol tk                           => return symbol.formatter tk
+  | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.formatter tk
+  | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
+  | ParserDescr.cat catName prec                    => return categoryParser.formatter catName
 
 end Formatter
 open Formatter

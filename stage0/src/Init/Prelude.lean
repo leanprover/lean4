@@ -1480,31 +1480,15 @@ instance : Inhabited ParserDescrNew := ⟨ParserDescrNew.symbol ""⟩
 abbrev TrailingParserDescrNew := ParserDescrNew
 
 inductive ParserDescr
-  | andthen           : ParserDescr → ParserDescr → ParserDescr
-  | orelse            : ParserDescr → ParserDescr → ParserDescr
-  | optional          : ParserDescr → ParserDescr
-  | lookahead         : ParserDescr → ParserDescr
-  | «try»             : ParserDescr → ParserDescr
-  | many              : ParserDescr → ParserDescr
-  | many1             : ParserDescr → ParserDescr
-  | sepBy             : ParserDescr → ParserDescr → Bool → ParserDescr
-  | sepBy1            : ParserDescr → ParserDescr → Bool → ParserDescr
-  | node              : Name → Nat → ParserDescr → ParserDescr
-  | trailingNode      : Name → Nat → ParserDescr → ParserDescr
-  | symbol            : String → ParserDescr
-  | nonReservedSymbol : String → Bool → ParserDescr
-  | noWs              : ParserDescr
-  | numLit            : ParserDescr
-  | strLit            : ParserDescr
-  | charLit           : ParserDescr
-  | nameLit           : ParserDescr
-  | interpolatedStr   : ParserDescr → ParserDescr -- interpolated string
-  | ident             : ParserDescr
-  | cat               : Name → Nat → ParserDescr
-  | parser            : Name → ParserDescr
-  | notFollowedBy     : ParserDescr → ParserDescr
-  | withPosition      : ParserDescr → ParserDescr
-  | checkCol          : Bool → ParserDescr
+  | const  (name : Name)
+  | unary  (name : Name) (p : ParserDescr)
+  | binary (name : Name) (p₁ p₂ : ParserDescr)
+  | node (kind : SyntaxNodeKind) (prec : Nat) (p : ParserDescr)
+  | trailingNode (kind : SyntaxNodeKind) (prec : Nat) (p : ParserDescr)
+  | symbol (val : String)
+  | nonReservedSymbol (val : String) (includeIdent : Bool)
+  | cat (catName : Name) (rbp : Nat)
+  | parser (declName : Name)
 
 instance : Inhabited ParserDescr := ⟨ParserDescr.symbol ""⟩
 abbrev TrailingParserDescr := ParserDescr

@@ -279,6 +279,7 @@ lean_object* l_Lean_Expr_updateApp___boxed(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_ExprStructEq_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParams___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Expr___instance__2___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__7;
 extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux_match__1(lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -290,7 +291,6 @@ lean_object* l_Lean_ExprStructEq_Lean_Expr___instance__17;
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* l_Lean_Expr_etaExpandedStrict_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateConst_x21(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__7;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
@@ -3303,7 +3303,7 @@ return x_6;
 case 5:
 {
 lean_object* x_7; 
-x_7 = l_myMacro____x40_Init_Notation___hyg_37____closed__7;
+x_7 = l_myMacro____x40_Init_Notation___hyg_38____closed__7;
 return x_7;
 }
 case 6:

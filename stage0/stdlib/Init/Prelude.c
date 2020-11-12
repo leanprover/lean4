@@ -7621,7 +7621,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Init_Prelude___instance__74___closed__1;
-x_2 = lean_alloc_ctor(11, 1, 0);
+x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }

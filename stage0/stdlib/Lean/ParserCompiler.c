@@ -67,6 +67,7 @@ size_t l_USize_sub(size_t, size_t);
 lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerParserCompiler___rarg___lambda__1___closed__2;
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__41___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__3;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_Context_tyName___rarg(lean_object*);
 lean_object* l_Lean_ParserCompiler_compileCategoryParser_match__1(lean_object*);
@@ -80,7 +81,6 @@ lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__38___boxed
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfEasyCases___at___private_Lean_Meta_WHNF_0__Lean_Meta_whnfCoreImp___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Core_Lean_CoreM___instance__2___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__3;
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__29___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerParserCompiler___rarg___lambda__1___closed__1;
@@ -272,7 +272,7 @@ lean_object* l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr__
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__31___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_addAndCompile(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__4;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 lean_object* l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__5___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
@@ -291,7 +291,7 @@ lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__8(lean_obj
 lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserExpr_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_37____closed__2;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__4;
 lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__24(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__48___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__40___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -429,8 +429,8 @@ static lean_object* _init_l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at_Lean
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__4;
-x_2 = l_myMacro____x40_Init_Notation___hyg_37____closed__3;
+x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__4;
+x_2 = l_myMacro____x40_Init_Notation___hyg_38____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -17962,7 +17962,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__4;
+x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__4;
 x_2 = l_Lean_Parser_mkParserOfConstantUnsafe_match__1___rarg___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -24502,7 +24502,7 @@ static lean_object* _init_l_Lean_ParserCompiler_registerParserCompiler___rarg___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 x_2 = l_Lean_Parser_mkParserOfConstantUnsafe_match__1___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -24512,7 +24512,7 @@ static lean_object* _init_l_Lean_ParserCompiler_registerParserCompiler___rarg___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_37____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 x_2 = l_Lean_Parser_mkParserOfConstantUnsafe_match__1___rarg___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

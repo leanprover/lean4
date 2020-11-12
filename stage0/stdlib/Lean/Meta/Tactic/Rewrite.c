@@ -85,10 +85,10 @@ lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(lean_object*
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_rewrite___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isMVar(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Core___hyg_189____closed__4;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite___lambda__4___closed__4;
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Core___hyg_190____closed__4;
 lean_object* l_Lean_Meta_rewrite___lambda__2___closed__5;
 lean_object* l_Lean_Meta_rewrite_match__3(lean_object*);
 extern lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_reorderNonDependentFirst___closed__1;
@@ -1583,7 +1583,7 @@ x_25 = lean_ctor_get(x_21, 1);
 lean_inc(x_25);
 lean_dec(x_21);
 x_26 = l_Lean_mkAppN(x_1, x_23);
-x_27 = l_myMacro____x40_Init_Core___hyg_189____closed__4;
+x_27 = l_myMacro____x40_Init_Core___hyg_190____closed__4;
 x_28 = lean_unsigned_to_nat(2u);
 x_29 = l_Lean_Expr_isAppOfArity(x_25, x_27, x_28);
 if (x_29 == 0)

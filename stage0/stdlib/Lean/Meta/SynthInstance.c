@@ -371,7 +371,6 @@ uint8_t l_Std_AssocList_contains___at_Lean_Meta_SynthInstance_newSubgoal___spec_
 lean_object* l_Lean_Meta_DiscrTree_getUnify___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_wakeUp___closed__2;
 lean_object* lean_level_update_imax(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
 lean_object* l_Lean_Meta_synthInstance(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_consume_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
@@ -454,6 +453,7 @@ lean_object* l_Lean_Meta_SynthInstance_inferTCGoalsLRAttr;
 lean_object* l_Lean_Meta_SynthInstance_initFn____x40_Lean_Meta_SynthInstance___hyg_5____closed__4;
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_preprocess___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_6287____closed__6;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* lean_level_update_succ(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3879,7 +3879,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_getInstances___lambda__1___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_6240____closed__4;
+x_1 = l___kind_term____x40_Init_Notation___hyg_6287____closed__6;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

@@ -477,6 +477,16 @@ def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 @[combinatorParenthesizer ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e
 
+abbrev ParenthesizerAliasValue := Parser.AliasValue Parenthesizer
+
+builtin_initialize parenthesizerAliasesRef : IO.Ref (NameMap ParenthesizerAliasValue) ← IO.mkRef {}
+
+def registerParenthesizerAlias (aliasName : Name) (v : ParenthesizerAliasValue) : IO Unit := do
+  Parser.registerAlias parenthesizerAliasesRef aliasName v
+
+def getParenthesizerAlias (aliasName : Name) : IO (Option ParenthesizerAliasValue) :=
+  Parser.getAlias parenthesizerAliasesRef aliasName
+
 @[export lean_pretty_printer_parenthesizer_interpret_parser_descr]
 unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
   | ParserDescr.andthen d₁ d₂                       => andthen.parenthesizer <$> interpretParserDescr d₁ <*> interpretParserDescr d₂

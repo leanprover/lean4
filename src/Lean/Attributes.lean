@@ -26,6 +26,10 @@ structure Attr.Context :=
 
 abbrev AttrM := ReaderT Attr.Context CoreM
 
+instance : MonadLift ImportM AttrM := {
+  monadLift := fun x => do liftIO (x { env := (← getEnv), opts := (← getOptions) })
+}
+
 instance : MonadResolveName AttrM := {
   getCurrNamespace := do pure (← read).currNamespace,
   getOpenDecls     := do pure (← read).openDecls

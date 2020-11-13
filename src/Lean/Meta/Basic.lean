@@ -471,13 +471,13 @@ private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
     | none   => pure LOption.none
 
 private partial def isClassQuick? : Expr → MetaM (LOption Name)
-  | Expr.bvar _ _        => pure LOption.none
-  | Expr.lit _ _         => pure LOption.none
-  | Expr.fvar _ _        => pure LOption.none
-  | Expr.sort _ _        => pure LOption.none
-  | Expr.lam _ _ _ _     => pure LOption.none
-  | Expr.letE _ _ _ _ _  => pure LOption.undef
-  | Expr.proj _ _ _  _   => pure LOption.undef
+  | Expr.bvar ..         => pure LOption.none
+  | Expr.lit ..          => pure LOption.none
+  | Expr.fvar ..         => pure LOption.none
+  | Expr.sort ..         => pure LOption.none
+  | Expr.lam ..          => pure LOption.none
+  | Expr.letE ..         => pure LOption.undef
+  | Expr.proj ..         => pure LOption.undef
   | Expr.forallE _ _ b _ => isClassQuick? b
   | Expr.mdata _ e _     => isClassQuick? e
   | Expr.const n _ _     => isClassQuickConst? n
@@ -487,9 +487,9 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
     | none     => pure LOption.none
   | Expr.app f _ _       =>
     match f.getAppFn with
-    | Expr.const n _ _  => isClassQuickConst? n
-    | Expr.lam _ _ _ _  => pure LOption.undef
-    | _                 => pure LOption.none
+    | Expr.const n .. => isClassQuickConst? n
+    | Expr.lam ..     => pure LOption.undef
+    | _              => pure LOption.none
 
 def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
   let s ← get

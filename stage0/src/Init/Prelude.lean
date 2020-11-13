@@ -1475,6 +1475,7 @@ inductive ParserDescr
   | nonReservedSymbol (val : String) (includeIdent : Bool)
   | cat (catName : Name) (rbp : Nat)
   | parser (declName : Name)
+  | nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : ParserDescr)
 
 instance : Inhabited ParserDescr := ⟨ParserDescr.symbol ""⟩
 abbrev TrailingParserDescr := ParserDescr

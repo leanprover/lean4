@@ -35,20 +35,6 @@ def darrow : Parser := " => "
 
 namespace Term
 
-/- Helper functions for defining simple parsers -/
-
-def unicodeInfixR (sym : String) (asciiSym : String) (prec : Nat) : TrailingParser :=
-  checkPrec prec >> unicodeSymbol sym asciiSym >> termParser prec
-
-def infixR (sym : String) (prec : Nat) : TrailingParser :=
-  checkPrec prec >> symbol sym >> termParser prec
-
-def unicodeInfixL (sym : String) (asciiSym : String) (prec : Nat) : TrailingParser :=
-  checkPrec prec >> unicodeSymbol sym asciiSym >> termParser (prec+1)
-
-def infixL (sym : String) (prec : Nat) : TrailingParser :=
-  checkPrec prec >> symbol sym >> termParser (prec+1)
-
 /- Built-in parsers -/
 
 @[builtinTermParser] def byTactic := parser!:leadPrec "by " >> Tactic.tacticSeq
@@ -191,7 +177,7 @@ def ellipsis       := parser! ".."
 
 @[builtinTermParser] def proj     := tparser! checkNoWsBefore >> "." >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrayRef := tparser! checkNoWsBefore >> "[" >> termParser >>"]"
-@[builtinTermParser] def arrow    := tparser! unicodeInfixR " → " " -> " 25
+@[builtinTermParser] def arrow    := tparser! checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser 25
 
 def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected

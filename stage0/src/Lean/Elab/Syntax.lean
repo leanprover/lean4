@@ -110,21 +110,26 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := do
         else
           -- `cat` is not a valid category name. Thus, we test whether it is a valid constant
           let candidates ← resolveGlobalConst cat
-          let candidates := candidates.filter fun c =>
+          /- Convert `candidates` in a list of pairs `(c, isDescr)`, where `c` is the parser name,
+             and `isDescr` is true iff `c` has type `Lean.ParserDescr` or `Lean.TrailingParser` -/
+          let candidates := candidates.filterMap fun c =>
               match env.find? c with
-              | none      => false
+              | none      => none
               | some info =>
                 match info.type with
-                | Expr.const `Lean.Parser.TrailingParser _ _ => true
-                | Expr.const `Lean.Parser.Parser _ _         => true
-                | Expr.const `Lean.ParserDescr _ _           => true
-                | Expr.const `Lean.TrailingParserDescr _ _   => true
-                | _                                          => false
+                | Expr.const `Lean.Parser.TrailingParser _ _ => (c, false)
+                | Expr.const `Lean.Parser.Parser _ _         => (c, false)
+                | Expr.const `Lean.ParserDescr _ _           => (c, true)
+                | Expr.const `Lean.TrailingParserDescr _ _   => (c, true)
+                | _                                          => none
            match candidates with
            | []  => throwErrorAt! stx[3] "unknown category '{cat}' or parser declaration"
-           | [c] =>
+           | [(c, isDescr)] =>
              unless prec?.isNone do throwErrorAt stx[3] "unexpected precedence"
-             `(ParserDescr.parser $(quote c))
+             if isDescr then
+               mkIdentFrom stx c
+             else
+               `(ParserDescr.parser $(quote c))
            | cs  => throwErrorAt! stx[3] "ambiguous parser declaration {cs}"
   else if kind == `Lean.Parser.Syntax.atom then
     match stx[0].isStrLit? with
@@ -473,7 +478,7 @@ builtin_initialize
 
 /-
 def elabTail := try (" : " >> ident) >> darrow >> termParser
-parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
+parser! "elab " >> optPrecedence >> optPrio >> elabHead >> many elabArg >> elabTail
 -/
 def expandElab (currNamespace : Name) (stx : Syntax) : MacroM Syntax := do
   let ref := stx

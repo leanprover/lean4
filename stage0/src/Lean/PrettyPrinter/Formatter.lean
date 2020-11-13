@@ -442,6 +442,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.unary n d                           => return (← liftIO $ getUnaryAlias formatterAliasesRef n) (← interpretParserDescr d)
   | ParserDescr.binary n d₁ d₂                      => return (← liftIO $ getBinaryAlias formatterAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
   | ParserDescr.node k prec d                       => return node.formatter k (← interpretParserDescr d)
+  | ParserDescr.nodeWithAntiquot _ k d              => return node.formatter k (← interpretParserDescr d)
   | ParserDescr.trailingNode k prec d               => return trailingNode.formatter k prec (← interpretParserDescr d)
   | ParserDescr.symbol tk                           => return symbol.formatter tk
   | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.formatter tk

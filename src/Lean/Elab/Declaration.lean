@@ -212,7 +212,7 @@ def expandMutualNamespace : Macro := fun stx => do
       if nsCurr == nsNew then
         elemsNew := elemsNew.push elem
       else
-        Macro.throwError elem s!"conflicting namespaces in mutual declaration, using namespace '{nsNew}', but used '{nsCurr}' in previous declaration"
+        Macro.throwErrorAt elem s!"conflicting namespaces in mutual declaration, using namespace '{nsNew}', but used '{nsCurr}' in previous declaration"
   match ns? with
   | some ns =>
     let ns := mkIdentFrom stx ns

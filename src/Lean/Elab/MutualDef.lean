@@ -138,7 +138,7 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax :=
   else if declVal.isOfKind `Lean.Parser.Command.declValEqns then
     expandMatchAltsIntoMatch declVal declVal[0]
   else
-    Macro.throwError declVal "unexpected definition value"
+    Macro.throwErrorAt declVal "unexpected definition value"
 
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
   headers.mapM fun header => withDeclName header.declName $ withLevelNames header.levelNames do

@@ -13,7 +13,7 @@ private def liftTermBinderSyntax : Macro := fun stx => do
     let kind := Name.mkStr (Name.mkStr p "Term") s
     let termStx := Syntax.node kind (stx.getArgs ++ #[mkAtomFrom stx "; ", hole])
     `(tactic| refine $termStx)
-  | _ => Macro.throwError stx "unexpected binder syntax"
+  | _ => Macro.throwError "unexpected binder syntax"
 
 @[builtinMacro Lean.Parser.Tactic.have] def expandHaveTactic : Macro := liftTermBinderSyntax
 @[builtinMacro Lean.Parser.Tactic.let] def expandLetTactic : Macro := liftTermBinderSyntax

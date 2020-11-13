@@ -912,16 +912,16 @@ def declToTermCore (decl : Syntax) (k : Syntax) : M Syntax := withFreshMacroScop
       -- `doElem` must be a `doExpr action`. See `doLetArrowToCode`
       match isDoExpr? doElem with
       | some action => `(Bind.bind $action (fun ($id:ident : $type) => $k))
-      | none        => Macro.throwError decl "unexpected kind of 'do' declaration"
+      | none        => Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
     else
-      Macro.throwError decl "unexpected kind of 'do' declaration"
+      Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
   else if kind == `Lean.Parser.Term.doHave then
     -- The `have` term is of the form  `"have " >> haveDecl >> optSemicolon termParser`
     let args := decl.getArgs
     let args := args ++ #[mkNullNode /- optional ';' -/, k]
     pure $ mkNode `Lean.Parser.Term.«have» args
   else
-    Macro.throwError decl "unexpected kind of 'do' declaration"
+    Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
 
 def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := do
   let r ← declToTermCore decl k
@@ -946,7 +946,7 @@ def reassignToTermCore (reassign : Syntax) (k : Syntax) : MacroM Syntax := withF
       `(let $letDecl:letDecl; $k)
   else
     -- Note that `doReassignArrow` is expanded by `doReassignArrowToCode
-    Macro.throwError reassign "unexpected kind of 'do' reassignment"
+    Macro.throwErrorAt reassign "unexpected kind of 'do' reassignment"
 
 def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := do
   let r ← reassignToTermCore reassign k

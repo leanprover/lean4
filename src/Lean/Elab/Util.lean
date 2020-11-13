@@ -145,6 +145,7 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
     [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (x : MacroM α) : m α := do
   let env  ← getEnv
   match x { macroEnv       := Macro.mkMacroEnv (expandMacro? env),
+            ref            := ← getRef,
             currMacroScope := ← MonadMacroAdapter.getCurrMacroScope,
             mainModule     := env.mainModule,
             currRecDepth   := ← MonadRecDepth.getRecDepth,

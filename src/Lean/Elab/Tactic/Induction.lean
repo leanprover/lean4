@@ -25,26 +25,31 @@ private def getAltName (alt : Syntax) : Name :=
   getNameOfIdent' alt[0] $.eraseMacroScopes
 private def getAltVarNames (alt : Syntax) : Array Name :=
   alt[1].getArgs.map getNameOfIdent'
-private def getAltRHS (alt : Syntax) : Syntax := alt[3]
+private def getAltRHS (alt : Syntax) : Syntax :=
+  alt[3]
+private def getAltDArrow (alt : Syntax) : Syntax :=
+  alt[2]
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
 def isHoleRHS (rhs : Syntax) : Bool :=
   rhs.isOfKind `Lean.Parser.Term.syntheticHole || rhs.isOfKind `Lean.Parser.Term.hole
 
-def evalAltRhs (mvarId : MVarId) (rhs : Syntax) (remainingGoals : Array MVarId) : TacticM (Array MVarId) := do
-  if isHoleRHS rhs then
-    let gs' ← withMVarContext mvarId $ withRef rhs do
-      let mvarDecl ← getMVarDecl mvarId
-      let val ← elabTermEnsuringType rhs mvarDecl.type
-      assignExprMVar mvarId val
-      let gs' ← getMVarsNoDelayed val
-      tagUntaggedGoals mvarDecl.userName `induction gs'.toList
-      pure gs'
-    pure (remainingGoals ++ gs')
-  else
-    setGoals [mvarId]
-    closeUsingOrAdmit rhs
-    pure remainingGoals
+def evalAlt (mvarId : MVarId) (alt : Syntax) (remainingGoals : Array MVarId) : TacticM (Array MVarId) :=
+  withRef (getAltDArrow alt) do -- using `=>`'s position for error messages
+    let rhs := getAltRHS alt
+    if isHoleRHS rhs then
+      let gs' ← withMVarContext mvarId $ withRef rhs do
+        let mvarDecl ← getMVarDecl mvarId
+        let val ← elabTermEnsuringType rhs mvarDecl.type
+        assignExprMVar mvarId val
+        let gs' ← getMVarsNoDelayed val
+        tagUntaggedGoals mvarDecl.userName `induction gs'.toList
+        pure gs'
+      pure (remainingGoals ++ gs')
+    else
+      setGoals [mvarId]
+      closeUsingOrAdmit rhs
+      pure remainingGoals
 
 /-
   Helper method for creating an user-defined eliminator/recursor application.
@@ -191,7 +196,6 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
           throwError! "alternative '{altName}' has not been provided"
     | some altStx =>
       subgoals ← withRef altStx do
-        let altRhs := getAltRHS altStx
         let altVarNames := getAltVarNames altStx
         let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList
         match (← Cases.unifyEqs numEqs altMVarId {}) with
@@ -200,8 +204,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (altsSyntax :
           let (_, altMVarId) ← introNP altMVarId numGeneralized
           for fvarId in toClear do
             altMVarId ← tryClear altMVarId fvarId
-          withRef altStx[2] do -- use `=>` position to report errors
-            evalAltRhs altMVarId altRhs subgoals
+          evalAlt altMVarId altStx subgoals
   if usedWildcard then
     altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_
   unless altsSyntax.isEmpty do
@@ -269,8 +272,7 @@ private def checkAltCtorNames (alts : Array Syntax) (ctorNames : List Name) : Ta
 
 structure RecInfo :=
   (recName : Name)
-  (altVars : Array (List Name) := #[]) -- new variable names for each minor premise
-  (altRHSs : Array Syntax := #[])      -- RHS for each minor premise
+  (alts    : Array Syntax := #[]) -- alternatives
 
 def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
   liftMetaMAtMain fun mvarId => do
@@ -318,42 +320,36 @@ private def getRecInfoDefault (major : Expr) (withAlts : Syntax) (allowMissingAl
   if withAlts.isNone then
     pure ({ recName := recName }, #[])
   else
-    let ctorNames := indVal.ctors
-    let alts      := getAlts withAlts
+    let ctorNames   := indVal.ctors
+    let alts        := getAlts withAlts
     checkAltCtorNames alts ctorNames
-    let mut altVars := #[]
-    let mut altRHSs := #[]
+    let mut altsNew := #[]
     -- This code can be simplified if we decide to keep `checkAlts`
     let mut remainingAlts := alts
     let mut prevAnonymousAlt? := none
     for ctorName in ctorNames do
       match remainingAlts.findIdx? (fun alt => (getAltName alt).isSuffixOf ctorName) with
       | some idx =>
-        let newAlt := remainingAlts[idx]
-        altVars       := altVars.push (getAltVarNames newAlt).toList
-        altRHSs       := altRHSs.push (getAltRHS newAlt)
+        let newAlt    := remainingAlts[idx]
+        altsNew       := altsNew.push newAlt
         remainingAlts := remainingAlts.eraseIdx idx
       | none =>
           match remainingAlts.findIdx? (fun alt => getAltName alt == `_) with
           | some idx =>
             let newAlt        := remainingAlts[idx]
-            altVars           := altVars.push (getAltVarNames newAlt).toList
-            altRHSs           := altRHSs.push (getAltRHS newAlt)
+            altsNew           := altsNew.push newAlt
             remainingAlts     := remainingAlts.eraseIdx idx
             prevAnonymousAlt? := some newAlt
           | none => match prevAnonymousAlt? with
-            | some alt =>
-              altVars := altVars.push (getAltVarNames alt).toList
-              altRHSs := altRHSs.push (getAltRHS alt)
+            | some alt => altsNew := altsNew.push alt
             | none     =>
               if allowMissingAlts then
-                altVars := altVars.push []
-                altRHSs := altRHSs.push Syntax.missing
+                altsNew := altsNew.push Syntax.missing
               else
                 throwError! "alternative for constructor '{ctorName}' is missing"
     unless remainingAlts.isEmpty do
       throwErrorAt remainingAlts[0] "unused alternative"
-    pure ({ recName := recName, altVars := altVars, altRHSs := altRHSs }, ctorNames.toArray)
+    pure ({ recName := recName, alts := altsNew }, ctorNames.toArray)
 
 /-
   Recall that
@@ -380,51 +376,43 @@ private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRe
     else
       let alts := getAlts withAlts
       let paramNames ← liftMetaMAtMain fun _ => getParamNames recInfo.recursorName
-      let mut altVars           := #[]
-      let mut altRHSs           := #[]
       let mut remainingAlts     := alts
       let mut prevAnonymousAlt? := none
+      let mut altsNew           := #[]
       for i in [:paramNames.size] do
         if recInfo.isMinor i then
           let paramName := paramNames[i]
           match remainingAlts.findIdx? (fun alt => getAltName alt == paramName) with
           | some idx =>
-            let newAlt := remainingAlts[idx]
-            altVars := altVars.push (getAltVarNames newAlt).toList
-            altRHSs := altRHSs.push (getAltRHS newAlt)
+            let newAlt    := remainingAlts[idx]
+            altsNew       := altsNew.push newAlt
             remainingAlts := remainingAlts.eraseIdx idx
           | none => match remainingAlts.findIdx? (fun alt => getAltName alt == `_) with
             | some idx =>
               let newAlt     := remainingAlts[idx]
-              altVars := altVars.push (getAltVarNames newAlt).toList
-              altRHSs := altRHSs.push (getAltRHS newAlt)
-              remainingAlts := remainingAlts.eraseIdx idx
+              altsNew        := altsNew.push newAlt
+              remainingAlts  := remainingAlts.eraseIdx idx
               prevAnonymousAlt? := some newAlt
             | none => match prevAnonymousAlt? with
-              | some alt =>
-                altVars := altVars.push (getAltVarNames alt).toList
-                altRHSs := altRHSs.push (getAltRHS alt)
-              | none     =>
-                throwError! "alternative for minor premise '{paramName}' is missing"
+              | some alt => altsNew := altsNew.push alt
+              | none     => throwError! "alternative for minor premise '{paramName}' is missing"
       unless remainingAlts.isEmpty do
         throwErrorAt remainingAlts[0] "unused alternative"
-      pure { recName := recName, altVars := altVars, altRHSs := altRHSs }
+      pure { recName := recName, alts := altsNew }
 
-private def processResult (altRHSs : Array Syntax) (result : Array Meta.InductionSubgoal) (numToIntro : Nat := 0) : TacticM Unit := do
-  if altRHSs.isEmpty then
+private def processResult (alts : Array Syntax) (result : Array Meta.InductionSubgoal) (numToIntro : Nat := 0) : TacticM Unit := do
+  if alts.isEmpty then
     setGoals $ result.toList.map fun s => s.mvarId
   else
-    unless altRHSs.size == result.size do
-      throwError! "mistmatch on the number of subgoals produced ({result.size}) and alternatives provided ({altRHSs.size})"
+    unless alts.size == result.size do
+      throwError! "mistmatch on the number of subgoals produced ({result.size}) and alternatives provided ({alts.size})"
     let mut gs := #[]
     for i in [:result.size] do
-      let subgoal := result[i]
-      let rhs     := altRHSs[i]
-      let ref     := rhs
+      let subgoal    := result[i]
       let mut mvarId := subgoal.mvarId
       if numToIntro > 0 then
         (_, mvarId) ← introNP mvarId numToIntro
-      gs ← evalAltRhs mvarId rhs gs
+      gs ← evalAlt mvarId alts[i] gs
     setGoals gs.toList
 
 private def generalizeTerm (term : Expr) : TacticM Expr := do
@@ -444,8 +432,9 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
   if targets.size == 1 then
     let recInfo ← getRecInfo stx targets[0]
     let (mvarId, _) ← getMainGoal
-    let result ← Meta.induction mvarId targets[0].fvarId! recInfo.recName recInfo.altVars
-    processResult recInfo.altRHSs result (numToIntro := n)
+    let altVars := recInfo.alts.map fun alt => (getAltVarNames alt).toList
+    let result ← Meta.induction mvarId targets[0].fvarId! recInfo.recName altVars
+    processResult recInfo.alts result (numToIntro := n)
   else
     if stx[2].isNone then
       throwError! "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>')"
@@ -465,11 +454,11 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
       let withAlts := stx[4]
       ElimApp.evalAlts elimInfo result.alts (getAlts withAlts) (numGeneralized := n) (toClear := targetFVarIds)
 
-private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (altRHSs : Array Syntax) : TacticM Unit := do
+private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (alts : Array Syntax) : TacticM Unit := do
   let rec loop (i j : Nat) : TacticM Unit :=
-    if h : j < altRHSs.size then do
-      let altRHS   := altRHSs.get ⟨j, h⟩
-      if altRHS.isMissing then
+    if h : j < alts.size then do
+      let alt   := alts.get ⟨j, h⟩
+      if alt.isMissing then
         loop i (j+1)
       else
         let ctorName := ctorNames.get! j
@@ -486,7 +475,7 @@ private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ct
       throwError! "alternative for '{subgoal.ctorName}' has not been provided"
     else
       pure ()
-  unless altRHSs.isEmpty do
+  unless alts.isEmpty do
     loop 0 0
 
 -- Recall that
@@ -521,15 +510,20 @@ def elabTargets (targets : Array Syntax) : TacticM (Array Expr) :=
     let term ← elabTaggedTerm h? (getTargetTerm target)
     generalizeTerm term
 
+builtin_initialize registerTraceClass `Elab.cases
+
 /- Default `cases` tactic that uses `casesOn` eliminator -/
 def evalCasesOn (target : Expr) (withAlts : Syntax) : TacticM Unit := do
   let (mvarId, _) ← getMainGoal
   let (recInfo, ctorNames) ← getRecInfoDefault target withAlts true
-  let result ← Meta.cases mvarId target.fvarId! recInfo.altVars
-  checkCasesResult result ctorNames recInfo.altRHSs
+  let altVars := recInfo.alts.map fun alt => (getAltVarNames alt).toList
+  let result ← Meta.cases mvarId target.fvarId! altVars
+  trace[Elab.cases]! "recInfo.alts.size: #{recInfo.alts.size} {recInfo.alts.map getAltVarNames}"
+  trace[Elab.cases]! "recInfo.alts: #{recInfo.alts.map toString}"
+  checkCasesResult result ctorNames recInfo.alts
   let result  := result.map (fun s => s.toInductionSubgoal)
-  let altRHSs := recInfo.altRHSs.filter fun stx => !stx.isMissing
-  processResult altRHSs result
+  let alts := recInfo.alts.filter fun stx => !stx.isMissing
+  processResult alts result
 
 def evalCasesUsing (elimId : Syntax) (targetRef : Syntax) (targets : Array Expr) (withAlts : Syntax) : TacticM Unit := do
   let elimName := elimId.getId

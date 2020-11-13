@@ -478,7 +478,7 @@ builtin_initialize
 
 /-
 def elabTail := try (" : " >> ident) >> darrow >> termParser
-parser! "elab " >> optPrecedence >> elabHead >> many elabArg >> elabTail
+parser! "elab " >> optPrecedence >> optPrio >> elabHead >> many elabArg >> elabTail
 -/
 def expandElab (currNamespace : Name) (stx : Syntax) : MacroM Syntax := do
   let ref := stx

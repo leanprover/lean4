@@ -28,7 +28,9 @@ def ppGoal (ppCtx : PPContext) (mvarId : MVarId) : IO Format :=
     let pp (e : Expr) : IO Format := ppExpr ppCtx e
     let instMVars (e : Expr) : Expr := mctx.instantiateMVars e $.1
     let addLine (fmt : Format) : Format := if fmt.isNil then fmt else fmt ++ Format.line
-    let pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : IO Format :=
+    -- The followint two `let rec`s are being used to control the generated code size.
+    -- Then should be remove after we rewrite the compiler in Lean
+    let rec pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : IO Format :=
       if ids.isEmpty then
         pure fmt
       else
@@ -39,30 +41,31 @@ def ppGoal (ppCtx : PPContext) (mvarId : MVarId) : IO Format :=
         | _, some type => do
           let typeFmt ← pp type
           pure $ fmt ++ (Format.joinSep ids.reverse " " ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
-    let (varNames, type?, fmt) ← lctx.foldlM
-      (fun (acc : List Name × Option Expr × Format) (localDecl : LocalDecl) =>
-         if !ppAuxDecls && localDecl.isAuxDecl then pure acc else
-         let (varNames, prevType?, fmt) := acc
-         match localDecl with
-         | LocalDecl.cdecl _ _ varName type _   =>
-           let varName := varName.simpMacroScopes
-           let type := instMVars type
-           if prevType? == none || prevType? == some type then
-             pure (varName :: varNames, some type, fmt)
-           else do
-             let fmt ← pushPending varNames prevType? fmt
-             pure ([varName], some type, fmt)
-         | LocalDecl.ldecl _ _ varName type val _ => do
-           let varName := varName.simpMacroScopes
-           let fmt ← pushPending varNames prevType? fmt
-           let fmt  := addLine fmt
-           let type := instMVars type
-           let val  := instMVars val
-           let typeFmt ← pp type
-           let valFmt ← pp val
-           let fmt  := fmt ++ (format varName ++ " : " ++ typeFmt ++ " :=" ++ Format.nest indent (Format.line ++ valFmt)).group
-           pure ([], none, fmt))
-      ([], none, Format.nil)
+    let rec ppVars (varNames : List Name) (prevType? : Option Expr) (fmt : Format) (localDecl : LocalDecl) : IO (List Name × Option Expr × Format) := do
+      match localDecl with
+      | LocalDecl.cdecl _ _ varName type _   =>
+        let varName := varName.simpMacroScopes
+        let type := instMVars type
+        if prevType? == none || prevType? == some type then
+          pure (varName :: varNames, some type, fmt)
+        else do
+          let fmt ← pushPending varNames prevType? fmt
+          pure ([varName], some type, fmt)
+      | LocalDecl.ldecl _ _ varName type val _ => do
+        let varName := varName.simpMacroScopes
+        let fmt ← pushPending varNames prevType? fmt
+        let fmt  := addLine fmt
+        let type := instMVars type
+        let val  := instMVars val
+        let typeFmt ← pp type
+        let valFmt ← pp val
+        let fmt  := fmt ++ (format varName ++ " : " ++ typeFmt ++ " :=" ++ Format.nest indent (Format.line ++ valFmt)).group
+        pure ([], none, fmt)
+    let (varNames, type?, fmt) ← lctx.foldlM (init := ([], none, Format.nil)) fun (varNames, prevType?, fmt) (localDecl : LocalDecl) =>
+       if !ppAuxDecls && localDecl.isAuxDecl then
+         pure (varNames, prevType?, fmt)
+       else
+         ppVars varNames prevType? fmt localDecl
     let fmt ← pushPending varNames type? fmt
     let fmt := addLine fmt
     let typeFmt ← pp mvarDecl.type

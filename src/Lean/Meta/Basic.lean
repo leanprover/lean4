@@ -528,133 +528,131 @@ private def withNewLocalInstanceImp {α} (className : Name) (fvar : Expr) (k : M
 def withNewLocalInstance {α} (className : Name) (fvar : Expr) : n α → n α :=
   mapMetaM $ withNewLocalInstanceImp className fvar
 
-/--
-  `withNewLocalInstances isClassExpensive fvars j k` updates the vector or local instances
-  using free variables `fvars[j] ... fvars.back`, and execute `k`.
-
-  - `isClassExpensive` is defined later.
-  - The type class chache is reset whenever a new local instance is found.
-  - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances.
-    Thus, each new local instance requires a new `resettingSynthInstanceCache`. -/
-@[specialize] private partial def withNewLocalInstancesImp {α}
-    (isClassExpensive? : Expr → MetaM (Option Name)) (fvars : Array Expr) (i : Nat) (k : MetaM α) : MetaM α := do
-  if h : i < fvars.size then
-    let fvar := fvars.get ⟨i, h⟩
-    let decl ← getFVarLocalDecl fvar
-    match (← isClassQuick? decl.type) with
-    | LOption.none   => withNewLocalInstancesImp isClassExpensive? fvars (i+1) k
-    | LOption.undef  =>
-      match (← isClassExpensive? decl.type) with
-      | none   => withNewLocalInstancesImp isClassExpensive? fvars (i+1) k
-      | some c => withNewLocalInstance c fvar $ withNewLocalInstancesImp isClassExpensive? fvars (i+1) k
-    | LOption.some c => withNewLocalInstance c fvar $ withNewLocalInstancesImp isClassExpensive? fvars (i+1) k
-  else
-    k
-
 private def fvarsSizeLtMaxFVars (fvars : Array Expr) (maxFVars? : Option Nat) : Bool :=
   match maxFVars? with
   | some maxFVars => fvars.size < maxFVars
   | none          => true
 
-/--
-  `forallTelescopeAux whnf k lctx fvars j type`
-  Remarks:
-  - `lctx` is the `MetaM` local context exteded with the declaration for `fvars`.
-  - `type` is the type we are computing the telescope for. It contains only
-    dangling bound variables in the range `[j, fvars.size)`
-  - if `reducing? == true` and `type` is not `forallE`, we use `whnf`.
-  - when `type` is not a `forallE` nor it can't be reduced to one, we
-    excute the continuation `k`.
+mutual
+  /--
+    `withNewLocalInstances isClassExpensive fvars j k` updates the vector or local instances
+    using free variables `fvars[j] ... fvars.back`, and execute `k`.
 
-  Here is an example that demonstrates the `reducing?`.
-  Suppose we have
-  ```
-  abbrev StateM s a := s -> Prod a s
-  ```
-  Now, assume we are trying to build the telescope for
-  ```
-  forall (x : Nat), StateM Int Bool
-  ```
-  if `reducing? == true`, the function executes `k #[(x : Nat) (s : Int)] Bool`.
-  if `reducing? == false`, the function executes `k #[(x : Nat)] (StateM Int Bool)`
+    - `isClassExpensive` is defined later.
+    - The type class chache is reset whenever a new local instance is found.
+    - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances.
+      Thus, each new local instance requires a new `resettingSynthInstanceCache`. -/
+  private partial def withNewLocalInstancesImp {α}
+      (fvars : Array Expr) (i : Nat) (k : MetaM α) : MetaM α := do
+    if h : i < fvars.size then
+      let fvar := fvars.get ⟨i, h⟩
+      let decl ← getFVarLocalDecl fvar
+      match (← isClassQuick? decl.type) with
+      | LOption.none   => withNewLocalInstancesImp fvars (i+1) k
+      | LOption.undef  =>
+        match (← isClassExpensive? decl.type) with
+        | none   => withNewLocalInstancesImp fvars (i+1) k
+        | some c => withNewLocalInstance c fvar $ withNewLocalInstancesImp fvars (i+1) k
+      | LOption.some c => withNewLocalInstance c fvar $ withNewLocalInstancesImp fvars (i+1) k
+    else
+      k
 
-  if `maxFVars?` is `some max`, then we interrupt the telescope construction
-  when `fvars.size == max`
--/
-@[specialize] private partial def forallTelescopeReducingAuxAux {α}
-    (isClassExpensive? : Expr → MetaM (Option Name))
-    (reducing?         : Bool) (maxFVars? : Option Nat)
-    (type              : Expr)
-    (k                 : Array Expr → Expr → MetaM α) : MetaM α := do
-  let rec process (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (type : Expr) : MetaM α := do
-    match type with
-    | Expr.forallE n d b c =>
-      if fvarsSizeLtMaxFVars fvars maxFVars? then
-        let d     := d.instantiateRevRange j fvars.size fvars
-        let fvarId ← mkFreshId
-        let lctx  := lctx.mkLocalDecl fvarId n d c.binderInfo
-        let fvar  := mkFVar fvarId
-        let fvars := fvars.push fvar
-        process lctx fvars j b
-      else
+  /--
+    `forallTelescopeAuxAux lctx fvars j type`
+    Remarks:
+    - `lctx` is the `MetaM` local context extended with declarations for `fvars`.
+    - `type` is the type we are computing the telescope for. It contains only
+      dangling bound variables in the range `[j, fvars.size)`
+    - if `reducing? == true` and `type` is not `forallE`, we use `whnf`.
+    - when `type` is not a `forallE` nor it can't be reduced to one, we
+      excute the continuation `k`.
+
+    Here is an example that demonstrates the `reducing?`.
+    Suppose we have
+    ```
+    abbrev StateM s a := s -> Prod a s
+    ```
+    Now, assume we are trying to build the telescope for
+    ```
+    forall (x : Nat), StateM Int Bool
+    ```
+    if `reducing == true`, the function executes `k #[(x : Nat) (s : Int)] Bool`.
+    if `reducing == false`, the function executes `k #[(x : Nat)] (StateM Int Bool)`
+
+    if `maxFVars?` is `some max`, then we interrupt the telescope construction
+    when `fvars.size == max`
+  -/
+  private partial def forallTelescopeReducingAuxAux {α}
+      (reducing          : Bool) (maxFVars? : Option Nat)
+      (type              : Expr)
+      (k                 : Array Expr → Expr → MetaM α) : MetaM α := do
+    let rec process (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (type : Expr) : MetaM α := do
+      match type with
+      | Expr.forallE n d b c =>
+        if fvarsSizeLtMaxFVars fvars maxFVars? then
+          let d     := d.instantiateRevRange j fvars.size fvars
+          let fvarId ← mkFreshId
+          let lctx  := lctx.mkLocalDecl fvarId n d c.binderInfo
+          let fvar  := mkFVar fvarId
+          let fvars := fvars.push fvar
+          process lctx fvars j b
+        else
+          let type := type.instantiateRevRange j fvars.size fvars;
+          withReader (fun ctx => { ctx with lctx := lctx }) do
+            withNewLocalInstancesImp fvars j do
+              k fvars type
+      | _ =>
         let type := type.instantiateRevRange j fvars.size fvars;
         withReader (fun ctx => { ctx with lctx := lctx }) do
-          withNewLocalInstancesImp isClassExpensive? fvars j do
-            k fvars type
-    | _ =>
-      let type := type.instantiateRevRange j fvars.size fvars;
-      withReader (fun ctx => { ctx with lctx := lctx }) do
-        withNewLocalInstancesImp isClassExpensive? fvars j do
-          if reducing? && fvarsSizeLtMaxFVars fvars maxFVars? then
-            let newType ← whnf type
-            if newType.isForall then
-              process lctx fvars fvars.size newType
+          withNewLocalInstancesImp fvars j do
+            if reducing && fvarsSizeLtMaxFVars fvars maxFVars? then
+              let newType ← whnf type
+              if newType.isForall then
+                process lctx fvars fvars.size newType
+              else
+                k fvars type
             else
               k fvars type
-          else
-            k fvars type
-  process (← getLCtx) #[] 0 type
+    process (← getLCtx) #[] 0 type
 
-/- We need this auxiliary definition because it depends on `isClassExpensive`,
-   and `isClassExpensive` depends on it. -/
-@[specialize] private def forallTelescopeReducingAux {α}
-    (isClassExpensive? : Expr → MetaM (Option Name))
-    (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α := do
-  match maxFVars? with
-  | some 0 => k #[] type
-  | _ => do
-    let newType ← whnf type
-    if newType.isForall then
-      forallTelescopeReducingAuxAux isClassExpensive? true maxFVars? newType k
-    else
-      k #[] type
+  private partial def forallTelescopeReducingAux {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+    match maxFVars? with
+    | some 0 => k #[] type
+    | _ => do
+      let newType ← whnf type
+      if newType.isForall then
+        forallTelescopeReducingAuxAux true maxFVars? newType k
+      else
+        k #[] type
 
-private partial def isClassExpensive? : Expr → MetaM (Option Name)
-  | type => withReducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
-    forallTelescopeReducingAux isClassExpensive? type none fun xs type => do
-      match type.getAppFn with
-      | Expr.const c _ _ => do
-        let env ← getEnv
-        pure $ if isClass env c then some c else none
-      | _ => pure none
+  private partial def isClassExpensive? : Expr → MetaM (Option Name)
+    | type => withReducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
+      forallTelescopeReducingAux type none fun xs type => do
+        match type.getAppFn with
+        | Expr.const c _ _ => do
+          let env ← getEnv
+          pure $ if isClass env c then some c else none
+        | _ => pure none
 
-private def isClassImp? (type : Expr) : MetaM (Option Name) := do
-  match (← isClassQuick? type) with
-  | LOption.none   => pure none
-  | LOption.some c => pure (some c)
-  | LOption.undef  => isClassExpensive? type
+  private partial def isClassImp? (type : Expr) : MetaM (Option Name) := do
+    match (← isClassQuick? type) with
+    | LOption.none   => pure none
+    | LOption.some c => pure (some c)
+    | LOption.undef  => isClassExpensive? type
+
+end
+
+private def withNewLocalInstancesImpAux {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
+  mapMetaM $ withNewLocalInstancesImp fvars j
+
+partial def withNewLocalInstances {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
+  mapMetaM $ withNewLocalInstancesImpAux fvars j
 
 def isClass? (type : Expr) : m (Option Name) :=
   liftMetaM do try isClassImp? type catch _ => pure none
 
-private def withNewLocalInstancesImpAux {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
-  mapMetaM $ withNewLocalInstancesImp isClassExpensive? fvars j
-
-def withNewLocalInstances {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
-  mapMetaM $ withNewLocalInstancesImpAux fvars j
-
-private def forallTelescopeImp {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
-  forallTelescopeReducingAuxAux isClassExpensive? false none type k
+@[inline] private def forallTelescopeImp {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+  forallTelescopeReducingAuxAux (reducing := false) (maxFVars? := none) type k
 
 /--
   Given `type` of the form `forall xs, A`, execute `k xs A`.
@@ -663,8 +661,8 @@ private def forallTelescopeImp {α} (type : Expr) (k : Array Expr → Expr → M
 def forallTelescope {α} (type : Expr) (k : Array Expr → Expr → n α) : n α :=
   map2MetaM (fun k => forallTelescopeImp type k) k
 
-@[noinline] private def forallTelescopeReducingImp {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-  forallTelescopeReducingAux isClassExpensive? type none k
+private def forallTelescopeReducingImp {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+  forallTelescopeReducingAux type (maxFVars? := none) k
 
 /--
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
@@ -672,8 +670,8 @@ def forallTelescope {α} (type : Expr) (k : Array Expr → Expr → n α) : n α
 def forallTelescopeReducing {α} (type : Expr) (k : Array Expr → Expr → n α) : n α :=
   map2MetaM (fun k => forallTelescopeReducingImp type k) k
 
-@[noinline] private def forallBoundedTelescopeImp {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-  forallTelescopeReducingAux isClassExpensive? type maxFVars? k
+private def forallBoundedTelescopeImp {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+  forallTelescopeReducingAux type maxFVars? k
 
 /--
   Similar to `forallTelescopeReducing`, stops constructing the telescope when
@@ -701,7 +699,7 @@ private partial def lambdaTelescopeAux {α}
   | _, lctx, fvars, j, e =>
     let e := e.instantiateRevRange j fvars.size fvars;
     withReader (fun ctx => { ctx with lctx := lctx }) do
-      withNewLocalInstancesImp isClassExpensive? fvars j do
+      withNewLocalInstancesImp fvars j do
         k fvars e
 
 private partial def lambdaTelescopeImp {α} (e : Expr) (consumeLet : Bool) (k : Array Expr → Expr → MetaM α) : MetaM α := do
@@ -723,7 +721,7 @@ private partial def lambdaTelescopeImp {α} (e : Expr) (consumeLet : Bool) (k : 
     | _, e =>
       let e := e.instantiateRevRange j fvars.size fvars
       withReader (fun ctx => { ctx with lctx := lctx }) do
-        withNewLocalInstancesImp isClassExpensive? fvars j do
+        withNewLocalInstancesImp fvars j do
           k fvars e
   process consumeLet (← getLCtx) #[] 0 e
 

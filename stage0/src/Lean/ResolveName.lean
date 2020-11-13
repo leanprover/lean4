@@ -184,7 +184,7 @@ variables {m : Type → Type} [Monad m] [MonadResolveName m] [MonadEnv m]
 def resolveGlobalName  (id : Name) : m (List (Name × List String)) := do
   return ResolveName.resolveGlobalName (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
 
-variables [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+variables [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
 
 def resolveNamespace (id : Name) : m Name := do
   match ResolveName.resolveNamespace? (← getEnv) (← getCurrNamespace) (← getOpenDecls) id with

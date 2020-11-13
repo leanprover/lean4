@@ -16,15 +16,16 @@ extern "C" {
 lean_object* l_Lean_Level_dec(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_Result_max_match__1(lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 extern lean_object* l___kind_stx____x40_Init_Notation___hyg_5726____closed__2;
 lean_object* l_Lean_Level_instantiateParams_match__1(lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_Level_normalize___spec__2___closed__1;
 lean_object* l_Lean_Level_getOffsetAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_isNeverZero(lean_object*);
-extern lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Array_qsort_sort___at_Lean_Level_normalize___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_isMax___boxed(lean_object*);
 lean_object* l_Lean_Level_isSucc_match__1(lean_object*);
+extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 extern lean_object* l_Init_Prelude___instance__32;
 lean_object* l_Lean_Level_mvarId_x21___closed__2;
 lean_object* l_Lean_Level_dec_match__1(lean_object*);
@@ -284,7 +285,6 @@ lean_object* l_Lean_Level_isZero_match__1(lean_object*);
 uint8_t l_Lean_Level_isExplicit(lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_Result_imax_match__1(lean_object*);
 uint8_t l_Lean_Lean_Level___instance__2(uint64_t, uint64_t);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Level_instantiateParams_match__2(lean_object*);
 lean_object* l_Lean_Level_updateSucc_x21___closed__1;
 uint64_t l_UInt64_shiftRight(uint64_t, uint64_t);
@@ -4336,7 +4336,7 @@ x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_normalize___closed__1;
 x_3 = lean_unsigned_to_nat(341u);
 x_4 = lean_unsigned_to_nat(11u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -5629,7 +5629,7 @@ lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(lean_ob
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_System_FilePath_dirName___closed__1;
+x_2 = l_Lean_Name_toString___closed__1;
 x_3 = l_Lean_Name_toStringWithSep(x_2, x_1);
 x_4 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_4, 0, x_3);

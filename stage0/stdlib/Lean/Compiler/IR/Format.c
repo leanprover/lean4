@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__15;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__1;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__3;
@@ -47,8 +48,8 @@ lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed_
 lean_object* l_Lean_IR_formatFnBody_loop(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__15;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__5;
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__14;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__28;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__14;
 lean_object* l_Lean_IR_formatAlt___closed__4;
@@ -213,7 +214,6 @@ lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed_
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__10;
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ppGoal___spec__7___closed__4;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__4;
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_IR_formatFnBodyHead___closed__9;
 lean_object* l_Lean_IR_Lean_Compiler_IR_Format___instance__2;
@@ -607,7 +607,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatC
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_System_FilePath_dirName___closed__1;
+x_1 = l_Lean_Name_toString___closed__1;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1678,7 +1678,7 @@ lean_inc(x_87);
 x_88 = lean_ctor_get(x_1, 1);
 lean_inc(x_88);
 lean_dec(x_1);
-x_89 = l_System_FilePath_dirName___closed__1;
+x_89 = l_Lean_Name_toString___closed__1;
 x_90 = l_Lean_Name_toStringWithSep(x_89, x_87);
 x_91 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_91, 0, x_90);
@@ -1697,7 +1697,7 @@ lean_inc(x_94);
 x_95 = lean_ctor_get(x_1, 1);
 lean_inc(x_95);
 lean_dec(x_1);
-x_96 = l_System_FilePath_dirName___closed__1;
+x_96 = l_Lean_Name_toString___closed__1;
 x_97 = l_Lean_Name_toStringWithSep(x_96, x_94);
 x_98 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_98, 0, x_97);
@@ -2714,7 +2714,7 @@ lean_dec(x_3);
 x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
 lean_dec(x_4);
-x_7 = l_System_FilePath_dirName___closed__1;
+x_7 = l_Lean_Name_toString___closed__1;
 x_8 = l_Lean_Name_toStringWithSep(x_7, x_6);
 x_9 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -4486,7 +4486,7 @@ static lean_object* _init_l_Lean_IR_formatFnBody_loop___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__14;
+x_1 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__15;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -5367,7 +5367,7 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 3);
 lean_inc(x_6);
 lean_dec(x_1);
-x_7 = l_System_FilePath_dirName___closed__1;
+x_7 = l_Lean_Name_toString___closed__1;
 x_8 = l_Lean_Name_toStringWithSep(x_7, x_3);
 x_9 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -5419,7 +5419,7 @@ lean_inc(x_27);
 x_28 = lean_ctor_get(x_1, 2);
 lean_inc(x_28);
 lean_dec(x_1);
-x_29 = l_System_FilePath_dirName___closed__1;
+x_29 = l_Lean_Name_toString___closed__1;
 x_30 = l_Lean_Name_toStringWithSep(x_29, x_26);
 x_31 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_31, 0, x_30);

@@ -188,9 +188,6 @@ partial def updateTrailing (trailing : Option Substring) : Syntax → Syntax
      Syntax.node k args
   | s => s
 
-def getPos (stx : Syntax) : Option String.Pos :=
-  stx.getHeadInfo >>= SourceInfo.pos
-
 partial def getTailWithPos : Syntax → Option Syntax
   | stx@(atom { pos := some _, .. } _)   => some stx
   | stx@(ident { pos := some _, .. } ..) => some stx

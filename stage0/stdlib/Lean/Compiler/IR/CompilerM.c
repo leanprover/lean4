@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Std_PersistentHashMap_contains___at_Lean_IR_containsDecl___spec__2___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_332____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentHashMap_contains___at_Lean_IR_containsDecl___spec__2(lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -206,7 +207,6 @@ lean_object* l_Lean_IR_CompilerState_log___default;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_IR_findEnvDecl_x27___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_IR_findEnvDecl___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt___elambda__2___boxed(lean_object*);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_IR_findEnvDecl___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_332____closed__6;
@@ -310,7 +310,7 @@ lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = l_System_FilePath_dirName___closed__1;
+x_4 = l_Lean_Name_toString___closed__1;
 x_5 = l_Lean_Name_toStringWithSep(x_4, x_2);
 x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
@@ -2242,7 +2242,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_ctor_get(x_1, 0);
 lean_inc(x_21);
 lean_dec(x_1);
-x_22 = l_System_FilePath_dirName___closed__1;
+x_22 = l_Lean_Name_toString___closed__1;
 x_23 = l_Lean_Name_toStringWithSep(x_22, x_21);
 x_24 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_25 = lean_string_append(x_24, x_23);
@@ -2312,7 +2312,7 @@ lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean
 x_44 = lean_ctor_get(x_1, 0);
 lean_inc(x_44);
 lean_dec(x_1);
-x_45 = l_System_FilePath_dirName___closed__1;
+x_45 = l_Lean_Name_toString___closed__1;
 x_46 = l_Lean_Name_toStringWithSep(x_45, x_44);
 x_47 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_48 = lean_string_append(x_47, x_46);
@@ -3294,7 +3294,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_ctor_get(x_4, 0);
 lean_dec(x_7);
-x_8 = l_System_FilePath_dirName___closed__1;
+x_8 = l_Lean_Name_toString___closed__1;
 x_9 = l_Lean_Name_toStringWithSep(x_8, x_1);
 x_10 = l_Lean_addClass___closed__1;
 x_11 = lean_string_append(x_10, x_9);
@@ -3311,7 +3311,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean
 x_14 = lean_ctor_get(x_4, 1);
 lean_inc(x_14);
 lean_dec(x_4);
-x_15 = l_System_FilePath_dirName___closed__1;
+x_15 = l_Lean_Name_toString___closed__1;
 x_16 = l_Lean_Name_toStringWithSep(x_15, x_1);
 x_17 = l_Lean_addClass___closed__1;
 x_18 = lean_string_append(x_17, x_16);
@@ -3928,7 +3928,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_8 = lean_ctor_get(x_5, 0);
 lean_dec(x_8);
-x_9 = l_System_FilePath_dirName___closed__1;
+x_9 = l_Lean_Name_toString___closed__1;
 x_10 = l_Lean_Name_toStringWithSep(x_9, x_1);
 x_11 = l_Lean_addClass___closed__1;
 x_12 = lean_string_append(x_11, x_10);
@@ -3945,7 +3945,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean
 x_15 = lean_ctor_get(x_5, 1);
 lean_inc(x_15);
 lean_dec(x_5);
-x_16 = l_System_FilePath_dirName___closed__1;
+x_16 = l_Lean_Name_toString___closed__1;
 x_17 = l_Lean_Name_toStringWithSep(x_16, x_1);
 x_18 = l_Lean_addClass___closed__1;
 x_19 = lean_string_append(x_18, x_17);

@@ -527,6 +527,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
   | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.parenthesizer tk includeIdent
   | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
   | ParserDescr.cat catName prec                    => return categoryParser.parenthesizer catName prec
+  | ParserDescr.checkPrec prec                      => return checkPrec.parenthesizer prec
 
 end Parenthesizer
 open Parenthesizer

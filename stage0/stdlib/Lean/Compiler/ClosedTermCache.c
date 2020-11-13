@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__13(lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___closed__3;
@@ -122,7 +123,6 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____close
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_getClosedTermName_x3f___spec__5___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_getClosedTermName_x3f___spec__2___boxed(lean_object*, lean_object*);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_closedTermCacheExt___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -1323,7 +1323,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_ctor_get(x_1, 0);
 lean_inc(x_21);
 lean_dec(x_1);
-x_22 = l_System_FilePath_dirName___closed__1;
+x_22 = l_Lean_Name_toString___closed__1;
 x_23 = l_Lean_Name_toStringWithSep(x_22, x_21);
 x_24 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_25 = lean_string_append(x_24, x_23);
@@ -1393,7 +1393,7 @@ lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean
 x_44 = lean_ctor_get(x_1, 0);
 lean_inc(x_44);
 lean_dec(x_1);
-x_45 = l_System_FilePath_dirName___closed__1;
+x_45 = l_Lean_Name_toString___closed__1;
 x_46 = l_Lean_Name_toStringWithSep(x_45, x_44);
 x_47 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_48 = lean_string_append(x_47, x_46);

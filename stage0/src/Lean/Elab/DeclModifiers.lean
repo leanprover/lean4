@@ -10,7 +10,7 @@ import Lean.Elab.DeclUtil
 
 namespace Lean.Elab
 
-def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (declName : Name) : m Unit := do
+def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (declName : Name) : m Unit := do
   let env ← getEnv
   if env.contains declName then
     match privateToUserName? declName with
@@ -70,7 +70,7 @@ instance : ToString Modifiers := ⟨toString ∘ format⟩
 
 section Methods
 
-variables {m : Type → Type} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+variables {m : Type → Type} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
 
 def elabModifiers (stx : Syntax) : m Modifiers := do
   let docCommentStx := stx[0]

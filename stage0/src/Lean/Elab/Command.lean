@@ -79,7 +79,7 @@ instance : AddMessageContext CommandElabM := {
   addMessageContext := addMessageContextPartial
 }
 
-instance : Ref CommandElabM := {
+instance : MonadRef CommandElabM := {
   getRef     := Command.getRef,
   withRef    := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
 }

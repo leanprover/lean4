@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Tactics
-// Imports: Init.LeanInit Init.Data.Array.Macros
+// Imports: Init.Meta Init.Data.Array.Macros
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -35,9 +35,9 @@ extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5787____closed__12;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_186____boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__15;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_1305____closed__4;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_726____closed__3;
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__14;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_508____closed__4;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_726____closed__7;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_31____closed__1;
@@ -45,6 +45,7 @@ lean_object* l___kind_tactic____x40_Init_Tactics___hyg_1261____closed__6;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_508____closed__9;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_31____closed__8;
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__18;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_myMacro____x40_Init_Tactics___hyg_508____closed__8;
@@ -64,7 +65,6 @@ lean_object* l_myMacro____x40_Init_Tactics___hyg_1305____closed__15;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_186____closed__3;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_31____closed__6;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_726____closed__11;
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__17;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_31____closed__13;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_508____closed__5;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_726_(lean_object*, lean_object*, lean_object*);
@@ -114,7 +114,6 @@ lean_object* l___kind_tactic____x40_Init_Tactics___hyg_1052____closed__1;
 lean_object* l___kind_tactic____x40_Init_Tactics___hyg_1261____closed__9;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_338____closed__4;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_1305____closed__2;
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__12;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_726____closed__8;
 lean_object* l___kind_tactic____x40_Init_Tactics___hyg_1261____closed__2;
 lean_object* l___kind_tactic____x40_Init_Tactics___hyg_2____closed__4;
@@ -160,6 +159,7 @@ lean_object* l_myMacro____x40_Init_Tactics___hyg_1087____boxed(lean_object*, lea
 lean_object* l_myMacro____x40_Init_Tactics___hyg_1305____closed__14;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_1305____closed__5;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__16;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_726____closed__14;
 lean_object* l_myMacro____x40_Init_Tactics___hyg_726____closed__15;
 lean_object* l___kind_tactic____x40_Init_Tactics___hyg_461____closed__5;
@@ -1033,7 +1033,7 @@ static lean_object* _init_l___kind_tactic____x40_Init_Tactics___hyg_461____close
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__12;
+x_1 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__13;
 x_2 = 0;
 x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
@@ -1192,7 +1192,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_empty___closed__1;
-x_2 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__13;
+x_2 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__14;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -1628,7 +1628,7 @@ x_35 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_35, 0, x_34);
 lean_ctor_set(x_35, 1, x_33);
 x_36 = lean_array_push(x_27, x_35);
-x_37 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__17;
+x_37 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__18;
 x_38 = lean_array_push(x_36, x_37);
 x_39 = l_Lean_nullKind___closed__2;
 x_40 = lean_alloc_ctor(1, 2, 0);
@@ -2212,7 +2212,7 @@ lean_ctor_set(x_30, 0, x_29);
 lean_ctor_set(x_30, 1, x_28);
 x_31 = l_Array_empty___closed__1;
 x_32 = lean_array_push(x_31, x_30);
-x_33 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__15;
+x_33 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__16;
 x_34 = lean_array_push(x_32, x_33);
 x_35 = l_Lean_Init_Prelude___instance__73;
 x_36 = lean_unsigned_to_nat(0u);
@@ -2284,7 +2284,7 @@ lean_ctor_set(x_72, 0, x_71);
 lean_ctor_set(x_72, 1, x_70);
 x_73 = l_Array_empty___closed__1;
 x_74 = lean_array_push(x_73, x_72);
-x_75 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__15;
+x_75 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__16;
 x_76 = lean_array_push(x_74, x_75);
 x_77 = l_Lean_Init_Prelude___instance__73;
 x_78 = lean_unsigned_to_nat(0u);
@@ -2319,14 +2319,14 @@ return x_92;
 }
 }
 }
-lean_object* initialize_Init_LeanInit(lean_object*);
+lean_object* initialize_Init_Meta(lean_object*);
 lean_object* initialize_Init_Data_Array_Macros(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Tactics(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_LeanInit(lean_io_mk_world());
+res = initialize_Init_Meta(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Macros(lean_io_mk_world());

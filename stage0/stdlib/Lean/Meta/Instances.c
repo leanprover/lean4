@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Array_back___at_Lean_Meta_addInstanceEntry___spec__14(lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Meta_instanceExtension___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addInstanceEntry___spec__1(lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -76,6 +77,7 @@ lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_Meta_initFn____x40_Lean
 lean_object* l_Lean_Meta_instanceExtension___elambda__4___rarg(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getGlobalInstances___boxed(lean_object*);
+extern lean_object* l_Lean_NameGenerator_Init_Meta___instance__2___closed__1;
 lean_object* l_Lean_Meta_addGlobalInstance(lean_object*);
 lean_object* l_Lean_Meta_addGlobalInstanceImp___closed__1;
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_addInstanceEntry___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -138,7 +140,6 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Meta_initFn__
 lean_object* lean_add_instance_old(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
-extern lean_object* l_Lean_NameGenerator_Init_LeanInit___instance__2___closed__1;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____lambda__3___closed__1;
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_mkPath(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -183,7 +184,6 @@ extern lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_19____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instanceExtension___elambda__3(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__11___rarg___closed__2;
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Meta_getGlobalInstances___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_19____lambda__1___closed__1;
 lean_object* l_Lean_mkLevelParam(lean_object*);
@@ -1764,7 +1764,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_ctor_get(x_1, 0);
 lean_inc(x_21);
 lean_dec(x_1);
-x_22 = l_System_FilePath_dirName___closed__1;
+x_22 = l_Lean_Name_toString___closed__1;
 x_23 = l_Lean_Name_toStringWithSep(x_22, x_21);
 x_24 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_25 = lean_string_append(x_24, x_23);
@@ -1834,7 +1834,7 @@ lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean
 x_44 = lean_ctor_get(x_1, 0);
 lean_inc(x_44);
 lean_dec(x_1);
-x_45 = l_System_FilePath_dirName___closed__1;
+x_45 = l_Lean_Name_toString___closed__1;
 x_46 = l_Lean_Name_toStringWithSep(x_45, x_44);
 x_47 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 x_48 = lean_string_append(x_47, x_46);
@@ -2531,7 +2531,7 @@ lean_dec(x_7);
 x_9 = l_List_map___at_Lean_Meta_addGlobalInstanceImp___spec__1(x_8);
 x_10 = l_Lean_mkConst(x_2, x_9);
 x_11 = l_Lean_Unhygienic_run___rarg___closed__1;
-x_12 = l_Lean_NameGenerator_Init_LeanInit___instance__2___closed__1;
+x_12 = l_Lean_NameGenerator_Init_Meta___instance__2___closed__1;
 x_13 = l_Lean_TraceState_Lean_Util_Trace___instance__2___closed__1;
 x_14 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_14, 0, x_1);

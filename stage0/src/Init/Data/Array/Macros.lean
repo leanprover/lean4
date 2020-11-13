@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.LeanInit
+import Init.Meta
 import Init.Data.Array.Basic
 import Init.Data.Array.Subarray
 

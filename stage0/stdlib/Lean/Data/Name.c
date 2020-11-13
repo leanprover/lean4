@@ -15,11 +15,13 @@ extern "C" {
 #endif
 lean_object* l_Lean_Name_isAtomic___boxed(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Name_getPrefix_match__1(lean_object*);
 lean_object* l_Lean_Name_components_x27_match__1(lean_object*);
 lean_object* l_Lean_Name_mkSimple(lean_object*);
 lean_object* l_Lean_Name_getString_x21___closed__3;
 lean_object* l_Lean_NameSet_Lean_Data_Name___instance__5;
+extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_contains___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_hasLtQuick;
@@ -163,11 +165,9 @@ lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* l_Std_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_NameMap_find_x3f___spec__1(lean_object*);
 lean_object* l_Std_RBNode_ins___at_Lean_NameSet_insert___spec__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_getString_x21___closed__4;
 lean_object* l_Lean_Name_getString_x21_match__1(lean_object*);
 lean_object* l_Lean_NameMap_Lean_Data_Name___instance__4(lean_object*);
 lean_object* l_Lean_mkNameMap(lean_object*);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Name_isNum_match__1(lean_object*);
 lean_object* l_Lean_Name_replacePrefix_match__1(lean_object*);
 lean_object* l_Lean_Name_eqStr_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -473,20 +473,12 @@ return x_1;
 static lean_object* _init_l_Lean_Name_getString_x21___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Name_getString_x21___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_getString_x21___closed__1;
 x_2 = l_Lean_Name_getString_x21___closed__2;
 x_3 = lean_unsigned_to_nat(32u);
 x_4 = lean_unsigned_to_nat(17u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -505,7 +497,7 @@ else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_String_Init_Data_String_Basic___instance__2;
-x_4 = l_Lean_Name_getString_x21___closed__4;
+x_4 = l_Lean_Name_getString_x21___closed__3;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;
 }
@@ -10493,7 +10485,7 @@ lean_object* l_String_toName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_System_FilePath_dirName___closed__1;
+x_2 = l_Lean_Name_toString___closed__1;
 x_3 = l_String_splitOn(x_1, x_2);
 x_4 = lean_box(0);
 x_5 = l_List_foldl___at_String_toName___spec__1(x_4, x_3);
@@ -10541,8 +10533,6 @@ l_Lean_Name_getString_x21___closed__2 = _init_l_Lean_Name_getString_x21___closed
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__2);
 l_Lean_Name_getString_x21___closed__3 = _init_l_Lean_Name_getString_x21___closed__3();
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__3);
-l_Lean_Name_getString_x21___closed__4 = _init_l_Lean_Name_getString_x21___closed__4();
-lean_mark_persistent(l_Lean_Name_getString_x21___closed__4);
 l_Lean_Name_hasLtQuick = _init_l_Lean_Name_hasLtQuick();
 lean_mark_persistent(l_Lean_Name_hasLtQuick);
 l_Lean_NameSet_empty = _init_l_Lean_NameSet_empty();

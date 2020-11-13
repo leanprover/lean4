@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_getBoolOption___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_476____closed__2;
 lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_setOptionFromString_match__1(lean_object*);
@@ -106,7 +107,6 @@ lean_object* l_List_map___at_Lean_setOptionFromString___spec__1(lean_object*);
 lean_object* l___private_Lean_Data_Options_0__Lean_initOptionDeclsRef(lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__2;
 lean_object* l_String_toNat_x3f(lean_object*);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Lean_registerOption___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__7;
@@ -274,7 +274,7 @@ else
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_7);
 lean_dec(x_2);
-x_12 = l_System_FilePath_dirName___closed__1;
+x_12 = l_Lean_Name_toString___closed__1;
 x_13 = l_Lean_Name_toStringWithSep(x_12, x_1);
 x_14 = l_Lean_registerOption___closed__1;
 x_15 = lean_string_append(x_14, x_13);
@@ -309,7 +309,7 @@ else
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_dec(x_19);
 lean_dec(x_2);
-x_24 = l_System_FilePath_dirName___closed__1;
+x_24 = l_Lean_Name_toString___closed__1;
 x_25 = l_Lean_Name_toStringWithSep(x_24, x_1);
 x_26 = l_Lean_registerOption___closed__1;
 x_27 = lean_string_append(x_26, x_25);
@@ -527,7 +527,7 @@ lean_dec(x_5);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_7 = l_System_FilePath_dirName___closed__1;
+x_7 = l_Lean_Name_toString___closed__1;
 x_8 = l_Lean_Name_toStringWithSep(x_7, x_1);
 x_9 = l_Lean_getOptionDecl___closed__1;
 x_10 = lean_string_append(x_9, x_8);
@@ -564,7 +564,7 @@ lean_dec(x_15);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_18 = l_System_FilePath_dirName___closed__1;
+x_18 = l_Lean_Name_toString___closed__1;
 x_19 = l_Lean_Name_toStringWithSep(x_18, x_1);
 x_20 = l_Lean_getOptionDecl___closed__1;
 x_21 = lean_string_append(x_20, x_19);

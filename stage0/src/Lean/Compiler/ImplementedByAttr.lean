@@ -31,7 +31,7 @@ def setImplementedBy (env : Environment) (declName : Name) (impName : Name) : Ex
 
 end Compiler
 
-def setImplementedBy {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+def setImplementedBy {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
     (declName : Name) (impName : Name) : m Unit := do
   let env ← getEnv
   match Compiler.setImplementedBy env declName impName with

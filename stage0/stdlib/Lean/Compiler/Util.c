@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Compiler_checkIsDefinition_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_Lean_Compiler_Util___instance__1___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce___boxed(lean_object*, lean_object*);
@@ -79,7 +80,6 @@ lean_object* l_Lean_Compiler_atMostOnce_visitFVar_match__1(lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_unreachableExpr___closed__2;
 lean_object* l_Lean_Compiler_mkUnsafeRecName___closed__1;
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_skip(lean_object*);
 lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
 lean_object* l_Lean_Compiler_atMostOnce_Lean_Compiler_Util___instance__1;
@@ -1550,7 +1550,7 @@ x_3 = lean_environment_find(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = l_System_FilePath_dirName___closed__1;
+x_4 = l_Lean_Name_toString___closed__1;
 x_5 = l_Lean_Name_toStringWithSep(x_4, x_2);
 x_6 = l_Lean_Compiler_checkIsDefinition___closed__1;
 x_7 = lean_string_append(x_6, x_5);
@@ -1588,7 +1588,7 @@ default:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_11);
-x_14 = l_System_FilePath_dirName___closed__1;
+x_14 = l_Lean_Name_toString___closed__1;
 x_15 = l_Lean_Name_toStringWithSep(x_14, x_2);
 x_16 = l_Lean_Compiler_checkIsDefinition___closed__2;
 x_17 = lean_string_append(x_16, x_15);

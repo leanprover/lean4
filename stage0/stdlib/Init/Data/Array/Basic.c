@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Basic
-// Imports: Init.Data.Nat.Basic Init.Data.Fin.Basic Init.Data.UInt Init.Data.Repr Init.Data.ToString.Basic Init.Control.Id Init.Util
+// Imports: Init.Data.Nat.Basic Init.Data.Fin.Basic Init.Data.UInt Init.Data.Repr Init.Data.ToString.Basic Init.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1002,7 +1002,7 @@ x_11 = l_Array_swapAt_x21___rarg___closed__2;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l_Array_swapAt_x21___rarg___closed__3;
 x_14 = l_Array_swapAt_x21___rarg___closed__4;
-x_15 = lean_unsigned_to_nat(106u);
+x_15 = lean_unsigned_to_nat(105u);
 x_16 = lean_unsigned_to_nat(4u);
 x_17 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_13, x_14, x_15, x_16, x_12);
 lean_dec(x_12);
@@ -6045,7 +6045,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_swapAt_x21___rarg___closed__3;
 x_2 = l_Array_findSome_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(401u);
+x_3 = lean_unsigned_to_nat(400u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Array_findSome_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -9515,7 +9515,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_swapAt_x21___rarg___closed__3;
 x_2 = l_Array_insertAt___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(657u);
+x_3 = lean_unsigned_to_nat(656u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Array_insertAt___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10235,7 +10235,6 @@ lean_object* initialize_Init_Data_Fin_Basic(lean_object*);
 lean_object* initialize_Init_Data_UInt(lean_object*);
 lean_object* initialize_Init_Data_Repr(lean_object*);
 lean_object* initialize_Init_Data_ToString_Basic(lean_object*);
-lean_object* initialize_Init_Control_Id(lean_object*);
 lean_object* initialize_Init_Util(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Array_Basic(lean_object* w) {
@@ -10255,9 +10254,6 @@ res = initialize_Init_Data_Repr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Basic(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Id(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Util(lean_io_mk_world());

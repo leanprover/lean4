@@ -959,7 +959,7 @@ class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u
 
 instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) := ⟨pure⟩
 
-instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) := ⟨pure $ arbitrary _⟩
+instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) := ⟨pure (arbitrary _)⟩
 
 /-- A Function for lifting a computation from an inner Monad to an outer Monad.
     Like [MonadTrans](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html),
@@ -1463,7 +1463,28 @@ def getArgs (stx : Syntax) : Array Syntax :=
   | Syntax.node _ args => args
   | _                  => Array.empty
 
+/-- Retrieve the left-most leaf's info in the Syntax tree. -/
+partial def getHeadInfo : Syntax → Option SourceInfo
+  | atom info _      => some info
+  | ident info _ _ _ => some info
+  | node _ args      =>
+    let rec loop (i : Nat) : Option SourceInfo :=
+      match decide (Less i args.size) with
+      | true => match getHeadInfo (args.get! i) with
+         | some info => some info
+         | none      => loop (add i 1)
+      | false => none
+    loop 0
+  | _                => none
+
+def getPos (stx : Syntax) : Option String.Pos :=
+  match stx.getHeadInfo with
+  | some info => info.pos
+  | _         => none
+
 end Syntax
+
+/- Parser descriptions -/
 
 inductive ParserDescr
   | const  (name : Name)
@@ -1476,6 +1497,7 @@ inductive ParserDescr
   | cat (catName : Name) (rbp : Nat)
   | parser (declName : Name)
   | nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : ParserDescr)
+  | checkPrec (prec : Nat)
 
 instance : Inhabited ParserDescr := ⟨ParserDescr.symbol ""⟩
 abbrev TrailingParserDescr := ParserDescr
@@ -1649,6 +1671,27 @@ def defaultMaxRecDepth := 512
 def maxRecDepthErrorMessage : String :=
   "maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)"
 
+class MonadRef (m : Type → Type) :=
+  (getRef      : m Syntax)
+  (withRef {α} : Syntax → m α → m α)
+
+export MonadRef (getRef)
+
+instance (m n : Type → Type) [MonadRef m] [MonadFunctor m n] [MonadLift m n] : MonadRef n := {
+  getRef  := liftM (getRef : m _),
+  withRef := fun ref x => monadMap (m := m) (MonadRef.withRef ref) x
+}
+
+def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
+  match ref.getPos with
+  | some _ => ref
+  | _      => oldRef
+
+@[inline] def withRef {m : Type → Type} [Monad m] [MonadRef m] {α} (ref : Syntax) (x : m α) : m α :=
+  bind getRef fun oldRef =>
+  let ref := replaceRef ref oldRef
+  MonadRef.withRef ref x
+
 namespace Macro
 
 /- References -/
@@ -1663,6 +1706,7 @@ structure Context :=
   (currMacroScope : MacroScope)
   (currRecDepth   : Nat := 0)
   (maxRecDepth    : Nat := defaultMaxRecDepth)
+  (ref            : Syntax)
 
 inductive Exception
   | error             : Syntax → String → Exception
@@ -1676,6 +1720,11 @@ abbrev Macro := Syntax → MacroM Syntax
 
 namespace Macro
 
+instance : MonadRef MacroM := {
+  getRef     := bind read fun ctx => pure ctx.ref,
+  withRef    := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
+}
+
 def addMacroScope (n : Name) : MacroM Name :=
   bind read fun ctx =>
   pure (Lean.addMacroScope ctx.mainModule n ctx.currMacroScope)
@@ -1683,8 +1732,12 @@ def addMacroScope (n : Name) : MacroM Name :=
 def throwUnsupported {α} : MacroM α :=
   throw Exception.unsupportedSyntax
 
-def throwError {α} (ref : Syntax) (msg : String) : MacroM α :=
+def throwError {α} (msg : String) : MacroM α :=
+  bind getRef fun ref =>
   throw (Exception.error ref msg)
+
+def throwErrorAt {α} (ref : Syntax) (msg : String) : MacroM α :=
+  withRef ref (throwError msg)
 
 @[inline] protected def withFreshMacroScope {α} (x : MacroM α) : MacroM α :=
   bind (modifyGet (fun s => (s, add s 1))) fun fresh =>
@@ -1709,7 +1762,7 @@ unsafe def mkMacroEnvImp (expandMacro? : Syntax → MacroM (Option Syntax)) : Ma
 constant mkMacroEnv (expandMacro? : Syntax → MacroM (Option Syntax)) : MacroEnv
 
 def expandMacroNotAvailable? (stx : Syntax) : MacroM (Option Syntax) :=
-  throwError stx "expandMacro has not been set"
+  throwErrorAt stx "expandMacro has not been set"
 
 def mkMacroEnvSimple : MacroEnv :=
   mkMacroEnv expandMacroNotAvailable?

@@ -260,8 +260,10 @@ def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 -/
 @[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
   let declName := stx[1]
+  -- TODO: nonatomic names
   let (val, _) ← runTermElabM none $ fun _ => Term.toParserDescr stx[3] Name.anonymous
-  let stx' ← `(def $declName : Lean.ParserDescr := $val)
+  let stxNodeKind := (← getCurrNamespace) ++ declName.getId
+  let stx' ← `(def $declName : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' $ elabCommand stx'
 
 /-
@@ -509,7 +511,7 @@ def expandElab (currNamespace : Name) (stx : Syntax) : MacroM Syntax := do
           | `($pat) => Lean.Elab.Command.withExpectedType expectedType? fun $expId => $rhs
           | _ => throwUnsupportedSyntax)
     else
-      Macro.throwError expectedTypeSpec s!"syntax category '{catName}' does not support expected type specification"
+      Macro.throwErrorAt expectedTypeSpec s!"syntax category '{catName}' does not support expected type specification"
   else if catName == `term then
     `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
       @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab :=
@@ -531,7 +533,7 @@ def expandElab (currNamespace : Name) (stx : Syntax) : MacroM Syntax := do
   else
     -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
     -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.
-    Macro.throwError ref s!"unsupported syntax category '{catName}'"
+    Macro.throwError s!"unsupported syntax category '{catName}'"
 
 @[builtinCommandElab «elab»] def elabElab : CommandElab :=
   adaptExpander fun stx => do

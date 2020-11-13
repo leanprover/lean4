@@ -66,7 +66,7 @@ private def getFunctionDomain (f : Expr) : MetaM Expr := do
   | Expr.forallE _ d _ _ => pure d
   | _                    => throwFunctionExpected f
 
-def throwAppTypeMismatch {α} {m} [Monad m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] [MonadLiftT MetaM m]
+def throwAppTypeMismatch {α} {m} [Monad m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] [MonadLiftT MetaM m]
     (f a : Expr) (extraMsg : MessageData := Format.nil) : m α := do
   let e := mkApp f a
   let aType ← inferType a

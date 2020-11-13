@@ -322,6 +322,7 @@ lean_object* lean_level_update_max(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAnnotation(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_letName_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isLit_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Meta___instance__7___closed__2;
 lean_object* l_Lean_Expr_isHeadBetaTargetFn_match__1(lean_object*);
 lean_object* l_Lean_Expr_isMData_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_etaExpandedStrict_x3f_match__1(lean_object*);
@@ -692,7 +693,6 @@ lean_object* l_Lean_Expr_hasLooseBVars___boxed(lean_object*);
 lean_object* lean_lit_type(lean_object*);
 lean_object* l_Lean_Expr_getArgD___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_LeanInit___instance__7___closed__2;
 lean_object* l_Lean_Expr_isCharLit___closed__2;
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
 size_t l_Lean_BinderInfo_hash(uint8_t);
@@ -4419,7 +4419,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Init_LeanInit___instance__7___closed__2;
+x_2 = l_Lean_Init_Meta___instance__7___closed__2;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

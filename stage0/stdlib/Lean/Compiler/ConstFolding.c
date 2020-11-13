@@ -168,7 +168,6 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Compiler_findUnFoldFn(lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes___closed__22;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__2;
-extern lean_object* l_Lean_Init_LeanInit___instance__4___closed__1;
 lean_object* l_Lean_Compiler_natFoldFns___closed__20;
 lean_object* l_Lean_Compiler_unFoldFns___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_706____closed__6;
@@ -318,6 +317,7 @@ lean_object* l_Lean_Compiler_getInfoFromVal___boxed(lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__23;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__16;
 lean_object* l_Lean_Compiler_foldUIntMul___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Meta___instance__4___closed__1;
 lean_object* l_Lean_Compiler_foldBinOp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes___closed__11;
 extern lean_object* l_Lean_levelOne;
@@ -3194,7 +3194,7 @@ x_15 = lean_ctor_get(x_6, 1);
 x_16 = lean_ctor_get_usize(x_6, 2);
 x_17 = lean_ctor_get(x_6, 0);
 lean_dec(x_17);
-x_18 = l_Lean_Init_LeanInit___instance__4___closed__1;
+x_18 = l_Lean_Init_Meta___instance__4___closed__1;
 x_19 = lean_string_dec_eq(x_15, x_18);
 lean_dec(x_15);
 if (x_19 == 0)
@@ -3329,7 +3329,7 @@ x_51 = lean_ctor_get(x_6, 1);
 x_52 = lean_ctor_get_usize(x_6, 2);
 lean_inc(x_51);
 lean_dec(x_6);
-x_53 = l_Lean_Init_LeanInit___instance__4___closed__1;
+x_53 = l_Lean_Init_Meta___instance__4___closed__1;
 x_54 = lean_string_dec_eq(x_51, x_53);
 lean_dec(x_51);
 if (x_54 == 0)
@@ -3432,7 +3432,7 @@ if (lean_is_exclusive(x_6)) {
  lean_dec_ref(x_6);
  x_77 = lean_box(0);
 }
-x_78 = l_Lean_Init_LeanInit___instance__4___closed__1;
+x_78 = l_Lean_Init_Meta___instance__4___closed__1;
 x_79 = lean_string_dec_eq(x_75, x_78);
 lean_dec(x_75);
 if (x_79 == 0)
@@ -3616,7 +3616,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_3, 1);
-x_7 = l_Lean_Init_LeanInit___instance__4___closed__1;
+x_7 = l_Lean_Init_Meta___instance__4___closed__1;
 x_8 = lean_string_dec_eq(x_6, x_7);
 if (x_8 == 0)
 {

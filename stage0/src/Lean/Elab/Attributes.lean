@@ -16,7 +16,7 @@ instance : ToFormat Attribute := ⟨fun attr =>
 
 instance : Inhabited Attribute := ⟨{ name := arbitrary _ }⟩
 
-def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m Attribute := do
+def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m Attribute := do
   -- rawIdent >> many attrArg
   let nameStx := stx[0]
   let attrName ← match nameStx.isIdOrAtom? with
@@ -31,14 +31,14 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [Add
   pure { name := attrName, args := args }
 
 -- sepBy1 attrInstance ", "
-def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) := do
+def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) := do
   let mut attrs := #[]
   for attr in stx.getSepArgs do
     attrs := attrs.push (← elabAttr attr)
   return attrs
 
 -- parser! "@[" >> sepBy1 attrInstance ", " >> "]"
-def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
+def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
   elabAttrs stx[1]
 
 end Lean.Elab

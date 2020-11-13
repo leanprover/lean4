@@ -284,6 +284,7 @@ partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr)
     | ParserDescr.nodeWithAntiquot n k d              => return nodeWithAntiquot n k (← visit d)
     | ParserDescr.trailingNode k prec d               => return trailingNode k prec (← visit d)
     | ParserDescr.symbol tk                           => return symbol tk
+    | ParserDescr.checkPrec prec                      => return checkPrec prec
     | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol tk includeIdent
     | ParserDescr.parser constName                    => do
       let (_, p) ← mkParserOfConstantAux categories constName visit;

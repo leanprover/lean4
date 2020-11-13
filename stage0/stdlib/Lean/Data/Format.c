@@ -14,10 +14,11 @@
 extern "C" {
 #endif
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Format_repr___closed__2;
 size_t l_USize_add(size_t, size_t);
-extern lean_object* l_Lean_Name_getString_x21___closed__3;
 uint8_t l_Lean_Format_FlattenBehavior_Lean_Data_Format___instance__1(uint8_t, uint8_t);
+extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 lean_object* l_Lean_List_format_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Lean_Data_Format___instance__10___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_merge___boxed(lean_object*, lean_object*, lean_object*);
@@ -271,7 +272,6 @@ extern lean_object* l_Init_Core___instance__24;
 lean_object* l_Lean_Format_initFn____x40_Lean_Data_Format___hyg_974____closed__6;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_spaceUptoLine_match__1(lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__22___closed__1;
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Format_joinArraySep_match__1(lean_object*);
 lean_object* lean_uint16_to_nat(uint16_t);
 extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
@@ -1910,7 +1910,7 @@ x_1 = l___private_Lean_Data_Format_0__Lean_Format_be___closed__4;
 x_2 = l___private_Lean_Data_Format_0__Lean_Format_be___closed__5;
 x_3 = lean_unsigned_to_nat(154u);
 x_4 = lean_unsigned_to_nat(14u);
-x_5 = l_Lean_Name_getString_x21___closed__3;
+x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -5260,7 +5260,7 @@ lean_object* l_Lean_Lean_Data_Format___instance__18(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_System_FilePath_dirName___closed__1;
+x_2 = l_Lean_Name_toString___closed__1;
 x_3 = l_Lean_Name_toStringWithSep(x_2, x_1);
 x_4 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -6160,7 +6160,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 lean_dec(x_1);
-x_9 = l_System_FilePath_dirName___closed__1;
+x_9 = l_Lean_Name_toString___closed__1;
 x_10 = l_Lean_Name_toStringWithSep(x_9, x_8);
 x_11 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -6260,7 +6260,7 @@ lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = l_System_FilePath_dirName___closed__1;
+x_4 = l_Lean_Name_toString___closed__1;
 x_5 = l_Lean_Name_toStringWithSep(x_4, x_2);
 x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);

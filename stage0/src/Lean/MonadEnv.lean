@@ -61,7 +61,7 @@ private partial def mkAuxNameAux (env : Environment) (base : Name) (i : Nat) : N
 def mkAuxName (baseName : Name) (idx : Nat) : m Name := do
   return mkAuxNameAux (← getEnv) baseName idx
 
-variables [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+variables [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
 
 def getConstInfo (constName : Name) : m ConstantInfo := do
   match (← getEnv).find? constName with
@@ -107,7 +107,7 @@ def addAndCompile [MonadOptions m] (decl : Declaration) : m Unit := do
   addDecl decl;
   compileDecl decl
 
-variables [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] [MonadOptions m]
+variables [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] [MonadOptions m]
 
 unsafe def evalConst (α) (constName : Name) : m α := do
   ofExcept $ (← getEnv).evalConst α (← getOptions) constName

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_JsonNumber_decEq_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_Json_mkObj___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_shiftl(lean_object*, lean_object*);
@@ -138,7 +139,6 @@ lean_object* l_Lean_Json_getObjValD___boxed(lean_object*, lean_object*);
 lean_object* l_Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_Lean_Data_Json_Basic___instance__3;
 lean_object* l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_countDigits(lean_object*);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Json_getArr_x3f___boxed(lean_object*);
 extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
@@ -576,7 +576,7 @@ lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean
 x_36 = l_Int_repr___closed__1;
 x_37 = lean_string_append(x_36, x_31);
 lean_dec(x_31);
-x_38 = l_System_FilePath_dirName___closed__1;
+x_38 = l_Lean_Name_toString___closed__1;
 x_39 = lean_string_append(x_37, x_38);
 x_40 = lean_string_append(x_39, x_34);
 lean_dec(x_34);
@@ -607,7 +607,7 @@ lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean
 x_47 = l_Lean_Init_Prelude___instance__74___closed__1;
 x_48 = lean_string_append(x_47, x_31);
 lean_dec(x_31);
-x_49 = l_System_FilePath_dirName___closed__1;
+x_49 = l_Lean_Name_toString___closed__1;
 x_50 = lean_string_append(x_48, x_49);
 x_51 = lean_string_append(x_50, x_34);
 lean_dec(x_34);

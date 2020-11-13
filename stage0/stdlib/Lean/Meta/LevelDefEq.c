@@ -104,7 +104,6 @@ lean_object* l_Lean_Meta_isLevelDefEqAux(lean_object*, lean_object*, lean_object
 lean_object* l_Std_PersistentArray_forIn___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getPostponed___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_getNumPostponed___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lean_Exception___instance__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___closed__3;
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_decLevel___rarg(lean_object*, lean_object*);
@@ -219,7 +218,7 @@ lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_isExprDefEq___spec__1___boxed
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decAux_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forInAux___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponedToMessageData___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lean_Exception___instance__2___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Lean_Exception___instance__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forInAux___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Prelude___instance__50___rarg(lean_object*);
 uint8_t l_Lean_MetavarContext_hasAssignableLevelMVar(lean_object*, lean_object*);
@@ -279,6 +278,7 @@ lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__2___closed__4;
 lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_isLevelDefEq___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__2___closed__1;
 lean_object* l_Lean_Meta_isLevelDefEqAux___closed__5;
+lean_object* l_Lean_Init_Prelude___instance__77___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__5(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_decLevel_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -23000,7 +23000,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Core_Lean_CoreM___instance__3;
 x_2 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__6;
 x_3 = l_StateRefT_x27_Init_Control_StateRef___instance__2___closed__1;
-x_4 = l_Lean_Lean_Exception___instance__2___rarg(x_1, x_2, x_3);
+x_4 = l_Lean_Init_Prelude___instance__77___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -23023,7 +23023,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__7;
 x_2 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__8;
 x_3 = l_ReaderT_Init_Prelude___instance__49___closed__1;
-x_4 = l_Lean_Lean_Exception___instance__2___rarg(x_1, x_2, x_3);
+x_4 = l_Lean_Init_Prelude___instance__77___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -23033,7 +23033,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Lean_Meta_Basic___instance__10;
 x_2 = l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___rarg___closed__3;
-x_3 = lean_alloc_closure((void*)(l_Lean_Lean_Exception___instance__3___rarg), 4, 2);
+x_3 = lean_alloc_closure((void*)(l_Lean_Lean_Exception___instance__2___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;

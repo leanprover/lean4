@@ -260,8 +260,10 @@ def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 -/
 @[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
   let declName := stx[1]
+  -- TODO: nonatomic names
   let (val, _) ← runTermElabM none $ fun _ => Term.toParserDescr stx[3] Name.anonymous
-  let stx' ← `(def $declName : Lean.ParserDescr := $val)
+  let stxNodeKind := (← getCurrNamespace) ++ declName.getId
+  let stx' ← `(def $declName : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' $ elabCommand stx'
 
 /-

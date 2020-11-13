@@ -15,6 +15,7 @@ extern "C" {
 #endif
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__6;
 lean_object* l_List_forIn_loop___at_Lean_Elab_printDeps___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_println___at_Lean_Init_System_IO___instance__9___spec__1(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
@@ -46,7 +47,6 @@ uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_List_map___at_Lean_Elab_headerToImports___spec__1(lean_object*);
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_println___at_Lean_Environment_displayStats___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Lean_Elab_parseImportsExport_match__1___rarg(lean_object*, lean_object*);
@@ -1071,7 +1071,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_IO_println___at_Lean_Environment_displayStats___spec__3(x_9, x_10);
+x_11 = l_IO_println___at_Lean_Init_System_IO___instance__9___spec__1(x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; 

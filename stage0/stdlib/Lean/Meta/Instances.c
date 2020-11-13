@@ -82,6 +82,7 @@ lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_addInstanceEntry__
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_19____closed__4;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instanceExtension___closed__5;
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__3___rarg___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -2935,7 +2936,7 @@ if (x_2 == 0)
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 lean_dec(x_1);
 x_8 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_224____lambda__2___closed__3;
-x_9 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_8, x_4, x_5, x_6, x_7);
+x_9 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_8, x_4, x_5, x_6, x_7);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {

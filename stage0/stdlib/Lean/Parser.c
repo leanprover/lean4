@@ -17,7 +17,6 @@ lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_strLit_parenthesize
 extern lean_object* l_Lean_Parser_Level_num_formatter___closed__1;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_ident_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_charLit_parenthesizer___closed__1;
-lean_object* l_Lean_Parser_mkAntiquot_parenthesizer(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_ident_formatter___closed__1;
 extern lean_object* l_Lean_identKind___closed__2;
 extern lean_object* l_Lean_charLitKind___closed__2;
@@ -40,6 +39,7 @@ lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_numLit_formatter(lean_o
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_charLit_parenthesizer(lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_strLit_formatter(lean_object*);
 extern lean_object* l_Lean_strLitKind___closed__2;
+lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_numLitKind___closed__2;
 extern lean_object* l_Lean_PrettyPrinter_formatterAttribute;
 lean_object* l_Lean_Parser_Term_char_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,7 +64,8 @@ lean_object* lean_mk_antiquot_parenthesizer(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Lean_Parser_mkAntiquot_parenthesizer(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_1);
+x_9 = l_Lean_Parser_mkAntiquot_parenthesizer___rarg(x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_9;
 }
 }

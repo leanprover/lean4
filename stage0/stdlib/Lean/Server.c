@@ -127,9 +127,7 @@ lean_object* l_Lean_Server_writeLspNotification(lean_object*);
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__7;
 lean_object* l_Lean_Server_handleRequest_match__1___rarg___closed__1;
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__3;
-lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_mapMAux___at_Lean_Server_sendDiagnostics___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_getStderr___at_Lean_Server_Test_runWithInputFile___spec__1(lean_object*);
 lean_object* l_Std_RBNode_appendTrees___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_writeLspNotification___at_Lean_Server_clearDiagnostics___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balRight___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -230,6 +228,7 @@ lean_object* l_Lean_Server_handleHover(lean_object*, lean_object*);
 lean_object* l_Lean_Server_updateOpenDocuments(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_IO_FS_Stream_readRequestAs___closed__4;
 lean_object* l_Lean_Server_handleNotification_match__1___rarg___closed__2;
+lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_head_x3f___rarg(lean_object*);
 lean_object* l_Lean_Server_mainLoop_match__1___rarg___closed__1;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_InitShutdown___instance__3___spec__3(lean_object*, lean_object*);
@@ -8411,15 +8410,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_IO_getStderr___at_Lean_Server_Test_runWithInputFile___spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_get_stderr(x_1);
-return x_2;
-}
-}
-lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint32_t x_5; lean_object* x_6; lean_object* x_7; 
@@ -8488,7 +8479,7 @@ x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = lean_io_error_to_string(x_19);
-x_22 = l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__2(x_8, x_21, x_20);
+x_22 = l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__1(x_8, x_21, x_20);
 return x_22;
 }
 }

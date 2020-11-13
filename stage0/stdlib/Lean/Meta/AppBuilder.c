@@ -163,7 +163,6 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqTransImp_match__1
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux___closed__6;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAppOptM_match__1(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_getMVarDecl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkCongrArgImp_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkArbitrary___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkListLitImp_match__1(lean_object*);
@@ -183,6 +182,7 @@ lean_object* l_Lean_Meta_mkAppM___rarg___lambda__1___closed__6;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqSymmImp___closed__2;
 lean_object* l_Lean_Meta_mkFreshLevelMVar___at___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqNDRecImp___closed__5;
@@ -191,6 +191,7 @@ lean_object* l_Lean_addTrace___at_Lean_Meta_isLevelDefEqAux___spec__1(lean_objec
 lean_object* l_Lean_Meta_hasAssignableMVar___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthInstanceImp_x3f___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMFinal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAppOptM_match__1___rarg(lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__6___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkDecideProof___rarg___closed__1;
 lean_object* l_Lean_Meta_whnfD___at___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkDecide___rarg(lean_object*, lean_object*);
@@ -218,7 +219,6 @@ lean_object* l_Lean_Meta_mkCongrFun___rarg(lean_object*, lean_object*, lean_obje
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkNoConfusionImp_match__1(lean_object*);
 extern lean_object* l_Lean_getStructureCtor___closed__3;
 lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkId(lean_object*);
 lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassExpensive_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapM___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkFun___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -229,6 +229,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkIdImp(lean_object*,
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux___spec__1(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Meta_mkAppM___rarg___closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkNoConfusionImp___closed__6;
+lean_object* l_Lean_Meta_getLevel___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkArrayLit(lean_object*);
 extern lean_object* l_Lean_MessageData_nil___closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqNDRecImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -393,7 +394,6 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkIdImp___closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___rarg___closed__4;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkPure___rarg___closed__4;
 lean_object* l_Lean_Meta_mkAppM___rarg___closed__4;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp_match__1(lean_object*);
@@ -2884,6 +2884,14 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Meta_AppBuilder_0__Lean_Meta_m
 return x_2;
 }
 }
+lean_object* l_Lean_Meta_getLevel___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp(x_1, x_2, x_3, x_4, x_5, x_6);
+return x_7;
+}
+}
 static lean_object* _init_l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp___lambda__1___closed__1() {
 _start:
 {
@@ -5344,7 +5352,7 @@ lean_ctor_set(x_33, 1, x_3);
 x_34 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_31);
-x_35 = l_Lean_throwError___at_Lean_Meta_getMVarDecl___spec__1___rarg(x_34, x_4, x_5, x_6, x_7, x_15);
+x_35 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_995____spec__1___rarg(x_34, x_4, x_5, x_6, x_7, x_15);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -6983,7 +6991,7 @@ else
 lean_object* x_188; lean_object* x_189; lean_object* x_190; lean_object* x_191; lean_object* x_192; 
 x_188 = lean_ctor_get(x_6, 3);
 lean_inc(x_188);
-x_189 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__1___rarg(x_7, x_8);
+x_189 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__6___rarg(x_7, x_8);
 x_190 = lean_ctor_get(x_189, 0);
 lean_inc(x_190);
 x_191 = lean_ctor_get(x_189, 1);
@@ -7002,7 +7010,7 @@ lean_inc(x_193);
 x_194 = lean_ctor_get(x_192, 1);
 lean_inc(x_194);
 lean_dec(x_192);
-x_195 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__2(x_190, x_2, x_188, x_4, x_5, x_6, x_7, x_194);
+x_195 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__7(x_190, x_2, x_188, x_4, x_5, x_6, x_7, x_194);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -7036,7 +7044,7 @@ lean_inc(x_200);
 x_201 = lean_ctor_get(x_192, 1);
 lean_inc(x_201);
 lean_dec(x_192);
-x_202 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__2(x_190, x_2, x_188, x_4, x_5, x_6, x_7, x_201);
+x_202 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__7(x_190, x_2, x_188, x_4, x_5, x_6, x_7, x_201);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -11883,7 +11891,7 @@ else
 lean_object* x_192; lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; 
 x_192 = lean_ctor_get(x_5, 3);
 lean_inc(x_192);
-x_193 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__1___rarg(x_6, x_12);
+x_193 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__6___rarg(x_6, x_12);
 x_194 = lean_ctor_get(x_193, 0);
 lean_inc(x_194);
 x_195 = lean_ctor_get(x_193, 1);
@@ -11903,7 +11911,7 @@ x_198 = lean_ctor_get(x_196, 1);
 lean_inc(x_198);
 lean_dec(x_196);
 x_199 = l_Lean_Meta_mkAppM___rarg___closed__2;
-x_200 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__2(x_194, x_199, x_192, x_3, x_4, x_5, x_6, x_198);
+x_200 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__7(x_194, x_199, x_192, x_3, x_4, x_5, x_6, x_198);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -11938,7 +11946,7 @@ x_206 = lean_ctor_get(x_196, 1);
 lean_inc(x_206);
 lean_dec(x_196);
 x_207 = l_Lean_Meta_mkAppM___rarg___closed__2;
-x_208 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__2(x_194, x_207, x_192, x_3, x_4, x_5, x_6, x_206);
+x_208 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__7(x_194, x_207, x_192, x_3, x_4, x_5, x_6, x_206);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -12778,7 +12786,7 @@ else
 lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; lean_object* x_197; 
 x_193 = lean_ctor_get(x_5, 3);
 lean_inc(x_193);
-x_194 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__1___rarg(x_6, x_13);
+x_194 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__6___rarg(x_6, x_13);
 x_195 = lean_ctor_get(x_194, 0);
 lean_inc(x_195);
 x_196 = lean_ctor_get(x_194, 1);
@@ -12797,7 +12805,7 @@ lean_inc(x_198);
 x_199 = lean_ctor_get(x_197, 1);
 lean_inc(x_199);
 lean_dec(x_197);
-x_200 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__2(x_195, x_9, x_193, x_3, x_4, x_5, x_6, x_199);
+x_200 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__7(x_195, x_9, x_193, x_3, x_4, x_5, x_6, x_199);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -12831,7 +12839,7 @@ lean_inc(x_205);
 x_206 = lean_ctor_get(x_197, 1);
 lean_inc(x_206);
 lean_dec(x_197);
-x_207 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponed___spec__2(x_195, x_9, x_193, x_3, x_4, x_5, x_6, x_206);
+x_207 = l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__7(x_195, x_9, x_193, x_3, x_4, x_5, x_6, x_206);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);

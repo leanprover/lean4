@@ -18,10 +18,10 @@ lean_object* lean_io_error_to_string(lean_object*);
 lean_object* _lean_main(lean_object*, lean_object*);
 lean_object* lean_get_stderr(lean_object*);
 lean_object* l_main___boxed__const__1;
-lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_getStdin___at_main___spec__1(lean_object*);
 lean_object* lean_init_search_path(lean_object*, lean_object*);
 lean_object* lean_get_stdout(lean_object*);
+lean_object* l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_initAndRunServer(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_getStdin___at_main___spec__1(lean_object* x_1) {
 _start:
@@ -117,7 +117,7 @@ x_23 = lean_ctor_get(x_15, 1);
 lean_inc(x_23);
 lean_dec(x_15);
 x_24 = lean_io_error_to_string(x_22);
-x_25 = l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__2(x_10, x_24, x_23);
+x_25 = l_IO_FS_Stream_putStrLn___at_Lean_Server_Test_runWithInputFile___spec__1(x_10, x_24, x_23);
 if (lean_obj_tag(x_25) == 0)
 {
 uint8_t x_26; 

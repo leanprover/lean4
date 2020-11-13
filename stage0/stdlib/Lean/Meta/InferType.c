@@ -87,7 +87,6 @@ lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType_match__2
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Literal_type(lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isAlwaysZero_match__1(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_getMVarDecl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferMVarType_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isArrowProp_match__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__2(lean_object*, size_t, lean_object*);
@@ -3481,7 +3480,7 @@ x_61 = lean_ctor_get(x_60, 1);
 lean_inc(x_61);
 lean_dec(x_60);
 x_62 = l___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___rarg___closed__3;
-x_63 = l_Lean_throwError___at_Lean_Meta_getMVarDecl___spec__1___rarg(x_62, x_3, x_4, x_5, x_6, x_61);
+x_63 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_995____spec__1___rarg(x_62, x_3, x_4, x_5, x_6, x_61);
 lean_dec(x_3);
 return x_63;
 }
@@ -3505,7 +3504,7 @@ x_69 = lean_ctor_get(x_68, 1);
 lean_inc(x_69);
 lean_dec(x_68);
 x_70 = l___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___rarg___closed__3;
-x_71 = l_Lean_throwError___at_Lean_Meta_getMVarDecl___spec__1___rarg(x_70, x_3, x_4, x_5, x_6, x_69);
+x_71 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_995____spec__1___rarg(x_70, x_3, x_4, x_5, x_6, x_69);
 lean_dec(x_3);
 return x_71;
 }

@@ -15,12 +15,12 @@ extern "C" {
 #endif
 lean_object* l_Lean_Elab_WFRecursion(lean_object*);
 lean_object* l_Lean_Elab_WFRecursion___boxed(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwTypeMismatchError___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_WFRecursion___rarg___closed__3;
 lean_object* l_Lean_Elab_WFRecursion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_WFRecursion___rarg___closed__1;
 lean_object* l_Lean_Elab_WFRecursion___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_WFRecursion___rarg___closed__2;
+lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_WFRecursion___rarg___closed__1() {
 _start:
 {
@@ -54,7 +54,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = l_Lean_Elab_WFRecursion___rarg___closed__3;
-x_9 = l_Lean_throwError___at_Lean_Elab_Term_throwTypeMismatchError___spec__1___rarg(x_8, x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_9 = l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1___rarg(x_8, x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
 }

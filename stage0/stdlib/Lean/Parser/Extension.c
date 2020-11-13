@@ -39,6 +39,7 @@ lean_object* l_Lean_Parser_andthenInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_leadingIdentAsSymbol___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_notFollowedByTermToken___closed__1;
 lean_object* l_Lean_Parser_ParserState_mkError(lean_object*, lean_object*);
+lean_object* l_Lean_setEnv___at_Lean_KeyedDeclsAttribute_init___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_compileParserDescr_visit_match__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3804____closed__1;
 lean_object* l_Lean_Parser_mkParserContext(lean_object*, lean_object*);
@@ -132,7 +133,6 @@ lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_ParserExtensionAdd
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1841____closed__8;
 lean_object* l_Std_PersistentHashMap_forM___at___private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_6031____closed__4;
-lean_object* l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1841____closed__17;
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_addBuiltinParser___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -232,10 +232,12 @@ lean_object* l_Lean_Parser_declareTrailingBuiltinParser___closed__2;
 lean_object* l_Lean_Parser_initCacheForInput(lean_object*);
 lean_object* l_Lean_Parser_addSyntaxNodeKind(lean_object*, lean_object*);
 lean_object* l_IO_ofExcept___at_Lean_Parser_mkParserOfConstantUnsafe___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_getConstInfo___at_Lean_KeyedDeclsAttribute_init___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___at___private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add___spec__1___closed__2;
 lean_object* l_Lean_Parser_getConstAlias_match__1(lean_object*, lean_object*);
 extern lean_object* l_Array___kind_term____x40_Init_Data_Array_Macros___hyg_3____closed__13;
 lean_object* l_Lean_Parser_mkParserAttributeImpl___elambda__1(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_compileParserDescr_visit_match__2___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -13614,7 +13616,7 @@ _start:
 {
 lean_object* x_9; 
 lean_inc(x_1);
-x_9 = l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1(x_1, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_getConstInfo___at_Lean_KeyedDeclsAttribute_init___spec__5(x_1, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
@@ -13688,7 +13690,7 @@ x_29 = l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_a
 x_30 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
-x_31 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_30, x_5, x_6, x_7, x_14);
+x_31 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_30, x_5, x_6, x_7, x_14);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -13734,7 +13736,7 @@ x_41 = l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_a
 x_42 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_42, 0, x_40);
 lean_ctor_set(x_42, 1, x_41);
-x_43 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_42, x_5, x_6, x_7, x_14);
+x_43 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_42, x_5, x_6, x_7, x_14);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -13783,7 +13785,7 @@ x_54 = l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_a
 x_55 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_55, 0, x_53);
 lean_ctor_set(x_55, 1, x_54);
-x_56 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_55, x_5, x_6, x_7, x_14);
+x_56 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_55, x_5, x_6, x_7, x_14);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -13983,7 +13985,7 @@ x_110 = l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_
 x_111 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_111, 0, x_109);
 lean_ctor_set(x_111, 1, x_110);
-x_112 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_111, x_5, x_6, x_7, x_14);
+x_112 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_111, x_5, x_6, x_7, x_14);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -14026,7 +14028,7 @@ x_120 = l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_
 x_121 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_121, 0, x_119);
 lean_ctor_set(x_121, 1, x_120);
-x_122 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_121, x_5, x_6, x_7, x_14);
+x_122 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_121, x_5, x_6, x_7, x_14);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -14068,7 +14070,7 @@ x_130 = l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_
 x_131 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_131, 0, x_129);
 lean_ctor_set(x_131, 1, x_130);
-x_132 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_131, x_5, x_6, x_7, x_14);
+x_132 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_131, x_5, x_6, x_7, x_14);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -14109,7 +14111,7 @@ x_140 = l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_
 x_141 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_141, 0, x_139);
 lean_ctor_set(x_141, 1, x_140);
-x_142 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_141, x_5, x_6, x_7, x_14);
+x_142 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_141, x_5, x_6, x_7, x_14);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -14150,7 +14152,7 @@ x_150 = l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_
 x_151 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_151, 0, x_149);
 lean_ctor_set(x_151, 1, x_150);
-x_152 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_151, x_5, x_6, x_7, x_14);
+x_152 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_151, x_5, x_6, x_7, x_14);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -14585,7 +14587,7 @@ lean_object* x_31; lean_object* x_32; lean_object* x_33;
 x_31 = lean_ctor_get(x_15, 0);
 lean_inc(x_31);
 lean_dec(x_15);
-x_32 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__4(x_31, x_3, x_4, x_5, x_13);
+x_32 = l_Lean_setEnv___at_Lean_KeyedDeclsAttribute_init___spec__8(x_31, x_3, x_4, x_5, x_13);
 x_33 = lean_ctor_get(x_32, 1);
 lean_inc(x_33);
 lean_dec(x_32);

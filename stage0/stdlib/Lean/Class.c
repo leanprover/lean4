@@ -111,6 +111,7 @@ lean_object* l_Lean_initFn____x40_Lean_Class___hyg_153____closed__4;
 lean_object* l___private_Lean_Class_0__Lean_consumeNLambdas_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentHashMap_contains___at_Lean_isClass___spec__2(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_ClassState_addEntry_match__2(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -5324,7 +5325,7 @@ x_7 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 x_8 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
-x_9 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_8, x_2, x_3, x_4, x_5);
+x_9 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_8, x_2, x_3, x_4, x_5);
 return x_9;
 }
 else
@@ -5418,7 +5419,7 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11;
 lean_dec(x_2);
 lean_dec(x_1);
 x_9 = l_Lean_initFn____x40_Lean_Class___hyg_767____lambda__2___closed__3;
-x_10 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_9, x_5, x_6, x_7, x_8);
+x_10 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__5___rarg(x_9, x_5, x_6, x_7, x_8);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
 {

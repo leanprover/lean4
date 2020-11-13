@@ -20,3 +20,4 @@ import Init.Data.Option
 import Init.Data.Random
 import Init.Data.ToString
 import Init.Data.Range
+import Init.Data.Hashable

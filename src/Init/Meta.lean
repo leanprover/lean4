@@ -2,28 +2,13 @@
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura and Sebastian Ullrich
+
+Additional goodies for writing macros
 -/
 prelude
-import Init.Data.Option.BasicAux
-import Init.Data.String.Basic
 import Init.Data.Array.Basic
-import Init.Data.UInt
-import Init.Data.Hashable
-import Init.Control.Reader
-import Init.Control.EState
-import Init.Control.StateRef
-import Init.Control.Option
 
 namespace Lean
-/-
-Basic Lean types used to implement builtin commands and extensions.
-Note that this file is part of the Lean `Init` library instead of
-`Lean` actual implementation.
-The idea is to allow users to implement simple parsers, macros and tactics
-without importing the whole `Lean` module.
-It also allow us to use extensions to develop the `Init` library.
--/
-
 /- Valid identifier names -/
 def isGreek (c : Char) : Bool :=
   0x391 ≤ c.val && c.val ≤ 0x3dd
@@ -495,7 +480,9 @@ def identToStrLit (stx : Syntax) : Syntax :=
 def strLitToAtom (stx : Syntax) : Syntax :=
   match stx.isStrLit? with
   | none     => stx
-  | some val => Syntax.atom stx.getHeadInfo.get! val
+  | some val => match stx.getHeadInfo with
+    | some info => Syntax.atom info val
+    | none => unreachable!
 
 def isAtom : Syntax → Bool
   | atom _ _ => true

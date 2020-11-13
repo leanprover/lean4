@@ -124,13 +124,6 @@ instance monadNameGeneratorLift (m n : Type → Type) [MonadNameGenerator m] [Mo
 
 namespace Syntax
 
-/-- Retrieve the left-most leaf's info in the Syntax tree. -/
-partial def getHeadInfo : Syntax → Option SourceInfo
-  | atom info _      => info
-  | ident info _ _ _ => info
-  | node _ args      => args.findSome? getHeadInfo
-  | _                => none
-
 partial def getTailInfo : Syntax → Option SourceInfo
   | atom info _   => info
   | ident info .. => info

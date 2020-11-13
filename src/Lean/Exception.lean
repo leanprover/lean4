@@ -24,27 +24,6 @@ def Exception.getRef : Exception → Syntax
 
 instance : Inhabited Exception := ⟨Exception.error (arbitrary _) (arbitrary _)⟩
 
-class Ref (m : Type → Type) :=
-  (getRef      : m Syntax)
-  (withRef {α} : Syntax → m α → m α)
-
-export Ref (getRef)
-
-instance (m n : Type → Type) [Ref m] [MonadFunctor m n] [MonadLift m n] : Ref n := {
-  getRef  := liftM (getRef : m _),
-  withRef := fun ref x => monadMap (m := m) (Ref.withRef ref) x
-}
-
-def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
-  match ref.getPos with
-  | some _ => ref
-  | _      => oldRef
-
-@[inline] def withRef {m : Type → Type} [Monad m] [Ref m] {α} (ref : Syntax) (x : m α) : m α := do
-  let oldRef ← getRef
-  let ref := replaceRef ref oldRef
-  Ref.withRef ref x
-
 /- Similar to `AddMessageContext`, but for error messages.
    The default instance just uses `AddMessageContext`.
    In error messages, we may want to provide additional information (e.g., macro expansion stack),
@@ -60,7 +39,7 @@ instance (m : Type → Type) [AddMessageContext m] [Monad m] : AddErrorMessageCo
 
 section Methods
 
-variables {m : Type → Type} [Monad m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+variables {m : Type → Type} [Monad m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
 
 def throwError {α} (msg : MessageData) : m α := do
   let ref ← getRef
@@ -97,7 +76,7 @@ instance {ρ m} [Monad m] [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) := {
 instance {ω σ m} [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
   inferInstanceAs (MonadRecDepth (ReaderT _ _))
 
-@[inline] def withIncRecDepth {α m} [Monad m] [MonadRecDepth m] [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m]
+@[inline] def withIncRecDepth {α m} [Monad m] [MonadRecDepth m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
     (x : m α) : m α := do
   let curr ← MonadRecDepth.getRecDepth
   let max  ← MonadRecDepth.getMaxRecDepth

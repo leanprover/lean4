@@ -32,7 +32,7 @@ abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 
 instance {α} : Inhabited (CoreM α) := ⟨fun _ _ => throw $ arbitrary _⟩
 
-instance : Ref CoreM := {
+instance : MonadRef CoreM := {
   getRef  := do let ctx ← read; pure ctx.ref,
   withRef := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
 }

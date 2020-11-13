@@ -19,7 +19,7 @@ structure State :=
 
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
-instance : Ref LevelElabM := {
+instance : MonadRef LevelElabM := {
   getRef      := return (← read).ref,
   withRef     := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
 }

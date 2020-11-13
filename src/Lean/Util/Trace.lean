@@ -103,7 +103,7 @@ private def getResetTraces : m (PersistentArray TraceElem) := do
   pure oldTraces
 
 section
-variables [Ref m] [AddMessageContext m] [MonadOptions m]
+variables [MonadRef m] [AddMessageContext m] [MonadOptions m]
 
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   let ref ← getRef
@@ -150,7 +150,7 @@ macro_rules
     else
       `(Lean.trace $(quote id.getId) fun _ => ($s : MessageData))
 
-variables {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions m] [Ref m]
+variables {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions m] [MonadRef m]
 
 def withNestedTraces [MonadFinally m] (x : m α) : m α := do
   let s ← getTraceState

@@ -142,7 +142,7 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
     | ex                                => throw ex
 
 @[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m]
-    [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (x : MacroM α) : m α := do
+    [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (x : MacroM α) : m α := do
   let env  ← getEnv
   match x { macroEnv       := Macro.mkMacroEnv (expandMacro? env),
             currMacroScope := ← MonadMacroAdapter.getCurrMacroScope,
@@ -154,7 +154,7 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
   | EStateM.Result.ok a nextMacroScope                       => MonadMacroAdapter.setNextMacroScope nextMacroScope; pure a
 
 @[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m]
-    [MonadExceptOf Exception m] [Ref m] [AddErrorMessageContext m] (x : Macro) (stx : Syntax) : m Syntax :=
+    [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (x : Macro) (stx : Syntax) : m Syntax :=
   liftMacroM (x stx)
 
 builtin_initialize

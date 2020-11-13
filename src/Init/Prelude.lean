@@ -1463,7 +1463,28 @@ def getArgs (stx : Syntax) : Array Syntax :=
   | Syntax.node _ args => args
   | _                  => Array.empty
 
+/-- Retrieve the left-most leaf's info in the Syntax tree. -/
+partial def getHeadInfo : Syntax → Option SourceInfo
+  | atom info _      => some info
+  | ident info _ _ _ => some info
+  | node _ args      =>
+    let rec loop (i : Nat) : Option SourceInfo :=
+      match decide (Less i args.size) with
+      | true => match getHeadInfo (args.get! i) with
+         | some info => some info
+         | none      => loop (add i 1)
+      | false => none
+    loop 0
+  | _                => none
+
+def getPos (stx : Syntax) : Option String.Pos :=
+  match stx.getHeadInfo with
+  | some info => info.pos
+  | _         => none
+
 end Syntax
+
+/- Parser descriptions -/
 
 inductive ParserDescr
   | const  (name : Name)
@@ -1648,6 +1669,27 @@ def defaultMaxRecDepth := 512
 
 def maxRecDepthErrorMessage : String :=
   "maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)"
+
+class MonadRef (m : Type → Type) :=
+  (getRef      : m Syntax)
+  (withRef {α} : Syntax → m α → m α)
+
+export MonadRef (getRef)
+
+instance (m n : Type → Type) [MonadRef m] [MonadFunctor m n] [MonadLift m n] : MonadRef n := {
+  getRef  := liftM (getRef : m _),
+  withRef := fun ref x => monadMap (m := m) (MonadRef.withRef ref) x
+}
+
+def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
+  match ref.getPos with
+  | some _ => ref
+  | _      => oldRef
+
+@[inline] def withRef {m : Type → Type} [Monad m] [MonadRef m] {α} (ref : Syntax) (x : m α) : m α :=
+  bind getRef fun oldRef =>
+  let ref := replaceRef ref oldRef
+  MonadRef.withRef ref x
 
 namespace Macro
 

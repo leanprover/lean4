@@ -86,7 +86,7 @@ private def inferForallType (e : Expr) : MetaM Expr :=
     let lvl  ← xs.foldrM (init := lvl) fun x lvl => do
       let xType    ← inferType x
       let xTypeLvl ← getLevel xType
-      pure $ mkLevelIMax xTypeLvl lvl
+      pure $ mkLevelIMax' xTypeLvl lvl
     pure $ mkSort lvl.normalize
 
 /- Infer type of lambda and let expressions -/

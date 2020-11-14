@@ -15,10 +15,10 @@ extern "C" {
 #endif
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_expandOptDeclSig(lean_object*);
+extern lean_object* l_Lean_expandExplicitBindersAux_loop___closed__5;
 lean_object* l_Lean_Elab_Command_mkDefView___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_DefKind_isExample_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__7;
 uint8_t l_Lean_Elab_DefKind_isDefOrAbbrevOrOpaque(uint8_t);
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant_match__2(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -886,7 +886,7 @@ lean_ctor_set(x_25, 2, x_21);
 lean_ctor_set(x_25, 3, x_24);
 x_26 = l_Array_empty___closed__1;
 x_27 = lean_array_push(x_26, x_25);
-x_28 = l_Lean_myMacro____x40_Lean_Util_Trace___hyg_953____closed__7;
+x_28 = l_Lean_expandExplicitBindersAux_loop___closed__5;
 x_29 = lean_array_push(x_27, x_28);
 x_30 = l_myMacro____x40_Init_Notation___hyg_38____closed__8;
 x_31 = lean_alloc_ctor(1, 2, 0);

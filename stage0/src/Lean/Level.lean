@@ -415,6 +415,36 @@ protected def format (l : Level) : Format :=
 instance : ToFormat Level := ⟨Level.format⟩
 instance : ToString Level := ⟨Format.pretty ∘ Level.format⟩
 
+end Level
+
+/- Similar to `mkLevelMax`, but applies cheap simplifications -/
+def mkLevelMax' (u v : Level) : Level :=
+  let subsumes (u v : Level) : Bool :=
+    match u with
+    | Level.max u₁ u₂ _ => v == u₁ || v == u₂
+    | _ => false
+  if u.isExplicit && v.isExplicit then
+    if u.getOffset ≥ v.getOffset then u else v
+  else if u == v then u
+  else if u.isZero then v
+  else if v.isZero then u
+  else if subsumes u v then u
+  else if subsumes v u then v
+  else if u.getLevelOffset == v.getLevelOffset then
+    if u.getOffset ≥ v.getOffset then u else v
+  else
+    mkLevelMax u v
+
+/- Similar to `mkLevelIMax`, but applies cheap simplifications -/
+def mkLevelIMax' (u v : Level) : Level :=
+  if v.isNeverZero then mkLevelMax' u v
+  else if v.isZero then v
+  else if u.isZero then v
+  else if u == v then u
+  else mkLevelIMax u v
+
+namespace Level
+
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.
    The hypotheses `(h : e.is... = true)` are used to ensure Lean will not crash
@@ -435,7 +465,7 @@ match lvl with
 
 @[extern "lean_level_update_max"]
 def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax = true) : Level :=
-  mkLevelMax newLhs newRhs
+  mkLevelMax' newLhs newRhs
 
 @[inline] def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   match lvl with
@@ -444,7 +474,7 @@ def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax = t
 
 @[extern "lean_level_update_imax"]
 def updateIMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isIMax = true) : Level :=
-  mkLevelIMax newLhs newRhs
+  mkLevelIMax' newLhs newRhs
 
 @[inline] def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   match lvl with
@@ -454,7 +484,7 @@ def updateIMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isIMax =
 def mkNaryMax : List Level → Level
   | []    => levelZero
   | [u]   => u
-  | u::us => mkLevelMax u (mkNaryMax us)
+  | u::us => mkLevelMax' u (mkNaryMax us)
 
 /- Level to Format -/
 

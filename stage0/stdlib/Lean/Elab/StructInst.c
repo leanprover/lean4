@@ -170,7 +170,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_StructInst_0__Le
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_Elab_Term_StructInst_formatField(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkCtorHeaderAux_match__1(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_44____closed__3;
 lean_object* l_Std_AssocList_contains___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkFieldMap___spec__4___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_isModifyOp_x3f_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeAppInstMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -203,6 +202,7 @@ lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_isMod
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___closed__5;
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_propagate(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_Field_toSyntax___closed__1;
+extern lean_object* l_Lean_expandExplicitBindersAux_loop___closed__13;
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__4;
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkCtorHeaderAux_match__3(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -777,7 +777,7 @@ x_9 = l_Lean_mkOptionalNode___closed__1;
 x_10 = l_Lean_Syntax_setArg(x_1, x_4, x_9);
 x_11 = l_Array_empty___closed__1;
 x_12 = lean_array_push(x_11, x_10);
-x_13 = l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_44____closed__3;
+x_13 = l_Lean_expandExplicitBindersAux_loop___closed__13;
 x_14 = lean_array_push(x_13, x_8);
 x_15 = l_myMacro____x40_Init_Data_ToString_Macro___hyg_43____closed__4;
 x_16 = lean_alloc_ctor(1, 2, 0);

@@ -12,8 +12,8 @@ partial def replace (f? : Level → Option Level) (u : Level) : Level :=
   match f? u with
   | some v => v
   | none   => match u with
-    | max v₁ v₂  _ => mkLevelMax (replace f? v₁) (replace f? v₂)
-    | imax v₁ v₂ _ => mkLevelIMax (replace f? v₁) (replace f? v₂)
+    | max v₁ v₂  _ => mkLevelMax' (replace f? v₁) (replace f? v₂)
+    | imax v₁ v₂ _ => mkLevelIMax' (replace f? v₁) (replace f? v₂)
     | succ v _     => mkLevelSucc (replace f? v)
     | _            => u
 

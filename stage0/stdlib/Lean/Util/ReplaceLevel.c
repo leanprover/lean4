@@ -30,11 +30,11 @@ lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___boxed(lean_obje
 size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
 lean_object* l_Lean_Level_replace_match__2(lean_object*);
 lean_object* l_List_map___at_Lean_Expr_replaceLevel___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_mkLevelIMax(lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Level_replace_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit_match__1(lean_object*);
-lean_object* l_Lean_mkLevelMax(lean_object*, lean_object*);
+lean_object* l_Lean_mkLevelMax_x27(lean_object*, lean_object*);
+lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -188,7 +188,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_9 = l_Lean_Level_replace(x_1, x_7);
 x_10 = l_Lean_Level_replace(x_1, x_8);
-x_11 = l_Lean_mkLevelMax(x_9, x_10);
+x_11 = l_Lean_mkLevelMax_x27(x_9, x_10);
 return x_11;
 }
 case 3:
@@ -202,7 +202,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_14 = l_Lean_Level_replace(x_1, x_12);
 x_15 = l_Lean_Level_replace(x_1, x_13);
-x_16 = l_Lean_mkLevelIMax(x_14, x_15);
+x_16 = l_Lean_mkLevelIMax_x27(x_14, x_15);
 return x_16;
 }
 default: 

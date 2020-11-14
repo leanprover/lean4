@@ -30,7 +30,7 @@ private partial def decAux? : Level → MetaM (Option Level)
       | some u => do
         match (← decAux? v) with
         | none   => pure none
-        | some v => pure $ mkLevelMax u v
+        | some v => pure $ mkLevelMax' u v
     match u with
     | Level.max u v _  => process u v
     /- Remark: If `decAux? v` returns `some ...`, then `imax u v` is equivalent to `max u v`. -/
@@ -76,8 +76,8 @@ private def strictOccursMax (lvl : Level) : Level → Bool
 /-- `mkMaxArgsDiff mvarId (max u_1 ... (mvar mvarId) ... u_n) v` => `max v u_1 ... u_n` -/
 private def mkMaxArgsDiff (mvarId : MVarId) : Level → Level → Level
   | Level.max u v _,     acc => mkMaxArgsDiff mvarId v $ mkMaxArgsDiff mvarId u acc
-  | l@(Level.mvar id _), acc => if id != mvarId then mkLevelMax acc l else acc
-  | l,                   acc => mkLevelMax acc l
+  | l@(Level.mvar id _), acc => if id != mvarId then mkLevelMax' acc l else acc
+  | l,                   acc => mkLevelMax' acc l
 
 /--
   Solve `?m =?= max ?m v` by creating a fresh metavariable `?n`
@@ -107,6 +107,7 @@ private partial def solve (u v : Level) : MetaM LBool := do
     Bool.toLBool <$> (isLevelDefEqAux levelZero v₁ <&&> isLevelDefEqAux levelZero v₂)
   | Level.zero _, Level.imax _ v₂ _ =>
     Bool.toLBool <$> isLevelDefEqAux levelZero v₂
+  | Level.zero _, Level.succ .. => pure LBool.false
   | Level.succ u _, v =>
     match (← Meta.decLevel? v) with
     | some v => Bool.toLBool <$> isLevelDefEqAux u v

@@ -1512,7 +1512,6 @@ inductive ParserDescr
   | cat (catName : Name) (rbp : Nat)
   | parser (declName : Name)
   | nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : ParserDescr)
-  | checkPrec (prec : Nat)
 
 instance : Inhabited ParserDescr := ⟨ParserDescr.symbol ""⟩
 abbrev TrailingParserDescr := ParserDescr

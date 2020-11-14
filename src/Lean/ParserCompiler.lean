@@ -125,7 +125,6 @@ def compileEmbeddedParsers : ParserDescr → MetaM Unit
   | ParserDescr.symbol _               => pure ()
   | ParserDescr.nonReservedSymbol _ _  => pure ()
   | ParserDescr.cat _ _                => pure ()
-  | ParserDescr.checkPrec _            => pure ()
 
 /-- Precondition: `α` must match `ctx.tyName`. -/
 unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do

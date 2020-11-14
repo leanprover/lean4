@@ -129,7 +129,7 @@ def mkNewTail (t : PersistentArray α) : PersistentArray α :=
       shift   := t.shift + initShift,
       tailOff := t.size }
 
-def tooBig : Nat := usizeSz / 8
+def tooBig : Nat := USize.size / 8
 
 def push (t : PersistentArray α) (a : α) : PersistentArray α :=
   let r := { t with tail := t.tail.push a, size := t.size + 1 }

@@ -111,7 +111,7 @@ instance (a b : UInt16) : Decidable (a ≤ b) := UInt16.decLe a b
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨Fin.ofNat n⟩
 @[extern "lean_uint32_of_nat"]
-def UInt32.ofNat' (n : Nat) (h : n < uint32Sz) : UInt32 := ⟨⟨n, h⟩⟩
+def UInt32.ofNat' (n : Nat) (h : n < UInt32.size) : UInt32 := ⟨⟨n, h⟩⟩
 abbrev Nat.toUInt32 := UInt32.ofNat
 @[extern c inline "#1 + #2"]
 def UInt32.add (a b : UInt32) : UInt32 := ⟨a.val + b.val⟩
@@ -215,7 +215,7 @@ def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
 instance (a b : UInt64) : Decidable (a < b) := UInt64.decLt a b
 instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 
-theorem usizeSzGt0 : usizeSz > 0 :=
+theorem usizeSzGt0 : USize.size > 0 :=
   Nat.posPowOfPos System.Platform.numBits (Nat.zeroLtSucc _)
 
 @[extern "lean_usize_of_nat"]

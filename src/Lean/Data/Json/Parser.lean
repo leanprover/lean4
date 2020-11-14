@@ -203,7 +203,7 @@ def num : Quickparse JsonNumber := do
     if c? = some '.' then
       skip
       let (n, d) ← natNumDigits
-      if d > usizeSz then fail "too many decimals"
+      if d > USize.size then fail "too many decimals"
       let mantissa' := res.mantissa * (10^d : Nat) + n
       let exponent' := res.exponent + d
       pure $ JsonNumber.mk mantissa' exponent'
@@ -220,7 +220,7 @@ def num : Quickparse JsonNumber := do
     else do
       if c = '+' then skip
       let n ← natMaybeZero
-      if n > usizeSz then fail "exp too large"
+      if n > USize.size then fail "exp too large"
       pure (res.shiftl n)
   else
     pure res

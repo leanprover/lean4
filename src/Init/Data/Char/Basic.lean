@@ -30,7 +30,7 @@ instance (a b : Char) : Decidable (a ≤ b) :=
 abbrev isValidCharNat (n : Nat) : Prop :=
   n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
-theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < uint32Sz := by
+theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < UInt32.size := by
   match h with
   | Or.inl h        =>
     apply Nat.ltTrans h

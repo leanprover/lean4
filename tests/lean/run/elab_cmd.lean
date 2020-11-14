@@ -5,7 +5,7 @@ import Lean
 open Lean.Elab.Term
 open Lean.Elab.Command
 
-elab "∃" b:term "," P:term : term => do
+elab "∃'" b:term "," P:term : term => do
  let ex ← `(Exists (fun $b => $P));
  elabTerm ex none
 
@@ -13,9 +13,9 @@ elab "#check2" b:term : command => do
   let cmd ← `(#check $b #check $b);
   elabCommand cmd
 
-#check ∃ x, x > 0
+#check ∃' x, x > 0
 
-#check ∃ (x : UInt32), x > 0
+#check ∃' (x : UInt32), x > 0
 
 #check2 10
 

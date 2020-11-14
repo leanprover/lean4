@@ -116,7 +116,7 @@ private partial def finalize
   loop (recursorInfo.paramsPos.length + 1) 0 recursor recursorType false #[]
 
 private def throwUnexpectedMajorType {α} (mvarId : MVarId) (majorType : Expr) : MetaM α :=
-  throwTacticEx `induction mvarId msg!"unexpected major premise type{indentExpr majorType}"
+  throwTacticEx `induction mvarId m!"unexpected major premise type{indentExpr majorType}"
 
 def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array (List Name) := #[]) (useUnusedNames := false) :
     MetaM (Array InductionSubgoal) :=
@@ -129,28 +129,28 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
       recursorInfo.paramsPos.forM fun paramPos? => do
         match paramPos? with
         | none          => pure ()
-        | some paramPos => if paramPos ≥ majorTypeArgs.size then throwTacticEx `induction mvarId msg!"major premise type is ill-formed{indentExpr majorType}"
+        | some paramPos => if paramPos ≥ majorTypeArgs.size then throwTacticEx `induction mvarId m!"major premise type is ill-formed{indentExpr majorType}"
       let mctx ← getMCtx
       let indices ← recursorInfo.indicesPos.toArray.mapM fun idxPos => do
-        if idxPos ≥ majorTypeArgs.size then throwTacticEx `induction mvarId msg!"major premise type is ill-formed{indentExpr majorType}"
+        if idxPos ≥ majorTypeArgs.size then throwTacticEx `induction mvarId m!"major premise type is ill-formed{indentExpr majorType}"
         let idx := majorTypeArgs.get! idxPos
-        unless idx.isFVar do throwTacticEx `induction mvarId msg!"major premise type index {idx} is not a variable{indentExpr majorType}"
+        unless idx.isFVar do throwTacticEx `induction mvarId m!"major premise type index {idx} is not a variable{indentExpr majorType}"
         majorTypeArgs.size.forM fun i => do
           let arg := majorTypeArgs[i]
           if i != idxPos && arg == idx then
-            throwTacticEx `induction mvarId msg!"'{idx}' is an index in major premise, but it occurs more than once{indentExpr majorType}"
+            throwTacticEx `induction mvarId m!"'{idx}' is an index in major premise, but it occurs more than once{indentExpr majorType}"
           if i < idxPos && mctx.exprDependsOn arg idx.fvarId! then
-            throwTacticEx `induction mvarId msg!"'{idx}' is an index in major premise, but it occurs in previous arguments{indentExpr majorType}"
+            throwTacticEx `induction mvarId m!"'{idx}' is an index in major premise, but it occurs in previous arguments{indentExpr majorType}"
           -- If arg is also and index and a variable occurring after `idx`, we need to make sure it doesn't depend on `idx`.
           -- Note that if `arg` is not a variable, we will fail anyway when we visit it.
           if i > idxPos && recursorInfo.indicesPos.contains i && arg.isFVar then
             let idxDecl ← getLocalDecl idx.fvarId!
             if mctx.localDeclDependsOn idxDecl arg.fvarId! then
-              throwTacticEx `induction mvarId msg!"'{idx}' is an index in major premise, but it depends on index occurring at position #{i+1}"
+              throwTacticEx `induction mvarId m!"'{idx}' is an index in major premise, but it depends on index occurring at position #{i+1}"
         pure idx
       let target ← getMVarType mvarId
       if !recursorInfo.depElim && mctx.exprDependsOn target majorFVarId then
-        throwTacticEx `induction mvarId msg!"recursor '{recursorName}' does not support dependent elimination, but conclusion depends on major premise"
+        throwTacticEx `induction mvarId m!"recursor '{recursorName}' does not support dependent elimination, but conclusion depends on major premise"
       -- Revert indices and major premise preserving variable order
       let (reverted, mvarId) ← revert mvarId ((indices.map Expr.fvarId!).push majorFVarId) true
       -- Re-introduce indices and major
@@ -187,7 +187,7 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
                     if idx ≥ majorTypeFnLevels.size then throwTacticEx `induction mvarId "ill-formed recursor"
                     pure (recursorLevels.push (majorTypeFnLevels.get! idx), foundTargetLevel)
             if !foundTargetLevel && !targetLevel.isZero then
-              throwTacticEx `induction mvarId msg!"recursor '{recursorName}' can only eliminate into Prop"
+              throwTacticEx `induction mvarId m!"recursor '{recursorName}' can only eliminate into Prop"
             let recursor := mkConst recursorName recursorLevels.toList
             let recursor ← addRecParams mvarId majorTypeArgs recursorInfo.paramsPos recursor
             -- Compute motive

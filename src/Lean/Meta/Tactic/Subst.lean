@@ -31,7 +31,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
         trace[Meta.Tactic.subst]! "substituting {a} (id: {aFVarId} with {b}"
         let mctx ← getMCtx
         if mctx.exprDependsOn b aFVarId then
-          throwTacticEx `subst mvarId msg!"'{a}' occurs at{indentExpr b}"
+          throwTacticEx `subst mvarId m!"'{a}' occurs at{indentExpr b}"
         let aLocalDecl ← getLocalDecl aFVarId
         let (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true
         let (twoVars, mvarId) ← introNP mvarId 2
@@ -98,7 +98,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
       | _ =>
         let eqMsg := if symm then "(t = x)" else "(x = t)"
         throwTacticEx `subst mvarId
-          msg!"invalid equality proof, it is not of the form {eqMsg}{indentExpr hLocalDecl.type}\nafter WHNF, variable expected, but obtained{indentExpr a}"
+          m!"invalid equality proof, it is not of the form {eqMsg}{indentExpr hLocalDecl.type}\nafter WHNF, variable expected, but obtained{indentExpr a}"
 
 def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
   withMVarContext mvarId do
@@ -113,7 +113,7 @@ def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
         if lhs.isFVar then
           (·.2) <$> substCore mvarId hFVarId
         else do
-          throwTacticEx `subst mvarId msg!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr hLocalDecl.type}"
+          throwTacticEx `subst mvarId m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr hLocalDecl.type}"
     | none =>
       let mctx ← getMCtx
       let lctx ← getLCtx
@@ -130,7 +130,7 @@ def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
              else
                pure none
            | _ => pure none
-        | throwTacticEx `subst mvarId msg!"did not find equation for eliminating '{mkFVar hFVarId}'"
+        | throwTacticEx `subst mvarId m!"did not find equation for eliminating '{mkFVar hFVarId}'"
       (·.2) <$> substCore mvarId fvarId symm
 
 builtin_initialize registerTraceClass `Meta.Tactic.subst

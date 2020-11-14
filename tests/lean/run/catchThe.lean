@@ -10,8 +10,8 @@ abbrev M := ExceptT String $ MetaM
 def testM {α} [BEq α] [ToString α] (x : M α) (expected : α)  : MetaM Unit := do
 let r ← x;
 match r with
-| Except.ok a    => unless a == expected do throwError msg!"unexpected result {a}"
-| Except.error e => throwError msg!"FAILED: {e}"
+| Except.ok a    => unless a == expected do throwError m!"unexpected result {a}"
+| Except.error e => throwError m!"FAILED: {e}"
 
 @[noinline] def act1 : M Nat :=
 throwThe Exception $ Exception.error Syntax.missing "Error at act1"

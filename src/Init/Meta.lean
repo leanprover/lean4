@@ -664,6 +664,11 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
     i := i+1
   return result
 
+def expandInterpolatedStr (interpStr : Syntax) (type : Syntax) (toTypeFn : Syntax) : MacroM Syntax := do
+  let ref := interpStr
+  let r ← expandInterpolatedStrChunks interpStr.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
+  `(($r : $type))
+
 def getSepArgs (stx : Syntax) : Array Syntax :=
   stx.getArgs.getSepElems
 

@@ -279,7 +279,7 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
     let majorType ← inferType major
     let majorType ← whnf majorType
     matchConstInduct majorType.getAppFn
-      (fun _ => Meta.throwTacticEx `induction mvarId msg!"major premise type is not an inductive type {indentExpr majorType}")
+      (fun _ => Meta.throwTacticEx `induction mvarId m!"major premise type is not an inductive type {indentExpr majorType}")
       (fun val _ => pure val)
 
 private partial def getRecFromUsingLoop (baseRecName : Name) (majorType : Expr) : TacticM (Option Meta.RecursorInfo) := do

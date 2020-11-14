@@ -62,7 +62,7 @@ private def infer (h : Expr) : MetaM Expr := do
   whnfD hType
 
 private def hasTypeMsg (e type : Expr) : MessageData :=
-  msg!"{indentExpr e}\nhas type{indentExpr type}"
+  m!"{indentExpr e}\nhas type{indentExpr type}"
 
 private def throwAppBuilderException {α} (op : Name) (msg : MessageData) : MetaM α :=
   throwError! "AppBuilder for '{op}', {msg}"
@@ -121,11 +121,11 @@ private def mkEqOfHEqImp (h : Expr) : MetaM Expr := do
   match hType.heq? with
   | some (α, a, β, b) =>
     unless (← isDefEq α β) do
-      throwAppBuilderException `eqOfHEq msg!"heterogeneous equality types are not definitionally equal{indentExpr α}\nis not definitionally equal to{indentExpr β}"
+      throwAppBuilderException `eqOfHEq m!"heterogeneous equality types are not definitionally equal{indentExpr α}\nis not definitionally equal to{indentExpr β}"
     let u ← getLevel α
     pure $ mkApp4 (mkConst `eqOfHEq [u]) α a b h
   | _ =>
-    throwAppBuilderException `HEq.trans msg!"heterogeneous equality proof expected{indentExpr h}"
+    throwAppBuilderException `HEq.trans m!"heterogeneous equality proof expected{indentExpr h}"
 def mkEqOfHEq (h : Expr) : m Expr :=
   liftMetaM $ mkEqOfHEqImp h
 
@@ -209,7 +209,7 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
         if type.isForall then
           loop type i args.size args instMVars
         else
-          throwAppBuilderException `mkAppM msg!"too many explicit arguments provided to{indentExpr f}\narguments{indentD xs}"
+          throwAppBuilderException `mkAppM m!"too many explicit arguments provided to{indentExpr f}\narguments{indentD xs}"
   loop fType 0 0 #[] #[]
 
 private def mkFun (constName : Name) : MetaM (Expr × Expr) := do

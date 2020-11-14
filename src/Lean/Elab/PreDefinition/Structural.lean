@@ -117,7 +117,7 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
                        indParams   := indParams,
                        indIndices  := indIndices,
                        reflexive := indInfo.isReflexive })
-                    (fun msg => msg!"argument #{i+1} was not used for structural recursion{indentD msg}"))
+                    (fun msg => m!"argument #{i+1} was not used for structural recursion{indentD msg}"))
                   (loop (i+1))
     else
       throwStructuralFailed
@@ -352,7 +352,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
     throwError "structural recursion does not handle mutually recursive functions"
   else do
     let preDefNonRec ← elimRecursion preDefs[0]
-    mapError (addNonRec preDefNonRec) (fun msg => msg!"structural recursion failed, produced type incorrect term{indentD msg}")
+    mapError (addNonRec preDefNonRec) (fun msg => m!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompileUnsafeRec preDefs
 
 builtin_initialize

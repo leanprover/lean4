@@ -24,15 +24,15 @@ def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr) (symm : Bool := false) (oc
     let heq := mkAppN heq newMVars
     let cont (heq heqType : Expr) : MetaM RewriteResult := do
       match (← matchEq? heqType) with
-      | none => throwTacticEx `rewrite mvarId msg!"equality or iff proof expected{indentExpr heqType}"
+      | none => throwTacticEx `rewrite mvarId m!"equality or iff proof expected{indentExpr heqType}"
       | some (α, lhs, rhs) =>
         let cont (heq heqType lhs rhs : Expr) : MetaM RewriteResult := do
           if lhs.getAppFn.isMVar then
-            throwTacticEx `rewrite mvarId msg!"pattern is a metavariable{indentExpr lhs}\nfrom equation{indentExpr heqType}"
+            throwTacticEx `rewrite mvarId m!"pattern is a metavariable{indentExpr lhs}\nfrom equation{indentExpr heqType}"
           let e ← instantiateMVars e
           let eAbst ← kabstract e lhs occs
           unless eAbst.hasLooseBVars do
-            throwTacticEx `rewrite mvarId msg!"did not find instance of the pattern in the target expression{indentExpr lhs}"
+            throwTacticEx `rewrite mvarId m!"did not find instance of the pattern in the target expression{indentExpr lhs}"
           -- construct rewrite proof
           let eNew := eAbst.instantiate1 rhs
           let eNew ← instantiateMVars eNew

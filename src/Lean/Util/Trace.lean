@@ -146,7 +146,7 @@ syntax "trace[" ident "]!" (interpolatedStr(term) <|> term) : term
 macro_rules
   | `(trace[$id]! $s) =>
     if s.getKind == interpolatedStrKind then
-      `(Lean.trace $(quote id.getId) fun _ => msg! $s)
+      `(Lean.trace $(quote id.getId) fun _ => m! $s)
     else
       `(Lean.trace $(quote id.getId) fun _ => ($s : MessageData))
 
@@ -170,7 +170,7 @@ def withNestedTraces [MonadFinally m] (x : m α) : m α := do
           currTraces ++ traces -- No nest of nest
         else
           let d := traces.foldl (init := MessageData.nil) fun d elem =>
-            if d.isNil then elem.msg else msg!"{d}\n{elem.msg}"
+            if d.isNil then elem.msg else m!"{d}\n{elem.msg}"
           currTraces.push { ref := ref, msg := MessageData.nestD d }
 
 end Lean

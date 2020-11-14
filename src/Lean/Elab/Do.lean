@@ -163,19 +163,19 @@ private def varsToMessageData (vars : Array Name) : MessageData :=
 partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
   let us := MessageData.ofList $ (nameSetToArray codeBlock.uvars).toList.map MessageData.ofName
   let rec loop : Code → MessageData
-    | Code.decl xs _ k            => msg!"let {varsToMessageData xs} := ...\n{loop k}"
-    | Code.reassign xs _ k        => msg!"{varsToMessageData xs} := ...\n{loop k}"
-    | Code.joinpoint n ps body k  => msg!"let {n.simpMacroScopes} {varsToMessageData (ps.map Prod.fst)} := {indentD (loop body)}\n{loop k}"
-    | Code.seq e k                => msg!"{e}\n{loop k}"
+    | Code.decl xs _ k            => m!"let {varsToMessageData xs} := ...\n{loop k}"
+    | Code.reassign xs _ k        => m!"{varsToMessageData xs} := ...\n{loop k}"
+    | Code.joinpoint n ps body k  => m!"let {n.simpMacroScopes} {varsToMessageData (ps.map Prod.fst)} := {indentD (loop body)}\n{loop k}"
+    | Code.seq e k                => m!"{e}\n{loop k}"
     | Code.action e               => e
-    | Code.ite _ _ _ c t e        => msg!"if {c} then {indentD (loop t)}\nelse{loop e}"
-    | Code.jmp _ j xs             => msg!"jmp {j.simpMacroScopes} {xs.toList}"
-    | Code.«break» _              => msg!"break {us}"
-    | Code.«continue» _           => msg!"continue {us}"
-    | Code.«return» _ v           => msg!"return {v} {us}"
+    | Code.ite _ _ _ c t e        => m!"if {c} then {indentD (loop t)}\nelse{loop e}"
+    | Code.jmp _ j xs             => m!"jmp {j.simpMacroScopes} {xs.toList}"
+    | Code.«break» _              => m!"break {us}"
+    | Code.«continue» _           => m!"continue {us}"
+    | Code.«return» _ v           => m!"return {v} {us}"
     | Code.«match» _ ds t alts    =>
-      msg!"match {ds} with"
-      ++ alts.foldl (init := "") fun acc alt => acc ++ msg!"\n| {alt.patterns} => {loop alt.rhs}"
+      m!"match {ds} with"
+      ++ alts.foldl (init := "") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
   loop codeBlock.code
 
 /- Return true if the give code contains an exit point that satisfies `p` -/

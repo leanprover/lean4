@@ -364,7 +364,7 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := d
         msg ++ " " ++ arg.getAppFn
       else
         msg ++ " …"
-    let msg : MessageData := msg!"don't know how to synthesize implicit argument{indentD msg}"
+    let msg : MessageData := m!"don't know how to synthesize implicit argument{indentD msg}"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
     logErrorAt mvarErrorInfo.ref msg
   | MVarErrorKind.hole => do
@@ -480,9 +480,9 @@ def applyAttributes (declName : Name) (attrs : Array Attribute) (persistent : Bo
 
 def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (expectedType : Expr) : MessageData :=
   let header : MessageData := match header? with
-    | some header => msg!"{header} has type"
-    | none        => msg!"type mismatch{indentExpr e}\nhas type"
-  msg!"{header}{indentExpr eType}\nbut is expected to have type{indentExpr expectedType}"
+    | some header => m!"{header} has type"
+    | none        => m!"type mismatch{indentExpr e}\nhas type"
+  m!"{header}{indentExpr eType}\nbut is expected to have type{indentExpr expectedType}"
 
 def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=

@@ -24,7 +24,7 @@ private def getExpectedNumArgs (e : Expr) : MetaM Nat := do
   pure numArgs
 
 private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α :=
-  throwTacticEx `apply mvarId msg!"failed to unify{indentExpr eType}\nwith{indentExpr targetType}"
+  throwTacticEx `apply mvarId m!"failed to unify{indentExpr eType}\nwith{indentExpr targetType}"
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit :=
   newMVars.size.forM fun i => do

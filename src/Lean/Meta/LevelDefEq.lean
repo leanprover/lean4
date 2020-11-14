@@ -227,7 +227,7 @@ private def restore (env : Environment) (mctx : MetavarContext) (postponed : Per
 private def postponedToMessageData (ps : PersistentArray PostponedEntry) : MessageData := do
   let mut r := MessageData.nil
   for p in ps do
-    r := msg!"{r}\n{p.lhs} =?= {p.rhs}"
+    r := m!"{r}\n{p.lhs} =?= {p.rhs}"
   pure r
 
 @[specialize] def withoutPostponingUniverseConstraintsImp {α} (x : MetaM α) : MetaM α := do

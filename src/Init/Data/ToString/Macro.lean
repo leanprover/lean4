@@ -10,7 +10,4 @@ import Init.Data.ToString.Basic
 syntax:max "s!" interpolatedStr(term) : term
 
 macro_rules
-  | `(s! $interpStr) => do
-    let chunks := interpStr.getArgs
-    let r ← Lean.Syntax.expandInterpolatedStrChunks chunks (fun a b => `($a ++ $b)) (fun a => `(toString $a))
-    `(($r : String))
+  | `(s! $interpStr) => do interpStr.expandInterpolatedStr (← `(String)) (← `(toString))

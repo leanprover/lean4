@@ -47,7 +47,7 @@ def throwError {α} (msg : MessageData) : m α := do
   throw $ Exception.error ref msg
 
 def throwUnknownConstant {α} (constName : Name) : m α :=
-  throwError msg!"unknown constant '{mkConst constName}'"
+  throwError m!"unknown constant '{mkConst constName}'"
 
 def throwErrorAt {α} (ref : Syntax) (msg : MessageData) : m α := do
   withRef ref $ throwError msg
@@ -89,14 +89,14 @@ syntax "throwErrorAt! " term:max (interpolatedStr(term) <|> term) : term
 macro_rules
   | `(throwError! $msg) =>
     if msg.getKind == interpolatedStrKind then
-      `(throwError (msg! $msg))
+      `(throwError (m! $msg))
     else
       `(throwError $msg)
 
 macro_rules
   | `(throwErrorAt! $ref $msg) =>
     if msg.getKind == interpolatedStrKind then
-      `(throwErrorAt $ref (msg! $msg))
+      `(throwErrorAt $ref (m! $msg))
     else
       `(throwErrorAt $ref $msg)
 

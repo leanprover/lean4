@@ -29,13 +29,13 @@ namespace Pattern
 instance : Inhabited Pattern := ⟨Pattern.inaccessible (arbitrary _)⟩
 
 partial def toMessageData : Pattern → MessageData
-  | inaccessible e         => msg!".({e})"
+  | inaccessible e         => m!".({e})"
   | var varId              => mkFVar varId
   | ctor ctorName _ _ []   => ctorName
-  | ctor ctorName _ _ pats => msg!"({ctorName}{pats.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil})"
+  | ctor ctorName _ _ pats => m!"({ctorName}{pats.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil})"
   | val e                  => e
-  | arrayLit _ pats        => msg!"#[{MessageData.joinSep (pats.map toMessageData) ", "}]"
-  | as varId p             => msg!"{mkFVar varId}@{toMessageData p}"
+  | arrayLit _ pats        => m!"#[{MessageData.joinSep (pats.map toMessageData) ", "}]"
+  | as varId p             => m!"{mkFVar varId}@{toMessageData p}"
 
 partial def toExpr : Pattern → MetaM Expr
   | inaccessible e                 => pure e
@@ -176,7 +176,7 @@ def checkAndReplaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : MetaM Alt :
     unless (← isDefEqGuarded fvarDecl.type vType) do
       withExistingLocalDecls alt.fvarDecls do
         throwErrorAt alt.ref $
-          msg!"type mismatch during dependent match-elimination at pattern variable '{mkFVar fvarDecl.fvarId}' with type{indentExpr fvarDecl.type}\nexpected type{indentExpr vType}"
+          m!"type mismatch during dependent match-elimination at pattern variable '{mkFVar fvarDecl.fvarId}' with type{indentExpr fvarDecl.type}\nexpected type{indentExpr vType}"
     pure $ replaceFVarId fvarId v alt
 
 end Alt

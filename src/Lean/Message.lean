@@ -290,12 +290,9 @@ instance {α} [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMe
 instance {α} [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
 instance : ToMessageData (Option Expr) := ⟨fun | none => "<not-available>" | some e => toMessageData e⟩
 
-syntax:max "msg!" interpolatedStr(term) : term
+syntax:max "m!" interpolatedStr(term) : term
 
 macro_rules
-  | `(msg! $interpStr) => do
-    let chunks := interpStr.getArgs
-    let r ← Lean.Syntax.expandInterpolatedStrChunks chunks (fun a b => `($a ++ $b)) (fun a => `(toMessageData $a))
-    `(($r : MessageData))
+  | `(m! $interpStr) => do interpStr.expandInterpolatedStr (← `(MessageData)) (← `(toMessageData))
 
 end Lean

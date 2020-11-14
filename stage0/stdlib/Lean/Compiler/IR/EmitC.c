@@ -498,7 +498,6 @@ lean_object* l_Lean_IR_EmitC_emitApp(lean_object*, lean_object*, lean_object*, l
 lean_object* l_List_forM___at_Lean_IR_EmitC_emitFnDecls___spec__3___closed__2;
 lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitArgs___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldM_loop___at_Lean_IR_EmitC_emitSimpleExternalCall___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_uint32Sz;
 lean_object* l_Nat_foldM_loop___at_Lean_IR_EmitC_emitSimpleExternalCall___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitTag(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitDecl(lean_object*, lean_object*, lean_object*);
@@ -542,6 +541,7 @@ lean_object* l_Lean_IR_EmitC_emitSProj_match__1(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFullApp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__12;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_2679____closed__2;
+extern lean_object* l_UInt32_size;
 lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_getJPParams___closed__1;
 lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
@@ -9462,7 +9462,7 @@ return x_9;
 else
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_uint32Sz;
+x_10 = l_UInt32_size;
 x_11 = lean_nat_dec_lt(x_2, x_10);
 if (x_11 == 0)
 {

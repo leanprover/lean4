@@ -311,6 +311,14 @@ find_package(PythonInterp)
 
 include_directories(${CMAKE_BINARY_DIR}/include)
 
+# libleancpp and the stdlib libraries are cyclically dependent. This works by default on macOS, which also doesn't like
+# the linker flags necessary on other platforms.
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean")
+else()
+  set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lInit -lStd -lLean -Wl,--end-group")
+endif()
+
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -fPIC")
 endif()

@@ -16,9 +16,7 @@ bindir=$(dirname $0)
 
 cflags=("-I$bindir/../include")
 ldflags=("-L$bindir/../lib/lean" "-lgmp" @LEANC_EXTRA_FLAGS@)
-# static linker flags
-# NOTE: libleancpp and libInit are cyclically dependent
-ldflags_ext=("-lleancpp" "-lInit" "-lStd" "-lLean" "-lleancpp" "-lInit" "-lStd" "-lLean" "-lStd")
+ldflags_ext=(@LEANC_STATIC_LINKER_FLAGS@)
 for arg in "$@"; do
     # passed -shared ~> switch to shared linker flags
     [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@)

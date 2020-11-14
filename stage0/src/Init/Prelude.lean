@@ -596,9 +596,14 @@ instance {n} : HasLessEq (Fin n)  := ⟨Fin.le⟩
 instance Fin.decLt {n} (a b : Fin n) :  Decidable (Less a b)  := Nat.decLt ..
 instance Fin.decLe {n} (a b : Fin n) : Decidable (LessEq a b) := Nat.decLe ..
 
-def uint8Sz : Nat := 256
+def UInt8.size : Nat := 256
 structure UInt8 :=
-  (val : Fin uint8Sz)
+  (val : Fin UInt8.size)
+
+@[extern "lean_uint8_of_nat"]
+def UInt8.ofNatCore (n : @& Nat) (h : Less n UInt8.size) : UInt8 := {
+  val := { val := n, isLt := h }
+}
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
@@ -610,12 +615,17 @@ def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
 instance : DecidableEq UInt8 := UInt8.decEq
 
 instance : Inhabited UInt8 := {
-  default := { val := { val := 0, isLt := decide! } }
+  default := UInt8.ofNatCore 0 decide!
 }
 
-def uint16Sz : Nat := 65536
+def UInt16.size : Nat := 65536
 structure UInt16 :=
-  (val : Fin uint16Sz)
+  (val : Fin UInt16.size)
+
+@[extern "lean_uint16_of_nat"]
+def UInt16.ofNatCore (n : @& Nat) (h : Less n UInt16.size) : UInt16 := {
+  val := { val := n, isLt := h }
+}
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
@@ -627,12 +637,17 @@ def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
 instance : DecidableEq UInt16 := UInt16.decEq
 
 instance : Inhabited UInt16 := {
-  default := { val := { val := 0, isLt := decide! } }
+  default := UInt16.ofNatCore 0 decide!
 }
 
-def uint32Sz : Nat := 4294967296
+def UInt32.size : Nat := 4294967296
 structure UInt32 :=
-  (val : Fin uint32Sz)
+  (val : Fin UInt32.size)
+
+@[extern "lean_uint32_of_nat"]
+def UInt32.ofNatCore (n : @& Nat) (h : Less n UInt32.size) : UInt32 := {
+  val := { val := n, isLt := h }
+}
 
 @[extern "lean_uint32_to_nat"]
 def UInt32.toNat (n : UInt32) : Nat := n.val.val
@@ -647,7 +662,7 @@ def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
 instance : DecidableEq UInt32 := UInt32.decEq
 
 instance : Inhabited UInt32 := {
-  default := { val := { val := 0, isLt := decide! } }
+  default := UInt32.ofNatCore 0 decide!
 }
 
 def UInt32.lt (a b : UInt32) : Prop := Less a.val b.val
@@ -671,14 +686,14 @@ def UInt32.decLe (a b : UInt32) : Decidable (LessEq a b) :=
 instance (a b : UInt32) : Decidable (Less a b) := UInt32.decLt a b
 instance (a b : UInt32) : Decidable (LessEq a b) := UInt32.decLe a b
 
-@[extern "lean_uint32_of_nat"]
-def UInt32.ofNatCore (n : @& Nat) (h : Less n uint32Sz) : UInt32 := {
+def UInt64.size : Nat := 18446744073709551616
+structure UInt64 :=
+  (val : Fin UInt64.size)
+
+@[extern "lean_uint64_of_nat"]
+def UInt64.ofNatCore (n : @& Nat) (h : Less n UInt64.size) : UInt64 := {
   val := { val := n, isLt := h }
 }
-
-def uint64Sz : Nat := 18446744073709551616
-structure UInt64 :=
-  (val : Fin uint64Sz)
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
@@ -690,19 +705,24 @@ def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
 instance : DecidableEq UInt64 := UInt64.decEq
 
 instance : Inhabited UInt64 := {
-  default := { val := { val := 0, isLt := decide! } }
+  default := UInt64.ofNatCore 0 decide!
 }
 
-def usizeSz : Nat := pow 2 System.Platform.numBits
+def USize.size : Nat := pow 2 System.Platform.numBits
 
-theorem usizeSzEq : Or (Eq usizeSz 4294967296) (Eq usizeSz 18446744073709551616) :=
+theorem usizeSzEq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
   show Or (Eq (pow 2 System.Platform.numBits) 4294967296) (Eq (pow 2 System.Platform.numBits) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBitsEq with
   | _, Or.inl rfl => Or.inl (decide! : (Eq (pow 2 32) (4294967296:Nat)))
   | _, Or.inr rfl => Or.inr (decide! : (Eq (pow 2 64) (18446744073709551616:Nat)))
 
 structure USize :=
-  (val : Fin usizeSz)
+  (val : Fin USize.size)
+
+@[extern "lean_usize_of_nat"]
+def USize.ofNatCore (n : @& Nat) (h : Less n USize.size) : USize := {
+  val := { val := n, isLt := h }
+}
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 == #2"]
@@ -714,22 +734,17 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
 instance : DecidableEq USize := USize.decEq
 
 instance : Inhabited USize := {
-  default := { val := { val := 0, isLt := match usizeSz, usizeSzEq with | _, Or.inl rfl => decide! | _, Or.inr rfl => decide! } }
+  default := USize.ofNatCore 0 (match USize.size, usizeSzEq with | _, Or.inl rfl => decide! | _, Or.inr rfl => decide!)
 }
 
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : Less n 4294967296) : USize := {
   val := {
     val  := n,
-    isLt := match usizeSz, usizeSzEq with
+    isLt := match USize.size, usizeSzEq with
       | _, Or.inl rfl => h
       | _, Or.inr rfl => Nat.ltTrans h (decide! : Less 4294967296 18446744073709551616)
   }
-}
-
-@[extern "lean_usize_of_nat"]
-def USize.ofNatCore (n : @& Nat) (h : Less n usizeSz) : USize := {
-  val := { val := n, isLt := h }
 }
 
 abbrev Nat.isValidChar (n : Nat) : Prop :=
@@ -744,10 +759,10 @@ structure Char :=
   (val   : UInt32)
   (valid : val.isValidChar)
 
-private theorem validCharIsUInt32 {n : Nat} (h : n.isValidChar) : Less n uint32Sz :=
+private theorem validCharIsUInt32 {n : Nat} (h : n.isValidChar) : Less n UInt32.size :=
   match h with
-  | Or.inl h      => Nat.ltTrans h (decide! : Less 55296 uint32Sz)
-  | Or.inr ⟨_, h⟩ => Nat.ltTrans h (decide! : Less 1114112 uint32Sz)
+  | Or.inl h      => Nat.ltTrans h (decide! : Less 55296 UInt32.size)
+  | Or.inr ⟨_, h⟩ => Nat.ltTrans h (decide! : Less 1114112 UInt32.size)
 
 @[extern "lean_uint32_of_nat"]
 private def Char.ofNatAux (n : Nat) (h : n.isValidChar) : Char :=
@@ -1366,7 +1381,7 @@ def mkStr (p : Name) (s : String) : Name :=
 
 @[export lean_name_mk_numeral]
 def mkNum (p : Name) (v : Nat) : Name :=
-  Name.num p v (mixHash (hash p) (dite (Less v usizeSz) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 decide!)))
+  Name.num p v (mixHash (hash p) (dite (Less v USize.size) (fun h => USize.ofNatCore v h) (fun _ => USize.ofNat32 17 decide!)))
 
 def mkSimple (s : String) : Name :=
   mkStr Name.anonymous s

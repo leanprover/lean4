@@ -479,6 +479,7 @@ lean_object* l_Std_PersistentArray_stats___rarg(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_toPersistentArray___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Std_PersistentArray_toList___spec__3(lean_object*);
+extern lean_object* l_USize_size;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Std_PersistentArray_filter___spec__10(lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___rarg(lean_object*, lean_object*, lean_object*);
@@ -536,7 +537,6 @@ lean_object* l_Std_PersistentArray_push(lean_object*);
 lean_object* l_Std_PersistentArray_findSomeM_x3f___at_Std_PersistentArray_findSome_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_findSomeMAux___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_usizeSz;
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_foldl___spec__8___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_modifyAux_match__1(lean_object*, lean_object*);
@@ -2090,7 +2090,7 @@ static lean_object* _init_l_Std_PersistentArray_tooBig___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_usizeSz;
+x_1 = l_USize_size;
 x_2 = lean_unsigned_to_nat(8u);
 x_3 = lean_nat_div(x_1, x_2);
 return x_3;

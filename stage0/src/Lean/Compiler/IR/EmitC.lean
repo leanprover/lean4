@@ -474,7 +474,7 @@ def quoteString (s : String) : String :=
 
 def emitNumLit (t : IRType) (v : Nat) : M Unit := do
   if t.isObj then
-    if v < uint32Sz then
+    if v < UInt32.size then
       emit "lean_unsigned_to_nat("; emit v; emit "u)"
     else
       emit "lean_cstr_to_nat(\""; emit v; emit "\")"

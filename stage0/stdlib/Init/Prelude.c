@@ -34,7 +34,7 @@ lean_object* l_EStateM_tryCatch(lean_object*, lean_object*, lean_object*);
 lean_object* l_UInt32_decLe___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Prelude_0__String_utf8ByteSizeAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
-lean_object* l_Init_Prelude___instance__32;
+uint64_t l_Init_Prelude___instance__32;
 lean_object* l_withTheReader(lean_object*, lean_object*);
 lean_object* l_Nat_sub___boxed(lean_object*, lean_object*);
 lean_object* l_Functor_mapConst___default(lean_object*);
@@ -74,6 +74,7 @@ lean_object* l_String_mk___boxed(lean_object*);
 lean_object* l_Nat_decEq_match__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_read___at_Lean_Macro_Init_Prelude___instance__79___spec__1(lean_object*, lean_object*);
 lean_object* l_getModify___rarg___lambda__1(lean_object*, lean_object*);
+uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_EStateM_Init_Prelude___instance__63___closed__6;
 lean_object* l_String_utf8ByteSize_match__1(lean_object*);
 lean_object* l_Lean_Name_Init_Prelude___instance__70;
@@ -90,7 +91,8 @@ lean_object* l_Lean_Macro_Init_Prelude___instance__80___lambda__1___boxed(lean_o
 lean_object* l_Lean_Syntax_getKind_match__1(lean_object*);
 lean_object* l_ReaderT_Init_Prelude___instance__49___closed__1;
 lean_object* l_Init_Prelude___instance__6(lean_object*, lean_object*);
-lean_object* l_Init_Prelude___instance__32___closed__1;
+lean_object* l_UInt64_size___closed__1;
+uint64_t l_Init_Prelude___instance__32___closed__1;
 lean_object* l_ReaderT_map___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Prelude___instance__51___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withRef___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -108,6 +110,7 @@ lean_object* l_Lean_Macro_Init_Prelude___instance__79___closed__4;
 lean_object* l_Lean_Macro_Init_Prelude___instance__80___closed__1;
 lean_object* l_List_foldl___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_run(lean_object*, lean_object*, lean_object*);
+lean_object* l_UInt8_size;
 lean_object* l_EStateM_Init_Prelude___instance__63___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__44___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -155,6 +158,7 @@ lean_object* l_Lean_addMacroScope_match__2___rarg___boxed(lean_object*, lean_obj
 lean_object* l_Lean_Init_Prelude___instance__72;
 lean_object* l_Init_Prelude___instance__8(lean_object*);
 lean_object* l_Lean_Macro_withFreshMacroScope(lean_object*);
+lean_object* l_USize_size___closed__1;
 lean_object* l_Init_Prelude___instance__16;
 lean_object* l_ReaderT_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__54___rarg(lean_object*, lean_object*);
@@ -185,7 +189,6 @@ lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_cond_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_readThe___rarg___boxed(lean_object*);
 lean_object* l_Lean_Macro_Context_currRecDepth___default;
-lean_object* l_uint64Sz___closed__1;
 lean_object* l_Applicative_seqRight___default(lean_object*);
 lean_object* l_Init_Prelude___instance__38(lean_object*);
 lean_object* l_EStateM_adaptExcept(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -193,15 +196,15 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_cond___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_List_hasDecEq_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_adapt___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_UInt8_ofNatCore___boxed(lean_object*, lean_object*);
 lean_object* l_False_elim(lean_object*, uint8_t);
 lean_object* l_Init_Prelude___instance__43___rarg___boxed(lean_object*);
 lean_object* l_cond_match__1(lean_object*, lean_object*);
-lean_object* l_Init_Prelude___instance__34;
+size_t l_Init_Prelude___instance__34;
 lean_object* l_EStateM_dummySave___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_nameLitKind;
 lean_object* l_cond(lean_object*);
 lean_object* l_EStateM_dummyRestore(lean_object*);
-lean_object* l_uint64Sz;
 lean_object* l_Applicative_map___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Init_Prelude___instance__74;
 uint8_t l_Init_Prelude___instance__33(size_t, size_t);
@@ -245,7 +248,7 @@ lean_object* l_Lean_addMacroScope_match__1(lean_object*);
 lean_object* l_EStateM_Init_Prelude___instance__65(lean_object*, lean_object*);
 lean_object* l_getThe___rarg(lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_extractMacroScopesAux(lean_object*, lean_object*);
-lean_object* l_Init_Prelude___instance__24;
+uint16_t l_Init_Prelude___instance__24;
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 lean_object* l_Init_Prelude___instance__48___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__59___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -319,7 +322,6 @@ lean_object* l_Init_Prelude___instance__18_match__1___boxed(lean_object*, lean_o
 uint32_t l_Char_utf8Size___closed__2;
 lean_object* l_Lean_replaceRef_match__1(lean_object*);
 lean_object* l_EStateM_Init_Prelude___instance__63___closed__3;
-lean_object* l_uint16Sz;
 lean_object* l_Init_Prelude___instance__12___closed__1;
 lean_object* l_modify(lean_object*, lean_object*);
 lean_object* l_Lean_Init_Prelude___instance__69___closed__1;
@@ -333,7 +335,7 @@ lean_object* l_Init_Prelude___instance__45___rarg(lean_object*);
 lean_object* l_Lean_firstFrontendMacroScope___closed__1;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_Init_Prelude___instance__24___closed__1;
+uint16_t l_Init_Prelude___instance__24___closed__1;
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 lean_object* l_Lean_numLitKind___closed__1;
 lean_object* l_List_hasDecEq_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -377,7 +379,7 @@ lean_object* l_ReaderT_bind(lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__35___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__11;
 lean_object* l_EStateM_modifyGet(lean_object*, lean_object*, lean_object*);
-lean_object* l_Init_Prelude___instance__22___closed__1;
+uint8_t l_Init_Prelude___instance__22___closed__1;
 lean_object* l_Array_mkEmpty___boxed(lean_object*, lean_object*);
 lean_object* l_EStateM_nonBacktrackable___closed__1;
 lean_object* l_Lean_choiceKind;
@@ -391,7 +393,7 @@ lean_object* l_Init_Prelude___instance__2(lean_object*, lean_object*);
 lean_object* l_Lean_Macro_Init_Prelude___instance__80___closed__4;
 lean_object* l_Init_Prelude___instance__11___closed__1;
 size_t lean_usize_of_nat(lean_object*);
-lean_object* l_Init_Prelude___instance__26___closed__1;
+uint32_t l_Init_Prelude___instance__26___closed__1;
 lean_object* l_ReaderT_Init_Prelude___instance__50___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_read___rarg(lean_object*, lean_object*);
 lean_object* l_inferInstance___rarg___boxed(lean_object*);
@@ -413,6 +415,7 @@ lean_object* l_EStateM_nonBacktrackable___closed__2;
 lean_object* l_Lean_Macro_withIncRecDepth_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__13;
 lean_object* l_ReaderT_Init_Prelude___instance__51___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_UInt16_size;
 lean_object* l_Lean_Syntax_getHeadInfo_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_UInt32_ofNatCore___boxed(lean_object*, lean_object*);
 lean_object* l_decEq(lean_object*);
@@ -454,6 +457,7 @@ uint8_t l_or(uint8_t, uint8_t);
 lean_object* l_Monad_map___default(lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Macro_Init_Prelude___instance__79___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_add___boxed(lean_object*, lean_object*);
+lean_object* l_UInt64_ofNatCore___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_nullKind___closed__1;
 lean_object* l_Lean_SourceInfo_pos___default;
 lean_object* l_Init_Prelude___instance__57___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -470,7 +474,6 @@ lean_object* l_ReaderT_Init_Prelude___instance__49(lean_object*, lean_object*);
 lean_object* l_Nat_decEq_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs_match__1(lean_object*);
 lean_object* l_Lean_SourceInfo_leading___default;
-lean_object* l_uint8Sz;
 lean_object* l_UInt16_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_typedExpr___rarg(lean_object*);
 lean_object* l_Init_Prelude___instance__15;
@@ -486,7 +489,7 @@ lean_object* l_Init_Prelude___instance__55___rarg(lean_object*);
 lean_object* l_Lean_replaceRef___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_read(lean_object*, lean_object*);
-lean_object* l_Init_Prelude___instance__34___closed__1;
+size_t l_Init_Prelude___instance__34___closed__1;
 lean_object* l_Lean_Syntax_getHeadInfo_loop(lean_object*, lean_object*);
 lean_object* l_Eq_ndrec___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_and___boxed(lean_object*, lean_object*);
@@ -509,7 +512,7 @@ uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l___private_Init_Prelude_0__Lean_extractMainModule_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_nonBacktrackable___closed__3;
 lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux(lean_object*);
-lean_object* l_Init_Prelude___instance__26;
+uint32_t l_Init_Prelude___instance__26;
 lean_object* l_Init_Prelude___instance__27;
 lean_object* l_Lean_Syntax_setKind_match__1(lean_object*);
 lean_object* l_Init_Prelude___instance__12;
@@ -531,7 +534,7 @@ lean_object* l_Init_Prelude___instance__7(lean_object*, lean_object*);
 lean_object* l_Monad_seqRight___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*, lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux_match__2(lean_object*);
-lean_object* l_Init_Prelude___instance__22;
+uint8_t l_Init_Prelude___instance__22;
 lean_object* l_tryCatchThe(lean_object*, lean_object*);
 lean_object* l_String_bsize(lean_object*);
 lean_object* l_Init_Prelude___instance__39___boxed(lean_object*, lean_object*);
@@ -546,7 +549,6 @@ lean_object* l_Lean_Macro_withIncRecDepth(lean_object*);
 lean_object* l_Lean_Name_append_match__1(lean_object*);
 lean_object* l_and_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_withIncRecDepth_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_usizeSz___closed__1;
 lean_object* l_ReaderT_Init_Prelude___instance__50___rarg(lean_object*);
 lean_object* l___private_Init_Prelude_0__Char_ofNatAux___boxed(lean_object*, lean_object*);
 lean_object* l_EStateM_adaptExcept___rarg(lean_object*, lean_object*, lean_object*);
@@ -607,7 +609,6 @@ lean_object* l_Init_Prelude___instance__35_match__1___boxed(lean_object*, lean_o
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos(lean_object*);
 lean_object* l_throwThe___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_uint32Sz;
 lean_object* l_UInt32_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_cast(lean_object*, lean_object*, lean_object*);
@@ -618,12 +619,14 @@ lean_object* l_EStateM_set___rarg(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Lean_MacroScopesView_review___spec__1(lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Decidable_decide___rarg___boxed(lean_object*);
+lean_object* l_USize_size;
 lean_object* l_Lean_Name_hasMacroScopes_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orElse(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_cond___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_Init_Prelude___instance__80___lambda__2(lean_object*, lean_object*);
 lean_object* l_getModify___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
+lean_object* l_Char_ofNat___closed__1;
 lean_object* l_Function_const(lean_object*, lean_object*);
 lean_object* l_Lean_Init_Prelude___instance__74___closed__2;
 lean_object* l_ReaderT_map(lean_object*, lean_object*);
@@ -636,6 +639,7 @@ lean_object* l_ReaderT_Init_Prelude___instance__51___rarg___lambda__6(lean_objec
 lean_object* l_EStateM_Init_Prelude___instance__63___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_hasDecEq_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_getOp___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t lean_uint8_of_nat(lean_object*);
 lean_object* l_Fin_decLe___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_modifyGetThe(lean_object*, lean_object*, lean_object*);
 lean_object* l_cond_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -643,12 +647,14 @@ lean_object* l_List_hasDecEq_match__3(lean_object*, lean_object*);
 lean_object* l_Lean_Init_Prelude___instance__73;
 lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___boxed(lean_object*);
 lean_object* l_Init_Prelude___instance__55(lean_object*, lean_object*);
+lean_object* l_UInt16_ofNatCore___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__6_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_Macro_Init_Prelude___instance__79___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_data(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__29___boxed(lean_object*, lean_object*);
 size_t lean_usize_mix_hash(size_t, size_t);
+lean_object* l_UInt32_size;
 lean_object* l_List_hasDecEq_match__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_USize_ofNatCore___boxed(lean_object*, lean_object*);
 lean_object* l_MonadExcept_orelse(lean_object*, lean_object*);
@@ -675,7 +681,6 @@ lean_object* l_Init_Prelude___instance__8_match__1(lean_object*, lean_object*);
 lean_object* l_or_match__1(lean_object*);
 lean_object* l_id(lean_object*);
 lean_object* l_Init_Prelude___instance__41(lean_object*, lean_object*);
-lean_object* l_usizeSz;
 lean_object* l___private_Init_Prelude_0__Lean_assembleParts___closed__1;
 lean_object* l_Lean_Syntax_getOp___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__59(lean_object*, lean_object*);
@@ -708,6 +713,7 @@ lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux_match__1___rar
 lean_object* l_ReaderT_Init_Prelude___instance__51___rarg___lambda__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo_loop___boxed(lean_object*, lean_object*);
+uint16_t lean_uint16_of_nat(lean_object*);
 lean_object* l_Array_sz___boxed(lean_object*, lean_object*);
 lean_object* l_ReaderT_lift___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Prelude___instance__51(lean_object*, lean_object*);
@@ -722,6 +728,7 @@ lean_object* l_Monad_seq___default___rarg___lambda__1(lean_object*, lean_object*
 lean_object* l_Init_Prelude___instance__42___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_Init_Prelude___instance__71___closed__1;
 lean_object* l_Array_mkEmpty_match__1___rarg(lean_object*, lean_object*);
+lean_object* l_UInt64_size;
 lean_object* l_EStateM_Init_Prelude___instance__65___closed__2;
 lean_object* l_EStateM_Init_Prelude___instance__66___rarg(lean_object*);
 lean_object* l_Init_Prelude___instance__37(lean_object*);
@@ -2412,12 +2419,22 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_uint8Sz() {
+static lean_object* _init_l_UInt8_size() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_unsigned_to_nat(256u);
 return x_1;
+}
+}
+lean_object* l_UInt8_ofNatCore___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_uint8_of_nat(x_1);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* l_UInt8_decEq___boxed(lean_object* x_1, lean_object* x_2) {
@@ -2454,30 +2471,39 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Init_Prelude___instance__22___closed__1() {
+static uint8_t _init_l_Init_Prelude___instance__22___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_uint8_of_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Init_Prelude___instance__22() {
+static uint8_t _init_l_Init_Prelude___instance__22() {
 _start:
 {
-lean_object* x_1; 
+uint8_t x_1; 
 x_1 = l_Init_Prelude___instance__22___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_uint16Sz() {
+static lean_object* _init_l_UInt16_size() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_unsigned_to_nat(65536u);
 return x_1;
+}
+}
+lean_object* l_UInt16_ofNatCore___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint16_t x_3; lean_object* x_4; 
+x_3 = lean_uint16_of_nat(x_1);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* l_UInt16_decEq___boxed(lean_object* x_1, lean_object* x_2) {
@@ -2514,30 +2540,39 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Init_Prelude___instance__24___closed__1() {
+static uint16_t _init_l_Init_Prelude___instance__24___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint16_t x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_uint16_of_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Init_Prelude___instance__24() {
+static uint16_t _init_l_Init_Prelude___instance__24() {
 _start:
 {
-lean_object* x_1; 
+uint16_t x_1; 
 x_1 = l_Init_Prelude___instance__24___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_uint32Sz() {
+static lean_object* _init_l_UInt32_size() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_cstr_to_nat("4294967296");
 return x_1;
+}
+}
+lean_object* l_UInt32_ofNatCore___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint32_t x_3; lean_object* x_4; 
+x_3 = lean_uint32_of_nat(x_1);
+lean_dec(x_1);
+x_4 = lean_box_uint32(x_3);
+return x_4;
 }
 }
 lean_object* l_UInt32_toNat___boxed(lean_object* x_1) {
@@ -2584,20 +2619,19 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Init_Prelude___instance__26___closed__1() {
+static uint32_t _init_l_Init_Prelude___instance__26___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint32_t x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_uint32_of_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Init_Prelude___instance__26() {
+static uint32_t _init_l_Init_Prelude___instance__26() {
 _start:
 {
-lean_object* x_1; 
+uint32_t x_1; 
 x_1 = l_Init_Prelude___instance__26___closed__1;
 return x_1;
 }
@@ -2686,17 +2720,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* l_UInt32_ofNatCore___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; lean_object* x_4; 
-x_3 = lean_uint32_of_nat(x_1);
-lean_dec(x_1);
-x_4 = lean_box_uint32(x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_uint64Sz___closed__1() {
+static lean_object* _init_l_UInt64_size___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2704,12 +2728,22 @@ x_1 = lean_cstr_to_nat("18446744073709551616");
 return x_1;
 }
 }
-static lean_object* _init_l_uint64Sz() {
+static lean_object* _init_l_UInt64_size() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_uint64Sz___closed__1;
+x_1 = l_UInt64_size___closed__1;
 return x_1;
+}
+}
+lean_object* l_UInt64_ofNatCore___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; lean_object* x_4; 
+x_3 = lean_uint64_of_nat(x_1);
+lean_dec(x_1);
+x_4 = lean_box_uint64(x_3);
+return x_4;
 }
 }
 lean_object* l_UInt64_decEq___boxed(lean_object* x_1, lean_object* x_2) {
@@ -2746,25 +2780,24 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Init_Prelude___instance__32___closed__1() {
+static uint64_t _init_l_Init_Prelude___instance__32___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint64_t x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_uint64_of_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Init_Prelude___instance__32() {
+static uint64_t _init_l_Init_Prelude___instance__32() {
 _start:
 {
-lean_object* x_1; 
+uint64_t x_1; 
 x_1 = l_Init_Prelude___instance__32___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_usizeSz___closed__1() {
+static lean_object* _init_l_USize_size___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2774,12 +2807,22 @@ x_3 = lean_nat_pow(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_usizeSz() {
+static lean_object* _init_l_USize_size() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_usizeSz___closed__1;
+x_1 = l_USize_size___closed__1;
 return x_1;
+}
+}
+lean_object* l_USize_ofNatCore___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+size_t x_3; lean_object* x_4; 
+x_3 = lean_usize_of_nat(x_1);
+lean_dec(x_1);
+x_4 = lean_box_usize(x_3);
+return x_4;
 }
 }
 lean_object* l_USize_decEq___boxed(lean_object* x_1, lean_object* x_2) {
@@ -2816,35 +2859,24 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Init_Prelude___instance__34___closed__1() {
+static size_t _init_l_Init_Prelude___instance__34___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; size_t x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_usize_of_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Init_Prelude___instance__34() {
+static size_t _init_l_Init_Prelude___instance__34() {
 _start:
 {
-lean_object* x_1; 
+size_t x_1; 
 x_1 = l_Init_Prelude___instance__34___closed__1;
 return x_1;
 }
 }
 lean_object* l_USize_ofNat32___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-size_t x_3; lean_object* x_4; 
-x_3 = lean_usize_of_nat(x_1);
-lean_dec(x_1);
-x_4 = lean_box_usize(x_3);
-return x_4;
-}
-}
-lean_object* l_USize_ofNatCore___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 size_t x_3; lean_object* x_4; 
@@ -2863,6 +2895,16 @@ x_4 = lean_box_uint32(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_Char_ofNat___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
 lean_object* l_Char_ofNat(lean_object* x_1) {
 _start:
 {
@@ -2878,7 +2920,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; 
 lean_dec(x_1);
-x_6 = l_Init_Prelude___instance__26___closed__1;
+x_6 = l_Char_ofNat___closed__1;
 return x_6;
 }
 else
@@ -2890,7 +2932,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; 
 lean_dec(x_1);
-x_9 = l_Init_Prelude___instance__26___closed__1;
+x_9 = l_Char_ofNat___closed__1;
 return x_9;
 }
 else
@@ -6690,7 +6732,7 @@ _start:
 {
 size_t x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_Lean_Name_hash(x_1);
-x_4 = l_usizeSz;
+x_4 = l_USize_size;
 x_5 = lean_nat_dec_lt(x_2, x_4);
 if (x_5 == 0)
 {
@@ -10446,44 +10488,36 @@ l_System_Platform_numBits___closed__1 = _init_l_System_Platform_numBits___closed
 lean_mark_persistent(l_System_Platform_numBits___closed__1);
 l_System_Platform_numBits = _init_l_System_Platform_numBits();
 lean_mark_persistent(l_System_Platform_numBits);
-l_uint8Sz = _init_l_uint8Sz();
-lean_mark_persistent(l_uint8Sz);
+l_UInt8_size = _init_l_UInt8_size();
+lean_mark_persistent(l_UInt8_size);
 l_Init_Prelude___instance__22___closed__1 = _init_l_Init_Prelude___instance__22___closed__1();
-lean_mark_persistent(l_Init_Prelude___instance__22___closed__1);
 l_Init_Prelude___instance__22 = _init_l_Init_Prelude___instance__22();
-lean_mark_persistent(l_Init_Prelude___instance__22);
-l_uint16Sz = _init_l_uint16Sz();
-lean_mark_persistent(l_uint16Sz);
+l_UInt16_size = _init_l_UInt16_size();
+lean_mark_persistent(l_UInt16_size);
 l_Init_Prelude___instance__24___closed__1 = _init_l_Init_Prelude___instance__24___closed__1();
-lean_mark_persistent(l_Init_Prelude___instance__24___closed__1);
 l_Init_Prelude___instance__24 = _init_l_Init_Prelude___instance__24();
-lean_mark_persistent(l_Init_Prelude___instance__24);
-l_uint32Sz = _init_l_uint32Sz();
-lean_mark_persistent(l_uint32Sz);
+l_UInt32_size = _init_l_UInt32_size();
+lean_mark_persistent(l_UInt32_size);
 l_Init_Prelude___instance__26___closed__1 = _init_l_Init_Prelude___instance__26___closed__1();
-lean_mark_persistent(l_Init_Prelude___instance__26___closed__1);
 l_Init_Prelude___instance__26 = _init_l_Init_Prelude___instance__26();
-lean_mark_persistent(l_Init_Prelude___instance__26);
 l_Init_Prelude___instance__27 = _init_l_Init_Prelude___instance__27();
 lean_mark_persistent(l_Init_Prelude___instance__27);
 l_Init_Prelude___instance__28 = _init_l_Init_Prelude___instance__28();
 lean_mark_persistent(l_Init_Prelude___instance__28);
-l_uint64Sz___closed__1 = _init_l_uint64Sz___closed__1();
-lean_mark_persistent(l_uint64Sz___closed__1);
-l_uint64Sz = _init_l_uint64Sz();
-lean_mark_persistent(l_uint64Sz);
+l_UInt64_size___closed__1 = _init_l_UInt64_size___closed__1();
+lean_mark_persistent(l_UInt64_size___closed__1);
+l_UInt64_size = _init_l_UInt64_size();
+lean_mark_persistent(l_UInt64_size);
 l_Init_Prelude___instance__32___closed__1 = _init_l_Init_Prelude___instance__32___closed__1();
-lean_mark_persistent(l_Init_Prelude___instance__32___closed__1);
 l_Init_Prelude___instance__32 = _init_l_Init_Prelude___instance__32();
-lean_mark_persistent(l_Init_Prelude___instance__32);
-l_usizeSz___closed__1 = _init_l_usizeSz___closed__1();
-lean_mark_persistent(l_usizeSz___closed__1);
-l_usizeSz = _init_l_usizeSz();
-lean_mark_persistent(l_usizeSz);
+l_USize_size___closed__1 = _init_l_USize_size___closed__1();
+lean_mark_persistent(l_USize_size___closed__1);
+l_USize_size = _init_l_USize_size();
+lean_mark_persistent(l_USize_size);
 l_Init_Prelude___instance__34___closed__1 = _init_l_Init_Prelude___instance__34___closed__1();
-lean_mark_persistent(l_Init_Prelude___instance__34___closed__1);
 l_Init_Prelude___instance__34 = _init_l_Init_Prelude___instance__34();
-lean_mark_persistent(l_Init_Prelude___instance__34);
+l_Char_ofNat___closed__1 = _init_l_Char_ofNat___closed__1();
+lean_mark_persistent(l_Char_ofNat___closed__1);
 l_Char_utf8Size___closed__1 = _init_l_Char_utf8Size___closed__1();
 l_Char_utf8Size___closed__2 = _init_l_Char_utf8Size___closed__2();
 l_Char_utf8Size___closed__3 = _init_l_Char_utf8Size___closed__3();

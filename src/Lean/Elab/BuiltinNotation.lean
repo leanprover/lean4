@@ -19,12 +19,6 @@ open Meta
   | `($f $ $a)        => `($f $a)
   | _                 => Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Term.subtype] def expandSubtype : Macro := fun stx =>
-  match_syntax stx with
-  | `({ $x : $type // $p }) => `(Subtype (fun ($x:ident : $type) => $p))
-  | `({ $x // $p })         => `(Subtype (fun ($x:ident : _) => $p))
-  | _                       => Macro.throwUnsupported
-
 @[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab := fun stx expectedType? =>
   match_syntax stx with
   | `(⟨$args*⟩) => do

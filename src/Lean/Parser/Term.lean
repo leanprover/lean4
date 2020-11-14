@@ -73,7 +73,6 @@ def structInstField  := ppGroup $ parser! structInstLVal >> " := " >> termParser
 @[builtinTermParser] def structInst := parser! "{" >> ppHardSpace >> optional («try» (termParser >> " with ")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> " }"
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
-@[builtinTermParser] def subtype := parser! "{ " >> ident >> optType >> " // " >> termParser >> " }"
 @[builtinTermParser] def explicit := parser! "@" >> termParser maxPrec
 @[builtinTermParser] def inaccessible := parser! ".(" >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole

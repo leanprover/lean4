@@ -16,3 +16,4 @@ import Init.Util
 import Init.Fix
 import Init.Meta
 import Init.Tactics
+import Init.NotationExtra

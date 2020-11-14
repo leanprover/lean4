@@ -600,6 +600,9 @@ def UInt8.size : Nat := 256
 structure UInt8 :=
   (val : Fin UInt8.size)
 
+attribute [extern "lean_uint8_of_nat"] UInt8.mk
+attribute [extern "lean_uint8_to_nat"] UInt8.val
+
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNatCore (n : @& Nat) (h : Less n UInt8.size) : UInt8 := {
   val := { val := n, isLt := h }
@@ -622,6 +625,9 @@ def UInt16.size : Nat := 65536
 structure UInt16 :=
   (val : Fin UInt16.size)
 
+attribute [extern "lean_uint16_of_nat"] UInt16.mk
+attribute [extern "lean_uint16_to_nat"] UInt16.val
+
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNatCore (n : @& Nat) (h : Less n UInt16.size) : UInt16 := {
   val := { val := n, isLt := h }
@@ -643,6 +649,9 @@ instance : Inhabited UInt16 := {
 def UInt32.size : Nat := 4294967296
 structure UInt32 :=
   (val : Fin UInt32.size)
+
+attribute [extern "lean_uint32_of_nat"] UInt32.mk
+attribute [extern "lean_uint32_to_nat"] UInt32.val
 
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNatCore (n : @& Nat) (h : Less n UInt32.size) : UInt32 := {
@@ -690,6 +699,9 @@ def UInt64.size : Nat := 18446744073709551616
 structure UInt64 :=
   (val : Fin UInt64.size)
 
+attribute [extern "lean_uint64_of_nat"] UInt64.mk
+attribute [extern "lean_uint64_to_nat"] UInt64.val
+
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNatCore (n : @& Nat) (h : Less n UInt64.size) : UInt64 := {
   val := { val := n, isLt := h }
@@ -718,6 +730,9 @@ theorem usizeSzEq : Or (Eq USize.size 4294967296) (Eq USize.size 184467440737095
 
 structure USize :=
   (val : Fin USize.size)
+
+attribute [extern "lean_usize_of_nat"] USize.mk
+attribute [extern "lean_usize_to_nat"] USize.val
 
 @[extern "lean_usize_of_nat"]
 def USize.ofNatCore (n : @& Nat) (h : Less n USize.size) : USize := {

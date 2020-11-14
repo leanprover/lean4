@@ -559,7 +559,7 @@ theorem Nat.leOfSuccLeSucc {n m : Nat} : LessEq (succ n) (succ m) → LessEq n m
 theorem Nat.leOfLtSucc {m n : Nat} : Less m (succ n) → LessEq m n :=
   leOfSuccLeSucc
 
-@[extern "lean_system_platform_nbits"] constant System.Platform.getNumBits : Unit → { n : Nat // Or (Eq n 32) (Eq n 64) } :=
+@[extern "lean_system_platform_nbits"] constant System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
   fun _ => ⟨64, Or.inr rfl⟩ -- inhabitant
 
 def System.Platform.numBits : Nat :=

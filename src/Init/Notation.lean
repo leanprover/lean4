@@ -78,3 +78,9 @@ macro_rules
       | i+1, true  => expandListLit i false result
       | i+1, false => expandListLit i true  (← `(List.cons $(elems[i]) $result))
     expandListLit elems.size false (← `(List.nil))
+
+syntax "{ " ident (" : " term)? " // " term " }" : term
+
+macro_rules
+  | `({ $x : $type // $p }) => `(Subtype (fun ($x:ident : $type) => $p))
+  | `({ $x // $p })         => `(Subtype (fun ($x:ident : _) => $p))

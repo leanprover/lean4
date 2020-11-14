@@ -107,6 +107,7 @@ private partial def solve (u v : Level) : MetaM LBool := do
     Bool.toLBool <$> (isLevelDefEqAux levelZero v₁ <&&> isLevelDefEqAux levelZero v₂)
   | Level.zero _, Level.imax _ v₂ _ =>
     Bool.toLBool <$> isLevelDefEqAux levelZero v₂
+  | Level.zero _, Level.succ .. => pure LBool.false
   | Level.succ u _, v =>
     match (← Meta.decLevel? v) with
     | some v => Bool.toLBool <$> isLevelDefEqAux u v

@@ -91,8 +91,8 @@ It is feasible to support dependent arrows such as `{α} → α → α` without 
 Here is the encoding:
 ```
 def implicitShortBinder := node `Lean.Parser.Term.implicitBinder $ "{" >> many1 binderIdent >> pushNone >> "}"
-def depArrowShortPrefix := try (implicitShortBinder >> checkPrec 25 >> unicodeSymbol " → " " -> ")
-def depArrowLongPrefix  := bracketedBinder true >> checkPrec 25 >> unicodeSymbol " → " " -> "
+def depArrowShortPrefix := try (implicitShortBinder >> unicodeSymbol " → " " -> ")
+def depArrowLongPrefix  := bracketedBinder true >> unicodeSymbol " → " " -> "
 def depArrowPrefix      := depArrowShortPrefix <|> depArrowLongPrefix
 @[builtinTermParser] def depArrow := parser! depArrowPrefix >> termParser
 ```
@@ -100,7 +100,7 @@ Note that no changes in the elaborator are needed.
 We decided to not use it because terms such as `{α} → α → α` may look too cryptic.
 Note that we did not add a `explicitShortBinder` parser since `(α) → α → α` is really cryptic as a short for `(α : Type) → α → α`.
 -/
-@[builtinTermParser] def depArrow := parser! bracketedBinder true >> checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser
+@[builtinTermParser] def depArrow := parser!:25 bracketedBinder true >> unicodeSymbol " → " " -> " >> termParser
 
 def simpleBinder := parser! many1 binderIdent >> optType
 @[builtinTermParser]

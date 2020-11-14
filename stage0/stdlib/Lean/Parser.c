@@ -18,7 +18,6 @@ extern lean_object* l_Lean_Parser_Level_num_formatter___closed__1;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_ident_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_charLit_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_ident_formatter___closed__1;
-extern lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___closed__1;
 extern lean_object* l_Lean_identKind___closed__2;
 extern lean_object* l_Lean_charLitKind___closed__2;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_strLit_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -27,6 +26,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_charLit_formatter(lean_object*, lean
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_numLit_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_str_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_leadingNode_formatter___closed__1;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_charLit_formatter___closed__1;
 extern lean_object* l_Lean_PrettyPrinter_parenthesizerAttribute;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_strLit_formatter___closed__1;
@@ -209,7 +209,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_ident_formatter(lean_object* x_1, le
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___closed__1;
+x_6 = l_Lean_Parser_leadingNode_formatter___closed__1;
 x_7 = l_Lean_Parser_Level_ident_formatter___closed__1;
 x_8 = l_Lean_PrettyPrinter_Formatter_andthen_formatter(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
@@ -238,7 +238,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_numLit_formatter(lean_object* x_1, l
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___closed__1;
+x_6 = l_Lean_Parser_leadingNode_formatter___closed__1;
 x_7 = l_Lean_Parser_Level_num_formatter___closed__1;
 x_8 = l_Lean_PrettyPrinter_Formatter_andthen_formatter(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
@@ -267,7 +267,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_charLit_formatter(lean_object* x_1, 
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___closed__1;
+x_6 = l_Lean_Parser_leadingNode_formatter___closed__1;
 x_7 = l_Lean_Parser_Term_char_formatter___closed__1;
 x_8 = l_Lean_PrettyPrinter_Formatter_andthen_formatter(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
@@ -296,7 +296,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_strLit_formatter(lean_object* x_1, l
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___closed__1;
+x_6 = l_Lean_Parser_leadingNode_formatter___closed__1;
 x_7 = l_Lean_Parser_Term_str_formatter___closed__1;
 x_8 = l_Lean_PrettyPrinter_Formatter_andthen_formatter(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;

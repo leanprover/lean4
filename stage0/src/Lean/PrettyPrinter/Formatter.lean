@@ -448,7 +448,6 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.formatter tk
   | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
   | ParserDescr.cat catName prec                    => return categoryParser.formatter catName
-  | ParserDescr.checkPrec prec                      => return checkPrec.formatter
 
 end Formatter
 open Formatter

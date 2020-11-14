@@ -418,14 +418,14 @@ instance : ToString Level := ⟨Format.pretty ∘ Level.format⟩
 end Level
 
 /- Similar to `mkLevelMax`, but applies cheap simplifications -/
+@[export lean_level_mk_max_simp]
 def mkLevelMax' (u v : Level) : Level :=
   let subsumes (u v : Level) : Bool :=
-    match u with
-    | Level.max u₁ u₂ _ => v == u₁ || v == u₂
-    | _ => false
-  if u.isExplicit && v.isExplicit then
-    if u.getOffset ≥ v.getOffset then u else v
-  else if u == v then u
+    if v.isExplicit && u.getOffset ≥ v.getOffset then true
+    else match u with
+      | Level.max u₁ u₂ _ => v == u₁ || v == u₂
+      | _ => false
+  if u == v then u
   else if u.isZero then v
   else if v.isZero then u
   else if subsumes u v then u
@@ -436,6 +436,7 @@ def mkLevelMax' (u v : Level) : Level :=
     mkLevelMax u v
 
 /- Similar to `mkLevelIMax`, but applies cheap simplifications -/
+@[export lean_level_mk_imax_simp]
 def mkLevelIMax' (u v : Level) : Level :=
   if v.isNeverZero then mkLevelMax' u v
   else if v.isZero then v

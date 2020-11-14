@@ -141,3 +141,10 @@ match n, parity n with
   | #[]        => 0
   | #[3, 4, 5] => 3
   | _          => 4
+
+-- underapplied matcher
+def g {α} : List α → Nat
+  | [a] => 1
+  | _   => 0
+
+#check g.match_1

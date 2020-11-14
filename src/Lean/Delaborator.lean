@@ -441,6 +441,11 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
         pure { st with rhss := st.rhss.push (← skippingBinders st.info.altNumParams[st.rhss.size] delab) }
       else
         pure { st with moreArgs := st.moreArgs.push (← delab) })
+
+  if st.rhss.size < st.info.altNumParams.size then
+    -- underapplied
+    failure
+
   let pats ← delabPatterns st
   let discrs := st.discrs.map fun discr => mkNode `Lean.Parser.Term.matchDiscr #[mkNullNode, discr]
   let alts := pats.zipWith st.rhss fun pat rhs => mkNode `Lean.Parser.Term.matchAlt #[pat, mkAtom "=>", rhs]

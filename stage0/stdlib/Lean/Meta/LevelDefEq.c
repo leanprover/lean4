@@ -145,7 +145,7 @@ lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve(lean_object*, l
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_869____closed__1;
 lean_object* l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSelfMax(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkLevelMax_x27(lean_object*, lean_object*);
+lean_object* lean_level_mk_max_simp(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_decAux_x3f_match__4(lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEqAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_mkMaxArgsDiff___boxed(lean_object*, lean_object*, lean_object*);
@@ -875,7 +875,7 @@ if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; 
 x_33 = lean_ctor_get(x_23, 0);
-x_34 = l_Lean_mkLevelMax_x27(x_21, x_33);
+x_34 = lean_level_mk_max_simp(x_21, x_33);
 lean_ctor_set(x_23, 0, x_34);
 return x_22;
 }
@@ -885,7 +885,7 @@ lean_object* x_35; lean_object* x_36; lean_object* x_37;
 x_35 = lean_ctor_get(x_23, 0);
 lean_inc(x_35);
 lean_dec(x_23);
-x_36 = l_Lean_mkLevelMax_x27(x_21, x_35);
+x_36 = lean_level_mk_max_simp(x_21, x_35);
 x_37 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_22, 0, x_37);
@@ -907,7 +907,7 @@ if (lean_is_exclusive(x_23)) {
  lean_dec_ref(x_23);
  x_40 = lean_box(0);
 }
-x_41 = l_Lean_mkLevelMax_x27(x_21, x_39);
+x_41 = lean_level_mk_max_simp(x_21, x_39);
 if (lean_is_scalar(x_40)) {
  x_42 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -1067,7 +1067,7 @@ if (x_74 == 0)
 {
 lean_object* x_75; lean_object* x_76; 
 x_75 = lean_ctor_get(x_65, 0);
-x_76 = l_Lean_mkLevelMax_x27(x_63, x_75);
+x_76 = lean_level_mk_max_simp(x_63, x_75);
 lean_ctor_set(x_65, 0, x_76);
 return x_64;
 }
@@ -1077,7 +1077,7 @@ lean_object* x_77; lean_object* x_78; lean_object* x_79;
 x_77 = lean_ctor_get(x_65, 0);
 lean_inc(x_77);
 lean_dec(x_65);
-x_78 = l_Lean_mkLevelMax_x27(x_63, x_77);
+x_78 = lean_level_mk_max_simp(x_63, x_77);
 x_79 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_79, 0, x_78);
 lean_ctor_set(x_64, 0, x_79);
@@ -1099,7 +1099,7 @@ if (lean_is_exclusive(x_65)) {
  lean_dec_ref(x_65);
  x_82 = lean_box(0);
 }
-x_83 = l_Lean_mkLevelMax_x27(x_63, x_81);
+x_83 = lean_level_mk_max_simp(x_63, x_81);
 if (lean_is_scalar(x_82)) {
  x_84 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -2104,7 +2104,7 @@ lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-x_10 = l_Lean_mkLevelMax_x27(x_3, x_2);
+x_10 = lean_level_mk_max_simp(x_3, x_2);
 return x_10;
 }
 else
@@ -2116,7 +2116,7 @@ return x_3;
 default: 
 {
 lean_object* x_11; 
-x_11 = l_Lean_mkLevelMax_x27(x_3, x_2);
+x_11 = lean_level_mk_max_simp(x_3, x_2);
 return x_11;
 }
 }

@@ -114,7 +114,7 @@ lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at___private_Lea
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux_process___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isTypeImp(lean_object*);
-lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
+lean_object* lean_level_mk_imax_simp(lean_object*, lean_object*);
 lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isArrowType_match__1(lean_object*);
 lean_object* l_Lean_Meta_isProofQuick_match__1(lean_object*);
@@ -2924,7 +2924,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
-x_20 = l_Lean_mkLevelIMax_x27(x_18, x_4);
+x_20 = lean_level_mk_imax_simp(x_18, x_4);
 x_2 = x_12;
 x_4 = x_20;
 x_9 = x_19;

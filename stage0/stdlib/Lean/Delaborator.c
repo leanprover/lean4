@@ -1108,7 +1108,6 @@ lean_object* l_Lean_Delaborator_delabInfixOp(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Delaborator_delabMul___closed__1;
 extern lean_object* l_Lean_mkOptionalNode___closed__1;
 extern lean_object* l_Array_Init_Data_Array_Basic___instance__3___rarg___closed__1;
-extern lean_object* l___kind_term____x40_Init_NotationExtra___hyg_1231____closed__2;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_4833____closed__1;
 extern lean_object* l_Lean_Meta_evalNat___closed__1;
 lean_object* l_Lean_getPPNotation___closed__2;
@@ -1352,6 +1351,7 @@ lean_object* l_Lean_Delaborator_mkDelabAttribute___closed__9;
 lean_object* l_Lean_Level_quote___closed__2;
 lean_object* l_Lean_Delaborator_delabIff___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Delaborator_Lean_Delaborator___instance__4___closed__1;
+extern lean_object* l___kind_term____x40_Init_NotationExtra___hyg_1355____closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_6360____closed__11;
 lean_object* l_Array_zipWithAux___at_Lean_Delaborator_delabAppMatch___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Delaborator_delabLam___spec__1(lean_object*, lean_object*, size_t, size_t);
@@ -27884,7 +27884,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Init_Prelude___instance__72___closed__1;
-x_2 = l___kind_term____x40_Init_NotationExtra___hyg_1231____closed__2;
+x_2 = l___kind_term____x40_Init_NotationExtra___hyg_1355____closed__2;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

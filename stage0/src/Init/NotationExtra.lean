@@ -60,8 +60,9 @@ end Lean
 
 open Lean
 
-macro "∃"  xs:explicitBinders ", " b:term : term => expandExplicitBinders `Exists xs b
-macro "Σ"  xs:explicitBinders ", " b:term : term => expandExplicitBinders `Sigma xs b
+macro "∃" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Exists xs b
+macro "exists" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Exists xs b
+macro "Σ" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Sigma xs b
 macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders `PSigma xs b
 macro:25 xs:bracketedExplicitBinders "×" b:term : term => expandBrackedBinders `Sigma xs b
 macro:25 xs:bracketedExplicitBinders "×'" b:term : term => expandBrackedBinders `PSigma xs b

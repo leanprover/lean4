@@ -243,6 +243,8 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             if recArgPos >= args.size then
               throwError! "insufficient number of parameters at recursive application {indentExpr e}"
             let recArg := args[recArgPos]
+            -- For reflexive type, we may have nested recursive applications in recArg
+            let recArg ← replaceRecApps recFnName recArgInfo below recArg
             let f ← try toBelow below recArgInfo.indParams.size recArg catch  _ => throwError! "failed to eliminate recursive application{indentExpr e}"
             -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
             let argsNonFixed := args.extract numFixed args.size

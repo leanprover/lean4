@@ -7,6 +7,7 @@ import Lean.ToExpr
 import Lean.AuxRecursor
 import Lean.Meta.Basic
 import Lean.Meta.LevelDefEq
+import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta
 
@@ -250,6 +251,39 @@ private def extractIdRhs (e : Expr) : Expr :=
     let val := val.betaRev revArgs
     successK (extractIdRhs val)
 
+inductive ReduceMatcherResult
+  | reduced (val : Expr)
+  | stuck   (val : Expr)
+  | notMatcher
+  | partialApp
+
+def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
+  match e.getAppFn with
+  | Expr.const declName declLevels _ => do
+    let some info ← getMatcherInfo? declName | pure ReduceMatcherResult.notMatcher
+    let args := e.getAppArgs
+    let prefixSz := info.numParams + 1 + info.numDiscrs
+    if args.size < prefixSz + info.numAlts then
+      pure ReduceMatcherResult.partialApp
+    else
+      let constInfo ← getConstInfo declName
+      let f := constInfo.instantiateValueLevelParams declLevels
+      let auxApp := mkAppN f args[0:prefixSz]
+      let auxAppType ← inferType auxApp
+      forallBoundedTelescope auxAppType info.numAlts fun hs _ => do
+        let auxApp := mkAppN auxApp hs
+        let auxApp ← whnf auxApp
+        let auxAppFn := auxApp.getAppFn
+        let mut i := prefixSz
+        for h in hs do
+          if auxAppFn == h then
+            let result := mkAppN args[i] auxApp.getAppArgs
+            let result := mkAppN result args[prefixSz + info.numAlts:args.size]
+            return ReduceMatcherResult.reduced result.headBeta
+          i := i + 1
+        return ReduceMatcherResult.stuck auxApp
+  | _ => pure ReduceMatcherResult.notMatcher
+
 /--
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
   expand let-expressions, expand assigned meta-variables. -/
@@ -265,20 +299,24 @@ private partial def whnfCoreImp (e : Expr) : MetaM Expr :=
       if f'.isLambda then
         let revArgs := e.getAppRevArgs
         whnfCoreImp $ f'.betaRev revArgs
-      else
-        let done : Unit → MetaM Expr := fun _ =>
-          if f == f' then pure e else pure $ e.updateFn f'
-        matchConstAux f' done fun cinfo lvls =>
-          match cinfo with
-          | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs done whnfCoreImp
-          | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs done whnfCoreImp
-          | c@(ConstantInfo.defnInfo _) => do
-            let unfold? ← isAuxDef? c.name
-            if unfold? then
-              deltaBetaDefinition c lvls e.getAppRevArgs done whnfCoreImp
-            else
-              done ()
-          | _ => done ()
+      else match (← reduceMatcher? e) with
+        | ReduceMatcherResult.reduced eNew => whnfCoreImp eNew
+        | ReduceMatcherResult.partialApp   => pure e
+        | ReduceMatcherResult.stuck _      => pure e
+        | ReduceMatcherResult.notMatcher   =>
+          let done : Unit → MetaM Expr := fun _ =>
+            if f == f' then pure e else pure $ e.updateFn f'
+          matchConstAux f' done fun cinfo lvls =>
+            match cinfo with
+            | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs done whnfCoreImp
+            | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs done whnfCoreImp
+            | c@(ConstantInfo.defnInfo _) => do
+              let unfold? ← isAuxDef? c.name
+              if unfold? then
+                deltaBetaDefinition c lvls e.getAppRevArgs done whnfCoreImp
+              else
+                done ()
+            | _ => done ()
     | e@(Expr.proj _ i c _) =>
       let c   ← whnf c
       matchConstAux c.getAppFn (fun _ => pure e) fun cinfo lvls =>

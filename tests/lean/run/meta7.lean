@@ -4,7 +4,7 @@ open Lean
 open Lean.Meta
 
 partial def fact : Nat → Nat
-| 0 => 1
+| 0   => 1
 | n+1 => (n+1)*fact n
 
 set_option trace.Meta.debug true
@@ -153,3 +153,17 @@ checkM (pure $ val == expected);
 pure ()
 
 #eval tst7
+
+def aux := [1, 2, 3].isEmpty
+
+def tst8 : MetaM Unit := do
+  print "----- tst8 -----"
+  let t := mkConst `aux
+  let some t ← unfoldDefinition? t | throwError! "unexpected"
+  let some t ← unfoldDefinition? t | throwError! "unexpected"
+  print t
+  let t ← whnfCore t
+  print t
+  pure ()
+
+#eval tst8

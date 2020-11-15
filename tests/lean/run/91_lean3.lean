@@ -9,4 +9,4 @@ def Omega : pext → top :=
   λ h => omega h (top → top) (λ x => x) (omega h)
 def Omega' : pext → top := λ h => (λ p x => x)
 
-theorem loopy : Omega = Omega' := rfl -- loops
+theorem loopy : Omega = Omega' := rfl

@@ -36,7 +36,6 @@ lean_object* l_List_toString___at___private_Lean_Data_Lsp_Communication_0__Lean_
 lean_object* l_Lean_Lsp_writeLspNotification___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_readMessage(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_writeLspNotification_match__1(lean_object*);
-extern lean_object* l___private_Init_Util_0__mkPanicMessage___closed__3;
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readHeaderFields_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___closed__1;
 lean_object* l_List_toStringAux___at___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___spec__3(uint8_t, lean_object*);
@@ -50,6 +49,7 @@ extern lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__2___closed__32;
 lean_object* l_List_lookup___at___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__2___closed__24;
 lean_object* l_Lean_Lsp_writeLspNotification___rarg___closed__1;
+extern lean_object* l___private_Init_Util_0__mkPanicMessage___closed__2;
 extern lean_object* l_Lean_JsonRpc_Lean_Data_JsonRpc___instance__7___closed__13;
 lean_object* l_Nat_repr(lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6910____closed__2;
@@ -181,7 +181,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = l_String_dropRight(x_1, x_4);
-x_10 = l___private_Init_Util_0__mkPanicMessage___closed__3;
+x_10 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_11 = l_String_splitOn(x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {

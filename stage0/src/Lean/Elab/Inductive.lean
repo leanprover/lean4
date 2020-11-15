@@ -138,7 +138,7 @@ private partial def checkParamsAndResultType (type firstType : Expr) (numParams 
     | _ =>
       throwError "unexpected inductive resulting type"
   catch
-    | Exception.error ref msg => throw (Exception.error ref msg!"invalid mutually inductive types, {msg}")
+    | Exception.error ref msg => throw (Exception.error ref m!"invalid mutually inductive types, {msg}")
     | ex => throw ex
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.

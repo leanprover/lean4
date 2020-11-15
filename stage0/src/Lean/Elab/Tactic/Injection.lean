@@ -16,7 +16,7 @@ private def getInjectionNewIds (stx : Syntax) : List Name :=
 
 private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Unit :=
   unless unusedIds.isEmpty do
-    Meta.throwTacticEx `injection mvarId msg!"too many identifiers provided, unused: {unusedIds}"
+    Meta.throwTacticEx `injection mvarId m!"too many identifiers provided, unused: {unusedIds}"
 
 @[builtinTactic «injection»] def evalInjection : Tactic := fun stx => do
   -- parser! nonReservedSymbol "injection " >> termParser >> withIds

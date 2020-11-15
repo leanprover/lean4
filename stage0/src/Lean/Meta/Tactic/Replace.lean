@@ -66,7 +66,7 @@ def replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqPro
 def change (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId := withMVarContext mvarId do
   let target ← getMVarType mvarId
   unless (← isDefEq target targetNew) do
-    throwTacticEx `change mvarId msg!"given type{indentExpr targetNew}\nis not definitionally equal to{indentExpr target}"
+    throwTacticEx `change mvarId m!"given type{indentExpr targetNew}\nis not definitionally equal to{indentExpr target}"
   replaceTargetDefEq mvarId targetNew
 
 def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM MVarId := do
@@ -77,7 +77,7 @@ def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM
     let target ← getMVarType mvarId
     let checkDefEq (typeOld : Expr) : MetaM Unit := do
       unless (← isDefEq typeNew typeOld) do
-        throwTacticEx `changeHypothesis mvarId msg!"given type{indentExpr typeNew}\nis not definitionally equal to{indentExpr typeOld}"
+        throwTacticEx `changeHypothesis mvarId m!"given type{indentExpr typeNew}\nis not definitionally equal to{indentExpr typeOld}"
     let finalize (targetNew : Expr) : MetaM MVarId := do
       let mvarId ← replaceTargetDefEq mvarId targetNew
       let (_, mvarId) ← introNP mvarId (numReverted-1)

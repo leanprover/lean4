@@ -75,6 +75,6 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
           (WFRecursion preDefs))
         (fun msg =>
           let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
-          msg!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
+          m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
 
 end Lean.Elab

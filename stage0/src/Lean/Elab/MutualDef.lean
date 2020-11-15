@@ -65,7 +65,7 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
       checkModifiers newHeader.modifiers firstHeader.modifiers
       checkKinds newHeader.kind firstHeader.kind
     catch
-       | Exception.error ref msg => throw (Exception.error ref msg!"invalid mutually recursive definitions, {msg}")
+       | Exception.error ref msg => throw (Exception.error ref m!"invalid mutually recursive definitions, {msg}")
        | ex => throw ex
   else
     pure ()

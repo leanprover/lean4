@@ -492,7 +492,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
            So, we don't projection functions for it. Thus, we use `Expr.proj` -/
         pure $ LValResolution.projIdx structName (idx - 1)
     else
-      throwLValError e eType msg!"invalid projection, structure has only {fieldNames.size} field(s)"
+      throwLValError e eType m!"invalid projection, structure has only {fieldNames.size} field(s)"
   | Expr.const structName _ _, LVal.fieldName fieldName =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
@@ -500,7 +500,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       | some (baseStructName, fullName) => pure $ LValResolution.const baseStructName structName fullName
       | none   =>
         throwLValError e eType
-          msg!"invalid field notation, '{fieldName}' is not a valid \"field\" because environment does not contain '{Name.mkStr structName fieldName}'"
+          m!"invalid field notation, '{fieldName}' is not a valid \"field\" because environment does not contain '{Name.mkStr structName fieldName}'"
     -- search local context first, then environment
     let searchCtx : Unit → TermElabM LValResolution := fun _ => do
       let fullName := Name.mkStr structName fieldName
@@ -526,7 +526,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     let fullName := Name.mkStr structName "getOp"
     match env.find? fullName with
     | some _ => pure $ LValResolution.getOp fullName idx
-    | none   => throwLValError e eType msg!"invalid [..] notation because environment does not contain '{fullName}'"
+    | none   => throwLValError e eType m!"invalid [..] notation because environment does not contain '{fullName}'"
   | _, LVal.getOp idx =>
     throwLValError e eType "invalid [..] notation, type is not of the form (C ...) where C is a constant"
   | _, _ =>
@@ -791,7 +791,7 @@ private def toMessageData (ex : Exception) : TermElabM MessageData := do
     else
       let fileMap ← MonadLog.getFileMap -- Remove `MonadLog.` it is a workaround for old frontend
       let exPosition := fileMap.toPosition exPos
-      pure msg!"{exPosition.line}:{exPosition.column} {ex.toMessageData}"
+      pure m!"{exPosition.line}:{exPosition.column} {ex.toMessageData}"
 
 private def toMessageList (msgs : Array MessageData) : MessageData :=
   indentD (MessageData.joinSep msgs.toList (Format.line ++ Format.line))

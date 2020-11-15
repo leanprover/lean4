@@ -109,9 +109,9 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   let env ← getEnv
   let (_, s) := ((CollectAxioms.collect constName).run env).run {}
   if s.axioms.isEmpty then
-    logInfo msg!"'{constName}' does not depend on any axioms"
+    logInfo m!"'{constName}' does not depend on any axioms"
   else
-    logInfo msg!"'{constName}' depends on axioms: {s.axioms.toList}"
+    logInfo m!"'{constName}' depends on axioms: {s.axioms.toList}"
 
 @[builtinCommandElab «printAxioms»] def elabPrintAxioms : CommandElab := fun stx => do
   let id := stx[2].getId

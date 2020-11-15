@@ -9,9 +9,6 @@ namespace Lean
 syntax:max "f!" interpolatedStr(term) : term
 
 macro_rules
-  | `(f! $interpStr) => do
-    let chunks := interpStr.getArgs
-    let r ← Lean.Syntax.expandInterpolatedStrChunks chunks (fun a b => `($a ++ $b)) (fun a => `(fmt $a))
-    `(($r : Format))
+  | `(f! $interpStr) => do interpStr.expandInterpolatedStr (← `(Format)) (← `(fmt))
 
 end Lean

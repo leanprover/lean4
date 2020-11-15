@@ -437,7 +437,7 @@ instance : MonadCache Expr Expr CheckAssignmentM := {
 
 private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData := do
   let ctx ← read
-  return msg!" @ {mkMVar ctx.mvarId} {ctx.fvars} := {ctx.rhs}"
+  return m!" @ {mkMVar ctx.mvarId} {ctx.fvars} := {ctx.rhs}"
 
 @[specialize] def checkFVar (check : Expr → CheckAssignmentM Expr) (fvar : Expr) : CheckAssignmentM Expr := do
   let ctxMeta ← readThe Meta.Context

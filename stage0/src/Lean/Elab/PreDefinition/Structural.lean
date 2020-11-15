@@ -117,7 +117,7 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
                        indParams   := indParams,
                        indIndices  := indIndices,
                        reflexive := indInfo.isReflexive })
-                    (fun msg => msg!"argument #{i+1} was not used for structural recursion{indentD msg}"))
+                    (fun msg => m!"argument #{i+1} was not used for structural recursion{indentD msg}"))
                   (loop (i+1))
     else
       throwStructuralFailed
@@ -243,6 +243,8 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             if recArgPos >= args.size then
               throwError! "insufficient number of parameters at recursive application {indentExpr e}"
             let recArg := args[recArgPos]
+            -- For reflexive type, we may have nested recursive applications in recArg
+            let recArg ← replaceRecApps recFnName recArgInfo below recArg
             let f ← try toBelow below recArgInfo.indParams.size recArg catch  _ => throwError! "failed to eliminate recursive application{indentExpr e}"
             -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
             let argsNonFixed := args.extract numFixed args.size
@@ -352,7 +354,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
     throwError "structural recursion does not handle mutually recursive functions"
   else do
     let preDefNonRec ← elimRecursion preDefs[0]
-    mapError (addNonRec preDefNonRec) (fun msg => msg!"structural recursion failed, produced type incorrect term{indentD msg}")
+    mapError (addNonRec preDefNonRec) (fun msg => m!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompileUnsafeRec preDefs
 
 builtin_initialize

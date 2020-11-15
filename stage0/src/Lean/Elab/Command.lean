@@ -211,7 +211,7 @@ instance : MonadRecDepth CommandElabM := {
         pure ()
       else
         let idName ← liftIO $ id.getName;
-        logError msg!"internal exception {idName}"
+        logError m!"internal exception {idName}"
 
 builtin_initialize registerTraceClass `Elab.command
 
@@ -412,7 +412,7 @@ partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
     throwError (ex.toMessageData opts)
 
 def logUnknownDecl (declName : Name) : CommandElabM Unit :=
-  logError msg!"unknown declaration '{declName}'"
+  logError m!"unknown declaration '{declName}'"
 
 @[builtinCommandElab «export»] def elabExport : CommandElab := fun stx => do
   -- `stx` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
@@ -522,7 +522,7 @@ open Meta
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
     let type ← inferType e
-    logInfo msg!"{e} : {type}"
+    logInfo m!"{e} : {type}"
 
 def hasNoErrorMessages : CommandElabM Bool := do
   return !(← get).messages.hasErrors
@@ -630,7 +630,7 @@ def setOption (optionName : Name) (val : DataValue) : CommandElabM Unit := do
   match val with
   | Syntax.atom _ "true"  => setOption optionName (DataValue.ofBool true)
   | Syntax.atom _ "false" => setOption optionName (DataValue.ofBool false)
-  | _ => logErrorAt val msg!"unexpected set_option value {val}"
+  | _ => logErrorAt val m!"unexpected set_option value {val}"
 
 @[builtinMacro Lean.Parser.Command.«in»] def expandInCmd : Macro := fun stx => do
   let cmd₁ := stx[0]

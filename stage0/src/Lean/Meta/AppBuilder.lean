@@ -20,6 +20,14 @@ private def mkIdImp (e : Expr) : MetaM Expr := do
 def mkId (e : Expr) : m Expr :=
   liftMetaM $ mkIdImp e
 
+def mkIdRhsImp (e : Expr) : MetaM Expr :=  do
+  let type ← inferType e
+  let u    ← getLevel type
+  pure $ mkApp2 (mkConst `idRhs [u]) type e
+/-- Return `idRhs e` -/
+def mkIdRhs (e : Expr) : m Expr :=
+  liftMetaM $ mkIdRhsImp e
+
 private def mkExpectedTypeHintImp (e : Expr) (expectedType : Expr) : MetaM Expr := do
   let u ← getLevel expectedType
   pure $ mkApp2 (mkConst `id [u]) expectedType e

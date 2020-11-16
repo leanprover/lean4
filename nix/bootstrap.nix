@@ -50,9 +50,7 @@ rec {
       Init = build { name = "Init"; src = ../src; srcDir = "/src"; deps = {}; };
       Std  = build { name = "Std";  src = ../src; srcDir = "/src"; deps = { inherit Init; }; };
       Lean = build { name = "Lean"; src = ../src; srcDir = "/src"; deps = { inherit Init Std; }; };
-      stdlib = {
-        mods = Init.mods // Std.mods // Lean.mods;
-      };
+      mods = Init.mods // Std.mods // Lean.mods;
       lean = stdenv.mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''

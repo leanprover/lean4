@@ -133,7 +133,7 @@ in
         input="$(realpath --relative-to="$root${srcDir}" "$input")"
         input="''${input%.lean}"
         input="''${input//\//.}"
-        call "$root#mods.\"$input\"" -c lean $@
+        call "$root#pkg.mods.\"$input\"" -c lean $@
       fi
      '';
     emacs = writeScriptBin "run-emacs" ''

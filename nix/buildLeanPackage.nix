@@ -99,17 +99,17 @@ in
       mkdir $out
       ar rcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (attrValues objects))}
     '';
-    leanPackage = writeScriptBin "lean" ''
+    lean-package = writeScriptBin "lean" ''
       #!${bash}/bin/bash
       set -euo pipefail
       LEAN_PATH=${modRoot} ${lean}/bin/lean $@
     '';
-    leanInteractive = writeScriptBin "lean" ''
+    lean-dev = writeScriptBin "lean" ''
       #!${bash}/bin/bash
       set -euo pipefail
       call() {
         if [[ -n $json ]]; then
-          nix develop $@ 2>&1 | awk '/{/ { print $0; next } { gsub(/"/, "\\\"", $0); gsub(/\n/, "\\n", $0); printf "{\"severity\": \"warning\", \"pos_line\": 0, \"pos_col\": 0, \"file_name\": \"<stdin>\", \"text\": \"%s\"}\n", $0 }'
+          $@ 2>&1 | awk '/{/ { print $0; next } { gsub(/"/, "\\\"", $0); gsub(/\n/, "\\n", $0); printf "{\"severity\": \"warning\", \"pos_line\": 0, \"pos_col\": 0, \"file_name\": \"<stdin>\", \"text\": \"%s\"}\n", $0 }'
         else
           nix develop $@
         fi
@@ -127,17 +127,23 @@ in
         [ -f "$root/flake.nix" ] && break
         root="$(realpath "$root/..")"
       done
-      if [[ "$root" == / || "$input" != "$root${srcDir}/"* ]]; then
-         ${leanPackage}/bin/lean $@
+      if [[ "$root" == / ]]; then
+        call ${lean}/bin/lean $@
+      elif [[ "$input" != "$root${srcDir}/"* ]]; then
+         call nix run "$root#lean-package" -- $@
       else
         input="$(realpath --relative-to="$root${srcDir}" "$input")"
         input="''${input%.lean}"
         input="''${input//\//.}"
-        call "$root#pkg.mods.\"$input\"" -c lean $@
+        call nix develop "$root#mods.\"$input\"" -c lean $@
       fi
      '';
-    emacs = writeScriptBin "run-emacs" ''
+    emacs-package = writeScriptBin "run-emacs-package" ''
       #!${bash}/bin/bash
-      ${lean-emacs}/bin/emacs --eval '(setq lean4-rootdir "${leanInteractive}")' $@
+      ${lean-emacs}/bin/emacs --eval '(setq lean4-rootdir "${lean-package}")' $@
+    '';
+    emacs-dev = writeScriptBin "run-emacs-dev" ''
+      #!${bash}/bin/bash
+      ${lean-emacs}/bin/emacs --eval '(setq lean4-rootdir "${lean-dev}")' $@
     '';
   }

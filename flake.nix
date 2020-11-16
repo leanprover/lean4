@@ -42,11 +42,8 @@
     in rec {
       packages = {
         inherit lean4-mode;
-        inherit (lean.stage1.Lean) emacs;
         lean = lean.stage1 // lean // { inherit buildLeanPackage; };
-        # used by `leanInteractive`
-        pkg = lean.stage1;
-      };
+      } // lean.stage1.Lean;
 
       defaultPackage = packages.lean;
 

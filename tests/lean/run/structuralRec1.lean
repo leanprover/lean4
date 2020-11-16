@@ -75,7 +75,6 @@ def aux : Nat → Nat → Nat
    | 0 => f x y
    | v => f x v + 1
 
-set_option smartUnfolding false in
 theorem ex (x y : Nat) : f x y = aux x y := by
   cases x
   rfl

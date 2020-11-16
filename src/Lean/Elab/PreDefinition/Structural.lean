@@ -9,6 +9,7 @@ import Lean.Meta.RecursorInfo
 import Lean.Meta.Match.Match
 import Lean.Elab.PreDefinition.Basic
 namespace Lean.Elab
+namespace Structural
 open Meta
 
 private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : Nat :=
@@ -64,8 +65,34 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
 private def throwStructuralFailed {α} : MetaM α :=
   throwError "structural recursion cannot be used"
 
-private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → MetaM α) : MetaM α :=
-  let rec loop (i : Nat) : MetaM α := do
+structure State :=
+  /- When compiling structural recursion we use the `brecOn` recursor automatically built by
+     the `inductive` command. For an inductive datatype `C`, it has the form
+     `C.brecOn As motive is c F`
+     where `As` are the inductive datatype parameters, `is` are the inductive datatype indices,
+     `c : C As is`, and `F : (js) → (d : C As js) → C.below d → motive d`
+     The `C.below d` is used to eliminate recursive applications. We refine its type when we process
+     a nested dependent pattern matcher using `MatcherApp.addArg`. See `replaceRecApps` for additional details.
+     We store the names of the matcher where we used `MatcherApp.addArg` at `matcherBelowDep`.
+     We use this information to generate the auxiliary `_sunfold` definition needed by the smart unfolding
+     technique used at WHNF. -/
+  (matcherBelowDep : NameSet := {})
+
+abbrev M := StateRefT State MetaM
+
+instance {α} : Inhabited (M α) := {
+  default := throwError "failed"
+}
+
+private def run {α} (x : M α) (s : State := {}) : MetaM (α × State) :=
+  StateRefT'.run x s
+
+private def orelse' {α} (x y : M α) : M α := do
+  let saveState ← get
+  orelseMergeErrors x (do set saveState; y)
+
+private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M α) : M α :=
+  let rec loop (i : Nat) : M α := do
     if h : i < xs.size then
       let x := xs.get ⟨i, h⟩
       let localDecl ← getFVarLocalDecl x
@@ -83,11 +110,11 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
           let indParams  := indArgs.extract 0 indInfo.nparams
           let indIndices := indArgs.extract indInfo.nparams indArgs.size
           if !indIndices.all Expr.isFVar then
-            orelseMergeErrors
+            orelse'
               (throwError! "argument #{i+1} was not used because its type is an inductive family and indices are not variables{indentExpr xType}")
               (loop (i+1))
           else if !indIndices.allDiff then
-            orelseMergeErrors
+            orelse'
               (throwError! "argument #{i+1} was not used because its type is an inductive family and indices are not pairwise distinct{indentExpr xType}")
               (loop (i+1))
           else
@@ -97,18 +124,18 @@ private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecA
             let ys          := xs.extract numFixed xs.size
             match ← hasBadIndexDep? ys indIndices with
             | some (index, y) =>
-              orelseMergeErrors
+              orelse'
                 (throwError! "argument #{i+1} was not used because its type is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}")
                 (loop (i+1))
             | none =>
               match ← hasBadParamDep? ys indParams with
               | some (indParam, y) =>
-                orelseMergeErrors
+                orelse'
                   (throwError! "argument #{i+1} was not used because its type is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}")
                   (loop (i+1))
               | none =>
                 let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
-                orelseMergeErrors
+                orelse'
                   (mapError
                     (k { fixedParams := fixedParams, ys := ys, pos := i - fixedParams.size,
                        indicesPos  := indicesPos,
@@ -221,8 +248,8 @@ private def recArgHasLooseBVarsAt (recFnName : Name) (recArgInfo : RecArgInfo) (
      e.isAppOf recFnName && e.getAppNumArgs > recArgPos && (e.getArg! recArgPos).hasLooseBVars
   app?.isSome
 
-private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : MetaM Expr :=
-  let rec loop : Expr → Expr → MetaM Expr
+private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
+  let rec loop : Expr → Expr → M Expr
     | below, e@(Expr.lam n d b c) => do
       withLocalDecl n c.binderInfo (← loop below d) fun x => do
         mkLambdaFVars #[x] (← loop below (b.instantiate1 x))
@@ -235,7 +262,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
     | below, Expr.mdata d e _   => do pure $ mkMData d (← loop below e)
     | below, Expr.proj n i e _  => do pure $ mkProj n i (← loop below e)
     | below, e@(Expr.app _ _ _) => do
-      let processApp (e : Expr) : MetaM Expr :=
+      let processApp (e : Expr) : M Expr :=
         e.withApp fun f args => do
           if f.isConstOf recFnName then
             let numFixed  := recArgInfo.fixedParams.size
@@ -244,7 +271,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
               throwError! "insufficient number of parameters at recursive application {indentExpr e}"
             let recArg := args[recArgPos]
             -- For reflexive type, we may have nested recursive applications in recArg
-            let recArg ← replaceRecApps recFnName recArgInfo below recArg
+            let recArg ← loop below recArg
             let f ← try toBelow below recArgInfo.indParams.size recArg catch  _ => throwError! "failed to eliminate recursive application{indentExpr e}"
             -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
             let argsNonFixed := args.extract numFixed args.size
@@ -281,6 +308,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
              If this is too annoying in practice, we may replace `ys` with the matching term, but
              this may generate weird error messages, when it doesn't work. -/
           let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
+          modify fun s => { s with matcherBelowDep := s.matcherBelowDep.insert matcherApp.matcherName }
           let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do
               trace[Elab.definition.structural]! "altNumParams: {numParams}, xs: {xs}"
@@ -293,7 +321,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
     | _, e => ensureNoRecFn recFnName e
   loop below e
 
-private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
+private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
   let type  := (← inferType value).headBeta
   let major := recArgInfo.ys[recArgInfo.pos]
   let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
@@ -335,7 +363,7 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
       let brecOn       := mkApp brecOn Farg
       pure $ mkAppN brecOn otherArgs
 
-private def elimRecursion (preDef : PreDefinition) : MetaM PreDefinition :=
+private def elimRecursion (preDef : PreDefinition) : M PreDefinition :=
   withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
     addAsAxiom preDef
     trace[Elab.definition.structural]! "{preDef.declName} {xs} :=\n{value}"
@@ -349,77 +377,69 @@ private def elimRecursion (preDef : PreDefinition) : MetaM PreDefinition :=
       let valueNew ← ensureNoRecFn preDef.declName valueNew
       pure { preDef with value := valueNew }
 
-/-
-  Return true if `e` contains a matcher with nested recursive applications of `recFnName`.
-  This is auxiliary function used by the smartUnfolding procedure to decide where to insert
-  `idRhs` auxiliary applications.
+partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (matcherBelowDep : NameSet) : MetaM PreDefinition := do
+  let recFnName := preDef.declName
+  let isMarkedMatcherName (n : Name) : Bool    := matcherBelowDep.contains n
+  let isMarkedMatcherConst (e : Expr) : Bool   := e.isConst && isMarkedMatcherName e.constName!
+  let isMarkedMatcherApp (e : Expr) : Bool     := isMarkedMatcherConst e.getAppFn
+  let containsMarkedMatcher (e : Expr) : Bool := e.find? isMarkedMatcherConst $.isSome
+  let rec visit (e : Expr) : MetaM Expr := do
+    match e with
+    | Expr.lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
+    | Expr.forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
+    | Expr.letE n type val body _ =>
+      withLetDecl n type (← visit val) fun x => do
+        mkLetFVars #[x] (← visit (body.instantiate1 x))
+    | Expr.mdata d b _   => return mkMData d (← visit b)
+    | Expr.proj n i s _  => return mkProj n i (← visit s)
+    | Expr.app .. =>
+      let processApp (e : Expr) : MetaM Expr :=
+        e.withApp fun f args => do
+          return mkAppN (← visit f) (← args.mapM visit)
+      match isMarkedMatcherApp e, (← matchMatcherApp? e) with
+      | true, some matcherApp =>
+        let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+          lambdaTelescope alt fun xs altBody => do
+            unless xs.size >= numParams do
+              throwError! "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+            if containsMarkedMatcher altBody then
+              -- continue
+              mkLambdaFVars xs (← visit altBody)
+            else
+              -- add idRhs marker
+              let altBody ← mkLambdaFVars xs[numParams:xs.size] altBody
+              let altBody ← mkIdRhs altBody
+              mkLambdaFVars xs[0:numParams] altBody
+        pure { matcherApp with alts := altsNew }.toExpr
+      | _, _ => processApp e
+    | _ => pure e
+  return { preDef with
+    declName  := mkSmartUnfoldingNameFor preDef.declName,
+    value     := (← visit preDef.value),
+    modifiers := {}
+  }
 
-  TODO: refine this test. It is just an approximation right now.
-  The perfect test should reflect the behavior of replaceRecApps. -/
-private def containsMatcherWithRecApp (recFnName : Name) (e : Expr) : MetaM Bool := do
-  let env ← getEnv
-  let m? := e.find? fun e =>
-    match e.getAppFn with
-    | Expr.const constName .. =>
-      match Match.Extension.getMatcherInfo? env constName with
-      | some info => containsRecFn recFnName e
-      | none => false
-    | _ => false
-  pure m?.isSome
-
-partial def addSmartUnfoldingDef (preDef : PreDefinition) : TermElabM Unit := do
+partial def addSmartUnfoldingDef (preDef : PreDefinition) (state : State) : TermElabM Unit := do
   if (← isProp preDef.type) then
     return ()
   else
-    let recFnName := preDef.declName
-    let rec visit (e : Expr) : MetaM Expr := do
-      match e with
-      | Expr.lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
-      | Expr.forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
-      | Expr.letE n type val body _ =>
-        withLetDecl n type (← visit val) fun x => do
-          mkLetFVars #[x] (← visit (body.instantiate1 x))
-      | Expr.mdata d b _   => return mkMData d (← visit b)
-      | Expr.proj n i s _  => return mkProj n i (← visit s)
-      | Expr.app .. =>
-        let processApp (e : Expr) : MetaM Expr :=
-          e.withApp fun f args => do
-            return mkAppN (← visit f) (← args.mapM visit)
-        let matcherApp? ← matchMatcherApp? e
-        match matcherApp? with
-        | some matcherApp =>
-          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-            lambdaTelescope alt fun xs altBody => do
-              unless xs.size >= numParams do
-                throwError! "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-              if (← containsMatcherWithRecApp recFnName altBody) then
-                -- continue
-                mkLambdaFVars xs (← visit altBody)
-              else
-                -- add idRhs marker
-                let altBody ← mkLambdaFVars xs[numParams:xs.size] altBody
-                let altBody ← mkIdRhs altBody
-                mkLambdaFVars xs[0:numParams] altBody
-          pure { matcherApp with alts := altsNew }.toExpr
-        | none => processApp e
-      | _ => pure e
-    trace[Meta.debug]! "preDef {preDef.value}"
-    addNonRec { preDef with
-      declName  := mkSmartUnfoldingNameFor preDef.declName,
-      value     := (← visit preDef.value),
-      modifiers := {}
-    }
+    let preDefSUnfold ← addSmartUnfoldingDefAux preDef state.matcherBelowDep
+    addNonRec preDefSUnfold
 
 def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
   if preDefs.size != 1 then
     throwError "structural recursion does not handle mutually recursive functions"
   else do
-    let preDefNonRec ← elimRecursion preDefs[0]
+    let (preDefNonRec, state) ← run $ elimRecursion preDefs[0]
     mapError (addNonRec preDefNonRec) (fun msg => m!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompileUnsafeRec preDefs
-    addSmartUnfoldingDef preDefs[0]
+    addSmartUnfoldingDef preDefs[0] state
 
 builtin_initialize
   registerTraceClass `Elab.definition.structural
+
+end Structural
+
+export Structural (structuralRecursion)
 
 end Lean.Elab

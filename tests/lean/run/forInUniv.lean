@@ -14,8 +14,10 @@ structure S :=
 instance : BEq S :=
 ⟨fun a b => a.key == b.key⟩
 
+set_option smartUnfolding false in
 theorem ex1 : f (α := S) [⟨1, 2⟩, ⟨3, 4⟩, ⟨5, 6⟩] ⟨3, 0⟩ = ⟨3, 4⟩ :=
 rfl
 
+set_option smartUnfolding false in
 theorem ex2 : f (α := S) [⟨1, 2⟩, ⟨3, 4⟩, ⟨5, 6⟩] ⟨4, 10⟩ = ⟨4, 10⟩ :=
 rfl

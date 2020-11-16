@@ -60,6 +60,7 @@ return sum
 
 #eval sumOdd [1, 2, 3, 4, 5, 6, 7, 9, 11, 101] 10
 
+set_option smartUnfolding false in
 theorem ex5 : sumOdd [1, 2, 3, 4, 5, 6, 7, 9, 11, 101] 10 = 16 :=
 rfl
 
@@ -78,6 +79,7 @@ for (x, y) in ps do
   sum := sum + x - y
 return sum
 
+set_option smartUnfolding false in
 theorem ex7 : sumDiff [(2, 1), (10, 5)] = 6 :=
 rfl
 
@@ -112,6 +114,7 @@ for x in xs.reverse do
     odds := x :: odds
 return (evens, odds)
 
+set_option smartUnfolding false in
 theorem ex8 : split [1, 2, 3, 4] = ([2, 4], [1, 3]) :=
 rfl
 
@@ -166,9 +169,11 @@ for x in xs do
     return x
 return 0
 
+set_option smartUnfolding false in
 theorem ex14 : findOdd [2, 4, 5, 8, 7] = 5 :=
 rfl
 
+set_option smartUnfolding false in
 theorem ex15 : findOdd [2, 4, 8, 10] = 0 :=
 rfl
 

@@ -342,27 +342,38 @@ private partial def whnfCoreUnstuck (e : Expr) : MetaM Expr := do
   let succeeded     ← Meta.synthPending mvarId
   if succeeded then whnfCoreUnstuck e else pure e
 
+def smartUnfoldingDefault := true
+builtin_initialize
+  registerOption `smartUnfolding { defValue := smartUnfoldingDefault, group := "", descr := "when computing weak head normal form, use auxiliary definition created for functions defined by structural recursion" }
+private def useSmartUnfolding (opts : Options) : Bool :=
+  opts.getBool `smartUnfolding smartUnfoldingDefault
+
 /-- Unfold definition using "smart unfolding" if possible. -/
 private def unfoldDefinitionImp? (e : Expr) : MetaM (Option Expr) :=
   match e with
   | Expr.app f _ _ =>
-    matchConstAux f.getAppFn (fun _ => pure none) $ fun fInfo fLvls =>
-      if fInfo.lparams.length != fLvls.length then pure none
-      else do
-        let fAuxInfo? ← getConstNoEx? (mkSmartUnfoldingNameFor fInfo.name)
-        match fAuxInfo? with
-        | some $ fAuxInfo@(ConstantInfo.defnInfo _) =>
-          deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (fun _ => pure none) $ fun e₁ => do
-            let e₂ ← whnfCoreUnstuck e₁
-            if isIdRhsApp e₂ then
-              pure (some (extractIdRhs e₂))
-            else
-              pure none
-        | _ =>
+    matchConstAux f.getAppFn (fun _ => pure none) fun fInfo fLvls => do
+      if fInfo.lparams.length != fLvls.length then
+        pure none
+      else
+        let unfoldDefault (_ : Unit) : MetaM (Option Expr) :=
           if fInfo.hasValue then
             deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
           else
             pure none
+        if useSmartUnfolding (← getOptions) then
+          let fAuxInfo? ← getConstNoEx? (mkSmartUnfoldingNameFor fInfo.name)
+          match fAuxInfo? with
+          | some $ fAuxInfo@(ConstantInfo.defnInfo _) =>
+            deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (fun _ => pure none) $ fun e₁ => do
+              let e₂ ← whnfCoreUnstuck e₁
+              if isIdRhsApp e₂ then
+                pure (some (extractIdRhs e₂))
+              else
+                pure none
+          | _ => unfoldDefault ()
+        else
+          unfoldDefault ()
   | Expr.const name lvls _ => do
     let (some (cinfo@(ConstantInfo.defnInfo _))) ← getConstNoEx? name | pure none
     deltaDefinition cinfo lvls (fun _ => pure none) (fun e => pure (some e))

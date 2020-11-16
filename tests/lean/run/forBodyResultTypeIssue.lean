@@ -1,5 +1,3 @@
-
-
 abbrev M := ExceptT String $ StateT Nat Id
 
 def f (xs : List Nat) : M Unit := do
@@ -10,9 +8,11 @@ for x in xs do
 #eval f [1, 2, 3] $.run' 0
 #eval f [1, 0, 3] $.run' 0
 
+set_option smartUnfolding false in
 theorem ex1 : f [1, 2, 3] $.run' 0 = Except.ok () :=
 rfl
 
+set_option smartUnfolding false in
 theorem ex2 : f [1, 0, 3] $.run' 0 = Except.error "contains zero" :=
 rfl
 

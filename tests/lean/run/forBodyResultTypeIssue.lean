@@ -8,7 +8,6 @@ for x in xs do
 #eval f [1, 2, 3] $.run' 0
 #eval f [1, 0, 3] $.run' 0
 
-set_option smartUnfolding false in
 theorem ex1 : f [1, 2, 3] $.run' 0 = Except.ok () :=
 rfl
 

@@ -50,7 +50,6 @@ else
   | []    => []
   | y::ys => (y + x/2 + 1) :: bla (x/2) ys
 
-set_option smartUnfolding false in
 theorem blaEq (y : Nat) (ys : List Nat) : bla 4 (y::ys) = (y+2) :: bla 2 ys :=
 rfl
 

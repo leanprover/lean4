@@ -2,9 +2,10 @@
   description = "Lean interactive theorem prover";
 
   inputs.nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
+  inputs.flake-utils.url = github:numtide/flake-utils;
 
-  outputs = { self, nixpkgs }:
-    with import nixpkgs { system = "x86_64-linux"; };
+  outputs = { self, nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system:
+    with nixpkgs.legacyPackages.${system};
     let
       cc = ccacheWrapper.override rec {
         cc = llvmPackages_10.clang.override {
@@ -37,16 +38,18 @@
         fileSpecs = [ "*.el" ];
       };
       lean-emacs = emacsWithPackages (epkgs:
-        # can't use `epkgs`???
-        with emacsPackages.melpaPackages; [ dash dash-functional f flycheck s ] ++ [ lean4-mode ]);
-  in {
-    packages.x86_64-linux = {
-      inherit (lean.stage1.Lean) mods leanInteractive emacs;
-      lean = lean.stage1 // lean // { inherit buildLeanPackage; };
-    };
+        with epkgs; [ dash dash-functional f flycheck s ] ++ [ lean4-mode ]);
+    in rec {
+      packages = {
+        inherit lean4-mode;
+        inherit (lean.stage1.Lean) emacs;
+        lean = lean.stage1 // lean // { inherit buildLeanPackage; };
+        # used by `leanInteractive`
+        pkg = lean.stage1;
+      };
 
-    defaultPackage.x86_64-linux = self.packages.x86_64-linux.lean;
+      defaultPackage = packages.lean;
 
-    checks.x86_64-linux.lean = self.packages.x86_64-linux.lean.test;
-  };
+      checks.lean = packages.lean.test;
+    });
 }

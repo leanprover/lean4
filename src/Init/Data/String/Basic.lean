@@ -320,6 +320,12 @@ end String
 
 namespace Substring
 
+@[inline] def bsize : Substring → Nat
+  | ⟨_, b, e⟩ => e - b
+
+@[inline] def isEmpty (ss : Substring) : Bool :=
+  ss.bsize == 0
+
 @[inline] def toString : Substring → String
   | ⟨s, b, e⟩ => s.extract b e
 

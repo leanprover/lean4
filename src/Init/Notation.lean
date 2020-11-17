@@ -107,6 +107,7 @@ syntax[done] "done" : tactic
 syntax[traceState] "traceState" : tactic
 syntax[failIfSuccess] "failIfSuccess " tacticSeq : tactic
 syntax[generalize] "generalize " atomic(ident " : ")? term:51 " = " ident : tactic
+syntax[paren] "(" tacticSeq ")" : tactic
 
 syntax locationWildcard := "*"
 syntax locationTarget   := "⊢" <|> "|-"
@@ -116,11 +117,11 @@ syntax location         := withPosition("at " locationWildcard <|> locationTarge
 syntax[change] "change " term (location)? : tactic
 syntax[changeWith] "change " term " with " term (location)? : tactic
 
-syntax rwRule    := ("←" <|> "<-") term
+syntax rwRule    := ("←" <|> "<-")? term
 syntax rwRuleSeq := "[" sepBy1T(rwRule, ", ") "]"
 
-syntax[rewrite] ("rewrite" <|> "rw") notFollowedBy("[") rwRule (location)? : tactic
-syntax[rewriteSeq] ("rewrite" <|> "rw") rwRuleSeq (location)? : tactic
+syntax[rewrite] (&"rewrite" <|> &"rw") !"[" rwRule (location)? : tactic
+syntax[rewriteSeq] (&"rewrite" <|> &"rw") rwRuleSeq (location)? : tactic
 
 syntax:2[orelse] tactic "<|>" tactic:1 : tactic
 
@@ -131,7 +132,7 @@ syntax[«suffices»] "suffices " sufficesDecl : tactic
 syntax[«show»] "show " term : tactic
 syntax[«let»] "let " letDecl : tactic
 syntax[«let!»] "let! " letDecl : tactic
-syntax[letrec] withPosition(atomic(group("let " "rec ")) letRecDecls) : tactic
+syntax[letrec] withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
 
 syntax inductionAlt  := (ident <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := withPosition("| " sepBy1(inductionAlt, colGe "| "))
@@ -140,10 +141,21 @@ syntax casesTarget := atomic(ident " : ")? term
 syntax[cases] "cases " sepBy1(casesTarget, ", ") (" using " ident)? (inductionAlts)? : tactic
 
 syntax matchAlt  := sepBy1(term, ", ") " => " (hole <|> syntheticHole <|> tacticSeq)
-syntax matchAlts := "| " sepBy1(matchAlt, colGe "| ")
-syntax matchDiscr := term
+syntax matchAlts := withPosition("| " sepBy1(matchAlt, colGe "| "))
 syntax[«match»] "match " sepBy1(matchDiscr, ", ") (" : " term)? " with " matchAlts : tactic
 
 syntax[introMatch] "intro " matchAlts : tactic
+
+macro "rfl" : tactic => `(exact rfl)
+macro "decide!" : tactic => `(exact decide!)
+macro "admit" : tactic => `(exact sorry)
+/- We use a priority > 0, to avoid ambiguity with the builtin `have` notation -/
+macro[1] "have" x:ident ":=" p:term : tactic => `(have $x:ident : _ := $p)
+
+syntax "repeat " tacticSeq : tactic
+macro_rules
+  | `(tactic| repeat $seq) => `(tactic| (($seq); repeat $seq) <|> skip)
+
+macro "try " t:tacticSeq : tactic => `(($t) <|> skip)
 
 end Lean.Parser.Tactic

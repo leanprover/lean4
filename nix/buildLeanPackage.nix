@@ -1,4 +1,4 @@
-{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, writeScriptBin, bash, lean-emacs }:
+{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeScriptBin, bash, lean-emacs }:
 with builtins; let
   # "Init.Core" ~> "Init/Core.lean"
   modToLean = mod: replaceStrings ["."] ["/"] mod + ".lean";
@@ -102,7 +102,7 @@ in
     lean-package = writeScriptBin "lean" ''
       #!${bash}/bin/bash
       set -euo pipefail
-      LEAN_PATH=${modRoot} ${lean}/bin/lean $@
+      LEAN_PATH=${modRoot} ${lean-final}/bin/lean $@
     '';
     lean-dev = writeScriptBin "lean" ''
       #!${bash}/bin/bash

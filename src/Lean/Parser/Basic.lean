@@ -1583,8 +1583,8 @@ def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
 /- End of Antiquotations -/
 /- ===================== -/
 
-def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) : Parser :=
-  withAntiquot (mkAntiquot name kind false) $ node kind p
+def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anonymous := false) : Parser :=
+  withAntiquot (mkAntiquot name kind anonymous) $ node kind p
 
 def ident : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot

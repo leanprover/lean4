@@ -178,14 +178,9 @@ def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
   trace[PrettyPrinter.format]! "formatting {MessageData.nest 2 (Format.line ++ fmt stx)}"
   if stx.getKind == `choice then
     visitArgs do
-      let stx ← getCur;
-      let sp ← getStackSize
-      stx.getArgs.forM fun stx => formatterForKind stx.getKind
-      let stack ← getStack
-      if stack.size > sp && stack[sp:stack.size].any fun f => f.pretty != (stack.get! sp).pretty then
-        panic! "Formatter.visit: inequal choice children";
-      -- discard all but one child format
-      setStack $ stack.extract 0 (sp+1)
+      -- format only last choice
+      -- TODO: We could use elaborator data here to format the chosen child when available
+      formatterForKind (← getCur).getKind
   else
     withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind)
 

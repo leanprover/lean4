@@ -1,4 +1,4 @@
-syntax "foo" !"bla" term : term
+syntax "foo" &"bla" term : term
 
 macro_rules
   | `(foo bla $x) => x

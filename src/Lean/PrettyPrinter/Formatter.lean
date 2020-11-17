@@ -175,6 +175,7 @@ def withAntiquot.formatter (antiP p : Formatter) : Formatter :=
 @[combinatorFormatter Lean.Parser.categoryParser]
 def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
   let stx ← getCur
+  trace[PrettyPrinter.format]! "formatting {MessageData.nest 2 (Format.line ++ fmt stx)}"
   if stx.getKind == `choice then
     visitArgs do
       let stx ← getCur;
@@ -266,7 +267,7 @@ def symbol.formatter (sym : String) : Formatter := do
     pushToken sym;
     goLeft
   else do
-    trace[PrettyPrinter.format.backtrack]! "unexpected syntax '{stx}', expected symbol '{sym}'"
+    trace[PrettyPrinter.format.backtrack]! "unexpected syntax '{fmt stx}', expected symbol '{sym}'"
     throwBacktrack
 
 @[combinatorFormatter Lean.Parser.nonReservedSymbol] def nonReservedSymbol.formatter := symbol.formatter
@@ -453,13 +454,14 @@ end Formatter
 open Formatter
 
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
-let options ← getOptions
-let table ← Parser.builtinTokenTable.get
-catchInternalId backtrackExceptionId
-  (do
-    let (_, st) ← (concat formatter { table := table, options := options }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
-    pure $ Format.fill $ st.stack.get! 0)
-  (fun _ => throwError "format: uncaught backtrack exception")
+  trace[PrettyPrinter.format.input]! "{fmt stx}"
+  let options ← getOptions
+  let table ← Parser.builtinTokenTable.get
+  catchInternalId backtrackExceptionId
+    (do
+      let (_, st) ← (concat formatter { table := table, options := options }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
+      pure $ Format.fill $ st.stack.get! 0)
+    (fun _ => throwError "format: uncaught backtrack exception")
 
 def formatTerm := format $ categoryParser.formatter `term
 def formatCommand := format $ categoryParser.formatter `command

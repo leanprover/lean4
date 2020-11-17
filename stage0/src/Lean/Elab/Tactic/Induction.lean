@@ -217,7 +217,7 @@ end ElimApp
   Recall that
   ```
   generalizingVars := optional (" generalizing " >> many1 ident)
-  «induction»  := parser! nonReservedSymbol "induction " >> majorPremise >> usingRec >> generalizingVars >> withAlts
+  «induction»  := parser! nonReservedSymbol "induction " >> majorPremise >> usingRec >> generalizingVars >> optional inductionAlts
   ```
   `stx` is syntax for `induction`. -/
 private def getGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :=
@@ -239,22 +239,26 @@ private def generalizeVars (stx : Syntax) (targets : Array Expr) : TacticM Nat :
       Meta.throwTacticEx `induction mvarId "major premise depends on variable being generalized"
     pure (fvarIds.size, [mvarId'])
 
-private def getAlts (withAlts : Syntax) : Array Syntax :=
-  withAlts[1].getSepArgs
+private def getAltsOfInductionAlts (inductionAlts : Syntax) : Array Syntax :=
+  inductionAlts[1].getSepArgs
+
+private def getAltsOfOptInductionAlts (optInductionAlts : Syntax) : Array Syntax :=
+  if optInductionAlts.isNone then #[] else getAltsOfInductionAlts optInductionAlts[0]
 
 /-
   We may have at most one `| _ => ...` (wildcard alternative), and it must not set variable names.
   The idea is to make sure users do not write unstructured tactics. -/
-private def checkAlts (withAlts : Syntax) : TacticM Unit := do
-  let mut found := false
-  for alt in getAlts withAlts do
-    let n := getAltName alt
-    if n == `_ then
-      unless (getAltVarNames alt).isEmpty do
-        throwErrorAt! alt "wildcard alternative must not specify variable names"
-      if found then
-        throwErrorAt! alt "more than one wildcard alternative '| _ => ...' used"
-      found := true
+private def checkAltsOfOptInductionAlts (optInductionAlts : Syntax) : TacticM Unit :=
+  unless optInductionAlts.isNone do
+    let mut found := false
+    for alt in getAltsOfInductionAlts optInductionAlts[0] do
+      let n := getAltName alt
+      if n == `_ then
+        unless (getAltVarNames alt).isEmpty do
+          throwErrorAt! alt "wildcard alternative must not specify variable names"
+        if found then
+          throwErrorAt! alt "more than one wildcard alternative '| _ => ...' used"
+        found := true
 
 /-
   Given alts of the form
@@ -314,17 +318,17 @@ def getRecFromUsing (major : Expr) (baseRecName : Name) : TacticM Meta.RecursorI
       throwError! "invalid recursor name '{baseRecName}'"
 
 /- Create `RecInfo` assuming builtin recursor -/
-private def getRecInfoDefault (major : Expr) (withAlts : Syntax) (allowMissingAlts : Bool) : TacticM (RecInfo × Array Name) := do
+private def getRecInfoDefault (major : Expr) (optInductionAlts : Syntax) (allowMissingAlts : Bool) : TacticM (RecInfo × Array Name) := do
   let indVal ← getInductiveValFromMajor major
   let recName := mkRecName indVal.name
-  if withAlts.isNone then
+  if optInductionAlts.isNone then
     pure ({ recName := recName }, #[])
   else
     let ctorNames   := indVal.ctors
-    let alts        := getAlts withAlts
+    let alts        := getAltsOfInductionAlts optInductionAlts[0]
     checkAltCtorNames alts ctorNames
     let mut altsNew := #[]
-    -- This code can be simplified if we decide to keep `checkAlts`
+    -- This code can be simplified if we decide to keep `checkAltsOfOptInductionAlts`
     let mut remainingAlts := alts
     let mut prevAnonymousAlt? := none
     for ctorName in ctorNames do
@@ -354,27 +358,28 @@ private def getRecInfoDefault (major : Expr) (withAlts : Syntax) (allowMissingAl
 /-
   Recall that
   ```
-  inductionAlt  : Parser :=
-    nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> (hole <|> syntheticHole <|> tacticParser)
-  inductionAlts : Parser := withPosition $ fun pos => "|" >> sepBy1 inductionAlt (checkColGe pos.column "alternatives must be indented" >> "|")
-  withAlts : Parser := optional (" with " >> inductionAlts)
+  altRHS := Term.hole <|> Term.syntheticHole <|> tacticSeq
+  inductionAlt  : Parser := parser! ident' >> many ident' >> darrow >> altRHS
+  inductionAlts : Parser := parser! withPosition ("| " >> sepBy1 inductionAlt (checkColGe "alternatives must be indented" >> "|"))
   usingRec : Parser := optional (" using " >> ident)
+  generalizingVars := optional (" generalizing " >> many1 ident)
+  induction := parser! nonReservedSymbol "induction " >> sepBy1 termParser ", " >> usingRec >> generalizingVars >> optional inductionAlts
   ``` -/
 private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRef stx $ withMainMVarContext do
   let usingRecStx := stx[2]
-  let withAlts    := stx[4]
-  checkAlts withAlts
+  let optInductionAlts := stx[4]
+  checkAltsOfOptInductionAlts optInductionAlts
   if usingRecStx.isNone then
-    let (rinfo, _) ← getRecInfoDefault major withAlts false
+    let (rinfo, _) ← getRecInfoDefault major optInductionAlts false
     pure rinfo
   else
     let baseRecName := usingRecStx.getIdAt 1 $.eraseMacroScopes
     let recInfo ← getRecFromUsing major baseRecName
     let recName := recInfo.recursorName
-    if withAlts.isNone then
+    if optInductionAlts.isNone then
       pure { recName := recName }
     else
-      let alts := getAlts withAlts
+      let alts := getAltsOfInductionAlts optInductionAlts[0]
       let paramNames ← liftMetaMAtMain fun _ => getParamNames recInfo.recursorName
       let mut remainingAlts     := alts
       let mut prevAnonymousAlt? := none
@@ -451,8 +456,8 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
       let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
       let targetFVarIds := targets.map (·.fvarId!)
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
-      let withAlts := stx[4]
-      ElimApp.evalAlts elimInfo result.alts (getAlts withAlts) (numGeneralized := n) (toClear := targetFVarIds)
+      let optInductionAlts := stx[4]
+      ElimApp.evalAlts elimInfo result.alts (getAltsOfOptInductionAlts optInductionAlts) (numGeneralized := n) (toClear := targetFVarIds)
 
 private partial def checkCasesResult (casesResult : Array Meta.CasesSubgoal) (ctorNames : Array Name) (alts : Array Syntax) : TacticM Unit := do
   let rec loop (i j : Nat) : TacticM Unit :=
@@ -513,9 +518,9 @@ def elabTargets (targets : Array Syntax) : TacticM (Array Expr) :=
 builtin_initialize registerTraceClass `Elab.cases
 
 /- Default `cases` tactic that uses `casesOn` eliminator -/
-def evalCasesOn (target : Expr) (withAlts : Syntax) : TacticM Unit := do
+def evalCasesOn (target : Expr) (optInductionAlts : Syntax) : TacticM Unit := do
   let (mvarId, _) ← getMainGoal
-  let (recInfo, ctorNames) ← getRecInfoDefault target withAlts true
+  let (recInfo, ctorNames) ← getRecInfoDefault target optInductionAlts (allowMissingAlts := true)
   let altVars := recInfo.alts.map fun alt => (getAltVarNames alt).toList
   let result ← Meta.cases mvarId target.fvarId! altVars
   trace[Elab.cases]! "recInfo.alts.size: #{recInfo.alts.size} {recInfo.alts.map getAltVarNames}"
@@ -525,7 +530,7 @@ def evalCasesOn (target : Expr) (withAlts : Syntax) : TacticM Unit := do
   let alts := recInfo.alts.filter fun stx => !stx.isMissing
   processResult alts result
 
-def evalCasesUsing (elimId : Syntax) (targetRef : Syntax) (targets : Array Expr) (withAlts : Syntax) : TacticM Unit := do
+def evalCasesUsing (elimId : Syntax) (targetRef : Syntax) (targets : Array Expr) (optInductionAlts : Syntax) : TacticM Unit := do
   let elimName := elimId.getId
   let elimInfo ← withRef elimId do getElimInfo elimName
   let (mvarId, _) ← getMainGoal
@@ -540,18 +545,18 @@ def evalCasesUsing (elimId : Syntax) (targetRef : Syntax) (targets : Array Expr)
     withMVarContext mvarId do
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetsNew
       assignExprMVar mvarId result.elimApp
-      ElimApp.evalAlts elimInfo result.alts (getAlts withAlts) (numEqs := targets.size)
+      ElimApp.evalAlts elimInfo result.alts (getAltsOfOptInductionAlts optInductionAlts) (numEqs := targets.size)
 
 @[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focusAux do
-  -- parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> withAlts
+  -- parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
   let targets ← elabTargets stx[1].getSepArgs
-  let withAlts := stx[3]
-  checkAlts withAlts
+  let optInductionAlts := stx[3]
+  checkAltsOfOptInductionAlts optInductionAlts
   if stx[2].isNone then
     unless targets.size == 1 do
       throwErrorAt stx[1] "multiple targets are only supported when a user-defined eliminator is provided with 'using'"
-    evalCasesOn targets[0] withAlts
+    evalCasesOn targets[0] optInductionAlts
   else
-    evalCasesUsing stx[2][1] (targetRef := stx[1]) targets withAlts
+    evalCasesUsing stx[2][1] (targetRef := stx[1]) targets optInductionAlts
 
 end Lean.Elab.Tactic

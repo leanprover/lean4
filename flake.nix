@@ -17,7 +17,7 @@
     with nixpkgs.legacyPackages.${system};
     let
       nix-pinned = writeShellScriptBin "nix" ''
-        ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ $@
+        ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false $@
       '';
       llvmPackages = llvmPackages_10;
       cc = ccacheWrapper.override rec {

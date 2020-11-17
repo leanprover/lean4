@@ -49,8 +49,6 @@ nix build  # dito
 ```
 On a build error, Nix will show the last 10 lines of the output by default. You can pass `-L` to `nix build` to show all lines, or pass the shown `*.drv` path to `nix log` to show the full log after the fact.
 
-Note: Nix will print a warning "Git tree [...] is dirty" when you have uncommitted changes as a reminder that you're not building the "actual repo contents", but the message is otherwise harmless.
-
 Keeping all outputs ever built on a machine alive can accumulate to quite impressive amounts of disk space, so you might want to trigger the Nix GC when /nix/store/ has grown too large:
 ```bash
 nix-collect-garbage

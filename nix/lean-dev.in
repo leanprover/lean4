@@ -6,7 +6,6 @@ call() {
     if [[ $json == 1 ]]; then
         $@ 2>&1 | awk '
 /{/ { print $0; next }
-/warning: Git tree/ { next }  # ... is dirty
 {
   gsub(/"/, "\\\"", $0);
   gsub(/\n/, "\\n", $0);

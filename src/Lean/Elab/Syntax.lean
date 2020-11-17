@@ -45,8 +45,8 @@ private def markAsTrailingParser : ToParserDescrM Unit := set true
 @[inline] private def withNotFirst {α} (x : ToParserDescrM α) : ToParserDescrM α :=
   withReader (fun ctx => { ctx with first := false }) x
 
-@[inline] private def withoutLeftRec {α} (x : ToParserDescrM α) : ToParserDescrM α :=
-  withReader (fun ctx => { ctx with leftRec := false }) x
+@[inline] private def withNestedParser {α} (x : ToParserDescrM α) : ToParserDescrM α :=
+  withReader (fun ctx => { ctx with leftRec := false, first := false }) x
 
 def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   let ctx ← read
@@ -71,10 +71,10 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef s
     if (← checkLeftRec stx[0]) then
       if args.size == 1 then throwErrorAt stx "invalid atomic left recursive syntax"
       let args := args.eraseIdx 0
-      let args ← args.mapIdxM fun i arg => withNotFirst $ toParserDescrAux arg
+      let args ← args.mapM fun arg => withNestedParser $ toParserDescrAux arg
       mkParserSeq args
     else
-      let args ← args.mapIdxM fun i arg => withNotFirst $ toParserDescrAux arg
+      let args ← args.mapIdxM fun i arg => withReader (fun ctx => { ctx with first := ctx.first && i.val == 0 }) $ toParserDescrAux arg
       mkParserSeq args
   else if kind == choiceKind then
     toParserDescrAux stx[0]
@@ -83,13 +83,13 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef s
   else if kind == `Lean.Parser.Syntax.unary then
     let aliasName := (stx[0].getId).eraseMacroScopes
     liftIO $ Parser.ensureUnaryParserAlias aliasName
-    let d ← withoutLeftRec $ toParserDescrAux stx[2]
+    let d ← withNestedParser $ toParserDescrAux stx[2]
     `(ParserDescr.unary $(quote aliasName) $d)
   else if kind == `Lean.Parser.Syntax.binary then
     let aliasName := (stx[0].getId).eraseMacroScopes
     liftIO $ Parser.ensureBinaryParserAlias aliasName
-    let d₁ ← withoutLeftRec $ toParserDescrAux stx[2]
-    let d₂ ← withoutLeftRec $ toParserDescrAux stx[4]
+    let d₁ ← withNestedParser $ toParserDescrAux stx[2]
+    let d₂ ← withNestedParser $ toParserDescrAux stx[4]
     `(ParserDescr.binary $(quote aliasName) $d₁ $d₂)
   else if kind == `Lean.Parser.Syntax.cat then
     let cat   := stx[0].getId.eraseMacroScopes
@@ -135,7 +135,9 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef s
   else if kind == `Lean.Parser.Syntax.atom then
     match stx[0].isStrLit? with
     | some atom =>
-      if (← read).leadingIdentAsSymbol then
+      /- For syntax categories where initialized with `leadingIdentAsSymbol` (e.g., `tactic`), we automatically mark
+         the first symbol as nonReserved. -/
+      if (← read).leadingIdentAsSymbol && (← read).first then
         `(ParserDescr.nonReservedSymbol $(quote atom) false)
       else
         `(ParserDescr.symbol $(quote atom))

@@ -76,6 +76,7 @@ lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_Elab_Command_elabSection___closed__2;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabUniverses___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabNamespace___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7455____closed__22;
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Core_Lean_CoreM___instance__1___closed__1;
 lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__13___closed__6;
@@ -667,7 +668,6 @@ lean_object* l_Lean_Elab_Command_expandInCmd___closed__1;
 extern lean_object* l_Init_Data_Repr___instance__2___closed__1;
 lean_object* l_Lean_Elab_Command_getLevelNames(lean_object*);
 lean_object* l_Lean_Elab_Command_elabVariable___lambda__2___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7262____closed__22;
 lean_object* l_Lean_Elab_Command_Context_currMacroScope___default;
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__4___closed__3;
@@ -21467,7 +21467,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_7262____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_7455____closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -21521,7 +21521,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__7;
-x_2 = l_myMacro____x40_Init_Notation___hyg_7262____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_7455____closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

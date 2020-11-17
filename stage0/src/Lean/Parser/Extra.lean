@@ -48,20 +48,18 @@ attribute [runBuiltinParserAttributeHooks]
 
 end Parser
 
-namespace PrettyPrinter
-namespace Formatter
+section
+open PrettyPrinter
 
-@[combinatorFormatter Lean.Parser.ppHardSpace] def ppHardSpace.formatter : Formatter := push " "
-@[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := pushLine
-@[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := push "\n"
-@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := group $ indent p
-@[combinatorFormatter Lean.Parser.ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := indent p
+@[combinatorFormatter Lean.Parser.ppHardSpace] def ppHardSpace.formatter : Formatter := Formatter.push " "
+@[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := Formatter.pushLine
+@[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := Formatter.push "\n"
+@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := Formatter.group $ Formatter.indent p
+@[combinatorFormatter Lean.Parser.ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := Formatter.indent p
 @[combinatorFormatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
   let opts ← getOptions
-  indent p (some (0 - Format.getIndent opts))
-
-end Formatter
-end PrettyPrinter
+  Formatter.indent p (some (0 - Format.getIndent opts))
+end
 
 namespace Parser
 
@@ -73,6 +71,16 @@ macro "registerParserAlias!" aliasName:strLit declName:ident : term =>
   `(do Parser.registerAlias $aliasName $declName
        PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
        PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
+
+open PrettyPrinter in
+builtin_initialize
+  registerParserAlias! "group" group
+  registerParserAlias! "ppHardSpace" ppHardSpace
+  registerParserAlias! "ppSpace" ppSpace
+  registerParserAlias! "ppLine" ppLine
+  registerParserAlias! "ppGroup" ppGroup
+  registerParserAlias! "ppIndent" ppIndent
+  registerParserAlias! "ppDedent" ppDedent
 
 end Parser
 end Lean

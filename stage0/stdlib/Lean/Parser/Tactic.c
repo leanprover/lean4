@@ -143,6 +143,7 @@ lean_object* l_Lean_Parser_Tactic_changeWith___elambda__1___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_cases_parenthesizer___closed__7;
 lean_object* l_Lean_Parser_Tactic_majorPremise___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_5739____closed__7;
 lean_object* l_Lean_Parser_Tactic_have___closed__1;
 lean_object* l_Lean_Parser_Tactic_location___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Tactic_location_formatter___closed__8;
@@ -1142,7 +1143,6 @@ lean_object* l___regBuiltin_Lean_Parser_Tactic_cases_formatter___closed__1;
 lean_object* l_Lean_Parser_Tactic_refine_x21;
 lean_object* l_Lean_Parser_sepBy1Info(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_withAlts_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_6360____closed__7;
 lean_object* l___regBuiltinParser_Lean_Parser_Tactic_match(lean_object*);
 lean_object* l_Lean_Parser_Tactic_usingRec___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_matchAlts___elambda__1___closed__6;
@@ -17712,7 +17712,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_paren___elambda__1___closed__2() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_6360____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_5739____closed__7;
 x_2 = l_Lean_Parser_Tactic_paren___elambda__1___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -17881,7 +17881,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_paren_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_6360____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_5739____closed__7;
 x_2 = l_Lean_Parser_Tactic_paren___elambda__1___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);

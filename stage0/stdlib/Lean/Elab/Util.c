@@ -164,6 +164,7 @@ lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacro_x3f_match__1___
 lean_object* l_Lean_Elab_getMacroStackOption___boxed(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getMacroStackOption___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_6694____closed__1;
 lean_object* l_Lean_Elab_checkSyntaxNodeKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getMacros_match__1(lean_object*);
 lean_object* l_Lean_Elab_adaptMacro___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -172,7 +173,6 @@ lean_object* l_Lean_Elab_checkSyntaxNodeKind(lean_object*, lean_object*, lean_ob
 extern lean_object* l_Lean_KeyedDeclsAttribute_Lean_KeyedDeclsAttribute___instance__3___closed__1;
 lean_object* l_Lean_Elab_getBetterRef_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5787____closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Elab_getMacros___spec__6(lean_object*, lean_object*);
@@ -1193,7 +1193,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_5787____closed__1;
+x_2 = l_myMacro____x40_Init_Notation___hyg_6694____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

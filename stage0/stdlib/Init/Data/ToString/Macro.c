@@ -35,6 +35,7 @@ lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__8;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_43____closed__5;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__1;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__2;
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__9;
 extern lean_object* l_Lean_Init_Prelude___instance__72___closed__1;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__9;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__13;
@@ -51,7 +52,6 @@ lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__3;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3372____closed__2;
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_6293____closed__9;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__7;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__5;
@@ -154,7 +154,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__10;
-x_2 = l___kind_term____x40_Init_Notation___hyg_6293____closed__9;
+x_2 = l___kind_term____x40_Init_Notation___hyg_5672____closed__9;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

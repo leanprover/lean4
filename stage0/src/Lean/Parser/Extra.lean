@@ -72,7 +72,6 @@ macro "registerParserAlias!" aliasName:strLit declName:ident : term =>
        PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
        PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
 
-open PrettyPrinter in
 builtin_initialize
   registerParserAlias! "group" group
   registerParserAlias! "ppHardSpace" ppHardSpace

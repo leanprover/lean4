@@ -148,3 +148,5 @@ def g {α} : List α → Nat
   | _   => 0
 
 #check g.match_1
+
+#check fun (e : Empty) => (nomatch e : False)

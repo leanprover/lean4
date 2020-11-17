@@ -64,7 +64,7 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   else
     pure false
 
-partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := do
+partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef stx do
   let kind := stx.getKind
   if kind == nullKind then
     let args := stx.getArgs
@@ -94,7 +94,8 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := do
   else if kind == `Lean.Parser.Syntax.cat then
     let cat   := stx[0].getId.eraseMacroScopes
     let prec? : Option Nat  := expandOptPrecedence stx[1]
-    if (← liftIO $ Parser.isConstParserAlias cat) then
+    if (← liftIO $ Parser.isParserAlias cat) then
+      liftIO $ Parser.ensureConstantParserAlias cat
       if prec?.isSome then
         throwErrorAt! stx[1] "unexpected precedence in atomic parser"
       `(ParserDescr.const $(quote cat))

@@ -86,3 +86,64 @@ syntax "{ " ident (" : " term)? " // " term " }" : term
 macro_rules
   | `({ $x : $type // $p }) => `(Subtype (fun ($x:ident : $type) => $p))
   | `({ $x // $p })         => `(Subtype (fun ($x:ident : _) => $p))
+
+namespace Lean.Parser.Tactic
+
+syntax[intro] "intro " notFollowedBy("|") (colGt term:max)* : tactic
+syntax[intros] "intros " (colGt (ident <|> "_"))* : tactic
+syntax[revert] "revert " (colGt ident)+ : tactic
+syntax[clear] "clear " (colGt ident)+ : tactic
+syntax[subst] "subst " (colGt ident)+ : tactic
+syntax[assumption] "assumption" : tactic
+syntax[apply] "apply " term : tactic
+syntax[exact] "exact " term : tactic
+syntax[refine] "refine " term : tactic
+syntax[refine!] "refine! " term : tactic
+syntax[case] "case " ident " => " tacticSeq : tactic
+syntax[allGoals] "allGoals " tacticSeq : tactic
+syntax[focus] "focus " tacticSeq : tactic
+syntax[skip] "skip" : tactic
+syntax[done] "done" : tactic
+syntax[traceState] "traceState" : tactic
+syntax[failIfSuccess] "failIfSuccess " tacticSeq : tactic
+syntax[generalize] "generalize " atomic(ident " : ")? term:51 " = " ident : tactic
+
+syntax locationWildcard := "*"
+syntax locationTarget   := "⊢" <|> "|-"
+syntax locationHyp      := (colGt ident)+
+syntax location         := withPosition("at " locationWildcard <|> locationTarget <|> locationHyp)
+
+syntax[change] "change " term (location)? : tactic
+syntax[changeWith] "change " term " with " term (location)? : tactic
+
+syntax rwRule    := ("←" <|> "<-") term
+syntax rwRuleSeq := "[" sepBy1T(rwRule, ", ") "]"
+
+syntax[rewrite] ("rewrite" <|> "rw") notFollowedBy("[") rwRule (location)? : tactic
+syntax[rewriteSeq] ("rewrite" <|> "rw") rwRuleSeq (location)? : tactic
+
+syntax:2[orelse] tactic "<|>" tactic:1 : tactic
+
+syntax[injection] "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
+
+syntax[«have»] "have " haveDecl : tactic
+syntax[«suffices»] "suffices " sufficesDecl : tactic
+syntax[«show»] "show " term : tactic
+syntax[«let»] "let " letDecl : tactic
+syntax[«let!»] "let! " letDecl : tactic
+syntax[letrec] withPosition(atomic(group("let " "rec ")) letRecDecls) : tactic
+
+syntax inductionAlt  := (ident <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAlts := withPosition("| " sepBy1(inductionAlt, colGe "| "))
+syntax[induction] "induction " sepBy1(term, ", ") (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
+syntax casesTarget := atomic(ident " : ")? term
+syntax[cases] "cases " sepBy1(casesTarget, ", ") (" using " ident)? (inductionAlts)? : tactic
+
+syntax matchAlt  := sepBy1(term, ", ") " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax matchAlts := "| " sepBy1(matchAlt, colGe "| ")
+syntax matchDiscr := term
+syntax[«match»] "match " sepBy1(matchDiscr, ", ") (" : " term)? " with " matchAlts : tactic
+
+syntax[introMatch] "intro " matchAlts : tactic
+
+end Lean.Parser.Tactic

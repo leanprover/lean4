@@ -28,13 +28,13 @@ def notFollowedByRedefinedTermToken :=
 @[builtinDoElemParser] def doLet      := parser! "let " >> optional "mut " >> letDecl
 
 @[builtinDoElemParser] def doLetRec   := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
-def doIdDecl   := parser! «try» (ident >> optType >> leftArrow) >> doElemParser
-def doPatDecl  := parser! «try» (termParser >> leftArrow) >> doElemParser >> optional (" | " >> doElemParser)
+def doIdDecl   := parser! atomic (ident >> optType >> leftArrow) >> doElemParser
+def doPatDecl  := parser! atomic (termParser >> leftArrow) >> doElemParser >> optional (" | " >> doElemParser)
 @[builtinDoElemParser] def doLetArrow      := parser! "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
 
 -- We use `letIdDeclNoBinders` to define `doReassign`.
 -- Motivation: we do not reassign functions, and avoid parser conflict
-def letIdDeclNoBinders := node `Lean.Parser.Term.letIdDecl $ «try» (ident >> pushNone >> optType >> " := ") >> termParser
+def letIdDeclNoBinders := node `Lean.Parser.Term.letIdDecl $ atomic (ident >> pushNone >> optType >> " := ") >> termParser
 
 @[builtinDoElemParser] def doReassign      := parser! notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
 @[builtinDoElemParser] def doReassignArrow := parser! notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
@@ -68,7 +68,7 @@ else if c_2 then
        action_3
 ```
 -/
-def elseIf := «try» (group (withPosition (" else " >> checkLineEq >> " if ")))
+def elseIf := atomic (group (withPosition (" else " >> checkLineEq >> " if ")))
 @[builtinDoElemParser] def doIf := parser! withPosition $
   "if " >> optIdent >> termParser >> " then " >> doSeq
   >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> optIdent >> termParser >> " then " >> doSeq))
@@ -81,7 +81,7 @@ def doMatchAlt : Parser  := parser! sepBy1 termParser ", " >> darrow >> doSeq
 def doMatchAlts : Parser := parser! withPosition $ (optional "| ") >> sepBy1 doMatchAlt (checkColGe "alternatives must be indented" >> "| ")
 @[builtinDoElemParser] def doMatch := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
 
-def doCatch      := parser! «try» ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq
+def doCatch      := parser! atomic ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq
 def doCatchMatch := parser! "catch " >> doMatchAlts
 def doFinally    := parser! "finally " >> doSeq
 @[builtinDoElemParser] def doTry    := parser! "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally

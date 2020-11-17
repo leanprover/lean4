@@ -259,7 +259,7 @@ builtin_initialize
   registerAlias "colGt" checkColGt
   registerAlias "colGe" checkColGe
   registerAlias "lookahead" lookahead
-  registerAlias "try" «try»
+  registerAlias "atomic" atomic
   registerAlias "many" many
   registerAlias "many1" many1
   registerAlias "notFollowedBy" (notFollowedBy · "element")

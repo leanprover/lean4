@@ -31,7 +31,7 @@ def ident' : Parser := ident <|> "_"
 @[builtinTacticParser] def «done»       := parser! nonReservedSymbol "done"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticSeq
-@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional («try» (ident >> " : ")) >> termParser 51 >> " = " >> ident
+@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional (atomic (ident >> " : ")) >> termParser 51 >> " = " >> ident
 @[builtinTacticParser] def «unknown»    := parser! withPosition (ident >> errorAtSavedPos "unknown tactic" true)
 
 def locationWildcard := parser! "*"
@@ -54,7 +54,7 @@ def withAlts : Parser := optional inductionAlts
 def usingRec : Parser := optional (" using " >> ident)
 def generalizingVars := optional (" generalizing " >> many1 ident)
 @[builtinTacticParser] def «induction»  := parser! nonReservedSymbol "induction " >> sepBy1 termParser ", " >> usingRec >> generalizingVars >> withAlts
-def majorPremise := parser! optional («try» (ident >> " : ")) >> termParser
+def majorPremise := parser! optional (atomic (ident >> " : ")) >> termParser
 @[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> sepBy1 majorPremise ", " >> usingRec >> withAlts
 
 def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> altRHS

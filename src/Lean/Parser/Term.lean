@@ -59,7 +59,7 @@ def tupleTail      := parser! ", " >> sepBy1 termParser ", "
 def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
 @[builtinTermParser] def paren := parser! "(" >> ppDedent (withoutPosition (withoutForbidden (optional (termParser >> parenSpecial)))) >> ")"
 @[builtinTermParser] def anonymousCtor := parser! "⟨" >> sepBy termParser ", " >> "⟩"
-def optIdent : Parser := optional («try» (ident >> " : "))
+def optIdent : Parser := optional (atomic (ident >> " : "))
 def fromTerm   := parser! " from " >> termParser
 def haveAssign := parser! " := " >> termParser
 def haveDecl   := optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
@@ -70,14 +70,14 @@ def sufficesDecl := optIdent >> termParser >> (fromTerm <|> byTactic)
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
 def structInstField  := ppGroup $ parser! structInstLVal >> " := " >> termParser
-@[builtinTermParser] def structInst := parser! "{" >> ppHardSpace >> optional («try» (termParser >> " with ")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> " }"
+@[builtinTermParser] def structInst := parser! "{" >> ppHardSpace >> optional (atomic (termParser >> " with ")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> " }"
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
 @[builtinTermParser] def explicit := parser! "@" >> termParser maxPrec
 @[builtinTermParser] def inaccessible := parser! ".(" >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
-def binderTactic  := parser! «try» (" := " >> " by ") >> Tactic.tacticSeq
+def binderTactic  := parser! atomic (" := " >> " by ") >> Tactic.tacticSeq
 def binderDefault := parser! " := " >> termParser
 def explicitBinder (requireType := false) := ppGroup $ parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
 def implicitBinder (requireType := false) := ppGroup $ parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
@@ -114,19 +114,19 @@ def matchAlts (optionalFirstBar := true) : Parser :=
     ppLine >> (if optionalFirstBar then optional "| " else "| ") >>
     sepBy1 (ppIndent matchAlt) (ppLine >> checkColGe "alternatives must be indented" >> "| ")
 
-def matchDiscr := parser! optional («try» (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
+def matchDiscr := parser! optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 
 @[builtinTermParser] def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
 @[builtinTermParser] def «nomatch»  := parser!:leadPrec "nomatch " >> termParser
 
-def funImplicitBinder := «try» (lookahead ("{" >> many1 binderIdent >> (" : " <|> "}"))) >> implicitBinder
-def funSimpleBinder   := «try» (lookahead (many1 binderIdent >> " : ")) >> simpleBinder
+def funImplicitBinder := atomic (lookahead ("{" >> many1 binderIdent >> (" : " <|> "}"))) >> implicitBinder
+def funSimpleBinder   := atomic (lookahead (many1 binderIdent >> " : ")) >> simpleBinder
 def funBinder : Parser := funImplicitBinder <|> instBinder <|> funSimpleBinder <|> termParser maxPrec
 -- NOTE: we use `nodeWithAntiquot` to ensure that `fun $b => ...` remains a `term` antiquotation
 def basicFun : Parser := nodeWithAntiquot "basicFun" `Lean.Parser.Term.basicFun (many1 (ppSpace >> funBinder) >> darrow >> termParser)
 @[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts false)
 
-def optExprPrecedence := optional («try» ":" >> termParser maxPrec)
+def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 @[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> optExprPrecedence >> termParser
 @[builtinTermParser] def «tparser!» := parser!:leadPrec "tparser! " >> optExprPrecedence >> termParser
 @[builtinTermParser] def borrowed   := parser! "@&" >> termParser leadPrec
@@ -138,8 +138,8 @@ def simpleBinderWithoutType := node `Lean.Parser.Term.simpleBinder (many1 binder
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder)) >> optType
-def letIdDecl   := node `Lean.Parser.Term.letIdDecl   $ «try» (letIdLhs >> " := ") >> termParser
-def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ «try» (termParser >> pushNone >> optType >> " := ") >> termParser
+def letIdDecl   := node `Lean.Parser.Term.letIdDecl   $ atomic (letIdLhs >> " := ") >> termParser
+def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ atomic (termParser >> pushNone >> optType >> " := ") >> termParser
 def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts false
 -- Remark: we use `nodeWithAntiquot` here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
 def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFollowedBy (nonReservedSymbol "rec") "rec" >> (letIdDecl <|> letPatDecl <|> letEqnsDecl))
@@ -167,7 +167,7 @@ def «letrec» := parser!:leadPrec withPosition (group ("let " >> nonReservedSym
 -- symbol precedence should be higher, but must match the one of `sub` below
 @[builtinTermParser] def uminus := parser!:65 "-" >> termParser 100
 
-def namedArgument  := parser! «try» ("(" >> ident >> " := ") >> termParser >> ")"
+def namedArgument  := parser! atomic ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := parser! ".."
 @[builtinTermParser] def app      := tparser!:(maxPrec-1) many1 $
   checkWsBefore "expected space" >>
@@ -185,7 +185,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def explicitUniv : TrailingParser := tparser! checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '.{'" >> ".{" >> sepBy1 levelParser ", " >> "}"
 @[builtinTermParser] def namedPattern : TrailingParser := tparser! checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> "@" >> termParser maxPrec
 
-@[builtinTermParser] def dollar     := tparser!:0 «try» (" $" >> checkWsBefore "expected space") >> termParser 0
+@[builtinTermParser] def dollar     := tparser!:0 atomic (" $" >> checkWsBefore "expected space") >> termParser 0
 @[builtinTermParser] def dollarProj := tparser!:0 " $. " >> (fieldIdx <|> ident)
 
 @[builtinTermParser] def subst := tparser!:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "

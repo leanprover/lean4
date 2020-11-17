@@ -108,10 +108,10 @@ in
       #!${bash}/bin/bash
       set -euo pipefail
       call() {
-        if [[ -n $json ]]; then
+        if [[ $json == 1 ]]; then
           $@ 2>&1 | awk '/{/ { print $0; next } { gsub(/"/, "\\\"", $0); gsub(/\n/, "\\n", $0); printf "{\"severity\": \"warning\", \"pos_line\": 0, \"pos_col\": 0, \"file_name\": \"<stdin>\", \"text\": \"%s\"}\n", $0 }'
         else
-          nix develop $@
+          $@
         fi
       }
 
@@ -122,7 +122,7 @@ in
         [[ "$p" != -* ]] && input="$(realpath "$p")"
       done
 
-      root=.
+      root="$(dirname "''${input:-/}")"
       while [[ "$root" != / ]]; do
         [ -f "$root/flake.nix" ] && break
         root="$(realpath "$root/..")"
@@ -130,7 +130,7 @@ in
       if [[ "$root" == / ]]; then
         call ${lean}/bin/lean $@
       elif [[ "$input" != "$root${srcDir}/"* ]]; then
-         call nix run "$root#lean-package" -- $@
+        call nix run "$root#lean-package" -- $@
       else
         input="$(realpath --relative-to="$root${srcDir}" "$input")"
         input="''${input%.lean}"

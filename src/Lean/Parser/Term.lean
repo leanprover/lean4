@@ -218,6 +218,7 @@ builtin_initialize
   registerParserAlias! "letRecDecls"   Term.letRecDecls
   registerParserAlias! "hole"          Term.hole
   registerParserAlias! "syntheticHole" Term.syntheticHole
+  registerParserAlias! "matchDiscr"    Term.matchDiscr
 
 end Parser
 end Lean

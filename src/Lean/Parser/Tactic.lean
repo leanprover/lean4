@@ -48,14 +48,13 @@ def rwRuleSeq := parser! "[" >> sepBy1 rwRule ", " true >> "]"
 @[builtinTacticParser 1] def «rewriteSeq» := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRuleSeq >> optional location
 
 def altRHS := Term.hole <|> Term.syntheticHole <|> tacticSeq
-def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> altRHS
-def inductionAlts : Parser := withPosition $ "| " >> sepBy1 inductionAlt (checkColGe "alternatives must be indented" >> "|")
-def withAlts : Parser := optional inductionAlts
+def inductionAlt  : Parser := parser! ident' >> many ident' >> darrow >> altRHS
+def inductionAlts : Parser := parser! withPosition ("| " >> sepBy1 inductionAlt (checkColGe "alternatives must be indented" >> "|"))
 def usingRec : Parser := optional (" using " >> ident)
 def generalizingVars := optional (" generalizing " >> many1 ident)
-@[builtinTacticParser] def «induction»  := parser! nonReservedSymbol "induction " >> sepBy1 termParser ", " >> usingRec >> generalizingVars >> withAlts
-def majorPremise := parser! optional (atomic (ident >> " : ")) >> termParser
-@[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> sepBy1 majorPremise ", " >> usingRec >> withAlts
+@[builtinTacticParser] def «induction»  := parser! nonReservedSymbol "induction " >> sepBy1 termParser ", " >> usingRec >> generalizingVars >> optional inductionAlts
+def casesTarget := parser! optional (atomic (ident >> " : ")) >> termParser
+@[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> sepBy1 casesTarget ", " >> usingRec >> optional inductionAlts
 
 def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> altRHS
 def matchAlts : Parser := parser! withPosition $ "| " >> sepBy1 matchAlt (checkColGe "alternatives must be indented" >> "| ")

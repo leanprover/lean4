@@ -27,8 +27,8 @@ def optPrecedence := optional (atomic «precedence»)
 namespace Syntax
 @[builtinSyntaxParser] def paren           := parser! "(" >> many1 syntaxParser >> ")"
 @[builtinSyntaxParser] def cat             := parser! ident >> optPrecedence
-@[builtinSyntaxParser] def unary           := parser! ident >> checkNoWsBefore >> "(" >> syntaxParser >> ")"
-@[builtinSyntaxParser] def binary          := parser! ident >> checkNoWsBefore >> "(" >> syntaxParser >> ", " >> syntaxParser >> ")"
+@[builtinSyntaxParser] def unary           := parser! ident >> checkNoWsBefore >> "(" >> many1 syntaxParser >> ")"
+@[builtinSyntaxParser] def binary          := parser! ident >> checkNoWsBefore >> "(" >> many1 syntaxParser >> ", " >> many1 syntaxParser >> ")"
 @[builtinSyntaxParser] def atom            := parser! strLit
 @[builtinSyntaxParser] def nonReserved     := parser! "!" >> strLit
 

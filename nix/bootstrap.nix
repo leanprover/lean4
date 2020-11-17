@@ -42,10 +42,10 @@ rec {
       ln -s ${../stage0/stdlib} ../stdlib
     '';
   };
-  stage = { stage, prevStage }:
+  stage = { stage, prevStage, self }:
     let
       desc = "stage${toString stage}";
-      build = buildLeanPackage.override { lean = prevStage; };
+      build = buildLeanPackage.override { lean = prevStage; lean-final = self; };
     in (all: all // all.lean) rec {
       Init = build { name = "Init"; src = ../src; srcDir = "/src"; deps = {}; };
       Std  = build { name = "Std";  src = ../src; srcDir = "/src"; deps = { inherit Init; }; };
@@ -77,7 +77,7 @@ rec {
         '';
       };
     };
-  stage1 = stage { stage = 1; prevStage = stage0; };
-  stage2 = stage { stage = 2; prevStage = stage1; };
-  stage3 = stage { stage = 3; prevStage = stage2; };
+  stage1 = stage { stage = 1; prevStage = stage0; self = stage1; };
+  stage2 = stage { stage = 2; prevStage = stage1; self = stage2; };
+  stage3 = stage { stage = 3; prevStage = stage2; self = stage3; };
 }

@@ -198,8 +198,8 @@ def categoryParserOfStack.formatter (offset : Nat) : Formatter := do
 def error.formatter (msg : String) : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.errorAtSavedPos]
 def errorAtSavedPos.formatter (msg : String) (delta : Bool) : Formatter := pure ()
-@[combinatorFormatter Lean.Parser.try]
-def try.formatter (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.atomic]
+def atomic.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.lookahead]
 def lookahead.formatter (p : Formatter) : Formatter := pure ()
 
@@ -422,7 +422,7 @@ builtin_initialize
   registerAlias "colGt" checkColGt.formatter
   registerAlias "colGe" checkColGe.formatter
   registerAlias "lookahead" lookahead.formatter
-  registerAlias "try" try.formatter
+  registerAlias "atomic" atomic.formatter
   registerAlias "many" many.formatter
   registerAlias "many1" many1.formatter
   registerAlias "notFollowedBy" notFollowedBy.formatter

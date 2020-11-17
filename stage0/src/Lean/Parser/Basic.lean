@@ -483,16 +483,16 @@ instance : OrElse Parser := ⟨orelse⟩
   collectKinds  := info.collectKinds
 }
 
-def tryFn (p : ParserFn) : ParserFn := fun c s =>
+def atomicFn (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let iniPos := s.pos
   match p c s with
   | ⟨stack, _, cache, some msg⟩ => ⟨stack.shrink iniSz, iniPos, cache, some msg⟩
   | other                       => other
 
-@[inline] def «try» (p : Parser) : Parser := {
+@[inline] def atomic (p : Parser) : Parser := {
   info := p.info,
-  fn   := tryFn p.fn
+  fn   := atomicFn p.fn
 }
 
 def optionalFn (p : ParserFn) : ParserFn := fun c s =>
@@ -1557,7 +1557,7 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
   -- antiquotation kind via `noImmediateColon`
   let nameP := if anonymous then nameP <|> checkNoImmediateColon >> pushNone else nameP
   -- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
-  node kind $ «try» $
+  node kind $ atomic $
     setExpected [] "$" >>
     many (checkNoWsBefore "" >> "$") >>
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
@@ -1583,8 +1583,8 @@ def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
 /- End of Antiquotations -/
 /- ===================== -/
 
-def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) : Parser :=
-  withAntiquot (mkAntiquot name kind false) $ node kind p
+def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anonymous := false) : Parser :=
+  withAntiquot (mkAntiquot name kind anonymous) $ node kind p
 
 def ident : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot

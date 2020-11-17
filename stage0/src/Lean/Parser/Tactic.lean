@@ -14,7 +14,7 @@ builtin_initialize
 
 def ident' : Parser := ident <|> "_"
 
-@[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> notSymbol "|" >> many (checkColGt >> termParser maxPrec)
+@[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> many (checkColGt >> termParser maxPrec)
 @[builtinTacticParser] def «intros»     := parser! nonReservedSymbol "intros " >> many (checkColGt >> ident')
 @[builtinTacticParser] def «revert»     := parser! nonReservedSymbol "revert " >> many1 (checkColGt >> ident)
 @[builtinTacticParser] def «clear»      := parser! nonReservedSymbol "clear " >> many1 (checkColGt >> ident)
@@ -31,7 +31,7 @@ def ident' : Parser := ident <|> "_"
 @[builtinTacticParser] def «done»       := parser! nonReservedSymbol "done"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 @[builtinTacticParser] def «failIfSuccess» := parser! nonReservedSymbol "failIfSuccess " >> tacticSeq
-@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional («try» (ident >> " : ")) >> termParser 51 >> " = " >> ident
+@[builtinTacticParser] def «generalize» := parser! nonReservedSymbol "generalize " >> optional (atomic (ident >> " : ")) >> termParser 51 >> " = " >> ident
 @[builtinTacticParser] def «unknown»    := parser! withPosition (ident >> errorAtSavedPos "unknown tactic" true)
 
 def locationWildcard := parser! "*"
@@ -44,8 +44,8 @@ def location         := parser! withPosition ("at " >> (locationWildcard <|> loc
 
 def rwRule    := parser! optional (unicodeSymbol "←" "<-") >> termParser
 def rwRuleSeq := parser! "[" >> sepBy1 rwRule ", " true >> "]"
-@[builtinTacticParser] def «rewrite»    := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> notSymbol "[" >> rwRule >> optional location
-@[builtinTacticParser] def «rewriteSeq» := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRuleSeq >> optional location
+@[builtinTacticParser] def «rewrite»    := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRule >> optional location
+@[builtinTacticParser 1] def «rewriteSeq» := parser! (nonReservedSymbol "rewrite" <|> nonReservedSymbol "rw") >> rwRuleSeq >> optional location
 
 def altRHS := Term.hole <|> Term.syntheticHole <|> tacticSeq
 def inductionAlt  : Parser := nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> altRHS
@@ -54,11 +54,11 @@ def withAlts : Parser := optional inductionAlts
 def usingRec : Parser := optional (" using " >> ident)
 def generalizingVars := optional (" generalizing " >> many1 ident)
 @[builtinTacticParser] def «induction»  := parser! nonReservedSymbol "induction " >> sepBy1 termParser ", " >> usingRec >> generalizingVars >> withAlts
-def majorPremise := parser! optional («try» (ident >> " : ")) >> termParser
+def majorPremise := parser! optional (atomic (ident >> " : ")) >> termParser
 @[builtinTacticParser] def «cases»      := parser! nonReservedSymbol "cases " >> sepBy1 majorPremise ", " >> usingRec >> withAlts
 
 def matchAlt  : Parser := parser! sepBy1 termParser ", " >> darrow >> altRHS
-def matchAlts : Parser := group $ withPosition $ (optional "| ") >> sepBy1 matchAlt (checkColGe "alternatives must be indented" >> "| ")
+def matchAlts : Parser := parser! withPosition $ "| " >> sepBy1 matchAlt (checkColGe "alternatives must be indented" >> "| ")
 @[builtinTacticParser] def «match»      := parser! nonReservedSymbol "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
 @[builtinTacticParser] def «introMatch» := parser! nonReservedSymbol "intro " >> matchAlts
 

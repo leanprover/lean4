@@ -45,15 +45,15 @@ def «constant»       := parser! "constant " >> declId >> declSig >> optional d
 def «instance»       := parser! "instance " >> optional declId >> declSig >> declVal
 def «axiom»          := parser! "axiom " >> declId >> declSig
 def «example»        := parser! "example " >> declSig >> declVal
-def inferMod         := parser! «try» ("{" >> "}")
+def inferMod         := parser! atomic ("{" >> "}")
 def ctor             := parser! "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
 def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> many ctor
-def classInductive   := parser! «try» ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
-def structExplicitBinder := parser! «try» (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
-def structImplicitBinder := parser! «try» (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
-def structInstBinder     := parser! «try» (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
+def classInductive   := parser! atomic ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
+def structExplicitBinder := parser! atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
+def structImplicitBinder := parser! atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
+def structInstBinder     := parser! atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
 def structFields         := parser! many (ppLine >> (structExplicitBinder <|> structImplicitBinder <|> structInstBinder))
-def structCtor           := parser! «try» (declModifiers true >> ident >> optional inferMod >> " :: ")
+def structCtor           := parser! atomic (declModifiers true >> ident >> optional inferMod >> " :: ")
 def structureTk          := parser! "structure "
 def classTk              := parser! "class "
 def «extends»            := parser! " extends " >> sepBy1 termParser ", "
@@ -80,16 +80,16 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» 
 @[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> (nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit)
 @[builtinCommandParser] def «attribute»    := parser! optional "local " >> "attribute " >> "[" >> sepBy1 Term.attrInstance ", " >> "] " >> many1 ident
 @[builtinCommandParser] def «export»       := parser! "export " >> ident >> "(" >> many1 ident >> ")"
-def openHiding       := parser! «try» (ident >> "hiding") >> many1 ident
+def openHiding       := parser! atomic (ident >> "hiding") >> many1 ident
 def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident
-def openRenaming     := parser! «try» (ident >> "renaming") >> sepBy1 openRenamingItem ", "
-def openOnly         := parser! «try» (ident >> "(") >> many1 ident >> ")"
+def openRenaming     := parser! atomic (ident >> "renaming") >> sepBy1 openRenamingItem ", "
+def openOnly         := parser! atomic (ident >> "(") >> many1 ident >> ")"
 def openSimple       := parser! many1 ident
 @[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
 
 @[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 (notSymbol "end" >> commandParser) >> "end"
-@[builtinCommandParser] def «initialize» := parser! "initialize " >> optional («try» (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
-@[builtinCommandParser] def «builtin_initialize» := parser! "builtin_initialize " >> optional («try» (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
+@[builtinCommandParser] def «initialize» := parser! "initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
+@[builtinCommandParser] def «builtin_initialize» := parser! "builtin_initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 
 @[builtinCommandParser] def «in»  := tparser! " in " >> commandParser
 

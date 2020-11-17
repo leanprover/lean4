@@ -209,8 +209,9 @@ def getAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (Opt
 
 def getConstAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO α := do
   match (← getAlias mapRef aliasName) with
-  | some (AliasValue.const v) => pure v
-  | some _ => throw ↑s!"parser '{aliasName}' is not a constant"
+  | some (AliasValue.const v)  => pure v
+  | some (AliasValue.unary _)  => throw ↑s!"parser '{aliasName}' is not a constant, it takes one argument"
+  | some (AliasValue.binary _) => throw ↑s!"parser '{aliasName}' is not a constant, it takes two arguments"
   | none   => throw ↑s!"parser '{aliasName}' was not found"
 
 def getUnaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (α → α) := do
@@ -237,16 +238,19 @@ instance : Coe Parser ParserAliasValue := { coe := AliasValue.const }
 instance : Coe (Parser → Parser) ParserAliasValue := { coe := AliasValue.unary }
 instance : Coe (Parser → Parser → Parser) ParserAliasValue := { coe := AliasValue.binary }
 
-def isConstParserAlias (aliasName : Name) : IO Bool := do
+def isParserAlias (aliasName : Name) : IO Bool := do
   match (← getAlias parserAliasesRef aliasName) with
-  | some (AliasValue.const v) => pure true
-  | _ => pure false
+  | some _ => pure true
+  | _      => pure false
 
 def ensureUnaryParserAlias (aliasName : Name) : IO Unit :=
   discard $ getUnaryAlias parserAliasesRef aliasName
 
 def ensureBinaryParserAlias (aliasName : Name) : IO Unit :=
   discard $ getBinaryAlias parserAliasesRef aliasName
+
+def ensureConstantParserAlias (aliasName : Name) : IO Unit :=
+  discard $ getConstAlias parserAliasesRef aliasName
 
 builtin_initialize
   registerAlias "ws" checkWsBefore
@@ -259,7 +263,7 @@ builtin_initialize
   registerAlias "colGt" checkColGt
   registerAlias "colGe" checkColGe
   registerAlias "lookahead" lookahead
-  registerAlias "try" «try»
+  registerAlias "atomic" atomic
   registerAlias "many" many
   registerAlias "many1" many1
   registerAlias "notFollowedBy" (notFollowedBy · "element")
@@ -281,7 +285,7 @@ partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr)
     | ParserDescr.unary n d                           => return (← getUnaryAlias parserAliasesRef n) (← visit d)
     | ParserDescr.binary n d₁ d₂                      => return (← getBinaryAlias parserAliasesRef n) (← visit d₁) (← visit d₂)
     | ParserDescr.node k prec d                       => return leadingNode k prec (← visit d)
-    | ParserDescr.nodeWithAntiquot n k d              => return nodeWithAntiquot n k (← visit d)
+    | ParserDescr.nodeWithAntiquot n k d              => return nodeWithAntiquot n k (← visit d) (anonymous := true)
     | ParserDescr.trailingNode k prec d               => return trailingNode k prec (← visit d)
     | ParserDescr.symbol tk                           => return symbol tk
     | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol tk includeIdent

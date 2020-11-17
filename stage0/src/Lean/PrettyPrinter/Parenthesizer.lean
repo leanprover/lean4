@@ -338,8 +338,8 @@ def error.parenthesizer (msg : String) : Parenthesizer :=
 def errorAtSavedPos.parenthesizer (msg : String) (delta : Bool) : Parenthesizer :=
   pure ()
 
-@[combinatorParenthesizer Lean.Parser.try]
-def try.parenthesizer (p : Parenthesizer) : Parenthesizer :=
+@[combinatorParenthesizer Lean.Parser.atomic]
+def atomic.parenthesizer (p : Parenthesizer) : Parenthesizer :=
   p
 
 @[combinatorParenthesizer Lean.Parser.lookahead]
@@ -501,7 +501,7 @@ builtin_initialize
   registerAlias "colGt" checkColGt.parenthesizer
   registerAlias "colGe" checkColGe.parenthesizer
   registerAlias "lookahead" lookahead.parenthesizer
-  registerAlias "try" try.parenthesizer
+  registerAlias "atomic" atomic.parenthesizer
   registerAlias "many" many.parenthesizer
   registerAlias "many1" many1.parenthesizer
   registerAlias "notFollowedBy" notFollowedBy.parenthesizer

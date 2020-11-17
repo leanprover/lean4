@@ -22,13 +22,13 @@ builtin_initialize
 def maxSymbol := parser! nonReservedSymbol "max" true
 def precedenceLit : Parser := numLit <|> maxSymbol
 def «precedence» := parser! ":" >> precedenceLit
-def optPrecedence := optional («try» «precedence»)
+def optPrecedence := optional (atomic «precedence»)
 
 namespace Syntax
 @[builtinSyntaxParser] def paren           := parser! "(" >> many1 syntaxParser >> ")"
 @[builtinSyntaxParser] def cat             := parser! ident >> optPrecedence
-@[builtinSyntaxParser] def unary           := parser! ident >> checkNoWsBefore >> "(" >> syntaxParser >> ")"
-@[builtinSyntaxParser] def binary          := parser! ident >> checkNoWsBefore >> "(" >> syntaxParser >> ", " >> syntaxParser >> ")"
+@[builtinSyntaxParser] def unary           := parser! ident >> checkNoWsBefore >> "(" >> many1 syntaxParser >> ")"
+@[builtinSyntaxParser] def binary          := parser! ident >> checkNoWsBefore >> "(" >> many1 syntaxParser >> ", " >> many1 syntaxParser >> ")"
 @[builtinSyntaxParser] def atom            := parser! strLit
 @[builtinSyntaxParser] def nonReserved     := parser! "!" >> strLit
 
@@ -59,17 +59,17 @@ def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Par
 @[builtinCommandParser] def «macro_rules» := suppressInsideQuot (parser! "macro_rules" >> optKind >> Term.matchAlts)
 def parserKind     := parser! ident
 def parserPrio     := parser! numLit
-def parserKindPrio := parser! «try» (ident >> ", ") >> numLit
+def parserKindPrio := parser! atomic (ident >> ", ") >> numLit
 def optKindPrio : Parser := optional ("[" >> (parserKindPrio <|> parserKind <|> parserPrio) >> "]")
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
 def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> syntaxParser maxPrec
-def macroArg  := «try» strLit <|> «try» macroArgSimple
-def macroHead := macroArg <|> «try» ident
-def macroTailTactic   : Parser := «try» (" : " >> identEq "tactic") >> darrow >> ("`(" >> toggleInsideQuot Tactic.seq1 >> ")" <|> termParser)
-def macroTailCommand  : Parser := «try» (" : " >> identEq "command") >> darrow >> ("`(" >> toggleInsideQuot (many1Unbox commandParser) >> ")" <|> termParser)
-def macroTailDefault  : Parser := «try» (" : " >> ident) >> darrow >> (("`(" >> toggleInsideQuot (categoryParserOfStack 2) >> ")") <|> termParser)
+def macroArg  := strLit <|> atomic macroArgSimple
+def macroHead := macroArg <|> ident
+def macroTailTactic   : Parser := atomic (" : " >> identEq "tactic") >> darrow >> ("`(" >> toggleInsideQuot Tactic.seq1 >> ")" <|> termParser)
+def macroTailCommand  : Parser := atomic (" : " >> identEq "command") >> darrow >> ("`(" >> toggleInsideQuot (many1Unbox commandParser) >> ")" <|> termParser)
+def macroTailDefault  : Parser := atomic (" : " >> ident) >> darrow >> (("`(" >> toggleInsideQuot (categoryParserOfStack 2) >> ")") <|> termParser)
 def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
 def optPrio   := optional ("[" >> numLit >> "]")
 @[builtinCommandParser] def «macro»       := parser! suppressInsideQuot ("macro " >> optPrecedence >> optPrio >> macroHead >> many macroArg >> macroTail)
@@ -77,7 +77,7 @@ def optPrio   := optional ("[" >> numLit >> "]")
 @[builtinCommandParser] def «elab_rules» := parser! suppressInsideQuot ("elab_rules" >> optKind >> optional (" : " >> ident) >> Term.matchAlts)
 def elabHead := macroHead
 def elabArg  := macroArg
-def elabTail := «try» (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
+def elabTail := atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
 @[builtinCommandParser] def «elab»       := parser! suppressInsideQuot ("elab " >> optPrecedence >> optPrio >> elabHead >> many elabArg >> elabTail)
 
 end Command

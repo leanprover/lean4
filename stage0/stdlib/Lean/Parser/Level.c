@@ -22,6 +22,7 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_categoryParser_parenthesizer(lea
 lean_object* l_Lean_Parser_andthenInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_imax_formatter___closed__2;
 lean_object* l_Lean_Parser_Level_ident___elambda__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1882____closed__9;
 lean_object* l_Lean_Parser_Level_addLit___closed__2;
 lean_object* l_Lean_Parser_Level_num_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Level_max_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,7 +49,6 @@ extern lean_object* l_Lean_Parser_ident;
 lean_object* l_Lean_Parser_Level_paren___elambda__1___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Level_ident_formatter(lean_object*);
 lean_object* l_Lean_Parser_Level_imax_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1841____closed__9;
 lean_object* l_Lean_Parser_Level_imax___closed__7;
 lean_object* l_Lean_Parser_nonReservedSymbolFn(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinParser_Lean_Parser_Level_max(lean_object*);
@@ -1875,7 +1875,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer___lambda__1___closed__2;
-x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1841____closed__9;
+x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1882____closed__9;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

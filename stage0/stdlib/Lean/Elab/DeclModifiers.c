@@ -49,7 +49,6 @@ lean_object* lean_private_to_user_name(lean_object*);
 lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2___closed__9;
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared_match__1(lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__22;
 extern lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -86,6 +85,7 @@ lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2(lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__1;
 extern lean_object* l_Lean_Format_join___closed__1;
 lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2___closed__10;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__20;
 lean_object* l_Lean_Elab_Modifiers_isProtected_match__1(lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
 lean_object* l_Lean_Syntax_getId(lean_object*);
@@ -1154,7 +1154,7 @@ static lean_object* _init_l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__22;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__20;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

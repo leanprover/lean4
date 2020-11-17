@@ -19,7 +19,6 @@ lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_revert___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
-lean_object* l_Lean_Meta_revert___lambda__2___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_revert___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -34,6 +33,7 @@ lean_object* l_Lean_Meta_revert___lambda__2___boxed(lean_object*, lean_object*, 
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_995____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_revert___spec__2(size_t, size_t, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_revert___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(size_t, size_t, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
@@ -462,17 +462,9 @@ return x_14;
 static lean_object* _init_l_Lean_Meta_revert___lambda__2___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("revert");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_revert___lambda__2___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_revert___lambda__2___closed__1;
+x_2 = l_Lean_Parser_Tactic_revert___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -481,7 +473,7 @@ lean_object* l_Lean_Meta_revert___lambda__2(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = l_Lean_Meta_revert___lambda__2___closed__2;
+x_10 = l_Lean_Meta_revert___lambda__2___closed__1;
 lean_inc(x_1);
 x_11 = l_Lean_Meta_checkNotAssigned(x_1, x_10, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_11) == 0)
@@ -726,8 +718,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_revert___lambda__2___closed__1 = _init_l_Lean_Meta_revert___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Meta_revert___lambda__2___closed__1);
-l_Lean_Meta_revert___lambda__2___closed__2 = _init_l_Lean_Meta_revert___lambda__2___closed__2();
-lean_mark_persistent(l_Lean_Meta_revert___lambda__2___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

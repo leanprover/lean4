@@ -31,7 +31,6 @@ extern lean_object* l_Init_Data_Repr___instance__2___closed__2;
 lean_object* l_Lean_Json_Lean_Data_Json_Printer___instance__1;
 extern lean_object* l_Lean_formatDataValue___closed__1;
 extern lean_object* l_String_quote___closed__2;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__22;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Json_render___closed__6;
@@ -46,10 +45,10 @@ lean_object* lean_format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_Json_render___closed__1;
 extern lean_object* l_Char_quoteCore___closed__2;
 lean_object* l_Lean_Json_render___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7455____closed__9;
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* l_Lean_Format_joinSep___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_foldrAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__20;
 lean_object* l_Lean_Json_renderString(lean_object*);
 lean_object* l_Lean_Json_renderString___boxed(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Json_compress___spec__1(size_t, size_t, lean_object*);
@@ -66,6 +65,7 @@ lean_object* l_Lean_Json_render___closed__3;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__4;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7451____closed__9;
 lean_object* l_Lean_Json_render_match__1(lean_object*);
 lean_object* l_Lean_Json_render___closed__4;
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
@@ -84,7 +84,6 @@ lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Lean_Json_compress_match__1(lean_object*);
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7078____closed__7;
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Lean_Json_render___closed__7;
 lean_object* lean_nat_to_int(lean_object*);
@@ -92,6 +91,7 @@ lean_object* l_Lean_Json_render_match__1___rarg(lean_object*, lean_object*, lean
 lean_object* lean_string_mk(lean_object*);
 extern lean_object* l_addParenHeuristic___closed__1;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__2;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7074____closed__7;
 lean_object* l_Lean_Json_Lean_Data_Json_Printer___instance__2(lean_object*);
 static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1() {
 _start:
@@ -427,7 +427,7 @@ static lean_object* _init_l_Lean_Json_render___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_7455____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_7451____closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -520,7 +520,7 @@ static lean_object* _init_l_Lean_Json_render___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__22;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__20;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -832,7 +832,7 @@ lean_dec(x_2);
 x_7 = l_Std_RBNode_fold___at_Lean_Json_compress___spec__2(x_1, x_3);
 x_8 = l_Lean_Json_renderString(x_4);
 lean_dec(x_4);
-x_9 = l_myMacro____x40_Init_Notation___hyg_7455____closed__9;
+x_9 = l_myMacro____x40_Init_Notation___hyg_7451____closed__9;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = l_Lean_Json_compress(x_5);
 x_12 = lean_string_append(x_10, x_11);
@@ -908,7 +908,7 @@ x_15 = l_Array_mapMUnsafe_map___at_Lean_Json_compress___spec__1(x_12, x_13, x_14
 x_16 = x_15;
 x_17 = l_Array_toList___rarg(x_16);
 lean_dec(x_16);
-x_18 = l_myMacro____x40_Init_Notation___hyg_7078____closed__7;
+x_18 = l_myMacro____x40_Init_Notation___hyg_7074____closed__7;
 x_19 = l_String_intercalate(x_18, x_17);
 x_20 = l___kind_term____x40_Init_Notation___hyg_6289____closed__2;
 x_21 = lean_string_append(x_20, x_19);
@@ -925,12 +925,12 @@ lean_inc(x_24);
 lean_dec(x_1);
 x_25 = lean_box(0);
 x_26 = l_Std_RBNode_fold___at_Lean_Json_compress___spec__2(x_25, x_24);
-x_27 = l_myMacro____x40_Init_Notation___hyg_7078____closed__7;
+x_27 = l_myMacro____x40_Init_Notation___hyg_7074____closed__7;
 x_28 = l_String_intercalate(x_27, x_26);
 x_29 = l_addParenHeuristic___closed__1;
 x_30 = lean_string_append(x_29, x_28);
 lean_dec(x_28);
-x_31 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__22;
+x_31 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__20;
 x_32 = lean_string_append(x_30, x_31);
 return x_32;
 }

@@ -25,6 +25,7 @@ lean_object* l_Lean_Meta_changeLocalDecl_match__3___rarg(lean_object*, lean_obje
 lean_object* l_Lean_Meta_replaceLocalDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_change___closed__1;
 extern lean_object* l_Lean_Meta_mkEqMPR___rarg___closed__2;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -34,7 +35,6 @@ lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, le
 lean_object* l_Lean_Meta_replaceLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_changeLocalDecl_match__2(lean_object*);
 extern lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp___closed__5;
-lean_object* l_Lean_Meta_replaceTargetDefEq___closed__2;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_changeLocalDecl___closed__2;
 lean_object* l_Lean_Meta_change___lambda__2___closed__1;
@@ -751,17 +751,9 @@ return x_65;
 static lean_object* _init_l_Lean_Meta_replaceTargetDefEq___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("change");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_replaceTargetDefEq___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_replaceTargetDefEq___closed__1;
+x_2 = l_Lean_Parser_Tactic_change___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -770,7 +762,7 @@ lean_object* l_Lean_Meta_replaceTargetDefEq(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = l_Lean_Meta_replaceTargetDefEq___closed__2;
+x_8 = l_Lean_Meta_replaceTargetDefEq___closed__1;
 lean_inc(x_1);
 x_9 = lean_alloc_closure((void*)(l_Lean_Meta_checkNotAssigned___boxed), 7, 2);
 lean_closure_set(x_9, 0, x_1);
@@ -1136,7 +1128,7 @@ x_20 = l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5___closed__
 x_21 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_Meta_replaceTargetDefEq___closed__2;
+x_22 = l_Lean_Meta_replaceTargetDefEq___closed__1;
 x_23 = lean_box(0);
 x_24 = l_Lean_Meta_throwTacticEx___rarg(x_22, x_2, x_21, x_23, x_4, x_5, x_6, x_7, x_12);
 lean_dec(x_7);
@@ -2024,8 +2016,6 @@ l_Lean_Meta_replaceTargetEq___closed__2 = _init_l_Lean_Meta_replaceTargetEq___cl
 lean_mark_persistent(l_Lean_Meta_replaceTargetEq___closed__2);
 l_Lean_Meta_replaceTargetDefEq___closed__1 = _init_l_Lean_Meta_replaceTargetDefEq___closed__1();
 lean_mark_persistent(l_Lean_Meta_replaceTargetDefEq___closed__1);
-l_Lean_Meta_replaceTargetDefEq___closed__2 = _init_l_Lean_Meta_replaceTargetDefEq___closed__2();
-lean_mark_persistent(l_Lean_Meta_replaceTargetDefEq___closed__2);
 l_Lean_Meta_change___lambda__2___closed__1 = _init_l_Lean_Meta_change___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Meta_change___lambda__2___closed__1);
 l_Lean_Meta_change___lambda__2___closed__2 = _init_l_Lean_Meta_change___lambda__2___closed__2();

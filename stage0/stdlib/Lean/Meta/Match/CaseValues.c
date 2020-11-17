@@ -90,6 +90,7 @@ lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_Meta_caseValues_loop___closed__6;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_case___closed__1;
 lean_object* l_Lean_Meta_caseValues_loop___closed__1;
 lean_object* l_Lean_Meta_caseValues_loop_match__3(lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__7;
@@ -111,7 +112,6 @@ lean_object* l_List_map___at_Lean_Meta_substCore___spec__14(lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__8;
 lean_object* l_Lean_Meta_caseValueAux___lambda__2___closed__4;
-lean_object* l_Lean_Meta_caseValues_loop___closed__7;
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__1;
 lean_object* l_Lean_Meta_getMVarTag___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -1674,17 +1674,9 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__6() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("case");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__7() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_caseValues_loop___closed__6;
+x_2 = l_Lean_Parser_Tactic_case___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1747,7 +1739,7 @@ x_27 = lean_ctor_get(x_23, 1);
 lean_inc(x_27);
 x_28 = lean_ctor_get(x_23, 2);
 lean_inc(x_28);
-x_29 = l_Lean_Meta_caseValues_loop___closed__7;
+x_29 = l_Lean_Meta_caseValues_loop___closed__6;
 lean_inc(x_3);
 x_30 = l_Lean_Name_appendIndexAfter(x_29, x_3);
 lean_inc(x_26);
@@ -2149,8 +2141,6 @@ l_Lean_Meta_caseValues_loop___closed__5 = _init_l_Lean_Meta_caseValues_loop___cl
 lean_mark_persistent(l_Lean_Meta_caseValues_loop___closed__5);
 l_Lean_Meta_caseValues_loop___closed__6 = _init_l_Lean_Meta_caseValues_loop___closed__6();
 lean_mark_persistent(l_Lean_Meta_caseValues_loop___closed__6);
-l_Lean_Meta_caseValues_loop___closed__7 = _init_l_Lean_Meta_caseValues_loop___closed__7();
-lean_mark_persistent(l_Lean_Meta_caseValues_loop___closed__7);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

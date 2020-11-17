@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init
-// Imports: Init.Prelude Init.Notation Init.Core Init.Control Init.Data.Basic Init.WF Init.Data Init.System Init.Util Init.Fix Init.Meta Init.Tactics Init.NotationExtra
+// Imports: Init.Prelude Init.Notation Init.Core Init.Control Init.Data.Basic Init.WF Init.Data Init.System Init.Util Init.Fix Init.Meta Init.NotationExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,7 +24,6 @@ lean_object* initialize_Init_System(lean_object*);
 lean_object* initialize_Init_Util(lean_object*);
 lean_object* initialize_Init_Fix(lean_object*);
 lean_object* initialize_Init_Meta(lean_object*);
-lean_object* initialize_Init_Tactics(lean_object*);
 lean_object* initialize_Init_NotationExtra(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init(lean_object* w) {
@@ -62,9 +61,6 @@ res = initialize_Init_Fix(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Meta(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Tactics(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_NotationExtra(lean_io_mk_world());

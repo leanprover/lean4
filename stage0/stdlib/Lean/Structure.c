@@ -24,7 +24,6 @@ lean_object* l_Lean_isInternalSubobjectFieldName_match__1(lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_deinternalizeFieldName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStructureCtor_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7455____closed__14;
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsAux_match__1(lean_object*);
 lean_object* l_Lean_getPathToBaseStructureAux_match__1(lean_object*);
 lean_object* l_Lean_isInternalSubobjectFieldName_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -104,6 +103,7 @@ lean_object* l_Lean_Name_appendBefore(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_getPathToBaseStructureAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7451____closed__14;
 lean_object* l_String_drop(lean_object*, lean_object*);
 lean_object* l_Lean_getPathToBaseStructure_x3f___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
@@ -321,7 +321,7 @@ lean_object* l_Lean_mkInternalSubobjectFieldName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_myMacro____x40_Init_Notation___hyg_7455____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_7451____closed__14;
 x_3 = l_Lean_Name_appendBefore(x_1, x_2);
 return x_3;
 }
@@ -1128,7 +1128,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = l_Lean_getStructureCtor(x_1, x_2);
 x_5 = lean_ctor_get(x_4, 3);
 lean_inc(x_5);
-x_6 = l_myMacro____x40_Init_Notation___hyg_7455____closed__14;
+x_6 = l_myMacro____x40_Init_Notation___hyg_7451____closed__14;
 x_7 = l_Lean_Name_appendBefore(x_3, x_6);
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);

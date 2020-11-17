@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_generalize___closed__1;
 extern lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalize___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,7 +47,6 @@ lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar___at_Lean_Meta_generalize___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_generalize___closed__2;
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalize___closed__1;
@@ -1033,17 +1033,9 @@ return x_52;
 static lean_object* _init_l_Lean_Meta_generalize___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("generalize");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_generalize___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_generalize___closed__1;
+x_2 = l_Lean_Parser_Tactic_generalize___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1052,7 +1044,7 @@ lean_object* l_Lean_Meta_generalize(lean_object* x_1, lean_object* x_2, lean_obj
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_10 = l_Lean_Meta_generalize___closed__2;
+x_10 = l_Lean_Meta_generalize___closed__1;
 lean_inc(x_1);
 x_11 = lean_alloc_closure((void*)(l_Lean_Meta_checkNotAssigned___boxed), 7, 2);
 lean_closure_set(x_11, 0, x_1);
@@ -1166,8 +1158,6 @@ l_Lean_Meta_generalize___lambda__3___closed__3 = _init_l_Lean_Meta_generalize___
 lean_mark_persistent(l_Lean_Meta_generalize___lambda__3___closed__3);
 l_Lean_Meta_generalize___closed__1 = _init_l_Lean_Meta_generalize___closed__1();
 lean_mark_persistent(l_Lean_Meta_generalize___closed__1);
-l_Lean_Meta_generalize___closed__2 = _init_l_Lean_Meta_generalize___closed__2();
-lean_mark_persistent(l_Lean_Meta_generalize___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

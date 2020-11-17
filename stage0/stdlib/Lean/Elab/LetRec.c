@@ -62,7 +62,6 @@ extern lean_object* l_Lean_Elab_Term_elabLetDeclCore___closed__2;
 lean_object* l___private_Lean_Elab_LetRec_0__Lean_Elab_Term_withAuxLocalDecls_loop(lean_object*);
 lean_object* l_Lean_Elab_elabAttr___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___spec__7___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabLetRec___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__8;
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_elabLetRecDeclValues___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -97,6 +96,7 @@ lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Elab_LetRec_
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Array_mapIdxM_map___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_registerLetRecsToLift___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_letrec___closed__1;
 lean_object* l___private_Lean_Elab_LetRec_0__Lean_Elab_Term_withAuxLocalDecls_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___boxed__const__1;
 extern lean_object* l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__2;
@@ -138,6 +138,7 @@ lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_Term_0__Lean_Ela
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___spec__9___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabAttr___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___spec__7___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_withDeclName___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__6;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_match__1(lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Term_Lean_Elab_Term___instance__8___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -163,7 +164,6 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___spec__9___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_CheckAssignment_checkFVar___closed__1;
-extern lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Term___hyg_5535____closed__1;
 extern lean_object* l_Lean_Meta_CheckAssignment_checkFVar___closed__2;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_elabLetRec___spec__1(size_t, size_t, lean_object*);
@@ -1003,7 +1003,7 @@ x_15 = l_Lean_Syntax_isOfKind(x_13, x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; uint8_t x_17; lean_object* x_18; 
-x_16 = l_Array_myMacro____x40_Init_Data_Array_Macros___hyg_496____closed__8;
+x_16 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__6;
 lean_inc(x_13);
 x_17 = l_Lean_Syntax_isOfKind(x_13, x_16);
 if (x_17 == 0)
@@ -2744,7 +2744,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__6;
-x_2 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Term___hyg_5535____closed__1;
+x_2 = l_Lean_Parser_Tactic_letrec___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

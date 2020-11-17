@@ -7,6 +7,7 @@ Extra notation that depends on Init/Meta
 -/
 prelude
 import Init.Meta
+import Init.Data.Array.Subarray
 
 namespace Lean
 -- Auxiliary parsers and functions for declaring notation with binders
@@ -66,3 +67,12 @@ macro "Σ" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Sigma
 macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders `PSigma xs b
 macro:25 xs:bracketedExplicitBinders "×" b:term : term => expandBrackedBinders `Sigma xs b
 macro:25 xs:bracketedExplicitBinders "×'" b:term : term => expandBrackedBinders `PSigma xs b
+
+syntax "funext " (colGt term:max)+ : tactic
+
+macro_rules
+  | `(tactic|funext $xs*) =>
+    if xs.size == 1 then
+      `(tactic| apply funext; intro $(xs[0]):term)
+    else
+      `(tactic| apply funext; intro $(xs[0]):term; funext $(xs[1:])*)

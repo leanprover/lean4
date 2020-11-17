@@ -39,10 +39,11 @@ lean_object* l_Lean_Parser_Tactic_unknown___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Tactic_unknown___closed__1;
 lean_object* l_Lean_Parser_mkAntiquot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_leadingNode_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_orelse___closed__5;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
 lean_object* l_Lean_Parser_Tactic_nestedTactic_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_case___closed__10;
 lean_object* l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic___hyg_5____closed__2;
 lean_object* l_Lean_Parser_registerAliasCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_parenthesizerAttribute;
@@ -79,7 +80,6 @@ lean_object* l_Lean_Parser_Tactic_unknown_parenthesizer(lean_object*, lean_objec
 lean_object* l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic___hyg_5____closed__3;
 extern lean_object* l_Lean_PrettyPrinter_Formatter_formatterAliasesRef;
 lean_object* l___regBuiltin_Lean_Parser_Tactic_nestedTactic_parenthesizer___closed__1;
-extern lean_object* l___kind_tactic____x40_Init_Tactics___hyg_693____closed__5;
 lean_object* l___regBuiltin_Lean_Parser_Tactic_unknown_parenthesizer___closed__1;
 extern lean_object* l_Lean_Parser_Tactic_tacticSeq;
 lean_object* l_Lean_Parser_orelseFnCore(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -95,12 +95,12 @@ lean_object* l_Lean_Parser_Tactic_unknown___closed__6;
 extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_parenthesizerAliasesRef;
 lean_object* l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic___hyg_5_(lean_object*);
 lean_object* l_Lean_Parser_Tactic_unknown_parenthesizer___closed__5;
+extern lean_object* l_Lean_Parser_Tactic_intro___closed__2;
 lean_object* l_Lean_Parser_mkAntiquot(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_withPosition_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_unknown___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_unknown___closed__5;
-extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Tactic_unknown___elambda__1___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_andthen_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Tactic_nestedTactic_formatter(lean_object*);
@@ -141,7 +141,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Parser_parserAliasesRef;
-x_3 = l___kind_tactic____x40_Init_Tactics___hyg_693____closed__5;
+x_3 = l_Lean_Parser_Tactic_case___closed__10;
 x_4 = l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic___hyg_5____closed__1;
 x_5 = l_Lean_Parser_registerAliasCore___rarg(x_2, x_3, x_4, x_1);
 if (lean_obj_tag(x_5) == 0)
@@ -375,7 +375,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_unknown___elambda__1___closed__1(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
+x_1 = l_Lean_Parser_Tactic_intro___closed__2;
 x_2 = l_Lean_Parser_FirstTokens_toStr___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -523,7 +523,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Tactic_unknown(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___closed__1;
+x_2 = l_Lean_Parser_Tactic_orelse___closed__5;
 x_3 = l_Lean_Parser_Tactic_unknown___elambda__1___closed__1;
 x_4 = 1;
 x_5 = l_Lean_Parser_Tactic_unknown;
@@ -736,7 +736,7 @@ static lean_object* _init_l___regBuiltinParser_Lean_Parser_Tactic_nestedTactic__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
+x_1 = l_Lean_Parser_Tactic_intro___closed__2;
 x_2 = l___regBuiltinParser_Lean_Parser_Tactic_nestedTactic___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -746,7 +746,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Tactic_nestedTactic(lean_object* x
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___closed__1;
+x_2 = l_Lean_Parser_Tactic_orelse___closed__5;
 x_3 = l___regBuiltinParser_Lean_Parser_Tactic_nestedTactic___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Tactic_nestedTactic;

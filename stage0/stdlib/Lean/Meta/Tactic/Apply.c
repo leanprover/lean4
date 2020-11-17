@@ -46,7 +46,6 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgs_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgs_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar___at_Lean_Meta_apply___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Tactics___hyg_1305____closed__1;
 lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthInstanceImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_elem___at_Lean_Meta_apply___spec__7___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwApplyError___rarg___closed__4;
@@ -135,6 +134,7 @@ lean_object* l_Lean_Meta_forallMetaTelescopeReducing___at_Lean_Meta_apply___spec
 lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_dependsOnOthers___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwApplyError___rarg___closed__5;
+extern lean_object* l_Lean_Parser_Tactic_apply___closed__1;
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__2___closed__4;
@@ -510,7 +510,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Tactics___hyg_1305____closed__1;
+x_2 = l_Lean_Parser_Tactic_apply___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

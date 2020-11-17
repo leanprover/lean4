@@ -203,7 +203,6 @@ lean_object* l_Lean_Meta_mkDecide___rarg___closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkListLitAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqNDRecImp___closed__3;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkListLitAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Tactics___hyg_186____closed__1;
 lean_object* l_Lean_Meta_mkEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMArgs_loop_match__2(lean_object*);
@@ -387,6 +386,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkNoConfusionImp___cl
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqNDRecImp___closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkCongrImp_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux_match__4(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_9759____closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkIdImp___closed__2;
 lean_object* l_Lean_Meta_mkListLit___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
@@ -11231,7 +11231,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkDecIsTrue___closed__2;
-x_2 = l_myMacro____x40_Init_Tactics___hyg_186____closed__1;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_9759____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

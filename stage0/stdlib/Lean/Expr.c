@@ -42,7 +42,6 @@ lean_object* l_Lean_BinderInfo_isAuxDecl_match__1___rarg(uint8_t, lean_object*, 
 lean_object* l_Lean_Expr_replaceFVar___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateLambda___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs___boxed(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7455____closed__14;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Expr_isAppOf___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
@@ -689,6 +688,7 @@ lean_object* l_Lean_Expr_etaExpandedStrict_x3f(lean_object*);
 lean_object* l_Lean_Expr_updateLambdaE_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasLooseBVar___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ctorName___closed__11;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7451____closed__14;
 lean_object* l_Lean_ExprStructEq_Lean_Expr___instance__20(lean_object*);
 lean_object* l_Lean_Expr_bvarIdx_x21_match__1(lean_object*);
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
@@ -5509,7 +5509,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_7455____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_7451____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

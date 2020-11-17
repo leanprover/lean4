@@ -27,10 +27,10 @@ extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__1
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Capabilities___instance__2___closed__2;
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__7;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Capabilities___instance__2___closed__1;
+extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__5;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Capabilities___instance__2___boxed(lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Capabilities___instance__1___boxed(lean_object*);
-extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__8;
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_Capabilities___instance__2___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Capabilities___instance__1___closed__1;
 extern lean_object* l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__6;
@@ -127,7 +127,7 @@ switch (x_6) {
 case 0:
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_24 = l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__6;
+x_24 = l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__5;
 x_25 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_23);
@@ -147,7 +147,7 @@ return x_30;
 case 1:
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-x_31 = l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__7;
+x_31 = l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__6;
 x_32 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_23);
@@ -167,7 +167,7 @@ return x_37;
 default: 
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_38 = l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__8;
+x_38 = l_Lean_Lsp_Lean_Data_Lsp_TextSync___instance__10___closed__7;
 x_39 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_ctor_set(x_39, 1, x_23);

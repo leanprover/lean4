@@ -15,21 +15,17 @@ extern "C" {
 #endif
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Elab_Tactic_expandOptLocation___boxed(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+extern lean_object* l_Lean_Parser_Tactic_locationWildcard___closed__2;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandLocation___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Lean_Elab_Tactic_expandLocation___closed__2;
-extern lean_object* l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
 uint8_t l_USize_decLt(size_t, size_t);
-lean_object* l_Lean_Elab_Tactic_expandLocation___closed__1;
 lean_object* l_Lean_Elab_Tactic_expandOptLocation(lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandLocation(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_locationTarget___closed__2;
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* l_Lean_Elab_Tactic_expandLocation___closed__4;
-lean_object* l_Lean_Elab_Tactic_expandLocation___closed__3;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_expandLocation___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -68,42 +64,6 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("locationWildcard");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
-x_2 = l_Lean_Elab_Tactic_expandLocation___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("locationTarget");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Tactics___hyg_31____closed__2;
-x_2 = l_Lean_Elab_Tactic_expandLocation___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_Elab_Tactic_expandLocation(lean_object* x_1) {
 _start:
 {
@@ -112,12 +72,12 @@ x_2 = lean_unsigned_to_nat(1u);
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
 lean_inc(x_3);
 x_4 = l_Lean_Syntax_getKind(x_3);
-x_5 = l_Lean_Elab_Tactic_expandLocation___closed__2;
+x_5 = l_Lean_Parser_Tactic_locationWildcard___closed__2;
 x_6 = lean_name_eq(x_4, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; 
-x_7 = l_Lean_Elab_Tactic_expandLocation___closed__4;
+x_7 = l_Lean_Parser_Tactic_locationTarget___closed__2;
 x_8 = lean_name_eq(x_4, x_7);
 lean_dec(x_4);
 if (x_8 == 0)
@@ -218,14 +178,6 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Tactic_expandLocation___closed__1 = _init_l_Lean_Elab_Tactic_expandLocation___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_expandLocation___closed__1);
-l_Lean_Elab_Tactic_expandLocation___closed__2 = _init_l_Lean_Elab_Tactic_expandLocation___closed__2();
-lean_mark_persistent(l_Lean_Elab_Tactic_expandLocation___closed__2);
-l_Lean_Elab_Tactic_expandLocation___closed__3 = _init_l_Lean_Elab_Tactic_expandLocation___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_expandLocation___closed__3);
-l_Lean_Elab_Tactic_expandLocation___closed__4 = _init_l_Lean_Elab_Tactic_expandLocation___closed__4();
-lean_mark_persistent(l_Lean_Elab_Tactic_expandLocation___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

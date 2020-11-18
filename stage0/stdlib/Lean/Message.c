@@ -44,7 +44,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__7;
 lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__3;
-lean_object* l_Lean_MessageData_ofArray___boxed(lean_object*);
 lean_object* l_Lean_Message_toString___closed__3;
 lean_object* l_Lean_MessageData_format(lean_object*, lean_object*);
 lean_object* l_String_split___at_Lean_stringToMessageData___spec__1(lean_object*);
@@ -191,6 +190,7 @@ lean_object* l_Lean_KernelException_toMessageData___closed__28;
 lean_object* l_Lean_Message_toString___closed__1;
 lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftLeft(size_t, size_t);
+lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString___closed__2;
 lean_object* l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1___boxed(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MessageLog_toList___spec__4(lean_object*, size_t, size_t, lean_object*);
@@ -248,7 +248,6 @@ extern lean_object* l_Lean_Format_sbracket___closed__3;
 lean_object* l_Lean_MessageLog_forM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1881____closed__4;
 lean_object* l_Lean_KernelException_toMessageData___closed__1;
-lean_object* l_Lean_Lean_Message___instance__26___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_fmt___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_MessageData_formatAux___spec__1(lean_object*);
 lean_object* l_Lean_MessageData_Lean_Message___instance__9___closed__1;
@@ -321,7 +320,6 @@ lean_object* l_Lean_KernelException_toMessageData_match__1(lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MessageLog_getInfoMessages___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Message___instance__28___boxed(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__12;
-lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_MessageLog_msgs___default;
 lean_object* l_Lean_KernelException_toMessageData___closed__13;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -3248,19 +3246,10 @@ lean_object* l_Lean_MessageData_ofArray(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Array_toList___rarg(x_1);
+x_2 = lean_array_to_list(lean_box(0), x_1);
 x_3 = l_Lean_MessageData_ofList(x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-lean_object* l_Lean_MessageData_ofArray___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_MessageData_ofArray(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_MessageData_Lean_Message___instance__11___closed__1() {
@@ -7205,7 +7194,7 @@ lean_object* l_Lean_Lean_Message___instance__26___rarg(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Array_toList___rarg(x_2);
+x_3 = lean_array_to_list(lean_box(0), x_2);
 x_4 = l_List_map___rarg(x_1, x_3);
 x_5 = l_Lean_MessageData_ofList(x_4);
 lean_dec(x_4);
@@ -7216,17 +7205,8 @@ lean_object* l_Lean_Lean_Message___instance__26(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Lean_Message___instance__26___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Lean_Message___instance__26___rarg), 2, 0);
 return x_2;
-}
-}
-lean_object* l_Lean_Lean_Message___instance__26___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Lean_Message___instance__26___rarg(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* l_Lean_Lean_Message___instance__27_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

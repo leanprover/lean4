@@ -77,7 +77,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_quoteName___closed__7;
 lean_object* l_Lean_Syntax_toNat___boxed(lean_object*);
 lean_object* l_Lean_Init_Meta___instance__10(lean_object*);
-lean_object* l_Lean_Init_Meta___instance__11___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_identToAtom_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_Syntax_decodeInterpStrQuotedChar(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -256,6 +255,7 @@ lean_object* l___private_Init_Meta_0__Lean_Syntax_decodeInterpStrQuotedChar___bo
 extern lean_object* l_Lean_charLitKind;
 extern lean_object* l_Lean_Init_Prelude___instance__72___closed__1;
 lean_object* l_Lean_NameGenerator_idx___default;
+lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_mkFreshId(lean_object*);
 lean_object* l_Lean_Init_Meta___instance__7___boxed(lean_object*);
 lean_object* l_Lean_mkCIdent(lean_object*);
@@ -335,7 +335,6 @@ lean_object* l_Lean_Syntax_isIdOrAtom_x3f_match__1(lean_object*);
 lean_object* l___private_Init_Meta_0__Array_mapSepElemsMAux___at_Array_mapSepElems___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeQuotedChar___boxed__const__2;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_expandMacros___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3419____closed__5;
 lean_object* l___private_Init_Meta_0__Array_mapSepElemsMAux___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setTailInfoAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isLit_x3f_match__2(lean_object*);
@@ -345,6 +344,7 @@ lean_object* l_Lean_Syntax_decodeQuotedChar_match__6(lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_quoteName_match__1(lean_object*);
 lean_object* l_Lean_Name_appendAfter(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getSepArgs(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3397____closed__5;
 lean_object* l_Lean_Syntax_isIdent_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkHole(lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStr___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -429,7 +429,6 @@ lean_object* l_Lean_Syntax_getTailInfo(lean_object*);
 lean_object* l_Lean_Init_Meta___instance__4___closed__4;
 lean_object* l_Lean_Syntax_getOptionalIdent_x3f___boxed(lean_object*);
 lean_object* l_Lean_Syntax_isNatLitAux_match__1(lean_object*);
-lean_object* l_Array_toList___rarg(lean_object*);
 extern lean_object* l_Lean_Init_Prelude___instance__73;
 lean_object* l_Lean_Syntax_unsetTrailing_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeStrLit(lean_object*);
@@ -8965,11 +8964,11 @@ lean_object* l_Lean_Init_Meta___instance__11___rarg(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = l_Array_toList___rarg(x_2);
+x_3 = lean_array_to_list(lean_box(0), x_2);
 x_4 = l___private_Init_Meta_0__Lean_quoteList___rarg(x_1, x_3);
 x_5 = l_Lean_mkOptionalNode___closed__2;
 x_6 = lean_array_push(x_5, x_4);
-x_7 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3419____closed__5;
+x_7 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3397____closed__5;
 x_8 = l_Lean_Syntax_mkCApp(x_7, x_6);
 return x_8;
 }
@@ -8978,17 +8977,8 @@ lean_object* l_Lean_Init_Meta___instance__11(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Init_Meta___instance__11___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Init_Meta___instance__11___rarg), 2, 0);
 return x_2;
-}
-}
-lean_object* l_Lean_Init_Meta___instance__11___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Init_Meta___instance__11___rarg(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* l___private_Init_Meta_0__Lean_quoteOption_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

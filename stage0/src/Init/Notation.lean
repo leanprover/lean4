@@ -120,8 +120,18 @@ syntax[changeWith] "change " term " with " term (location)? : tactic
 syntax rwRule    := ("←" <|> "<-")? term
 syntax rwRuleSeq := "[" sepBy1T(rwRule, ", ") "]"
 
-syntax[rewrite] (&"rewrite" <|> &"rw") !"[" rwRule (location)? : tactic
-syntax[rewriteSeq] (&"rewrite" <|> &"rw") rwRuleSeq (location)? : tactic
+syntax[rewrite] "rewrite " rwRule (location)? : tactic
+syntax[rewriteSeq, 1] "rewrite " rwRuleSeq (location)? : tactic
+
+syntax[rw] "rw " rwRule (location)? : tactic
+macro_rules
+  | `(tactic| rw $rule:rwRule) => `(tactic| rewrite $rule:rwRule)
+  | `(tactic| rw $rule:rwRule $loc:location) => `(tactic| rewrite $rule:rwRule $loc:location)
+
+syntax[rwSeq, 1] "rw " rwRuleSeq (location)? : tactic
+macro_rules
+  | `(tactic| rw $rule:rwRuleSeq) => `(tactic| rewrite $rule:rwRuleSeq)
+  | `(tactic| rw $rule:rwRuleSeq $loc:location) => `(tactic| rewrite $rule:rwRuleSeq $loc:location)
 
 syntax:2[orelse] tactic "<|>" tactic:1 : tactic
 
@@ -150,7 +160,7 @@ macro "rfl" : tactic => `(exact rfl)
 macro "decide!" : tactic => `(exact decide!)
 macro "admit" : tactic => `(exact sorry)
 /- We use a priority > 0, to avoid ambiguity with the builtin `have` notation -/
-macro[1] "have" x:ident ":=" p:term : tactic => `(have $x:ident : _ := $p)
+macro[1] "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
 
 syntax "repeat " tacticSeq : tactic
 macro_rules

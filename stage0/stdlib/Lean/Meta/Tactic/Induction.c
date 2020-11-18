@@ -155,6 +155,7 @@ lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__16___closed
 lean_object* l_Lean_Meta_induction_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__20___lambda__1___boxed(lean_object**);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop_match__5(lean_object*);
+lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_induction_match__11___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__20___boxed__const__1;
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams_match__1(lean_object*);
@@ -244,7 +245,6 @@ lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__20___closed
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_induction___spec__8___lambda__2___closed__2;
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Lean_Meta_Tactic_Induction___instance__1;
-lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_MetavarContext_MkBinding_mkBinding(uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_List_forM___at_Lean_Meta_induction___spec__4___closed__1;
@@ -7609,7 +7609,7 @@ lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__16___lambda
 _start:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_19 = l_Array_toList___rarg(x_1);
+x_19 = lean_array_to_list(lean_box(0), x_1);
 x_20 = l_Lean_mkConst(x_2, x_19);
 lean_inc(x_17);
 lean_inc(x_16);
@@ -7890,7 +7890,6 @@ lean_dec(x_3);
 x_45 = lean_box(0);
 x_46 = l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__16___lambda__2(x_32, x_1, x_7, x_14, x_5, x_9, x_2, x_4, x_6, x_10, x_8, x_11, x_45, x_16, x_17, x_18, x_19, x_31);
 lean_dec(x_14);
-lean_dec(x_32);
 return x_46;
 }
 }
@@ -7908,7 +7907,6 @@ lean_dec(x_28);
 x_49 = lean_box(0);
 x_50 = l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__16___lambda__2(x_48, x_1, x_7, x_14, x_5, x_9, x_2, x_4, x_6, x_10, x_8, x_11, x_49, x_16, x_17, x_18, x_19, x_47);
 lean_dec(x_14);
-lean_dec(x_48);
 return x_50;
 }
 }
@@ -9554,7 +9552,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_1);
 return x_19;
 }
 }

@@ -66,11 +66,11 @@ abbrev EntriesNode (α β) := { n : Node α β // IsEntriesNode n }
 
 private theorem setSizeEq {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (i : Fin ks.size) (j : Fin vs.size) (k : α) (v : β)
                            : (ks.set i k).size = (vs.set j v).size := by
-  rw [Array.szFSetEq, Array.szFSetEq vs, h]
+  rw [Array.sizeSetEq, Array.sizeSetEq vs, h]
   rfl
 
 private theorem pushSizeEq {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (k : α) (v : β) : (ks.push k).size = (vs.push v).size := by
-  rw [Array.szPushEq, Array.szPushEq, h]
+  rw [Array.sizePushEq, Array.sizePushEq, h]
   rfl
 
 partial def insertAtCollisionNodeAux [BEq α] : CollisionNode α β → Nat → α → β → CollisionNode α β

@@ -87,6 +87,7 @@ lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleA
 extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Lean_Elab_sortDeclLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleAux___spec__4(lean_object*);
 lean_object* l_Lean_Elab_sortDeclLevelParams_match__1(lean_object*);
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__3;
@@ -132,7 +133,6 @@ lean_object* l_Array_qsort_sort___at_Lean_Elab_sortDeclLevelParams___spec__2___b
 lean_object* l_Lean_Elab_sortDeclLevelParams_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatible___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_Elab_mkFreshInstanceName___closed__1;
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isLevelDefEq___rarg___lambda__2___closed__4;
@@ -3504,7 +3504,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_sortDeclLevelParams___closed__3;
-x_2 = l_Array_toList___rarg(x_1);
+x_2 = lean_array_to_list(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -3579,8 +3579,7 @@ x_24 = lean_nat_sub(x_22, x_23);
 lean_dec(x_22);
 x_25 = l_Array_qsort_sort___at_Lean_Elab_sortDeclLevelParams___spec__2(x_21, x_9, x_24);
 lean_dec(x_24);
-x_26 = l_Array_toList___rarg(x_25);
-lean_dec(x_25);
+x_26 = lean_array_to_list(lean_box(0), x_25);
 x_27 = l_List_append___rarg(x_7, x_26);
 x_28 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_28, 0, x_27);

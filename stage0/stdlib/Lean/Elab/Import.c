@@ -34,6 +34,7 @@ lean_object* l_Lean_Elab_parseImports_match__1___rarg(lean_object*, lean_object*
 lean_object* l_Lean_Elab_headerToImports___closed__3;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* lean_print_deps(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString(lean_object*);
@@ -45,7 +46,6 @@ lean_object* lean_parse_imports(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_List_map___at_Lean_Elab_headerToImports___spec__1(lean_object*);
-lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
@@ -195,8 +195,7 @@ x_5 = lean_unsigned_to_nat(1u);
 x_6 = l_Lean_Syntax_getArg(x_1, x_5);
 x_7 = l_Lean_Syntax_getArgs(x_6);
 lean_dec(x_6);
-x_8 = l_Array_toList___rarg(x_7);
-lean_dec(x_7);
+x_8 = lean_array_to_list(lean_box(0), x_7);
 x_9 = l_List_map___at_Lean_Elab_headerToImports___spec__1(x_8);
 if (x_4 == 0)
 {

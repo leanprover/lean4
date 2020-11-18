@@ -164,7 +164,6 @@ lean_object* l___private_Lean_Environment_0__Lean_Environment_throwUnexpectedTyp
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__3;
 lean_object* l_Nat_foldAux___at_Lean_mkModuleData___spec__1___closed__1;
 lean_object* l_Lean_namespacesExt___closed__2;
-lean_object* l_List_toArray___rarg(lean_object*);
 lean_object* l_Lean_namespacesExt___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_freeRegions___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4(lean_object*);
@@ -303,6 +302,7 @@ extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 lean_object* l___private_Lean_Environment_0__Lean_Environment_getTrustLevel___boxed(lean_object*);
 lean_object* l_Lean_importModules___closed__3;
 lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_contains___at_Lean_Environment_contains___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getEntries___rarg(lean_object*, lean_object*);
@@ -419,6 +419,7 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_EnvExtensionInterfaceUnsafe_mkInit
 lean_object* lean_environment_main_module(lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtensionDescr_toArrayFn___default(lean_object*);
 lean_object* l_Lean_Environment_evalConstCheck_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* lean_list_to_array(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_mkEnvExtensionsRef___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp___elambda__4(lean_object*);
@@ -508,7 +509,6 @@ lean_object* l_Lean_Environment_hasUnsafe_match__1(lean_object*);
 lean_object* l_Lean_Environment_addAux(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Lean_mkModuleData___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceImp___elambda__5___rarg(lean_object*, lean_object*);
-lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceImp___elambda__2(lean_object*);
 lean_object* l_Lean_profileitIOUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp___closed__5;
@@ -7309,8 +7309,7 @@ x_12 = lean_ctor_get(x_9, 0);
 x_13 = lean_ctor_get(x_9, 1);
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
-x_15 = l_Array_toList___rarg(x_14);
-lean_dec(x_14);
+x_15 = lean_array_to_list(lean_box(0), x_14);
 lean_ctor_set(x_9, 1, x_3);
 lean_ctor_set(x_9, 0, x_2);
 x_16 = lean_alloc_ctor(0, 2, 0);
@@ -7434,8 +7433,7 @@ lean_inc(x_48);
 lean_dec(x_9);
 x_50 = lean_ctor_get(x_48, 0);
 lean_inc(x_50);
-x_51 = l_Array_toList___rarg(x_50);
-lean_dec(x_50);
+x_51 = lean_array_to_list(lean_box(0), x_50);
 x_52 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_52, 0, x_2);
 lean_ctor_set(x_52, 1, x_3);
@@ -10266,7 +10264,8 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Environment___hyg_2542____cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_List_toArray___rarg), 1, 0);
+x_1 = lean_alloc_closure((void*)(lean_list_to_array), 2, 1);
+lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }
 }
@@ -11361,8 +11360,7 @@ x_14 = lean_ctor_get(x_1, 3);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_14, 1);
 lean_inc(x_15);
-x_16 = l_Array_toList___rarg(x_15);
-lean_dec(x_15);
+x_16 = lean_array_to_list(lean_box(0), x_15);
 x_17 = l_List_toString___at_Lean_Environment_displayStats___spec__1(x_16);
 x_18 = l_Array_Init_Data_Array_Basic___instance__3___rarg___closed__1;
 x_19 = lean_string_append(x_18, x_17);

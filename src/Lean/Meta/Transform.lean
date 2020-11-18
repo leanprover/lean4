@@ -5,12 +5,59 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
 
-namespace Lean.Meta
+namespace Lean
 
 inductive TransformStep
   | done  (e : Expr)
   | visit (e : Expr)
 
+namespace Core
+
+/--
+  Tranform the expression `input` using `pre` and `post`.
+  - `pre s` is invoked before visiting the children of subterm 's'. If the result is `TransformStep.visit sNew`, then
+     `sNew` is traversed by transform. If the result is `TransformStep.visit sNew`, then `s` is just replaced with `sNew`.
+     In both cases, `sNew` must be definitionally equal to `s`
+  - `post s` is invoked after visiting the children of subterm `s`.
+
+  The term `s` in both `pre s` and `post s` may contain loose bound variables. So, this method is not appropriate for
+  if one needs to apply operations (e.g., `whnf`, `inferType`) that do not handle loose bound variables.
+  Consider using `Meta.transform` to avoid loose bound variables.
+
+  This method is useful for applying transformations such as beta-reduction and delta-reduction.
+-/
+partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
+    (input : Expr)
+    (pre   : Expr → m TransformStep := fun e => return TransformStep.visit e)
+    (post  : Expr → m TransformStep := fun e => return TransformStep.done e)
+    : m Expr :=
+  let inst : STWorld IO.RealWorld m := ⟨⟩
+  let inst : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := CoreM) (liftM (m := ST IO.RealWorld) x) }
+  let rec visit (e : Expr) : MonadCacheT Expr Expr m Expr :=
+    checkCache e fun e => Core.withIncRecDepth do
+      let rec visitPost (e : Expr) : MonadCacheT Expr Expr m Expr := do
+        match (← post e) with
+        | TransformStep.done e  => pure e
+        | TransformStep.visit e => visit e
+      match (← pre e) with
+      | TransformStep.done e  => pure e
+      | TransformStep.visit e => match e with
+        | Expr.forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
+        | Expr.lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
+        | Expr.letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
+        | Expr.app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
+        | Expr.mdata _ b _     => visitPost (e.updateMData! (← visit b))
+        | Expr.proj _ _ b _    => visitPost (e.updateProj! (← visit b))
+        | _                    => visitPost e
+  visit input $.run
+
+end Core
+
+namespace Meta
+
+/--
+  Similar to `Core.transform`, but terms provided to `pre` and `post` do not contain loose bound variables.
+  So, it is safe to use any `MetaM` method at `pre` and `post`. -/
 partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
     (input : Expr)
     (pre   : Expr → m TransformStep := fun e => return TransformStep.visit e)
@@ -57,4 +104,5 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | _                  => visitPost e
   visit input $.run
 
-end Lean.Meta
+end Meta
+end Lean

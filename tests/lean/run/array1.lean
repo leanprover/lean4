@@ -7,8 +7,8 @@ def w : Array Nat :=
 
 #check @Array.casesOn
 
-def f : Fin w.sz → Nat :=
-@Array.casesOn _ (fun w => Fin w.sz → Nat)  w (fun _ f => f)
+def f : Fin w.size → Nat :=
+  w.get
 
 def arraySum (a : Array Nat) : Nat :=
 a.foldl Nat.add 0
@@ -20,9 +20,7 @@ a.foldl Nat.add 0
 #eval (((mkArray 1 1).push 2).push 3).foldl (fun x y => x + y) 0
 #eval arraySum (mkArray 10 1)
 axiom axLt {a b : Nat} : a < b
-#eval (mkArray 10 1).data ⟨1, axLt⟩ + 20
-#eval (mkArray 10 1).data ⟨2, axLt⟩
-#eval (mkArray 10 3).data ⟨2, axLt⟩
+
 
 #eval #[1, 2, 3].insertAt 0 10
 #eval #[1, 2, 3].insertAt 1 10
@@ -81,3 +79,6 @@ def check (b : Bool) : IO Unit :=
 #eval check $ #[1, 2, 3, 4, 5, 6].allDiff
 
 #eval check $ Array.zip #[1, 2] #[3, 4, 6] == #[(1, 3), (2, 4)]
+
+theorem ex1 (a b c : Nat) : #[a, b].push c = #[a, 0, c].set! 1 b :=
+  rfl

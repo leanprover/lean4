@@ -24,3 +24,4 @@ import Lean.Meta.ReduceEval
 import Lean.Meta.Closure
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
+import Lean.Meta.Transform

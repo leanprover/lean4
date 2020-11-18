@@ -1,0 +1,59 @@
+name: Nix CI
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  Build:
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: nix-shell -A nix --run "bash -euo pipefail {0}"
+    strategy:
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-latest
+          - name: macOS
+            os: macos-latest
+      # complete all jobs
+      fail-fast: false
+    env:
+      CCACHE_COMPRESS: true
+      # current cache limit
+      CCACHE_MAXSIZE: 200M
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Nix
+        uses: cachix/install-nix-action@v12
+        with:
+          extra_nix_config: |
+            max-jobs = auto
+            extra-sandbox-paths = /var/cache/ccache
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: /var/cache/ccache
+          key: ${{ matrix.name }}-build-${{ github.sha }}
+          # fall back to (latest) previous cache
+          restore-keys: |
+            ${{ matrix.name }}-build
+      - name: Setup
+        # can't use `nix-shell` yet since it will complain about the missing sandbox path
+        shell: bash -euo pipefail {0} 
+        run: |
+          [ -d /var/cache/ccache ] || sudo mkdir -m0770 -p /var/cache/ccache
+          sudo chown -R root:nixbld /var/cache/ccache
+      - name: Build
+        run: nix build
+      - name: Test
+        run: nix build .#lean.test
+      - name: CCache stats
+        run: ccache -s

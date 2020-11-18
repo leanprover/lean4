@@ -90,6 +90,11 @@ private def abortIfContainsSyntheticSorry (e : Expr) : TermElabM Unit := do
   if e.hasSyntheticSorry then throwAbort
 
 private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array Expr) (values : Array Expr) : TermElabM Unit := do
+  let letRecsToLiftCurr := (← get).letRecsToLift
+  for view in views do
+    if letRecsToLiftCurr.any fun toLift => toLift.declName == view.declName then
+      withRef view.ref do
+        throwError! "'{view.declName}' has already been declared"
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let toLift := views.mapIdx fun i view => {

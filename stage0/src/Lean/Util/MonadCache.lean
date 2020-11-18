@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Std.Data.HashMap
+
 namespace Lean
 /-- Interface for caching results.  -/
 class MonadCache (α β : Type) (m : Type → Type) :=
@@ -74,6 +75,7 @@ instance [MonadIO m] : MonadIO (MonadCacheT α β m) := inferInstanceAs (MonadIO
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (MonadCacheT α β m) := inferInstanceAs (MonadExceptOf ε (StateRefT' _ _ _))
 instance : MonadControl m (MonadCacheT α β m) := inferInstanceAs (MonadControl m (StateRefT' _ _ _))
 instance [MonadFinally m] : MonadFinally (MonadCacheT α β m) := inferInstanceAs (MonadFinally (StateRefT' _ _ _))
+instance [MonadRef m] : MonadRef (MonadCacheT α β m) := inferInstanceAs (MonadRef (StateRefT' _ _ _))
 
 end MonadCacheT
 end Lean

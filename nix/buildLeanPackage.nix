@@ -1,4 +1,4 @@
-{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeScriptBin, bash, lean-emacs, nix }:
+{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeScriptBin, bash, lean-emacs, nix, substituteAll }:
 with builtins; let
   # "Init.Core" ~> "Init/Core.lean"
   modToLean = mod: replaceStrings ["."] ["/"] mod + ".lean";
@@ -104,42 +104,14 @@ in
       set -euo pipefail
       LEAN_PATH=${modRoot} ${lean-final}/bin/lean $@
     '';
-    lean-dev = writeScriptBin "lean" ''
-      #!${bash}/bin/bash
-      set -euo pipefail
-      PATH=${nix}/bin:$PATH
+    lean-dev = substituteAll {
+      name = "lean";
+      dir = "bin";
+      src = ./lean-dev.in;
+      isExecutable = true;
+      inherit lean bash nix srcDir;
+    };
 
-      call() {
-        if [[ $json == 1 ]]; then
-          $@ 2>&1 | awk '/{/ { print $0; next } { gsub(/"/, "\\\"", $0); gsub(/\n/, "\\n", $0); printf "{\"severity\": \"warning\", \"pos_line\": 0, \"pos_col\": 0, \"file_name\": \"<stdin>\", \"text\": \"%s\"}\n", $0 }'
-        else
-          $@
-        fi
-      }
-
-      json=0
-      input=
-      for p in "$@"; do
-        [[ "$p" == --json ]] && json=1
-        [[ "$p" != -* ]] && input="$(realpath "$p")"
-      done
-
-      root="$(dirname "''${input:-/}")"
-      while [[ "$root" != / ]]; do
-        [ -f "$root/flake.nix" ] && break
-        root="$(realpath "$root/..")"
-      done
-      if [[ "$root" == / ]]; then
-        call ${lean}/bin/lean $@
-      elif [[ "$input" != "$root${srcDir}/"* ]]; then
-        call nix run "$root#lean-package" -- $@
-      else
-        input="$(realpath --relative-to="$root${srcDir}" "$input")"
-        input="''${input%.lean}"
-        input="''${input//\//.}"
-        call nix develop "$root#mods.\"$input\"" -c lean $@
-      fi
-     '';
     emacs-package = writeScriptBin "run-emacs-package" ''
       #!${bash}/bin/bash
       ${lean-emacs}/bin/emacs --eval '(setq lean4-rootdir "${lean-package}")' $@

@@ -875,6 +875,31 @@ def List.foldl {α β} (f : α → β → α) : (init : α) → List β → α
   | a, nil      => a
   | a, cons b l => foldl f (f a b) l
 
+def List.lengthAux {α : Type u} : List α → Nat → Nat
+  | nil,       n => n
+  | cons a as, n => lengthAux as (Nat.succ n)
+
+def List.length {α : Type u} (as : List α) : Nat :=
+  lengthAux as 0
+
+theorem List.lengthConsEq {α} (a : α) (as : List α) : Eq (cons a as).length as.length.succ :=
+  let rec aux (a : α) (as : List α) : (n : Nat) → Eq ((cons a as).lengthAux n) (as.lengthAux n).succ :=
+    match as with
+    | nil       => fun _ => rfl
+    | cons a as => fun n => aux a as n.succ
+  aux a as 0
+
+def List.concat {α : Type u} : List α → α → List α
+  | nil,       b => cons b nil
+  | cons a as, b => cons a (concat as b)
+
+def List.get {α : Type u} : (as : List α) → (i : Nat) → Less i as.length → α
+  | nil,       i,          h => absurd h (Nat.notLtZero _)
+  | cons a as, 0,          h => a
+  | cons a as, Nat.succ i, h =>
+    have Less i.succ as.length.succ from lengthConsEq .. ▸ h
+    get as i (Nat.leOfSuccLeSucc this)
+
 structure String :=
   (data : List Char)
 
@@ -933,18 +958,15 @@ The Compiler has special support for arrays.
 They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic_array
 -/
 structure Array (α : Type u) :=
-  (sz   : Nat)
-  (data : Fin sz → α)
+  (data : List α)
 
-attribute [extern "lean_array_mk"] Array.mk
-attribute [extern "lean_array_data"] Array.data
-attribute [extern "lean_array_sz"] Array.sz
+attribute [extern "lean_array_to_list"] Array.data
+attribute [extern "lean_list_to_array"] Array.mk
 
 /- The parameter `c` is the initial capacity -/
 @[extern "lean_mk_empty_array_with_capacity"]
 def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α := {
-  sz   := 0,
-  data := fun ⟨x, h⟩ => absurd h (Nat.notLtZero x)
+  data := List.nil
 }
 
 def Array.empty {α : Type u} : Array α :=
@@ -952,11 +974,11 @@ def Array.empty {α : Type u} : Array α :=
 
 @[reducible, extern "lean_array_get_size"]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
-  a.sz
+ a.data.length
 
 @[extern "lean_array_fget"]
 def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
-  a.data i
+  a.data.get i.val i.isLt
 
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
@@ -968,8 +990,7 @@ def Array.getOp {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α 
 
 @[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α := {
-  sz   := Nat.succ a.sz,
-  data := fun ⟨j, h₁⟩ => dite (Eq j a.sz) (fun _ => v) (fun h₂ => a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩)
+  data := List.concat a.data v
 }
 
 class Bind (m : Type u → Type v) :=

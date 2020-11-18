@@ -1,4 +1,3 @@
-
 universes u v
 
 theorem eqLitOfSize0 {α : Type u} (a : Array α) (hsz : a.size = 0) : a = #[] :=
@@ -63,18 +62,3 @@ theorem matchArrayLit.eq3 {α : Type u} (C : Array α → Sort v)
     (a₁ a₂ a₃ : α)
     : matchArrayLit C #[a₁, a₂, a₃] h₁ h₂ h₃ h₄ = h₃ a₁ a₂ a₃ :=
 rfl
-
-theorem matchArrayLit.eq4 {α : Type u} (C : Array α → Sort v)
-    (h₁ : Unit →      C #[])
-    (h₂ : ∀ a₁,       C #[a₁])
-    (h₃ : ∀ a₁ a₂ a₃, C #[a₁, a₂, a₃])
-    (h₄ : ∀ a,        C a)
-    (a : Array α)
-    (n₁ : a.size ≠ 0) (n₂ : a.size ≠ 1) (n₃ : a.size ≠ 3)
-    : matchArrayLit C a h₁ h₂ h₃ h₄ = h₄ a :=
-match a, n₁, n₂, n₃ with
-| ⟨0, _⟩,   n₁, _, _  => absurd rfl n₁
-| ⟨1, _⟩,   _,  n₂, _ => absurd rfl n₂
-| ⟨2, _⟩,   _, _, _   => rfl
-| ⟨3, _⟩,   _, _, n₃  => absurd rfl n₃
-| ⟨n+4, _⟩, _, _, _   => rfl

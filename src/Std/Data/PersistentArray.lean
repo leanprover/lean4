@@ -146,15 +146,15 @@ partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (Per
     if h : cs.size ≠ 0 then
       let idx : Fin cs.size := ⟨cs.size - 1, Nat.predLt h⟩
       let last := cs.get idx
-      let cs   := cs.set idx (arbitrary _)
+      let cs'  := cs.set idx (arbitrary _)
       match popLeaf last with
       | (none,   _)       => (none, emptyArray)
       | (some l, newLast) =>
         if newLast.size == 0 then
-          let cs := cs.pop
-          if cs.isEmpty then (some l, emptyArray) else (some l, cs)
+          let cs' := cs'.pop
+          if cs'.isEmpty then (some l, emptyArray) else (some l, cs')
         else
-          (some l, cs.set idx (node newLast))
+          (some l, cs'.set (Array.sizeSetEq cs idx _ ▸ idx) (node newLast))
     else
       (none, emptyArray)
   | leaf vs   => (some vs, emptyArray)

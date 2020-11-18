@@ -1,5 +1,3 @@
-
-
 def f1 (x : Nat × Nat) : Nat :=
 match x with
 | { fst := x, snd := y } => x - y
@@ -46,7 +44,7 @@ match x with
 def Vector (α : Type) (n : Nat) := { a : Array α // a.size = n }
 
 def mkVec {α : Type} (n : Nat) (a : α) : Vector α n :=
-⟨mkArray n a, rfl⟩
+⟨mkArray n a, Array.sizeMkArrayEq ..⟩
 
 structure S :=
 (n : Nat)

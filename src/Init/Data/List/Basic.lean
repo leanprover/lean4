@@ -69,13 +69,6 @@ def eraseIdx : List α → Nat → List α
   | a::as, 0   => as
   | a::as, n+1 => a :: eraseIdx as n
 
-def lengthAux : List α → Nat → Nat
-  | [],    n => n
-  | a::as, n => lengthAux as (n+1)
-
-def length (as : List α) : Nat :=
-  lengthAux as 0
-
 def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false
@@ -243,9 +236,6 @@ def unzip : List (α × β) → List α × List β
   | []          => ([], [])
   | (a, b) :: t => match unzip t with | (al, bl) => (a::al, b::bl)
 
-def replicate (n : Nat) (a : α) : List α :=
-  n.repeat (fun xs => a :: xs) []
-
 def rangeAux : Nat → List Nat → List Nat
   | 0,   ns => ns
   | n+1, ns => rangeAux n (n::ns)
@@ -334,5 +324,55 @@ protected def beq [BEq α] : List α → List α → Bool
   | _,     _     => false
 
 instance [BEq α] : BEq (List α) := ⟨List.beq⟩
+
+def replicate {α : Type u} (n : Nat) (a : α) : List α :=
+  let rec loop : Nat → List α → List α
+    | 0, as => as
+    | n+1, as => loop n (a::as)
+  loop n []
+
+def dropLast {α} : List α → List α
+  | []    => []
+  | [a]   => []
+  | a::as => a :: dropLast as
+
+def lengthReplicateEq {α} (n : Nat) (a : α) : (replicate n a).length = n :=
+  let rec aux (n : Nat) (as : List α) : (replicate.loop a n as).length = n + as.length := by
+    induction n generalizing as
+    | zero => rw [Nat.zeroAdd]; rfl
+    | succ n ih =>
+      show length (replicate.loop a n (a::as)) = Nat.succ n + length as
+      rw [ih, lengthConsEq, Nat.addSucc, Nat.succAdd]
+      rfl
+  aux n []
+
+def lengthConcatEq {α} (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
+  induction as
+  | nil => rfl
+  | cons x xs ih =>
+    show length (x :: concat xs a) = length (x :: xs) + 1
+    rw [lengthConsEq, lengthConsEq, ih]
+    rfl
+
+def lengthSetEq {α} (as : List α) (i : Nat) (a : α) : (as.set i a).length = as.length := by
+  induction as generalizing i
+  | nil => rfl
+  | cons x xs ih =>
+    cases i
+    | zero => rfl
+    | succ i =>
+      show length (x :: set xs i a) = length (x :: xs)
+      rw [lengthConsEq, lengthConsEq, ih]
+      rfl
+
+def lengthDropLast {α} (as : List α) : as.dropLast.length = as.length - 1 := by
+  match as with
+  | []       => rfl
+  | [a]      => rfl
+  | a::b::as =>
+    have ih := lengthDropLast (b::as)
+    show (a :: dropLast (b::as)).length = (a::b::as).length - 1
+    rw [lengthConsEq, ih, lengthConsEq, lengthConsEq, lengthConsEq]
+    rfl
 
 end List

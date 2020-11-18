@@ -1,7 +1,6 @@
-
 #check @Array.mk
 
-def v : Array Nat := @Array.mk Nat 10 (fun ⟨i, _⟩ => i)
+def v : Array Nat := Array.mk [1, 2, 3, 4]
 
 def w : Array Nat :=
 (mkArray 9 1).push 3

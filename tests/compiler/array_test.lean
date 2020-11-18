@@ -1,5 +1,3 @@
-
-
 def foo (a : Array Nat) : Array Nat :=
 let a := a.push 0
 let a := a.push 1
@@ -10,12 +8,12 @@ a
 def main : IO UInt32 := do
  let a : Array Nat := Array.empty
  IO.println (toString a)
- IO.println (toString a.sz)
+ IO.println (toString a.size)
  let a := foo a
  IO.println (toString a)
  let a := a.map (fun a => a + 10)
  IO.println (toString a)
- IO.println (toString a.sz)
+ IO.println (toString a.size)
  let a1 := a.pop
  let a2 := a.push 100
  IO.println (toString a1)

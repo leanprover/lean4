@@ -37,7 +37,7 @@ def define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MV
     pure newMVar.mvarId!
 
 /--
-  Convert the given goal `Ctx |- target` into `Ctx |- forall (name : type) -> name = val -> target`.
+  Convert the given goal `Ctx |- target` into `Ctx |- (hName : type) -> hName = val -> target`.
   It assumes `val` has type `type` -/
 def assertExt (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) (hName : Name := `h) : MetaM MVarId := do
   withMVarContext mvarId $ do

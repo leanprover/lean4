@@ -206,6 +206,10 @@ protected def isExprDefEqAux (t s : Expr) : MetaM Bool :=
 protected def synthPending (mvarId : MVarId) : MetaM Bool :=
   withIncRecDepth do (← liftIO synthPendingRef.get) mvarId
 
+-- withIncRecDepth for a monad `n` such that `[MonadControlT MetaM n]`
+protected def withIncRecDepth {α} (x : n α) : n α :=
+  mapMetaM (withIncRecDepth (m := MetaM)) x
+
 private def mkFreshExprMVarAtCore
     (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind) (userName : Name) (numScopeArgs : Nat) : MetaM Expr := do
   modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId userName lctx localInsts type kind numScopeArgs;

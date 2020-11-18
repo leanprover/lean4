@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Message
 import Lean.InternalExceptionId
 import Lean.Data.Options
+import Lean.Util.MonadCache
 
 namespace Lean
 
@@ -75,6 +76,9 @@ instance {ρ m} [Monad m] [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) := {
 
 instance {ω σ m} [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
   inferInstanceAs (MonadRecDepth (ReaderT _ _))
+
+instance {ω α β m} [BEq α] [Hashable α] [Monad m] [STWorld ω m] [MonadRecDepth m] : MonadRecDepth (MonadCacheT α β m) :=
+  inferInstanceAs (MonadRecDepth (StateRefT' _ _ _))
 
 @[inline] def withIncRecDepth {α m} [Monad m] [MonadRecDepth m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
     (x : m α) : m α := do

@@ -44,8 +44,6 @@ jobs:
       # complete all jobs
       fail-fast: false
     env:
-      # must be inside workspace
-      CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_COMPRESS: true
       # current cache limit
       CCACHE_MAXSIZE: 200M
@@ -53,18 +51,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install Nix
-        uses: cachix/install-nix-action@v9
+        uses: cachix/install-nix-action@v12
         if: matrix.os != 'windows-latest'
       - name: Install MSYS2
-        uses: eine/setup-msys2@v1
+        uses: msys2/setup-msys2@v2
         with:
-          cache: true
           install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git diffutils
         if: matrix.os == 'windows-latest'
       - name: Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
-          path: .ccache
+          path: ~/.ccache
           key: ${{ matrix.name }}-build-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |

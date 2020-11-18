@@ -3,10 +3,19 @@
 
   inputs.nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
   inputs.flake-utils.url = github:numtide/flake-utils;
+  inputs.temci = {
+    url = github:parttimenerd/temci;
+    flake = false;
+  };
+  inputs.nix.url = github:NixOS/nix;
 
-  outputs = { self, nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, temci, nix }: flake-utils.lib.eachDefaultSystem (system:
     with nixpkgs.legacyPackages.${system};
     let
+      nix-pinned = writeScriptBin "nix" ''
+        #!${bash}/bin/bash
+        ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' $@
+      '';
       cc = ccacheWrapper.override rec {
         cc = llvmPackages_10.clang.override {
           # linker go brrr
@@ -26,6 +35,7 @@
       buildLeanPackage = callPackage (import ./nix/buildLeanPackage.nix) {
         inherit (lean) stdenv lean leanc;
         inherit lean-emacs;
+        nix = nix-pinned;
       };
       lean4-mode = emacsPackages.melpaBuild {
         pname = "lean4-mode";
@@ -41,8 +51,11 @@
         with epkgs; [ dash dash-functional f flycheck s ] ++ [ lean4-mode ]);
     in rec {
       packages = {
-        inherit lean4-mode;
+        inherit cc lean4-mode;
         lean = lean.stage1 // lean // { inherit buildLeanPackage; };
+        temci = (import temci {}).override { doCheck = false; };
+        nix = nix-pinned;
+        nixpkgs = nixpkgs.legacyPackages.${system};
       } // lean.stage1.Lean;
 
       defaultPackage = packages.lean;

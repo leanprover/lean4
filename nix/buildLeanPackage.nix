@@ -91,6 +91,10 @@ in
         deps = filter (p: p != "") (lib.splitString "\n" (readFile (leanDeps mod)));
         modMap' = lib.foldr buildModAndDeps modMap deps;
       in modMap' // { ${mod} = buildMod mod (map (dep: modMap'.${dep}) deps); };
+    makeEmacsWrapper = name: lean: writeScriptBin name ''
+      #!${bash}/bin/bash
+      ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" $@
+    '';
   in rec {
     mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues deps));
     modRoot   = depRoot name [ mods.${name} ];
@@ -99,11 +103,14 @@ in
       mkdir $out
       ar rcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (attrValues objects))}
     '';
+
     lean-package = writeScriptBin "lean" ''
       #!${bash}/bin/bash
       set -euo pipefail
       LEAN_PATH=${modRoot} ${lean-final}/bin/lean $@
     '';
+    emacs-package = makeEmacsWrapper "emacs-package" lean-package;
+
     lean-dev = substituteAll {
       name = "lean";
       dir = "bin";
@@ -111,13 +118,5 @@ in
       isExecutable = true;
       inherit lean bash nix srcDir;
     };
-
-    emacs-package = writeScriptBin "run-emacs-package" ''
-      #!${bash}/bin/bash
-      ${lean-emacs}/bin/emacs --eval '(setq lean4-rootdir "${lean-package}")' $@
-    '';
-    emacs-dev = writeScriptBin "run-emacs-dev" ''
-      #!${bash}/bin/bash
-      ${lean-emacs}/bin/emacs --eval '(setq lean4-rootdir "${lean-dev}")' $@
-    '';
+    emacs-dev = makeEmacsWrapper "emacs-dev" lean-dev;
   }

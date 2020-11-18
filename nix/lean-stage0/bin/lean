@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-root="$(realpath "$(dirname "$0")")/../../.."
-input="${@: -1}"
-input="$(realpath --relative-to="$root/src" "$input")"
-input="${input%.lean}"
-input="${input//\//.}"
-nix develop "$root#lean.stdlib.mods.\"$input\"" -c lean $@ 2> /dev/null

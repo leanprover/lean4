@@ -1,4 +1,4 @@
-{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeScriptBin, bash, lean-emacs }:
+{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeScriptBin, bash, lean-emacs, nix }:
 with builtins; let
   # "Init.Core" ~> "Init/Core.lean"
   modToLean = mod: replaceStrings ["."] ["/"] mod + ".lean";
@@ -107,6 +107,8 @@ in
     lean-dev = writeScriptBin "lean" ''
       #!${bash}/bin/bash
       set -euo pipefail
+      PATH=${nix}/bin:$PATH
+
       call() {
         if [[ $json == 1 ]]; then
           $@ 2>&1 | awk '/{/ { print $0; next } { gsub(/"/, "\\\"", $0); gsub(/\n/, "\\n", $0); printf "{\"severity\": \"warning\", \"pos_line\": 0, \"pos_col\": 0, \"file_name\": \"<stdin>\", \"text\": \"%s\"}\n", $0 }'

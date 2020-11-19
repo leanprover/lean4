@@ -201,9 +201,6 @@ def applyResult (result : TermElabResult) : TermElabM Expr :=
   | EStateM.Result.ok e r     => do r.restore; pure e
   | EStateM.Result.error ex r => do r.restore; throw ex
 
-instance : MonadIO TermElabM :=
-{ liftIO := fun x => liftMetaM $ liftIO x }
-
 @[inline] protected def liftMetaM {α} (x : MetaM α) : TermElabM α :=
   liftM x
 
@@ -1264,7 +1261,7 @@ instance {α} [MetaEval α] : MetaEval (TermElabM α) :=
     let x : TermElabM α := do
       try x finally
         let s ← get
-        liftIO $ s.messages.forM fun msg => msg.toString >>= IO.println
+        s.messages.forM fun msg => do IO.println (← msg.toString)
     MetaEval.eval env opts (hideUnit := true) $ x.run' mkSomeContext⟩
 
 end Term

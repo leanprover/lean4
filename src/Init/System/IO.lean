@@ -73,17 +73,6 @@ set_option compiler.extract_closed false in
    The action `initializing` returns `true` iff it is invoked during initialization. -/
 @[extern "lean_io_initializing"] constant IO.initializing : IO Bool
 
-class MonadIO (m : Type → Type) :=
-  { liftIO {α} : IO α → m α }
-
-export MonadIO (liftIO)
-
-instance (m n) [MonadIO m] [MonadLift m n] : MonadIO n :=
-  { liftIO := fun x => liftM (liftIO x : m _) }
-
-instance : MonadIO IO :=
-{ liftIO := id }
-
 namespace IO
 
 def ofExcept {ε α : Type} [ToString ε] (e : Except ε α) : IO α :=
@@ -190,10 +179,10 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
 end Prim
 
 namespace FS
-variables {m : Type → Type} [Monad m] [MonadIO m]
+variables {m : Type → Type} [Monad m] [MonadLiftT IO m]
 
 def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
-  liftIO (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
+  liftM (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
 
 @[inline]
 def withFile {α} (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
@@ -203,15 +192,15 @@ def withFile {α} (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
 `h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
 Once `h.isEof` is true, the reading `h` raises `IO.Error.eof`.
 -/
-def Handle.isEof : Handle → m Bool := liftIO ∘ Prim.Handle.isEof
-def Handle.flush : Handle → m Unit := liftIO ∘ Prim.Handle.flush
-def Handle.read (h : Handle) (bytes : Nat) : m ByteArray := liftIO (Prim.Handle.read h (USize.ofNat bytes))
-def Handle.write (h : Handle) (s : ByteArray) : m Unit := liftIO (Prim.Handle.write h s)
+def Handle.isEof : Handle → m Bool := liftM ∘ Prim.Handle.isEof
+def Handle.flush : Handle → m Unit := liftM ∘ Prim.Handle.flush
+def Handle.read (h : Handle) (bytes : Nat) : m ByteArray := liftM (Prim.Handle.read h (USize.ofNat bytes))
+def Handle.write (h : Handle) (s : ByteArray) : m Unit := liftM (Prim.Handle.write h s)
 
-def Handle.getLine : Handle → m String := liftIO ∘ Prim.Handle.getLine
+def Handle.getLine : Handle → m String := liftM ∘ Prim.Handle.getLine
 
 def Handle.putStr (h : Handle) (s : String) : m Unit :=
-  liftIO $ Prim.Handle.putStr h s
+  liftM $ Prim.Handle.putStr h s
 
 def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
   h.putStr (s.push '\n')
@@ -246,27 +235,27 @@ partial def lines (fname : String) : m (Array String) := do
 namespace Stream
 
 def putStrLn (strm : FS.Stream) (s : String) : m Unit :=
-  liftIO (strm.putStr (s.push '\n'))
+  liftM (strm.putStr (s.push '\n'))
 
 end Stream
 
 end FS
 
 section
-variables {m : Type → Type} [Monad m] [MonadIO m]
+variables {m : Type → Type} [Monad m] [MonadLiftT IO m]
 
-def getStdin : m FS.Stream := liftIO Prim.getStdin
-def getStdout : m FS.Stream := liftIO Prim.getStdout
-def getStderr : m FS.Stream := liftIO Prim.getStderr
+def getStdin : m FS.Stream := liftM Prim.getStdin
+def getStdout : m FS.Stream := liftM Prim.getStdout
+def getStderr : m FS.Stream := liftM Prim.getStderr
 
 /-- Replaces the stdin stream of the current thread and returns its previous value. -/
-def setStdin : FS.Stream → m FS.Stream := liftIO ∘ Prim.setStdin
+def setStdin : FS.Stream → m FS.Stream := liftM ∘ Prim.setStdin
 
 /-- Replaces the stdout stream of the current thread and returns its previous value. -/
-def setStdout : FS.Stream → m FS.Stream := liftIO ∘ Prim.setStdout
+def setStdout : FS.Stream → m FS.Stream := liftM ∘ Prim.setStdout
 
 /-- Replaces the stderr stream of the current thread and returns its previous value. -/
-def setStderr : FS.Stream → m FS.Stream := liftIO ∘ Prim.setStderr
+def setStderr : FS.Stream → m FS.Stream := liftM ∘ Prim.setStderr
 
 def withStdin [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdin h
@@ -280,32 +269,35 @@ def withStderr [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStderr h
   try x finally discard $ setStderr prev
 
-def print {α} [ToString α] (s : α) : m Unit := do
+def print {α} [ToString α] (s : α) : IO Unit := do
   let out ← getStdout
-  liftIO $ out.putStr $ toString s
+  out.putStr $ toString s
 
-def println {α} [ToString α] (s : α) : m Unit := print ((toString s).push '\n')
+def println {α} [ToString α] (s : α) : IO Unit :=
+  print ((toString s).push '\n')
 
-def eprint {α} [ToString α] (s : α) : m Unit := do
+def eprint {α} [ToString α] (s : α) : IO Unit := do
   let out ← getStderr
-  liftIO $ out.putStr $ toString s
+  liftM $ out.putStr $ toString s
 
-def eprintln {α} [ToString α] (s : α) : m Unit := eprint ((toString s).push '\n')
+def eprintln {α} [ToString α] (s : α) : IO Unit :=
+  eprint ((toString s).push '\n')
 
 @[export lean_io_eprintln]
-private def eprintlnAux (s : String) : IO Unit := eprintln s
+private def eprintlnAux (s : String) : IO Unit :=
+  eprintln s
 
-def getEnv : String → m (Option String) := liftIO ∘ Prim.getEnv
-def realPath : String → m String := liftIO ∘ Prim.realPath
-def isDir : String → m Bool := liftIO ∘ Prim.isDir
-def fileExists : String → m Bool := liftIO ∘ Prim.fileExists
-def appPath : m String := liftIO Prim.appPath
+def getEnv : String → m (Option String) := liftM ∘ Prim.getEnv
+def realPath : String → m String := liftM ∘ Prim.realPath
+def isDir : String → m Bool := liftM ∘ Prim.isDir
+def fileExists : String → m Bool := liftM ∘ Prim.fileExists
+def appPath : m String := liftM Prim.appPath
 
 def appDir : m String := do
   let p ← appPath
   realPath (System.FilePath.dirName p)
 
-def currentDir : m String := liftIO Prim.currentDir
+def currentDir : m String := liftM Prim.currentDir
 
 end
 

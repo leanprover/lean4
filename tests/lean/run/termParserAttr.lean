@@ -6,8 +6,8 @@ open Lean.Elab
 def runCore (input : String) (failIff : Bool := true) : CoreM Unit := do
 let env  ← getEnv;
 let opts ← getOptions;
-let (env, messages) ← liftIO $ process input env opts;
-messages.toList.forM $ fun msg => liftIO (msg.toString >>= IO.println);
+let (env, messages) ← process input env opts;
+messages.toList.forM fun msg => do IO.println (← msg.toString)
 when (failIff && messages.hasErrors) $ throwError "errors have been found";
 when (!failIff && !messages.hasErrors) $ throwError "there are no errors";
 pure ()

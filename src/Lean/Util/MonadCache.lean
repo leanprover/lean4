@@ -71,7 +71,6 @@ instance  : MonadHashMapCacheAdapter α β (MonadCacheT α β m) := {
 
 instance : Monad (MonadCacheT α β m) := inferInstanceAs (Monad (StateRefT' _ _ _))
 instance : MonadLift m (MonadCacheT α β m) := inferInstanceAs (MonadLift m (StateRefT' _ _ _))
-instance [MonadIO m] : MonadIO (MonadCacheT α β m) := inferInstanceAs (MonadIO (StateRefT' _ _ _))
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (MonadCacheT α β m) := inferInstanceAs (MonadExceptOf ε (StateRefT' _ _ _))
 instance : MonadControl m (MonadCacheT α β m) := inferInstanceAs (MonadControl m (StateRefT' _ _ _))
 instance [MonadFinally m] : MonadFinally (MonadCacheT α β m) := inferInstanceAs (MonadFinally (StateRefT' _ _ _))

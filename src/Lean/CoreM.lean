@@ -64,8 +64,8 @@ instance : MonadRecDepth CoreM := {
   let ref ← getRef
   IO.toEIO (fun (err : IO.Error) => Exception.error ref (toString err)) x
 
-instance : MonadIO CoreM := {
-  liftIO := @liftIOCore
+instance : MonadLift IO CoreM := {
+  monadLift := liftIOCore
 }
 
 instance : MonadTrace CoreM := {

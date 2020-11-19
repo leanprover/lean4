@@ -27,7 +27,7 @@ structure Attr.Context :=
 abbrev AttrM := ReaderT Attr.Context CoreM
 
 instance : MonadLift ImportM AttrM := {
-  monadLift := fun x => do liftIO (x { env := (← getEnv), opts := (← getOptions) })
+  monadLift := fun x => do liftM (m := IO) (x { env := (← getEnv), opts := (← getOptions) })
 }
 
 instance : MonadResolveName AttrM := {

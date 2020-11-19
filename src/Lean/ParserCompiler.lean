@@ -87,7 +87,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         let env ← getEnv
         let env ← match env.addAndCompile {} decl with
           | Except.ok    env => pure env
-          | Except.error kex => do throwError (← liftIO $ (kex.toMessageData {}).toString)
+          | Except.error kex => do throwError (← (kex.toMessageData {}).toString)
         setEnv $ ctx.combinatorAttr.setDeclFor env c c'
         mkCall c'
       else

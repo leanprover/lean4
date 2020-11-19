@@ -62,12 +62,12 @@ def logWarning (msgData : MessageData) : m Unit :=
 def logInfo (msgData : MessageData) : m Unit :=
   log msgData MessageSeverity.information
 
-def logException [MonadIO m] (ex : Exception) : m Unit := do
+def logException [MonadLiftT IO m] (ex : Exception) : m Unit := do
   match ex with
   | Exception.error ref msg => logErrorAt ref msg
   | Exception.internal id   =>
     unless id == abortExceptionId do
-      let name ← liftIO $ id.getName
+      let name ← id.getName
       logError ("internal exception: " ++ name)
 
 def logTrace (cls : Name) (msgData : MessageData) : m Unit := do

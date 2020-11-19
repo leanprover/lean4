@@ -186,6 +186,10 @@ class Inhabited (α : Sort u) :=
 constant arbitrary (α : Sort u) [s : Inhabited α] : α :=
   @Inhabited.default α s
 
+instance : Inhabited (Sort u) := {
+  default := PUnit
+}
+
 instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) := {
   default := fun _ => arbitrary β
 }

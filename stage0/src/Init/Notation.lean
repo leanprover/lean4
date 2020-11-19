@@ -67,6 +67,18 @@ macro_rules
       | i+1, false => expandListLit i true  (← `(List.cons $(elems[i]) $result))
     expandListLit elems.size false (← `(List.nil))
 
+syntax:0 term "<|" term:0 : term
+
+macro_rules
+  | `($f $args* <| $a) => let args := args.push a; `($f $args*)
+  | `($f <| $a) => `($f $a)
+
+syntax:0 term "|>" term:1 : term
+
+macro_rules
+  | `($a |> $f $args*) => let args := args.push a; `($f $args*)
+  | `($a |> $f)        => `($f $a)
+
 -- Basic notation for defining parsers
 syntax   stx "+" : stx
 syntax   stx "*" : stx

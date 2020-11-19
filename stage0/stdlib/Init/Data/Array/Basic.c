@@ -458,6 +458,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Array_findSome_x3f___spec__1___rarg__
 lean_object* l_Array_forInUnsafe_loop___at_Array_findM_x3f___spec__1___rarg___lambda__2(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Array_findSome_x21___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Array_forRevM___spec__1(lean_object*, lean_object*);
+lean_object* l_Array_appendCore___rarg(lean_object*, lean_object*);
 lean_object* l_Array_findIdx_x3f_loop_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_zipWithAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_eraseIdxAux(lean_object*);
@@ -7828,7 +7829,7 @@ lean_ctor_set(x_24, 2, x_20);
 lean_ctor_set(x_24, 3, x_23);
 x_25 = l_Array_empty___closed__1;
 x_26 = lean_array_push(x_25, x_24);
-x_27 = l_Array_append___rarg(x_25, x_16);
+x_27 = l_Array_appendCore___rarg(x_25, x_16);
 lean_dec(x_16);
 x_28 = l_Lean_nullKind___closed__2;
 x_29 = lean_alloc_ctor(1, 2, 0);

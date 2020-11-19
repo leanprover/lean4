@@ -35,6 +35,7 @@ lean_object* l_Lean_Level_data___boxed(lean_object*);
 lean_object* l_Lean_Level_mvarId_x21___closed__1;
 lean_object* l_Lean_Level_mvarId_x21___boxed(lean_object*);
 size_t l_UInt32_toUSize(uint32_t);
+extern lean_object* l___kind_stx____x40_Init_Notation___hyg_7101____closed__2;
 lean_object* l_Lean_Level_instantiateParams_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_toResult___closed__3;
@@ -69,6 +70,7 @@ uint8_t l_Lean_Level_isEquiv(lean_object*, lean_object*);
 uint8_t lean_level_has_param(lean_object*);
 size_t l_Lean_Level_hash(lean_object*);
 lean_object* l_Lean_Level_isExplicit___boxed(lean_object*);
+extern lean_object* l___kind_stx____x40_Init_Notation___hyg_7049____closed__8;
 size_t lean_level_hash(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Level_hasParamEx___boxed(lean_object*);
@@ -78,7 +80,6 @@ lean_object* l_Lean_Level_mkData___closed__4;
 lean_object* l_Nat_max(lean_object*, lean_object*);
 lean_object* l_Lean_Level_getOffsetAux(lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasParam(lean_object*);
-extern lean_object* l___kind_stx____x40_Init_Notation___hyg_6579____closed__8;
 lean_object* l_Lean_Level_LevelToFormat_parenIfFalse_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_depth(lean_object*);
 lean_object* l_Lean_Level_isSucc___boxed(lean_object*);
@@ -273,7 +274,6 @@ lean_object* lean_level_mk_zero(lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_Result_imax_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_isZero(lean_object*);
 extern lean_object* l_Lean_Lean_Data_Format___instance__20___closed__1;
-extern lean_object* l___kind_stx____x40_Init_Notation___hyg_6631____closed__2;
 lean_object* l_Lean_Level_hasParam___boxed(lean_object*);
 uint8_t l_Lean_Level_occurs(lean_object*, lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_mkIMaxAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5374,7 +5374,7 @@ static lean_object* _init_l_Lean_Level_LevelToFormat_Result_format___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_stx____x40_Init_Notation___hyg_6579____closed__8;
+x_1 = l___kind_stx____x40_Init_Notation___hyg_7049____closed__8;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -5682,7 +5682,7 @@ static lean_object* _init_l_Lean_Level_LevelToFormat_toResult___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_stx____x40_Init_Notation___hyg_6631____closed__2;
+x_1 = l___kind_stx____x40_Init_Notation___hyg_7101____closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

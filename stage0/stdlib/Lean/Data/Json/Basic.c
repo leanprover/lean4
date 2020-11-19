@@ -86,6 +86,7 @@ lean_object* l_Lean_Json_getNat_x3f___boxed(lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
 lean_object* l_Substring_takeRightWhileAux___at_Lean_JsonNumber_toString___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_decEq___boxed(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7544____closed__7;
 lean_object* l_Std_RBNode_ins___at_Lean_Json_mkObj___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Json_getObjVal_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_decEq_match__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -146,7 +147,6 @@ lean_object* l_Lean_Json_getObjVal_x3f___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_JsonNumber_decEq_match__1___rarg(uint8_t, lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7074____closed__7;
 lean_object* l_Lean_JsonNumber_decEq_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -844,7 +844,7 @@ lean_dec(x_2);
 x_5 = l_Init_Data_Repr___instance__12___rarg___closed__1;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);
-x_7 = l_myMacro____x40_Init_Notation___hyg_7074____closed__7;
+x_7 = l_myMacro____x40_Init_Notation___hyg_7544____closed__7;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Nat_repr(x_3);
 x_10 = lean_string_append(x_8, x_9);

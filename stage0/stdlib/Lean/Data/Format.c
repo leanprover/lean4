@@ -96,6 +96,7 @@ lean_object* l_Lean_Format_repr___closed__14;
 lean_object* l_Lean_Lean_Data_Format___instance__12_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__6___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Lean_Data_Format___instance__20___lambda__1(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11080____closed__4;
 extern lean_object* l_Init_Data_Repr___instance__18___closed__2;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__10;
 lean_object* lean_format_pretty(lean_object*, lean_object*);
@@ -149,7 +150,6 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Format_repr___closed__16;
 lean_object* l_Lean_Format_prefixJoin_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_Format_joinArraySep___rarg___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_10610____closed__4;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Format_joinArraySep___spec__1(lean_object*);
 lean_object* l_Lean_Format_joinSep___at_String_toFormat___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_formatDataValue___closed__4;
@@ -179,6 +179,7 @@ lean_object* l_Lean_Format_initFn____x40_Lean_Data_Format___hyg_974____closed__1
 lean_object* l_Lean_formatEntry___closed__1;
 lean_object* l_Lean_Format_isNil___boxed(lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be___closed__6;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7544____closed__7;
 lean_object* l_Lean_Lean_Data_Format___instance__12_match__1___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Format_isNil(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -298,7 +299,6 @@ lean_object* l_Lean_Format_paren(lean_object*);
 uint8_t l___private_Lean_Data_Format_0__Lean_Format_SpaceResult_foundLine___default;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__2;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7074____closed__7;
 lean_object* l_Lean_Format_FlattenBehavior_Lean_Data_Format___instance__1_match__1___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -4644,7 +4644,7 @@ static lean_object* _init_l_Lean_List_format___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_7074____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_7544____closed__7;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -6227,7 +6227,7 @@ static lean_object* _init_l_Lean_formatEntry___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_10610____closed__4;
+x_1 = l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11080____closed__4;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

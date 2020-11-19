@@ -56,6 +56,7 @@ lean_object* l_Lean_Elab_adaptMacro___rarg___lambda__2(lean_object*, lean_object
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_136____closed__2;
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean_Elab_getMacroStackOption___closed__2;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7160____closed__1;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_136____closed__1;
 lean_object* l_Lean_Elab_addMacroStack___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -171,7 +172,6 @@ lean_object* l_Lean_Elab_checkSyntaxNodeKind___closed__3;
 lean_object* l_Lean_Elab_checkSyntaxNodeKind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_KeyedDeclsAttribute_Lean_KeyedDeclsAttribute___instance__3___closed__1;
 lean_object* l_Lean_Elab_getBetterRef_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_6690____closed__1;
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__2;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
@@ -1193,7 +1193,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_6690____closed__1;
+x_2 = l_myMacro____x40_Init_Notation___hyg_7160____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

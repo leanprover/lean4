@@ -672,7 +672,6 @@ lean_object* l_Lean_Elab_Command_elabEvalUnsafe_match__1___rarg(lean_object*, le
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__4___closed__3;
 lean_object* l_Lean_resolveNamespace___at_Lean_Elab_Command_elabExport___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabInitQuot___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7451____closed__22;
 lean_object* l_Lean_Elab_Command_getMainModule___boxed(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_expandDeclId___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__4___closed__1;
@@ -779,6 +778,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Command_0__Lean_
 lean_object* l_Lean_Elab_Command_mkMessageAux(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_mkSimpleThunk(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_7921____closed__22;
 extern lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__10___rarg___closed__2;
 lean_object* l___private_Lean_Elab_Command_0__Lean_Elab_Command_addScopes(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabNamespace___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -21467,7 +21467,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_7451____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_7921____closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -21521,7 +21521,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__7;
-x_2 = l_myMacro____x40_Init_Notation___hyg_7451____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_7921____closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

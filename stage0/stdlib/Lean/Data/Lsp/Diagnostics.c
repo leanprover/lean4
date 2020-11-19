@@ -48,6 +48,7 @@ lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__4___boxed(lean_obj
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__6___closed__1;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2___closed__6;
+extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___closed__2;
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__6___closed__3;
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__10___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_Lean_Data_Lsp_Basic___instance__28___spec__1(lean_object*, lean_object*);
@@ -101,7 +102,6 @@ lean_object* l_Lean_Lsp_msgToDiagnostic_match__2___rarg___boxed(lean_object*, le
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Lsp_Diagnostic_tags_x3f___default;
 lean_object* l_Lean_Lsp_msgToDiagnostic_match__2___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__2;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_Lean_Data_Lsp_Basic___instance__7___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__7(lean_object*);
 lean_object* l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__1___boxed(lean_object*);
@@ -482,7 +482,7 @@ static lean_object* _init_l_Lean_Lsp_Lean_Data_Lsp_Diagnostics___instance__2___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__2;
+x_1 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___closed__2;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

@@ -63,28 +63,30 @@ def replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqPro
         pure { result with mvarId := mvarIdNew })
     <|> pure result
 
-def change (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId := withMVarContext mvarId do
+def change (mvarId : MVarId) (targetNew : Expr) (checkDefEq := true) : MetaM MVarId := withMVarContext mvarId do
   let target ← getMVarType mvarId
-  unless (← isDefEq target targetNew) do
-    throwTacticEx `change mvarId m!"given type{indentExpr targetNew}\nis not definitionally equal to{indentExpr target}"
+  if checkDefEq then
+    unless (← isDefEq target targetNew) do
+      throwTacticEx `change mvarId m!"given type{indentExpr targetNew}\nis not definitionally equal to{indentExpr target}"
   replaceTargetDefEq mvarId targetNew
 
-def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM MVarId := do
+def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (checkDefEq := true) : MetaM MVarId := do
   checkNotAssigned mvarId `changeLocalDecl
   let (xs, mvarId) ← revert mvarId #[fvarId] true
   withMVarContext mvarId do
     let numReverted := xs.size
     let target ← getMVarType mvarId
-    let checkDefEq (typeOld : Expr) : MetaM Unit := do
-      unless (← isDefEq typeNew typeOld) do
-        throwTacticEx `changeHypothesis mvarId m!"given type{indentExpr typeNew}\nis not definitionally equal to{indentExpr typeOld}"
+    let check (typeOld : Expr) : MetaM Unit := do
+      if checkDefEq then
+        unless (← isDefEq typeNew typeOld) do
+          throwTacticEx `changeHypothesis mvarId m!"given type{indentExpr typeNew}\nis not definitionally equal to{indentExpr typeOld}"
     let finalize (targetNew : Expr) : MetaM MVarId := do
       let mvarId ← replaceTargetDefEq mvarId targetNew
       let (_, mvarId) ← introNP mvarId (numReverted-1)
       pure mvarId
     match target with
-    | Expr.forallE n d b c => do checkDefEq d; finalize (mkForall n c.binderInfo typeNew b)
-    | Expr.letE n t v b _  => do checkDefEq t; finalize (mkLet n typeNew v b)
+    | Expr.forallE n d b c => do check d; finalize (mkForall n c.binderInfo typeNew b)
+    | Expr.letE n t v b _  => do check t; finalize (mkLet n typeNew v b)
     | _ => throwTacticEx `changeHypothesis mvarId "unexpected auxiliary target"
 
 end Lean.Meta

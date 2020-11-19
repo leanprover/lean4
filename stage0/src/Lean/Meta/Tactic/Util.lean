@@ -40,7 +40,7 @@ def getMVarType (mvarId : MVarId) : MetaM Expr := do
   pure (← getMVarDecl mvarId).type
 
 def ppGoal (mvarId : MVarId) : MetaM Format := do
-  liftIO $ Lean.ppGoal { env := (← getEnv), mctx := (← getMCtx), opts := (← getOptions) } mvarId
+  Lean.ppGoal { env := (← getEnv), mctx := (← getMCtx), opts := (← getOptions) } mvarId
 
 builtin_initialize registerTraceClass `Meta.Tactic
 

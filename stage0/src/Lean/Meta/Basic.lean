@@ -113,10 +113,6 @@ structure Context :=
 
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
-instance : MonadIO MetaM := {
-  liftIO := fun x => liftM (liftIO x : CoreM _)
-}
-
 instance {α} : Inhabited (MetaM α) := {
   default := fun _ _ => arbitrary _
 }
@@ -191,20 +187,20 @@ builtin_initialize isExprDefEqAuxRef : IO.Ref (Expr → Expr → MetaM Bool) ←
 builtin_initialize synthPendingRef : IO.Ref (MVarId → MetaM Bool) ← IO.mkRef fun _ => pure false
 
 def whnf (e : Expr) : m Expr :=
-  liftMetaM $ withIncRecDepth do (← liftIO whnfRef.get) e
+  liftMetaM $ withIncRecDepth do (← whnfRef.get) e
 
 def whnfForall [Monad m] (e : Expr) : m Expr := do
   let e' ← whnf e
   if e'.isForall then pure e' else pure e
 
 def inferType (e : Expr) : m Expr :=
-  liftMetaM $ withIncRecDepth do (← liftIO inferTypeRef.get) e
+  liftMetaM $ withIncRecDepth do (← inferTypeRef.get) e
 
 protected def isExprDefEqAux (t s : Expr) : MetaM Bool :=
-  withIncRecDepth do (← liftIO isExprDefEqAuxRef.get) t s
+  withIncRecDepth do (← isExprDefEqAuxRef.get) t s
 
 protected def synthPending (mvarId : MVarId) : MetaM Bool :=
-  withIncRecDepth do (← liftIO synthPendingRef.get) mvarId
+  withIncRecDepth do (← synthPendingRef.get) mvarId
 
 -- withIncRecDepth for a monad `n` such that `[MonadControlT MetaM n]`
 protected def withIncRecDepth {α} (x : n α) : n α :=
@@ -982,7 +978,7 @@ def ppExprImp (e : Expr) : MetaM Format := do
   let mctx ← getMCtx
   let lctx ← getLCtx
   let opts ← getOptions
-  liftIO $ Lean.ppExpr { env := env, mctx := mctx, lctx := lctx, opts := opts } e
+  Lean.ppExpr { env := env, mctx := mctx, lctx := lctx, opts := opts } e
 
 def ppExpr (e : Expr) : m Format :=
   liftMetaM $ ppExprImp e

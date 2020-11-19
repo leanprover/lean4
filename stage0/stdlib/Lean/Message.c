@@ -115,6 +115,7 @@ lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__2;
 extern lean_object* l_Init_Prelude___instance__9___closed__1;
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1881____closed__6;
+extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___closed__2;
 lean_object* lean_message_string(lean_object*);
 lean_object* l_Lean_MessageData_Lean_Message___instance__2(lean_object*, lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__10;
@@ -234,7 +235,6 @@ lean_object* l_Lean_MessageData_mkPPContext(lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_toList___boxed(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__36;
 size_t l_USize_land(size_t, size_t);
-extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__2;
 uint8_t lean_message_severity(lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1881____closed__9;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MessageLog_toList___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1439,7 +1439,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__2;
+x_1 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___closed__2;
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1965,7 +1965,7 @@ if (x_142 == 0)
 {
 lean_object* x_143; lean_object* x_144; lean_object* x_145; 
 x_143 = lean_ctor_get(x_141, 0);
-x_144 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__2;
+x_144 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___closed__2;
 x_145 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_145, 0, x_144);
 lean_ctor_set(x_145, 1, x_143);
@@ -1980,7 +1980,7 @@ x_147 = lean_ctor_get(x_141, 1);
 lean_inc(x_147);
 lean_inc(x_146);
 lean_dec(x_141);
-x_148 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__2;
+x_148 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___closed__2;
 x_149 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_149, 0, x_148);
 lean_ctor_set(x_149, 1, x_146);
@@ -2551,7 +2551,7 @@ if (x_292 == 0)
 {
 lean_object* x_293; lean_object* x_294; lean_object* x_295; 
 x_293 = lean_ctor_get(x_291, 0);
-x_294 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__2;
+x_294 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___closed__2;
 x_295 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_295, 0, x_294);
 lean_ctor_set(x_295, 1, x_293);
@@ -2566,7 +2566,7 @@ x_297 = lean_ctor_get(x_291, 1);
 lean_inc(x_297);
 lean_inc(x_296);
 lean_dec(x_291);
-x_298 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__11___closed__2;
+x_298 = l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___closed__2;
 x_299 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_299, 0, x_298);
 lean_ctor_set(x_299, 1, x_296);

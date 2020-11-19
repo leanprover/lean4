@@ -82,20 +82,20 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef s
     toParserDescrAux stx[1]
   else if kind == `Lean.Parser.Syntax.unary then
     let aliasName := (stx[0].getId).eraseMacroScopes
-    liftIO $ Parser.ensureUnaryParserAlias aliasName
+    Parser.ensureUnaryParserAlias aliasName
     let d ← withNestedParser $ toParserDescrAux stx[2]
     `(ParserDescr.unary $(quote aliasName) $d)
   else if kind == `Lean.Parser.Syntax.binary then
     let aliasName := (stx[0].getId).eraseMacroScopes
-    liftIO $ Parser.ensureBinaryParserAlias aliasName
+    Parser.ensureBinaryParserAlias aliasName
     let d₁ ← withNestedParser $ toParserDescrAux stx[2]
     let d₂ ← withNestedParser $ toParserDescrAux stx[4]
     `(ParserDescr.binary $(quote aliasName) $d₁ $d₂)
   else if kind == `Lean.Parser.Syntax.cat then
     let cat   := stx[0].getId.eraseMacroScopes
     let prec? : Option Nat  := expandOptPrecedence stx[1]
-    if (← liftIO $ Parser.isParserAlias cat) then
-      liftIO $ Parser.ensureConstantParserAlias cat
+    if (← Parser.isParserAlias cat) then
+      Parser.ensureConstantParserAlias cat
       if prec?.isSome then
         throwErrorAt! stx[1] "unexpected precedence in atomic parser"
       `(ParserDescr.const $(quote cat))

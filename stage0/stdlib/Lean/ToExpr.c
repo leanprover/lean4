@@ -20,7 +20,6 @@ lean_object* l_Lean_Lean_ToExpr___instance__2___closed__2;
 lean_object* l_Lean_Lean_ToExpr___instance__9___rarg___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_ToExpr___instance__6___lambda__1___closed__1;
-extern lean_object* l_Lean_mkSimpleThunkType___closed__3;
 lean_object* l_Lean_Lean_ToExpr___instance__11___rarg___lambda__1___closed__1;
 lean_object* l_Lean_Lean_ToExpr___instance__6___lambda__1___closed__2;
 lean_object* l_Lean_Lean_ToExpr___instance__6___lambda__1___boxed(lean_object*);
@@ -31,6 +30,7 @@ lean_object* l_Lean_Lean_ToExpr___instance__9___rarg___closed__2;
 extern lean_object* l___private_Init_Meta_0__Lean_quoteName___closed__7;
 lean_object* l_Lean_Lean_ToExpr___instance__8___rarg___lambda__1___closed__1;
 extern lean_object* l___private_Init_Meta_0__Lean_quoteOption___rarg___closed__3;
+extern lean_object* l_Lean_mkSimpleThunkType___closed__1;
 extern lean_object* l_Lean_Literal_type___closed__3;
 lean_object* l_Lean_Lean_ToExpr___instance__11___rarg___lambda__1___closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_6336____closed__5;
@@ -83,6 +83,7 @@ lean_object* l_Lean_Lean_ToExpr___instance__10___rarg___closed__1;
 lean_object* l_Lean_Lean_ToExpr___instance__6;
 lean_object* l_Lean_Lean_ToExpr___instance__7___closed__2;
 lean_object* l_Lean_Lean_ToExpr___instance__8___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2484____closed__16;
 lean_object* l_Lean_Lean_ToExpr___instance__10___rarg(lean_object*);
 extern lean_object* l_Array___kind_term____x40_Init_Data_Array_Subarray___hyg_510____closed__1;
 lean_object* l_Lean_Lean_ToExpr___instance__1;
@@ -99,7 +100,6 @@ lean_object* l_Lean_Lean_ToExpr___instance__7___closed__4;
 lean_object* l_Lean_List_toExprAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_ToExpr___instance__10___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkSimpleThunkType___closed__2;
 lean_object* l_Lean_Lean_ToExpr___instance__11___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Lean_ToExpr___instance__8___rarg___lambda__1___closed__2;
 lean_object* l_Lean_Lean_ToExpr___instance__5;
@@ -396,7 +396,7 @@ static lean_object* _init_l_Lean_Lean_ToExpr___instance__6___lambda__1___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkSimpleThunkType___closed__2;
+x_1 = l_myMacro____x40_Init_System_IO___hyg_2484____closed__16;
 x_2 = l_Lean_Lean_ToExpr___instance__6___lambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -433,7 +433,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Lean_ToExpr___instance__6___closed__1;
-x_2 = l_Lean_mkSimpleThunkType___closed__3;
+x_2 = l_Lean_mkSimpleThunkType___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

@@ -142,7 +142,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
         if c != df.valueTypeName then throwError! "unexpected type at '{declName}', '{df.valueTypeName}' expected"
         else
           let env ← getEnv
-          let env ← liftIO $ declareBuiltin df attrDeclName env key declName
+          let env ← declareBuiltin df attrDeclName env key declName
           setEnv env
       | _ => throwError! "unexpected type at '{declName}', '{df.valueTypeName}' expected",
     applicationTime := AttributeApplicationTime.afterCompilation

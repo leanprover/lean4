@@ -64,8 +64,8 @@ instance : MonadRecDepth CoreM := {
   let ref ← getRef
   IO.toEIO (fun (err : IO.Error) => Exception.error ref (toString err)) x
 
-instance : MonadIO CoreM := {
-  liftIO := @liftIOCore
+instance : MonadLift IO CoreM := {
+  monadLift := liftIOCore
 }
 
 instance : MonadTrace CoreM := {
@@ -99,6 +99,10 @@ instance {α} [MetaEval α] : MetaEval (CoreM α) := {
     let (a, s) ← x.toIO { maxRecDepth := getMaxRecDepth opts, options := opts } { env := env }
     MetaEval.eval s.env opts a (hideUnit := true)
 }
+
+-- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
+protected def withIncRecDepth {α m} [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
+  controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
 
 end Core
 

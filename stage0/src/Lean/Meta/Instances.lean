@@ -38,9 +38,9 @@ def addGlobalInstanceImp (env : Environment) (constName : Name) : IO Environment
     let (keys, s, _) ← (mkInstanceKey c).toIO {} { env := env } {} {}
     pure $ instanceExtension.addEntry s.env { keys := keys, val := c }
 
-def addGlobalInstance {m} [Monad m] [MonadEnv m] [MonadIO m] (declName : Name) : m Unit := do
+def addGlobalInstance {m} [Monad m] [MonadEnv m] [MonadLiftT IO m] (declName : Name) : m Unit := do
   let env ← getEnv
-  let env ← liftIO $ Meta.addGlobalInstanceImp env declName
+  let env ← Meta.addGlobalInstanceImp env declName
   setEnv env
 
 builtin_initialize

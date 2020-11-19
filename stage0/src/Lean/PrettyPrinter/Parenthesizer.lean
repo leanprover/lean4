@@ -517,9 +517,9 @@ builtin_initialize
 
 @[export lean_pretty_printer_parenthesizer_interpret_parser_descr]
 unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
-  | ParserDescr.const n                             => liftIO $ getConstAlias parenthesizerAliasesRef n
-  | ParserDescr.unary n d                           => return (← liftIO $ getUnaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d)
-  | ParserDescr.binary n d₁ d₂                      => return (← liftIO $ getBinaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
+  | ParserDescr.const n                             => getConstAlias parenthesizerAliasesRef n
+  | ParserDescr.unary n d                           => return (← getUnaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d)
+  | ParserDescr.binary n d₁ d₂                      => return (← getBinaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
   | ParserDescr.node k prec d                       => return leadingNode.parenthesizer k prec (← interpretParserDescr d)
   | ParserDescr.nodeWithAntiquot _ k d              => return node.parenthesizer k (← interpretParserDescr d)
   | ParserDescr.trailingNode k prec d               => return trailingNode.parenthesizer k prec (← interpretParserDescr d)

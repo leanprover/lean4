@@ -438,9 +438,9 @@ builtin_initialize
 
 @[export lean_pretty_printer_formatter_interpret_parser_descr]
 unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
-  | ParserDescr.const n                             => liftIO $ getConstAlias formatterAliasesRef n
-  | ParserDescr.unary n d                           => return (← liftIO $ getUnaryAlias formatterAliasesRef n) (← interpretParserDescr d)
-  | ParserDescr.binary n d₁ d₂                      => return (← liftIO $ getBinaryAlias formatterAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
+  | ParserDescr.const n                             => getConstAlias formatterAliasesRef n
+  | ParserDescr.unary n d                           => return (← getUnaryAlias formatterAliasesRef n) (← interpretParserDescr d)
+  | ParserDescr.binary n d₁ d₂                      => return (← getBinaryAlias formatterAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
   | ParserDescr.node k prec d                       => return node.formatter k (← interpretParserDescr d)
   | ParserDescr.nodeWithAntiquot _ k d              => return node.formatter k (← interpretParserDescr d)
   | ParserDescr.trailingNode k prec d               => return trailingNode.formatter k prec (← interpretParserDescr d)

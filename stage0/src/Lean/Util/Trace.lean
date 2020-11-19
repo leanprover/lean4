@@ -47,11 +47,11 @@ instance (m n) [MonadTrace m] [MonadLift m n] : MonadTrace n :=
 
 variables {α : Type} {m : Type → Type} [Monad m] [MonadTrace m]
 
-def printTraces {m} [Monad m] [MonadTrace m] [MonadIO m] : m Unit := do
+def printTraces {m} [Monad m] [MonadTrace m] [MonadLiftT IO m] : m Unit := do
   let traceState ← getTraceState
   traceState.traces.forM fun m => do
-    let d ← liftIO m.msg.format
-    liftIO $ IO.println d
+    let d ← m.msg.format
+    IO.println d
 
 def resetTraceState {m} [MonadTrace m] : m Unit :=
   modifyTraceState (fun _ => {})

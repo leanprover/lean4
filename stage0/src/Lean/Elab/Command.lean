@@ -125,7 +125,7 @@ private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : M
   let ctx ← read
   IO.toEIO (fun (ex : IO.Error) => Exception.error ctx.ref ex.toString) x
 
-instance : MonadIO CommandElabM := { liftIO := liftIO }
+instance : MonadLiftT IO CommandElabM := { monadLift := liftIO }
 
 def getScope : CommandElabM Scope := do pure (← get).scopes.head!
 
@@ -573,7 +573,7 @@ unsafe def elabEvalUnsafe : CommandElab := fun stx => do
     let env ← getEnv
     let opts ← getOptions
     let act ← try addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n finally setEnv env
-    let (out, res) ← MonadIO.liftIO $ act env opts -- we execute `act` using the environment
+    let (out, res) ← act env opts -- we execute `act` using the environment
     logInfo out
     match res with
     | Except.error e => throwError e.toString
@@ -587,7 +587,7 @@ unsafe def elabEvalUnsafe : CommandElab := fun stx => do
     let e ← mkAppM `Lean.runEval #[e]
     let env ← getEnv
     let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) n finally setEnv env
-    let (out, res) ← MonadIO.liftIO act
+    let (out, res) ← liftM (m := IO) act
     logInfo out
     match res with
     | Except.error e => throwError e.toString

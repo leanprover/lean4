@@ -86,17 +86,15 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
-parser! "inductive " >> declId >> optDeclSig >> many ctor
-parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
-
-Remark: numTokens == 1 for regular `inductive` and 2 for `class inductive`.
+parser! "inductive " >> declId >> optDeclSig >> optional ":=" >> many ctor
+parser! atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ":=" >> many ctor
 -/
-private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTokens := 1) : CommandElabM InductiveView := do
+private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView := do
   checkValidInductiveModifier modifiers
-  let (binders, type?) := expandOptDeclSig decl[numTokens + 1]
-  let declId           := decl[numTokens]
+  let (binders, type?) := expandOptDeclSig decl[2]
+  let declId           := decl[1]
   let ⟨name, declName, levelNames⟩ ← expandDeclId declId modifiers
-  let ctors      ← decl[numTokens + 2].getArgs.mapM fun ctor => withRef ctor do
+  let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
     -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
     let ctorModifiers ← elabModifiers ctor[1]
     if ctorModifiers.isPrivate && modifiers.isPrivate then
@@ -122,7 +120,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (numTo
   }
 
 private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView :=
-  inductiveSyntaxToView modifiers decl 2
+  inductiveSyntaxToView modifiers decl
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let v ← inductiveSyntaxToView modifiers stx

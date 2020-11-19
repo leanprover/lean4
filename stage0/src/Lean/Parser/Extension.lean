@@ -476,10 +476,10 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   let env ← getEnv
   match decl.type with
   | Expr.const `Lean.Parser.TrailingParser _ _ => do
-    let env ← liftIO $ declareTrailingBuiltinParser env catName declName prio
+    let env ← declareTrailingBuiltinParser env catName declName prio
     setEnv env
   | Expr.const `Lean.Parser.Parser _ _ => do
-    let env ← liftIO $ declareLeadingBuiltinParser env catName declName prio
+    let env ← declareLeadingBuiltinParser env catName declName prio
     setEnv env
   | _ => throwError! "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
   runParserAttributeHooks catName declName (builtin := true)

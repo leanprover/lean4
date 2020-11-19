@@ -993,6 +993,17 @@ def Array.push {α : Type u} (a : Array α) (v : α) : Array α := {
   data := List.concat a.data v
 }
 
+-- Slower `Array.append` used in quotations.
+protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
+  let rec loop (i : Nat) (j : Nat) (as : Array α) : Array α :=
+    dite (Less j bs.size)
+      (fun hlt =>
+        match i with
+        | 0           => as
+        | Nat.succ i' => loop i' (add j 1) (as.push (bs.get ⟨j, hlt⟩)))
+      (fun _ => as)
+  loop bs.size 0 as
+
 class Bind (m : Type u → Type v) :=
   (bind : {α β : Type u} → m α → (α → m β) → m β)
 

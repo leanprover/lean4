@@ -82,7 +82,7 @@ def strLt (a b : String) := Decidable.decide (a < b)
 
 open Std (RBNode RBNode.leaf)
 
-inductive Json
+inductive Json :=
   | null
   | bool (b : Bool)
   | num (n : JsonNumber)
@@ -143,7 +143,7 @@ def getArrVal? : Json → Nat → Option Json
 def getObjValD (j : Json) (k : String) : Json :=
   (j.getObjVal? k).getD null
 
-inductive Structured
+inductive Structured :=
   | arr (elems : Array Json)
   | obj (kvPairs : RBNode String (fun _ => Json))
 

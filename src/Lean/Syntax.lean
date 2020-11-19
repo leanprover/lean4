@@ -30,7 +30,7 @@ def Syntax.isAntiquot : Syntax → Bool
   | Syntax.node (Name.str _ "antiquot" _) _ => true
   | _                                       => false
 
-inductive IsNode : Syntax → Prop
+inductive IsNode : Syntax → Prop :=
   | mk (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node kind args)
 
 def SyntaxNode : Type := {s : Syntax // IsNode s }

@@ -7,7 +7,7 @@ universes u
 
 namespace Lean
 
-inductive LOption (α : Type u)
+inductive LOption (α : Type u) :=
   | none  : LOption α
   | some  : α → LOption α
   | undef : LOption α

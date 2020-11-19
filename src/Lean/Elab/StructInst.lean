@@ -44,7 +44,7 @@ private def expandNonAtomicExplicitSource (stx : Syntax) : TermElabM (Option Syn
         let stxNew    := stx.setArg 1 sourceOpt
         `(let src := $source; $stxNew)
 
-inductive Source
+inductive Source :=
   | none     -- structure instance source has not been provieded
   | implicit (stx : Syntax) -- `..`
   | explicit (stx : Syntax) (src : Expr) -- `src with`
@@ -158,7 +158,7 @@ private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceVi
     | Expr.const constName _ _ => pure constName
     | _                        => useSource ()
 
-inductive FieldLHS
+inductive FieldLHS :=
   | fieldName  (ref : Syntax) (name : Name)
   | fieldIndex (ref : Syntax) (idx : Nat)
   | modifyOp   (ref : Syntax) (index : Syntax)
@@ -170,7 +170,7 @@ instance : ToFormat FieldLHS := ⟨fun lhs =>
   | FieldLHS.fieldIndex _ i => fmt i
   | FieldLHS.modifyOp _ i   => "[" ++ i.prettyPrint ++ "]"⟩
 
-inductive FieldVal (σ : Type)
+inductive FieldVal (σ : Type) :=
   | term  (stx : Syntax) : FieldVal σ
   | nested (s : σ)       : FieldVal σ
   | default              : FieldVal σ -- mark that field must be synthesized using default value
@@ -187,7 +187,7 @@ def Field.isSimple {σ} : Field σ → Bool
   | { lhs := [_], .. } => true
   | _                  => false
 
-inductive Struct
+inductive Struct :=
   | mk (ref : Syntax) (structName : Name) (fields : List (Field Struct)) (source : Source)
 
 instance : Inhabited Struct := ⟨⟨arbitrary _, arbitrary _, [], arbitrary _⟩⟩

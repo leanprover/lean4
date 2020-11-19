@@ -9,7 +9,7 @@ import Lean.Hygiene
 
 namespace Lean
 
-inductive LocalDecl
+inductive LocalDecl :=
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
   | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool)
 

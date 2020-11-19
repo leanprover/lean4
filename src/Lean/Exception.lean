@@ -11,7 +11,7 @@ import Lean.Util.MonadCache
 namespace Lean
 
 /- Exception type used in most Lean monads -/
-inductive Exception
+inductive Exception :=
   | error (ref : Syntax) (msg : MessageData)
   | internal (id : InternalExceptionId)
 

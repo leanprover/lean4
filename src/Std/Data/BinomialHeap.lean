@@ -12,7 +12,7 @@ structure HeapNodeAux (α : Type u) (h : Type u) :=
   (rank : Nat)
   (children : List h)
 
-inductive Heap (α : Type u) : Type u
+inductive Heap (α : Type u) : Type u :=
   | empty     : Heap α
   | heap  (ns : List (HeapNodeAux α (Heap α))) : Heap α
 
@@ -92,7 +92,7 @@ partial def toList (lt : α → α → Bool) : Heap α → List α
     | none   => []
     | some a => a :: toList lt (tail lt h)
 
-inductive WellFormed (lt : α → α → Bool) : Heap α → Prop
+inductive WellFormed (lt : α → α → Bool) : Heap α → Prop :=
   | emptyWff               : WellFormed lt Heap.empty
   | singletonWff (a : α)   : WellFormed lt (singleton a)
   | mergeWff (h₁ h₂ : Heap α) : WellFormed lt h₁ → WellFormed lt h₂ → WellFormed lt (merge lt h₁ h₂)

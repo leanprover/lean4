@@ -30,7 +30,7 @@ declaration during Type checking.
 Remark: the ReducibilityHints are not related to the attributes: reducible/irrelevance/semireducible.
 These attributes are used by the Elaborator. The ReducibilityHints are used by the kernel (and Elaborator).
 Moreover, the ReducibilityHints cannot be changed after a declaration is added to the kernel. -/
-inductive ReducibilityHints
+inductive ReducibilityHints :=
   | opaque   : ReducibilityHints
   | «abbrev» : ReducibilityHints
   | regular  : UInt32 → ReducibilityHints
@@ -128,7 +128,7 @@ structure InductiveType :=
   (ctors : List Constructor)
 
 /-- Declaration object that can be sent to the kernel. -/
-inductive Declaration
+inductive Declaration :=
   | axiomDecl       (val : AxiomVal)
   | defnDecl        (val : DefinitionVal)
   | thmDecl         (val : TheoremVal)
@@ -262,7 +262,7 @@ def RecursorVal.getMajorIdx (v : RecursorVal) : Nat :=
 def RecursorVal.getInduct (v : RecursorVal) : Name :=
   v.name.getPrefix
 
-inductive QuotKind
+inductive QuotKind :=
   | type  -- `Quot`
   | ctor  -- `Quot.mk`
   | lift  -- `Quot.lift`
@@ -279,7 +279,7 @@ def mkQuotValEx (name : Name) (lparams : List Name) (type : Expr) (kind : QuotKi
 @[export lean_quot_val_kind] def QuotVal.kindEx (v : QuotVal) : QuotKind := v.kind
 
 /-- Information associated with constant declarations. -/
-inductive ConstantInfo
+inductive ConstantInfo :=
   | axiomInfo    (val : AxiomVal)
   | defnInfo     (val : DefinitionVal)
   | thmInfo      (val : TheoremVal)

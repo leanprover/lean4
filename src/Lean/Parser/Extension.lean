@@ -46,13 +46,13 @@ private def addBuiltinParserCategory (catName : Name) (leadingIdentAsSymbol : Bo
   let categories ← IO.ofExcept $ addParserCategoryCore categories catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol}
   builtinParserCategoriesRef.set categories
 
-inductive ParserExtensionOleanEntry
+inductive ParserExtensionOleanEntry :=
   | token     (val : Token) : ParserExtensionOleanEntry
   | kind      (val : SyntaxNodeKind) : ParserExtensionOleanEntry
   | category  (catName : Name) (leadingIdentAsSymbol : Bool)
   | parser    (catName : Name) (declName : Name) (prio : Nat) : ParserExtensionOleanEntry
 
-inductive ParserExtensionEntry
+inductive ParserExtensionEntry :=
   | token     (val : Token) : ParserExtensionEntry
   | kind      (val : SyntaxNodeKind) : ParserExtensionEntry
   | category  (catName : Name) (leadingIdentAsSymbol : Bool)
@@ -191,7 +191,7 @@ constant mkParserOfConstantAux
     (categories : ParserCategories) (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
 
 /- Parser aliases for making `ParserDescr` extensible -/
-inductive AliasValue (α : Type)
+inductive AliasValue (α : Type) :=
 | const  (p : α)
 | unary  (p : α → α)
 | binary (p : α → α → α)

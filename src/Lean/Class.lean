@@ -7,7 +7,7 @@ import Lean.Attributes
 
 namespace Lean
 
-inductive ClassEntry
+inductive ClassEntry :=
   | «class»    (name : Name) (hasOutParam : Bool)
   | «instance» (name : Name) (ofClass : Name) -- TODO: remove after we remove old type class resolution
 

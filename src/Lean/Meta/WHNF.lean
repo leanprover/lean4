@@ -257,7 +257,7 @@ private def extractIdRhs (e : Expr) : Expr :=
     let val := val.betaRev revArgs
     successK (extractIdRhs val)
 
-inductive ReduceMatcherResult
+inductive ReduceMatcherResult :=
   | reduced (val : Expr)
   | stuck   (val : Expr)
   | notMatcher

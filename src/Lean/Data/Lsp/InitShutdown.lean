@@ -25,7 +25,7 @@ instance : FromJson ClientInfo := ⟨fun j => do
   let version? := j.getObjValAs? String "version"
   pure ⟨name, version?⟩⟩
 
-inductive Trace
+inductive Trace :=
   | off
   | messages
   | verbose
@@ -66,7 +66,8 @@ instance : FromJson InitializeParams := ⟨fun j => do
   let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"
   pure ⟨processId?, clientInfo?, rootUri?, initializationOptions?, capabilities, trace, workspaceFolders?⟩⟩
 
-inductive InitializedParams | mk
+inductive InitializedParams :=
+  | mk
 
 instance : FromJson InitializedParams :=
   ⟨fun j => InitializedParams.mk⟩

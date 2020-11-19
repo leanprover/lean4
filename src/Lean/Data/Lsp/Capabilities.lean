@@ -17,7 +17,8 @@ namespace Lsp
 open Json
 
 -- TODO: right now we ignore the client's capabilities
-inductive ClientCapabilities | mk
+inductive ClientCapabilities :=
+  | mk
 
 instance : FromJson ClientCapabilities :=
   ⟨fun j => ClientCapabilities.mk⟩

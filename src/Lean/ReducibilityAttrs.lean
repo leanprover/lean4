@@ -7,7 +7,7 @@ import Lean.Attributes
 
 namespace Lean
 
-inductive ReducibilityStatus
+inductive ReducibilityStatus :=
   | reducible | semireducible | irreducible
 
 instance : Inhabited ReducibilityStatus := ⟨ReducibilityStatus.semireducible⟩

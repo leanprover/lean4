@@ -235,7 +235,7 @@ def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : Local
   | some idx => localInsts.eraseIdx idx
   | _        => localInsts
 
-inductive MetavarKind
+inductive MetavarKind :=
   | natural
   | synthetic
   | syntheticOpaque
@@ -685,7 +685,7 @@ def localDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (fvarId :
 
 namespace MkBinding
 
-inductive Exception
+inductive Exception :=
   | revertFailure (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (decl : LocalDecl)
 
 protected def Exception.toString : Exception → String

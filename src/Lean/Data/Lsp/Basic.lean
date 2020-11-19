@@ -239,7 +239,8 @@ instance : FromJson TextDocumentRegistrationOptions :=
 instance : ToJson TextDocumentRegistrationOptions :=
   ⟨fun o => mkObj $ opt "documentSelector" o.documentSelector?⟩
 
-inductive MarkupKind | plaintext | markdown
+inductive MarkupKind :=
+  | plaintext | markdown
 
 instance : FromJson MarkupKind := ⟨fun j =>
   match j with

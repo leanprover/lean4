@@ -11,7 +11,7 @@ universes u v
 
 set_option codegen false
 
-inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop
+inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop :=
   | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
 
 abbrev Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
@@ -34,7 +34,7 @@ Acc.recOn (motive := fun (x : α) _ => r y x → Acc r y)
 
 end Acc
 
-inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop
+inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop :=
   | intro (h : ∀ a, Acc r a) : WellFounded r
 
 class WellFoundedRelation (α : Sort u) : Type u :=
@@ -186,12 +186,12 @@ variable  (ra  : α → α → Prop)
 variable  (rb  : β → β → Prop)
 
 -- Lexicographical order based on ra and rb
-inductive Lex : α × β → α × β → Prop
+inductive Lex : α × β → α × β → Prop :=
   | left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Lex (a₁, b₁) (a₂, b₂)
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Lex (a, b₁)  (a, b₂)
 
 -- relational product based on ra and rb
-inductive Rprod : α × β → α × β → Prop
+inductive Rprod : α × β → α × β → Prop :=
   | intro {a₁ b₁ a₂ b₂} (h₁ : ra a₁ a₂) (h₂ : rb b₁ b₂) : Rprod (a₁, b₁) (a₂, b₂)
 end
 
@@ -242,7 +242,7 @@ variable  (r  : α → α → Prop)
 variable  (s  : ∀ a, β a → β a → Prop)
 
 -- Lexicographical order based on r and s
-inductive Lex : PSigma β → PSigma β → Prop
+inductive Lex : PSigma β → PSigma β → Prop :=
   | left  : ∀ {a₁ : α} (b₁ : β a₁) {a₂ : α} (b₂ : β a₂), r a₁ a₂ → Lex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
   | right : ∀ (a : α)  {b₁ b₂ : β a}, s a b₁ b₂ → Lex ⟨a, b₁⟩ ⟨a, b₂⟩
 end
@@ -281,7 +281,7 @@ section
 variables {α : Sort u} {β : Sort v}
 
 -- Reverse lexicographical order based on r and s
-inductive RevLex (r  : α → α → Prop) (s  : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop
+inductive RevLex (r  : α → α → Prop) (s  : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop :=
   | left  : {a₁ a₂ : α} → (b : β) → r a₁ a₂ → RevLex r s ⟨a₁, b⟩ ⟨a₂, b⟩
   | right : (a₁ : α) → {b₁ : β} → (a₂ : α) → {b₂ : β} → s b₁ b₂ → RevLex r s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
 end

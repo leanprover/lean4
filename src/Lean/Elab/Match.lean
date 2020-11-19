@@ -154,7 +154,7 @@ def mkInaccessible (e : Expr) : Expr :=
 def inaccessible? (e : Expr) : Option Expr :=
   annotation? `_inaccessible e
 
-inductive PatternVar
+inductive PatternVar :=
   | localVar     (userName : Name)
   -- anonymous variables (`_`) are encoded using metavariables
   | anonymousVar (mvarId   : MVarId)
@@ -516,7 +516,7 @@ def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := 
   pure s.vars
 
 /- We convert the collected `PatternVar`s intro `PatternVarDecl` -/
-inductive PatternVarDecl
+inductive PatternVarDecl :=
   /- For `anonymousVar`, we create both a metavariable and a free variable. The free variable is used as an assignment for the metavariable
      when it is not assigned during pattern elaboration. -/
   | anonymousVar (mvarId : MVarId) (fvarId : FVarId)

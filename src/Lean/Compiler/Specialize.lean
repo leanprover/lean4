@@ -8,7 +8,7 @@ import Lean.Compiler.Util
 
 namespace Lean.Compiler
 
-inductive SpecializeAttributeKind
+inductive SpecializeAttributeKind :=
   | specialize | nospecialize
 
 namespace SpecializeAttributeKind
@@ -53,7 +53,7 @@ def hasSpecializeAttribute (env : Environment) (n : Name) : Bool :=
 def hasNospecializeAttribute (env : Environment) (n : Name) : Bool :=
   hasSpecializeAttrAux env SpecializeAttributeKind.nospecialize n
 
-inductive SpecArgKind
+inductive SpecArgKind :=
   | fixed
   | fixedNeutral -- computationally neutral
   | fixedHO      -- higher order
@@ -68,7 +68,7 @@ structure SpecState :=
   (specInfo : SMap Name SpecInfo := {})
   (cache    : SMap Expr Name := {})
 
-inductive SpecEntry
+inductive SpecEntry :=
   | info (name : Name) (info : SpecInfo)
   | cache (key : Expr) (fn : Name)
 

@@ -8,14 +8,14 @@ universes u v w w'
 
 namespace PersistentHashMap
 
-inductive Entry (α : Type u) (β : Type v) (σ : Type w)
+inductive Entry (α : Type u) (β : Type v) (σ : Type w) :=
   | entry (key : α) (val : β) : Entry α β σ
   | ref   (node : σ) : Entry α β σ
   | null  : Entry α β σ
 
 instance {α β σ} : Inhabited (Entry α β σ) := ⟨Entry.null⟩
 
-inductive Node (α : Type u) (β : Type v) : Type (max u v)
+inductive Node (α : Type u) (β : Type v) : Type (max u v) :=
   | entries   (es : Array (Entry α β (Node α β))) : Node α β
   | collision (ks : Array α) (vs : Array β) (h : ks.size = vs.size) : Node α β
 
@@ -54,12 +54,12 @@ abbrev mul2Shift (i : USize) (shift : USize) : USize := i.shiftLeft shift
 abbrev div2Shift (i : USize) (shift : USize) : USize := i.shiftRight shift
 abbrev mod2Shift (i : USize) (shift : USize) : USize := USize.land i ((USize.shiftLeft 1 shift) - 1)
 
-inductive IsCollisionNode : Node α β → Prop
+inductive IsCollisionNode : Node α β → Prop :=
   | mk (keys : Array α) (vals : Array β) (h : keys.size = vals.size) : IsCollisionNode (Node.collision keys vals h)
 
 abbrev CollisionNode (α β) := { n : Node α β // IsCollisionNode n }
 
-inductive IsEntriesNode : Node α β → Prop
+inductive IsEntriesNode : Node α β → Prop :=
   | mk (entries : Array (Entry α β (Node α β))) : IsEntriesNode (Node.entries entries)
 
 abbrev EntriesNode (α β) := { n : Node α β // IsEntriesNode n }

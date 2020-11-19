@@ -98,7 +98,7 @@ def erase [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
     if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
     else m
 
-inductive WellFormed [BEq α] [Hashable α] : HashSetImp α → Prop
+inductive WellFormed [BEq α] [Hashable α] : HashSetImp α → Prop :=
   | mkWff     : ∀ n,                  WellFormed (mkHashSetImp n)
   | insertWff : ∀ m a, WellFormed m → WellFormed (insert m a)
   | eraseWff  : ∀ m a, WellFormed m → WellFormed (erase m a)

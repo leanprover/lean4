@@ -40,7 +40,7 @@ structure ConsumerNode :=
 
 instance : Inhabited ConsumerNode := ⟨⟨arbitrary _, arbitrary _, arbitrary _, []⟩⟩
 
-inductive Waiter
+inductive Waiter :=
   | consumerNode : ConsumerNode → Waiter
   | root         : Waiter
 

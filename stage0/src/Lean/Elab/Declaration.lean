@@ -70,7 +70,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
     let type ← mkForallFVars xs type
     let (type, _) ← mkForallUsedOnly vars type
     let (type, _) ← Term.levelMVarToParam type
-    let usedParams  := collectLevelParams {} type $.params
+    let usedParams  := collectLevelParams {} type |>.params
     match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
     | Except.error msg      => throwErrorAt stx msg
     | Except.ok levelParams =>

@@ -120,13 +120,13 @@ def modifyM {m : Type u → Type v} [Monad m] [Inhabited α] (a : Array α) (i :
     let v                := a.get idx
     let a'               := a.set idx (arbitrary α)
     let v ← f v
-    pure $ (a'.set (sizeSetEq a .. ▸ idx) v)
+    pure <| a'.set (sizeSetEq a .. ▸ idx) v
   else
     pure a
 
 @[inline]
 def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
-  Id.run $ a.modifyM i f
+  Id.run <| a.modifyM i f
 
 @[inline]
 def modifyOp [Inhabited α] (self : Array α) (idx : Nat) (f : α → α) : Array α :=
@@ -255,7 +255,7 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
      map (i+1) (r.uset i (unsafeCast vNew) lcProof)
     else
      pure (unsafeCast r)
-  unsafeCast $ map 0 (unsafeCast as)
+  unsafeCast <| map 0 (unsafeCast as)
 
 /- Reference implementation for `mapM` -/
 @[implementedBy mapMUnsafe]
@@ -368,27 +368,27 @@ def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit)
 
 @[inline]
 def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Array α) (start := 0) (stop := as.size) : β :=
-  Id.run $ as.foldlM f init start stop
+  Id.run <| as.foldlM f init start stop
 
 @[inline]
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Array α) (start := as.size) (stop := 0) : β :=
-  Id.run $ as.foldrM f init start stop
+  Id.run <| as.foldrM f init start stop
 
 @[inline]
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
-  Id.run $ as.mapM f
+  Id.run <| as.mapM f
 
 @[inline]
 def mapIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
-  Id.run $ as.mapIdxM f
+  Id.run <| as.mapIdxM f
 
 @[inline]
 def find? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
-  Id.run $ as.findM? p
+  Id.run <| as.findM? p
 
 @[inline]
 def findSome? {α : Type u} {β : Type v} (as : Array α) (f : α → Option β) : Option β :=
-  Id.run $ as.findSomeM? f
+  Id.run <| as.findSomeM? f
 
 @[inline]
 def findSome! {α : Type u} {β : Type v} [Inhabited β] (a : Array α) (f : α → Option β) : β :=
@@ -398,11 +398,11 @@ def findSome! {α : Type u} {β : Type v} [Inhabited β] (a : Array α) (f : α 
 
 @[inline]
 def findSomeRev? {α : Type u} {β : Type v} (as : Array α) (f : α → Option β) : Option β :=
-  Id.run $ as.findSomeRevM? f
+  Id.run <| as.findSomeRevM? f
 
 @[inline]
 def findRev? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
-  Id.run $ as.findRevM? p
+  Id.run <| as.findRevM? p
 
 @[inline]
 def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
@@ -430,11 +430,11 @@ a.findIdx? fun a => a == v
 
 @[inline]
 def any {α : Type u} (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Bool :=
-  Id.run $ as.anyM p start stop
+  Id.run <| as.anyM p start stop
 
 @[inline]
 def all {α : Type u} (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Bool :=
-  Id.run $ as.allM p start stop
+  Id.run <| as.allM p start stop
 
 def contains {α} [BEq α] (as : Array α) (a : α) : Bool :=
   as.any fun b => a == b
@@ -454,7 +454,7 @@ partial def reverse {α : Type u}  (as : Array α) : Array α :=
   rev as 0
 
 @[inline] def getEvenElems {α : Type u}  (as : Array α) : Array α :=
-  (·.2) $ as.foldl (init := (true, Array.empty)) fun (even, r) a =>
+  (·.2) <| as.foldl (init := (true, Array.empty)) fun (even, r) a =>
     if even then
       (false, r.push a)
     else
@@ -540,13 +540,13 @@ def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m 
 
 @[inline]
 def filterMap {α β : Type u} (f : α → Option β) (as : Array α) (start := 0) (stop := as.size) : Array β :=
-  Id.run $ as.filterMapM f (start := start) (stop := stop)
+  Id.run <| as.filterMapM f (start := start) (stop := stop)
 
 @[specialize]
 def getMax? {α : Type u} (as : Array α) (lt : α → α → Bool) : Option α :=
   if h : 0 < as.size then
     let a0 := as.get ⟨0, h⟩
-    some $ as.foldl (init := a0) (start := 1) fun best a =>
+    some <| as.foldl (init := a0) (start := 1) fun best a =>
       if lt best a then a else best
   else
     none
@@ -688,7 +688,7 @@ def toListLitAux {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : ∀
   | (i+1), hi, acc => toListLitAux a n hsz i (Nat.leOfSuccLe hi) (a.getLit i hsz (Nat.ltOfLtOfEq (Nat.ltOfLtOfLe (Nat.ltSuccSelf i) hi) hsz) :: acc)
 
 def toArrayLit {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
-  List.toArray $ toListLitAux a n hsz n (hsz ▸ Nat.leRefl _) []
+  List.toArray <| toListLitAux a n hsz n (hsz ▸ Nat.leRefl _) []
 
 theorem toArrayLitEq {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayLit a n hsz :=
   -- TODO: this is painful to prove without proper automation
@@ -728,7 +728,7 @@ theorem toArrayLitEq {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) :
   - (toListLitAux a n hsz n _ []).length = n
   - j < n -> (List.toArray as).getLit j _ _ = as.index j
 
-  Then using Array.extLit, we have that a = List.toArray $ toListLitAux a n hsz n _ []
+  Then using Array.extLit, we have that a = List.toArray <| toListLitAux a n hsz n _ []
   -/
 
 partial def isPrefixOfAux {α : Type u} [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat → Bool
@@ -772,7 +772,7 @@ def allDiff {α} [BEq α] (as : Array α) : Bool :=
       let a := as.get ⟨i, h⟩;
       if h : i < bs.size then
         let b := bs.get ⟨i, h⟩;
-        zipWithAux f as bs (i+1) (cs.push $ f a b)
+        zipWithAux f as bs (i+1) <| cs.push <| f a b
       else
         cs
     else

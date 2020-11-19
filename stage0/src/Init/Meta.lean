@@ -116,20 +116,21 @@ partial def getTailInfo : Syntax → Option SourceInfo
   | _             => none
 
 @[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
-  if i == 0 then none
+  if i == 0 then
+    none
   else
-    let i := i - 1;
-    let v := a.get! i;
+    let i := i - 1
+    let v := a[i]
     match f v with
-    | some v => some $ a.set! i v
+    | some v => some <| a.set! i v
     | none   => updateLast a f i
 
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
-  | atom _ val             => some $ atom info val
-  | ident _ rawVal val pre => some $ ident info rawVal val pre
+  | atom _ val             => some <| atom info val
+  | ident _ rawVal val pre => some <| ident info rawVal val pre
   | node k args            =>
     match updateLast args (setTailInfoAux info) args.size with
-    | some args => some $ node k args
+    | some args => some <| node k args
     | none      => none
   | stx                    => none
 
@@ -147,17 +148,17 @@ def unsetTrailing (stx : Syntax) : Syntax :=
   if h : i < a.size then
     let v := a.get ⟨i, h⟩;
     match f v with
-    | some v => some $ a.set ⟨i, h⟩ v
+    | some v => some <| a.set ⟨i, h⟩ v
     | none   => updateFirst a f (i+1)
   else
     none
 
 partial def setHeadInfoAux (info : SourceInfo) : Syntax → Option Syntax
-  | atom _ val             => some $ atom info val
-  | ident _ rawVal val pre => some $ ident info rawVal val pre
+  | atom _ val             => some <| atom info val
+  | ident _ rawVal val pre => some <| ident info rawVal val pre
   | node k args            =>
     match updateFirst args (setHeadInfoAux info) 0 with
-    | some args => some $ node k args
+    | some args => some <| node k args
     | noxne     => none
   | stx                    => none
 
@@ -172,7 +173,7 @@ def setInfo (info : SourceInfo) : Syntax → Syntax
   | stx                    => stx
 
 partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
-  | node k args => node k $ args.map (replaceInfo info)
+  | node k args => node k <| args.map (replaceInfo info)
   | stx         => setInfo info stx
 
 def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
@@ -204,8 +205,8 @@ partial def expandMacros : Syntax → MacroM Syntax
     match (← expandMacro? stx) with
     | some stxNew => expandMacros stxNew
     | none        => do
-      let args ← Macro.withIncRecDepth stx $ args.mapM expandMacros
-      pure $ Syntax.node k args
+      let args ← Macro.withIncRecDepth stx <| args.mapM expandMacros
+      pure <| Syntax.node k args
   | stx => pure stx
 
 /- Helper functions for processing Syntax programmatically -/
@@ -251,7 +252,7 @@ def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := do
   let mut r := #[]
   for a in as do
     if i > 0 then
-      r := r.push sep $.push a
+      r := r.push sep |>.push a
     else
       r := r.push a
     i := i + 1
@@ -268,7 +269,7 @@ def mkHole (ref : Syntax) : Syntax :=
 namespace Syntax
 
 def mkSep (a : Array Syntax) (sep : Syntax) : Syntax :=
-  mkNullNode $ mkSepArray a sep
+  mkNullNode <| mkSepArray a sep
 
 /-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
 def mkApp (fn : Syntax) : (args : Array Syntax) → Syntax
@@ -533,7 +534,7 @@ export Quote (quote)
 instance : Quote Syntax := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
 instance : Quote String := ⟨Syntax.mkStrLit⟩
-instance : Quote Nat := ⟨fun n => Syntax.mkNumLit $ toString n⟩
+instance : Quote Nat := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[quote s.toString]⟩
 
 private def quoteName : Name → Syntax
@@ -590,7 +591,7 @@ def filterSepElemsM {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax
   filterSepElemsMAux a p 0 #[]
 
 def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
-  Id.run $ a.filterSepElemsM p
+  Id.run <| a.filterSepElemsM p
 
 private partial def mapSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syntax) (f : Syntax → m Syntax) (i : Nat) (acc : Array Syntax) : m (Array Syntax) := do
   if h : i < a.size then
@@ -607,7 +608,7 @@ def mapSepElemsM {m : Type → Type} [Monad m] (a : Array Syntax) (f : Syntax �
   mapSepElemsMAux a f 0 #[]
 
 def mapSepElems (a : Array Syntax) (f : Syntax → Syntax) : Array Syntax :=
-  Id.run $ a.mapSepElemsM f
+  Id.run <| a.mapSepElemsM f
 
 end Array
 

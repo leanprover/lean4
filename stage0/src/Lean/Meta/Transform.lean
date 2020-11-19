@@ -49,7 +49,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
         | Expr.mdata _ b _     => visitPost (e.updateMData! (← visit b))
         | Expr.proj _ _ b _    => visitPost (e.updateProj! (← visit b))
         | _                    => visitPost e
-  visit input $.run
+  visit input |>.run
 
 end Core
 
@@ -102,7 +102,7 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | Expr.mdata _ b _   => visitPost (e.updateMData! (← visit b))
         | Expr.proj _ _ b _  => visitPost (e.updateProj! (← visit b))
         | _                  => visitPost e
-  visit input $.run
+  visit input |>.run
 
 end Meta
 end Lean

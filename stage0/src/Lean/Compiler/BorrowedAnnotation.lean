@@ -11,6 +11,6 @@ def markBorrowed (e : Expr) : Expr :=
 
 @[export lean_is_marked_borrowed]
 def isMarkedBorrowed (e : Expr) : Bool :=
-  annotation? `borrowed e $.isSome
+  annotation? `borrowed e |>.isSome
 
 end Lean

@@ -13,12 +13,6 @@ import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Term
 open Meta
 
-@[builtinMacro Lean.Parser.Term.dollar] def expandDollar : Macro := fun stx =>
-  match_syntax stx with
-  | `($f $args* $ $a) => let args := args.push a; `($f $args*)
-  | `($f $ $a)        => `($f $a)
-  | _                 => Macro.throwUnsupported
-
 @[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab := fun stx expectedType? =>
   match_syntax stx with
   | `(⟨$args*⟩) => do

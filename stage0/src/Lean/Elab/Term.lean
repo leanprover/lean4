@@ -870,7 +870,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
 
 private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool) : TermElabM Expr := do
   let s ← saveAllState
-  let table := termElabAttribute.ext.getState (← getEnv) $.table
+  let table := termElabAttribute.ext.getState (← getEnv) |>.table
   let k := stx.getKind
   match table.find? k with
   | some elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
@@ -1244,7 +1244,7 @@ private def mkSomeContext : Context := {
 }
 
 @[inline] def TermElabM.run {α} (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
-  withConfig setElabConfig (x ctx $.run s)
+  withConfig setElabConfig (x ctx |>.run s)
 
 @[inline] def TermElabM.run' {α} (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM α :=
   (·.1) <$> x.run ctx s

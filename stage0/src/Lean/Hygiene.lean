@@ -87,7 +87,7 @@ private partial def mkFreshInaccessibleUserName (userName : Name) (idx : Nat) : 
 
 def sanitizeName (userName : Name) : StateM NameSanitizerState Name := do
   let stem := userName.eraseMacroScopes;
-  let idx  := (← get).nameStem2Idx.find? stem $.getD 0
+  let idx  := (← get).nameStem2Idx.find? stem |>.getD 0
   let san ← mkFreshInaccessibleUserName stem idx
   modify fun s => { s with userName2Sanitized := s.userName2Sanitized.insert userName san }
   pure san

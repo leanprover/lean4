@@ -22,7 +22,7 @@ open Meta
   ```
 -/
 private def getAltName (alt : Syntax) : Name :=
-  getNameOfIdent' alt[0] $.eraseMacroScopes
+  getNameOfIdent' alt[0] |>.eraseMacroScopes
 private def getAltVarNames (alt : Syntax) : Array Name :=
   alt[1].getArgs.map getNameOfIdent'
 private def getAltRHS (alt : Syntax) : Syntax :=
@@ -130,7 +130,7 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
       pure ()
   let f ← Term.mkConst elimName
   let fType ← inferType f
-  let (_, s) ← loop.run { elimInfo := elimInfo, targets := targets } $.run { f := f, fType := fType }
+  let (_, s) ← loop.run { elimInfo := elimInfo, targets := targets } |>.run { f := f, fType := fType }
   Lean.Elab.Term.synthesizeAppInstMVars s.instMVars
   pure { elimApp := (← instantiateMVars s.f), alts := s.alts }
 
@@ -373,7 +373,7 @@ private def getRecInfo (stx : Syntax) (major : Expr) : TacticM RecInfo := withRe
     let (rinfo, _) ← getRecInfoDefault major optInductionAlts false
     pure rinfo
   else
-    let baseRecName := usingRecStx.getIdAt 1 $.eraseMacroScopes
+    let baseRecName := usingRecStx.getIdAt 1 |>.eraseMacroScopes
     let recInfo ← getRecFromUsing major baseRecName
     let recName := recInfo.recursorName
     if optInductionAlts.isNone then

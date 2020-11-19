@@ -732,9 +732,6 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
   | `($(e).$idx:fieldIdx) =>
     let idx := idx.isFieldIdx?.get!
     elabAppFn e (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-  | `($e $.$field) => do
-     let f ← `($(e).$field)
-     elabAppFn f lvals namedArgs args expectedType? explicit ellipsis overloaded acc
   | `($e |>. $field) => do
      let f ← `($(e).$field)
      elabAppFn f lvals namedArgs args expectedType? explicit ellipsis overloaded acc
@@ -857,7 +854,6 @@ private def elabAtom : TermElab := fun stx expectedType? =>
 @[builtinTermElab ident] def elabIdent : TermElab := elabAtom
 @[builtinTermElab namedPattern] def elabNamedPattern : TermElab := elabAtom
 @[builtinTermElab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
-@[builtinTermElab dollarProj] def expandDollarProj : TermElab := elabAtom
 @[builtinTermElab pipeProj] def expandPipeProj : TermElab := elabAtom
 
 @[builtinTermElab explicit] def elabExplicit : TermElab := fun stx expectedType? =>

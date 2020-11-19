@@ -50,8 +50,8 @@ lean_object* l_Lean_trace___rarg___lambda__1(lean_object*, lean_object*, lean_ob
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_printTraces___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_append___rarg(lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_System_IO___hyg_2435____closed__9;
 lean_object* l_Monad_seqRight___default___rarg___lambda__1___boxed(lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_System_IO___hyg_2436____closed__9;
 extern lean_object* l_Std_PersistentArray_empty___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_resetTraceState___rarg___closed__1;
@@ -2922,7 +2922,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___kind_term____x40_Init_Notation___hyg_3____closed__13;
 x_2 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1247____closed__7;
-x_3 = l___kind_term____x40_Init_System_IO___hyg_2436____closed__9;
+x_3 = l___kind_term____x40_Init_System_IO___hyg_2435____closed__9;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);

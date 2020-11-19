@@ -131,7 +131,7 @@ instance : AddMessageContext MetaM := {
 }
 
 @[inline] def MetaM.run {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
-  x ctx $.run s
+  x ctx |>.run s
 
 @[inline] def MetaM.run' {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM α :=
   Prod.fst <$> x.run ctx s

@@ -200,7 +200,7 @@ def Handle.write (h : Handle) (s : ByteArray) : m Unit := liftM (Prim.Handle.wri
 def Handle.getLine : Handle → m String := liftM ∘ Prim.Handle.getLine
 
 def Handle.putStr (h : Handle) (s : String) : m Unit :=
-  liftM $ Prim.Handle.putStr h s
+  liftM <| Prim.Handle.putStr h s
 
 def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
   h.putStr (s.push '\n')
@@ -226,9 +226,9 @@ partial def lines (fname : String) : m (Array String) := do
     else if line.back == '\n' then
       let line := line.dropRight 1
       let line := if System.Platform.isWindows && line.back == '\x0d' then line.dropRight 1 else line
-      read $ lines.push line
+      read <| lines.push line
     else
-      pure $ lines.push line
+      pure <| lines.push line
   read #[]
 
 
@@ -259,29 +259,32 @@ def setStderr : FS.Stream → m FS.Stream := liftM ∘ Prim.setStderr
 
 def withStdin [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdin h
-  try x finally discard $ setStdin prev
+  try x finally discard <| setStdin prev
 
 def withStdout [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdout h
-  try x finally discard $ setStdout prev
+  try
+    x
+  finally
+    discard <| setStdout prev
 
 def withStderr [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStderr h
-  try x finally discard $ setStderr prev
+  try x finally discard <| setStderr prev
 
 def print {α} [ToString α] (s : α) : IO Unit := do
   let out ← getStdout
-  out.putStr $ toString s
+  out.putStr <| toString s
 
 def println {α} [ToString α] (s : α) : IO Unit :=
   print ((toString s).push '\n')
 
 def eprint {α} [ToString α] (s : α) : IO Unit := do
   let out ← getStderr
-  liftM $ out.putStr $ toString s
+  liftM <| out.putStr <| toString s
 
 def eprintln {α} [ToString α] (s : α) : IO Unit :=
-  eprint ((toString s).push '\n')
+  eprint <| toString s |>.push '\n'
 
 @[export lean_io_eprintln]
 private def eprintlnAux (s : String) : IO Unit :=
@@ -358,7 +361,7 @@ def output (args : SpawnArgs) : IO Output := do
 def run (args : SpawnArgs) : IO String := do
   let out ← output args
   if out.exitCode != 0 then
-    throw $ IO.userError $ "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode;
+    throw <| IO.userError <| "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode;
   pure out.stdout
 
 end Process
@@ -370,7 +373,7 @@ def AccessRight.flags (acc : AccessRight) : UInt32 :=
   let r : UInt32 := if acc.read      then 0x4 else 0
   let w : UInt32 := if acc.write     then 0x2 else 0
   let x : UInt32 := if acc.execution then 0x1 else 0
-  r.lor $ w.lor x
+  r.lor <| w.lor x
 
 structure FileRight :=
   (user group other : AccessRight := { })
@@ -379,7 +382,7 @@ def FileRight.flags (acc : FileRight) : UInt32 :=
   let u : UInt32 := acc.user.flags.shiftLeft 6
   let g : UInt32 := acc.group.flags.shiftLeft 3
   let o : UInt32 := acc.other.flags
-  u.lor $ g.lor o
+  u.lor <| g.lor o
 
 @[extern "lean_chmod"] constant Prim.setAccessRights (filename : @& String) (mode : UInt32) : IO Unit
 
@@ -415,7 +418,7 @@ structure Buffer :=
   (pos : Nat := 0)
 
 def ofBuffer (r : Ref Buffer) : Stream := {
-  isEof   := do let b ← r.get; pure $ b.pos >= b.data.size,
+  isEof   := do let b ← r.get; pure <| b.pos >= b.data.size,
   flush   := pure (),
   read    := fun n => r.modifyGet fun b =>
     let data := b.data.extract b.pos (b.pos + n.toNat)
@@ -425,10 +428,10 @@ def ofBuffer (r : Ref Buffer) : Stream := {
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
   getLine := r.modifyGet fun b =>
     let pos := match b.data.findIdx? (start := b.pos) fun u => u == 0 || u = '\n'.toNat.toUInt8 with
-    -- include '\n', but not '\0'
-    | some pos => if b.data.get! pos == 0 then pos else pos + 1
-    | none     => b.data.size
-    (String.fromUTF8Unchecked $ b.data.extract b.pos pos, { b with pos := pos }),
+      -- include '\n', but not '\0'
+      | some pos => if b.data.get! pos == 0 then pos else pos + 1
+      | none     => b.data.size
+    (String.fromUTF8Unchecked <| b.data.extract b.pos pos, { b with pos := pos }),
   putStr  := fun s => r.modify fun b =>
     let data := s.toUTF8
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
@@ -439,9 +442,9 @@ end Stream
 def withIsolatedStreams {α : Type} (x : IO α) : IO (String × Except IO.Error α) := do
   let bIn ← mkRef { : Stream.Buffer }
   let bOut ← mkRef { : Stream.Buffer }
-  let r ← withStdin (Stream.ofBuffer bIn) $
-    withStdout (Stream.ofBuffer bOut) $
-      withStderr (Stream.ofBuffer bOut) $
+  let r ← withStdin (Stream.ofBuffer bIn) <|
+    withStdout (Stream.ofBuffer bOut) <|
+      withStderr (Stream.ofBuffer bOut) <|
         observing x
   let bOut ← bOut.get
   let out := String.fromUTF8Unchecked bOut.data

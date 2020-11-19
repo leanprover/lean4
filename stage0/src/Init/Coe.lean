@@ -148,4 +148,4 @@ instance hasOfNatOfCoe {α : Type u} {β : Type v} [OfNat α] [Coe α β] : OfNa
 
 @[inline] def coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β := do
   let a ← x
-  pure $ coe a
+  pure <| coe a

@@ -32,8 +32,8 @@ def registerCombinatorAttribute (name : Name) (descr : String)
       match attrParamSyntaxToIdentifier args with
       | some parserDeclName => do
         getConstInfo parserDeclName
-        setEnv $ ext.addEntry env (parserDeclName, decl)
-      | none            => throwError $ "invalid [" ++ name ++ "] argument, expected identifier"
+        setEnv <| ext.addEntry env (parserDeclName, decl)
+      | none            => throwError! "invalid [{name}] argument, expected identifier"
   }
   registerBuiltinAttribute attrImpl
   pure { impl := attrImpl, ext := ext }

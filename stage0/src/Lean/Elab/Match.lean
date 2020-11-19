@@ -818,7 +818,7 @@ private def waitExpectedType (expectedType? : Option Expr) : TermElabM Expr := d
 
 private def tryPostponeIfDiscrTypeIsMVar (matchStx : Syntax) : TermElabM Unit := do
   -- We don't wait for the discriminants types when match type is provided by user
-  if getMatchOptType matchStx $.isNone then
+  if getMatchOptType matchStx |>.isNone then
     let discrs := getDiscrs matchStx
     for discr in discrs do
       let term := discr[1]

@@ -41,16 +41,16 @@ abbrev ReplaceM := StateM State
     let h := ptrAddrUnsafe e
     let i := h % size
     if ptrAddrUnsafe (c.keys.uget i lcProof) == h then
-      pure $ c.results.uget i lcProof
+      pure <| c.results.uget i lcProof
     else match e with
-        | Expr.forallE _ d b _   => cache i e $ e.updateForallE! (← visit d) (← visit b)
-        | Expr.lam _ d b _       => cache i e $ e.updateLambdaE! (← visit d) (← visit b)
-        | Expr.mdata _ b _       => cache i e $ e.updateMData! (← visit b)
-        | Expr.letE _ t v b _    => cache i e $ e.updateLet! (← visit t) (← visit v) (← visit b)
-        | Expr.app f a _         => cache i e $ e.updateApp! (← visit f) (← visit a)
-        | Expr.proj _ _ b _      => cache i e $ e.updateProj! (← visit b)
-        | Expr.sort u _          => cache i e $ e.updateSort! (u.replace f?)
-        | Expr.const n us _      => cache i e $ e.updateConst! (us.map (Level.replace f?))
+        | Expr.forallE _ d b _   => cache i e <| e.updateForallE! (← visit d) (← visit b)
+        | Expr.lam _ d b _       => cache i e <| e.updateLambdaE! (← visit d) (← visit b)
+        | Expr.mdata _ b _       => cache i e <| e.updateMData! (← visit b)
+        | Expr.letE _ t v b _    => cache i e <| e.updateLet! (← visit t) (← visit v) (← visit b)
+        | Expr.app f a _         => cache i e <| e.updateApp! (← visit f) (← visit a)
+        | Expr.proj _ _ b _      => cache i e <| e.updateProj! (← visit b)
+        | Expr.sort u _          => cache i e <| e.updateSort! (u.replace f?)
+        | Expr.const n us _      => cache i e <| e.updateConst! (us.map (Level.replace f?))
         | e                      => pure e
   visit e
 

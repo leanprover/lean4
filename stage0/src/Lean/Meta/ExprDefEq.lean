@@ -573,7 +573,7 @@ partial def check (e : Expr) : CheckAssignmentM Expr := do
     catchInternalIds [outOfScopeExceptionId, checkAssignmentExceptionId]
       (do let e ← x; pure $ some e)
       (fun _ => pure none)
-  x.run ctx $.run' {}
+  x.run ctx |>.run' {}
 
 end CheckAssignment
 

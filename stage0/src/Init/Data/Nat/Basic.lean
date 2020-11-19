@@ -297,7 +297,7 @@ protected theorem addLeAddLeft {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k
   | ⟨w, hw⟩ =>
     have h₁ : k + n + w = k + (n + w) from Nat.addAssoc ..
     have h₂ : k + (n + w) = k + m     from congrArg _ hw
-    le.intro $ h₁.trans h₂
+    le.intro <| h₁.trans h₂
 
 protected theorem addLeAddRight {n m : Nat} (h : n ≤ m) (k : Nat) : n + k ≤ m + k := by
   rw [Nat.addComm n k, Nat.addComm m k]

@@ -382,7 +382,7 @@ partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (matcherBelowDep : 
   let isMarkedMatcherName (n : Name) : Bool    := matcherBelowDep.contains n
   let isMarkedMatcherConst (e : Expr) : Bool   := e.isConst && isMarkedMatcherName e.constName!
   let isMarkedMatcherApp (e : Expr) : Bool     := isMarkedMatcherConst e.getAppFn
-  let containsMarkedMatcher (e : Expr) : Bool := e.find? isMarkedMatcherConst $.isSome
+  let containsMarkedMatcher (e : Expr) : Bool := e.find? isMarkedMatcherConst |>.isSome
   let rec visit (e : Expr) : MetaM Expr := do
     match e with
     | Expr.lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)

@@ -15,7 +15,7 @@ namespace Classical
 axiom choice {α : Sort u} : Nonempty α → α
 
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : Exists (fun x => p x)) : {x // p x} :=
-  choice $ let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
+  choice <| let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 
 noncomputable def choose {α : Sort u} {p : α → Prop} (h : Exists (fun x => p x)) : α :=
   (indefiniteDescription p h).val
@@ -68,7 +68,7 @@ noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : Exists 
 
 /- all propositions are Decidable -/
 noncomputable def propDecidable (a : Prop) : Decidable a :=
-  choice $ match em a with
+  choice <| match em a with
     | Or.inl h => ⟨isTrue h⟩
     | Or.inr h => ⟨isFalse h⟩
 

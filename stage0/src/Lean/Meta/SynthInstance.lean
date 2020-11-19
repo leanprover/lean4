@@ -128,7 +128,7 @@ end MkTableKey
 
 /- Remark: `mkTableKey` assumes `e` does not contain assigned metavariables. -/
 def mkTableKey (mctx : MetavarContext) (e : Expr) : Expr :=
-  MkTableKey.normExpr e mctx $.run' {}
+  MkTableKey.normExpr e mctx |>.run' {}
 
 structure Answer :=
   (result     : AbstractMVarsResult)

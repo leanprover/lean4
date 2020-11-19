@@ -33,7 +33,7 @@ lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_908____closed__4;
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_StateRefT_x27_run___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_System_IO___hyg_2436____closed__9;
+extern lean_object* l___kind_term____x40_Init_System_IO___hyg_2435____closed__9;
 lean_object* l_Lean_throwUnknownConstant___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_657____closed__7;
@@ -927,7 +927,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___kind_term____x40_Init_Notation___hyg_3____closed__13;
 x_2 = l_Lean___kind_term____x40_Lean_Exception___hyg_554____closed__6;
-x_3 = l___kind_term____x40_Init_System_IO___hyg_2436____closed__9;
+x_3 = l___kind_term____x40_Init_System_IO___hyg_2435____closed__9;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -1005,7 +1005,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___kind_term____x40_Init_Notation___hyg_3____closed__13;
 x_2 = l_Lean___kind_term____x40_Lean_Exception___hyg_602____closed__4;
-x_3 = l___kind_term____x40_Init_System_IO___hyg_2436____closed__9;
+x_3 = l___kind_term____x40_Init_System_IO___hyg_2435____closed__9;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);

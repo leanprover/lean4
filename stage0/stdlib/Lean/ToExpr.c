@@ -83,16 +83,16 @@ lean_object* l_Lean_Lean_ToExpr___instance__10___rarg___closed__1;
 lean_object* l_Lean_Lean_ToExpr___instance__6;
 lean_object* l_Lean_Lean_ToExpr___instance__7___closed__2;
 lean_object* l_Lean_Lean_ToExpr___instance__8___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2484____closed__16;
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2483____closed__16;
 lean_object* l_Lean_Lean_ToExpr___instance__10___rarg(lean_object*);
 extern lean_object* l_Array___kind_term____x40_Init_Data_Array_Subarray___hyg_510____closed__1;
 lean_object* l_Lean_Lean_ToExpr___instance__1;
 lean_object* l_Lean_Lean_ToExpr___instance__8_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_Meta_0__Lean_quoteName___closed__1;
 lean_object* l_Lean_List_toExprAux_match__1(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3396____closed__5;
 lean_object* l_Lean_Lean_ToExpr___instance__7___closed__1;
 lean_object* l_Lean_List_toExprAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3397____closed__5;
 lean_object* l_Lean_Lean_ToExpr___instance__2;
 lean_object* l_Lean_Lean_ToExpr___instance__9___rarg(lean_object*);
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
@@ -396,7 +396,7 @@ static lean_object* _init_l_Lean_Lean_ToExpr___instance__6___lambda__1___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_System_IO___hyg_2484____closed__16;
+x_1 = l_myMacro____x40_Init_System_IO___hyg_2483____closed__16;
 x_2 = l_Lean_Lean_ToExpr___instance__6___lambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -910,7 +910,7 @@ static lean_object* _init_l_Lean_Lean_ToExpr___instance__10___rarg___lambda__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3397____closed__5;
+x_1 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3396____closed__5;
 x_2 = l_Lean_Lean_ToExpr___instance__8___rarg___lambda__1___closed__1;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;

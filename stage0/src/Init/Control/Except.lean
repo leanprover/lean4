@@ -35,10 +35,10 @@ variables {ε : Type u}
 
 @[inline] protected def map {α β : Type v} (f : α → β) : Except ε α → Except ε β
   | Except.error err => Except.error err
-  | Except.ok v => Except.ok $ f v
+  | Except.ok v => Except.ok <| f v
 
 @[inline] protected def mapError {ε' : Type u} {α : Type v} (f : ε → ε') : Except ε α → Except ε' α
-  | Except.error err => Except.error $ f err
+  | Except.error err => Except.error <| f err
   | Except.ok v      => Except.ok v
 
 @[inline] protected def bind {α β : Type v} (ma : Except ε α) (f : α → Except ε β) : Except ε β :=
@@ -78,28 +78,28 @@ namespace ExceptT
 variables {ε : Type u} {m : Type u → Type v} [Monad m]
 
 @[inline] protected def pure {α : Type u} (a : α) : ExceptT ε m α :=
-  ExceptT.mk $ pure (Except.ok a)
+  ExceptT.mk <| pure (Except.ok a)
 
 @[inline] protected def bindCont {α β : Type u} (f : α → ExceptT ε m β) : Except ε α → m (Except ε β)
   | Except.ok a    => f a
   | Except.error e => pure (Except.error e)
 
 @[inline] protected def bind {α β : Type u} (ma : ExceptT ε m α) (f : α → ExceptT ε m β) : ExceptT ε m β :=
-  ExceptT.mk $ ma >>= ExceptT.bindCont f
+  ExceptT.mk <| ma >>= ExceptT.bindCont f
 
 @[inline] protected def map {α β : Type u} (f : α → β) (x : ExceptT ε m α) : ExceptT ε m β :=
-  ExceptT.mk $ x >>= fun a => match a with
-    | (Except.ok a)    => pure $ Except.ok (f a)
-    | (Except.error e) => pure $ Except.error e
+  ExceptT.mk <| x >>= fun a => match a with
+    | (Except.ok a)    => pure <| Except.ok (f a)
+    | (Except.error e) => pure <| Except.error e
 
 @[inline] protected def lift {α : Type u} (t : m α) : ExceptT ε m α :=
-  ExceptT.mk $ Except.ok <$> t
+  ExceptT.mk <| Except.ok <$> t
 
-instance : MonadLift (Except ε) (ExceptT ε m) := ⟨fun e => ExceptT.mk $ pure e⟩
+instance : MonadLift (Except ε) (ExceptT ε m) := ⟨fun e => ExceptT.mk <| pure e⟩
 instance : MonadLift m (ExceptT ε m) := ⟨ExceptT.lift⟩
 
 @[inline] protected def tryCatch {α : Type u} (ma : ExceptT ε m α) (handle : ε → ExceptT ε m α) : ExceptT ε m α :=
-  ExceptT.mk $ ma >>= fun res => match res with
+  ExceptT.mk <| ma >>= fun res => match res with
    | Except.ok a    => pure (Except.ok a)
    | Except.error e => (handle e)
 
@@ -112,17 +112,17 @@ instance : Monad (ExceptT ε m) := {
 }
 
 @[inline] protected def adapt {ε' α : Type u} (f : ε → ε') : ExceptT ε m α → ExceptT ε' m α := fun x =>
-  ExceptT.mk $ Except.mapError f <$> x
+  ExceptT.mk <| Except.mapError f <$> x
 
 end ExceptT
 
 instance (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [Monad m] [MonadExceptOf ε₁ m] : MonadExceptOf ε₁ (ExceptT ε₂ m) := {
-  throw    := fun e        => ExceptT.mk $ throwThe ε₁ e,
-  tryCatch := fun x handle => ExceptT.mk $ tryCatchThe ε₁ x handle
+  throw    := fun e        => ExceptT.mk <| throwThe ε₁ e,
+  tryCatch := fun x handle => ExceptT.mk <| tryCatchThe ε₁ x handle
 }
 
 instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (ExceptT ε m) := {
-  throw    := fun e => ExceptT.mk $ pure (Except.error e),
+  throw    := fun e => ExceptT.mk <| pure (Except.error e),
   tryCatch := ExceptT.tryCatch
 }
 
@@ -146,7 +146,7 @@ end MonadExcept
 
 instance (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (ExceptT ε m) := {
   stM      := Except ε,
-  liftWith := fun f => liftM $ f fun x => x.run,
+  liftWith := fun f => liftM <| f fun x => x.run,
   restoreM := fun x => x
 }
 

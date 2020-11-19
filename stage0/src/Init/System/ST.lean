@@ -46,7 +46,7 @@ structure Ref (σ : Type) (α : Type) : Type :=
   (ref : RefPointed.type) (h : Nonempty α)
 
 instance {σ α} [Inhabited α] : Inhabited (Ref σ α) :=
-  ⟨{ ref := RefPointed.val, h := Nonempty.intro $ arbitrary _}⟩
+  ⟨{ ref := RefPointed.val, h := Nonempty.intro <| arbitrary _}⟩
 
 namespace Prim
 
@@ -54,7 +54,7 @@ set_option pp.all true
 /- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
 private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
   let inh : Inhabited α := Classical.inhabitedOfNonempty r.h
-  pure $ arbitrary α
+  pure <| arbitrary α
 
 @[extern "lean_st_mk_ref"]
 constant mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
@@ -96,14 +96,14 @@ end Prim
 section
 variables {σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST σ) m]
 
-@[inline] def mkRef {α : Type} (a : α) : m (Ref σ α) :=  liftM $ Prim.mkRef a
-@[inline] def Ref.get {α : Type} (r : Ref σ α) : m α := liftM $ Prim.Ref.get r
-@[inline] def Ref.set {α : Type} (r : Ref σ α) (a : α) : m Unit := liftM $ Prim.Ref.set r a
-@[inline] def Ref.swap {α : Type} (r : Ref σ α) (a : α) : m α := liftM $ Prim.Ref.swap r a
-@[inline] unsafe def Ref.take {α : Type} (r : Ref σ α) : m α := liftM $ Prim.Ref.take r
-@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref σ α) : m Bool := liftM $ Prim.Ref.ptrEq r1 r2
-@[inline] def Ref.modify {α : Type} (r : Ref σ α) (f : α → α) : m Unit := liftM $ Prim.Ref.modify r f
-@[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref σ α) (f : α → β × α) : m β := liftM $ Prim.Ref.modifyGet r f
+@[inline] def mkRef {α : Type} (a : α) : m (Ref σ α) :=  liftM <| Prim.mkRef a
+@[inline] def Ref.get {α : Type} (r : Ref σ α) : m α := liftM <| Prim.Ref.get r
+@[inline] def Ref.set {α : Type} (r : Ref σ α) (a : α) : m Unit := liftM <| Prim.Ref.set r a
+@[inline] def Ref.swap {α : Type} (r : Ref σ α) (a : α) : m α := liftM <| Prim.Ref.swap r a
+@[inline] unsafe def Ref.take {α : Type} (r : Ref σ α) : m α := liftM <| Prim.Ref.take r
+@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref σ α) : m Bool := liftM <| Prim.Ref.ptrEq r1 r2
+@[inline] def Ref.modify {α : Type} (r : Ref σ α) (f : α → α) : m Unit := liftM <| Prim.Ref.modify r f
+@[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref σ α) (f : α → β × α) : m β := liftM <| Prim.Ref.modifyGet r f
 
 end
 

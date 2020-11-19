@@ -423,10 +423,10 @@ uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21___closed__3;
 lean_object* l_Lean_Expr_instantiateRange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasFVar___boxed(lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2483____closed__16;
 lean_object* l_Lean_Lean_Expr___instance__3;
 lean_object* l_Lean_mkLambda(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isAuxDecl(uint8_t);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2484____closed__16;
 lean_object* l_Lean_Expr_bindingName_x21___closed__1;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_Data_hasLevelMVar___boxed(lean_object*);
@@ -5469,7 +5469,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_2484____closed__16;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_2483____closed__16;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

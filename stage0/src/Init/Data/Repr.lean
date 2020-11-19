@@ -93,7 +93,7 @@ def digitChar (n : Nat) : Char :=
 def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
   | 0,      n, ds => ds
   | fuel+1, n, ds =>
-    let d  := digitChar $ n % base;
+    let d  := digitChar <| n % base;
     let n' := n / base;
     if n' = 0 then d::ds
     else toDigitsCore base fuel n' (d::ds)
@@ -119,7 +119,7 @@ def superDigitChar (n : Nat) : Char :=
 
 partial def toSuperDigitsAux : Nat → List Char → List Char
   | n, ds =>
-    let d  := superDigitChar $ n % 10;
+    let d  := superDigitChar <| n % 10;
     let n' := n / 10;
     if n' = 0 then d::ds
     else toSuperDigitsAux n' (d::ds)
@@ -136,7 +136,7 @@ instance : Repr Nat :=
   ⟨Nat.repr⟩
 
 def hexDigitRepr (n : Nat) : String :=
-  String.singleton $ Nat.digitChar n
+  String.singleton <| Nat.digitChar n
 
 def charToHex (c : Char) : String :=
   let n  := Char.toNat c;

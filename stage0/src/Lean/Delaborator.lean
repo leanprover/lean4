@@ -460,9 +460,9 @@ def delabMData : Delab := do
   let pos := (← read).pos
   for (k, v) in m do
     if (`pp).isPrefixOf k then
-      let opts := posOpts.find? pos $.getD {}
+      let opts := posOpts.find? pos |>.getD {}
       posOpts := posOpts.insert pos (opts.insert k v)
-  withReader ({ · with optionsPerPos := posOpts }) $
+  withReader ({ · with optionsPerPos := posOpts }) <|
     withMDataExpr delab
 
 /--

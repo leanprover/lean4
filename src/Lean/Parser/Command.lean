@@ -47,8 +47,8 @@ def «axiom»          := parser! "axiom " >> declId >> declSig
 def «example»        := parser! "example " >> declSig >> declVal
 def inferMod         := parser! atomic ("{" >> "}")
 def ctor             := parser! "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
-def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> many ctor
-def classInductive   := parser! atomic ("class " >> "inductive ") >> declId >> optDeclSig >> many ctor
+def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> optional ":=" >> many ctor
+def classInductive   := parser! atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ":=" >> many ctor
 def structExplicitBinder := parser! atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
 def structImplicitBinder := parser! atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
 def structInstBinder     := parser! atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"

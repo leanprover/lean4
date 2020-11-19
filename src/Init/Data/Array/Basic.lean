@@ -260,7 +260,7 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
 /- Reference implementation for `mapM` -/
 @[implementedBy mapMUnsafe]
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
-as.foldlM (fun bs a => do let b ← f a; pure (bs.push b)) (mkEmpty as.size)
+  as.foldlM (fun bs a => do let b ← f a; pure (bs.push b)) (mkEmpty as.size)
 
 @[inline]
 def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=

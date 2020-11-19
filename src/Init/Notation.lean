@@ -79,6 +79,14 @@ macro_rules
   | `($a |> $f $args*) => let args := args.push a; `($f $args*)
   | `($a |> $f)        => `($f $a)
 
+-- Haskell-like pipe <|
+-- Note that we have a whitespace after `$` to avoid an ambiguity with the antiquotations.
+syntax:0 term "$" ws term:0 : term
+
+macro_rules
+  | `($f $args* $ $a) => let args := args.push a; `($f $args*)
+  | `($f $ $a) => `($f $a)
+
 -- Basic notation for defining parsers
 syntax   stx "+" : stx
 syntax   stx "*" : stx

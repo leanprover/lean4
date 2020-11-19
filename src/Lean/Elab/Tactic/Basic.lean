@@ -449,7 +449,7 @@ private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) :
 builtin_initialize registerTraceClass `Elab.tactic
 
 @[inline] def TacticM.run {α} (x : TacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=
-  x ctx $.run s
+  x ctx |>.run s
 
 @[inline] def TacticM.run' {α} (x : TacticM α) (ctx : Context) (s : State) : TermElabM α :=
   Prod.fst <$> x.run ctx s

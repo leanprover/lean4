@@ -251,7 +251,7 @@ def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := do
   let mut r := #[]
   for a in as do
     if i > 0 then
-      r := r.push sep $.push a
+      r := r.push sep |>.push a
     else
       r := r.push a
     i := i + 1

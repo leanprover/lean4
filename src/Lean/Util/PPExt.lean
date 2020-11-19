@@ -43,7 +43,7 @@ builtin_initialize ppExt : EnvExtension PPFns ←
   registerEnvExtension $ ppFnsRef.get
 
 def ppExpr (ctx : PPContext) (e : Expr) : IO Format :=
-  let e := ctx.mctx.instantiateMVars e $.1
+  let e := ctx.mctx.instantiateMVars e |>.1
   if getPPRaw ctx.opts then
     pure $ format (toString e)
   else

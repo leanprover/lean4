@@ -134,7 +134,7 @@ unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
       if info.type.isConstOf `Lean.ParserDescr || info.type.isConstOf `Lean.TrailingParserDescr then
         let d ← evalConstCheck ParserDescr `Lean.ParserDescr constName <|>
           evalConstCheck TrailingParserDescr `Lean.TrailingParserDescr constName
-        compileEmbeddedParsers ctx d $.run'
+        compileEmbeddedParsers ctx d |>.run'
       else
         if catName.isAnonymous then
           -- `[runBuiltinParserAttributeHooks]` => force compilation even if imported, do not apply `ctx.categoryAttr`.

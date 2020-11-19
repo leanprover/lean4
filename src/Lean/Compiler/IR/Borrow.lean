@@ -311,7 +311,7 @@ def collectDecls (decls : Array Decl) : M ParamMap := do
   pure s.paramMap
 
 def infer (env : Environment) (decls : Array Decl) : ParamMap :=
-  collectDecls decls { env := env } $.run' { paramMap := mkInitParamMap env decls }
+  collectDecls decls { env := env } |>.run' { paramMap := mkInitParamMap env decls }
 
 end Borrow
 

@@ -63,6 +63,6 @@ end AbstractNestedProofs
 
 /-- Replace proofs nested in `e` with new lemmas. The new lemmas have names of the form `mainDeclName.proof_<idx>` -/
 def abstractNestedProofs (mainDeclName : Name) (e : Expr) : MetaM Expr :=
-  AbstractNestedProofs.visit e $.run { baseName := mainDeclName } $.run $.run' { nextIdx := 1 }
+  AbstractNestedProofs.visit e |>.run { baseName := mainDeclName } |>.run |>.run' { nextIdx := 1 }
 
 end Lean.Meta

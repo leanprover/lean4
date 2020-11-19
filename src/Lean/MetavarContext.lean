@@ -594,7 +594,7 @@ def instantiateMVars (mctx : MetavarContext) (e : Expr) : Expr × MetavarContext
   else
     let instantiate {ω} (e : Expr) : (MonadCacheT Expr Expr $ StateRefT MetavarContext $ ST ω) Expr :=
       instantiateExprMVars e
-    runST fun _ => instantiate e $.run $.run mctx
+    runST fun _ => instantiate e |>.run |>.run mctx
 
 def instantiateLCtxMVars (mctx : MetavarContext) (lctx : LocalContext) : LocalContext × MetavarContext :=
   lctx.foldl

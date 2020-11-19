@@ -26,7 +26,7 @@ def ppGoal (ppCtx : PPContext) (mvarId : MVarId) : IO Format :=
     let lctx         := lctx.sanitizeNames.run' { options := opts }
     let ppCtx        := { ppCtx with lctx := lctx }
     let pp (e : Expr) : IO Format := ppExpr ppCtx e
-    let instMVars (e : Expr) : Expr := mctx.instantiateMVars e $.1
+    let instMVars (e : Expr) : Expr := mctx.instantiateMVars e |>.1
     let addLine (fmt : Format) : Format := if fmt.isNil then fmt else fmt ++ Format.line
     -- The followint two `let rec`s are being used to control the generated code size.
     -- Then should be remove after we rewrite the compiler in Lean

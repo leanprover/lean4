@@ -51,7 +51,7 @@ end
 end ForEachExpr
 
 def forEachExprImp' (e : Expr) (f : Expr → MetaM Bool) : MetaM Unit :=
-  ForEachExpr.visit f e $.run
+  ForEachExpr.visit f e |>.run
 
 /-- Similar to `Expr.forEach'`, but creates free variables whenever going inside of a binder. -/
 def forEachExpr' {m} [MonadLiftT MetaM m] (e : Expr) (f : Expr → MetaM Bool) : m Unit :=

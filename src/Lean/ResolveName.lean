@@ -25,7 +25,7 @@ builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry Alia
   registerSimplePersistentEnvExtension {
     name          := `aliasesExt,
     addEntryFn    := addAliasEntry,
-    addImportedFn := fun es => mkStateFromImportedEntries addAliasEntry {} es $.switch
+    addImportedFn := fun es => mkStateFromImportedEntries addAliasEntry {} es |>.switch
   }
 
 /- Add alias `a` for `e` -/
@@ -33,7 +33,7 @@ builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry Alia
   aliasExtension.addEntry env (a, e)
 
 def getAliases (env : Environment) (a : Name) : List Name :=
-  match aliasExtension.getState env $.find? a with
+  match aliasExtension.getState env |>.find? a with
   | none    => []
   | some es => es
 

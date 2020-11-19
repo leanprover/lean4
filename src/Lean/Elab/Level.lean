@@ -43,14 +43,14 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
   if kind == `Lean.Parser.Level.paren then
     elabLevel (stx.getArg 1)
   else if kind == `Lean.Parser.Level.max then
-    let args := stx.getArg 1 $.getArgs
+    let args := stx.getArg 1 |>.getArgs
     let mut lvl ← elabLevel args.back
     for arg in args[:args.size-1] do
       let arg ← elabLevel arg
       lvl := mkLevelMax' lvl arg
     return lvl
   else if kind == `Lean.Parser.Level.imax then
-    let args := stx.getArg 1 $.getArgs
+    let args := stx.getArg 1 |>.getArgs
     let mut lvl ← elabLevel args.back
     for arg in args[:args.size-1] do
       let arg ← elabLevel arg
@@ -69,7 +69,7 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
     return mkLevelParam paramName
   else if kind == `Lean.Parser.Level.addLit then
     let lvl ← elabLevel (stx.getArg 0)
-    match stx.getArg 2 $.isNatLit? with
+    match stx.getArg 2 |>.isNatLit? with
     | some val => return lvl.addOffset val
     | none     => throwIllFormedSyntax
   else

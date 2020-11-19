@@ -180,6 +180,7 @@ lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_validStructTyp
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandFields___spec__8___lambda__2___closed__3;
 lean_object* l_Lean_Elab_Command_StructFieldInfo_isFromParent___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_updateResultingUniverse_match__1(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_8168____closed__14;
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_checkParentIsStructure___closed__2;
 uint8_t l_Lean_Elab_Command_StructFieldInfo_inferMod___default;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
@@ -440,6 +441,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lea
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_getResultUniverse___closed__3;
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_elabStructureView___lambda__1___closed__3;
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_addCtorFields_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_8168____closed__16;
 size_t l___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandFields___closed__3;
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_collectLevelParamsInStructure___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_withFields___rarg___closed__6;
@@ -452,7 +454,6 @@ lean_object* l_Lean_Elab_Command_checkValidFieldModifier___lambda__4___closed__2
 extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_502____closed__4;
 extern lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___closed__8;
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_withUsed___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7921____closed__16;
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandFields_match__1(lean_object*);
 lean_object* l_Lean_Elab_Command_getRef(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_expandDeclSig(lean_object*);
@@ -573,7 +574,6 @@ uint8_t lean_is_class(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___lambda__2___closed__3;
 extern lean_object* l_Lean_Elab_Command_Lean_Elab_Inductive___instance__1___closed__1;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7921____closed__14;
 lean_object* l_Lean_Elab_Command_elabStructure___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__1___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isStructure(lean_object*, lean_object*);
@@ -12949,7 +12949,7 @@ default:
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; lean_object* x_40; lean_object* x_41; 
 x_36 = l_Lean_LocalDecl_userName(x_19);
-x_37 = l_myMacro____x40_Init_Notation___hyg_7921____closed__14;
+x_37 = l_myMacro____x40_Init_Notation___hyg_8168____closed__14;
 x_38 = l_Lean_Name_appendBefore(x_36, x_37);
 x_39 = l_Lean_LocalDecl_binderInfo(x_19);
 x_40 = l_Lean_LocalDecl_type(x_19);
@@ -16901,7 +16901,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Level_elabLevel___closed__6;
-x_2 = l_myMacro____x40_Init_Notation___hyg_7921____closed__16;
+x_2 = l_myMacro____x40_Init_Notation___hyg_8168____closed__16;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

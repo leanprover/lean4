@@ -43,6 +43,7 @@ lean_object* l_Lean_Meta_isType___at_Lean_Elab_Term_ensureType___spec__1(lean_ob
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabUsingElabFnsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_tryPostponeIfHasMVars_match__1(lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_8168____closed__9;
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_tryCoe_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_withNestedTraces___spec__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
@@ -131,7 +132,6 @@ lean_object* l_Lean_Elab_Term_registerCustomErrorIfMVar_match__1___rarg(lean_obj
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___lambda__3___closed__1;
 extern lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__8;
 lean_object* l_Lean_Elab_Term_mkTermElabAttributeUnsafe___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7921____closed__13;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabTypeOf(lean_object*);
 lean_object* l_Lean_Elab_Term_elabQuotedName___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_State_letRecsToLift___default;
@@ -668,6 +668,7 @@ lean_object* l_Lean_Elab_Term_tryPostponeIfHasMVars___closed__2;
 lean_object* l_Lean_Elab_Term_getDeclName_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_setMacroStackOption(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Term_Lean_Elab_Term___instance__4___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_8168____closed__13;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__2___closed__3;
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* l_Lean_Elab_log___at_Lean_Elab_Term_traceAtCmdPos___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -774,7 +775,6 @@ lean_object* l_Lean_Elab_Term_Lean_Elab_Term___instance__7___lambda__2___boxed(l
 lean_object* l_Lean_Elab_Term_registerMVarErrorCustomInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_isLetRecAuxMVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7921____closed__9;
 lean_object* l_Lean_Meta_getMVarsImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Lean_Elab_Term___instance__5(lean_object*);
 lean_object* l_Lean_Elab_Term_elabEnsureTypeOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7401,7 +7401,7 @@ static lean_object* _init_l_Lean_Elab_Term_mkExplicitBinder___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_7921____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_8168____closed__9;
 x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }
@@ -29878,7 +29878,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Term_termElabAttribute;
-x_3 = l_myMacro____x40_Init_Notation___hyg_7921____closed__13;
+x_3 = l_myMacro____x40_Init_Notation___hyg_8168____closed__13;
 x_4 = l___regBuiltin_Lean_Elab_Term_elabHole___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

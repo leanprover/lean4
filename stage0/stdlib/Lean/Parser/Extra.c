@@ -20,6 +20,7 @@ lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_567____closed__
 extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2048____closed__22;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_567____closed__15;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_567____closed__3;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_8168____closed__9;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_categoryParser_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_initFn____x40_Lean_PrettyPrinter_Parenthesizer___hyg_2392____closed__27;
 lean_object* l_Lean_Parser_andthenInfo(lean_object*, lean_object*);
@@ -98,6 +99,7 @@ extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__1;
 lean_object* l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_195____closed__34;
 extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2048____closed__27;
 lean_object* l_Lean_Parser_mkAntiquot_formatter___closed__1;
+extern lean_object* l___kind_stx____x40_Init_Notation___hyg_7322____closed__2;
 lean_object* l_Lean_Parser_antiquotNestedExpr_formatter___closed__5;
 lean_object* l_Lean_Parser_antiquotNestedExpr_parenthesizer___closed__5;
 lean_object* l_Lean_Parser_antiquotNestedExpr_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -259,6 +261,7 @@ lean_object* l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_195____closed_
 lean_object* l_Lean_Parser_charLit_formatter___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5739____closed__21;
 lean_object* l_Lean_Parser___kind_term____x40_Lean_Parser_Extra___hyg_145____closed__12;
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_7049____closed__2;
 extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_initFn____x40_Lean_PrettyPrinter_Parenthesizer___hyg_2392____closed__7;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_567____closed__26;
 lean_object* l_Lean_Parser_ppDedent___boxed(lean_object*);
@@ -276,7 +279,6 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed__4;
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___closed__12;
 lean_object* l_Lean_Parser_mkAntiquot_formatter___closed__7;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7921____closed__9;
 extern lean_object* l_Lean_ppGoal_pushPending___closed__1;
 lean_object* l_Lean_Parser_charLit_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_charLit_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -340,13 +342,11 @@ lean_object* l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_195____closed_
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_antiquotNestedExpr_formatter___closed__4;
 lean_object* l_Lean_Parser_ident_parenthesizer___closed__1;
-extern lean_object* l___kind_stx____x40_Init_Notation___hyg_7075____closed__2;
 lean_object* l_Lean_Parser___kind_term____x40_Lean_Parser_Extra___hyg_145____closed__9;
 lean_object* l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___closed__1;
 lean_object* l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_195____closed__6;
 lean_object* l_Lean_Parser_mkAntiquot_formatter___closed__12;
-extern lean_object* l_Lean_Parser_mkAntiquot___closed__8;
 extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2048____closed__7;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_many1_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__16;
@@ -667,7 +667,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_mkAntiquot___closed__8;
+x_1 = l___kind_term____x40_Init_Notation___hyg_7049____closed__2;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -709,7 +709,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot_formatter___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_stx____x40_Init_Notation___hyg_7075____closed__2;
+x_1 = l___kind_stx____x40_Init_Notation___hyg_7322____closed__2;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -741,7 +741,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot_formatter___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_7921____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_8168____closed__9;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

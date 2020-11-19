@@ -259,6 +259,7 @@ lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__13___closed__5;
 lean_object* l_Lean_Elab_Command_elabCommand_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Lean_Elab_Command___instance__12___closed__1;
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Elab_Command_elabCommand___spec__2(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_8168____closed__22;
 lean_object* l_Lean_Elab_Command_elabSynth(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_145____spec__1(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabExport___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -778,7 +779,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Command_0__Lean_
 lean_object* l_Lean_Elab_Command_mkMessageAux(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_mkSimpleThunk(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_7921____closed__22;
 extern lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__10___rarg___closed__2;
 lean_object* l___private_Lean_Elab_Command_0__Lean_Elab_Command_addScopes(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabNamespace___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -21467,7 +21467,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_7921____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_8168____closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -21521,7 +21521,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__7;
-x_2 = l_myMacro____x40_Init_Notation___hyg_7921____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_8168____closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

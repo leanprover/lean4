@@ -11,6 +11,7 @@ import Init.Data.ByteArray
 import Init.System.IOError
 import Init.System.FilePath
 import Init.System.ST
+import Init.Data.ToString.Macro
 
 /-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `IO` operations.
@@ -481,3 +482,12 @@ instance {α : Type} [Eval α] : Eval (IO α) :=
   IO.FS.withIsolatedStreams (Eval.eval a false)
 
 end Lean
+
+syntax "println! " (interpolatedStr(term) <|> term) : term
+
+macro_rules
+  | `(println! $msg) =>
+    if msg.getKind == Lean.interpolatedStrKind then
+      `((IO.println (s! $msg) : IO Unit))
+    else
+      `((IO.println $msg : IO Unit))

@@ -78,12 +78,12 @@ open Tree
 
 theorem ex1 (x : Tree) : x ≠ node leaf (node x leaf) := by
   intro h
-  exact absurd rfl $ Tree.acyclic _ _ h $.2.1.2.1.1
+  exact absurd rfl $ Tree.acyclic _ _ h |>.2.1.2.1.1
 
 theorem ex2 (x : Tree) : x ≠ node x leaf := by
   intro h
-  exact absurd rfl $ Tree.acyclic _ _ h $.1.1
+  exact absurd rfl $ Tree.acyclic _ _ h |>.1.1
 
 theorem ex3 (x y : Tree) : x ≠ node y x := by
   intro h
-  exact absurd rfl $ Tree.acyclic _ _ h $.2.1.1
+  exact absurd rfl $ Tree.acyclic _ _ h |>.2.1.1

@@ -4,7 +4,7 @@ modify fun s => s - v
 get
 
 def g : IO Nat :=
-f 5 $.run' 20
+f 5 |>.run' 20
 
 #eval (f 5).run' 20
 
@@ -50,7 +50,7 @@ IO.println $ "state1 " ++ toString a1
 IO.println $ "state1 " ++ toString a2
 pure (a0 + a1 + a2)
 
-#eval f4.run' ⟨10⟩ $.run' ⟨20⟩ $.run' ⟨30⟩
+#eval f4.run' ⟨10⟩ |>.run' ⟨20⟩ |>.run' ⟨30⟩
 
 abbrev S (ω : Type) := StateRefT Nat $ StateRefT String $ ST ω
 
@@ -60,6 +60,6 @@ modify fun n => n + s.length
 pure ()
 
 def f5Pure (n : Nat) (s : String) :=
-runST fun _ => f5.run n $.run s
+runST fun _ => f5.run n |>.run s
 
 #eval f5Pure 10 "hello world"

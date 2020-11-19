@@ -7,19 +7,19 @@ end Foo
 
 syntax:60 term "+++" term:59 : term
 
-syntax "<|" term "|>" : term
+syntax "<||" term "||>" : term
 
 macro_rules
 | `($a +++ $b) => `($a + $b + $b)
 
 macro_rules
-| `(<| $x |>) => `($x +++ 1 ** 2)
+| `(<|| $x ||>) => `($x +++ 1 ** 2)
 
 
-#check <| 2 |>
+#check <|| 2 ||>
 
-#check <| ~2 |>
+#check <|| ~2 ||>
 
-#check <| ~~2 |>
+#check <|| ~~2 ||>
 
-#check <| <| 3 |> |>
+#check <|| <|| 3 ||> ||>

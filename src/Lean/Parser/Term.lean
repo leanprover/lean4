@@ -186,7 +186,6 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def namedPattern : TrailingParser := tparser! checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> "@" >> termParser maxPrec
 
 @[builtinTermParser] def dollar     := tparser!:0 atomic (" $" >> checkWsBefore "expected space") >> termParser 0
-@[builtinTermParser] def dollarProj := tparser!:0 " $. " >> (fieldIdx <|> ident) -- TODO delete
 @[builtinTermParser] def pipeProj   := tparser!:0 " |>. " >> (fieldIdx <|> ident)
 
 @[builtinTermParser] def subst := tparser!:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "

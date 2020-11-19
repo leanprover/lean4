@@ -124,5 +124,5 @@ def main : IO Unit := do
 let n := 40;
 IO.println tst.isEmpty;
 IO.println tst.head;
-IO.println $ fib.interleave (iota.map (· + 100)) $.approx n;
-IO.println $ iota.map (· + 10) $.filter (· % 2 == 0) $.approx n
+IO.println <| fib.interleave (iota.map (· + 100)) |>.approx n;
+IO.println <| iota.map (· + 10) |>.filter (· % 2 == 0) |>.approx n

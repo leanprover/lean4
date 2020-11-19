@@ -154,9 +154,9 @@ f a
 #eval runM "#check #[1, 2, 3].foldl (fun r a => r.push a) #[]"
 #eval runM "#check #[1, 2, 3].foldl (fun r a => (r.push a).push a) #[]"
 #eval runM "#check #[1, 2, 3].foldl (fun r a => ((r.push a).push a).push a) #[]"
-#eval runM "#check #[].push one $.push two $.push zero $.size.succ"
-#eval runM "#check #[1, 2].foldl (fun r a => r.push a $.push a $.push a) #[]"
-#eval runM "#check #[1, 2].foldl (init := #[]) $ fun r a => r.push a $.push a"
+#eval runM "#check #[].push one |>.push two |>.push zero |>.size.succ"
+#eval runM "#check #[1, 2].foldl (fun r a => r.push a |>.push a |>.push a) #[]"
+#eval runM "#check #[1, 2].foldl (init := #[]) $ fun r a => r.push a |>.push a"
 
 #eval runM "#check let x := one + zero; x + x"
 -- set_option trace.Elab true

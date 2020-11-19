@@ -5,7 +5,6 @@
 
 # Language Manual
 
-- [Significant Changes from Lean 3](./lean3changes.md)
 - [Functions](./functions.md)
 - [String interpolation](./stringinterp.md)
 - [The `do` Notation]()
@@ -27,3 +26,4 @@
 # Other
 
 - [Frequently Asked Questions](./faq.md)
+- [Significant Changes from Lean 3](./lean3changes.md)

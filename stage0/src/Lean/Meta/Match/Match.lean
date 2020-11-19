@@ -17,7 +17,7 @@ import Lean.Meta.Match.CaseArraySizes
 
 namespace Lean.Meta.Match
 
-inductive Pattern : Type
+inductive Pattern : Type :=
   | inaccessible (e : Expr) : Pattern
   | var          (fvarId : FVarId) : Pattern
   | ctor         (ctorName : Name) (us : List Level) (params : List Expr) (fields : List Pattern) : Pattern
@@ -133,11 +133,11 @@ def replaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : Alt :=
   For example, consider the following code fragment:
 
 ```
-inductive Vec (α : Type u) : Nat → Type u
+inductive Vec (α : Type u) : Nat → Type u :=
   | nil : Vec α 0
   | cons {n} (head : α) (tail : Vec α n) : Vec α (n+1)
 
-inductive VecPred {α : Type u} (P : α → Prop) : {n : Nat} → Vec α n → Prop
+inductive VecPred {α : Type u} (P : α → Prop) : {n : Nat} → Vec α n → Prop :=
   | nil   : VecPred P Vec.nil
   | cons  {n : Nat} {head : α} {tail : Vec α n} : P head → VecPred P tail → VecPred P (Vec.cons head tail)
 
@@ -182,7 +182,7 @@ def checkAndReplaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : MetaM Alt :
 
 end Alt
 
-inductive Example
+inductive Example :=
   | var        : FVarId → Example
   | underscore : Example
   | ctor       : Name → List Example → Example

@@ -18,7 +18,7 @@ namespace Lean
 def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : String :=
   fileName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ toString msg
 
-inductive MessageSeverity
+inductive MessageSeverity :=
   | information | warning | error
 
 structure MessageDataContext :=
@@ -28,7 +28,7 @@ structure NamingContext :=
   (currNamespace : Name) (openDecls : List OpenDecl)
 
 /- Structure message data. We use it for reporting errors, trace messages, etc. -/
-inductive MessageData
+inductive MessageData :=
   | ofFormat          : Format → MessageData
   | ofSyntax          : Syntax → MessageData
   | ofExpr            : Expr → MessageData

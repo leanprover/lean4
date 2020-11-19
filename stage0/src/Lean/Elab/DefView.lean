@@ -13,7 +13,7 @@ import Lean.Elab.Binders
 import Lean.Elab.DeclUtil
 namespace Lean.Elab
 
-inductive DefKind
+inductive DefKind :=
   | «def» | «theorem» | «example» | «opaque» | «abbrev»
 
 def DefKind.isTheorem : DefKind → Bool

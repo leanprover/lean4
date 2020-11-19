@@ -49,7 +49,7 @@ def Level.mkData (h : USize) (depth : Nat) (hasMVar hasParam : Bool) : Level.Dat
 
 open Level
 
-inductive Level
+inductive Level :=
   | zero   : Data → Level
   | succ   : Level → Data → Level
   | max    : Level → Level → Data → Level
@@ -359,7 +359,7 @@ def dec : Level → Option Level
 
 /- Level to Format -/
 namespace LevelToFormat
-inductive Result
+inductive Result :=
   | leaf      : Format → Result
   | num       : Nat → Result
   | offset    : Result → Nat → Result

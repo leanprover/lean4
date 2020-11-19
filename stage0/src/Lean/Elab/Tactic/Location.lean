@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 namespace Lean.Elab.Tactic
 
-inductive Location
+inductive Location :=
   | wildcard
   | target
   | localDecls (userNames : Array Name)

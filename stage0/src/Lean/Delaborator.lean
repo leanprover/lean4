@@ -319,7 +319,7 @@ def delabConst : Delab := do
   else
     `($(mkIdent c).{$(mkSepArray (ls.toArray.map quote) (mkAtom ","))*})
 
-inductive ParamKind
+inductive ParamKind :=
   | explicit
   -- combines implicit params, optParams, and autoParams
   | implicit (defVal : Option Expr)

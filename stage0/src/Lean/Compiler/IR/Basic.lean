@@ -72,7 +72,7 @@ then one of the following must hold in each (execution) branch.
    of one of its components. Minor refinement: we don't need to consume scalar fields or struct/union
    fields that do not contain object fields.
 -/
-inductive IRType
+inductive IRType :=
   | float | uint8 | uint16 | uint32 | uint64 | usize
   | irrelevant | object | tobject
   | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
@@ -128,7 +128,7 @@ end IRType
    We use `irrelevant` for Lean types, propositions and proofs that have been erased.
    Recall that for a Function `f`, we also generate `f._rarg` which does not take
    `irrelevant` arguments. However, `f._rarg` is only safe to be used in full applications. -/
-inductive Arg
+inductive Arg :=
   | var (id : VarId)
   | irrelevant
 
@@ -142,7 +142,7 @@ instance : Inhabited Arg := ⟨Arg.irrelevant⟩
 
 @[export lean_ir_mk_var_arg] def mkVarArg (id : VarId) : Arg := Arg.var id
 
-inductive LitVal
+inductive LitVal :=
   | num (v : Nat)
   | str (v : String)
 
@@ -183,7 +183,7 @@ def CtorInfo.isRef (info : CtorInfo) : Bool :=
 def CtorInfo.isScalar (info : CtorInfo) : Bool :=
   !info.isRef
 
-inductive Expr
+inductive Expr :=
   /- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
      This instruction is also used to creat `struct` and `union` return values.
      For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
@@ -236,11 +236,11 @@ instance : Inhabited Param := ⟨{ x := { idx := 0 }, borrow := false, ty := IRT
 @[export lean_ir_mk_param]
 def mkParam (x : VarId) (borrow : Bool) (ty : IRType) : Param := ⟨x, borrow, ty⟩
 
-inductive AltCore (FnBody : Type) : Type
+inductive AltCore (FnBody : Type) : Type :=
   | ctor (info : CtorInfo) (b : FnBody) : AltCore FnBody
   | default (b : FnBody) : AltCore FnBody
 
-inductive FnBody
+inductive FnBody :=
   /- `let x : ty := e; b` -/
   | vdecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody)
   /- Join point Declaration `block_j (xs) := e; b` -/
@@ -387,7 +387,7 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 @[export lean_ir_mk_alt] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt :=
   Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
 
-inductive Decl
+inductive Decl :=
   | fdecl  (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody)
   | extern (f : FunId) (xs : Array Param) (ty : IRType) (ext : ExternAttrData)
 
@@ -428,7 +428,7 @@ instance : Inhabited IndexSet := ⟨{}⟩
 def mkIndexSet (idx : Index) : IndexSet :=
   RBTree.empty.insert idx
 
-inductive LocalContextEntry
+inductive LocalContextEntry :=
   | param     : IRType → LocalContextEntry
   | localVar  : IRType → Expr → LocalContextEntry
   | joinPoint : Array Param → FnBody → LocalContextEntry

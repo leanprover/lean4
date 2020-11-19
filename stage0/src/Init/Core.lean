@@ -49,11 +49,11 @@ infix:20 " ↔ "   => Iff
 theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
   h₂ ▸ h₁
 
-inductive Sum (α : Type u) (β : Type v)
+inductive Sum (α : Type u) (β : Type v) :=
   | inl (val : α) : Sum α β
   | inr (val : β) : Sum α β
 
-inductive PSum (α : Sort u) (β : Sort v)
+inductive PSum (α : Sort u) (β : Sort v) :=
   | inl (val : α) : PSum α β
   | inr (val : β) : PSum α β
 
@@ -65,33 +65,33 @@ attribute [unbox] Sigma
 structure PSigma {α : Sort u} (β : α → Sort v) :=
   mk :: (fst : α) (snd : β fst)
 
-inductive Exists {α : Sort u} (p : α → Prop) : Prop
+inductive Exists {α : Sort u} (p : α → Prop) : Prop :=
   | intro (w : α) (h : p w) : Exists p
 
 /- Auxiliary type used to compile `for x in xs` notation. -/
-inductive ForInStep (α : Type u)
+inductive ForInStep (α : Type u) :=
   | done  : α → ForInStep α
   | yield : α → ForInStep α
 
 /- Auxiliary type used to compile `do` notation. -/
-inductive DoResultPRBC (α β σ : Type u)
+inductive DoResultPRBC (α β σ : Type u) :=
   | «pure»     : α → σ → DoResultPRBC α β σ
   | «return»   : β → σ → DoResultPRBC α β σ
   | «break»    : σ → DoResultPRBC α β σ
   | «continue» : σ → DoResultPRBC α β σ
 
 /- Auxiliary type used to compile `do` notation. -/
-inductive DoResultPR (α β σ : Type u)
+inductive DoResultPR (α β σ : Type u) :=
   | «pure»     : α → σ → DoResultPR α β σ
   | «return»   : β → σ → DoResultPR α β σ
 
 /- Auxiliary type used to compile `do` notation. -/
-inductive DoResultBC (σ : Type u)
+inductive DoResultBC (σ : Type u) :=
   | «break»    : σ → DoResultBC σ
   | «continue» : σ → DoResultBC σ
 
 /- Auxiliary type used to compile `do` notation. -/
-inductive DoResultSBC (α σ : Type u)
+inductive DoResultSBC (α σ : Type u) :=
   | «pureReturn» : α → σ → DoResultSBC α σ
   | «break»      : σ → DoResultSBC α σ
   | «continue»   : σ → DoResultSBC α σ
@@ -139,7 +139,7 @@ structure NonScalar :=
   (val : Nat)
 
 /- Some type that is not a scalar value in our runtime and is universe polymorphic. -/
-inductive PNonScalar : Type u
+inductive PNonScalar : Type u :=
   | mk (v : Nat) : PNonScalar
 
 theorem natAddZero (n : Nat) : n + 0 = n := rfl
@@ -456,7 +456,7 @@ instance {α} [Inhabited α] : Inhabited (ForInStep α) := {
   default:= ForInStep.done (arbitrary _)
 }
 
-class inductive Nonempty (α : Sort u) : Prop
+class inductive Nonempty (α : Sort u) : Prop :=
   | intro (val : α) : Nonempty α
 
 protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
@@ -471,7 +471,7 @@ theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (fun x => p x)
 
 /- Subsingleton -/
 
-class inductive Subsingleton (α : Sort u) : Prop
+class inductive Subsingleton (α : Sort u) : Prop :=
   | intro (h : (a b : α) → a = b) : Subsingleton α
 
 protected def Subsingleton.elim {α : Sort u} [h : Subsingleton α] : (a b : α) → a = b :=
@@ -520,7 +520,7 @@ def Subrelation {α : Sort u} (q r : α → α → Prop) :=
 def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
   fun a₁ a₂ => r (f a₁) (f a₂)
 
-inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop
+inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop :=
   | base  : ∀ a b, r a b → TC r a b
   | trans : ∀ a b c, TC r a b → TC r b c → TC r a c
 

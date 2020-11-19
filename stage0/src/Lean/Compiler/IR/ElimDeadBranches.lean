@@ -10,7 +10,7 @@ import Lean.Compiler.IR.CompilerM
 namespace Lean.IR.UnreachableBranches
 
 /-- Value used in the abstract interpreter -/
-inductive Value
+inductive Value :=
   | bot -- undefined
   | top -- any value
   | ctor (i : CtorInfo) (vs : Array Value)

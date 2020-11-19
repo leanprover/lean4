@@ -14,7 +14,7 @@ namespace Lsp
 
 open Json
 
-inductive TextDocumentSyncKind
+inductive TextDocumentSyncKind :=
   | none
   | full
   | incremental
@@ -50,7 +50,7 @@ instance : FromJson TextDocumentChangeRegistrationOptions := ⟨fun j => do
   let syncKind ← j.getObjValAs? TextDocumentSyncKind "syncKind";
   pure ⟨documentSelector?, syncKind⟩⟩
 
-inductive TextDocumentContentChangeEvent
+inductive TextDocumentContentChangeEvent :=
   -- omitted: deprecated rangeLength
   | rangeChange (range : Range) (text : String)
   | fullChange (text : String)

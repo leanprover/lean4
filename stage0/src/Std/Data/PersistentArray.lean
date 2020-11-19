@@ -7,7 +7,7 @@ universes u v w
 
 namespace Std
 
-inductive PersistentArrayNode (α : Type u)
+inductive PersistentArrayNode (α : Type u) :=
   | node (cs : Array (PersistentArrayNode α)) : PersistentArrayNode α
   | leaf (vs : Array α)                       : PersistentArrayNode α
 

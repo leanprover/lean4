@@ -19,7 +19,7 @@ def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuf
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
 def mkBInductionOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName binductionOnSuffix
 
-inductive RecursorUnivLevelPos
+inductive RecursorUnivLevelPos :=
   | motive                -- marks where the universe of the motive should go
   | majorType (idx : Nat) -- marks where the #idx universe of the major premise type goes
 

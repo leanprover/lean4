@@ -8,7 +8,7 @@ import Lean.Level
 
 namespace Lean
 
-inductive Literal
+inductive Literal :=
   | natVal (val : Nat)
   | strVal (val : String)
 
@@ -38,7 +38,7 @@ instance : HasLess Literal := ⟨fun a b => a.lt b⟩
 instance (a b : Literal) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.lt b))
 
-inductive BinderInfo
+inductive BinderInfo :=
   | default | implicit | strictImplicit | instImplicit | auxDecl
 
 def BinderInfo.hash : BinderInfo → USize
@@ -168,7 +168,7 @@ abbrev FVarId := Name
 
 /- We use the `E` suffix (short for `Expr`) to avoid collision with keywords.
    We considered using «...», but it is too inconvenient to use. -/
-inductive Expr
+inductive Expr :=
   | bvar    : Nat → Data → Expr                       -- bound variables
   | fvar    : FVarId → Data → Expr                    -- free variables
   | mvar    : MVarId → Data → Expr                    -- meta variables

@@ -7,7 +7,7 @@ import Lean.Data.Name
 
 namespace Lean
 
-inductive DataValue
+inductive DataValue :=
   | ofString (v : String)
   | ofBool   (v : Bool)
   | ofName   (v : Name)

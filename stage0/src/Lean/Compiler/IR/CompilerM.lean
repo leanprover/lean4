@@ -9,7 +9,7 @@ import Lean.Compiler.IR.Format
 
 namespace Lean.IR
 
-inductive LogEntry
+inductive LogEntry :=
   | step (cls : Name) (decls : Array Decl)
   | message (msg : Format)
 

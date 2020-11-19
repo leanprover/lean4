@@ -51,7 +51,7 @@ structure StructView :=
   (ctor              : StructCtorView)
   (fields            : Array StructFieldView)
 
-inductive StructFieldKind
+inductive StructFieldKind :=
   | newField | fromParent | subobject
 
 structure StructFieldInfo :=

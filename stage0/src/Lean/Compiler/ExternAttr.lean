@@ -11,7 +11,7 @@ import Lean.Meta.Basic
 
 namespace Lean
 
-inductive ExternEntry
+inductive ExternEntry :=
   | adhoc    (backend : Name)
   | inline   (backend : Name) (pattern : String)
   | standard (backend : Name) (fn : String)

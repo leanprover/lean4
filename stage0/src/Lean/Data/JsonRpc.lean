@@ -18,13 +18,13 @@ namespace JsonRpc
 open Json
 open Std (RBNode)
 
-inductive RequestID
+inductive RequestID :=
   | str (s : String)
   | num (n : JsonNumber)
   | null
 
 /-- Error codes defined by JSON-RPC and LSP. -/
-inductive ErrorCode
+inductive ErrorCode :=
   | parseError
   | invalidRequest
   | methodNotFound
@@ -69,7 +69,7 @@ instance : ToJson ErrorCode := ⟨fun e =>
 
 /- Uses separate constructors for notifications and errors because client and server
 behavior is expected to be wildly different for both. -/
-inductive Message
+inductive Message :=
   | request (id : RequestID) (method : String) (params? : Option Structured)
   | notification (method : String) (params? : Option Structured)
   | response (id : RequestID) (result : Json)

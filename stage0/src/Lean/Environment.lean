@@ -108,7 +108,7 @@ def isConstructor (env : Environment) (c : Name) : Bool :=
 
 end Environment
 
-inductive KernelException
+inductive KernelException :=
   | unknownConstant  (env : Environment) (name : Name)
   | alreadyDeclared  (env : Environment) (name : Name)
   | declTypeMismatch (env : Environment) (decl : Declaration) (givenType : Expr)

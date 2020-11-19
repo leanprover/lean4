@@ -14,7 +14,7 @@ open Meta
 /--
   Auxiliary inductive datatype for combining unelaborated syntax
   and already elaborated expressions. It is used to elaborate applications. -/
-inductive Arg
+inductive Arg :=
   | stx  (val : Syntax)
   | expr (val : Expr)
 
@@ -447,7 +447,7 @@ private def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Ar
   }
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
-inductive LValResolution
+inductive LValResolution :=
   | projFn   (baseStructName : Name) (structName : Name) (fieldName : Name)
   | projIdx  (structName : Name) (idx : Nat)
   | const    (baseStructName : Name) (structName : Name) (constName : Name)

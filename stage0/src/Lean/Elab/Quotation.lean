@@ -83,7 +83,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
       let args ← stx.getArgs.foldlM (fun args arg =>
         if k == nullKind && isAntiquotSplice arg then
           -- antiquotation splice pattern: inject args array
-          `(Array.append $args $(getAntiquotTerm arg))
+          `(Array.appendCore $args $(getAntiquotTerm arg))
         else do
           let arg ← quoteSyntax arg;
           `(Array.push $args $arg)) empty

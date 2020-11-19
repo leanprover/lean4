@@ -9,7 +9,7 @@ import Lean.Compiler.IR.Format
 namespace Lean
 namespace IR
 
-inductive CtorFieldInfo
+inductive CtorFieldInfo :=
   | irrelevant
   | object (i : Nat)
   | usize  (i : Nat)

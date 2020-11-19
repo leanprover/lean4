@@ -9,7 +9,7 @@ import Lean.ResolveName
 
 namespace Lean
 
-inductive AttributeApplicationTime
+inductive AttributeApplicationTime :=
   | afterTypeChecking | afterCompilation | beforeElaboration
 
 def AttributeApplicationTime.beq : AttributeApplicationTime → AttributeApplicationTime → Bool
@@ -73,7 +73,7 @@ def mkAttributeImplOfBuilder (builderId : Name) (args : List DataValue) : IO Att
   | none         => throw (IO.userError ("unknown attribute implementation builder '" ++ toString builderId ++ "'"))
   | some builder => IO.ofExcept $ builder args
 
-inductive AttributeExtensionOLeanEntry
+inductive AttributeExtensionOLeanEntry :=
   | decl (declName : Name) -- `declName` has type `AttributeImpl`
   | builder (builderId : Name) (args : List DataValue)
 

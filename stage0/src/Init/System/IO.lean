@@ -116,7 +116,7 @@ constant bindTask {α β : Type} (t : Task α) (f : α → IO (Task (Except IO.E
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
 @[extern "lean_io_wait_any"] constant waitAny {α : Type} : @& List (Task α) → IO α
 
-inductive FS.Mode
+inductive FS.Mode :=
   | read | write | readWrite | append
 
 constant FS.Handle : Type := Unit
@@ -302,7 +302,7 @@ def currentDir : m String := liftM Prim.currentDir
 end
 
 namespace Process
-inductive Stdio
+inductive Stdio :=
   | piped
   | inherit
   | null

@@ -257,7 +257,7 @@ def ParserFn := ParserContext → ParserState → ParserState
 
 instance : Inhabited ParserFn := ⟨fun _ => id⟩
 
-inductive FirstTokens
+inductive FirstTokens :=
   | epsilon   : FirstTokens
   | unknown   : FirstTokens
   | tokens    : List Token → FirstTokens

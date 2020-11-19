@@ -38,7 +38,7 @@ abbrev Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
 @[reducible] def inferInstanceAs (α : Type u) [i : α] : α := i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
-inductive PUnit : Sort u
+inductive PUnit : Sort u :=
   | unit : PUnit
 
 /-- An abbreviation for `PUnit.{0}`, its most common instantiation.
@@ -54,12 +54,12 @@ unsafe axiom lcProof {α : Prop} : α
 /-- Auxiliary unsafe constant used by the Compiler to mark unreachable code. -/
 unsafe axiom lcUnreachable {α : Sort u} : α
 
-inductive True : Prop
+inductive True : Prop :=
   | intro : True
 
-inductive False : Prop
+inductive False : Prop :=
 
-inductive Empty : Type
+inductive Empty : Type :=
 
 def Not (a : Prop) : Prop := a → False
 
@@ -69,7 +69,7 @@ def Not (a : Prop) : Prop := a → False
 @[macroInline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=
   False.elim (h₂ h₁)
 
-inductive Eq {α : Sort u} (a : α) : α → Prop
+inductive Eq {α : Sort u} (a : α) : α → Prop :=
   | refl {} : Eq a a
 
 abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
@@ -104,7 +104,7 @@ constant Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} 
 -/
 init_quot
 
-inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop
+inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop :=
   | refl {} : HEq a a
 
 @[matchPattern] def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
@@ -135,11 +135,11 @@ structure MProd (α β : Type u) :=
 structure And (a b : Prop) : Prop :=
   intro :: (left : a) (right : b)
 
-inductive Or (a b : Prop) : Prop
+inductive Or (a b : Prop) : Prop :=
   | inl (h : a) : Or a b
   | inr (h : b) : Or a b
 
-inductive Bool : Type
+inductive Bool : Type :=
   | false : Bool
   | true : Bool
 
@@ -225,7 +225,7 @@ theorem ULift.upDown {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
 theorem ULift.downUp {α : Type u} (a : α) : Eq (down (up.{v} a)) a :=
   rfl
 
-class inductive Decidable (p : Prop)
+class inductive Decidable (p : Prop) :=
   | isFalse (h : Not p) : Decidable p
   | isTrue  (h : p) : Decidable p
 
@@ -331,7 +331,7 @@ instance {p} [dp : Decidable p] : Decidable (Not p) :=
   | true  => false
   | false => true
 
-inductive Nat
+inductive Nat :=
   | zero : Nat
   | succ (n : Nat) : Nat
 
@@ -836,7 +836,7 @@ def Char.utf8Size (c : Char) : UInt32 :=
         (UInt32.ofNatCore 3 decide!)
         (UInt32.ofNatCore 4 decide!)))
 
-inductive Option (α : Type u)
+inductive Option (α : Type u) :=
   | none : Option α
   | some (val : α) : Option α
 
@@ -848,7 +848,7 @@ instance {α} : Inhabited (Option α) := {
   default := none
 }
 
-inductive List (α : Type u)
+inductive List (α : Type u) :=
   | nil : List α
   | cons (head : α) (tail : List α) : List α
 
@@ -993,6 +993,17 @@ def Array.push {α : Type u} (a : Array α) (v : α) : Array α := {
   data := List.concat a.data v
 }
 
+-- Slower `Array.append` used in quotations.
+protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
+  let rec loop (i : Nat) (j : Nat) (as : Array α) : Array α :=
+    dite (Less j bs.size)
+      (fun hlt =>
+        match i with
+        | 0           => as
+        | Nat.succ i' => loop i' (add j 1) (as.push (bs.get ⟨j, hlt⟩)))
+      (fun _ => as)
+  loop bs.size 0 as
+
 class Bind (m : Type u → Type v) :=
   (bind : {α β : Type u} → m α → (α → m β) → m β)
 
@@ -1078,7 +1089,7 @@ instance monadFunctorRefl (m) : MonadFunctorT m m := {
   monadMap := fun f => f
 }
 
-inductive Except (ε : Type u) (α : Type v)
+inductive Except (ε : Type u) (α : Type v) :=
   | error : ε → Except ε α
   | ok    : α → Except ε α
 
@@ -1283,7 +1294,7 @@ instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadSta
 
 namespace EStateM
 
-inductive Result (ε σ α : Type u)
+inductive Result (ε σ α : Type u) :=
   | ok    : α → σ → Result ε σ α
   | error : ε → σ → Result ε σ α
 
@@ -1414,7 +1425,7 @@ instance : Hashable String := ⟨String.hash⟩
 namespace Lean
 
 /- Hierarchical names -/
-inductive Name
+inductive Name :=
   | anonymous : Name
   | str : Name → String → USize → Name
   | num : Name → Nat → USize → Name
@@ -1479,7 +1490,7 @@ abbrev SyntaxNodeKind := Name
 
 /- Syntax AST -/
 
-inductive Syntax
+inductive Syntax :=
   | missing : Syntax
   | node   (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
   | atom   (info : SourceInfo) (val : String) : Syntax
@@ -1556,7 +1567,7 @@ end Syntax
 
 /- Parser descriptions -/
 
-inductive ParserDescr
+inductive ParserDescr :=
   | const  (name : Name)
   | unary  (name : Name) (p : ParserDescr)
   | binary (name : Name) (p₁ p₂ : ParserDescr)
@@ -1777,7 +1788,7 @@ structure Context :=
   (maxRecDepth    : Nat := defaultMaxRecDepth)
   (ref            : Syntax)
 
-inductive Exception
+inductive Exception :=
   | error             : Syntax → String → Exception
   | unsupportedSyntax : Exception
 

@@ -128,7 +128,7 @@ structure Alt (σ : Type) :=
   A code block `C` is well-formed if
   - For every `jmp ref j as` in `C`, there is a `joinpoint j ps b k` and `jmp ref j as` is in `k`, and
     `ps.size == as.size` -/
-inductive Code
+inductive Code :=
   | decl         (xs : Array Name) (doElem : Syntax) (k : Code)
   | reassign     (xs : Array Name) (doElem : Syntax) (k : Code)
   /- The Boolean value in `params` indicates whether we should use `(x : typeof! x)` when generating term Syntax or not -/
@@ -786,7 +786,7 @@ Example: suppose we want to support `repeat doSeq`. Assuming we have `repeat : m
 -/
 namespace ToTerm
 
-inductive Kind
+inductive Kind :=
   | regular
   | forIn
   | forInWithReturn

@@ -18,7 +18,7 @@ namespace Lsp
 
 open Json
 
-inductive DiagnosticSeverity
+inductive DiagnosticSeverity :=
   | error | warning | information | hint
 
 instance : FromJson DiagnosticSeverity := ⟨fun j =>
@@ -36,7 +36,7 @@ instance : ToJson DiagnosticSeverity := ⟨fun o =>
   | DiagnosticSeverity.information => 3
   | DiagnosticSeverity.hint        => 4⟩
 
-inductive DiagnosticCode
+inductive DiagnosticCode :=
   | int (i : Int)
   | string (s : String)
 
@@ -51,7 +51,7 @@ instance : ToJson DiagnosticCode := ⟨fun o =>
   | DiagnosticCode.int i    => i
   | DiagnosticCode.string s => s⟩
 
-inductive DiagnosticTag
+inductive DiagnosticTag :=
   | unnecessary
   | deprecated
 

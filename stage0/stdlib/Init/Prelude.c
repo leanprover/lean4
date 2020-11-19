@@ -355,6 +355,7 @@ uint16_t l_Init_Prelude___instance__24___closed__1;
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 lean_object* l_Lean_numLitKind___closed__1;
 lean_object* l_List_hasDecEq_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_appendCore___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__46___rarg(lean_object*);
 lean_object* l_Lean_strLitKind___closed__1;
 lean_object* l_UInt64_mk___boxed(lean_object*);
@@ -452,6 +453,7 @@ lean_object* l_Lean_Name_hash_match__1___rarg(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_firstFrontendMacroScope;
 lean_object* l_typedExpr(lean_object*);
 lean_object* l_Init_Prelude___instance__35_match__1___rarg(uint8_t, lean_object*, lean_object*);
+lean_object* l_Array_appendCore_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__54(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Init_Prelude___instance__51___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Monad_seq___default(lean_object*);
@@ -493,6 +495,7 @@ lean_object* l_String_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_decLe(lean_object*);
 lean_object* l_UInt16_mk___boxed(lean_object*);
 lean_object* l_ReaderT_Init_Prelude___instance__49(lean_object*, lean_object*);
+lean_object* l_Array_appendCore_loop(lean_object*);
 lean_object* l_Nat_decEq_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs_match__1(lean_object*);
 lean_object* l_Lean_SourceInfo_leading___default;
@@ -590,6 +593,7 @@ lean_object* l___private_Init_Prelude_0__Lean_extractImported_match__2(lean_obje
 lean_object* l_Init_Prelude___instance__30___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MacroScopesView_review(lean_object*);
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
+lean_object* l_Array_appendCore_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__7_match__2(lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__43___rarg(lean_object*);
 lean_object* l_Lean_Syntax_getArg___boxed(lean_object*, lean_object*);
@@ -604,6 +608,7 @@ lean_object* l_getModify(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo___boxed(lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_extractMacroScopesAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Init_Prelude___instance__64___rarg(lean_object*);
+lean_object* l_Array_appendCore___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_extractMacroScopesAux_match__1(lean_object*);
 lean_object* l_Init_Prelude___instance__6_match__2___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_EStateM_set(lean_object*, lean_object*);
@@ -642,6 +647,7 @@ lean_object* l_liftM___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_EStateM_set___rarg(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Lean_MacroScopesView_review___spec__1(lean_object*, lean_object*);
+lean_object* l_Array_appendCore(lean_object*);
 lean_object* l_ReaderT_pure___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Decidable_decide___rarg___boxed(lean_object*);
 lean_object* l_USize_size;
@@ -689,6 +695,7 @@ lean_object* l_EStateM_get(lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope_match__2(lean_object*);
 lean_object* l_Lean_withRef(lean_object*);
 lean_object* l_List_concat(lean_object*);
+lean_object* l_Array_appendCore_loop_match__1(lean_object*);
 lean_object* l_ReaderT_adapt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt16_decEq(uint16_t, uint16_t);
 lean_object* l_Lean_Macro_withFreshMacroScope___rarg(lean_object*, lean_object*, lean_object*);
@@ -698,6 +705,7 @@ lean_object* l_Lean_nameLitKind___closed__2;
 lean_object* l___private_Init_Prelude_0__Lean_extractImported___closed__1;
 lean_object* l_Lean_Macro_throwUnsupported(lean_object*, lean_object*);
 lean_object* l_List_hasDecEq_match__1___rarg(uint8_t, lean_object*, lean_object*);
+lean_object* l_Array_appendCore_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Init_Prelude___instance__6___rarg(uint8_t, uint8_t);
 lean_object* l_Lean_Init_Prelude___instance__77___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Init_Prelude___instance__75(lean_object*, lean_object*);
@@ -735,6 +743,7 @@ lean_object* lean_system_platform_nbits(lean_object*);
 lean_object* l_Lean_Name_Init_Prelude___instance__70___closed__1;
 lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
+lean_object* l_Array_appendCore_loop_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Prelude___instance__20(lean_object*);
 lean_object* l_EStateM_throw(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux_match__1___rarg(uint8_t, lean_object*, lean_object*);
@@ -4262,6 +4271,134 @@ _start:
 lean_object* x_4; 
 x_4 = lean_array_push(x_2, x_3);
 return x_4;
+}
+}
+lean_object* l_Array_appendCore_loop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_nat_dec_eq(x_1, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_dec(x_2);
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = lean_nat_sub(x_1, x_6);
+x_8 = lean_apply_1(x_3, x_7);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; 
+lean_dec(x_3);
+x_9 = lean_box(0);
+x_10 = lean_apply_1(x_2, x_9);
+return x_10;
+}
+}
+}
+lean_object* l_Array_appendCore_loop_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Array_appendCore_loop_match__1___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Array_appendCore_loop_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Array_appendCore_loop_match__1___rarg(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l_Array_appendCore_loop___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; uint8_t x_6; 
+x_5 = lean_array_get_size(x_1);
+x_6 = lean_nat_dec_lt(x_3, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
+{
+lean_dec(x_3);
+lean_dec(x_2);
+return x_4;
+}
+else
+{
+lean_object* x_7; uint8_t x_8; 
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_nat_dec_eq(x_2, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_nat_sub(x_2, x_9);
+lean_dec(x_2);
+x_11 = lean_nat_add(x_3, x_9);
+x_12 = lean_array_fget(x_1, x_3);
+lean_dec(x_3);
+x_13 = lean_array_push(x_4, x_12);
+x_2 = x_10;
+x_3 = x_11;
+x_4 = x_13;
+goto _start;
+}
+else
+{
+lean_dec(x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
+}
+}
+lean_object* l_Array_appendCore_loop(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Array_appendCore_loop___rarg___boxed), 4, 0);
+return x_2;
+}
+}
+lean_object* l_Array_appendCore_loop___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Array_appendCore_loop___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
+lean_object* l_Array_appendCore___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_array_get_size(x_2);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l_Array_appendCore_loop___rarg(x_2, x_3, x_4, x_1);
+return x_5;
+}
+}
+lean_object* l_Array_appendCore(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Array_appendCore___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+lean_object* l_Array_appendCore___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Array_appendCore___rarg(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 lean_object* l_Functor_mapConst___default___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

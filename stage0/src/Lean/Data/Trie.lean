@@ -12,7 +12,7 @@ namespace Parser
 
 open Std (RBNode RBNode.leaf RBNode.singleton RBNode.find RBNode.insert)
 
-inductive Trie (α : Type)
+inductive Trie (α : Type) :=
   | Node : Option α → RBNode Char (fun _ => Trie α) → Trie α
 
 namespace Trie

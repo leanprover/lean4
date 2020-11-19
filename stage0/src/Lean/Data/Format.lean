@@ -9,7 +9,7 @@ universes u v
 namespace Lean
 namespace Format
 
-inductive FlattenBehavior
+inductive FlattenBehavior :=
   | allOrNone
   | fill
 
@@ -25,7 +25,7 @@ end Format
 
 open Format
 
-inductive Format
+inductive Format :=
   | nil                 : Format
   | line                : Format
   | text                : String → Format

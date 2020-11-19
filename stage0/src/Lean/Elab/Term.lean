@@ -89,7 +89,7 @@ structure Context :=
   (errToSorry      : Bool            := true)
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
-inductive SyntheticMVarKind
+inductive SyntheticMVarKind :=
   -- typeclass instance search
   | typeClass
   /- Similar to typeClass, but error messages are different.
@@ -107,7 +107,7 @@ inductive SyntheticMVarKind
 structure SyntheticMVarDecl :=
   (mvarId : MVarId) (stx : Syntax) (kind : SyntheticMVarKind)
 
-inductive MVarErrorKind
+inductive MVarErrorKind :=
   | implicitArg (ctx : Expr)
   | hole
   | custom (msgData : MessageData)
@@ -264,7 +264,7 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
   Example: `a.foo[i].1` is represented as the `Syntax` `a` and the list
   `[LVal.fieldName "foo", LVal.getOp i, LVal.fieldIdx 1]`.
   Recall that the notation `a[i]` is not just for accessing arrays in Lean. -/
-inductive LVal
+inductive LVal :=
   | fieldIdx  (i : Nat)
   | fieldName (name : String)
   | getOp     (idx : Syntax)

@@ -24,7 +24,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception 
     if env.contains declName then
       throwError! "a non-private declaration '{declName}' has already been declared"
 
-inductive Visibility
+inductive Visibility :=
   | regular | «protected» | «private»
 
 instance : ToString Visibility := ⟨fun

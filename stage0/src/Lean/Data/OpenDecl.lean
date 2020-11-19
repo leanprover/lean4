@@ -7,7 +7,7 @@ import Lean.Data.Name
 
 namespace Lean
 
-inductive OpenDecl
+inductive OpenDecl :=
   | simple   (ns : Name) (except : List Name)
   | explicit (id : Name) (declName : Name)
 

@@ -14,7 +14,7 @@ import Init.Data.String.Basic
 Imitate the structure of IOErrorType in Haskell:
 https://hackage.haskell.org/package/base-4.12.0.0/docs/System-IO-Error.html#t:IOErrorType
 -/
-inductive IO.Error
+inductive IO.Error :=
   | alreadyExists (osCode : UInt32) (details : String) -- EEXIST, EINPROGRESS, EISCONN
   | otherError (osCode : UInt32) (details : String)    -- EFAULT, default
   | resourceBusy (osCode : UInt32) (details : String)

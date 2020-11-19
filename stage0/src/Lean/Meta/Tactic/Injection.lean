@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Intro
 
 namespace Lean.Meta
 
-inductive InjectionResultCore
+inductive InjectionResultCore :=
   | solved
   | subgoal (mvarId : MVarId) (numNewEqs : Nat)
 
@@ -46,7 +46,7 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
           | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
       | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
 
-inductive InjectionResult
+inductive InjectionResult :=
   | solved
   | subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
 

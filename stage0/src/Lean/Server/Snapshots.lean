@@ -22,7 +22,7 @@ open Elab
 
 /-- The data associated with a snapshot is different depending on whether
 it was produced from the header or from a command. -/
-inductive SnapshotData
+inductive SnapshotData :=
   | headerData : Environment → MessageLog → Options → SnapshotData
   | cmdData : Command.State → SnapshotData
 

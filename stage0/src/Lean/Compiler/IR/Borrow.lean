@@ -35,7 +35,7 @@ def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := Std.HashMap.
    We keep a mapping from function and joint points to parameters (`Array Param`).
    Recall that `Param` contains the field `borrow`. -/
 namespace ParamMap
-inductive Key
+inductive Key :=
   | decl (name : FunId)
   | jp   (name : FunId) (jpid : JoinPointId)
 

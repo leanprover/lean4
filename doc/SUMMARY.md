@@ -2,11 +2,11 @@
 
 - [What is Lean](./whatIsLean.md)
 - [Tour of Lean](./tour.md)
-- [Frequently Asked Questions](./faq.md)
 
 # Language Manual
 
 - [Significant Changes from Lean 3](./lean3changes.md)
+- [Functions](./functions.md)
 - [String interpolation](./stringinterp.md)
 - [The `do` Notation]()
 
@@ -23,3 +23,7 @@
   - [Windows Setup](./make/msys2.md)
 - [Building This Manual](./mdbook.md)
 - [Fixing Tests](./fixing_tests.md)
+
+# Other
+
+- [Frequently Asked Questions](./faq.md)

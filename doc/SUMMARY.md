@@ -1,5 +1,6 @@
 # Summary
 
+- [What is Lean](./whatIsLean.md)
 - [Tour of Lean](./tour.md)
 - [Frequently Asked Questions](./faq.md)
 

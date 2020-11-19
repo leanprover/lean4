@@ -42,12 +42,12 @@ namespace Array
     let mid    := (lo + hi)/2;
     let midVal := as.get! mid;
     if lt midVal k then
-      if mid == lo then do let v ← add (); pure $ as.insertAt (lo+1) v
+      if mid == lo then do let v ← add (); pure <| as.insertAt (lo+1) v
       else binInsertAux lt merge add as k      mid hi
     else if lt k midVal then
       binInsertAux lt merge add as k      lo mid
     else do
-      as.modifyM mid $ fun v => merge v
+      as.modifyM mid <| fun v => merge v
 
 @[specialize] partial def binInsertM {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α]
     (lt : α → α → Bool)
@@ -55,14 +55,14 @@ namespace Array
     (add : Unit → m α)
     (as : Array α)
     (k : α) : m (Array α) :=
-  if as.isEmpty then do let v ← add (); pure $ as.push v
-  else if lt k (as.get! 0) then do let v ← add (); pure $ as.insertAt 0 v
-  else if !lt (as.get! 0) k then as.modifyM 0 $ merge
-  else if lt as.back k then do let v ← add (); pure $ as.push v
-  else if !lt k as.back then as.modifyM (as.size - 1) $ merge
+  if as.isEmpty then do let v ← add (); pure <| as.push v
+  else if lt k (as.get! 0) then do let v ← add (); pure <| as.insertAt 0 v
+  else if !lt (as.get! 0) k then as.modifyM 0 <| merge
+  else if lt as.back k then do let v ← add (); pure <| as.push v
+  else if !lt k as.back then as.modifyM (as.size - 1) <| merge
   else binInsertAux lt merge add as k 0 (as.size - 1)
 
 @[inline] def binInsert {α : Type u} [Inhabited α] (lt : α → α → Bool) (as : Array α) (k : α) : Array α :=
-  Id.run $ binInsertM lt (fun _ => k) (fun _ => k) as k
+  Id.run <| binInsertM lt (fun _ => k) (fun _ => k) as k
 
 end Array

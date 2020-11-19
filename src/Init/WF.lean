@@ -274,7 +274,7 @@ def lexNdep (r : α → α → Prop) (s : β → β → Prop) :=
   Lex r (fun a => s)
 
 def lexNdepWf {r  : α → α → Prop} {s : β → β → Prop} (ha : WellFounded r) (hb : WellFounded s) : WellFounded (lexNdep r s) :=
-    WellFounded.intro $ fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) (fun x => hb) b
+    WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) (fun x => hb) b
 end
 
 section
@@ -304,7 +304,7 @@ def revLexAccessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) 
       | right => apply ihb; assumption
 
 def revLexWf (ha : WellFounded r) (hb : WellFounded s) : WellFounded (RevLex r s) :=
-  WellFounded.intro $ fun ⟨a, b⟩ => revLexAccessible (apply hb b) (WellFounded.apply ha) a
+  WellFounded.intro fun ⟨a, b⟩ => revLexAccessible (apply hb b) (WellFounded.apply ha) a
 end
 
 section

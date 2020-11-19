@@ -19,31 +19,31 @@ partial def evalNat : Expr → Option Nat
       let nargs := e.getAppNumArgs
       if c == `Nat.succ && nargs == 1 then
         let v ← evalNat a
-        pure $ v+1
+        return v+1
       else if c == `Nat.add && nargs == 2 then
         let v₁ ← evalNat (e.getArg! 0)
         let v₂ ← evalNat (e.getArg! 1)
-        pure $ v₁ + v₂
+        return v₁ + v₂
       else if c == `Nat.sub && nargs == 2 then
         let v₁ ← evalNat (e.getArg! 0)
         let v₂ ← evalNat (e.getArg! 1)
-        pure $ v₁ - v₂
+        return v₁ - v₂
       else if c == `Nat.mul && nargs == 2 then
         let v₁ ← evalNat (e.getArg! 0)
         let v₂ ← evalNat (e.getArg! 1)
-        pure $ v₁ * v₂
+        return v₁ * v₂
       else if c == `Add.add && nargs == 4 then
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
-        pure $ v₁ + v₂
+        return v₁ + v₂
       else if c == `Sub.sub && nargs == 4 then
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
-        pure $ v₁ - v₂
+        return v₁ - v₂
       else if c == `Mul.mul && nargs == 4 then
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
-        pure $ v₁ * v₂
+        return v₁ * v₂
       else if c == `OfNat.ofNat && nargs == 3 then
         evalNat (e.getArg! 2)
       else

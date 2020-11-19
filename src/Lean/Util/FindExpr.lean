@@ -49,7 +49,7 @@ unsafe def initCache : State :=
   { keys    := mkArray cacheSize.toNat (cast lcProof ()) }
 
 @[inline] unsafe def findUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
-  Id.run $ (findM? p cacheSize e).run' initCache
+  Id.run <| findM? p cacheSize e |>.run' initCache
 
 end FindImpl
 

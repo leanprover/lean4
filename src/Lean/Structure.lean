@@ -48,7 +48,7 @@ private def getStructureFieldsAux (nparams : Nat) : Nat → Expr → Array Name 
     if i < nparams then
       getStructureFieldsAux nparams (i+1) b fieldNames
     else
-      getStructureFieldsAux nparams (i+1) b (fieldNames.push $ deinternalizeFieldName n)
+      getStructureFieldsAux nparams (i+1) b <| fieldNames.push <| deinternalizeFieldName n
   | _, _, fieldNames => fieldNames
 
 -- TODO: fix. See comment in the beginning of the file
@@ -87,7 +87,7 @@ partial def findField? (env : Environment) (structName : Name) (fieldName : Name
   if (getStructureFields env structName).contains fieldName then
     some structName
   else
-    (getParentStructures env structName).findSome? $ fun parentStructName => findField? env parentStructName fieldName
+    getParentStructures env structName |>.findSome? fun parentStructName => findField? env parentStructName fieldName
 
 private partial def getStructureFieldsFlattenedAux (env : Environment) (structName : Name) (fullNames : Array Name) : Array Name :=
   (getStructureFields env structName).foldl (init := fullNames) fun fullNames fieldName =>
@@ -135,7 +135,7 @@ partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name
     some path.reverse
   else
     let fieldNames := getStructureFields env structName;
-    fieldNames.findSome? $ fun fieldName =>
+    fieldNames.findSome? fun fieldName =>
       match isSubobjectField? env structName fieldName with
       | none                  => none
       | some parentStructName =>

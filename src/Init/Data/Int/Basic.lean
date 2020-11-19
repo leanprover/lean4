@@ -86,13 +86,13 @@ set_option bootstrap.gen_matcher_code false in
 protected def decEq (a b : @& Int) : Decidable (a = b) :=
   match a, b with
   | ofNat a, ofNat b => match decEq a b with
-    | isTrue h  => isTrue  $ h ▸ rfl
-    | isFalse h => isFalse $ fun h' => Int.noConfusion h' (fun h' => absurd h' h)
+    | isTrue h  => isTrue  <| h ▸ rfl
+    | isFalse h => isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
   | negSucc a, negSucc b => match decEq a b with
-    | isTrue h  => isTrue  $ h ▸ rfl
-    | isFalse h => isFalse $ fun h' => Int.noConfusion h' (fun h' => absurd h' h)
-  | ofNat a, negSucc b => isFalse $ fun h => Int.noConfusion h
-  | negSucc a, ofNat b => isFalse $ fun h => Int.noConfusion h
+    | isTrue h  => isTrue  <| h ▸ rfl
+    | isFalse h => isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
+  | ofNat a, negSucc b => isFalse <| fun h => Int.noConfusion h
+  | negSucc a, ofNat b => isFalse <| fun h => Int.noConfusion h
 
 instance : DecidableEq Int := Int.decEq
 
@@ -100,8 +100,8 @@ set_option bootstrap.gen_matcher_code false in
 @[extern "lean_int_dec_nonneg"]
 private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
-  | ofNat m   => isTrue $ NonNeg.mk m
-  | negSucc m => isFalse $ fun h => nomatch h
+  | ofNat m   => isTrue <| NonNeg.mk m
+  | negSucc m => isFalse <| fun h => nomatch h
 
 @[extern "lean_int_dec_le"]
 instance decLe (a b : @& Int) : Decidable (a ≤ b) :=
@@ -156,7 +156,7 @@ namespace String
 def toInt? (s : String) : Option Int :=
   if s.get 0 = '-' then do
     let v ← (s.toSubstring.drop 1).toNat?;
-    pure $ - Int.ofNat v
+    pure <| - Int.ofNat v
   else
    Int.ofNat <$> s.toNat?
 

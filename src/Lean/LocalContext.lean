@@ -282,13 +282,13 @@ variable {β : Type u}
 end
 
 @[inline] def foldl {β} (lctx : LocalContext) (f : β → LocalDecl → β) (init : β) (start : Nat := 0) : β :=
-  Id.run $ lctx.foldlM f init start
+  Id.run <| lctx.foldlM f init start
 
 @[inline] def findDecl? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
-  Id.run $ lctx.findDeclM? f
+  Id.run <| lctx.findDeclM? f
 
 @[inline] def findDeclRev? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
-  Id.run $ lctx.findDeclRevM? f
+  Id.run <| lctx.findDeclRevM? f
 
 partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Array Expr) (i j : Nat) : Bool :=
   if i < a₁.size then
@@ -353,10 +353,10 @@ variables {m : Type → Type u} [Monad m]
 end
 
 @[inline] def any (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
-  Id.run $ lctx.anyM p
+  Id.run <| lctx.anyM p
 
 @[inline] def all (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
-  Id.run $ lctx.allM p
+  Id.run <| lctx.allM p
 
 def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext := do
   let st ← get
@@ -368,10 +368,10 @@ def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext
           | none      => pure lctx
           | some decl => do
             let usedNames ← get
-            set $ usedNames.insert decl.userName
+            set <| usedNames.insert decl.userName
             if decl.userName.hasMacroScopes || usedNames.contains decl.userName then do
               let userNameNew ← sanitizeName decl.userName
-              pure $ lctx.setUserName decl.fvarId userNameNew
+              pure <| lctx.setUserName decl.fvarId userNameNew
             else
               pure lctx)
         lctx

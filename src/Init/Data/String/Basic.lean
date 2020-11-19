@@ -64,7 +64,7 @@ def set : String → (@& Pos) → Char → String
   | ⟨s⟩, i, c => ⟨utf8SetAux c s 0 i⟩
 
 def modify (s : String) (i : Pos) (f : Char → Char) : String :=
-  s.set i $ f $ s.get i
+  s.set i <| f <| s.get i
 
 @[extern "lean_string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=
@@ -295,11 +295,11 @@ s.any (fun a => a == c)
   mapAux f 0 s
 
 def isNat (s : String) : Bool :=
-  s.all $ fun c => c.isDigit
+  s.all fun c => c.isDigit
 
 def toNat? (s : String) : Option Nat :=
   if s.isNat then
-    some $ s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
+    some <| s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
   else
     none
 
@@ -456,11 +456,11 @@ def contains (s : Substring) (c : Char) : Bool :=
     ⟨s, b, e⟩
 
 def isNat (s : Substring) : Bool :=
-  s.all $ fun c => c.isDigit
+  s.all fun c => c.isDigit
 
 def toNat? (s : Substring) : Option Nat :=
   if s.isNat then
-    some $ s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
+    some <| s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
   else
     none
 
@@ -507,7 +507,7 @@ def trim (s : String) : String :=
   nextWhile s (fun c => !p c) i
 
 def capitalize (s : String) :=
-  s.set 0 $ (s.get 0).toUpper
+  s.set 0 <| s.get 0 |>.toUpper
 
 end String
 

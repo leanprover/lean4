@@ -306,7 +306,7 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 theorem decideTrueEqTrue (h : Decidable True) : @decide True h = true :=
   match h with
   | isTrue h  => rfl
-  | isFalse h => False.elim $ h ⟨⟩
+  | isFalse h => False.elim <| h ⟨⟩
 
 theorem decideFalseEqFalse (h : Decidable False) : @decide False h = false :=
   match h with
@@ -758,7 +758,7 @@ protected abbrev hrecOn
     (f : (a : α) → motive (Quot.mk r a))
     (c : (a b : α) → (p : r a b) → f a ≅ f b)
     : motive q :=
-  Quot.recOn q f fun a b p => eqOfHEq $
+  Quot.recOn q f fun a b p => eqOfHEq <|
     have p₁ : Eq.ndrec (f a) (sound p) ≅ f a := eqRecHEq (sound p) (f a)
     HEq.trans p₁ (c a b p)
 
@@ -977,7 +977,7 @@ variables {α : Sort u} {β : α → Sort v}
 private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (∀ (x : α), β x) :=
   Setoid.mk (@Function.Equiv α β) (Function.Equiv.isEquivalence α β)
 
-private def extfunApp (f : Quotient $ funSetoid α β) (x : α) : β x :=
+private def extfunApp (f : Quotient <| funSetoid α β) (x : α) : β x :=
   Quot.liftOn f
     (fun (f : ∀ (x : α), β x) => f x)
     (fun f₁ f₂ h => h x)

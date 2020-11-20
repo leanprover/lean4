@@ -14,7 +14,7 @@
     let
       nix-pinned = writeScriptBin "nix" ''
         #!${bash}/bin/bash
-        ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' $@
+        ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ $@
       '';
       cc = ccacheWrapper.override rec {
         cc = llvmPackages_10.clang.override {

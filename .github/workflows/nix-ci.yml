@@ -27,6 +27,7 @@ jobs:
       # complete all jobs
       fail-fast: false
     env:
+      CACHIX_AUTH_TOKEN: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -42,12 +43,17 @@ jobs:
         uses: cachix/install-nix-action@v12
       - name: Further setup Nix
         run: |
-          sudo mkdir -m0770 -p /nix/var/cache/ccache
-          sudo chown root:nixbld /nix/var/cache/ccache
           echo '
             max-jobs = auto
             extra-sandbox-paths = /nix/var/cache/ccache
+            extra-trusted-substituters = https://lean4.cachix.org/
             extra-trusted-public-keys = lean4.cachix.org-1:mawtxSxcaiWE24xCXXgh3qnvlTkyU7evRRnGeAhD4Wk=' | sudo tee /etc/nix/nix.conf
+          sudo mkdir -m0770 -p /nix/var/cache/ccache
+          sudo chown root:nixbld /nix/var/cache/ccache
+          sudo pkill nix-daemon  # reload
+
+          # install & use Cachix manually since `cachix-action` pushes *all* derivations (incl. `$mod-deps`, stage 2&3, etc.)
+          nix-env -iA cachix -f https://cachix.org/api/v1/install
       - name: Setup CCache Cache
         uses: actions/cache@v2
         with:
@@ -57,8 +63,12 @@ jobs:
           restore-keys: |
             ${{ matrix.name }}-nix-ccache
       - name: Build
-        run: nix build
+        run: |
+          nix build -v --print-build-logs
+          cachix push -j4 lean4 ./result
       - name: Test
-        run: nix build .#lean.test
+        run: |
+          nix build -v --print-build-logs .#lean.test
+          cachix push -j4 lean4 ./result
       - name: CCache stats
         run: ccache -s

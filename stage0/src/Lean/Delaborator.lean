@@ -649,7 +649,9 @@ def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
           val
         ]
         pure (idx + 1, fields.push field)
-  let fields := mkSepArray fields (mkAtom ",")
+  let fields := fields.mapIdx fun idx field =>
+      let comma := if idx.val < fields.size - 1 then mkNullNode #[mkAtom ","] else mkNullNode
+      mkNullNode #[field, comma]
   if (← getPPOption getPPStructureInstanceType) then
     let ty ← inferType e
     -- `ty` is not actually part of `e`, but since `e` must be an application or constant, we know that

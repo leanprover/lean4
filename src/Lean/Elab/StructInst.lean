@@ -13,7 +13,15 @@ namespace Lean.Elab.Term.StructInst
 open Std (HashMap)
 open Meta
 
-/- parser! "{" >> optional (try (termParser >> "with")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> "}" -/
+/-
+  Structure instances are of the form:
+
+      "{" >> optional (atomic (termParser >> " with "))
+          >> manyIndent (group (structInstField >> optional ", "))
+          >> optional ".."
+          >> optional (" : " >> termParser)
+          >> " }"
+-/
 
 @[builtinMacro Lean.Parser.Term.structInst] def expandStructInstExpectedType : Macro := fun stx =>
   let expectedArg := stx[4]
@@ -62,19 +70,19 @@ def setStructSourceSyntax (structStx : Syntax) : Source → Syntax
 
 private def getStructSource (stx : Syntax) : TermElabM Source :=
   withRef stx do
-  let explicitSource := stx[1]
-  let implicitSource := stx[3]
-  if explicitSource.isNone && implicitSource.isNone then
-    pure Source.none
-  else if explicitSource.isNone then
-    pure $ Source.implicit implicitSource
-  else if implicitSource.isNone then
-    let fvar? ← isLocalIdent? explicitSource[0]
-    match fvar? with
-    | none      => unreachable! -- expandNonAtomicExplicitSource must have been used when we get here
-    | some src  => pure $ Source.explicit explicitSource src
-  else
-    throwError "invalid structure instance `with` and `..` cannot be used together"
+    let explicitSource := stx[1]
+    let implicitSource := stx[3]
+    if explicitSource.isNone && implicitSource.isNone then
+      return Source.none
+    else if explicitSource.isNone then
+      return Source.implicit implicitSource
+    else if implicitSource.isNone then
+      let fvar? ← isLocalIdent? explicitSource[0]
+      match fvar? with
+      | none      => unreachable! -- expandNonAtomicExplicitSource must have been used when we get here
+      | some src  => return Source.explicit explicitSource src
+    else
+      throwError "invalid structure instance `with` and `..` cannot be used together"
 
 /-
   We say a `{ ... }` notation is a `modifyOp` if it contains only one
@@ -82,7 +90,9 @@ private def getStructSource (stx : Syntax) : TermElabM Source :=
   def structInstArrayRef := parser! "[" >> termParser >>"]"
   ``` -/
 private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
-  let s? ← stx[2].getSepArgs.foldlM (init := none) fun s? arg =>
+  let s? ← stx[2].getArgs.foldlM (init := none) fun s? p =>
+    /- p is of the form `(group (structInstField >> optional ", "))` -/
+    let arg := p[0]
     /- Remark: the syntax for `structInstField` is
        ```
        def structInstLVal   := (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
@@ -117,7 +127,7 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
     let self := source[0]
     let stxNew ← `($(self).modifyOp (idx := $idx) (fun s => $val))
     trace[Elab.struct.modifyOp]! "{stx}\n===>\n{stxNew}"
-    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+    withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   trace[Elab.struct.modifyOp]! "{modifyOp}\nSource: {source}"
   let rest := modifyOp[1]
   if rest.isNone then
@@ -132,7 +142,7 @@ private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option 
     let valField  := valField.setArg 1 valRest
     let valSource := source.modifyArg 0 fun _ => s
     let val       := stx.setArg 1 valSource
-    let val       := val.setArg 2 $ mkNullNode #[valField]
+    let val       := val.setArg 2 <| mkNullNode #[mkNullNode #[valField, mkNullNode]]
     trace[Elab.struct.modifyOp]! "{stx}\nval: {val}"
     cont val
 
@@ -258,30 +268,38 @@ def Field.toSyntax : Field Struct → Syntax
     let stx := stx.setArg 3 field.val.toSyntax
     match field.lhs with
     | first::rest =>
-      let stx := stx.setArg 0 $ first.toSyntax true
-      let stx := stx.setArg 1 $ mkNullNode $ rest.toArray.map (FieldLHS.toSyntax false)
+      let stx := stx.setArg 0 <| first.toSyntax true
+      let stx := stx.setArg 1 <| mkNullNode <| rest.toArray.map (FieldLHS.toSyntax false)
       stx
     | _ => unreachable!
 
 private def toFieldLHS (stx : Syntax) : Except String FieldLHS :=
   if stx.getKind == `Lean.Parser.Term.structInstArrayRef then
-    pure $ FieldLHS.modifyOp stx stx[1]
+    return FieldLHS.modifyOp stx stx[1]
   else
     -- Note that the representation of the first field is different.
     let stx := if stx.getKind == nullKind then stx[1] else stx
-    if stx.isIdent then pure $ FieldLHS.fieldName stx stx.getId.eraseMacroScopes
+    if stx.isIdent then
+      return FieldLHS.fieldName stx stx.getId.eraseMacroScopes
     else match stx.isFieldIdx? with
-      | some idx => pure $ FieldLHS.fieldIndex stx idx
+      | some idx => return FieldLHS.fieldIndex stx idx
       | none     => throw "unexpected structure syntax"
 
 private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : Except String Struct := do
-  let args      := stx[2].getArgs
-  let fieldsStx := args.filter $ fun arg => arg.getKind == `Lean.Parser.Term.structInstField
+  /- Recall that `stx` is of the form
+     ```
+     parser! "{" >> optional (atomic (termParser >> " with "))
+                 >> manyIndent (group (structInstField >> optional ", "))
+                 >> optional ".."
+                 >> optional (" : " >> termParser)
+                 >> " }"
+     ``` -/
+  let fieldsStx := stx[2].getArgs.map (·[0])
   let fields ← fieldsStx.toList.mapM fun fieldStx => do
     let val   := fieldStx[3]
     let first ← toFieldLHS fieldStx[0]
     let rest  ← fieldStx[1].getArgs.toList.mapM toFieldLHS
-    pure $ ({ref := fieldStx, lhs := first :: rest, val := FieldVal.term val } : Field Struct)
+    pure { ref := fieldStx, lhs := first :: rest, val := FieldVal.term val : Field Struct }
   pure ⟨stx, structName, fields, source⟩
 
 def Struct.modifyFieldsM {m : Type → Type} [Monad m] (s : Struct) (f : Fields → m Fields) : m Struct :=
@@ -289,16 +307,16 @@ def Struct.modifyFieldsM {m : Type → Type} [Monad m] (s : Struct) (f : Fields 
   | ⟨ref, structName, fields, source⟩ => return ⟨ref, structName, (← f fields), source⟩
 
 @[inline] def Struct.modifyFields (s : Struct) (f : Fields → Fields) : Struct :=
-  Id.run $ s.modifyFieldsM f
+  Id.run <| s.modifyFieldsM f
 
 def Struct.setFields (s : Struct) (fields : Fields) : Struct :=
   s.modifyFields fun _ => fields
 
 private def expandCompositeFields (s : Struct) : Struct :=
-  s.modifyFields fun fields => fields.map $ fun field => match field with
+  s.modifyFields fun fields => fields.map fun field => match field with
     | { lhs := FieldLHS.fieldName ref (Name.str Name.anonymous _ _) :: rest, .. } => field
     | { lhs := FieldLHS.fieldName ref n@(Name.str _ _ _) :: rest, .. } =>
-      let newEntries := n.components.map $ FieldLHS.fieldName ref
+      let newEntries := n.components.map <| FieldLHS.fieldName ref
       { field with lhs := newEntries ++ rest }
     | _ => field
 
@@ -338,7 +356,7 @@ private def expandParentFields (s : Struct) : TermElabM Struct := do
         if baseStructName == s.structName then pure field
         else match getPathToBaseStructure? env baseStructName s.structName with
           | some path => do
-            let path := path.map $ fun funName => match funName with
+            let path := path.map fun funName => match funName with
               | Name.str _ s _ => FieldLHS.fieldName ref (Name.mkSimple s)
               | _              => unreachable!
             pure { field with lhs := path ++ field.lhs }
@@ -356,8 +374,8 @@ private def mkFieldMap (fields : Fields) : TermElabM FieldMap :=
         if field.isSimple || prevField.isSimple then
           throwErrorAt! field.ref "field '{fieldName}' has already beed specified"
         else
-          pure $ fieldMap.insert fieldName (field::prevField::restFields)
-      | _ => pure $ fieldMap.insert fieldName [field]
+          return fieldMap.insert fieldName (field::prevField::restFields)
+      | _ => return fieldMap.insert fieldName [field]
     | _ => unreachable!
 
 private def isSimpleField? : Fields → Option (Field Struct)
@@ -365,7 +383,7 @@ private def isSimpleField? : Fields → Option (Field Struct)
   | _       => none
 
 private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName : Name) : TermElabM Nat := do
-  match fieldNames.findIdx? $ fun n => n == fieldName with
+  match fieldNames.findIdx? fun n => n == fieldName with
   | some idx => pure idx
   | none     => throwError! "field '{fieldName}' is not a valid field of '{structName}'"
 
@@ -377,8 +395,8 @@ private def mkSubstructSource (structName : Name) (fieldNames : Array Name) (fie
   | Source.explicit stx src => do
     let idx ← getFieldIdx structName fieldNames fieldName
     let stx := stx.modifyArg 0 fun stx => mkProjStx stx fieldName
-    pure $ Source.explicit stx (mkProj structName idx src)
-  | s => pure s
+    return Source.explicit stx (mkProj structName idx src)
+  | s => return s
 
 @[specialize] private def groupFields (expandStruct : Struct → TermElabM Struct) (s : Struct) : TermElabM Struct := do
   let env ← getEnv
@@ -402,8 +420,8 @@ private def mkSubstructSource (structName : Name) (fieldNames : Array Name) (fie
           -- It is not a substructure field. Thus, we wrap fields using `Syntax`, and use `elabTerm` to process them.
           let valStx := s.ref -- construct substructure syntax using s.ref as template
           let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type
-          let args   := substructFields.toArray.map Field.toSyntax
-          let valStx := valStx.setArg 2 (Syntax.mkSep args (mkAtomFrom s.ref ","))
+          let args   := substructFields.toArray.map fun field => mkNullNode #[field.toSyntax, mkNullNode]
+          let valStx := valStx.setArg 2 (mkNullNode args)
           let valStx := setStructSourceSyntax valStx substructSource
           pure { field with lhs := [field.lhs.head!], val := FieldVal.term valStx }
 
@@ -418,28 +436,28 @@ def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
   let fieldNames := getStructureFields env s.structName
   let ref := s.ref
   withRef ref do
-  let fields ← fieldNames.foldlM (init := []) fun fields fieldName => do
-    match findField? s.fields fieldName with
-    | some field => pure $ field::fields
-    | none       =>
-      let addField (val : FieldVal Struct) : TermElabM Fields := do
-        pure $ { ref := s.ref, lhs := [FieldLHS.fieldName s.ref fieldName], val := val } :: fields
-      match Lean.isSubobjectField? env s.structName fieldName with
-      | some substructName => do
-        let substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source
-        let substruct := Struct.mk s.ref substructName [] substructSource
-        let substruct ← expandStruct substruct
-        addField (FieldVal.nested substruct)
-      | none =>
-        match s.source with
-        | Source.none           => addField FieldVal.default
-        | Source.implicit _     => addField (FieldVal.term (mkHole s.ref))
-        | Source.explicit stx _ =>
-          -- stx is of the form `optional (try (termParser >> "with"))`
-          let src := stx[0]
-          let val := mkProjStx src fieldName
-          addField (FieldVal.term val)
-  pure $ s.setFields fields.reverse
+    let fields ← fieldNames.foldlM (init := []) fun fields fieldName => do
+      match findField? s.fields fieldName with
+      | some field => return field::fields
+      | none       =>
+        let addField (val : FieldVal Struct) : TermElabM Fields := do
+          return { ref := s.ref, lhs := [FieldLHS.fieldName s.ref fieldName], val := val } :: fields
+        match Lean.isSubobjectField? env s.structName fieldName with
+        | some substructName => do
+          let substructSource ← mkSubstructSource s.structName fieldNames fieldName s.source
+          let substruct := Struct.mk s.ref substructName [] substructSource
+          let substruct ← expandStruct substruct
+          addField (FieldVal.nested substruct)
+        | none =>
+          match s.source with
+          | Source.none           => addField FieldVal.default
+          | Source.implicit _     => addField (FieldVal.term (mkHole s.ref))
+          | Source.explicit stx _ =>
+            -- stx is of the form `optional (try (termParser >> "with"))`
+            let src := stx[0]
+            let val := mkProjStx src fieldName
+            addField (FieldVal.term val)
+    return s.setFields fields.reverse
 
 private partial def expandStruct (s : Struct) : TermElabM Struct := do
   let s := expandCompositeFields s
@@ -530,8 +548,8 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
           match (← trySynthStructInstance? s d) with
           | some val => cont val { field with val := FieldVal.term (mkHole field.ref) }
           | none     => do let (val, sNew) ← elabStruct s (some d); let val ← ensureHasType d val; cont val { field with val := FieldVal.nested sNew }
-        | FieldVal.default  => do let val ← withRef field.ref $ mkFreshExprMVar (some d); cont (markDefaultMissing val) field
-      | _ => withRef field.ref $ throwFailedToElabField fieldName s.structName m!"unexpected constructor type{indentExpr type}"
+        | FieldVal.default  => do let val ← withRef field.ref <| mkFreshExprMVar (some d); cont (markDefaultMissing val) field
+      | _ => withRef field.ref <| throwFailedToElabField fieldName s.structName m!"unexpected constructor type{indentExpr type}"
     | _ => throwErrorAt field.ref "unexpected unexpanded structure field"
   pure (e, s.setFields fields.reverse)
 
@@ -659,7 +677,7 @@ partial def reduce (structNames : Array Name) : Expr → MetaM Expr
   | e@(Expr.proj _ i b _)    => do
     match (← Meta.reduceProj? b i) with
     | some r => reduce structNames r
-    | none   => pure $ e.updateProj! (← reduce structNames b)
+    | none   => return e.updateProj! (← reduce structNames b)
   | e@(Expr.app f _ _) => do
     match (← reduceProjOf? structNames e) with
     | some r => reduce structNames r
@@ -671,18 +689,18 @@ partial def reduce (structNames : Array Name) : Expr → MetaM Expr
         reduce structNames (f'.betaRev revArgs)
       else
         let args ← e.getAppArgs.mapM (reduce structNames)
-        pure (mkAppN f' args)
+        return (mkAppN f' args)
   | e@(Expr.mdata _ b _) => do
     let b ← reduce structNames b
     if (defaultMissing? e).isSome && !b.isMVar then
-      pure b
+      return b
     else
-      pure $ e.updateMData! b
+      return e.updateMData! b
   | e@(Expr.mvar mvarId _) => do
     match (← getExprMVarAssignment? mvarId) with
     | some val => if val.isMVar then reduce structNames val else pure val
-    | none     => pure e
-  | e => pure e
+    | none     => return e
+  | e => return e
 
 partial def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Array Name) (maxDistance : Nat) (fieldName : Name) (mvarId : MVarId) : TermElabM Bool :=
   let rec loop (i : Nat) (dist : Nat) := do
@@ -699,7 +717,7 @@ partial def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Ar
         match val? with
         | none     => do setMCtx mctx; loop (i+1) (dist+1)
         | some val => do
-          let val ← liftMetaM $ reduce allStructNames val
+          let val ← reduce allStructNames val
           match val.find? fun e => (defaultMissing? e).isSome with
           | some _ => setMCtx mctx; loop (i+1) (dist+1)
           | none   =>
@@ -724,7 +742,7 @@ partial def step (struct : Struct) : M Unit :=
             | some (Expr.mvar mvarId _) =>
               unless (← isExprMVarAssigned mvarId) do
                 let ctx ← read
-                if (← withRef field.ref $ tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) then
+                if (← withRef field.ref <| tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) then
                   modify fun s => { s with progress := true }
             | _ => pure ()
 
@@ -764,7 +782,7 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
 
 @[builtinTermElab structInst] def elabStructInst : TermElab := fun stx expectedType? => do
   match (← expandNonAtomicExplicitSource stx) with
-  | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
+  | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   | none =>
     let sourceView ← getStructSource stx
     match (← isModifyOp? stx), sourceView with

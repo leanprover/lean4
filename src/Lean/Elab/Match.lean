@@ -419,16 +419,25 @@ partial def collect : Syntax → M Syntax
       let elems ← args[1].getArgs.mapSepElemsM collect
       pure $ Syntax.node k (args.set! 1 $ mkNullNode elems)
     else if k == `Lean.Parser.Term.structInst then
-      /- { " >> optional (try (termParser >> " with ")) >> sepBy structInstField ", " true >> optional ".." >> optional (" : " >> termParser) >> " }" -/
+      /-
+      ```
+      parser! "{" >> optional (atomic (termParser >> " with "))
+                  >> manyIndent (group (structInstField >> optional ", "))
+                  >> optional ".."
+                  >> optional (" : " >> termParser)
+                  >> " }"
+      ``` -/
       let withMod := args[1]
       unless withMod.isNone do
         throwErrorAt withMod "invalid struct instance pattern, 'with' is not allowed in patterns"
-      let fields := args[2].getArgs
-      let fields ← fields.mapSepElemsM fun field => do
-        -- parser! structInstLVal >> " := " >> termParser
-        let newVal ← collect field[3] -- `structInstLVal` has arity 2
-        pure $ field.setArg 3 newVal
-      pure $ Syntax.node k (args.set! 2 $ mkNullNode fields)
+      let fields ← args[2].getArgs.mapM fun p => do
+          -- p is of the form (group (structInstField >> optional ", "))
+          let field := p[0]
+          -- parser! structInstLVal >> " := " >> termParser
+          let newVal ← collect field[3] -- `structInstLVal` has arity 2
+          let field := field.setArg 3 newVal
+          pure <| field.setArg 0 field
+      pure <| Syntax.node k (args.set! 2 <| mkNullNode fields)
     else if k == `Lean.Parser.Term.hole then
       let r ← mkMVarSyntax
       modify fun s => { s with vars := s.vars.push $ PatternVar.anonymousVar $ getMVarSyntaxMVarId r }

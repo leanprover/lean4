@@ -205,8 +205,8 @@ instance : MonadRecDepth CommandElabM := {
   try
     x
   catch ex => match ex with
-    | Exception.error _ _   => logException ex
-    | Exception.internal id =>
+    | Exception.error _ _     => logException ex
+    | Exception.internal id _ =>
       if id == abortExceptionId then
         pure ()
       else
@@ -542,7 +542,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
       hasNoErrorMessages
     catch
       | ex@(Exception.error _ _) => do logException ex; pure false
-      | Exception.internal id    => do logError "internal"; pure false -- TODO: improve `logError "internal"`
+      | Exception.internal id _  => do logError "internal"; pure false -- TODO: improve `logError "internal"`
     finally
       restoreMessages prevMessages
   if succeeded then

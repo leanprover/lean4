@@ -561,7 +561,7 @@ private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExce
       | none       =>
         previousExceptions.forM fun ex => logException ex
         throw ex
-    | ex@(Exception.internal _) => throw ex
+    | ex@(Exception.internal _ _) => throw ex
 
 private def resolveLVal (e : Expr) (lval : LVal) : TermElabM (Expr × LValResolution) := do
   let eType ← inferType e

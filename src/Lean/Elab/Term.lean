@@ -189,7 +189,7 @@ def getMessageLog : TermElabM MessageLog :=
       let sNew ← saveAllState
       s.restore
       pure (EStateM.Result.error ex sNew)
-    | ex@(Exception.internal id) =>
+    | ex@(Exception.internal id _) =>
       if id == postponeExceptionId then s.restore
       throw ex
 
@@ -844,7 +844,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
           exceptionToSorry ex expectedType?
         else
           throw ex
-      | Exception.internal id =>
+      | Exception.internal id _ =>
         if id == unsupportedSyntaxExceptionId then
           s.restore
           elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns

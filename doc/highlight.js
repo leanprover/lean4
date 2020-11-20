@@ -1106,14 +1106,16 @@ hljs.registerLanguage("lean", function(hljs) {
   var LEAN_KEYWORDS = {
     $pattern: /#?\w+/,
     keyword:
-      'theorem|10 lemma|10 definition def class structure instance ' +
+      'theorem|10 def class structure instance ' +
       'example inductive coinductive ' +
-      'axiom axioms hypothesis constant constants ' +
-      'universe universes variable variables parameter parameters ' +
-      'begin end ' +
+      'axiom constant ' +
+      'partial unsafe private protected ' +
+      'if then else ' +
+      'universe universes variable variables ' +
       'import open theory prelude renaming hiding exposing ' +
-      'calc  match do  by let in extends ' +
-      'fun assume ' +
+      'calc  match with do by let extends ' +
+      'for in unless try catch finally mutual ' +
+      'fun ' +
       '#check #eval #reduce #print ' +
       'section namespace end',
     built_in:
@@ -1121,7 +1123,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'simp dsimp simpa simp_intros finish ' +
       'unfold unfold1 dunfold unfold_projs unfold_coes ' +
       'delta cc ac_reflexivity ac_refl ' +
-      'existsi|10 cases rcases with intro intros introv by_cases ' +
+      'existsi|10 cases rcases intro intros introv by_cases ' +
       'refl rfl funext propext exact exacts ' +
       'refine apply eapply fapply apply_with apply_instance ' +
       'induction rename assumption revert generalize specialize clear ' +
@@ -1135,7 +1137,7 @@ hljs.registerLanguage("lean", function(hljs) {
     literal:
       'tt ff',
     meta:
-      'noncomputable|10 private protected meta mutual',
+      'noncomputable|10 private protected mutual',
     strong:
       'sorry admit',
   };

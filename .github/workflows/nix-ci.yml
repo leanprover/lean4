@@ -14,41 +14,48 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: nix-shell -A nix --run "bash -euo pipefail {0}"
+        shell: nix --experimental-features "nix-command flakes" shell .#nix -c bash -euo pipefail {0}
     strategy:
       matrix:
         include:
           - name: Linux
             os: ubuntu-latest
+            nix_url: https://hydra.nixos.org/build/130670999/download/1/nix-2.4pre20201117_ae31916-x86_64-linux.tar.xz
           - name: macOS
             os: macos-latest
+            nix_url: https://hydra.nixos.org/build/130670982/download/1/nix-2.4pre20201117_ae31916-x86_64-darwin.tar.xz
       # complete all jobs
       fail-fast: false
     env:
-      CCACHE_COMPRESS: true
-      # current cache limit
-      CCACHE_MAXSIZE: 200M
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      # Install flakes-enabled Nix manually from Hydra since `install-nix-action` doesn't accept raw tarballs
       - name: Install Nix
+        shell: bash -euo pipefail {0}
+        run: |
+          curl ${{ matrix.nix_url }} | tar -xJ
+          nix-*/install --daemon --daemon-user-count 4 --no-channel-add --darwin-use-unencrypted-nix-store-volume
+          rm -rf nix-*
+      # Call `install-nix-action` anyways to run its Actions-specific setup
+      - name: Setup Nix
         uses: cachix/install-nix-action@v12
-        with:
-          extra_nix_config: |
+      - name: Further setup Nix
+        run: |
+          sudo mkdir -m0770 -p /nix/var/cache/ccache
+          sudo chown root:nixbld /nix/var/cache/ccache
+          echo '
             max-jobs = auto
             extra-sandbox-paths = /nix/var/cache/ccache
-      - name: Cache
+            extra-trusted-public-keys = lean4.cachix.org-1:mawtxSxcaiWE24xCXXgh3qnvlTkyU7evRRnGeAhD4Wk=' | sudo tee /etc/nix/nix.conf
+      - name: Setup CCache Cache
         uses: actions/cache@v2
         with:
-          key: ${{ matrix.name }}-build-${{ github.sha }}
           path: /nix/var/cache/ccache
+          key: ${{ matrix.name }}-nix-ccache-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
-            ${{ matrix.name }}-build
-      - name: Setup
-        # can't use `nix-shell` yet since it will complain about the missing sandbox path
-        shell: bash -euo pipefail {0} 
-        run: |
+            ${{ matrix.name }}-nix-ccache
       - name: Build
         run: nix build
       - name: Test

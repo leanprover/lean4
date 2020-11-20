@@ -296,10 +296,13 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
 
 @[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
   let s ← get
-  liftTermElabM declName?
+  liftTermElabM declName? <|
     -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
     -- So, we use `Term.resetMessageLog`.
-    (Term.elabBinders (getVarDecls s) (fun xs => do Term.resetMessageLog; elabFn xs))
+    Term.withUnboundImplicitLocal <|
+      Term.elabBinders (getVarDecls s) fun xs => do
+        Term.resetMessageLog
+        Term.withUnboundImplicitLocal (flag := false) <| elabFn xs
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
@@ -504,14 +507,14 @@ def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit := do
   -- `variable` bracketedBinder
   let binder := n[1]
   -- Try to elaborate `binder` for sanity checking
-  runTermElabM none fun _ => Term.elabBinder binder fun _ => pure ()
+  runTermElabM none fun _ => Term.withUnboundImplicitLocal <| Term.elabBinder binder fun _ => pure ()
   modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder }
 
 @[builtinCommandElab «variables»] def elabVariables : CommandElab := fun n => do
   -- `variables` bracketedBinder+
   let binders := n[1].getArgs
   -- Try to elaborate `binders` for sanity checking
-  runTermElabM none fun _ => Term.elabBinders binders $ fun _ => pure ()
+  runTermElabM none fun _ => Term.withUnboundImplicitLocal <| Term.elabBinders binders $ fun _ => pure ()
   modifyScope fun scope => { scope with varDecls := scope.varDecls ++ binders }
 
 open Meta

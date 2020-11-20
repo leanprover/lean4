@@ -7,3 +7,6 @@ unboundImplicitLocals.lean:24:33: error: unknown identifier 'α'
 unboundImplicitLocals.lean:24:37: error: unknown identifier 'β'
 unboundImplicitLocals.lean:24:46: error: unknown identifier 'α'
 unboundImplicitLocals.lean:24:48: error: unknown identifier 'β'
+f : {α_1 : Type} → {n_1 : Nat} → Vec α_1 n_1 → Vec α_1 n_1
+f mkVec : Vec ?m 0
+f mkVec : Vec Nat 0

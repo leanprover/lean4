@@ -25,3 +25,18 @@ def Vec.map3 (xs : Vec α n) (f : α → β) : Vec α β := -- Errors, unknown i
   ⟨ xs.val.map f, sorry ⟩
 
 def double [Add α] (a : α) := a + a
+
+variables (xs : Vec α n) -- works
+
+def f := xs
+
+#check @f
+
+#check f mkVec
+
+#check f (α := Nat) mkVec
+
+def g (a : α) := xs.val.push a
+
+theorem ex3 : g ⟨#[0], rfl⟩ 1 = #[0, 1] :=
+  rfl

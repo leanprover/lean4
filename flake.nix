@@ -52,15 +52,16 @@
         with epkgs; [ dash dash-functional f flycheck s ] ++ [ lean4-mode ]);
     in rec {
       packages = {
-        inherit cc lean4-mode;
-        lean = lean // lean.stage1 // { inherit buildLeanPackage; };
+        inherit cc lean4-mode buildLeanPackage;
+        inherit (lean) stage0 stage1 stage2 stage3;
+        inherit (lean.stage1) lean mods test emacs-dev emacs-package;
         temci = (import temci {}).override { doCheck = false; };
         nix = nix-pinned;
         nixpkgs = nixpkgs.legacyPackages.${system};
-      } // lean // lean.stage1 // lean.stage1.Lean;
+      };
 
       defaultPackage = packages.lean;
 
-      checks.lean = packages.lean.test;
+      checks.lean = packages.test;
     });
 }

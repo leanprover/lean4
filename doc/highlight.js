@@ -1104,6 +1104,7 @@ contains:b}}}());
 // original from https://github.com/leanprover-community/highlightjs-lean/blob/master/src/lean.js, BSD 3, (c) 2020 Patrick Massot
 hljs.registerLanguage("lean", function(hljs) {
   var LEAN_KEYWORDS = {
+    $pattern: /#?\w+/,
     keyword:
       'theorem|10 lemma|10 definition def class structure instance ' +
       'example inductive coinductive ' +

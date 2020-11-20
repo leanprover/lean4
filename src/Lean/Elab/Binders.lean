@@ -141,49 +141,38 @@ private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
 private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
   registerCustomErrorIfMVar type ref "failed to infer binder type"
 
-private partial def elabBinderViews (binderViews : Array BinderView)
-    (i : Nat) (fvars : Array Expr) (lctx : LocalContext) (localInsts : LocalInstances) : TermElabM (Array Expr × LocalContext × LocalInstances) :=
-  if h : i < binderViews.size then
-    let binderView := binderViews.get ⟨i, h⟩
-    withRef binderView.type $ withLCtx lctx localInsts do
-      let type ← elabType binderView.type
-      registerFailedToInferBinderTypeInfo type binderView.type
-      let fvarId ← mkFreshFVarId
-      let fvar  := mkFVar fvarId
-      let fvars := fvars.push fvar
-      let lctx  := lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi
-      match (← isClass? type) with
-      | none           => elabBinderViews binderViews (i+1) fvars lctx localInsts
-      | some className =>
-        resettingSynthInstanceCache do
-          let localInsts := localInsts.push { className := className, fvar := mkFVar fvarId }
-          elabBinderViews binderViews (i+1) fvars lctx localInsts
-  else
-    pure (fvars, lctx, localInsts)
+private partial def elabBinderViews {α} (binderViews : Array BinderView) (fvars : Array Expr) (k : Array Expr → TermElabM α) : TermElabM α :=
+  let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α :=
+    if h : i < binderViews.size then
+      let binderView := binderViews.get ⟨i, h⟩
+      elabTypeWithUnboundImplicit binderView.type fun unboundImplicitFVars type => do
+        registerFailedToInferBinderTypeInfo type binderView.type
+        let fvars := fvars ++ unboundImplicitFVars
+        withLocalDecl binderView.id.getId binderView.bi type fun fvar =>
+          loop (i+1) (fvars.push fvar)
+    else
+      k fvars
+  loop 0 fvars
 
-private partial def elabBindersAux (binders : Array Syntax)
-    (i : Nat) (fvars : Array Expr) (lctx : LocalContext) (localInsts : LocalInstances) : TermElabM (Array Expr × LocalContext × LocalInstances) := do
-  if h : i < binders.size then
-    let binderViews ← matchBinder (binders.get ⟨i, h⟩)
-    let (fvars, lctx, localInsts) ← elabBinderViews binderViews 0 fvars lctx localInsts
-    elabBindersAux binders (i+1) fvars lctx localInsts
-  else
-    pure (fvars, lctx, localInsts)
+private partial def elabBindersAux {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) : TermElabM α :=
+  let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α := do
+    if h : i < binders.size then
+      let binderViews ← matchBinder (binders.get ⟨i, h⟩)
+      elabBinderViews binderViews fvars <| loop (i+1)
+    else
+      k fvars
+  loop 0 #[]
 
 /--
   Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracketedBinder`),
   update the local context, set of local instances, reset instance chache (if needed), and then
   execute `x` with the updated context. -/
-def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α :=
+def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) : TermElabM α :=
   withoutPostponingUniverseConstraints do
     if binders.isEmpty then
-      x #[]
+      k #[]
     else
-      let lctx ← getLCtx
-      let localInsts ← getLocalInstances
-      let (fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts
-      resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $ withLCtx lctx newLocalInsts $
-        x fvars
+      elabBindersAux binders k
 
 @[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
   elabBinders #[binder] (fun fvars => x (fvars.get! 0))

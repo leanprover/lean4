@@ -54,6 +54,9 @@ private def utf8GetAux : List Char → Pos → Pos → Char
 def get : (@& String) → (@& Pos) → Char
   | ⟨s⟩, p => utf8GetAux s 0 p
 
+def getOp (self : String) (idx : Pos) : Char :=
+  self.get idx
+
 private def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
   | [],    i, p => []
   | c::cs, i, p =>

@@ -87,6 +87,12 @@ structure Context :=
      That is, it is safe to transition `errToSorry` from `true` to `false`, but
      we must not set `errToSorry` to `true` when it is currently set to `false`. -/
   (errToSorry      : Bool            := true)
+  /- When `unboundImplicit` is set to true, instead of producing
+     an "unknown identifier" error for unbound variables, we generate an
+     internal exception. This exception is caught at `elabBinders` and
+     `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
+     for the unbound variable and try again. -/
+  (unboundImplicit : Bool            := false)
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind :=
@@ -293,6 +299,20 @@ def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM 
 
 def withoutErrToSorry {α} (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with errToSorry := false }) x
+
+builtin_initialize
+  registerOption `unboundImplicitLocal {
+    defValue := true,
+    group    := "",
+    descr    := "Unbound local variables in declaration headers become implicit arguments if they are a lower case or greek letter. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}"
+}
+
+private def getUnboundImplicitLocalOption (opts : Options) : Bool :=
+  opts.get `unboundImplicitLocal true
+
+/-- Execute `x` with `unboundImplicit = (options.get `unboundImplicitLocal) && flag` -/
+def withUnboundImplicitLocal {α} (x : TermElabM α) (flag := true) : TermElabM α := do
+  withReader (fun ctx => { ctx with unboundImplicit := getUnboundImplicitLocalOption (← getOptions) && flag }) x
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
@@ -1036,6 +1056,22 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   let type ← elabTerm stx (mkSort u)
   withRef stx $ ensureType type
 
+/--
+  Elaborate `stx` creating new implicit variables for unbound ones when `unboundImplicit == true`, and then
+  execute the continuation `k` in the potentially extended local context. -/
+partial def elabTypeWithUnboundImplicit {α} (stx : Syntax) (k : Array Expr → Expr → TermElabM α) : TermElabM α  := do
+  if (← read).unboundImplicit then
+    let rec loop (xs : Array Expr) : TermElabM α := do
+      try
+        k xs (← elabType stx)
+      catch
+        | ex => match isUnboundImplicitLocalException? ex with
+          | some n => withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x => loop (xs.push x)
+          | none   => throw ex
+    loop #[]
+  else
+    k #[] (← elabType stx)
+
 def mkAuxName (suffix : Name) : TermElabM Name := do
   match (← read).declName? with
   | none          => throwError "auxiliary declaration cannot be created when declaration name is not available"
@@ -1170,6 +1206,11 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
    let const ← mkConst constName explicitLevels
    pure $ (const, projs) :: result
 
+def isValidUnboundImplicitName (n : Name) : Bool :=
+  match n.eraseMacroScopes with
+  | Name.str Name.anonymous s _ => s.length == 1 && (isGreek s[0] || s[0].isLower)
+  | _ => false
+
 def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   match (← resolveLocalName n) with
   | some (e, projs) =>
@@ -1179,9 +1220,12 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
   | none =>
     let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
       if candidates.isEmpty then
-        let mainModule ← getMainModule
-        let view := extractMacroScopes n
-        throwError! "unknown identifier '{view.format mainModule}'"
+        if (← read).unboundImplicit && isValidUnboundImplicitName n then
+          throwUnboundImplicitLocal n
+        else
+          let mainModule ← getMainModule
+          let view := extractMacroScopes n
+          throwError! "unknown identifier '{view.format mainModule}'"
       mkConsts candidates explicitLevels
     if preresolved.isEmpty then
       process (← resolveGlobalName n)

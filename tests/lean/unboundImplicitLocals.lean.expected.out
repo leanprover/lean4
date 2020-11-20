@@ -1,0 +1,9 @@
+myid 10 : Nat
+myid true : Bool
+unboundImplicitLocals.lean:20:25: error: unknown identifier 'size'
+unboundImplicitLocals.lean:24:23: error: unknown identifier 'α'
+unboundImplicitLocals.lean:24:25: error: unknown identifier 'n'
+unboundImplicitLocals.lean:24:33: error: unknown identifier 'α'
+unboundImplicitLocals.lean:24:37: error: unknown identifier 'β'
+unboundImplicitLocals.lean:24:46: error: unknown identifier 'α'
+unboundImplicitLocals.lean:24:48: error: unknown identifier 'β'

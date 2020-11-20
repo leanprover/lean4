@@ -54,7 +54,7 @@ Sometimes, however, it is useful to limit the scope of a variable. For that purp
 section useful
   variables (α β γ : Type)
   variables (g : β → γ) (f : α → β) (h : α → α)
-  variable x : α
+  variable (x : α)
 
   def compose := g (f x)
   def do_twice := h (h x)

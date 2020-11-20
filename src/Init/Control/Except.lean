@@ -60,8 +60,8 @@ variables {ε : Type u}
   | Except.error e => handle e
 
 instance : Monad (Except ε) := {
-  pure := Except.pure,
-  bind := Except.bind,
+  pure := Except.pure
+  bind := Except.bind
   map  := Except.map
 }
 
@@ -106,8 +106,8 @@ instance : MonadLift m (ExceptT ε m) := ⟨ExceptT.lift⟩
 instance : MonadFunctor m (ExceptT ε m) := ⟨fun f x => f x⟩
 
 instance : Monad (ExceptT ε m) := {
-  pure := ExceptT.pure,
-  bind := ExceptT.bind,
+  pure := ExceptT.pure
+  bind := ExceptT.bind
   map  := ExceptT.map
 }
 
@@ -117,17 +117,17 @@ instance : Monad (ExceptT ε m) := {
 end ExceptT
 
 instance (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [Monad m] [MonadExceptOf ε₁ m] : MonadExceptOf ε₁ (ExceptT ε₂ m) := {
-  throw    := fun e        => ExceptT.mk <| throwThe ε₁ e,
+  throw    := fun e        => ExceptT.mk <| throwThe ε₁ e
   tryCatch := fun x handle => ExceptT.mk <| tryCatchThe ε₁ x handle
 }
 
 instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (ExceptT ε m) := {
-  throw    := fun e => ExceptT.mk <| pure (Except.error e),
+  throw    := fun e => ExceptT.mk <| pure (Except.error e)
   tryCatch := ExceptT.tryCatch
 }
 
 instance (ε) : MonadExceptOf ε (Except ε) := {
-  throw    := Except.error,
+  throw    := Except.error
   tryCatch := Except.tryCatch
 }
 
@@ -145,8 +145,8 @@ end MonadExcept
   tryCatch (do let a ← x; pure (Except.ok a)) (fun ex => pure (Except.error ex))
 
 instance (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (ExceptT ε m) := {
-  stM      := Except ε,
-  liftWith := fun f => liftM <| f fun x => x.run,
+  stM      := Except ε
+  liftWith := fun f => liftM <| f fun x => x.run
   restoreM := fun x => x
 }
 

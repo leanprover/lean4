@@ -6,6 +6,8 @@
 # Language Manual
 
 - [Functions](./functions.md)
+- [Sections](./sections.md)
+- [Namespaces](./namespaces.md)
 - [String interpolation](./stringinterp.md)
 - [The `do` Notation]()
 

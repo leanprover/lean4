@@ -2,23 +2,22 @@
 rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
-    cmakeFlags = [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" ] ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
-    dontStrip = (args.debug or debug);
-    postConfigure = ''
-      patchShebangs bin
-    '';
-  } // args // {
-    src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
-
     nativeBuildInputs = [ cmake ];
     buildInputs = [ gmp ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
+    cmakeFlags = [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" ] ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
+    dontStrip = (args.debug or debug);
 
+    postConfigure = ''
+      patchShebangs bin
+    '';
     installPhase = ''
       mkdir $out
       mv bin/ lib/ include/ $out/
     '';
+  } // args // {
+    src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
   });
   leanc = buildCMake {
     name = "leanc";
@@ -75,7 +74,10 @@ rec {
           ln -sf ${lean}/* .
         '';
         buildPhase = ''
-          ctest --output-on-failure -E leancomptest_foreign -j$NIX_BUILD_CORES
+          ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
+        '';
+        installPhase = ''
+          touch $out
         '';
       };
     };

@@ -22,7 +22,7 @@
           bintools = llvmPackages_10.lldClang.bintools;
         };
         extraConfig = ''
-          export CCACHE_DIR=/var/cache/ccache
+          export CCACHE_DIR=/nix/var/cache/ccache
           export CCACHE_UMASK=007
           export CCACHE_BASE_DIR=$NIX_BUILD_TOP
           [ -d $CCACHE_DIR ] || exec ${cc}/bin/$(basename "$0") "$@"

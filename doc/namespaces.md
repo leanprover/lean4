@@ -100,9 +100,9 @@ end Foo
 ```
 
 Like sections, nested namespaces have to be closed in the order they are opened.
-Also, a namespace cannot be declared within a section; namespaces have to live on the outer levels.
-
 Namespaces and sections serve different purposes: namespaces organize data and sections declare variables for insertion in definitions.
+Sections are also useful for delimiting the scope of commands such as ``set_option`` and ``open``.
+
 In many respects, however, a ``namespace ... end`` block behaves the same as a ``section ... end`` block.
 In particular, if you use the ``variable`` command within a namespace, its scope is limited to the namespace.
 Similarly, if you use an ``open`` command within a namespace, its effects disappear when the namespace is closed.

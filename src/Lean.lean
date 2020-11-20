@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Data
 import Lean.Compiler
 import Lean.Environment
 import Lean.Modifiers
@@ -25,3 +26,4 @@ import Lean.Delaborator
 import Lean.PrettyPrinter
 import Lean.CoreM
 import Lean.InternalExceptionId
+import Lean.Server

@@ -657,9 +657,13 @@ def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
     -- `ty` is not actually part of `e`, but since `e` must be an application or constant, we know that
     -- index 2 is unused.
     let stxTy ← descend ty 2 delab
-    `({ $fields:structInstField* : $stxTy })
+    return Syntax.node `Lean.Parser.Term.structInst #[
+      mkAtom "{", mkNullNode, mkNullNode fields, mkNullNode,
+      mkNullNode #[ mkAtom ":", stxTy ],
+      mkAtom "}"
+    ]
   else
-    `({ $fields:structInstField* })
+    return Syntax.node `Lean.Parser.Term.structInst #[ mkAtom "{", mkNullNode, mkNullNode fields, mkNullNode, mkNullNode, mkAtom "}"]
 
 @[builtinDelab app.Prod.mk]
 def delabTuple : Delab := whenPPOption getPPNotation do

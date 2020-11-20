@@ -59,7 +59,7 @@ structure InductiveView :=
 
 instance : Inhabited InductiveView :=
   ⟨{ ref := arbitrary _, modifiers := {}, shortDeclName := arbitrary _, declName := arbitrary _,
-   levelNames := [], binders := arbitrary _, type? := none, ctors := #[] }⟩
+     levelNames := [], binders := arbitrary _, type? := none, ctors := #[] }⟩
 
 structure ElabHeaderResult :=
   (view       : InductiveView)

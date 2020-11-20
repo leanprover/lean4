@@ -137,7 +137,8 @@ def msgToDiagnostic (text : FileMap) (m : Message) : IO Diagnostic := do
     | MessageSeverity.error       => DiagnosticSeverity.error
   let source := "Lean 4 server"
   let message ← m.data.toString
-  pure { range := range,
+  pure {
+    range := range,
     severity? := severity,
     source? := source,
     message := message

@@ -66,7 +66,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Array_getEvenElems___spec__1(lean_ob
 lean_object* l_Array_findM_x3f_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_modifyM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3349_;
-lean_object* l_ReaderT_Init_Prelude___instance__51___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_mapM___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapIdxM_map___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -230,7 +229,6 @@ lean_object* l_Array_shrink_loop_match__1___rarg(lean_object*, lean_object*, lea
 lean_object* l_Array_findSomeRevM_x3f_find_match__2___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_all___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop_match__1(lean_object*, lean_object*);
-lean_object* l_ReaderT_Init_Prelude___instance__50___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_filter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_eraseIdx_x27___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
@@ -302,7 +300,6 @@ lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3396____closed__4;
 lean_object* l_Array_foldlMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__3;
 lean_object* l_Array_swapAt_x21___rarg___closed__1;
-extern lean_object* l_Lean_Init_Prelude___instance__72___closed__1;
 lean_object* l_Array_findSomeRevM_x3f_find___at_Array_findRev_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_allDiffAux_match__1(lean_object*);
 lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__5;
@@ -374,6 +371,7 @@ lean_object* l_Array_insertAt___rarg___closed__2;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_Array_findSomeRevM_x3f_find___at_Array_findSomeRev_x3f___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_zipWith___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Array_foldr___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -444,6 +442,7 @@ lean_object* l_Array_modifyM(lean_object*, lean_object*);
 lean_object* l_Array_foldrMUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Array_shrink(lean_object*);
+lean_object* l_ReaderT_Init_Prelude___instance__51___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_isEmpty(lean_object*);
 uint8_t l_Array_any___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__8;
@@ -492,6 +491,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Array_append___spec__1___rarg___boxe
 lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__1;
 lean_object* l_Array_mapIdx___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_findSomeRev_x3f___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_ReaderT_Init_Prelude___instance__52___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_Init_Data_Array_Basic___instance__4(lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forRevM(lean_object*, lean_object*);
@@ -3028,7 +3028,7 @@ x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec(x_4);
 lean_inc(x_1);
-x_7 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__51___rarg___lambda__4___boxed), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__52___rarg___lambda__4___boxed), 3, 2);
 lean_closure_set(x_7, 0, x_1);
 lean_closure_set(x_7, 1, x_2);
 x_8 = lean_ctor_get(x_1, 0);
@@ -3365,7 +3365,7 @@ x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec(x_4);
 lean_inc(x_1);
-x_7 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__51___rarg___lambda__4___boxed), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__52___rarg___lambda__4___boxed), 3, 2);
 lean_closure_set(x_7, 0, x_1);
 lean_closure_set(x_7, 1, x_2);
 x_8 = lean_ctor_get(x_1, 0);
@@ -3728,7 +3728,7 @@ if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_inc(x_1);
-x_6 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__51___rarg___lambda__4___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__52___rarg___lambda__4___boxed), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_2);
 x_7 = lean_ctor_get(x_1, 0);
@@ -6400,7 +6400,7 @@ lean_object* l_Array_getIdx_x3f___rarg(lean_object* x_1, lean_object* x_2, lean_
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__50___rarg___lambda__2), 3, 2);
+x_4 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__51___rarg___lambda__2), 3, 2);
 lean_closure_set(x_4, 0, x_1);
 lean_closure_set(x_4, 1, x_3);
 x_5 = lean_array_get_size(x_2);
@@ -7736,7 +7736,7 @@ static lean_object* _init_l_myMacro____x40_Init_Data_Array_Basic___hyg_3396____c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__72___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_2 = l___kind_term____x40_Init_Notation___hyg_6289____closed__2;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -7758,7 +7758,7 @@ static lean_object* _init_l_myMacro____x40_Init_Data_Array_Basic___hyg_3396____c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__72___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_2 = l___kind_term____x40_Init_Notation___hyg_6289____closed__10;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -7819,7 +7819,7 @@ lean_inc(x_18);
 lean_dec(x_2);
 x_19 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3396____closed__5;
 x_20 = l_Lean_addMacroScope(x_18, x_19, x_17);
-x_21 = l_Lean_Init_Prelude___instance__72___closed__1;
+x_21 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_22 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3396____closed__3;
 x_23 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3396____closed__7;
 x_24 = lean_alloc_ctor(3, 4, 0);

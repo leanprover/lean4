@@ -25,9 +25,9 @@ lean_object* l_Array_qsort_sort___at_Lean_Level_normalize___spec__2___boxed(lean
 lean_object* l_Lean_Level_isMax___boxed(lean_object*);
 lean_object* l_Lean_Level_isSucc_match__1(lean_object*);
 extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
-extern uint64_t l_Init_Prelude___instance__32;
 lean_object* l_Lean_Level_mvarId_x21___closed__2;
 lean_object* l_Lean_Level_dec_match__1(lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__69;
 lean_object* l_Lean_Level_LevelToFormat_Result_format___closed__5;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t l_UInt64_decEq(uint64_t, uint64_t);
@@ -63,7 +63,6 @@ uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* l_Lean_Level_data_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_hasMVarEx___boxed(lean_object*);
 lean_object* l_Lean_Level_mkData___closed__2;
-extern lean_object* l_Lean_Init_Prelude___instance__68;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l_Lean_Level_isEquiv(lean_object*, lean_object*);
 uint8_t lean_level_has_param(lean_object*);
@@ -85,6 +84,7 @@ lean_object* l_Lean_Level_isSucc___boxed(lean_object*);
 lean_object* l_Lean_Level_updateIMax_x21___closed__1;
 uint8_t l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap(lean_object*);
 lean_object* l_Lean_Level_mvarId_x21(lean_object*);
+extern uint64_t l_Init_Prelude___instance__33;
 lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Level_updateMax_x21___closed__2;
@@ -360,7 +360,7 @@ static uint64_t _init_l_Lean_Lean_Level___instance__1() {
 _start:
 {
 uint64_t x_1; 
-x_1 = l_Init_Prelude___instance__32;
+x_1 = l_Init_Prelude___instance__33;
 return x_1;
 }
 }
@@ -1866,7 +1866,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lean_Init_Prelude___instance__68;
+x_3 = l_Lean_Init_Prelude___instance__69;
 x_4 = l_Lean_Level_mvarId_x21___closed__3;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;

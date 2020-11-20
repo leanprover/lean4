@@ -68,8 +68,8 @@ lean_object* l_System_FilePath_pathSeparators___closed__1;
 uint8_t l_List_foldr___at_System_FilePath_normalizePath___spec__1(uint32_t, uint8_t, lean_object*);
 lean_object* l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
 lean_object* l_System_FilePath_dirName___closed__1;
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 static uint32_t _init_l_System_FilePath_pathSeparator___closed__1() {
 _start:
@@ -367,7 +367,7 @@ lean_dec(x_2);
 x_26 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_4);
-x_27 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_27 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_28 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_26);
@@ -761,7 +761,7 @@ static lean_object* _init_l_System_mkFilePath___closed__1() {
 _start:
 {
 lean_object* x_1; uint32_t x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_2 = l_System_FilePath_pathSeparator;
 x_3 = lean_string_push(x_1, x_2);
 return x_3;

@@ -95,9 +95,9 @@ lean_object* l_Init_System_IOError___instance__1___closed__1;
 lean_object* l_IO_Error_toString___closed__10;
 lean_object* lean_mk_io_error_no_such_thing(uint32_t, lean_object*);
 lean_object* lean_mk_io_error_inappropriate_type(uint32_t, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* lean_mk_io_error_eof(lean_object*);
 lean_object* l_IO_Error_toString___closed__13;
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_IO_Error_mkIllegalOperation___boxed(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_IO_Error_toString___closed__6;
@@ -2168,7 +2168,7 @@ static lean_object* _init_l_IO_Error_Init_System_IOError___instance__3___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_2 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

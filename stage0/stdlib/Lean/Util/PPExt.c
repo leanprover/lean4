@@ -64,9 +64,9 @@ extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_Lean_Environment___instan
 lean_object* l_Lean_getSyntaxMaxDepth(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____lambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_94____closed__2;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 extern lean_object* l_Lean_Lean_Environment___instance__10___closed__1;
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__1() {
@@ -110,7 +110,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__3;
-x_2 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_3 = l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

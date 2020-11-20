@@ -626,7 +626,6 @@ lean_object* l_Lean_Parser_ParserExtensionState_kinds___default;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_2450____lambda__2___closed__1;
 lean_object* l_Lean_Parser_getParserPriority___closed__5;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1882____closed__19;
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_registerAliasCore___rarg___lambda__2___closed__1;
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore(lean_object*, lean_object*, lean_object*);
@@ -649,6 +648,7 @@ lean_object* l_IO_ofExcept___at_Lean_KeyedDeclsAttribute_declareBuiltin___spec__
 lean_object* l_Std_PersistentHashMap_containsAux___at_Lean_Parser_isValidSyntaxNodeKind___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_getParserPriority_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_addParser_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___lambda__2___closed__3;
@@ -1902,7 +1902,7 @@ lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_addTokenConfig(lea
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_4 = lean_string_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
@@ -3165,7 +3165,7 @@ x_16 = l___private_Lean_Parser_Extension_0__Lean_Parser_updateBuiltinTokens___cl
 x_17 = lean_string_append(x_15, x_16);
 x_18 = lean_string_append(x_17, x_11);
 lean_dec(x_11);
-x_19 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_19 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
@@ -3226,7 +3226,7 @@ x_36 = l___private_Lean_Parser_Extension_0__Lean_Parser_updateBuiltinTokens___cl
 x_37 = lean_string_append(x_35, x_36);
 x_38 = lean_string_append(x_37, x_31);
 lean_dec(x_31);
-x_39 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_39 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_40 = lean_string_append(x_38, x_39);
 x_41 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_41, 0, x_40);

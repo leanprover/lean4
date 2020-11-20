@@ -82,9 +82,9 @@ lean_object* l_Std_RBNode_fold___at_Lean_Json_compress___spec__2(lean_object*, l
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 extern lean_object* l_Char_quoteCore___closed__5;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Lean_Json_compress_match__1(lean_object*);
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Lean_Json_render___closed__7;
 lean_object* lean_nat_to_int(lean_object*);
@@ -157,7 +157,7 @@ goto block_31;
 else
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; 
-x_46 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_46 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_47 = lean_string_push(x_46, x_1);
 x_48 = lean_string_append(x_47, x_2);
 return x_48;
@@ -271,7 +271,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_string_utf8_byte_size(x_1);
 x_3 = l_Lean_Json_escape___closed__1;
-x_4 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_4 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l_String_foldrAux_loop___rarg(x_3, x_4, x_1, x_2, x_5);
 lean_dec(x_2);

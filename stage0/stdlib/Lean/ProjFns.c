@@ -18,6 +18,7 @@ size_t l_USize_add(size_t, size_t);
 lean_object* lean_add_projection_info(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_binSearchAux___at_Lean_Environment_getProjectionFnInfo_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_qsort_sort___at_Lean_initFn____x40_Lean_ProjFns___hyg_42____spec__1___lambda__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__69;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_ProjFns___hyg_42____spec__3(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -32,7 +33,6 @@ lean_object* l_Lean_Lean_ProjFns___instance__1___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__68;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -189,7 +189,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_P
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__68;
+x_1 = l_Lean_Init_Prelude___instance__69;
 x_2 = l_Lean_Lean_ProjFns___instance__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

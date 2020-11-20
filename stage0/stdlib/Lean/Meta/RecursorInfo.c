@@ -32,6 +32,7 @@ lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2050____clos
 lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__69;
 lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -71,7 +72,6 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_Lean_Meta_RecursorInfo___instance__2___closed__6;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qpartition_loop___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2050____spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__68;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotiveResultType___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___lambda__1___closed__1;
@@ -102,6 +102,7 @@ uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Meta_RecursorInfo_Lean_Meta_RecursorInfo___instance__2___closed__15;
 extern lean_object* l_Lean_auxRecExt;
 lean_object* l_Lean_Expr_occurs___lambda__1___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__74;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMotiveLevel___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkCasesOnName(lean_object*);
@@ -191,6 +192,7 @@ lean_object* l_List_toStringAux___at_Lean_Meta_RecursorInfo_Lean_Meta_RecursorIn
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Init_Prelude___instance__11;
 lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux___spec__1___closed__2;
 lean_object* l_Lean_Meta_RecursorInfo_numMinors___boxed(lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getNumParams(lean_object*, lean_object*, lean_object*);
@@ -252,7 +254,6 @@ lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* l_Lean_Meta_casesOnSuffix___closed__1;
 extern lean_object* l_Lean_ParametricAttribute_Lean_Attributes___instance__7___closed__1;
-extern lean_object* l_Init_Prelude___instance__10;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2050____closed__2;
 extern lean_object* l_Lean_Expr_FindImpl_initCache;
@@ -321,7 +322,6 @@ extern lean_object* l_Init_Data_Repr___instance__2___closed__1;
 lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux___spec__1___lambda__1___boxed(lean_object**);
 lean_object* l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___spec__1___lambda__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__73;
 lean_object* l_Array_getIdx_x3f___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_List_map___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__3(lean_object*);
@@ -350,7 +350,6 @@ lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2050____lamb
 lean_object* l_Array_findIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_Meta_getMajorPos_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_binductionOnSuffix___closed__1;
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
@@ -359,6 +358,7 @@ lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim_
 lean_object* l_Lean_Meta_RecursorInfo_Lean_Meta_RecursorInfo___instance__2___closed__9;
 uint8_t lean_level_eq(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2050____spec__3___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__10___rarg___closed__2;
@@ -720,7 +720,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_3;
 }
 else
@@ -762,7 +762,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_15; 
-x_15 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_15 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_15;
 }
 else
@@ -864,7 +864,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_3;
 }
 else
@@ -913,7 +913,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_20; 
-x_20 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_20 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_20;
 }
 else
@@ -1012,7 +1012,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_3;
 }
 else
@@ -1039,7 +1039,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_12; 
-x_12 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_12 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_12;
 }
 else
@@ -1136,7 +1136,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_3;
 }
 else
@@ -1170,7 +1170,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_13; 
-x_13 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_13 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_13;
 }
 else
@@ -9097,7 +9097,7 @@ lean_dec(x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = l_Lean_Init_Prelude___instance__73;
+x_6 = l_Lean_Init_Prelude___instance__74;
 x_7 = lean_array_get(x_6, x_2, x_4);
 x_8 = l_Lean_numLitKind;
 x_9 = l_Lean_Syntax_isNatLitAux(x_8, x_7);
@@ -9315,8 +9315,8 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_Meta_initFn____x40_L
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__68;
-x_2 = l_Init_Prelude___instance__10;
+x_1 = l_Lean_Init_Prelude___instance__69;
+x_2 = l_Init_Prelude___instance__11;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

@@ -89,6 +89,7 @@ lean_object* l_Lean_MetavarContext_addLevelMVarDecl(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuickConst_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallMetaTelescopeReducingAux_process(uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Init_Prelude___instance__44(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getPostponed___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_instantiateMVarsImp___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___rarg___closed__1;
@@ -96,7 +97,6 @@ lean_object* l_Lean_Meta_getExprMVarAssignment_x3f___rarg___lambda__1___boxed(le
 lean_object* l_Lean_Meta_savingCache(lean_object*);
 lean_object* l_Lean_Meta_orelse___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaMetaTelescopeImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_ReaderT_Init_Prelude___instance__49___closed__1;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_isClassExpensive_x3f_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux___closed__3;
@@ -293,6 +293,7 @@ lean_object* l_Lean_Meta_elimMVarDeps___rarg(lean_object*, lean_object*, lean_ob
 extern lean_object* l_Lean_Compiler_inlineAttrs;
 lean_object* l_StateRefT_x27_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__11(lean_object*);
+extern lean_object* l_ReaderT_Init_Prelude___instance__50___closed__1;
 lean_object* l_Lean_Meta_restoreSynthInstanceCache(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__9___closed__1;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux___closed__2;
@@ -937,7 +938,6 @@ lean_object* l_Lean_Meta_mkArrow___rarg___closed__2;
 uint8_t l_Lean_MetavarContext_hasAssignableMVar(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getFVarLocalDecl(lean_object*);
 lean_object* l_Lean_Meta_resetZetaFVarIds(lean_object*);
-lean_object* l_Init_Prelude___instance__43(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImpAux___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImpAux___at_Lean_Meta_withNewLocalInstances___spec__1(lean_object*);
 lean_object* l_Lean_Meta_commitWhenSome_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -2680,11 +2680,13 @@ return x_8;
 static lean_object* _init_l_Lean_Meta_throwIsDefEqStuck___rarg___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_isDefEqStuckExceptionId;
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_isDefEqStuckExceptionId;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 lean_object* l_Lean_Meta_throwIsDefEqStuck___rarg(lean_object* x_1) {
@@ -26057,7 +26059,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_commitWhenSome_x3f___rarg___closed__1;
-x_2 = l_ReaderT_Init_Prelude___instance__49___closed__1;
+x_2 = l_ReaderT_Init_Prelude___instance__50___closed__1;
 x_3 = l_Lean_Lean_Environment___instance__14___rarg(x_1, x_2);
 return x_3;
 }
@@ -26066,7 +26068,7 @@ static lean_object* _init_l_Lean_Meta_commitWhenSome_x3f___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Init_Prelude___instance__43), 2, 1);
+x_1 = lean_alloc_closure((void*)(l_Init_Prelude___instance__44), 2, 1);
 lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }

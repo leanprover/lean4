@@ -69,8 +69,8 @@ lean_object* l_FloatArray_get_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_FloatArray_push_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 double lean_float_array_get(lean_object*, lean_object*);
 lean_object* l_FloatArray_size_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* lean_float_array_fset(lean_object*, lean_object*, double);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_FloatArray_data___boxed(lean_object*);
 lean_object* l_List_toStringAux___at_Init_Data_FloatArray_Basic___instance__2___spec__2___boxed(lean_object*, lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__6;
@@ -512,7 +512,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_3;
 }
 else
@@ -541,7 +541,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_13; 
-x_13 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_13 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_13;
 }
 else

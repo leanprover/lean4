@@ -71,7 +71,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toArray___spec__
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Std_PersistentArray_toArray___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toList___spec__5(lean_object*);
 lean_object* l_Std_PersistentArray_all(lean_object*);
-lean_object* l_ReaderT_Init_Prelude___instance__51___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Std_PersistentArray_any___spec__4(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toArray___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_pop_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -233,7 +232,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toArray___spec__
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_append___spec__11___rarg(lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_foldl___spec__9___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
-uint8_t l_Init_Prelude___instance__8___rarg(uint8_t);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Std_PersistentArray_findSomeRev_x3f___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_append___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_append___spec__11(lean_object*);
@@ -269,6 +267,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Std_PersistentArray_findSome_x3f___sp
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toList___spec__6___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toList___spec__12___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_filter___spec__13___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Init_Prelude___instance__9___rarg(uint8_t);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_filter___spec__4(lean_object*);
 lean_object* l_Std_PersistentArray_div2Shift___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -480,6 +479,7 @@ lean_object* l_Std_PersistentArray_stats___rarg(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_toPersistentArray___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Std_PersistentArray_toList___spec__3(lean_object*);
+lean_object* l_ReaderT_Init_Prelude___instance__52___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_USize_size;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Std_PersistentArray_filter___spec__10(lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2314,7 +2314,7 @@ x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_nat_dec_eq(x_4, x_5);
-x_7 = l_Init_Prelude___instance__8___rarg(x_6);
+x_7 = l_Init_Prelude___instance__9___rarg(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; 
@@ -2534,7 +2534,7 @@ lean_dec(x_1);
 x_53 = lean_array_get_size(x_52);
 x_54 = lean_unsigned_to_nat(0u);
 x_55 = lean_nat_dec_eq(x_53, x_54);
-x_56 = l_Init_Prelude___instance__8___rarg(x_55);
+x_56 = l_Init_Prelude___instance__9___rarg(x_55);
 if (x_56 == 0)
 {
 lean_object* x_57; 
@@ -4199,7 +4199,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 lean_inc(x_1);
-x_6 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__51___rarg___lambda__4___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__52___rarg___lambda__4___boxed), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_5);
 x_7 = lean_ctor_get(x_1, 0);

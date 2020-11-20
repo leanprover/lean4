@@ -194,7 +194,6 @@ lean_object* l_Lean_Parser_ppIndent(lean_object*);
 lean_object* l_Lean_Parser_commandParser_formatter___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Parser_manyIndent___lambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__72___closed__1;
 lean_object* l_Lean_Parser___kind_term____x40_Lean_Parser_Extra___hyg_145____closed__14;
 lean_object* l_Lean_Parser_strLit_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser___kind_term____x40_Lean_Parser_Extra___hyg_145____closed__5;
@@ -233,6 +232,7 @@ lean_object* l_Lean_Parser_numLit_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_567____closed__43;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_antiquotNestedExpr_formatter___closed__6;
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_195____closed__29;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_567____closed__10;
 lean_object* l_Lean_Parser_mkAntiquot_formatter(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2728,7 +2728,7 @@ static lean_object* _init_l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_1
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__72___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_2 = l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_195____closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3110,7 +3110,7 @@ x_20 = l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_195____closed__14;
 lean_inc(x_18);
 lean_inc(x_19);
 x_21 = l_Lean_addMacroScope(x_19, x_20, x_18);
-x_22 = l_Lean_Init_Prelude___instance__72___closed__1;
+x_22 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_23 = l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_195____closed__11;
 x_24 = l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_195____closed__17;
 x_25 = lean_alloc_ctor(3, 4, 0);

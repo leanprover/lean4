@@ -497,7 +497,6 @@ lean_object* l_Lean_Meta_SynthInstance_initFn____x40_Lean_Meta_SynthInstance___h
 lean_object* l_Lean_Meta_SynthInstance_synth___closed__2;
 lean_object* l_Lean_Meta_SynthInstance_consume(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthInstanceImp_x3f___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -515,6 +514,7 @@ lean_object* l_Lean_Meta_SynthInstance_resume___closed__4;
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_SynthInstance_tryResolve___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__3;
 lean_object* l_Std_PersistentHashMap_insertAux___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthInstanceImp_x3f___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_MkTableKey_normExpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_Meta_SynthInstance_newSubgoal___spec__8(lean_object*, lean_object*);
@@ -18328,7 +18328,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_3246____closed__4;
-x_2 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_2 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_3246____closed__5;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

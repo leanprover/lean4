@@ -53,7 +53,7 @@ private def resumePostponed (macroStack : MacroStack) (declName? : Option Name) 
         assignExprMVar mvarId result
         pure true
     catch
-     | ex@(Exception.internal id) =>
+     | ex@(Exception.internal id _) =>
        if id == postponeExceptionId then
          set s
          pure false

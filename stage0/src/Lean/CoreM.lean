@@ -89,8 +89,8 @@ def mkFreshUserName {m} [MonadLiftT CoreM m] (n : Name) : m Name :=
 
 @[inline] def CoreM.toIO {α} (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) := do
   match (← (x.run ctx s).toIO') with
-  | Except.error (Exception.error _ msg) => do let e ← msg.toString; throw $ IO.userError e
-  | Except.error (Exception.internal id) => throw $ IO.userError $ "internal exception #" ++ toString id.idx
+  | Except.error (Exception.error _ msg)   => do let e ← msg.toString; throw $ IO.userError e
+  | Except.error (Exception.internal id _) => throw $ IO.userError $ "internal exception #" ++ toString id.idx
   | Except.ok a => pure a
 
 instance {α} [MetaEval α] : MetaEval (CoreM α) := {
@@ -112,14 +112,14 @@ export Core (CoreM mkFreshUserName)
   try
     x
   catch ex => match ex with
-    | Exception.error _ _    => throw ex
-    | Exception.internal id' => if id == id' then h ex else throw ex
+    | Exception.error _ _      => throw ex
+    | Exception.internal id' _ => if id == id' then h ex else throw ex
 
 @[inline] def catchInternalIds {α} {m : Type → Type} [Monad m] [MonadExcept Exception m] (ids : List InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
   try
     x
   catch ex => match ex with
-    | Exception.error _ _   => throw ex
-    | Exception.internal id => if ids.contains id then h ex else throw ex
+    | Exception.error _ _     => throw ex
+    | Exception.internal id _ => if ids.contains id then h ex else throw ex
 
 end Lean

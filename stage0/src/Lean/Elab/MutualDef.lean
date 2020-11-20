@@ -73,19 +73,20 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
 private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
   registerCustomErrorIfMVar type ref "failed to infer definition type"
 
-private def elabFunType (ref : Syntax) (xs : Array Expr) (view : DefView) : TermElabM Expr := do
+private def elabFunType {α} (ref : Syntax) (xs : Array Expr) (view : DefView) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
   match view.type? with
   | some typeStx =>
-    let type ← elabType typeStx
-    synthesizeSyntheticMVarsNoPostponing
-    let type ← instantiateMVars type
-    registerFailedToInferDefTypeInfo type typeStx
-    mkForallFVars xs type
+    elabTypeWithUnboundImplicit typeStx fun unboundImplicitFVars type => do
+      synthesizeSyntheticMVarsNoPostponing
+      let type ← instantiateMVars type
+      registerFailedToInferDefTypeInfo type typeStx
+      let xs := xs ++ unboundImplicitFVars
+      k xs (← mkForallFVars xs type)
   | none =>
     let hole := mkHole ref
     let type ← elabType hole
     registerFailedToInferDefTypeInfo type ref
-    mkForallFVars xs type
+    k xs (← mkForallFVars xs type)
 
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
   let mut headers := #[]
@@ -93,21 +94,21 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
     let newHeader ← withRef view.ref do
       let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
-      withLevelNames levelNames $ elabBinders view.binders.getArgs fun xs => do
+      withUnboundImplicitLocal <| withLevelNames levelNames <| elabBinders view.binders.getArgs fun xs => do
         let refForElabFunType := view.value
-        let type ← elabFunType refForElabFunType xs view
-        let newHeader := {
-          ref           := view.ref,
-          modifiers     := view.modifiers,
-          kind          := view.kind,
-          shortDeclName := shortDeclName,
-          declName      := declName,
-          levelNames    := levelNames,
-          numParams     := xs.size,
-          type          := type,
-          valueStx      := view.value : DefViewElabHeader }
-        check headers newHeader
-        pure newHeader
+        elabFunType refForElabFunType xs view fun xs type => do
+          let newHeader := {
+            ref           := view.ref,
+            modifiers     := view.modifiers,
+            kind          := view.kind,
+            shortDeclName := shortDeclName,
+            declName      := declName,
+            levelNames    := levelNames,
+            numParams     := xs.size,
+            type          := type,
+            valueStx      := view.value : DefViewElabHeader }
+          check headers newHeader
+          pure newHeader
     headers := headers.push newHeader
   pure headers
 

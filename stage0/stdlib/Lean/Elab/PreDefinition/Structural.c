@@ -264,6 +264,7 @@ lean_object* l_Lean_Elab_Structural_State_matcherBelowDep___default;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_hasBadIndexDep_x3f___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Lean_Elab_PreDefinition_Basic___instance__1___closed__1;
+extern lean_object* l_Init_Prelude___instance__11;
 uint8_t l_Lean_Elab_Structural_addSmartUnfoldingDefAux___lambda__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Structural_structuralRecursion___closed__3;
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_toBelowAux___closed__1;
@@ -348,7 +349,6 @@ lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structu
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_toBelowAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_exprDependsOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Structural_structuralRecursion_match__1(lean_object*);
-extern lean_object* l_Init_Prelude___instance__10;
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_toBelowAux___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_findRecArg_loop___rarg___closed__4;
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_toBelowAux___closed__8;
@@ -4264,7 +4264,7 @@ x_13 = x_3 + x_12;
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_14 = l_Init_Prelude___instance__10;
+x_14 = l_Init_Prelude___instance__11;
 x_15 = l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_findRecArg_loop___spec__5___closed__3;
 x_16 = lean_panic_fn(x_14, x_15);
 x_17 = x_16;

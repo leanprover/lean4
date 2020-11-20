@@ -113,7 +113,6 @@ lean_object* l_List_reverse(lean_object*);
 lean_object* l_List_groupByAux_match__1___rarg(uint8_t, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_List_enum(lean_object*);
-uint8_t l_Init_Prelude___instance__8___rarg(uint8_t);
 lean_object* l_List_dropLast(lean_object*);
 lean_object* l_List_erase_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_Init_Data_List_Basic___instance__2(lean_object*);
@@ -141,6 +140,7 @@ lean_object* l_List_filterMap(lean_object*, lean_object*);
 lean_object* l_List_replace_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_List_zipWith_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_init___rarg(lean_object*);
+uint8_t l_Init_Prelude___instance__9___rarg(uint8_t);
 lean_object* l_List_isSuffixOf(lean_object*);
 uint8_t l_List_or(lean_object*);
 lean_object* l_List_replicate(lean_object*);
@@ -5763,7 +5763,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; 
 x_5 = l_List_hasDecidableLt___rarg(x_1, x_2, x_4, x_3);
-x_6 = l_Init_Prelude___instance__8___rarg(x_5);
+x_6 = l_Init_Prelude___instance__9___rarg(x_5);
 return x_6;
 }
 }

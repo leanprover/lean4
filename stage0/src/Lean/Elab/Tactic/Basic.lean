@@ -105,7 +105,7 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List Tact
         match evalFns with
         | []      => throw ex
         | evalFns => s.restore; loop evalFns
-      | ex@(Exception.internal id) =>
+      | ex@(Exception.internal id _) =>
         if id == unsupportedSyntaxExceptionId then
           s.restore; loop evalFns
         else

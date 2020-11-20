@@ -23,6 +23,7 @@ lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecialize
 lean_object* l_Lean_Compiler_hasNospecializeAttribute___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecState_Lean_Compiler_Specialize___instance__3___closed__1;
 lean_object* l_Array_binSearchAux___at___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__69;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__4(lean_object*, lean_object*);
@@ -54,7 +55,6 @@ lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_SpecS
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Compiler_SpecState_addEntry___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux(lean_object*, uint8_t, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__68;
 lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_SpecState_addEntry___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -435,7 +435,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_Compiler_initFn____x
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Init_Prelude___instance__68;
+x_1 = l_Lean_Init_Prelude___instance__69;
 x_2 = l_Lean_Compiler_SpecializeAttributeKind_Lean_Compiler_Specialize___instance__1;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);

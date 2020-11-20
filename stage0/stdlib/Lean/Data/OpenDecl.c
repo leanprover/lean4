@@ -34,9 +34,9 @@ lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2_match__1___rarg(le
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2_match__1(lean_object*);
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2(lean_object*);
 lean_object* l_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___closed__1;
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_List_beq___at_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___spec__1___boxed(lean_object*, lean_object*);
 uint8_t l_List_beq___at_Lean_OpenDecl_Lean_Data_OpenDecl___instance__2___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__6;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__2;
@@ -155,7 +155,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_3;
 }
 else
@@ -183,7 +183,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_13; 
-x_13 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_13 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_13;
 }
 else
@@ -299,7 +299,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_3);
-x_12 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_12 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_13 = lean_string_append(x_5, x_12);
 return x_13;
 }

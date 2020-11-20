@@ -69,11 +69,11 @@ uint8_t lean_byte_array_get(lean_object*, lean_object*);
 lean_object* l_ByteArray_toList(lean_object*);
 lean_object* l_ByteArray_set_x21_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_Init_Data_ByteArray_Basic___instance__1;
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_ByteArray_set_x21___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_byte_array(lean_object*);
 lean_object* l_ByteArray_mk___boxed(lean_object*);
 lean_object* l_Init_Data_ByteArray_Basic___instance__3(lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_ByteArray_mkEmpty___boxed(lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__6;
 lean_object* lean_uint8_to_nat(uint8_t);
@@ -562,7 +562,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_3;
 }
 else
@@ -592,7 +592,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_14; 
-x_14 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_14 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_14;
 }
 else

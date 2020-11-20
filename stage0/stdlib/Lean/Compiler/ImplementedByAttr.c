@@ -23,6 +23,7 @@ lean_object* l_Array_qsort_sort___at_Lean_Compiler_initFn____x40_Lean_Compiler_I
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__6___closed__1;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____lambda__1___closed__2;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__69;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,7 +40,6 @@ lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____lambda__1___closed__5;
 lean_object* l_Lean_resolveGlobalConst___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__68;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3__match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalName___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,11 +125,11 @@ lean_object* l_Lean_getConstInfo___at_Lean_Compiler_initFn____x40_Lean_Compiler_
 lean_object* l_Lean_setImplementedBy___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____closed__2;
 uint8_t l_List_isEmpty___rarg(lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Array_binSearchAux___at_Lean_Compiler_getImplementedBy___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_Compiler_getImplementedBy___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____closed__4;
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____closed__8;
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -428,7 +428,7 @@ x_16 = l_List_map___at_Lean_resolveGlobalConstNoOverload___spec__1(x_9, x_7);
 x_17 = l_List_toString___at_Lean_resolveGlobalConstNoOverload___spec__2(x_16);
 x_18 = lean_string_append(x_15, x_17);
 lean_dec(x_17);
-x_19 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_19 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
@@ -495,7 +495,7 @@ x_39 = l_List_map___at_Lean_resolveGlobalConstNoOverload___spec__1(x_32, x_7);
 x_40 = l_List_toString___at_Lean_resolveGlobalConstNoOverload___spec__2(x_39);
 x_41 = lean_string_append(x_38, x_40);
 lean_dec(x_40);
-x_42 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_42 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_43 = lean_string_append(x_41, x_42);
 x_44 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_44, 0, x_43);
@@ -564,7 +564,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_Compiler_initFn____x
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Init_Prelude___instance__68;
+x_1 = l_Lean_Init_Prelude___instance__69;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);

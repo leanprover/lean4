@@ -20,6 +20,7 @@ lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10____closed__14;
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10____spec__4___closed__1;
 lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatusImp___spec__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__69;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10____spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_getReducibilityStatus___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -45,7 +46,6 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_setReducibilityStatusImp_match__1(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10____closed__8;
-extern lean_object* l_Lean_Init_Prelude___instance__68;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l_Lean_Lean_ReducibilityAttrs___instance__1;
 lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_10____closed__4;
@@ -178,7 +178,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_R
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Init_Prelude___instance__68;
+x_1 = l_Lean_Init_Prelude___instance__69;
 x_2 = l_Lean_Lean_ReducibilityAttrs___instance__1;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);

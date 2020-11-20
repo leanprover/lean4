@@ -34,9 +34,9 @@ lean_object* l_Lean_Json_Lean_Data_Json_FromToJson___instance__16(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lean_Data_Json_FromToJson___instance__14___spec__1(lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__2;
-extern lean_object* l_Init_Prelude___instance__9___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lean_Data_Json_FromToJson___instance__14___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__1(lean_object*);
+extern lean_object* l_Init_Prelude___instance__10___closed__1;
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__13_match__1(lean_object*);
 lean_object* l_Lean_Json_Lean_Data_Json_FromToJson___instance__15___boxed(lean_object*);
 lean_object* l_Lean_Lean_Data_Json_FromToJson___instance__3;
@@ -85,7 +85,7 @@ static lean_object* _init_l_Lean_Lean_Data_Json_FromToJson___instance__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Init_Prelude___instance__9___closed__1;
+x_1 = l_Init_Prelude___instance__10___closed__1;
 return x_1;
 }
 }

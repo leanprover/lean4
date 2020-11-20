@@ -13,15 +13,15 @@ namespace Lean
 /- Exception type used in most Lean monads -/
 inductive Exception :=
   | error (ref : Syntax) (msg : MessageData)
-  | internal (id : InternalExceptionId)
+  | internal (id : InternalExceptionId) (extra : KVMap := {})
 
 def Exception.toMessageData : Exception → MessageData
-  | Exception.error _ msg => msg
-  | Exception.internal id => id.toString
+  | Exception.error _ msg   => msg
+  | Exception.internal id _ => id.toString
 
 def Exception.getRef : Exception → Syntax
-  | Exception.error ref _ => ref
-  | Exception.internal _  => Syntax.missing
+  | Exception.error ref _   => ref
+  | Exception.internal _  _ => Syntax.missing
 
 instance : Inhabited Exception := ⟨Exception.error (arbitrary _) (arbitrary _)⟩
 

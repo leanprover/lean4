@@ -142,11 +142,11 @@ lean_object* l_Lean_KVMap_find_match__1___rarg(lean_object*, lean_object*, lean_
 uint8_t l_Lean_KVMap_subsetAux(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_eqv(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_Lean_Data_KVMap___instance__12___closed__1;
 lean_object* l_Lean_KVMap_getBool_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lean_Data_KVMap___instance__4(uint8_t);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_Lean_KVMap_entries___default;
 lean_object* l_Lean_Lean_Data_KVMap___instance__1___closed__1;
 lean_object* l_Lean_KVMap_subsetAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -924,7 +924,7 @@ if (x_1 == 0)
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_3;
 }
 else
@@ -966,7 +966,7 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_22; 
-x_22 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_22 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_22;
 }
 else
@@ -2441,7 +2441,7 @@ static lean_object* _init_l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_2 = l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__1;
 x_3 = l_Lean_KVMap_Lean_Data_KVMap___instance__15___closed__2;
 x_4 = lean_alloc_ctor(0, 3, 0);

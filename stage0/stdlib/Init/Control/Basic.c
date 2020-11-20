@@ -46,9 +46,9 @@ lean_object* l_myMacro____x40_Init_Control_Basic___hyg_566____closed__6;
 lean_object* l_Init_Control_Basic___instance__3___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_orM_match__1(lean_object*);
 lean_object* l_Init_Control_Basic___instance__4___rarg___lambda__2(lean_object*, lean_object*);
-extern lean_object* l_Init_Prelude___instance__9___closed__1;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_5505____closed__4;
 lean_object* l_Functor_discard___rarg(lean_object*, lean_object*);
+extern lean_object* l_Init_Prelude___instance__10___closed__1;
 lean_object* l_Init_Control_Basic___instance__3___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___kind_term____x40_Init_Control_Basic___hyg_38____closed__4;
 lean_object* l_when(lean_object*);
@@ -76,7 +76,6 @@ lean_object* l___kind_term____x40_Init_Control_Basic___hyg_513____closed__3;
 lean_object* l_notM___rarg___closed__1;
 lean_object* l_guard___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_807____closed__1;
-extern lean_object* l_Lean_Init_Prelude___instance__72___closed__1;
 lean_object* l___kind_term____x40_Init_Control_Basic___hyg_513____closed__4;
 lean_object* l___kind_term____x40_Init_Control_Basic___hyg_513____closed__1;
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_75____closed__4;
@@ -92,6 +91,7 @@ lean_object* l_myMacro____x40_Init_Control_Basic___hyg_566_(lean_object*, lean_o
 lean_object* l___kind_term____x40_Init_Control_Basic___hyg_754____closed__1;
 lean_object* l_bool___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_566____closed__5;
 extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_notM(lean_object*);
@@ -125,10 +125,10 @@ extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__7;
 lean_object* l___kind_term____x40_Init_Control_Basic___hyg_38____closed__10;
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_566____closed__2;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+lean_object* l_Init_Prelude___instance__45___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_unless(lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_171____closed__4;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l_Init_Prelude___instance__44___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_807____closed__6;
 lean_object* l_Init_Control_Basic___instance__3___rarg(lean_object*, lean_object*);
 lean_object* l_unless___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
@@ -396,7 +396,7 @@ lean_dec(x_2);
 x_20 = l_myMacro____x40_Init_Control_Basic___hyg_75____closed__7;
 x_21 = l_Lean_addMacroScope(x_19, x_20, x_18);
 x_22 = lean_box(0);
-x_23 = l_Lean_Init_Prelude___instance__72___closed__1;
+x_23 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_24 = l_myMacro____x40_Init_Control_Basic___hyg_75____closed__3;
 x_25 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_25, 0, x_23);
@@ -686,7 +686,7 @@ static lean_object* _init_l_Init_Control_Basic___instance__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Init_Prelude___instance__9___closed__1;
+x_1 = l_Init_Prelude___instance__10___closed__1;
 return x_1;
 }
 }
@@ -1047,7 +1047,7 @@ lean_inc(x_19);
 lean_dec(x_2);
 x_20 = l_myMacro____x40_Init_Control_Basic___hyg_566____closed__4;
 x_21 = l_Lean_addMacroScope(x_19, x_20, x_18);
-x_22 = l_Lean_Init_Prelude___instance__72___closed__1;
+x_22 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_23 = l_myMacro____x40_Init_Control_Basic___hyg_566____closed__3;
 x_24 = l_myMacro____x40_Init_Control_Basic___hyg_566____closed__6;
 x_25 = lean_alloc_ctor(3, 4, 0);
@@ -1357,7 +1357,7 @@ lean_inc(x_19);
 lean_dec(x_2);
 x_20 = l_myMacro____x40_Init_Control_Basic___hyg_807____closed__4;
 x_21 = l_Lean_addMacroScope(x_19, x_20, x_18);
-x_22 = l_Lean_Init_Prelude___instance__72___closed__1;
+x_22 = l_Lean_Init_Prelude___instance__73___closed__1;
 x_23 = l_myMacro____x40_Init_Control_Basic___hyg_807____closed__3;
 x_24 = l_myMacro____x40_Init_Control_Basic___hyg_807____closed__6;
 x_25 = lean_alloc_ctor(3, 4, 0);
@@ -1570,7 +1570,7 @@ lean_object* l_Init_Control_Basic___instance__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_alloc_closure((void*)(l_Init_Prelude___instance__44___rarg___lambda__1), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Init_Prelude___instance__45___rarg___lambda__1), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 x_3 = l_Init_Control_Basic___instance__4___rarg___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 0);

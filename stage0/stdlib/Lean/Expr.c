@@ -35,11 +35,11 @@ lean_object* l_Lean_Expr_bindingDomain_x21___boxed(lean_object*);
 uint8_t l_Lean_Expr_isCharLit(lean_object*);
 lean_object* l_Lean_Expr_letName_x21(lean_object*);
 uint8_t l_Lean_Expr_isNatLit(lean_object*);
-extern uint64_t l_Init_Prelude___instance__32;
 lean_object* l_Lean_mkFreshMVarId___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateFn_match__1(lean_object*);
 lean_object* l_Lean_BinderInfo_isAuxDecl_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_replaceFVar___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__69;
 lean_object* l_Lean_Expr_updateLambda___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs___boxed(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -79,7 +79,6 @@ lean_object* l_Lean_Expr_isLit___boxed(lean_object*);
 lean_object* l_Lean_Expr_replaceFVars___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateLambda_x21___closed__3;
 lean_object* l_Lean_Expr_getAppFn_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern uint64_t l_Init_Prelude___instance__32___closed__1;
 uint64_t l_UInt64_add(uint64_t, uint64_t);
 lean_object* l_Lean_Expr_constName_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isStringLit_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -132,7 +131,6 @@ lean_object* l_Lean_Literal_type_match__1___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_Expr_withAppRev___rarg(lean_object*, lean_object*);
 uint64_t l_Lean_Expr_mkData___closed__3;
 lean_object* l_Lean_annotation_x3f___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__68;
 uint64_t l_Lean_Expr_mkDataForBinder(size_t, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 uint64_t l___private_Lean_Expr_0__Lean_Expr_mkDataCore(size_t, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
@@ -210,6 +208,7 @@ lean_object* l_Lean_Expr_isNatLit_match__1(lean_object*);
 lean_object* l_Lean_Expr_mkDataForBinder___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_BinderInfo_hash___boxed(lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_mkAppRev___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern uint64_t l_Init_Prelude___instance__33;
 lean_object* l_Lean_Expr_ctorName___boxed(lean_object*);
 lean_object* lean_expr_mk_forall(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_expr_instantiate(lean_object*, lean_object*);
@@ -306,6 +305,7 @@ uint8_t l_Lean_Literal_beq(lean_object*, lean_object*);
 lean_object* l_Lean_BinderInfo_toUInt64_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ctorName___closed__5;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_mkAppRevRangeAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2502____closed__16;
 lean_object* l_Lean_Expr_bindingBody_x21___closed__2;
 lean_object* l_Lean_Expr_isBinding_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -366,6 +366,7 @@ lean_object* l_Lean_Expr_hasMVarEx___boxed(lean_object*);
 lean_object* l_Lean_mkAppRange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateForallE_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateLambdaE_x21_match__1(lean_object*);
+extern lean_object* l_Init_Prelude___instance__11;
 lean_object* l_Lean_Expr_fvarId_x21___boxed(lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21___closed__1;
 lean_object* l_Lean_Expr_updateConst_x21___closed__2;
@@ -424,7 +425,6 @@ uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21___closed__3;
 lean_object* l_Lean_Expr_instantiateRange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasFVar___boxed(lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2483____closed__16;
 lean_object* l_Lean_Lean_Expr___instance__3;
 lean_object* l_Lean_mkLambda(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isAuxDecl(uint8_t);
@@ -483,7 +483,6 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_betaRevAux___boxed(lean_object*,
 lean_object* l_Lean_Expr_ctorName___closed__9;
 lean_object* l_Lean_Expr_instantiateRevRange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasLooseBVarInExplicitDomain_match__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Init_Prelude___instance__10;
 lean_object* l_Lean_Expr_updateLambda_x21___closed__1;
 lean_object* l_Lean_mkAppN___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingInfo_x21_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -688,6 +687,7 @@ lean_object* l_Lean_Expr_etaExpandedStrict_x3f(lean_object*);
 lean_object* l_Lean_Expr_updateLambdaE_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasLooseBVar___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ctorName___closed__11;
+extern uint64_t l_Init_Prelude___instance__33___closed__1;
 lean_object* l_Lean_ExprStructEq_Lean_Expr___instance__20(lean_object*);
 lean_object* l_Lean_Expr_bvarIdx_x21_match__1(lean_object*);
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
@@ -1839,7 +1839,7 @@ static uint64_t _init_l_Lean_Lean_Expr___instance__9() {
 _start:
 {
 uint64_t x_1; 
-x_1 = l_Init_Prelude___instance__32;
+x_1 = l_Init_Prelude___instance__33;
 return x_1;
 }
 }
@@ -2530,7 +2530,7 @@ _start:
 {
 lean_object* x_1; uint64_t x_2; lean_object* x_3; 
 x_1 = l_Lean_levelZero;
-x_2 = l_Init_Prelude___instance__32___closed__1;
+x_2 = l_Init_Prelude___instance__33___closed__1;
 x_3 = lean_alloc_ctor(3, 1, 8);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint64(x_3, sizeof(void*)*1, x_2);
@@ -5469,7 +5469,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_2483____closed__16;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_2502____closed__16;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -8685,7 +8685,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lean_Init_Prelude___instance__68;
+x_3 = l_Lean_Init_Prelude___instance__69;
 x_4 = l_Lean_Expr_constName_x21___closed__3;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;
@@ -8922,7 +8922,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Init_Prelude___instance__10;
+x_3 = l_Init_Prelude___instance__11;
 x_4 = l_Lean_Expr_bvarIdx_x21___closed__3;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;
@@ -9012,7 +9012,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lean_Init_Prelude___instance__68;
+x_3 = l_Lean_Init_Prelude___instance__69;
 x_4 = l_Lean_Expr_fvarId_x21___closed__3;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;
@@ -9102,7 +9102,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lean_Init_Prelude___instance__68;
+x_3 = l_Lean_Init_Prelude___instance__69;
 x_4 = l_Lean_Expr_mvarId_x21___closed__3;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;
@@ -9225,7 +9225,7 @@ return x_3;
 default: 
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_Lean_Init_Prelude___instance__68;
+x_4 = l_Lean_Init_Prelude___instance__69;
 x_5 = l_Lean_Expr_bindingName_x21___closed__3;
 x_6 = lean_panic_fn(x_4, x_5);
 return x_6;
@@ -9674,7 +9674,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lean_Init_Prelude___instance__68;
+x_3 = l_Lean_Init_Prelude___instance__69;
 x_4 = l_Lean_Expr_letName_x21___closed__3;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;

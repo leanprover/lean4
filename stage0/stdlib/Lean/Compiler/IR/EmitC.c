@@ -585,7 +585,6 @@ lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitDeclAux___spec__1___closed__
 lean_object* l_Lean_IR_EmitC_emitOffset(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitExternDeclAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitFnDecls_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_EmitC_emitInitFn___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitSSet___closed__4;
 lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitTailCall___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -607,6 +606,7 @@ lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitDeclAux___spec__2___lambda__
 lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__2___closed__13;
 lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__2___closed__23;
 lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__24;
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_Lean_IR_EmitC_emitSSet___closed__1;
 lean_object* l_Lean_IR_EmitC_emitInitFn___closed__8;
 lean_object* l_Lean_IR_Decl_params(lean_object*);
@@ -4109,7 +4109,7 @@ lean_dec(x_8);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; size_t x_18; size_t x_19; lean_object* x_20; 
-x_13 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_13 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_14 = lean_string_append(x_11, x_13);
 x_15 = l_Init_Data_Repr___instance__18___closed__2;
 x_16 = lean_string_append(x_15, x_14);
@@ -4469,7 +4469,7 @@ goto block_13;
 block_13:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_4 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_4 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_5 = lean_string_append(x_3, x_4);
 x_6 = l___private_Lean_Data_Format_0__Lean_Format_pushNewline___closed__1;
 x_7 = lean_string_append(x_5, x_6);
@@ -9263,7 +9263,7 @@ _start:
 {
 uint32_t x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Nat_digitChar(x_1);
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_4 = lean_string_push(x_3, x_2);
 return x_4;
 }
@@ -9303,7 +9303,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_9);
-x_12 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_12 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_13 = lean_string_push(x_12, x_2);
 x_14 = lean_string_append(x_1, x_13);
 lean_dec(x_13);
@@ -11681,7 +11681,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean
 x_15 = lean_ctor_get(x_9, 1);
 lean_inc(x_15);
 lean_dec(x_9);
-x_16 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_16 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_17 = lean_string_append(x_15, x_16);
 x_18 = lean_string_append(x_17, x_6);
 x_19 = lean_box(0);
@@ -13650,7 +13650,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_7 = lean_ctor_get(x_5, 0);
-x_8 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_8 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
 x_10 = l_Lean_IR_EmitC_emitDecl___closed__1;
@@ -13670,7 +13670,7 @@ x_16 = lean_ctor_get(x_5, 1);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_5);
-x_17 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_17 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_18 = lean_string_append(x_17, x_15);
 lean_dec(x_15);
 x_19 = l_Lean_IR_EmitC_emitDecl___closed__1;
@@ -15299,7 +15299,7 @@ lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_4);
 lean_ctor_set(x_6, 4, x_5);
-x_7 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_7 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_8 = l_Lean_IR_EmitC_main(x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {

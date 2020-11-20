@@ -146,10 +146,10 @@ lean_object* l_List_reprAux_match__1___rarg___boxed(lean_object*, lean_object*, 
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Char_quoteCore___closed__5;
 lean_object* lean_uint16_to_nat(uint16_t);
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Nat_toDigitsCore_match__1(lean_object*);
 lean_object* l_Char_quoteCore(uint32_t);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Init_Data_Repr___instance__10_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Init_Data_Repr___instance__5(lean_object*);
@@ -405,7 +405,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; 
 lean_dec(x_1);
-x_4 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_4 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_4;
 }
 else
@@ -434,7 +434,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_13; 
 lean_dec(x_1);
-x_13 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_13 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_13;
 }
 else
@@ -1546,7 +1546,7 @@ _start:
 {
 uint32_t x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Nat_digitChar(x_1);
-x_3 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_3 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_4 = lean_string_push(x_3, x_2);
 return x_4;
 }
@@ -1664,7 +1664,7 @@ x_14 = x_1 == x_13;
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
-x_15 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_15 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_16 = lean_string_push(x_15, x_1);
 return x_16;
 }

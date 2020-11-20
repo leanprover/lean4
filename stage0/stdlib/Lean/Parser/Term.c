@@ -3260,7 +3260,6 @@ lean_object* l_Lean_Parser_Term_nativeRefl___elambda__1___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_trailingNode_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_tparser_x21___elambda__1___closed__10;
 lean_object* l_Lean_Parser_Term_typeOf___elambda__1___closed__10;
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Lean_Parser_Term_explicitBinder_parenthesizer___closed__2;
 lean_object* l_Lean_PrettyPrinter_Formatter_sepBy1_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Term___hyg_3385____closed__7;
@@ -3399,6 +3398,7 @@ lean_object* l_Lean_Parser_Term_structInst___elambda__1___closed__9;
 extern lean_object* l_Lean_Parser_Tactic_let_x21___closed__3;
 lean_object* l_Lean_Parser_Term_letRecDecls___closed__2;
 lean_object* l_Lean_Parser_Term_letrec_formatter___closed__2;
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__4;
 extern lean_object* l_Lean_Parser_Level_paren_formatter___closed__2;
 lean_object* l_Lean_Parser_Term_binderDefault___closed__3;
@@ -6578,7 +6578,7 @@ static lean_object* _init_l_Lean_Parser_Term_type___elambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_1 = l_Lean_Init_Prelude___instance__75___closed__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_checkWsBefore___elambda__1___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

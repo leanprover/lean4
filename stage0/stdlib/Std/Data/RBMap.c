@@ -278,7 +278,6 @@ lean_object* l_Std_RBMap_max___rarg(lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Std_RBMap_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_fold(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_depth___rarg___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74___closed__1;
 lean_object* l_Std_RBNode_balance_u2083_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_Std_Data_RBMap___instance__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_fold_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -288,6 +287,7 @@ lean_object* l_Std_RBNode_balRight(lean_object*, lean_object*);
 lean_object* l_Std_RBMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_min_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_balance_u2083(lean_object*, lean_object*);
+extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_Std_RBNode_all_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_fromList(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_lowerBound(lean_object*, lean_object*);
@@ -20695,7 +20695,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_5 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_5 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_5;
 }
 else
@@ -20740,7 +20740,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_23; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_23 = l_Lean_Init_Prelude___instance__74___closed__1;
+x_23 = l_Lean_Init_Prelude___instance__75___closed__1;
 return x_23;
 }
 else

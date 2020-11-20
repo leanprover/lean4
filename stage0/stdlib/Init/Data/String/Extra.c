@@ -15,9 +15,9 @@ extern "C" {
 #endif
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
+extern lean_object* l_Init_Prelude___instance__11;
 uint8_t l_String_isNat(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Init_Prelude___instance__10;
 lean_object* lean_string_to_utf8(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_String_foldlAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -75,7 +75,7 @@ x_2 = l_String_isNat(x_1);
 if (x_2 == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Init_Prelude___instance__10;
+x_3 = l_Init_Prelude___instance__11;
 x_4 = l_String_toNat_x21___closed__4;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;

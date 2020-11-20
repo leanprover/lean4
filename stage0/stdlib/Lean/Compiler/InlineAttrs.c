@@ -22,6 +22,7 @@ lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54___
 size_t l_USize_add(size_t, size_t);
 lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux_match__1(lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__17;
+extern lean_object* l_Lean_Init_Prelude___instance__69;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__8___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44,7 +45,6 @@ lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54___
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__18;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____closed__5;
-extern lean_object* l_Lean_Init_Prelude___instance__68;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_InlineAttributeKind_beq_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_54____spec__2___lambda__2(lean_object*);
@@ -453,7 +453,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_Compiler_initFn____x
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Init_Prelude___instance__68;
+x_1 = l_Lean_Init_Prelude___instance__69;
 x_2 = l_Lean_Compiler_InlineAttributeKind_Lean_Compiler_InlineAttrs___instance__1;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);

@@ -1113,7 +1113,8 @@ hljs.registerLanguage("lean", function(hljs) {
       'import open theory prelude renaming hiding exposing ' +
       'calc  match do  by let in extends ' +
       'fun assume ' +
-      '#check #eval #reduce #print',
+      '#check #eval #reduce #print ' +
+      'section namespace end',
     built_in:
       'Type Prop|10 Sort rw|10 rewrite rwa erw subst substs ' +
       'simp dsimp simpa simp_intros finish ' +
@@ -1134,8 +1135,6 @@ hljs.registerLanguage("lean", function(hljs) {
       'tt ff',
     meta:
       'noncomputable|10 private protected meta mutual',
-    section:
-      'section namespace end',
     strong:
       'sorry admit',
   };

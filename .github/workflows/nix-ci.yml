@@ -36,12 +36,12 @@ jobs:
         with:
           extra_nix_config: |
             max-jobs = auto
-            extra-sandbox-paths = /var/cache/ccache
+            extra-sandbox-paths = /nix/var/cache/ccache
       - name: Cache
         uses: actions/cache@v2
         with:
-          path: /var/cache/ccache
           key: ${{ matrix.name }}-build-${{ github.sha }}
+          path: /nix/var/cache/ccache
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-build
@@ -49,8 +49,6 @@ jobs:
         # can't use `nix-shell` yet since it will complain about the missing sandbox path
         shell: bash -euo pipefail {0} 
         run: |
-          [ -d /var/cache/ccache ] || sudo mkdir -m0770 -p /var/cache/ccache
-          sudo chown -R root:nixbld /var/cache/ccache
       - name: Build
         run: nix build
       - name: Test

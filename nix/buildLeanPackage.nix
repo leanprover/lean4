@@ -101,7 +101,7 @@ in
     objects   = mapAttrs compileMod mods;
     staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
       mkdir $out
-      ar rcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (attrValues objects))}
+      ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (attrValues objects))}
     '';
 
     lean-package = writeScriptBin "lean" ''

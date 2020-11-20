@@ -53,11 +53,11 @@
     in rec {
       packages = {
         inherit cc lean4-mode;
-        lean = lean.stage1 // lean // { inherit buildLeanPackage; };
+        lean = lean // lean.stage1 // { inherit buildLeanPackage; };
         temci = (import temci {}).override { doCheck = false; };
         nix = nix-pinned;
         nixpkgs = nixpkgs.legacyPackages.${system};
-      } // lean.stage1.Lean;
+      } // lean // lean.stage1 // lean.stage1.Lean;
 
       defaultPackage = packages.lean;
 

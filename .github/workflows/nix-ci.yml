@@ -64,11 +64,13 @@ jobs:
             ${{ matrix.name }}-nix-ccache
       - name: Build
         run: |
+          nix build -v --print-build-logs .#stage0
+          cachix push -j4 lean4 ./result
           nix build -v --print-build-logs
           cachix push -j4 lean4 ./result
       - name: Test
         run: |
-          nix build -v --print-build-logs .#lean.test
+          nix build -v --print-build-logs .#test
           cachix push -j4 lean4 ./result
       - name: CCache stats
         run: ccache -s

@@ -24832,6 +24832,7 @@ x_36 = lean_ctor_get(x_35, 1);
 lean_inc(x_36);
 lean_dec(x_35);
 lean_inc(x_10);
+lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);

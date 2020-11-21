@@ -7,14 +7,10 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/util.h"
 namespace lean {
-/** \brief Add a new 'class instance' to the environment. */
-environment add_instance(environment const & env, name const & n, bool persistent);
 /** \brief Return true iff \c c was declared with \c add_class. */
 bool is_class(environment const & env, name const & c);
 /** \brief Return true iff \c i was declared with \c add_instance. */
 bool is_instance(environment const & env, name const & i);
-/** \brief Return the instances of the given class. */
-names get_class_instances(environment const & env, name const & c);
 
 name const & get_anonymous_instance_prefix();
 name mk_anonymous_inst_name(unsigned idx);

@@ -8,19 +8,31 @@ import Lean.Meta.DiscrTree
 namespace Lean.Meta
 
 structure InstanceEntry :=
-  (keys : Array DiscrTree.Key)
-  (val  : Expr)
+  (keys        : Array DiscrTree.Key)
+  (val         : Expr)
+  (globalName? : Option Name := none)
 
-abbrev Instances := DiscrTree Expr
+structure Instances :=
+  (discrTree       : DiscrTree Expr := DiscrTree.empty )
+  (globalInstances : NameSet := {})
+
+instance : Inhabited Instances := {
+  default := {}
+}
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
-  d.insertCore e.keys e.val
+  { d with
+    discrTree := d.discrTree.insertCore e.keys e.val
+    globalInstances := match e.globalName? with
+      | some n => d.globalInstances.insert n
+      | none   => d.globalInstances
+  }
 
 builtin_initialize instanceExtension : SimplePersistentEnvExtension InstanceEntry Instances ←
   registerSimplePersistentEnvExtension {
     name          := `instanceExt,
     addEntryFn    := addInstanceEntry,
-    addImportedFn := fun es => (mkStateFromImportedEntries addInstanceEntry DiscrTree.empty es)
+    addImportedFn := fun es => (mkStateFromImportedEntries addInstanceEntry {} es)
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
@@ -36,7 +48,7 @@ def addGlobalInstanceImp (env : Environment) (constName : Name) : IO Environment
   | some cinfo =>
     let c := mkConst constName (cinfo.lparams.map mkLevelParam)
     let (keys, s, _) ← (mkInstanceKey c).toIO {} { env := env } {} {}
-    pure $ instanceExtension.addEntry s.env { keys := keys, val := c }
+    pure $ instanceExtension.addEntry s.env { keys := keys, val := c, globalName? := constName }
 
 def addGlobalInstance {m} [Monad m] [MonadEnv m] [MonadLiftT IO m] (declName : Name) : m Unit := do
   let env ← getEnv
@@ -50,20 +62,14 @@ builtin_initialize
     add   := fun declName args persistent => do
       if args.hasArgs then throwError "invalid attribute 'instance', unexpected argument"
       unless persistent do throwError "invalid attribute 'instance', must be persistent"
-      let env ← getEnv
-      let env ← ofExcept (addGlobalInstanceOld env declName); setEnv env; -- TODO: delete after we remove old frontend
       addGlobalInstance declName
   }
 
-end Meta
+@[export lean_is_instance]
+def isGlobalInstance (env : Environment) (declName : Name) : Bool :=
+  Meta.instanceExtension.getState env |>.globalInstances.contains declName
 
-def Environment.getGlobalInstances (env : Environment) : Meta.Instances :=
-  Meta.instanceExtension.getState env
-
-namespace Meta
-
-def getGlobalInstances : MetaM Instances := do
-  let env ← getEnv
-  pure env.getGlobalInstances
+def getGlobalInstancesIndex : MetaM (DiscrTree Expr) :=
+  return Meta.instanceExtension.getState (← getEnv) |>.discrTree
 
 end Lean.Meta

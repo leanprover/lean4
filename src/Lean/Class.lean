@@ -7,67 +7,43 @@ import Lean.Attributes
 
 namespace Lean
 
-inductive ClassEntry :=
-  | «class»    (name : Name) (hasOutParam : Bool)
-  | «instance» (name : Name) (ofClass : Name) -- TODO: remove after we remove old type class resolution
+structure ClassEntry :=
+  (name : Name)
+  (hasOutParam : Bool)
 
 namespace ClassEntry
 
-@[inline] def getName : ClassEntry → Name
-  | «class» n _ => n
-  | «instance» n _ => n
-
 def lt (a b : ClassEntry) : Bool :=
-  Name.quickLt a.getName b.getName
+  Name.quickLt a.name b.name
 
 end ClassEntry
 
 structure ClassState :=
-  (classToInstances : SMap Name (List Name) := SMap.empty) -- TODO: delete
-  (hasOutParam      : SMap Name Bool := SMap.empty)        -- We should keep only this one
-  (instances        : SMap Name Unit := SMap.empty)        -- TODO: delete
+  (hasOutParam : SMap Name Bool := SMap.empty)
 
 namespace ClassState
 
 instance : Inhabited ClassState := ⟨{}⟩
 
 def addEntry (s : ClassState) (entry : ClassEntry) : ClassState :=
-  match entry with
-  | ClassEntry.«class» clsName hasOutParam =>
-    { s with hasOutParam := s.hasOutParam.insert clsName hasOutParam }
-  | ClassEntry.«instance» instName clsName =>
-    { s with
-      instances        := s.instances.insert instName (),
-      classToInstances := match s.classToInstances.find? clsName with
-        | some insts => s.classToInstances.insert clsName (instName :: insts)
-        | none       => s.classToInstances.insert clsName [instName] }
+  { s with hasOutParam := s.hasOutParam.insert entry.name entry.hasOutParam }
 
-def switch : ClassState → ClassState
-  | ⟨m₁, m₂, m₃⟩ => ⟨m₁.switch, m₂.switch, m₃.switch⟩
+def switch (s : ClassState) : ClassState :=
+  { s with hasOutParam := s.hasOutParam.switch }
 
 end ClassState
 
 /- TODO: add support for scoped instances -/
 builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry ClassState ←
   registerSimplePersistentEnvExtension {
-    name          := `classExt,
-    addEntryFn    := ClassState.addEntry,
+    name          := `classExt
+    addEntryFn    := ClassState.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
   }
 
 @[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=
   (classExtension.getState env).hasOutParam.contains n
-
-@[export lean_is_instance]
-def isInstance (env : Environment) (n : Name) : Bool :=
-  (classExtension.getState env).instances.contains n
-
-@[export lean_get_class_instances]
-def getClassInstances (env : Environment) (n : Name) : List Name :=
-  match (classExtension.getState env).classToInstances.find? n with
-  | some insts => insts
-  | none       => []
 
 @[export lean_has_out_params]
 def hasOutParams (env : Environment) (n : Name) : Bool :=
@@ -112,7 +88,7 @@ def addClass (env : Environment) (clsName : Name) : Except String Environment :=
     | none      => Except.error ("unknown declaration '" ++ toString clsName ++ "'")
     | some decl@(ConstantInfo.inductInfo _) => do
       let b ← checkOutParam 1 #[] decl.type
-      Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName b))
+      Except.ok (classExtension.addEntry env { name := clsName, hasOutParam := b })
     | some _    => Except.error ("invalid 'class', declaration '" ++ toString clsName ++ "' must be inductive datatype or structure")
 
 private def consumeNLambdas : Nat → Expr → Option Expr
@@ -144,15 +120,5 @@ builtin_initialize
       let env ← ofExcept (addClass env decl)
       setEnv env
   }
-
--- TODO: delete
-@[export lean_add_instance_old]
-def addGlobalInstanceOld (env : Environment) (instName : Name) : Except String Environment :=
-  match env.find? instName with
-  | none      => Except.error ("unknown declaration '" ++ toString instName ++ "'")
-  | some decl =>
-    match getClassName env decl.type with
-    | none => Except.error ("invalid instance '" ++ toString instName ++ "', failed to retrieve class")
-    | some clsName => Except.ok (classExtension.addEntry env (ClassEntry.«instance» instName clsName))
 
 end Lean

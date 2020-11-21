@@ -29,7 +29,7 @@ variables {m : Type u → Type v} [Monad m] {α β : Type u}
   pure (some a)
 
 instance : Monad (OptionT m) := {
-  pure := OptionT.pure,
+  pure := OptionT.pure
   bind := OptionT.bind
 }
 
@@ -42,7 +42,7 @@ instance : Monad (OptionT m) := {
   pure none
 
 instance : Alternative (OptionT m) := {
-  failure := OptionT.fail,
+  failure := OptionT.fail
   orElse  := OptionT.orElse
 }
 
@@ -58,7 +58,7 @@ instance : MonadFunctor m (OptionT m) := ⟨fun f x => f x⟩
   pure a
 
 instance : MonadExceptOf Unit (OptionT m) := {
-  throw    := fun _ => OptionT.fail,
+  throw    := fun _ => OptionT.fail
   tryCatch := OptionT.tryCatch
 }
 

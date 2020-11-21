@@ -28,7 +28,7 @@ section
 variables {ρ : Type u} {m : Type u → Type v} [Monad m] {α β : Type u}
 
 instance [Alternative m] : Alternative (ReaderT ρ m) := {
-  failure := ReaderT.failure,
+  failure := ReaderT.failure
   orElse  := ReaderT.orElse
 }
 
@@ -36,9 +36,9 @@ end
 end ReaderT
 
 instance (ρ : Type u) (m : Type u → Type v) : MonadControl m (ReaderT ρ m) := {
-  stM      := id,
-  liftWith := fun f ctx => f fun x => x ctx,
-  restoreM := fun x ctx => x,
+  stM      := id
+  liftWith := fun f ctx => f fun x => x ctx
+  restoreM := fun x ctx => x
 }
 
 instance ReaderT.tryFinally {m : Type u → Type v} {ρ : Type u} [MonadFinally m] [Monad m] : MonadFinally (ReaderT ρ m) := {

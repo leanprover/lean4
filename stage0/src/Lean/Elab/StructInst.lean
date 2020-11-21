@@ -25,8 +25,8 @@ open Meta
 
 @[builtinMacro Lean.Parser.Term.structInst] def expandStructInstExpectedType : Macro := fun stx =>
   let expectedArg := stx[4]
-  if expectedArg.isNone
-    then Macro.throwUnsupported
+  if expectedArg.isNone then
+    Macro.throwUnsupported
   else
     let expected := expectedArg[1]
     let stxNew   := stx.setArg 4 mkNullNode

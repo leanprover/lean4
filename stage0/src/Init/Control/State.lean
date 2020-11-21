@@ -46,9 +46,9 @@ variables [Monad m] {α β : Type u}
   fun s => do let (a, s) ← x s; pure (f a, s)
 
 instance : Monad (StateT σ m) := {
-  pure := StateT.pure,
-  bind := StateT.bind,
-   map := StateT.map
+  pure := StateT.pure
+  bind := StateT.bind
+  map  := StateT.map
 }
 
 @[inline] protected def orElse [Alternative m] {α : Type u} (x₁ x₂ : StateT σ m α) : StateT σ m α :=
@@ -79,7 +79,7 @@ instance : MonadLift m (StateT σ m) := ⟨StateT.lift⟩
 instance (σ m) [Monad m] : MonadFunctor m (StateT σ m) := ⟨fun f x s => f (x s)⟩
 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) := {
-  throw    := StateT.lift ∘ throwThe ε,
+  throw    := StateT.lift ∘ throwThe ε
   tryCatch := fun x c s => tryCatchThe ε (x s) (fun e => c e s)
 }
 
@@ -90,16 +90,16 @@ section
 variables {σ : Type u} {m : Type u → Type v}
 
 instance [Monad m] : MonadStateOf σ (StateT σ m) := {
-  get       := StateT.get,
-  set       := StateT.set,
+  get       := StateT.get
+  set       := StateT.set
   modifyGet := StateT.modifyGet
 }
 
 end
 
 instance StateT.monadControl (σ : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (StateT σ m) := {
-  stM      := fun α   => α × σ,
-  liftWith := fun f => do let s ← get; liftM (f (fun x => x.run s)),
+  stM      := fun α   => α × σ
+  liftWith := fun f => do let s ← get; liftM (f (fun x => x.run s))
   restoreM := fun x => do let (a, s) ← liftM x; set s; pure a
 }
 

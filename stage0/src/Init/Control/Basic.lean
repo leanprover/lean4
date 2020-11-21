@@ -89,14 +89,14 @@ class MonadControlT (m : Type u → Type v) (n : Type u → Type w) :=
 export MonadControlT (stM liftWith restoreM)
 
 instance (m n o) [MonadControlT m n] [MonadControl n o] : MonadControlT m o := {
-  stM      := fun α => stM m n (MonadControl.stM n o α),
-  liftWith := fun f => MonadControl.liftWith fun x₂ => liftWith fun x₁ => f (x₁ ∘ x₂),
+  stM      := fun α => stM m n (MonadControl.stM n o α)
+  liftWith := fun f => MonadControl.liftWith fun x₂ => liftWith fun x₁ => f (x₁ ∘ x₂)
   restoreM := MonadControl.restoreM ∘ restoreM
 }
 
 instance (m : Type u → Type v) [Pure m] : MonadControlT m m := {
-  stM      := fun α => α,
-  liftWith := fun f => f fun x => x,
+  stM      := fun α => α
+  liftWith := fun f => f fun x => x
   restoreM := fun x => pure x
 }
 

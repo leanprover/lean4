@@ -336,7 +336,8 @@ structure Stats :=
 partial def collectStats : PersistentArrayNode α → Stats → Nat → Stats
   | node cs, s, d =>
     cs.foldl (fun s c => collectStats c s (d+1))
-      { s with numNodes := s.numNodes + 1,
+      { s with
+        numNodes := s.numNodes + 1,
         depth    := Nat.max d s.depth }
   | leaf vs, s, d => { s with numNodes := s.numNodes + 1, depth := Nat.max d s.depth }
 

@@ -43,13 +43,13 @@ instance (σ m) [Monad m] : MonadFunctor m (StateRefT' ω σ m) := inferInstance
   fun ref => ref.modifyGet f
 
 instance [MonadLiftT (ST ω) m] [Monad m] : MonadStateOf σ (StateRefT' ω σ m) := {
-  get       := StateRefT'.get,
-  set       := StateRefT'.set,
+  get       := StateRefT'.get
+  set       := StateRefT'.set
   modifyGet := StateRefT'.modifyGet
 }
 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateRefT' ω σ m) := {
-  throw    := StateRefT'.lift ∘ throwThe ε,
+  throw    := StateRefT'.lift ∘ throwThe ε
   tryCatch := fun x c s => tryCatchThe ε (x s) (fun e => c e s)
 }
 

@@ -170,7 +170,7 @@ def getInstances (type : Expr) : MetaM (Array Expr) := do
     match className? with
     | none   => throwError $ "type class instance expected" ++ indentExpr type
     | some className =>
-      let globalInstances ← getGlobalInstances
+      let globalInstances ← getGlobalInstancesIndex
       let result ← globalInstances.getUnify type
       let result ← result.mapM fun c => match c with
         | Expr.const constName us _ => return c.updateConst! (← us.mapM (fun _ => mkFreshLevelMVar))

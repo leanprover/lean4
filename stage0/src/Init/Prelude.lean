@@ -1121,7 +1121,7 @@ class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
 export MonadExcept (throw tryCatch)
 
 instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m := {
-  throw    := throwThe ε,
+  throw    := throwThe ε
   tryCatch := tryCatchThe ε
 }
 
@@ -1158,7 +1158,7 @@ variables {ρ : Type u} {m : Type u → Type v} {α : Type u}
 instance  : MonadLift m (ReaderT ρ m) := ⟨ReaderT.lift⟩
 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) := {
-  throw    := Function.comp ReaderT.lift (throwThe ε),
+  throw    := Function.comp ReaderT.lift (throwThe ε)
   tryCatch := fun x c r => tryCatchThe ε (x r) (fun e => (c e) r)
 }
 
@@ -1180,8 +1180,8 @@ variables {ρ : Type u} {m : Type u → Type v} [Monad m] {α β : Type u}
   fun r => Functor.map f (x r)
 
 instance : Monad (ReaderT ρ m) := {
-  pure := ReaderT.pure,
-  bind := ReaderT.bind,
+  pure := ReaderT.pure
+  bind := ReaderT.bind
   map  := ReaderT.map
 }
 
@@ -1277,8 +1277,8 @@ class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
 export MonadState (get modifyGet)
 
 instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState σ m := {
-  set       := MonadStateOf.set,
-  get       := getThe σ,
+  set       := MonadStateOf.set
+  get       := getThe σ
   modifyGet := fun f => MonadStateOf.modifyGet f
 }
 
@@ -1291,8 +1291,8 @@ instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first
 instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadStateOf σ m] [MonadLift m n] : MonadStateOf σ n := {
-  get       := liftM (m := m) MonadStateOf.get,
-  set       := fun s => liftM (m := m) (MonadStateOf.set s),
+  get       := liftM (m := m) MonadStateOf.get
+  set       := fun s => liftM (m := m) (MonadStateOf.set s)
   modifyGet := fun f => monadLift (m := m) (MonadState.modifyGet f)
 }
 
@@ -1372,9 +1372,9 @@ class Backtrackable (δ : outParam (Type u)) (σ : Type u) :=
   | Result.error e s => Result.error e s
 
 instance : Monad (EStateM ε σ) := {
-  bind     := EStateM.bind,
-  pure     := EStateM.pure,
-  map      := EStateM.map,
+  bind     := EStateM.bind
+  pure     := EStateM.pure
+  map      := EStateM.map
   seqRight := EStateM.seqRight
 }
 
@@ -1383,13 +1383,13 @@ instance {δ} [Backtrackable δ σ] : OrElse (EStateM ε σ α) := {
 }
 
 instance : MonadStateOf σ (EStateM ε σ) := {
-  set       := EStateM.set,
-  get       := EStateM.get,
+  set       := EStateM.set
+  get       := EStateM.get
   modifyGet := EStateM.modifyGet
 }
 
 instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) := {
-  throw    := EStateM.throw,
+  throw    := EStateM.throw
   tryCatch := EStateM.tryCatch
 }
 
@@ -1407,7 +1407,7 @@ instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) := {
 
 /- Dummy default instance -/
 instance nonBacktrackable : Backtrackable PUnit σ := {
-  save    := dummySave,
+  save    := dummySave
   restore := dummyRestore
 }
 
@@ -1624,8 +1624,8 @@ class MonadQuotation (m : Type → Type) :=
 export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
 instance {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctorT m n] : MonadQuotation n := {
-  getCurrMacroScope   := liftM (m := m) getCurrMacroScope,
-  getMainModule       := liftM (m := m) getMainModule,
+  getCurrMacroScope   := liftM (m := m) getCurrMacroScope
+  getMainModule       := liftM (m := m) getMainModule
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope
 }
 
@@ -1762,7 +1762,7 @@ class MonadRef (m : Type → Type) :=
 export MonadRef (getRef)
 
 instance (m n : Type → Type) [MonadRef m] [MonadFunctor m n] [MonadLift m n] : MonadRef n := {
-  getRef  := liftM (getRef : m _),
+  getRef  := liftM (getRef : m _)
   withRef := fun ref x => monadMap (m := m) (MonadRef.withRef ref) x
 }
 
@@ -1805,7 +1805,7 @@ abbrev Macro := Syntax → MacroM Syntax
 namespace Macro
 
 instance : MonadRef MacroM := {
-  getRef     := bind read fun ctx => pure ctx.ref,
+  getRef     := bind read fun ctx => pure ctx.ref
   withRef    := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
 }
 
@@ -1834,8 +1834,8 @@ def throwErrorAt {α} (ref : Syntax) (msg : String) : MacroM α :=
   | false => withReader (fun ctx => { ctx with currRecDepth := add ctx.currRecDepth 1 }) x
 
 instance : MonadQuotation MacroM := {
-  getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,
-  getMainModule       := fun ctx => pure ctx.mainModule,
+  getCurrMacroScope   := fun ctx => pure ctx.currMacroScope
+  getMainModule       := fun ctx => pure ctx.mainModule
   withFreshMacroScope := Macro.withFreshMacroScope
 }
 

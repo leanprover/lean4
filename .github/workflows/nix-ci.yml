@@ -48,8 +48,9 @@ jobs:
             extra-sandbox-paths = /nix/var/cache/ccache
             extra-trusted-substituters = https://lean4.cachix.org/
             extra-trusted-public-keys = lean4.cachix.org-1:mawtxSxcaiWE24xCXXgh3qnvlTkyU7evRRnGeAhD4Wk=' | sudo tee /etc/nix/nix.conf
-          sudo mkdir -m0770 -p /nix/var/cache/ccache
-          sudo chown root:nixbld /nix/var/cache/ccache
+          # We use a world-writable ccache cache on CI for the sake of actions/cache, and because it really doesn't matter on CI
+          sudo mkdir -m0777 -p /nix/var/cache/ccache
+          echo 'max_size = 50M' > /nix/var/cache/ccache/ccache.conf
           sudo pkill nix-daemon  # reload
 
           # install & use Cachix manually since `cachix-action` pushes *all* derivations (incl. `$mod-deps`, stage 2&3, etc.)
@@ -73,4 +74,4 @@ jobs:
           nix build -v --print-build-logs .#test
           cachix push -j4 lean4 ./result
       - name: CCache stats
-        run: ccache -s
+        run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s

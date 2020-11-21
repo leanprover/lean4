@@ -27,10 +27,8 @@ private def parseHeaderField (s : String) : Option (String × String) :=
       let value := ": ".intercalate (value :: rest)
       some ⟨name, value⟩
 
-variables {m : Type → Type} [Monad m] [MonadIO m]
-
-private partial def readHeaderFields (h : FS.Stream) : m (List (String × String)) := do
-  let l ← liftIO $ h.getLine
+private partial def readHeaderFields (h : FS.Stream) : IO (List (String × String)) := do
+  let l ← h.getLine
   if l = "\r\n" then
     pure []
   else
@@ -38,50 +36,50 @@ private partial def readHeaderFields (h : FS.Stream) : m (List (String × String
     | some hf =>
       let tail ← readHeaderFields h
       pure (hf :: tail)
-    | none => liftIO $ throw (userError $ "Invalid header field: " ++ l)
+    | none => throw (userError $ "Invalid header field: " ++ l)
 
 /-- Returns the Content-Length. -/
-private def readLspHeader (h : FS.Stream) : m Nat := do
+private def readLspHeader (h : FS.Stream) : IO Nat := do
   let fields ← readHeaderFields h
   match fields.lookup "Content-Length" with
   | some length => match length.toNat? with
     | some n => pure n
-    | none   => liftIO $ throw (userError ("Content-Length header value '" ++ length ++ "' is not a Nat"))
-  | none => liftIO $ throw (userError ("No Content-Length header in header fields: " ++ toString fields))
+    | none   => throw (userError ("Content-Length header value '" ++ length ++ "' is not a Nat"))
+  | none => throw (userError ("No Content-Length header in header fields: " ++ toString fields))
 
-def readLspMessage (h : FS.Stream) : m Message := do
+def readLspMessage (h : FS.Stream) : IO Message := do
   let nBytes ← readLspHeader h
-  liftIO $ h.readMessage nBytes
+  h.readMessage nBytes
 
-def readLspRequestAs (h : FS.Stream) (expectedMethod : String) (α : Type) [FromJson α] : m (Request α) := do
+def readLspRequestAs (h : FS.Stream) (expectedMethod : String) (α : Type) [FromJson α] : IO (Request α) := do
   let nBytes ← readLspHeader h
-  liftIO $ h.readRequestAs nBytes expectedMethod α
+  h.readRequestAs nBytes expectedMethod α
 
-def readLspNotificationAs (h : FS.Stream) (expectedMethod : String) (α : Type) [FromJson α] : m α := do
+def readLspNotificationAs (h : FS.Stream) (expectedMethod : String) (α : Type) [FromJson α] : IO α := do
   let nBytes ← readLspHeader h
-  liftIO $ h.readNotificationAs nBytes expectedMethod α
+  h.readNotificationAs nBytes expectedMethod α
 
-def writeLspMessage (h : FS.Stream) (msg : Message) : m Unit := do
+def writeLspMessage (h : FS.Stream) (msg : Message) : IO Unit := do
   -- inlined implementation instead of using jsonrpc's writeMessage
   -- to maintain the atomicity of putStr
   let j := (toJson msg).compress
   let header := "Content-Length: " ++ toString j.utf8ByteSize ++ "\r\n\r\n"
-  liftIO $ h.putStr (header ++ j)
-  liftIO $ h.flush
+  h.putStr (header ++ j)
+  h.flush
 
-def writeLspRequest {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (method : String) (params : α) : m Unit :=
+def writeLspRequest {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (method : String) (params : α) : IO Unit :=
   writeLspMessage h (Message.request id method (fromJson? (toJson params)))
 
-def writeLspNotification {α : Type} [ToJson α] (h : FS.Stream) (method : String) (r : α) : m Unit :=
+def writeLspNotification {α : Type} [ToJson α] (h : FS.Stream) (method : String) (r : α) : IO Unit :=
   writeLspMessage h (Message.notification method (fromJson? (toJson r)))
 
-def writeLspResponse {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : m Unit :=
+def writeLspResponse {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
   writeLspMessage h (Message.response id (toJson r))
 
-def writeLspResponseError (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) : m Unit :=
+def writeLspResponseError (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) : IO Unit :=
   writeLspMessage h (Message.responseError id code message none)
 
-def writeLspResponseErrorWithData {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : m Unit :=
+def writeLspResponseErrorWithData {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : IO Unit :=
   writeLspMessage h (Message.responseError id code message (toJson data))
 
 end Lsp

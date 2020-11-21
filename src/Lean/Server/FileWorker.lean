@@ -220,7 +220,7 @@ def handleNotification (method : String) (params : Json) : ServerM Unit := do
 def queueRequest {α : Type} (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α)
 : ServerM Unit := do
   let doc ← getDocument
-  let requestTask ← monadLift $ asTask (handler params doc)
+  let requestTask ← asTask (handler params doc)
   updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
 def handleRequest (id : RequestID) (method : String) (params : Json)
@@ -237,12 +237,12 @@ partial def mainLoop : Unit → ServerM Unit := fun () => do
   let st ← read
   let msg ← readLspMessage st.hIn
   let pendingRequests ← st.pendingRequestsRef.get
-  let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit) → IO PendingRequestMap :=
+  let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit) → ServerM PendingRequestMap :=
     (fun acc id task => do
       pure $
         if (← hasFinished task) then acc.erase id
         else acc)
-  let pendingRequests ← liftIO $ pendingRequests.foldM filterFinishedTasks pendingRequests
+  let pendingRequests ← pendingRequests.foldM filterFinishedTasks pendingRequests
   st.pendingRequestsRef.set pendingRequests
   match msg with
   | Message.request id method (some params) => do

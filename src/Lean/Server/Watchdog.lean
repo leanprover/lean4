@@ -114,29 +114,27 @@ def stdout (fw : FileWorker) : FS.Stream :=
 def stderr (fw : FileWorker) : FS.Stream :=
   FS.Stream.ofHandle fw.proc.stderr
 
-variables {m : Type → Type} [Monad m] [MonadIO m]
-
-def readMessage (fw : FileWorker) : m JsonRpc.Message := do
+def readMessage (fw : FileWorker) : IO JsonRpc.Message := do
   let msg ← readLspMessage fw.stdout
   match msg with
   | Message.request id method params? =>
-    liftIO $ fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.erase id)
+    fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.erase id)
   | _ => pure ()
   pure msg
 
-def writeMessage (fw : FileWorker) (msg : JsonRpc.Message) : m Unit :=
+def writeMessage (fw : FileWorker) (msg : JsonRpc.Message) : IO Unit :=
   writeLspMessage fw.stdin msg
 
-def writeNotification {α : Type} [ToJson α] (fw : FileWorker) (method : String) (param : α) : m Unit :=
+def writeNotification {α : Type} [ToJson α] (fw : FileWorker) (method : String) (param : α) : IO Unit :=
   writeLspNotification fw.stdin method param
 
-def writeRequest {α : Type} [ToJson α] (fw : FileWorker) (id : RequestID) (method : String) (param : α) : m Unit := do
+def writeRequest {α : Type} [ToJson α] (fw : FileWorker) (id : RequestID) (method : String) (param : α) : IO Unit := do
   writeLspRequest fw.stdin id method param
-  liftIO $ fw.pendingRequestsRef.modify $ fun pendingRequests =>
+  fw.pendingRequestsRef.modify $ fun pendingRequests =>
     pendingRequests.insert id (Message.request id method (Json.toStructured? param))
 
-def errorPendingRequests (fw : FileWorker) (hOut : FS.Stream) (code : ErrorCode) (msg : String) : m Unit := do
-  let pendingRequests ← liftIO $ fw.pendingRequestsRef.modifyGet (fun pendingRequests => (pendingRequests, RBMap.empty))
+def errorPendingRequests (fw : FileWorker) (hOut : FS.Stream) (code : ErrorCode) (msg : String) : IO Unit := do
+  let pendingRequests ← fw.pendingRequestsRef.modifyGet (fun pendingRequests => (pendingRequests, RBMap.empty))
   pendingRequests.forM (fun id _ => writeLspResponseError hOut id code msg)
 
 end FileWorker
@@ -209,7 +207,7 @@ private def parseHeaderAst (input : String) : IO Syntax := do
 
 def startFileWorker (uri : DocumentUri) (version : Nat) (text : FileMap) : ServerM Unit := do
   let st ← read
-  let headerAst ← liftIO $ parseHeaderAst text.source
+  let headerAst ← parseHeaderAst text.source
   let workerProc ← Process.spawn { toStdioConfig := workerCfg, cmd := st.workerPath }
   let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
   -- the task will never access itself, so this is fine
@@ -283,7 +281,7 @@ def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
   when (newVersion <= oldDoc.version) $ throwServerError "Got outdated version number"
   when (not changes.isEmpty) $ do
     let (newDocText, _) := foldDocumentChanges changes oldDoc.text
-    let newHeaderAst ← liftIO $ parseHeaderAst newDocText.source
+    let newHeaderAst ← parseHeaderAst newDocText.source
     if newHeaderAst != oldDoc.headerAst then do
       -- TODO(WN): we should amortize this somehow
       -- when the user is typing in an import, this
@@ -342,7 +340,7 @@ def shutdown : ServerM Unit := do
   let st ← read
   let fileWorkers ← st.fileWorkersRef.get
   fileWorkers.forM (fun id _ => terminateFileWorker id)
-  liftIO $ fileWorkers.forM (fun _ fw => do
+  fileWorkers.forM (fun _ fw => do
     let _ ← IO.wait fw.commTask
     pure ())
 
@@ -353,7 +351,7 @@ inductive ServerEvent
 
 def runClientTask : ServerM (Task ServerEvent) := do
   let st ← read
-  let clientTask ← liftIO $ IO.asTask $ ServerEvent.ClientMsg <$> readLspMessage st.hIn
+  let clientTask ← IO.asTask $ ServerEvent.ClientMsg <$> readLspMessage st.hIn
   let clientTask := clientTask.map $ fun either =>
     match either with
     | Except.ok ev   => ev
@@ -369,7 +367,7 @@ partial def mainLoop : Task ServerEvent → ServerM Unit := fun clientTask => do
       | WorkerState.running => fw.commTask.map (ServerEvent.WorkerEvent uri fw) :: acc
       | _                   => acc)
     ([] : List (Task ServerEvent))
-  let ev ← liftIO $ IO.waitAny $ clientTask :: workerTasks
+  let ev ← IO.waitAny $ clientTask :: workerTasks
   match ev with
   | ServerEvent.ClientMsg msg =>
     match msg with
@@ -394,12 +392,12 @@ partial def mainLoop : Task ServerEvent → ServerM Unit := fun clientTask => do
     | WorkerEvent.terminated => throwServerError "Internal server error: got termination event for worker that should have been removed"
 
 def mkLeanServerCapabilities : ServerCapabilities :=
-  { textDocumentSync? := some
-    { openClose := true,
-      change := TextDocumentSyncKind.incremental,
-      willSave := false,
-      willSaveWaitUntil := false,
-      save? := none },
+  { textDocumentSync? := some 
+      { openClose := true
+        change := TextDocumentSyncKind.incremental
+        willSave := false
+        willSaveWaitUntil := false
+        save? := none }
     hoverProvider := true }
 
 def initAndRunWatchdogAux : ServerM Unit := do
@@ -428,8 +426,8 @@ def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
   let initRequest ← readLspRequestAs i "initialize" InitializeParams
   writeLspResponse o initRequest.id
     { capabilities := mkLeanServerCapabilities,
-      serverInfo?  := some { name     := "Lean 4 server",
-                            version? := "0.0.1" }
+      serverInfo?  := some { name     := "Lean 4 server"
+                             version? := "0.0.1" }
       : InitializeResult }
   ReaderT.run
     initAndRunWatchdogAux

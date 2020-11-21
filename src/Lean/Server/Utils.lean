@@ -9,8 +9,8 @@ import Lean.Data.Lsp
 
 namespace IO
 
-def throwServerError {α : Type} {m : Type → Type} [MonadIO m] (err : String) : m α :=
-  liftIO $ throw (userError err)
+def throwServerError {α : Type} (err : String) : IO α :=
+  throw (userError err)
 
 namespace FS
 namespace Stream

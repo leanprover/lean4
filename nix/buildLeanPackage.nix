@@ -1,4 +1,4 @@
-{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeScriptBin, bash, lean-emacs, nix, substituteAll }:
+{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeShellScriptBin, bash, lean-emacs, nix, substituteAll }:
 with builtins; let
   # "Init.Core" ~> "Init/Core.lean"
   modToLean = mod: replaceStrings ["."] ["/"] mod + ".lean";
@@ -93,8 +93,7 @@ in
         deps = filter (p: p != "") (lib.splitString "\n" (readFile (leanDeps mod)));
         modMap' = lib.foldr buildModAndDeps modMap deps;
       in modMap' // { ${mod} = buildMod mod (map (dep: modMap'.${dep}) deps); };
-    makeEmacsWrapper = name: lean: writeScriptBin name ''
-      #!${bash}/bin/bash
+    makeEmacsWrapper = name: lean: writeShellScriptBin name ''
       ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" $@
     '';
   in rec {
@@ -106,9 +105,7 @@ in
       ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (attrValues objects))}
     '';
 
-    lean-package = writeScriptBin "lean" ''
-      #!${bash}/bin/bash
-      set -euo pipefail
+    lean-package = writeShellScriptBin "lean" ''
       LEAN_PATH=${modRoot} ${lean-final}/bin/lean $@
     '';
     emacs-package = makeEmacsWrapper "emacs-package" lean-package;

@@ -12,8 +12,7 @@
   outputs = { self, nixpkgs, flake-utils, temci, nix }: flake-utils.lib.eachDefaultSystem (system:
     with nixpkgs.legacyPackages.${system};
     let
-      nix-pinned = writeScriptBin "nix" ''
-        #!${bash}/bin/bash
+      nix-pinned = writeShellScriptBin "nix" ''
         ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ $@
       '';
       cc = ccacheWrapper.override rec {

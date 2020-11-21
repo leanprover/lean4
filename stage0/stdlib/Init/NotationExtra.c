@@ -71,7 +71,6 @@ lean_object* l_Lean_bracketedExplicitBinders___closed__5;
 lean_object* l___kind_term____x40_Init_NotationExtra___hyg_1107____closed__3;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_8168____closed__17;
 lean_object* l_Lean_expandExplicitBindersAux_loop___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74;
 lean_object* l___kind_term____x40_Init_NotationExtra___hyg_1469____closed__6;
 extern lean_object* l_Lean_Parser_Tactic_intros___closed__6;
 lean_object* l_Lean_expandExplicitBindersAux_loop___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -109,6 +108,7 @@ lean_object* l___kind_tactic____x40_Init_NotationExtra___hyg_1583____closed__5;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_1273____boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_1273____closed__2;
 lean_object* l_Lean_expandBrackedBindersAux_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__9;
 lean_object* l___kind_term____x40_Init_NotationExtra___hyg_1469____closed__4;
 lean_object* l_Lean_bracketedExplicitBinders;
@@ -119,6 +119,7 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__8;
 lean_object* l___kind_term____x40_Init_NotationExtra___hyg_983____closed__4;
 lean_object* l___kind_term____x40_Init_NotationExtra___hyg_1231____closed__6;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_expandExplicitBinders___spec__1(lean_object*, lean_object*, size_t, size_t);
+extern lean_object* l_Lean_instInhabitedSyntax;
 lean_object* l___kind_term____x40_Init_NotationExtra___hyg_859____closed__6;
 lean_object* l___kind_term____x40_Init_NotationExtra___hyg_983____closed__1;
 lean_object* l___kind_term____x40_Init_NotationExtra___hyg_1231____closed__3;
@@ -126,7 +127,6 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* l___kind_term____x40_Init_NotationExtra___hyg_1107____closed__5;
 lean_object* l___kind_term____x40_Init_NotationExtra___hyg_1469____closed__1;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__6;
 lean_object* l_Lean_bracketedExplicitBinders___closed__1;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_1627____closed__3;
@@ -717,7 +717,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_sub(x_4, x_10);
-x_12 = l_Lean_Init_Prelude___instance__74;
+x_12 = l_Lean_instInhabitedSyntax;
 x_13 = lean_array_get(x_12, x_2, x_11);
 x_14 = l_Lean_Syntax_getArg(x_13, x_8);
 lean_dec(x_13);
@@ -1024,7 +1024,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_3, x_9);
 lean_dec(x_3);
-x_11 = l_Lean_Init_Prelude___instance__74;
+x_11 = l_Lean_instInhabitedSyntax;
 x_12 = lean_array_get(x_11, x_2, x_10);
 x_13 = l_Lean_Syntax_getArg(x_12, x_9);
 x_14 = l_Lean_Syntax_getArgs(x_13);
@@ -2386,7 +2386,7 @@ static lean_object* _init_l_myMacro____x40_Init_NotationExtra___hyg_1627____clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_1 = l_Lean_instInhabitedSourceInfo___closed__1;
 x_2 = l_Lean_Parser_Tactic_apply___closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2473,7 +2473,7 @@ static lean_object* _init_l_myMacro____x40_Init_NotationExtra___hyg_1627____clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_1 = l_Lean_instInhabitedSourceInfo___closed__1;
 x_2 = l_Lean_Parser_Tactic_intro___closed__3;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2495,7 +2495,7 @@ static lean_object* _init_l_myMacro____x40_Init_NotationExtra___hyg_1627____clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_1 = l_Lean_instInhabitedSourceInfo___closed__1;
 x_2 = l_myMacro____x40_Init_NotationExtra___hyg_1627____closed__3;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2572,7 +2572,7 @@ lean_inc(x_20);
 lean_dec(x_2);
 x_21 = l_myMacro____x40_Init_NotationExtra___hyg_1627____closed__6;
 x_22 = l_Lean_addMacroScope(x_20, x_21, x_19);
-x_23 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_23 = l_Lean_instInhabitedSourceInfo___closed__1;
 x_24 = l_myMacro____x40_Init_NotationExtra___hyg_1627____closed__5;
 x_25 = l_myMacro____x40_Init_NotationExtra___hyg_1627____closed__8;
 x_26 = lean_alloc_ctor(3, 4, 0);
@@ -2590,7 +2590,7 @@ x_31 = l_Array_empty___closed__1;
 x_32 = lean_array_push(x_31, x_30);
 x_33 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_11609____closed__5;
 x_34 = lean_array_push(x_32, x_33);
-x_35 = l_Lean_Init_Prelude___instance__74;
+x_35 = l_Lean_instInhabitedSyntax;
 x_36 = lean_unsigned_to_nat(0u);
 x_37 = lean_array_get(x_35, x_16, x_36);
 x_38 = lean_array_push(x_31, x_37);
@@ -2644,7 +2644,7 @@ lean_inc(x_62);
 lean_dec(x_2);
 x_63 = l_myMacro____x40_Init_NotationExtra___hyg_1627____closed__6;
 x_64 = l_Lean_addMacroScope(x_62, x_63, x_61);
-x_65 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_65 = l_Lean_instInhabitedSourceInfo___closed__1;
 x_66 = l_myMacro____x40_Init_NotationExtra___hyg_1627____closed__5;
 x_67 = l_myMacro____x40_Init_NotationExtra___hyg_1627____closed__8;
 x_68 = lean_alloc_ctor(3, 4, 0);
@@ -2662,7 +2662,7 @@ x_73 = l_Array_empty___closed__1;
 x_74 = lean_array_push(x_73, x_72);
 x_75 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_11609____closed__5;
 x_76 = lean_array_push(x_74, x_75);
-x_77 = l_Lean_Init_Prelude___instance__74;
+x_77 = l_Lean_instInhabitedSyntax;
 x_78 = lean_unsigned_to_nat(0u);
 x_79 = lean_array_get(x_77, x_16, x_78);
 lean_dec(x_16);

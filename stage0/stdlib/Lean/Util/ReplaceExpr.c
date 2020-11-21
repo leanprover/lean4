@@ -25,6 +25,7 @@ lean_object* l_Lean_Expr_ReplaceImpl_initCache___closed__2;
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit_match__2(lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafe(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_replace_match__1(lean_object*);
+extern lean_object* l_Lean_Expr_instInhabitedExpr___closed__1;
 size_t l_Lean_Expr_ReplaceImpl_cacheSize;
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41,7 +42,6 @@ lean_object* l_Lean_Expr_replace_match__1___rarg(lean_object*, lean_object*, lea
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_replace_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_Lean_Expr___instance__11___closed__1;
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_replace(lean_object*, lean_object*);
@@ -1101,7 +1101,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(8192u);
-x_2 = l_Lean_Expr_Lean_Expr___instance__11___closed__1;
+x_2 = l_Lean_Expr_instInhabitedExpr___closed__1;
 x_3 = lean_mk_array(x_1, x_2);
 return x_3;
 }

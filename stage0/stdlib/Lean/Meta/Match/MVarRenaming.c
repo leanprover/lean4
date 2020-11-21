@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__69;
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
@@ -47,6 +46,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at_Lean_Meta_MVarRenaming_apply___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MVarRenaming_apply_match__2(lean_object*);
+extern lean_object* l_Lean_instInhabitedName;
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1___boxed(lean_object*, lean_object*);
@@ -165,7 +165,7 @@ x_3 = l_Std_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1(x_1, x_2)
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_Lean_Init_Prelude___instance__69;
+x_4 = l_Lean_instInhabitedName;
 x_5 = l_Option_get_x21___rarg___closed__4;
 x_6 = lean_panic_fn(x_4, x_5);
 return x_6;

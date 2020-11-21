@@ -36,7 +36,6 @@ uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Meta_getElimInfo___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getElimInfo___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__9___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_getElimInfo___spec__5___closed__2;
 lean_object* l_Lean_Meta_getElimInfo_match__1(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_getElimInfo___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,6 +66,7 @@ lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getElimInfo___spec__9(lean_ob
 lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getElimInfo___spec__9___closed__1;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_getElimInfo___spec__10(lean_object*, size_t, size_t);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
+extern lean_object* l_Lean_Expr_instInhabitedExpr;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_getElimInfo___spec__10___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNamesImp___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,7 +74,6 @@ lean_object* l_Lean_Meta_getElimInfo___lambda__1___closed__2;
 lean_object* l_Lean_Meta_getElimInfo___lambda__2___closed__1;
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5___closed__1;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_Lean_Expr___instance__11;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getElimInfo___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwUnknownFVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -88,6 +87,7 @@ lean_object* l_Array_indexOfAux___at_Lean_Meta_getElimInfo___spec__4___boxed(lea
 lean_object* l_Lean_Meta_getElimInfo_match__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getElimInfo___lambda__1___closed__1;
 uint8_t l_Lean_Expr_isFVar(lean_object*);
+lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getElimInfo___spec__9___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_getElimInfo___spec__5(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -255,7 +255,7 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = lean_ctor_get(x_4, 3);
-x_8 = l_Lean_addMessageContextFull___at_Lean_Meta_Lean_Meta_Basic___instance__9___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
+x_8 = l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {
@@ -622,7 +622,7 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_sub(x_5, x_17);
 lean_dec(x_5);
-x_26 = l_Lean_Expr_Lean_Expr___instance__11;
+x_26 = l_Lean_Expr_instInhabitedExpr;
 x_27 = lean_array_get(x_26, x_1, x_6);
 x_55 = lean_expr_eqv(x_27, x_2);
 if (x_55 == 0)

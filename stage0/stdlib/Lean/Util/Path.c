@@ -16,6 +16,7 @@ extern "C" {
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_moduleNameOfFileName___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__6;
+extern lean_object* l_String_instInhabitedString;
 lean_object* l_IO_isDir___at_Lean_findOLean___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_io_is_dir(lean_object*, lean_object*);
@@ -23,6 +24,7 @@ lean_object* l_String_revPosOf(lean_object*, uint32_t);
 lean_object* l_Lean_modPathToFilePath_match__1(lean_object*);
 lean_object* l_Lean_searchPathRef;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_addSearchPathFromEnv_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath(lean_object*);
@@ -58,7 +60,6 @@ lean_object* l_Lean_getBuiltinSearchPath___closed__5;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_modPathToFilePath___closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_30_(lean_object*);
-extern lean_object* l_Init_Data_Repr___instance__15___closed__1;
 lean_object* l_Lean_findOLean___closed__2;
 lean_object* l_Lean_modPathToFilePath___boxed(lean_object*);
 lean_object* l_Lean_moduleNameOfFileName_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -97,7 +98,6 @@ lean_object* l_Lean_initSearchPath_match__1___rarg(lean_object*, lean_object*, l
 lean_object* l_Lean_parseSearchPath(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_appPath___at_Lean_getBuiltinSearchPath___spec__2(lean_object*);
 lean_object* l_Lean_moduleNameOfFileName___lambda__2___closed__2;
-extern lean_object* l_String_Init_Data_String_Basic___instance__2;
 lean_object* l_Lean_moduleNameOfFileName_match__2(lean_object*);
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_modPathToFilePath(lean_object*);
@@ -106,7 +106,7 @@ lean_object* l_String_drop(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__3;
 lean_object* l___private_Lean_Util_Path_0__Lean_pathSep;
-extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
+extern lean_object* l_instReprChar___closed__1;
 lean_object* l_IO_realPath___at_Lean_realPathNormalized___spec__1(lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Util_Path_0__Lean_pathSep() {
 _start:
@@ -386,7 +386,7 @@ x_10 = l_Lean_getBuiltinSearchPath___closed__2;
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_11 = l_Lean_Init_Prelude___instance__75___closed__1;
+x_11 = l_Lean_instInhabitedParserDescr___closed__1;
 x_12 = lean_string_append(x_8, x_11);
 x_13 = lean_string_append(x_12, x_5);
 x_14 = l_Lean_getBuiltinSearchPath___closed__3;
@@ -435,7 +435,7 @@ x_36 = l_Lean_getBuiltinSearchPath___closed__2;
 if (x_36 == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
-x_37 = l_Lean_Init_Prelude___instance__75___closed__1;
+x_37 = l_Lean_instInhabitedParserDescr___closed__1;
 x_38 = lean_string_append(x_34, x_37);
 x_39 = lean_string_append(x_38, x_31);
 x_40 = l_Lean_getBuiltinSearchPath___closed__3;
@@ -883,7 +883,7 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Init_Prelude___instance__75___closed__1;
+x_2 = l_Lean_instInhabitedParserDescr___closed__1;
 return x_2;
 }
 case 1:
@@ -900,7 +900,7 @@ return x_8;
 default: 
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = l_String_Init_Data_String_Basic___instance__2;
+x_9 = l_String_instInhabitedString;
 x_10 = l_Lean_modPathToFilePath___closed__4;
 x_11 = lean_panic_fn(x_9, x_10);
 return x_11;
@@ -1104,7 +1104,7 @@ lean_dec(x_13);
 x_14 = l_Lean_findOLean___closed__1;
 x_15 = lean_string_append(x_14, x_9);
 lean_dec(x_9);
-x_16 = l_Init_Data_Repr___instance__15___closed__1;
+x_16 = l_instReprChar___closed__1;
 x_17 = lean_string_append(x_15, x_16);
 x_18 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
@@ -1121,7 +1121,7 @@ lean_dec(x_10);
 x_20 = l_Lean_findOLean___closed__1;
 x_21 = lean_string_append(x_20, x_9);
 lean_dec(x_9);
-x_22 = l_Init_Data_Repr___instance__15___closed__1;
+x_22 = l_instReprChar___closed__1;
 x_23 = lean_string_append(x_21, x_22);
 x_24 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_24, 0, x_23);

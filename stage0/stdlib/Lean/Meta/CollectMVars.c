@@ -62,10 +62,10 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_getMVarsNoDelayedImp___spe
 lean_object* l_Lean_Meta_getMVarsImp_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVars___at_Lean_Meta_getMVarsNoDelayedImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Declaration_foldExprM___at_Lean_Meta_collectMVarsAtDecl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_CollectMVars_instInhabitedState___closed__1;
 lean_object* l_Lean_Meta_instantiateMVars___at_Lean_Meta_collectMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_collectMVarsAtDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarsAtDeclImp_match__1(lean_object*);
-extern lean_object* l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1___closed__1;
 lean_object* l_Lean_Meta_getMVarsAtDeclImp_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_getMVarsNoDelayedImp___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -438,7 +438,7 @@ lean_object* l_Lean_Meta_getMVarsImp(lean_object* x_1, lean_object* x_2, lean_ob
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1___closed__1;
+x_7 = l_Lean_CollectMVars_instInhabitedState___closed__1;
 x_8 = lean_st_mk_ref(x_7, x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -1334,7 +1334,7 @@ lean_object* l_Lean_Meta_getMVarsAtDeclImp(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_7 = l_Lean_CollectMVars_Lean_Util_CollectMVars___instance__1___closed__1;
+x_7 = l_Lean_CollectMVars_instInhabitedState___closed__1;
 x_8 = lean_st_mk_ref(x_7, x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);

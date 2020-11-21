@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_instReprOption___rarg___closed__2;
 uint8_t l_Lean_Syntax_isQuot(lean_object*);
 lean_object* l_Lean_Syntax_isAntiquot_match__1(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -21,12 +22,12 @@ extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__5(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__1;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_Lean_Syntax___instance__3;
 lean_object* l_Lean_Syntax_replaceM___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailWithPos(lean_object*);
 size_t l_USize_add(size_t, size_t);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_8168____closed__9;
 lean_object* l_Lean_SyntaxNode_modifyArgs_match__1(lean_object*);
+extern lean_object* l_String_instInhabitedString;
 lean_object* l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_nullKind;
@@ -56,22 +57,22 @@ lean_object* l_Lean_Syntax_isAntiquot_match__1___rarg___closed__1;
 lean_object* l_Lean_Syntax_MonadTraverser_getCur(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Syntax_MonadTraverser_goRight(lean_object*);
-lean_object* l_Lean_Syntax_Lean_Syntax___instance__2___closed__2;
 lean_object* l_Lean_Syntax_isAntiquot_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_withArgs(lean_object*);
+extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_Lean_Syntax_formatStxAux___closed__7;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_reprint___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isQuot_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getAtomVal_x21___boxed(lean_object*);
 lean_object* l_Lean_Syntax_setAtomVal_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_instInhabitedNat;
 lean_object* l_Lean_Syntax_getAtomVal_x21___closed__1;
 lean_object* l_Lean_Syntax_formatStxAux___closed__8;
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_ifNodeKind(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Lean_Syntax_Lean_Syntax___instance__2___closed__1;
 lean_object* l_Lean_Syntax_MonadTraverser_goRight___rarg___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setAtomVal(lean_object*, lean_object*);
@@ -79,7 +80,6 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_getArg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setArg_match__1(lean_object*);
 lean_object* l_Lean_Syntax_replaceM_match__1(lean_object*);
-extern lean_object* l_Init_Data_Repr___instance__9___rarg___closed__2;
 lean_object* l_Lean_Syntax_rewriteBottomUpM(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__2;
 lean_object* l_Lean_Syntax_updateTrailing_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,8 +87,6 @@ lean_object* l_Lean_Syntax_getAtomVal_x21___closed__4;
 lean_object* l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Syntax_MonadTraverser_goDown(lean_object*);
-lean_object* l_Lean_Syntax_Lean_Syntax___instance__1(lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__74;
 lean_object* l_Lean_Syntax_modifyArgs_match__1(lean_object*);
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__4(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailWithPos_match__1(lean_object*);
@@ -102,7 +100,6 @@ lean_object* l_Lean_SyntaxNode_getKind(lean_object*);
 lean_object* l_Lean_SyntaxNode_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_modifyArgs_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_rewriteBottomUp(lean_object*, lean_object*);
-extern lean_object* l_Init_Data_Repr___instance__18___closed__2;
 lean_object* l_Lean_Syntax_ifNode(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo_match__2(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__3;
@@ -115,7 +112,7 @@ lean_object* l_Lean_Syntax_MonadTraverser_getIdx___rarg___lambda__1___boxed(lean
 lean_object* l_Lean_Syntax_replaceM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_getKind___boxed(lean_object*);
-lean_object* l_Lean_Syntax_Lean_Syntax___instance__3___closed__1;
+lean_object* l_Lean_Syntax_instBEqSyntax;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_isEqvAux___at_Lean_Syntax_structEq___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -134,6 +131,7 @@ lean_object* l_Lean_Syntax_MonadTraverser_goLeft___rarg(lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goDown___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_getKind_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_instToFormatSyntax(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Syntax_updateLeading___spec__2(size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailWithPos_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_unreachIsNodeMissing(lean_object*, lean_object*);
@@ -151,12 +149,13 @@ lean_object* l_Lean_Syntax_structEq_match__1___rarg(lean_object*, lean_object*, 
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_reprintLeaf___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux_match__1(lean_object*);
+extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo_match__3___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Init_Prelude___instance__11;
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 extern lean_object* l_Lean_choiceKind;
 lean_object* l_Lean_Syntax_replaceM_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_instBEqSyntax___closed__1;
 extern lean_object* l_Lean_formatDataValue___closed__4;
 lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_reprintLeaf(lean_object*, lean_object*);
@@ -178,8 +177,10 @@ lean_object* l_Lean_Syntax_isQuot_match__1(lean_object*);
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1___boxed(lean_object*);
 lean_object* l_Lean_unreachIsNodeIdent___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Substring_beq(lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedSyntax;
 lean_object* l_Lean_Syntax_modifyArg_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_reprint___spec__2(lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l_instReprIterator___closed__2;
 lean_object* l_Lean_Syntax_formatStxAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setArgs_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -191,8 +192,8 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goUp(lean_object*);
 uint8_t l_Lean_Syntax_isAntiquot(lean_object*);
 lean_object* l_Lean_Syntax_ifNode___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_instToStringSyntax;
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2___boxed(lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__73___closed__1;
 lean_object* l_Lean_SyntaxNode_getNumArgs___boxed(lean_object*);
 lean_object* l_Lean_Format_joinSep___at_Lean_Syntax_formatStxAux___spec__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__3;
@@ -207,6 +208,7 @@ uint8_t l_Lean_Syntax_isMissing(lean_object*);
 lean_object* l_Lean_Syntax_setArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_replaceM___at_Lean_Syntax_updateLeading___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_getNumArgs(lean_object*);
+lean_object* l_Lean_Syntax_instToStringSyntax___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5739____closed__21;
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
@@ -221,11 +223,13 @@ lean_object* l_Lean_Syntax_rewriteBottomUpM___rarg(lean_object*, lean_object*, l
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* l_Lean_Syntax_asNode_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_instToStringSyntax___lambda__1(lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__4;
 lean_object* l_Lean_Syntax_formatStxAux___closed__9;
 lean_object* l_Lean_Syntax_Traverser_right(lean_object*);
 lean_object* l_Lean_SyntaxNode_withArgs___rarg(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_instToStringSyntax___closed__2;
 lean_object* l_Lean_SyntaxNode_modifyArgs_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg___closed__1;
@@ -236,6 +240,7 @@ lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__1(lean_object*, ui
 extern lean_object* l_Lean_Format_paren___closed__4;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__4;
 lean_object* l_List_beq___at_Lean_Syntax_structEq___spec__2___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_instReprFormat___closed__1;
 lean_object* l_Lean_mkSimpleAtom(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo_match__3(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo(uint8_t, lean_object*, lean_object*);
@@ -246,13 +251,11 @@ lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_SyntaxNode_getIdAt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setArgs_match__1(lean_object*);
 lean_object* lean_array_pop(lean_object*);
-extern lean_object* l_String_Init_Data_String_Basic___instance__2;
 lean_object* l_Lean_Syntax_ifNode_match__1(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLeadingAux(lean_object*, lean_object*);
 lean_object* l_Lean_mkListNode(lean_object*);
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg(lean_object*);
-extern lean_object* l_Lean_Lean_Data_Format___instance__20___closed__1;
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Syntax_getTailWithPos___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_setCur___rarg___lambda__1(lean_object*, lean_object*);
 uint8_t l_List_beq___at_Lean_Syntax_structEq___spec__2(lean_object*, lean_object*);
@@ -263,7 +266,6 @@ lean_object* l_Lean_Syntax_replaceM___at_Lean_Syntax_updateLeading___spec__1___b
 lean_object* l_Lean_Syntax_formatStxAux___closed__4;
 lean_object* l_Lean_Syntax_asNode(lean_object*);
 lean_object* l_Lean_unreachIsNodeIdent(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_Lean_Syntax___instance__2;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___closed__6;
 lean_object* l_Lean_Syntax_getAtomVal_x21(lean_object*);
@@ -272,10 +274,8 @@ lean_object* l_Lean_Syntax_ifNodeKind___rarg___boxed(lean_object*, lean_object*,
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 lean_object* l_Lean_SyntaxNode_getKind_match__1(lean_object*);
 lean_object* l_Lean_Syntax_Traverser_left(lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_Lean_Syntax_setArg_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isQuot___boxed(lean_object*);
-lean_object* l_Lean_Syntax_Lean_Syntax___instance__2___lambda__1(lean_object*);
 lean_object* l_Lean_Syntax_modifyArgs(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_structEq_match__1(lean_object*);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
@@ -844,7 +844,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 1);
-x_4 = l_Lean_Init_Prelude___instance__74;
+x_4 = l_Lean_instInhabitedSyntax;
 x_5 = lean_array_get(x_4, x_3, x_2);
 return x_5;
 }
@@ -1058,7 +1058,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_String_Init_Data_String_Basic___instance__2;
+x_3 = l_String_instInhabitedString;
 x_4 = l_Lean_Syntax_getAtomVal_x21___closed__4;
 x_5 = lean_panic_fn(x_3, x_4);
 return x_5;
@@ -3259,7 +3259,7 @@ lean_dec(x_10);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_5, x_11);
 lean_dec(x_5);
-x_13 = l_Lean_Init_Prelude___instance__74;
+x_13 = l_Lean_instInhabitedSyntax;
 x_14 = lean_array_get(x_13, x_4, x_12);
 x_15 = l_Lean_Syntax_updateTrailing(x_1, x_14);
 x_16 = lean_array_set(x_4, x_12, x_15);
@@ -3274,7 +3274,7 @@ lean_dec(x_2);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_sub(x_5, x_17);
 lean_dec(x_5);
-x_19 = l_Lean_Init_Prelude___instance__74;
+x_19 = l_Lean_instInhabitedSyntax;
 x_20 = lean_array_get(x_19, x_4, x_18);
 x_21 = l_Lean_Syntax_updateTrailing(x_1, x_20);
 x_22 = lean_array_set(x_4, x_18, x_21);
@@ -3583,7 +3583,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 2);
-x_5 = l_Init_Data_Repr___instance__18___closed__2;
+x_5 = l_instReprIterator___closed__2;
 x_6 = lean_string_append(x_5, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -3617,7 +3617,7 @@ x_20 = lean_string_append(x_19, x_2);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_21; lean_object* x_22; 
-x_21 = l_Init_Data_Repr___instance__18___closed__2;
+x_21 = l_instReprIterator___closed__2;
 x_22 = lean_string_append(x_20, x_21);
 return x_22;
 }
@@ -3812,7 +3812,7 @@ static lean_object* _init_l_Lean_Syntax_reprint___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Init_Prelude___instance__75___closed__1;
+x_1 = l_Lean_instInhabitedParserDescr___closed__1;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -3871,7 +3871,7 @@ size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_16;
 x_13 = 0;
 x_14 = lean_usize_of_nat(x_7);
 lean_dec(x_7);
-x_15 = l_Lean_Init_Prelude___instance__75___closed__1;
+x_15 = l_Lean_instInhabitedParserDescr___closed__1;
 x_16 = l_Array_foldlMUnsafe_fold___at_Lean_Syntax_reprint___spec__1(x_4, x_13, x_14, x_15);
 lean_dec(x_4);
 return x_16;
@@ -3888,7 +3888,7 @@ lean_dec(x_17);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_20 = l_Lean_Init_Prelude___instance__74;
+x_20 = l_Lean_instInhabitedSyntax;
 x_21 = lean_array_get(x_20, x_4, x_18);
 x_22 = l_Lean_Syntax_reprint(x_21);
 if (lean_obj_tag(x_22) == 0)
@@ -4302,7 +4302,7 @@ lean_dec(x_5);
 x_23 = l_Nat_repr(x_22);
 x_24 = l_addParenHeuristic(x_23);
 lean_dec(x_23);
-x_25 = l_Init_Data_Repr___instance__9___rarg___closed__2;
+x_25 = l_instReprOption___rarg___closed__2;
 x_26 = lean_string_append(x_25, x_24);
 lean_dec(x_24);
 x_27 = l_myMacro____x40_Init_Notation___hyg_5739____closed__21;
@@ -5149,7 +5149,7 @@ x_5 = l_Lean_Syntax_formatStx(x_1, x_2, x_4);
 return x_5;
 }
 }
-lean_object* l_Lean_Syntax_Lean_Syntax___instance__1(lean_object* x_1) {
+lean_object* l_Lean_Syntax_instToFormatSyntax(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -5160,7 +5160,7 @@ x_5 = l_Lean_Syntax_formatStxAux(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* l_Lean_Syntax_Lean_Syntax___instance__2___lambda__1(lean_object* x_1) {
+lean_object* l_Lean_Syntax_instToStringSyntax___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -5171,31 +5171,31 @@ x_5 = l_Lean_Syntax_formatStxAux(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Syntax_Lean_Syntax___instance__2___closed__1() {
+static lean_object* _init_l_Lean_Syntax_instToStringSyntax___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_Lean_Syntax___instance__2___lambda__1), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_instToStringSyntax___lambda__1), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Syntax_Lean_Syntax___instance__2___closed__2() {
+static lean_object* _init_l_Lean_Syntax_instToStringSyntax___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Lean_Data_Format___instance__20___closed__1;
-x_2 = l_Lean_Syntax_Lean_Syntax___instance__2___closed__1;
+x_1 = l_Lean_instReprFormat___closed__1;
+x_2 = l_Lean_Syntax_instToStringSyntax___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Function_comp___rarg), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Syntax_Lean_Syntax___instance__2() {
+static lean_object* _init_l_Lean_Syntax_instToStringSyntax() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Syntax_Lean_Syntax___instance__2___closed__2;
+x_1 = l_Lean_Syntax_instToStringSyntax___closed__2;
 return x_1;
 }
 }
@@ -5662,7 +5662,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Syntax_Lean_Syntax___instance__3___closed__1() {
+static lean_object* _init_l_Lean_Syntax_instBEqSyntax___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5670,11 +5670,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_structEq___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Syntax_Lean_Syntax___instance__3() {
+static lean_object* _init_l_Lean_Syntax_instBEqSyntax() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Syntax_Lean_Syntax___instance__3___closed__1;
+x_1 = l_Lean_Syntax_instBEqSyntax___closed__1;
 return x_1;
 }
 }
@@ -5775,7 +5775,7 @@ x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_sub(x_2, x_3);
 lean_dec(x_2);
-x_5 = l_Init_Prelude___instance__11;
+x_5 = l_instInhabitedNat;
 x_6 = lean_array_get(x_5, x_1, x_4);
 lean_dec(x_4);
 return x_6;
@@ -5789,7 +5789,7 @@ x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_sub(x_2, x_3);
 lean_dec(x_2);
-x_5 = l_Lean_Init_Prelude___instance__74;
+x_5 = l_Lean_instInhabitedSyntax;
 x_6 = lean_array_get(x_5, x_1, x_4);
 lean_dec(x_4);
 return x_6;
@@ -6229,7 +6229,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_1, 1);
-x_4 = l_Lean_Init_Prelude___instance__74;
+x_4 = l_Lean_instInhabitedSyntax;
 x_5 = lean_array_get(x_4, x_3, x_2);
 x_6 = l_Lean_Syntax_getId(x_5);
 lean_dec(x_5);
@@ -6250,7 +6250,7 @@ lean_object* l_Lean_mkSimpleAtom(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Init_Prelude___instance__73___closed__1;
+x_2 = l_Lean_instInhabitedSourceInfo___closed__1;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -6321,16 +6321,16 @@ l_Lean_Syntax_formatStxAux___closed__8 = _init_l_Lean_Syntax_formatStxAux___clos
 lean_mark_persistent(l_Lean_Syntax_formatStxAux___closed__8);
 l_Lean_Syntax_formatStxAux___closed__9 = _init_l_Lean_Syntax_formatStxAux___closed__9();
 lean_mark_persistent(l_Lean_Syntax_formatStxAux___closed__9);
-l_Lean_Syntax_Lean_Syntax___instance__2___closed__1 = _init_l_Lean_Syntax_Lean_Syntax___instance__2___closed__1();
-lean_mark_persistent(l_Lean_Syntax_Lean_Syntax___instance__2___closed__1);
-l_Lean_Syntax_Lean_Syntax___instance__2___closed__2 = _init_l_Lean_Syntax_Lean_Syntax___instance__2___closed__2();
-lean_mark_persistent(l_Lean_Syntax_Lean_Syntax___instance__2___closed__2);
-l_Lean_Syntax_Lean_Syntax___instance__2 = _init_l_Lean_Syntax_Lean_Syntax___instance__2();
-lean_mark_persistent(l_Lean_Syntax_Lean_Syntax___instance__2);
-l_Lean_Syntax_Lean_Syntax___instance__3___closed__1 = _init_l_Lean_Syntax_Lean_Syntax___instance__3___closed__1();
-lean_mark_persistent(l_Lean_Syntax_Lean_Syntax___instance__3___closed__1);
-l_Lean_Syntax_Lean_Syntax___instance__3 = _init_l_Lean_Syntax_Lean_Syntax___instance__3();
-lean_mark_persistent(l_Lean_Syntax_Lean_Syntax___instance__3);
+l_Lean_Syntax_instToStringSyntax___closed__1 = _init_l_Lean_Syntax_instToStringSyntax___closed__1();
+lean_mark_persistent(l_Lean_Syntax_instToStringSyntax___closed__1);
+l_Lean_Syntax_instToStringSyntax___closed__2 = _init_l_Lean_Syntax_instToStringSyntax___closed__2();
+lean_mark_persistent(l_Lean_Syntax_instToStringSyntax___closed__2);
+l_Lean_Syntax_instToStringSyntax = _init_l_Lean_Syntax_instToStringSyntax();
+lean_mark_persistent(l_Lean_Syntax_instToStringSyntax);
+l_Lean_Syntax_instBEqSyntax___closed__1 = _init_l_Lean_Syntax_instBEqSyntax___closed__1();
+lean_mark_persistent(l_Lean_Syntax_instBEqSyntax___closed__1);
+l_Lean_Syntax_instBEqSyntax = _init_l_Lean_Syntax_instBEqSyntax();
+lean_mark_persistent(l_Lean_Syntax_instBEqSyntax);
 l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1 = _init_l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1();
 lean_mark_persistent(l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1);
 l_Lean_Syntax_MonadTraverser_goUp___rarg___closed__1 = _init_l_Lean_Syntax_MonadTraverser_goUp___rarg___closed__1();

@@ -465,11 +465,6 @@ def mkFreshBinderName : TermElabM Name :=
 def mkFreshIdent (ref : Syntax) : TermElabM Syntax :=
   return mkIdentFrom ref (← mkFreshBinderName)
 
-/--
-  Auxiliary method for creating binder names for local instances. -/
-def mkFreshInstanceName : TermElabM Name :=
-  withFreshMacroScope $ MonadQuotation.addMacroScope `inst
-
 private def liftAttrM {α} (x : AttrM α) : TermElabM α := do
   let ctx ← read
   liftCoreM $ x.run { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls }

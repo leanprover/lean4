@@ -28,10 +28,11 @@ private def expandBinderIdent (stx : Syntax) : TermElabM Syntax :=
 
 /-- Given syntax of the form `(ident >> " : ")?`, return `ident`, or a new instance name. -/
 private def expandOptIdent (stx : Syntax) : TermElabM Syntax := do
-  if stx.getNumArgs == 0 then
-    pure $ mkIdentFrom stx (← mkFreshInstanceName)
+  if stx.isNone then
+    let id ← withFreshMacroScope <| MonadQuotation.addMacroScope `inst
+    return mkIdentFrom stx id
   else
-    pure stx[0]
+    return stx[0]
 
 structure BinderView :=
   (id : Syntax)

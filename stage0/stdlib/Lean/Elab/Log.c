@@ -22,6 +22,7 @@ lean_object* l_Lean_Elab_log___rarg___lambda__1(lean_object*, lean_object*, lean
 lean_object* l_Lean_Elab_logDbgTrace___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logError(lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_Lean_Elab_logException___rarg___lambda__1___closed__3;
 lean_object* l_Lean_Elab_logInfoAt(lean_object*);
 lean_object* l_Lean_Elab_logTrace(lean_object*);
@@ -32,7 +33,9 @@ lean_object* l_Lean_Elab_logInfoAt___rarg(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_Elab_logAt___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logException___rarg___lambda__1___closed__1;
 lean_object* l_Lean_Elab_logException(lean_object*);
+lean_object* l_Lean_Elab_instMonadLog___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logDbgTrace___rarg___closed__1;
+lean_object* l_Lean_Elab_instMonadLog___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getRefPosition___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg___lambda__5(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_trace___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,12 +55,11 @@ lean_object* l_Lean_Elab_logAt___rarg___boxed(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Elab_trace___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Elab_logAt___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_instMonadLog(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getRefPosition___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Lean_Elab_Log___instance__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg___lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Lean_Elab_Log___instance__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_log___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Elab_logWarning___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logDbgTrace(lean_object*);
@@ -82,14 +84,12 @@ lean_object* l_Lean_Elab_logInfo(lean_object*);
 lean_object* l_Lean_Elab_logAt(lean_object*);
 lean_object* l_Lean_Elab_logWarningAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getRefPos___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__75___closed__1;
 lean_object* l_Lean_Elab_logTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Lean_Elab_Log___instance__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logDbgTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getRefPosition___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logErrorAt(lean_object*);
-lean_object* l_Lean_Elab_Lean_Elab_Log___instance__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Elab_instMonadLog___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -101,7 +101,7 @@ x_6 = lean_apply_2(x_2, lean_box(0), x_5);
 return x_6;
 }
 }
-lean_object* l_Lean_Elab_Lean_Elab_Log___instance__1___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Elab_instMonadLog___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -117,7 +117,7 @@ x_7 = lean_ctor_get(x_1, 2);
 lean_inc(x_7);
 lean_inc(x_2);
 x_8 = lean_apply_2(x_2, lean_box(0), x_7);
-x_9 = lean_alloc_closure((void*)(l_Lean_Elab_Lean_Elab_Log___instance__1___rarg___lambda__1), 3, 2);
+x_9 = lean_alloc_closure((void*)(l_Lean_Elab_instMonadLog___rarg___lambda__1), 3, 2);
 lean_closure_set(x_9, 0, x_1);
 lean_closure_set(x_9, 1, x_2);
 x_10 = lean_alloc_ctor(0, 4, 0);
@@ -128,11 +128,11 @@ lean_ctor_set(x_10, 3, x_9);
 return x_10;
 }
 }
-lean_object* l_Lean_Elab_Lean_Elab_Log___instance__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Elab_instMonadLog(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Elab_Lean_Elab_Log___instance__1___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_Elab_instMonadLog___rarg), 2, 0);
 return x_3;
 }
 }
@@ -269,7 +269,7 @@ lean_dec(x_1);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = l_Lean_FileMap_toPosition(x_2, x_7);
 x_9 = lean_box(0);
-x_10 = l_Lean_Init_Prelude___instance__75___closed__1;
+x_10 = l_Lean_instInhabitedParserDescr___closed__1;
 x_11 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_11, 0, x_5);
 lean_ctor_set(x_11, 1, x_8);
@@ -322,7 +322,7 @@ lean_inc(x_7);
 lean_dec(x_1);
 x_8 = l_Lean_FileMap_toPosition(x_2, x_3);
 x_9 = lean_box(0);
-x_10 = l_Lean_Init_Prelude___instance__75___closed__1;
+x_10 = l_Lean_instInhabitedParserDescr___closed__1;
 x_11 = lean_alloc_ctor(0, 5, 1);
 lean_ctor_set(x_11, 0, x_6);
 lean_ctor_set(x_11, 1, x_8);

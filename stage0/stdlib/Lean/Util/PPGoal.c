@@ -45,7 +45,6 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFr
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPGoal___hyg_6____closed__2;
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___closed__2;
-extern lean_object* l_Init_Data_Repr___instance__18___closed__2;
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_ppGoal___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_ppGoal___spec__11(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*);
@@ -72,6 +71,7 @@ lean_object* l_Lean_ppExpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ppGoal_match__2(lean_object*);
 lean_object* l_Lean_ppGoal_ppVars_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ppAuxDeclsDefault;
+extern lean_object* l_instReprIterator___closed__2;
 lean_object* l_Lean_ppGoal_pushPending_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Format_isNil(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -468,7 +468,7 @@ static lean_object* _init_l_Lean_ppGoal_pushPending___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Init_Data_Repr___instance__18___closed__2;
+x_1 = l_instReprIterator___closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

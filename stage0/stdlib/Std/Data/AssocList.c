@@ -77,7 +77,6 @@ lean_object* l_Std_AssocList_find_x3f_match__2(lean_object*, lean_object*, lean_
 lean_object* l_Std_AssocList_find_x3f_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_any_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_Std_Data_AssocList___instance__1(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_all_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f_match__1(lean_object*);
 lean_object* l_Std_AssocList_foldl(lean_object*, lean_object*, lean_object*);
@@ -95,6 +94,7 @@ lean_object* l_Std_AssocList_foldlM_match__1___rarg(lean_object*, lean_object*, 
 lean_object* l_Std_AssocList_find_x3f_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_forIn_loop_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_AssocList_instEmptyCollectionAssocList(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_forIn_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_empty(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -104,7 +104,7 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-lean_object* l_Std_AssocList_Std_Data_AssocList___instance__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Std_AssocList_instEmptyCollectionAssocList(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 

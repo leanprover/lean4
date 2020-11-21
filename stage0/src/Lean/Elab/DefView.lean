@@ -63,11 +63,74 @@ def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   { ref := stx, kind := DefKind.theorem, modifiers := modifiers,
     declId := stx.getArg 1, binders := binders, type? := some type, value := stx.getArg 3 }
 
+namespace MkInstanceName
+
+-- Table for `mkInstanceName`
+private def kindReplacements : NameMap String :=
+  Std.RBMap.ofList [
+    (`Lean.Parser.Term.depArrow, "DepArrow"),
+    (`Lean.Parser.Term.«forall», "Forall"),
+    (`Lean.Parser.Term.arrow, "Arrow"),
+    (`Lean.Parser.Term.prop,  "Prop"),
+    (`Lean.Parser.Term.sort,  "Sort"),
+    (`Lean.Parser.Term.type,  "Type")
+  ]
+
+abbrev M := StateRefT String CommandElabM
+
+def isFirst : M Bool :=
+  return (← get) == ""
+
+def append (str : String) : M Unit :=
+  modify fun s => s ++ str
+
+partial def collect (stx : Syntax) : M Unit := do
+  match stx with
+  | Syntax.node k args =>
+    unless (← isFirst) do
+      match kindReplacements.find? k with
+      | some r => append r
+      | none   => pure ()
+    for arg in args do
+      collect arg
+  | Syntax.ident (preresolved := preresolved) .. =>
+    unless preresolved.isEmpty && (← resolveGlobalName stx.getId).isEmpty do
+      match stx.getId.eraseMacroScopes with
+      | Name.str _ str _ =>
+          if str[0].isLower then
+            append str.capitalize
+          else
+            append str
+      | _ => pure ()
+  | _ => pure ()
+
 def mkFreshInstanceName : CommandElabM Name := do
   let s ← get
   let idx := s.nextInstIdx
   modify fun s => { s with nextInstIdx := s.nextInstIdx + 1 }
   return Lean.Elab.mkFreshInstanceName s.env idx
+
+partial def main (type : Syntax) : CommandElabM Name := do
+  /- We use `expandMacros` to expand notation such as `x < y` into `HasLess.Less x y` -/
+  let type ← liftMacroM <| expandMacros type
+  let (_, str) ← collect type |>.run ""
+  if str.isEmpty then
+     mkFreshInstanceName
+  else
+    let name := Name.mkSimple ("inst" ++ str)
+    let currNamespace ← getCurrNamespace
+    if (← getEnv).contains (currNamespace ++ name) then
+      let rec loop (idx : Nat) :=
+         let name := name.appendIndexAfter idx
+         if (← getEnv).contains (currNamespace ++ name) then
+           loop (idx+1)
+         else
+           name
+      return loop 1
+    else
+      return name
+
+end MkInstanceName
 
 def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- parser! "constant " >> declId >> declSig >> optional declValSimple
@@ -89,8 +152,8 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   let declId ← match (stx.getArg 1).getOptional? with
     | some declId => pure declId
     | none        =>
-      let id ← mkFreshInstanceName
-      pure $ Syntax.node `Lean.Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
+      let id ← MkInstanceName.main type
+      pure <| Syntax.node `Lean.Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
   return {
     ref := stx, kind := DefKind.def, modifiers := modifiers,
     declId := declId, binders := binders, type? := type, value := stx.getArg 3

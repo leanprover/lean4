@@ -23,7 +23,6 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__1
 lean_object* l_Lean_isExport___closed__1;
 lean_object* l_Lean_isExport___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Init_Prelude___instance__69;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__1___closed__1;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*);
@@ -90,7 +89,6 @@ uint8_t l_Lean_isExport(lean_object*, lean_object*);
 uint8_t l_Char_isAlpha(uint32_t);
 lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___closed__1;
 lean_object* l_Lean_exportAttr;
-extern lean_object* l_Lean_ParametricAttribute_Lean_Attributes___instance__7___closed__1;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__1___lambda__1___boxed(lean_object*);
@@ -102,6 +100,7 @@ lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____closed__2
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____closed__1;
 lean_object* l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____closed__8;
+extern lean_object* l_Lean_instInhabitedName;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____closed__4;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
@@ -110,6 +109,7 @@ lean_object* l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_Compiler_Expor
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__1(lean_object*, lean_object*);
 lean_object* l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____lambda__1___closed__6;
+extern lean_object* l_Lean_ParametricAttribute_instInhabitedParametricAttribute___closed__1;
 lean_object* l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_80____spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -389,7 +389,7 @@ static lean_object* _init_l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_C
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Init_Prelude___instance__69;
+x_1 = l_Lean_instInhabitedName;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);

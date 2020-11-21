@@ -607,7 +607,6 @@ lean_object* l_Lean_Parser_Command_parserKindPrio___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Command_macroTailDefault_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_optKindPrio___closed__5;
 lean_object* l_Lean_PrettyPrinter_Formatter_toggleInsideQuot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Lean_Parser_Basic___instance__8___closed__2;
 lean_object* l_Lean_Parser_Command_macro_formatter___closed__4;
 lean_object* l_Lean_Parser_Syntax_unary_formatter___closed__3;
 lean_object* l_Lean_Parser_Syntax_paren___closed__5;
@@ -1085,6 +1084,7 @@ lean_object* l_Lean_Parser_Command_optKind___closed__4;
 lean_object* l_Lean_Parser_Command_macroHead_formatter___closed__1;
 lean_object* l_Lean_Parser_Command_syntax___closed__11;
 lean_object* l_Lean_Parser_precedenceLit___elambda__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_instInhabitedParser___closed__2;
 lean_object* l_Lean_Parser_maxSymbol_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Command_optPrio___closed__4;
 lean_object* l_Lean_PrettyPrinter_Formatter_identEq_formatter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5840,7 +5840,7 @@ static lean_object* _init_l_Lean_Parser_Command_mixfix___elambda__1___closed__6(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Lean_Parser_Basic___instance__8___closed__2;
+x_1 = l_Lean_Parser_instInhabitedParser___closed__2;
 x_2 = l_Lean_Parser_Command_mixfix___elambda__1___closed__5;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);

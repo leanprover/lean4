@@ -69,11 +69,11 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_simpCase___spec__1(size_
 lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_getOccsOf___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_IR_ensureHasDefault___spec__2(lean_object*, size_t, size_t);
 lean_object* lean_array_pop(lean_object*);
+extern lean_object* l_Lean_IR_instInhabitedAlt;
 lean_object* l_Array_back___at_Lean_IR_ensureHasDefault___spec__1(lean_object*);
 lean_object* l_Lean_IR_Decl_simpCase_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_Alt_isDefault(lean_object*);
-extern lean_object* l_Lean_IR_Lean_Compiler_IR_Basic___instance__16;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_IR_ensureHasDefault___spec__1(lean_object* x_1) {
 _start:
@@ -83,7 +83,7 @@ x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_sub(x_2, x_3);
 lean_dec(x_2);
-x_5 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__16;
+x_5 = l_Lean_IR_instInhabitedAlt;
 x_6 = lean_array_get(x_5, x_1, x_4);
 lean_dec(x_4);
 return x_6;
@@ -258,7 +258,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_4, x_11);
 lean_dec(x_4);
-x_13 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__16;
+x_13 = l_Lean_IR_instInhabitedAlt;
 x_14 = lean_array_get(x_13, x_1, x_5);
 x_15 = l_Lean_IR_AltCore_body(x_14);
 lean_dec(x_14);
@@ -309,7 +309,7 @@ lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_getOccsOf(lean_obj
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_3 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__16;
+x_3 = l_Lean_IR_instInhabitedAlt;
 x_4 = lean_array_get(x_3, x_1, x_2);
 x_5 = l_Lean_IR_AltCore_body(x_4);
 lean_dec(x_4);
@@ -430,7 +430,7 @@ else
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_dec(x_14);
 lean_dec(x_13);
-x_20 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__16;
+x_20 = l_Lean_IR_instInhabitedAlt;
 x_21 = lean_array_get(x_20, x_1, x_4);
 lean_ctor_set(x_5, 1, x_15);
 lean_ctor_set(x_5, 0, x_21);
@@ -472,7 +472,7 @@ else
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_26);
 lean_dec(x_25);
-x_33 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__16;
+x_33 = l_Lean_IR_instInhabitedAlt;
 x_34 = lean_array_get(x_33, x_1, x_4);
 x_35 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_35, 0, x_34);
@@ -506,7 +506,7 @@ lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_maxOccs(lean_objec
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_2 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__16;
+x_2 = l_Lean_IR_instInhabitedAlt;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_array_get(x_2, x_1, x_3);
 x_5 = l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_getOccsOf(x_1, x_3);
@@ -877,7 +877,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15;
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_13 = l_Lean_IR_Lean_Compiler_IR_Basic___instance__16;
+x_13 = l_Lean_IR_instInhabitedAlt;
 x_14 = lean_array_get(x_13, x_6, x_8);
 lean_dec(x_6);
 x_15 = l_Lean_IR_AltCore_body(x_14);

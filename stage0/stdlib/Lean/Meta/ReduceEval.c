@@ -15,52 +15,52 @@ extern "C" {
 #endif
 lean_object* l_Lean_Meta_reduceEval___at___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
+lean_object* l_Lean_Meta_instReduceEvalOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__3;
 lean_object* l_Lean_Meta_reduceEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__1_match__1(lean_object*);
+lean_object* l_Lean_Meta_instReduceEvalNat_match__1(lean_object*);
 extern lean_object* l___private_Init_Meta_0__Lean_quoteOption___rarg___closed__3;
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__2(lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___rarg___closed__1;
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instReduceEvalString_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat(lean_object*);
 extern lean_object* l___private_Init_Meta_0__Lean_quoteName___closed__4;
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__4;
+lean_object* l_Lean_Meta_instReduceEvalName___closed__1;
+lean_object* l_Lean_Meta_instReduceEvalNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Init_Meta_0__Lean_quoteOption___rarg___closed__6;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__3_match__1(lean_object*);
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__2_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instReduceEvalString_match__1(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_981____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux_process___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__2_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__4;
+lean_object* l_Lean_Meta_instReduceEvalOption(lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__2;
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval(lean_object*);
 extern lean_object* l___private_Init_Meta_0__Lean_quoteName___closed__2;
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__1;
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instReduceEvalOption___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instReduceEvalString(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceEval___at___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5___closed__1;
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__3_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName_match__1(lean_object*);
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t, uint8_t);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___rarg___closed__2;
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Meta_reduceEval(lean_object*);
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__1_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__4___closed__1;
+lean_object* l_Lean_Meta_instReduceEvalOption_match__1(lean_object*);
+lean_object* l_Lean_Meta_instReduceEvalNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instReduceEvalName;
 lean_object* l_Lean_Meta_reduceEval___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -550,7 +550,7 @@ lean_dec(x_2);
 return x_7;
 }
 }
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__1_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Meta_instReduceEvalNat_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -572,15 +572,15 @@ return x_6;
 }
 }
 }
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__1_match__1(lean_object* x_1) {
+lean_object* l_Lean_Meta_instReduceEvalNat_match__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Lean_Meta_ReduceEval___instance__1_match__1___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalNat_match__1___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_Lean_Meta_instReduceEvalNat(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
@@ -692,7 +692,7 @@ return x_23;
 }
 }
 }
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__2_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Meta_instReduceEvalOption_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 4)
@@ -718,15 +718,15 @@ return x_9;
 }
 }
 }
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__2_match__1(lean_object* x_1) {
+lean_object* l_Lean_Meta_instReduceEvalOption_match__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Lean_Meta_ReduceEval___instance__2_match__1___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalOption_match__1___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_Lean_Meta_instReduceEvalOption___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
@@ -1255,15 +1255,15 @@ return x_108;
 }
 }
 }
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__2(lean_object* x_1) {
+lean_object* l_Lean_Meta_instReduceEvalOption(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Lean_Meta_ReduceEval___instance__2___rarg), 7, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalOption___rarg), 7, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__3_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Meta_instReduceEvalString_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 9)
@@ -1302,15 +1302,15 @@ return x_10;
 }
 }
 }
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__3_match__1(lean_object* x_1) {
+lean_object* l_Lean_Meta_instReduceEvalString_match__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Lean_Meta_ReduceEval___instance__3_match__1___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_instReduceEvalString_match__1___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Meta_Lean_Meta_ReduceEval___instance__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_Lean_Meta_instReduceEvalString(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
@@ -3904,7 +3904,7 @@ return x_161;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_Lean_Meta_ReduceEval___instance__4___closed__1() {
+static lean_object* _init_l_Lean_Meta_instReduceEvalName___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3912,11 +3912,11 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_ReduceEval_0__Lean_Meta_e
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Lean_Meta_ReduceEval___instance__4() {
+static lean_object* _init_l_Lean_Meta_instReduceEvalName() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Lean_Meta_ReduceEval___instance__4___closed__1;
+x_1 = l_Lean_Meta_instReduceEvalName___closed__1;
 return x_1;
 }
 }
@@ -3945,10 +3945,10 @@ l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__3 = _init_l___p
 lean_mark_persistent(l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__3);
 l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__4 = _init_l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__4();
 lean_mark_persistent(l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___closed__4);
-l_Lean_Meta_Lean_Meta_ReduceEval___instance__4___closed__1 = _init_l_Lean_Meta_Lean_Meta_ReduceEval___instance__4___closed__1();
-lean_mark_persistent(l_Lean_Meta_Lean_Meta_ReduceEval___instance__4___closed__1);
-l_Lean_Meta_Lean_Meta_ReduceEval___instance__4 = _init_l_Lean_Meta_Lean_Meta_ReduceEval___instance__4();
-lean_mark_persistent(l_Lean_Meta_Lean_Meta_ReduceEval___instance__4);
+l_Lean_Meta_instReduceEvalName___closed__1 = _init_l_Lean_Meta_instReduceEvalName___closed__1();
+lean_mark_persistent(l_Lean_Meta_instReduceEvalName___closed__1);
+l_Lean_Meta_instReduceEvalName = _init_l_Lean_Meta_instReduceEvalName();
+lean_mark_persistent(l_Lean_Meta_instReduceEvalName);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

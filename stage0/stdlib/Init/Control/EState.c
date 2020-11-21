@@ -15,38 +15,38 @@ extern "C" {
 #endif
 lean_object* l_EStateM_fromStateM_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_fromStateM___rarg(lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_EStateM_orElse_x27___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__2___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__1___rarg___closed__1;
+lean_object* l_EStateM_instToStringResult___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonadFinallyEStateM_match__2(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Except_toString___rarg___closed__1;
-lean_object* l_EStateM_Init_Control_EState___instance__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_fromStateM_match__1___rarg(lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instReprResult_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Except_toString___rarg___closed__2;
 lean_object* l_EStateM_orElse_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instToStringResult(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonadFinallyEStateM_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instToStringResult_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonadFinallyEStateM(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orElse_x27_match__2___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instToStringResult___rarg___closed__1;
+lean_object* l_EStateM_instReprResult(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instReprResult_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_fromStateM(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orElse_x27_match__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__1_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__2(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5739____closed__21;
-lean_object* l_EStateM_Init_Control_EState___instance__1___rarg___closed__2;
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__2___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instReprResult___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonadFinallyEStateM_match__3___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonadFinallyEStateM___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instToStringResult_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instToStringResult___rarg___closed__2;
 lean_object* l_EStateM_orElse_x27_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__3___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__3(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__1_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__2_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__3___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__2_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonadFinallyEStateM_match__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonadFinallyEStateM_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonadFinallyEStateM_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orElse_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orElse_x27_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_Init_Control_EState___instance__1_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_instToStringResult_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -75,15 +75,15 @@ return x_9;
 }
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__1_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_EStateM_instToStringResult_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_EStateM_Init_Control_EState___instance__1_match__1___rarg), 3, 0);
+x_5 = lean_alloc_closure((void*)(l_EStateM_instToStringResult_match__1___rarg), 3, 0);
 return x_5;
 }
 }
-static lean_object* _init_l_EStateM_Init_Control_EState___instance__1___rarg___closed__1() {
+static lean_object* _init_l_EStateM_instToStringResult___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -91,7 +91,7 @@ x_1 = lean_mk_string("ok: ");
 return x_1;
 }
 }
-static lean_object* _init_l_EStateM_Init_Control_EState___instance__1___rarg___closed__2() {
+static lean_object* _init_l_EStateM_instToStringResult___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -99,7 +99,7 @@ x_1 = lean_mk_string("error: ");
 return x_1;
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_instToStringResult___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -110,7 +110,7 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec(x_3);
 x_5 = lean_apply_1(x_2, x_4);
-x_6 = l_EStateM_Init_Control_EState___instance__1___rarg___closed__1;
+x_6 = l_EStateM_instToStringResult___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
 return x_7;
@@ -123,22 +123,22 @@ x_8 = lean_ctor_get(x_3, 0);
 lean_inc(x_8);
 lean_dec(x_3);
 x_9 = lean_apply_1(x_1, x_8);
-x_10 = l_EStateM_Init_Control_EState___instance__1___rarg___closed__2;
+x_10 = l_EStateM_instToStringResult___rarg___closed__2;
 x_11 = lean_string_append(x_10, x_9);
 lean_dec(x_9);
 return x_11;
 }
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_instToStringResult(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_EStateM_Init_Control_EState___instance__1___rarg), 3, 0);
+x_4 = lean_alloc_closure((void*)(l_EStateM_instToStringResult___rarg), 3, 0);
 return x_4;
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__2_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_instReprResult_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -167,15 +167,15 @@ return x_9;
 }
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__2_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_EStateM_instReprResult_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_EStateM_Init_Control_EState___instance__2_match__1___rarg), 3, 0);
+x_5 = lean_alloc_closure((void*)(l_EStateM_instReprResult_match__1___rarg), 3, 0);
 return x_5;
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_instReprResult___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -210,11 +210,11 @@ return x_15;
 }
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_instReprResult(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_EStateM_Init_Control_EState___instance__2___rarg), 3, 0);
+x_4 = lean_alloc_closure((void*)(l_EStateM_instReprResult___rarg), 3, 0);
 return x_4;
 }
 }
@@ -387,7 +387,7 @@ x_7 = l_EStateM_orElse_x27___rarg(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_instMonadFinallyEStateM_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -416,15 +416,15 @@ return x_9;
 }
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_EStateM_instMonadFinallyEStateM_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_EStateM_Init_Control_EState___instance__3_match__1___rarg), 3, 0);
+x_5 = lean_alloc_closure((void*)(l_EStateM_instMonadFinallyEStateM_match__1___rarg), 3, 0);
 return x_5;
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_instMonadFinallyEStateM_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -453,15 +453,15 @@ return x_9;
 }
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_EStateM_instMonadFinallyEStateM_match__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_EStateM_Init_Control_EState___instance__3_match__2___rarg), 3, 0);
+x_5 = lean_alloc_closure((void*)(l_EStateM_instMonadFinallyEStateM_match__2___rarg), 3, 0);
 return x_5;
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_instMonadFinallyEStateM_match__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -490,15 +490,15 @@ return x_9;
 }
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__3_match__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_EStateM_instMonadFinallyEStateM_match__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_EStateM_Init_Control_EState___instance__3_match__3___rarg), 3, 0);
+x_5 = lean_alloc_closure((void*)(l_EStateM_instMonadFinallyEStateM_match__3___rarg), 3, 0);
 return x_5;
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_instMonadFinallyEStateM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -631,11 +631,11 @@ return x_31;
 }
 }
 }
-lean_object* l_EStateM_Init_Control_EState___instance__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_EStateM_instMonadFinallyEStateM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_EStateM_Init_Control_EState___instance__3___rarg), 3, 0);
+x_5 = lean_alloc_closure((void*)(l_EStateM_instMonadFinallyEStateM___rarg), 3, 0);
 return x_5;
 }
 }
@@ -697,10 +697,10 @@ lean_dec_ref(res);
 res = initialize_Init_Control_Except(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_EStateM_Init_Control_EState___instance__1___rarg___closed__1 = _init_l_EStateM_Init_Control_EState___instance__1___rarg___closed__1();
-lean_mark_persistent(l_EStateM_Init_Control_EState___instance__1___rarg___closed__1);
-l_EStateM_Init_Control_EState___instance__1___rarg___closed__2 = _init_l_EStateM_Init_Control_EState___instance__1___rarg___closed__2();
-lean_mark_persistent(l_EStateM_Init_Control_EState___instance__1___rarg___closed__2);
+l_EStateM_instToStringResult___rarg___closed__1 = _init_l_EStateM_instToStringResult___rarg___closed__1();
+lean_mark_persistent(l_EStateM_instToStringResult___rarg___closed__1);
+l_EStateM_instToStringResult___rarg___closed__2 = _init_l_EStateM_instToStringResult___rarg___closed__2();
+lean_mark_persistent(l_EStateM_instToStringResult___rarg___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

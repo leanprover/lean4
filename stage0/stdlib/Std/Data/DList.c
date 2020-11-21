@@ -20,21 +20,20 @@ lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Std_DList_empty___elambda__1___rarg___boxed(lean_object*);
 lean_object* l_Std_DList_cons(lean_object*);
 lean_object* l_Std_DList_append_match__1(lean_object*, lean_object*);
-lean_object* l_Std_DList_Std_Data_DList___instance__2(lean_object*);
-lean_object* l_Std_DList_Std_Data_DList___instance__2___closed__1;
 lean_object* l_Std_DList_toList_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_DList_singleton___rarg(lean_object*);
+lean_object* l_Std_DList_instEmptyCollectionDList___closed__1;
 lean_object* l_Std_DList_append___rarg(lean_object*, lean_object*);
+lean_object* l_Std_DList_instAppendDList(lean_object*);
 lean_object* l_Std_DList_push_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DList_empty___closed__1;
 lean_object* l_Std_DList_singleton(lean_object*);
 lean_object* l_Std_DList_cons___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_DList_Std_Data_DList___instance__1(lean_object*);
 lean_object* l_Std_DList_singleton___elambda__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_DList_empty___elambda__1(lean_object*);
 lean_object* l_Std_DList_ofList___elambda__1(lean_object*);
+lean_object* l_Std_DList_instAppendDList___closed__1;
 lean_object* l_Std_DList_singleton___elambda__1(lean_object*);
-lean_object* l_Std_DList_Std_Data_DList___instance__1___closed__1;
 lean_object* l_Std_DList_push(lean_object*);
 lean_object* l_Std_DList_toList(lean_object*);
 lean_object* l_Std_DList_push___elambda__1(lean_object*);
@@ -43,6 +42,7 @@ lean_object* l_Std_DList_cons___rarg(lean_object*, lean_object*);
 lean_object* l_Std_DList_push___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DList_append_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DList_append(lean_object*);
+lean_object* l_Std_DList_instEmptyCollectionDList(lean_object*);
 lean_object* l_Std_DList_ofList(lean_object*);
 lean_object* l_Std_DList_cons_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DList_ofList___rarg(lean_object*);
@@ -126,7 +126,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_DList_Std_Data_DList___instance__1___closed__1() {
+static lean_object* _init_l_Std_DList_instEmptyCollectionDList___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -134,11 +134,11 @@ x_1 = lean_alloc_closure((void*)(l_Std_DList_empty___elambda__1___rarg___boxed),
 return x_1;
 }
 }
-lean_object* l_Std_DList_Std_Data_DList___instance__1(lean_object* x_1) {
+lean_object* l_Std_DList_instEmptyCollectionDList(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_DList_Std_Data_DList___instance__1___closed__1;
+x_2 = l_Std_DList_instEmptyCollectionDList___closed__1;
 return x_2;
 }
 }
@@ -367,7 +367,7 @@ x_2 = lean_alloc_closure((void*)(l_Std_DList_push___rarg), 2, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_DList_Std_Data_DList___instance__2___closed__1() {
+static lean_object* _init_l_Std_DList_instAppendDList___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -375,11 +375,11 @@ x_1 = lean_alloc_closure((void*)(l_Std_DList_append___rarg), 2, 0);
 return x_1;
 }
 }
-lean_object* l_Std_DList_Std_Data_DList___instance__2(lean_object* x_1) {
+lean_object* l_Std_DList_instAppendDList(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_DList_Std_Data_DList___instance__2___closed__1;
+x_2 = l_Std_DList_instAppendDList___closed__1;
 return x_2;
 }
 }
@@ -394,10 +394,10 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_DList_empty___closed__1 = _init_l_Std_DList_empty___closed__1();
 lean_mark_persistent(l_Std_DList_empty___closed__1);
-l_Std_DList_Std_Data_DList___instance__1___closed__1 = _init_l_Std_DList_Std_Data_DList___instance__1___closed__1();
-lean_mark_persistent(l_Std_DList_Std_Data_DList___instance__1___closed__1);
-l_Std_DList_Std_Data_DList___instance__2___closed__1 = _init_l_Std_DList_Std_Data_DList___instance__2___closed__1();
-lean_mark_persistent(l_Std_DList_Std_Data_DList___instance__2___closed__1);
+l_Std_DList_instEmptyCollectionDList___closed__1 = _init_l_Std_DList_instEmptyCollectionDList___closed__1();
+lean_mark_persistent(l_Std_DList_instEmptyCollectionDList___closed__1);
+l_Std_DList_instAppendDList___closed__1 = _init_l_Std_DList_instAppendDList___closed__1();
+lean_mark_persistent(l_Std_DList_instAppendDList___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

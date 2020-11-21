@@ -48,6 +48,7 @@ lean_object* l_Std_RBNode_ins___at_Lean_IR_mkLiveVarSet___spec__2(lean_object*, 
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_collectLiveVars(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_IsLive_visitArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_instInhabitedLiveVarSet;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_LiveVars_collectFnBody___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_IR_IsLive_visitFnBody_match__1(lean_object*);
 lean_object* l_Lean_IR_IsLive_visitFnBody_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,7 +66,6 @@ lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParam
 lean_object* l_Lean_IR_IsLive_visitFnBody_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_IsLive_visitFnBody_match__2(lean_object*);
 lean_object* l_Std_RBNode_balLeft___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_Lean_Compiler_IR_LiveVars___instance__1;
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArray___at_Lean_IR_LiveVars_collectFnBody___spec__3(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_IR_LiveVars_collectFnBody_match__1(lean_object*);
@@ -75,11 +75,11 @@ lean_object* l_Lean_IR_LiveVars_collectExpr_match__1(lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_IR_IsLive_visitFnBody___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_del___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_IsLive_visitArgs___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_instMonadId;
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArg_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArray(lean_object*);
-lean_object* l_ReaderT_Init_Prelude___instance__51___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_IsLive_visitArgs(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_IR_IsLive_visitFnBody___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArg_match__1(lean_object*);
@@ -91,7 +91,6 @@ uint8_t l_Lean_IR_HasIndex_visitArgs(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArray___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArgs___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkLiveVarSet(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams(lean_object*, lean_object*);
-extern lean_object* l_Id_Init_Control_Id___instance__1;
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams___spec__1(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_IR_LocalContext_getJPBody(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LiveVars_collectExpr_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -105,6 +104,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_LiveVars_collectFnBody___spe
 lean_object* l_Lean_IR_IsLive_visitVar(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar___boxed(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArgs___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instMonadExceptOfReaderT___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_skip(lean_object*);
 extern lean_object* l_Lean_Position_lt___closed__2;
 lean_object* l_Std_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(lean_object*, lean_object*, lean_object*);
@@ -1167,7 +1167,7 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_IR_Lean_Compiler_IR_LiveVars___instance__1() {
+static lean_object* _init_l_Lean_IR_instInhabitedLiveVarSet() {
 _start:
 {
 lean_object* x_1; 
@@ -3745,7 +3745,7 @@ lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectAr
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_4 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__51___rarg___lambda__2), 3, 1);
+x_4 = lean_alloc_closure((void*)(l_ReaderT_instMonadExceptOfReaderT___rarg___lambda__2), 3, 1);
 lean_closure_set(x_4, 0, x_2);
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_unsigned_to_nat(0u);
@@ -3774,7 +3774,7 @@ size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12;
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
-x_11 = l_Id_Init_Control_Id___instance__1;
+x_11 = l_Id_instMonadId;
 x_12 = l_Array_foldlMUnsafe_fold___rarg(x_11, x_4, x_1, x_9, x_10, x_3);
 return x_12;
 }
@@ -7973,8 +7973,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_FreeVars(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_IR_Lean_Compiler_IR_LiveVars___instance__1 = _init_l_Lean_IR_Lean_Compiler_IR_LiveVars___instance__1();
-lean_mark_persistent(l_Lean_IR_Lean_Compiler_IR_LiveVars___instance__1);
+l_Lean_IR_instInhabitedLiveVarSet = _init_l_Lean_IR_instInhabitedLiveVarSet();
+lean_mark_persistent(l_Lean_IR_instInhabitedLiveVarSet);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

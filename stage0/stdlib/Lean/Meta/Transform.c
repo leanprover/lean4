@@ -106,7 +106,6 @@ lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLambd
 lean_object* l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Core_transform_visit___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l_Lean_Meta_transform(lean_object*);
 lean_object* l_Lean_Meta_transform_visit_visitForall___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform_visit_visitLambda___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -216,6 +215,7 @@ lean_object* l_Lean_Meta_mkForallFVars___at_Lean_Meta_transform_visit_visitForal
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLambda___spec__4(lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars___at_Lean_Meta_transform_visit_visitForall___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withIncRecDepth___at_Lean_Meta_transform_visit___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instInhabitedExpr;
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLet___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_transform_visit_match__1(lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Core_transform_visit___spec__2___rarg___lambda__2___boxed__const__1;
@@ -230,7 +230,6 @@ lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_transform_visit_visitForal
 lean_object* l_Lean_Meta_transform_visit_visitForall___rarg___lambda__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLet___spec__12(lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars___at_Lean_Meta_transform_visit_visitForall___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_Lean_Expr___instance__11;
 lean_object* l_Lean_Meta_mkForallFVars___at_Lean_Meta_transform_visit_visitForall___spec__6(lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLambda___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars___at_Lean_Meta_transform_visit_visitForall___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -242,7 +241,6 @@ lean_object* l_Lean_Meta_mkForallFVars___at_Lean_Meta_transform_visit_visitForal
 lean_object* l_Lean_Meta_transform_visit_visitForall___rarg___lambda__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars___at_Lean_Meta_transform_visit_visitForall___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLambda___spec__11___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_Init_Prelude___instance__51___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateMData_x21___closed__3;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLambda___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -282,6 +280,7 @@ lean_object* l_Lean_Meta_mkForallFVars___at_Lean_Meta_transform_visit_visitForal
 lean_object* l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_transform_visit___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars___at_Lean_Meta_transform_visit_visitForall___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_HashMap_instInhabitedHashMap___closed__1;
 lean_object* l_Lean_Meta_transform_visit_visitLet___rarg___lambda__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform_visit_visitPost___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLambda___spec__5(lean_object*);
@@ -312,6 +311,7 @@ lean_object* l_Lean_Core_transform___rarg___lambda__1(lean_object*, lean_object*
 lean_object* l_Lean_Core_transform_visit___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLambda___spec__11(lean_object*);
 lean_object* l_Lean_Meta_withIncRecDepth___at_Lean_Meta_transform_visit___spec__4___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instMonadExceptOfReaderT___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform_visit___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLet___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___at_Lean_Meta_transform_visit_visitLet___spec__7(lean_object*);
@@ -749,7 +749,7 @@ lean_inc(x_7);
 lean_dec(x_1);
 lean_inc(x_6);
 x_8 = lean_apply_1(x_4, x_6);
-x_9 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__51___rarg___lambda__2), 3, 2);
+x_9 = lean_alloc_closure((void*)(l_ReaderT_instMonadExceptOfReaderT___rarg___lambda__2), 3, 2);
 lean_closure_set(x_9, 0, x_5);
 lean_closure_set(x_9, 1, x_6);
 x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
@@ -934,7 +934,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27;
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_1);
-x_24 = l_Lean_Expr_Lean_Expr___instance__11;
+x_24 = l_Lean_Expr_instInhabitedExpr;
 x_25 = l_Lean_Expr_updateLambdaE_x21___closed__2;
 x_26 = lean_panic_fn(x_24, x_25);
 x_27 = l_Lean_Core_transform_visit_visitPost___rarg(x_2, x_3, x_4, x_5, x_6, x_7, x_26, x_8);
@@ -1012,7 +1012,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27;
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_1);
-x_24 = l_Lean_Expr_Lean_Expr___instance__11;
+x_24 = l_Lean_Expr_instInhabitedExpr;
 x_25 = l_Lean_Expr_updateForallE_x21___closed__2;
 x_26 = lean_panic_fn(x_24, x_25);
 x_27 = l_Lean_Core_transform_visit_visitPost___rarg(x_2, x_3, x_4, x_5, x_6, x_7, x_26, x_8);
@@ -1091,7 +1091,7 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_1);
-x_23 = l_Lean_Expr_Lean_Expr___instance__11;
+x_23 = l_Lean_Expr_instInhabitedExpr;
 x_24 = l_Lean_Expr_updateLet_x21___closed__2;
 x_25 = lean_panic_fn(x_23, x_24);
 x_26 = l_Lean_Core_transform_visit_visitPost___rarg(x_2, x_3, x_4, x_5, x_6, x_7, x_25, x_8);
@@ -1192,7 +1192,7 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec(x_9);
 lean_dec(x_1);
-x_19 = l_Lean_Expr_Lean_Expr___instance__11;
+x_19 = l_Lean_Expr_instInhabitedExpr;
 x_20 = l_Lean_Expr_updateMData_x21___closed__3;
 x_21 = lean_panic_fn(x_19, x_20);
 x_22 = l_Lean_Core_transform_visit_visitPost___rarg(x_2, x_3, x_4, x_5, x_6, x_7, x_21, x_8);
@@ -1240,7 +1240,7 @@ else
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_dec(x_9);
 lean_dec(x_1);
-x_20 = l_Lean_Expr_Lean_Expr___instance__11;
+x_20 = l_Lean_Expr_instInhabitedExpr;
 x_21 = l_Lean_Expr_updateProj_x21___closed__3;
 x_22 = lean_panic_fn(x_20, x_21);
 x_23 = l_Lean_Core_transform_visit_visitPost___rarg(x_2, x_3, x_4, x_5, x_6, x_7, x_22, x_8);
@@ -1796,7 +1796,7 @@ static lean_object* _init_l_Lean_Core_transform___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
+x_1 = l_Std_HashMap_instInhabitedHashMap___closed__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_Core_transform___rarg___lambda__3___boxed), 4, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -2413,7 +2413,7 @@ lean_inc(x_7);
 lean_dec(x_1);
 lean_inc(x_6);
 x_8 = lean_apply_1(x_4, x_6);
-x_9 = lean_alloc_closure((void*)(l_ReaderT_Init_Prelude___instance__51___rarg___lambda__2), 3, 2);
+x_9 = lean_alloc_closure((void*)(l_ReaderT_instMonadExceptOfReaderT___rarg___lambda__2), 3, 2);
 lean_closure_set(x_9, 0, x_5);
 lean_closure_set(x_9, 1, x_6);
 x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
@@ -2582,7 +2582,7 @@ else
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_dec(x_10);
 lean_dec(x_1);
-x_20 = l_Lean_Expr_Lean_Expr___instance__11;
+x_20 = l_Lean_Expr_instInhabitedExpr;
 x_21 = l_Lean_Expr_updateMData_x21___closed__3;
 x_22 = lean_panic_fn(x_20, x_21);
 x_23 = l_Lean_Meta_transform_visit_visitPost___rarg(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_22, x_9);
@@ -2630,7 +2630,7 @@ else
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_10);
 lean_dec(x_1);
-x_21 = l_Lean_Expr_Lean_Expr___instance__11;
+x_21 = l_Lean_Expr_instInhabitedExpr;
 x_22 = l_Lean_Expr_updateProj_x21___closed__3;
 x_23 = lean_panic_fn(x_21, x_22);
 x_24 = l_Lean_Meta_transform_visit_visitPost___rarg(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_23, x_9);

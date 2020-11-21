@@ -26,7 +26,6 @@ lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Meta_reduce_visit___spec__3(l
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars___at___private_Lean_Meta_InferType_0__Lean_Meta_inferLambdaType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isType___at_Lean_Meta_reduce_visit___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -40,15 +39,16 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_981____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnf___at___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux_process___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instInhabitedExpr___closed__1;
 lean_object* l_Lean_Meta_reduce_visit___lambda__1(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__Lean_Meta_inferForallType___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 extern lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___rarg___closed__3;
 uint8_t l_Lean_Meta_ParamInfo_isExplicit(lean_object*);
+extern lean_object* l_Lean_Meta_instInhabitedParamInfo;
 lean_object* l_Lean_Meta_reduce___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_Lean_Meta_Basic___instance__1;
 lean_object* l_Lean_Meta_setMCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getFunInfoNArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduce_visit(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,7 +58,7 @@ lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_reduce_visit___spec__1___boxe
 lean_object* l_Lean_Meta_reduce_visit_match__1(lean_object*);
 lean_object* l_Lean_MetavarContext_MkBinding_mkBinding(uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_Lean_Expr___instance__11___closed__1;
+extern lean_object* l_Std_HashMap_instInhabitedHashMap___closed__1;
 lean_object* l_Lean_Meta_reduce_visit___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Meta_reduce_visit___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
@@ -181,7 +181,7 @@ else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_33 = lean_array_fget(x_8, x_7);
-x_34 = l_Lean_Expr_Lean_Expr___instance__11___closed__1;
+x_34 = l_Lean_Expr_instInhabitedExpr___closed__1;
 x_35 = lean_array_fset(x_8, x_7, x_34);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -255,7 +255,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 x_48 = lean_array_fget(x_8, x_7);
-x_49 = l_Lean_Expr_Lean_Expr___instance__11___closed__1;
+x_49 = l_Lean_Expr_instInhabitedExpr___closed__1;
 x_50 = lean_array_fset(x_8, x_7, x_49);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -311,7 +311,7 @@ return x_59;
 else
 {
 lean_object* x_60; lean_object* x_61; uint8_t x_62; 
-x_60 = l_Lean_Meta_Lean_Meta_Basic___instance__1;
+x_60 = l_Lean_Meta_instInhabitedParamInfo;
 x_61 = lean_array_get(x_60, x_27, x_7);
 x_62 = l_Lean_Meta_ParamInfo_isExplicit(x_61);
 lean_dec(x_61);
@@ -343,7 +343,7 @@ else
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
 x_67 = lean_array_fget(x_8, x_7);
-x_68 = l_Lean_Expr_Lean_Expr___instance__11___closed__1;
+x_68 = l_Lean_Expr_instInhabitedExpr___closed__1;
 x_69 = lean_array_fset(x_8, x_7, x_68);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -473,7 +473,7 @@ lean_dec(x_14);
 x_17 = lean_ctor_get(x_15, 2);
 lean_inc(x_17);
 lean_dec(x_15);
-x_18 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
+x_18 = l_Std_HashMap_instInhabitedHashMap___closed__1;
 x_19 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_19, 0, x_13);
 lean_ctor_set(x_19, 1, x_17);

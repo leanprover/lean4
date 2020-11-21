@@ -18,32 +18,30 @@ lean_object* l_IO_setRandSeed(lean_object*, lean_object*);
 lean_object* l_mkStdGen___boxed(lean_object*);
 lean_object* l_stdSplit_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Init_Data_Random___instance__3___lambda__1(lean_object*);
+extern lean_object* l_instReprSigma___rarg___closed__2;
+lean_object* l_instRandomGenStdGen___lambda__1(lean_object*);
 lean_object* l_randNat_match__2(lean_object*);
 lean_object* l_stdNext___closed__6;
-lean_object* l_Init_Data_Random___instance__1___closed__1;
-extern lean_object* l_Int_Init_Data_Int_Basic___instance__2___closed__1;
 lean_object* l_IO_setRandSeed___boxed(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+extern lean_object* l_instReprSigma___rarg___closed__1;
 lean_object* l___private_Init_Data_Random_0__randNatAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Init_Data_Random___instance__3___closed__4;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_stdNext(lean_object*);
 lean_object* l_stdNext___closed__3;
 lean_object* l_IO_rand___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Init_Data_Random___instance__3___lambda__1___boxed(lean_object*);
 lean_object* l_initFn____x40_Init_Data_Random___hyg_560____closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Init_Data_Random___instance__2_match__1___rarg(lean_object*, lean_object*);
+lean_object* l_instRandomGenStdGen___lambda__1___boxed(lean_object*);
+lean_object* l_instRandomGenStdGen___closed__3;
 lean_object* lean_int_mod(lean_object*, lean_object*);
-lean_object* l_Init_Data_Random___instance__3;
 lean_object* l_stdSplit_match__1(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Random_0__randNatAux_match__1(lean_object*, lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Random_0__randNatAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Init_Data_Random___instance__1;
+lean_object* l_instReprStdGen_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_stdNext___closed__8;
 lean_object* l___private_Init_Data_Random_0__randNatAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_stdNext___closed__4;
@@ -61,26 +59,26 @@ lean_object* l_stdRange___closed__1;
 lean_object* l___private_Init_Data_Random_0__randNatAux_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Random_0__randNatAux(lean_object*);
 lean_object* l_IO_rand(lean_object*, lean_object*, lean_object*);
+lean_object* l_instRandomGenStdGen___closed__1;
 lean_object* l_randNat___at_IO_rand___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_toNat(lean_object*);
 lean_object* l_stdNext_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l_Init_Data_Repr___instance__12___rarg___closed__2;
 lean_object* l_randBool_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_stdNext_match__1(lean_object*);
 lean_object* l_randNat(lean_object*);
+lean_object* l_instRandomGenStdGen;
 lean_object* l_randNat_match__1(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at_initFn____x40_Init_Data_Random___hyg_560____spec__1(lean_object*, lean_object*);
+extern lean_object* l_Int_instInhabitedInt___closed__1;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
-lean_object* l_Init_Data_Random___instance__3___closed__3;
 lean_object* l_randBool___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_randNat___at_IO_rand___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Init_Data_Random___instance__2_match__1(lean_object*);
 lean_object* l_stdNext___closed__5;
+lean_object* l_instRandomGenStdGen___closed__2;
 lean_object* l_randNat_match__2___rarg(lean_object*, lean_object*);
-extern lean_object* l_Init_Data_Repr___instance__12___rarg___closed__1;
 lean_object* l_randNat___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_stdSplit(lean_object*);
@@ -88,20 +86,22 @@ lean_object* l_stdNext___closed__7;
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_initFn____x40_Init_Data_Random___hyg_560_(lean_object*);
+lean_object* l_instReprStdGen(lean_object*);
+lean_object* l_instInhabitedStdGen;
 lean_object* l_IO_rand_match__1(lean_object*);
+lean_object* l_instRandomGenStdGen___closed__4;
 lean_object* l_randBool(lean_object*);
-lean_object* l_Init_Data_Random___instance__3___closed__1;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l___private_Init_Data_Random_0__randNatAux___at_IO_rand___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_stdNext___closed__10;
-lean_object* l_Init_Data_Random___instance__2(lean_object*);
 lean_object* l___private_Init_Data_Random_0__randNatAux___at_IO_rand___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__6;
-lean_object* l_Init_Data_Random___instance__3___closed__2;
+lean_object* l_instReprStdGen_match__1(lean_object*);
+lean_object* l_instInhabitedStdGen___closed__1;
 lean_object* l_mkStdGen(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_randNat_match__1___rarg(lean_object*, lean_object*);
-static lean_object* _init_l_Init_Data_Random___instance__1___closed__1() {
+static lean_object* _init_l_instInhabitedStdGen___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -112,11 +112,11 @@ lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Init_Data_Random___instance__1() {
+static lean_object* _init_l_instInhabitedStdGen() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Init_Data_Random___instance__1___closed__1;
+x_1 = l_instInhabitedStdGen___closed__1;
 return x_1;
 }
 }
@@ -140,7 +140,7 @@ x_1 = l_stdRange___closed__1;
 return x_1;
 }
 }
-lean_object* l_Init_Data_Random___instance__2_match__1___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_instReprStdGen_match__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -153,15 +153,15 @@ x_5 = lean_apply_2(x_2, x_3, x_4);
 return x_5;
 }
 }
-lean_object* l_Init_Data_Random___instance__2_match__1(lean_object* x_1) {
+lean_object* l_instReprStdGen_match__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Init_Data_Random___instance__2_match__1___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_instReprStdGen_match__1___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Init_Data_Random___instance__2(lean_object* x_1) {
+lean_object* l_instReprStdGen(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -171,7 +171,7 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l_Nat_repr(x_2);
-x_5 = l_Init_Data_Repr___instance__12___rarg___closed__1;
+x_5 = l_instReprSigma___rarg___closed__1;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);
 x_7 = l___kind_term____x40_Init_Notation___hyg_6289____closed__6;
@@ -179,7 +179,7 @@ x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Nat_repr(x_3);
 x_10 = lean_string_append(x_8, x_9);
 lean_dec(x_9);
-x_11 = l_Init_Data_Repr___instance__12___rarg___closed__2;
+x_11 = l_instReprSigma___rarg___closed__2;
 x_12 = lean_string_append(x_10, x_11);
 return x_12;
 }
@@ -327,7 +327,7 @@ lean_dec(x_7);
 x_14 = lean_int_sub(x_11, x_13);
 lean_dec(x_13);
 lean_dec(x_11);
-x_15 = l_Int_Init_Data_Int_Basic___instance__2___closed__1;
+x_15 = l_Int_instInhabitedInt___closed__1;
 x_16 = lean_int_dec_lt(x_14, x_15);
 x_17 = lean_nat_to_int(x_3);
 x_18 = l_stdNext___closed__4;
@@ -760,7 +760,7 @@ return x_62;
 }
 }
 }
-lean_object* l_Init_Data_Random___instance__3___lambda__1(lean_object* x_1) {
+lean_object* l_instRandomGenStdGen___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -768,15 +768,15 @@ x_2 = l_stdRange;
 return x_2;
 }
 }
-static lean_object* _init_l_Init_Data_Random___instance__3___closed__1() {
+static lean_object* _init_l_instRandomGenStdGen___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Init_Data_Random___instance__3___lambda__1___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instRandomGenStdGen___lambda__1___boxed), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Init_Data_Random___instance__3___closed__2() {
+static lean_object* _init_l_instRandomGenStdGen___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -784,7 +784,7 @@ x_1 = lean_alloc_closure((void*)(l_stdNext), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Init_Data_Random___instance__3___closed__3() {
+static lean_object* _init_l_instRandomGenStdGen___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -792,13 +792,13 @@ x_1 = lean_alloc_closure((void*)(l_stdSplit), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Init_Data_Random___instance__3___closed__4() {
+static lean_object* _init_l_instRandomGenStdGen___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Init_Data_Random___instance__3___closed__1;
-x_2 = l_Init_Data_Random___instance__3___closed__2;
-x_3 = l_Init_Data_Random___instance__3___closed__3;
+x_1 = l_instRandomGenStdGen___closed__1;
+x_2 = l_instRandomGenStdGen___closed__2;
+x_3 = l_instRandomGenStdGen___closed__3;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -806,19 +806,19 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Init_Data_Random___instance__3() {
+static lean_object* _init_l_instRandomGenStdGen() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Init_Data_Random___instance__3___closed__4;
+x_1 = l_instRandomGenStdGen___closed__4;
 return x_1;
 }
 }
-lean_object* l_Init_Data_Random___instance__3___lambda__1___boxed(lean_object* x_1) {
+lean_object* l_instRandomGenStdGen___lambda__1___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Init_Data_Random___instance__3___lambda__1(x_1);
+x_2 = l_instRandomGenStdGen___lambda__1(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -1881,10 +1881,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Int(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Init_Data_Random___instance__1___closed__1 = _init_l_Init_Data_Random___instance__1___closed__1();
-lean_mark_persistent(l_Init_Data_Random___instance__1___closed__1);
-l_Init_Data_Random___instance__1 = _init_l_Init_Data_Random___instance__1();
-lean_mark_persistent(l_Init_Data_Random___instance__1);
+l_instInhabitedStdGen___closed__1 = _init_l_instInhabitedStdGen___closed__1();
+lean_mark_persistent(l_instInhabitedStdGen___closed__1);
+l_instInhabitedStdGen = _init_l_instInhabitedStdGen();
+lean_mark_persistent(l_instInhabitedStdGen);
 l_stdRange___closed__1 = _init_l_stdRange___closed__1();
 lean_mark_persistent(l_stdRange___closed__1);
 l_stdRange = _init_l_stdRange();
@@ -1909,16 +1909,16 @@ l_stdNext___closed__9 = _init_l_stdNext___closed__9();
 lean_mark_persistent(l_stdNext___closed__9);
 l_stdNext___closed__10 = _init_l_stdNext___closed__10();
 lean_mark_persistent(l_stdNext___closed__10);
-l_Init_Data_Random___instance__3___closed__1 = _init_l_Init_Data_Random___instance__3___closed__1();
-lean_mark_persistent(l_Init_Data_Random___instance__3___closed__1);
-l_Init_Data_Random___instance__3___closed__2 = _init_l_Init_Data_Random___instance__3___closed__2();
-lean_mark_persistent(l_Init_Data_Random___instance__3___closed__2);
-l_Init_Data_Random___instance__3___closed__3 = _init_l_Init_Data_Random___instance__3___closed__3();
-lean_mark_persistent(l_Init_Data_Random___instance__3___closed__3);
-l_Init_Data_Random___instance__3___closed__4 = _init_l_Init_Data_Random___instance__3___closed__4();
-lean_mark_persistent(l_Init_Data_Random___instance__3___closed__4);
-l_Init_Data_Random___instance__3 = _init_l_Init_Data_Random___instance__3();
-lean_mark_persistent(l_Init_Data_Random___instance__3);
+l_instRandomGenStdGen___closed__1 = _init_l_instRandomGenStdGen___closed__1();
+lean_mark_persistent(l_instRandomGenStdGen___closed__1);
+l_instRandomGenStdGen___closed__2 = _init_l_instRandomGenStdGen___closed__2();
+lean_mark_persistent(l_instRandomGenStdGen___closed__2);
+l_instRandomGenStdGen___closed__3 = _init_l_instRandomGenStdGen___closed__3();
+lean_mark_persistent(l_instRandomGenStdGen___closed__3);
+l_instRandomGenStdGen___closed__4 = _init_l_instRandomGenStdGen___closed__4();
+lean_mark_persistent(l_instRandomGenStdGen___closed__4);
+l_instRandomGenStdGen = _init_l_instRandomGenStdGen();
+lean_mark_persistent(l_instRandomGenStdGen);
 l_initFn____x40_Init_Data_Random___hyg_560____closed__1 = _init_l_initFn____x40_Init_Data_Random___hyg_560____closed__1();
 lean_mark_persistent(l_initFn____x40_Init_Data_Random___hyg_560____closed__1);
 res = l_initFn____x40_Init_Data_Random___hyg_560_(lean_io_mk_world());

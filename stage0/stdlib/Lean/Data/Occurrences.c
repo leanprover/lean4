@@ -23,17 +23,17 @@ lean_object* l_Lean_Occurrences_beq_match__1(lean_object*);
 uint8_t l_Lean_Occurrences_beq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_Lean_Occurrences_contains(lean_object*, lean_object*);
-lean_object* l_Lean_Occurrences_Lean_Data_Occurrences___instance__2;
+lean_object* l_Lean_Occurrences_instBEqOccurrences;
 lean_object* l_Lean_Occurrences_beq___boxed(lean_object*, lean_object*);
 uint8_t l_List_elem___at_Lean_Occurrences_contains___spec__1(lean_object*, lean_object*);
 lean_object* l_List_beq___at_Lean_Occurrences_beq___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Occurrences_Lean_Data_Occurrences___instance__2___closed__1;
 lean_object* l_Lean_Occurrences_contains_match__1(lean_object*);
 lean_object* l_Lean_Occurrences_isAll_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Occurrences_instBEqOccurrences___closed__1;
 lean_object* l_Lean_Occurrences_isAll___boxed(lean_object*);
 uint8_t l_Lean_Occurrences_isAll(lean_object*);
-lean_object* l_Lean_Occurrences_Lean_Data_Occurrences___instance__1;
-static lean_object* _init_l_Lean_Occurrences_Lean_Data_Occurrences___instance__1() {
+lean_object* l_Lean_Occurrences_instInhabitedOccurrences;
+static lean_object* _init_l_Lean_Occurrences_instInhabitedOccurrences() {
 _start:
 {
 lean_object* x_1; 
@@ -443,7 +443,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Occurrences_Lean_Data_Occurrences___instance__2___closed__1() {
+static lean_object* _init_l_Lean_Occurrences_instBEqOccurrences___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -451,11 +451,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Occurrences_beq___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Occurrences_Lean_Data_Occurrences___instance__2() {
+static lean_object* _init_l_Lean_Occurrences_instBEqOccurrences() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Occurrences_Lean_Data_Occurrences___instance__2___closed__1;
+x_1 = l_Lean_Occurrences_instBEqOccurrences___closed__1;
 return x_1;
 }
 }
@@ -468,12 +468,12 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Occurrences_Lean_Data_Occurrences___instance__1 = _init_l_Lean_Occurrences_Lean_Data_Occurrences___instance__1();
-lean_mark_persistent(l_Lean_Occurrences_Lean_Data_Occurrences___instance__1);
-l_Lean_Occurrences_Lean_Data_Occurrences___instance__2___closed__1 = _init_l_Lean_Occurrences_Lean_Data_Occurrences___instance__2___closed__1();
-lean_mark_persistent(l_Lean_Occurrences_Lean_Data_Occurrences___instance__2___closed__1);
-l_Lean_Occurrences_Lean_Data_Occurrences___instance__2 = _init_l_Lean_Occurrences_Lean_Data_Occurrences___instance__2();
-lean_mark_persistent(l_Lean_Occurrences_Lean_Data_Occurrences___instance__2);
+l_Lean_Occurrences_instInhabitedOccurrences = _init_l_Lean_Occurrences_instInhabitedOccurrences();
+lean_mark_persistent(l_Lean_Occurrences_instInhabitedOccurrences);
+l_Lean_Occurrences_instBEqOccurrences___closed__1 = _init_l_Lean_Occurrences_instBEqOccurrences___closed__1();
+lean_mark_persistent(l_Lean_Occurrences_instBEqOccurrences___closed__1);
+l_Lean_Occurrences_instBEqOccurrences = _init_l_Lean_Occurrences_instBEqOccurrences();
+lean_mark_persistent(l_Lean_Occurrences_instBEqOccurrences);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

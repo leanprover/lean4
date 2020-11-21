@@ -19,7 +19,6 @@ lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_o
 lean_object* l_Lean_addDecl___at___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefinitionImp___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_Closure_visitExpr___spec__1(lean_object*, lean_object*);
 lean_object* l_Nat_foldRev_loop___at_Lean_Meta_Closure_mkBinding___spec__2(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Meta_Closure_visitLevel___spec__6(lean_object*, lean_object*, lean_object*);
@@ -29,13 +28,11 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAuxDefinition___rarg___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 extern lean_object* l_Lean_Level_LevelToFormat_toResult___closed__3;
-extern lean_object* l_Lean_Level_Lean_Level___instance__4;
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11327____closed__4;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1___closed__1;
 extern lean_object* l_Lean_Meta_getMVarDecl___rarg___lambda__1___closed__2;
 lean_object* l_Lean_Meta_mkAuxDefinition___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -59,6 +56,7 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_Closure_State_exprFVarArgs___default;
 lean_object* l_Lean_Meta_instantiateMVars___at_Lean_Meta_Closure_preprocess___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_State_nextLevelIdx___default;
+lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_State_nextExprIdx___default;
 uint8_t l_Lean_Level_hasParam(lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_Closure_visitExpr___spec__3(lean_object*, lean_object*, lean_object*);
@@ -71,7 +69,6 @@ lean_object* l_Lean_Meta_mkAuxDefinitionFor(lean_object*);
 lean_object* l_Lean_Meta_Closure_pickNextToProcess_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAuxDefinition(lean_object*);
-extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_Closure_visitLevel___spec__2(lean_object*, lean_object*);
 uint32_t l_UInt32_add(uint32_t, uint32_t);
 uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
@@ -95,7 +92,6 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* l_Lean_Meta_Closure_pickNextToProcess_x3f(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-extern lean_object* l_Lean_LocalDecl_Lean_LocalContext___instance__1;
 lean_object* l_Lean_addTrace___at_Lean_Meta_isLevelDefEqAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getZetaFVarIds___at_Lean_Meta_Closure_process___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_collectExprAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,6 +121,7 @@ lean_object* l_Lean_Meta_Closure_State_visitedLevel___default;
 lean_object* l_Array_back___at_Lean_Meta_Closure_pickNextToProcess_x3f___spec__1(lean_object*);
 lean_object* l_Lean_Meta_Closure_collectExprAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Level_updateSucc_x21___closed__3;
+extern lean_object* l_Lean_Level_instInhabitedLevel;
 lean_object* l_Lean_Meta_Closure_process___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_List_mapM___at_Lean_Meta_Closure_collectExprAux___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -181,6 +178,7 @@ lean_object* l_Lean_Meta_Closure_State_levelParams___default;
 lean_object* l_Lean_Meta_getLocalDecl___at_Lean_Meta_Closure_collectExprAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
 lean_object* l_Lean_Meta_Closure_mkBinding_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instInhabitedExpr;
 lean_object* l_Lean_Meta_Closure_pushLocalDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_collectLevelAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_Meta_Closure_visitLevel___spec__7(lean_object*, lean_object*);
@@ -197,7 +195,6 @@ extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec_
 lean_object* l_Lean_Meta_Closure_State_toProcess___default;
 lean_object* l_Lean_Meta_getZetaFVarIds___at_Lean_Meta_Closure_process___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_State_visitedExpr___default;
-extern lean_object* l_Lean_Expr_Lean_Expr___instance__11;
 lean_object* l_Lean_Meta_Closure_State_visitedLevel___default___closed__1;
 uint8_t lean_expr_equal(lean_object*, lean_object*);
 lean_object* lean_expr_update_sort(lean_object*, lean_object*);
@@ -220,10 +217,10 @@ lean_object* l_Lean_Meta_Closure_collectExprAux(lean_object*, lean_object*, lean
 lean_object* l_Lean_Meta_Closure_mkForall(lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_Closure_visitLevel___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_mkValueTypeClosureAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__7___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_502____closed__4;
 lean_object* l___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefinitionImp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Closure_instInhabitedToProcessElement___closed__1;
 lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 lean_object* l_Nat_foldRev_loop___at_Lean_Meta_Closure_mkLambda___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_collectExprAux_match__2(lean_object*);
@@ -233,6 +230,7 @@ lean_object* l_Lean_Meta_Closure_mkNextUserName___rarg___boxed(lean_object*, lea
 lean_object* l_Nat_foldRev_loop___at_Lean_Meta_Closure_mkBinding___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_mkForall___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_LocalDecl_instInhabitedLocalDecl;
 lean_object* l_Lean_Meta_Closure_mkValueTypeClosure_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
@@ -247,9 +245,11 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_replace___at_Lean_Meta_Closure_visitExpr___spec__8(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_abstract(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_pickNextToProcessAux(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_HashMap_instInhabitedHashMap___closed__1;
 lean_object* l_Lean_Meta_mkAuxDefinition___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_pickNextToProcess_x3f___boxed(lean_object*);
 lean_object* l___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefinitionImp(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Closure_instInhabitedToProcessElement;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getZetaFVarIds___at_Lean_Meta_Closure_process___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateLet_x21___closed__2;
@@ -293,7 +293,7 @@ lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Meta_Closure_pushToProcess___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_add_decl(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_Closure_instInhabitedToProcessElement___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -304,11 +304,11 @@ lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1() {
+static lean_object* _init_l_Lean_Meta_Closure_instInhabitedToProcessElement() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1___closed__1;
+x_1 = l_Lean_Meta_Closure_instInhabitedToProcessElement___closed__1;
 return x_1;
 }
 }
@@ -2286,7 +2286,7 @@ lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85;
 lean_dec(x_71);
 lean_dec(x_69);
 lean_dec(x_1);
-x_82 = l_Lean_Level_Lean_Level___instance__4;
+x_82 = l_Lean_Level_instInhabitedLevel;
 x_83 = l_Lean_Level_updateMax_x21___closed__3;
 x_84 = lean_panic_fn(x_82, x_83);
 x_85 = lean_alloc_ctor(0, 2, 0);
@@ -2632,7 +2632,7 @@ lean_object* x_185; lean_object* x_186; lean_object* x_187; lean_object* x_188;
 lean_dec(x_174);
 lean_dec(x_172);
 lean_dec(x_1);
-x_185 = l_Lean_Level_Lean_Level___instance__4;
+x_185 = l_Lean_Level_instInhabitedLevel;
 x_186 = l_Lean_Level_updateIMax_x21___closed__3;
 x_187 = lean_panic_fn(x_185, x_186);
 x_188 = lean_alloc_ctor(0, 2, 0);
@@ -2895,7 +2895,7 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec(x_9);
 lean_dec(x_1);
-x_19 = l_Lean_Level_Lean_Level___instance__4;
+x_19 = l_Lean_Level_instInhabitedLevel;
 x_20 = l_Lean_Level_updateSucc_x21___closed__3;
 x_21 = lean_panic_fn(x_19, x_20);
 x_22 = lean_alloc_ctor(0, 2, 0);
@@ -5791,7 +5791,7 @@ lean_object* x_379; lean_object* x_380; lean_object* x_381; lean_object* x_382;
 lean_dec(x_368);
 lean_dec(x_366);
 lean_dec(x_1);
-x_379 = l_Lean_Expr_Lean_Expr___instance__11;
+x_379 = l_Lean_Expr_instInhabitedExpr;
 x_380 = l_Lean_Expr_updateApp_x21___closed__2;
 x_381 = lean_panic_fn(x_379, x_380);
 x_382 = lean_alloc_ctor(0, 2, 0);
@@ -6253,7 +6253,7 @@ lean_object* x_502; lean_object* x_503; lean_object* x_504; lean_object* x_505;
 lean_dec(x_487);
 lean_dec(x_485);
 lean_dec(x_1);
-x_502 = l_Lean_Expr_Lean_Expr___instance__11;
+x_502 = l_Lean_Expr_instInhabitedExpr;
 x_503 = l_Lean_Expr_updateLambdaE_x21___closed__2;
 x_504 = lean_panic_fn(x_502, x_503);
 x_505 = lean_alloc_ctor(0, 2, 0);
@@ -6715,7 +6715,7 @@ lean_object* x_625; lean_object* x_626; lean_object* x_627; lean_object* x_628;
 lean_dec(x_610);
 lean_dec(x_608);
 lean_dec(x_1);
-x_625 = l_Lean_Expr_Lean_Expr___instance__11;
+x_625 = l_Lean_Expr_instInhabitedExpr;
 x_626 = l_Lean_Expr_updateForallE_x21___closed__2;
 x_627 = lean_panic_fn(x_625, x_626);
 x_628 = lean_alloc_ctor(0, 2, 0);
@@ -7239,7 +7239,7 @@ lean_dec(x_736);
 lean_dec(x_734);
 lean_dec(x_732);
 lean_dec(x_1);
-x_749 = l_Lean_Expr_Lean_Expr___instance__11;
+x_749 = l_Lean_Expr_instInhabitedExpr;
 x_750 = l_Lean_Expr_updateLet_x21___closed__2;
 x_751 = lean_panic_fn(x_749, x_750);
 x_752 = lean_alloc_ctor(0, 2, 0);
@@ -8130,7 +8130,7 @@ else
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_dec(x_9);
 lean_dec(x_1);
-x_20 = l_Lean_Expr_Lean_Expr___instance__11;
+x_20 = l_Lean_Expr_instInhabitedExpr;
 x_21 = l_Lean_Expr_updateMData_x21___closed__3;
 x_22 = lean_panic_fn(x_20, x_21);
 x_23 = lean_alloc_ctor(0, 2, 0);
@@ -8182,7 +8182,7 @@ else
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 lean_dec(x_25);
 lean_dec(x_1);
-x_37 = l_Lean_Expr_Lean_Expr___instance__11;
+x_37 = l_Lean_Expr_instInhabitedExpr;
 x_38 = l_Lean_Expr_updateProj_x21___closed__3;
 x_39 = lean_panic_fn(x_37, x_38);
 x_40 = lean_alloc_ctor(0, 2, 0);
@@ -8649,7 +8649,7 @@ x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_sub(x_2, x_3);
 lean_dec(x_2);
-x_5 = l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1;
+x_5 = l_Lean_Meta_Closure_instInhabitedToProcessElement;
 x_6 = lean_array_get(x_5, x_1, x_4);
 lean_dec(x_4);
 return x_6;
@@ -10449,7 +10449,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_4, x_8);
 lean_dec(x_4);
-x_10 = l_Lean_LocalDecl_Lean_LocalContext___instance__1;
+x_10 = l_Lean_LocalDecl_instInhabitedLocalDecl;
 x_11 = lean_array_get(x_10, x_2, x_9);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -10589,7 +10589,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
-x_9 = l_Lean_LocalDecl_Lean_LocalContext___instance__1;
+x_9 = l_Lean_LocalDecl_instInhabitedLocalDecl;
 x_10 = lean_array_get(x_9, x_1, x_8);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -10701,7 +10701,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
-x_9 = l_Lean_LocalDecl_Lean_LocalContext___instance__1;
+x_9 = l_Lean_LocalDecl_instInhabitedLocalDecl;
 x_10 = lean_array_get(x_9, x_1, x_8);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -11454,7 +11454,7 @@ static lean_object* _init_l_Lean_Meta_Closure_mkValueTypeClosure___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
+x_1 = l_Std_HashMap_instInhabitedHashMap___closed__1;
 x_2 = l_Array_empty___closed__1;
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_alloc_ctor(0, 12, 0);
@@ -12198,7 +12198,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isLevelDefEq___rarg___closed__2;
 x_2 = l_Lean_Meta_mkAuxDefinition___rarg___closed__1;
-x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__7___spec__2___rarg), 7, 2);
+x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
@@ -12218,7 +12218,7 @@ lean_closure_set(x_8, 1, x_3);
 lean_closure_set(x_8, 2, x_4);
 lean_closure_set(x_8, 3, x_7);
 x_9 = l_Lean_Meta_mkAuxDefinition___rarg___closed__2;
-x_10 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__7___spec__2___rarg), 7, 2);
+x_10 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
 lean_closure_set(x_10, 0, x_9);
 lean_closure_set(x_10, 1, x_8);
 x_11 = lean_box(x_5);
@@ -12229,7 +12229,7 @@ lean_closure_set(x_13, 1, x_3);
 lean_closure_set(x_13, 2, x_4);
 lean_closure_set(x_13, 3, x_11);
 lean_closure_set(x_13, 4, x_12);
-x_14 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__7___spec__2___rarg), 7, 2);
+x_14 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
 lean_closure_set(x_14, 0, x_10);
 lean_closure_set(x_14, 1, x_13);
 x_15 = lean_apply_2(x_1, lean_box(0), x_14);
@@ -12398,7 +12398,7 @@ lean_closure_set(x_4, 0, x_3);
 x_5 = lean_alloc_closure((void*)(l_Lean_Meta_mkAuxDefinitionFor___rarg___lambda__1), 8, 2);
 lean_closure_set(x_5, 0, x_2);
 lean_closure_set(x_5, 1, x_3);
-x_6 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__7___spec__2___rarg), 7, 2);
+x_6 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
 lean_closure_set(x_6, 0, x_4);
 lean_closure_set(x_6, 1, x_5);
 x_7 = lean_apply_2(x_1, lean_box(0), x_6);
@@ -12458,10 +12458,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Check(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1___closed__1 = _init_l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1___closed__1();
-lean_mark_persistent(l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1___closed__1);
-l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1 = _init_l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1();
-lean_mark_persistent(l_Lean_Meta_Closure_Lean_Meta_Closure___instance__1);
+l_Lean_Meta_Closure_instInhabitedToProcessElement___closed__1 = _init_l_Lean_Meta_Closure_instInhabitedToProcessElement___closed__1();
+lean_mark_persistent(l_Lean_Meta_Closure_instInhabitedToProcessElement___closed__1);
+l_Lean_Meta_Closure_instInhabitedToProcessElement = _init_l_Lean_Meta_Closure_instInhabitedToProcessElement();
+lean_mark_persistent(l_Lean_Meta_Closure_instInhabitedToProcessElement);
 l_Lean_Meta_Closure_State_visitedLevel___default___closed__1 = _init_l_Lean_Meta_Closure_State_visitedLevel___default___closed__1();
 lean_mark_persistent(l_Lean_Meta_Closure_State_visitedLevel___default___closed__1);
 l_Lean_Meta_Closure_State_visitedLevel___default = _init_l_Lean_Meta_Closure_State_visitedLevel___default();

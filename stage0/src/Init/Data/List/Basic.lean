@@ -10,8 +10,6 @@ open Decidable List
 
 universes u v w
 
-instance (α : Type u) : Inhabited (List α) := ⟨List.nil⟩
-
 variables {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List

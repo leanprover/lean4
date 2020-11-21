@@ -19,6 +19,7 @@ lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFro
 lean_object* l_String_utf16Length___closed__1;
 lean_object* l_String_utf16PosToCodepointPosFrom___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux_match__1(lean_object*);
+extern lean_object* l_instInhabitedNat;
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -40,7 +41,6 @@ lean_object* l_String_utf16PosToCodepointPosFrom(lean_object*, lean_object*, lea
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_leanPosToLspPos_match__1(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Init_Prelude___instance__11;
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t l_Char_utf16Size(uint32_t);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -469,7 +469,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-x_5 = l_Init_Prelude___instance__11;
+x_5 = l_instInhabitedNat;
 x_6 = lean_array_get(x_5, x_3, x_4);
 lean_dec(x_4);
 x_7 = lean_ctor_get(x_1, 0);
@@ -527,7 +527,7 @@ x_6 = lean_nat_sub(x_3, x_5);
 lean_dec(x_3);
 x_7 = lean_ctor_get(x_1, 0);
 x_8 = lean_ctor_get(x_1, 1);
-x_9 = l_Init_Prelude___instance__11;
+x_9 = l_instInhabitedNat;
 x_10 = lean_array_get(x_9, x_8, x_6);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux(x_7, x_4, x_10, x_11);

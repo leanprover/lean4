@@ -17,23 +17,23 @@ size_t l_Lean_Meta_TransparencyMode_hash(uint8_t);
 lean_object* l_Lean_Meta_TransparencyMode_beq_match__1(lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_beq_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_beq_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1;
+lean_object* l_Lean_Meta_TransparencyMode_instHashableTransparencyMode;
 lean_object* l_Lean_Meta_TransparencyMode_hash_match__1(lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2;
+uint8_t l_Lean_Meta_TransparencyMode_instInhabitedTransparencyMode;
 uint8_t l_Lean_Meta_TransparencyMode_beq(uint8_t, uint8_t);
-lean_object* l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2___closed__1;
-lean_object* l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3___closed__1;
+lean_object* l_Lean_Meta_TransparencyMode_instBEqTransparencyMode;
+lean_object* l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1;
 lean_object* l_Lean_Meta_TransparencyMode_hash_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_lt_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t, uint8_t);
-uint8_t l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__1;
-lean_object* l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3;
 lean_object* l_Lean_Meta_TransparencyMode_hash_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_lt_match__1(lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_lt_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-static uint8_t _init_l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__1() {
+static uint8_t _init_l_Lean_Meta_TransparencyMode_instInhabitedTransparencyMode() {
 _start:
 {
 uint8_t x_1; 
@@ -217,7 +217,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2___closed__1() {
+static lean_object* _init_l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -225,11 +225,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Meta_TransparencyMode_beq___boxed), 2, 0
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2() {
+static lean_object* _init_l_Lean_Meta_TransparencyMode_instBEqTransparencyMode() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2___closed__1;
+x_1 = l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1;
 return x_1;
 }
 }
@@ -321,7 +321,7 @@ x_4 = lean_box_usize(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3___closed__1() {
+static lean_object* _init_l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -329,11 +329,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Meta_TransparencyMode_hash___boxed), 1, 
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3() {
+static lean_object* _init_l_Lean_Meta_TransparencyMode_instHashableTransparencyMode() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3___closed__1;
+x_1 = l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1;
 return x_1;
 }
 }
@@ -513,15 +513,15 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__1 = _init_l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__1();
-l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2___closed__1 = _init_l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2___closed__1();
-lean_mark_persistent(l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2___closed__1);
-l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2 = _init_l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2();
-lean_mark_persistent(l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__2);
-l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3___closed__1 = _init_l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3___closed__1();
-lean_mark_persistent(l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3___closed__1);
-l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3 = _init_l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3();
-lean_mark_persistent(l_Lean_Meta_TransparencyMode_Lean_Meta_TransparencyMode___instance__3);
+l_Lean_Meta_TransparencyMode_instInhabitedTransparencyMode = _init_l_Lean_Meta_TransparencyMode_instInhabitedTransparencyMode();
+l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1 = _init_l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1();
+lean_mark_persistent(l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1);
+l_Lean_Meta_TransparencyMode_instBEqTransparencyMode = _init_l_Lean_Meta_TransparencyMode_instBEqTransparencyMode();
+lean_mark_persistent(l_Lean_Meta_TransparencyMode_instBEqTransparencyMode);
+l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1 = _init_l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1();
+lean_mark_persistent(l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1);
+l_Lean_Meta_TransparencyMode_instHashableTransparencyMode = _init_l_Lean_Meta_TransparencyMode_instHashableTransparencyMode();
+lean_mark_persistent(l_Lean_Meta_TransparencyMode_instHashableTransparencyMode);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

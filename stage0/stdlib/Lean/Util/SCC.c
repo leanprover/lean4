@@ -28,7 +28,6 @@ lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-extern lean_object* l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___closed__1;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf_match__1(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -53,21 +52,22 @@ lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg(lean_object*, l
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SCC_Data_lowlink_x3f___default;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_instMonadId;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add_match__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf_match__1(lean_object*);
-extern lean_object* l_Id_Init_Control_Id___instance__1;
+lean_object* l_StateT_instMonadStateT___rarg(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf(lean_object*);
+extern lean_object* l_Std_HashMap_instInhabitedHashMap___closed__1;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___rarg___closed__1;
 lean_object* l_Lean_SCC_State_sccs___default(lean_object*);
 lean_object* l_Lean_SCC_scc___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SCC_scc_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateT_Init_Control_State___instance__2___rarg(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___at___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_SCC_State_nextIndex___default;
@@ -115,7 +115,7 @@ lean_object* l_Lean_SCC_State_data___default(lean_object* x_1, lean_object* x_2,
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
+x_4 = l_Std_HashMap_instInhabitedHashMap___closed__1;
 return x_4;
 }
 }
@@ -1401,8 +1401,8 @@ static lean_object* _init_l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_Init_Control_Id___instance__1;
-x_2 = l_StateT_Init_Control_State___instance__2___rarg(x_1);
+x_1 = l_Id_instMonadId;
+x_2 = l_StateT_instMonadStateT___rarg(x_1);
 return x_2;
 }
 }
@@ -1703,7 +1703,7 @@ lean_closure_set(x_5, 1, x_2);
 lean_closure_set(x_5, 2, x_4);
 x_6 = lean_box(0);
 x_7 = lean_unsigned_to_nat(0u);
-x_8 = l_Std_HashMap_Std_Data_HashMap___instance__1___closed__1;
+x_8 = l_Std_HashMap_instInhabitedHashMap___closed__1;
 x_9 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_9, 0, x_6);
 lean_ctor_set(x_9, 1, x_7);

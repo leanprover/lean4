@@ -14,11 +14,11 @@
 extern "C" {
 #endif
 lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2;
-extern lean_object* l_Lean_TagAttribute_Lean_Attributes___instance__6___closed__1;
 lean_object* l_Lean_hasMatchPatternAttribute___boxed(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3_(lean_object*);
+extern lean_object* l_Lean_TagAttribute_instInhabitedTagAttribute___closed__1;
 uint8_t lean_has_match_pattern_attribute(lean_object*, lean_object*);
 uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

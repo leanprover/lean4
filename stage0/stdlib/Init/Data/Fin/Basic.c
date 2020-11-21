@@ -20,17 +20,17 @@ lean_object* l_Fin_ofNat(lean_object*, lean_object*);
 lean_object* l_Fin_elim0___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_mod_match__1(lean_object*, lean_object*);
 lean_object* l_Fin_land(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_instDivFin(lean_object*);
 lean_object* l_Fin_coeToNat(lean_object*);
 lean_object* l_Fin_mul_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_instSubFin(lean_object*);
 lean_object* l_Fin_land___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_div(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_add___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__3(lean_object*);
 lean_object* l_Fin_add_match__1(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Fin_lor___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_ofNat___boxed(lean_object*, lean_object*);
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__1(lean_object*);
 lean_object* l_Fin_sub_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_modn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_ofNat_x27(lean_object*, lean_object*, lean_object*);
@@ -46,29 +46,29 @@ lean_object* l_Fin_sub(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_mul_match__1___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_div_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_mul_match__1(lean_object*, lean_object*);
+lean_object* l_Fin_instModNFin(lean_object*);
 lean_object* l_Fin_div_match__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
 lean_object* l_Fin_sub___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_instMulFin(lean_object*);
 lean_object* l_Fin_lor_match__1___boxed(lean_object*, lean_object*);
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__2(lean_object*);
 lean_object* l_Fin_lor_match__1(lean_object*, lean_object*);
 lean_object* l_Fin_mod___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_lor_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__4(lean_object*);
 lean_object* l_Fin_elim0_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Fin_div_match__1(lean_object*, lean_object*);
 lean_object* l_Fin_land_match__1___boxed(lean_object*, lean_object*);
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__6(lean_object*);
 lean_object* l_Fin_add_match__1___boxed(lean_object*, lean_object*);
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__5(lean_object*);
 lean_object* l_Fin_modn_match__1(lean_object*, lean_object*);
 lean_object* l_Fin_lor(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_instAddFin(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Fin_elim0(lean_object*, lean_object*);
 lean_object* l_Fin_mod(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_mul(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_mod_match__1___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_coeToNat___rarg(lean_object*);
+lean_object* l_Fin_instModFin(lean_object*);
 lean_object* l_Fin_modn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_mul___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
@@ -547,7 +547,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__1(lean_object* x_1) {
+lean_object* l_Fin_instAddFin(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -556,7 +556,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__2(lean_object* x_1) {
+lean_object* l_Fin_instSubFin(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -565,7 +565,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__3(lean_object* x_1) {
+lean_object* l_Fin_instMulFin(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -574,7 +574,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__4(lean_object* x_1) {
+lean_object* l_Fin_instModFin(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -583,7 +583,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__5(lean_object* x_1) {
+lean_object* l_Fin_instDivFin(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -592,7 +592,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Fin_Init_Data_Fin_Basic___instance__6(lean_object* x_1) {
+lean_object* l_Fin_instModNFin(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

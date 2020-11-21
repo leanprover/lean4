@@ -94,6 +94,7 @@ extern lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_Command_elabPrint_match__1(lean_object*);
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_throwUnknownId(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_instToFormatModifiers___closed__4;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_CollectAxioms_collect___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__2___closed__4;
@@ -163,7 +164,6 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_lparamsToMessageData___closed__1;
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_lparamsToMessageData___boxed(lean_object*);
 lean_object* l_List_map___at___private_Lean_Elab_Print_0__Lean_Elab_Command_printAxiomsOf___spec__1(lean_object*);
-extern lean_object* l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2___closed__4;
 lean_object* l_Lean_Expr_getUsedConstants(lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___rarg(lean_object*, lean_object*);
@@ -296,7 +296,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_lpara
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Lean_Elab_DeclModifiers___instance__2___closed__4;
+x_1 = l_Lean_Elab_instToFormatModifiers___closed__4;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

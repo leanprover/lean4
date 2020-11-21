@@ -46,11 +46,11 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_getInputContext___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_setParserState___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Lean_Parser_Module___instance__1___closed__1;
 lean_object* l_Lean_Elab_runFrontend_match__2(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommand___closed__1;
+extern lean_object* l_Lean_Parser_instInhabitedModuleParserState___closed__1;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_updateCmdPos(lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
@@ -1648,7 +1648,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = l_Lean_Elab_parseImports___closed__1;
 x_9 = l_Lean_Parser_mkInputContext(x_1, x_8);
-x_10 = l_Lean_Parser_Lean_Parser_Module___instance__1___closed__1;
+x_10 = l_Lean_Parser_instInhabitedModuleParserState___closed__1;
 x_11 = l_Lean_Elab_IO_processCommands(x_9, x_10, x_7, x_5);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -1725,7 +1725,7 @@ x_28 = lean_ctor_get(x_4, 0);
 lean_inc(x_28);
 lean_dec(x_4);
 x_29 = l_Lean_Parser_mkInputContext(x_1, x_28);
-x_30 = l_Lean_Parser_Lean_Parser_Module___instance__1___closed__1;
+x_30 = l_Lean_Parser_instInhabitedModuleParserState___closed__1;
 x_31 = l_Lean_Elab_IO_processCommands(x_29, x_30, x_7, x_5);
 if (lean_obj_tag(x_31) == 0)
 {

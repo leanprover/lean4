@@ -36,6 +36,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_clear___spec__8(lean_objec
 lean_object* l_Lean_Meta_assignExprMVar___at_Lean_Meta_clear___spec__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_clear___lambda__2___closed__2;
+lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux___at_Lean_Meta_clear___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,7 +88,6 @@ lean_object* l_Std_PersistentArray_forMAux___at_Lean_Meta_clear___spec__6___boxe
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_clear___spec__5___closed__4;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_clear___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalInstances_erase___lambda__1___boxed(lean_object*, lean_object*);
-lean_object* l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__7___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_setMCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_clear___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
@@ -1976,7 +1976,7 @@ x_10 = lean_alloc_closure((void*)(l_Lean_Meta_clear___lambda__3___boxed), 9, 3);
 lean_closure_set(x_10, 0, x_1);
 lean_closure_set(x_10, 1, x_2);
 lean_closure_set(x_10, 2, x_8);
-x_11 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Lean_Meta_Basic___instance__7___spec__2___rarg), 7, 2);
+x_11 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
 lean_closure_set(x_11, 0, x_9);
 lean_closure_set(x_11, 1, x_10);
 x_12 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(x_1, x_11, x_3, x_4, x_5, x_6, x_7);

@@ -58,6 +58,12 @@
         temci = (import temci {}).override { doCheck = false; };
         nix = nix-pinned;
         nixpkgs = nixpkgs.legacyPackages.${system};
+        ciShell = writeShellScriptBin "ciShell" ''
+          set -o pipefail
+          export PATH=${nix-pinned}/bin:${moreutils}/bin:$PATH
+          # prefix lines with cumulative and individual execution time
+          "$@" |& ts -i "(%.S)]" | ts -s "[%M:%S"
+        '';
       };
 
       defaultPackage = packages.lean;

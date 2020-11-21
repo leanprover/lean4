@@ -37,22 +37,30 @@ jobs:
         shell: bash -euo pipefail {0}
         run: |
           curl ${{ matrix.nix_url }} | tar -xJ
-          nix-*/install --daemon --daemon-user-count 4 --no-channel-add --darwin-use-unencrypted-nix-store-volume
+          # Do a single-user install so actions/cache doesn't get confused about permissions
+          nix-*/install --no-daemon --no-channel-add --darwin-use-unencrypted-nix-store-volume
           rm -rf nix-*
       # Call `install-nix-action` anyways to run its Actions-specific setup
       - name: Setup Nix
         uses: cachix/install-nix-action@v12
+      - name: Fixup install-nix-action
+        shell: bash -euo pipefail {0}
+        run: |
+          # the path set by install-nix-action is valid only for multi-user installations
+          echo "NIX_SSL_CERT_FILE=$HOME/.nix-profile/etc/ssl/certs/ca-bundle.crt" > $GITHUB_ENV
+        if: matrix.name == 'macOS'
       - name: Further setup Nix
         run: |
+          mkdir -p ~/.config/nix
           echo '
             max-jobs = auto
             extra-sandbox-paths = /nix/var/cache/ccache
             extra-trusted-substituters = https://lean4.cachix.org/
-            extra-trusted-public-keys = lean4.cachix.org-1:mawtxSxcaiWE24xCXXgh3qnvlTkyU7evRRnGeAhD4Wk=' | sudo tee /etc/nix/nix.conf
-          # We use a world-writable ccache cache on CI for the sake of actions/cache, and because it really doesn't matter on CI
-          sudo mkdir -m0777 -p /nix/var/cache/ccache
+            extra-trusted-public-keys = lean4.cachix.org-1:mawtxSxcaiWE24xCXXgh3qnvlTkyU7evRRnGeAhD4Wk=' > ~/.config/nix/nix.conf
+          sudo mkdir -m0770 -p /nix/var/cache/ccache
+          # macOS standard chown doesn't support --reference
+          nix shell .#nixpkgs.coreutils -c sudo chown --reference=/nix /nix/var/cache/ccache
           echo 'max_size = 50M' > /nix/var/cache/ccache/ccache.conf
-          sudo pkill nix-daemon  # reload
 
           # install & use Cachix manually since `cachix-action` pushes *all* derivations (incl. `$mod-deps`, stage 2&3, etc.)
           nix-env -iA cachix -f https://cachix.org/api/v1/install

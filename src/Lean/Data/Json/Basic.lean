@@ -78,10 +78,10 @@ def lt (a b : JsonNumber) : Bool :=
     else if ae > be then false
     else am < bm
 
-def ltProp : Less JsonNumber :=
+def ltProp : HasLess JsonNumber :=
   ⟨fun a b => lt a b = true⟩
 
-instance : Less JsonNumber :=
+instance : HasLess JsonNumber :=
   ltProp
 
 instance (a b : JsonNumber) : Decidable (a < b) :=

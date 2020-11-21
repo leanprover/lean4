@@ -103,10 +103,10 @@ private def RequestID.lt : RequestID → RequestID → Bool
   | RequestID.num _, RequestID.str _            => true
   | _, _ /- str < *, num < null, null < null -/ => false
 
-private def RequestID.ltProp : Less RequestID :=
+private def RequestID.ltProp : HasLess RequestID :=
   ⟨fun a b => RequestID.lt a b = true⟩
 
-instance : Less RequestID :=
+instance : HasLess RequestID :=
   RequestID.ltProp
 
 instance (a b : RequestID) : Decidable (a < b) :=

@@ -345,6 +345,7 @@ class OfNat (α : Type u) :=
 
 export OfNat (ofNat)
 
+@[defaultInstance]
 instance : OfNat Nat := ⟨id⟩
 
 instance : Inhabited Nat := {

@@ -167,3 +167,11 @@ def tst8 : MetaM Unit := do
   pure ()
 
 #eval tst8
+
+def tst9 : MetaM Unit := do
+  print "----- tst9 -----"
+  let defInsts ← getDefaultInstances `OfNat
+  print (toString defInsts)
+  pure ()
+
+#eval tst9

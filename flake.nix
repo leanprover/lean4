@@ -53,7 +53,7 @@
       packages = {
         inherit cc lean4-mode buildLeanPackage;
         inherit (lean) stage0 stage1 stage2 stage3;
-        inherit (lean.stage1) lean mods test emacs-dev emacs-package;
+        inherit (lean.stage1) lean mods test emacs-dev emacs-package update-stage0 update-stage0-commit;
         temci = (import temci {}).override { doCheck = false; };
         nix = nix-pinned;
         nixpkgs = nixpkgs.legacyPackages.${system};

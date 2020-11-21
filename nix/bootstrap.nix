@@ -12,10 +12,6 @@ rec {
     postConfigure = ''
       patchShebangs bin
     '';
-    installPhase = ''
-      mkdir $out
-      mv bin/ lib/ include/ $out/
-    '';
   } // args // {
     src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
   });
@@ -23,6 +19,11 @@ rec {
     name = "leanc";
     src = ../src;
     dontBuild = true;
+    installPhase = ''
+      mkdir -p $out/bin
+      mv include/ $out/
+      mv bin/leanc $out/bin/
+    '';
   };
   leancpp = buildCMake {
     name = "leancpp";
@@ -31,6 +32,10 @@ rec {
       echo "target_sources(leancpp PRIVATE shell/lean.cpp)" >> CMakeLists.txt
     '';
     buildFlags = [ "leancpp" ];
+    installPhase = ''
+      mkdir -p $out
+      mv lib/ $out/
+    '';
   };
   stage0 = buildCMake {
     name = "lean-stage0";
@@ -39,6 +44,10 @@ rec {
     cmakeFlags = [ "-DSTAGE=0" ];
     preConfigure = ''
       ln -s ${../stage0/stdlib} ../stdlib
+    '';
+    installPhase = ''
+      mkdir -p $out/bin
+      mv bin/lean $out/bin/
     '';
   };
   stage = { stage, prevStage, self }:
@@ -56,10 +65,10 @@ rec {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -sf ${leancpp}/lib/lean/* ${Init.staticLib}/* ${Init.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* $out/lib/lean
-          ${leancpp}/bin/leanc -x none -rdynamic -L${gmp}/lib -L$out/lib/lean ${leancpp}/lib/lean/* -o $out/bin/lean
-          ln -s ${leancpp}/bin/{leanc,lean-gdb.py} $out/bin/
-          ln -s ${leancpp}/include $out/include
+          ln -sf ${leancpp}/lib/lean/* ${Init.staticLib}/* ${Init.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* $out/lib/lean/
+          ${leanc}/bin/leanc -x none -rdynamic -L${gmp}/lib -L$out/lib/lean -L${leancpp}/lib/lean -o $out/bin/lean
+          ln -s ${leanc}/bin/leanc $out/bin/
+          ln -s ${leanc}/include $out/
         '';
       };
       test = buildCMake {

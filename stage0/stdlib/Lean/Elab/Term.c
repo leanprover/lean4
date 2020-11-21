@@ -422,6 +422,7 @@ lean_object* l_Lean_Elab_Term_isExprMVarAssigned___boxed(lean_object*, lean_obje
 lean_object* l_Lean_Elab_Term_elabProp___rarg(lean_object*);
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabImplicitLambdaAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
+extern lean_object* l_Lean_Meta_addGlobalInstanceImp___closed__2;
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__6___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkFreshInstanceName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkTypeMismatchError___closed__1;
@@ -682,7 +683,6 @@ lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_trySynthInstanceIm
 extern lean_object* l_Lean_Elab_addMacroStack___rarg___lambda__1___closed__3;
 lean_object* l_Lean_Meta_inferType___at_Lean_Elab_Term_throwTypeMismatchError___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_getFunctionDomain(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_addGlobalInstanceImp___closed__4;
 lean_object* l_Lean_Elab_Term_tryPostponeIfHasMVars___closed__2;
 lean_object* l_Lean_Elab_Term_getDeclName_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_setMacroStackOption(lean_object*, uint8_t);
@@ -38930,7 +38930,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Elab_Term_Lean_Elab_Term___instance__12___rarg___closed__1;
-x_2 = l_Lean_Meta_addGlobalInstanceImp___closed__4;
+x_2 = l_Lean_Meta_addGlobalInstanceImp___closed__2;
 x_3 = l_Array_empty___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

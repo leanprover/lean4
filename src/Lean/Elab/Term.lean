@@ -107,8 +107,6 @@ inductive SyntheticMVarKind :=
   | tactic (declName? : Option Name) (tacticCode : Syntax)
   -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
   | postponed (macroStack : MacroStack) (declName? : Option Name)
-  -- type defaulting (currently: defaulting numeric literals to `Nat`)
-  | withDefault (defaultVal : Expr)
 
 structure SyntheticMVarDecl :=
   (mvarId : MVarId) (stx : Syntax) (kind : SyntheticMVarKind)
@@ -1240,7 +1238,6 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
     | some val => pure (mkNatLit val)
     | none     => throwIllFormedSyntax
   let typeMVar ← mkFreshTypeMVar MetavarKind.synthetic
-  registerSyntheticMVar stx typeMVar.mvarId! (SyntheticMVarKind.withDefault (Lean.mkConst `Nat))
   match expectedType? with
   | some expectedType => isDefEq expectedType typeMVar; pure ()
   | _                 => pure ()

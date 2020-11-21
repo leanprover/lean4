@@ -88,13 +88,6 @@ private def synthesizePendingCoeInstMVar
       | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
       | _                     => unreachable!
 
-/--
-  Return `true` iff `mvarId` is assigned to a term whose the
-  head is not a metavariable. We use this method to process `SyntheticMVarKind.withDefault`. -/
-private def checkWithDefault (mvarId : MVarId) : TermElabM Bool := do
-  let val ← instantiateMVars (mkMVar mvarId)
-  pure $ !val.getAppFn.isMVar
-
 /-- Try to synthesize the given pending synthetic metavariable. -/
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
   withRef mvarSyntheticDecl.stx do
@@ -102,7 +95,6 @@ private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (pos
   | SyntheticMVarKind.typeClass                           => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
   | SyntheticMVarKind.coe header? expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? expectedType eType e f?
   -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-  | SyntheticMVarKind.withDefault _                       => checkWithDefault mvarSyntheticDecl.mvarId
   | SyntheticMVarKind.postponed macroStack declName?      => resumePostponed macroStack declName? mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
   | SyntheticMVarKind.tactic declName? tacticCode         =>
     withReader (fun ctx => { ctx with declName? := declName? }) do
@@ -142,19 +134,31 @@ private def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : 
   Return true if something was synthesized. -/
 def synthesizeUsingDefault : TermElabM Bool := do
   let s ← get
-  let len := s.syntheticMVars.length
-  let newSyntheticMVars ← s.syntheticMVars.filterM fun mvarDecl =>
-    withRef mvarDecl.stx $
+  let currLength := s.syntheticMVars.length
+  let mut syntheticMVarsNew := []
+  /- Recall that s.syntheticMVars is essentially a stack. The first metavariable was the last one created.
+     We want to apply the default instance in reverse creation order. Otherwise,
+     `toString 0` will produce a `OfNat String` cannot be synthesized error. -/
+  for mvarDecl in s.syntheticMVars.reverse do
     match mvarDecl.kind with
-    | SyntheticMVarKind.withDefault defaultVal => withMVarContext mvarDecl.mvarId do
-        let val ← instantiateMVars (mkMVar mvarDecl.mvarId)
-        if val.getAppFn.isMVar && !(← isDefEq val defaultVal) then
-          -- TODO: better error message
-          throwError! "failed to assign default value to metavariable{indentExpr val}\ndefault value{indentExpr defaultVal}"
-        pure false
-    | _ => pure true
-  modify fun s => { s with syntheticMVars := newSyntheticMVars }
-  pure $ newSyntheticMVars.length != len
+    | SyntheticMVarKind.typeClass =>
+      syntheticMVarsNew ← withMVarContext mvarDecl.mvarId do
+        let mvarType := (← getMVarDecl mvarDecl.mvarId).type
+          match (← isClass? mvarType) with
+          | none => return mvarDecl :: syntheticMVarsNew
+          | some className => match (← getDefaultInstances className) with
+            | [] => return mvarDecl :: syntheticMVarsNew
+            | defaultInstances =>
+              for defaultInstance in defaultInstances do
+                let candidate := Lean.mkConst defaultInstance
+                trace[Elab.resume]! "trying default instance for {mkMVar mvarDecl.mvarId} := {candidate}"
+                if (← isDefEqGuarded (mkMVar mvarDecl.mvarId) candidate) then
+                  return syntheticMVarsNew
+              return mvarDecl :: syntheticMVarsNew
+    | _ => syntheticMVarsNew := mvarDecl :: syntheticMVarsNew
+    pure ()
+  modify fun s => { s with syntheticMVars := syntheticMVarsNew }
+  return syntheticMVarsNew.length != currLength
 
 /-- Report an error for each synthetic metavariable that could not be resolved. -/
 private def reportStuckSyntheticMVars : TermElabM Unit := do
@@ -183,14 +187,14 @@ private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
   then `syntheticMVars` is `[]` after executing this method.
 
   It keeps executing `synthesizeSyntheticMVarsStep` while progress is being made.
-  If `mayPostpone == false`, then it applies default values to `SyntheticMVarKind.withDefault`
+  If `mayPostpone == false`, then it applies default instances to `SyntheticMVarKind.typeClass` (if available)
   metavariables that are still unresolved, and then tries to resolve metavariables
   with `mayPostpone == false`. That is, we force them to produce error messages and/or commit to
   a "best option". If, after that, we still haven't made progress, we report "stuck" errors. -/
 partial def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
   let rec loop (u : Unit) : TermElabM Unit := do
     let ref ← getSomeSynthethicMVarsRef
-    withRef ref $ withIncRecDepth do
+    withRef ref <| withIncRecDepth do
       let s ← get
       unless s.syntheticMVars.isEmpty do
         if ← synthesizeSyntheticMVarsStep false false then

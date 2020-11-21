@@ -21,7 +21,7 @@ with builtins; let
     allowSubstitutes = false;
   }) buildCommand;
   depRoot = name: deps: mkDerivation {
-    name = "${name}-deps";
+    name = "${name}-depRoot";
     inherit deps;
     depRoots = map (drv: drv.LEAN_PATH) deps;
     buildCommand = ''
@@ -33,6 +33,8 @@ with builtins; let
         cp -drsu --no-preserve=mode $i/. $out
       done
     '';
+    preferLocalBuild = true;
+    allowSubstitutes = false;
   };
 in
   { name, src, srcDir ? "", deps }: let

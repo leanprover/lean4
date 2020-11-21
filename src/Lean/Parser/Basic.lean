@@ -116,9 +116,6 @@ structure InputContext :=
   (fileName : String)
   (fileMap  : FileMap)
 
-instance : Inhabited InputContext :=
-  ⟨{ input := "", fileName := "", fileMap := arbitrary _ }⟩
-
 instance : Inhabited InputContext := ⟨{
   input := "", fileName := "", fileMap := arbitrary _
 }⟩

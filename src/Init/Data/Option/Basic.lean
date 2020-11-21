@@ -85,8 +85,6 @@ instance {α : Type u} (r : α → α → Prop) [s : DecidableRel r] : Decidable
 
 end Option
 
-instance (α : Type u) : Inhabited (Option α) := ⟨none⟩
-
 instance {α : Type u} [DecidableEq α] : DecidableEq (Option α) := fun a b =>
   match a, b with
   | none,      none      => isTrue rfl

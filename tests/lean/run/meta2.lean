@@ -233,7 +233,7 @@ do print "----- tst14 -----";
    let stateM ← mkStateM nat;
    print stateM;
    let monad ← mkMonad stateM;
-   let globalInsts ← getGlobalInstances;
+   let globalInsts ← getGlobalInstancesIndex;
    let insts ← globalInsts.getUnify monad;
    print insts;
    pure ()

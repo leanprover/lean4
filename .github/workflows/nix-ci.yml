@@ -74,10 +74,9 @@ jobs:
             ${{ matrix.name }}-nix-ccache
       - name: Build
         run: |
-          nix build -v --print-build-logs .#stage0
-          cachix push -j4 lean4 ./result
-          nix build -v --print-build-logs
-          cachix push -j4 lean4 ./result
+          # .o files are not a runtime dependency on macOS because of lack of thin archives
+          nix build -v --print-build-logs .#stage0 .#stage1 .#Lean.oTree
+          cachix push -j4 lean4 ./result*
       - name: Test
         run: |
           nix build -v --print-build-logs .#test

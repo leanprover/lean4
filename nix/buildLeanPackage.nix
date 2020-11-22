@@ -1,4 +1,4 @@
-{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeShellScriptBin, bash, lean-emacs, nix, substituteAll }:
+{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeShellScriptBin, bash, lean-emacs, nix, substituteAll, symlinkJoin, linkFarmFromDrvs }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
@@ -103,6 +103,7 @@ in
     mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues deps));
     modRoot   = depRoot name [ mods.${name} ];
     objects   = mapAttrs compileMod mods;
+    oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
     staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
       mkdir $out
       ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))}

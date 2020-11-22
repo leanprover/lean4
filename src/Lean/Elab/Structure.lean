@@ -209,7 +209,7 @@ private def findFieldInfo? (infos : Array StructFieldInfo) (fieldName : Name) : 
 private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name) : Bool :=
   (findFieldInfo? infos fieldName).isSome
 
-private partial def processSubfields {α} (structDeclName : Name) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
+private partial def processSubfields (structDeclName : Name) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
     (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (infos : Array StructFieldInfo) := do
     if h : i < subfieldNames.size then
@@ -228,7 +228,7 @@ private partial def processSubfields {α} (structDeclName : Name) (parentFVar : 
       k infos
   loop 0 infos
 
-private partial def withParents {α} (view : StructView) (i : Nat) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
+private partial def withParents (view : StructView) (i : Nat) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
   if h : i < view.parents.size then
     let parentStx := view.parents.get ⟨i, h⟩
     withRef parentStx do
@@ -267,7 +267,7 @@ private def elabFieldTypeValue (view : StructFieldView) (params : Array Expr) : 
       let value ← mkLambdaFVars params value
       pure (type, value)
 
-private partial def withFields {α}
+private partial def withFields
     (views : Array StructFieldView) (i : Nat) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
   if h : i < views.size then
     let view := views.get ⟨i, h⟩

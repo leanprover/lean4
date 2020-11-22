@@ -30,7 +30,7 @@ structure Context :=
 
 abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 
-instance {α} : Inhabited (CoreM α) := ⟨fun _ _ => throw $ arbitrary _⟩
+instance : Inhabited (CoreM α) := ⟨fun _ _ => throw $ arbitrary _⟩
 
 instance : MonadRef CoreM := {
   getRef  := do let ctx ← read; pure ctx.ref,
@@ -60,7 +60,7 @@ instance : MonadRecDepth CoreM := {
   getMaxRecDepth := do pure (← read).maxRecDepth
 }
 
-@[inline] def liftIOCore {α} (x : IO α) : CoreM α := do
+@[inline] def liftIOCore (x : IO α) : CoreM α := do
   let ref ← getRef
   IO.toEIO (fun (err : IO.Error) => Exception.error ref (toString err)) x
 
@@ -78,22 +78,22 @@ private def mkFreshNameImp (n : Name) : CoreM Name := do
   let env ← getEnv
   pure $ addMacroScope env.mainModule n fresh
 
-def mkFreshUserName {m} [MonadLiftT CoreM m] (n : Name) : m Name :=
+def mkFreshUserName [MonadLiftT CoreM m] (n : Name) : m Name :=
   liftM $ mkFreshNameImp n
 
-@[inline] def CoreM.run {α} (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
+@[inline] def CoreM.run (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
   (x ctx).run s
 
-@[inline] def CoreM.run' {α} (x : CoreM α) (ctx : Context) (s : State) : EIO Exception α :=
+@[inline] def CoreM.run' (x : CoreM α) (ctx : Context) (s : State) : EIO Exception α :=
   Prod.fst <$> x.run ctx s
 
-@[inline] def CoreM.toIO {α} (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) := do
+@[inline] def CoreM.toIO (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) := do
   match (← (x.run ctx s).toIO') with
   | Except.error (Exception.error _ msg)   => do let e ← msg.toString; throw $ IO.userError e
   | Except.error (Exception.internal id _) => throw $ IO.userError $ "internal exception #" ++ toString id.idx
   | Except.ok a => pure a
 
-instance {α} [MetaEval α] : MetaEval (CoreM α) := {
+instance [MetaEval α] : MetaEval (CoreM α) := {
   eval := fun env opts x _ => do
     let x : CoreM α := do try x finally printTraces
     let (a, s) ← x.toIO { maxRecDepth := getMaxRecDepth opts, options := opts } { env := env }
@@ -101,21 +101,21 @@ instance {α} [MetaEval α] : MetaEval (CoreM α) := {
 }
 
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
-protected def withIncRecDepth {α m} [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
+protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
 
 end Core
 
 export Core (CoreM mkFreshUserName)
 
-@[inline] def catchInternalId {α} {m : Type → Type} [Monad m] [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
+@[inline] def catchInternalId [Monad m] [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
   try
     x
   catch ex => match ex with
     | Exception.error _ _      => throw ex
     | Exception.internal id' _ => if id == id' then h ex else throw ex
 
-@[inline] def catchInternalIds {α} {m : Type → Type} [Monad m] [MonadExcept Exception m] (ids : List InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
+@[inline] def catchInternalIds [Monad m] [MonadExcept Exception m] (ids : List InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
   try
     x
   catch ex => match ex with

@@ -55,3 +55,13 @@ inductive TreeElem2 : β → Tree α β → Prop
   | leaf2     : (b : β) → TreeElem2 b (Tree.leaf2 (α := α) b)
   | nodeLeft  : (b : β) → (left : Tree α β) → (right : Tree α β) → TreeElem2 b left  → TreeElem2 b (Tree.node left right)
   | nodeRight : (b : β) → (left : Tree α β) → (right : Tree α β) → TreeElem2 b right → TreeElem2 b (Tree.node left right)
+
+namespace Ex1
+
+def findSomeRevM? [Monad m] (as : Array α) (f : α → m (Option β)) : m (Option β) :=
+  pure none
+
+def findSomeRev? (as : Array α) (f : α → Option β) : Option β :=
+  Id.run <| findSomeRevM? as f
+
+end Ex1

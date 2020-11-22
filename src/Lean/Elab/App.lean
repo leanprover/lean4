@@ -260,7 +260,6 @@ private def propagateExpectedType : M Unit := do
   let s ← get
   -- TODO: handle s.etaArgs.size > 0
   unless s.explicit || !s.etaArgs.isEmpty || s.alreadyPropagated || s.typeMVars.isEmpty do
-    modify fun s => { s with alreadyPropagated := true }
     match s.expectedType? with
     | none              => pure ()
     | some expectedType =>
@@ -286,7 +285,9 @@ private def propagateExpectedType : M Unit := do
          This may not be that bad since the developers and users don't seem to care about constructivism.
 
          We currently use a different workaround, we just don't propagate the expected type when it is `Prop`. -/
-      unless expectedType.isProp do
+      if expectedType.isProp then
+        modify fun s => { s with alreadyPropagated := true }
+      else
         let numRemainingArgs := s.args.length
         trace[Elab.app.propagateExpectedType]! "etaArgs.size: {s.etaArgs.size}, numRemainingArgs: {numRemainingArgs}, fType: {s.fType}"
         match getForallBody numRemainingArgs s.namedArgs s.fType with
@@ -298,8 +299,9 @@ private def propagateExpectedType : M Unit := do
             if hasTypeMVar && hasOnlyTypeMVar then
               unless (← hasOptAutoParams fTypeBody) do
                 trace[Elab.app.propagateExpectedType]! "{expectedType} =?= {fTypeBody}"
-                isDefEq expectedType fTypeBody
-                pure ()
+                if (← isDefEq expectedType fTypeBody) then
+                  /- Note that we only set `alreadyPropagated := true` when propagation has succeeded. -/
+                  modify fun s => { s with alreadyPropagated := true }
 
 /-
   Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,

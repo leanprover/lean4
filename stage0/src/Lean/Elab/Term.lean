@@ -620,11 +620,14 @@ def synthesizeInst (type : Expr) : TermElabM Expr := do
   | LOption.undef    => throwError! "failed to synthesize instance{indentExpr type}"
   | LOption.none     => throwError! "failed to synthesize instance{indentExpr type}"
 
+def isMonadApp (type : Expr) : TermElabM Bool := do
+  let some (m, _) ← isTypeApp? type | pure false
+  return (← isMonad? m) |>.isSome
+
 /--
   Try to coerce `a : α` into `m β` by first coercing `a : α` into ‵β`, and then using `pure`.
-  The method is only applied if one of the following cases hold:
-  - Head of `α` and head of ‵β` are not metavariables.
-  - Head of `α` is not a metavariable, and it is not a Monad.
+  The method is only applied if `α` is not monadic (e.g., `Nat → IO Unit`), and the head symbol
+  of the resulting type is not a metavariable (e.g., `?m Unit` or `Bool → ?m Nat`).
 
   The main limitation of the approach above is polymorphic code. As usual, coercions and polymorphism
   do not interact well. In the example above, the lift is successfully applied to `true`, `false` and `!y`
@@ -649,13 +652,11 @@ private def tryPureCoe? (errorMsgHeader? : Option String) (m β α a : Expr) : T
       pure (some aNew)
     catch _ =>
       pure none
-  let αHead := α.getAppFn
-  if !β.getAppFn.isMVar && !αHead.isMVar then
-    doIt -- case 1
-  else
-    let αIsMonad? ← isMonad? α
-    if !αHead.isMVar && αIsMonad?.isNone then
-      doIt -- case 2
+  forallTelescope α fun _ α => do
+    if (← isMonadApp α) then
+      pure none
+    else if !α.getAppFn.isMVar  then
+      doIt
     else
       pure none
 

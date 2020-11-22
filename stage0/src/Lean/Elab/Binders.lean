@@ -142,24 +142,31 @@ private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
 private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
   registerCustomErrorIfMVar type ref "failed to infer binder type"
 
-private partial def elabBinderViews {α} (binderViews : Array BinderView) (fvars : Array Expr) (k : Array Expr → TermElabM α) : TermElabM α :=
-  let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α :=
+private partial def elabBinderViews {α} (binderViews : Array BinderView) (catchUnboundImplicit : Bool) (fvars : Array Expr) (k : Array Expr → TermElabM α)
+    : TermElabM α :=
+  let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α := do
     if h : i < binderViews.size then
       let binderView := binderViews.get ⟨i, h⟩
-      elabTypeWithUnboundImplicit binderView.type fun unboundImplicitFVars type => do
+      if catchUnboundImplicit then
+        elabTypeWithUnboundImplicit binderView.type fun unboundImplicitFVars type => do
+          registerFailedToInferBinderTypeInfo type binderView.type
+          let fvars := fvars ++ unboundImplicitFVars
+          withLocalDecl binderView.id.getId binderView.bi type fun fvar =>
+            loop (i+1) (fvars.push fvar)
+      else
+        let type ← elabType binderView.type
         registerFailedToInferBinderTypeInfo type binderView.type
-        let fvars := fvars ++ unboundImplicitFVars
         withLocalDecl binderView.id.getId binderView.bi type fun fvar =>
           loop (i+1) (fvars.push fvar)
-    else
+     else
       k fvars
   loop 0 fvars
 
-private partial def elabBindersAux {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) : TermElabM α :=
+private partial def elabBindersAux {α} (binders : Array Syntax) (catchUnboundImplicit : Bool) (k : Array Expr → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α := do
     if h : i < binders.size then
       let binderViews ← matchBinder (binders.get ⟨i, h⟩)
-      elabBinderViews binderViews fvars <| loop (i+1)
+      elabBinderViews binderViews catchUnboundImplicit fvars <| loop (i+1)
     else
       k fvars
   loop 0 #[]
@@ -168,15 +175,15 @@ private partial def elabBindersAux {α} (binders : Array Syntax) (k : Array Expr
   Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracketedBinder`),
   update the local context, set of local instances, reset instance chache (if needed), and then
   execute `x` with the updated context. -/
-def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) : TermElabM α :=
+def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) (catchUnboundImplicit := false) : TermElabM α :=
   withoutPostponingUniverseConstraints do
     if binders.isEmpty then
       k #[]
     else
-      elabBindersAux binders k
+      elabBindersAux binders catchUnboundImplicit k
 
-@[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
-  elabBinders #[binder] (fun fvars => x (fvars.get! 0))
+@[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) (catchUnboundImplicit := false) : TermElabM α :=
+  elabBinders #[binder] (catchUnboundImplicit := catchUnboundImplicit) (fun fvars => x (fvars.get! 0))
 
 @[builtinTermElab «forall»] def elabForall : TermElab := fun stx _ =>
   match_syntax stx with

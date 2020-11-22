@@ -62,4 +62,11 @@ def getProjectionStructureName? (env : Environment) (projName : Name) : Option N
     | _ => none
 
 end Environment
+
+def isProjectionFn [MonadEnv m] [Monad m] (declName : Name) : m Bool :=
+  return (← getEnv).isProjectionFn declName
+
+def getProjectionFnInfo? [MonadEnv m] [Monad m] (declName : Name) : m (Option ProjectionFunctionInfo) :=
+  return (← getEnv).getProjectionFnInfo? declName
+
 end Lean

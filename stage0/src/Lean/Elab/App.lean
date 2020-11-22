@@ -264,19 +264,42 @@ private def propagateExpectedType : M Unit := do
     match s.expectedType? with
     | none              => pure ()
     | some expectedType =>
-      let numRemainingArgs := s.args.length
-      trace[Elab.app.propagateExpectedType]! "etaArgs.size: {s.etaArgs.size}, numRemainingArgs: {numRemainingArgs}, fType: {s.fType}"
-      match getForallBody numRemainingArgs s.namedArgs s.fType with
-      | none           => pure ()
-      | some fTypeBody =>
-        unless fTypeBody.hasLooseBVars do
-          let hasTypeMVar     := (fTypeBody.findMVar? fun mvarId => s.typeMVars.contains mvarId).isSome
-          let hasOnlyTypeMVar := (fTypeBody.findMVar? fun mvarId => !s.typeMVars.contains mvarId).isNone
-          if hasTypeMVar && hasOnlyTypeMVar then
-            unless (← hasOptAutoParams fTypeBody) do
-              trace[Elab.app.propagateExpectedType]! "{expectedType} =?= {fTypeBody}"
-              isDefEq expectedType fTypeBody
-              pure ()
+      /- We don't propagate `Prop` because we often use `Prop` as a more general "Bool" (e.g., `if-then-else`).
+         If we propagate `expectedType == Prop` in the following examples, the elaborator would fail
+         ```
+         def f1 (s : Nat × Bool) : Bool := if s.2 then false else true
+
+         def f2 (s : List Bool) : Bool := if s.head! then false else true
+
+         def f3 (s : List Bool) : Bool := if List.head! (s.map not) then false else true
+         ```
+         They would all fail for the same reason. So, let's focus on the first one.
+         We would elaborate `s.2` with `expectedType == Prop`.
+         Before we elaborate `s`, this method would be invoked, and `s.fType` is `?α × ?β → ?β` and after
+         propagation we would have `?α × Prop → Prop`. Then, when we would try to elaborate `s`, and
+         get a type error because `?α × Prop` cannot be unified with `Nat × Bool`
+         Most users would have a hard time trying to understand why these examples failed.
+
+         Here is a possible alternative workarounds. We give up the idea of using `Prop` at `if-then-else`.
+         Drawback: users use `if-then-else` with conditions that are not Decidable.
+         So, users would have to embrace `propDecidable` and `choice`.
+         This may not be that bad since the developers and users don't seem to care about constructivism.
+
+         We currently use a different workaround, we just don't propagate the expected type when it is `Prop`. -/
+      unless expectedType.isProp do
+        let numRemainingArgs := s.args.length
+        trace[Elab.app.propagateExpectedType]! "etaArgs.size: {s.etaArgs.size}, numRemainingArgs: {numRemainingArgs}, fType: {s.fType}"
+        match getForallBody numRemainingArgs s.namedArgs s.fType with
+        | none           => pure ()
+        | some fTypeBody =>
+          unless fTypeBody.hasLooseBVars do
+            let hasTypeMVar     := (fTypeBody.findMVar? fun mvarId => s.typeMVars.contains mvarId).isSome
+            let hasOnlyTypeMVar := (fTypeBody.findMVar? fun mvarId => !s.typeMVars.contains mvarId).isNone
+            if hasTypeMVar && hasOnlyTypeMVar then
+              unless (← hasOptAutoParams fTypeBody) do
+                trace[Elab.app.propagateExpectedType]! "{expectedType} =?= {fTypeBody}"
+                isDefEq expectedType fTypeBody
+                pure ()
 
 /-
   Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,

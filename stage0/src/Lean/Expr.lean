@@ -390,6 +390,10 @@ def isSort : Expr → Bool
   | sort _ _ => true
   | _        => false
 
+def isProp : Expr → Bool
+  | sort (Level.zero ..) _ => true
+  | _ => false
+
 def isBVar : Expr → Bool
   | bvar _ _ => true
   | _        => false

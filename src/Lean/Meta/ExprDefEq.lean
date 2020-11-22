@@ -905,9 +905,8 @@ private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Meta
 
   Auxiliary method for isDefEqDelta -/
 private def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool := do
-  let env ← getEnv
-  let tProj? := env.isProjectionFn tInfo.name
-  let sProj? := env.isProjectionFn sInfo.name
+  let tProj? ← isProjectionFn tInfo.name
+  let sProj? ← isProjectionFn sInfo.name
   if tProj? && !sProj? then
     unfold s (unfoldDefEq tInfo sInfo t s) $ fun s => isDefEqRight sInfo.name t s
   else if !tProj? && sProj? then

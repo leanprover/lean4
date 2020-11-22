@@ -13,17 +13,17 @@ universes u v
 /-- An async IO list is like a lazy list but instead of being *unevaluated* `Thunk`s,
 lazy tails are `Task`s *being evaluated asynchronously*. A tail can signal the end
 of computation (successful or due to a failure) with a terminating value of type `ε`. -/
-inductive AsyncList (ε : Type u) (α : Type v)
-| cons (hd : α) (tl : AsyncList ε α)
-| asyncCons (hd : α) (tl : Task $ Except ε $ AsyncList ε α)
-| nil
+inductive AsyncList (ε : Type u) (α : Type v) :=
+  | cons (hd : α) (tl : AsyncList ε α)
+  | asyncCons (hd : α) (tl : Task $ Except ε $ AsyncList ε α)
+  | nil
 
 namespace AsyncList
 
 -- TODO(WN): IO doesn't like universes :(
 variables {ε : Type} {α : Type}
 
-instance inhabited : Inhabited (AsyncList ε α) := ⟨nil⟩
+instance asyncListInhabited : Inhabited (AsyncList ε α) := ⟨nil⟩
 
 -- TODO(WN): tail-recursion without forcing sync?
 partial def append : AsyncList ε α → AsyncList ε α → AsyncList ε α
@@ -49,9 +49,9 @@ partial def unfoldAsync [Coe Error ε] (f : α → ExceptT ε IO α)
   (init : α) (onCanceled : Option (α → IO ε) := none)
 : IO (AsyncList ε α) := do
   let coeErr (t : Task $ Except Error $ Except ε $ AsyncList ε α) : Task (Except ε $ AsyncList ε α) :=
-    t.map (fun
+    t.map $ fun
       | Except.ok v              => v
-      | Except.error (e : Error) => Except.error (e : ε))
+      | Except.error (e : Error) => Except.error (e : ε)
 
   let rec step (a : α) : ExceptT ε IO (AsyncList ε α) := do
     if onCanceled.isSome ∧ (← checkCanceled) then

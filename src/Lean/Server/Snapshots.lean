@@ -61,10 +61,11 @@ def compileHeader (contents : String) (opts : Options := {}) : IO Snapshot := do
   let inputCtx := Parser.mkInputContext contents "<input>"
   let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
   let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
-  pure { beginPos := 0,
-         mpState := headerParserState,
-         data := SnapshotData.headerData headerEnv msgLog opts
-       }
+  pure { 
+    beginPos := 0
+    mpState := headerParserState
+    data := SnapshotData.headerData headerEnv msgLog opts
+  }
 
 def reparseHeader (contents : String) (header : Snapshot) (opts : Options := {}) : IO Snapshot := do
   let inputCtx := Parser.mkInputContext contents "<input>"
@@ -89,13 +90,13 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   let cmdPos := cmdStx.getHeadInfo.get!.pos.get! -- TODO(WN): always `some`?
   if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-    pure $ Sum.inr msgLog
+    Sum.inr msgLog
   else
     let cmdStateRef ← IO.mkRef { snap.toCmdState with messages := msgLog }
     let cmdCtx : Elab.Command.Context := {
-        cmdPos := snap.endPos,
-        fileName := inputCtx.fileName,
-        fileMap := inputCtx.fileMap
+        cmdPos   := snap.endPos
+        fileName := inputCtx.fileName
+        fileMap  := inputCtx.fileMap
       }
     EIO.toIO ioErrorFromEmpty $
       Elab.Command.catchExceptions
@@ -103,21 +104,21 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
         cmdCtx cmdStateRef
     let postCmdState ← cmdStateRef.get
     let postCmdSnap : Snapshot := {
-        beginPos := cmdPos,
-        mpState := cmdParserState,
+        beginPos := cmdPos
+        mpState := cmdParserState
         data := SnapshotData.cmdData postCmdState
       }
-    pure $ Sum.inl postCmdSnap
+    Sum.inl postCmdSnap
 
 /-- Compiles all commands after the given snapshot. Returns them as a list, together with
 the final message log. -/
 partial def compileCmdsAfter (contents : String) (snap : Snapshot) : IO (List Snapshot × MessageLog) := do
   let cmdOut ← compileNextCmd contents snap
   match cmdOut with
-  | Sum.inl snap => do
+  | Sum.inl snap =>
     let (snaps, msgLog) ← compileCmdsAfter contents snap
-    pure $ (snap :: snaps, msgLog)
-  | Sum.inr msgLog => pure ([], msgLog)
+    (snap :: snaps, msgLog)
+  | Sum.inr msgLog => ([], msgLog)
 
 end Snapshots
 end Server

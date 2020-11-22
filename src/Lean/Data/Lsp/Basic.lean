@@ -21,13 +21,13 @@ open Json
 structure CancelParams := (id : JsonRpc.RequestID)
 
 instance CancelParams.hasFromJson : FromJson CancelParams :=
-⟨fun j => do
-  let id ← j.getObjValAs? JsonRpc.RequestID "id";
-  pure ⟨id⟩⟩
+  ⟨fun j => do
+    let id ← j.getObjValAs? JsonRpc.RequestID "id"
+    pure ⟨id⟩⟩
 
 instance CancelParams.hasToJson : ToJson CancelParams :=
-⟨fun o => mkObj $
-  ⟨"id", toJson o.id⟩ :: []⟩
+  ⟨fun o => mkObj $
+    ⟨"id", toJson o.id⟩ :: []⟩
 
 
 abbrev DocumentUri := String
@@ -264,14 +264,12 @@ instance : ToJson TextDocumentRegistrationOptions :=
 inductive MarkupKind where
   | plaintext | markdown
 
-instance : FromJson MarkupKind := ⟨fun j =>
-  match j with
+instance : FromJson MarkupKind := ⟨fun
   | str "plaintext" => some MarkupKind.plaintext
   | str "markdown"  => some MarkupKind.markdown
   | _               => none⟩
 
-instance : ToJson MarkupKind := ⟨fun k =>
-  match k with
+instance : ToJson MarkupKind := ⟨fun
   | MarkupKind.plaintext => str "plaintext"
   | MarkupKind.markdown  => str "markdown"⟩
 

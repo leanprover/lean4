@@ -24,7 +24,7 @@ instance : FromJson ClientCapabilities :=
   ⟨fun j => ClientCapabilities.mk⟩
 
 instance ClientCapabilities.hasToJson : ToJson ClientCapabilities :=
-⟨fun o => mkObj []⟩
+  ⟨fun o => mkObj []⟩
 
 -- TODO largely unimplemented
 structure ServerCapabilities where
@@ -33,7 +33,7 @@ structure ServerCapabilities where
 
 instance : ToJson ServerCapabilities := ⟨fun o => mkObj $
   opt "textDocumentSync" o.textDocumentSync? ++
-  [⟨"hoverProvider", o.hoverProvider⟩]⟩
+    [⟨"hoverProvider", o.hoverProvider⟩]⟩
 
 end Lsp
 end Lean

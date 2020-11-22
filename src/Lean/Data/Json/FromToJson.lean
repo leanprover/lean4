@@ -36,8 +36,7 @@ instance : ToJson Int := ⟨fun n => Json.num n⟩
 instance : FromJson String := ⟨Json.getStr?⟩
 instance : ToJson String := ⟨fun s => s⟩
 
-instance {α : Type u} [FromJson α] : FromJson (Array α) := ⟨fun j =>
-  match j with
+instance {α : Type u} [FromJson α] : FromJson (Array α) := ⟨fun
   | Json.arr a => a.mapM fromJson?
   | _ => none⟩
 
@@ -46,14 +45,12 @@ instance {α : Type u} [ToJson α] : ToJson (Array α) :=
 
 namespace Json
 
-instance : FromJson Structured := ⟨fun j =>
-  match j with
+instance : FromJson Structured := ⟨fun
   | arr a => Structured.arr a
   | obj o => Structured.obj o
   | _     => none⟩
 
-instance : ToJson Structured := ⟨fun s =>
-  match s with
+instance : ToJson Structured := ⟨fun
   | Structured.arr a => arr a
   | Structured.obj o => obj o⟩
 

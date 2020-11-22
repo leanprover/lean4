@@ -89,13 +89,13 @@ def swap! (a : Array α) (i j : @& Nat) : Array α :=
   else panic! "index out of bounds"
   else panic! "index out of bounds"
 
-@[inline] def swapAt {α : Type} (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
+@[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
   let e := a.get i
   let a := a.set i v
   (e, a)
 
 @[inline]
-def swapAt! {α : Type} (a : Array α) (i : Nat) (v : α) : α × Array α :=
+def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
   if h : i < a.size then
     swapAt a ⟨i, h⟩ v
   else
@@ -107,14 +107,14 @@ def pop (a : Array α) : Array α := {
   data := a.data.dropLast
 }
 
-def shrink {α : Type u} (a : Array α) (n : Nat) : Array α :=
+def shrink (a : Array α) (n : Nat) : Array α :=
   let rec loop
     | 0,   a => a
     | n+1, a => loop n a.pop
   loop (a.size - n) a
 
 @[inline]
-def modifyM {m : Type u → Type v} [Monad m] [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
+def modifyM [Monad m] [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
   if h : i < a.size then
     let idx : Fin a.size := ⟨i, h⟩
     let v                := a.get idx
@@ -290,7 +290,7 @@ def findM? {α : Type} {m : Type → Type} [Monad m] (as : Array α) (p : α →
   return none
 
 @[inline]
-def findIdxM? {m : Type → Type u} [Monad m] (as : Array α) (p : α → m Bool) : m (Option Nat) := do
+def findIdxM? [Monad m] (as : Array α) (p : α → m Bool) : m (Option Nat) := do
   let mut i := 0
   for a in as do
     if (← p a) then
@@ -429,21 +429,21 @@ def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
 a.findIdx? fun a => a == v
 
 @[inline]
-def any {α : Type u} (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Bool :=
+def any (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.anyM p start stop
 
 @[inline]
-def all {α : Type u} (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Bool :=
+def all (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.allM p start stop
 
-def contains {α} [BEq α] (as : Array α) (a : α) : Bool :=
+def contains [BEq α] (as : Array α) (a : α) : Bool :=
   as.any fun b => a == b
 
-def elem {α} [BEq α] (a : α) (as : Array α) : Bool :=
+def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a
 
 -- TODO(Leo): justify termination using wf-rec, and use `swap`
-partial def reverse {α : Type u}  (as : Array α) : Array α :=
+partial def reverse (as : Array α) : Array α :=
   let n   := as.size
   let mid := n / 2
   let rec rev (as : Array α) (i : Nat) :=
@@ -453,7 +453,7 @@ partial def reverse {α : Type u}  (as : Array α) : Array α :=
       as
   rev as 0
 
-@[inline] def getEvenElems {α : Type u}  (as : Array α) : Array α :=
+@[inline] def getEvenElems (as : Array α) : Array α :=
   (·.2) <| as.foldl (init := (true, Array.empty)) fun (even, r) a =>
     if even then
       (false, r.push a)
@@ -461,34 +461,34 @@ partial def reverse {α : Type u}  (as : Array α) : Array α :=
       (true, r)
 
 @[export lean_array_to_list]
-def toList {α : Type u}  (as : Array α) : List α :=
+def toList (as : Array α) : List α :=
   as.foldr List.cons []
 
-instance {α : Type u}  [Repr α] : Repr (Array α) :=
+instance [Repr α] : Repr (Array α) :=
   ⟨fun a => "#" ++ repr a.toList⟩
 
-instance {α : Type u}  [ToString α] : ToString (Array α) :=
+instance [ToString α] : ToString (Array α) :=
   ⟨fun a => "#" ++ toString a.toList⟩
 
-protected def append {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
+protected def append (as : Array α) (bs : Array α) : Array α :=
   bs.foldl (init := as) fun r v => r.push v
 
-instance {α : Type u}  : Append (Array α) := ⟨Array.append⟩
+instance : Append (Array α) := ⟨Array.append⟩
 
 end Array
 
 @[inlineIfReduce]
-def List.toArrayAux {α : Type u} : List α → Array α → Array α
+def List.toArrayAux : List α → Array α → Array α
   | [],    r => r
   | a::as, r => toArrayAux as (r.push a)
 
 @[inlineIfReduce]
-def List.redLength {α : Type u} : List α → Nat
+def List.redLength : List α → Nat
   | []    => 0
   | _::as => as.redLength + 1
 
 @[inline, matchPattern, export lean_list_to_array]
-def List.toArray {α : Type u} (as : List α) : Array α :=
+def List.toArray (as : List α) : Array α :=
   as.toArrayAux (Array.mkEmpty as.redLength)
 
 export Array (mkArray)
@@ -502,7 +502,7 @@ namespace Array
 
 -- TODO(Leo): cleanup
 @[specialize]
-partial def isEqvAux {α : Type u} (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
+partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
   if h : i < a.size then
      let aidx : Fin a.size := ⟨i, h⟩;
      let bidx : Fin b.size := ⟨i, hsz ▸ h⟩;
@@ -512,38 +512,38 @@ partial def isEqvAux {α : Type u} (a b : Array α) (hsz : a.size = b.size) (p :
   else
     true
 
-@[inline] def isEqv {α : Type u} (a b : Array α) (p : α → α → Bool) : Bool :=
+@[inline] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
   if h : a.size = b.size then
     isEqvAux a b h p 0
   else
     false
 
-instance {α : Type u} [BEq α] : BEq (Array α) :=
+instance [BEq α] : BEq (Array α) :=
   ⟨fun a b => isEqv a b BEq.beq⟩
 
 @[inline]
-def filter {α : Type u}  (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Array α :=
+def filter (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Array α :=
   as.foldl (init := #[]) (start := start) (stop := stop) fun r a =>
     if p a then r.push a else r
 
 @[inline]
-def filterM {α : Type} {m : Type → Type} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m (Array α) :=
+def filterM [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m (Array α) :=
   as.foldlM (init := #[]) (start := start) (stop := stop) fun r a => do
     if (← p a) then r.push a else r
 
 @[specialize]
-def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : Array α) (start := 0) (stop := as.size) : m (Array β) :=
+def filterMapM [Monad m] (f : α → m (Option β)) (as : Array α) (start := 0) (stop := as.size) : m (Array β) :=
   as.foldlM (init := #[]) (start := start) (stop := stop) fun bs a => do
     match (← f a) with
     | some b => pure (bs.push b)
     | none   => pure bs
 
 @[inline]
-def filterMap {α β : Type u} (f : α → Option β) (as : Array α) (start := 0) (stop := as.size) : Array β :=
+def filterMap (f : α → Option β) (as : Array α) (start := 0) (stop := as.size) : Array β :=
   Id.run <| as.filterMapM f (start := start) (stop := stop)
 
 @[specialize]
-def getMax? {α : Type u} (as : Array α) (lt : α → α → Bool) : Option α :=
+def getMax? (as : Array α) (lt : α → α → Bool) : Option α :=
   if h : 0 < as.size then
     let a0 := as.get ⟨0, h⟩
     some <| as.foldl (init := a0) (start := 1) fun best a =>
@@ -552,7 +552,7 @@ def getMax? {α : Type u} (as : Array α) (lt : α → α → Bool) : Option α 
     none
 
 @[inline]
-def partition {α : Type u} (p : α → Bool) (as : Array α) : Array α × Array α := do
+def partition (p : α → Bool) (as : Array α) : Array α × Array α := do
   let mut bs := #[]
   let mut cs := #[]
   for a in as do
@@ -562,7 +562,7 @@ def partition {α : Type u} (p : α → Bool) (as : Array α) : Array α × Arra
       cs := cs.push a
   return (bs, cs)
 
-theorem ext {α} (a b : Array α)
+theorem ext (a b : Array α)
     (h₁ : a.size = b.size)
     (h₂ : (i : Nat) → (hi₁ : i < a.size) → (hi₂ : i < b.size) → a.get ⟨i, hi₁⟩ = b.get ⟨i, hi₂⟩)
     : a = b := by
@@ -598,7 +598,7 @@ theorem ext {α} (a b : Array α)
   assumption
   assumption
 
-theorem extLit {α : Type u} {n : Nat}
+theorem extLit {n : Nat}
     (a b : Array α)
     (hsz₁ : a.size = n) (hsz₂ : b.size = n)
     (h : (i : Nat) → (hi : i < n) → a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
@@ -609,7 +609,7 @@ end Array
 -- CLEANUP the following code
 namespace Array
 
-partial def indexOfAux {α} [BEq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
+partial def indexOfAux [BEq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
   | i =>
     if h : i < a.size then
       let idx : Fin a.size := ⟨i, h⟩;
@@ -617,10 +617,10 @@ partial def indexOfAux {α} [BEq α] (a : Array α) (v : α) : Nat → Option (F
       else indexOfAux a v (i+1)
     else none
 
-def indexOf? {α} [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
+def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   indexOfAux a v 0
 
-partial def eraseIdxAux {α} : Nat → Array α → Array α
+partial def eraseIdxAux : Nat → Array α → Array α
   | i, a =>
     if h : i < a.size then
       let idx  : Fin a.size := ⟨i, h⟩;
@@ -629,27 +629,27 @@ partial def eraseIdxAux {α} : Nat → Array α → Array α
     else
       a.pop
 
-def feraseIdx {α} (a : Array α) (i : Fin a.size) : Array α :=
+def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
   eraseIdxAux (i.val + 1) a
 
-def eraseIdx {α} (a : Array α) (i : Nat) : Array α :=
+def eraseIdx (a : Array α) (i : Nat) : Array α :=
   if i < a.size then eraseIdxAux (i+1) a else a
 
-theorem sizeSwapEq {α} (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
+theorem sizeSwapEq (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
   show ((a.set i (a.get j)).set (sizeSetEq a i _ ▸ j) (a.get i)).size = a.size
   rw [sizeSetEq, sizeSetEq]
   rfl
 
-theorem sizePopEq {α} (a : Array α) : a.pop.size = a.size - 1 :=
+theorem sizePopEq (a : Array α) : a.pop.size = a.size - 1 :=
   List.lengthDropLast ..
 
 section
 /- Instance for justifying `partial` declaration.
    We should be able to delete it as soon as we restore support for well-founded recursion. -/
-instance eraseIdxSzAuxInstance {α} (a : Array α) : Inhabited { r : Array α // r.size = a.size - 1 } :=
+instance eraseIdxSzAuxInstance (a : Array α) : Inhabited { r : Array α // r.size = a.size - 1 } :=
   ⟨⟨a.pop, sizePopEq a⟩⟩
 
-partial def eraseIdxSzAux {α} (a : Array α) : ∀ (i : Nat) (r : Array α), r.size = a.size → { r : Array α // r.size = a.size - 1 }
+partial def eraseIdxSzAux (a : Array α) : ∀ (i : Nat) (r : Array α), r.size = a.size → { r : Array α // r.size = a.size - 1 }
   | i, r, heq =>
     if h : i < r.size then
       let idx  : Fin r.size := ⟨i, h⟩;
@@ -659,15 +659,15 @@ partial def eraseIdxSzAux {α} (a : Array α) : ∀ (i : Nat) (r : Array α), r.
       ⟨r.pop, (sizePopEq r).trans (heq ▸ rfl)⟩
 end
 
-def eraseIdx' {α} (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
+def eraseIdx' (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
   eraseIdxSzAux a (i.val + 1) a rfl
 
-def erase {α} [BEq α] (as : Array α) (a : α) : Array α :=
+def erase [BEq α] (as : Array α) (a : α) : Array α :=
   match as.indexOf? a with
   | none   => as
   | some i => as.feraseIdx i
 
-partial def insertAtAux {α} (i : Nat) : Array α → Nat → Array α
+partial def insertAtAux (i : Nat) : Array α → Nat → Array α
   | as, j =>
     if i == j then as
     else
@@ -677,20 +677,20 @@ partial def insertAtAux {α} (i : Nat) : Array α → Nat → Array α
 /--
   Insert element `a` at position `i`.
   Pre: `i < as.size` -/
-def insertAt {α} (as : Array α) (i : Nat) (a : α) : Array α :=
+def insertAt (as : Array α) (i : Nat) (a : α) : Array α :=
   if i > as.size then panic! "invalid index"
   else
     let as := as.push a;
     as.insertAtAux i as.size
 
-def toListLitAux {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i ≤ a.size → List α → List α
+def toListLitAux (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i ≤ a.size → List α → List α
   | 0,     hi, acc => acc
   | (i+1), hi, acc => toListLitAux a n hsz i (Nat.leOfSuccLe hi) (a.getLit i hsz (Nat.ltOfLtOfEq (Nat.ltOfLtOfLe (Nat.ltSuccSelf i) hi) hsz) :: acc)
 
-def toArrayLit {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
+def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
   List.toArray <| toListLitAux a n hsz n (hsz ▸ Nat.leRefl _) []
 
-theorem toArrayLitEq {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayLit a n hsz :=
+theorem toArrayLitEq (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayLit a n hsz :=
   -- TODO: this is painful to prove without proper automation
   sorry
   /-
@@ -731,7 +731,7 @@ theorem toArrayLitEq {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) :
   Then using Array.extLit, we have that a = List.toArray <| toListLitAux a n hsz n _ []
   -/
 
-partial def isPrefixOfAux {α : Type u} [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat → Bool
+partial def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat → Bool
   | i =>
     if h : i < as.size then
       let a := as.get ⟨i, h⟩;
@@ -744,29 +744,29 @@ partial def isPrefixOfAux {α : Type u} [BEq α] (as bs : Array α) (hle : as.si
       true
 
 /- Return true iff `as` is a prefix of `bs` -/
-def isPrefixOf  {α : Type u} [BEq α] (as bs : Array α) : Bool :=
+def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
   if h : as.size ≤ bs.size then
     isPrefixOfAux as bs h 0
   else
     false
 
-private def allDiffAuxAux {α} [BEq α] (as : Array α) (a : α) : forall (i : Nat), i < as.size → Bool
+private def allDiffAuxAux [BEq α] (as : Array α) (a : α) : forall (i : Nat), i < as.size → Bool
   | 0,   h => true
   | i+1, h =>
     have i < as.size from Nat.ltTrans (Nat.ltSuccSelf _) h;
     a != as.get ⟨i, this⟩ && allDiffAuxAux as a i this
 
-private partial def allDiffAux {α} [BEq α] (as : Array α) : Nat → Bool
+private partial def allDiffAux [BEq α] (as : Array α) : Nat → Bool
   | i =>
     if h : i < as.size then
       allDiffAuxAux as (as.get ⟨i, h⟩) i h && allDiffAux as (i+1)
     else
       true
 
-def allDiff {α} [BEq α] (as : Array α) : Bool :=
+def allDiff [BEq α] (as : Array α) : Bool :=
   allDiffAux as 0
 
-@[specialize] partial def zipWithAux {α β γ} (f : α → β → γ) (as : Array α) (bs : Array β) : Nat → Array γ → Array γ
+@[specialize] partial def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) : Nat → Array γ → Array γ
   | i, cs =>
     if h : i < as.size then
       let a := as.get ⟨i, h⟩;
@@ -778,10 +778,10 @@ def allDiff {α} [BEq α] (as : Array α) : Bool :=
     else
       cs
 
-@[inline] def zipWith {α β γ} (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
+@[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
   zipWithAux f as bs 0 #[]
 
-def zip {α β} (as : Array α) (bs : Array β) : Array (α × β) :=
+def zip (as : Array α) (bs : Array β) : Array (α × β) :=
   zipWith as bs Prod.mk
 
 end Array

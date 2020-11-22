@@ -908,7 +908,7 @@ private partial def elimMVarDepsAux (xs : Array Expr) (e : Expr) : M Expr :=
               | Except.error ex    => throw ex
               | Except.ok toRevert =>
                 let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
-                let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all $ fun x => inst.fvar != x
+                let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
                 let newMVarType ← mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
                 let newMVarId ← get >>= fun s => pure s.ngen.curr
                 let newMVar      := mkMVar newMVarId

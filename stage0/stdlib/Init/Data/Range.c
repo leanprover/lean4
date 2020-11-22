@@ -40,6 +40,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Std_Range_forIn_loop(lean_object*, lean_object*);
 lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_107____closed__8;
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__14;
+extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3338____closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_107____closed__5;
 lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_107____closed__14;
@@ -105,7 +106,6 @@ lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_154____closed_
 lean_object* l_Std_Range_forIn_loop_match__2(lean_object*);
 lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_331____closed__11;
 extern lean_object* l_Lean_Name_hasMacroScopes___closed__1;
-extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__1;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__3;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_8168____closed__11;
 lean_object* l_Std_Range___kind_term____x40_Init_Data_Range___hyg_107____closed__11;
@@ -460,7 +460,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Range___kind_term____x40_Init_Data_Range___hyg_107____closed__8;
-x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__1;
+x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3338____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

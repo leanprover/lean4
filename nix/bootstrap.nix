@@ -62,7 +62,8 @@ rec {
       inherit (Lean) emacs-dev emacs-package;
       mods = Init.mods // Std.mods // Lean.mods;
       lean = stdenv.mkDerivation {
-        name = "lean-${desc}";
+        # can't use `${desc}` here without breaking `nix run`...
+        name = "lean";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
           ln -sf ${leancpp}/lib/lean/* ${Init.staticLib}/* ${Init.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* $out/lib/lean/

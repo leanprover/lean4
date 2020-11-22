@@ -1,7 +1,8 @@
 { debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeShellScriptBin, bash, lean-emacs, nix, substituteAll }:
 with builtins; let
-  # "Init.Core" ~> "Init/Core.lean"
-  modToLean = mod: replaceStrings ["."] ["/"] mod + ".lean";
+  # "Init.Core" ~> "Init/Core"
+  modToPath = mod: replaceStrings ["."] ["/"] mod;
+  modToLean = mod: modToPath mod + ".lean";
   mkDerivation = args@{ buildCommand, ... }: derivation (args // {
     inherit stdenv;
     inherit (stdenv) system;
@@ -38,6 +39,7 @@ with builtins; let
   };
 in
   { name, src, srcDir ? "", deps }: let
+    srcRoot = src;
     fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
       mkdir $out
       cd $out
@@ -55,19 +57,21 @@ in
       preferLocalBuild = true;
       allowSubstitutes = false;
     };
-    #${lean}/bin/lean --deps ${src}/${modToLean mod} | sed -n "s!$LEAN_PATH/!!;\!^${name}/!{s!/!.!g;s!.olean!!;p}" > $out
     # build module (.olean and .c) given derivations of all (transitive) dependencies
-    buildMod = mod: deps: let relpath = modToLean mod; in mkDerivation {
+    buildMod = mod: deps: mkDerivation rec {
       name = "${mod}";
       LEAN_PATH = depRoot mod deps;
-      inherit relpath;
+      relpath = modToPath mod;
       buildInputs = [ lean ];
+      leanPath = relpath + ".lean";
+      src = srcRoot + ("/" + leanPath);
       outputs = [ "out" "c" ];
-      src = src + ("/" + relpath);
+      oleanPath = relpath + ".olean";
+      cPath = relpath + ".c";
       buildCommand = ''
-        mkdir -p $(dirname $relpath) $out/$(dirname $relpath) $c
-        cp $src $relpath
-        lean -o $out/''${relpath%.lean}.olean -c $c/out.c $relpath
+        mkdir -p $(dirname $relpath) $out/$(dirname $relpath) $c/$(dirname $relpath)
+        cp $src $leanPath
+        lean -o $out/$oleanPath -c $c/$cPath $leanPath
       '';
     } // {
       inherit deps;
@@ -75,12 +79,11 @@ in
     compileMod = mod: drv: mkDerivation {
       name = "${mod}-cc";
       buildInputs = [ leanc ];
-      src = "${drv.c}/out.c";
       hardeningDisable = [ "all" ];
+      oPath = drv.relpath + ".o";
       buildCommand = ''
-        mkdir -p $out
-        ln -s $src out.c
-        leanc -c -o $out/out.o out.c ${if debug then "-g" else "-O3 -DNDEBUG"}
+        mkdir -p $out/$(dirname ${drv.relpath})
+        leanc -c -o $out/$oPath ${drv.c}/${drv.cPath} ${if debug then "-g" else "-O3 -DNDEBUG"}
       '';
     };
     singleton = name: value: listToAttrs [ { inherit name value; } ];
@@ -102,7 +105,7 @@ in
     objects   = mapAttrs compileMod mods;
     staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
       mkdir $out
-      ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/out.o") (attrValues objects))}
+      ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))}
     '';
 
     lean-package = writeShellScriptBin "lean" ''

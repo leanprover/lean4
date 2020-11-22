@@ -29,8 +29,7 @@ instance : FromJson DiagnosticSeverity := ⟨fun j =>
   | some 4 => DiagnosticSeverity.hint
   | _      => none⟩
 
-instance : ToJson DiagnosticSeverity := ⟨fun o =>
-  match o with
+instance : ToJson DiagnosticSeverity := ⟨fun
   | DiagnosticSeverity.error       => 1
   | DiagnosticSeverity.warning     => 2
   | DiagnosticSeverity.information => 3
@@ -40,14 +39,12 @@ inductive DiagnosticCode where
   | int (i : Int)
   | string (s : String)
 
-instance : FromJson DiagnosticCode := ⟨fun j =>
-  match j with
+instance : FromJson DiagnosticCode := ⟨fun
   | num (i : Int) => DiagnosticCode.int i
   | str s         => DiagnosticCode.string s
   | _             => none⟩
 
-instance : ToJson DiagnosticCode := ⟨fun o =>
-  match o with
+instance : ToJson DiagnosticCode := ⟨fun
   | DiagnosticCode.int i    => i
   | DiagnosticCode.string s => s⟩
 
@@ -61,8 +58,7 @@ instance : FromJson DiagnosticTag := ⟨fun j =>
   | some 2 => DiagnosticTag.deprecated
   | _      => none⟩
 
-instance : ToJson DiagnosticTag := ⟨fun o =>
-  match o with
+instance : ToJson DiagnosticTag := ⟨fun
   | DiagnosticTag.unnecessary => (1 : Nat)
   | DiagnosticTag.deprecated  => (2 : Nat)⟩
 

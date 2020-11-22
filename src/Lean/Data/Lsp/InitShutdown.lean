@@ -41,7 +41,7 @@ instance : FromJson Trace := ⟨fun j =>
   | _               => none⟩
 
 instance Trace.hasToJson : ToJson Trace :=
-⟨fun o => match o with
+⟨fun
   | Trace.off => "off"
   | Trace.messages => "messages"
   | Trace.verbose => "verbose"⟩

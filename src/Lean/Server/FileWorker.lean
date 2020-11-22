@@ -55,7 +55,7 @@ private def sendDiagnostics (h : FS.Stream) (uri : DocumentUri) (version : Nat) 
 private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
   IO.eprintln $ "`" ++ text.source.extract s.beginPos (s.endPos-1) ++ "`"
 
-inductive TaskError
+inductive TaskError :=
   | aborted
   | eof
   | ioError (e : IO.Error)
@@ -77,7 +77,7 @@ private def nextCmdSnap (h : FS.Stream) (uri : DocumentUri) (version : Nat) (con
     -- because we cannot guarantee that no further diagnostics are emitted after clearing
     -- them.
     sendDiagnostics h uri version contents snap.msgLog
-    pure snap
+    snap
   | Sum.inr msgLog =>
     sendDiagnostics h uri version contents msgLog
     throw TaskError.eof
@@ -124,7 +124,6 @@ def updateDocument (h : FS.Stream) (uri : DocumentUri) (doc : EditableDocument) 
   -- If e.g. a newline is deleted, it will not restart this file worker, but we still
   -- need to reparse the header so the offsets are correct.
   let newHeaderSnap ← reparseHeader newText.source doc.headerSnap
-
   let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix
   match e? with
   -- this case should not be possible. only the main task aborts tasks and ensures that aborted tasks
@@ -183,12 +182,13 @@ def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
   let docId := p.textDocument
   let changes := p.contentChanges
   let oldDoc ← getDocument
-  let some newVersion ← pure docId.version? | throwServerError "Expected version number"
-  when (newVersion <= oldDoc.version) $ throwServerError "Got outdated version number"
-  when (not changes.isEmpty) $ do
+  let some newVersion ← pure docId.version? 
+    | throwServerError "Expected version number"
+  if newVersion <= oldDoc.version then 
+    throwServerError "Got outdated version number"
+  if ¬ changes.isEmpty then
     let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.text
-    let st ← read
-    let newDoc ← updateDocument st.hOut docId.uri oldDoc minStartOff newVersion newDocText
+    let newDoc ← updateDocument (←read).hOut docId.uri oldDoc minStartOff newVersion newDocText
     setDocument newDoc
 
 def handleCancelRequest (p : CancelParams) : ServerM Unit := do
@@ -210,52 +210,50 @@ def parseParams (paramType : Type) [FromJson paramType] (params : Json) : Server
   | none        => throwServerError $ "Got param with wrong structure: " ++ params.compress
 
 def handleNotification (method : String) (params : Json) : ServerM Unit := do
-  let h := (fun paramType [FromJson paramType] (handler : paramType → ServerM Unit) =>
-    parseParams paramType params >>= handler)
+  let handle := fun paramType [FromJson paramType] (handler : paramType → ServerM Unit) =>
+    parseParams paramType params >>= handler
   match method with
-  | "textDocument/didChange" => h DidChangeTextDocumentParams handleDidChange
-  | "$/cancelRequest"        => h CancelParams handleCancelRequest
+  | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
+  | "$/cancelRequest"        => handle CancelParams handleCancelRequest
   | _                        => throwServerError $ "Got unsupported notification method: " ++ method
 
 def queueRequest {α : Type} (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α)
 : ServerM Unit := do
-  let doc ← getDocument
-  let requestTask ← asTask (handler params doc)
+  let requestTask ← asTask (handler params (←getDocument))
   updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
 def handleRequest (id : RequestID) (method : String) (params : Json)
 : ServerM Unit := do
-  let h := (fun paramType [FromJson paramType]
-                (handler : paramType → EditableDocument → IO Unit) =>
-            parseParams paramType params >>= queueRequest id handler)
+  let handle := fun paramType [FromJson paramType]
+                    (handler : paramType → EditableDocument → IO Unit) =>
+    parseParams paramType params >>= queueRequest id handler
   match method with
-  | "textDocument/hover" => h HoverParams handleHover
+  | "textDocument/hover" => handle HoverParams handleHover
   | _ => throwServerError $ "Got unsupported request: " ++ method ++
                             " params: " ++ toString params
 
-partial def mainLoop : Unit → ServerM Unit := fun () => do
+partial def mainLoop : ServerM Unit := do
   let st ← read
   let msg ← readLspMessage st.hIn
   let pendingRequests ← st.pendingRequestsRef.get
-  let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit) → ServerM PendingRequestMap :=
-    (fun acc id task => do
-      pure $
-        if (← hasFinished task) then acc.erase id
-        else acc)
+  let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit) 
+  → ServerM PendingRequestMap := fun acc id task => do
+    if (←hasFinished task) then acc.erase id
+    else acc
   let pendingRequests ← pendingRequests.foldM filterFinishedTasks pendingRequests
   st.pendingRequestsRef.set pendingRequests
   match msg with
-  | Message.request id method (some params) => do
+  | Message.request id method (some params) =>
     handleRequest id method (toJson params)
-    mainLoop ()
-  | Message.notification "exit" none => do
+    mainLoop
+  | Message.notification "exit" none =>
     -- should be sufficient to shut down the file worker.
     -- references are lost => tasks are marked as cancelled
     -- => all tasks eventually quit
-    pure ()
-  | Message.notification method (some params) => do
+    ()
+  | Message.notification method (some params) =>
     handleNotification method (toJson params)
-    mainLoop ()
+    mainLoop
   | _ => throwServerError "Got invalid JSON-RPC message"
 
 def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
@@ -267,24 +265,23 @@ def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
   let param ← Lsp.readLspNotificationAs i "textDocument/didOpen" DidOpenTextDocumentParams
   let _ ← IO.setStderr e -- TODO(WN): use a stream var in WorkerM instead of global state
   let doc ← openDocument o param
-  let docRef ← IO.mkRef doc
-  let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
-  ReaderT.run (mainLoop ())
-    { hIn := i,
-      hOut := o,
-      docRef := docRef,
-      pendingRequestsRef := pendingRequestsRef
-      : ServerContext }
+  ReaderT.run mainLoop { 
+    hIn := i
+    hOut := o
+    docRef := ←IO.mkRef doc
+    pendingRequestsRef := ←IO.mkRef (RBMap.empty : PendingRequestMap)
+    : ServerContext 
+  }
 
 namespace Test
 
 def runWorkerWithInputFile (fn : String) (searchPath : Option String) : IO Unit := do
   let o ← IO.getStdout
   let e ← IO.getStderr
-  FS.withFile fn FS.Mode.read (fun hFile => do
+  FS.withFile fn FS.Mode.read $ fun hFile => do
     Lean.initSearchPath searchPath
     try Lean.Server.initAndRunWorker (FS.Stream.ofHandle hFile) o e
-    catch err => e.putStrLn (toString err))
+    catch err => e.putStrLn (toString err)
 
 end Test
 end Server

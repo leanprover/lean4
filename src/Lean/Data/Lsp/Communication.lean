@@ -15,17 +15,15 @@ namespace Lsp
 open IO
 open JsonRpc
 
-private def parseHeaderField (s : String) : Option (String × String) :=
-  if s = "" ∨ s.takeRight 2 ≠ "\r\n" then
-    none
-  else
-    let xs := (s.dropRight 2).splitOn ": "
-    match xs with
-    | []  => none
-    | [_] => none
-    | name :: value :: rest =>
-      let value := ": ".intercalate (value :: rest)
-      some ⟨name, value⟩
+private def parseHeaderField (s : String) : Option (String × String) := do
+  guard $ s ≠ "" ∧ s.takeRight 2 = "\r\n"
+  let xs := (s.dropRight 2).splitOn ": "
+  match xs with
+  | []  => none
+  | [_] => none
+  | name :: value :: rest =>
+    let value := ": ".intercalate (value :: rest)
+    some ⟨name, value⟩
 
 private partial def readHeaderFields (h : FS.Stream) : IO (List (String × String)) := do
   let l ← h.getLine
@@ -36,7 +34,7 @@ private partial def readHeaderFields (h : FS.Stream) : IO (List (String × Strin
     | some hf =>
       let tail ← readHeaderFields h
       pure (hf :: tail)
-    | none => throw (userError $ "Invalid header field: " ++ l)
+    | none => throw $ userError ("Invalid header field: " ++ l)
 
 /-- Returns the Content-Length. -/
 private def readLspHeader (h : FS.Stream) : IO Nat := do
@@ -44,8 +42,8 @@ private def readLspHeader (h : FS.Stream) : IO Nat := do
   match fields.lookup "Content-Length" with
   | some length => match length.toNat? with
     | some n => pure n
-    | none   => throw (userError ("Content-Length header value '" ++ length ++ "' is not a Nat"))
-  | none => throw (userError ("No Content-Length header in header fields: " ++ toString fields))
+    | none   => throw $ userError ("Content-Length header value '" ++ length ++ "' is not a Nat")
+  | none => throw $ userError ("No Content-Length header in header fields: " ++ toString fields)
 
 def readLspMessage (h : FS.Stream) : IO Message := do
   let nBytes ← readLspHeader h

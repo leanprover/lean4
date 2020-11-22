@@ -146,21 +146,21 @@ instance : ToJson Message := ⟨fun m =>
 
 instance : FromJson Message := ⟨fun j => do
   let "2.0" ← j.getObjVal? "jsonrpc" | none
-  (do let id ← j.getObjValAs? RequestID "id";
-      let method ← j.getObjValAs? String "method";
-      let params? := j.getObjValAs? Structured "params";
+  (do let id ← j.getObjValAs? RequestID "id"
+      let method ← j.getObjValAs? String "method"
+      let params? := j.getObjValAs? Structured "params"
       pure (Message.request id method params?)) <|>
-  (do let method ← j.getObjValAs? String "method";
-      let params? := j.getObjValAs? Structured "params";
+  (do let method ← j.getObjValAs? String "method"
+      let params? := j.getObjValAs? Structured "params"
       pure (Message.notification method params?)) <|>
-  (do let id ← j.getObjValAs? RequestID "id";
-      let result ← j.getObjVal? "result";
+  (do let id ← j.getObjValAs? RequestID "id"
+      let result ← j.getObjVal? "result"
       pure (Message.response id result)) <|>
-  (do let id ← j.getObjValAs? RequestID "id";
-      let err ← j.getObjVal? "error";
-      let code ← err.getObjValAs? ErrorCode "code";
-      let message ← err.getObjValAs? String "message";
-      let data? := err.getObjVal? "data";
+  (do let id ← j.getObjValAs? RequestID "id"
+      let err ← j.getObjVal? "error"
+      let code ← err.getObjValAs? ErrorCode "code"
+      let message ← err.getObjValAs? String "message"
+      let data? := err.getObjVal? "data"
       pure (Message.responseError id code message data?))⟩
 
 end JsonRpc
@@ -176,7 +176,7 @@ def readMessage (h : FS.Stream) (nBytes : Nat) : IO Message := do
   let j ← h.readJson nBytes
   match fromJson? j with
   | some m => pure m
-  | none   => throw (userError ("JSON '" ++ j.compress ++ "' did not have the format of a JSON-RPC message"))
+  | none   => throw $ userError ("JSON '" ++ j.compress ++ "' did not have the format of a JSON-RPC message")
 
 def readRequestAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α : Type) [FromJson α] : IO (Request α) := do
   let m ← h.readMessage nBytes
@@ -188,11 +188,11 @@ def readRequestAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α :
         let j := toJson params
         match fromJson? j with
         | some v => pure ⟨id, v⟩
-        | none   => throw (userError ("unexpected param '" ++ j.compress  ++ "' for method '" ++ expectedMethod ++ "'"))
-      | none => throw (userError ("unexpected lack of param for method '" ++ expectedMethod ++ "'"))
+        | none   => throw $ userError ("unexpected param '" ++ j.compress  ++ "' for method '" ++ expectedMethod ++ "'")
+      | none => throw $ userError ("unexpected lack of param for method '" ++ expectedMethod ++ "'")
     else
-      throw (userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'"))
-  | _ => throw (userError "expected request, got other type of message")
+      throw $ userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'")
+  | _ => throw $ userError "expected request, got other type of message"
 
 def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α : Type) [FromJson α] : IO α := do
   let m ← h.readMessage nBytes
@@ -201,14 +201,14 @@ def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) 
     if method = expectedMethod then
       match params? with
       | some params =>
-        let j := toJson params;
+        let j := toJson params
         match fromJson? j with
         | some v => pure v
-        | none   => throw (userError ("unexpected param '" ++ j.compress  ++ "' for method '" ++ expectedMethod ++ "'"))
-      | none => throw (userError ("unexpected lack of param for method '" ++ expectedMethod ++ "'"))
+        | none   => throw $ userError ("unexpected param '" ++ j.compress  ++ "' for method '" ++ expectedMethod ++ "'")
+      | none => throw $ userError ("unexpected lack of param for method '" ++ expectedMethod ++ "'")
     else
-      throw (userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'"))
-  | _ => throw (userError "expected notification, got other type of message")
+      throw $ userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'")
+  | _ => throw $ userError "expected notification, got other type of message"
 
 def writeMessage (h : FS.Stream) (m : Message) : IO Unit :=
   h.writeJson (toJson m)

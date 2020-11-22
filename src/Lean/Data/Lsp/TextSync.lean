@@ -26,8 +26,7 @@ instance : FromJson TextDocumentSyncKind := ⟨fun j =>
   | some 2 => TextDocumentSyncKind.incremental
   | _      => none⟩
 
-instance : ToJson TextDocumentSyncKind := ⟨fun o =>
-  match o with
+instance : ToJson TextDocumentSyncKind := ⟨fun
   | TextDocumentSyncKind.none        => 0
   | TextDocumentSyncKind.full        => 1
   | TextDocumentSyncKind.incremental => 2⟩
@@ -46,8 +45,8 @@ structure TextDocumentChangeRegistrationOptions where
   syncKind : TextDocumentSyncKind
 
 instance : FromJson TextDocumentChangeRegistrationOptions := ⟨fun j => do
-  let documentSelector? := j.getObjValAs? DocumentSelector "documentSelector";
-  let syncKind ← j.getObjValAs? TextDocumentSyncKind "syncKind";
+  let documentSelector? := j.getObjValAs? DocumentSelector "documentSelector"
+  let syncKind ← j.getObjValAs? TextDocumentSyncKind "syncKind"
   pure ⟨documentSelector?, syncKind⟩⟩
 
 inductive TextDocumentContentChangeEvent where
@@ -77,7 +76,7 @@ instance : FromJson DidChangeTextDocumentParams := ⟨fun j => do
   pure ⟨textDocument, contentChanges⟩⟩
 
 instance DidChangeTextDocumentParams.hasToJson : ToJson DidChangeTextDocumentParams :=
-⟨fun o => mkObj $ [⟨"textDocument", toJson o.textDocument⟩, ⟨"contentChanges", toJson o.contentChanges⟩]⟩
+  ⟨fun o => mkObj $ [⟨"textDocument", toJson o.textDocument⟩, ⟨"contentChanges", toJson o.contentChanges⟩]⟩
 
 -- TODO: missing:
 -- WillSaveTextDocumentParams, TextDocumentSaveReason,
@@ -96,7 +95,7 @@ instance : FromJson DidCloseTextDocumentParams := ⟨fun j =>
   DidCloseTextDocumentParams.mk <$> j.getObjValAs? TextDocumentIdentifier "textDocument"⟩
 
 instance DidCloseTextDocumentParams.hasToJson : ToJson DidCloseTextDocumentParams :=
-⟨fun o => mkObj $ [⟨"textDocument", toJson o.textDocument⟩]⟩
+  ⟨fun o => mkObj $ [⟨"textDocument", toJson o.textDocument⟩]⟩
 
 -- TODO: TextDocumentSyncClientCapabilities
 

@@ -38,7 +38,7 @@ private def escapeAux (c : Char) (acc : String) : String :=
       Nat.digitChar (n % 16) ].asString ++
     acc
 
-def escape (s : String) : String :=
+def escape (s : String) : String := do
   s.foldr escapeAux ""
 
 def renderString (s : String) : String :=

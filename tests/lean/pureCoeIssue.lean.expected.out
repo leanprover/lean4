@@ -1,0 +1,16 @@
+pureCoeIssue.lean:6:2: error: application type mismatch
+  bind f1
+argument
+  f1
+has type
+  Nat → IO Unit
+but is expected to have type
+  IO ?m
+pureCoeIssue.lean:14:2: error: application type mismatch
+  bind (f2 10)
+argument
+  f2 10
+has type
+  Nat → IO Unit
+but is expected to have type
+  IO ?m

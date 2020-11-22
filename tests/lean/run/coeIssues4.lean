@@ -1,4 +1,4 @@
-
+--
 
 def f : List Int → Bool := fun _ => true
 
@@ -27,8 +27,7 @@ def ex4 :=
 def ex5 (xs : List String) :=
 xs.foldl (fun r x => r.push x) Array.empty
 
-set_option pp.all true
-
+set_option pp.all true in
 #check foo 1
 
 def ex6 :=

@@ -13,15 +13,15 @@ def Vec (α : Type) (n : Nat) := { a : Array α // a.size = n }
 
 def mkVec : Vec α 0 := ⟨ #[], rfl ⟩
 
-def Vec.map (xs : Vec α n) (f : α → β) : Vec α β :=
+def Vec.map (xs : Vec α n) (f : α → β) : Vec β n :=
   ⟨ xs.val.map f, sorry ⟩
 
 /- unbound implicit locals must be greek or lower case letters -/
-def Vec.map2 (xs : Vec α size /- error: unknown identifier size -/) (f : α → β) : Vec α β :=
+def Vec.map2 (xs : Vec α size /- error: unknown identifier size -/) (f : α → β) : Vec β n :=
   ⟨ xs.val.map f, sorry ⟩
 
 set_option unboundImplicitLocal false in
-def Vec.map3 (xs : Vec α n) (f : α → β) : Vec α β := -- Errors, unknown identifiers 'α', 'n', 'β'
+def Vec.map3 (xs : Vec α n) (f : α → β) : Vec β n := -- Errors, unknown identifiers 'α', 'n', 'β'
   ⟨ xs.val.map f, sorry ⟩
 
 def double [Add α] (a : α) := a + a
@@ -40,3 +40,18 @@ def g (a : α) := xs.val.push a
 
 theorem ex3 : g ⟨#[0], rfl⟩ 1 = #[0, 1] :=
   rfl
+
+inductive Tree (α β : Type) :=
+  | leaf1 : α → Tree α β
+  | leaf2 : β → Tree α β
+  | node : Tree α β → Tree α β → Tree α β
+
+inductive TreeElem1 : α → Tree α β → Prop
+  | leaf1     : (a : α) → TreeElem1 a (Tree.leaf1 (β := β) a)
+  | nodeLeft  : (a : α) → (left : Tree α β) → (right : Tree α β) → TreeElem1 a left  → TreeElem1 a (Tree.node left right)
+  | nodeRight : (a : α) → (left : Tree α β) → (right : Tree α β) → TreeElem1 a right → TreeElem1 a (Tree.node left right)
+
+inductive TreeElem2 : β → Tree α β → Prop
+  | leaf2     : (b : β) → TreeElem2 b (Tree.leaf2 (α := α) b)
+  | nodeLeft  : (b : β) → (left : Tree α β) → (right : Tree α β) → TreeElem2 b left  → TreeElem2 b (Tree.node left right)
+  | nodeRight : (b : β) → (left : Tree α β) → (right : Tree α β) → TreeElem2 b right → TreeElem2 b (Tree.node left right)

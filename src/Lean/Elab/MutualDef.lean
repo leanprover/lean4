@@ -94,21 +94,22 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
     let newHeader ← withRef view.ref do
       let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
-      withUnboundImplicitLocal <| withLevelNames levelNames <| elabBinders view.binders.getArgs fun xs => do
-        let refForElabFunType := view.value
-        elabFunType refForElabFunType xs view fun xs type => do
-          let newHeader := {
-            ref           := view.ref,
-            modifiers     := view.modifiers,
-            kind          := view.kind,
-            shortDeclName := shortDeclName,
-            declName      := declName,
-            levelNames    := levelNames,
-            numParams     := xs.size,
-            type          := type,
-            valueStx      := view.value : DefViewElabHeader }
-          check headers newHeader
-          pure newHeader
+      withUnboundImplicitLocal <| withLevelNames levelNames <|
+        elabBinders (catchUnboundImplicit := true) view.binders.getArgs fun xs => do
+          let refForElabFunType := view.value
+          elabFunType refForElabFunType xs view fun xs type => do
+            let newHeader := {
+              ref           := view.ref,
+              modifiers     := view.modifiers,
+              kind          := view.kind,
+              shortDeclName := shortDeclName,
+              declName      := declName,
+              levelNames    := levelNames,
+              numParams     := xs.size,
+              type          := type,
+              valueStx      := view.value : DefViewElabHeader }
+            check headers newHeader
+            pure newHeader
     headers := headers.push newHeader
   pure headers
 

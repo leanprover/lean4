@@ -71,22 +71,22 @@ structure ElabHeaderResult :=
 instance : Inhabited ElabHeaderResult :=
   ⟨{ view := arbitrary _, lctx := arbitrary _, localInsts := arbitrary _, params := #[], type := arbitrary _ }⟩
 
-private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc : Array ElabHeaderResult) : TermElabM (Array ElabHeaderResult) :=
+private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc : Array ElabHeaderResult) : TermElabM (Array ElabHeaderResult) := do
   if h : i < views.size then
-    let view := views.get ⟨i, h⟩;
-    Term.elabBinders view.binders.getArgs fun params => do
-      let lctx ← getLCtx
-      let localInsts ← getLocalInstances
+    let view := views.get ⟨i, h⟩
+    let acc ← Term.withUnboundImplicitLocal <| Term.elabBinders view.binders.getArgs (catchUnboundImplicit := true) fun params => do
       match view.type? with
       | none         =>
         let u ← mkFreshLevelMVar
         let type := mkSort u
-        elabHeaderAux views (i+1) (acc.push { lctx := lctx, localInsts := localInsts, params := params, type := type, view := view })
+        pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params, type := type, view := view }
       | some typeStx =>
-        let type ← Term.elabTerm typeStx none
-        unless (← isTypeFormerType type) do
-          throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
-        elabHeaderAux views (i+1) (acc.push { lctx := lctx, localInsts := localInsts, params := params, type := type, view := view })
+        Term.elabTypeWithUnboundImplicit typeStx fun unboundImplicitFVars type => do
+          unless (← isTypeFormerType type) do
+            throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
+          trace[Meta.debug]! "type: {type}, params: {params}, unboundImplicitFVars: {unboundImplicitFVars}"
+          pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params ++ unboundImplicitFVars, type := type, view := view }
+    elabHeaderAux views (i+1) acc
   else
     pure acc
 

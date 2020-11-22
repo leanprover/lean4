@@ -57,12 +57,6 @@ Pass these along with the `cmake ../..` command.
   Select the C/C++ compilers to use. Official Lean releases currently use Clang;
   see also `.github/workflows/ci.yml` for the CI config.
 
-* `-D CHECK_OLEAN_VERSION=OFF`\
-  The `.olean` files are tagged with the Lean version they were produced with.
-  This means that by default, the core library has to be recompiled after e.g.
-  every `git commit`. Use this option to avoid the version check. The `.olean`
-  files can be removed manually by invoking `make clean-olean`.
-
 Lean will automatically use [CCache](https://ccache.dev/) if available to avoid
 redundant builds, especially after stage 0 has been updated (see below).
 

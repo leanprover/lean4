@@ -157,6 +157,11 @@ def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "
 @[builtinTermParser]
 def «letrec» := parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 
+@[runBuiltinParserAttributeHooks]
+def whereDecls := parser! "where " >> many1Indent (group (optional «attributes» >> letDecl >> optional ";"))
+@[runBuiltinParserAttributeHooks]
+def matchAltsWhereDecls := parser! matchAlts false >> optional whereDecls
+
 @[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
 @[builtinTermParser] def nativeDecide := parser! "nativeDecide!"
 @[builtinTermParser] def decide       := parser! "decide!"

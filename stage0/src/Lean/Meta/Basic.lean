@@ -113,7 +113,7 @@ structure Context :=
 
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
-instance {α} : Inhabited (MetaM α) := {
+instance : Inhabited (MetaM α) := {
   default := fun _ _ => arbitrary _
 }
 
@@ -130,17 +130,17 @@ instance : AddMessageContext MetaM := {
   addMessageContext := addMessageContextFull
 }
 
-@[inline] def MetaM.run {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
+@[inline] def MetaM.run (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
   x ctx |>.run s
 
-@[inline] def MetaM.run' {α} (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM α :=
+@[inline] def MetaM.run' (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM α :=
   Prod.fst <$> x.run ctx s
 
-@[inline] def MetaM.toIO {α} (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := {}) (s : State := {}) : IO (α × Core.State × State) := do
+@[inline] def MetaM.toIO (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := {}) (s : State := {}) : IO (α × Core.State × State) := do
   let ((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore
   pure (a, sCore, s)
 
-instance {α} [MetaEval α] : MetaEval (MetaM α) :=
+instance [MetaEval α] : MetaEval (MetaM α) :=
   ⟨fun env opts x _ => MetaEval.eval env opts x.run' true⟩
 
 protected def throwIsDefEqStuck {α} : MetaM α :=
@@ -150,16 +150,16 @@ builtin_initialize
   registerTraceClass `Meta
   registerTraceClass `Meta.debug
 
-@[inline] def liftMetaM {α m} [MonadLiftT MetaM m] (x : MetaM α) : m α :=
+@[inline] def liftMetaM [MonadLiftT MetaM m] (x : MetaM α) : m α :=
   liftM x
 
-@[inline] def mapMetaM {m} [MonadControlT MetaM m] [Monad m] (f : forall {α}, MetaM α → MetaM α) {α} (x : m α) : m α :=
+@[inline] def mapMetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, MetaM α → MetaM α) {α} (x : m α) : m α :=
   controlAt MetaM fun runInBase => f $ runInBase x
 
-@[inline] def map1MetaM {β m} [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → MetaM α) → MetaM α) {α} (k : β → m α) : m α :=
+@[inline] def map1MetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → MetaM α) → MetaM α) {α} (k : β → m α) : m α :=
   controlAt MetaM fun runInBase => f fun b => runInBase $ k b
 
-@[inline] def map2MetaM {β γ m} [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → γ → MetaM α) → MetaM α) {α} (k : β → γ → m α) : m α :=
+@[inline] def map2MetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → γ → MetaM α) → MetaM α) {α} (k : β → γ → m α) : m α :=
   controlAt MetaM fun runInBase => f fun b c => runInBase $ k b c
 
 section Methods

@@ -275,7 +275,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3;
-x_6 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_5);
+x_6 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, x_5, lean_box(0));
 return x_6;
 }
 }
@@ -449,7 +449,7 @@ x_9 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3;
 x_10 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);
-x_11 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_10);
+x_11 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, x_10, lean_box(0));
 return x_11;
 }
 }

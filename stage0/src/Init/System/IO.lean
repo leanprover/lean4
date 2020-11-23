@@ -185,7 +185,7 @@ def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
   liftM (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
 
 @[inline]
-def withFile {α} (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
+def withFile (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
   Handle.mk fn mode >>= f
 
 /-- returns whether the end of the file has been reached while reading a file.
@@ -257,33 +257,33 @@ def setStdout : FS.Stream → m FS.Stream := liftM ∘ Prim.setStdout
 /-- Replaces the stderr stream of the current thread and returns its previous value. -/
 def setStderr : FS.Stream → m FS.Stream := liftM ∘ Prim.setStderr
 
-def withStdin [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
+def withStdin [MonadFinally m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdin h
   try x finally discard <| setStdin prev
 
-def withStdout [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
+def withStdout [MonadFinally m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdout h
   try
     x
   finally
     discard <| setStdout prev
 
-def withStderr [MonadFinally m] {α} (h : FS.Stream) (x : m α) : m α := do
+def withStderr [MonadFinally m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStderr h
   try x finally discard <| setStderr prev
 
-def print {α} [ToString α] (s : α) : IO Unit := do
+def print [ToString α] (s : α) : IO Unit := do
   let out ← getStdout
   out.putStr <| toString s
 
-def println {α} [ToString α] (s : α) : IO Unit :=
+def println [ToString α] (s : α) : IO Unit :=
   print ((toString s).push '\n')
 
-def eprint {α} [ToString α] (s : α) : IO Unit := do
+def eprint [ToString α] (s : α) : IO Unit := do
   let out ← getStderr
   liftM <| out.putStr <| toString s
 
-def eprintln {α} [ToString α] (s : α) : IO Unit :=
+def eprintln [ToString α] (s : α) : IO Unit :=
   eprint <| toString s |>.push '\n'
 
 @[export lean_io_eprintln]

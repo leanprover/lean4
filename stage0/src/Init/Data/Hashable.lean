@@ -12,20 +12,20 @@ instance : Hashable Nat := {
   hash := fun n => USize.ofNat n
 }
 
-instance {α β} [Hashable α] [Hashable β] : Hashable (α × β) := {
+instance [Hashable α] [Hashable β] : Hashable (α × β) := {
   hash := fun (a, b) => mixHash (hash a) (hash b)
 }
 
-protected def Option.hash {α} [Hashable α] : Option α → USize
+protected def Option.hash [Hashable α] : Option α → USize
   | none   => 11
   | some a => mixHash (hash a) 13
 
-instance {α} [Hashable α] : Hashable (Option α) := {
+instance [Hashable α] : Hashable (Option α) := {
   hash := fun
     | none   => 11
     | some a => mixHash (hash a) 13
 }
 
-instance {α} [Hashable α] : Hashable (List α) := {
+instance [Hashable α] : Hashable (List α) := {
   hash := fun as => as.foldl (fun r a => mixHash r (hash a)) 7
 }

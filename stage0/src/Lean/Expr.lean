@@ -474,20 +474,20 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
 @[inline] def getAppRevArgs (e : Expr) : Array Expr :=
   getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
 
-@[specialize] def withAppAux {α} (k : Expr → Array Expr → α) : Expr → Array Expr → Nat → α
+@[specialize] def withAppAux (k : Expr → Array Expr → α) : Expr → Array Expr → Nat → α
   | app f a _, as, i => withAppAux k f (as.set! i a) (i-1)
   | f,         as, i => k f as
 
-@[inline] def withApp {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
+@[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
   withAppAux k e (mkArray nargs dummy) (nargs-1)
 
-@[specialize] private def withAppRevAux {α} (k : Expr → Array Expr → α) : Expr → Array Expr → α
+@[specialize] private def withAppRevAux (k : Expr → Array Expr → α) : Expr → Array Expr → α
   | app f a _, as => withAppRevAux k f (as.push a)
   | f,         as => k f as
 
-@[inline] def withAppRev {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
+@[inline] def withAppRev (e : Expr) (k : Expr → Array Expr → α) : α :=
   withAppRevAux k e (Array.mkEmpty e.getAppNumArgs)
 
 def getRevArgD : Expr → Nat → Expr → Expr

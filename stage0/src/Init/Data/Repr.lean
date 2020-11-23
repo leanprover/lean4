@@ -18,55 +18,55 @@ class Repr (α : Type u) :=
 export Repr (repr)
 
 -- This instance is needed because `id` is not reducible
-instance {α : Type u} [Repr α] : Repr (id α) :=
+instance [Repr α] : Repr (id α) :=
   inferInstanceAs (Repr α)
 
 instance : Repr Bool :=
   ⟨fun b => cond b "true" "false"⟩
 
-instance {α} [Repr α] : Repr (Id α) :=
+instance [Repr α] : Repr (Id α) :=
   inferInstanceAs (Repr α)
 
-instance {p : Prop} : Repr (Decidable p) := {
+instance : Repr (Decidable p) := {
   repr := fun h => match h with
   | Decidable.isTrue _  => "true"
   | Decidable.isFalse _ => "false"
 }
 
-protected def List.reprAux {α : Type u} [Repr α] : Bool → List α → String
+protected def List.reprAux [Repr α] : Bool → List α → String
   | b,     []    => ""
   | true,  x::xs => repr x ++ List.reprAux false xs
   | false, x::xs => ", " ++ repr x ++ List.reprAux false xs
 
-protected def List.repr {α : Type u} [Repr α] : List α → String
+protected def List.repr [Repr α] : List α → String
   | []    => "[]"
   | x::xs => "[" ++ List.reprAux true (x::xs) ++ "]"
 
-instance {α : Type u} [Repr α] : Repr (List α) :=
+instance [Repr α] : Repr (List α) :=
   ⟨List.repr⟩
 
 instance : Repr PUnit.{u+1} :=
   ⟨fun u => "PUnit.unit"⟩
 
-instance {α : Type u} [Repr α] : Repr (ULift.{v} α) :=
+instance [Repr α] : Repr (ULift.{v} α) :=
   ⟨fun v => "ULift.up (" ++ repr v.1 ++ ")"⟩
 
 instance : Repr Unit :=
   ⟨fun u => "()"⟩
 
-instance {α : Type u} [Repr α] : Repr (Option α) :=
+instance [Repr α] : Repr (Option α) :=
   ⟨fun | none => "none" | (some a) => "(some " ++ repr a ++ ")"⟩
 
-instance {α : Type u} {β : Type v} [Repr α] [Repr β] : Repr (Sum α β) :=
+instance [Repr α] [Repr β] : Repr (Sum α β) :=
   ⟨fun | (inl a) => "(inl " ++ repr a ++ ")" | (inr b) => "(inr " ++ repr b ++ ")"⟩
 
-instance {α : Type u} {β : Type v} [Repr α] [Repr β] : Repr (α × β) :=
+instance [Repr α] [Repr β] : Repr (α × β) :=
   ⟨fun ⟨a, b⟩ => "(" ++ repr a ++ ", " ++ repr b ++ ")"⟩
 
-instance {α : Type u} {β : α → Type v} [Repr α] [s : ∀ x, Repr (β x)] : Repr (Sigma β) :=
+instance {β : α → Type v} [Repr α] [s : (x : α) → Repr (β x)] : Repr (Sigma β) :=
   ⟨fun ⟨a, b⟩ => "⟨"  ++ repr a ++ ", " ++ repr b ++ "⟩"⟩
 
-instance {α : Type u} {p : α → Prop} [Repr α] : Repr (Subtype p) :=
+instance {p : α → Prop} [Repr α] : Repr (Subtype p) :=
   ⟨fun s => repr (val s)⟩
 
 namespace Nat

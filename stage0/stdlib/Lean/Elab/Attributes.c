@@ -366,7 +366,7 @@ x_14 = l_Lean_Elab_elabAttr___rarg___lambda__3___closed__3;
 x_15 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
-x_16 = l_Lean_throwError___rarg(x_2, x_5, x_6, x_7, lean_box(0), x_15);
+x_16 = l_Lean_throwError___rarg(x_2, x_5, x_6, x_7, x_15, lean_box(0));
 x_17 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_16, x_9);
 return x_17;
 }
@@ -465,7 +465,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 x_12 = l_Lean_Elab_elabAttr___rarg___closed__3;
 lean_inc(x_4);
-x_13 = l_Lean_throwError___rarg(x_1, x_3, x_4, x_5, lean_box(0), x_12);
+x_13 = l_Lean_throwError___rarg(x_1, x_3, x_4, x_5, x_12, lean_box(0));
 x_14 = lean_ctor_get(x_4, 0);
 lean_inc(x_14);
 x_15 = lean_alloc_closure((void*)(l_Lean_withRef___rarg___lambda__1___boxed), 4, 3);

@@ -129,16 +129,16 @@ def matchAlts (optionalFirstBar := true) : Parser :=
 withPosition $ fun pos =>
   (if optionalFirstBar then optional "| " else "| ") >>
   sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
-def declValSimple    := parser! " := " >> termParser
-def declValEqns      := parser! Term.matchAlts false
+def declValSimple    := parser! " :=\n" >> termParser >> optional Term.whereDecls
+def declValEqns      := parser! Term.matchAltsWhereDecls
 def declVal          := declValSimple <|> declValEqns
 ```
 -/
 private def declValToTerm (declVal : Syntax) : MacroM Syntax :=
   if declVal.isOfKind `Lean.Parser.Command.declValSimple then
-    pure declVal[1]
+    return expandWhereDeclsOpt declVal declVal[2] declVal[1]
   else if declVal.isOfKind `Lean.Parser.Command.declValEqns then
-    expandMatchAltsIntoMatch declVal declVal[0]
+    expandMatchAltsWhereDecls declVal declVal[0]
   else
     Macro.throwErrorAt declVal "unexpected definition value"
 

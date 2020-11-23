@@ -55,7 +55,6 @@ rec {
       desc = "stage${toString stage}";
       build = buildLeanPackage.override { lean = prevStage; lean-final = self; };
     in (all: all // all.lean) rec {
-      inherit leancpp;
       Init = build { name = "Init"; src = ../src; srcDir = "/src"; deps = {}; };
       Std  = build { name = "Std";  src = ../src; srcDir = "/src"; deps = { inherit Init; }; };
       Lean = build { name = "Lean"; src = ../src; srcDir = "/src"; deps = { inherit Init Std; }; };

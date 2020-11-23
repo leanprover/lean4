@@ -12,8 +12,10 @@
 - [Tactics](./tactics.md)
 - [String interpolation](./stringinterp.md)
 
-# Tools
+# Other
 
+- [Frequently Asked Questions](./faq.md)
+- [Significant Changes from Lean 3](./lean3changes.md)
 - [Syntax Highlighting Lean in LaTeX](./syntax_highlight_in_latex.md)
 
 # Development
@@ -25,8 +27,3 @@
   - [Windows Setup](./make/msys2.md)
 - [Building This Manual](./mdbook.md)
 - [Fixing Tests](./fixing_tests.md)
-
-# Other
-
-- [Frequently Asked Questions](./faq.md)
-- [Significant Changes from Lean 3](./lean3changes.md)

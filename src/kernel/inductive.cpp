@@ -70,10 +70,7 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
     return optional<recursor_rule>();
 }
 
-/* Auxiliary class for adding a mutual inductive datatype declaration.
-
-   \remak It does not support nested inductive datatypes. The helper
-   class elim_nested_inductive_fn should be used as a preprocessing step. */
+/* Auxiliary class for adding a mutual inductive datatype declaration. */
 class add_inductive_fn {
     environment            m_env;
     name_generator         m_ngen;

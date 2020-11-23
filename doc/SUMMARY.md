@@ -8,8 +8,8 @@
 - [Functions](./functions.md)
 - [Sections](./sections.md)
 - [Namespaces](./namespaces.md)
+- [The `do` Notation](./do.md)
 - [String interpolation](./stringinterp.md)
-- [The `do` Notation]()
 
 # Tools
 

@@ -1114,7 +1114,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'universe universes variable variables ' +
       'import open theory prelude renaming hiding exposing ' +
       'calc  match with do by let extends ' +
-      'for in unless try catch finally mutual ' +
+      'for in unless try catch finally mutual mut return continue break where' +
       'fun ' +
       '#check #eval #reduce #print ' +
       'section namespace end',
@@ -1130,7 +1130,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'contradiction by_contradiction by_contra trivial exfalso ' +
       'symmetry transitivity destruct constructor econstructor ' +
       'left right split injection injections ' +
-      'repeat try continue skip swap solve1 abstract all_goals any_goals done ' +
+      'repeat skip swap solve1 abstract all_goals any_goals done ' +
       'fail_if_success success_if_fail guard_target guard_hyp ' +
       'have replace at suffices show from ' +
       'congr congr_n congr_arg norm_num ring ',

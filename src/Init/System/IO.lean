@@ -28,43 +28,43 @@ def IO.RealWorld : Type := Unit
 -/
 def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
-@[inline] def EIO.catchExceptions {α ε} (x : EIO ε α) (h : ε → EIO Empty α) : EIO Empty α :=
+@[inline] def EIO.catchExceptions (x : EIO ε α) (h : ε → EIO Empty α) : EIO Empty α :=
   fun s => match x s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
   | EStateM.Result.error ex s => h ex s
 
-instance (ε : Type) : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
-instance (ε : Type) : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
-instance (ε : Type) : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
-instance (α ε : Type) : OrElse (EIO ε α) := ⟨MonadExcept.orelse⟩
-instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
+instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
+instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
+instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
+instance : OrElse (EIO ε α) := ⟨MonadExcept.orelse⟩
+instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
 
 open IO (Error) in
 abbrev IO : Type → Type := EIO Error
 
-@[inline] def EIO.toIO {α ε} (f : ε → IO.Error) (x : EIO ε α) : IO α :=
+@[inline] def EIO.toIO (f : ε → IO.Error) (x : EIO ε α) : IO α :=
   x.adaptExcept f
 
-@[inline] def EIO.toIO' {α ε} (x : EIO ε α) : IO (Except ε α) :=
+@[inline] def EIO.toIO' (x : EIO ε α) : IO (Except ε α) :=
   EIO.toIO (fun _ => unreachable!) (observing x)
 
-@[inline] def IO.toEIO {α ε} (f : IO.Error → ε) (x : IO α) : EIO ε α :=
+@[inline] def IO.toEIO (f : IO.Error → ε) (x : IO α) : EIO ε α :=
   x.adaptExcept f
 
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
    represents the "initial world". We don't want to cache this closed term. So, we disable
    the "extract closed terms" optimization. -/
 set_option compiler.extract_closed false in
-@[inline] unsafe def unsafeEIO {ε α : Type} (fn : EIO ε α) : Except ε α :=
+@[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
   match fn.run () with
   | EStateM.Result.ok a _    => Except.ok a
   | EStateM.Result.error e _ => Except.error e
 
-@[inline] unsafe def unsafeIO {α : Type} (fn : IO α) : Except IO.Error α :=
+@[inline] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
   unsafeEIO fn
 
-@[extern "lean_io_timeit"] constant timeit {α : Type} (msg : @& String) (fn : IO α) : IO α
-@[extern "lean_io_allocprof"] constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α
+@[extern "lean_io_timeit"] constant timeit (msg : @& String) (fn : IO α) : IO α
+@[extern "lean_io_allocprof"] constant allocprof (msg : @& String) (fn : IO α) : IO α
 
 /- Programs can execute IO actions during initialization that occurs before
    the `main` function is executed. The attribute `[init <action>]` specifies
@@ -75,12 +75,12 @@ set_option compiler.extract_closed false in
 
 namespace IO
 
-def ofExcept {ε α : Type} [ToString ε] (e : Except ε α) : IO α :=
+def ofExcept [ToString ε] (e : Except ε α) : IO α :=
   match e with
   | Except.ok a    => pure a
   | Except.error e => throw (IO.userError (toString e))
 
-def lazyPure {α : Type} (fn : Unit → α) : IO α :=
+def lazyPure (fn : Unit → α) : IO α :=
   pure (fn ())
 
 /--
@@ -91,30 +91,30 @@ def lazyPure {α : Type} (fn : Unit → α) : IO α :=
   to the task is dropped. `act` should manually check for cancellation via `IO.checkInterrupt` if it wants to react
   to that. -/
 @[extern "lean_io_as_task"]
-constant asTask {α : Type} (act : IO α) (prio := Task.Priority.default) : IO (Task (Except IO.Error α))
+constant asTask (act : IO α) (prio := Task.Priority.default) : IO (Task (Except IO.Error α))
 
 /-- See `IO.asTask`. -/
 @[extern "lean_io_map_task"]
-constant mapTask {α β : Type} (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
+constant mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
 
 /-- See `IO.asTask`. -/
 @[extern "lean_io_bind_task"]
-constant bindTask {α β : Type} (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
+constant bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
 
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
 @[extern "lean_io_check_canceled"] constant checkCanceled : IO Bool
 
 /-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
-@[extern "lean_io_cancel"] constant cancel {α : Type} : @& Task α → IO Unit
+@[extern "lean_io_cancel"] constant cancel : @& Task α → IO Unit
 
 /-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
-@[extern "lean_io_has_finished"] constant hasFinished {α : Type} : @& Task α → IO Unit
+@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → IO Unit
 
 /-- Wait for the task to finish, then return its result. -/
-@[extern "lean_io_wait"] constant wait {α : Type} : Task α → IO α
+@[extern "lean_io_wait"] constant wait : Task α → IO α
 
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
-@[extern "lean_io_wait_any"] constant waitAny {α : Type} : @& List (Task α) → IO α
+@[extern "lean_io_wait_any"] constant waitAny : @& List (Task α) → IO α
 
 inductive FS.Mode :=
   | read | write | readWrite | append
@@ -143,7 +143,7 @@ open FS
 @[extern "lean_get_set_stdout"] constant setStdout : FS.Stream → IO FS.Stream
 @[extern "lean_get_set_stderr"] constant setStderr : FS.Stream → IO FS.Stream
 
-@[specialize] partial def iterate {α β : Type} (a : α) (f : α → IO (Sum α β)) : IO β := do
+@[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
   let v ← f a
   match v with
   | Sum.inl a => iterate a f
@@ -179,7 +179,7 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
 end Prim
 
 namespace FS
-variables {m : Type → Type} [Monad m] [MonadLiftT IO m]
+variables [Monad m] [MonadLiftT IO m]
 
 def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
   liftM (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
@@ -242,7 +242,7 @@ end Stream
 end FS
 
 section
-variables {m : Type → Type} [Monad m] [MonadLiftT IO m]
+variables [Monad m] [MonadLiftT IO m]
 
 def getStdin : m FS.Stream := liftM Prim.getStdin
 def getStdout : m FS.Stream := liftM Prim.getStdout
@@ -392,12 +392,12 @@ def setAccessRights (filename : String) (mode : FileRight) : IO Unit :=
 /- References -/
 abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
-instance {ε} : MonadLift (ST IO.RealWorld) (EIO ε) := ⟨fun x s =>
+instance : MonadLift (ST IO.RealWorld) (EIO ε) := ⟨fun x s =>
   match x s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
   | EStateM.Result.error ex _ => nomatch ex⟩
 
-def mkRef {α : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST IO.RealWorld) m] (a : α) : m (IO.Ref α) :=
+def mkRef [Monad m] [MonadLiftT (ST IO.RealWorld) m] (a : α) : m (IO.Ref α) :=
   ST.mkRef a
 
 namespace FS
@@ -439,7 +439,7 @@ def ofBuffer (r : Ref Buffer) : Stream := {
 end Stream
 
 /-- Run action with `stdin` emptied and `stdout+stderr` captured into a `String`. -/
-def withIsolatedStreams {α : Type} (x : IO α) : IO (String × Except IO.Error α) := do
+def withIsolatedStreams (x : IO α) : IO (String × Except IO.Error α) := do
   let bIn ← mkRef { : Stream.Buffer }
   let bOut ← mkRef { : Stream.Buffer }
   let r ← withStdin (Stream.ofBuffer bIn) <|
@@ -464,19 +464,19 @@ class Eval (α : Type u) :=
   -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbgTrace!`)
   (eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit)
 
-instance {α : Type u} [ToString α] : Eval α :=
+instance [ToString α] : Eval α :=
   ⟨fun a _ => IO.println (toString (a ()))⟩
 
-instance {α : Type u} [Repr α] : Eval α :=
+instance [Repr α] : Eval α :=
   ⟨fun a _ => IO.println (repr (a ()))⟩
 
 instance : Eval Unit :=
   ⟨fun u hideUnit => if hideUnit then pure () else IO.println (repr (u ()))⟩
 
-instance {α : Type} [Eval α] : Eval (IO α) :=
+instance [Eval α] : Eval (IO α) :=
   ⟨fun x _ => do let a ← x (); Eval.eval (fun _ => a)⟩
 
-@[noinline, nospecialize] def runEval {α : Type u} [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
+@[noinline, nospecialize] def runEval [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
   IO.FS.withIsolatedStreams (Eval.eval a false)
 
 end Lean

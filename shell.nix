@@ -1,13 +1,11 @@
 let
   flakePkgs = (import ./default.nix).packages.${builtins.currentSystem};
-  pkgs = flakePkgs.nixpkgs;
-in
-# use `shell` as default
+in { pkgs ? flakePkgs.nixpkgs }:
+  # use `shell` as default
   (attribs: attribs.shell // attribs) rec {
   inherit (flakePkgs) temci;
   shell = pkgs.mkShell.override { stdenv = pkgs.overrideCC pkgs.stdenv (flakePkgs.cc.override { extraConfig = ""; }); } rec {
-    inputsFrom = [ flakePkgs.lean.leancpp ];
-    buildInputs = with pkgs; [ temci ccache ];
+    buildInputs = with pkgs; [ cmake (gmp.override { withStatic = true; }) ccache temci ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     # more convenient `ctest` output

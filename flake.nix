@@ -88,8 +88,7 @@
     in rec {
       packages = {
         inherit cc lean4-mode buildLeanPackage;
-        inherit (lean) stage0 stage1 stage2 stage3;
-        inherit (lean.stage1) lean mods Init Std Lean test emacs-dev emacs-package update-stage0 update-stage0-commit;
+        lean = lean.stage1;
         temci = (import temci {}).override { doCheck = false; };
         nix = nix-pinned;
         nixpkgs = nixpkgs.legacyPackages.${system};
@@ -101,7 +100,7 @@
         '';
         mdbook = lean-mdbook;
         inherit doc doc-test;
-      };
+      } // lean.stage1 // lean;
 
       defaultPackage = packages.lean;
 

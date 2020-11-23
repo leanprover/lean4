@@ -23,6 +23,7 @@
   - [Ubuntu Setup](./make/ubuntu-16.04.md)
   - [macOS Setup](./make/osx-10.9.md)
   - [Windows Setup](./make/msys2.md)
+  - [Nix Setup (*Experimental*)](./make/nix.md)
 - [Building This Manual](./mdbook.md)
 - [Fixing Tests](./fixing_tests.md)
 

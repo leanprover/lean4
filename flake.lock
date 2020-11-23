@@ -31,6 +31,22 @@
         "type": "github"
       }
     },
+    "mdBook": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1604075551,
+        "narHash": "sha256-+8jZBoGd8Rts0U1gNgN2tngRbf+amgLyJG5pSniGpZk=",
+        "owner": "leanprover",
+        "repo": "mdBook",
+        "rev": "2320d15253555b971166c500d6414bb2e5fed072",
+        "type": "github"
+      },
+      "original": {
+        "owner": "leanprover",
+        "repo": "mdBook",
+        "type": "github"
+      }
+    },
     "nix": {
       "inputs": {
         "lowdown-src": "lowdown-src",
@@ -84,6 +100,7 @@
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
+        "mdBook": "mdBook",
         "nix": "nix",
         "nixpkgs": "nixpkgs_2",
         "temci": "temci"

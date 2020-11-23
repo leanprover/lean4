@@ -8,8 +8,12 @@
     flake = false;
   };
   inputs.nix.url = github:NixOS/nix;
+  inputs.mdBook = {
+    url = github:leanprover/mdBook;
+    flake = false;
+  };
 
-  outputs = { self, nixpkgs, flake-utils, temci, nix }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, temci, nix, mdBook }: flake-utils.lib.eachDefaultSystem (system:
     with nixpkgs.legacyPackages.${system};
     let
       nix-pinned = writeShellScriptBin "nix" ''
@@ -49,6 +53,38 @@
       };
       lean-emacs = emacsWithPackages (epkgs:
         with epkgs; [ dash dash-functional f flycheck s ] ++ [ lean4-mode ]);
+      lean-mdbook = mdbook.overrideAttrs (drv: rec {
+        name = "lean-${mdbook.name}";
+        src = mdBook;
+        cargoDeps = drv.cargoDeps.overrideAttrs (_: {
+          inherit src;
+          outputHash = "sha256-BTm76YxY/tI4Pg53UbR+7KiQydb9L0FGYNZ0UKGyacw=";
+        });
+        doCheck = false;
+      });
+      doc = stdenv.mkDerivation {
+        name ="lean-doc";
+        src = ./doc;
+        buildInputs = [ lean-mdbook ];
+        buildCommand = ''
+          mdbook build -d $out $src
+        '';
+      };
+      # We use a separate derivation instead of `checkPhase` so we can push it but not `doc` to the binary cache
+      doc-test = stdenv.mkDerivation {
+        name ="lean-doc-test";
+        src = ./doc;
+        buildInputs = [ lean-mdbook lean.stage1 strace ];
+        patchPhase = ''
+          patchShebangs test
+        '';
+        buildPhase = ''
+          ./test
+          mdbook test
+          touch $out
+        '';
+        dontInstall = true;
+      };
     in rec {
       packages = {
         inherit cc lean4-mode buildLeanPackage;
@@ -63,6 +99,8 @@
           # prefix lines with cumulative and individual execution time
           "$@" |& ts -i "(%.S)]" | ts -s "[%M:%S"
         '';
+        mdbook = lean-mdbook;
+        inherit doc doc-test;
       };
 
       defaultPackage = packages.lean;

@@ -81,5 +81,18 @@ jobs:
         run: |
           nix build -v --print-build-logs .#test
           cachix push -j4 lean4 ./result
+      - name: Build manual
+        run: |
+          nix build .#mdbook .#doc-test
+          cachix push -j4 lean4 ./result*
+          nix build .#doc
+        if: matrix.name == 'Linux'
+      - name: Publish manual
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./result
+          destination_dir: ./doc
+        if: matrix.name == 'Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
       - name: CCache stats
         run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s

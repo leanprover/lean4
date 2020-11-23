@@ -36,10 +36,7 @@ def declId           := parser! ident >> optional (".{" >> sepBy1 ident ", " >> 
 def declSig          := parser! many (ppSpace >> (Term.simpleBinderWithoutType <|> Term.bracketedBinder)) >> Term.typeSpec
 def optDeclSig       := parser! many (ppSpace >> (Term.simpleBinderWithoutType <|> Term.bracketedBinder)) >> Term.optType
 def declValSimple    := parser! " :=\n" >> termParser >> optional Term.whereDecls
-def declValEqns      := parser!
-  (checkInsideQuot >> Term.matchAltsWhereDecls)
-  <|>
-  (checkOutsideQuot >> Term.matchAlts false)
+def declValEqns      := parser! Term.matchAltsWhereDecls
 def declVal          := declValSimple <|> declValEqns
 def «abbrev»         := parser! "abbrev " >> declId >> optDeclSig >> declVal
 def «def»            := parser! "def " >> declId >> optDeclSig >> declVal

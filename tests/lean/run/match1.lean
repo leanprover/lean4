@@ -1,5 +1,3 @@
-
-
 def f (xs : List Nat) : List Bool :=
 xs.map fun
   | 0 => true
@@ -13,7 +11,7 @@ rfl
 #check f
 
 def g (xs : List Nat) : List Bool :=
-xs.map $ by {
+xs.map <| by {
   intro
     | 0 => exact true
     | _ => exact false

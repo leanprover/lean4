@@ -1114,17 +1114,18 @@ hljs.registerLanguage("lean", function(hljs) {
       'universe universes variable variables ' +
       'import open theory prelude renaming hiding exposing ' +
       'calc  match with do by let extends ' +
-      'for in unless try catch finally mutual mut return continue break where' +
+      'for in unless try catch finally mutual mut return continue break where rec ' +
+      'syntax macro_rules ' +
       'fun ' +
       '#check #eval #reduce #print ' +
       'section namespace end',
     built_in:
       'Type Prop|10 Sort rw|10 rewrite rwa erw subst substs ' +
-      'simp dsimp simpa simp_intros finish ' +
+      'simp dsimp simpa simp_intros finish using generalizing ' +
       'unfold unfold1 dunfold unfold_projs unfold_coes ' +
       'delta cc ac_reflexivity ac_refl ' +
       'existsi|10 cases rcases intro intros introv by_cases ' +
-      'refl rfl funext propext exact exacts ' +
+      'refl rfl funext case focus propext exact exacts ' +
       'refine apply eapply fapply apply_with apply_instance ' +
       'induction rename assumption revert generalize specialize clear ' +
       'contradiction by_contradiction by_contra trivial exfalso ' +

@@ -9,6 +9,7 @@
 - [Sections](./sections.md)
 - [Namespaces](./namespaces.md)
 - [The `do` Notation](./do.md)
+- [Tactics](./tactics.md)
 - [String interpolation](./stringinterp.md)
 
 # Tools

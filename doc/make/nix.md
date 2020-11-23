@@ -19,7 +19,7 @@ extra-trusted-public-keys = lean4.cachix.org-1:mawtxSxcaiWE24xCXXgh3qnvlTkyU7evR
 The [Cachix](https://cachix.org/) integration will magically beam any build steps already executed by the CI right onto your machine when calling Nix commands in the shell opened above.
 On top of the local and remote Nix cache, we do still rely on CCache as well to make C/C++ build steps incremental, which are atomic steps from Nix's point of view.
 If you add the `extra-sandbox-paths` line above, you **must** also set up that directory as follows:
-```
+```bash
 sudo mkdir -m0770 -p /nix/var/cache/ccache
 # macOS standard chown doesn't support --reference
 nix shell .#nixpkgs.coreutils -c sudo chown --reference=/nix/store /nix/var/cache/ccache

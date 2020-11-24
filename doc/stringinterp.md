@@ -41,9 +41,9 @@ def vals := [1, 2, 3]
 You can define a `ToString` instance for your own datatypes.
 
 ```lean
-structure Person :=
-  (name : String)
-  (age  : Nat)
+structure Person where
+  name : String
+  age  : Nat
 
 instance : ToString Person where
   toString : Person -> String

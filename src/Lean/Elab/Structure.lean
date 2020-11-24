@@ -135,15 +135,20 @@ def checkValidFieldModifier (modifiers : Modifiers) : CommandElabM Unit := do
 
 /-
 ```
-def structExplicitBinder := parser! try (declModifiers >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
-def structImplicitBinder := parser! try (declModifiers >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
-def structInstBinder     := parser! try (declModifiers >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
+def structExplicitBinder := parser! atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
+def structImplicitBinder := parser! atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
+def structInstBinder     := parser! atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
+def structSimpleBinder   := parser! atomic (declModifiers true >> many1 ident) >> optional inferMod >> optDeclSig >> optional Term.binderDefault
 def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
 private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM (Array StructFieldView) :=
   let fieldBinders := if structStx[5].isNone then #[] else structStx[5][2][0].getArgs
   fieldBinders.foldlM (init := #[]) fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do
+    let mut fieldBinder := fieldBinder
+    if fieldBinder.getKind == `Lean.Parser.Command.structSimpleBinder then
+      fieldBinder := Syntax.node `Lean.Parser.Command.structExplicitBinder
+        #[ fieldBinder[0], mkAtomFrom fieldBinder "(", fieldBinder[1], fieldBinder[2], fieldBinder[3], fieldBinder[4], mkAtomFrom fieldBinder ")" ]
     let k := fieldBinder.getKind
     let binfo ←
       if k == `Lean.Parser.Command.structExplicitBinder then pure BinderInfo.default
@@ -178,12 +183,12 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         throwError! "invalid field name '{name}', identifiers starting with '_' are reserved to the system"
       let declName := structDeclName ++ name
       let declName ← applyVisibility fieldModifiers.visibility declName
-      pure $ views.push {
+      return views.push {
         ref        := ident,
         modifiers  := fieldModifiers,
         binderInfo := binfo,
         inferMod   := inferMod,
-         declName   := declName,
+        declName   := declName,
         name       := name,
         binders    := binders,
         type?      := type?,

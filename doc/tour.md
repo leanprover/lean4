@@ -84,7 +84,7 @@ theorem twiceAdd2 (a : Nat) : twice (fun x => x + 2) a = a + 4 :=
 
 -- An enumerated type is a special case of inductive type in Lean
 -- The following command creates a new type `Weekday`
-inductive Weekday :=
+inductive Weekday where
   | sunday    : Weekday
   | monday    : Weekday
   | tuesday   : Weekday

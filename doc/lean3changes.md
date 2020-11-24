@@ -24,8 +24,8 @@ In Lean 4, one can easily create new notation that abbreviates commonly used idi
 def Prod.str : Nat × Nat → String :=
   fun (a, b) => "(" ++ toString a ++ ", " ++ toString b ++ ")"
 
-structure Point :=
-  (x y z : Nat)
+structure Point where
+  x y z : Nat
 
 def Point.addX : Point → Point → Nat :=
   fun { x := a, .. } { x := b, .. } =>  a+b
@@ -173,7 +173,7 @@ example (x y : α) : g x y = fun (c : α) => x + y + c := rfl
 In Lean 4, we can use `..` to provide missing explicit arguments as `_`.
 This feature combined with named arguments is useful for writing patterns. Here is an example:
 ```lean
-inductive Term
+inductive Term where
   | var    (name : String)
   | num    (val : Nat)
   | add    (fn : Term) (arg : Term)

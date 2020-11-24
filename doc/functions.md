@@ -26,9 +26,9 @@ the function body is `x + 1`, and the return value is of type `Nat`.
 The following example defines the factorial recursive function using pattern matching.
 ```lean
 def fact x :=
- match x with
- | 0   => 1
- | n+1 => (n+1) * fact n
+  match x with
+  | 0   => 1
+  | n+1 => (n+1) * fact n
 
 #eval fact 100
 ```

@@ -59,11 +59,10 @@ variables {ε : Type u}
   | Except.ok a    => Except.ok a
   | Except.error e => handle e
 
-instance : Monad (Except ε) := {
+instance : Monad (Except ε) where
   pure := Except.pure
   bind := Except.bind
   map  := Except.map
-}
 
 end Except
 
@@ -105,31 +104,27 @@ instance : MonadLift m (ExceptT ε m) := ⟨ExceptT.lift⟩
 
 instance : MonadFunctor m (ExceptT ε m) := ⟨fun f x => f x⟩
 
-instance : Monad (ExceptT ε m) := {
+instance : Monad (ExceptT ε m) where
   pure := ExceptT.pure
   bind := ExceptT.bind
   map  := ExceptT.map
-}
 
 @[inline] protected def adapt {ε' α : Type u} (f : ε → ε') : ExceptT ε m α → ExceptT ε' m α := fun x =>
   ExceptT.mk <| Except.mapError f <$> x
 
 end ExceptT
 
-instance (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [Monad m] [MonadExceptOf ε₁ m] : MonadExceptOf ε₁ (ExceptT ε₂ m) := {
-  throw    := fun e        => ExceptT.mk <| throwThe ε₁ e
-  tryCatch := fun x handle => ExceptT.mk <| tryCatchThe ε₁ x handle
-}
+instance (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [Monad m] [MonadExceptOf ε₁ m] : MonadExceptOf ε₁ (ExceptT ε₂ m) where
+  throw e := ExceptT.mk <| throwThe ε₁ e
+  tryCatch x handle := ExceptT.mk <| tryCatchThe ε₁ x handle
 
-instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (ExceptT ε m) := {
-  throw    := fun e => ExceptT.mk <| pure (Except.error e)
+instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (ExceptT ε m) where
+  throw e := ExceptT.mk <| pure (Except.error e)
   tryCatch := ExceptT.tryCatch
-}
 
-instance (ε) : MonadExceptOf ε (Except ε) := {
+instance (ε) : MonadExceptOf ε (Except ε) where
   throw    := Except.error
   tryCatch := Except.tryCatch
-}
 
 namespace MonadExcept
 variables {ε : Type u} {m : Type v → Type w}
@@ -144,11 +139,10 @@ end MonadExcept
 @[inline] def observing {ε α : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) : m (Except ε α) :=
   tryCatch (do let a ← x; pure (Except.ok a)) (fun ex => pure (Except.error ex))
 
-instance (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (ExceptT ε m) := {
-  stM      := Except ε
-  liftWith := fun f => liftM <| f fun x => x.run
-  restoreM := fun x => x
-}
+instance (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (ExceptT ε m) where
+  stM        := Except ε
+  liftWith f := liftM <| f fun x => x.run
+  restoreM x := x
 
 class MonadFinally (m : Type u → Type v) :=
   (tryFinally' {α β} : m α → (Option α → m β) → m (α × β))
@@ -160,14 +154,13 @@ export MonadFinally (tryFinally')
   let y := tryFinally' x (fun _ => finalizer)
   (·.1) <$> y
 
-instance Id.finally : MonadFinally Id := {
+instance Id.finally : MonadFinally Id where
   tryFinally' := fun x h =>
    let a := x
    let b := h (some x)
    pure (a, b)
-}
 
-instance ExceptT.finally {m : Type u → Type v} {ε : Type u} [MonadFinally m] [Monad m] : MonadFinally (ExceptT ε m) := {
+instance ExceptT.finally {m : Type u → Type v} {ε : Type u} [MonadFinally m] [Monad m] : MonadFinally (ExceptT ε m) where
   tryFinally' := fun x h => ExceptT.mk do
     let r ← tryFinally' x fun e? => match e? with
         | some (Except.ok a) => h (some a)
@@ -176,4 +169,3 @@ instance ExceptT.finally {m : Type u → Type v} {ε : Type u} [MonadFinally m] 
     | (Except.ok a,    Except.ok b)    => pure (Except.ok (a, b))
     | (_,              Except.error e) => pure (Except.error e)  -- second error has precedence
     | (Except.error e, _)              => pure (Except.error e)
-}

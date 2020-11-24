@@ -432,29 +432,23 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
 
 /- Inhabited -/
 
-instance : Inhabited Prop := {
+instance : Inhabited Prop where
   default := True
-}
 
-instance : Inhabited Bool := {
+instance : Inhabited Bool where
   default := false
-}
 
-instance : Inhabited True := {
+instance : Inhabited True where
   default := trivial
-}
 
-instance : Inhabited NonScalar := {
+instance : Inhabited NonScalar where
   default := ⟨arbitrary _⟩
-}
 
-instance : Inhabited PNonScalar.{u} := {
+instance : Inhabited PNonScalar.{u} where
   default := ⟨arbitrary _⟩
-}
 
-instance {α} [Inhabited α] : Inhabited (ForInStep α) := {
-  default:= ForInStep.done (arbitrary _)
-}
+instance {α} [Inhabited α] : Inhabited (ForInStep α) where
+  default := ForInStep.done (arbitrary _)
 
 class inductive Nonempty (α : Sort u) : Prop :=
   | intro (val : α) : Nonempty α
@@ -462,9 +456,8 @@ class inductive Nonempty (α : Sort u) : Prop :=
 protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
   h₂ h₁.1
 
-instance {α : Sort u} [Inhabited α] : Nonempty α := {
+instance {α : Sort u} [Inhabited α] : Nonempty α where
   val := arbitrary α
-}
 
 theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
   | ⟨w, h⟩ => ⟨w⟩
@@ -539,9 +532,8 @@ theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
   cases a
   exact rfl
 
-instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : Inhabited {x // p x} := {
+instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : Inhabited {x // p x} where
   default := ⟨a, h⟩
-}
 
 instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
@@ -555,13 +547,11 @@ end Subtype
 section
 variables {α : Type u} {β : Type v}
 
-instance Sum.inhabitedLeft [h : Inhabited α] : Inhabited (Sum α β) := {
+instance Sum.inhabitedLeft [h : Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl (arbitrary α)
-}
 
-instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) := {
+instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr (arbitrary β)
-}
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
   match a, b with
@@ -581,9 +571,8 @@ end
 section
 variables {α : Type u} {β : Type v}
 
-instance [Inhabited α] [Inhabited β] : Inhabited (α × β) := {
+instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
   default := (arbitrary α, arbitrary β)
-}
 
 instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
   fun ⟨a, b⟩ ⟨a', b'⟩ =>
@@ -594,13 +583,11 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
       | (isFalse n₂) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₂' n₂))
     | (isFalse n₁) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₁' n₁))
 
-instance [BEq α] [BEq β] : BEq (α × β) := {
+instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ => a₁ == a₂ && b₁ == b₂
-}
 
-instance [HasLess α] [HasLess β] : HasLess (α × β) := {
-  Less := fun s t => s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
-}
+instance [HasLess α] [HasLess β] : HasLess (α × β) where
+  Less s t := s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 
 instance prodHasDecidableLt
     [HasLess α] [HasLess β] [DecidableEq α] [DecidableEq β]
@@ -638,9 +625,8 @@ theorem punitEqPUnit (a : PUnit) : a = () :=
 instance : Subsingleton PUnit :=
   Subsingleton.intro punitEq
 
-instance : Inhabited PUnit := {
+instance : Inhabited PUnit where
   default := ⟨⟩
-}
 
 instance : DecidableEq PUnit :=
   fun a b => isTrue (punitEq a b)

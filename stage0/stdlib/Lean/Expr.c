@@ -668,6 +668,7 @@ lean_object* l_Lean_Expr_mkData___boxed(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_ExprStructEq_instToStringExprStructEq(lean_object*);
 lean_object* l_Lean_Expr_isProp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_BinderInfo_isExplicit___boxed(lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2569____closed__16;
 uint64_t l_Lean_Expr_mkData___closed__1;
 lean_object* l_List_foldr___at_Lean_mkConst___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hashEx___boxed(lean_object*);
@@ -680,7 +681,6 @@ lean_object* l_Lean_Expr_isAtomic___boxed(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux_match__1(lean_object*);
 lean_object* l_Lean_Expr_Data_nonDepLet___boxed(lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2513____closed__16;
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Level_instantiateParams(lean_object*, lean_object*);
 lean_object* l_Lean_mkStrLit(lean_object*);
@@ -5471,7 +5471,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_2513____closed__16;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_2569____closed__16;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

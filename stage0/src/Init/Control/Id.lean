@@ -14,19 +14,15 @@ def Id (type : Type u) : Type u := type
 
 namespace Id
 
-@[inline] protected def pure {α : Type u} (x : α) : Id α := x
-@[inline] protected def bind {α β : Type u} (x : Id α) (f : α → Id β) : Id β := f x
-@[inline] protected def map {α β : Type u} (f : α → β) (x : Id α) : Id β := f x
-
 instance : Monad Id := {
-  pure := Id.pure
-  bind := Id.bind
-  map  := Id.map
+  pure := fun x => x
+  bind := fun x f => f x
+  map  := fun f x => f x
 }
 
-@[inline] protected def run {α : Type u} (x : Id α) : α := x
+@[inline] protected def run (x : Id α) : α := x
 
-instance {α} [OfNat α] : OfNat (Id α) :=
+instance [OfNat α] : OfNat (Id α) :=
   inferInstanceAs (OfNat α)
 
 end Id

@@ -199,7 +199,7 @@ lean_object* l_Lean_Elab_expandDeclId(lean_object*);
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__15;
 uint8_t l_Lean_Elab_isFreshInstanceName(lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__16;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3195,7 +3195,7 @@ else
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_9);
 lean_inc(x_3);
-x_23 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(x_1, x_2, x_3, x_4, x_13);
+x_23 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(x_1, x_2, x_3, x_4, x_13, lean_box(0));
 x_24 = lean_ctor_get(x_3, 0);
 lean_inc(x_24);
 x_25 = lean_alloc_closure((void*)(l_Lean_withRef___rarg___lambda__1___boxed), 4, 3);

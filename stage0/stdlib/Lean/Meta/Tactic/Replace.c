@@ -19,7 +19,6 @@ lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
-lean_object* l_Lean_Meta_isExprDefEq___at_Lean_Meta_isExprDefEqGuarded___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_changeLocalDecl_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_replaceLocalDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -35,6 +34,7 @@ lean_object* l_Lean_Meta_changeLocalDecl___lambda__1___closed__4;
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_replaceLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_changeLocalDecl_match__2(lean_object*);
+lean_object* l_Lean_Meta_isExprDefEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp___closed__5;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_changeLocalDecl___closed__2;
@@ -1109,7 +1109,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_2);
 lean_inc(x_4);
-x_11 = l_Lean_Meta_isExprDefEq___at_Lean_Meta_isExprDefEqGuarded___spec__1(x_4, x_2, x_5, x_6, x_7, x_8, x_9);
+x_11 = l_Lean_Meta_isExprDefEqImp(x_4, x_2, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; uint8_t x_13; 
@@ -1534,7 +1534,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_12);
 lean_inc(x_2);
-x_67 = l_Lean_Meta_isExprDefEq___at_Lean_Meta_isExprDefEqGuarded___spec__1(x_2, x_12, x_6, x_7, x_8, x_9, x_10);
+x_67 = l_Lean_Meta_isExprDefEqImp(x_2, x_12, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_67) == 0)
 {
 lean_object* x_68; uint8_t x_69; 
@@ -1867,7 +1867,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_93);
 lean_inc(x_2);
-x_148 = l_Lean_Meta_isExprDefEq___at_Lean_Meta_isExprDefEqGuarded___spec__1(x_2, x_93, x_6, x_7, x_8, x_9, x_10);
+x_148 = l_Lean_Meta_isExprDefEqImp(x_2, x_93, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_148) == 0)
 {
 lean_object* x_149; uint8_t x_150; 

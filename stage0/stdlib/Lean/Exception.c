@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l___kind_term____x40_Init_System_IO___hyg_2465____closed__9;
 extern lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__8;
 lean_object* l_Lean_InternalExceptionId_toString(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -102,6 +101,7 @@ lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_698____closed__1;
 lean_object* l_Lean___kind_term____x40_Lean_Exception___hyg_643____closed__3;
 lean_object* l_Lean_throwError(lean_object*);
 lean_object* l_Lean_instInhabitedException;
+extern lean_object* l___kind_term____x40_Init_System_IO___hyg_2521____closed__9;
 lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_698____closed__2;
 lean_object* l_Lean_withIncRecDepth(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -931,7 +931,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___kind_term____x40_Init_Notation___hyg_3____closed__13;
 x_2 = l_Lean___kind_term____x40_Lean_Exception___hyg_595____closed__6;
-x_3 = l___kind_term____x40_Init_System_IO___hyg_2465____closed__9;
+x_3 = l___kind_term____x40_Init_System_IO___hyg_2521____closed__9;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -1009,7 +1009,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___kind_term____x40_Init_Notation___hyg_3____closed__13;
 x_2 = l_Lean___kind_term____x40_Lean_Exception___hyg_643____closed__4;
-x_3 = l___kind_term____x40_Init_System_IO___hyg_2465____closed__9;
+x_3 = l___kind_term____x40_Init_System_IO___hyg_2521____closed__9;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);

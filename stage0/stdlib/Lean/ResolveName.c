@@ -141,6 +141,7 @@ lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveOpenDecls_m
 lean_object* l_Lean_resolveGlobalName___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2552____closed__4;
 lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveUsingNamespace_match__1(lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls_match__1(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_getRevAliases___spec__11___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -205,7 +206,6 @@ lean_object* l_Lean_SMap_find_x3f___at_Lean_addAliasEntry___spec__1___boxed(lean
 lean_object* l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__1;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1___closed__2;
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2542____closed__4;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_getRevAliases___spec__2(lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Lean_getRevAliases___spec__6(lean_object*);
@@ -2062,7 +2062,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2542____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2552____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

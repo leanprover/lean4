@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Meta_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
+lean_object* l_Lean_Meta_mkForallFVarsImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -48,7 +49,6 @@ lean_object* l_Lean_Meta_getLocalInstances___at___private_Lean_Meta_Basic_0__Lea
 lean_object* l_Lean_Meta_assertAfter_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assertAfter_match__2___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkForallFVars___at___private_Lean_Meta_InferType_0__Lean_Meta_inferLambdaType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_assertAfter___spec__6(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1306,7 +1306,7 @@ x_33 = x_29;
 x_34 = l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(x_31, x_32, x_33);
 x_35 = x_34;
 lean_inc(x_7);
-x_36 = l_Lean_Meta_mkForallFVars___at___private_Lean_Meta_InferType_0__Lean_Meta_inferLambdaType___spec__1(x_35, x_16, x_7, x_8, x_9, x_10, x_24);
+x_36 = l_Lean_Meta_mkForallFVarsImp(x_35, x_16, x_7, x_8, x_9, x_10, x_24);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; lean_object* x_38; uint8_t x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45; 

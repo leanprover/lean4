@@ -245,17 +245,23 @@ private def postponedToMessageData (ps : PersistentArray PostponedEntry) : Messa
 @[inline] def withoutPostponingUniverseConstraints {α m} [MonadControlT MetaM m] [Monad m] : m α → m α :=
   mapMetaM $ withoutPostponingUniverseConstraintsImp
 
-def isLevelDefEq (u v : Level) : m Bool := liftMetaM do
+private def isLevelDefEqImp (u v : Level) : MetaM Bool :=
   traceCtx `Meta.isLevelDefEq do
     let b ← commitWhen (mayPostpone := true) $ Meta.isLevelDefEqAux u v
     trace[Meta.isLevelDefEq]! "{u} =?= {v} ... {if b then "success" else "failure"}"
     pure b
 
-def isExprDefEq (t s : Expr) : m Bool := liftMetaM do
+def isLevelDefEq (u v : Level) : m Bool := liftMetaM do
+  isLevelDefEqImp u v
+
+def isExprDefEqImp (t s : Expr) : MetaM Bool :=
   traceCtx `Meta.isDefEq $ do
     let b ← commitWhen (mayPostpone := true) $ Meta.isExprDefEqAux t s
     trace[Meta.isDefEq]! "{t} =?= {s} ... {if b then "success" else "failure"}"
     pure b
+
+def isExprDefEq (t s : Expr) : m Bool := liftMetaM do
+  isExprDefEqImp t s
 
 abbrev isDefEq (t s : Expr) : m Bool :=
   isExprDefEq t s

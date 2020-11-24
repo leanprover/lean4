@@ -71,6 +71,7 @@ lean_object* l_Lean_Meta_Match_Extension_State_addEntry(lean_object*, lean_objec
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2552____closed__4;
 lean_object* l_Lean_Meta_Match_Extension_extension___closed__1;
 lean_object* l_Lean_Meta_Match_Extension_extension___closed__2;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_Match_Extension_State_addEntry___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,7 +117,6 @@ lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* l_Lean_Meta_matchMatcherApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_Match_Extension_getMatcherInfo_x3f___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2542____closed__4;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_64_(lean_object*);
 lean_object* l_Lean_Meta_Match_Extension_extension___elambda__3(lean_object*, lean_object*);
@@ -1619,7 +1619,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_64____closed__2;
 x_2 = l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_64____closed__3;
 x_3 = l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Match_MatcherInfo___hyg_64____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2542____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2552____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

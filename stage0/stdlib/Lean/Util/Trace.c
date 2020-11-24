@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* lean_string_push(lean_object*, uint32_t);
-extern lean_object* l___kind_term____x40_Init_System_IO___hyg_2465____closed__9;
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_myMacro____x40_Lean_Util_Trace___hyg_951____closed__3;
 extern lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1842____closed__8;
@@ -179,6 +178,7 @@ size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean___kind_term____x40_Lean_Util_Trace___hyg_883____closed__11;
 extern lean_object* l_Lean_nullKind___closed__2;
 extern lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1881____closed__4;
+extern lean_object* l___kind_term____x40_Init_System_IO___hyg_2521____closed__9;
 lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2922,7 +2922,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___kind_term____x40_Init_Notation___hyg_3____closed__13;
 x_2 = l_Lean___kind_term____x40_Lean_Util_Trace___hyg_1247____closed__7;
-x_3 = l___kind_term____x40_Init_System_IO___hyg_2465____closed__9;
+x_3 = l___kind_term____x40_Init_System_IO___hyg_2521____closed__9;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);

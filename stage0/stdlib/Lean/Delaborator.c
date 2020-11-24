@@ -1169,7 +1169,7 @@ lean_object* l_Lean_Delaborator_delabProjectionApp_match__3___rarg(lean_object*,
 extern lean_object* l_Array_instReprArray___rarg___closed__1;
 lean_object* l___regBuiltin_Lean_Delaborator_delabAndM___closed__1;
 lean_object* l_Lean_Delaborator_instInhabitedDelabM(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1021____spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1022____spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Delaborator_delabBVar___closed__1;
 lean_object* l_Lean_Delaborator_delabModN(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Delaborator_0__Lean_Delaborator_delabPatterns___spec__4(lean_object*);
@@ -11021,7 +11021,7 @@ else
 lean_object* x_30; 
 lean_free_object(x_18);
 lean_dec(x_19);
-x_30 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1021____spec__1(x_17, lean_box(0), x_2, x_3, x_4, x_5, x_25);
+x_30 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1022____spec__1(x_17, lean_box(0), x_2, x_3, x_4, x_5, x_25);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -11057,7 +11057,7 @@ else
 {
 lean_object* x_36; 
 lean_dec(x_19);
-x_36 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1021____spec__1(x_17, lean_box(0), x_2, x_3, x_4, x_5, x_31);
+x_36 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1022____spec__1(x_17, lean_box(0), x_2, x_3, x_4, x_5, x_31);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -15848,7 +15848,7 @@ lean_object* x_13; lean_object* x_14; uint8_t x_15;
 lean_dec(x_8);
 lean_dec(x_1);
 x_13 = l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
-x_14 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1021____spec__1(x_13, lean_box(0), x_3, x_4, x_5, x_6, x_7);
+x_14 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1022____spec__1(x_13, lean_box(0), x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);

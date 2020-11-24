@@ -7,61 +7,58 @@ prelude
 import Init.Core
 import Init.Control.Basic
 import Init.Coe
-open Decidable
-
-universes u v
 
 namespace Option
 
-def toMonad {m : Type → Type} [Monad m] [Alternative m] {A} : Option A → m A
+def toMonad [Monad m] [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
-@[macroInline] def getD {α : Type u} : Option α → α → α
+@[macroInline] def getD : Option α → α → α
   | some x, _ => x
   | none,   e => e
 
-@[inline] def toBool {α : Type u} : Option α → Bool
+@[inline] def toBool : Option α → Bool
   | some _ => true
   | none   => false
 
-@[inline] def isSome {α : Type u} : Option α → Bool
+@[inline] def isSome : Option α → Bool
   | some _ => true
   | none   => false
 
-@[inline] def isNone {α : Type u} : Option α → Bool
+@[inline] def isNone : Option α → Bool
   | some _ => false
   | none   => true
 
-@[inline] protected def bind {α : Type u} {β : Type v} : Option α → (α → Option β) → Option β
+@[inline] protected def bind : Option α → (α → Option β) → Option β
   | none,   b => none
   | some a, b => b a
 
-@[inline] protected def map {α β} (f : α → β) (o : Option α) : Option β :=
+@[inline] protected def map (f : α → β) (o : Option α) : Option β :=
   Option.bind o (some ∘ f)
 
-theorem mapId {α} : (Option.map id : Option α → Option α) = id :=
+theorem mapId : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some x => rfl)
 
 instance : Monad Option := {
-  pure := some,
-  bind := Option.bind,
+  pure := some
+  bind := Option.bind
   map  := Option.map
 }
 
-@[inline] protected def filter {α} (p : α → Bool) : Option α → Option α
+@[inline] protected def filter (p : α → Bool) : Option α → Option α
   | some a => if p a then some a else none
   | none   => none
 
-@[inline] protected def all {α} (p : α → Bool) : Option α → Bool
+@[inline] protected def all (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => true
 
-@[inline] protected def any {α} (p : α → Bool) : Option α → Bool
+@[inline] protected def any (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => false
 
-@[macroInline] protected def orElse {α : Type u} : Option α → Option α → Option α
+@[macroInline] protected def orElse : Option α → Option α → Option α
   | some a, _ => some a
   | none,   b => b
 
@@ -72,12 +69,12 @@ instance : Alternative Option := {
   orElse  := Option.orElse
 }
 
-@[inline] protected def lt {α : Type u} (r : α → α → Prop) : Option α → Option α → Prop
+@[inline] protected def lt (r : α → α → Prop) : Option α → Option α → Prop
   | none, some x     => True
   | some x,   some y => r x y
   | _, _             => False
 
-instance {α : Type u} (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
+instance (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
   | none,   some y => isTrue  trivial
   | some x, some y => s x y
   | some x, none   => isFalse notFalse
@@ -85,7 +82,7 @@ instance {α : Type u} (r : α → α → Prop) [s : DecidableRel r] : Decidable
 
 end Option
 
-instance {α : Type u} [DecidableEq α] : DecidableEq (Option α) := fun a b =>
+instance [DecidableEq α] : DecidableEq (Option α) := fun a b =>
   match a, b with
   | none,      none      => isTrue rfl
   | none,      (some v₂) => isFalse (fun h => Option.noConfusion h)
@@ -95,11 +92,14 @@ instance {α : Type u} [DecidableEq α] : DecidableEq (Option α) := fun a b =>
     | (isTrue e)  => isTrue (congrArg (@some α) e)
     | (isFalse n) => isFalse (fun h => Option.noConfusion h (fun e => absurd e n))
 
-instance {α : Type u} [BEq α] : BEq (Option α) := ⟨fun a b =>
-  match a, b with
-  | none,      none      => true
-  | none,      (some v₂) => false
-  | (some v₁), none      => false
-  | (some v₁), (some v₂) => v₁ == v₂⟩
+instance [BEq α] : BEq (Option α) := {
+  beq := fun
+    | none,      none      => true
+    | none,      (some v₂) => false
+    | (some v₁), none      => false
+    | (some v₁), (some v₂) => v₁ == v₂
+}
 
-instance {α : Type u} [HasLess α] : HasLess (Option α) := ⟨Option.lt (· < ·)⟩
+instance [HasLess α] : HasLess (Option α) := {
+  Less := Option.lt (· < ·)
+}

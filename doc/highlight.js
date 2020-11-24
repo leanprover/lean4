@@ -1115,7 +1115,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'import open theory prelude renaming hiding exposing ' +
       'calc  match with do by let extends ' +
       'for in unless try catch finally mutual mut return continue break where rec ' +
-      'syntax macro_rules ' +
+      'syntax macro_rules macro ' +
       'fun ' +
       '#check #eval #reduce #print ' +
       'section namespace end',
@@ -1168,7 +1168,7 @@ hljs.registerLanguage("lean", function(hljs) {
   var LEAN_DEFINITION =	{
     className: 'theorem',
     beginKeywords: 'def theorem lemma class instance structure',
-    end: ':=',
+    end: ':= | where',
     excludeEnd: true,
     contains: [
       {

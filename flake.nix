@@ -19,11 +19,12 @@
       nix-pinned = writeShellScriptBin "nix" ''
         ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ $@
       '';
+      llvmPackages = llvmPackages_10;
       cc = ccacheWrapper.override rec {
         # macOS doesn't like the lld override, but I guess it already uses that anyway
-        cc = if system == "x86_64-darwin" then llvmPackages_10.clang else llvmPackages_10.clang.override {
+        cc = if system == "x86_64-darwin" then llvmPackages.clang else llvmPackages.clang.override {
           # linker go brrr
-          bintools = llvmPackages_10.lldClang.bintools;
+          bintools = llvmPackages.lldClang.bintools;
         };
         extraConfig = ''
           export CCACHE_DIR=/nix/var/cache/ccache
@@ -87,7 +88,7 @@
       };
     in rec {
       packages = {
-        inherit cc lean4-mode buildLeanPackage;
+        inherit cc lean4-mode buildLeanPackage llvmPackages;
         lean = lean.stage1;
         temci = (import temci {}).override { doCheck = false; };
         nix = nix-pinned;

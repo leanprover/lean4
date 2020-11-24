@@ -1,0 +1,5 @@
+def f : List Nat → List Nat :=
+fun (x : List Nat) =>
+  match x with 
+  | a :: xs@(b :: bs) => xs
+  | x_1 => []

@@ -28,7 +28,7 @@ private def withAlts {α} (motive : Expr) (lhss : List AltLHS) (k : List Alt →
 where
   mkMinorType (xs : Array Expr) (lhs : AltLHS) : MetaM Expr :=
     withExistingLocalDecls lhs.fvarDecls do
-      let args ← lhs.patterns.toArray.mapM Pattern.toExpr
+      let args ← lhs.patterns.toArray.mapM (Pattern.toExpr · (annotate := true))
       let minorType := mkAppN motive args
       mkForallFVars xs minorType
 

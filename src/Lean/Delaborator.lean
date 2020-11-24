@@ -457,13 +457,20 @@ def delabMData : Delab := do
   -- only interpret `pp.` values by default
   let Expr.mdata m _ _ ← getExpr | unreachable!
   let mut posOpts := (← read).optionsPerPos
+  let mut inaccessible := false
   let pos := (← read).pos
   for (k, v) in m do
     if (`pp).isPrefixOf k then
       let opts := posOpts.find? pos |>.getD {}
       posOpts := posOpts.insert pos (opts.insert k v)
-  withReader ({ · with optionsPerPos := posOpts }) <|
-    withMDataExpr delab
+    if k == `inaccessible then
+      inaccessible := true
+  withReader ({ · with optionsPerPos := posOpts }) do
+    let s ← withMDataExpr delab
+    if inaccessible then
+      `(.($s))
+    else
+      pure s
 
 /--
 Check for a `Syntax.ident` of the given name anywhere in the tree.
@@ -779,6 +786,14 @@ def delabListToArray : Delab := whenPPOption getPPNotation do
   match_syntax (← withAppArg delab) with
   | `([$xs*]) => `(#[$xs*])
   | _         => failure
+
+@[builtinDelab app.namedPattern]
+def delabNamedPattern : Delab := do
+  guard $ (← getExpr).getAppNumArgs == 3
+  let x ← withAppFn $ withAppArg delab
+  let p ← withAppArg delab
+  guard x.isIdent
+  `($x:ident@$p:term)
 
 end Delaborator
 

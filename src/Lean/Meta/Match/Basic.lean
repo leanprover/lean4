@@ -29,17 +29,29 @@ partial def toMessageData : Pattern → MessageData
   | arrayLit _ pats        => m!"#[{MessageData.joinSep (pats.map toMessageData) ", "}]"
   | as varId p             => m!"{mkFVar varId}@{toMessageData p}"
 
-partial def toExpr : Pattern → MetaM Expr
-  | inaccessible e                 => pure e
-  | var fvarId                     => pure $ mkFVar fvarId
-  | val e                          => pure e
-  | as _ p                         => toExpr p
-  | arrayLit type xs               => do
-    let xs ← xs.mapM toExpr;
-    mkArrayLit type xs
-  | ctor ctorName us params fields => do
-    let fields ← fields.mapM toExpr;
-    pure $ mkAppN (mkConst ctorName us) (params ++ fields).toArray
+partial def toExpr (p : Pattern) (annotate := false) : MetaM Expr :=
+  visit p
+where
+  visit (p : Pattern) := do
+    match p with
+    | inaccessible e                 =>
+      if annotate then
+        pure (mkAnnotation `inaccessible e)
+      else
+        pure e
+    | var fvarId                     => pure $ mkFVar fvarId
+    | val e                          => pure e
+    | as fvarId p                    =>
+      if annotate then
+        mkAppM `namedPattern #[mkFVar fvarId, (← visit p)]
+      else
+        visit p
+    | arrayLit type xs               =>
+      let xs ← xs.mapM visit
+      mkArrayLit type xs
+    | ctor ctorName us params fields =>
+      let fields ← fields.mapM visit
+      pure $ mkAppN (mkConst ctorName us) (params ++ fields).toArray
 
 /- Apply the free variable substitution `s` to the given pattern -/
 partial def applyFVarSubst (s : FVarSubst) : Pattern → Pattern

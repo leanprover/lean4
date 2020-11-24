@@ -375,11 +375,17 @@ def instantiateLocalDeclMVars (localDecl : LocalDecl) : m LocalDecl := liftMetaM
     setNGen newS.ngen;
     throwError "failed to create binder due to failure when reverting variable dependencies"
 
+def mkForallFVarsImp (xs : Array Expr) (e : Expr) : MetaM Expr :=
+  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkForall xs e
+
 def mkForallFVars (xs : Array Expr) (e : Expr) : m Expr := liftMetaM do
-  if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkForall xs e
+  mkForallFVarsImp xs e
+
+def mkLambdaFVarsImp (xs : Array Expr) (e : Expr) : MetaM Expr :=
+  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkLambda xs e
 
 def mkLambdaFVars (xs : Array Expr) (e : Expr) : m Expr := liftMetaM do
-  if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkLambda xs e
+  mkLambdaFVarsImp xs e
 
 def mkLetFVars (xs : Array Expr) (e : Expr) : m Expr :=
   mkLambdaFVars xs e
@@ -388,20 +394,26 @@ def mkArrow (d b : Expr) : m Expr := liftMetaM do
   let n ← mkFreshUserName `x
   return Lean.mkForall n BinderInfo.default d b
 
+def mkForallUsedOnlyImp (xs : Array Expr) (e : Expr) : MetaM (Expr × Nat) := do
+  if xs.isEmpty then pure (e, 0) else liftMkBindingM <| MetavarContext.mkForallUsedOnly xs e
+
 def mkForallUsedOnly (xs : Array Expr) (e : Expr) : m (Expr × Nat) := liftMetaM do
-  if xs.isEmpty then pure (e, 0) else liftMkBindingM $ MetavarContext.mkForallUsedOnly xs e
+  mkForallUsedOnlyImp xs e
+
+def elimMVarDepsImp (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : MetaM Expr :=
+  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.elimMVarDeps xs e preserveOrder
 
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : m Expr := liftMetaM do
-  if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.elimMVarDeps xs e preserveOrder
+  elimMVarDepsImp xs e preserveOrder
 
 @[inline] def withConfig {α} (f : Config → Config) : n α → n α :=
-  mapMetaM $ withReader (fun ctx => { ctx with config := f ctx.config })
+  mapMetaM <| withReader (fun ctx => { ctx with config := f ctx.config })
 
 @[inline] def withTrackingZeta {α} (x : n α) : n α :=
   withConfig (fun cfg => { cfg with trackZeta := true }) x
 
 @[inline] def withTransparency {α} (mode : TransparencyMode) : n α → n α :=
-  mapMetaM $ withConfig (fun config => { config with transparency := mode })
+  mapMetaM <| withConfig (fun config => { config with transparency := mode })
 
 @[inline] def withReducible {α} (x : n α) : n α :=
   withTransparency TransparencyMode.reducible x

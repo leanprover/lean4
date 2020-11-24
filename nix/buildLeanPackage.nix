@@ -83,7 +83,9 @@ in
       oPath = drv.relpath + ".o";
       buildCommand = ''
         mkdir -p $out/$(dirname ${drv.relpath})
-        leanc -c -o $out/$oPath ${drv.c}/${drv.cPath} ${if debug then "-g" else "-O3 -DNDEBUG"}
+        # make local "copy" so `drv`'s Nix store path doesn't end up in ccache's hash
+        ln -s ${drv.c}/${drv.cPath} src.c
+        leanc -c -o $out/$oPath src.c ${if debug then "-g" else "-O3 -DNDEBUG"}
       '';
     };
     singleton = name: value: listToAttrs [ { inherit name value; } ];

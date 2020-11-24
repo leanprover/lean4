@@ -72,6 +72,7 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_formatKVMap___closed__1;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_spaceUptoLine_match__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_spaceUptoLine_x27(lean_object*, lean_object*);
+extern lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_Lean_Format_isNil_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_formatEntry_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_String_splitOn(lean_object*, lean_object*);
@@ -275,7 +276,6 @@ lean_object* l_Lean_Format_prefixJoin___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_instToFormatProdNameDataValue;
 lean_object* l_Lean_instToFormatArray(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
-extern lean_object* l_instOfNatNat___closed__1;
 lean_object* l_Lean_Format_sbracket(lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_spaceUptoLine_x27_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be_match__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4339,7 +4339,7 @@ static lean_object* _init_l_Lean_instToFormatFormat() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instOfNatNat___closed__1;
+x_1 = l_Applicative_seqRight___default___rarg___closed__1;
 return x_1;
 }
 }

@@ -45,11 +45,10 @@ variables [Monad m] {α β : Type u}
 @[inline] protected def map (f : α → β) (x : StateT σ m α) : StateT σ m β :=
   fun s => do let (a, s) ← x s; pure (f a, s)
 
-instance : Monad (StateT σ m) := {
+instance : Monad (StateT σ m) where
   pure := StateT.pure
   bind := StateT.bind
   map  := StateT.map
-}
 
 @[inline] protected def orElse [Alternative m] {α : Type u} (x₁ x₂ : StateT σ m α) : StateT σ m α :=
   fun s => x₁ s <|> x₂ s
@@ -57,10 +56,9 @@ instance : Monad (StateT σ m) := {
 @[inline] protected def failure [Alternative m] {α : Type u} : StateT σ m α :=
   fun s => failure
 
-instance [Alternative m] : Alternative (StateT σ m) := {
-  failure := StateT.failure,
+instance [Alternative m] : Alternative (StateT σ m) where
+  failure := StateT.failure
   orElse  := StateT.orElse
-}
 
 @[inline] protected def get : StateT σ m σ :=
   fun s => pure (s, s)
@@ -89,24 +87,21 @@ end StateT
 section
 variables {σ : Type u} {m : Type u → Type v}
 
-instance [Monad m] : MonadStateOf σ (StateT σ m) := {
+instance [Monad m] : MonadStateOf σ (StateT σ m) where
   get       := StateT.get
   set       := StateT.set
   modifyGet := StateT.modifyGet
-}
 
 end
 
-instance StateT.monadControl (σ : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (StateT σ m) := {
+instance StateT.monadControl (σ : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (StateT σ m) where
   stM      := fun α   => α × σ
   liftWith := fun f => do let s ← get; liftM (f (fun x => x.run s))
   restoreM := fun x => do let (a, s) ← liftM x; set s; pure a
-}
 
-instance StateT.tryFinally {m : Type u → Type v} {σ : Type u} [MonadFinally m] [Monad m] : MonadFinally (StateT σ m) := {
+instance StateT.tryFinally {m : Type u → Type v} {σ : Type u} [MonadFinally m] [Monad m] : MonadFinally (StateT σ m) where
   tryFinally' := fun x h s => do
     let ((a, _), (b, s'')) ← tryFinally' (x s) fun
       | some (a, s') => h (some a) s'
       | none         => h none s
     pure ((a, b), s'')
-}

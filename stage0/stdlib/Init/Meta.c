@@ -122,6 +122,7 @@ lean_object* l_Lean_Syntax_setTailInfo(lean_object*, lean_object*);
 lean_object* l_Lean_instQuoteArray(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instQuoteProd_match__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_Lean_Syntax_identToStrLit(lean_object*);
 lean_object* l_Array_filterSepElemsM___at_Array_filterSepElems___spec__1(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_6336____closed__5;
@@ -487,7 +488,6 @@ lean_object* l_Lean_Syntax_expandInterpolatedStr___boxed(lean_object*, lean_obje
 lean_object* l_Lean_mkSepArray___closed__1;
 lean_object* l___private_Init_Meta_0__Lean_Syntax_decodeBinLitAux___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
-extern lean_object* l_instOfNatNat___closed__1;
 lean_object* l_Lean_Syntax_decodeQuotedChar_match__4(lean_object*);
 lean_object* l_Lean_mkSepArray___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isNone_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -8372,7 +8372,7 @@ static lean_object* _init_l_Lean_instQuoteSyntax() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instOfNatNat___closed__1;
+x_1 = l_Applicative_seqRight___default___rarg___closed__1;
 return x_1;
 }
 }

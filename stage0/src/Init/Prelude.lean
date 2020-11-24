@@ -186,17 +186,14 @@ class Inhabited (α : Sort u) :=
 constant arbitrary (α : Sort u) [s : Inhabited α] : α :=
   @Inhabited.default α s
 
-instance : Inhabited (Sort u) := {
+instance : Inhabited (Sort u) where
   default := PUnit
-}
 
-instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) := {
+instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) where
   default := fun _ => arbitrary β
-}
 
-instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) := {
+instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) where
   default := fun a => arbitrary (β a)
-}
 
 /-- Universe lifting operation from Sort to Type -/
 structure PLift (α : Sort u) : Type u :=
@@ -214,9 +211,8 @@ structure PointedType :=
   (type : Type u)
   (val : type)
 
-instance : Inhabited PointedType.{u} := {
+instance : Inhabited PointedType.{u} where
   default := { type := PUnit.{u+1}, val := ⟨⟩ }
-}
 
 /-- Universe lifting operation -/
 structure ULift.{r, s} (α : Type s) : Type (max s r) :=
@@ -279,8 +275,8 @@ class BEq      (α : Type u) := (beq : α → α → Bool)
 
 open BEq (beq)
 
-instance {α : Type u} [DecidableEq α] : BEq α :=
-  ⟨fun a b => decide (Eq a b)⟩
+instance {α : Type u} [DecidableEq α] : BEq α where
+  beq a b := decide (Eq a b)
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
@@ -346,11 +342,11 @@ class OfNat (α : Type u) :=
 export OfNat (ofNat)
 
 @[defaultInstance]
-instance : OfNat Nat := ⟨id⟩
+instance : OfNat Nat where
+  ofNat x := x
 
-instance : Inhabited Nat := {
+instance : Inhabited Nat where
   default := 0
-}
 
 class HasLessEq (α : Type u) := (LessEq : α → α → Prop)
 class HasLess   (α : Type u) := (Less : α → α → Prop)
@@ -384,9 +380,8 @@ protected def Nat.add : (@& Nat) → (@& Nat) → Nat
   | a, Nat.zero   => a
   | a, Nat.succ b => Nat.succ (Nat.add a b)
 
-instance : Add Nat := {
+instance : Add Nat where
   add := Nat.add
-}
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
@@ -398,9 +393,8 @@ protected def Nat.mul : (@& Nat) → (@& Nat) → Nat
   | a, 0          => 0
   | a, Nat.succ b => Nat.add (Nat.mul a b) a
 
-instance : Mul Nat := {
+instance : Mul Nat where
   mul := Nat.mul
-}
 
 set_option bootstrap.gen_matcher_code false in
 @[extern "lean_nat_pow"]
@@ -408,9 +402,8 @@ protected def Nat.pow (m : @& Nat) : (@& Nat) → Nat
   | 0      => 1
   | succ n => Nat.mul (Nat.pow m n) m
 
-instance : Pow Nat Nat := {
+instance : Pow Nat Nat where
   pow := Nat.pow
-}
 
 set_option bootstrap.gen_matcher_code false in
 @[extern "lean_nat_dec_eq"]
@@ -567,9 +560,8 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, 0      => a
   | a, succ b => pred (Nat.sub a b)
 
-instance : Sub Nat := {
+instance : Sub Nat where
   sub := Nat.sub
-}
 
 theorem Nat.predLePred : {n m : Nat} → LessEq n m → LessEq (pred n) (pred m)
   | zero,   zero,   h => rfl
@@ -641,9 +633,8 @@ def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
 
 instance : DecidableEq UInt8 := UInt8.decEq
 
-instance : Inhabited UInt8 := {
+instance : Inhabited UInt8 where
   default := UInt8.ofNatCore 0 decide!
-}
 
 def UInt16.size : Nat := 65536
 structure UInt16 :=
@@ -666,9 +657,8 @@ def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
 
 instance : DecidableEq UInt16 := UInt16.decEq
 
-instance : Inhabited UInt16 := {
+instance : Inhabited UInt16 where
   default := UInt16.ofNatCore 0 decide!
-}
 
 def UInt32.size : Nat := 4294967296
 structure UInt32 :=
@@ -694,9 +684,8 @@ def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
 
 instance : DecidableEq UInt32 := UInt32.decEq
 
-instance : Inhabited UInt32 := {
+instance : Inhabited UInt32 where
   default := UInt32.ofNatCore 0 decide!
-}
 
 def UInt32.lt (a b : UInt32) : Prop := Less a.val b.val
 def UInt32.le (a b : UInt32) : Prop := LessEq a.val b.val
@@ -740,9 +729,8 @@ def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
 
 instance : DecidableEq UInt64 := UInt64.decEq
 
-instance : Inhabited UInt64 := {
+instance : Inhabited UInt64 where
   default := UInt64.ofNatCore 0 decide!
-}
 
 def USize.size : Nat := pow 2 System.Platform.numBits
 
@@ -772,9 +760,10 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
 
 instance : DecidableEq USize := USize.decEq
 
-instance : Inhabited USize := {
-  default := USize.ofNatCore 0 (match USize.size, usizeSzEq with | _, Or.inl rfl => decide! | _, Or.inr rfl => decide!)
-}
+instance : Inhabited USize where
+  default := USize.ofNatCore 0 (match USize.size, usizeSzEq with
+    | _, Or.inl rfl => decide!
+    | _, Or.inr rfl => decide!)
 
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : Less n 4294967296) : USize := {
@@ -849,17 +838,15 @@ attribute [unbox] Option
 
 export Option (none some)
 
-instance {α} : Inhabited (Option α) := {
+instance {α} : Inhabited (Option α) where
   default := none
-}
 
 inductive List (α : Type u) :=
   | nil : List α
   | cons (head : α) (tail : List α) : List α
 
-instance {α} : Inhabited (List α) := {
+instance {α} : Inhabited (List α) where
   default := List.nil
-}
 
 protected def List.hasDecEq {α: Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
   | nil,       nil       => isTrue rfl
@@ -1064,13 +1051,11 @@ export MonadLiftT (monadLift)
 
 abbrev liftM := @monadLift
 
-instance (m n o) [MonadLiftT m n] [MonadLift n o] : MonadLiftT m o := {
-  monadLift := fun x => MonadLift.monadLift (m := n) (monadLift x)
-}
+instance (m n o) [MonadLiftT m n] [MonadLift n o] : MonadLiftT m o where
+  monadLift x := MonadLift.monadLift (m := n) (monadLift x)
 
-instance (m) : MonadLiftT m m := {
-  monadLift := fun x => x
-}
+instance (m) : MonadLiftT m m where
+  monadLift x := x
 
 /-- A functor in the category of monads. Can be used to lift monad-transforming functions.
     Based on pipes' [MFunctor](https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html),
@@ -1086,13 +1071,11 @@ class MonadFunctorT (m : Type u → Type v) (n : Type u → Type w) :=
 
 export MonadFunctorT (monadMap)
 
-instance (m n o) [MonadFunctorT m n] [MonadFunctor n o] : MonadFunctorT m o := {
-  monadMap := fun f => MonadFunctor.monadMap (m := n) (monadMap (m := m) f)
-}
+instance (m n o) [MonadFunctorT m n] [MonadFunctor n o] : MonadFunctorT m o where
+  monadMap f := MonadFunctor.monadMap (m := n) (monadMap (m := m) f)
 
-instance monadFunctorRefl (m) : MonadFunctorT m m := {
-  monadMap := fun f => f
-}
+instance monadFunctorRefl (m) : MonadFunctorT m m where
+  monadMap f := f
 
 inductive Except (ε : Type u) (α : Type v) :=
   | error : ε → Except ε α
@@ -1121,10 +1104,9 @@ class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
 
 export MonadExcept (throw tryCatch)
 
-instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m := {
+instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
   throw    := throwThe ε
   tryCatch := tryCatchThe ε
-}
 
 namespace MonadExcept
 variables {ε : Type u} {m : Type v → Type w}
@@ -1158,10 +1140,9 @@ variables {ρ : Type u} {m : Type u → Type v} {α : Type u}
 
 instance  : MonadLift m (ReaderT ρ m) := ⟨ReaderT.lift⟩
 
-instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) := {
+instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) where
   throw    := Function.comp ReaderT.lift (throwThe ε)
   tryCatch := fun x c r => tryCatchThe ε (x r) (fun e => (c e) r)
-}
 
 end
 
@@ -1180,11 +1161,10 @@ variables {ρ : Type u} {m : Type u → Type v} [Monad m] {α β : Type u}
 @[inline] protected def map (f : α → β) (x : ReaderT ρ m α) : ReaderT ρ m β :=
   fun r => Functor.map f (x r)
 
-instance : Monad (ReaderT ρ m) := {
+instance : Monad (ReaderT ρ m) where
   pure := ReaderT.pure
   bind := ReaderT.bind
   map  := ReaderT.map
-}
 
 instance (ρ m) [Monad m] : MonadFunctor m (ReaderT ρ m) := ⟨fun f x r => f (x r)⟩
 
@@ -1277,11 +1257,10 @@ class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
 
 export MonadState (get modifyGet)
 
-instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState σ m := {
+instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState σ m where
   set       := MonadStateOf.set
   get       := getThe σ
   modifyGet := fun f => MonadStateOf.modifyGet f
-}
 
 @[inline] def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m PUnit :=
   modifyGet fun s => (PUnit.unit, f s)
@@ -1291,11 +1270,10 @@ instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState 
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first
-instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadStateOf σ m] [MonadLift m n] : MonadStateOf σ n := {
+instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadStateOf σ m] [MonadLift m n] : MonadStateOf σ n where
   get       := liftM (m := m) MonadStateOf.get
   set       := fun s => liftM (m := m) (MonadStateOf.set s)
   modifyGet := fun f => monadLift (m := m) (MonadState.modifyGet f)
-}
 
 namespace EStateM
 
@@ -1372,27 +1350,23 @@ class Backtrackable (δ : outParam (Type u)) (σ : Type u) :=
   | Result.ok _ s    => y s
   | Result.error e s => Result.error e s
 
-instance : Monad (EStateM ε σ) := {
+instance : Monad (EStateM ε σ) where
   bind     := EStateM.bind
   pure     := EStateM.pure
   map      := EStateM.map
   seqRight := EStateM.seqRight
-}
 
-instance {δ} [Backtrackable δ σ] : OrElse (EStateM ε σ α) := {
+instance {δ} [Backtrackable δ σ] : OrElse (EStateM ε σ α) where
   orElse := EStateM.orElse
-}
 
-instance : MonadStateOf σ (EStateM ε σ) := {
+instance : MonadStateOf σ (EStateM ε σ) where
   set       := EStateM.set
   get       := EStateM.get
   modifyGet := EStateM.modifyGet
-}
 
-instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) := {
+instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
   throw    := EStateM.throw
   tryCatch := EStateM.tryCatch
-}
 
 @[inline] def run (x : EStateM ε σ α) (s : σ) : Result ε σ α :=
   x s
@@ -1407,10 +1381,9 @@ instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) := {
 @[inline] def dummyRestore : σ → PUnit → σ := fun s _ => s
 
 /- Dummy default instance -/
-instance nonBacktrackable : Backtrackable PUnit σ := {
+instance nonBacktrackable : Backtrackable PUnit σ where
   save    := dummySave
   restore := dummyRestore
-}
 
 end EStateM
 
@@ -1624,11 +1597,10 @@ class MonadQuotation (m : Type → Type) :=
 
 export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
-instance {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctorT m n] : MonadQuotation n := {
+instance {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctorT m n] : MonadQuotation n where
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope
   getMainModule       := liftM (m := m) getMainModule
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope
-}
 
 /-
 We represent a name with macro scopes as
@@ -1762,10 +1734,9 @@ class MonadRef (m : Type → Type) :=
 
 export MonadRef (getRef)
 
-instance (m n : Type → Type) [MonadRef m] [MonadFunctor m n] [MonadLift m n] : MonadRef n := {
+instance (m n : Type → Type) [MonadRef m] [MonadFunctor m n] [MonadLift m n] : MonadRef n where
   getRef  := liftM (getRef : m _)
   withRef := fun ref x => monadMap (m := m) (MonadRef.withRef ref) x
-}
 
 def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
   match ref.getPos with
@@ -1805,10 +1776,9 @@ abbrev Macro := Syntax → MacroM Syntax
 
 namespace Macro
 
-instance : MonadRef MacroM := {
+instance : MonadRef MacroM where
   getRef     := bind read fun ctx => pure ctx.ref
   withRef    := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
-}
 
 def addMacroScope (n : Name) : MacroM Name :=
   bind read fun ctx =>
@@ -1834,11 +1804,10 @@ def throwErrorAt {α} (ref : Syntax) (msg : String) : MacroM α :=
   | true  => throw (Exception.error ref maxRecDepthErrorMessage)
   | false => withReader (fun ctx => { ctx with currRecDepth := add ctx.currRecDepth 1 }) x
 
-instance : MonadQuotation MacroM := {
+instance : MonadQuotation MacroM where
   getCurrMacroScope   := fun ctx => pure ctx.currMacroScope
   getMainModule       := fun ctx => pure ctx.mainModule
   withFreshMacroScope := Macro.withFreshMacroScope
-}
 
 unsafe def mkMacroEnvImp (expandMacro? : Syntax → MacroM (Option Syntax)) : MacroEnv :=
   unsafeCast expandMacro?

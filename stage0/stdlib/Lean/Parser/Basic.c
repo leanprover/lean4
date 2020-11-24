@@ -213,6 +213,7 @@ lean_object* l_Lean_Parser_withPosition(lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot___closed__11;
 lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__3___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_updateCache_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_Lean_Parser_charLitFnAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_shrink___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_FirstTokens_seq_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -853,7 +854,6 @@ lean_object* l_Lean_Parser_checkWsBefore___elambda__1(lean_object*, lean_object*
 lean_object* l_Lean_Parser_ParserState_mkUnexpectedError(lean_object*, lean_object*);
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
 lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__4___rarg(lean_object*, lean_object*);
-extern lean_object* l_instOfNatNat___closed__1;
 lean_object* l_Lean_Parser_trailingLoop_match__1___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Parser_ParserState_hasError(lean_object*);
 lean_object* l_Lean_Parser_symbolFnAux(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4500,7 +4500,7 @@ static lean_object* _init_l_Lean_Parser_instInhabitedParser___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_instOfNatNat___closed__1;
+x_1 = l_Applicative_seqRight___default___rarg___closed__1;
 x_2 = lean_box(1);
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_1);

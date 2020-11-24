@@ -119,6 +119,7 @@ lean_object* l_List_lengthAux___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_idDelta___rarg(lean_object*);
 lean_object* l_ReaderT_read___at_Lean_Macro_instMonadRefMacroM___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isOfKind___boxed(lean_object*, lean_object*);
+lean_object* l_Applicative_seqRight___default___rarg___closed__2;
 lean_object* l_instInhabitedDepArrow___rarg(lean_object*, lean_object*);
 lean_object* l_instDecidableOr_match__2___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_EStateM_dummyRestore___rarg(lean_object*, lean_object*);
@@ -688,7 +689,7 @@ lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___boxed(lean_o
 lean_object* l_UInt16_ofNatCore___boxed(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-lean_object* l_instOfNatNat;
+lean_object* l_instOfNatNat(lean_object*);
 size_t lean_usize_mix_hash(size_t, size_t);
 lean_object* l_UInt32_size;
 lean_object* l_Lean_instInhabitedMacroScopesView___closed__1;
@@ -766,8 +767,8 @@ lean_object* l_instInhabitedArrow(lean_object*, lean_object*);
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
 uint8_t l_instDecidableOr___rarg(uint8_t, uint8_t);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
-lean_object* l_instOfNatNat___closed__1;
 lean_object* l___private_Init_Prelude_0__Lean_extractImported_match__1(lean_object*);
+lean_object* l_instOfNatNat___boxed(lean_object*);
 lean_object* l_Lean_MonadQuotation_addMacroScope(lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
 lean_object* l_instInhabitedSort;
@@ -2035,20 +2036,20 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instOfNatNat___closed__1() {
+lean_object* l_instOfNatNat(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_id___rarg___boxed), 1, 0);
+lean_inc(x_1);
 return x_1;
 }
 }
-static lean_object* _init_l_instOfNatNat() {
+lean_object* l_instOfNatNat___boxed(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_instOfNatNat___closed__1;
-return x_1;
+lean_object* x_2; 
+x_2 = l_instOfNatNat(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_instInhabitedNat() {
@@ -4475,8 +4476,16 @@ return x_2;
 static lean_object* _init_l_Applicative_seqRight___default___rarg___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_id___rarg___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Applicative_seqRight___default___rarg___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_instOfNatNat___closed__1;
+x_1 = l_Applicative_seqRight___default___rarg___closed__1;
 x_2 = lean_alloc_closure((void*)(l_Function_const___rarg___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -4489,7 +4498,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9;
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec(x_1);
-x_7 = l_Applicative_seqRight___default___rarg___closed__1;
+x_7 = l_Applicative_seqRight___default___rarg___closed__2;
 x_8 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_7, x_4);
 x_9 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_8, x_5);
 return x_9;
@@ -11004,10 +11013,6 @@ lean_mark_persistent(l_Unit_unit);
 l_instInhabitedSort = _init_l_instInhabitedSort();
 l_instInhabitedPointedType = _init_l_instInhabitedPointedType();
 lean_mark_persistent(l_instInhabitedPointedType);
-l_instOfNatNat___closed__1 = _init_l_instOfNatNat___closed__1();
-lean_mark_persistent(l_instOfNatNat___closed__1);
-l_instOfNatNat = _init_l_instOfNatNat();
-lean_mark_persistent(l_instOfNatNat);
 l_instInhabitedNat = _init_l_instInhabitedNat();
 lean_mark_persistent(l_instInhabitedNat);
 l_instAddNat___closed__1 = _init_l_instAddNat___closed__1();
@@ -11077,6 +11082,8 @@ l_Applicative_seqLeft___default___rarg___closed__1 = _init_l_Applicative_seqLeft
 lean_mark_persistent(l_Applicative_seqLeft___default___rarg___closed__1);
 l_Applicative_seqRight___default___rarg___closed__1 = _init_l_Applicative_seqRight___default___rarg___closed__1();
 lean_mark_persistent(l_Applicative_seqRight___default___rarg___closed__1);
+l_Applicative_seqRight___default___rarg___closed__2 = _init_l_Applicative_seqRight___default___rarg___closed__2();
+lean_mark_persistent(l_Applicative_seqRight___default___rarg___closed__2);
 l_ReaderT_instMonadLiftReaderT___closed__1 = _init_l_ReaderT_instMonadLiftReaderT___closed__1();
 lean_mark_persistent(l_ReaderT_instMonadLiftReaderT___closed__1);
 l_EStateM_instMonadEStateM___closed__1 = _init_l_EStateM_instMonadEStateM___closed__1();

@@ -35,9 +35,9 @@ structure MatchAltView :=
   (rhs      : Syntax)
 
 def mkMatchAltView (ref : Syntax) (matchAlt : Syntax) : MatchAltView := {
-  ref := ref,
-  patterns := matchAlt[0].getSepArgs,
-  rhs := matchAlt[2]
+  ref      := ref
+  patterns := matchAlt[0].getSepArgs
+  rhs      := matchAlt[2]
 }
 
 private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do

@@ -97,6 +97,7 @@ lean_object* l_Lean_MessageData_instCoeArrayExprMessageData___boxed(lean_object*
 extern lean_object* l_Lean_formatKVMap___closed__1;
 lean_object* l_Lean_KernelException_toMessageData_match__2(lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__1;
+extern lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 uint8_t l_Lean_Message_severity___default;
 lean_object* l_Lean_MessageData_instCoeArrayExprMessageData(lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
@@ -361,7 +362,6 @@ lean_object* lean_message_pos(lean_object*);
 uint8_t l_Lean_MessageLog_isEmpty(lean_object*);
 lean_object* l_Lean_MessageLog_errorsToWarnings_match__1(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__26;
-extern lean_object* l_instOfNatNat___closed__1;
 lean_object* l_Lean_Message_getSeverityEx___boxed(lean_object*);
 lean_object* l_Lean_MessageLog_append___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString(lean_object*, lean_object*);
@@ -7168,7 +7168,7 @@ static lean_object* _init_l_Lean_instToMessageDataMessageData() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instOfNatNat___closed__1;
+x_1 = l_Applicative_seqRight___default___rarg___closed__1;
 return x_1;
 }
 }

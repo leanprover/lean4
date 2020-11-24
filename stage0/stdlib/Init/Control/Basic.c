@@ -36,6 +36,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_bool_match__1(lean_object*);
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_75____closed__6;
+extern lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_controlAt(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_andM_match__1___rarg(uint8_t, lean_object*, lean_object*);
@@ -134,7 +135,6 @@ lean_object* l_myMacro____x40_Init_Control_Basic___hyg_75____closed__7;
 lean_object* l_andM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_andM(lean_object*, lean_object*);
 lean_object* l___kind_term____x40_Init_Control_Basic___hyg_38____closed__6;
-extern lean_object* l_instOfNatNat___closed__1;
 lean_object* l_guard(lean_object*);
 lean_object* l_optional(lean_object*);
 lean_object* l_orM(lean_object*, lean_object*);
@@ -686,7 +686,7 @@ static lean_object* _init_l_instToBoolBool() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instOfNatNat___closed__1;
+x_1 = l_Applicative_seqRight___default___rarg___closed__1;
 return x_1;
 }
 }

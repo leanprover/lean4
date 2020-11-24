@@ -31,6 +31,7 @@ lean_object* l_Lean_instFromJsonString___closed__1;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_instFromJsonBool___closed__1;
 lean_object* l_Lean_Json_instToJsonStructured_match__1(lean_object*);
+extern lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_Lean_instFromJsonArray_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_instToJsonArray___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
@@ -67,7 +68,6 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_instToJsonArray___spec__1(lean_obj
 lean_object* l_Array_mapMUnsafe_map___at_Lean_instToJsonArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instFromJsonArray_match__1(lean_object*);
-extern lean_object* l_instOfNatNat___closed__1;
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_instFromJsonStructured(lean_object*);
@@ -85,7 +85,7 @@ static lean_object* _init_l_Lean_instToJsonJson() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instOfNatNat___closed__1;
+x_1 = l_Applicative_seqRight___default___rarg___closed__1;
 return x_1;
 }
 }

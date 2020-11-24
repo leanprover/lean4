@@ -164,12 +164,12 @@ protected theorem subZero (n : Nat) : n - 0 = n :=
   rfl
 
 theorem succSubSuccEqSub (n m : Nat) : succ n - succ m = n - m := by
-  induction m
+  induction m with
   | zero      => exact rfl
   | succ m ih => apply congrArg pred ih
 
 theorem notSuccLeSelf (n : Nat) : ¬succ n ≤ n := by
-  induction n
+  induction n with
   | zero      => intro h; apply notSuccLeZero 0 h
   | succ n ih => intro h; exact ih (leOfSuccLeSucc h)
 
@@ -185,7 +185,7 @@ theorem predLt : ∀ {n : Nat}, n ≠ 0 → pred n < n
   | succ n, h => ltSuccOfLe (Nat.leRefl _)
 
 theorem subLe (n m : Nat) : n - m ≤ n := by
-  induction m
+  induction m with
   | zero      => exact Nat.leRefl (n - 0)
   | succ m ih => apply Nat.leTrans (predLe (n - m)) ih
 

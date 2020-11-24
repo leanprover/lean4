@@ -50,7 +50,7 @@ section
 variables {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
 
 theorem recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a := by
-  induction (apply hwf a)
+  induction (apply hwf a) with
   | intro x₁ ac₁ ih => exact h x₁ ih
 
 theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
@@ -60,11 +60,11 @@ variable {C : α → Sort v}
 variable (F : ∀ x, (∀ y, r y x → C y) → C x)
 
 def fixF (x : α) (a : Acc r x) : C x := by
-  induction a
+  induction a with
   | intro x₁ ac₁ ih => exact F x₁ ih
 
 def fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
-  induction acx
+  induction acx with
   | intro x r ih => exact rfl
 
 end
@@ -96,7 +96,7 @@ namespace Subrelation
 variables {α : Sort u} {r q : α → α → Prop}
 
 def accessible {a : α} (h₁ : Subrelation q r) (ac : Acc r a) : Acc q a := by
-  induction ac
+  induction ac with
   | intro x ax ih =>
     apply Acc.intro
     intro y h
@@ -111,7 +111,7 @@ namespace InvImage
 variables {α : Sort u} {β : Sort v} {r : β → β → Prop}
 
 private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x := by
-  induction ac
+  induction ac with
   | intro x acx ih =>
     intro z e
     apply Acc.intro
@@ -131,11 +131,11 @@ namespace TC
 variables {α : Sort u} {r : α → α → Prop}
 
 def accessible {z : α} (ac : Acc r z) : Acc (TC r) z := by
-  induction ac
+  induction ac with
   | intro x acx ih =>
     apply Acc.intro x
     intro y rel
-    induction rel generalizing acx ih
+    induction rel generalizing acx ih with
     | base a b rab => exact ih a rab
     | trans a b c rab rbc ih₁ ih₂ => apply Acc.inv (ih₂ acx ih) rab
 
@@ -147,7 +147,7 @@ end TC
 def Nat.ltWf : WellFounded Nat.lt := by
   apply WellFounded.intro
   intro n
-  induction n
+  induction n with
   | zero      =>
     apply Acc.intro 0
     intro _ h
@@ -201,13 +201,13 @@ variables {α : Type u} {β : Type v}
 variables {ra  : α → α → Prop} {rb  : β → β → Prop}
 
 def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a : α) (b : β) : Acc (Lex ra rb) (a, b) := by
-  induction (aca a) generalizing b
+  induction (aca a) generalizing b with
   | intro xa aca iha =>
-    induction (acb b)
+    induction (acb b) with
     | intro xb acb ihb =>
       apply Acc.intro (xa, xb)
       intro p lt
-      cases lt
+      cases lt with
       | left  a₁ b₁ a₂ b₂ h => apply iha a₁ h
       | right a b₁ b₂ h     => apply ihb b₁ h
 
@@ -217,7 +217,7 @@ def lexWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Lex ra rb) 
 
 -- relational product is a Subrelation of the Lex
 def rprodSubLex (a : α × β) (b : α × β) (h : Rprod ra rb a b) : Lex ra rb a b := by
-  cases h
+  cases h with
   | intro a₁ b₁ a₂ b₂ h₁ h₂ => exact Lex.left b₁ b₂ h₁
 
 -- The relational product of well founded relations is well-founded
@@ -252,13 +252,13 @@ variables {α : Sort u} {β : α → Sort v}
 variables {r  : α → α → Prop} {s : ∀ (a : α), β a → β a → Prop}
 
 def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b : β a) : Acc (Lex r s) ⟨a, b⟩ := by
-  induction aca generalizing b
+  induction aca generalizing b with
   | intro xa aca iha =>
-    induction (WellFounded.apply (acb xa) b)
+    induction (WellFounded.apply (acb xa) b) with
     | intro xb acb ihb =>
       apply Acc.intro
       intro p lt
-      cases lt
+      cases lt with
       | left  => apply iha; assumption
       | right => apply ihb; assumption
 
@@ -292,14 +292,14 @@ variables {α : Sort u} {β : Sort v}
 variables {r  : α → α → Prop} {s : β → β → Prop}
 
 def revLexAccessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) → Acc (RevLex r s) ⟨a, b⟩ := by
-  induction acb
+  induction acb with
   | intro xb acb ihb =>
     intro a
-    induction (aca a)
+    induction (aca a) with
     | intro xa aca iha =>
       apply Acc.intro
       intro p lt
-      cases lt
+      cases lt with
       | left  => apply iha; assumption
       | right => apply ihb; assumption
 

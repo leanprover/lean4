@@ -12,7 +12,7 @@ axiom elimEx (motive : Nat → Nat → Sort u) (x y : Nat)
   : motive y x
 
 theorem ex1 (p q : Nat) : p ≤ q ∨ p > q := by
-  cases p, q using elimEx
+  cases p, q using elimEx with
   | diag    => apply Or.inl; apply Nat.leRefl
   | lower d => apply Or.inl; show p ≤ p + d.succ; admit
   | upper d => apply Or.inr; show q + d.succ > q; admit
@@ -36,7 +36,7 @@ theorem time2Eq (n : Nat) : 2*n = n + n := by
   rfl
 
 theorem ex3 (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
-  cases n using parityElim
+  cases n using parityElim with
   | even i =>
     apply Exists.intro i
     apply Or.inl
@@ -49,12 +49,12 @@ theorem ex3 (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
     rfl
 
 def ex4 {α} (xs : List α) (h : xs = [] → False) : α := by
-  cases he:xs
+  cases he:xs with
   | nil      => apply False.elim; exact h he; done
   | cons x _ => exact x
 
 def ex5 {α} (xs : List α) (h : xs = [] → False) : α := by
-  cases he:xs using List.casesOn
+  cases he:xs using List.casesOn with
   | nil      => apply False.elim; exact h he; done
   | cons x _ => exact x
 
@@ -64,22 +64,22 @@ theorem ex6 {α} (f : List α → Bool) (h₁ : {xs : List α} → f xs = true �
   | false => rfl
 
 theorem ex7 {α} (f : List α → Bool) (h₁ : {xs : List α} → f xs = true → xs = []) (xs : List α) (h₂ : xs ≠ []) : f xs = false := by
-  cases he:f xs
+  cases he:f xs with
   | true  => exact False.elim (h₂ (h₁ he))
   | false => rfl
 
 theorem ex8 {α} (f : List α → Bool) (h₁ : {xs : List α} → f xs = true → xs = []) (xs : List α) (h₂ : xs ≠ []) : f xs = false := by
-  cases he:f xs using Bool.casesOn
+  cases he:f xs using Bool.casesOn with
   | true  => exact False.elim (h₂ (h₁ he))
   | false => rfl
 
 theorem ex9 {α} (xs : List α) (h : xs = [] → False) : Nonempty α := by
-  cases xs using List.rec
+  cases xs using List.rec with
   | nil      => apply False.elim; apply h; rfl
   | cons x _ => apply Nonempty.intro; assumption
 
 theorem modLt (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
-  induction x, y using Nat.mod.inductionOn generalizing h
+  induction x, y using Nat.mod.inductionOn generalizing h with
   | ind x y h₁ ih =>
     rw [Nat.modEqSubMod h₁.2]
     exact ih h
@@ -93,21 +93,21 @@ theorem modLt (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
       assumption
 
 theorem ex11 {p q : Prop } (h : p ∨ q) : q ∨ p := by
-  induction h using Or.casesOn
+  induction h using Or.casesOn with
   | inr h  => ?myright
   | inl h  => ?myleft
   case myleft  => exact Or.inr h
   case myright => exact Or.inl h
 
 theorem ex12 {p q : Prop } (h : p ∨ q) : q ∨ p := by
-  cases h using Or.casesOn
+  cases h using Or.casesOn with
   | inr h  => ?myright
   | inl h  => ?myleft
   case myleft  => exact Or.inr h
   case myright => exact Or.inl h
 
 theorem ex13 (p q : Nat) : p ≤ q ∨ p > q := by
-  cases p, q using elimEx
+  cases p, q using elimEx with
   | diag    => ?hdiag
   | lower d => ?hlower
   | upper d => ?hupper
@@ -116,7 +116,7 @@ theorem ex13 (p q : Nat) : p ≤ q ∨ p > q := by
   case hupper => apply Or.inr; show q + d.succ > q; admit
 
 theorem ex14 (p q : Nat) : p ≤ q ∨ p > q := by
-  cases p, q using elimEx
+  cases p, q using elimEx with
   | diag    => ?hdiag
   | lower d => _
   | upper d => ?hupper
@@ -125,7 +125,7 @@ theorem ex14 (p q : Nat) : p ≤ q ∨ p > q := by
   case hupper => apply Or.inr; show q + d.succ > q; admit
 
 theorem ex15 (p q : Nat) : p ≤ q ∨ p > q := by
-  cases p, q using elimEx
+  cases p, q using elimEx with
   | diag    => ?hdiag
   | lower d => _
   | upper d => ?hupper

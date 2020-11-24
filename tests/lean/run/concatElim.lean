@@ -51,7 +51,7 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
     rfl
   | x₁::x₂::xs =>
     intro n h
-    cases n
+    cases n with
     | zero   =>
       rw [lengthCons, lengthCons] at h
       injection h with h

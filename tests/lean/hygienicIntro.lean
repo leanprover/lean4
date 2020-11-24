@@ -1,4 +1,4 @@
-
+--
 
 set_option hygienicIntro false in
 theorem ex1 {a p q r : Prop} : p → (p → q) → (q → r) → r := by
@@ -32,7 +32,7 @@ exact h
 
 -- Hygienic versions
 example {p q : Prop} (h₁ : p → q) (h₂ : p ∨ q) : q := by
-cases h₂
+cases h₂ with
 | inl h => apply h₁; exact h
 | inr h => exact h
 

@@ -31,7 +31,7 @@ The tactic `assumption` tries to fill a hole by searching the local context for 
 ```lean
 theorem ex1 : p ∨ q → q ∨ p := by
   intro h
-  cases h
+  cases h with
   | inl h1 =>
     apply Or.inr
     exact h1
@@ -172,7 +172,7 @@ theorem Nat.mod.inductionOn
 -/
 
 theorem ex (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
-  induction x, y using Nat.mod.inductionOn generalizing h
+  induction x, y using Nat.mod.inductionOn generalizing h with
   | ind x y h₁ ih =>
     rw [Nat.modEqSubMod h₁.2]
     exact ih h

@@ -1,1 +1,1 @@
-exitAfterParseError.lean:5:0: error: expected ':=' or '|'
+exitAfterParseError.lean:5:0: error: expected ':=', 'where' or '|'

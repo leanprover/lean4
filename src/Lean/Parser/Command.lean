@@ -37,7 +37,7 @@ def declSig          := parser! many (ppSpace >> (Term.simpleBinderWithoutType <
 def optDeclSig       := parser! many (ppSpace >> (Term.simpleBinderWithoutType <|> Term.bracketedBinder)) >> Term.optType
 def declValSimple    := parser! " :=\n" >> termParser >> optional Term.whereDecls
 def declValEqns      := parser! Term.matchAltsWhereDecls
-def declVal          := declValSimple <|> declValEqns
+def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 def «abbrev»         := parser! "abbrev " >> declId >> optDeclSig >> declVal
 def «def»            := parser! "def " >> declId >> optDeclSig >> declVal
 def «theorem»        := parser! "theorem " >> declId >> declSig >> declVal

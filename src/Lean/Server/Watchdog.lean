@@ -75,7 +75,9 @@ structure OpenDocument :=
 def workerCfg : Process.StdioConfig :=
   { stdin  := Process.Stdio.piped,
     stdout := Process.Stdio.piped,
-    stderr := Process.Stdio.piped }
+    /- The watchdog doesn't read workers' stderr,
+    so we let it be null so as to not overfill a pipe. -/
+    stderr := Process.Stdio.null }
 
 -- Events that a forwarding task of a worker signals to the main task
 inductive WorkerEvent :=
@@ -110,9 +112,6 @@ def stdin (fw : FileWorker) : FS.Stream :=
 
 def stdout (fw : FileWorker) : FS.Stream :=
   FS.Stream.ofHandle fw.proc.stdout
-
-def stderr (fw : FileWorker) : FS.Stream :=
-  FS.Stream.ofHandle fw.proc.stderr
 
 def readMessage (fw : FileWorker) : IO JsonRpc.Message := do
   let msg ← readLspMessage fw.stdout
@@ -191,7 +190,7 @@ partial def fwdMsgTask (fw : FileWorker) : ServerM (Task WorkerEvent) := do
         fw.errorPendingRequests o ErrorCode.internalError
           "Server process of file crashed, likely due to a stack overflow in user code"
         WorkerEvent.crashed err
-  let task ← IO.asTask loop Task.Priority.dedicated 
+  let task ← IO.asTask loop Task.Priority.dedicated
   task.map $ fun
     | Except.ok ev   => ev
     | Except.error e => WorkerEvent.crashed e
@@ -207,23 +206,23 @@ def startFileWorker (uri : DocumentUri) (version : Nat) (text : FileMap) : Serve
   let workerProc ← Process.spawn { toStdioConfig := workerCfg, cmd := st.workerPath }
   let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
   -- the task will never access itself, so this is fine
-  let commTaskFw : FileWorker := { 
+  let commTaskFw : FileWorker := {
     doc                := ⟨version, text, headerAst⟩
     proc               := workerProc
     commTask           := Task.pure WorkerEvent.terminated
     state              := WorkerState.running
-    pendingRequestsRef := pendingRequestsRef 
+    pendingRequestsRef := pendingRequestsRef
   }
   let commTask ← fwdMsgTask commTaskFw
   let fw : FileWorker := { commTaskFw with commTask := commTask }
   writeLspRequest fw.stdin (0 : Nat) "initialize" st.initParams
-  fw.writeNotification "textDocument/didOpen" { 
-    textDocument := { 
+  fw.writeNotification "textDocument/didOpen" {
+    textDocument := {
       uri        := uri
       languageId := "lean"
       version    := version
-      text       := text.source 
-    } : DidOpenTextDocumentParams 
+      text       := text.source
+    } : DidOpenTextDocumentParams
   }
   updateFileWorkers uri fw
 
@@ -258,7 +257,7 @@ def restartCrashedFileWorker (uri : DocumentUri) (fw : FileWorker) (queuedMsgs :
       newFw.writeMessage msg
     catch _ =>
       crashedMsgs := crashedMsgs.push msg
-  if ¬ crashedMsgs.isEmpty then 
+  if ¬ crashedMsgs.isEmpty then
     handleCrash uri crashedMsgs
 
 def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit :=
@@ -275,7 +274,7 @@ def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
   let changes := p.contentChanges
   let fw ← findFileWorker doc.uri
   let oldDoc := fw.doc
-  let some newVersion ← pure doc.version? 
+  let some newVersion ← pure doc.version?
     | throwServerError "Expected version number"
   if newVersion <= oldDoc.version then
     throwServerError "Got outdated version number"
@@ -339,9 +338,8 @@ def shutdown : ServerM Unit := do
   let fileWorkers ← (←read).fileWorkersRef.get
   fileWorkers.forM (fun id _ => terminateFileWorker id)
   fileWorkers.forM (fun _ fw => do let _ ← IO.wait fw.commTask)
-    
 
-inductive ServerEvent
+inductive ServerEvent :=
   | WorkerEvent (uri : DocumentUri) (fw : FileWorker) (ev : WorkerEvent)
   | ClientMsg (msg : JsonRpc.Message)
   | ClientError (e : IO.Error)
@@ -387,7 +385,7 @@ partial def mainLoop (clientTask : Task ServerEvent) : ServerM Unit := do
     | WorkerEvent.terminated => throwServerError "Internal server error: got termination event for worker that should have been removed"
 
 def mkLeanServerCapabilities : ServerCapabilities :=
-  { textDocumentSync? := some 
+  { textDocumentSync? := some
       { openClose := true
         change := TextDocumentSyncKind.incremental
         willSave := false

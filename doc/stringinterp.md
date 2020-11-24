@@ -45,12 +45,12 @@ structure Person :=
   (name : String)
   (age  : Nat)
 
-instance : ToString Person := {
-  toString := fun { name := n, age := v } => s!"\{ name := {n}, age := {v} }"
-}
+instance : ToString Person where
+  toString : Person -> String
+    | { name := n, age := v } => s!"\{ name := {n}, age := {v} }"
 
 def person1 : Person := {
-  name := "John",
+  name := "John"
   age  := 28
 }
 

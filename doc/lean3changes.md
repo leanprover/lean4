@@ -47,10 +47,9 @@ here is the example in the link above using Lean 4 implicit lambdas.
 
 ```lean
 # variables (ρ : Type) (m : Type → Type) [Monad m]
-instance : Monad (ReaderT ρ m) := {
-  pure := ReaderT.pure,
+instance : Monad (ReaderT ρ m) where
+  pure := ReaderT.pure
   bind := ReaderT.bind
-}
 ```
 
 Users can disable the implicit lambda feature by using `@` or writing a lambda expression with `{}` or `[]` binder annotations.

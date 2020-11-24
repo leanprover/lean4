@@ -138,8 +138,8 @@ def isMonday : Weekday → Bool :=
 -- The method `toString` converts values of any type that implements
 -- the class `ToString`.
 -- You can implement instances of `ToString` for your own types.
-instance : ToString Weekday := {
-  toString := fun
+instance : ToString Weekday where
+  toString : Weekday -> String
     | sunday    => "Sunday"
     | monday    => "Monday"
     | tuesday   => "Tuesday"
@@ -147,7 +147,6 @@ instance : ToString Weekday := {
     | thursday  => "Thursday"
     | friday    => "Friday"
     | saturday  => "Saturday"
-}
 
 #eval toString (sunday, 10)
 

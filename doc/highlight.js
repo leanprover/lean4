@@ -1136,14 +1136,14 @@ hljs.registerLanguage("lean", function(hljs) {
       'have replace at suffices show from ' +
       'congr congr_n congr_arg norm_num ring ',
     literal:
-      'tt ff',
+      'true false',
     meta:
       'noncomputable|10 private protected mutual',
     strong:
       'sorry admit',
   };
 
-  var LEAN_IDENT_RE = /[A-Za-z_][\\w\u207F-\u209C\u1D62-\u1D6A\u2079\']*/;
+  var LEAN_IDENT_RE = /[A-Za-z_][\\w\u207F-\u209C\u1D62-\u1D6A\u2079\'0-9]*/;
 
   var DASH_COMMENT = hljs.COMMENT('--', '$');
   var MULTI_LINE_COMMENT = hljs.COMMENT('/-[^-]', '-/');

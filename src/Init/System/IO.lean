@@ -83,6 +83,11 @@ def ofExcept [ToString ε] (e : Except ε α) : IO α :=
 def lazyPure (fn : Unit → α) : IO α :=
   pure (fn ())
 
+
+def sleep (ms : UInt32) : IO Unit :=
+  -- TODO: add a proper primitive for IO.sleep
+  fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
+
 /--
   Run `act` in a separate `Task`. This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
   except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`

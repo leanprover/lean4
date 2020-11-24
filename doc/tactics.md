@@ -252,18 +252,14 @@ If you love Lean 3 `begin ... end` tactic blocks and commas, you can define this
 in Lean 4 using macros in a few lines of code.
 
 ```lean
-syntax[beginEndKind] "begin " sepByT(tactic, ", ") "end" : term
-
 open Lean in
-@[macro beginEndKind] def expandBeginEnd : Macro := fun stx =>
-  match_syntax stx with
-  | `(begin $ts* end) => do
-     let ts   := ts.getSepElems.map fun t => mkNullNode #[t, mkNullNode]
-     let tseq := mkNode `Lean.Parser.Tactic.tacticSeqBracketed #[
-       mkAtomFrom stx "{", mkNullNode ts, mkAtomFrom stx[2] "}"
-     ]
-     `(by $tseq:tacticSeqBracketed)
-  | _ => Macro.throwUnsupported
+macro "begin " ts:sepByT(tactic, ", ") "end" : term => do
+  let stx  ← getRef
+  let ts   := ts.getSepArgs.map (mkNullNode #[·, mkNullNode])
+  let tseq := mkNode `Lean.Parser.Tactic.tacticSeqBracketed #[
+     mkAtomFrom stx "{", mkNullNode ts, mkAtomFrom stx[2] "}"
+  ]
+  `(by $tseq:tacticSeqBracketed)
 
 theorem ex (x : Nat) : x + 0 = 0 + x :=
   begin

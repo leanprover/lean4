@@ -88,8 +88,8 @@ which lands earliest in the file. Panics if there are no changes. -/
 def foldDocumentChanges (changes : @& Array Lsp.TextDocumentContentChangeEvent) (oldText : FileMap)
   : FileMap × String.Pos :=
   if changes.isEmpty then panic! "Lean.Server.foldDocumentChanges: empty change array" else
-  let accumulateChanges : TextDocumentContentChangeEvent → FileMap × String.Pos → FileMap × String.Pos :=
-    fun change ⟨newDocText, minStartOff⟩ =>
+  let accumulateChanges : FileMap × String.Pos → TextDocumentContentChangeEvent → FileMap × String.Pos :=
+    fun ⟨newDocText, minStartOff⟩ change =>
       match change with
       | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) =>
         let startOff    := oldText.lspPosToUtf8Pos range.start
@@ -99,7 +99,7 @@ def foldDocumentChanges (changes : @& Array Lsp.TextDocumentContentChangeEvent) 
       | TextDocumentContentChangeEvent.fullChange (newText : String) =>
         ⟨newText.toFileMap, 0⟩
   -- NOTE: We assume Lean files are below 16 EiB.
-  changes.foldr accumulateChanges (oldText, 0xffffffff)
+  changes.foldl accumulateChanges (oldText, 0xffffffff)
 
 end Server
 end Lean

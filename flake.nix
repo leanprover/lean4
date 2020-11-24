@@ -100,7 +100,7 @@
         '';
         mdbook = lean-mdbook;
         inherit doc doc-test;
-      } // lean.stage1 // lean;
+      } // lean.stage1.Lean // lean.stage1 // lean;
 
       defaultPackage = packages.lean;
 

@@ -22,7 +22,7 @@ jobs:
           - name: Linux release
             os: ubuntu-latest
             CMAKE_OPTIONS: -DSTATIC=ON
-            shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euo pipefail {0}"
+            shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --argstr llvmPackages latest --run "bash -euo pipefail {0}"
           - name: Linux
             os: ubuntu-latest
             check-stage3: true

@@ -22,28 +22,32 @@ private def checkNumPatterns (majors : Array Expr) (lhss : List AltLHS) : MetaM 
   if lhss.any fun lhs => lhs.patterns.length != num then
     throwError "incorrect number of patterns"
 
-private partial def withAltsAux {α} (motive : Expr) : List AltLHS → List Alt → Array (Expr × Nat) → (List Alt → Array (Expr × Nat) → MetaM α) → MetaM α
-  | [],        alts, minors, k => k alts.reverse minors
-  | lhs::lhss, alts, minors, k => do
-    let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
-    let minorType ← withExistingLocalDecls lhs.fvarDecls do
+/- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
+private def withAlts {α} (motive : Expr) (lhss : List AltLHS) (k : List Alt → Array (Expr × Nat) → MetaM α) : MetaM α :=
+  loop lhss [] #[]
+where
+  mkMinorType (xs : Array Expr) (lhs : AltLHS) : MetaM Expr :=
+    withExistingLocalDecls lhs.fvarDecls do
       let args ← lhs.patterns.toArray.mapM Pattern.toExpr
       let minorType := mkAppN motive args
       mkForallFVars xs minorType
-    let (minorType, minorNumParams) := if !xs.isEmpty then (minorType, xs.size) else (mkSimpleThunkType minorType, 1)
-    let idx       := alts.length
-    let minorName := (`h).appendIndexAfter (idx+1)
-    trace[Meta.Match.debug]! "minor premise {minorName} : {minorType}"
-    withLocalDeclD minorName minorType fun minor => do
-      let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs
-      let minors := minors.push (minor, minorNumParams)
-      let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
-      let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns : Alt } :: alts
-      withAltsAux motive lhss alts minors k
 
-/- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
-private partial def withAlts {α} (motive : Expr) (lhss : List AltLHS) (k : List Alt → Array (Expr × Nat) → MetaM α) : MetaM α :=
-  withAltsAux motive lhss [] #[] k
+  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array (Expr × Nat)) : MetaM α := do
+    match lhss with
+    | [] => k alts.reverse minors
+    | lhs::lhss =>
+      let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
+      let minorType ← mkMinorType xs lhs
+      let (minorType, minorNumParams) := if !xs.isEmpty then (minorType, xs.size) else (mkSimpleThunkType minorType, 1)
+      let idx       := alts.length
+      let minorName := (`h).appendIndexAfter (idx+1)
+      trace[Meta.Match.debug]! "minor premise {minorName} : {minorType}"
+      withLocalDeclD minorName minorType fun minor => do
+        let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs
+        let minors := minors.push (minor, minorNumParams)
+        let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
+        let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns : Alt } :: alts
+        loop lhss alts minors
 
 def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
   withGoalOf p (assignExprMVar p.mvarId e)
@@ -225,9 +229,7 @@ partial def unify (a : Expr) (b : Expr) : M Bool := do
       | Expr.fvar aFvarId _, b => assign aFvarId b
       | a, Expr.fvar bFVarId _ => assign bFVarId a
       | Expr.app aFn aArg _, Expr.app bFn bArg _ => unify aFn bFn <&&> unify aArg bArg
-      | _, _ =>
-        trace[Meta.Match.unify]! "unify failed @ {a} =?= {b}"
-        pure false
+      | _, _ => pure false
 
 end Unify
 
@@ -589,9 +591,8 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
     addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := numDiscrs, altNumParams := minors.map Prod.snd, uElimPos? := uElimPos? }
     setInlineAttribute matcherName
     trace[Meta.Match.debug]! "matcher: {matcher}"
-    let unusedAltIdxs : List Nat := lhss.length.fold
-      (fun i r => if s.used.contains i then r else i::r)
-      []
+    let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>
+      if s.used.contains i then r else i::r
     pure { matcher := matcher, counterExamples := s.counterExamples, unusedAltIdxs := unusedAltIdxs.reverse }
 
 end Match

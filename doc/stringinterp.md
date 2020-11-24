@@ -23,10 +23,10 @@ def age  := 28
 
 # Structure of an interpolated string
 
-To identify a string literal as an interpolated string, prepend it with the `s!`.
-Terms inside braces `{}` are regular expressions whose type implements the type class `ToString`.
+To identify a string literal as an interpolated string, prepend it with `s!`.
+Terms inside braces `{}` are ordinary expressions whose type implements the type class `ToString`.
 To include a curly brace `{` in your interpolated string, you must escape it using `\{`.
-You nest interpolated strings inside interpolated strings
+You can nest interpolated strings inside interpolated strings.
 
 ```lean
 def vals := [1, 2, 3]

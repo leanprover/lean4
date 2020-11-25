@@ -104,6 +104,7 @@ in
   in rec {
     mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues deps));
     modRoot   = depRoot name [ mods.${name} ];
+    cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (builtins.attrValues mods); };
     objects   = mapAttrs compileMod mods;
     oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
     staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''

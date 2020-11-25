@@ -231,10 +231,6 @@ def mkCIdentFrom (src : Syntax) (c : Name) : Syntax :=
 def mkCIdent (c : Name) : Syntax :=
   mkCIdentFrom Syntax.missing c
 
-def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
-  let info := src.getHeadInfo.getD {}
-  Syntax.atom info val
-
 def Syntax.identToAtom (stx : Syntax) : Syntax :=
   match stx with
   | Syntax.ident info _ val _ => Syntax.atom info (toString val.eraseMacroScopes)

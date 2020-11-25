@@ -144,14 +144,15 @@ syntax[rewrite] "rewrite " rwRule (location)? : tactic
 syntax[rewriteSeq, 1] "rewrite " rwRuleSeq (location)? : tactic
 
 syntax[rw] "rw " rwRule (location)? : tactic
-macro_rules
-  | `(tactic| rw $rule:rwRule) => `(tactic| rewrite $rule:rwRule)
-  | `(tactic| rw $rule:rwRule $loc:location) => `(tactic| rewrite $rule:rwRule $loc:location)
-
 syntax[rwSeq, 1] "rw " rwRuleSeq (location)? : tactic
-macro_rules
-  | `(tactic| rw $rule:rwRuleSeq) => `(tactic| rewrite $rule:rwRuleSeq)
-  | `(tactic| rw $rule:rwRuleSeq $loc:location) => `(tactic| rewrite $rule:rwRuleSeq $loc:location)
+
+@[macro rw]
+def expandRw : Macro :=
+  fun stx => return stx.setKind `Lean.Parser.Tactic.rewrite |>.setArg 0 (mkAtomFrom stx "rewrite")
+
+@[macro rwSeq]
+def expandRwSeq : Macro :=
+  fun stx => return stx.setKind `Lean.Parser.Tactic.rewriteSeq |>.setArg 0 (mkAtomFrom stx "rewrite")
 
 syntax:2[orelse] tactic "<|>" tactic:1 : tactic
 

@@ -71,11 +71,6 @@ def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false
 
-def set : List α → Nat → α → List α
-  | a::as, 0,   b => b::as
-  | a::as, n+1, b => a::(set as n b)
-  | [],    _,   _ => []
-
 @[specialize] def map (f : α → β) : List α → List β
   | []    => []
   | a::as => f a :: map f as

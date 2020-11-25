@@ -873,6 +873,11 @@ def List.foldl {α β} (f : α → β → α) : (init : α) → List β → α
   | a, nil      => a
   | a, cons b l => foldl f (f a b) l
 
+def List.set : List α → Nat → α → List α
+  | cons a as, 0,          b => cons b as
+  | cons a as, Nat.succ n, b => cons a (set as n b)
+  | nil,       _,          _ => nil
+
 def List.lengthAux {α : Type u} : List α → Nat → Nat
   | nil,       n => n
   | cons a as, n => lengthAux as (Nat.succ n)
@@ -990,6 +995,15 @@ def Array.getOp {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α 
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α := {
   data := List.concat a.data v
 }
+
+@[extern "lean_array_fset"]
+def Array.set (a : Array α) (i : @& Fin a.size) (v : α) : Array α := {
+  data := a.data.set i.val v
+}
+
+@[extern "lean_array_set"]
+def Array.set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
+  dite (Less i a.size) (fun h => a.set ⟨i, h⟩ v) (fun _ => @panic _ ⟨a⟩ "index out of bounds at 'Array.set!'")
 
 -- Slower `Array.append` used in quotations.
 protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
@@ -1538,6 +1552,21 @@ def getArgs (stx : Syntax) : Array Syntax :=
   | Syntax.node _ args => args
   | _                  => Array.empty
 
+def getNumArgs (stx : Syntax) : Nat :=
+  match stx with
+  | Syntax.node _ args => args.size
+  | _                  => 0
+
+def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
+  match stx with
+  | node k _ => node k args
+  | stx      => stx
+
+def setArg (stx : Syntax) (i : Nat) (arg : Syntax) : Syntax :=
+  match stx with
+  | node k args => node k (args.set! i arg)
+  | stx         => stx
+
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
 partial def getHeadInfo : Syntax → Option SourceInfo
   | atom info _      => some info
@@ -1558,6 +1587,11 @@ def getPos (stx : Syntax) : Option String.Pos :=
   | _         => none
 
 end Syntax
+
+def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
+  match src.getHeadInfo with
+  | some info => Syntax.atom info val
+  | none      => Syntax.atom {} val
 
 /- Parser descriptions -/
 

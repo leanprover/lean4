@@ -60,7 +60,7 @@ private def dependsOnOthers (mvar : Expr) (otherMVars : Array Expr) : MetaM Bool
       pure false
     else
       let otherMVarType ← inferType otherMVar
-      pure $ (otherMVarType.findMVar? fun mvarId => mvarId == mvar.mvarId!).isSome
+      return (otherMVarType.findMVar? fun mvarId => mvarId == mvar.mvarId!).isSome
 
 private def reorderNonDependentFirst (newMVars : Array Expr) : MetaM (List MVarId) := do
   let (nonDeps, deps) ← newMVars.foldlM (init := (#[], #[])) fun (nonDeps, deps) mvar => do
@@ -69,7 +69,7 @@ private def reorderNonDependentFirst (newMVars : Array Expr) : MetaM (List MVarI
       pure (nonDeps, deps.push currMVarId)
     else
       pure (nonDeps.push currMVarId, deps)
-  pure $ nonDeps.toList ++ deps.toList
+  return nonDeps.toList ++ deps.toList
 
 inductive ApplyNewGoals :=
   | nonDependentFirst | nonDependentOnly | all
@@ -88,11 +88,13 @@ def apply (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) :=
     postprocessAppMVars `apply mvarId newMVars binderInfos
     let e ← instantiateMVars e
     assignExprMVar mvarId (mkAppN e newMVars)
-    let newMVars ← newMVars.filterM $ fun mvar => not <$> isExprMVarAssigned mvar.mvarId!
+    let newMVars ← newMVars.filterM fun mvar => not <$> isExprMVarAssigned mvar.mvarId!
     let otherMVarIds ← getMVarsNoDelayed e
     -- TODO: add option `ApplyNewGoals` and implement other orders
     let newMVarIds ← reorderNonDependentFirst newMVars
     let otherMVarIds := otherMVarIds.filter fun mvarId => !newMVarIds.contains mvarId
-    pure $ newMVarIds ++ otherMVarIds.toList
+    let result := newMVarIds ++ otherMVarIds.toList
+    result.forM headBetaMVarType
+    return result
 
 end Lean.Meta

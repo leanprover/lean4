@@ -359,6 +359,12 @@ def setMVarUserName (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) 
   let decl := mctx.getDecl mvarId
   { mctx with decls := mctx.decls.insert mvarId { decl with userName := userName } }
 
+/- Update the type of the given metavariable. This function assumes the new type is
+   definitionally equal to the current one -/
+def setMVarType (mctx : MetavarContext) (mvarId : MVarId) (type : Expr) : MetavarContext :=
+  let decl := mctx.getDecl mvarId
+  { mctx with decls := mctx.decls.insert mvarId { decl with type := type } }
+
 def findLevelDepth? (mctx : MetavarContext) (mvarId : MVarId) : Option Nat :=
   mctx.lDepth.find? mvarId
 

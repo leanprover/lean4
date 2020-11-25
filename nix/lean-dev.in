@@ -6,6 +6,8 @@ call() {
     if [[ $json == 1 ]]; then
         $@ 2>&1 | awk '
 /{/ { print $0; next }
+# Hide some Nix warnings. You will still see them with `nix build` etc., but they are pretty annoying in the editor.
+/warning: ignoring/ { next }
 {
   gsub(/"/, "\\\"", $0);
   gsub(/\n/, "\\n", $0);

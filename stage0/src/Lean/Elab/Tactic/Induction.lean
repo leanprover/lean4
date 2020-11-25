@@ -240,10 +240,7 @@ private def generalizeVars (stx : Syntax) (targets : Array Expr) : TacticM Nat :
     pure (fvarIds.size, [mvarId'])
 
 private def getAltsOfInductionAlts (inductionAlts : Syntax) : Array Syntax :=
-  if inductionAlts.getNumArgs == 2 then
-    inductionAlts[1].getSepArgs -- TODO remove
-  else
-    inductionAlts[2].getSepArgs
+  inductionAlts[2].getSepArgs
 
 private def getAltsOfOptInductionAlts (optInductionAlts : Syntax) : Array Syntax :=
   if optInductionAlts.isNone then #[] else getAltsOfInductionAlts optInductionAlts[0]

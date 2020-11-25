@@ -25,35 +25,6 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
     throwError! "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!
 
-@[specialize] private def checkLambdaLet
-    (check   : Expr → MetaM Unit)
-    (e : Expr) : MetaM Unit :=
-  lambdaLetTelescope e fun xs b => do
-    xs.forM fun x => do
-      let xDecl ← getFVarLocalDecl x;
-      match xDecl with
-      | LocalDecl.cdecl _ _ _ t _ =>
-        ensureType t
-        check t
-      | LocalDecl.ldecl _ _ _ t v _ =>
-        ensureType t
-        check t
-        let vType ← inferType v
-        unless (← isDefEq t vType) do throwLetTypeMismatchMessage x.fvarId!
-        check v
-    check b
-
-@[specialize] private def checkForall
-    (check   : Expr → MetaM Unit)
-    (e : Expr) : MetaM Unit :=
-  forallTelescope e fun xs b => do
-    xs.forM fun x => do
-      let xDecl ← getFVarLocalDecl x
-      ensureType xDecl.type
-      check xDecl.type
-    ensureType b
-    check b
-
 private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
   let cinfo ← getConstInfo constName
   unless us.length == cinfo.lparams.length do
@@ -73,11 +44,7 @@ def throwAppTypeMismatch {α} {m} [Monad m] [MonadExceptOf Exception m] [MonadRe
   let expectedType ← liftM $ getFunctionDomain f
   throwError! "application type mismatch{indentExpr e}\nargument{indentExpr a}\nhas type{indentExpr aType}\nbut is expected to have type{indentExpr expectedType}{extraMsg}"
 
-@[specialize] private def checkApp
-    (check   : Expr → MetaM Unit)
-    (f a : Expr) : MetaM Unit := do
-  check f
-  check a
+def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f
   let fType ← whnf fType
   match fType with
@@ -88,14 +55,39 @@ def throwAppTypeMismatch {α} {m} [Monad m] [MonadExceptOf Exception m] [MonadRe
   | _ => throwFunctionExpected (mkApp f a)
 
 private partial def checkAux : Expr → MetaM Unit
-  | e@(Expr.forallE ..)  => checkForall checkAux e
-  | e@(Expr.lam ..)      => checkLambdaLet checkAux e
-  | e@(Expr.letE ..)     => checkLambdaLet checkAux e
+  | e@(Expr.forallE ..)  => checkForall e
+  | e@(Expr.lam ..)      => checkLambdaLet e
+  | e@(Expr.letE ..)     => checkLambdaLet e
   | Expr.const c lvls _  => checkConstant c lvls
-  | Expr.app f a _       => checkApp checkAux f a
+  | Expr.app f a _       => do checkAux f; checkAux a; checkApp f a
   | Expr.mdata _ e _     => checkAux e
   | Expr.proj _ _ e _    => checkAux e
   | _                    => pure ()
+where
+  checkLambdaLet (e : Expr) : MetaM Unit :=
+    lambdaLetTelescope e fun xs b => do
+      xs.forM fun x => do
+        let xDecl ← getFVarLocalDecl x;
+        match xDecl with
+        | LocalDecl.cdecl _ _ _ t _ =>
+          ensureType t
+          checkAux t
+        | LocalDecl.ldecl _ _ _ t v _ =>
+          ensureType t
+          checkAux t
+          let vType ← inferType v
+          unless (← isDefEq t vType) do throwLetTypeMismatchMessage x.fvarId!
+          checkAux v
+      checkAux b
+
+  checkForall (e : Expr) : MetaM Unit :=
+    forallTelescope e fun xs b => do
+      xs.forM fun x => do
+        let xDecl ← getFVarLocalDecl x
+        ensureType xDecl.type
+        checkAux xDecl.type
+      ensureType b
+      checkAux b
 
 def check (e : Expr) : MetaM Unit :=
   traceCtx `Meta.check do

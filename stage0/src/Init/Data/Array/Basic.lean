@@ -570,13 +570,13 @@ theorem ext (a b : Array α)
       (h₁ : a.length = b.length)
       (h₂ : (i : Nat) → (hi₁ : i < a.length) → (hi₂ : i < b.length) → a.get i hi₁ = b.get i hi₂)
       : a = b := by
-    induction a generalizing b
+    induction a generalizing b with
     | nil =>
-      cases b
+      cases b with
       | nil       => rfl
       | cons b bs => rw [List.lengthConsEq] at h₁; injection h₁
     | cons a as ih =>
-      cases b
+      cases b with
       | nil => rw [List.lengthConsEq] at h₁; injection h₁
       | cons b bs =>
         have hz₁ : 0 < (a::as).length by rw [List.lengthConsEq]; apply Nat.zeroLtSucc

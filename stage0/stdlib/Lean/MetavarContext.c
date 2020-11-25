@@ -531,6 +531,7 @@ lean_object* l_Lean_MetavarContext_hasAssignedLevelMVar_match__1(lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_collectDeps___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__22(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
+lean_object* l_Lean_MetavarContext_setMVarType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__23___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_decls___default;
 lean_object* l_Lean_MetavarContext_MkBinding_mkBinding___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3784,6 +3785,120 @@ return x_34;
 }
 }
 }
+lean_object* l_Lean_MetavarContext_setMVarType(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+lean_inc(x_1);
+x_4 = l_Lean_MetavarContext_getDecl(x_1, x_2);
+x_5 = !lean_is_exclusive(x_1);
+if (x_5 == 0)
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_4);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_1, 2);
+x_8 = lean_ctor_get(x_4, 2);
+lean_dec(x_8);
+lean_ctor_set(x_4, 2, x_3);
+x_9 = l_Std_PersistentHashMap_insert___at_Lean_MetavarContext_addExprMVarDecl___spec__1(x_7, x_2, x_4);
+lean_ctor_set(x_1, 2, x_9);
+return x_1;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_10 = lean_ctor_get(x_1, 2);
+x_11 = lean_ctor_get(x_4, 0);
+x_12 = lean_ctor_get(x_4, 1);
+x_13 = lean_ctor_get(x_4, 3);
+x_14 = lean_ctor_get(x_4, 4);
+x_15 = lean_ctor_get_uint8(x_4, sizeof(void*)*6);
+x_16 = lean_ctor_get(x_4, 5);
+lean_inc(x_16);
+lean_inc(x_14);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_dec(x_4);
+x_17 = lean_alloc_ctor(0, 6, 1);
+lean_ctor_set(x_17, 0, x_11);
+lean_ctor_set(x_17, 1, x_12);
+lean_ctor_set(x_17, 2, x_3);
+lean_ctor_set(x_17, 3, x_13);
+lean_ctor_set(x_17, 4, x_14);
+lean_ctor_set(x_17, 5, x_16);
+lean_ctor_set_uint8(x_17, sizeof(void*)*6, x_15);
+x_18 = l_Std_PersistentHashMap_insert___at_Lean_MetavarContext_addExprMVarDecl___spec__1(x_10, x_2, x_17);
+lean_ctor_set(x_1, 2, x_18);
+return x_1;
+}
+}
+else
+{
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
+x_19 = lean_ctor_get(x_1, 0);
+x_20 = lean_ctor_get(x_1, 1);
+x_21 = lean_ctor_get(x_1, 2);
+x_22 = lean_ctor_get(x_1, 3);
+x_23 = lean_ctor_get(x_1, 4);
+x_24 = lean_ctor_get(x_1, 5);
+lean_inc(x_24);
+lean_inc(x_23);
+lean_inc(x_22);
+lean_inc(x_21);
+lean_inc(x_20);
+lean_inc(x_19);
+lean_dec(x_1);
+x_25 = lean_ctor_get(x_4, 0);
+lean_inc(x_25);
+x_26 = lean_ctor_get(x_4, 1);
+lean_inc(x_26);
+x_27 = lean_ctor_get(x_4, 3);
+lean_inc(x_27);
+x_28 = lean_ctor_get(x_4, 4);
+lean_inc(x_28);
+x_29 = lean_ctor_get_uint8(x_4, sizeof(void*)*6);
+x_30 = lean_ctor_get(x_4, 5);
+lean_inc(x_30);
+if (lean_is_exclusive(x_4)) {
+ lean_ctor_release(x_4, 0);
+ lean_ctor_release(x_4, 1);
+ lean_ctor_release(x_4, 2);
+ lean_ctor_release(x_4, 3);
+ lean_ctor_release(x_4, 4);
+ lean_ctor_release(x_4, 5);
+ x_31 = x_4;
+} else {
+ lean_dec_ref(x_4);
+ x_31 = lean_box(0);
+}
+if (lean_is_scalar(x_31)) {
+ x_32 = lean_alloc_ctor(0, 6, 1);
+} else {
+ x_32 = x_31;
+}
+lean_ctor_set(x_32, 0, x_25);
+lean_ctor_set(x_32, 1, x_26);
+lean_ctor_set(x_32, 2, x_3);
+lean_ctor_set(x_32, 3, x_27);
+lean_ctor_set(x_32, 4, x_28);
+lean_ctor_set(x_32, 5, x_30);
+lean_ctor_set_uint8(x_32, sizeof(void*)*6, x_29);
+x_33 = l_Std_PersistentHashMap_insert___at_Lean_MetavarContext_addExprMVarDecl___spec__1(x_21, x_2, x_32);
+x_34 = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(x_34, 0, x_19);
+lean_ctor_set(x_34, 1, x_20);
+lean_ctor_set(x_34, 2, x_33);
+lean_ctor_set(x_34, 3, x_22);
+lean_ctor_set(x_34, 4, x_23);
+lean_ctor_set(x_34, 5, x_24);
+return x_34;
+}
+}
+}
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_MetavarContext_findLevelDepth_x3f___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -4012,7 +4127,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = l_Lean_MetavarContext_getLevelDepth___closed__1;
-x_3 = lean_unsigned_to_nat(368u);
+x_3 = lean_unsigned_to_nat(374u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_MetavarContext_getDecl___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4162,7 +4277,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = l_Lean_MetavarContext_renameMVar___closed__1;
-x_3 = lean_unsigned_to_nat(377u);
+x_3 = lean_unsigned_to_nat(383u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_MetavarContext_getDecl___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8086,7 +8201,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = l_Lean_MetavarContext_isLevelAssignable___closed__1;
-x_3 = lean_unsigned_to_nat(441u);
+x_3 = lean_unsigned_to_nat(447u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_MetavarContext_isLevelAssignable___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

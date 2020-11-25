@@ -165,7 +165,7 @@ syntax[«let!»] "let! " letDecl : tactic
 syntax[letrec] withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
 
 syntax inductionAlt  := (ident <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
-syntax inductionAlts := withPosition("| " sepBy1(inductionAlt, colGe "| "))
+syntax inductionAlts := "with " withPosition("| " sepBy1(inductionAlt, colGe "| "))
 syntax[induction] "induction " sepBy1(term, ", ") (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
 syntax casesTarget := atomic(ident " : ")? term
 syntax[cases] "cases " sepBy1(casesTarget, ", ") (" using " ident)? (inductionAlts)? : tactic
@@ -175,6 +175,8 @@ syntax matchAlts := withPosition("| " sepBy1(matchAlt, colGe "| "))
 syntax[«match»] "match " sepBy1(matchDiscr, ", ") (" : " term)? " with " matchAlts : tactic
 
 syntax[introMatch] "intro " matchAlts : tactic
+
+syntax[existsIntro] "exists " term : tactic
 
 macro "rfl" : tactic => `(exact rfl)
 macro "decide!" : tactic => `(exact decide!)

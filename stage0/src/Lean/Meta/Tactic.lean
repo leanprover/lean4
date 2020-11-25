@@ -16,3 +16,4 @@ import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.ElimInfo
 import Lean.Meta.Tactic.Delta
+import Lean.Meta.Tactic.Constructor

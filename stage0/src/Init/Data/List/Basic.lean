@@ -336,7 +336,7 @@ def dropLast {α} : List α → List α
 
 def lengthReplicateEq {α} (n : Nat) (a : α) : (replicate n a).length = n :=
   let rec aux (n : Nat) (as : List α) : (replicate.loop a n as).length = n + as.length := by
-    induction n generalizing as
+    induction n generalizing as with
     | zero => rw [Nat.zeroAdd]; rfl
     | succ n ih =>
       show length (replicate.loop a n (a::as)) = Nat.succ n + length as
@@ -345,7 +345,7 @@ def lengthReplicateEq {α} (n : Nat) (a : α) : (replicate n a).length = n :=
   aux n []
 
 def lengthConcatEq {α} (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
-  induction as
+  induction as with
   | nil => rfl
   | cons x xs ih =>
     show length (x :: concat xs a) = length (x :: xs) + 1
@@ -353,10 +353,10 @@ def lengthConcatEq {α} (as : List α) (a : α) : (concat as a).length = as.leng
     rfl
 
 def lengthSetEq {α} (as : List α) (i : Nat) (a : α) : (as.set i a).length = as.length := by
-  induction as generalizing i
+  induction as generalizing i with
   | nil => rfl
   | cons x xs ih =>
-    cases i
+    cases i with
     | zero => rfl
     | succ i =>
       show length (x :: set xs i a) = length (x :: xs)

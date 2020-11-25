@@ -208,7 +208,7 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
   let st ← get
   -- reset precs for the recursive call
   set { stxTrav := st.stxTrav : State }
-  trace[PrettyPrinter.parenthesize]! "parenthesizing (cont := {(st.contPrec, st.contCat)}){MessageData.nest 2 (line ++ stx)}"
+  trace[PrettyPrinter.parenthesize]! "parenthesizing (cont := {(st.contPrec, st.contCat)}){MessageData.nest 2 (line ++ fmt stx)}"
   x
   let { minPrec := some minPrec, trailPrec := trailPrec, trailCat := trailCat, .. } ← get
     | panic! "maybeParenthesize: visited a syntax tree without precedences?!"
@@ -532,7 +532,8 @@ end Parenthesizer
 open Parenthesizer
 
 /-- Add necessary parentheses in `stx` parsed by `parser`. -/
-def parenthesize (parenthesizer : Parenthesizer) (stx : Syntax) : CoreM Syntax :=
+def parenthesize (parenthesizer : Parenthesizer) (stx : Syntax) : CoreM Syntax := do
+  trace[PrettyPrinter.parenthesize.input]! "{fmt stx}"
   catchInternalId backtrackExceptionId
     (do
       let (_, st) ← (parenthesizer {}).run { stxTrav := Syntax.Traverser.fromSyntax stx }

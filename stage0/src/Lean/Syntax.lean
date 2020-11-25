@@ -141,37 +141,44 @@ def getIdAt (stx : Syntax) (i : Nat) : Name :=
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
   Id.run $ stx.rewriteBottomUpM fn
 
-private def updateInfo : SourceInfo → String.Pos → SourceInfo
-  | {leading := some {str := s, startPos := _, stopPos := _}, pos := some pos, trailing := trailing}, last =>
-    {leading := some {str := s, startPos := last, stopPos := pos}, pos := some pos, trailing := trailing}
-  | info, _ => info
+private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
+  | {leading := some lead, pos := some pos, trailing := some trail}, leadStart, trailStop =>
+    {leading := some { lead with startPos := leadStart }, pos := some pos, trailing := some { trail with stopPos := trailStop }}
+  | info, _, _ => info
+
+private def chooseNiceTrailStop (trail : Substring) : String.Pos :=
+trail.startPos + trail.posOf '\n'
 
 /- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
    or the beginning of the String. -/
 @[inline]
 private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
   | atom info@{trailing := some trail, ..} val => do
-    let last ← get
-    set trail.stopPos
-    let newInfo := updateInfo info last
+    let trailStop := chooseNiceTrailStop trail
+    let newInfo := updateInfo info (← get) trailStop
+    set trailStop
     pure $ some (atom newInfo val)
   | ident info@{trailing := some trail, ..} rawVal val pre   => do
-    let last ← get
-    set trail.stopPos
-    let newInfo := updateInfo info last
+    let trailStop := chooseNiceTrailStop trail
+    let newInfo := updateInfo info (← get) trailStop
+    set trailStop
     pure $ some (ident newInfo rawVal val pre)
   | _ => pure none
 
 /-- Set `SourceInfo.leading` according to the trailing stop of the preceding token.
-    The Result is a round-tripping Syntax tree IF, in the input Syntax tree,
+    The result is a round-tripping syntax tree IF, in the input syntax tree,
     * all leading stops, atom contents, and trailing starts are correct
     * trailing stops are between the trailing start and the next leading stop.
 
-    Remark: after parsing all `SourceInfo.leading` fields are Empty.
-    The Syntax argument is the output produced by the Parser for `source`.
-    This Function "fixes" the `source.leanding` field.
+    Remark: after parsing, all `SourceInfo.leading` fields are empty.
+    The `Syntax` argument is the output produced by the parser for `source`.
+    This function "fixes" the `source.leading` field.
 
-    Note that, the `SourceInfo.trailing` fields are correct.
+    Additionally, we try to choose "nicer" splits between leading and trailing stops
+    according to some heuristics so that e.g. comments are associated to the (intuitively)
+    correct token.
+
+    Note that the `SourceInfo.trailing` fields must be correct.
     The implementation of this Function relies on this property. -/
 def updateLeading : Syntax → Syntax :=
   fun stx => (replaceM updateLeadingAux stx).run' 0

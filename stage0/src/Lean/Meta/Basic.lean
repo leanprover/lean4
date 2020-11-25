@@ -281,6 +281,11 @@ def getMVarDecl (mvarId : MVarId) : m MetavarDecl := liftMetaM do
 def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : m Unit := liftMetaM do
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
 
+/- Update the type of the given metavariable. This function assumes the new type is
+   definitionally equal to the current one -/
+def setMVarType (mvarId : MVarId) (type : Expr) : m Unit := liftMetaM do
+  modifyMCtx fun mctx => mctx.setMVarType mvarId type
+
 def isReadOnlyExprMVar (mvarId : MVarId) : m Bool := liftMetaM do
   let mvarDecl ← getMVarDecl mvarId
   let mctx     ← getMCtx

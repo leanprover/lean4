@@ -114,7 +114,7 @@ theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (�
   ⟨axiomOfChoice, fun ⟨f, hw⟩ (x) => ⟨f x, hw x⟩⟩
 
 theorem propComplete (a : Prop) : a = True ∨ a = False := by
-  cases em a
+  cases em a with
   | inl _  => apply Or.inl; apply propext; apply Iff.intro; { intros; apply True.intro }; { intro; assumption }
   | inr hn => apply Or.inr; apply propext; apply Iff.intro; { intro h; exact hn h }; { intro h; apply False.elim h }
 

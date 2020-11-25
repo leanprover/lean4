@@ -175,16 +175,12 @@ def withAntiquot.formatter (antiP p : Formatter) : Formatter :=
 @[combinatorFormatter Lean.Parser.categoryParser]
 def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
   let stx ← getCur
+  trace[PrettyPrinter.format]! "formatting {MessageData.nest 2 (Format.line ++ fmt stx)}"
   if stx.getKind == `choice then
     visitArgs do
-      let stx ← getCur;
-      let sp ← getStackSize
-      stx.getArgs.forM fun stx => formatterForKind stx.getKind
-      let stack ← getStack
-      if stack.size > sp && stack[sp:stack.size].any fun f => f.pretty != (stack.get! sp).pretty then
-        panic! "Formatter.visit: inequal choice children";
-      -- discard all but one child format
-      setStack $ stack.extract 0 (sp+1)
+      -- format only last choice
+      -- TODO: We could use elaborator data here to format the chosen child when available
+      formatterForKind (← getCur).getKind
   else
     withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind)
 
@@ -240,7 +236,20 @@ def pushTokenCore (tk : String) : FormatterM Unit := do
     pushLine
     push tk.trimRight
 
-def pushToken (tk : String) : FormatterM Unit := do
+def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
+  match info.trailing with
+  | some ss =>
+    -- preserve non-whitespace content (i.e. comments)
+    let ss' := ss.trim
+    if !ss'.isEmpty then
+      let ws := { ss with startPos := ss'.stopPos }
+      if ws.contains '\n' then
+        push s!"\n{ss'}"
+      else
+        push s!"  {ss'}"
+      modify fun st => { st with leadWord := "" }
+  | none    => pure ()
+
   let st ← get
   -- If there is no space between `tk` and the next word, see if we would parse more than `tk` as a single token
   if st.leadWord != "" && tk.trimRight == tk then
@@ -259,59 +268,74 @@ def pushToken (tk : String) : FormatterM Unit := do
     pushTokenCore tk
     modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
 
+  match info.leading with
+  | some ss =>
+    -- preserve non-whitespace content (i.e. comments)
+    let ss' := ss.trim
+    if !ss'.isEmpty then
+      let ws := { ss with startPos := ss'.stopPos }
+      if ws.contains '\n' then do
+        -- Indentation is automatically increased when entering a category, but comments should be aligned
+        -- with the actual token, so dedent
+        indent (push s!"{ss'}\n") (some (0 - Format.getIndent (← getOptions)))
+      else
+        push s!"{ss'} "
+      modify fun st => { st with leadWord := "" }
+  | none    => pure ()
+
 @[combinatorFormatter Lean.Parser.symbol]
 def symbol.formatter (sym : String) : Formatter := do
   let stx ← getCur
   if stx.isToken sym then do
-    pushToken sym;
+    let (Syntax.atom info _) ← pure stx | unreachable!
+    pushToken info sym
     goLeft
   else do
-    trace[PrettyPrinter.format.backtrack]! "unexpected syntax '{stx}', expected symbol '{sym}'"
+    trace[PrettyPrinter.format.backtrack]! "unexpected syntax '{fmt stx}', expected symbol '{sym}'"
     throwBacktrack
 
 @[combinatorFormatter Lean.Parser.nonReservedSymbol] def nonReservedSymbol.formatter := symbol.formatter
 
 @[combinatorFormatter Lean.Parser.unicodeSymbol]
 def unicodeSymbol.formatter (sym asciiSym : String) : Formatter := do
-  let stx ← getCur
-  let Syntax.atom _ val ← pure stx
-    | throwError $ "not an atom: " ++ toString stx
+  let Syntax.atom info val ← getCur
+    | throwError m!"not an atom: {← getCur}"
   if val == sym.trim then
-    pushToken sym
+    pushToken info sym
   else
-    pushToken asciiSym;
+    pushToken info asciiSym;
   goLeft
 
 @[combinatorFormatter Lean.Parser.identNoAntiquot]
 def identNoAntiquot.formatter : Formatter := do
   checkKind identKind;
-  let stx ← getCur
-  let id := stx.getId
+  let Syntax.ident info _ id _ ← getCur
+    | throwError m!"not an ident: {← getCur}"
   let id := id.simpMacroScopes
   let s := id.toString;
   if id.isAnonymous then
-    pushToken "[anonymous]"
+    pushToken info "[anonymous]"
   else if isInaccessibleUserName id || id.components.any Name.isNum ||
     -- loose bvar
     "#".isPrefixOf s then
     -- not parsable anyway, output as-is
-    pushToken s
+    pushToken info s
   else
     -- try to parse `s` as-is; if it fails, escape
     let pst ← parseToken s
-    if pst.stxStack == #[stx] then
-      pushToken s
+    if pst.pos == s.bsize then
+      pushToken info s
     else
-      let n := stx.getId
       -- TODO: do something better than escaping all parts
-      let n := (n.components.map fun c => "«" ++ toString c ++ "»").foldl Name.mkStr Name.anonymous
-      pushToken n.toString
+      let id := (id.components.map fun c => "«" ++ toString c ++ "»").foldl Name.mkStr Name.anonymous
+      pushToken info id.toString
   goLeft
 
 @[combinatorFormatter Lean.Parser.rawIdent] def rawIdent.formatter : Formatter := do
   checkKind identKind
-  let stx ← getCur
-  pushToken stx.getId.toString;
+  let Syntax.ident info _ id _ ← getCur
+    | throwError m!"not an ident: {← getCur}"
+  pushToken info id.toString
   goLeft
 
 @[combinatorFormatter Lean.Parser.identEq] def identEq.formatter (id : Name) := rawIdent.formatter
@@ -320,9 +344,9 @@ def visitAtom (k : SyntaxNodeKind) : Formatter := do
   let stx ← getCur
   if k != Name.anonymous then
     checkKind k
-  let Syntax.atom _ val ← pure $ stx.ifNode (fun n => n.getArg 0) (fun _ => stx)
-    | throwError $ "not an atom: " ++ toString stx
-  pushToken val
+  let Syntax.atom info val ← pure $ stx.ifNode (fun n => n.getArg 0) (fun _ => stx)
+    | throwError m!"not an atom: {stx}"
+  pushToken info val
   goLeft
 
 @[combinatorFormatter Lean.Parser.charLitNoAntiquot] def charLitNoAntiquot.formatter := visitAtom charLitKind
@@ -453,13 +477,14 @@ end Formatter
 open Formatter
 
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
-let options ← getOptions
-let table ← Parser.builtinTokenTable.get
-catchInternalId backtrackExceptionId
-  (do
-    let (_, st) ← (concat formatter { table := table, options := options }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
-    pure $ Format.fill $ st.stack.get! 0)
-  (fun _ => throwError "format: uncaught backtrack exception")
+  trace[PrettyPrinter.format.input]! "{fmt stx}"
+  let options ← getOptions
+  let table ← Parser.builtinTokenTable.get
+  catchInternalId backtrackExceptionId
+    (do
+      let (_, st) ← (concat formatter { table := table, options := options }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
+      pure $ Format.fill $ st.stack.get! 0)
+    (fun _ => throwError "format: uncaught backtrack exception")
 
 def formatTerm := format $ categoryParser.formatter `term
 def formatCommand := format $ categoryParser.formatter `command

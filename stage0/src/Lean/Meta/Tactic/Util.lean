@@ -39,6 +39,9 @@ def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
 def getMVarType (mvarId : MVarId) : MetaM Expr := do
   pure (← getMVarDecl mvarId).type
 
+def getMVarType' (mvarId : MVarId) : MetaM Expr := do
+  whnf (← instantiateMVars (← getMVarDecl mvarId).type)
+
 def ppGoal (mvarId : MVarId) : MetaM Format := do
   Lean.ppGoal { env := (← getEnv), mctx := (← getMCtx), opts := (← getOptions) } mvarId
 
@@ -51,5 +54,9 @@ def admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=
     let mvarType ← getMVarType mvarId
     let val ← mkSorry mvarType synthetic
     assignExprMVar mvarId val
+
+/-- Beta reduce the metavariable type head -/
+def headBetaMVarType (mvarId : MVarId) : MetaM Unit := do
+  setMVarType mvarId (← getMVarType mvarId).headBeta
 
 end Lean.Meta

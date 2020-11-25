@@ -18,8 +18,8 @@ namespace Term
 def leftArrow : Parser := unicodeSymbol " ← " " <- "
 @[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
 
-def doSeqIndent    := parser! many1Indent $ group (doElemParser >> optional "; ")
-def doSeqBracketed := parser! "{" >> withoutPosition (many1 (group (doElemParser >> optional "; "))) >> "}"
+def doSeqIndent    := parser! many1Indent $ group (ppLine >> doElemParser >> optional "; ")
+def doSeqBracketed := parser! "{" >> withoutPosition (many1 (group (ppLine >> doElemParser >> optional "; "))) >> ppLine >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
 def notFollowedByRedefinedTermToken :=

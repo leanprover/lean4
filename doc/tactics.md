@@ -234,7 +234,7 @@ You can use `let rec` to write local recursive functions. We lifted it to the ta
 and you can use it to create proofs by induction.
 
 ```lean
-def lengthReplicateEq {α} (n : Nat) (a : α) : (List.replicate n a).length = n := by
+theorem lengthReplicateEq {α} (n : Nat) (a : α) : (List.replicate n a).length = n := by
   let rec aux (n : Nat) (as : List α)
       : (List.replicate.loop a n as).length = n + as.length := by
     match n with
@@ -245,6 +245,23 @@ def lengthReplicateEq {α} (n : Nat) (a : α) : (List.replicate n a).length = n 
       rfl
   exact aux n []
 ```
+
+You can also introduce auxiliary recursive declarations using `where` clause after your definition.
+Lean converts them into a `let rec`.
+
+```lean
+theorem lengthReplicateEq {α} (n : Nat) (a : α) : (List.replicate n a).length = n :=
+  replicateLoopEq n []
+where
+  replicateLoopEq n as : (List.replicate.loop a n as).length = n + as.length := by
+    match n with
+    | 0   => rw [Nat.zeroAdd]; rfl
+    | n+1 =>
+      show List.length (List.replicate.loop a n (a::as)) = Nat.succ n + as.length
+      rw [aux n, List.lengthConsEq, Nat.addSucc, Nat.succAdd]
+      rfl
+```
+
 
 # `begin-end` lovers
 

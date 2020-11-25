@@ -9,20 +9,20 @@ open Lean.Format
 open Lean.Meta
 
 def checkM (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : TermElabM Unit := do
-let opts ← getOptions;
-let stx ← stx;
-let e ← elabTermAndSynthesize stx none <* throwErrorIfErrors;
-let stx' ← liftMetaM $ delab Name.anonymous [] e optionsPerPos;
-let stx' ← liftCoreM $ PrettyPrinter.parenthesizeTerm stx';
-let f' ← liftCoreM $ PrettyPrinter.formatTerm stx';
-IO.println $ f'.pretty opts;
-let env ← getEnv;
-(match Parser.runParserCategory env `term (toString f') "<input>" with
+let opts ← getOptions
+let stx ← stx
+let e ← elabTermAndSynthesize stx none <* throwErrorIfErrors
+let stx' ← delab Name.anonymous [] e optionsPerPos
+let f' ← PrettyPrinter.ppTerm stx'
+let s := f'.pretty opts
+IO.println s
+let env ← getEnv
+match Parser.runParserCategory env `term s "<input>" with
 | Except.error e => throwErrorAt stx e
 | Except.ok stx'' => do
-  let e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors;
+  let e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors
   unless (← isDefEq e e') do
-    throwErrorAt stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e'))
+    throwErrorAt stx (fmt "failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
 
 -- set_option trace.PrettyPrinter.parenthesize true
 set_option format.width 20
@@ -90,3 +90,9 @@ set_option pp.structure_instance_type true in
 #eval checkM `(1 < 2 || true)
 
 #eval checkM `(id (fun a => a) 0)
+
+#eval checkM `(typeAs Nat (do
+  let x ← pure 1
+  pure 2
+  let y := 3
+  return x + y))

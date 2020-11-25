@@ -1555,7 +1555,7 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
   -- antiquotation kind via `noImmediateColon`
   let nameP := if anonymous then nameP <|> checkNoImmediateColon >> pushNone else nameP
   -- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
-  node kind $ atomic $
+  leadingNode kind maxPrec $ atomic $
     setExpected [] "$" >>
     many (checkNoWsBefore "" >> "$") >>
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>

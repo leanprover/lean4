@@ -194,6 +194,87 @@ TODO
 
 TODO
 
+## Dependent pattern matching
+
+The `match-with` expression implements dependent pattern matching. You can use it to create concise proofs.
+
+```lean
+inductive Mem : α → List α → Prop where
+  | head (a : α) (as : List α)   : Mem a (a::as)
+  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
+
+infix:50 "∈" => Mem
+
+theorem memSplit {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t :=
+  match a, as, h with
+  | _, _, Mem.head a bs     => ⟨[], ⟨bs, rfl⟩⟩
+  | _, _, Mem.tail a b bs h =>
+    match bs, memSplit h with
+    | _, ⟨s, ⟨t, rfl⟩⟩ => ⟨b::s, ⟨t, List.consAppend .. ▸ rfl⟩⟩
+```
+
+In the tactic DSL, the right-hand-side of each alternative in a `match-with` is a sequence of tactics instead of a term.
+Here is a similar proof using the tactic DSL.
+
+```lean
+# inductive Mem : α → List α → Prop where
+#  | head (a : α) (as : List α)   : Mem a (a::as)
+#  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
+# infix:50 "∈" => Mem
+theorem memSplit {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
+  match a, as, h with
+  | _, _, Mem.head a bs     => exists []; exists bs; rfl
+  | _, _, Mem.tail a b bs h =>
+    match bs, memSplit h with
+    | _, ⟨s, ⟨t, rfl⟩⟩ =>
+      exists b::s; exists t;
+      rw [List.consAppend]; rfl
+```
+
+We can use `match-with` nested in tactics.
+Here is a similar proof that uses the `induction` tactic instead of recursion.
+
+```lean
+# inductive Mem : α → List α → Prop where
+#  | head (a : α) (as : List α)   : Mem a (a::as)
+#  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
+# infix:50 "∈" => Mem
+theorem memSplit {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
+  induction as with
+  | nil          => cases h
+  | cons b bs ih => cases h with
+    | head a bs => exact ⟨[], ⟨bs, rfl⟩⟩
+    | tail a b bs h =>
+      match bs, ih h with
+      | _, ⟨s, ⟨t, rfl⟩⟩ =>
+        exists b::s; exists t
+        rw [List.consAppend]; rfl
+```
+
+You can create your own notation using existing tactics. In the following example,
+we define a simple `obtain` tactic using macros. We say it is simple because it takes only one
+discriminant. Later, we show how to create more complex automation using macros.
+
+```lean
+# inductive Mem : α → List α → Prop where
+#  | head (a : α) (as : List α)   : Mem a (a::as)
+#  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
+# infix:50 "∈" => Mem
+macro "obtain " p:term " from " d:term : tactic =>
+  `(tactic| match $d:term with | $p:term => ?_)
+
+theorem memSplit {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
+  induction as with
+  | cons b bs ih => cases h with
+    | tail a b bs h =>
+      obtain ⟨s, ⟨t, h⟩⟩ from ih h
+      exists b::s; exists t
+      rw [h, List.consAppend]; rfl
+    | head a bs => exact ⟨[], ⟨bs, rfl⟩⟩
+  | nil => cases h
+
+```
+
 ## Extensible tactics
 
 In the following example, we define the notation `trivial` for the tactic DSL using
@@ -258,7 +339,7 @@ where
     | 0   => rw [Nat.zeroAdd]; rfl
     | n+1 =>
       show List.length (List.replicate.loop a n (a::as)) = Nat.succ n + as.length
-      rw [aux n, List.lengthConsEq, Nat.addSucc, Nat.succAdd]
+      rw [replicateLoopEq n, List.lengthConsEq, Nat.addSucc, Nat.succAdd]
       rfl
 ```
 

@@ -142,9 +142,13 @@ syntax rwRuleSeq := "[" sepBy1T(rwRule, ", ") "]"
 
 syntax[rewrite] "rewrite " rwRule (location)? : tactic
 syntax[rewriteSeq, 1] "rewrite " rwRuleSeq (location)? : tactic
+syntax[erewrite] "erewrite " rwRule (location)? : tactic
+syntax[erewriteSeq, 1] "erewrite " rwRuleSeq (location)? : tactic
 
 syntax[rw] "rw " rwRule (location)? : tactic
 syntax[rwSeq, 1] "rw " rwRuleSeq (location)? : tactic
+syntax[erw] "erw " rwRule (location)? : tactic
+syntax[erwSeq, 1] "erw " rwRuleSeq (location)? : tactic
 
 @[macro rw]
 def expandRw : Macro :=
@@ -153,6 +157,14 @@ def expandRw : Macro :=
 @[macro rwSeq]
 def expandRwSeq : Macro :=
   fun stx => return stx.setKind `Lean.Parser.Tactic.rewriteSeq |>.setArg 0 (mkAtomFrom stx "rewrite")
+
+@[macro erw]
+def expandERw : Macro :=
+  fun stx => return stx.setKind `Lean.Parser.Tactic.erewrite |>.setArg 0 (mkAtomFrom stx "erewrite")
+
+@[macro erwSeq]
+def expandERwSeq : Macro :=
+  fun stx => return stx.setKind `Lean.Parser.Tactic.erewriteSeq |>.setArg 0 (mkAtomFrom stx "erewrite")
 
 syntax:2[orelse] tactic "<|>" tactic:1 : tactic
 

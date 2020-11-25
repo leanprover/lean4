@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Constructor
 import Lean.Meta.Tactic.Assert
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.SyntheticMVars
@@ -74,18 +75,24 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
   | `(tactic| refine! $e) => refineCore e `refine (allowNaturalHoles := true)
   | _                     => throwUnsupportedSyntax
 
+def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
+  let (g, gs) ← getMainGoal
+  let gs' ← withMVarContext g do
+    let decl ← getMVarDecl g
+    let val  ← elabTerm e none true
+    let gs'  ← tac g val
+    Term.synthesizeSyntheticMVarsNoPostponing
+    pure gs'
+  setGoals (gs' ++ gs)
+
 @[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
   match_syntax stx with
-  | `(tactic| apply $e) => do
-    let (g, gs) ← getMainGoal
-    let gs' ← withMVarContext g do
-      let decl ← getMVarDecl g
-      let val  ← elabTerm e none true
-      let gs'  ← Meta.apply g val
-      Term.synthesizeSyntheticMVarsNoPostponing
-      pure gs'
-    -- TODO: handle optParam and autoParam
-    setGoals (gs' ++ gs)
+  | `(tactic| apply $e) => evalApplyLikeTactic Meta.apply e
+  | _ => throwUnsupportedSyntax
+
+@[builtinTactic Lean.Parser.Tactic.existsIntro] def evalExistsIntro : Tactic := fun stx =>
+  match_syntax stx with
+  | `(tactic| exists $e) => evalApplyLikeTactic (fun mvarId e => return [(← Meta.existsIntro mvarId e)]) e
   | _ => throwUnsupportedSyntax
 
 /--

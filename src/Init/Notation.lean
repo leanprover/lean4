@@ -176,6 +176,8 @@ syntax[«match»] "match " sepBy1(matchDiscr, ", ") (" : " term)? " with " match
 
 syntax[introMatch] "intro " matchAlts : tactic
 
+syntax[existsIntro] "exists " term : tactic
+
 macro "rfl" : tactic => `(exact rfl)
 macro "decide!" : tactic => `(exact decide!)
 macro "admit" : tactic => `(exact sorry)

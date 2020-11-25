@@ -23,7 +23,7 @@ def Exception.getRef : Exception → Syntax
   | Exception.error ref _   => ref
   | Exception.internal _  _ => Syntax.missing
 
-instance : Inhabited Exception := ⟨Exception.error (arbitrary _) (arbitrary _)⟩
+instance : Inhabited Exception := ⟨Exception.error arbitrary arbitrary⟩
 
 /- Similar to `AddMessageContext`, but for error messages.
    The default instance just uses `AddMessageContext`.

@@ -194,8 +194,8 @@ def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
 -- Macro scopes in the parenthesizer output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
 instance : MonadQuotation ParenthesizerM := {
-  getCurrMacroScope   := pure $ arbitrary _,
-  getMainModule       := pure $ arbitrary _,
+  getCurrMacroScope   := pure arbitrary,
+  getMainModule       := pure arbitrary,
   withFreshMacroScope := fun x => x,
 }
 
@@ -270,13 +270,13 @@ def throwError {α} (msg : MessageData) : ParenthesizerM α :=
 
 -- break up big mutual recursion
 @[extern "lean_pretty_printer_parenthesizer_interpret_parser_descr"]
-constant interpretParserDescr' : ParserDescr → CoreM Parenthesizer := arbitrary _
+constant interpretParserDescr' : ParserDescr → CoreM Parenthesizer
 
 unsafe def parenthesizerForKindUnsafe (k : SyntaxNodeKind) : Parenthesizer := do
   (← liftM $ runForNodeKind parenthesizerAttribute k interpretParserDescr')
 
 @[implementedBy parenthesizerForKindUnsafe]
-constant parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer := arbitrary _
+constant parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer
 
 @[combinatorParenthesizer Lean.Parser.withAntiquot]
 def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer :=

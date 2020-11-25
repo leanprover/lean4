@@ -62,7 +62,7 @@ def isNest : MessageData → Bool
   | nest _ _ => true
   | _        => false
 
-instance : Inhabited MessageData := ⟨MessageData.ofFormat (arbitrary _)⟩
+instance : Inhabited MessageData := ⟨MessageData.ofFormat arbitrary⟩
 
 def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
   env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, opts := ctx.opts,
@@ -154,7 +154,7 @@ protected def toString (msg : Message) : IO String := do
      | MessageSeverity.error => "error: ") ++
     (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ str)
 
-instance : Inhabited Message := ⟨{ fileName := "", pos := ⟨0, 1⟩, data := arbitrary _}⟩
+instance : Inhabited Message := ⟨{ fileName := "", pos := ⟨0, 1⟩, data := arbitrary }⟩
 
 @[export lean_message_pos] def getPostEx (msg : Message) : Position := msg.pos
 @[export lean_message_severity] def getSeverityEx (msg : Message) : MessageSeverity := msg.severity

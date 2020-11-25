@@ -39,7 +39,7 @@ structure Def (γ : Type) :=
       | none    => throwError "invalid attribute argument, expected identifier")
 
 instance {γ} : Inhabited (Def γ) :=
-  ⟨{ builtinName := arbitrary _, name := arbitrary _, descr := arbitrary _, valueTypeName := arbitrary _ }⟩
+  ⟨{ builtinName := arbitrary, name := arbitrary, descr := arbitrary, valueTypeName := arbitrary }⟩
 
 structure OLeanEntry :=
   (key  : Key)
@@ -77,7 +77,7 @@ def Table.insert {γ : Type} (table : Table γ) (k : Key) (v : γ) : Table γ :=
 instance {γ} : Inhabited (ExtensionState γ) := ⟨{}⟩
 
 instance {γ} : Inhabited (KeyedDeclsAttribute γ) :=
-  ⟨{ defn := arbitrary _, tableRef := arbitrary _, ext := arbitrary _ }⟩
+  ⟨{ defn := arbitrary, tableRef := arbitrary, ext := arbitrary }⟩
 
 private def mkInitial {γ} (tableRef : IO.Ref (Table γ)) : IO (ExtensionState γ) := do
   let table ← tableRef.get

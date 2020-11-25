@@ -68,7 +68,7 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
         else throwError ("invalid [formatter] argument, unknown syntax kind '" ++ toString id ++ "'")
       | none    => throwError "invalid [formatter] argument, expected identifier"
   } `Lean.PrettyPrinter.formatterAttribute
-@[builtinInit mkFormatterAttribute] constant formatterAttribute : KeyedDeclsAttribute Formatter := arbitrary _
+@[builtinInit mkFormatterAttribute] constant formatterAttribute : KeyedDeclsAttribute Formatter
 
 unsafe def mkCombinatorFormatterAttribute : IO ParserCompiler.CombinatorAttribute :=
   ParserCompiler.registerCombinatorAttribute
@@ -79,7 +79,7 @@ unsafe def mkCombinatorFormatterAttribute : IO ParserCompiler.CombinatorAttribut
   Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.
   The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
   with `Formatter` in the parameter types."
-@[builtinInit mkCombinatorFormatterAttribute] constant combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute := arbitrary _
+@[builtinInit mkCombinatorFormatterAttribute] constant combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute
 
 namespace Formatter
 
@@ -158,13 +158,13 @@ constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (a
 
 -- break up big mutual recursion
 @[extern "lean_pretty_printer_formatter_interpret_parser_descr"]
-constant interpretParserDescr' : ParserDescr → CoreM Formatter := arbitrary _
+constant interpretParserDescr' : ParserDescr → CoreM Formatter
 
 unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
   (← liftM $ runForNodeKind formatterAttribute k interpretParserDescr')
 
 @[implementedBy formatterForKindUnsafe]
-constant formatterForKind (k : SyntaxNodeKind) : Formatter := arbitrary _
+constant formatterForKind (k : SyntaxNodeKind) : Formatter
 
 @[combinatorFormatter Lean.Parser.withAntiquot]
 def withAntiquot.formatter (antiP p : Formatter) : Formatter :=

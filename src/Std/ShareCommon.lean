@@ -27,10 +27,10 @@ unsafe def Object.ptrHash (a : Object) : USize :=
   ptrAddrUnsafe a
 
 @[extern "lean_sharecommon_eq"]
-unsafe constant Object.eq (a b : @& Object) : Bool := arbitrary _
+unsafe constant Object.eq (a b : @& Object) : Bool
 
 @[extern "lean_sharecommon_hash"]
-unsafe constant Object.hash (a : @& Object) : USize := arbitrary _
+unsafe constant Object.hash (a : @& Object) : USize
 
 unsafe def ObjectMap : Type := @HashMap Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
 unsafe def ObjectSet : Type := @HashSet Object ⟨Object.eq⟩ ⟨Object.hash⟩
@@ -86,7 +86,7 @@ unsafe def ObjectPersistentSet.insert (s : ObjectPersistentSet) (o : Object) : O
   @PersistentHashSet.insert Object ⟨Object.eq⟩ ⟨Object.hash⟩ s o
 
 /- Internally `State` is implemented as a pair `ObjectMap` and `ObjectSet` -/
-constant StatePointed : PointedType := arbitrary _
+constant StatePointed : PointedType
 abbrev State : Type u := StatePointed.type
 @[extern "lean_sharecommon_mk_state"]
 constant mkState : Unit → State := fun _ => StatePointed.val
@@ -94,7 +94,7 @@ def State.empty : State := mkState ()
 instance State.inhabited : Inhabited State := ⟨State.empty⟩
 
 /- Internally `PersistentState` is implemented as a pair `ObjectPersistentMap` and `ObjectPersistentSet` -/
-constant PersistentStatePointed : PointedType := arbitrary _
+constant PersistentStatePointed : PointedType
 abbrev PersistentState : Type u := PersistentStatePointed.type
 @[extern "lean_sharecommon_mk_pstate"]
 constant mkPersistentState : Unit → PersistentState := fun _ => PersistentStatePointed.val

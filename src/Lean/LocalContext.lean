@@ -25,7 +25,7 @@ def LocalDecl.binderInfoEx : LocalDecl → BinderInfo
   | _                          => BinderInfo.default
 
 namespace LocalDecl
-instance : Inhabited LocalDecl := ⟨ldecl (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _) false⟩
+instance : Inhabited LocalDecl := ⟨ldecl arbitrary arbitrary arbitrary arbitrary arbitrary false⟩
 
 def isLet : LocalDecl → Bool
   | cdecl .. => false

@@ -23,7 +23,7 @@ private def isIOUnit (type : Expr) : Bool :=
 
 /-- Run the initializer for `decl` and store its value for global access. Should only be used while importing. -/
 @[extern "lean_run_init"]
-unsafe constant runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit := arbitrary _
+unsafe constant runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit
 
 unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name) :=
   registerParametricAttribute {
@@ -56,7 +56,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
   }
 
 @[implementedBy registerInitAttrUnsafe]
-constant registerInitAttr (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name) := arbitrary _
+constant registerInitAttr (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name)
 
 builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init true
 builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit false

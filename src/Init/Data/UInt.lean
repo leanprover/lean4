@@ -145,9 +145,9 @@ instance : ModN UInt32      := ⟨UInt32.modn⟩
 instance : Div UInt32       := ⟨UInt32.div⟩
 
 @[extern c inline "#1 << #2"]
-constant UInt32.shiftLeft (a b : UInt32) : UInt32 := (arbitrary Nat).toUInt32
+constant UInt32.shiftLeft (a b : UInt32) : UInt32
 @[extern c inline "#1 >> #2"]
-constant UInt32.shiftRight (a b : UInt32) : UInt32 := (arbitrary Nat).toUInt32
+constant UInt32.shiftRight (a b : UInt32) : UInt32
 
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨Fin.ofNat n⟩
@@ -183,9 +183,9 @@ def UInt32.toUInt64 (a : UInt32) : UInt64 := a.toNat.toUInt64
 
 -- TODO(Leo): give reference implementation for shiftLeft and shiftRight, and define them for other UInt types
 @[extern c inline "#1 << #2"]
-constant UInt64.shiftLeft (a b : UInt64) : UInt64 := (arbitrary Nat).toUInt64
+constant UInt64.shiftLeft (a b : UInt64) : UInt64
 @[extern c inline "#1 >> #2"]
-constant UInt64.shiftRight (a b : UInt64) : UInt64 := (arbitrary Nat).toUInt64
+constant UInt64.shiftRight (a b : UInt64) : UInt64
 
 instance : OfNat UInt64     := ⟨UInt64.ofNat⟩
 instance : Add UInt64       := ⟨UInt64.add⟩
@@ -248,9 +248,9 @@ def USize.toUInt32 (a : USize) : UInt32 := a.toNat.toUInt32
 
 -- TODO(Leo): give reference implementation for shiftLeft and shiftRight, and define them for other UInt types
 @[extern c inline "#1 << #2"]
-constant USize.shiftLeft (a b : USize) : USize := (arbitrary Nat).toUSize
+constant USize.shiftLeft (a b : USize) : USize
 @[extern c inline "#1 >> #2"]
-constant USize.shiftRight (a b : USize) : USize := (arbitrary Nat).toUSize
+constant USize.shiftRight (a b : USize) : USize
 def USize.lt (a b : USize) : Prop := a.val < b.val
 def USize.le (a b : USize) : Prop := a.val ≤ b.val
 

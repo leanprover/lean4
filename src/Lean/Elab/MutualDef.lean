@@ -24,7 +24,7 @@ structure DefViewElabHeader :=
   (valueStx      : Syntax)
 
 instance : Inhabited DefViewElabHeader :=
-  ⟨⟨arbitrary _, {}, DefKind.«def», arbitrary _, arbitrary _, [], 0, arbitrary _, arbitrary _⟩⟩
+  ⟨⟨arbitrary, {}, DefKind.«def», arbitrary, arbitrary, [], 0, arbitrary, arbitrary ⟩⟩
 
 namespace Term
 
@@ -441,7 +441,7 @@ private def pushLocalDecl (toProcess : Array FVarId) (fvarId : FVarId) (userName
     : StateRefT ClosureState TermElabM (Array FVarId) := do
   let type ← preprocess type
   modify fun s => { s with
-    newLocalDecls := s.newLocalDecls.push $ LocalDecl.cdecl (arbitrary _) fvarId userName type bi,
+    newLocalDecls := s.newLocalDecls.push $ LocalDecl.cdecl arbitrary fvarId userName type bi,
     exprArgs      := s.exprArgs.push (mkFVar fvarId)
   }
   pure $ pushNewVars toProcess (collectFVars {} type)
@@ -469,7 +469,7 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
         let type ← preprocess type
         let val  ← preprocess val
         modify fun s => { s with
-          newLetDecls   := s.newLetDecls.push $ LocalDecl.ldecl (arbitrary _) fvarId userName type val false,
+          newLetDecls   := s.newLetDecls.push $ LocalDecl.ldecl arbitrary fvarId userName type val false,
           /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of fvarId
              at `newLocalDecls` and `localDecls` -/
           newLocalDecls := s.newLocalDecls.map (replaceFVarIdAtLocalDecl fvarId val),

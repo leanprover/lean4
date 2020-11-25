@@ -56,15 +56,15 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
       pure (newVDecls, xs.push (Arg.var q.x))
     else
       let x ← N.mkFresh
-      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) (arbitrary _)), xs.push (Arg.var x))
+      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) arbitrary), xs.push (Arg.var x))
   let r ← N.mkFresh
-  let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) (arbitrary _))
+  let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) arbitrary)
   let body ←
     if !decl.resultType.isScalar then
       pure $ reshape newVDecls (FnBody.ret (Arg.var r))
     else
       let newR ← N.mkFresh
-      let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) (arbitrary _))
+      let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) arbitrary)
       pure $ reshape newVDecls (FnBody.ret (Arg.var newR))
   pure $ Decl.fdecl (mkBoxedName decl.name) qs IRType.object body
 
@@ -97,7 +97,7 @@ def eqvTypes (t₁ t₂ : IRType) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
 structure BoxingContext :=
-  (f : FunId := arbitrary _)
+  (f : FunId := arbitrary)
   (localCtx : LocalContext := {})
   (resultType : IRType := IRType.irrelevant)
   (decls : Array Decl)
@@ -146,7 +146,7 @@ def getDecl (fid : FunId) : M Decl := do
   let ctx ← read
   match findEnvDecl' ctx.env fid ctx.decls with
   | some decl => pure decl
-  | none      => pure (arbitrary _) -- unreachable if well-formed
+  | none      => pure arbitrary -- unreachable if well-formed
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
   withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addParams xs }) k

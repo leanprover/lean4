@@ -16,7 +16,7 @@ structure TraceElem :=
   (msg : MessageData)
 
 instance : Inhabited TraceElem :=
-  ⟨⟨arbitrary _, arbitrary _⟩⟩
+  ⟨⟨arbitrary, arbitrary⟩⟩
 
 structure TraceState :=
   (enabled : Bool := true)

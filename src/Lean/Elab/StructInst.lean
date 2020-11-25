@@ -173,7 +173,7 @@ inductive FieldLHS :=
   | fieldIndex (ref : Syntax) (idx : Nat)
   | modifyOp   (ref : Syntax) (index : Syntax)
 
-instance : Inhabited FieldLHS := ⟨FieldLHS.fieldName (arbitrary _) (arbitrary _)⟩
+instance : Inhabited FieldLHS := ⟨FieldLHS.fieldName arbitrary arbitrary⟩
 instance : ToFormat FieldLHS := ⟨fun lhs =>
   match lhs with
   | FieldLHS.fieldName _ n  => fmt n
@@ -191,7 +191,7 @@ structure Field (σ : Type) :=
   (val : FieldVal σ)
   (expr? : Option Expr := none)
 
-instance {σ} : Inhabited (Field σ) := ⟨⟨arbitrary _, [], FieldVal.term (arbitrary _), arbitrary _⟩⟩
+instance {σ} : Inhabited (Field σ) := ⟨⟨arbitrary, [], FieldVal.term arbitrary, arbitrary⟩⟩
 
 def Field.isSimple {σ} : Field σ → Bool
   | { lhs := [_], .. } => true
@@ -200,7 +200,7 @@ def Field.isSimple {σ} : Field σ → Bool
 inductive Struct :=
   | mk (ref : Syntax) (structName : Name) (fields : List (Field Struct)) (source : Source)
 
-instance : Inhabited Struct := ⟨⟨arbitrary _, arbitrary _, [], arbitrary _⟩⟩
+instance : Inhabited Struct := ⟨⟨arbitrary, arbitrary, [], arbitrary⟩⟩
 
 abbrev Fields := List (Field Struct)
 

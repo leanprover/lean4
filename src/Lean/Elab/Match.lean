@@ -269,7 +269,7 @@ structure Context :=
   (args          : List Arg)
   (newArgs       : Array Syntax := #[])
 
-instance : Inhabited Context := ⟨⟨arbitrary _, none, false, false, #[], 0, #[], [], #[]⟩⟩
+instance : Inhabited Context := ⟨⟨arbitrary, none, false, false, #[], 0, #[], [], #[]⟩⟩
 
 private def isDone (ctx : Context) : Bool :=
   ctx.paramDeclIdx ≥ ctx.paramDecls.size
@@ -626,7 +626,7 @@ private def mkLocalDeclFor (mvar : Expr) : M Pattern := do
        If this generates problems in the future, we should update the metavariable declarations. -/
     assignExprMVar mvarId (mkFVar fvarId)
     let userName ← liftM $ mkFreshBinderName
-    let newDecl := LocalDecl.cdecl (arbitrary _) fvarId userName type BinderInfo.default;
+    let newDecl := LocalDecl.cdecl arbitrary fvarId userName type BinderInfo.default;
     modify fun s =>
       { s with
         newLocals  := s.newLocals.insert fvarId,

@@ -14,7 +14,7 @@ structure Attribute :=
 instance : ToFormat Attribute := ⟨fun attr =>
   Format.bracket "@[" (toString attr.name ++ (if attr.args.isMissing then "" else toString attr.args)) "]"⟩
 
-instance : Inhabited Attribute := ⟨{ name := arbitrary _ }⟩
+instance : Inhabited Attribute := ⟨{ name := arbitrary }⟩
 
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m Attribute := do
   -- rawIdent >> many attrArg

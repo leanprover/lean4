@@ -261,7 +261,7 @@ structure MetavarDecl :=
 def mkMetavarDeclEx (userName : Name) (lctx : LocalContext) (type : Expr) (depth : Nat) (localInstances : LocalInstances) (kind : MetavarKind) : MetavarDecl :=
   { userName := userName, lctx := lctx, type := type, depth := depth, localInstances := localInstances, kind := kind }
 
-instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary _, type := arbitrary _, depth := 0, localInstances := #[], kind := MetavarKind.natural }⟩
+instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary, type := arbitrary, depth := 0, localInstances := #[], kind := MetavarKind.natural }⟩
 
 /--
   A delayed assignment for a metavariable `?m`. It represents an assignment of the form

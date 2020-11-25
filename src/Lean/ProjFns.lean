@@ -22,7 +22,7 @@ def mkProjectionInfoEx (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : 
   def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool := info.fromClass
 
 instance : Inhabited ProjectionFunctionInfo :=
-  ⟨{ ctorName := arbitrary _, nparams := arbitrary _, i := 0, fromClass := false }⟩
+  ⟨{ ctorName := arbitrary, nparams := arbitrary, i := 0, fromClass := false }⟩
 
 builtin_initialize projectionFnInfoExt : SimplePersistentEnvExtension (Name × ProjectionFunctionInfo) (NameMap ProjectionFunctionInfo) ←
   registerSimplePersistentEnvExtension {
@@ -42,14 +42,14 @@ namespace Environment
 def getProjectionFnInfo? (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
   match env.getModuleIdxFor? projName with
   | some modIdx =>
-    match (projectionFnInfoExt.getModuleEntries env modIdx).binSearch (projName, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
+    match (projectionFnInfoExt.getModuleEntries env modIdx).binSearch (projName, arbitrary) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
   | none        => (projectionFnInfoExt.getState env).find? projName
 
 def isProjectionFn (env : Environment) (n : Name) : Bool :=
   match env.getModuleIdxFor? n with
-  | some modIdx => (projectionFnInfoExt.getModuleEntries env modIdx).binSearchContains (n, arbitrary _) (fun a b => Name.quickLt a.1 b.1)
+  | some modIdx => (projectionFnInfoExt.getModuleEntries env modIdx).binSearchContains (n, arbitrary) (fun a b => Name.quickLt a.1 b.1)
   | none        => (projectionFnInfoExt.getState env).contains n
 
 /-- If `projName` is the name of a projection function, return the associated structure name -/

@@ -144,10 +144,10 @@ inductive Code :=
   | jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
 
 instance : Inhabited Code :=
-  ⟨Code.«break» (arbitrary _)⟩
+  ⟨Code.«break» arbitrary⟩
 
 instance : Inhabited (Alt Code) :=
-  ⟨{ ref := arbitrary _, vars := #[], patterns := arbitrary _, rhs := arbitrary _ }⟩
+  ⟨{ ref := arbitrary, vars := #[], patterns := arbitrary, rhs := arbitrary }⟩
 
 /- A code block, and the collection of variables updated by it. -/
 structure CodeBlock :=

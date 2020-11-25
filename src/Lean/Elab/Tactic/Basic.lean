@@ -71,7 +71,7 @@ structure SavedState :=
   (term   : Term.State)
   (tactic : State)
 
-instance : Inhabited SavedState := ⟨⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _⟩⟩
+instance : Inhabited SavedState := ⟨⟨arbitrary, arbitrary, arbitrary, arbitrary⟩⟩
 
 def saveAllState : TacticM SavedState := do
   pure { core := (← getThe Core.State), meta := (← getThe Meta.State), term := (← getThe Term.State), tactic := (← get) }

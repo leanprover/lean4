@@ -64,7 +64,7 @@ structure ConstantVal :=
   (lparams : List Name)
   (type : Expr)
 
-instance : Inhabited ConstantVal := ⟨{ name := arbitrary _, lparams := arbitrary _, type := arbitrary _ }⟩
+instance : Inhabited ConstantVal := ⟨{ name := arbitrary, lparams := arbitrary, type := arbitrary }⟩
 
 structure AxiomVal extends ConstantVal :=
   (isUnsafe : Bool)
@@ -228,7 +228,7 @@ def mkConstructorValEx (name : Name) (lparams : List Name) (type : Expr) (induct
 @[export lean_constructor_val_is_unsafe] def ConstructorVal.isUnsafeEx (v : ConstructorVal) : Bool := v.isUnsafe
 
 instance : Inhabited ConstructorVal :=
-  ⟨{ toConstantVal := arbitrary _, induct := arbitrary _, cidx := 0, nparams := 0, nfields := 0, isUnsafe := true }⟩
+  ⟨{ toConstantVal := arbitrary, induct := arbitrary, cidx := 0, nparams := 0, nfields := 0, isUnsafe := true }⟩
 
 /-- Information for reducing a recursor -/
 structure RecursorRule :=

@@ -95,7 +95,7 @@ builtin_initialize delabFailureId : InternalExceptionId ← registerInternalExce
 abbrev DelabM := ReaderT Context MetaM
 abbrev Delab := DelabM Syntax
 
-instance {α} : Inhabited (DelabM α) := ⟨throw $ arbitrary _⟩
+instance {α} : Inhabited (DelabM α) := ⟨throw arbitrary⟩
 
 @[inline] protected def orElse {α} (d₁ d₂ : DelabM α) : DelabM α := do
 catchInternalId delabFailureId d₁ (fun _ => d₂)
@@ -110,8 +110,8 @@ instance {α} : OrElse (DelabM α) := ⟨Delaborator.orElse⟩
 -- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
 instance : MonadQuotation DelabM := {
-  getCurrMacroScope   := pure $ arbitrary _,
-  getMainModule       := pure $ arbitrary _,
+  getCurrMacroScope   := pure arbitrary,
+  getMainModule       := pure arbitrary,
   withFreshMacroScope := fun x => x
 }
 

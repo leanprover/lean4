@@ -26,7 +26,7 @@ private def initOptionDeclsRef : IO (IO.Ref OptionDecls) :=
   IO.mkRef (mkNameMap OptionDecl)
 
 @[builtinInit initOptionDeclsRef]
-private constant optionDeclsRef : IO.Ref OptionDecls := arbitrary _
+private constant optionDeclsRef : IO.Ref OptionDecls
 
 @[export lean_register_option]
 def registerOption (name : Name) (decl : OptionDecl) : IO Unit := do

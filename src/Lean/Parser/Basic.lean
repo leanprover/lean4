@@ -117,7 +117,7 @@ structure InputContext :=
   (fileMap  : FileMap)
 
 instance : Inhabited InputContext := ⟨{
-  input := "", fileName := "", fileMap := arbitrary _
+  input := "", fileName := "", fileMap := arbitrary
 }⟩
 
 structure ParserContext extends InputContext :=

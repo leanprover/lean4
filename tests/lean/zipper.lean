@@ -1,5 +1,3 @@
-
-
 structure ListZipper (α : Type) :=
 (xs : List α) (bs : List α)
 
@@ -25,7 +23,7 @@ def erase : ListZipper α → ListZipper α
 | ⟨x::xs, bs⟩ => ⟨xs, bs⟩
 
 def curr [Inhabited α] : ListZipper α → α
-| ⟨[], bs⟩    => arbitrary _
+| ⟨[], bs⟩    => arbitrary
 | ⟨x::xs, bs⟩ => x
 
 def currOpt : ListZipper α → Option α

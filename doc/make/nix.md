@@ -1,4 +1,4 @@
-While [Nix](https://nixos.org/nix/) can be used to quickly open a shell with all dependencies for the [standard setup](index.md) installed, we also support a setup based purely on Nix, though it is still experimental; in particular, it is heavily based on an unreleased version of Nix enabling [Nix Flakes](https://www.tweag.io/blog/2020-05-25-flakes/). The setup has been tested on NixOS and other Linux distributions.
+While [Nix](https://nixos.org/nix/) can be used to quickly open a shell with all dependencies for the [standard setup](index.md) installed, we also support a setup based purely on Nix, though it is still experimental; in particular, it is heavily based on an unreleased version of Nix enabling [Nix Flakes](https://www.tweag.io/blog/2020-05-25-flakes/). The setup has been tested on NixOS, other Linux distributions, and macOS.
 
 # Setup
 

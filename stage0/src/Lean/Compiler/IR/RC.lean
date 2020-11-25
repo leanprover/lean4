@@ -30,7 +30,7 @@ structure Context :=
 def getDecl (ctx : Context) (fid : FunId) : Decl :=
   match findEnvDecl' ctx.env fid ctx.decls with
   | some decl => decl
-  | none      => arbitrary _ -- unreachable if well-formed
+  | none      => arbitrary -- unreachable if well-formed
 
 def getVarInfo (ctx : Context) (x : VarId) : VarInfo :=
   match ctx.varMap.find? x with

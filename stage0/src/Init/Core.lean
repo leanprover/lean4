@@ -442,13 +442,13 @@ instance : Inhabited True where
   default := trivial
 
 instance : Inhabited NonScalar where
-  default := ⟨arbitrary _⟩
+  default := ⟨arbitrary⟩
 
 instance : Inhabited PNonScalar.{u} where
-  default := ⟨arbitrary _⟩
+  default := ⟨arbitrary⟩
 
 instance {α} [Inhabited α] : Inhabited (ForInStep α) where
-  default := ForInStep.done (arbitrary _)
+  default := ForInStep.done (arbitrary)
 
 class inductive Nonempty (α : Sort u) : Prop :=
   | intro (val : α) : Nonempty α
@@ -457,7 +457,7 @@ protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ 
   h₂ h₁.1
 
 instance {α : Sort u} [Inhabited α] : Nonempty α where
-  val := arbitrary α
+  val := arbitrary
 
 theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
   | ⟨w, h⟩ => ⟨w⟩
@@ -548,10 +548,10 @@ section
 variables {α : Type u} {β : Type v}
 
 instance Sum.inhabitedLeft [h : Inhabited α] : Inhabited (Sum α β) where
-  default := Sum.inl (arbitrary α)
+  default := Sum.inl arbitrary
 
 instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) where
-  default := Sum.inr (arbitrary β)
+  default := Sum.inr arbitrary
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
   match a, b with
@@ -572,7 +572,7 @@ section
 variables {α : Type u} {β : Type v}
 
 instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
-  default := (arbitrary α, arbitrary β)
+  default := (arbitrary, arbitrary)
 
 instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
   fun ⟨a, b⟩ ⟨a', b'⟩ =>

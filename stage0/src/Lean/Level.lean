@@ -199,7 +199,7 @@ def toNat (lvl : Level) : Option Nat :=
   | _      => none
 
 @[extern "lean_level_eq"]
-protected constant beq (a : @& Level) (b : @& Level) : Bool := arbitrary _
+protected constant beq (a : @& Level) (b : @& Level) : Bool
 
 instance : BEq Level := ⟨Level.beq⟩
 

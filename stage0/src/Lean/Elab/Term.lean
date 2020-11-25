@@ -146,14 +146,14 @@ abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
 open Meta
 
-instance {α} : Inhabited (TermElabM α) := ⟨throw $ arbitrary _⟩
+instance {α} : Inhabited (TermElabM α) := ⟨throw arbitrary⟩
 
 structure SavedState :=
   (core   : Core.State)
   (meta   : Meta.State)
   («elab» : State)
 
-instance : Inhabited SavedState := ⟨⟨arbitrary _, arbitrary _, arbitrary _⟩⟩
+instance : Inhabited SavedState := ⟨⟨arbitrary, arbitrary, arbitrary⟩⟩
 
 def saveAllState : TermElabM SavedState := do
   pure { core := (← getThe Core.State), meta := (← getThe Meta.State), «elab» := (← get) }
@@ -166,7 +166,7 @@ def SavedState.restore (s : SavedState) : TermElabM Unit := do
   setTraceState traceState
 
 abbrev TermElabResult := EStateM.Result Exception SavedState Expr
-instance : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
+instance : Inhabited TermElabResult := ⟨EStateM.Result.ok arbitrary arbitrary⟩
 
 def setMessageLog (messages : MessageLog) : TermElabM Unit :=
   modify fun s => { s with messages := messages }
@@ -1276,7 +1276,7 @@ fun stx _ =>
 
 private def mkSomeContext : Context := {
   fileName      := "<TermElabM>",
-  fileMap       := arbitrary _,
+  fileMap       := arbitrary,
   currNamespace := Name.anonymous
 }
 

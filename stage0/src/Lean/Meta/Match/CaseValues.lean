@@ -14,7 +14,7 @@ structure CaseValueSubgoal :=
   (subst  : FVarSubst := {})
 
 instance : Inhabited CaseValueSubgoal :=
-  ⟨{ mvarId := arbitrary _, newH := arbitrary _ }⟩
+  ⟨{ mvarId := arbitrary, newH := arbitrary }⟩
 
 /--
   Split goal `... |- C x` into two subgoals
@@ -65,7 +65,7 @@ structure CaseValuesSubgoal :=
   (subst  : FVarSubst := {})
 
 instance : Inhabited CaseValuesSubgoal :=
-  ⟨{ mvarId := arbitrary _ }⟩
+  ⟨{ mvarId := arbitrary }⟩
 
 /--
   Split goal `... |- C x` into values.size + 1 subgoals

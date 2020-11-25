@@ -44,7 +44,7 @@ structure AttributeImpl extends AttributeImplCore :=
   (add (decl : Name) (args : Syntax) (persistent : Bool) : AttrM Unit)
 
 instance : Inhabited AttributeImpl :=
-  ⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure () }⟩
+  ⟨{ name := arbitrary, descr := arbitrary, add := fun env _ _ _ => pure () }⟩
 
 open Std (PersistentHashMap)
 
@@ -224,7 +224,7 @@ def registerTagAttribute (name : Name) (descr : String) (validate : Name → Att
 
 namespace TagAttribute
 
-instance : Inhabited TagAttribute := ⟨{attr := arbitrary _, ext := arbitrary _}⟩
+instance : Inhabited TagAttribute := ⟨{ attr := arbitrary, ext := arbitrary }⟩
 
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
@@ -275,12 +275,12 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
 
 namespace ParametricAttribute
 
-instance {α : Type} : Inhabited (ParametricAttribute α) := ⟨{attr := arbitrary _, ext := arbitrary _}⟩
+instance {α : Type} : Inhabited (ParametricAttribute α) := ⟨{attr := arbitrary, ext := arbitrary }⟩
 
 def getParam {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
-    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
+    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
   | none        => (attr.ext.getState env).find? decl
@@ -334,12 +334,12 @@ def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDesc
 
 namespace EnumAttributes
 
-instance {α : Type} : Inhabited (EnumAttributes α) := ⟨{attrs := [], ext := arbitrary _}⟩
+instance {α : Type} : Inhabited (EnumAttributes α) := ⟨{attrs := [], ext := arbitrary }⟩
 
 def getValue {α : Type} [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
-    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
+    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
   | none        => (attr.ext.getState env).find? decl

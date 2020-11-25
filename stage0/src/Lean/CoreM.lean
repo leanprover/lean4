@@ -20,7 +20,7 @@ structure State :=
   (ngen            : NameGenerator := {})
   (traceState      : TraceState    := {})
 
-instance : Inhabited State := ⟨{ env := arbitrary _ }⟩
+instance : Inhabited State := ⟨{ env := arbitrary }⟩
 
 structure Context :=
   (options        : Options := {})
@@ -30,7 +30,7 @@ structure Context :=
 
 abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 
-instance : Inhabited (CoreM α) := ⟨fun _ _ => throw $ arbitrary _⟩
+instance : Inhabited (CoreM α) := ⟨fun _ _ => throw arbitrary⟩
 
 instance : MonadRef CoreM := {
   getRef  := do let ctx ← read; pure ctx.ref,

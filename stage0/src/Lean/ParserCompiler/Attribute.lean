@@ -40,7 +40,7 @@ def registerCombinatorAttribute (name : Name) (descr : String)
 
 namespace CombinatorAttribute
 
-instance : Inhabited CombinatorAttribute := ⟨{impl := arbitrary _, ext := arbitrary _}⟩
+instance : Inhabited CombinatorAttribute := ⟨{ impl := arbitrary, ext := arbitrary }⟩
 
 def getDeclFor? (attr : CombinatorAttribute) (env : Environment) (parserDecl : Name) : Option Name :=
   (attr.ext.getState env).find? parserDecl

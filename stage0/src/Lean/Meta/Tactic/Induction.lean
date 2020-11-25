@@ -40,7 +40,7 @@ structure InductionSubgoal :=
   (fields : Array Expr := #[])
   (subst  : FVarSubst := {})
 
-instance : Inhabited InductionSubgoal := ⟨{ mvarId := arbitrary _ }⟩
+instance : Inhabited InductionSubgoal := ⟨{ mvarId := arbitrary }⟩
 
 private def getTypeBody (mvarId : MVarId) (type : Expr) (x : Expr) : MetaM Expr := do
   let type ← whnfForall type

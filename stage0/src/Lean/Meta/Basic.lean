@@ -75,7 +75,7 @@ structure InfoCacheKey :=
   (nargs?       : Option Nat)
 
 namespace InfoCacheKey
-instance : Inhabited InfoCacheKey := ⟨⟨arbitrary _, arbitrary _, arbitrary _⟩⟩
+instance : Inhabited InfoCacheKey := ⟨⟨arbitrary, arbitrary, arbitrary⟩⟩
 instance : Hashable InfoCacheKey :=
   ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) $ mixHash (hash expr) (hash nargs)⟩
 instance : BEq InfoCacheKey :=
@@ -114,7 +114,7 @@ structure Context :=
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
 instance : Inhabited (MetaM α) := {
-  default := fun _ _ => arbitrary _
+  default := fun _ _ => arbitrary
 }
 
 instance : MonadLCtx MetaM := {

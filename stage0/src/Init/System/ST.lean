@@ -45,8 +45,8 @@ constant RefPointed : PointedType.{0}
 structure Ref (σ : Type) (α : Type) : Type :=
   (ref : RefPointed.type) (h : Nonempty α)
 
-instance {σ α} [Inhabited α] : Inhabited (Ref σ α) :=
-  ⟨{ ref := RefPointed.val, h := Nonempty.intro <| arbitrary _}⟩
+instance {σ α} [Inhabited α] : Inhabited (Ref σ α) where
+  default := { ref := RefPointed.val, h := Nonempty.intro arbitrary }
 
 namespace Prim
 
@@ -54,7 +54,7 @@ set_option pp.all true
 /- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
 private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
   let inh : Inhabited α := Classical.inhabitedOfNonempty r.h
-  pure <| arbitrary α
+  pure arbitrary
 
 @[extern "lean_st_mk_ref"]
 constant mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := RefPointed.val, h := Nonempty.intro a }

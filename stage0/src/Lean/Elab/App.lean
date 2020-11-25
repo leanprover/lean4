@@ -18,7 +18,7 @@ inductive Arg :=
   | stx  (val : Syntax)
   | expr (val : Expr)
 
-instance : Inhabited Arg := ⟨Arg.stx (arbitrary _)⟩
+instance : Inhabited Arg := ⟨Arg.stx arbitrary⟩
 
 instance : ToString Arg := ⟨fun
   | Arg.stx  val => toString val
@@ -33,7 +33,7 @@ structure NamedArg :=
 instance : ToString NamedArg :=
   ⟨fun s => "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"⟩
 
-instance : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _ }⟩
+instance : Inhabited NamedArg := ⟨{ name := arbitrary, val := arbitrary }⟩
 
 def throwInvalidNamedArg {α} (namedArg : NamedArg) (fn? : Option Name) : TermElabM α :=
   withRef namedArg.ref $ match fn? with

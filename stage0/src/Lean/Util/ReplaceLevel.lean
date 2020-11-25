@@ -56,7 +56,7 @@ abbrev ReplaceM := StateM State
 
 unsafe def initCache : State :=
   { keys    := mkArray cacheSize.toNat (cast lcProof ()), -- `()` is not a valid `Expr`
-    results := mkArray cacheSize.toNat (arbitrary _) }
+    results := mkArray cacheSize.toNat arbitrary }
 
 @[inline] unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=
   (replaceUnsafeM f? cacheSize e).run' initCache

@@ -40,13 +40,13 @@ def CompactedRegion := USize
 unsafe constant CompactedRegion.free : CompactedRegion → IO Unit
 
 /- Environment fields that are not used often. -/
-structure EnvironmentHeader :=
-  (trustLevel   : UInt32       := 0)
-  (quotInit     : Bool         := false)
-  (mainModule   : Name         := arbitrary _)
-  (imports      : Array Import := #[]) -- direct imports
-  (regions      : Array CompactedRegion := #[]) -- compacted regions of all imported modules
-  (moduleNames  : NameSet      := {})  -- names of all imported modules
+structure EnvironmentHeader where
+  trustLevel   : UInt32       := 0
+  quotInit     : Bool         := false
+  mainModule   : Name         := arbitrary
+  imports      : Array Import := #[] -- direct imports
+  regions      : Array CompactedRegion := #[] -- compacted regions of all imported modules
+  moduleNames  : NameSet      := {}  -- names of all imported modules
 
 open Std (HashMap)
 
@@ -165,7 +165,7 @@ structure Ext (σ : Type) :=
   (idx       : Nat)
   (mkInitial : IO σ)
 
-instance {σ} : Inhabited (Ext σ) := ⟨{idx := 0, mkInitial := arbitrary _ }⟩
+instance {σ} : Inhabited (Ext σ) := ⟨{idx := 0, mkInitial := arbitrary }⟩
 
 private def mkEnvExtensionsRef : IO (IO.Ref (Array (Ext EnvExtensionState))) := IO.mkRef #[]
 @[builtinInit mkEnvExtensionsRef] private constant envExtensionsRef : IO.Ref (Array (Ext EnvExtensionState))
@@ -202,7 +202,7 @@ def mkInitialExtStates : IO (Array EnvExtensionState) := do
 
 unsafe def imp : EnvExtensionInterface := {
   ext                := Ext,
-  inhabitedExt       := fun _ => ⟨arbitrary _⟩,
+  inhabitedExt       := fun _ => ⟨arbitrary⟩,
   registerExt        := registerExt,
   setState           := setState,
   modifyState        := modifyState,
@@ -278,17 +278,17 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) :=
   (statsFn         : σ → Format)
 
 /- Opaque persistent environment extension entry. -/
-constant EnvExtensionEntrySpec : PointedType.{0} := arbitrary _
+constant EnvExtensionEntrySpec : PointedType.{0}
 def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
 instance : Inhabited EnvExtensionEntry := ⟨EnvExtensionEntrySpec.val⟩
 
 instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
-  ⟨{importedEntries := #[], state := arbitrary _ }⟩
+  ⟨{importedEntries := #[], state := arbitrary }⟩
 
 instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) := ⟨{
-   toEnvExtension := arbitrary _,
-   name := arbitrary _,
-   addImportedFn := fun _ => arbitrary _,
+   toEnvExtension := arbitrary,
+   name := arbitrary,
+   addImportedFn := fun _ => arbitrary,
    addEntryFn := fun s _ => s,
    exportEntriesFn := fun _ => #[],
    statsFn := fun _ => Format.nil
@@ -427,7 +427,7 @@ structure ModuleData :=
   (entries    : Array (Name × Array EnvExtensionEntry))
 
 instance : Inhabited ModuleData :=
-  ⟨{imports := arbitrary _, constants := arbitrary _, entries := arbitrary _}⟩
+  ⟨{imports := arbitrary, constants := arbitrary, entries := arbitrary }⟩
 
 @[extern 3 "lean_save_module_data"]
 constant saveModuleData (fname : @& String) (m : ModuleData) : IO Unit

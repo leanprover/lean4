@@ -12,7 +12,7 @@ structure AbstractMVarsResult :=
   (numMVars   : Nat)
   (expr       : Expr)
 
-instance : Inhabited AbstractMVarsResult := ⟨⟨#[], 0, arbitrary _⟩⟩
+instance : Inhabited AbstractMVarsResult := ⟨⟨#[], 0, arbitrary⟩⟩
 
 def AbstractMVarsResult.beq (r₁ r₂ : AbstractMVarsResult) : Bool :=
   r₁.paramNames == r₂.paramNames && r₁.numMVars == r₂.numMVars && r₁.expr == r₂.expr

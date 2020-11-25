@@ -26,7 +26,7 @@ structure PreDefinition :=
   (value     : Expr)
 
 instance : Inhabited PreDefinition :=
-  ⟨⟨DefKind.«def», [], {}, arbitrary _, arbitrary _, arbitrary _⟩⟩
+  ⟨⟨DefKind.«def», [], {}, arbitrary, arbitrary, arbitrary⟩⟩
 
 def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do

@@ -184,8 +184,8 @@ inductive Expr :=
 
 namespace Expr
 
-instance : Inhabited Expr :=
-  ⟨sort (arbitrary _) (arbitrary _)⟩
+instance : Inhabited Expr where
+  default := sort arbitrary arbitrary
 
 @[inline] def data : Expr → Data
   | bvar _ d        => d
@@ -729,7 +729,8 @@ protected def beq : ExprStructEq → ExprStructEq → Bool
 protected def hash : ExprStructEq → USize
   | ⟨e⟩ => e.hash
 
-instance : Inhabited ExprStructEq := ⟨{ val := arbitrary _ }⟩
+instance : Inhabited ExprStructEq where
+  default := { val := arbitrary }
 instance : BEq ExprStructEq := ⟨ExprStructEq.beq⟩
 instance : Hashable ExprStructEq := ⟨ExprStructEq.hash⟩
 instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩

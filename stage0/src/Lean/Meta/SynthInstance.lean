@@ -30,7 +30,7 @@ structure GeneratorNode :=
   (instances       : Array Expr)
   (currInstanceIdx : Nat)
 
-instance : Inhabited GeneratorNode := ⟨⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _, 0⟩⟩
+instance : Inhabited GeneratorNode := ⟨⟨arbitrary, arbitrary, arbitrary, arbitrary, 0⟩⟩
 
 structure ConsumerNode :=
   (mvar     : Expr)
@@ -38,7 +38,7 @@ structure ConsumerNode :=
   (mctx     : MetavarContext)
   (subgoals : List Expr)
 
-instance : Inhabited ConsumerNode := ⟨⟨arbitrary _, arbitrary _, arbitrary _, []⟩⟩
+instance : Inhabited ConsumerNode := ⟨⟨arbitrary, arbitrary, arbitrary, []⟩⟩
 
 inductive Waiter :=
   | consumerNode : ConsumerNode → Waiter
@@ -134,7 +134,7 @@ structure Answer :=
   (result     : AbstractMVarsResult)
   (resultType : Expr)
 
-instance : Inhabited Answer := ⟨⟨arbitrary _, arbitrary _⟩⟩
+instance : Inhabited Answer := ⟨⟨arbitrary, arbitrary⟩⟩
 
 structure TableEntry :=
   (waiters : Array Waiter)
@@ -159,7 +159,7 @@ abbrev SynthM := StateRefT State MetaM
   monadMap @f
 
 instance {α} : Inhabited (SynthM α) :=
-  ⟨fun _ => arbitrary _⟩
+  ⟨fun _ => arbitrary⟩
 
 /-- Return globals and locals instances that may unify with `type` -/
 def getInstances (type : Expr) : MetaM (Array Expr) := do

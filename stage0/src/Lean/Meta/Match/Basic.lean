@@ -18,7 +18,7 @@ inductive Pattern : Type :=
 
 namespace Pattern
 
-instance : Inhabited Pattern := ⟨Pattern.inaccessible (arbitrary _)⟩
+instance : Inhabited Pattern := ⟨Pattern.inaccessible arbitrary⟩
 
 partial def toMessageData : Pattern → MessageData
   | inaccessible e         => m!".({e})"
@@ -108,7 +108,7 @@ structure Alt :=
 
 namespace Alt
 
-instance : Inhabited Alt := ⟨⟨arbitrary _, 0, arbitrary _, [], []⟩⟩
+instance : Inhabited Alt := ⟨⟨arbitrary, 0, arbitrary, [], []⟩⟩
 
 partial def toMessageData (alt : Alt) : MetaM MessageData := do
   withExistingLocalDecls alt.fvarDecls do
@@ -237,7 +237,7 @@ structure Problem :=
 def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
   withMVarContext p.mvarId x
 
-instance : Inhabited Problem := ⟨{ mvarId := arbitrary _, vars := [], alts := [], examples := []}⟩
+instance : Inhabited Problem := ⟨{ mvarId := arbitrary, vars := [], alts := [], examples := []}⟩
 
 def Problem.toMessageData (p : Problem) : MetaM MessageData :=
   withGoalOf p do

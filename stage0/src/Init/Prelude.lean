@@ -186,17 +186,17 @@ theorem neTrueOfEqFalse : {b : Bool} → Eq b false → Not (Eq b true)
 class Inhabited (α : Sort u) where
   mk {} :: (default : α)
 
-constant arbitrary (α : Sort u) [s : Inhabited α] : α :=
-  @Inhabited.default α s
+constant arbitrary [Inhabited α] : α :=
+  Inhabited.default
 
 instance : Inhabited (Sort u) where
   default := PUnit
 
 instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) where
-  default := fun _ => arbitrary β
+  default := fun _ => arbitrary
 
 instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) where
-  default := fun a => arbitrary (β a)
+  default := fun _ => arbitrary
 
 /-- Universe lifting operation from Sort to Type -/
 structure PLift (α : Sort u) : Type u where
@@ -981,7 +981,7 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-  dite (Less i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => arbitrary α)
+  dite (Less i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => arbitrary)
 
 def Array.getOp {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
   self.get! idx
@@ -1040,7 +1040,7 @@ instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m �
   default := pure
 
 instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) where
-  default := pure (arbitrary _)
+  default := pure arbitrary
 
 /-- A Function for lifting a computation from an inner Monad to an outer Monad.
     Like [MonadTrans](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html),
@@ -1092,7 +1092,7 @@ inductive Except (ε : Type u) (α : Type v) where
 attribute [unbox] Except
 
 instance {ε : Type u} {α : Type v} [Inhabited ε] : Inhabited (Except ε α) where
-  default := Except.error (arbitrary ε)
+  default := Except.error arbitrary
 
 /-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
 class MonadExceptOf (ε : Type u) (m : Type v → Type w) where
@@ -1132,7 +1132,7 @@ def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v)
   ρ → m α
 
 instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] : Inhabited (ReaderT ρ m α) where
-  default := fun _ => arbitrary _
+  default := fun _ => arbitrary
 
 @[inline] def ReaderT.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ReaderT ρ m α) (r : ρ) : m α :=
   x r
@@ -1293,7 +1293,7 @@ inductive Result (ε σ α : Type u) where
 variables {ε σ α : Type u}
 
 instance [Inhabited ε] [Inhabited σ] : Inhabited (Result ε σ α) where
-  default := Result.error (arbitrary _) (arbitrary _)
+  default := Result.error arbitrary arbitrary
 
 end EStateM
 
@@ -1304,8 +1304,8 @@ namespace EStateM
 
 variables {ε σ α β : Type u}
 
-instance [Inhabited ε] : Inhabited (EStateM ε σ α) := ⟨fun s =>
-  Result.error (arbitrary ε) s⟩
+instance [Inhabited ε] : Inhabited (EStateM ε σ α) where
+  default := fun s => Result.error arbitrary s
 
 @[inline] protected def pure (a : α) : EStateM ε σ α := fun s =>
   Result.ok a s
@@ -1677,7 +1677,7 @@ structure MacroScopesView where
   scopes     : List MacroScope
 
 instance : Inhabited MacroScopesView where
-  default := ⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _⟩
+  default := ⟨arbitrary, arbitrary, arbitrary, arbitrary⟩
 
 def MacroScopesView.review (view : MacroScopesView) : Name :=
   match view.scopes with

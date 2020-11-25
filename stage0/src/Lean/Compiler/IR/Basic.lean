@@ -287,7 +287,7 @@ abbrev Alt := AltCore FnBody
 @[matchPattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
 @[matchPattern] abbrev Alt.default := @AltCore.default FnBody
 
-instance : Inhabited Alt := ⟨Alt.default (arbitrary _)⟩
+instance : Inhabited Alt := ⟨Alt.default arbitrary⟩
 
 def FnBody.isTerminal : FnBody → Bool
   | FnBody.case _ _ _ _  => true
@@ -367,7 +367,7 @@ partial def reshapeAux (a : Array FnBody) (i : Nat) (b : FnBody) : FnBody :=
   if i == 0 then b
   else
     let i         := i - 1
-    let (curr, a) := a.swapAt! i (arbitrary _)
+    let (curr, a) := a.swapAt! i arbitrary
     let b         := curr.setBody b
     reshapeAux a i b
 
@@ -394,7 +394,7 @@ inductive Decl :=
 namespace Decl
 
 instance : Inhabited Decl :=
-  ⟨fdecl (arbitrary _) (arbitrary _) IRType.irrelevant (arbitrary _)⟩
+  ⟨fdecl arbitrary arbitrary IRType.irrelevant arbitrary⟩
 
 def name : Decl → FunId
   | Decl.fdecl f _ _ _  => f

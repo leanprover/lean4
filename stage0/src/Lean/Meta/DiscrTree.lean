@@ -218,7 +218,7 @@ private partial def insertAux {α} [BEq α] (keys : Array Key) (v : α) : Nat �
           (fun a b => a.1 < b.1)
           (fun ⟨_, s⟩ => let c := insertAux keys v (i+1) s; (k, c)) -- merge with existing
           (fun _ => let c := createNodes keys v (i+1); (k, c))
-          (k, arbitrary _)
+          (k, arbitrary)
       Trie.node vs c
     else
       Trie.node (insertVal vs v) cs
@@ -315,7 +315,7 @@ private partial def getMatchAux {α} : Array Expr → Trie α → Array α → M
       match k with
       | Key.star => visitStarChild result
       | _ =>
-        match cs.binSearch (k, arbitrary _) (fun a b => a.1 < b.1) with
+        match cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1) with
         | none   => visitStarChild result
         | some c =>
           let result ← visitStarChild result
@@ -355,7 +355,7 @@ private partial def getUnifyAux {α} : Nat → Array Expr → Trie α → (Array
         let first := cs[0]
         let visitStarChild (result : Array α) : MetaM (Array α) :=
           if first.1 == Key.star then getUnifyAux 0 todo first.2 result else pure result
-        match cs.binSearch (k, arbitrary _) (fun a b => a.1 < b.1) with
+        match cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1) with
         | none   => visitStarChild result
         | some c =>
           let result ← visitStarChild result

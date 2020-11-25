@@ -66,8 +66,8 @@ def singleton (a : α) : Heap α :=
 
 /- O(log n) -/
 @[specialize] def head [Inhabited α] (lt : α → α → Bool) : Heap α → α
-  | Heap.empty        => arbitrary α
-  | Heap.heap []      => arbitrary α
+  | Heap.empty        => arbitrary
+  | Heap.heap []      => arbitrary
   | Heap.heap (h::hs) => hs.foldl (init := h.val) fun r n => if lt r n.val then r else n.val
 
 @[specialize] def findMin (lt : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat

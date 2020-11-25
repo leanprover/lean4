@@ -32,7 +32,7 @@ structure State :=
   (nextInstIdx    : Nat := 1) -- for generating anonymous instance names
   (ngen           : NameGenerator := {})
 
-instance : Inhabited State := ⟨{ env := arbitrary _, maxRecDepth := 0 }⟩
+instance : Inhabited State := ⟨{ env := arbitrary, maxRecDepth := 0 }⟩
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
   env := env,
@@ -248,7 +248,7 @@ def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun st
 private def getVarDecls (s : State) : Array Syntax :=
   s.scopes.head!.varDecls
 
-instance {α} : Inhabited (CommandElabM α) := ⟨throw $ arbitrary _⟩
+instance {α} : Inhabited (CommandElabM α) := ⟨throw arbitrary⟩
 
 private def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }

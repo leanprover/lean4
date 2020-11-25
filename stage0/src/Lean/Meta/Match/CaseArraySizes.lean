@@ -15,7 +15,7 @@ structure CaseArraySizesSubgoal :=
   (subst  : FVarSubst := {})
 
 instance : Inhabited CaseArraySizesSubgoal :=
-  ⟨{ mvarId := arbitrary _ }⟩
+  ⟨{ mvarId := arbitrary }⟩
 
 def getArrayArgType (a : Expr) : MetaM Expr := do
   let aType ← inferType a

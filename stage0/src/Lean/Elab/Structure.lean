@@ -63,7 +63,7 @@ structure StructFieldInfo :=
   (value?   : Option Expr := none)
 
 instance : Inhabited StructFieldInfo :=
-  ⟨{ name := arbitrary _, declName := arbitrary _, fvar := arbitrary _, kind := StructFieldKind.newField }⟩
+  ⟨{ name := arbitrary, declName := arbitrary, fvar := arbitrary, kind := StructFieldKind.newField }⟩
 
 def StructFieldInfo.isFromParent (info : StructFieldInfo) : Bool :=
   match info.kind with

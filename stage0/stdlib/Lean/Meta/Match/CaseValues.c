@@ -98,7 +98,6 @@ lean_object* l_Lean_Meta_caseValues_loop___closed__1;
 lean_object* l_Lean_Meta_caseValues_loop_match__3(lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__7;
 lean_object* l_Lean_Meta_caseValueAux___lambda__2___closed__2;
-extern lean_object* l_Lean_Meta_SynthInstance_newSubgoal___closed__4;
 lean_object* l_Lean_Meta_caseValue___closed__3;
 lean_object* l_Lean_Meta_caseValues_loop_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValues(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -119,6 +118,7 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__6;
 lean_object* l_Lean_Meta_assignExprMVar___at___private_Lean_Meta_InferType_0__Lean_Meta_getLevelImp___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_SynthInstance_newSubgoal___closed__3;
 lean_object* l_Lean_Meta_caseValues_loop_match__3___rarg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_caseValues_loop___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -565,7 +565,7 @@ static lean_object* _init_l_Lean_Meta_caseValueAux___lambda__3___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_SynthInstance_newSubgoal___closed__4;
+x_1 = l_Lean_Meta_SynthInstance_newSubgoal___closed__3;
 x_2 = l_Lean_Meta_caseValueAux___lambda__3___closed__8;
 x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
 lean_closure_set(x_3, 0, x_1);

@@ -138,7 +138,7 @@ def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   let val ← match (stx.getArg 3).getOptional? with
     | some val => pure val
     | none     =>
-      let val ← `(arbitrary _)
+      let val ← `(arbitrary)
       pure $ Syntax.node `Lean.Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
   return {
     ref := stx, kind := DefKind.opaque, modifiers := modifiers,

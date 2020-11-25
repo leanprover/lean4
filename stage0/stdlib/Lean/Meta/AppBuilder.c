@@ -334,7 +334,6 @@ lean_object* l_Lean_Meta_mkIdRhs(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkProjectionImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkPure___rarg___closed__3;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkCongrArgImp___closed__2;
-extern lean_object* l_Lean_Meta_SynthInstance_newSubgoal___closed__4;
 lean_object* l_Lean_Meta_mkArrayLit___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 lean_object* l_Lean_Meta_mkDecideProof___rarg___lambda__1___closed__1;
@@ -433,6 +432,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMArgs_loop(lean_
 lean_object* l_Lean_Meta_mkIdRhsImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkProjectionImp___closed__4;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_SynthInstance_newSubgoal___closed__3;
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqMPR___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkArbitrary___rarg___closed__2;
@@ -7242,7 +7242,7 @@ static lean_object* _init_l_Lean_Meta_mkAppM___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_SynthInstance_newSubgoal___closed__4;
+x_1 = l_Lean_Meta_SynthInstance_newSubgoal___closed__3;
 x_2 = l_Lean_Meta_mkAppM___rarg___closed__3;
 x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
 lean_closure_set(x_3, 0, x_1);

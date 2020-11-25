@@ -56,6 +56,7 @@ lean_object* l_List_map___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+extern lean_object* l_Lean_Elab_Term_instMonadLogTermElabM___closed__6;
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_2549____closed__4;
@@ -237,7 +238,6 @@ lean_object* l_Lean_Elab_Command_getCheckResultingUniverseOption___boxed(lean_ob
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_instInhabitedLocalContext___closed__1;
 extern lean_object* l_Lean_Expr_instInhabitedExpr___closed__1;
-extern lean_object* l_Lean_Elab_Term_instMonadLogTermElabM___closed__5;
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUniversesFromCtorTypeAux___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidCtorModifier___lambda__1___closed__3;
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_removeUnused___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4537,7 +4537,7 @@ lean_closure_set(x_29, 1, x_2);
 lean_closure_set(x_29, 2, x_18);
 lean_closure_set(x_29, 3, x_23);
 lean_closure_set(x_29, 4, x_28);
-x_30 = l_Lean_Elab_Term_instMonadLogTermElabM___closed__5;
+x_30 = l_Lean_Elab_Term_instMonadLogTermElabM___closed__6;
 x_31 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Term_instMonadLogTermElabM___spec__2___rarg), 9, 2);
 lean_closure_set(x_31, 0, x_30);
 lean_closure_set(x_31, 1, x_29);
@@ -16385,7 +16385,7 @@ x_13 = lean_alloc_closure((void*)(l_Lean_Elab_Command_elabInductiveViews___lambd
 lean_closure_set(x_13, 0, x_1);
 lean_closure_set(x_13, 1, x_3);
 lean_closure_set(x_13, 2, x_2);
-x_14 = l_Lean_Elab_Term_instMonadLogTermElabM___closed__5;
+x_14 = l_Lean_Elab_Term_instMonadLogTermElabM___closed__6;
 x_15 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Term_instMonadLogTermElabM___spec__2___rarg), 9, 2);
 lean_closure_set(x_15, 0, x_14);
 lean_closure_set(x_15, 1, x_13);

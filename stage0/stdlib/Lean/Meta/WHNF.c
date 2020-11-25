@@ -42,6 +42,7 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_getStuckMVarImp_x3f_match__
 lean_object* l_Lean_Meta_reduceMatcher_x3f_match__3(lean_object*);
 lean_object* l_Lean_Meta_reduceBinNatOp___closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_commitWhenSome_x3f___rarg___closed__4;
 lean_object* l_Lean_Meta_reduceMatcher_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -116,7 +117,6 @@ lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_reduceRec___rarg___lambda__
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceNatNative___rarg(lean_object*);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_whnfCoreImp_match__2(lean_object*);
-extern lean_object* l_Lean_Meta_commitWhenSome_x3f___rarg___closed__3;
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_reduceRec___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaDefinition___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5100,7 +5100,7 @@ case 1:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
-x_13 = l_Lean_Meta_commitWhenSome_x3f___rarg___closed__3;
+x_13 = l_Lean_Meta_commitWhenSome_x3f___rarg___closed__4;
 lean_inc(x_12);
 x_14 = l_Lean_Meta_getLocalDecl___rarg(x_13, x_12);
 lean_inc(x_6);
@@ -5417,7 +5417,7 @@ case 2:
 lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; 
 x_88 = lean_ctor_get(x_1, 0);
 lean_inc(x_88);
-x_89 = l_Lean_Meta_commitWhenSome_x3f___rarg___closed__3;
+x_89 = l_Lean_Meta_commitWhenSome_x3f___rarg___closed__4;
 x_90 = l_Lean_Meta_getExprMVarAssignment_x3f___rarg(x_89, x_88);
 lean_inc(x_6);
 lean_inc(x_5);

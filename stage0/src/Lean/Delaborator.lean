@@ -231,6 +231,17 @@ def annotateCurPos (stx : Syntax) : Delab := do
   let ctx ← read
   pure $ annotatePos ctx.pos stx
 
+def getUnusedName (suggestion : Name) : DelabM Name := do
+  -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
+  let suggestion := if suggestion.isAnonymous then `a else suggestion;
+  let lctx ← getLCtx
+  pure $ lctx.getUnusedName suggestion
+
+def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
+  let n ← getUnusedName (← getExpr).bindingName!
+  let stxN ← annotateCurPos (mkIdent n)
+  withBindingBody n $ d stxN
+
 @[inline] def liftMetaM {α} (x : MetaM α) : DelabM α :=
   liftM x
 
@@ -373,12 +384,6 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
         pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
   Syntax.mkApp fnStx argStxs
 
-private def getUnusedName (suggestion : Name) : DelabM Name := do
-  -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
-  let suggestion := if suggestion.isAnonymous then `a else suggestion;
-  let lctx ← getLCtx
-  pure $ lctx.getUnusedName suggestion
-
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState :=
 (info      : MatcherInfo)
@@ -393,10 +398,8 @@ structure AppMatchState :=
 /-- Skip `numParams` binders. -/
 private def skippingBinders {α} : (numParams : Nat) → (x : DelabM α) → DelabM α
   | 0,           x => x
-  | numParams+1, x => do
-    let e ← getExpr
-    let n ← getUnusedName e.bindingName!
-    withBindingBody n $
+  | numParams+1, x =>
+    withBindingBodyUnusedName fun _ =>
       skippingBinders numParams x
 
 /--
@@ -516,16 +519,13 @@ private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab
   -- binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
   -- inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
   | curNames => do
-    let e ← getExpr
-    let n ← getUnusedName e.bindingName!
-    let stxN ← annotateCurPos (mkIdent n)
-    let curNames := curNames.push stxN
     if (← shouldGroupWithNext) then
       -- group with nested binder => recurse immediately
-      withBindingBody n $ delabBinders delabGroup curNames
+      withBindingBodyUnusedName fun stxN => delabBinders delabGroup (curNames.push stxN)
     else
       -- don't group => delab body and prepend current binder group
-      withBindingBody n delab >>= delabGroup curNames
+      let (stx, stxN) ← withBindingBodyUnusedName fun stxN => do (← delab, stxN)
+      delabGroup (curNames.push stxN) stx
 
 @[builtinDelab lam]
 def delabLam : Delab :=
@@ -801,13 +801,53 @@ def delabNamedPattern : Delab := do
   guard x.isIdent
   `($x:ident@$p:term)
 
+partial def delabDoElems : DelabM (List Syntax) := do
+  let e ← getExpr
+  if e.isAppOfArity `Bind.bind 6 then
+    -- Bind.bind.{u, v} : {m : Type u → Type v} → [self : Bind m] → {α β : Type u} → m α → (α → m β) → m β
+    let ma ← withAppFn $ withAppArg delab
+    withAppArg do
+      match (← getExpr) with
+      | Expr.lam _ _ body _ =>
+        withBindingBodyUnusedName fun n => do
+          if body.hasLooseBVars then
+            prependAndRec `(doElem|let $n:term ← $ma)
+          else
+            prependAndRec `(doElem|$ma:term)
+      | _ => delabAndRet
+  else if e.isLet then
+    let Expr.letE n t v b _ ← getExpr | unreachable!
+    let n ← getUnusedName n
+    let stxT ← descend t 0 delab
+    let stxV ← descend v 1 delab
+    withLetDecl n t v fun fvar =>
+      let b := b.instantiate1 fvar
+      descend b 2 $
+        prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
+  else
+    delabAndRet
+  where
+    prependAndRec x : DelabM _ := List.cons <$> x <*> delabDoElems
+    delabAndRet : DelabM _ := do let stx ← delab; [←`(doElem|$stx:term)]
+
+@[builtinDelab app.Bind.bind]
+def delabDo : Delab := whenPPOption getPPNotation do
+  unless (← getExpr).isAppOfArity `Bind.bind 6 do
+    failure
+  let elems ← delabDoElems
+  let items := elems.toArray.map (mkNode `Lean.Parser.Term.doSeqItem #[·, mkNullNode])
+  `(do $items:doSeqItem*)
+
 end Delaborator
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
 def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
+  trace[PrettyPrinter.delab.input]! "{fmt e}"
   let opts ← MonadOptions.getOptions
   catchInternalId Delaborator.delabFailureId
     (Delaborator.delab.run { expr := e, defaultOptions := opts, optionsPerPos := optionsPerPos, currNamespace := currNamespace, openDecls := openDecls })
     (fun _ => unreachable!)
+
+builtin_initialize registerTraceClass `PrettyPrinter.delab
 
 end Lean

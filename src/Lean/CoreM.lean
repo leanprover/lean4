@@ -10,6 +10,7 @@ import Lean.Exception
 import Lean.InternalExceptionId
 import Lean.Eval
 import Lean.MonadEnv
+import Lean.ResolveName
 
 namespace Lean
 namespace Core
@@ -27,6 +28,8 @@ structure Context :=
   (currRecDepth   : Nat := 0)
   (maxRecDepth    : Nat := 1000)
   (ref            : Syntax := Syntax.missing)
+  (currNamespace  : Name := Name.anonymous)
+  (openDecls      : List OpenDecl := [])
 
 abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 
@@ -58,6 +61,11 @@ instance : MonadRecDepth CoreM := {
   withRecDepth   := fun d x => withReader (fun ctx => { ctx with currRecDepth := d }) x,
   getRecDepth    := do pure (← read).currRecDepth,
   getMaxRecDepth := do pure (← read).maxRecDepth
+}
+
+instance : MonadResolveName CoreM := {
+  getCurrNamespace := do pure (← read).currNamespace,
+  getOpenDecls     := do pure (← read).openDecls
 }
 
 @[inline] def liftIOCore (x : IO α) : CoreM α := do

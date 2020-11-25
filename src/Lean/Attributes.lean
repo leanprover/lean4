@@ -20,19 +20,10 @@ def AttributeApplicationTime.beq : AttributeApplicationTime → AttributeApplica
 
 instance : BEq AttributeApplicationTime := ⟨AttributeApplicationTime.beq⟩
 
-structure Attr.Context :=
-  (currNamespace : Name)
-  (openDecls     : List OpenDecl)
-
-abbrev AttrM := ReaderT Attr.Context CoreM
+abbrev AttrM := CoreM
 
 instance : MonadLift ImportM AttrM := {
   monadLift := fun x => do liftM (m := IO) (x { env := (← getEnv), opts := (← getOptions) })
-}
-
-instance : MonadResolveName AttrM := {
-  getCurrNamespace := do pure (← read).currNamespace,
-  getOpenDecls     := do pure (← read).openDecls
 }
 
 structure AttributeImplCore :=

@@ -995,7 +995,8 @@ def ppExprImp (e : Expr) : MetaM Format := do
   let mctx ← getMCtx
   let lctx ← getLCtx
   let opts ← getOptions
-  Lean.ppExpr { env := env, mctx := mctx, lctx := lctx, opts := opts } e
+  let ctxCore  ← readThe Core.Context
+  Lean.ppExpr { env := env, mctx := mctx, lctx := lctx, opts := opts, currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls  } e
 
 def ppExpr (e : Expr) : m Format :=
   liftMetaM $ ppExprImp e

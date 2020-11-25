@@ -25,3 +25,4 @@ import Lean.Meta.Closure
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
 import Lean.Meta.Transform
+import Lean.Meta.PPGoal

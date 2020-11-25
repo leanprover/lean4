@@ -11,7 +11,6 @@ import Lean.Syntax
 import Lean.MetavarContext
 import Lean.Environment
 import Lean.Util.PPExt
-import Lean.Util.PPGoal
 
 namespace Lean
 

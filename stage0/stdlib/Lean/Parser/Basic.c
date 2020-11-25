@@ -593,6 +593,7 @@ lean_object* l_Lean_Parser_categoryParserFn(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Parser_ParserState_keepPrevError_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_checkInsideQuot___closed__1;
 lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_updateCache(lean_object*, lean_object*);
+lean_object* l_Lean_Parser_many1Unbox___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_Parser_instInhabitedParser___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_sepBy1Info(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_quotedCharFn___closed__1;
@@ -7243,13 +7244,13 @@ lean_object* l_Lean_Parser_many1Unbox___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-lean_inc(x_1);
 x_2 = l_Lean_Syntax_getNumArgs(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
 lean_dec(x_2);
 if (x_4 == 0)
 {
+lean_inc(x_1);
 return x_1;
 }
 else
@@ -7257,7 +7258,6 @@ else
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l_Lean_Syntax_getArg(x_1, x_5);
-lean_dec(x_1);
 return x_6;
 }
 }
@@ -7266,7 +7266,7 @@ static lean_object* _init_l_Lean_Parser_many1Unbox___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_many1Unbox___lambda__1), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_many1Unbox___lambda__1___boxed), 1, 0);
 return x_1;
 }
 }
@@ -7290,6 +7290,15 @@ x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_7);
 return x_8;
+}
+}
+lean_object* l_Lean_Parser_many1Unbox___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Parser_many1Unbox___lambda__1(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_Parser_satisfyFn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

@@ -67,6 +67,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp___closed
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkProjectionImp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkCongrImp___closed__1;
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_10708____closed__1;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkProjectionImp_match__3(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqNDRecImp_match__2(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkHEqTransImp_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -100,7 +101,6 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux___closed
 lean_object* l_Lean_Meta_mkAppM___rarg___closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_1547____closed__7;
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_11062____closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqReflImp___closed__2;
@@ -393,7 +393,6 @@ lean_object* l_Lean_Meta_mkExpectedTypeHint(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkProjectionImp___closed__3;
 lean_object* l_Lean_Meta_mkPure___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkIdImp___closed__1;
-extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3381____closed__5;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___rarg___closed__4;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Meta_mkPure___rarg___closed__4;
@@ -403,6 +402,7 @@ lean_object* l_Lean_Meta_mkHEq(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkNoConfusionImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMFinal___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3332____closed__5;
 lean_object* l_Lean_Meta_mkArbitrary___rarg___closed__1;
 lean_object* l_Lean_Meta_mkIdRhs___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkHEqSymmImp_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -11018,7 +11018,7 @@ x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_12);
-x_14 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3381____closed__5;
+x_14 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3332____closed__5;
 x_15 = l_Lean_mkConst(x_14, x_13);
 x_16 = l_Lean_mkApp(x_15, x_1);
 x_17 = l_Lean_mkApp(x_16, x_11);
@@ -11037,7 +11037,7 @@ x_20 = lean_box(0);
 x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_3);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3381____closed__5;
+x_22 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3332____closed__5;
 x_23 = l_Lean_mkConst(x_22, x_21);
 x_24 = l_Lean_mkApp(x_23, x_1);
 x_25 = l_Lean_mkApp(x_24, x_18);
@@ -11223,7 +11223,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkDecIsTrue___closed__2;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_11062____closed__1;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_10708____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

@@ -121,7 +121,6 @@ lean_object* l_List_replace_match__1(lean_object*);
 lean_object* l_List_join_match__1(lean_object*, lean_object*);
 lean_object* l_List_groupByAux___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_dropWhile_match__2___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_set_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_elem_match__1(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t l_List_all___rarg(lean_object*, lean_object*);
@@ -146,7 +145,6 @@ lean_object* l_List_replicate(lean_object*);
 lean_object* l_List_append(lean_object*);
 lean_object* l_List_erase_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_List_enum___rarg(lean_object*);
-lean_object* l_List_set(lean_object*);
 lean_object* l_List_partitionAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___rarg(lean_object*, lean_object*);
 lean_object* l_List_findSome_x3f___rarg(lean_object*, lean_object*);
@@ -171,7 +169,6 @@ lean_object* l_List_eraseDupsAux(lean_object*);
 lean_object* l_List_unzip_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_List_hasDecidableLt(lean_object*);
 lean_object* l_List_eraseRepsAux_match__1___rarg(uint8_t, lean_object*, lean_object*);
-lean_object* l_List_set___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_isEqv_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_unzip(lean_object*, lean_object*);
 lean_object* l_List_map(lean_object*, lean_object*);
@@ -220,7 +217,6 @@ lean_object* l_List_eraseRepsAux_match__2___rarg(lean_object*, lean_object*, lea
 lean_object* l_List_eraseIdx___rarg(lean_object*, lean_object*);
 lean_object* l_List_dropWhile___rarg(lean_object*, lean_object*);
 lean_object* l_List_unzip_match__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_set_match__1(lean_object*, lean_object*);
 lean_object* l_List_rangeAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_and(lean_object*);
 lean_object* l_List_eraseIdx_match__1(lean_object*, lean_object*);
@@ -303,7 +299,6 @@ lean_object* l_List_hasDecidableLt_match__6___boxed(lean_object*, lean_object*, 
 lean_object* l_List_hasDecidableLt___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_partitionAux_match__1(lean_object*);
 lean_object* l_List_lookup_match__1(lean_object*);
-lean_object* l_List_set___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_spanAux_match__2(lean_object*, lean_object*);
 lean_object* l_List_elem(lean_object*);
 lean_object* l_List_filterAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -810,147 +805,6 @@ x_2 = l_List_isEmpty___rarg(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-lean_object* l_List_set_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_7; 
-lean_dec(x_5);
-lean_dec(x_4);
-x_7 = lean_apply_2(x_6, x_2, x_3);
-return x_7;
-}
-else
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-lean_dec(x_6);
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
-lean_dec(x_1);
-x_10 = lean_unsigned_to_nat(0u);
-x_11 = lean_nat_dec_eq(x_2, x_10);
-if (x_11 == 0)
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_4);
-x_12 = lean_unsigned_to_nat(1u);
-x_13 = lean_nat_sub(x_2, x_12);
-lean_dec(x_2);
-x_14 = lean_apply_4(x_5, x_8, x_9, x_13, x_3);
-return x_14;
-}
-else
-{
-lean_object* x_15; 
-lean_dec(x_5);
-lean_dec(x_2);
-x_15 = lean_apply_3(x_4, x_8, x_9, x_3);
-return x_15;
-}
-}
-}
-}
-lean_object* l_List_set_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_List_set_match__1___rarg), 6, 0);
-return x_3;
-}
-}
-lean_object* l_List_set___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-return x_4;
-}
-else
-{
-uint8_t x_5; 
-x_5 = !lean_is_exclusive(x_1);
-if (x_5 == 0)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_6 = lean_ctor_get(x_1, 0);
-x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_nat_dec_eq(x_2, x_8);
-if (x_9 == 0)
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_sub(x_2, x_10);
-x_12 = l_List_set___rarg(x_7, x_11, x_3);
-lean_dec(x_11);
-lean_ctor_set(x_1, 1, x_12);
-return x_1;
-}
-else
-{
-lean_dec(x_6);
-lean_ctor_set(x_1, 0, x_3);
-return x_1;
-}
-}
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = lean_ctor_get(x_1, 0);
-x_14 = lean_ctor_get(x_1, 1);
-lean_inc(x_14);
-lean_inc(x_13);
-lean_dec(x_1);
-x_15 = lean_unsigned_to_nat(0u);
-x_16 = lean_nat_dec_eq(x_2, x_15);
-if (x_16 == 0)
-{
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_17 = lean_unsigned_to_nat(1u);
-x_18 = lean_nat_sub(x_2, x_17);
-x_19 = l_List_set___rarg(x_14, x_18, x_3);
-lean_dec(x_18);
-x_20 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_20, 0, x_13);
-lean_ctor_set(x_20, 1, x_19);
-return x_20;
-}
-else
-{
-lean_object* x_21; 
-lean_dec(x_13);
-x_21 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_21, 0, x_3);
-lean_ctor_set(x_21, 1, x_14);
-return x_21;
-}
-}
-}
-}
-}
-lean_object* l_List_set(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_set___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-lean_object* l_List_set___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_set___rarg(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 lean_object* l_List_map_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

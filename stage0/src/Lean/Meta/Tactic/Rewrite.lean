@@ -16,7 +16,8 @@ structure RewriteResult :=
   (eqProof  : Expr)
   (mvarIds  : List MVarId) -- new goals
 
-def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr) (symm : Bool := false) (occs : Occurrences := Occurrences.all) : MetaM RewriteResult :=
+def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
+    (symm : Bool := false) (occs : Occurrences := Occurrences.all) (mode := TransparencyMode.reducible) : MetaM RewriteResult :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `rewrite
     let heqType ← inferType heq
@@ -30,7 +31,7 @@ def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr) (symm : Bool := false) (oc
           if lhs.getAppFn.isMVar then
             throwTacticEx `rewrite mvarId m!"pattern is a metavariable{indentExpr lhs}\nfrom equation{indentExpr heqType}"
           let e ← instantiateMVars e
-          let eAbst ← kabstract e lhs occs
+          let eAbst ← withTransparency mode <| kabstract e lhs occs
           unless eAbst.hasLooseBVars do
             throwTacticEx `rewrite mvarId m!"did not find instance of the pattern in the target expression{indentExpr lhs}"
           -- construct rewrite proof

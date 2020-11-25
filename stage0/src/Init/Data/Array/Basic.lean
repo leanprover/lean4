@@ -52,11 +52,6 @@ def getD (a : Array α) (i : Nat) (v₀ : α) : α :=
 abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = n) (h₂ : i < n) : α :=
   a.get ⟨i, h₁.symm ▸ h₂⟩
 
-@[extern "lean_array_fset"]
-def set (a : Array α) (i : @& Fin a.size) (v : α) : Array α := {
-  data := a.data.set i v
-}
-
 theorem sizeSetEq (a : Array α) (i : Fin a.size) (v : α) : (set a i v).size = a.size :=
  List.lengthSetEq ..
 
@@ -69,11 +64,6 @@ theorem sizePushEq (a : Array α) (v : α) : (push a v).size = a.size + 1 :=
 @[extern "lean_array_uset"]
 def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
   a.set ⟨i.toNat, h⟩ v
-
-/- "Comfortable" version of `fset`. It performs a bound check at runtime. -/
-@[extern "lean_array_set"]
-def set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
-  if h : i < a.size then a.set ⟨i, h⟩ v else panic! "index out of bounds"
 
 @[extern "lean_array_fswap"]
 def swap (a : Array α) (i j : @& Fin a.size) : Array α :=

@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_44____closed__1;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__12;
+extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3285____closed__1;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_44____closed__2;
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_44_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_44____closed__14;
@@ -30,7 +31,6 @@ lean_object* l_Lean_myMacro____x40_Lean_Data_FormatMacro___hyg_44____closed__3;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__7;
 extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__11;
-extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3334____closed__1;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3_;
 lean_object* l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__10;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -107,7 +107,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Data_FormatMacro___hyg_3____closed__4;
-x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3334____closed__1;
+x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3285____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

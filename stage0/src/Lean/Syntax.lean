@@ -97,31 +97,18 @@ def asNode : Syntax → SyntaxNode
   | Syntax.node kind args => ⟨Syntax.node kind args, IsNode.mk kind args⟩
   | _                     => ⟨Syntax.node nullKind #[], IsNode.mk nullKind #[]⟩
 
-def getNumArgs (stx : Syntax) : Nat :=
-  stx.asNode.getNumArgs
-
-def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
-  match stx with
-  | node k _ => node k args
-  | stx      => stx
+def getIdAt (stx : Syntax) (i : Nat) : Name :=
+  (stx.getArg i).getId
 
 @[inline] def modifyArgs (stx : Syntax) (fn : Array Syntax → Array Syntax) : Syntax :=
   match stx with
   | node k args => node k (fn args)
   | stx         => stx
 
-def setArg (stx : Syntax) (i : Nat) (arg : Syntax) : Syntax :=
-  match stx with
-  | node k args => node k (args.set! i arg)
-  | stx         => stx
-
 @[inline] def modifyArg (stx : Syntax) (i : Nat) (fn : Syntax → Syntax) : Syntax :=
   match stx with
   | node k args => node k (args.modify i fn)
   | stx         => stx
-
-def getIdAt (stx : Syntax) (i : Nat) : Name :=
-  (stx.getArg i).getId
 
 @[specialize] partial def replaceM {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m (Syntax)
   | stx@(node kind args) => do

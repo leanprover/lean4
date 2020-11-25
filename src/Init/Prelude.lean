@@ -54,12 +54,12 @@ unsafe axiom lcProof {α : Prop} : α
 /-- Auxiliary unsafe constant used by the Compiler to mark unreachable code. -/
 unsafe axiom lcUnreachable {α : Sort u} : α
 
-inductive True : Prop :=
+inductive True : Prop where
   | intro : True
 
-inductive False : Prop :=
+inductive False : Prop
 
-inductive Empty : Type :=
+inductive Empty : Type
 
 def Not (a : Prop) : Prop := a → False
 
@@ -69,7 +69,7 @@ def Not (a : Prop) : Prop := a → False
 @[macroInline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=
   False.elim (h₂ h₁)
 
-inductive Eq {α : Sort u} (a : α) : α → Prop :=
+inductive Eq {α : Sort u} (a : α) : α → Prop where
   | refl {} : Eq a a
 
 abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
@@ -104,7 +104,7 @@ constant Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} 
 -/
 init_quot
 
-inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop :=
+inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop where
   | refl {} : HEq a a
 
 @[matchPattern] def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
@@ -118,28 +118,31 @@ theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
         h₁
   this α α a a' h rfl
 
-structure Prod (α : Type u) (β : Type v) :=
-  (fst : α) (snd : β)
+structure Prod (α : Type u) (β : Type v) where
+  fst : α
+  snd : β
 
 attribute [unbox] Prod
 
 /-- Similar to `Prod`, but `α` and `β` can be propositions.
    We use this Type internally to automatically generate the brecOn recursor. -/
-structure PProd (α : Sort u) (β : Sort v) :=
-  (fst : α) (snd : β)
+structure PProd (α : Sort u) (β : Sort v) where
+  fst : α
+  snd : β
 
 /-- Similar to `Prod`, but `α` and `β` are in the same universe. -/
-structure MProd (α β : Type u) :=
-  (fst : α) (snd : β)
+structure MProd (α β : Type u) where
+  fst : α
+  snd : β
 
-structure And (a b : Prop) : Prop :=
+structure And (a b : Prop) : Prop where
   intro :: (left : a) (right : b)
 
-inductive Or (a b : Prop) : Prop :=
+inductive Or (a b : Prop) : Prop where
   | inl (h : a) : Or a b
   | inr (h : b) : Or a b
 
-inductive Bool : Type :=
+inductive Bool : Type where
   | false : Bool
   | true : Bool
 
@@ -180,7 +183,7 @@ theorem neTrueOfEqFalse : {b : Bool} → Eq b false → Not (Eq b true)
   | true, h  => Bool.noConfusion h
   | false, _ => fun h => Bool.noConfusion h
 
-class Inhabited (α : Sort u) :=
+class Inhabited (α : Sort u) where
   mk {} :: (default : α)
 
 constant arbitrary (α : Sort u) [s : Inhabited α] : α :=
@@ -196,7 +199,7 @@ instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : In
   default := fun a => arbitrary (β a)
 
 /-- Universe lifting operation from Sort to Type -/
-structure PLift (α : Sort u) : Type u :=
+structure PLift (α : Sort u) : Type u where
   up :: (down : α)
 
 /- Bijection between α and PLift α -/
@@ -207,7 +210,7 @@ theorem PLift.downUp {α : Sort u} (a : α) : Eq (down (up a)) a :=
   rfl
 
 /- Pointed types -/
-structure PointedType :=
+structure PointedType where
   (type : Type u)
   (val : type)
 
@@ -215,7 +218,7 @@ instance : Inhabited PointedType.{u} where
   default := { type := PUnit.{u+1}, val := ⟨⟩ }
 
 /-- Universe lifting operation -/
-structure ULift.{r, s} (α : Type s) : Type (max s r) :=
+structure ULift.{r, s} (α : Type s) : Type (max s r) where
   up :: (down : α)
 
 /- Bijection between α and ULift.{v} α -/
@@ -225,7 +228,7 @@ theorem ULift.upDown {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
 theorem ULift.downUp {α : Type u} (a : α) : Eq (down (up.{v} a)) a :=
   rfl
 
-class inductive Decidable (p : Prop) :=
+class inductive Decidable (p : Prop) where
   | isFalse (h : Not p) : Decidable p
   | isTrue  (h : p) : Decidable p
 
@@ -271,7 +274,8 @@ theorem ofDecideEqFalse {p : Prop} [s : Decidable p] : Eq (decide p) false → N
    | true, false  => isFalse (fun h => Bool.noConfusion h)
    | true, true   => isTrue rfl
 
-class BEq      (α : Type u) := (beq : α → α → Bool)
+class BEq (α : Type u) where
+  beq : α → α → Bool
 
 open BEq (beq)
 
@@ -331,13 +335,13 @@ instance {p} [dp : Decidable p] : Decidable (Not p) :=
   | true  => false
   | false => true
 
-inductive Nat :=
+inductive Nat where
   | zero : Nat
   | succ (n : Nat) : Nat
 
 /- For numeric literals notation -/
-class OfNat (α : Type u) :=
-  (ofNat : Nat → α)
+class OfNat (α : Type u) where
+  ofNat : Nat → α
 
 export OfNat (ofNat)
 
@@ -348,23 +352,23 @@ instance : OfNat Nat where
 instance : Inhabited Nat where
   default := 0
 
-class HasLessEq (α : Type u) := (LessEq : α → α → Prop)
-class HasLess   (α : Type u) := (Less : α → α → Prop)
+class HasLessEq (α : Type u) where LessEq : α → α → Prop
+class HasLess   (α : Type u) where Less : α → α → Prop
 
 export HasLess (Less)
 export HasLessEq (LessEq)
 
-class Add     (α : Type u) := (add : α → α → α)
-class Mul     (α : Type u) := (mul : α → α → α)
-class Neg     (α : Type u) := (neg : α → α)
-class Sub     (α : Type u) := (sub : α → α → α)
-class Div     (α : Type u) := (div : α → α → α)
-class Mod     (α : Type u) := (mod : α → α → α)
-class ModN    (α : Type u) := (modn : α → Nat → α)
-class Pow     (α : Type u) (β : Type v) := (pow : α → β → α)
-class Append  (α : Type u) := (append : α → α → α)
-class OrElse  (α : Type u) := (orElse  : α → α → α)
-class AndThen (α : Type u) := (andThen : α → α → α)
+class Add     (α : Type u) where add : α → α → α
+class Mul     (α : Type u) where mul : α → α → α
+class Neg     (α : Type u) where neg : α → α
+class Sub     (α : Type u) where sub : α → α → α
+class Div     (α : Type u) where div : α → α → α
+class Mod     (α : Type u) where mod : α → α → α
+class ModN    (α : Type u) where modn : α → Nat → α
+class Pow     (α : Type u) (β : Type v) where pow : α → β → α
+class Append  (α : Type u) where append : α → α → α
+class OrElse  (α : Type u) where orElse  : α → α → α
+class AndThen (α : Type u) where andThen : α → α → α
 
 open Add (add)
 open Mul (mul)
@@ -449,12 +453,14 @@ def Nat.ble : Nat → Nat → Bool
 protected def Nat.le (n m : Nat) : Prop :=
   Eq (ble n m) true
 
-instance : HasLessEq Nat := ⟨Nat.le⟩
+instance : HasLessEq Nat where
+  LessEq := Nat.le
 
 protected def Nat.lt (n m : Nat) : Prop :=
   Nat.le (succ n) m
 
-instance : HasLess Nat := ⟨Nat.lt⟩
+instance : HasLess Nat where
+  Less := Nat.lt
 
 theorem Nat.notSuccLeZero : ∀ (n : Nat), LessEq (succ n) 0 → False
   | 0,      h => nomatch h
@@ -584,9 +590,9 @@ def System.Platform.numBits : Nat :=
 theorem System.Platform.numBitsEq : Or (Eq numBits 32) (Eq numBits 64) :=
   (getNumBits ()).property
 
-structure Fin (n : Nat) :=
-  (val  : Nat)
-  (isLt : Less val n)
+structure Fin (n : Nat) where
+  val  : Nat
+  isLt : Less val n
 
 theorem Fin.eqOfVeq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
   | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
@@ -603,18 +609,18 @@ instance (n : Nat) : DecidableEq (Fin n) :=
     | isTrue h  => isTrue (Fin.eqOfVeq h)
     | isFalse h => isFalse (Fin.neOfVne h)
 
-protected def Fin.lt {n} (a b : Fin n) : Prop := Less a.val b.val
-protected def Fin.le {n} (a b : Fin n) : Prop := LessEq a.val b.val
+instance {n} : HasLess (Fin n) where
+  Less a b := Less a.val b.val
 
-instance {n} : HasLess (Fin n)    := ⟨Fin.lt⟩
-instance {n} : HasLessEq (Fin n)  := ⟨Fin.le⟩
+instance {n} : HasLessEq (Fin n) where
+  LessEq a b := LessEq a.val b.val
 
 instance Fin.decLt {n} (a b : Fin n) :  Decidable (Less a b)  := Nat.decLt ..
 instance Fin.decLe {n} (a b : Fin n) : Decidable (LessEq a b) := Nat.decLe ..
 
 def UInt8.size : Nat := 256
-structure UInt8 :=
-  (val : Fin UInt8.size)
+structure UInt8 where
+  val : Fin UInt8.size
 
 attribute [extern "lean_uint8_of_nat"] UInt8.mk
 attribute [extern "lean_uint8_to_nat"] UInt8.val
@@ -637,8 +643,8 @@ instance : Inhabited UInt8 where
   default := UInt8.ofNatCore 0 decide!
 
 def UInt16.size : Nat := 65536
-structure UInt16 :=
-  (val : Fin UInt16.size)
+structure UInt16 where
+  val : Fin UInt16.size
 
 attribute [extern "lean_uint16_of_nat"] UInt16.mk
 attribute [extern "lean_uint16_to_nat"] UInt16.val
@@ -661,8 +667,8 @@ instance : Inhabited UInt16 where
   default := UInt16.ofNatCore 0 decide!
 
 def UInt32.size : Nat := 4294967296
-structure UInt32 :=
-  (val : Fin UInt32.size)
+structure UInt32 where
+  val : Fin UInt32.size
 
 attribute [extern "lean_uint32_of_nat"] UInt32.mk
 attribute [extern "lean_uint32_to_nat"] UInt32.val
@@ -687,11 +693,11 @@ instance : DecidableEq UInt32 := UInt32.decEq
 instance : Inhabited UInt32 where
   default := UInt32.ofNatCore 0 decide!
 
-def UInt32.lt (a b : UInt32) : Prop := Less a.val b.val
-def UInt32.le (a b : UInt32) : Prop := LessEq a.val b.val
+instance : HasLess UInt32 where
+  Less a b := Less a.val b.val
 
-instance : HasLess UInt32   := ⟨UInt32.lt⟩
-instance : HasLessEq UInt32 := ⟨UInt32.le⟩
+instance : HasLessEq UInt32 where
+  LessEq a b := LessEq a.val b.val
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 < #2"]
@@ -709,8 +715,8 @@ instance (a b : UInt32) : Decidable (Less a b) := UInt32.decLt a b
 instance (a b : UInt32) : Decidable (LessEq a b) := UInt32.decLe a b
 
 def UInt64.size : Nat := 18446744073709551616
-structure UInt64 :=
-  (val : Fin UInt64.size)
+structure UInt64 where
+  val : Fin UInt64.size
 
 attribute [extern "lean_uint64_of_nat"] UInt64.mk
 attribute [extern "lean_uint64_to_nat"] UInt64.val
@@ -740,8 +746,8 @@ theorem usizeSzEq : Or (Eq USize.size 4294967296) (Eq USize.size 184467440737095
   | _, Or.inl rfl => Or.inl (decide! : (Eq (pow 2 32) (4294967296:Nat)))
   | _, Or.inr rfl => Or.inr (decide! : (Eq (pow 2 64) (18446744073709551616:Nat)))
 
-structure USize :=
-  (val : Fin USize.size)
+structure USize where
+  val : Fin USize.size
 
 attribute [extern "lean_usize_of_nat"] USize.mk
 attribute [extern "lean_usize_to_nat"] USize.val
@@ -783,9 +789,9 @@ abbrev UInt32.isValidChar (n : UInt32) : Prop :=
 
 /-- The `Char` Type represents an unicode scalar value.
     See http://www.unicode.org/glossary/#unicode_scalar_value). -/
-structure Char :=
-  (val   : UInt32)
-  (valid : val.isValidChar)
+structure Char where
+  val   : UInt32
+  valid : val.isValidChar
 
 private theorem validCharIsUInt32 {n : Nat} (h : n.isValidChar) : Less n UInt32.size :=
   match h with
@@ -830,7 +836,7 @@ def Char.utf8Size (c : Char) : UInt32 :=
         (UInt32.ofNatCore 3 decide!)
         (UInt32.ofNatCore 4 decide!)))
 
-inductive Option (α : Type u) :=
+inductive Option (α : Type u) where
   | none : Option α
   | some (val : α) : Option α
 
@@ -841,7 +847,7 @@ export Option (none some)
 instance {α} : Inhabited (Option α) where
   default := none
 
-inductive List (α : Type u) :=
+inductive List (α : Type u) where
   | nil : List α
   | cons (head : α) (tail : List α) : List α
 
@@ -892,8 +898,8 @@ def List.get {α : Type u} : (as : List α) → (i : Nat) → Less i as.length �
     have Less i.succ as.length.succ from lengthConsEq .. ▸ h
     get as i (Nat.leOfSuccLeSucc this)
 
-structure String :=
-  (data : List Char)
+structure String where
+  data : List Char
 
 attribute [extern "lean_string_mk"] String.mk
 attribute [extern "lean_string_data"] String.data
@@ -913,10 +919,10 @@ Indexing a `String` by a byte position is constant-time, while codepoint
 positions need to be translated internally to byte positions in linear-time. -/
 abbrev String.Pos := Nat
 
-structure Substring :=
-  (str : String)
-  (startPos : String.Pos)
-  (stopPos : String.Pos)
+structure Substring where
+  str : String
+  startPos : String.Pos
+  stopPos : String.Pos
 
 def String.csize (c : Char) : Nat :=
   c.utf8Size.toNat
@@ -949,8 +955,8 @@ constant panic {α : Type u} [Inhabited α] (msg : String) : α
 The Compiler has special support for arrays.
 They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic_array
 -/
-structure Array (α : Type u) :=
-  (data : List α)
+structure Array (α : Type u) where
+  data : List α
 
 attribute [extern "lean_array_to_list"] Array.data
 attribute [extern "lean_list_to_array"] Array.mk
@@ -996,56 +1002,58 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
       (fun _ => as)
   loop bs.size 0 as
 
-class Bind (m : Type u → Type v) :=
-  (bind : {α β : Type u} → m α → (α → m β) → m β)
+class Bind (m : Type u → Type v) where
+  bind : {α β : Type u} → m α → (α → m β) → m β
 
 export Bind (bind)
 
-class Pure (f : Type u → Type v) :=
-  (pure {α : Type u} : α → f α)
+class Pure (f : Type u → Type v) where
+  pure {α : Type u} : α → f α
 
 export Pure (pure)
 
-class Functor (f : Type u → Type v) : Type (max (u+1) v) :=
-  (map      : {α β : Type u} → (α → β) → f α → f β)
-  (mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _))
+class Functor (f : Type u → Type v) : Type (max (u+1) v) where
+  map      : {α β : Type u} → (α → β) → f α → f β
+  mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)
 
-class Seq (f : Type u → Type v) : Type (max (u+1) v) :=
-  (seq  : {α β : Type u} → f (α → β) → f α → f β)
+class Seq (f : Type u → Type v) : Type (max (u+1) v) where
+  seq  : {α β : Type u} → f (α → β) → f α → f β
 
-class SeqLeft (f : Type u → Type v) : Type (max (u+1) v) :=
-  (seqLeft : {α : Type u} → f α → f PUnit → f α)
+class SeqLeft (f : Type u → Type v) : Type (max (u+1) v) where
+  seqLeft : {α : Type u} → f α → f PUnit → f α
 
-class SeqRight (f : Type u → Type v) : Type (max (u+1) v) :=
-  (seqRight : {β : Type u} → f PUnit → f β → f β)
+class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
+  seqRight : {β : Type u} → f PUnit → f β → f β
 
-class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f :=
-  (map      := fun x y => Seq.seq (pure x) y)
-  (seqLeft  := fun a b => Seq.seq (Functor.map (Function.const _) a) b)
-  (seqRight := fun a b => Seq.seq (Functor.map (Function.const _ id) a) b)
+class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
+  map      := fun x y => Seq.seq (pure x) y
+  seqLeft  := fun a b => Seq.seq (Functor.map (Function.const _) a) b
+  seqRight := fun a b => Seq.seq (Functor.map (Function.const _ id) a) b
 
-class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) :=
-  (map      := fun f x => bind x (Function.comp pure f))
-  (seq      := fun f x => bind f (fun y => Functor.map y x))
-  (seqLeft  := fun x y => bind x (fun a => bind y (fun _ => pure a)))
-  (seqRight := fun x y => bind x (fun _ => y))
+class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
+  map      := fun f x => bind x (Function.comp pure f)
+  seq      := fun f x => bind f fun y => Functor.map y x
+  seqLeft  := fun x y => bind x fun a => bind y (fun _ => pure a)
+  seqRight := fun x y => bind x fun _ => y
 
-instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) := ⟨pure⟩
+instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) where
+  default := pure
 
-instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) := ⟨pure (arbitrary _)⟩
+instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) where
+  default := pure (arbitrary _)
 
 /-- A Function for lifting a computation from an inner Monad to an outer Monad.
     Like [MonadTrans](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html),
     but `n` does not have to be a monad transformer.
     Alternatively, an implementation of [MonadLayer](https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLayer) without `layerInvmap` (so far). -/
-class MonadLift (m : Type u → Type v) (n : Type u → Type w) :=
-  (monadLift : {α : Type u} → m α → n α)
+class MonadLift (m : Type u → Type v) (n : Type u → Type w) where
+  monadLift : {α : Type u} → m α → n α
 
 /-- The reflexive-transitive closure of `MonadLift`.
     `monadLift` is used to transitively lift monadic computations such as `StateT.get` or `StateT.put s`.
     Corresponds to [MonadLift](https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLift). -/
-class MonadLiftT (m : Type u → Type v) (n : Type u → Type w) :=
-  (monadLift : {α : Type u} → m α → n α)
+class MonadLiftT (m : Type u → Type v) (n : Type u → Type w) where
+  monadLift : {α : Type u} → m α → n α
 
 export MonadLiftT (monadLift)
 
@@ -1061,13 +1069,13 @@ instance (m) : MonadLiftT m m where
     Based on pipes' [MFunctor](https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html),
     but not restricted to monad transformers.
     Alternatively, an implementation of [MonadTransFunctor](http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor). -/
-class MonadFunctor (m : Type u → Type v) (n : Type u → Type w) :=
-  (monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α)
+class MonadFunctor (m : Type u → Type v) (n : Type u → Type w) where
+  monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α
 
 /-- The reflexive-transitive closure of `MonadFunctor`.
     `monadMap` is used to transitively lift Monad morphisms -/
-class MonadFunctorT (m : Type u → Type v) (n : Type u → Type w) :=
-  (monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α)
+class MonadFunctorT (m : Type u → Type v) (n : Type u → Type w) where
+  monadMap {α : Type u} : (∀ {β}, m β → m β) → n α → n α
 
 export MonadFunctorT (monadMap)
 
@@ -1077,19 +1085,19 @@ instance (m n o) [MonadFunctorT m n] [MonadFunctor n o] : MonadFunctorT m o wher
 instance monadFunctorRefl (m) : MonadFunctorT m m where
   monadMap f := f
 
-inductive Except (ε : Type u) (α : Type v) :=
+inductive Except (ε : Type u) (α : Type v) where
   | error : ε → Except ε α
   | ok    : α → Except ε α
 
 attribute [unbox] Except
 
-instance {ε : Type u} {α : Type v} [Inhabited ε] : Inhabited (Except ε α) :=
-  ⟨Except.error (arbitrary ε)⟩
+instance {ε : Type u} {α : Type v} [Inhabited ε] : Inhabited (Except ε α) where
+  default := Except.error (arbitrary ε)
 
 /-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
-class MonadExceptOf (ε : Type u) (m : Type v → Type w) :=
-  (throw {α : Type v} : ε → m α)
-  (tryCatch {α : Type v} : m α → (ε → m α) → m α)
+class MonadExceptOf (ε : Type u) (m : Type v → Type w) where
+  throw {α : Type v} : ε → m α
+  tryCatch {α : Type v} : m α → (ε → m α) → m α
 
 abbrev throwThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (e : ε) : m α :=
   MonadExceptOf.throw e
@@ -1098,9 +1106,9 @@ abbrev tryCatchThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {�
   MonadExceptOf.tryCatch x handle
 
 /-- Similar to `MonadExceptOf`, but `ε` is an outParam for convenience -/
-class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
-  (throw {α : Type v} : ε → m α)
-  (tryCatch {α : Type v} : m α → (ε → m α) → m α)
+class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) where
+  throw {α : Type v} : ε → m α
+  tryCatch {α : Type v} : m α → (ε → m α) → m α
 
 export MonadExcept (throw tryCatch)
 
@@ -1114,7 +1122,8 @@ variables {ε : Type u} {m : Type v → Type w}
 @[inline] protected def orelse [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
   tryCatch t₁ fun _ => t₂
 
-instance [MonadExcept ε m] {α : Type v} : OrElse (m α) := ⟨MonadExcept.orelse⟩
+instance [MonadExcept ε m] {α : Type v} : OrElse (m α) where
+  orElse := MonadExcept.orelse
 
 end MonadExcept
 
@@ -1122,8 +1131,8 @@ end MonadExcept
 def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   ρ → m α
 
-instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] : Inhabited (ReaderT ρ m α) :=
-  ⟨fun _ => arbitrary _⟩
+instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] : Inhabited (ReaderT ρ m α) where
+  default := fun _ => arbitrary _
 
 @[inline] def ReaderT.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ReaderT ρ m α) (r : ρ) : m α :=
   x r
@@ -1135,13 +1144,11 @@ namespace ReaderT
 section
 variables {ρ : Type u} {m : Type u → Type v} {α : Type u}
 
-@[inline] protected def lift  (a : m α) : ReaderT ρ m α :=
-  fun r => a
-
-instance  : MonadLift m (ReaderT ρ m) := ⟨ReaderT.lift⟩
+instance  : MonadLift m (ReaderT ρ m) where
+  monadLift x := fun _ => x
 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) where
-  throw    := Function.comp ReaderT.lift (throwThe ε)
+  throw e  := liftM (m := m) (throw e)
   tryCatch := fun x c r => tryCatchThe ε (x r) (fun e => (c e) r)
 
 end
@@ -1166,7 +1173,8 @@ instance : Monad (ReaderT ρ m) where
   bind := ReaderT.bind
   map  := ReaderT.map
 
-instance (ρ m) [Monad m] : MonadFunctor m (ReaderT ρ m) := ⟨fun f x r => f (x r)⟩
+instance (ρ m) [Monad m] : MonadFunctor m (ReaderT ρ m) where
+  monadMap f x := fun ctx => f (x ctx)
 
 @[inline] protected def adapt {ρ' : Type u} [Monad m] {α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
   fun x r => x (f r)
@@ -1184,59 +1192,60 @@ end ReaderT
     (lift {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α) → n α)
     ```
     -/
-class MonadReaderOf (ρ : Type u) (m : Type u → Type v) :=
-  (read : m ρ)
+class MonadReaderOf (ρ : Type u) (m : Type u → Type v) where
+  read : m ρ
 
 @[inline] def readThe (ρ : Type u) {m : Type u → Type v} [MonadReaderOf ρ m] : m ρ :=
   MonadReaderOf.read
 
 /-- Similar to `MonadReaderOf`, but `ρ` is an outParam for convenience -/
-class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) :=
-  (read : m ρ)
+class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) where
+  read : m ρ
 
 export MonadReader (read)
 
-instance (ρ : Type u) (m : Type u → Type v) [MonadReaderOf ρ m] : MonadReader ρ m :=
-  ⟨readThe ρ⟩
+instance (ρ : Type u) (m : Type u → Type v) [MonadReaderOf ρ m] : MonadReader ρ m where
+  read := readThe ρ
 
-instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadReaderOf ρ m] [MonadLift m n] : MonadReaderOf ρ n :=
-  ⟨monadLift (MonadReader.read : m ρ)⟩
+instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadReaderOf ρ m] [MonadLift m n] : MonadReaderOf ρ n where
+  read := liftM (m := m) read
 
-instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (ReaderT ρ m) :=
-  ⟨ReaderT.read⟩
+instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (ReaderT ρ m) where
+  read := ReaderT.read
 
-class MonadWithReaderOf (ρ : Type u) (m : Type u → Type v) :=
-  (withReader {α : Type u} : (ρ → ρ) → m α → m α)
+class MonadWithReaderOf (ρ : Type u) (m : Type u → Type v) where
+  withReader {α : Type u} : (ρ → ρ) → m α → m α
 
 @[inline] def withTheReader (ρ : Type u) {m : Type u → Type v} [MonadWithReaderOf ρ m] {α : Type u} (f : ρ → ρ) (x : m α) : m α :=
   MonadWithReaderOf.withReader f x
 
-class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) :=
-  (withReader {α : Type u} : (ρ → ρ) → m α → m α)
+class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) where
+  withReader {α : Type u} : (ρ → ρ) → m α → m α
 
 export MonadWithReader (withReader)
 
-instance (ρ : Type u) (m : Type u → Type v) [MonadWithReaderOf ρ m] : MonadWithReader ρ m := ⟨withTheReader ρ⟩
+instance (ρ : Type u) (m : Type u → Type v) [MonadWithReaderOf ρ m] : MonadWithReader ρ m where
+  withReader := withTheReader ρ
 
-instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type v} [MonadWithReaderOf ρ m] [MonadFunctor m n] : MonadWithReaderOf ρ n :=
-  ⟨fun f => monadMap (m := m) (withTheReader ρ f)⟩
+instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type v} [MonadWithReaderOf ρ m] [MonadFunctor m n] : MonadWithReaderOf ρ n where
+  withReader f := monadMap (m := m) (withTheReader ρ f)
 
-instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadWithReaderOf ρ (ReaderT ρ m) :=
-  ⟨fun f x ctx => x (f ctx)⟩
+instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadWithReaderOf ρ (ReaderT ρ m) where
+  withReader f x := fun ctx => x (f ctx)
 
 /-- An implementation of [MonadState](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Class.html).
     In contrast to the Haskell implementation, we use overlapping instances to derive instances
     automatically from `monadLift`. -/
-class MonadStateOf (σ : Type u) (m : Type u → Type v) :=
+class MonadStateOf (σ : Type u) (m : Type u → Type v) where
   /- Obtain the top-most State of a Monad stack. -/
-  (get : m σ)
+  get : m σ
   /- Set the top-most State of a Monad stack. -/
-  (set : σ → m PUnit)
+  set : σ → m PUnit
   /- Map the top-most State of a Monad stack.
 
      Note: `modifyGet f` may be preferable to `do s <- get; let (a, s) := f s; put s; pure a`
      because the latter does not use the State linearly (without sufficient inlining). -/
-  (modifyGet {α : Type u} : (σ → Prod α σ) → m α)
+  modifyGet {α : Type u} : (σ → Prod α σ) → m α
 
 export MonadStateOf (set)
 
@@ -1250,10 +1259,10 @@ abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] : m σ :
   MonadStateOf.modifyGet f
 
 /-- Similar to `MonadStateOf`, but `σ` is an outParam for convenience -/
-class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
-  (get : m σ)
-  (set : σ → m PUnit)
-  (modifyGet {α : Type u} : (σ → Prod α σ) → m α)
+class MonadState (σ : outParam (Type u)) (m : Type u → Type v) where
+  get : m σ
+  set : σ → m PUnit
+  modifyGet {α : Type u} : (σ → Prod α σ) → m α
 
 export MonadState (get modifyGet)
 
@@ -1277,13 +1286,14 @@ instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadSta
 
 namespace EStateM
 
-inductive Result (ε σ α : Type u) :=
+inductive Result (ε σ α : Type u) where
   | ok    : α → σ → Result ε σ α
   | error : ε → σ → Result ε σ α
 
 variables {ε σ α : Type u}
 
-instance [Inhabited ε] [Inhabited σ] : Inhabited (Result ε σ α) := ⟨Result.error (arbitrary _) (arbitrary _)⟩
+instance [Inhabited ε] [Inhabited σ] : Inhabited (Result ε σ α) where
+  default := Result.error (arbitrary _) (arbitrary _)
 
 end EStateM
 
@@ -1314,9 +1324,9 @@ instance [Inhabited ε] : Inhabited (EStateM ε σ α) := ⟨fun s =>
   Result.error e s
 
 /-- Auxiliary instance for saving/restoring the "backtrackable" part of the state. -/
-class Backtrackable (δ : outParam (Type u)) (σ : Type u) :=
-  (save    : σ → δ)
-  (restore : σ → δ → σ)
+class Backtrackable (δ : outParam (Type u)) (σ : Type u) where
+  save    : σ → δ
+  restore : σ → δ → σ
 
 @[inline] protected def tryCatch {δ} [Backtrackable δ σ] {α} (x : EStateM ε σ α) (handle : ε → EStateM ε σ α) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s
@@ -1387,8 +1397,8 @@ instance nonBacktrackable : Backtrackable PUnit σ where
 
 end EStateM
 
-class Hashable (α : Type u) :=
-  (hash : α → USize)
+class Hashable (α : Type u) where
+  hash : α → USize
 
 export Hashable (hash)
 
@@ -1398,24 +1408,27 @@ constant mixHash (u₁ u₂ : USize) : USize
 @[extern "lean_string_hash"]
 protected constant String.hash (s : @& String) : USize
 
-instance : Hashable String := ⟨String.hash⟩
+instance : Hashable String where
+  hash := String.hash
 
 namespace Lean
 
 /- Hierarchical names -/
-inductive Name :=
+inductive Name where
   | anonymous : Name
   | str : Name → String → USize → Name
   | num : Name → Nat → USize → Name
 
-instance : Inhabited Name := ⟨Name.anonymous⟩
+instance : Inhabited Name where
+  default := Name.anonymous
 
 protected def Name.hash : Name → USize
   | Name.anonymous => USize.ofNat32 1723 decide!
   | Name.str p s h => h
   | Name.num p v h => h
 
-instance : Hashable Name := ⟨Name.hash⟩
+instance : Hashable Name where
+  hash := Name.hash
 
 namespace Name
 
@@ -1437,14 +1450,16 @@ protected def beq : (@& Name) → (@& Name) → Bool
   | num p₁ n₁ _, num p₂ n₂ _ => and (BEq.beq n₁ n₂) (Name.beq p₁ p₂)
   | _,           _           => false
 
-instance : BEq Name := ⟨Name.beq⟩
+instance : BEq Name where
+  beq := Name.beq
 
 protected def append : Name → Name → Name
   | n, anonymous => n
   | n, str p s _ => Name.mkStr (Name.append n p) s
   | n, num p d _ => Name.mkNum (Name.append n p) d
 
-instance : Append Name := ⟨Name.append⟩
+instance : Append Name where
+  append := Name.append
 
 end Name
 
@@ -1455,12 +1470,12 @@ end Name
   syntax quotations, but syntax transformations might want to invalidate only one side to make the pretty printer
   reformat it. In the special case of the delaborator, we also use purely synthetic position information without
   whitespace information. -/
-structure SourceInfo :=
+structure SourceInfo where
   /- Will be inferred after parsing by `Syntax.updateLeading`. During parsing,
      it is not at all clear what the preceding token was, especially with backtracking. -/
-  (leading  : Option Substring  := none)
-  (pos      : Option String.Pos := none)
-  (trailing : Option Substring  := none)
+  leading  : Option Substring  := none
+  pos      : Option String.Pos := none
+  trailing : Option Substring  := none
 
 instance : Inhabited SourceInfo := ⟨{}⟩
 
@@ -1468,13 +1483,14 @@ abbrev SyntaxNodeKind := Name
 
 /- Syntax AST -/
 
-inductive Syntax :=
+inductive Syntax where
   | missing : Syntax
   | node   (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
   | atom   (info : SourceInfo) (val : String) : Syntax
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
 
-instance : Inhabited Syntax := ⟨Syntax.missing⟩
+instance : Inhabited Syntax where
+  default := Syntax.missing
 
 /- Builtin kinds -/
 def choiceKind : SyntaxNodeKind := `choice
@@ -1545,7 +1561,7 @@ end Syntax
 
 /- Parser descriptions -/
 
-inductive ParserDescr :=
+inductive ParserDescr where
   | const  (name : Name)
   | unary  (name : Name) (p : ParserDescr)
   | binary (name : Name) (p₁ p₂ : ParserDescr)
@@ -1557,7 +1573,9 @@ inductive ParserDescr :=
   | parser (declName : Name)
   | nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : ParserDescr)
 
-instance : Inhabited ParserDescr := ⟨ParserDescr.symbol ""⟩
+instance : Inhabited ParserDescr where
+  default := ParserDescr.symbol ""
+
 abbrev TrailingParserDescr := ParserDescr
 
 /-
@@ -1578,10 +1596,10 @@ def firstFrontendMacroScope := add reservedMacroScope 1
     (independent of whether this identifier turns out to be a reference to an
     existing declaration, or an actually fresh binding during further
     elaboration). -/
-class MonadQuotation (m : Type → Type) :=
+class MonadQuotation (m : Type → Type) where
   -- Get the fresh scope of the current macro invocation
-  (getCurrMacroScope : m MacroScope)
-  (getMainModule     : m Name)
+  getCurrMacroScope : m MacroScope
+  getMainModule     : m Name
   /- Execute action in a new macro invocation context. This transformer should be
      used at all places that morally qualify as the beginning of a "macro call",
      e.g. `elabCommand` and `elabTerm` in the case of the elaborator. However, it
@@ -1593,7 +1611,7 @@ class MonadQuotation (m : Type → Type) :=
      restricted to passing a single syntax tree. Modelling this helper as a
      transformer and not just a monadic action ensures that the current macro
      scope before the recursive call is restored after it, as expected. -/
-  (withFreshMacroScope {α : Type} : m α → m α)
+  withFreshMacroScope {α : Type} : m α → m α
 
 export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
@@ -1652,13 +1670,14 @@ def Name.simpMacroScopes (n : Name) : Name :=
   | true  => simpMacroScopesAux n
   | false => n
 
-structure MacroScopesView :=
-  (name       : Name)
-  (imported   : Name)
-  (mainModule : Name)
-  (scopes     : List MacroScope)
+structure MacroScopesView where
+  name       : Name
+  imported   : Name
+  mainModule : Name
+  scopes     : List MacroScope
 
-instance : Inhabited MacroScopesView := ⟨⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _⟩⟩
+instance : Inhabited MacroScopesView where
+  default := ⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _⟩
 
 def MacroScopesView.review (view : MacroScopesView) : Name :=
   match view.scopes with
@@ -1728,9 +1747,9 @@ def defaultMaxRecDepth := 512
 def maxRecDepthErrorMessage : String :=
   "maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)"
 
-class MonadRef (m : Type → Type) :=
-  (getRef      : m Syntax)
-  (withRef {α} : Syntax → m α → m α)
+class MonadRef (m : Type → Type) where
+  getRef      : m Syntax
+  withRef {α} : Syntax → m α → m α
 
 export MonadRef (getRef)
 
@@ -1754,17 +1773,18 @@ namespace Macro
 constant MacroEnvPointed : PointedType.{0}
 
 def MacroEnv : Type := MacroEnvPointed.type
-instance : Inhabited MacroEnv := ⟨MacroEnvPointed.val⟩
+instance : Inhabited MacroEnv where
+  default := MacroEnvPointed.val
 
-structure Context :=
-  (macroEnv       : MacroEnv)
-  (mainModule     : Name)
-  (currMacroScope : MacroScope)
-  (currRecDepth   : Nat := 0)
-  (maxRecDepth    : Nat := defaultMaxRecDepth)
-  (ref            : Syntax)
+structure Context where
+  macroEnv       : MacroEnv
+  mainModule     : Name
+  currMacroScope : MacroScope
+  currRecDepth   : Nat := 0
+  maxRecDepth    : Nat := defaultMaxRecDepth
+  ref            : Syntax
 
-inductive Exception :=
+inductive Exception where
   | error             : Syntax → String → Exception
   | unsupportedSyntax : Exception
 

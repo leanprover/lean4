@@ -7,18 +7,17 @@ import Lean.Meta.DiscrTree
 
 namespace Lean.Meta
 
-structure InstanceEntry :=
-  (keys        : Array DiscrTree.Key)
-  (val         : Expr)
-  (globalName? : Option Name := none)
+structure InstanceEntry where
+  keys        : Array DiscrTree.Key
+  val         : Expr
+  globalName? : Option Name := none
 
-structure Instances :=
-  (discrTree       : DiscrTree Expr := DiscrTree.empty )
-  (globalInstances : NameSet := {})
+structure Instances where
+  discrTree       : DiscrTree Expr := DiscrTree.empty
+  globalInstances : NameSet := {}
 
-instance : Inhabited Instances := {
+instance : Inhabited Instances where
   default := {}
-}
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances := {
   d with
@@ -74,16 +73,15 @@ def getGlobalInstancesIndex : MetaM (DiscrTree Expr) :=
 
 /- Default instance support -/
 
-structure DefaultInstanceEntry :=
-  (className    : Name)
-  (instanceName : Name)
+structure DefaultInstanceEntry where
+  className    : Name
+  instanceName : Name
 
-structure DefaultInstances :=
-  (defaultInstances : NameMap (List Name) := {})
+structure DefaultInstances where
+  defaultInstances : NameMap (List Name) := {}
 
-instance : Inhabited DefaultInstances := {
+instance : Inhabited DefaultInstances where
   default := {}
-}
 
 def addDefaultInstanceEntry (d : DefaultInstances) (e : DefaultInstanceEntry) : DefaultInstances :=
   match d.defaultInstances.find? e.className with

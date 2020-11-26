@@ -34,3 +34,16 @@ def usingIO {α} (x : IO α) : IO α := x
   let out ← output { cmd := "sh", args := #["-c", "printf '%100000s' >& 2; printf '%100001s'"] };
   IO.println out.stdout.length;
   IO.println out.stderr.length
+
+#eval usingIO do
+  -- With a non-empty stdin, cat would wait on input forever
+  let child ← spawn { cmd := "sh", args := #["-c", "cat"], stdin := Stdio.null };
+  child.wait
+
+#eval usingIO do
+  let child ← spawn { cmd := "sh", args := #["-c", "echo nullStdout"], stdout := Stdio.null };
+  child.wait
+
+#eval usingIO do
+  let child ← spawn { cmd := "sh", args := #["-c", "echo nullStderr >& 2"], stderr := Stdio.null };
+  child.wait

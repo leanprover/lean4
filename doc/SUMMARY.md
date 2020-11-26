@@ -8,6 +8,7 @@
 - [Functions](./functions.md)
 - [Sections](./sections.md)
 - [Namespaces](./namespaces.md)
+- [Type classes](./typeclass.md)
 - [The `do` Notation](./do.md)
 - [Tactics](./tactics.md)
 - [String interpolation](./stringinterp.md)

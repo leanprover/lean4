@@ -2,6 +2,7 @@
 
 Lean is a functional programming language that makes it easy to
 write correct and maintainable code.
+You can also use Lean as an interactive theorem prover.
 
 Lean programming primarily involves defining types and functions.
 This allows your focus to remain on the problem domain and manipulating its data,

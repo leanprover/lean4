@@ -1170,7 +1170,7 @@ def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
     | _               => pure none
   | _ => pure none
 
-private def mkFreshLevelMVars (num : Nat) : TermElabM (List Level) :=
+def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
   num.foldM (init := []) fun _ us =>
     return (← mkFreshLevelMVar)::us
 

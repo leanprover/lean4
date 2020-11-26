@@ -129,6 +129,38 @@ private def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : 
   modify fun s => { s with syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars }
   pure $ numSyntheticMVars != remainingSyntheticMVars.length
 
+def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : MetaM (Option (List SyntheticMVarDecl)) :=
+  commitWhenSome? do
+    let constInfo ← getConstInfo defaultInstance
+    let candidate := Lean.mkConst defaultInstance (← mkFreshLevelMVars constInfo.lparams.length)
+    let (mvars, bis, _) ← forallMetaTelescopeReducing (← inferType candidate)
+    let candidate := mkAppN candidate mvars
+    trace[Elab.resume]! "trying default instance for {mkMVar mvarId} := {candidate}"
+    if (← isDefEqGuarded (mkMVar mvarId) candidate) then
+      -- Succeeded. Collect new TC problems
+      let mut result := []
+      for i in [:bis.size] do
+        if bis[i] == BinderInfo.instImplicit then
+           result := { mvarId := mvars[i].mvarId!, stx := (← getRef), kind := SyntheticMVarKind.typeClass } :: result
+      return some result
+    else
+      return none
+
+def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) : MetaM (Option (List SyntheticMVarDecl)) :=
+  withMVarContext mvarId do
+    let mvarType := (← Meta.getMVarDecl mvarId).type
+     match (← isClass? mvarType) with
+     | none => return none
+     | some className =>
+       match (← getDefaultInstances className) with
+       | [] => return none
+       | defaultInstances =>
+         for defaultInstance in defaultInstances do
+            match (← tryToSynthesizeUsingDefaultInstance mvarId defaultInstance) with
+            | some newMVarDecls => return some newMVarDecls
+            | none => continue
+         return none
+
 /--
   Apply default value to any pending synthetic metavariable of kind `SyntheticMVarKind.withDefault`
   Return true if something was synthesized. -/
@@ -136,29 +168,22 @@ def synthesizeUsingDefault : TermElabM Bool := do
   let s ← get
   let currLength := s.syntheticMVars.length
   let mut syntheticMVarsNew := []
+  let mut modified := false
   /- Recall that s.syntheticMVars is essentially a stack. The first metavariable was the last one created.
      We want to apply the default instance in reverse creation order. Otherwise,
      `toString 0` will produce a `OfNat String` cannot be synthesized error. -/
   for mvarDecl in s.syntheticMVars.reverse do
     match mvarDecl.kind with
     | SyntheticMVarKind.typeClass =>
-      syntheticMVarsNew ← withMVarContext mvarDecl.mvarId do
-        let mvarType := (← getMVarDecl mvarDecl.mvarId).type
-          match (← isClass? mvarType) with
-          | none => return mvarDecl :: syntheticMVarsNew
-          | some className => match (← getDefaultInstances className) with
-            | [] => return mvarDecl :: syntheticMVarsNew
-            | defaultInstances =>
-              for defaultInstance in defaultInstances do
-                let candidate := Lean.mkConst defaultInstance
-                trace[Elab.resume]! "trying default instance for {mkMVar mvarDecl.mvarId} := {candidate}"
-                if (← isDefEqGuarded (mkMVar mvarDecl.mvarId) candidate) then
-                  return syntheticMVarsNew
-              return mvarDecl :: syntheticMVarsNew
+        match (← withRef mvarDecl.stx <| tryToSynthesizeUsingDefaultInstances mvarDecl.mvarId) with
+        | none =>
+          syntheticMVarsNew := mvarDecl :: syntheticMVarsNew
+        | some newMVarDecls =>
+          syntheticMVarsNew := newMVarDecls ++ syntheticMVarsNew
+          modified := true
     | _ => syntheticMVarsNew := mvarDecl :: syntheticMVarsNew
-    pure ()
   modify fun s => { s with syntheticMVars := syntheticMVarsNew }
-  return syntheticMVarsNew.length != currLength
+  return modified
 
 /-- Report an error for each synthetic metavariable that could not be resolved. -/
 private def reportStuckSyntheticMVars : TermElabM Unit := do

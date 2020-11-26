@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.LevelDefEq
+import Lean.Meta.PPGoal
 
 namespace Lean.Meta
 
@@ -41,9 +42,6 @@ def getMVarType (mvarId : MVarId) : MetaM Expr := do
 
 def getMVarType' (mvarId : MVarId) : MetaM Expr := do
   whnf (← instantiateMVars (← getMVarDecl mvarId).type)
-
-def ppGoal (mvarId : MVarId) : MetaM Format := do
-  Lean.ppGoal { env := (← getEnv), mctx := (← getMCtx), opts := (← getOptions) } mvarId
 
 builtin_initialize registerTraceClass `Meta.Tactic
 

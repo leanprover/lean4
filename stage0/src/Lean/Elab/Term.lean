@@ -69,10 +69,8 @@ def setElabConfig (cfg : Meta.Config) : Meta.Config :=
 structure Context :=
   (fileName        : String)
   (fileMap         : FileMap)
-  (currNamespace   : Name)
   (declName?       : Option Name     := none)
   (levelNames      : List Name       := [])
-  (openDecls       : List OpenDecl   := [])
   (macroStack      : MacroStack      := [])
   (currMacroScope  : MacroScope      := firstFrontendMacroScope)
   /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
@@ -236,7 +234,7 @@ instance : MonadLog TermElabM := {
   getFileMap  := do pure (← read).fileMap,
   getFileName := do pure (← read).fileName,
   logMessage  := fun msg => do
-    let ctx ← read
+    let ctx ← readThe Core.Context
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
 }
@@ -277,11 +275,6 @@ instance : ToString LVal := ⟨fun
   | LVal.fieldIdx i => toString i
   | LVal.fieldName n => n
   | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩
-
-instance : MonadResolveName TermElabM := {
-  getCurrNamespace := do pure (← read).currNamespace,
-  getOpenDecls     := do pure (← read).openDecls
-}
 
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
 def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecsToLift
@@ -465,7 +458,7 @@ def mkFreshIdent (ref : Syntax) : TermElabM Syntax :=
 
 private def liftAttrM {α} (x : AttrM α) : TermElabM α := do
   let ctx ← read
-  liftCoreM $ x.run { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls }
+  liftCoreM x
 
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
@@ -1177,7 +1170,7 @@ def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
     | _               => pure none
   | _ => pure none
 
-private def mkFreshLevelMVars (num : Nat) : TermElabM (List Level) :=
+def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
   num.foldM (init := []) fun _ us =>
     return (← mkFreshLevelMVar)::us
 
@@ -1275,9 +1268,8 @@ fun stx _ =>
   | some msg => elabTermEnsuringType stx[2] expectedType? true msg
 
 private def mkSomeContext : Context := {
-  fileName      := "<TermElabM>",
-  fileMap       := arbitrary,
-  currNamespace := Name.anonymous
+  fileName      := "<TermElabM>"
+  fileMap       := arbitrary
 }
 
 @[inline] def TermElabM.run {α} (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=

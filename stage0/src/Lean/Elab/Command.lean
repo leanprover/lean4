@@ -97,11 +97,13 @@ def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severit
   mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
 
 private def mkCoreContext (ctx : Context) (s : State) : Core.Context :=
-  let scope      := s.scopes.head!;
-  { options      := scope.opts,
-    currRecDepth := ctx.currRecDepth,
-    maxRecDepth  := s.maxRecDepth,
-    ref          := ctx.ref }
+  let scope       := s.scopes.head!
+  { options       := scope.opts
+    currRecDepth  := ctx.currRecDepth
+    maxRecDepth   := s.maxRecDepth
+    ref           := ctx.ref
+    currNamespace := scope.currNamespace
+    openDecls     := scope.openDecls }
 
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
   let s ← get
@@ -260,9 +262,7 @@ private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) 
     fileName       := ctx.fileName,
     fileMap        := ctx.fileMap,
     currMacroScope := ctx.currMacroScope,
-    currNamespace  := scope.currNamespace,
     levelNames     := scope.levelNames,
-    openDecls      := scope.openDecls,
     declName?      := declName? }
 
 private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=

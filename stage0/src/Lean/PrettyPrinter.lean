@@ -12,10 +12,10 @@ import Lean.ParserCompiler
 namespace Lean
 
 def PPContext.runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
-  Prod.fst <$> x.toIO { options := ppCtx.opts } { env := ppCtx.env }
+  Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace, openDecls := ppCtx.openDecls } { env := ppCtx.env }
 
 def PPContext.runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
-  ppCtx.runCoreM $ x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
+  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
 
 namespace PrettyPrinter
 
@@ -60,8 +60,9 @@ private def withoutContext {m} [MonadExcept Exception m] (x : m Format) : m Form
 
 builtin_initialize
   ppFnsRef.set {
-    ppExpr := fun ctx e   => ctx.runMetaM $ withoutContext $ ppExpr ctx.currNamespace ctx.openDecls e,
-    ppTerm := fun ctx stx => ctx.runCoreM $ withoutContext $ ppTerm stx,
+    ppExpr := fun ctx e      => ctx.runMetaM $ withoutContext $ ppExpr ctx.currNamespace ctx.openDecls e,
+    ppTerm := fun ctx stx    => ctx.runCoreM $ withoutContext $ ppTerm stx,
+    ppGoal := fun ctx mvarId => ctx.runMetaM $ withoutContext $ Meta.ppGoal mvarId
   }
 
 builtin_initialize

@@ -41,7 +41,7 @@ theorem appendNil (as : List α) : as ++ [] = as :=
 theorem reverseAuxReverseAux : ∀ (as bs cs : List α), reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs)
   | [],    bs, cs => rfl
   | a::as, bs, cs => by
-    rw [reverseAuxReverseAux as (a::bs) cs, reverseAuxReverseAux as [a] cs]
+    erw [reverseAuxReverseAux as (a::bs) cs, reverseAuxReverseAux as [a] cs]
     exact rfl
 
 theorem consAppend (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) :=

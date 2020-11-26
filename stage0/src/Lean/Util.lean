@@ -9,7 +9,6 @@ import Lean.Util.CollectMVars
 import Lean.Util.FindMVar
 import Lean.Util.MonadCache
 import Lean.Util.PPExt
-import Lean.Util.PPGoal
 import Lean.Util.Path
 import Lean.Util.Profile
 import Lean.Util.RecDepth

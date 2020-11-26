@@ -95,23 +95,17 @@ builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension Defau
     addImportedFn := fun es => (mkStateFromImportedEntries addDefaultInstanceEntry {} es)
   }
 
-def addDefaultInstanceImp (env : Environment) (declName : Name) : IO Environment := do
-  match env.find? declName with
-  | none => throw <| IO.userError s!"unknown constant '{declName}'"
+def addDefaultInstance (declName : Name) : MetaM Unit := do
+  match (← getEnv).find? declName with
+  | none => throwError! "unknown constant '{declName}'"
   | some info =>
-    unless info.lparams.isEmpty do
-      throw <| IO.userError s!"invalid default instance '{declName}', it has universe parameters"
-    match info.type.getAppFn with
-    | Expr.const className _ _ =>
-      unless isClass env className do
-        throw <| IO.userError s!"invalid default instance '{declName}', it has type '({className} ...)', but {className}' is not a type class"
-      return defaultInstanceExtension.addEntry env { className := className, instanceName := declName }
-    | _ => throw <| IO.userError s!"invalid default instance '{declName}', type must be of the form '(C ...)' where 'C' is a type class"
-
-def addDefaultInstance [Monad m] [MonadEnv m] [MonadLiftT IO m] (declName : Name) : m Unit := do
-  let env ← getEnv
-  let env ← Meta.addDefaultInstanceImp env declName
-  setEnv env
+    forallTelescopeReducing info.type fun _ type => do
+      match type.getAppFn with
+      | Expr.const className _ _ =>
+        unless isClass (← getEnv) className do
+          throwError! "invalid default instance '{declName}', it has type '({className} ...)', but {className}' is not a type class"
+        setEnv <| defaultInstanceExtension.addEntry (← getEnv) { className := className, instanceName := declName }
+      | _ => throwError! "invalid default instance '{declName}', type must be of the form '(C ...)' where 'C' is a type class"
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -120,7 +114,8 @@ builtin_initialize
     add   := fun declName args persistent => do
       if args.hasArgs then throwError "invalid attribute 'defaultInstance', unexpected argument"
       unless persistent do throwError "invalid attribute 'defaultInstance', must be persistent"
-      addDefaultInstance declName
+      addDefaultInstance declName |>.run {} {}
+      pure ()
   }
 
 def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List Name) :=

@@ -19,40 +19,45 @@ def getSyntaxMaxDepth (opts : Options) : Nat :=
 def getPPRaw (opts : Options) : Bool :=
   opts.getBool `pp.raw false
 
-structure PPContext :=
-  (env           : Environment)
-  (mctx          : MetavarContext := {})
-  (lctx          : LocalContext := {})
-  (opts          : Options := {})
-  (currNamespace : Name := Name.anonymous)
-  (openDecls     : List OpenDecl := [])
+structure PPContext where
+  env           : Environment
+  mctx          : MetavarContext := {}
+  lctx          : LocalContext := {}
+  opts          : Options := {}
+  currNamespace : Name := Name.anonymous
+  openDecls     : List OpenDecl := []
 
-structure PPFns :=
-  (ppExpr : PPContext → Expr → IO Format)
-  (ppTerm : PPContext → Syntax → IO Format)
+structure PPFns where
+  ppExpr : PPContext → Expr → IO Format
+  ppTerm : PPContext → Syntax → IO Format
+  ppGoal : PPContext → MVarId → IO Format
 
-instance : Inhabited PPFns := ⟨⟨arbitrary, arbitrary⟩⟩
+instance : Inhabited PPFns := ⟨⟨arbitrary, arbitrary, arbitrary⟩⟩
 
 builtin_initialize ppFnsRef : IO.Ref PPFns ←
   IO.mkRef {
-    ppExpr := fun ctx e   => pure $ format (toString e),
-    ppTerm := fun ctx stx => pure $ stx.formatStx (getSyntaxMaxDepth ctx.opts),
+    ppExpr := fun ctx e      => return format (toString e),
+    ppTerm := fun ctx stx    => return stx.formatStx (getSyntaxMaxDepth ctx.opts)
+    ppGoal := fun ctx mvarId => return "goal"
   }
 
 builtin_initialize ppExt : EnvExtension PPFns ←
-  registerEnvExtension $ ppFnsRef.get
+  registerEnvExtension ppFnsRef.get
 
 def ppExpr (ctx : PPContext) (e : Expr) : IO Format :=
   let e := ctx.mctx.instantiateMVars e |>.1
   if getPPRaw ctx.opts then
-    pure $ format (toString e)
+    return format (toString e)
   else
-    (ppExt.getState ctx.env).ppExpr ctx e
+    ppExt.getState ctx.env |>.ppExpr ctx e
 
 def ppTerm (ctx : PPContext) (stx : Syntax) : IO Format :=
   if getPPRaw ctx.opts then
-    pure $ stx.formatStx (getSyntaxMaxDepth ctx.opts)
+    return stx.formatStx (getSyntaxMaxDepth ctx.opts)
   else
-    (ppExt.getState ctx.env).ppTerm ctx stx
+    ppExt.getState ctx.env |>.ppTerm ctx stx
+
+def ppGoal (ctx : PPContext) (mvarId : MVarId) : IO Format :=
+    ppExt.getState ctx.env |>.ppGoal ctx mvarId
 
 end Lean

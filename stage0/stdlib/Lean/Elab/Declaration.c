@@ -5957,7 +5957,7 @@ lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabAttr___spec__2
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-lean_inc(x_2);
+lean_inc(x_6);
 lean_inc(x_1);
 x_9 = l_Lean_resolveGlobalName___at_Lean_Elab_Term_resolveName___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 x_10 = lean_ctor_get(x_9, 0);
@@ -5974,6 +5974,7 @@ lean_object* x_15; lean_object* x_16;
 lean_dec(x_1);
 x_15 = lean_box(0);
 x_16 = l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabAttr___spec__2___lambda__1(x_13, x_15, x_2, x_3, x_4, x_5, x_6, x_7, x_11);
+lean_dec(x_6);
 lean_dec(x_2);
 return x_16;
 }
@@ -5982,6 +5983,7 @@ else
 lean_object* x_17; uint8_t x_18; 
 lean_dec(x_13);
 x_17 = l_Lean_throwUnknownConstant___at_Lean_Elab_Command_elabAttr___spec__3(x_1, lean_box(0), x_2, x_3, x_4, x_5, x_6, x_7, x_11);
+lean_dec(x_6);
 x_18 = !lean_is_exclusive(x_17);
 if (x_18 == 0)
 {
@@ -6007,6 +6009,7 @@ lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabAttr
 _start:
 {
 lean_object* x_9; 
+lean_inc(x_6);
 lean_inc(x_2);
 lean_inc(x_1);
 x_9 = l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabAttr___spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
@@ -6041,6 +6044,7 @@ lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
 x_26 = l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(x_25, lean_box(0), x_2, x_3, x_4, x_5, x_6, x_7, x_11);
+lean_dec(x_6);
 return x_26;
 }
 else
@@ -6051,6 +6055,7 @@ lean_inc(x_27);
 if (lean_obj_tag(x_27) == 0)
 {
 uint8_t x_28; 
+lean_dec(x_6);
 lean_dec(x_2);
 lean_dec(x_1);
 x_28 = !lean_is_exclusive(x_9);
@@ -6107,6 +6112,7 @@ lean_ctor_set(x_47, 0, x_46);
 x_48 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_48, 0, x_47);
 x_49 = l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(x_48, lean_box(0), x_2, x_3, x_4, x_5, x_6, x_7, x_34);
+lean_dec(x_6);
 return x_49;
 }
 }
@@ -6114,6 +6120,7 @@ return x_49;
 else
 {
 uint8_t x_50; 
+lean_dec(x_6);
 lean_dec(x_2);
 lean_dec(x_1);
 x_50 = !lean_is_exclusive(x_9);
@@ -6383,7 +6390,6 @@ _start:
 lean_object* x_9; 
 x_9 = l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabAttr___spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -6396,7 +6402,6 @@ _start:
 lean_object* x_9; 
 x_9 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabAttr___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);

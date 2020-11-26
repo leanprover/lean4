@@ -1,0 +1,56 @@
+hidingInaccessibleNames.lean:4:15: error: don't know how to synthesize placeholder
+context:
+⊢ Nat
+hidingInaccessibleNames.lean:3:19: error: don't know how to synthesize placeholder
+context:
+a b : Nat
+ : [a, b] ≠ []
+⊢ Nat
+hidingInaccessibleNames.lean:2:16: error: don't know how to synthesize placeholder
+context:
+ : [] ≠ []
+⊢ Nat
+hidingInaccessibleNames.lean:10:16: error: don't know how to synthesize placeholder
+context:
+x✝⁵ : List Nat
+x✝⁴ : Nat
+x✝³ : x✝⁵ ≠ []
+x✝² : List Nat
+x✝¹ : Nat
+x✝ : x✝² ≠ []
+⊢ Nat
+hidingInaccessibleNames.lean:9:19: error: don't know how to synthesize placeholder
+context:
+x✝⁴ : List Nat
+x✝³ : Nat
+x✝² : x✝⁴ ≠ []
+a b x✝¹ : Nat
+x✝ : [a, b] ≠ []
+⊢ Nat
+hidingInaccessibleNames.lean:8:16: error: don't know how to synthesize placeholder
+context:
+x✝⁴ : List Nat
+x✝³ : Nat
+x✝² : x✝⁴ ≠ []
+x✝¹ : Nat
+x✝ : [] ≠ []
+⊢ Nat
+case inl
+p q : Prop
+ : p
+⊢ q ∨ p
+
+case inr
+p q : Prop
+ : q
+⊢ q ∨ p
+hidingInaccessibleNames.lean:23:25: error: don't know how to synthesize placeholder
+context:
+x✝² : Prop
+x✝¹ : x✝²
+ : x✝²
+⊢ decide x✝² = true
+hidingInaccessibleNames.lean:27:17: error: don't know how to synthesize placeholder
+context:
+x✝ : Char
+⊢ x✝.val = x✝.val

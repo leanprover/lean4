@@ -16,6 +16,6 @@ h₁ : 0 + x = y
 h₂ : 0 + y = z
 ⊢ x = z
 m n k : Nat
-h✝ : n = m
+ : n = m
 h : k = m
 ⊢ k = n

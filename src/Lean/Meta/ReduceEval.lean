@@ -10,32 +10,35 @@ import Lean.Meta.Offset
 
 namespace Lean.Meta
 
-class ReduceEval (α : Type) :=
-  (reduceEval : Expr → MetaM α)
+class ReduceEval (α : Type) where
+  reduceEval : Expr → MetaM α
 
-def reduceEval {α : Type} [ReduceEval α] (e : Expr) : MetaM α :=
+def reduceEval [ReduceEval α] (e : Expr) : MetaM α :=
   withAtLeastTransparency TransparencyMode.default $
   ReduceEval.reduceEval e
 
-private def throwFailedToEval {α} (e : Expr) : MetaM α :=
+private def throwFailedToEval (e : Expr) : MetaM α :=
   throwError! "reduceEval: failed to evaluate argument{indentExpr e}"
 
-instance : ReduceEval Nat := ⟨fun e => do
-  let e ← whnf e
-  let some n ← pure $ evalNat e | throwFailedToEval e
-  pure n⟩
+instance : ReduceEval Nat where
+  reduceEval e := do
+    let e ← whnf e
+    let some n ← evalNat e | throwFailedToEval e
+    pure n
 
-instance {α : Type} [ReduceEval α] : ReduceEval (Option α) := ⟨fun e => do
-  let e ← whnf e
-  let Expr.const c .. ← pure e.getAppFn | throwFailedToEval e
-  let nargs := e.getAppNumArgs
-  if      c == `Option.none && nargs == 0 then pure none
-  else if c == `Option.some && nargs == 1 then some <$> reduceEval e.appArg!
-  else throwFailedToEval e⟩
+instance [ReduceEval α] : ReduceEval (Option α) where
+  reduceEval e := do
+    let e ← whnf e
+    let Expr.const c .. ← pure e.getAppFn | throwFailedToEval e
+    let nargs := e.getAppNumArgs
+    if      c == `Option.none && nargs == 0 then pure none
+    else if c == `Option.some && nargs == 1 then some <$> reduceEval e.appArg!
+    else throwFailedToEval e
 
-instance : ReduceEval String := ⟨fun e => do
-  let Expr.lit (Literal.strVal s) _ ← whnf e | throwFailedToEval e
-  pure s⟩
+instance : ReduceEval String where
+  reduceEval e := do
+    let Expr.lit (Literal.strVal s) _ ← whnf e | throwFailedToEval e
+    pure s
 
 private partial def evalName (e : Expr) : MetaM Name := do
   let e ← whnf e
@@ -53,6 +56,7 @@ private partial def evalName (e : Expr) : MetaM Name := do
   else
     throwFailedToEval e
 
-instance : ReduceEval Name := ⟨evalName⟩
+instance : ReduceEval Name where
+  reduceEval := evalName
 
 end Lean.Meta

@@ -93,8 +93,7 @@ structure State :=
   (etaArgs           : Array Expr   := #[])
   (toSetErrorCtx     : Array MVarId := #[]) -- metavariables that we need the set the error context using the application being built
   (instMVars         : Array MVarId := #[]) -- metavariables for the instance implicit arguments that have already been processed
-  -- The following two fields are used to implement the `propagateExpectedType` heuristic.
-  (typeMVars         : Array MVarId := #[]) -- metavariables for implicit arguments of the form `{α : Sort u}` that have already been processed
+  -- The following field is used to implement the `propagateExpectedType` heuristic.
   (alreadyPropagated : Bool := false)       -- true when expectedType has already been propagated
 
 abbrev M := StateRefT State TermElabM
@@ -153,12 +152,6 @@ def eraseNamedArgCore (namedArgs : List NamedArg) (binderName : Name) : List Nam
 def eraseNamedArg (binderName : Name) : M Unit :=
   modify fun s => { s with namedArgs := eraseNamedArgCore s.namedArgs binderName }
 
-/- Return true if the next argument at `args` is of the form `_` -/
-private def isNextArgHole : M Bool := do
-  match (← get).args with
-  | Arg.stx (Syntax.node `Lean.Parser.Term.hole _) :: _ => pure true
-  | _ => pure false
-
 /-
   Add a new argument to the result. That is, `f := f arg`, update `fType`.
   This method assumes `fType` is a function type. -/
@@ -192,22 +185,33 @@ private def fTypeHasOptAutoParams : M Bool := do
   hasOptAutoParams (← get).fType
 
 /- Auxiliary function for retrieving the resulting type of a function application.
-   See `propagateExpectedType`. -/
-private partial def getForallBody : Nat → List NamedArg → Expr → Option Expr
+   See `propagateExpectedType`.
+
+   Remark: `(explicit : Bool) == true` when `@` modifier is used. -/
+private partial def getForallBody (explicit : Bool) : Nat → List NamedArg → Expr → Option Expr
   | i, namedArgs, type@(Expr.forallE n d b c) =>
     match namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == n with
-    | some _ => getForallBody i (eraseNamedArgCore namedArgs n) b
+    | some _ => getForallBody explicit i (eraseNamedArgCore namedArgs n) b
     | none =>
-      if !c.binderInfo.isExplicit then
-        getForallBody i namedArgs b
+      if !explicit && !c.binderInfo.isExplicit then
+        getForallBody explicit i namedArgs b
       else if i > 0 then
-        getForallBody (i-1) namedArgs b
+        getForallBody explicit (i-1) namedArgs b
       else if d.isAutoParam || d.isOptParam then
-        getForallBody i namedArgs b
+        getForallBody explicit i namedArgs b
       else
         some type
   | 0, [], type => some type
   | _, _,  _    => none
+
+private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
+  match nextArg with
+  | Arg.expr _  => false -- it has already been elaborated
+  | Arg.stx stx =>
+    -- TODO: make this configurable?
+    stx.getKind != `Lean.Parser.Term.hole &&
+    stx.getKind != `Lean.Parser.Term.syntheticHole &&
+    stx.getKind != `Lean.Parser.Term.byTactic
 
 /-
   Auxiliary method for propagating the expected type. We call it as soon as we find the first explict
@@ -247,49 +251,50 @@ private partial def getForallBody : Nat → List NamedArg → Expr → Option Ex
     the Hindley&Milner fragment.
     If users need to disable expected type propagation, we can add an attribute `[elabWithoutExpectedType]`.
 -/
-private def propagateExpectedType : M Unit := do
-  let s ← get
-  -- TODO: handle s.etaArgs.size > 0
-  unless s.explicit || !s.etaArgs.isEmpty || s.alreadyPropagated || s.typeMVars.isEmpty do
-    match s.expectedType? with
-    | none              => pure ()
-    | some expectedType =>
-      /- We don't propagate `Prop` because we often use `Prop` as a more general "Bool" (e.g., `if-then-else`).
-         If we propagate `expectedType == Prop` in the following examples, the elaborator would fail
-         ```
-         def f1 (s : Nat × Bool) : Bool := if s.2 then false else true
+private def propagateExpectedType (arg : Arg) : M Unit := do
+  if shouldPropagateExpectedTypeFor arg then
+    let s ← get
+    -- TODO: handle s.etaArgs.size > 0
+    unless !s.etaArgs.isEmpty || s.alreadyPropagated do
+      match s.expectedType? with
+      | none              => pure ()
+      | some expectedType =>
+        /- We don't propagate `Prop` because we often use `Prop` as a more general "Bool" (e.g., `if-then-else`).
+           If we propagate `expectedType == Prop` in the following examples, the elaborator would fail
+           ```
+           def f1 (s : Nat × Bool) : Bool := if s.2 then false else true
 
-         def f2 (s : List Bool) : Bool := if s.head! then false else true
+           def f2 (s : List Bool) : Bool := if s.head! then false else true
 
-         def f3 (s : List Bool) : Bool := if List.head! (s.map not) then false else true
-         ```
-         They would all fail for the same reason. So, let's focus on the first one.
-         We would elaborate `s.2` with `expectedType == Prop`.
-         Before we elaborate `s`, this method would be invoked, and `s.fType` is `?α × ?β → ?β` and after
-         propagation we would have `?α × Prop → Prop`. Then, when we would try to elaborate `s`, and
-         get a type error because `?α × Prop` cannot be unified with `Nat × Bool`
-         Most users would have a hard time trying to understand why these examples failed.
+           def f3 (s : List Bool) : Bool := if List.head! (s.map not) then false else true
+           ```
+           They would all fail for the same reason. So, let's focus on the first one.
+           We would elaborate `s.2` with `expectedType == Prop`.
+           Before we elaborate `s`, this method would be invoked, and `s.fType` is `?α × ?β → ?β` and after
+           propagation we would have `?α × Prop → Prop`. Then, when we would try to elaborate `s`, and
+           get a type error because `?α × Prop` cannot be unified with `Nat × Bool`
+           Most users would have a hard time trying to understand why these examples failed.
 
-         Here is a possible alternative workarounds. We give up the idea of using `Prop` at `if-then-else`.
-         Drawback: users use `if-then-else` with conditions that are not Decidable.
-         So, users would have to embrace `propDecidable` and `choice`.
-         This may not be that bad since the developers and users don't seem to care about constructivism.
+           Here is a possible alternative workarounds. We give up the idea of using `Prop` at `if-then-else`.
+           Drawback: users use `if-then-else` with conditions that are not Decidable.
+           So, users would have to embrace `propDecidable` and `choice`.
+           This may not be that bad since the developers and users don't seem to care about constructivism.
 
-         We currently use a different workaround, we just don't propagate the expected type when it is `Prop`. -/
-      if expectedType.isProp then
-        modify fun s => { s with alreadyPropagated := true }
-      else
-        let numRemainingArgs := s.args.length
-        trace[Elab.app.propagateExpectedType]! "etaArgs.size: {s.etaArgs.size}, numRemainingArgs: {numRemainingArgs}, fType: {s.fType}"
-        match getForallBody numRemainingArgs s.namedArgs s.fType with
-        | none           => pure ()
-        | some fTypeBody =>
-          unless fTypeBody.hasLooseBVars do
-            unless (← hasOptAutoParams fTypeBody) do
-              trace[Elab.app.propagateExpectedType]! "{expectedType} =?= {fTypeBody}"
-              if (← isDefEq expectedType fTypeBody) then
-                /- Note that we only set `alreadyPropagated := true` when propagation has succeeded. -/
-                modify fun s => { s with alreadyPropagated := true }
+           We currently use a different workaround, we just don't propagate the expected type when it is `Prop`. -/
+        if expectedType.isProp then
+          modify fun s => { s with alreadyPropagated := true }
+        else
+          let numRemainingArgs := s.args.length
+          trace[Elab.app.propagateExpectedType]! "etaArgs.size: {s.etaArgs.size}, numRemainingArgs: {numRemainingArgs}, fType: {s.fType}"
+          match getForallBody s.explicit numRemainingArgs s.namedArgs s.fType with
+          | none           => pure ()
+          | some fTypeBody =>
+            unless fTypeBody.hasLooseBVars do
+              unless (← hasOptAutoParams fTypeBody) do
+                trace[Elab.app.propagateExpectedType]! "{expectedType} =?= {fTypeBody}"
+                if (← isDefEq expectedType fTypeBody) then
+                  /- Note that we only set `alreadyPropagated := true` when propagation has succeeded. -/
+                  modify fun s => { s with alreadyPropagated := true }
 
 /-
   Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
@@ -331,7 +336,7 @@ private def addImplicitArg (k : M Expr) : M Expr := do
   let argType ← getArgExpectedType
   let arg ← mkFreshExprMVar argType
   if (← isTypeFormer arg) then
-    modify fun s => { s with typeMVars := s.typeMVars.push arg.mvarId!, toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
+    modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
   addNewArg arg
   k
 
@@ -342,7 +347,7 @@ private def processExplictArg (k : M Expr) : M Expr := do
   let s ← get
   match s.args with
   | arg::args =>
-    propagateExpectedType
+    propagateExpectedType arg
     modify fun s => { s with args := args }
     elabAndAddNewArg arg
     k
@@ -362,8 +367,9 @@ private def processExplictArg (k : M Expr) : M Expr := do
         let ref ← getRef
         let tacticBlock := tacticBlock.copyInfo ref
         let argType     := argType.getArg! 0 -- `autoParam type := by tactic` ==> `type`
-        propagateExpectedType
-        elabAndAddNewArg (Arg.stx tacticBlock)
+        let argNew := Arg.stx tacticBlock
+        propagateExpectedType argNew
+        elabAndAddNewArg argNew
         k
     | false, _, some _ =>
       throwError "invalid autoParam, argument must be a constant"
@@ -389,13 +395,18 @@ private def processImplicitArg (k : M Expr) : M Expr := do
   else
     addImplicitArg k
 
+/- Return true if the next argument at `args` is of the form `_` -/
+private def isNextArgHole : M Bool := do
+  match (← get).args with
+  | Arg.stx (Syntax.node `Lean.Parser.Term.hole _) :: _ => pure true
+  | _ => pure false
+
 /-
   Process a `fType` of the form `[x : A] → B x`.
   This method assume `fType` is a function type -/
 private def processInstImplicitArg (k : M Expr) : M Expr := do
   if (← get).explicit then
-    let isHole ← isNextArgHole
-    if isHole then
+    if (← isNextArgHole) then
       /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
       let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
       modify fun s => { s with args := s.args.tail! }
@@ -424,7 +435,7 @@ partial def main : M Expr := do
     let s ← get
     match s.namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == binderName with
     | some namedArg =>
-      propagateExpectedType
+      propagateExpectedType namedArg.val
       eraseNamedArg binderName
       elabAndAddNewArg namedArg.val
       main

@@ -236,25 +236,16 @@ private partial def getForallBody : Nat → List NamedArg → Expr → Option Ex
   is produced.
 
   The method will do nothing if
-  1- The resultant type depends on the remaining arguments (i.e., `!eTypeBody.hasLooseBVars`)
-  2- The resultant type does not contain any type metavariable.
-  3- The resultant type contains a nontype metavariable.
+  1- The resultant type depends on the remaining arguments (i.e., `!eTypeBody.hasLooseBVars`).
+  2- The resultant type contains optional/auto params.
 
-  We added conditions 2&3 to be able to restrict this method to simple functions that are "morally" in
-  the Hindley&Milner fragment.
-  For example, consider the following definitions
-  ```
-  def foo {n m : Nat} (a : bv n) (b : bv m) : bv (n - m)
-  ```
-  Now, consider
-  ```
-  def test (x1 : bv 32) (x2 : bv 31) (y1 : bv 64) (y2 : bv 63) : bv 1 :=
-  foo x1 x2 = foo y1 y2
-  ```
-  When the elaborator reaches the term `foo y1 y2`, the expected type is `bv (32-31)`.
-  If we apply this method, we would solve the unification problem `bv (?n - ?m) =?= bv (32 - 31)`,
-  by assigning `?n := 32` and `?m := 31`. Then, the elaborator fails elaborating `y1` since
-  `bv 64` is **not** definitionally equal to `bv 32`.
+  We have considered adding the following extra conditions
+    a) The resultant type does not contain any type metavariable.
+    b) The resultant type contains a nontype metavariable.
+
+    These two conditions would restrict the method to simple functions that are "morally" in
+    the Hindley&Milner fragment.
+    If users need to disable expected type propagation, we can add an attribute `[elabWithoutExpectedType]`.
 -/
 private def propagateExpectedType : M Unit := do
   let s ← get
@@ -294,14 +285,11 @@ private def propagateExpectedType : M Unit := do
         | none           => pure ()
         | some fTypeBody =>
           unless fTypeBody.hasLooseBVars do
-            let hasTypeMVar     := (fTypeBody.findMVar? fun mvarId => s.typeMVars.contains mvarId).isSome
-            let hasOnlyTypeMVar := (fTypeBody.findMVar? fun mvarId => !s.typeMVars.contains mvarId).isNone
-            if hasTypeMVar && hasOnlyTypeMVar then
-              unless (← hasOptAutoParams fTypeBody) do
-                trace[Elab.app.propagateExpectedType]! "{expectedType} =?= {fTypeBody}"
-                if (← isDefEq expectedType fTypeBody) then
-                  /- Note that we only set `alreadyPropagated := true` when propagation has succeeded. -/
-                  modify fun s => { s with alreadyPropagated := true }
+            unless (← hasOptAutoParams fTypeBody) do
+              trace[Elab.app.propagateExpectedType]! "{expectedType} =?= {fTypeBody}"
+              if (← isDefEq expectedType fTypeBody) then
+                /- Note that we only set `alreadyPropagated := true` when propagation has succeeded. -/
+                modify fun s => { s with alreadyPropagated := true }
 
 /-
   Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,

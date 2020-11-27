@@ -90,6 +90,7 @@
       packages = {
         inherit cc lean4-mode buildLeanPackage llvmPackages;
         lean = lean.stage1;
+        debug = lean.override { debug = true; };
         temci = (import temci {}).override { doCheck = false; };
         nix = nix-pinned;
         nixpkgs = nixpkgs.legacyPackages.${system};

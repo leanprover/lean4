@@ -53,7 +53,7 @@ rec {
   stage = { stage, prevStage, self }:
     let
       desc = "stage${toString stage}";
-      build = buildLeanPackage.override { lean = prevStage; lean-final = self; };
+      build = buildLeanPackage.override { lean = prevStage; lean-final = self; inherit debug; };
     in (all: all // all.lean) rec {
       Init = build { name = "Init"; src = ../src; srcDir = "/src"; deps = {}; };
       Std  = build { name = "Std";  src = ../src; srcDir = "/src"; deps = { inherit Init; }; };

@@ -21,7 +21,6 @@ lean_object* l_Lean_Elab_Tactic_expandHaveTactic(lean_object*, lean_object*, lea
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
-extern lean_object* l_Lean_Parser_Tactic_let___closed__2;
 extern lean_object* l_Lean_Parser_Tactic_have___closed__2;
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__4;
 lean_object* l_Lean_Elab_Tactic_expandLetTactic___boxed(lean_object*, lean_object*, lean_object*);
@@ -44,6 +43,7 @@ lean_object* l___regBuiltin_Lean_Elab_Tactic_expandLetTactic___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5739____closed__20;
 extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 lean_object* l_Lean_Elab_Tactic_expandShowTactic___closed__7;
+extern lean_object* l_Lean_Parser_Tactic_let___closed__1;
 lean_object* l_Lean_Elab_Tactic_expandShowTactic___closed__10;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__5;
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__5;
@@ -399,7 +399,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_macroAttribute;
-x_3 = l_Lean_Parser_Tactic_let___closed__2;
+x_3 = l_Lean_Parser_Tactic_let___closed__1;
 x_4 = l___regBuiltin_Lean_Elab_Tactic_expandLetTactic___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

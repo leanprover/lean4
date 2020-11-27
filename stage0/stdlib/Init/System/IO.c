@@ -229,7 +229,6 @@ extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__9;
 lean_object* l_EStateM_instMonadFinallyEStateM(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_ofHandle___elambda__2___boxed(lean_object*, lean_object*);
 lean_object* l_IO_initializing___boxed(lean_object*);
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__7;
 lean_object* lean_stream_of_handle(lean_object*);
 extern lean_object* l_instMonadExceptOfEST___closed__2;
 lean_object* l_IO_Prim_iterate(lean_object*);
@@ -427,6 +426,7 @@ lean_object* l_IO_withStderr___rarg___lambda__1(lean_object*, lean_object*, lean
 lean_object* l_IO_print___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EIO_catchExceptions_match__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_IO_AccessRight_execution___default;
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__1;
 lean_object* l_IO_Prim_fopenFlags___closed__2;
 lean_object* l_Lean_instEvalIO(lean_object*);
 lean_object* l_IO_withStdout___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1521,7 +1521,7 @@ static lean_object* _init_l_IO_Prim_fopenFlags___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__7;
+x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__1;
 x_2 = l_IO_Prim_fopenFlags___closed__2;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
@@ -1531,7 +1531,7 @@ static lean_object* _init_l_IO_Prim_fopenFlags___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__7;
+x_1 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__1;
 x_2 = l_IO_Prim_fopenFlags___closed__4;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;

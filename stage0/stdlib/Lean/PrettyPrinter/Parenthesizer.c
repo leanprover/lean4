@@ -288,7 +288,6 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpolatedStr_parenthesizer(le
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_initFn____x40_Lean_PrettyPrinter_Parenthesizer___hyg_2389____closed__6;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_setExpected_parenthesizer___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_11283____closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__21;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer___lambda__1___closed__3;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_identEq_parenthesizer___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -403,6 +402,7 @@ lean_object* lean_pretty_printer_parenthesizer_interpret_parser_descr(lean_objec
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___closed__9;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_identEq_parenthesizer(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_11506____closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_instMonadQuotationParenthesizerM;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_nonReservedSymbol_parenthesizer___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7886,7 +7886,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_5 = l_Array_empty___closed__1;
 x_6 = lean_array_push(x_5, x_1);
-x_7 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_11283____closed__1;
+x_7 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_11506____closed__1;
 x_8 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);

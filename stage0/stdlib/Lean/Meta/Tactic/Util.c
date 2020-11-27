@@ -28,7 +28,6 @@ lean_object* l_Lean_Meta_checkNotAssigned___closed__1;
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___closed__2;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_10837____closed__2;
 lean_object* l_Lean_MetavarContext_setMVarUserName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg___closed__3;
 lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,6 +73,7 @@ lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2(lean_obj
 extern lean_object* l_Lean_Meta_mkSorry___rarg___lambda__1___closed__4;
 lean_object* l_Lean_Meta_mkSorry___at_Lean_Meta_admit___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_mkSorry___rarg___lambda__1___closed__2;
+extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11060____closed__2;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_intro___closed__1;
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -986,7 +986,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_10837____closed__2;
+x_2 = l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11060____closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

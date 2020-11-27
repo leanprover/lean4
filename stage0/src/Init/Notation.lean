@@ -107,6 +107,12 @@ macro_rules
   | `({ $x : $type // $p }) => `(Subtype (fun ($x:ident : $type) => $p))
   | `({ $x // $p })         => `(Subtype (fun ($x:ident : _) => $p))
 
+/-
+  `withoutExpected! t` instructs Lean to elaborate `t` without an expected type.
+  Recall that terms such as `match ... with ...` and `⟨...⟩` will postpone elaboration until
+  expected type is known. So, `withoutExpected!` is not effective in this case. -/
+macro "withoutExpectedType! " x:term : term => `(let aux := $x; aux)
+
 namespace Lean.Parser.Tactic
 
 syntax[intro] "intro " notFollowedBy("|") (colGt term:max)* : tactic

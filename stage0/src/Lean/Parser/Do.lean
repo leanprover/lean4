@@ -30,15 +30,15 @@ def notFollowedByRedefinedTermToken :=
 
 @[builtinDoElemParser] def doLetRec   := parser! group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
 def doIdDecl   := parser! atomic (ident >> optType >> leftArrow) >> doElemParser
-def doPatDecl  := parser! atomic (termParser >> leftArrow) >> doElemParser >> optional (" | " >> doElemParser)
-@[builtinDoElemParser] def doLetArrow      := parser! "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
+def doPatDecl  := parser! atomic (termParser >> leftArrow) >> doElemParser >> optional (checkColGt >> " | " >> doElemParser)
+@[builtinDoElemParser] def doLetArrow      := parser! withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
 
 -- We use `letIdDeclNoBinders` to define `doReassign`.
 -- Motivation: we do not reassign functions, and avoid parser conflict
 def letIdDeclNoBinders := node `Lean.Parser.Term.letIdDecl $ atomic (ident >> pushNone >> optType >> " := ") >> termParser
 
 @[builtinDoElemParser] def doReassign      := parser! notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
-@[builtinDoElemParser] def doReassignArrow := parser! notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
+@[builtinDoElemParser] def doReassignArrow := parser! notFollowedByRedefinedTermToken >> withPosition (doIdDecl <|> doPatDecl)
 @[builtinDoElemParser] def doHave     := parser! "have " >> Term.haveDecl
 /-
 In `do` blocks, we support `if` without an `else`. Thus, we use indentation to prevent examples such as

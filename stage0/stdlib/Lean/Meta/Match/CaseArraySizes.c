@@ -28,6 +28,7 @@ lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayL
 lean_object* l_Lean_Meta_CaseArraySizesSubgoal_diseqs___default;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__10;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,7 +74,6 @@ lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayL
 lean_object* l_Lean_Meta_clear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getArrayArgType___closed__2;
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__16;
 lean_object* l_Lean_Meta_instInhabitedCaseArraySizesSubgoal;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_caseArraySizes___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2239,7 +2239,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array___kind_term____x40_Init_Data_Array_Subarray___hyg_510____closed__1;
-x_2 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__16;
+x_2 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1011____closed__10;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

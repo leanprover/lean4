@@ -117,7 +117,7 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
 /- Namespace resolution -/
 
 def resolveNamespaceUsingScope (env : Environment) (n : Name) : Name → Option Name
-  | Name.anonymous      => none
+  | Name.anonymous      => if env.isNamespace n then some n else none
   | ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope env n p
   | _                   => unreachable!
 
@@ -128,21 +128,22 @@ def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDec
 
 /-
 Given a name `id` try to find namespace it refers to. The resolution procedure works as follows
-1- If `id` is the extact name of an existing namespace, then return `id`
-2- If `id` is in the scope of `namespace` commands the namespace `s_1. ... . s_n`,
+1- If `id` is in the scope of `namespace` commands the namespace `s_1. ... . s_n`,
    then return `s_1 . ... . s_i ++ n` if it is the name of an existing namespace. We search "backwards".
+2- If `id` is the extact name of an existing namespace, then return `id`
+
 3- Finally, for each command `open N`, return `N ++ n` if it is the name of an existing namespace.
    We search "backwards" again. That is, we try the most recent `open` command first.
    We only consider simple `open` commands. -/
 def resolveNamespace? (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : Option Name :=
-  if env.isNamespace id then some id
-  else match resolveNamespaceUsingScope env id ns with
+  match resolveNamespaceUsingScope env id ns with
+  | some n => some n
+  | none   =>
+    match resolveNamespaceUsingOpenDecls env id openDecls with
     | some n => some n
-    | none   =>
-      match resolveNamespaceUsingOpenDecls env id openDecls with
-      | some n => some n
-      | none   => none
-  end ResolveName
+    | none   => none
+
+end ResolveName
 
 class MonadResolveName (m : Type → Type) :=
   (getCurrNamespace   : m Name)

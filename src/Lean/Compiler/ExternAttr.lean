@@ -11,7 +11,7 @@ import Lean.Meta.Basic
 
 namespace Lean
 
-inductive ExternEntry :=
+inductive ExternEntry where
   | adhoc    (backend : Name)
   | inline   (backend : Name) (pattern : String)
   | standard (backend : Name) (fn : String)
@@ -31,9 +31,9 @@ inductive ExternEntry :=
 - `@[extern 2 cpp "io_prim_println"]`
    encoding: ```.arity? = 2, .entries = [standard `cpp "ioPrimPrintln"]```
 -/
-structure ExternAttrData :=
-  (arity?   : Option Nat := none)
-  (entries  : List ExternEntry)
+structure ExternAttrData where
+  arity?   : Option Nat := none
+  entries  : List ExternEntry
 
 instance : Inhabited ExternAttrData := ⟨{ entries := [] }⟩
 

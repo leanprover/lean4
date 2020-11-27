@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 
 namespace Lean
 
-inductive LBool :=
+inductive LBool where
   | false
   | true
   | undef

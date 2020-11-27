@@ -8,8 +8,8 @@ Simple stack API implemented using an array.
 namespace Std
 universes u v w
 
-structure Stack (α : Type u) :=
-  (vals : Array α := #[])
+structure Stack (α : Type u) where
+  vals : Array α := #[]
 
 namespace Stack
 

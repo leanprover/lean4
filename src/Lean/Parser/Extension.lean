@@ -46,23 +46,23 @@ private def addBuiltinParserCategory (catName : Name) (leadingIdentAsSymbol : Bo
   let categories ← IO.ofExcept $ addParserCategoryCore categories catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol}
   builtinParserCategoriesRef.set categories
 
-inductive ParserExtensionOleanEntry :=
+inductive ParserExtensionOleanEntry where
   | token     (val : Token) : ParserExtensionOleanEntry
   | kind      (val : SyntaxNodeKind) : ParserExtensionOleanEntry
   | category  (catName : Name) (leadingIdentAsSymbol : Bool)
   | parser    (catName : Name) (declName : Name) (prio : Nat) : ParserExtensionOleanEntry
 
-inductive ParserExtensionEntry :=
+inductive ParserExtensionEntry where
   | token     (val : Token) : ParserExtensionEntry
   | kind      (val : SyntaxNodeKind) : ParserExtensionEntry
   | category  (catName : Name) (leadingIdentAsSymbol : Bool)
   | parser    (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : ParserExtensionEntry
 
-structure ParserExtensionState :=
-  (tokens      : TokenTable := {})
-  (kinds       : SyntaxNodeKindSet := {})
-  (categories  : ParserCategories := {})
-  (newEntries  : List ParserExtensionOleanEntry := [])
+structure ParserExtensionState where
+  tokens      : TokenTable := {}
+  kinds       : SyntaxNodeKindSet := {}
+  categories  : ParserCategories := {}
+  newEntries  : List ParserExtensionOleanEntry := []
 
 instance : Inhabited ParserExtensionState := ⟨{}⟩
 
@@ -191,10 +191,10 @@ constant mkParserOfConstantAux
     (categories : ParserCategories) (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
 
 /- Parser aliases for making `ParserDescr` extensible -/
-inductive AliasValue (α : Type) :=
-| const  (p : α)
-| unary  (p : α → α)
-| binary (p : α → α → α)
+inductive AliasValue (α : Type) where
+  | const  (p : α)
+  | unary  (p : α → α)
+  | binary (p : α → α → α)
 
 abbrev AliasTable (α) := NameMap (AliasValue α)
 
@@ -301,9 +301,9 @@ partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr)
 def mkParserOfConstant (categories : ParserCategories) (constName : Name) : ImportM (Bool × Parser) :=
   mkParserOfConstantAux categories constName (compileParserDescr categories)
 
-structure ParserAttributeHook :=
+structure ParserAttributeHook where
   /- Called after a parser attribute is applied to a declaration. -/
-  (postAdd (catName : Name) (declName : Name) (builtin : Bool) : AttrM Unit)
+  postAdd (catName : Name) (declName : Name) (builtin : Bool) : AttrM Unit
 
 builtin_initialize parserAttributeHooks : IO.Ref (List ParserAttributeHook) ← IO.mkRef {}
 

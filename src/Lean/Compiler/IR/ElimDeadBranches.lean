@@ -10,7 +10,7 @@ import Lean.Compiler.IR.CompilerM
 namespace Lean.IR.UnreachableBranches
 
 /-- Value used in the abstract interpreter -/
-inductive Value :=
+inductive Value where
   | bot -- undefined
   | top -- any value
   | ctor (i : CtorInfo) (vs : Array Value)
@@ -107,15 +107,15 @@ def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
 
 abbrev Assignment := Std.HashMap VarId Value
 
-structure InterpContext :=
-  (currFnIdx : Nat := 0)
-  (decls     : Array Decl)
-  (env       : Environment)
-  (lctx      : LocalContext := {})
+structure InterpContext where
+  currFnIdx : Nat := 0
+  decls     : Array Decl
+  env       : Environment
+  lctx      : LocalContext := {}
 
-structure InterpState :=
-  (assignments : Array Assignment)
-  (funVals     : Std.PArray Value) -- we take snapshots during fixpoint computations
+structure InterpState where
+  assignments : Array Assignment
+  funVals     : Std.PArray Value -- we take snapshots during fixpoint computations
 
 abbrev M := ReaderT InterpContext (StateM InterpState)
 

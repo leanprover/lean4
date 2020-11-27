@@ -16,12 +16,12 @@ def UnFoldFn  := Bool → Expr → Option Expr
 def mkUIntTypeName (nbytes : Nat) : Name :=
   Name.mkSimple ("UInt" ++ toString nbytes)
 
-structure NumScalarTypeInfo :=
-  (nbits : Nat)
-  (id : Name      := mkUIntTypeName nbits)
-  (ofNatFn : Name := Name.mkStr id "ofNat")
-  (toNatFn : Name := Name.mkStr id "toNat")
-  (size : Nat     := 2^nbits)
+structure NumScalarTypeInfo where
+  nbits : Nat
+  id : Name      := mkUIntTypeName nbits
+  ofNatFn : Name := Name.mkStr id "ofNat"
+  toNatFn : Name := Name.mkStr id "toNat"
+  size : Nat     := 2^nbits
 
 def numScalarTypes : List NumScalarTypeInfo :=
   [{nbits := 8}, {nbits := 16}, {nbits := 32}, {nbits := 64},

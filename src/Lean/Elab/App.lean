@@ -14,7 +14,7 @@ open Meta
 /--
   Auxiliary inductive datatype for combining unelaborated syntax
   and already elaborated expressions. It is used to elaborate applications. -/
-inductive Arg :=
+inductive Arg where
   | stx  (val : Syntax)
   | expr (val : Expr)
 
@@ -25,13 +25,13 @@ instance : ToString Arg := ⟨fun
   | Arg.expr val => toString val⟩
 
 /-- Named arguments created using the notation `(x := val)` -/
-structure NamedArg :=
-  (ref  : Syntax := Syntax.missing)
-  (name : Name)
-  (val  : Arg)
+structure NamedArg where
+  ref  : Syntax := Syntax.missing
+  name : Name
+  val  : Arg
 
-instance : ToString NamedArg :=
-  ⟨fun s => "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"⟩
+instance : ToString NamedArg where
+  toString s := "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"
 
 instance : Inhabited NamedArg := ⟨{ name := arbitrary, val := arbitrary }⟩
 
@@ -82,19 +82,19 @@ def synthesizeAppInstMVars (instMVars : Array MVarId) : TermElabM Unit :=
 namespace ElabAppArgs
 
 /- Auxiliary structure for elaborating the application `f args namedArgs`. -/
-structure State :=
-  (explicit          : Bool) -- true if `@` modifier was used
-  (f                 : Expr)
-  (fType             : Expr)
-  (args              : List Arg)            -- remaining regular arguments
-  (namedArgs         : List NamedArg)       -- remaining named arguments to be processed
-  (ellipsis          : Bool := false)
-  (expectedType?     : Option Expr)
-  (etaArgs           : Array Expr   := #[])
-  (toSetErrorCtx     : Array MVarId := #[]) -- metavariables that we need the set the error context using the application being built
-  (instMVars         : Array MVarId := #[]) -- metavariables for the instance implicit arguments that have already been processed
+structure State where
+  explicit          : Bool -- true if `@` modifier was used
+  f                 : Expr
+  fType             : Expr
+  args              : List Arg            -- remaining regular arguments
+  namedArgs         : List NamedArg       -- remaining named arguments to be processed
+  ellipsis          : Bool := false
+  expectedType?     : Option Expr
+  etaArgs           : Array Expr   := #[]
+  toSetErrorCtx     : Array MVarId := #[] -- metavariables that we need the set the error context using the application being built
+  instMVars         : Array MVarId := #[] -- metavariables for the instance implicit arguments that have already been processed
   -- The following field is used to implement the `propagateExpectedType` heuristic.
-  (alreadyPropagated : Bool := false)       -- true when expectedType has already been propagated
+  alreadyPropagated : Bool := false       -- true when expectedType has already been propagated
 
 abbrev M := StateRefT State TermElabM
 
@@ -474,7 +474,7 @@ private def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Ar
   }
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
-inductive LValResolution :=
+inductive LValResolution where
   | projFn   (baseStructName : Name) (structName : Name) (fieldName : Name)
   | projIdx  (structName : Name) (idx : Nat)
   | const    (baseStructName : Name) (structName : Name) (constName : Name)

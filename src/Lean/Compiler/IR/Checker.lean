@@ -8,13 +8,13 @@ import Lean.Compiler.IR.Format
 
 namespace Lean.IR.Checker
 
-structure CheckerContext :=
-  (env : Environment)
-  (localCtx : LocalContext := {})
-  (decls : Array Decl)
+structure CheckerContext where
+  env : Environment
+  localCtx : LocalContext := {}
+  decls : Array Decl
 
-structure CheckerState :=
-  (foundVars : IndexSet := {})
+structure CheckerState where
+  foundVars : IndexSet := {}
 
 abbrev M := ReaderT CheckerContext (ExceptT String (StateT CheckerState Id))
 

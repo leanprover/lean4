@@ -35,7 +35,7 @@ def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := Std.HashMap.
    We keep a mapping from function and joint points to parameters (`Array Param`).
    Recall that `Param` contains the field `borrow`. -/
 namespace ParamMap
-inductive Key :=
+inductive Key where
   | decl (name : FunId)
   | jp   (name : FunId) (jpid : JoinPointId)
 
@@ -141,16 +141,16 @@ def applyParamMap (decls : Array Decl) (map : ParamMap) : Array Decl :=
   -- dbgTrace ("applyParamMap " ++ toString map) $ fun _ =>
   ApplyParamMap.visitDecls decls map
 
-structure BorrowInfCtx :=
-  (env      : Environment)
-  (currFn   : FunId    := arbitrary) -- Function being analyzed.
-  (paramSet : IndexSet := {}) -- Set of all function parameters in scope. This is used to implement the heuristic at `ownArgsUsingParams`
+structure BorrowInfCtx where
+  env      : Environment
+  currFn   : FunId    := arbitrary -- Function being analyzed.
+  paramSet : IndexSet := {} -- Set of all function parameters in scope. This is used to implement the heuristic at `ownArgsUsingParams`
 
-structure BorrowInfState :=
+structure BorrowInfState where
   /- Set of variables that must be `owned`. -/
-  (owned    : OwnedSet := {})
-  (modified : Bool     := false)
-  (paramMap : ParamMap)
+  owned    : OwnedSet := {}
+  modified : Bool     := false
+  paramMap : ParamMap
 
 abbrev M := ReaderT BorrowInfCtx (StateM BorrowInfState)
 

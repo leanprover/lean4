@@ -9,8 +9,9 @@ Note: this is only a temporary placeholder.
 namespace Std
 universes u v w
 
-structure Queue (α : Type u) :=
-  (eList dList : List α := [])
+structure Queue (α : Type u) where
+  eList : List α := []
+  dList : List α := []
 
 namespace Queue
 

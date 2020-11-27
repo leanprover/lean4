@@ -11,7 +11,7 @@ namespace Lean.Meta
 
 namespace DiscrTree
 
-inductive Key :=
+inductive Key where
   | const : Name → Nat → Key
   | fvar  : FVarId → Nat → Key
   | lit   : Literal → Key
@@ -39,7 +39,7 @@ protected def Key.beq : Key → Key → Bool
 
 instance : BEq Key := ⟨Key.beq⟩
 
-inductive Trie (α : Type) :=
+inductive Trie (α : Type) where
   | node (vs : Array α) (children : Array (Key × Trie α)) : Trie α
 
 end DiscrTree
@@ -47,7 +47,7 @@ end DiscrTree
 open DiscrTree
 open Std (PersistentHashMap)
 
-structure DiscrTree (α : Type) :=
-  (root : PersistentHashMap Key (Trie α) := {})
+structure DiscrTree (α : Type) where
+  root : PersistentHashMap Key (Trie α) := {}
 
 end Lean.Meta

@@ -13,8 +13,8 @@ open Sum Subtype Nat
 
 universes u v
 
-class ToString (α : Type u) :=
-  (toString : α → String)
+class ToString (α : Type u) where
+  toString : α → String
 
 export ToString (toString)
 

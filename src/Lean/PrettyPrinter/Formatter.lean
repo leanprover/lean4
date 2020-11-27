@@ -23,18 +23,18 @@ namespace Lean
 namespace PrettyPrinter
 namespace Formatter
 
-structure Context :=
-  (options : Options)
-  (table   : Parser.TokenTable)
+structure Context where
+  options : Options
+  table   : Parser.TokenTable
 
-structure State :=
-  (stxTrav  : Syntax.Traverser)
+structure State where
+  stxTrav  : Syntax.Traverser
   -- Textual content of `stack` up to the first whitespace (not enclosed in an escaped ident). We assume that the textual
   -- content of `stack` is modified only by `pushText` and `pushLine`, so `leadWord` is adjusted there accordingly.
-  (leadWord : String := "")
+  leadWord : String := ""
   -- Stack of generated Format objects, analogous to the Syntax stack in the parser.
   -- Note, however, that the stack is reversed because of the right-to-left traversal.
-  (stack    : Array Format := #[])
+  stack    : Array Format := #[]
 
 end Formatter
 

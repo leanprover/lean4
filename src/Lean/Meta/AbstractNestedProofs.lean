@@ -15,11 +15,11 @@ def isNonTrivialProof (e : Expr) : MetaM Bool := do
     e.withApp fun f args =>
       pure $ !f.isAtomic || args.any fun arg => !arg.isAtomic
 
-structure Context :=
-  (baseName : Name)
+structure Context where
+  baseName : Name
 
-structure State :=
-  (nextIdx : Nat := 1)
+structure State where
+  nextIdx : Nat := 1
 
 abbrev M := ReaderT Context $ MonadCacheT Expr Expr $ StateRefT State MetaM
 

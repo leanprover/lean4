@@ -42,8 +42,9 @@ namespace ST
 /- References -/
 constant RefPointed : PointedType.{0}
 
-structure Ref (σ : Type) (α : Type) : Type :=
-  (ref : RefPointed.type) (h : Nonempty α)
+structure Ref (σ : Type) (α : Type) : Type where
+  ref : RefPointed.type
+  h : Nonempty α
 
 instance {σ α} [Inhabited α] : Inhabited (Ref σ α) where
   default := { ref := RefPointed.val, h := Nonempty.intro arbitrary }

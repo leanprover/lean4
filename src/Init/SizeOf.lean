@@ -5,8 +5,8 @@ universes u v w
 
 /- sizeof -/
 
-class SizeOf (α : Sort u) :=
-  (sizeOf : α → Nat)
+class SizeOf (α : Sort u) where
+  sizeOf : α → Nat
 
 export SizeOf (sizeOf)
 

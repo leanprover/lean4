@@ -7,7 +7,7 @@ import Lean.Data.Name
 
 namespace Lean
 
-inductive DataValue :=
+inductive DataValue where
   | ofString (v : String)
   | ofBool   (v : Bool)
   | ofName   (v : Name)
@@ -54,8 +54,8 @@ instance : Coe Int DataValue    := ⟨DataValue.ofInt⟩
 /- Remark: we do not use RBMap here because we need to manipulate KVMap objects in
    C++ and RBMap is implemented in Lean. So, we use just a List until we can
    generate C++ code from Lean code. -/
-structure KVMap :=
-  (entries : List (Name × DataValue) := [])
+structure KVMap where
+  entries : List (Name × DataValue) := []
 
 namespace KVMap
 instance : Inhabited KVMap := ⟨{}⟩
@@ -149,10 +149,10 @@ def eqv (m₁ m₂ : KVMap) : Bool :=
 
 instance : BEq KVMap := ⟨eqv⟩
 
-class KVMapVal (α : Type) :=
-  (defVal : α)
-  (set    : KVMap → Name → α → KVMap)
-  (get    : KVMap → Name → α → α)
+class KVMapVal (α : Type) where
+  defVal : α
+  set    : KVMap → Name → α → KVMap
+  get    : KVMap → Name → α → α
 
 export KVMapVal (set)
 

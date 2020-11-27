@@ -56,17 +56,17 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (remainingGoals : Array MVarId) : T
 -/
 namespace ElimApp
 
-structure Context :=
-  (elimInfo : ElimInfo)
-  (targets  : Array Expr) -- targets provided by the user
+structure Context where
+  elimInfo : ElimInfo
+  targets  : Array Expr -- targets provided by the user
 
-structure State :=
-  (argPos    : Nat := 0) -- current argument position
-  (targetPos : Nat := 0) -- current target at targetsStx
-  (f         : Expr)
-  (fType     : Expr)
-  (alts      : Array (Name × MVarId) := #[])
-  (instMVars : Array MVarId := #[])
+structure State where
+  argPos    : Nat := 0 -- current argument position
+  targetPos : Nat := 0 -- current target at targetsStx
+  f         : Expr
+  fType     : Expr
+  alts      : Array (Name × MVarId) := #[]
+  instMVars : Array MVarId := #[]
 
 abbrev M := ReaderT Context $ StateRefT State TermElabM
 
@@ -86,9 +86,9 @@ private def getFType : M Expr := do
   modify fun s => { s with fType := fType }
   pure fType
 
-structure Result :=
-  (elimApp : Expr)
-  (alts    : Array (Name × MVarId) := #[])
+structure Result where
+  elimApp : Expr
+  alts    : Array (Name × MVarId) := #[]
 
 partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) : TermElabM Result := do
   let rec loop : M Unit := do
@@ -274,9 +274,9 @@ private def checkAltCtorNames (alts : Array Syntax) (ctorNames : List Name) : Ta
     unless n == `_ || ctorNames.any (fun ctorName => n.isSuffixOf ctorName) do
       throwErrorAt! alt[0] "invalid constructor name '{n}'"
 
-structure RecInfo :=
-  (recName : Name)
-  (alts    : Array Syntax := #[]) -- alternatives
+structure RecInfo where
+  recName : Name
+  alts    : Array Syntax := #[] -- alternatives
 
 def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
   liftMetaMAtMain fun mvarId => do

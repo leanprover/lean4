@@ -11,16 +11,16 @@ namespace Lean
 
 open Std (PersistentArray)
 
-structure TraceElem :=
-  (ref : Syntax)
-  (msg : MessageData)
+structure TraceElem where
+  ref : Syntax
+  msg : MessageData
 
 instance : Inhabited TraceElem :=
   ⟨⟨arbitrary, arbitrary⟩⟩
 
-structure TraceState :=
-  (enabled : Bool := true)
-  (traces  : PersistentArray TraceElem := {})
+structure TraceState where
+  enabled : Bool := true
+  traces  : PersistentArray TraceElem := {}
 
 namespace TraceState
 
@@ -35,9 +35,9 @@ private def toFormat (traces : PersistentArray TraceElem) (sep : Format) : IO Fo
 
 end TraceState
 
-class MonadTrace (m : Type → Type) :=
-  (modifyTraceState : (TraceState → TraceState) → m Unit)
-  (getTraceState    : m TraceState)
+class MonadTrace (m : Type → Type) where
+  modifyTraceState : (TraceState → TraceState) → m Unit
+  getTraceState    : m TraceState
 
 export MonadTrace (getTraceState modifyTraceState)
 

@@ -13,7 +13,7 @@ import Lean.Elab.Binders
 import Lean.Elab.DeclUtil
 namespace Lean.Elab
 
-inductive DefKind :=
+inductive DefKind where
   | «def» | «theorem» | «example» | «opaque» | «abbrev»
 
 def DefKind.isTheorem : DefKind → Bool
@@ -30,14 +30,14 @@ def DefKind.isExample : DefKind → Bool
   | «example» => true
   | _         => false
 
-structure DefView :=
-  (kind          : DefKind)
-  (ref           : Syntax)
-  (modifiers     : Modifiers)
-  (declId        : Syntax)
-  (binders       : Syntax)
-  (type?         : Option Syntax)
-  (value         : Syntax)
+structure DefView where
+  kind          : DefKind
+  ref           : Syntax
+  modifiers     : Modifiers
+  declId        : Syntax
+  binders       : Syntax
+  type?         : Option Syntax
+  value         : Syntax
 
 namespace Command
 

@@ -27,45 +27,45 @@ abbrev Key := Name
 `KeyedDeclsAttribute` definition.
 
  Important: `mkConst valueTypeName` and `γ` must be definitionally equal. -/
-structure Def (γ : Type) :=
-  (builtinName   : Name)    -- Builtin attribute name (e.g., `builtinTermElab)
-  (name          : Name)    -- Attribute name (e.g., `termElab)
-  (descr         : String)  -- Attribute description
-  (valueTypeName : Name)
+structure Def (γ : Type) where
+  builtinName   : Name    -- Builtin attribute name (e.g., `builtinTermElab)
+  name          : Name    -- Attribute name (e.g., `termElab)
+  descr         : String  -- Attribute description
+  valueTypeName : Name
   -- Convert `Syntax` into a `Key`, the default implementation expects an identifier.
-  (evalKey       : Bool → Syntax → AttrM Key :=
+  evalKey       : Bool → Syntax → AttrM Key :=
     fun builtin arg => match attrParamSyntaxToIdentifier arg with
       | some id => pure id
-      | none    => throwError "invalid attribute argument, expected identifier")
+      | none    => throwError "invalid attribute argument, expected identifier"
 
 instance {γ} : Inhabited (Def γ) :=
   ⟨{ builtinName := arbitrary, name := arbitrary, descr := arbitrary, valueTypeName := arbitrary }⟩
 
-structure OLeanEntry :=
-  (key  : Key)
-  (decl : Name) -- Name of a declaration stored in the environment which has type `mkConst Def.valueTypeName`.
+structure OLeanEntry where
+  key  : Key
+  decl : Name -- Name of a declaration stored in the environment which has type `mkConst Def.valueTypeName`.
 
-structure AttributeEntry (γ : Type) extends OLeanEntry :=
+structure AttributeEntry (γ : Type) extends OLeanEntry where
   /- Recall that we cannot store `γ` into .olean files because it is a closure.
      Given `OLeanEntry.decl`, we convert it into a `γ` by using the unsafe function `evalConstCheck`. -/
-  (value : γ)
+  value : γ
 
 abbrev Table (γ : Type) := SMap Key (List γ)
 
-structure ExtensionState (γ : Type) :=
-  (newEntries : List OLeanEntry := [])
-  (table      : Table γ := {})
+structure ExtensionState (γ : Type) where
+  newEntries : List OLeanEntry := []
+  table      : Table γ := {}
 
 abbrev Extension (γ : Type) := PersistentEnvExtension OLeanEntry (AttributeEntry γ) (ExtensionState γ)
 
 end KeyedDeclsAttribute
 
-structure KeyedDeclsAttribute (γ : Type) :=
-  (defn : KeyedDeclsAttribute.Def γ)
+structure KeyedDeclsAttribute (γ : Type) where
+  defn : KeyedDeclsAttribute.Def γ
   -- imported/builtin instances
-  (tableRef : IO.Ref (KeyedDeclsAttribute.Table γ))
+  tableRef : IO.Ref (KeyedDeclsAttribute.Table γ)
   -- instances from current module
-  (ext      : KeyedDeclsAttribute.Extension γ)
+  ext      : KeyedDeclsAttribute.Extension γ
 
 namespace KeyedDeclsAttribute
 

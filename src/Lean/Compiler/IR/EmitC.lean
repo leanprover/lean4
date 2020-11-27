@@ -18,12 +18,12 @@ open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)
 
 def leanMainFn := "_lean_main"
 
-structure Context :=
-  (env        : Environment)
-  (modName    : Name)
-  (jpMap      : JPParamsMap := {})
-  (mainFn     : FunId := arbitrary)
-  (mainParams : Array Param := #[])
+structure Context where
+  env        : Environment
+  modName    : Name
+  jpMap      : JPParamsMap := {}
+  mainFn     : FunId := arbitrary
+  mainParams : Array Param := #[]
 
 abbrev M := ReaderT Context (EStateM String String)
 

@@ -5,8 +5,8 @@ Authors: Leonardo de Moura
 -/
 namespace Lean
 
-structure InternalExceptionId :=
-  (idx : Nat := 0)
+structure InternalExceptionId where
+  idx : Nat := 0
 
 instance : Inhabited InternalExceptionId := ⟨{}⟩
 instance : BEq InternalExceptionId :=

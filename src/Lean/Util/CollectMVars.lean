@@ -9,9 +9,9 @@ namespace Lean
 
 namespace CollectMVars
 
-structure State :=
-  (visitedExpr  : ExprSet      := {})
-  (result       : Array MVarId := #[])
+structure State where
+  visitedExpr  : ExprSet      := {}
+  result       : Array MVarId := #[]
 
 instance : Inhabited State := ⟨{}⟩
 

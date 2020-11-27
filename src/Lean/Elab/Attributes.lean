@@ -8,8 +8,9 @@ import Lean.Attributes
 import Lean.MonadEnv
 namespace Lean.Elab
 
-structure Attribute :=
-(name : Name) (args : Syntax := Syntax.missing)
+structure Attribute where
+  name : Name
+  args : Syntax := Syntax.missing
 
 instance : ToFormat Attribute := ⟨fun attr =>
   Format.bracket "@[" (toString attr.name ++ (if attr.args.isMissing then "" else toString attr.args)) "]"⟩

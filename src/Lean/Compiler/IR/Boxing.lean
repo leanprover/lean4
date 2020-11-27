@@ -96,15 +96,15 @@ def getScrutineeType (alts : Array Alt) : IRType :=
 def eqvTypes (t₁ t₂ : IRType) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
-structure BoxingContext :=
-  (f : FunId := arbitrary)
-  (localCtx : LocalContext := {})
-  (resultType : IRType := IRType.irrelevant)
-  (decls : Array Decl)
-  (env : Environment)
+structure BoxingContext where
+  f : FunId := arbitrary
+  localCtx : LocalContext := {}
+  resultType : IRType := IRType.irrelevant
+  decls : Array Decl
+  env : Environment
 
-structure BoxingState :=
-  (nextIdx : Index)
+structure BoxingState where
+  nextIdx : Index
   /- We create auxiliary declarations when boxing constant and literals.
      The idea is to avoid code such as
      ```
@@ -116,9 +116,9 @@ structure BoxingState :=
      we use auxDeclCache to avoid creating equivalent auxiliary declarations more than once when
      processing the same IR declaration.
   -/
-  (auxDecls : Array Decl := #[])
-  (auxDeclCache : AssocList FnBody Expr := Std.AssocList.empty)
-  (nextAuxId : Nat := 1)
+  auxDecls : Array Decl := #[]
+  auxDeclCache : AssocList FnBody Expr := Std.AssocList.empty
+  nextAuxId : Nat := 1
 
 abbrev M := ReaderT BoxingContext (StateT BoxingState Id)
 

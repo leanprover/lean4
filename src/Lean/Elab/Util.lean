@@ -26,8 +26,9 @@ def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format
 
 namespace Elab
 
-structure MacroStackElem :=
-  (before : Syntax) (after : Syntax)
+structure MacroStackElem where
+  before : Syntax
+  after : Syntax
 
 abbrev MacroStack := List MacroStackElem
 
@@ -122,10 +123,10 @@ def getMacros (env : Environment) : Macro := fun stx =>
   | some macroFns => expandMacroFns stx macroFns
   | none          => throw Macro.Exception.unsupportedSyntax
 
-class MonadMacroAdapter (m : Type → Type) :=
-  (getCurrMacroScope                  : m MacroScope)
-  (getNextMacroScope                  : m MacroScope)
-  (setNextMacroScope                  : MacroScope → m Unit)
+class MonadMacroAdapter (m : Type → Type) where
+  getCurrMacroScope                  : m MacroScope
+  getNextMacroScope                  : m MacroScope
+  setNextMacroScope                  : MacroScope → m Unit
 
 instance (m n) [MonadMacroAdapter m] [MonadLift m n] : MonadMacroAdapter n := {
   getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _),

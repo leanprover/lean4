@@ -12,16 +12,16 @@ import Lean.Elab.PreDefinition
 namespace Lean.Elab
 
 /- DefView after elaborating the header. -/
-structure DefViewElabHeader :=
-  (ref           : Syntax)
-  (modifiers     : Modifiers)
-  (kind          : DefKind)
-  (shortDeclName : Name)
-  (declName      : Name)
-  (levelNames    : List Name)
-  (numParams     : Nat)
-  (type          : Expr) -- including the parameters
-  (valueStx      : Syntax)
+structure DefViewElabHeader where
+  ref           : Syntax
+  modifiers     : Modifiers
+  kind          : DefKind
+  shortDeclName : Name
+  declName      : Name
+  levelNames    : List Name
+  numParams     : Nat
+  type          : Expr -- including the parameters
+  valueStx      : Syntax
 
 instance : Inhabited DefViewElabHeader :=
   ⟨⟨arbitrary, {}, DefKind.«def», arbitrary, arbitrary, [], 0, arbitrary, arbitrary ⟩⟩
@@ -345,9 +345,9 @@ def g (y z : Nat) : Nat → Nat
 -/
 namespace FixPoint
 
-structure State :=
-  (usedFVarsMap : UsedFVarsMap := {})
-  (modified     : Bool         := false)
+structure State where
+  usedFVarsMap : UsedFVarsMap := {}
+  modified     : Bool         := false
 
 abbrev M := ReaderT (List FVarId) $ StateM State
 
@@ -417,11 +417,11 @@ private def mkFreeVarMap
     freeVarMap := freeVarMap.insert toLift.fvarId fvarIds
   pure freeVarMap
 
-structure ClosureState :=
-  (newLocalDecls : Array LocalDecl := #[])
-  (localDecls    : Array LocalDecl := #[])
-  (newLetDecls   : Array LocalDecl := #[])
-  (exprArgs      : Array Expr      := #[])
+structure ClosureState where
+  newLocalDecls : Array LocalDecl := #[]
+  localDecls    : Array LocalDecl := #[]
+  newLetDecls   : Array LocalDecl := #[]
+  exprArgs      : Array Expr      := #[]
 
 private def pickMaxFVar? (lctx : LocalContext) (fvarIds : Array FVarId) : Option FVarId :=
   fvarIds.getMax? fun fvarId₁ fvarId₂ => (lctx.get! fvarId₁).index < (lctx.get! fvarId₂).index
@@ -485,10 +485,10 @@ private partial def mkClosureFor (freeVars : Array FVarId) (localDecls : Array L
     exprArgs      := s.exprArgs.reverse
   }
 
-structure LetRecClosure :=
-  (localDecls : Array LocalDecl)
-  (closed     : Expr) -- expression used to replace occurrences of the let-rec FVarId
-  (toLift     : LetRecToLift)
+structure LetRecClosure where
+  localDecls : Array LocalDecl
+  closed     : Expr -- expression used to replace occurrences of the let-rec FVarId
+  toLift     : LetRecToLift
 
 private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId) : TermElabM LetRecClosure := do
   let lctx := toLift.lctx

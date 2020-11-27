@@ -18,13 +18,13 @@ namespace JsonRpc
 open Json
 open Std (RBNode)
 
-inductive RequestID :=
+inductive RequestID where
   | str (s : String)
   | num (n : JsonNumber)
   | null
 
 /-- Error codes defined by JSON-RPC and LSP. -/
-inductive ErrorCode :=
+inductive ErrorCode where
   | parseError
   | invalidRequest
   | methodNotFound
@@ -69,7 +69,7 @@ instance : ToJson ErrorCode := ⟨fun e =>
 
 /- Uses separate constructors for notifications and errors because client and server
 behavior is expected to be wildly different for both. -/
-inductive Message :=
+inductive Message where
   | request (id : RequestID) (method : String) (params? : Option Structured)
   | notification (method : String) (params? : Option Structured)
   | response (id : RequestID) (result : Json)
@@ -78,9 +78,19 @@ inductive Message :=
 def Batch := Array Message
 
 -- data types for reading expected messages
-structure Request (α : Type) := (id : RequestID) (param : α)
-structure Response (α : Type) := (id : RequestID) (result : α)
-structure Error := (id : RequestID) (code : JsonNumber) (message : String) (data? : Option Json)
+structure Request (α : Type) where
+  id : RequestID
+  param : α
+
+structure Response (α : Type) where
+  id : RequestID
+  result : α
+
+structure Error where
+  id : RequestID
+  code : JsonNumber
+  message : String
+  data? : Option Json
 
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩

@@ -11,9 +11,9 @@ import Lean.ToExpr
 namespace Lean
 namespace ParserCompiler
 
-structure CombinatorAttribute :=
-  (impl : AttributeImpl)
-  (ext  : SimplePersistentEnvExtension (Name × Name) (NameMap Name))
+structure CombinatorAttribute where
+  impl : AttributeImpl
+  ext  : SimplePersistentEnvExtension (Name × Name) (NameMap Name)
 
 -- TODO(Sebastian): We'll probably want priority support here at some point
 

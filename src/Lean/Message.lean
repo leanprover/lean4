@@ -17,17 +17,21 @@ namespace Lean
 def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : String :=
   fileName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ toString msg
 
-inductive MessageSeverity :=
+inductive MessageSeverity where
   | information | warning | error
 
-structure MessageDataContext :=
-  (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options)
+structure MessageDataContext where
+  env : Environment
+  mctx : MetavarContext
+  lctx : LocalContext
+  opts : Options
 
-structure NamingContext :=
-  (currNamespace : Name) (openDecls : List OpenDecl)
+structure NamingContext where
+  currNamespace : Name
+  openDecls : List OpenDecl
 
 /- Structure message data. We use it for reporting errors, trace messages, etc. -/
-inductive MessageData :=
+inductive MessageData where
   | ofFormat          : Format → MessageData
   | ofSyntax          : Syntax → MessageData
   | ofExpr            : Expr → MessageData
@@ -131,13 +135,13 @@ instance : Coe (List Expr) MessageData := ⟨fun es => ofList $ es.map ofExpr⟩
 
 end MessageData
 
-structure Message :=
-  (fileName : String)
-  (pos      : Position)
-  (endPos   : Option Position := none)
-  (severity : MessageSeverity := MessageSeverity.error)
-  (caption  : String          := "")
-  (data     : MessageData)
+structure Message where
+  fileName : String
+  pos      : Position
+  endPos   : Option Position := none
+  severity : MessageSeverity := MessageSeverity.error
+  caption  : String          := ""
+  data     : MessageData
 
 @[export lean_mk_message]
 def mkMessageEx (fileName : String) (pos : Position) (endPos : Option Position) (severity : MessageSeverity) (caption : String) (text : String) : Message :=
@@ -164,8 +168,8 @@ instance : Inhabited Message := ⟨{ fileName := "", pos := ⟨0, 1⟩, data := 
 
 end Message
 
-structure MessageLog :=
-  (msgs : Std.PersistentArray Message := {})
+structure MessageLog where
+  msgs : Std.PersistentArray Message := {}
 
 namespace MessageLog
 def empty : MessageLog := ⟨{}⟩
@@ -246,8 +250,8 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
 
 end KernelException
 
-class AddMessageContext (m : Type → Type) :=
-  (addMessageContext : MessageData → m MessageData)
+class AddMessageContext (m : Type → Type) where
+  addMessageContext : MessageData → m MessageData
 
 export AddMessageContext (addMessageContext)
 
@@ -266,8 +270,8 @@ def addMessageContextFull {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m]
   let opts ← getOptions
   pure $ MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData
 
-class ToMessageData (α : Type) :=
-(toMessageData : α → MessageData)
+class ToMessageData (α : Type) where
+  toMessageData : α → MessageData
 
 export ToMessageData (toMessageData)
 

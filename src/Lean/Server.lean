@@ -20,14 +20,14 @@ open Lsp
 /-- A document editable in the sense that we track the environment
 and parser state after each command so that edits can be applied
 without recompiling code appearing earlier in the file. -/
-structure EditableDocument :=
-  (version : Nat)
-  (text : FileMap)
+structure EditableDocument where
+  version : Nat
+  text : FileMap
   /- The first snapshot is that after the header. -/
-  (header : Snapshots.Snapshot)
+  header : Snapshots.Snapshot
   /- Subsequent snapshots occur after each command. -/
   -- TODO(WN): These should probably be asynchronous Tasks
-  (snapshots : List Snapshots.Snapshot)
+  snapshots : List Snapshots.Snapshot
 
 namespace EditableDocument
 
@@ -78,9 +78,9 @@ open JsonRpc
 abbrev DocumentMap :=
   RBMap DocumentUri EditableDocument (fun a b => Decidable.decide (a < b))
 
-structure ServerContext :=
-  (hIn hOut : FS.Stream)
-  (openDocumentsRef : IO.Ref DocumentMap)
+structure ServerContext where
+  hIn hOut : FS.Stream
+  openDocumentsRef : IO.Ref DocumentMap
   -- TODO (requestsInFlight : IO.Ref (Array (Task (Σ α, Response α))))
 
 abbrev ServerM := ReaderT ServerContext IO

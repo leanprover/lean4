@@ -112,8 +112,8 @@ def PersistentState.shareCommon (s : PersistentState) (a : α) : α × Persisten
 
 end ShareCommon
 
-class MonadShareCommon (m : Type u → Type v) :=
-  (withShareCommon {α : Type u} : α → m α)
+class MonadShareCommon (m : Type u → Type v) where
+  withShareCommon {α : Type u} : α → m α
 
 abbrev withShareCommon := @MonadShareCommon.withShareCommon
 

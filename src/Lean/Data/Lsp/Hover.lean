@@ -14,11 +14,11 @@ namespace Lsp
 
 open Json
 
-structure Hover :=
+structure Hover where
   /- NOTE we should also accept MarkedString/MarkedString[] here
   but they are deprecated, so maybe can get away without. -/
-  (contents : MarkupContent)
-  (range? : Option Range := none)
+  contents : MarkupContent
+  range? : Option Range := none
 
 instance : FromJson Hover := ⟨fun j => do
   let contents ← j.getObjValAs? MarkupContent "contents"

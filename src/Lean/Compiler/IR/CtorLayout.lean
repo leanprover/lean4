@@ -9,7 +9,7 @@ import Lean.Compiler.IR.Format
 namespace Lean
 namespace IR
 
-inductive CtorFieldInfo :=
+inductive CtorFieldInfo where
   | irrelevant
   | object (i : Nat)
   | usize  (i : Nat)
@@ -27,12 +27,12 @@ instance : ToFormat CtorFieldInfo := ⟨format⟩
 
 end CtorFieldInfo
 
-structure CtorLayout :=
-  (cidx       : Nat)
-  (fieldInfo  : List CtorFieldInfo)
-  (numObjs    : Nat)
-  (numUSize   : Nat)
-  (scalarSize : Nat)
+structure CtorLayout where
+  cidx       : Nat
+  fieldInfo  : List CtorFieldInfo
+  numObjs    : Nat
+  numUSize   : Nat
+  scalarSize : Nat
 
 @[extern "lean_ir_get_ctor_layout"]
 constant getCtorLayout (env : @& Environment) (ctorName : @& Name) : Except String CtorLayout

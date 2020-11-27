@@ -78,15 +78,15 @@ abbrev OptionsPerPos := Std.RBMap Nat Options (fun a b => a < b)
 namespace Delaborator
 open Lean.Meta
 
-structure Context :=
+structure Context where
   -- In contrast to other systems like the elaborator, we do not pass the current term explicitly as a
   -- parameter, but store it in the monad so that we can keep it in sync with `pos`.
-  (expr           : Expr)
-  (pos            : Nat := 1)
-  (defaultOptions : Options)
-  (optionsPerPos  : OptionsPerPos)
-  (currNamespace  : Name)
-  (openDecls      : List OpenDecl)
+  expr           : Expr
+  pos            : Nat := 1
+  defaultOptions : Options
+  optionsPerPos  : OptionsPerPos
+  currNamespace  : Name
+  openDecls      : List OpenDecl
 
 -- Exceptions from delaborators are not expected. We use an internal exception to signal whether
 -- the delaborator was able to produce a Syntax object.
@@ -330,7 +330,7 @@ def delabConst : Delab := do
   else
     `($(mkIdent c).{$(mkSepArray (ls.toArray.map quote) (mkAtom ","))*})
 
-inductive ParamKind :=
+inductive ParamKind where
   | explicit
   -- combines implicit params, optParams, and autoParams
   | implicit (defVal : Option Expr)
@@ -385,15 +385,15 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
   Syntax.mkApp fnStx argStxs
 
 /-- State for `delabAppMatch` and helpers. -/
-structure AppMatchState :=
-(info      : MatcherInfo)
-(matcherTy : Expr)
-(params    : Array Expr := #[])
-(hasMotive : Bool := false)
-(discrs    : Array Syntax := #[])
-(rhss      : Array Syntax := #[])
--- additional arguments applied to the result of the `match` expression
-(moreArgs  : Array Syntax := #[])
+structure AppMatchState where
+  info      : MatcherInfo
+  matcherTy : Expr
+  params    : Array Expr := #[]
+  hasMotive : Bool := false
+  discrs    : Array Syntax := #[]
+  rhss      : Array Syntax := #[]
+  -- additional arguments applied to the result of the `match` expression
+  moreArgs  : Array Syntax := #[]
 
 /-- Skip `numParams` binders. -/
 private def skippingBinders {α} : (numParams : Nat) → (x : DelabM α) → DelabM α

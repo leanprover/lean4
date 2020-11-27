@@ -29,10 +29,10 @@ def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType 
 ```
 -/
 
-structure MatchAltView :=
-  (ref      : Syntax)
-  (patterns : Array Syntax)
-  (rhs      : Syntax)
+structure MatchAltView where
+  ref      : Syntax
+  patterns : Array Syntax
+  rhs      : Syntax
 
 def mkMatchAltView (ref : Syntax) (matchAlt : Syntax) : MatchAltView := {
   ref      := ref
@@ -154,7 +154,7 @@ def mkInaccessible (e : Expr) : Expr :=
 def inaccessible? (e : Expr) : Option Expr :=
   annotation? `_inaccessible e
 
-inductive PatternVar :=
+inductive PatternVar where
   | localVar     (userName : Name)
   -- anonymous variables (`_`) are encoded using metavariables
   | anonymousVar (mvarId   : MVarId)
@@ -210,9 +210,9 @@ private def getMVarSyntaxMVarId (stx : Syntax) : MVarId :=
 -/
 namespace CollectPatternVars
 
-structure State :=
-  (found     : NameSet := {})
-  (vars      : Array PatternVar := #[])
+structure State where
+  found     : NameSet := {}
+  vars      : Array PatternVar := #[]
 
 abbrev M := StateRefT State TermElabM
 
@@ -258,16 +258,16 @@ An application in a pattern can be
    The elaborator assumes implicit arguments are not accessible and explicit ones are accessible.
 -/
 
-structure Context :=
-  (funId         : Syntax)
-  (ctorVal?      : Option ConstructorVal) -- It is `some`, if constructor application
-  (explicit      : Bool)
-  (ellipsis      : Bool)
-  (paramDecls    : Array LocalDecl)
-  (paramDeclIdx  : Nat := 0)
-  (namedArgs     : Array NamedArg)
-  (args          : List Arg)
-  (newArgs       : Array Syntax := #[])
+structure Context where
+  funId         : Syntax
+  ctorVal?      : Option ConstructorVal -- It is `some`, if constructor application
+  explicit      : Bool
+  ellipsis      : Bool
+  paramDecls    : Array LocalDecl
+  paramDeclIdx  : Nat := 0
+  namedArgs     : Array NamedArg
+  args          : List Arg
+  newArgs       : Array Syntax := #[]
 
 instance : Inhabited Context := ⟨⟨arbitrary, none, false, false, #[], 0, #[], [], #[]⟩⟩
 
@@ -525,7 +525,7 @@ def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := 
   pure s.vars
 
 /- We convert the collected `PatternVar`s intro `PatternVarDecl` -/
-inductive PatternVarDecl :=
+inductive PatternVarDecl where
   /- For `anonymousVar`, we create both a metavariable and a free variable. The free variable is used as an assignment for the metavariable
      when it is not assigned during pattern elaboration. -/
   | anonymousVar (mvarId : MVarId) (fvarId : FVarId)
@@ -596,10 +596,10 @@ open Meta.Match (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.a
 
 namespace ToDepElimPattern
 
-structure State :=
-  (found      : NameSet := {})
-  (localDecls : Array LocalDecl)
-  (newLocals  : NameSet := {})
+structure State where
+  found      : NameSet := {}
+  localDecls : Array LocalDecl
+  newLocals  : NameSet := {}
 
 abbrev M := StateRefT State TermElabM
 

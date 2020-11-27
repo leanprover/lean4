@@ -19,48 +19,48 @@ parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> opti
 ```
 -/
 
-structure StructCtorView :=
-  (ref       : Syntax)
-  (modifiers : Modifiers)
-  (inferMod  : Bool)  -- true if `{}` is used in the constructor declaration
-  (name      : Name)
-  (declName  : Name)
+structure StructCtorView where
+  ref       : Syntax
+  modifiers : Modifiers
+  inferMod  : Bool  -- true if `{}` is used in the constructor declaration
+  name      : Name
+  declName  : Name
 
-structure StructFieldView :=
-  (ref        : Syntax)
-  (modifiers  : Modifiers)
-  (binderInfo : BinderInfo)
-  (inferMod   : Bool)
-  (declName   : Name)
-  (name       : Name)
-  (binders    : Syntax)
-  (type?      : Option Syntax)
-  (value?     : Option Syntax)
+structure StructFieldView where
+  ref        : Syntax
+  modifiers  : Modifiers
+  binderInfo : BinderInfo
+  inferMod   : Bool
+  declName   : Name
+  name       : Name
+  binders    : Syntax
+  type?      : Option Syntax
+  value?     : Option Syntax
 
-structure StructView :=
-  (ref               : Syntax)
-  (modifiers         : Modifiers)
-  (scopeLevelNames   : List Name)  -- All `universe` declarations in the current scope
-  (allUserLevelNames : List Name)  -- `scopeLevelNames` ++ explicit universe parameters provided in the `structure` command
-  (isClass           : Bool)
-  (declName          : Name)
-  (scopeVars         : Array Expr) -- All `variable` declaration in the current scope
-  (params            : Array Expr) -- Explicit parameters provided in the `structure` command
-  (parents           : Array Syntax)
-  (type              : Syntax)
-  (ctor              : StructCtorView)
-  (fields            : Array StructFieldView)
+structure StructView where
+  ref               : Syntax
+  modifiers         : Modifiers
+  scopeLevelNames   : List Name  -- All `universe` declarations in the current scope
+  allUserLevelNames : List Name  -- `scopeLevelNames` ++ explicit universe parameters provided in the `structure` command
+  isClass           : Bool
+  declName          : Name
+  scopeVars         : Array Expr -- All `variable` declaration in the current scope
+  params            : Array Expr -- Explicit parameters provided in the `structure` command
+  parents           : Array Syntax
+  type              : Syntax
+  ctor              : StructCtorView
+  fields            : Array StructFieldView
 
-inductive StructFieldKind :=
+inductive StructFieldKind where
   | newField | fromParent | subobject
 
-structure StructFieldInfo :=
-  (name     : Name)
-  (declName : Name) -- Remark: this field value doesn't matter for fromParent fields.
-  (fvar     : Expr)
-  (kind     : StructFieldKind)
-  (inferMod : Bool := false)
-  (value?   : Option Expr := none)
+structure StructFieldInfo where
+  name     : Name
+  declName : Name -- Remark: this field value doesn't matter for fromParent fields.
+  fvar     : Expr
+  kind     : StructFieldKind
+  inferMod : Bool := false
+  value?   : Option Expr := none
 
 instance : Inhabited StructFieldInfo :=
   ⟨{ name := arbitrary, declName := arbitrary, fvar := arbitrary, kind := StructFieldKind.newField }⟩
@@ -76,18 +76,18 @@ def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
   | _                         => false
 
 /- Auxiliary declaration for `mkProjections` -/
-structure ProjectionInfo :=
-  (declName : Name)
-  (inferMod : Bool)
+structure ProjectionInfo where
+  declName : Name
+  inferMod : Bool
 
-structure ElabStructResult :=
-  (decl            : Declaration)
-  (projInfos       : List ProjectionInfo)
-  (projInstances   : List Name) -- projections (to parent classes) that must be marked as instances.
-  (mctx            : MetavarContext)
-  (lctx            : LocalContext)
-  (localInsts      : LocalInstances)
-  (defaultAuxDecls : Array (Name × Expr × Expr))
+structure ElabStructResult where
+  decl            : Declaration
+  projInfos       : List ProjectionInfo
+  projInstances   : List Name -- projections (to parent classes) that must be marked as instances.
+  mctx            : MetavarContext
+  lctx            : LocalContext
+  localInsts      : LocalInstances
+  defaultAuxDecls : Array (Name × Expr × Expr)
 
 private def defaultCtorName := `mk
 

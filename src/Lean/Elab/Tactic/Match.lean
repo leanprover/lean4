@@ -9,9 +9,9 @@ import Lean.Elab.Tactic.Induction
 
 namespace Lean.Elab.Tactic
 
-structure AuxMatchTermState :=
-  (nextIdx : Nat := 1)
-  (cases   : Array Syntax := #[])
+structure AuxMatchTermState where
+  nextIdx : Nat := 1
+  «cases» : Array Syntax := #[]
 
 private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : StateT AuxMatchTermState MacroM Syntax := do
   let matchAlts := matchTac[4]

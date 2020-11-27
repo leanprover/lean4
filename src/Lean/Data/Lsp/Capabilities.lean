@@ -17,16 +17,16 @@ namespace Lsp
 open Json
 
 -- TODO: right now we ignore the client's capabilities
-inductive ClientCapabilities :=
+inductive ClientCapabilities where
   | mk
 
 instance : FromJson ClientCapabilities :=
   ⟨fun j => ClientCapabilities.mk⟩
 
 -- TODO largely unimplemented
-structure ServerCapabilities :=
-  (textDocumentSync? : Option TextDocumentSyncOptions := none)
-  (hoverProvider : Bool := false)
+structure ServerCapabilities where
+  textDocumentSync? : Option TextDocumentSyncOptions := none
+  hoverProvider : Bool := false
 
 instance : ToJson ServerCapabilities := ⟨fun o => mkObj $
   opt "textDocumentSync" o.textDocumentSync? ++

@@ -9,7 +9,7 @@ import Lean.Compiler.IR.Format
 
 namespace Lean.IR
 
-inductive LogEntry :=
+inductive LogEntry where
   | step (cls : Name) (decls : Array Decl)
   | message (msg : Format)
 
@@ -31,9 +31,9 @@ def Log.format (log : Log) : Format :=
 def Log.toString (log : Log) : String :=
   log.format.pretty
 
-structure CompilerState :=
-  (env : Environment)
-  (log : Log := #[])
+structure CompilerState where
+  env : Environment
+  log : Log := #[]
 
 abbrev CompilerM := ReaderT Options (EStateM String CompilerState)
 

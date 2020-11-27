@@ -71,7 +71,7 @@ private def reorderNonDependentFirst (newMVars : Array Expr) : MetaM (List MVarI
       pure (nonDeps.push currMVarId, deps)
   return nonDeps.toList ++ deps.toList
 
-inductive ApplyNewGoals :=
+inductive ApplyNewGoals where
   | nonDependentFirst | nonDependentOnly | all
 
 def apply (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) :=

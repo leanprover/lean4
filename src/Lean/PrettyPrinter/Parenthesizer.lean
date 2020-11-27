@@ -81,22 +81,22 @@ namespace Lean
 namespace PrettyPrinter
 namespace Parenthesizer
 
-structure Context :=
+structure Context where
   -- We need to store this `categoryParser` argument to deal with the implicit Pratt parser call in `trailingNode.parenthesizer`.
-  (cat : Name := Name.anonymous)
+  cat : Name := Name.anonymous
 
-  structure State :=
-  (stxTrav : Syntax.Traverser)
+structure State where
+  stxTrav : Syntax.Traverser
   --- precedence and category of the current left-most trailing parser, if any; see module doc for details
-  (contPrec : Option Nat := none)
-  (contCat : Name := Name.anonymous)
+  contPrec : Option Nat := none
+  contCat : Name := Name.anonymous
   -- current minimum precedence in this Pratt parser call, if any; see module doc for details
-  (minPrec : Option Nat := none)
+  minPrec : Option Nat := none
   -- precedence and category of the trailing Pratt parser call if any; see module doc for details
-  (trailPrec : Option Nat := none)
-  (trailCat : Name := Name.anonymous)
+  trailPrec : Option Nat := none
+  trailCat : Name := Name.anonymous
   -- true iff we have already visited a token on this parser level; used for detecting trailing parsers
-  (visitedToken : Bool := false)
+  visitedToken : Bool := false
 
 end Parenthesizer
 

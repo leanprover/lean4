@@ -22,19 +22,19 @@ open Elab
 
 /-- The data associated with a snapshot is different depending on whether
 it was produced from the header or from a command. -/
-inductive SnapshotData :=
+inductive SnapshotData where
   | headerData : Environment → MessageLog → Options → SnapshotData
   | cmdData : Command.State → SnapshotData
 
 /-- What Lean knows about the world after the header and each command. -/
-structure Snapshot :=
+structure Snapshot where
   /- Where the command which produced this snapshot begins. Note that
   neighbouring snapshots are *not* necessarily attached beginning-to-end,
   since inputs outside the grammar advance the parser but do not produce
   snapshots. -/
-  (beginPos : String.Pos)
-  (mpState : Parser.ModuleParserState)
-  (data : SnapshotData)
+  beginPos : String.Pos
+  mpState : Parser.ModuleParserState
+  data : SnapshotData
 
 namespace Snapshot
 

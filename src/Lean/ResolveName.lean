@@ -145,16 +145,15 @@ def resolveNamespace? (env : Environment) (ns : Name) (openDecls : List OpenDecl
 
 end ResolveName
 
-class MonadResolveName (m : Type → Type) :=
-  (getCurrNamespace   : m Name)
-  (getOpenDecls       : m (List OpenDecl))
+class MonadResolveName (m : Type → Type) where
+  getCurrNamespace   : m Name
+  getOpenDecls       : m (List OpenDecl)
 
 export MonadResolveName (getCurrNamespace getOpenDecls)
 
-instance (m n) [MonadResolveName m] [MonadLift m n] : MonadResolveName n := {
-  getCurrNamespace := liftM (getCurrNamespace : m _),
-  getOpenDecls     := liftM (getOpenDecls : m _)
-}
+instance (m n) [MonadResolveName m] [MonadLift m n] : MonadResolveName n where
+  getCurrNamespace := liftM (m:=m) getCurrNamespace
+  getOpenDecls     := liftM (m:=m) getOpenDecls
 
 section Methods
 

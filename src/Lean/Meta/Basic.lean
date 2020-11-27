@@ -30,15 +30,15 @@ namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
 
-structure Config :=
-  (foApprox           : Bool := false)
-  (ctxApprox          : Bool := false)
-  (quasiPatternApprox : Bool := false)
+structure Config where
+  foApprox           : Bool := false
+  ctxApprox          : Bool := false
+  quasiPatternApprox : Bool := false
   /- When `constApprox` is set to true,
      we solve `?m t =?= c` using
      `?m := fun _ => c`
      when `?m t` is not a higher-order pattern and `c` is not an application as -/
-  (constApprox        : Bool := false)
+  constApprox        : Bool := false
   /-
     When the following flag is set,
     `isDefEq` throws the exeption `Exeption.isDefEqStuck`
@@ -47,32 +47,32 @@ structure Config :=
     This feature is useful for type class resolution where
     we may want to notify the caller that the TC problem may be solveable
     later after it assigns `?m`. -/
-  (isDefEqStuckEx     : Bool := false)
-  (transparency       : TransparencyMode := TransparencyMode.default)
+  isDefEqStuckEx     : Bool := false
+  transparency       : TransparencyMode := TransparencyMode.default
   /- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
-  (zetaNonDep         : Bool := true)
+  zetaNonDep         : Bool := true
   /- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
-  (trackZeta          : Bool := false)
+  trackZeta          : Bool := false
 
-structure ParamInfo :=
-  (implicit     : Bool      := false)
-  (instImplicit : Bool      := false)
-  (hasFwdDeps   : Bool      := false)
-  (backDeps     : Array Nat := #[])
+structure ParamInfo where
+  implicit     : Bool      := false
+  instImplicit : Bool      := false
+  hasFwdDeps   : Bool      := false
+  backDeps     : Array Nat := #[]
 
 instance : Inhabited ParamInfo := ⟨{}⟩
 
 def ParamInfo.isExplicit (p : ParamInfo) : Bool :=
   !p.implicit && p.instImplicit
 
-structure FunInfo :=
-  (paramInfo  : Array ParamInfo := #[])
-  (resultDeps : Array Nat       := #[])
+structure FunInfo where
+  paramInfo  : Array ParamInfo := #[]
+  resultDeps : Array Nat       := #[]
 
-structure InfoCacheKey :=
-  (transparency : TransparencyMode)
-  (expr         : Expr)
-  (nargs?       : Option Nat)
+structure InfoCacheKey where
+  transparency : TransparencyMode
+  expr         : Expr
+  nargs?       : Option Nat
 
 namespace InfoCacheKey
 instance : Inhabited InfoCacheKey := ⟨⟨arbitrary, arbitrary, arbitrary⟩⟩
@@ -86,30 +86,30 @@ open Std (PersistentArray PersistentHashMap)
 
 abbrev SynthInstanceCache := PersistentHashMap Expr (Option Expr)
 
-structure Cache :=
-  (inferType     : PersistentExprStructMap Expr := {})
-  (funInfo       : PersistentHashMap InfoCacheKey FunInfo := {})
-  (synthInstance : SynthInstanceCache := {})
-  (whnfDefault   : PersistentExprStructMap Expr := {}) -- cache for closed terms and `TransparencyMode.default`
-  (whnfAll       : PersistentExprStructMap Expr := {}) -- cache for closed terms and `TransparencyMode.all`
+structure Cache where
+  inferType     : PersistentExprStructMap Expr := {}
+  funInfo       : PersistentHashMap InfoCacheKey FunInfo := {}
+  synthInstance : SynthInstanceCache := {}
+  whnfDefault   : PersistentExprStructMap Expr := {} -- cache for closed terms and `TransparencyMode.default`
+  whnfAll       : PersistentExprStructMap Expr := {} -- cache for closed terms and `TransparencyMode.all`
 
-structure PostponedEntry :=
-  (lhs       : Level)
-  (rhs       : Level)
+structure PostponedEntry where
+  lhs       : Level
+  rhs       : Level
 
-structure State :=
-  (mctx        : MetavarContext := {})
-  (cache       : Cache := {})
+structure State where
+  mctx        : MetavarContext := {}
+  cache       : Cache := {}
   /- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
-  (zetaFVarIds : NameSet := {})
-  (postponed   : PersistentArray PostponedEntry := {})
+  zetaFVarIds : NameSet := {}
+  postponed   : PersistentArray PostponedEntry := {}
 
 instance : Inhabited State := ⟨{}⟩
 
-structure Context :=
-  (config         : Config         := {})
-  (lctx           : LocalContext   := {})
-  (localInstances : LocalInstances := #[])
+structure Context where
+  config         : Config         := {}
+  lctx           : LocalContext   := {}
+  localInstances : LocalInstances := #[]
 
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 

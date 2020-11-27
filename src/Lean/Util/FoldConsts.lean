@@ -12,9 +12,9 @@ namespace FoldConstsImpl
 
 abbrev cacheSize : USize := 8192
 
-structure State :=
-(visitedTerms  : Array Expr)  -- Remark: cache based on pointer address. Our "unsafe" implementation relies on the fact that `()` is not a valid Expr
-(visitedConsts : NameHashSet) -- cache based on structural equality
+structure State where
+  visitedTerms  : Array Expr  -- Remark: cache based on pointer address. Our "unsafe" implementation relies on the fact that `()` is not a valid Expr
+  visitedConsts : NameHashSet -- cache based on structural equality
 
 abbrev FoldM := StateM State
 

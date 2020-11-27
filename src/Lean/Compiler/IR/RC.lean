@@ -13,19 +13,19 @@ namespace Lean.IR.ExplicitRC
    that introduce the instructions `release` and `set`
 -/
 
-structure VarInfo :=
-  (ref        : Bool := true)  -- true if the variable may be a reference (aka pointer) at runtime
-  (persistent : Bool := false) -- true if the variable is statically known to be marked a Persistent at runtime
-  (consume    : Bool := false) -- true if the variable RC must be "consumed"
+structure VarInfo where
+  ref        : Bool := true  -- true if the variable may be a reference (aka pointer) at runtime
+  persistent : Bool := false -- true if the variable is statically known to be marked a Persistent at runtime
+  consume    : Bool := false -- true if the variable RC must be "consumed"
 
 abbrev VarMap := Std.RBMap VarId VarInfo (fun x y => x.idx < y.idx)
 
-structure Context :=
-  (env            : Environment)
-  (decls          : Array Decl)
-  (varMap         : VarMap := {})
-  (jpLiveVarMap   : JPLiveVarMap := {}) -- map: join point => live variables
-  (localCtx       : LocalContext := {}) -- we use it to store the join point declarations
+structure Context where
+  env            : Environment
+  decls          : Array Decl
+  varMap         : VarMap := {}
+  jpLiveVarMap   : JPLiveVarMap := {} -- map: join point => live variables
+  localCtx       : LocalContext := {} -- we use it to store the join point declarations
 
 def getDecl (ctx : Context) (fid : FunId) : Decl :=
   match findEnvDecl' ctx.env fid ctx.decls with

@@ -23,24 +23,24 @@ builtin_initialize inferTCGoalsLRAttr : TagAttribute ←
 def hasInferTCGoalsLRAttribute (env : Environment) (constName : Name) : Bool :=
   inferTCGoalsLRAttr.hasTag env constName
 
-structure GeneratorNode :=
-  (mvar            : Expr)
-  (key             : Expr)
-  (mctx            : MetavarContext)
-  (instances       : Array Expr)
-  (currInstanceIdx : Nat)
+structure GeneratorNode where
+  mvar            : Expr
+  key             : Expr
+  mctx            : MetavarContext
+  instances       : Array Expr
+  currInstanceIdx : Nat
 
 instance : Inhabited GeneratorNode := ⟨⟨arbitrary, arbitrary, arbitrary, arbitrary, 0⟩⟩
 
-structure ConsumerNode :=
-  (mvar     : Expr)
-  (key      : Expr)
-  (mctx     : MetavarContext)
-  (subgoals : List Expr)
+structure ConsumerNode where
+  mvar     : Expr
+  key      : Expr
+  mctx     : MetavarContext
+  subgoals : List Expr
 
 instance : Inhabited ConsumerNode := ⟨⟨arbitrary, arbitrary, arbitrary, []⟩⟩
 
-inductive Waiter :=
+inductive Waiter where
   | consumerNode : ConsumerNode → Waiter
   | root         : Waiter
 
@@ -70,10 +70,10 @@ def Waiter.isRoot : Waiter → Bool
 -/
 namespace  MkTableKey
 
-structure State :=
-  (nextIdx : Nat := 0)
-  (lmap    : HashMap MVarId Level := {})
-  (emap    : HashMap MVarId Expr := {})
+structure State where
+  nextIdx : Nat := 0
+  lmap    : HashMap MVarId Level := {}
+  emap    : HashMap MVarId Expr := {}
 
 abbrev M := ReaderT MetavarContext (StateM State)
 
@@ -130,15 +130,15 @@ end MkTableKey
 def mkTableKey (mctx : MetavarContext) (e : Expr) : Expr :=
   MkTableKey.normExpr e mctx |>.run' {}
 
-structure Answer :=
-  (result     : AbstractMVarsResult)
-  (resultType : Expr)
+structure Answer where
+  result     : AbstractMVarsResult
+  resultType : Expr
 
 instance : Inhabited Answer := ⟨⟨arbitrary, arbitrary⟩⟩
 
-structure TableEntry :=
-  (waiters : Array Waiter)
-  (answers : Array Answer := #[])
+structure TableEntry where
+  waiters : Array Waiter
+  answers : Array Answer := #[]
 
 /-
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.
@@ -147,11 +147,11 @@ structure TableEntry :=
   That being said, we still use `extends` because it makes it simpler to move from
   `M` to `MetaM`.
 -/
-structure State :=
-  (result         : Option Expr                   := none)
-  (generatorStack : Array GeneratorNode           := #[])
-  (resumeStack    : Array (ConsumerNode × Answer) := #[])
-  (tableEntries   : HashMap Expr TableEntry       := {})
+structure State where
+  result         : Option Expr                   := none
+  generatorStack : Array GeneratorNode           := #[]
+  resumeStack    : Array (ConsumerNode × Answer) := #[]
+  tableEntries   : HashMap Expr TableEntry       := {}
 
 abbrev SynthM := StateRefT State MetaM
 
@@ -235,10 +235,10 @@ def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
    It is the same approach we use at `forallTelescope` and `lambdaTelescope`.
    Given `getSubgoalsAux args j subgoals instVal type`,
    we have that `type.instantiateRevRange j args.size args` does not have loose bound variables. -/
-structure SubgoalsResult : Type :=
-  (subgoals     : List Expr)
-  (instVal      : Expr)
-  (instTypeBody : Expr)
+structure SubgoalsResult where
+  subgoals     : List Expr
+  instVal      : Expr
+  instTypeBody : Expr
 
 private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr)
     : Array Expr → Nat → List Expr → Expr → Expr → MetaM SubgoalsResult

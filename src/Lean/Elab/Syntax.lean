@@ -30,14 +30,14 @@ private def mkParserSeq (ds : Array Syntax) : TermElabM Syntax := do
       r ← `(ParserDescr.binary `andthen $r $d)
     return r
 
-structure ToParserDescrContext :=
-  (catName              : Name)
-  (first                : Bool)
-  (leftRec              : Bool) -- true iff left recursion is allowed
+structure ToParserDescrContext where
+  catName              : Name
+  first                : Bool
+  leftRec              : Bool -- true iff left recursion is allowed
   /- When `leadingIdentAsSymbol == true` we convert
      `Lean.Parser.Syntax.atom` into `Lean.ParserDescr.nonReservedSymbol`
      See comment at `Parser.ParserCategory`. -/
-  (leadingIdentAsSymbol : Bool)
+  leadingIdentAsSymbol : Bool
 
 abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateRefT Bool TermElabM)
 private def markAsTrailingParser : ToParserDescrM Unit := set true

@@ -160,7 +160,7 @@ inline expr const & constructor_type(constructor const & c) { return c.snd(); }
 typedef list_ref<constructor> constructors;
 
 /**
-structure inductive_type :=
+structure inductive_type where
 (id : name) (type : expr) (cnstrs : list constructor)
 */
 class inductive_type : public object_ref {
@@ -275,7 +275,7 @@ public:
 };
 
 /*
-structure inductive_val extends constant_val :=
+structure inductive_val extends constant_val where
 (nparams : nat)       -- Number of parameters
 (nindices : nat)      -- Number of indices
 (all : list name)     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one

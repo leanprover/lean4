@@ -38,7 +38,7 @@ abbrev Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
 @[reducible] def inferInstanceAs (α : Type u) [i : α] : α := i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
-inductive PUnit : Sort u :=
+inductive PUnit : Sort u where
   | unit : PUnit
 
 /-- An abbreviation for `PUnit.{0}`, its most common instantiation.
@@ -149,8 +149,9 @@ inductive Bool : Type where
 export Bool (false true)
 
 /- Remark: Subtype must take a Sort instead of Type because of the axiom strongIndefiniteDescription. -/
-structure Subtype {α : Sort u} (p : α → Prop) :=
-  (val : α) (property : p val)
+structure Subtype {α : Sort u} (p : α → Prop) where
+  val : α
+  property : p val
 
 /-- Gadget for optional parameter support. -/
 @[reducible] def optParam (α : Sort u) (default : α) : Sort u := α
@@ -1204,8 +1205,8 @@ end ReaderT
 
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
-    class MonadReader (ρ : outParam (Type u)) (n : Type u → Type u) :=
-    (lift {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α) → n α)
+    class MonadReader (ρ : outParam (Type u)) (n : Type u → Type u) where
+      lift {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ReaderT ρ m α) → n α
     ```
     -/
 class MonadReaderOf (ρ : Type u) (m : Type u → Type v) where

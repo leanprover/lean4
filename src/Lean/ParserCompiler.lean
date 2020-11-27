@@ -17,10 +17,10 @@ import Lean.Parser.Extension
 namespace Lean
 namespace ParserCompiler
 
-structure Context (α : Type) :=
-  (varName : Name)
-  (categoryAttr : KeyedDeclsAttribute α)
-  (combinatorAttr : CombinatorAttribute)
+structure Context (α : Type) where
+  varName : Name
+  categoryAttr : KeyedDeclsAttribute α
+  combinatorAttr : CombinatorAttribute
 
 def Context.tyName {α} (ctx : Context α) : Name := ctx.categoryAttr.defn.valueTypeName
 

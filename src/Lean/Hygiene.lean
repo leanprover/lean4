@@ -69,12 +69,12 @@ builtin_initialize
     descr := "add suffix '_{<idx>}' to shadowed/inaccessible variables when pretty printing"
   }
 
-structure NameSanitizerState :=
-  (options            : Options)
+structure NameSanitizerState where
+  options            : Options
   -- `x` ~> 2 if we're already using `x✝`, `x✝¹`
-  (nameStem2Idx       : NameMap Nat := {})
+  nameStem2Idx       : NameMap Nat := {}
   -- `x._hyg...` ~> `x✝`
-  (userName2Sanitized : NameMap Name := {})
+  userName2Sanitized : NameMap Name := {}
 
 private partial def mkFreshInaccessibleUserName (userName : Name) (idx : Nat) : StateM NameSanitizerState Name := do
   let s ← get

@@ -23,7 +23,9 @@ abbrev DocumentUri := String
 are represented by `Lsp.Position` while internally we mostly use `String.Pos` UTF-8
 offsets. For diagnostics, one-based `Lean.Position`s are used internally.
 `character` is accepted liberally: actual character := min(line length, character) -/
-structure Position := (line : Nat) (character : Nat)
+structure Position where
+  line : Nat
+  character : Nat
 
 instance : Inhabited Position := ⟨⟨0, 0⟩⟩
 
@@ -40,7 +42,9 @@ instance : ToJson Position := ⟨fun o =>
 instance : ToString Position := ⟨fun p =>
   "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
 
-structure Range := (start : Position) («end» : Position)
+structure Range where
+  start : Position
+  «end» : Position
 
 instance : FromJson Range := ⟨fun j => do
   let start ← j.getObjValAs? Position "start"
@@ -52,7 +56,9 @@ instance : ToJson Range := ⟨fun o =>
     ⟨"start", toJson o.start⟩,
     ⟨"end", toJson o.«end»⟩]⟩
 
-structure Location := (uri : DocumentUri) (range : Range)
+structure Location where
+  uri : DocumentUri
+  range : Range
 
 instance : FromJson Location := ⟨fun j => do
   let uri ← j.getObjValAs? DocumentUri "uri"
@@ -64,11 +70,11 @@ instance : ToJson Location := ⟨fun o =>
     ⟨"uri", toJson o.uri⟩,
     ⟨"range", toJson o.range⟩]⟩
 
-structure LocationLink :=
-  (originSelectionRange? : Option Range)
-  (targetUri : DocumentUri)
-  (targetRange : Range)
-  (targetSelectionRange : Range)
+structure LocationLink where
+  originSelectionRange? : Option Range
+  targetUri : DocumentUri
+  targetRange : Range
+  targetSelectionRange : Range
 
 instance : FromJson LocationLink := ⟨fun j => do
   let originSelectionRange? := j.getObjValAs? Range "originSelectionRange"
@@ -87,10 +93,10 @@ instance : ToJson LocationLink := ⟨fun o => mkObj $
 
 /- NOTE: No specific commands are specified by LSP, hence
 possible commands need to be announced as capabilities. -/
-structure Command :=
-  (title : String)
-  (command : String)
-  (arguments? : Option (Array Json) := none)
+structure Command where
+  title : String
+  command : String
+  arguments? : Option (Array Json) := none
 
 instance : FromJson Command := ⟨fun j => do
   let title ← j.getObjValAs? String "title"
@@ -103,9 +109,9 @@ instance : ToJson Command := ⟨fun o => mkObj $
     ⟨"title", o.title⟩,
     ⟨"command", o.command⟩]⟩
 
-structure TextEdit :=
-  (range : Range)
-  (newText : String)
+structure TextEdit where
+  range : Range
+  newText : String
 
 instance : FromJson TextEdit := ⟨fun j => do
   let range ← j.getObjValAs? Range "range"
@@ -125,7 +131,8 @@ instance : FromJson TextEditBatch :=
 instance  : ToJson TextEditBatch :=
   ⟨@toJson (Array TextEdit) _⟩
 
-structure TextDocumentIdentifier := (uri : DocumentUri)
+structure TextDocumentIdentifier where
+  uri : DocumentUri
 
 instance : FromJson TextDocumentIdentifier := ⟨fun j =>
   TextDocumentIdentifier.mk <$> j.getObjValAs? DocumentUri "uri"⟩
@@ -133,9 +140,9 @@ instance : FromJson TextDocumentIdentifier := ⟨fun j =>
 instance : ToJson TextDocumentIdentifier :=
   ⟨fun o => mkObj [⟨"uri", o.uri⟩]⟩
 
-structure VersionedTextDocumentIdentifier :=
-  (uri : DocumentUri)
-  (version? : Option Nat := none)
+structure VersionedTextDocumentIdentifier where
+  uri : DocumentUri
+  version? : Option Nat := none
 
 instance : FromJson VersionedTextDocumentIdentifier := ⟨fun j => do
   let uri ← j.getObjValAs? DocumentUri "uri"
@@ -146,9 +153,9 @@ instance : ToJson VersionedTextDocumentIdentifier := ⟨fun o => mkObj $
   opt "version" o.version? ++
   [⟨"uri", o.uri⟩]⟩
 
-structure TextDocumentEdit :=
-  (textDocument : VersionedTextDocumentIdentifier)
-  (edits : TextEditBatch)
+structure TextDocumentEdit where
+  textDocument : VersionedTextDocumentIdentifier
+  edits : TextEditBatch
 
 instance : FromJson TextDocumentEdit := ⟨fun j => do
   let textDocument ← j.getObjValAs? VersionedTextDocumentIdentifier "textDocument"
@@ -165,11 +172,11 @@ instance : ToJson TextDocumentEdit := ⟨fun o =>
 -- both of these are pretty global, we can look at their
 -- uses when single file behaviour works.
 
-structure TextDocumentItem :=
-  (uri : DocumentUri)
-  (languageId : String)
-  (version : Nat)
-  (text : String)
+structure TextDocumentItem where
+  uri : DocumentUri
+  languageId : String
+  version : Nat
+  text : String
 
 instance : FromJson TextDocumentItem := ⟨fun j => do
   let uri ← j.getObjValAs? DocumentUri "uri"
@@ -185,9 +192,9 @@ instance : ToJson TextDocumentItem := ⟨fun o =>
     ⟨"version", o.version⟩,
     ⟨"text", o.text⟩]⟩
 
-structure TextDocumentPositionParams :=
-  (textDocument : TextDocumentIdentifier)
-  (position : Position)
+structure TextDocumentPositionParams where
+  textDocument : TextDocumentIdentifier
+  position : Position
 
 instance : FromJson TextDocumentPositionParams := ⟨fun j => do
   let textDocument ← j.getObjValAs? TextDocumentIdentifier "textDocument"
@@ -199,10 +206,10 @@ instance : ToJson TextDocumentPositionParams := ⟨fun o =>
     ⟨"textDocument", toJson o.textDocument⟩,
     ⟨"position", toJson o.position⟩]⟩
 
-structure DocumentFilter :=
-  (language? : Option String := none)
-  (scheme? : Option String := none)
-  (pattern? : Option String := none)
+structure DocumentFilter where
+  language? : Option String := none
+  scheme? : Option String := none
+  pattern? : Option String := none
 
 instance : FromJson DocumentFilter := ⟨fun j => do
   let language? := j.getObjValAs? String "language"
@@ -223,7 +230,8 @@ instance : FromJson DocumentSelector :=
 instance : ToJson DocumentSelector :=
   ⟨@toJson (Array DocumentFilter) _⟩
 
-structure StaticRegistrationOptions := (id? : Option String := none)
+structure StaticRegistrationOptions where
+  id? : Option String := none
 
 instance : FromJson StaticRegistrationOptions :=
   ⟨fun j => some ⟨j.getObjValAs? String "id"⟩⟩
@@ -231,7 +239,8 @@ instance : FromJson StaticRegistrationOptions :=
 instance : ToJson StaticRegistrationOptions :=
   ⟨fun o => mkObj $ opt "id" o.id?⟩
 
-structure TextDocumentRegistrationOptions := (documentSelector? : Option DocumentSelector := none)
+structure TextDocumentRegistrationOptions where
+  documentSelector? : Option DocumentSelector := none
 
 instance : FromJson TextDocumentRegistrationOptions :=
   ⟨fun j => some ⟨j.getObjValAs? DocumentSelector "documentSelector"⟩⟩
@@ -239,7 +248,7 @@ instance : FromJson TextDocumentRegistrationOptions :=
 instance : ToJson TextDocumentRegistrationOptions :=
   ⟨fun o => mkObj $ opt "documentSelector" o.documentSelector?⟩
 
-inductive MarkupKind :=
+inductive MarkupKind where
   | plaintext | markdown
 
 instance : FromJson MarkupKind := ⟨fun j =>
@@ -253,7 +262,9 @@ instance : ToJson MarkupKind := ⟨fun k =>
   | MarkupKind.plaintext => str "plaintext"
   | MarkupKind.markdown  => str "markdown"⟩
 
-structure MarkupContent := (kind : MarkupKind) (value : String)
+structure MarkupContent where
+  kind : MarkupKind
+  value : String
 
 instance : FromJson MarkupContent := ⟨fun j => do
   let kind ← j.getObjValAs? MarkupKind "kind"

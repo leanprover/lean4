@@ -7,7 +7,7 @@ universes u v w
 
 namespace Std
 
-inductive PersistentArrayNode (α : Type u) :=
+inductive PersistentArrayNode (α : Type u) where
   | node (cs : Array (PersistentArrayNode α)) : PersistentArrayNode α
   | leaf (vs : Array α)                       : PersistentArrayNode α
 
@@ -24,16 +24,16 @@ end PersistentArrayNode
 abbrev PersistentArray.initShift : USize := 5
 abbrev PersistentArray.branching : USize := USize.ofNat (2 ^ PersistentArray.initShift.toNat)
 
-structure PersistentArray (α : Type u) :=
+structure PersistentArray (α : Type u) where
   /- Recall that we run out of memory if we have more than `usizeSz/8` elements.
      So, we can stop adding elements at `root` after `size > usizeSz`, and
      keep growing the `tail`. This modification allow us to use `USize` instead
      of `Nat` when traversing `root`. -/
-  (root    : PersistentArrayNode α := PersistentArrayNode.node (Array.mkEmpty PersistentArray.branching.toNat))
-  (tail    : Array α               := Array.mkEmpty PersistentArray.branching.toNat)
-  (size    : Nat                   := 0)
-  (shift   : USize                 := PersistentArray.initShift)
-  (tailOff : Nat                   := 0)
+  root    : PersistentArrayNode α := PersistentArrayNode.node (Array.mkEmpty PersistentArray.branching.toNat)
+  tail    : Array α               := Array.mkEmpty PersistentArray.branching.toNat
+  size    : Nat                   := 0
+  shift   : USize                 := PersistentArray.initShift
+  tailOff : Nat                   := 0
 
 abbrev PArray (α : Type u) := PersistentArray α
 
@@ -328,10 +328,10 @@ end
 @[inline] def map {β} (f : α → β) (t : PersistentArray α) : PersistentArray β :=
   Id.run $ t.mapM f
 
-structure Stats :=
-  (numNodes : Nat)
-  (depth : Nat)
-  (tailSize : Nat)
+structure Stats where
+  numNodes : Nat
+  depth : Nat
+  tailSize : Nat
 
 partial def collectStats : PersistentArrayNode α → Stats → Nat → Stats
   | node cs, s, d =>

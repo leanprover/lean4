@@ -6,10 +6,10 @@ Authors: Leonardo de Moura
 namespace Std
 universes u v w w'
 
-inductive Rbcolor :=
+inductive Rbcolor where
   | red | black
 
-inductive RBNode (α : Type u) (β : α → Type v) :=
+inductive RBNode (α : Type u) (β : α → Type v) where
   | leaf                                                                                        : RBNode α β
   | node  (color : Rbcolor) (lchild : RBNode α β) (key : α) (val : β key) (rchild : RBNode α β) : RBNode α β
 
@@ -197,7 +197,7 @@ variable (lt : α → α → Bool)
 
 end Membership
 
-inductive WellFormed (lt : α → α → Bool) : RBNode α β → Prop :=
+inductive WellFormed (lt : α → α → Bool) : RBNode α β → Prop where
   | leafWff : WellFormed lt leaf
   | insertWff {n n' : RBNode α β} {k : α} {v : β k} : WellFormed lt n → n' = insert lt n k v → WellFormed lt n'
   | eraseWff {n n' : RBNode α β} {k : α} : WellFormed lt n → n' = erase lt k n → WellFormed lt n'

@@ -30,7 +30,7 @@ declaration during Type checking.
 Remark: the ReducibilityHints are not related to the attributes: reducible/irrelevance/semireducible.
 These attributes are used by the Elaborator. The ReducibilityHints are used by the kernel (and Elaborator).
 Moreover, the ReducibilityHints cannot be changed after a declaration is added to the kernel. -/
-inductive ReducibilityHints :=
+inductive ReducibilityHints where
   | opaque   : ReducibilityHints
   | «abbrev» : ReducibilityHints
   | regular  : UInt32 → ReducibilityHints
@@ -59,15 +59,15 @@ def lt : ReducibilityHints → ReducibilityHints → Bool
 end ReducibilityHints
 
 /-- Base structure for `AxiomVal`, `DefinitionVal`, `TheoremVal`, `InductiveVal`, `ConstructorVal`, `RecursorVal` and `QuotVal`. -/
-structure ConstantVal :=
-  (name : Name)
-  (lparams : List Name)
-  (type : Expr)
+structure ConstantVal where
+  name : Name
+  lparams : List Name
+  type : Expr
 
 instance : Inhabited ConstantVal := ⟨{ name := arbitrary, lparams := arbitrary, type := arbitrary }⟩
 
-structure AxiomVal extends ConstantVal :=
-  (isUnsafe : Bool)
+structure AxiomVal extends ConstantVal where
+  isUnsafe : Bool
 
 @[export lean_mk_axiom_val]
 def mkAxiomValEx (name : Name) (lparams : List Name) (type : Expr) (isUnsafe : Bool) : AxiomVal := {
@@ -80,10 +80,10 @@ def mkAxiomValEx (name : Name) (lparams : List Name) (type : Expr) (isUnsafe : B
 @[export lean_axiom_val_is_unsafe] def AxiomVal.isUnsafeEx (v : AxiomVal) : Bool :=
   v.isUnsafe
 
-structure DefinitionVal extends ConstantVal :=
-  (value : Expr)
-  (hints : ReducibilityHints)
-  (isUnsafe : Bool)
+structure DefinitionVal extends ConstantVal where
+  value : Expr
+  hints : ReducibilityHints
+  isUnsafe : Bool
 
 @[export lean_mk_definition_val]
 def mkDefinitionValEx (name : Name) (lparams : List Name) (type : Expr) (val : Expr) (hints : ReducibilityHints) (isUnsafe : Bool) : DefinitionVal := {
@@ -98,13 +98,13 @@ def mkDefinitionValEx (name : Name) (lparams : List Name) (type : Expr) (val : E
 @[export lean_definition_val_is_unsafe] def DefinitionVal.isUnsafeEx (v : DefinitionVal) : Bool :=
   v.isUnsafe
 
-structure TheoremVal extends ConstantVal :=
-  (value : Expr)
+structure TheoremVal extends ConstantVal where
+  value : Expr
 
 /- Value for an opaque constant declaration `constant x : t := e` -/
-structure OpaqueVal extends ConstantVal :=
-  (value : Expr)
-  (isUnsafe : Bool)
+structure OpaqueVal extends ConstantVal where
+  value : Expr
+  isUnsafe : Bool
 
 @[export lean_mk_opaque_val]
 def mkOpaqueValEx (name : Name) (lparams : List Name) (type : Expr) (val : Expr) (isUnsafe : Bool) : OpaqueVal := {
@@ -118,17 +118,17 @@ def mkOpaqueValEx (name : Name) (lparams : List Name) (type : Expr) (val : Expr)
 @[export lean_opaque_val_is_unsafe] def OpaqueVal.isUnsafeEx (v : OpaqueVal) : Bool :=
   v.isUnsafe
 
-structure Constructor :=
-  (name : Name)
-  (type : Expr)
+structure Constructor where
+  name : Name
+  type : Expr
 
-structure InductiveType :=
-  (name : Name)
-  (type : Expr)
-  (ctors : List Constructor)
+structure InductiveType where
+  name : Name
+  type : Expr
+  ctors : List Constructor
 
 /-- Declaration object that can be sent to the kernel. -/
-inductive Declaration :=
+inductive Declaration where
   | axiomDecl       (val : AxiomVal)
   | defnDecl        (val : DefinitionVal)
   | thmDecl         (val : TheoremVal)
@@ -176,14 +176,14 @@ def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
 
     A series of checks are performed by the kernel to check whether a `inductiveDecls`
     is valid or not. -/
-structure InductiveVal extends ConstantVal :=
-  (nparams : Nat)       -- Number of parameters
-  (nindices : Nat)      -- Number of indices
-  (all : List Name)     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
-  (ctors : List Name)   -- List of all constructors for this inductive datatype
-  (isRec : Bool)        -- `true` Iff it is recursive
-  (isUnsafe : Bool)
-  (isReflexive : Bool)
+structure InductiveVal extends ConstantVal where
+  nparams : Nat       -- Number of parameters
+  nindices : Nat      -- Number of indices
+  all : List Name     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
+  ctors : List Name   -- List of all constructors for this inductive datatype
+  isRec : Bool        -- `true` Iff it is recursive
+  isUnsafe : Bool
+  isReflexive : Bool
 
 @[export lean_mk_inductive_val]
 def mkInductiveValEx (name : Name) (lparams : List Name) (type : Expr) (nparams nindices : Nat)
@@ -206,12 +206,12 @@ def mkInductiveValEx (name : Name) (lparams : List Name) (type : Expr) (nparams 
 
 def InductiveVal.nctors (v : InductiveVal) : Nat := v.ctors.length
 
-structure ConstructorVal extends ConstantVal :=
-  (induct  : Name)  -- Inductive Type this Constructor is a member of
-  (cidx    : Nat)   -- Constructor index (i.e., Position in the inductive declaration)
-  (nparams : Nat)   -- Number of parameters in inductive datatype `induct`
-  (nfields : Nat)   -- Number of fields (i.e., arity - nparams)
-  (isUnsafe : Bool)
+structure ConstructorVal extends ConstantVal where
+  induct  : Name  -- Inductive Type this Constructor is a member of
+  cidx    : Nat   -- Constructor index (i.e., Position in the inductive declaration)
+  nparams : Nat   -- Number of parameters in inductive datatype `induct`
+  nfields : Nat   -- Number of fields (i.e., arity - nparams)
+  isUnsafe : Bool
 
 @[export lean_mk_constructor_val]
 def mkConstructorValEx (name : Name) (lparams : List Name) (type : Expr) (induct : Name) (cidx nparams nfields : Nat) (isUnsafe : Bool) : ConstructorVal := {
@@ -231,20 +231,20 @@ instance : Inhabited ConstructorVal :=
   ⟨{ toConstantVal := arbitrary, induct := arbitrary, cidx := 0, nparams := 0, nfields := 0, isUnsafe := true }⟩
 
 /-- Information for reducing a recursor -/
-structure RecursorRule :=
-  (ctor : Name)   -- Reduction rule for this Constructor
-  (nfields : Nat) -- Number of fields (i.e., without counting inductive datatype parameters)
-  (rhs : Expr)    -- Right hand side of the reduction rule
+structure RecursorRule where
+  ctor : Name   -- Reduction rule for this Constructor
+  nfields : Nat -- Number of fields (i.e., without counting inductive datatype parameters)
+  rhs : Expr    -- Right hand side of the reduction rule
 
-structure RecursorVal extends ConstantVal :=
-  (all : List Name)            -- List of all inductive datatypes in the mutual declaration that generated this recursor
-  (nparams : Nat)              -- Number of parameters
-  (nindices : Nat)             -- Number of indices
-  (nmotives : Nat)             -- Number of motives
-  (nminors : Nat)              -- Number of minor premises
-  (rules : List RecursorRule)  -- A reduction for each Constructor
-  (k : Bool)                   -- It supports K-like reduction
-  (isUnsafe : Bool)
+structure RecursorVal extends ConstantVal where
+  all : List Name            -- List of all inductive datatypes in the mutual declaration that generated this recursor
+  nparams : Nat              -- Number of parameters
+  nindices : Nat             -- Number of indices
+  nmotives : Nat             -- Number of motives
+  nminors : Nat              -- Number of minor premises
+  rules : List RecursorRule  -- A reduction for each Constructor
+  k : Bool                   -- It supports K-like reduction
+  isUnsafe : Bool
 
 @[export lean_mk_recursor_val]
 def mkRecursorValEx (name : Name) (lparams : List Name) (type : Expr) (all : List Name) (nparams nindices nmotives nminors : Nat)
@@ -262,14 +262,14 @@ def RecursorVal.getMajorIdx (v : RecursorVal) : Nat :=
 def RecursorVal.getInduct (v : RecursorVal) : Name :=
   v.name.getPrefix
 
-inductive QuotKind :=
+inductive QuotKind where
   | type  -- `Quot`
   | ctor  -- `Quot.mk`
   | lift  -- `Quot.lift`
   | ind   -- `Quot.ind`
 
-structure QuotVal extends ConstantVal :=
-  (kind : QuotKind)
+structure QuotVal extends ConstantVal where
+  kind : QuotKind
 
 @[export lean_mk_quot_val]
 def mkQuotValEx (name : Name) (lparams : List Name) (type : Expr) (kind : QuotKind) : QuotVal := {
@@ -279,7 +279,7 @@ def mkQuotValEx (name : Name) (lparams : List Name) (type : Expr) (kind : QuotKi
 @[export lean_quot_val_kind] def QuotVal.kindEx (v : QuotVal) : QuotKind := v.kind
 
 /-- Information associated with constant declarations. -/
-inductive ConstantInfo :=
+inductive ConstantInfo where
   | axiomInfo    (val : AxiomVal)
   | defnInfo     (val : DefinitionVal)
   | thmInfo      (val : TheoremVal)

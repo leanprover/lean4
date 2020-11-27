@@ -9,8 +9,8 @@ import Init.Data.Float
 import Init.Data.Option.Basic
 universes u
 
-structure FloatArray :=
-  (data : Array Float)
+structure FloatArray where
+  data : Array Float
 
 attribute [extern "lean_float_array_mk"] FloatArray.mk
 attribute [extern "lean_float_array_data"] FloatArray.data

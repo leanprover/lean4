@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 
 namespace Lean
 
-inductive Occurrences :=
+inductive Occurrences where
   | all
   | pos (idxs : List Nat)
   | neg (idxs : List Nat)

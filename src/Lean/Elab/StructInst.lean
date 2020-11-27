@@ -52,7 +52,7 @@ private def expandNonAtomicExplicitSource (stx : Syntax) : TermElabM (Option Syn
         let stxNew    := stx.setArg 1 sourceOpt
         `(let src := $source; $stxNew)
 
-inductive Source :=
+inductive Source where
   | none     -- structure instance source has not been provieded
   | implicit (stx : Syntax) -- `..`
   | explicit (stx : Syntax) (src : Expr) -- `src with`
@@ -168,7 +168,7 @@ private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceVi
     | Expr.const constName _ _ => pure constName
     | _                        => useSource ()
 
-inductive FieldLHS :=
+inductive FieldLHS where
   | fieldName  (ref : Syntax) (name : Name)
   | fieldIndex (ref : Syntax) (idx : Nat)
   | modifyOp   (ref : Syntax) (index : Syntax)
@@ -180,16 +180,16 @@ instance : ToFormat FieldLHS := ⟨fun lhs =>
   | FieldLHS.fieldIndex _ i => fmt i
   | FieldLHS.modifyOp _ i   => "[" ++ i.prettyPrint ++ "]"⟩
 
-inductive FieldVal (σ : Type) :=
+inductive FieldVal (σ : Type) where
   | term  (stx : Syntax) : FieldVal σ
   | nested (s : σ)       : FieldVal σ
   | default              : FieldVal σ -- mark that field must be synthesized using default value
 
-structure Field (σ : Type) :=
-  (ref : Syntax)
-  (lhs : List FieldLHS)
-  (val : FieldVal σ)
-  (expr? : Option Expr := none)
+structure Field (σ : Type) where
+  ref : Syntax
+  lhs : List FieldLHS
+  val : FieldVal σ
+  expr? : Option Expr := none
 
 instance {σ} : Inhabited (Field σ) := ⟨⟨arbitrary, [], FieldVal.term arbitrary, arbitrary⟩⟩
 
@@ -197,7 +197,7 @@ def Field.isSimple {σ} : Field σ → Bool
   | { lhs := [_], .. } => true
   | _                  => false
 
-inductive Struct :=
+inductive Struct where
   | mk (ref : Syntax) (structName : Name) (fields : List (Field Struct)) (source : Source)
 
 instance : Inhabited Struct := ⟨⟨arbitrary, arbitrary, [], arbitrary⟩⟩
@@ -333,9 +333,14 @@ private def expandNumLitFields (s : Struct) : TermElabM Struct :=
 
 /- For example, consider the following structures:
    ```
-   structure A := (x : Nat)
-   structure B extends A := (y : Nat)
-   structure C extends B := (z : Bool)
+   structure A where
+     x : Nat
+
+   structure B extends A where
+     y : Nat
+
+   structure C extends B where
+     z : Bool
    ```
    This method expands parent structure fields using the path to the parent structure.
    For example,
@@ -466,10 +471,10 @@ private partial def expandStruct (s : Struct) : TermElabM Struct := do
   let s ← groupFields expandStruct s
   addMissingFields expandStruct s
 
-structure CtorHeaderResult :=
-  (ctorFn     : Expr)
-  (ctorFnType : Expr)
-  (instMVars  : Array MVarId := #[])
+structure CtorHeaderResult where
+  ctorFn     : Expr
+  ctorFnType : Expr
+  instMVars  : Array MVarId := #[]
 
 private def mkCtorHeaderAux : Nat → Expr → Expr → Array MVarId → TermElabM CtorHeaderResult
   | 0,   type, ctorFn, instMVars => pure { ctorFn := ctorFn, ctorFnType := type, instMVars := instMVars }
@@ -555,21 +560,23 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
 
 namespace DefaultFields
 
-structure Context :=
+structure Context where
   -- We must search for default values overriden in derived structures
-  (structs : Array Struct := #[])
-  (allStructNames : Array Name := #[])
+  structs : Array Struct := #[]
+  allStructNames : Array Name := #[]
   /-
   Consider the following example:
   ```
-  structure A :=
-  (x : Nat := 1)
+  structure A where
+    x : Nat := 1
 
-  structure B extends A :=
-  (y : Nat := x + 1) (x := y + 1)
+  structure B extends A where
+    y : Nat := x + 1
+    x := y + 1
 
-  structure C extends B :=
-  (z : Nat := 2*y) (x := z + 3)
+  structure C extends B where
+    z : Nat := 2*y
+    x := z + 3
   ```
   And we are trying to elaborate a structure instance for `C`. There are default values for `x` at `A`, `B`, and `C`.
   We say the default value at `C` has distance 0, the one at `B` distance 1, and the one at `A` distance 2.
@@ -583,10 +590,10 @@ structure Context :=
     We use depth-first search.
   - We sign an error if no progress is made when `maxDistance` == structure hierarchy depth (2 in the example above).
   -/
-  (maxDistance : Nat := 0)
+  maxDistance : Nat := 0
 
-structure State :=
-  (progress : Bool := false)
+structure State where
+  progress : Bool := false
 
 partial def collectStructNames (struct : Struct) (names : Array Name) : Array Name :=
   let names := names.push struct.structName

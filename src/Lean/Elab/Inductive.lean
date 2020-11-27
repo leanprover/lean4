@@ -36,37 +36,37 @@ def checkValidCtorModifier (modifiers : Modifiers) : CommandElabM Unit := do
   if modifiers.attrs.size != 0 then
     throwError "invalid use of attributes in constructor declaration"
 
-structure CtorView :=
-  (ref       : Syntax)
-  (modifiers : Modifiers)
-  (inferMod  : Bool)  -- true if `{}` is used in the constructor declaration
-  (declName  : Name)
-  (binders   : Syntax)
-  (type?     : Option Syntax)
+structure CtorView where
+  ref       : Syntax
+  modifiers : Modifiers
+  inferMod  : Bool  -- true if `{}` is used in the constructor declaration
+  declName  : Name
+  binders   : Syntax
+  type?     : Option Syntax
 
 instance : Inhabited CtorView :=
   ⟨{ ref := arbitrary, modifiers := {}, inferMod := false, declName := arbitrary, binders := arbitrary, type? := none }⟩
 
-structure InductiveView :=
-  (ref           : Syntax)
-  (modifiers     : Modifiers)
-  (shortDeclName : Name)
-  (declName      : Name)
-  (levelNames    : List Name)
-  (binders       : Syntax)
-  (type?         : Option Syntax)
-  (ctors         : Array CtorView)
+structure InductiveView where
+  ref           : Syntax
+  modifiers     : Modifiers
+  shortDeclName : Name
+  declName      : Name
+  levelNames    : List Name
+  binders       : Syntax
+  type?         : Option Syntax
+  ctors         : Array CtorView
 
 instance : Inhabited InductiveView :=
   ⟨{ ref := arbitrary, modifiers := {}, shortDeclName := arbitrary, declName := arbitrary,
      levelNames := [], binders := arbitrary, type? := none, ctors := #[] }⟩
 
-structure ElabHeaderResult :=
-  (view       : InductiveView)
-  (lctx       : LocalContext)
-  (localInsts : LocalInstances)
-  (params     : Array Expr)
-  (type       : Expr)
+structure ElabHeaderResult where
+  view       : InductiveView
+  lctx       : LocalContext
+  localInsts : LocalInstances
+  params     : Array Expr
+  type       : Expr
 
 instance : Inhabited ElabHeaderResult :=
   ⟨{ view := arbitrary, lctx := arbitrary, localInsts := arbitrary, params := #[], type := arbitrary }⟩

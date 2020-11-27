@@ -12,9 +12,9 @@ namespace Lsp
 
 open Json
 
-structure WorkspaceFolder :=
-  (uri : DocumentUri)
-  (name : String)
+structure WorkspaceFolder where
+  uri : DocumentUri
+  name : String
 
 instance : FromJson WorkspaceFolder := ⟨fun j => do
   let uri ← j.getObjValAs? DocumentUri "uri"

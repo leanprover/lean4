@@ -57,11 +57,11 @@ def generalizeTargets (mvarId : MVarId) (motiveType : Expr) (targets : Array Exp
     assignExprMVar mvarId (mkAppN (mkAppN mvarNew targets) eqRefls)
     pure mvarNew.mvarId!
 
-structure GeneralizeIndicesSubgoal :=
-  (mvarId         : MVarId)
-  (indicesFVarIds : Array FVarId)
-  (fvarId         : FVarId)
-  (numEqs         : Nat)
+structure GeneralizeIndicesSubgoal where
+  mvarId         : MVarId
+  indicesFVarIds : Array FVarId
+  fvarId         : FVarId
+  numEqs         : Nat
 
 /--
   Similar to `generalizeTargets` but customized for the `casesOn` motive.
@@ -120,19 +120,19 @@ def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndi
         numEqs         := newEqs.size
       }
 
-structure CasesSubgoal extends InductionSubgoal :=
-  (ctorName : Name)
+structure CasesSubgoal extends InductionSubgoal where
+  ctorName : Name
 
 namespace Cases
 
-structure Context :=
-  (inductiveVal     : InductiveVal)
-  (casesOnVal       : DefinitionVal)
-  (nminors          : Nat := inductiveVal.ctors.length)
-  (majorDecl        : LocalDecl)
-  (majorTypeFn      : Expr)
-  (majorTypeArgs    : Array Expr)
-  (majorTypeIndices : Array Expr := majorTypeArgs.extract (majorTypeArgs.size - inductiveVal.nindices) majorTypeArgs.size)
+structure Context where
+  inductiveVal     : InductiveVal
+  casesOnVal       : DefinitionVal
+  nminors          : Nat := inductiveVal.ctors.length
+  majorDecl        : LocalDecl
+  majorTypeFn      : Expr
+  majorTypeArgs    : Array Expr
+  majorTypeIndices : Array Expr := majorTypeArgs.extract (majorTypeArgs.size - inductiveVal.nindices) majorTypeArgs.size
 
 private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := do
   let env ← getEnv

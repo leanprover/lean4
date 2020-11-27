@@ -8,7 +8,7 @@ import Lean.Compiler.Util
 
 namespace Lean.Compiler
 
-inductive InlineAttributeKind :=
+inductive InlineAttributeKind where
   | inline | noinline | macroInline | inlineIfReduce
 
 namespace InlineAttributeKind

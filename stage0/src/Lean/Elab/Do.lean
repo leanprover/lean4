@@ -43,11 +43,11 @@ private partial def hasLiftMethod : Syntax → Bool
     else args.any hasLiftMethod
   | _ => false
 
-structure ExtractMonadResult :=
-  (m            : Expr)
-  (α            : Expr)
-  (hasBindInst  : Expr)
-  (expectedType : Expr)
+structure ExtractMonadResult where
+  m            : Expr
+  α            : Expr
+  hasBindInst  : Expr
+  expectedType : Expr
 
 private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
   let u ← getDecLevel type
@@ -74,11 +74,11 @@ private def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadRe
 namespace Do
 
 /- A `doMatch` alternative. `vars` is the array of variables declared by `patterns`. -/
-structure Alt (σ : Type) :=
-  (ref : Syntax)
-  (vars : Array Name)
-  (patterns : Syntax)
-  (rhs : σ)
+structure Alt (σ : Type) where
+  ref : Syntax
+  vars : Array Name
+  patterns : Syntax
+  rhs : σ
 
 /-
   Auxiliary datastructure for representing a `do` code block, and compiling "reassignments" (e.g., `x := x + 1`).
@@ -128,7 +128,7 @@ structure Alt (σ : Type) :=
   A code block `C` is well-formed if
   - For every `jmp ref j as` in `C`, there is a `joinpoint j ps b k` and `jmp ref j as` is in `k`, and
     `ps.size == as.size` -/
-inductive Code :=
+inductive Code where
   | decl         (xs : Array Name) (doElem : Syntax) (k : Code)
   | reassign     (xs : Array Name) (doElem : Syntax) (k : Code)
   /- The Boolean value in `params` indicates whether we should use `(x : typeof! x)` when generating term Syntax or not -/
@@ -150,9 +150,9 @@ instance : Inhabited (Alt Code) :=
   ⟨{ ref := arbitrary, vars := #[], patterns := arbitrary, rhs := arbitrary }⟩
 
 /- A code block, and the collection of variables updated by it. -/
-structure CodeBlock :=
-  (code  : Code)
-  (uvars : NameSet := {}) -- set of variables updated by `code`
+structure CodeBlock where
+  code  : Code
+  uvars : NameSet := {} -- set of variables updated by `code`
 
 private def nameSetToArray (s : NameSet) : Array Name :=
   s.fold (fun (xs : Array Name) x => xs.push x) #[]
@@ -244,10 +244,10 @@ partial def convertTerminalActionIntoJmp (code : Code) (jp : Name) (xs : Array N
     | c                          => pure c
   loop code
 
-structure JPDecl :=
-  (name : Name)
-  (params : Array (Name × Bool))
-  (body : Code)
+structure JPDecl where
+  name : Name
+  params : Array (Name × Bool)
+  body : Code
 
 def attachJP (jpDecl : JPDecl) (k : Code) : Code :=
   Code.joinpoint jpDecl.name jpDecl.params jpDecl.body k
@@ -658,12 +658,12 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := do
     let doIf := doIf.setArg 6 doElse
     pure $ some $ doIf.setArg 5 mkNullNode -- remove else-ifs
 
-structure DoIfView :=
-  (ref        : Syntax)
-  (optIdent   : Syntax)
-  (cond       : Syntax)
-  (thenBranch : Syntax)
-  (elseBranch : Syntax)
+structure DoIfView where
+  ref        : Syntax
+  optIdent   : Syntax
+  cond       : Syntax
+  thenBranch : Syntax
+  elseBranch : Syntax
 
 /- This method assumes `expandDoIf?` is not applicable. -/
 private def mkDoIfView (doIf : Syntax) : MacroM DoIfView := do
@@ -786,7 +786,7 @@ Example: suppose we want to support `repeat doSeq`. Assuming we have `repeat : m
 -/
 namespace ToTerm
 
-inductive Kind :=
+inductive Kind where
   | regular
   | forIn
   | forInWithReturn
@@ -801,10 +801,10 @@ def Kind.isRegular : Kind → Bool
   | Kind.regular => true
   | _            => false
 
-structure Context :=
-  (m     : Syntax) -- Syntax to reference the monad associated with the do notation.
-  (uvars : Array Name)
-  (kind  : Kind)
+structure Context where
+  m     : Syntax -- Syntax to reference the monad associated with the do notation.
+  uvars : Array Name
+  kind  : Kind
 
 abbrev M := ReaderT Context MacroM
 
@@ -1112,11 +1112,11 @@ def isMutableLet (doElem : Syntax) : Bool :=
 
 namespace ToCodeBlock
 
-structure Context :=
-  (ref         : Syntax)
-  (m           : Syntax) -- Syntax representing the monad associated with the do notation.
-  (mutableVars : NameSet := {})
-  (insideFor   : Bool := false)
+structure Context where
+  ref         : Syntax
+  m           : Syntax -- Syntax representing the monad associated with the do notation.
+  mutableVars : NameSet := {}
+  insideFor   : Bool := false
 
 abbrev M := ReaderT Context TermElabM
 
@@ -1134,9 +1134,9 @@ def checkReassignable (xs : Array Name) : M Unit := do
 @[inline] def withFor {α} (x : M α) : M α :=
   withReader (fun ctx => { ctx with insideFor := true }) x
 
-structure ToForInTermResult :=
-  (uvars      : Array Name)
-  (term       : Syntax)
+structure ToForInTermResult where
+  uvars      : Array Name
+  term       : Syntax
 
 def mkForInBody  (x : Syntax) (forInBody : CodeBlock) : M ToForInTermResult := do
   let ctx ← read
@@ -1347,10 +1347,10 @@ def doMatchToCode (doSeqToCode : List Syntax → M CodeBlock) (doMatch : Syntax)
   let matchCode ← mkMatch ref discrs optType alts
   concatWith doSeqToCode matchCode doElems
 
-structure Catch :=
-  (x         : Syntax)
-  (optType   : Syntax)
-  (codeBlock : CodeBlock)
+structure Catch where
+  x         : Syntax
+  optType   : Syntax
+  codeBlock : CodeBlock
 
 def getTryCatchUpdatedVars (tryCode : CodeBlock) (catches : Array Catch) (finallyCode? : Option CodeBlock) : NameSet :=
   let ws := tryCode.uvars

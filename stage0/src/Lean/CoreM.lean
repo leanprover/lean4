@@ -15,21 +15,21 @@ import Lean.ResolveName
 namespace Lean
 namespace Core
 
-structure State :=
-  (env             : Environment)
-  (nextMacroScope  : MacroScope    := firstFrontendMacroScope + 1)
-  (ngen            : NameGenerator := {})
-  (traceState      : TraceState    := {})
+structure State where
+  env             : Environment
+  nextMacroScope  : MacroScope    := firstFrontendMacroScope + 1
+  ngen            : NameGenerator := {}
+  traceState      : TraceState    := {}
 
 instance : Inhabited State := ⟨{ env := arbitrary }⟩
 
-structure Context :=
-  (options        : Options := {})
-  (currRecDepth   : Nat := 0)
-  (maxRecDepth    : Nat := 1000)
-  (ref            : Syntax := Syntax.missing)
-  (currNamespace  : Name := Name.anonymous)
-  (openDecls      : List OpenDecl := [])
+structure Context where
+  options        : Options := {}
+  currRecDepth   : Nat := 0
+  maxRecDepth    : Nat := 1000
+  ref            : Syntax := Syntax.missing
+  currNamespace  : Name := Name.anonymous
+  openDecls      : List OpenDecl := []
 
 abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 

@@ -7,7 +7,7 @@ import Lean.Expr
 
 namespace Lean
 
-inductive HeadIndex :=
+inductive HeadIndex where
   | fvar (fvarId : FVarId)
   | mvar (mvarId : MVarId)
   | const (constName : Name)

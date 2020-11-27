@@ -218,9 +218,9 @@ very simple unification and/or non-nested TC. So, if the "app builder" becomes a
 we may solve the issue by implementing `isDefEqCheap` that never invokes TC and uses tmp metavars.
 -/
 
-structure LocalInstance :=
-  (className : Name)
-  (fvar      : Expr)
+structure LocalInstance where
+  className : Name
+  fvar      : Expr
 
 abbrev LocalInstances := Array LocalInstance
 
@@ -235,7 +235,7 @@ def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : Local
   | some idx => localInsts.eraseIdx idx
   | _        => localInsts
 
-inductive MetavarKind :=
+inductive MetavarKind where
   | natural
   | synthetic
   | syntheticOpaque
@@ -248,14 +248,14 @@ def MetavarKind.isNatural : MetavarKind → Bool
   | MetavarKind.natural => true
   | _                   => false
 
-structure MetavarDecl :=
-  (userName       : Name := Name.anonymous)
-  (lctx           : LocalContext)
-  (type           : Expr)
-  (depth          : Nat)
-  (localInstances : LocalInstances)
-  (kind           : MetavarKind)
-  (numScopeArgs   : Nat := 0) -- See comment at `CheckAssignment` `Meta/ExprDefEq.lean`
+structure MetavarDecl where
+  userName       : Name := Name.anonymous
+  lctx           : LocalContext
+  type           : Expr
+  depth          : Nat
+  localInstances : LocalInstances
+  kind           : MetavarKind
+  numScopeArgs   : Nat := 0 -- See comment at `CheckAssignment` `Meta/ExprDefEq.lean`
 
 @[export lean_mk_metavar_decl]
 def mkMetavarDeclEx (userName : Name) (lctx : LocalContext) (type : Expr) (depth : Nat) (localInstances : LocalInstances) (kind : MetavarKind) : MetavarDecl :=
@@ -270,24 +270,24 @@ instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary, type := arbitrary, d
 
   - TODO: after we delete the old frontend, we can remove the field `lctx`.
     This field is only used in old C++ implementation. -/
-structure DelayedMetavarAssignment :=
-  (lctx     : LocalContext)
-  (fvars    : Array Expr)
-  (val      : Expr)
+structure DelayedMetavarAssignment where
+  lctx     : LocalContext
+  fvars    : Array Expr
+  val      : Expr
 
 open Std (HashMap PersistentHashMap)
 
-structure MetavarContext :=
-  (depth       : Nat := 0)
-  (lDepth      : PersistentHashMap MVarId Nat := {})
-  (decls       : PersistentHashMap MVarId MetavarDecl := {})
-  (lAssignment : PersistentHashMap MVarId Level := {})
-  (eAssignment : PersistentHashMap MVarId Expr := {})
-  (dAssignment : PersistentHashMap MVarId DelayedMetavarAssignment := {})
+structure MetavarContext where
+  depth       : Nat := 0
+  lDepth      : PersistentHashMap MVarId Nat := {}
+  decls       : PersistentHashMap MVarId MetavarDecl := {}
+  lAssignment : PersistentHashMap MVarId Level := {}
+  eAssignment : PersistentHashMap MVarId Expr := {}
+  dAssignment : PersistentHashMap MVarId DelayedMetavarAssignment := {}
 
-class MonadMCtx (m : Type → Type) :=
-  (getMCtx    : m MetavarContext)
-  (modifyMCtx : (MetavarContext → MetavarContext) → m Unit)
+class MonadMCtx (m : Type → Type) where
+  getMCtx    : m MetavarContext
+  modifyMCtx : (MetavarContext → MetavarContext) → m Unit
 
 export MonadMCtx (getMCtx modifyMCtx)
 
@@ -691,7 +691,7 @@ def localDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (fvarId :
 
 namespace MkBinding
 
-inductive Exception :=
+inductive Exception where
   | revertFailure (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (decl : LocalDecl)
 
 protected def Exception.toString : Exception → String
@@ -708,10 +708,10 @@ instance : ToString Exception := ⟨Exception.toString⟩
   We use a single state object for convenience.
 
   We have a `NameGenerator` because we need to generate fresh auxiliary metavariables. -/
-structure State :=
-  (mctx  : MetavarContext)
-  (ngen  : NameGenerator)
-  (cache : HashMap Expr Expr := {}) --
+structure State where
+  mctx  : MetavarContext
+  ngen  : NameGenerator
+  cache : HashMap Expr Expr := {}
 
 abbrev MCore := EStateM Exception State
 abbrev M     := ReaderT Bool (EStateM Exception State)
@@ -1032,14 +1032,14 @@ partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr �
 
 namespace LevelMVarToParam
 
-structure Context :=
-  (paramNamePrefix : Name)
-  (alreadyUsedPred : Name → Bool)
+structure Context where
+  paramNamePrefix : Name
+  alreadyUsedPred : Name → Bool
 
-structure State :=
-  (mctx         : MetavarContext)
-  (paramNames   : Array Name := #[])
-  (nextParamIdx : Nat)
+structure State where
+  mctx         : MetavarContext
+  paramNames   : Array Name := #[]
+  nextParamIdx : Nat
 
 abbrev M := ReaderT Context $ StateM State
 
@@ -1092,11 +1092,11 @@ partial def main (e : Expr) : M Expr := do
 
 end LevelMVarToParam
 
-structure UnivMVarParamResult :=
-  (mctx          : MetavarContext)
-  (newParamNames : Array Name)
-  (nextParamIdx  : Nat)
-  (expr          : Expr)
+structure UnivMVarParamResult where
+  mctx          : MetavarContext
+  newParamNames : Array Name
+  nextParamIdx  : Nat
+  expr          : Expr
 
 def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=

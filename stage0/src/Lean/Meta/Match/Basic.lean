@@ -8,7 +8,7 @@ import Lean.Meta.Match.CaseArraySizes
 
 namespace Lean.Meta.Match
 
-inductive Pattern : Type :=
+inductive Pattern : Type where
   | inaccessible (e : Expr) : Pattern
   | var          (fvarId : FVarId) : Pattern
   | ctor         (ctorName : Name) (us : List Level) (params : List Expr) (fields : List Pattern) : Pattern
@@ -88,10 +88,10 @@ partial def instantiatePatternMVars : Pattern → MetaM Pattern
   | Pattern.arrayLit t xs       => return Pattern.arrayLit (← instantiateMVars t) (← xs.mapM instantiatePatternMVars)
   | p                   => return p
 
-structure AltLHS :=
-  (ref        : Syntax)
-  (fvarDecls  : List LocalDecl) -- Free variables used in the patterns.
-  (patterns   : List Pattern)   -- We use `List Pattern` since we have nary match-expressions.
+structure AltLHS where
+  ref        : Syntax
+  fvarDecls  : List LocalDecl -- Free variables used in the patterns.
+  patterns   : List Pattern   -- We use `List Pattern` since we have nary match-expressions.
 
 def instantiateAltLHSMVars (altLHS : AltLHS) : MetaM AltLHS :=
   return { altLHS with
@@ -99,12 +99,12 @@ def instantiateAltLHSMVars (altLHS : AltLHS) : MetaM AltLHS :=
     patterns  := (← altLHS.patterns.mapM instantiatePatternMVars)
   }
 
-structure Alt :=
-  (ref       : Syntax)
-  (idx       : Nat) -- for generating error messages
-  (rhs       : Expr)
-  (fvarDecls : List LocalDecl)
-  (patterns  : List Pattern)
+structure Alt where
+  ref       : Syntax
+  idx       : Nat -- for generating error messages
+  rhs       : Expr
+  fvarDecls : List LocalDecl
+  patterns  : List Pattern
 
 namespace Alt
 
@@ -136,11 +136,11 @@ def replaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : Alt :=
   For example, consider the following code fragment:
 
 ```
-inductive Vec (α : Type u) : Nat → Type u :=
+inductive Vec (α : Type u) : Nat → Type u where
   | nil : Vec α 0
   | cons {n} (head : α) (tail : Vec α n) : Vec α (n+1)
 
-inductive VecPred {α : Type u} (P : α → Prop) : {n : Nat} → Vec α n → Prop :=
+inductive VecPred {α : Type u} (P : α → Prop) : {n : Nat} → Vec α n → Prop where
   | nil   : VecPred P Vec.nil
   | cons  {n : Nat} {head : α} {tail : Vec α n} : P head → VecPred P tail → VecPred P (Vec.cons head tail)
 
@@ -185,7 +185,7 @@ def checkAndReplaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : MetaM Alt :
 
 end Alt
 
-inductive Example :=
+inductive Example where
   | var        : FVarId → Example
   | underscore : Example
   | ctor       : Name → List Example → Example
@@ -228,11 +228,11 @@ end Example
 def examplesToMessageData (cex : List Example) : MessageData :=
   MessageData.joinSep (cex.map (Example.toMessageData ∘ Example.varsToUnderscore)) ", "
 
-structure Problem :=
-  (mvarId        : MVarId)
-  (vars          : List Expr)
-  (alts          : List Alt)
-  (examples      : List Example)
+structure Problem where
+  mvarId        : MVarId
+  vars          : List Expr
+  alts          : List Alt
+  examples      : List Example
 
 def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
   withMVarContext p.mvarId x
@@ -256,9 +256,9 @@ def counterExampleToMessageData (cex : CounterExample) : MessageData :=
 def counterExamplesToMessageData (cexs : List CounterExample) : MessageData :=
   MessageData.joinSep (cexs.map counterExampleToMessageData) Format.line
 
-structure MatcherResult :=
-  (matcher         : Expr) -- The matcher. It is not just `Expr.const matcherName` because the type of the major premises may contain free variables.
-  (counterExamples : List CounterExample)
-  (unusedAltIdxs   : List Nat)
+structure MatcherResult where
+  matcher         : Expr -- The matcher. It is not just `Expr.const matcherName` because the type of the major premises may contain free variables.
+  counterExamples : List CounterExample
+  unusedAltIdxs   : List Nat
 
 end Lean.Meta.Match

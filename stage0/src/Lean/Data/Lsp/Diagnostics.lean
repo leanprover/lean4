@@ -18,7 +18,7 @@ namespace Lsp
 
 open Json
 
-inductive DiagnosticSeverity :=
+inductive DiagnosticSeverity where
   | error | warning | information | hint
 
 instance : FromJson DiagnosticSeverity := ⟨fun j =>
@@ -36,7 +36,7 @@ instance : ToJson DiagnosticSeverity := ⟨fun o =>
   | DiagnosticSeverity.information => 3
   | DiagnosticSeverity.hint        => 4⟩
 
-inductive DiagnosticCode :=
+inductive DiagnosticCode where
   | int (i : Int)
   | string (s : String)
 
@@ -51,7 +51,7 @@ instance : ToJson DiagnosticCode := ⟨fun o =>
   | DiagnosticCode.int i    => i
   | DiagnosticCode.string s => s⟩
 
-inductive DiagnosticTag :=
+inductive DiagnosticTag where
   | unnecessary
   | deprecated
 
@@ -66,9 +66,9 @@ instance : ToJson DiagnosticTag := ⟨fun o =>
   | DiagnosticTag.unnecessary => (1 : Nat)
   | DiagnosticTag.deprecated  => (2 : Nat)⟩
 
-structure DiagnosticRelatedInformation :=
-  (location : Location)
-  (message : String)
+structure DiagnosticRelatedInformation where
+  location : Location
+  message : String
 
 instance : FromJson DiagnosticRelatedInformation := ⟨fun j => do
   let location ← j.getObjValAs? Location "location"
@@ -80,14 +80,14 @@ instance : ToJson DiagnosticRelatedInformation := ⟨fun o =>
     ⟨"location", toJson o.location⟩,
     ⟨"message", o.message⟩]⟩
 
-structure Diagnostic :=
-  (range : Range)
-  (severity? : Option DiagnosticSeverity := none)
-  (code? : Option DiagnosticCode := none)
-  (source? : Option String := none)
-  (message : String)
-  (tags? : Option (Array DiagnosticTag) := none)
-  (relatedInformation? : Option (Array DiagnosticRelatedInformation) := none)
+structure Diagnostic where
+  range : Range
+  severity? : Option DiagnosticSeverity := none
+  code? : Option DiagnosticCode := none
+  source? : Option String := none
+  message : String
+  tags? : Option (Array DiagnosticTag) := none
+  relatedInformation? : Option (Array DiagnosticRelatedInformation) := none
 
 instance : FromJson Diagnostic := ⟨fun j => do
   let range ← j.getObjValAs? Range "range"
@@ -108,10 +108,10 @@ instance : ToJson Diagnostic := ⟨fun o => mkObj $
     ⟨"range", toJson o.range⟩,
     ⟨"message", o.message⟩]⟩
 
-structure PublishDiagnosticsParams :=
-  (uri : DocumentUri)
-  (version? : Option Int := none)
-  (diagnostics: Array Diagnostic)
+structure PublishDiagnosticsParams where
+  uri : DocumentUri
+  version? : Option Int := none
+  diagnostics: Array Diagnostic
 
 instance : FromJson PublishDiagnosticsParams := ⟨fun j => do
   let uri ← j.getObjValAs? DocumentUri "uri"

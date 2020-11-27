@@ -97,29 +97,29 @@ expands all let-variables occurring in the target expression.
 namespace Lean.Meta
 namespace Closure
 
-structure ToProcessElement :=
-  (fvarId : FVarId)
-  (newFVarId : FVarId)
+structure ToProcessElement where
+  fvarId : FVarId
+  newFVarId : FVarId
 
 instance : Inhabited ToProcessElement :=
   ⟨⟨arbitrary, arbitrary⟩⟩
 
-structure Context :=
-  (zeta : Bool)
+structure Context where
+  zeta : Bool
 
-structure State :=
-  (visitedLevel          : LevelMap Level := {})
-  (visitedExpr           : ExprStructMap Expr := {})
-  (levelParams           : Array Name := #[])
-  (nextLevelIdx          : Nat := 1)
-  (levelArgs             : Array Level := #[])
-  (newLocalDecls         : Array LocalDecl := #[])
-  (newLocalDeclsForMVars : Array LocalDecl := #[])
-  (newLetDecls           : Array LocalDecl := #[])
-  (nextExprIdx           : Nat := 1)
-  (exprMVarArgs          : Array Expr := #[])
-  (exprFVarArgs          : Array Expr := #[])
-  (toProcess             : Array ToProcessElement := #[])
+structure State where
+  visitedLevel          : LevelMap Level := {}
+  visitedExpr           : ExprStructMap Expr := {}
+  levelParams           : Array Name := #[]
+  nextLevelIdx          : Nat := 1
+  levelArgs             : Array Level := #[]
+  newLocalDecls         : Array LocalDecl := #[]
+  newLocalDeclsForMVars : Array LocalDecl := #[]
+  newLetDecls           : Array LocalDecl := #[]
+  nextExprIdx           : Nat := 1
+  exprMVarArgs          : Array Expr := #[]
+  exprFVarArgs          : Array Expr := #[]
+  toProcess             : Array ToProcessElement := #[]
 
 abbrev ClosureM := ReaderT Context $ StateRefT State MetaM
 
@@ -311,12 +311,12 @@ def mkLambda (decls : Array LocalDecl) (b : Expr) : Expr :=
 def mkForall (decls : Array LocalDecl) (b : Expr) : Expr :=
   mkBinding false decls b
 
-structure MkValueTypeClosureResult :=
-  (levelParams : Array Name)
-  (type        : Expr)
-  (value       : Expr)
-  (levelArgs   : Array Level)
-  (exprArgs    : Array Expr)
+structure MkValueTypeClosureResult where
+  levelParams : Array Name
+  type        : Expr
+  value       : Expr
+  levelArgs   : Array Level
+  exprArgs    : Array Expr
 
 def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr) := do
   resetZetaFVarIds

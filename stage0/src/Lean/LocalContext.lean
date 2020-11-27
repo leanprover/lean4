@@ -9,7 +9,7 @@ import Lean.Hygiene
 
 namespace Lean
 
-inductive LocalDecl :=
+inductive LocalDecl where
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
   | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool)
 
@@ -93,9 +93,9 @@ end LocalDecl
 
 open Std (PersistentHashMap PersistentArray PArray)
 
-structure LocalContext :=
-  (fvarIdToDecl : PersistentHashMap FVarId LocalDecl := {})
-  (decls        : PersistentArray (Option LocalDecl) := {})
+structure LocalContext where
+  fvarIdToDecl : PersistentHashMap FVarId LocalDecl := {}
+  decls        : PersistentArray (Option LocalDecl) := {}
 
 namespace LocalContext
 instance : Inhabited LocalContext := ⟨{}⟩
@@ -378,13 +378,13 @@ def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext
 
 end LocalContext
 
-class MonadLCtx (m : Type → Type) :=
-  (getLCtx : m LocalContext)
+class MonadLCtx (m : Type → Type) where
+  getLCtx : m LocalContext
 
 export MonadLCtx (getLCtx)
 
-instance (m n) [MonadLCtx m] [MonadLift m n] : MonadLCtx n :=
-  { getLCtx := liftM (getLCtx : m _) }
+instance (m n) [MonadLCtx m] [MonadLift m n] : MonadLCtx n where
+  getLCtx := liftM (getLCtx : m _)
 
 def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=
   if d.fvarId == fvarId then d

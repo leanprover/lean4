@@ -24,7 +24,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception 
     if env.contains declName then
       throwError! "a non-private declaration '{declName}' has already been declared"
 
-inductive Visibility :=
+inductive Visibility where
   | regular | «protected» | «private»
 
 instance : ToString Visibility := ⟨fun
@@ -32,13 +32,13 @@ instance : ToString Visibility := ⟨fun
   | Visibility.«private»   => "private"
   | Visibility.«protected» => "protected"⟩
 
-structure Modifiers :=
-  (docString       : Option String := none)
-  (visibility      : Visibility := Visibility.regular)
-  (isNoncomputable : Bool := false)
-  (isPartial       : Bool := false)
-  (isUnsafe        : Bool := false)
-  (attrs           : Array Attribute := #[])
+structure Modifiers where
+  docString       : Option String := none
+  visibility      : Visibility := Visibility.regular
+  isNoncomputable : Bool := false
+  isPartial       : Bool := false
+  isUnsafe        : Bool := false
+  attrs           : Array Attribute := #[]
 
 def Modifiers.isPrivate : Modifiers → Bool
   | { visibility := Visibility.private, .. } => true
@@ -148,10 +148,10 @@ def expandDeclIdCore (declId : Syntax) : Name × Syntax :=
     let optUnivDeclStx := declId[1]
     (id, optUnivDeclStx)
 
-structure ExpandDeclIdResult :=
-  (shortName  : Name)
-  (declName   : Name)
-  (levelNames : List Name)
+structure ExpandDeclIdResult where
+  shortName  : Name
+  declName   : Name
+  levelNames : List Name
 
 def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : m ExpandDeclIdResult := do
   -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")

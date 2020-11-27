@@ -9,29 +9,29 @@ import Lean.Elab.Log
 
 namespace Lean.Elab.Level
 
-structure Context :=
-  (ref        : Syntax)
-  (levelNames : List Name)
+structure Context where
+  ref        : Syntax
+  levelNames : List Name
 
-structure State :=
-  (ngen : NameGenerator)
-  (mctx : MetavarContext)
+structure State where
+  ngen : NameGenerator
+  mctx : MetavarContext
 
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
-instance : MonadRef LevelElabM := {
-  getRef      := return (← read).ref,
-  withRef     := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
-}
+instance : MonadRef LevelElabM where
+  getRef        := return (← read).ref
 
-instance : AddMessageContext LevelElabM := {
-  addMessageContext := fun msg => pure msg
-}
+  withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
 
-instance : MonadNameGenerator LevelElabM := {
-  getNGen := return (← get).ngen,
-  setNGen := fun ngen => modify fun s => { s with ngen := ngen }
-}
+instance : AddMessageContext LevelElabM where
+  addMessageContext msg := pure msg
+
+instance : MonadNameGenerator LevelElabM where
+  getNGen := return (← get).ngen
+
+  setNGen ngen := modify fun s => { s with ngen := ngen }
+
 
 def mkFreshLevelMVar : LevelElabM Level := do
   let mvarId ← mkFreshId

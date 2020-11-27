@@ -17,13 +17,13 @@ open Term
 A (potentially recursive) definition.
 The elaborator converts it into Kernel definitions using many different strategies.
 -/
-structure PreDefinition :=
-  (kind      : DefKind)
-  (lparams   : List Name)
-  (modifiers : Modifiers)
-  (declName  : Name)
-  (type      : Expr)
-  (value     : Expr)
+structure PreDefinition where
+  kind      : DefKind
+  lparams   : List Name
+  modifiers : Modifiers
+  declName  : Name
+  type      : Expr
+  value     : Expr
 
 instance : Inhabited PreDefinition :=
   ⟨⟨DefKind.«def», [], {}, arbitrary, arbitrary, arbitrary⟩⟩

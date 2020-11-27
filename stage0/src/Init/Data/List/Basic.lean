@@ -263,7 +263,7 @@ def intercalate (sep : List α) (xs : List (List α)) : List α :=
 
 @[inline] protected def pure {α : Type u} (a : α) : List α := [a]
 
-inductive List.Less [HasLess α] : List α → List α → Prop :=
+inductive List.Less [HasLess α] : List α → List α → Prop where
   | nil  (b : α) (bs : List α) : Less [] (b::bs)
   | head {a : α} (as : List α) {b : α} (bs : List α) : a < b → Less (a::as) (b::bs)
   | tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → Less as bs → Less (a::as) (b::bs)

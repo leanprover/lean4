@@ -10,7 +10,7 @@ namespace Lean
 
 open Std (RBNode RBNode.singleton RBNode.leaf)
 
-inductive Quickparse.Result (α : Type) :=
+inductive Quickparse.Result (α : Type) where
   | success (pos : String.Iterator) (res : α)    : Result α
   | error (pos : String.Iterator) (err : String) : Result α
 

@@ -7,9 +7,9 @@ import Lean.Data.Format
 
 namespace Lean
 
-structure Position :=
-  (line   : Nat)
-  (column : Nat)
+structure Position where
+  line   : Nat
+  column : Nat
 
 namespace Position
 instance : DecidableEq Position :=
@@ -34,10 +34,10 @@ instance : ToString Position :=
 instance : Inhabited Position := ⟨⟨1, 0⟩⟩
 end Position
 
-structure FileMap :=
-  (source    : String)
-  (positions : Array String.Pos)
-  (lines     : Array Nat)
+structure FileMap where
+  source    : String
+  positions : Array String.Pos
+  lines     : Array Nat
 
 namespace FileMap
 

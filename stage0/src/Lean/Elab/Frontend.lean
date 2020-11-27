@@ -9,14 +9,14 @@ import Lean.Util.Profile
 
 namespace Lean.Elab.Frontend
 
-structure State :=
-  (commandState : Command.State)
-  (parserState  : Parser.ModuleParserState)
-  (cmdPos       : String.Pos)
-  (commands     : Array Syntax := #[])
+structure State where
+  commandState : Command.State
+  parserState  : Parser.ModuleParserState
+  cmdPos       : String.Pos
+  commands     : Array Syntax := #[]
 
-structure Context :=
-  (inputCtx     : Parser.InputContext)
+structure Context where
+  inputCtx : Parser.InputContext
 
 abbrev FrontendM := ReaderT Context $ StateRefT State IO
 

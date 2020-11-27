@@ -284,7 +284,6 @@ lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyInferMod(
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_shouldInferResultUniverse___closed__2;
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_508____closed__4;
 lean_object* l_Lean_Elab_Command_accLevelAtCtor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkHeader_match__1(lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUniversesFromCtorTypeAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -420,6 +419,7 @@ extern lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache;
 extern lean_object* l_Std_HashMap_find_x21___rarg___closed__1;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkUnsafe___spec__1___lambda__1___closed__3;
 lean_object* l_List_mapM___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_levelMVarToParamAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_505____closed__4;
 extern lean_object* l_Std_HashMap_find_x21___rarg___closed__2;
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_removeUnused(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1577,7 +1577,7 @@ lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean
 x_69 = lean_ctor_get(x_63, 1);
 lean_inc(x_69);
 lean_dec(x_63);
-x_70 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_508____closed__4;
+x_70 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_505____closed__4;
 x_71 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabHeaderAux___spec__4(x_70, x_7, x_8, x_9, x_10, x_11, x_12, x_69);
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);
@@ -1677,7 +1677,7 @@ x_44 = l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5___closed__
 x_45 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_45, 0, x_43);
 lean_ctor_set(x_45, 1, x_44);
-x_46 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_508____closed__4;
+x_46 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_505____closed__4;
 x_47 = l_Lean_addTrace___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabHeaderAux___spec__3(x_46, x_45, x_7, x_8, x_9, x_10, x_11, x_12, x_15);
 x_48 = lean_ctor_get(x_47, 1);
 lean_inc(x_48);

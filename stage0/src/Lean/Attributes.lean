@@ -9,7 +9,7 @@ import Lean.ResolveName
 
 namespace Lean
 
-inductive AttributeApplicationTime :=
+inductive AttributeApplicationTime where
   | afterTypeChecking | afterCompilation | beforeElaboration
 
 def AttributeApplicationTime.beq : AttributeApplicationTime → AttributeApplicationTime → Bool
@@ -26,13 +26,13 @@ instance : MonadLift ImportM AttrM := {
   monadLift := fun x => do liftM (m := IO) (x { env := (← getEnv), opts := (← getOptions) })
 }
 
-structure AttributeImplCore :=
-  (name : Name)
-  (descr : String)
-  (applicationTime := AttributeApplicationTime.afterTypeChecking)
+structure AttributeImplCore where
+  name : Name
+  descr : String
+  applicationTime := AttributeApplicationTime.afterTypeChecking
 
-structure AttributeImpl extends AttributeImplCore :=
-  (add (decl : Name) (args : Syntax) (persistent : Bool) : AttrM Unit)
+structure AttributeImpl extends AttributeImplCore where
+  add (decl : Name) (args : Syntax) (persistent : Bool) : AttrM Unit
 
 instance : Inhabited AttributeImpl :=
   ⟨{ name := arbitrary, descr := arbitrary, add := fun env _ _ _ => pure () }⟩
@@ -64,13 +64,13 @@ def mkAttributeImplOfBuilder (builderId : Name) (args : List DataValue) : IO Att
   | none         => throw (IO.userError ("unknown attribute implementation builder '" ++ toString builderId ++ "'"))
   | some builder => IO.ofExcept $ builder args
 
-inductive AttributeExtensionOLeanEntry :=
+inductive AttributeExtensionOLeanEntry where
   | decl (declName : Name) -- `declName` has type `AttributeImpl`
   | builder (builderId : Name) (args : List DataValue)
 
-structure AttributeExtensionState :=
-  (newEntries : List AttributeExtensionOLeanEntry := [])
-  (map        : PersistentHashMap Name AttributeImpl)
+structure AttributeExtensionState where
+  newEntries : List AttributeExtensionOLeanEntry := []
+  map        : PersistentHashMap Name AttributeImpl
 
 abbrev AttributeExtension := PersistentEnvExtension AttributeExtensionOLeanEntry (AttributeExtensionOLeanEntry × AttributeImpl) AttributeExtensionState
 
@@ -182,9 +182,9 @@ def addAttribute (decl : Name) (attrName : Name) (args : Syntax) (persistent : B
 
   They provide the predicate `tagAttr.hasTag env decl` which returns true iff declaration `decl`
   is tagged in the environment `env`. -/
-structure TagAttribute :=
-  (attr : AttributeImpl)
-  (ext  : PersistentEnvExtension Name Name NameSet)
+structure TagAttribute where
+  attr : AttributeImpl
+  ext  : PersistentEnvExtension Name Name NameSet
 
 def registerTagAttribute (name : Name) (descr : String) (validate : Name → AttrM Unit := fun _ => pure ()) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
@@ -230,14 +230,14 @@ end TagAttribute
 
   They provide the function `pAttr.getParam env decl` which returns `some p` iff declaration `decl`
   contains the attribute `pAttr` with parameter `p`. -/
-structure ParametricAttribute (α : Type) :=
-  (attr : AttributeImpl)
-  (ext  : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
+structure ParametricAttribute (α : Type) where
+  attr : AttributeImpl
+  ext  : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
 
-structure ParametricAttributeImpl (α : Type) extends AttributeImplCore :=
-  (getParam : Name → Syntax → AttrM α)
-  (afterSet : Name → α → AttrM Unit := fun env _ _ => pure ())
-  (afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ())
+structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
+  getParam : Name → Syntax → AttrM α
+  afterSet : Name → α → AttrM Unit := fun env _ _ => pure ()
+  afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
 
 def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
@@ -290,9 +290,9 @@ end ParametricAttribute
   Given a list `[a₁, ..., a_n]` of elements of type `α`, `EnumAttributes` provides an attribute `Attr_i` for
   associating a value `a_i` with an declaration. `α` is usually an enumeration type.
   Note that whenever we register an `EnumAttributes`, we create `n` attributes, but only one environment extension. -/
-structure EnumAttributes (α : Type) :=
-  (attrs : List AttributeImpl)
-  (ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
+structure EnumAttributes (α : Type) where
+  attrs : List AttributeImpl
+  ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
 
 def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α))
     (validate : Name → α → AttrM Unit := fun _ _ => pure ())

@@ -14,24 +14,24 @@ available on the Haskell library
 -/
 
 /- Interface for random number generators. -/
-class RandomGen (g : Type u) :=
+class RandomGen (g : Type u) where
   /- `range` returns the range of values returned by
       the generator. -/
-  (range : g → Nat × Nat)
+  range : g → Nat × Nat
   /- `next` operation returns a natural number that is uniformly distributed
       the range returned by `range` (including both end points),
      and a new generator. -/
-  (next  : g → Nat × g)
+  next  : g → Nat × g
   /-
     The 'split' operation allows one to obtain two distinct random number
     generators. This is very useful in functional programs (for example, when
     passing a random number generator down to recursive calls). -/
-  (split : g → g × g)
+  split : g → g × g
 
 /- "Standard" random number generator. -/
-structure StdGen :=
-  (s1 : Nat)
-  (s2 : Nat)
+structure StdGen where
+  s1 : Nat
+  s2 : Nat
 
 instance : Inhabited StdGen := ⟨{ s1 := 0, s2 := 0 }⟩
 

@@ -30,7 +30,7 @@ def Syntax.isAntiquot : Syntax → Bool
   | Syntax.node (Name.str _ "antiquot" _) _ => true
   | _                                       => false
 
-inductive IsNode : Syntax → Prop :=
+inductive IsNode : Syntax → Prop where
   | mk (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node kind args)
 
 def SyntaxNode : Type := {s : Syntax // IsNode s }
@@ -260,10 +260,10 @@ Represents a cursor into a syntax tree that can be read, written, and advanced d
 Indices are allowed to be out-of-bound, in which case `cur` is `Syntax.missing`.
 If the `Traverser` is used linearly, updates are linear in the `Syntax` object as well.
 -/
-structure Traverser :=
-  (cur     : Syntax)
-  (parents : Array Syntax)
-  (idxs    : Array Nat)
+structure Traverser where
+  cur     : Syntax
+  parents : Array Syntax
+  idxs    : Array Nat
 
 namespace Traverser
 
@@ -305,8 +305,8 @@ def right (t : Traverser) : Traverser :=
 end Traverser
 
 /-- Monad class that gives read/write access to a `Traverser`. -/
-class MonadTraverser (m : Type → Type) :=
-  (st : MonadState Traverser m)
+class MonadTraverser (m : Type → Type) where
+  st : MonadState Traverser m
 
 namespace MonadTraverser
 

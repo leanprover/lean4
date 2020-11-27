@@ -34,10 +34,10 @@ private def expandOptIdent (stx : Syntax) : TermElabM Syntax := do
   else
     return stx[0]
 
-structure BinderView :=
-  (id : Syntax)
-  (type : Syntax)
-  (bi : BinderInfo)
+structure BinderView where
+  id : Syntax
+  type : Syntax
+  bi : BinderInfo
 
 partial def quoteAutoTactic : Syntax → TermElabM Syntax
   | stx@(Syntax.ident _ _ _ _) => throwErrorAt stx "invalic auto tactic, identifier is not allowed"
@@ -285,11 +285,11 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElab
 
 namespace FunBinders
 
-structure State :=
-  (fvars         : Array Expr := #[])
-  (lctx          : LocalContext)
-  (localInsts    : LocalInstances)
-  (expectedType? : Option Expr := none)
+structure State where
+  fvars         : Array Expr := #[]
+  lctx          : LocalContext
+  localInsts    : LocalInstances
+  expectedType? : Option Expr := none
 
 private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : TermElabM State := do
   match s.expectedType? with
@@ -538,11 +538,11 @@ def elabLetDeclAux (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valSt
         throwError "unexpected error when elaborating 'let'"
   pure result
 
-structure LetIdDeclView :=
-  (id      : Name)
-  (binders : Array Syntax)
-  (type    : Syntax)
-  (value   : Syntax)
+structure LetIdDeclView where
+  id      : Name
+  binders : Array Syntax
+  type    : Syntax
+  value   : Syntax
 
 def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
   -- `letIdDecl` is of the form `ident >> many bracketedBinder >> optType >> " := " >> termParser

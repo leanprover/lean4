@@ -11,7 +11,7 @@ import Lean.Util.MonadCache
 namespace Lean
 
 /- Exception type used in most Lean monads -/
-inductive Exception :=
+inductive Exception where
   | error (ref : Syntax) (msg : MessageData)
   | internal (id : InternalExceptionId) (extra : KVMap := {})
 
@@ -29,14 +29,13 @@ instance : Inhabited Exception := ⟨Exception.error arbitrary arbitrary⟩
    The default instance just uses `AddMessageContext`.
    In error messages, we may want to provide additional information (e.g., macro expansion stack),
    and refine the `(ref : Syntax)`. -/
-class AddErrorMessageContext (m : Type → Type) :=
-  (add : Syntax → MessageData → m (Syntax × MessageData))
+class AddErrorMessageContext (m : Type → Type) where
+  add : Syntax → MessageData → m (Syntax × MessageData)
 
-instance (m : Type → Type) [AddMessageContext m] [Monad m] : AddErrorMessageContext m := {
-  add := fun ref msg => do
+instance (m : Type → Type) [AddMessageContext m] [Monad m] : AddErrorMessageContext m where
+  add ref msg := do
     let msg ← addMessageContext msg
     pure (ref, msg)
-}
 
 section Methods
 
@@ -63,16 +62,15 @@ def throwKernelException [MonadOptions m] (ex : KernelException) : m α := do
 
 end Methods
 
-class MonadRecDepth (m : Type → Type) :=
-  (withRecDepth {α} : Nat → m α → m α)
-  (getRecDepth      : m Nat)
-  (getMaxRecDepth   : m Nat)
+class MonadRecDepth (m : Type → Type) where
+  withRecDepth {α} : Nat → m α → m α
+  getRecDepth      : m Nat
+  getMaxRecDepth   : m Nat
 
-instance [Monad m] [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) := {
-  withRecDepth   := fun d x ctx => MonadRecDepth.withRecDepth d (x ctx),
-  getRecDepth    := fun _ => MonadRecDepth.getRecDepth,
+instance [Monad m] [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) where
+  withRecDepth d x := fun ctx => MonadRecDepth.withRecDepth d (x ctx)
+  getRecDepth    := fun _ => MonadRecDepth.getRecDepth
   getMaxRecDepth := fun _ => MonadRecDepth.getMaxRecDepth
-}
 
 instance [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
   inferInstanceAs (MonadRecDepth (ReaderT _ _))

@@ -8,33 +8,33 @@ import Init.Core
 
 universes u v w w'
 
-class Coe (α : Sort u) (β : Sort v) :=
-  (coe : α → β)
+class Coe (α : Sort u) (β : Sort v) where
+  coe : α → β
 
 /-- Auxiliary class that contains the transitive closure of `Coe`. -/
-class CoeTC (α : Sort u) (β : Sort v) :=
-  (coe : α → β)
+class CoeTC (α : Sort u) (β : Sort v) where
+  coe : α → β
 
 /- Expensive coercion that can only appear at the beggining of a sequence of coercions. -/
-class CoeHead (α : Sort u) (β : Sort v) :=
-  (coe : α → β)
+class CoeHead (α : Sort u) (β : Sort v) where
+  coe : α → β
 
 /- Expensive coercion that can only appear at the end of a sequence of coercions. -/
-class CoeTail (α : Sort u) (β : Sort v) :=
-  (coe : α → β)
+class CoeTail (α : Sort u) (β : Sort v) where
+  coe : α → β
 
-class CoeDep (α : Sort u) (a : α) (β : Sort v) :=
-  (coe : β)
+class CoeDep (α : Sort u) (a : α) (β : Sort v) where
+  coe : β
 
 /- Combines CoeHead, CoeTC, CoeTail, CoeDep -/
-class CoeT (α : Sort u) (a : α) (β : Sort v) :=
-  (coe : β)
+class CoeT (α : Sort u) (a : α) (β : Sort v) where
+  coe : β
 
-class CoeFun (α : Sort u) (γ : outParam (α → outParam (Sort v))) :=
-  (coe : (a : α) → γ a)
+class CoeFun (α : Sort u) (γ : outParam (α → outParam (Sort v))) where
+  coe : (a : α) → γ a
 
-class CoeSort (α : Sort u) (β : outParam (Sort v)) :=
-  (coe : α → β)
+class CoeSort (α : Sort u) (β : outParam (Sort v)) where
+  coe : α → β
 
 abbrev coeB {α : Sort u} {β : Sort v} [Coe α β] (a : α) : β :=
   Coe.coe a

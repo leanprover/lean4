@@ -7,10 +7,10 @@ import Lean.Meta.Basic
 
 namespace Lean.Meta
 
-structure AbstractMVarsResult :=
-  (paramNames : Array Name)
-  (numMVars   : Nat)
-  (expr       : Expr)
+structure AbstractMVarsResult where
+  paramNames : Array Name
+  numMVars   : Nat
+  expr       : Expr
 
 instance : Inhabited AbstractMVarsResult := ⟨⟨#[], 0, arbitrary⟩⟩
 
@@ -23,14 +23,14 @@ namespace AbstractMVars
 
 open Std (HashMap)
 
-structure State :=
-  (ngen         : NameGenerator)
-  (lctx         : LocalContext)
-  (nextParamIdx : Nat := 0)
-  (paramNames   : Array Name := #[])
-  (fvars        : Array Expr  := #[])
-  (lmap         : HashMap Name Level := {})
-  (emap         : HashMap Name Expr  := {})
+structure State where
+  ngen         : NameGenerator
+  lctx         : LocalContext
+  nextParamIdx : Nat := 0
+  paramNames   : Array Name := #[]
+  fvars        : Array Expr  := #[]
+  lmap         : HashMap Name Level := {}
+  emap         : HashMap Name Expr  := {}
 
 abbrev M := ReaderT MetavarContext (StateM State)
 

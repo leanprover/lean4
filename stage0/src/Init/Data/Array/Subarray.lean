@@ -8,12 +8,12 @@ import Init.Data.Array.Basic
 
 universes u v w
 
-structure Subarray (α : Type u)  :=
-  (as : Array α)
-  (start : Nat)
-  (stop : Nat)
-  (h₁ : start ≤ stop)
-  (h₂ : stop ≤ as.size)
+structure Subarray (α : Type u)  where
+  as : Array α
+  start : Nat
+  stop : Nat
+  h₁ : start ≤ stop
+  h₂ : stop ≤ as.size
 
 namespace Subarray
 

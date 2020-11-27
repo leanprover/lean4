@@ -7,13 +7,13 @@ prelude
 import Init.Core
 import Init.Data.ToString.Basic
 
-structure FloatSpec :=
-  (float : Type)
-  (val   : float)
-  (lt    : float → float → Prop)
-  (le    : float → float → Prop)
-  (decLt : DecidableRel lt)
-  (decLe : DecidableRel le)
+structure FloatSpec where
+  float : Type
+  val   : float
+  lt    : float → float → Prop
+  le    : float → float → Prop
+  decLt : DecidableRel lt
+  decLe : DecidableRel le
 
 -- Just show FloatSpec is inhabited.
 constant floatSpec : FloatSpec := {
@@ -25,8 +25,8 @@ constant floatSpec : FloatSpec := {
   decLe := fun _ _ => inferInstanceAs (Decidable True)
 }
 
-structure Float :=
-  (val : floatSpec.float)
+structure Float where
+  val : floatSpec.float
 
 instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 

@@ -7,9 +7,9 @@ import Std.Data.HashMap
 
 namespace Lean
 /-- Interface for caching results.  -/
-class MonadCache (α β : Type) (m : Type → Type) :=
-  (findCached? : α → m (Option β))
-  (cache       : α → β → m Unit)
+class MonadCache (α β : Type) (m : Type → Type) where
+  findCached? : α → m (Option β)
+  cache       : α → β → m Unit
 
 /-- If entry `a := b` is already in the cache, then return `b`.
     Otherwise, execute `b ← f a`, store `a := b` in the cache and return `b`. -/
@@ -35,9 +35,9 @@ open Std (HashMap)
 
 /-- Adapter for implementing `MonadCache` interface using `HashMap`s.
     We just have to specify how to extract/modify the `HashMap`. -/
-class MonadHashMapCacheAdapter (α β : Type) (m : Type → Type) [BEq α] [Hashable α] :=
-  (getCache    : m (HashMap α β))
-  (modifyCache : (HashMap α β → HashMap α β) → m Unit)
+class MonadHashMapCacheAdapter (α β : Type) (m : Type → Type) [BEq α] [Hashable α] where
+  getCache    : m (HashMap α β)
+  modifyCache : (HashMap α β → HashMap α β) → m Unit
 
 namespace MonadHashMapCacheAdapter
 

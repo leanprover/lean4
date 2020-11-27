@@ -23,9 +23,9 @@ instance : Inhabited ModuleIdx := inferInstanceAs (Inhabited Nat)
 
 abbrev ConstMap := SMap Name ConstantInfo
 
-structure Import :=
-  (module      : Name)
-  (runtimeOnly : Bool := false)
+structure Import where
+  module      : Name
+  runtimeOnly : Bool := false
 
 instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
 
@@ -50,11 +50,11 @@ structure EnvironmentHeader where
 
 open Std (HashMap)
 
-structure Environment :=
-  (const2ModIdx : HashMap Name ModuleIdx)
-  (constants    : ConstMap)
-  (extensions   : Array EnvExtensionState)
-  (header       : EnvironmentHeader := {})
+structure Environment where
+  const2ModIdx : HashMap Name ModuleIdx
+  constants    : ConstMap
+  extensions   : Array EnvExtensionState
+  header       : EnvironmentHeader := {}
 
 namespace Environment
 
@@ -108,7 +108,7 @@ def isConstructor (env : Environment) (c : Name) : Bool :=
 
 end Environment
 
-inductive KernelException :=
+inductive KernelException where
   | unknownConstant  (env : Environment) (name : Name)
   | alreadyDeclared  (env : Environment) (name : Name)
   | declTypeMismatch (env : Environment) (decl : Declaration) (givenType : Expr)
@@ -139,14 +139,14 @@ def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Exc
 end Environment
 
 /- Interface for managing environment extensions. -/
-structure EnvExtensionInterface :=
-  (ext              : Type → Type)
-  (inhabitedExt {σ} : Inhabited σ → Inhabited (ext σ))
-  (registerExt  {σ} (mkInitial : IO σ) : IO (ext σ))
-  (setState     {σ} (e : ext σ) (env : Environment) : σ → Environment)
-  (modifyState  {σ} (e : ext σ) (env : Environment) : (σ → σ) → Environment)
-  (getState     {σ} (e : ext σ) (env : Environment) : σ)
-  (mkInitialExtStates : IO (Array EnvExtensionState))
+structure EnvExtensionInterface where
+  ext              : Type → Type
+  inhabitedExt {σ} : Inhabited σ → Inhabited (ext σ)
+  registerExt  {σ} (mkInitial : IO σ) : IO (ext σ)
+  setState     {σ} (e : ext σ) (env : Environment) : σ → Environment
+  modifyState  {σ} (e : ext σ) (env : Environment) : (σ → σ) → Environment
+  getState     {σ} (e : ext σ) (env : Environment) : σ
+  mkInitialExtStates : IO (Array EnvExtensionState)
 
 instance : Inhabited EnvExtensionInterface := ⟨{
   ext                := id,
@@ -161,9 +161,9 @@ instance : Inhabited EnvExtensionInterface := ⟨{
 /- Unsafe implementation of `EnvExtensionInterface` -/
 namespace EnvExtensionInterfaceUnsafe
 
-structure Ext (σ : Type) :=
-  (idx       : Nat)
-  (mkInitial : IO σ)
+structure Ext (σ : Type) where
+  idx       : Nat
+  mkInitial : IO σ
 
 instance {σ} : Inhabited (Ext σ) := ⟨{idx := 0, mkInitial := arbitrary }⟩
 
@@ -243,13 +243,13 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
     extensions   := exts
   }
 
-structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
-  (importedEntries : Array (Array α))  -- entries per imported module
-  (state : σ)
+structure PersistentEnvExtensionState (α : Type) (σ : Type) where
+  importedEntries : Array (Array α)  -- entries per imported module
+  state : σ
 
-structure ImportM.Context :=
-  (env  : Environment)
-  (opts : Options)
+structure ImportM.Context where
+  env  : Environment
+  opts : Options
 
 abbrev ImportM := ReaderT Lean.ImportM.Context IO
 
@@ -269,13 +269,13 @@ abbrev ImportM := ReaderT Lean.ImportM.Context IO
 
    `α` and ‵β` do not coincide for extensions where the data used to update the state contains, for example,
    closures which we currently cannot store in files. -/
-structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) :=
-  (toEnvExtension  : EnvExtension (PersistentEnvExtensionState α σ))
-  (name            : Name)
-  (addImportedFn   : Array (Array α) → ImportM σ)
-  (addEntryFn      : σ → β → σ)
-  (exportEntriesFn : σ → Array α)
-  (statsFn         : σ → Format)
+structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
+  toEnvExtension  : EnvExtension (PersistentEnvExtensionState α σ)
+  name            : Name
+  addImportedFn   : Array (Array α) → ImportM σ
+  addEntryFn      : σ → β → σ
+  exportEntriesFn : σ → Array α
+  statsFn         : σ → Format
 
 /- Opaque persistent environment extension entry. -/
 constant EnvExtensionEntrySpec : PointedType.{0}
@@ -317,13 +317,13 @@ end PersistentEnvExtension
 
 builtin_initialize persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]
 
-structure PersistentEnvExtensionDescr (α β σ : Type) :=
-  (name            : Name)
-  (mkInitial       : IO σ)
-  (addImportedFn   : Array (Array α) → ImportM σ)
-  (addEntryFn      : σ → β → σ)
-  (exportEntriesFn : σ → Array α)
-  (statsFn         : σ → Format := fun _ => Format.nil)
+structure PersistentEnvExtensionDescr (α β σ : Type) where
+  name            : Name
+  mkInitial       : IO σ
+  addImportedFn   : Array (Array α) → ImportM σ
+  addEntryFn      : σ → β → σ
+  exportEntriesFn : σ → Array α
+  statsFn         : σ → Format := fun _ => Format.nil
 
 unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) := do
   let pExts ← persistentEnvExtensionsRef.get
@@ -356,11 +356,11 @@ def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α 
 @[specialize] def mkStateFromImportedEntries {α σ : Type} (addEntryFn : σ → α → σ) (initState : σ) (as : Array (Array α)) : σ :=
   as.foldl (fun r es => es.foldl (fun r e => addEntryFn r e) r) initState
 
-structure SimplePersistentEnvExtensionDescr (α σ : Type) :=
-  (name          : Name)
-  (addEntryFn    : σ → α → σ)
-  (addImportedFn : Array (Array α) → σ)
-  (toArrayFn     : List α → Array α := fun es => es.toArray)
+structure SimplePersistentEnvExtensionDescr (α σ : Type) where
+  name          : Name
+  addEntryFn    : σ → α → σ
+  addImportedFn : Array (Array α) → σ
+  toArrayFn     : List α → Array α := fun es => es.toArray
 
 def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
   registerPersistentEnvExtension {
@@ -421,10 +421,10 @@ end TagDeclarationExtension
 
 /- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
-structure ModuleData :=
-  (imports    : Array Import)
-  (constants  : Array ConstantInfo)
-  (entries    : Array (Name × Array EnvExtensionEntry))
+structure ModuleData where
+  imports    : Array Import
+  constants  : Array ConstantInfo
+  entries    : Array (Name × Array EnvExtensionEntry)
 
 instance : Inhabited ModuleData :=
   ⟨{imports := arbitrary, constants := arbitrary, entries := arbitrary }⟩
@@ -652,9 +652,9 @@ constant whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr
 
 end Kernel
 
-class MonadEnv (m : Type → Type) :=
-  (getEnv    : m Environment)
-  (modifyEnv : (Environment → Environment) → m Unit)
+class MonadEnv (m : Type → Type) where
+  getEnv    : m Environment
+  modifyEnv : (Environment → Environment) → m Unit
 
 export MonadEnv (getEnv modifyEnv)
 

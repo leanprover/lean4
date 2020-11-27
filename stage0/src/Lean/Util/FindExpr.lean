@@ -12,8 +12,8 @@ namespace FindImpl
 
 abbrev cacheSize : USize := 8192
 
-structure State :=
-  (keys : Array Expr) -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
+structure State where
+  keys : Array Expr -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
 
 abbrev FindM := StateT State Id
 

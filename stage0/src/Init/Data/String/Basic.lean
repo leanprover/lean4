@@ -180,9 +180,9 @@ def singleton (c : Char) : String :=
 def intercalate (s : String) (ss : List String) : String :=
   (List.intercalate s.toList (ss.map toList)).asString
 
-structure Iterator :=
-  (s : String)
-  (i : Pos)
+structure Iterator where
+  s : String
+  i : Pos
 
 def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩

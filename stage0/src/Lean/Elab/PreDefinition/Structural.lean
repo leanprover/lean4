@@ -24,17 +24,17 @@ private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : 
         pure true
   runST fun _ => do let (_, numFixed) ← visitor.run xs.size; pure numFixed
 
-structure RecArgInfo :=
+structure RecArgInfo where
   /- `fixedParams ++ ys` are the arguments of the function we are trying to justify termination using structural recursion. -/
-  (fixedParams : Array Expr)
-  (ys          : Array Expr)  -- recursion arguments
-  (pos         : Nat)         -- position in `ys` of the argument we are recursing on
-  (indicesPos  : Array Nat)   -- position in `ys` of the inductive datatype indices we are recursing on
-  (indName     : Name)        -- inductive datatype name of the argument we are recursing on
-  (indLevels   : List Level)  -- inductice datatype universe levels of the argument we are recursing on
-  (indParams   : Array Expr)  -- inductive datatype parameters of the argument we are recursing on
-  (indIndices  : Array Expr)  -- inductive datatype indices of the argument we are recursing on, it is equal to `indicesPos.map fun i => ys.get! i`
-  (reflexive   : Bool)        -- true if we are recursing over a reflexive inductive datatype
+  fixedParams : Array Expr
+  ys          : Array Expr  -- recursion arguments
+  pos         : Nat         -- position in `ys` of the argument we are recursing on
+  indicesPos  : Array Nat   -- position in `ys` of the inductive datatype indices we are recursing on
+  indName     : Name        -- inductive datatype name of the argument we are recursing on
+  indLevels   : List Level  -- inductice datatype universe levels of the argument we are recursing on
+  indParams   : Array Expr  -- inductive datatype parameters of the argument we are recursing on
+  indIndices  : Array Expr  -- inductive datatype indices of the argument we are recursing on, it is equal to `indicesPos.map fun i => ys.get! i`
+  reflexive   : Bool        -- true if we are recursing over a reflexive inductive datatype
 
 private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat := do
   let mut minPos := xs.size
@@ -65,7 +65,7 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
 private def throwStructuralFailed {α} : MetaM α :=
   throwError "structural recursion cannot be used"
 
-structure State :=
+structure State where
   /- When compiling structural recursion we use the `brecOn` recursor automatically built by
      the `inductive` command. For an inductive datatype `C`, it has the form
      `C.brecOn As motive is c F`
@@ -76,7 +76,7 @@ structure State :=
      We store the names of the matcher where we used `MatcherApp.addArg` at `matcherBelowDep`.
      We use this information to generate the auxiliary `_sunfold` definition needed by the smart unfolding
      technique used at WHNF. -/
-  (matcherBelowDep : NameSet := {})
+  matcherBelowDep : NameSet := {}
 
 abbrev M := StateRefT State MetaM
 

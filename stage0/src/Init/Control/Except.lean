@@ -144,8 +144,8 @@ instance (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (Excep
   liftWith f := liftM <| f fun x => x.run
   restoreM x := x
 
-class MonadFinally (m : Type u → Type v) :=
-  (tryFinally' {α β} : m α → (Option α → m β) → m (α × β))
+class MonadFinally (m : Type u → Type v) where
+  tryFinally' {α β} : m α → (Option α → m β) → m (α × β)
 
 export MonadFinally (tryFinally')
 

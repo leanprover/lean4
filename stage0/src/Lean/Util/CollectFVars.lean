@@ -7,9 +7,9 @@ import Lean.Expr
 
 namespace Lean.CollectFVars
 
-structure State :=
-  (visitedExpr  : ExprSet  := {})
-  (fvarSet      : NameSet  := {})
+structure State where
+  visitedExpr  : ExprSet  := {}
+  fvarSet      : NameSet  := {}
 
 instance : Inhabited State := ⟨{}⟩
 

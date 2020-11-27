@@ -12,8 +12,8 @@ open Sum Subtype Nat
 
 universes u v
 
-class Repr (α : Type u) :=
-  (repr : α → String)
+class Repr (α : Type u) where
+  repr : α → String
 
 export Repr (repr)
 

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 namespace Lean.Meta
 
-inductive TransparencyMode :=
+inductive TransparencyMode where
   | all | default | reducible
 
 namespace TransparencyMode

@@ -17,23 +17,23 @@ A "matcher" auxiliary declaration has the following structure:
 - `uElimPos?` is `some pos` when the matcher can eliminate in different universe levels, and
    `pos` is the position of the universe level parameter that specifies the elimination universe.
    It is `none` if the matcher only eliminates into `Prop`. -/
-structure MatcherInfo :=
-  (numParams : Nat)
-  (numDiscrs : Nat)
-  (altNumParams : Array Nat)
-  (uElimPos? : Option Nat)
+structure MatcherInfo where
+  numParams : Nat
+  numDiscrs : Nat
+  altNumParams : Array Nat
+  uElimPos? : Option Nat
 
 def MatcherInfo.numAlts (matcherInfo : MatcherInfo) : Nat :=
   matcherInfo.altNumParams.size
 
 namespace Extension
 
-structure Entry :=
-  (name : Name)
-  (info : MatcherInfo)
+structure Entry where
+  name : Name
+  info : MatcherInfo
 
-structure State :=
-  (map : SMap Name MatcherInfo := {})
+structure State where
+  map : SMap Name MatcherInfo := {}
 
 instance : Inhabited State := ⟨{}⟩
 
@@ -70,16 +70,16 @@ def isMatcher (declName : Name) : MetaM Bool := do
   let info? ← getMatcherInfo? declName
   pure info?.isSome
 
-structure MatcherApp :=
-  (matcherName   : Name)
-  (matcherLevels : Array Level)
-  (uElimPos?     : Option Nat)
-  (params        : Array Expr)
-  (motive        : Expr)
-  (discrs        : Array Expr)
-  (altNumParams  : Array Nat)
-  (alts          : Array Expr)
-  (remaining     : Array Expr)
+structure MatcherApp where
+  matcherName   : Name
+  matcherLevels : Array Level
+  uElimPos?     : Option Nat
+  params        : Array Expr
+  motive        : Expr
+  discrs        : Array Expr
+  altNumParams  : Array Nat
+  alts          : Array Expr
+  remaining     : Array Expr
 
 def matchMatcherApp? (e : Expr) : MetaM (Option MatcherApp) :=
   match e.getAppFn with

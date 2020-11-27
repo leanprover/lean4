@@ -121,7 +121,7 @@ constant bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (pri
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
 @[extern "lean_io_wait_any"] constant waitAny : @& List (Task α) → IO α
 
-inductive FS.Mode :=
+inductive FS.Mode where
   | read | write | readWrite | append
 
 constant FS.Handle : Type := Unit
@@ -129,13 +129,13 @@ constant FS.Handle : Type := Unit
 /--
   A pure-Lean abstraction of POSIX streams. We use `Stream`s for the standard streams stdin/stdout/stderr so we can
   capture output of `#eval` commands into memory. -/
-structure FS.Stream :=
-  (isEof   : IO Bool)
-  (flush   : IO Unit)
-  (read    : forall (bytes : USize), IO ByteArray)
-  (write   : ByteArray → IO Unit)
-  (getLine : IO String)
-  (putStr  : String → IO Unit)
+structure FS.Stream where
+  isEof   : IO Bool
+  flush   : IO Unit
+  read    : USize → IO ByteArray
+  write   : ByteArray → IO Unit
+  getLine : IO String
+  putStr  : String → IO Unit
 
 namespace Prim
 open FS
@@ -310,7 +310,7 @@ def currentDir : m String := liftM Prim.currentDir
 end
 
 namespace Process
-inductive Stdio :=
+inductive Stdio where
   | piped
   | inherit
   | null
@@ -320,38 +320,38 @@ def Stdio.toHandleType : Stdio → Type
   | Stdio.inherit => Unit
   | Stdio.null    => Unit
 
-structure StdioConfig :=
+structure StdioConfig where
   /- Configuration for the process' stdin handle. -/
-  (stdin := Stdio.inherit)
+  stdin := Stdio.inherit
   /- Configuration for the process' stdout handle. -/
-  (stdout := Stdio.inherit)
+  stdout := Stdio.inherit
   /- Configuration for the process' stderr handle. -/
-  (stderr := Stdio.inherit)
+  stderr := Stdio.inherit
 
-structure SpawnArgs extends StdioConfig :=
+structure SpawnArgs extends StdioConfig where
   /- Command name. -/
-  (cmd : String)
+  cmd : String
   /- Arguments for the process -/
-  (args : Array String := #[])
+  args : Array String := #[]
   /- Working directory for the process. Inherit from current process if `none`. -/
-  (cwd : Option String := none)
+  cwd : Option String := none
   /- Add or remove environment variables for the process. -/
-  (env : Array (String × Option String) := #[])
+  env : Array (String × Option String) := #[]
 
 -- TODO(Sebastian): constructor must be private
-structure Child (cfg : StdioConfig) :=
-  (stdin  : cfg.stdin.toHandleType)
-  (stdout : cfg.stdout.toHandleType)
-  (stderr : cfg.stderr.toHandleType)
+structure Child (cfg : StdioConfig) where
+  stdin  : cfg.stdin.toHandleType
+  stdout : cfg.stdout.toHandleType
+  stderr : cfg.stderr.toHandleType
 
 @[extern "lean_io_process_spawn"] constant spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
 @[extern "lean_io_process_child_wait"] constant Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
-structure Output :=
-  (exitCode : UInt32)
-  (stdout   : String)
-  (stderr   : String)
+structure Output where
+  exitCode : UInt32
+  stdout   : String
+  stderr   : String
 
 /-- Run process to completion and capture output. -/
 def output (args : SpawnArgs) : IO Output := do
@@ -371,8 +371,10 @@ def run (args : SpawnArgs) : IO String := do
 
 end Process
 
-structure AccessRight :=
-  (read write execution : Bool := false)
+structure AccessRight where
+  read : Bool := false
+  write : Bool := false
+  execution : Bool := false
 
 def AccessRight.flags (acc : AccessRight) : UInt32 :=
   let r : UInt32 := if acc.read      then 0x4 else 0
@@ -380,8 +382,10 @@ def AccessRight.flags (acc : AccessRight) : UInt32 :=
   let x : UInt32 := if acc.execution then 0x1 else 0
   r.lor <| w.lor x
 
-structure FileRight :=
-  (user group other : AccessRight := { })
+structure FileRight where
+  user  : AccessRight := {}
+  group : AccessRight := {}
+  other : AccessRight := {}
 
 def FileRight.flags (acc : FileRight) : UInt32 :=
   let u : UInt32 := acc.user.flags.shiftLeft 6
@@ -418,9 +422,9 @@ def ofHandle (h : Handle) : Stream := {
   putStr  := Prim.Handle.putStr h,
 }
 
-structure Buffer :=
-  (data : ByteArray := ByteArray.empty)
-  (pos : Nat := 0)
+structure Buffer where
+  data : ByteArray := ByteArray.empty
+  pos  : Nat := 0
 
 def ofBuffer (r : Ref Buffer) : Stream := {
   isEof   := do let b ← r.get; pure <| b.pos >= b.data.size,
@@ -463,11 +467,11 @@ universe u
 namespace Lean
 
 /-- Typeclass used for presenting the output of an `#eval` command. -/
-class Eval (α : Type u) :=
+class Eval (α : Type u) where
   -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
   -- so that `()` output is hidden in chained instances such as for some `m Unit`.
   -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbgTrace!`)
-  (eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit)
+  eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit
 
 instance [ToString α] : Eval α :=
   ⟨fun a _ => IO.println (toString (a ()))⟩

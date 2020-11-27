@@ -10,8 +10,8 @@ import Init.Data.UInt
 import Init.Data.Option.Basic
 universes u
 
-structure ByteArray :=
-  (data : Array UInt8)
+structure ByteArray where
+  data : Array UInt8
 
 attribute [extern "lean_byte_array_mk"] ByteArray.mk
 attribute [extern "lean_byte_array_data"] ByteArray.data

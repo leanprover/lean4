@@ -7,9 +7,9 @@ import Lean.Attributes
 
 namespace Lean
 
-structure ClassEntry :=
-  (name : Name)
-  (hasOutParam : Bool)
+structure ClassEntry where
+  name : Name
+  hasOutParam : Bool
 
 namespace ClassEntry
 
@@ -18,8 +18,8 @@ def lt (a b : ClassEntry) : Bool :=
 
 end ClassEntry
 
-structure ClassState :=
-  (hasOutParam : SMap Name Bool := SMap.empty)
+structure ClassState where
+  hasOutParam : SMap Name Bool := SMap.empty
 
 namespace ClassState
 

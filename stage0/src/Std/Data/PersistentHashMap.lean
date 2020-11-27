@@ -8,14 +8,14 @@ universes u v w w'
 
 namespace PersistentHashMap
 
-inductive Entry (α : Type u) (β : Type v) (σ : Type w) :=
+inductive Entry (α : Type u) (β : Type v) (σ : Type w) where
   | entry (key : α) (val : β) : Entry α β σ
   | ref   (node : σ) : Entry α β σ
   | null  : Entry α β σ
 
 instance {α β σ} : Inhabited (Entry α β σ) := ⟨Entry.null⟩
 
-inductive Node (α : Type u) (β : Type v) : Type (max u v) :=
+inductive Node (α : Type u) (β : Type v) : Type (max u v) where
   | entries   (es : Array (Entry α β (Node α β))) : Node α β
   | collision (ks : Array α) (vs : Array β) (h : ks.size = vs.size) : Node α β
 
@@ -31,9 +31,9 @@ def mkEmptyEntriesArray {α β} : Array (Entry α β (Node α β)) :=
 
 end PersistentHashMap
 
-structure PersistentHashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] :=
-  (root    : PersistentHashMap.Node α β := PersistentHashMap.Node.entries PersistentHashMap.mkEmptyEntriesArray)
-  (size    : Nat                        := 0)
+structure PersistentHashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
+  root    : PersistentHashMap.Node α β := PersistentHashMap.Node.entries PersistentHashMap.mkEmptyEntriesArray
+  size    : Nat                        := 0
 
 abbrev PHashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] := PersistentHashMap α β
 
@@ -54,12 +54,12 @@ abbrev mul2Shift (i : USize) (shift : USize) : USize := i.shiftLeft shift
 abbrev div2Shift (i : USize) (shift : USize) : USize := i.shiftRight shift
 abbrev mod2Shift (i : USize) (shift : USize) : USize := USize.land i ((USize.shiftLeft 1 shift) - 1)
 
-inductive IsCollisionNode : Node α β → Prop :=
+inductive IsCollisionNode : Node α β → Prop where
   | mk (keys : Array α) (vals : Array β) (h : keys.size = vals.size) : IsCollisionNode (Node.collision keys vals h)
 
 abbrev CollisionNode (α β) := { n : Node α β // IsCollisionNode n }
 
-inductive IsEntriesNode : Node α β → Prop :=
+inductive IsEntriesNode : Node α β → Prop where
   | mk (entries : Array (Entry α β (Node α β))) : IsEntriesNode (Node.entries entries)
 
 abbrev EntriesNode (α β) := { n : Node α β // IsEntriesNode n }
@@ -282,11 +282,11 @@ end
 def toList [BEq α] [Hashable α] (m : PersistentHashMap α β) : List (α × β) :=
   m.foldl (init := []) fun ps k v => (k, v) :: ps
 
-structure Stats :=
-  (numNodes      : Nat := 0)
-  (numNull       : Nat := 0)
-  (numCollisions : Nat := 0)
-  (maxDepth      : Nat := 0)
+structure Stats where
+  numNodes      : Nat := 0
+  numNull       : Nat := 0
+  numCollisions : Nat := 0
+  maxDepth      : Nat := 0
 
 partial def collectStats : Node α β → Stats → Nat → Stats
   | Node.collision keys _ _, stats, depth =>

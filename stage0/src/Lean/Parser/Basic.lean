@@ -90,12 +90,12 @@ def leadPrec := maxPrec - 1
 
 abbrev Token := String
 
-structure TokenCacheEntry :=
-  (startPos stopPos : String.Pos := 0)
-  (token : Syntax := Syntax.missing)
+structure TokenCacheEntry where
+  startPos stopPos : String.Pos := 0
+  token : Syntax := Syntax.missing
 
-structure ParserCache :=
-  (tokenCache : TokenCacheEntry)
+structure ParserCache where
+  tokenCache : TokenCacheEntry
 
 def initCacheForInput (input : String) : ParserCache := {
   tokenCache := { startPos := input.bsize + 1 /- make sure it is not a valid position -/}
@@ -111,27 +111,27 @@ def SyntaxNodeKindSet.insert (s : SyntaxNodeKindSet) (k : SyntaxNodeKind) : Synt
 /-
   Input string and related data. Recall that the `FileMap` is a helper structure for mapping
   `String.Pos` in the input string to line/column information.  -/
-structure InputContext :=
-  (input    : String)
-  (fileName : String)
-  (fileMap  : FileMap)
+structure InputContext where
+  input    : String
+  fileName : String
+  fileMap  : FileMap
 
 instance : Inhabited InputContext := ⟨{
   input := "", fileName := "", fileMap := arbitrary
 }⟩
 
-structure ParserContext extends InputContext :=
-  (prec               : Nat)
-  (env                : Environment)
-  (tokens             : TokenTable)
-  (insideQuot         : Bool := false)
-  (suppressInsideQuot : Bool := false)
-  (savedPos?          : Option String.Pos := none)
-  (forbiddenTk?       : Option Token := none)
+structure ParserContext extends InputContext where
+  prec               : Nat
+  env                : Environment
+  tokens             : TokenTable
+  insideQuot         : Bool := false
+  suppressInsideQuot : Bool := false
+  savedPos?          : Option String.Pos := none
+  forbiddenTk?       : Option Token := none
 
-structure Error :=
-  (unexpected : String := "")
-  (expected : List String := [])
+structure Error where
+  unexpected : String := ""
+  expected : List String := []
 
 namespace Error
 instance : Inhabited Error := ⟨{}⟩
@@ -163,11 +163,11 @@ def merge (e₁ e₂ : Error) : Error :=
 
 end Error
 
-structure ParserState :=
-  (stxStack : Array Syntax := #[])
-  (pos      : String.Pos := 0)
-  (cache    : ParserCache)
-  (errorMsg : Option Error := none)
+structure ParserState where
+  stxStack : Array Syntax := #[]
+  pos      : String.Pos := 0
+  cache    : ParserCache
+  errorMsg : Option Error := none
 
 namespace ParserState
 
@@ -254,7 +254,7 @@ def ParserFn := ParserContext → ParserState → ParserState
 
 instance : Inhabited ParserFn := ⟨fun _ => id⟩
 
-inductive FirstTokens :=
+inductive FirstTokens where
   | epsilon   : FirstTokens
   | unknown   : FirstTokens
   | tokens    : List Token → FirstTokens
@@ -291,14 +291,14 @@ instance : ToString FirstTokens := ⟨toStr⟩
 
 end FirstTokens
 
-structure ParserInfo :=
-  (collectTokens : List Token → List Token := id)
-  (collectKinds  : SyntaxNodeKindSet → SyntaxNodeKindSet := id)
-  (firstTokens   : FirstTokens                           := FirstTokens.unknown)
+structure ParserInfo where
+  collectTokens : List Token → List Token := id
+  collectKinds  : SyntaxNodeKindSet → SyntaxNodeKindSet := id
+  firstTokens   : FirstTokens := FirstTokens.unknown
 
-structure Parser :=
-  (info : ParserInfo := {})
-  (fn   : ParserFn)
+structure Parser where
+  info : ParserInfo := {}
+  fn   : ParserFn
 
 instance : Inhabited Parser :=
   ⟨{ fn := fun _ s => s }⟩
@@ -1414,22 +1414,22 @@ def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
 
 namespace TokenMap
 
-def insert {α : Type} (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
+def insert (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
   match map.find? k with
   | none    => Std.RBMap.insert map k [v]
   | some vs => Std.RBMap.insert map k (v::vs)
 
-instance {α : Type} : Inhabited (TokenMap α) := ⟨RBMap.empty⟩
+instance : Inhabited (TokenMap α) := ⟨RBMap.empty⟩
 
-instance {α : Type} : EmptyCollection (TokenMap α) := ⟨RBMap.empty⟩
+instance : EmptyCollection (TokenMap α) := ⟨RBMap.empty⟩
 
 end TokenMap
 
-structure PrattParsingTables :=
-  (leadingTable    : TokenMap (Parser × Nat) := {})
-  (leadingParsers  : List (Parser × Nat) := []) -- for supporting parsers we cannot obtain first token
-  (trailingTable   : TokenMap (Parser × Nat) := {})
-  (trailingParsers : List (Parser × Nat) := []) -- for supporting parsers such as function application
+structure PrattParsingTables where
+  leadingTable    : TokenMap (Parser × Nat) := {}
+  leadingParsers  : List (Parser × Nat) := [] -- for supporting parsers we cannot obtain first token
+  trailingTable   : TokenMap (Parser × Nat) := {}
+  trailingParsers : List (Parser × Nat) := [] -- for supporting parsers such as function application
 
 instance : Inhabited PrattParsingTables := ⟨{}⟩
 
@@ -1462,8 +1462,9 @@ instance : Inhabited PrattParsingTables := ⟨{}⟩
   That is, only parsers with precedence at least `prec` are considered.
   The method `termParser prec` is equivalent to the method above.
 -/
-structure ParserCategory :=
-  (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool)
+structure ParserCategory where
+  tables : PrattParsingTables
+  leadingIdentAsSymbol : Bool
 
 instance : Inhabited ParserCategory := ⟨{ tables := {}, leadingIdentAsSymbol := false }⟩
 

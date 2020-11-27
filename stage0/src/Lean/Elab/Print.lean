@@ -80,9 +80,9 @@ private def printId (id : Name) : CommandElabM Unit := do
 
 namespace CollectAxioms
 
-structure State :=
-  (visited : NameSet    := {})
-  (axioms  : Array Name := #[])
+structure State where
+  visited : NameSet    := {}
+  axioms  : Array Name := #[]
 
 abbrev M := ReaderT Environment $ StateM State
 

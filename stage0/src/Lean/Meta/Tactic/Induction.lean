@@ -35,10 +35,10 @@ private def addRecParams (mvarId : MVarId) (majorTypeArgs : Array Expr) : List (
     | _ =>
       throwTacticEx `induction mvarId "ill-formed recursor"
 
-structure InductionSubgoal :=
-  (mvarId : MVarId)
-  (fields : Array Expr := #[])
-  (subst  : FVarSubst := {})
+structure InductionSubgoal where
+  mvarId : MVarId
+  fields : Array Expr := #[]
+  subst  : FVarSubst := {}
 
 instance : Inhabited InductionSubgoal := ⟨{ mvarId := arbitrary }⟩
 

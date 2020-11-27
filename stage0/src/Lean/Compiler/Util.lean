@@ -15,8 +15,9 @@ def mkLcProof (pred : Expr)  := mkApp (mkConst `lcProof []) pred
 
 namespace atMostOnce
 
-structure AtMostOnceData :=
-  (found result : Bool)
+structure AtMostOnceData where
+  found : Bool
+  result : Bool
 
 def Visitor := AtMostOnceData → AtMostOnceData
 

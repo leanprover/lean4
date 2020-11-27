@@ -11,19 +11,19 @@ import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Term
 open Meta
 
-structure LetRecDeclView :=
-  (ref           : Syntax)
-  (attrs         : Array Attribute)
-  (shortDeclName : Name)
-  (declName      : Name)
-  (numParams     : Nat)
-  (type          : Expr)
-  (mvar          : Expr) -- auxiliary metavariable used to lift the 'let rec'
-  (valStx        : Syntax)
+structure LetRecDeclView where
+  ref           : Syntax
+  attrs         : Array Attribute
+  shortDeclName : Name
+  declName      : Name
+  numParams     : Nat
+  type          : Expr
+  mvar          : Expr -- auxiliary metavariable used to lift the 'let rec'
+  valStx        : Syntax
 
-structure LetRecView :=
-  (decls     : Array LetRecDeclView)
-  (body      : Syntax)
+structure LetRecView where
+  decls     : Array LetRecDeclView
+  body      : Syntax
 
 /-  group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser -/
 private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do

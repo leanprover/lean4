@@ -404,15 +404,15 @@ namespace CheckAssignment
 builtin_initialize checkAssignmentExceptionId : InternalExceptionId ← registerInternalExceptionId `checkAssignment
 builtin_initialize outOfScopeExceptionId : InternalExceptionId ← registerInternalExceptionId `outOfScope
 
-structure State :=
-  (cache : ExprStructMap Expr := {})
+structure State where
+  cache : ExprStructMap Expr := {}
 
-structure Context :=
-  (mvarId        : MVarId)
-  (mvarDecl      : MetavarDecl)
-  (fvars         : Array Expr)
-  (hasCtxLocals  : Bool)
-  (rhs           : Expr)
+structure Context where
+  mvarId        : MVarId
+  mvarDecl      : MetavarDecl
+  fvars         : Array Expr
+  hasCtxLocals  : Bool
+  rhs           : Expr
 
 abbrev CheckAssignmentM := ReaderT Context $ StateRefT State MetaM
 

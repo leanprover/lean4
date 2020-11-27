@@ -11,10 +11,10 @@ import Lean.Meta.Tactic.Apply
 
 namespace Lean.Meta
 
-structure RewriteResult :=
-  (eNew     : Expr)
-  (eqProof  : Expr)
-  (mvarIds  : List MVarId) -- new goals
+structure RewriteResult where
+  eNew     : Expr
+  eqProof  : Expr
+  mvarIds  : List MVarId -- new goals
 
 def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
     (symm : Bool := false) (occs : Occurrences := Occurrences.all) (mode := TransparencyMode.reducible) : MetaM RewriteResult :=

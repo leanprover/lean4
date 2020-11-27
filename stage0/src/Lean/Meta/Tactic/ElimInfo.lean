@@ -7,14 +7,14 @@ import Lean.Meta.Basic
 
 namespace Lean.Meta
 
-structure ElimAltInfo :=
-  (name      : Name)
-  (numFields : Nat)
+structure ElimAltInfo where
+  name      : Name
+  numFields : Nat
 
-structure ElimInfo :=
-  (motivePos   : Nat)
-  (targetsPos  : Array Nat := #[])
-  (altsInfo    : Array ElimAltInfo := #[])
+structure ElimInfo where
+  motivePos   : Nat
+  targetsPos  : Array Nat := #[]
+  altsInfo    : Array ElimAltInfo := #[]
 
 def getElimInfo (declName : Name) : MetaM ElimInfo := do
   let declInfo ← getConstInfo declName

@@ -13,9 +13,9 @@ def HashSetBucket.update {α : Type u} (data : HashSetBucket α) (i : USize) (d 
   ⟨ data.val.uset i d h,
     by erw [Array.sizeSetEq]; exact data.property ⟩
 
-structure HashSetImp (α : Type u) :=
-  (size       : Nat)
-  (buckets    : HashSetBucket α)
+structure HashSetImp (α : Type u) where
+  size       : Nat
+  buckets    : HashSetBucket α
 
 def mkHashSetImp {α : Type u} (nbuckets := 8) : HashSetImp α :=
   let n := if nbuckets = 0 then 8 else nbuckets
@@ -98,7 +98,7 @@ def erase [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
     if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
     else m
 
-inductive WellFormed [BEq α] [Hashable α] : HashSetImp α → Prop :=
+inductive WellFormed [BEq α] [Hashable α] : HashSetImp α → Prop where
   | mkWff     : ∀ n,                  WellFormed (mkHashSetImp n)
   | insertWff : ∀ m a, WellFormed m → WellFormed (insert m a)
   | eraseWff  : ∀ m a, WellFormed m → WellFormed (erase m a)

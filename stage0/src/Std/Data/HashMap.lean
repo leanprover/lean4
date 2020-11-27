@@ -14,9 +14,9 @@ def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β
   ⟨ data.val.uset i d h,
     by erw [Array.sizeSetEq]; exact data.property ⟩
 
-structure HashMapImp (α : Type u) (β : Type v) :=
-  (size       : Nat)
-  (buckets    : HashMapBucket α β)
+structure HashMapImp (α : Type u) (β : Type v) where
+  size       : Nat
+  buckets    : HashMapBucket α β
 
 def mkHashMapImp {α : Type u} {β : Type v} (nbuckets := 8) : HashMapImp α β :=
   let n := if nbuckets = 0 then 8 else nbuckets;
@@ -106,7 +106,7 @@ def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α
     if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
     else m
 
-inductive WellFormed [BEq α] [Hashable α] : HashMapImp α β → Prop :=
+inductive WellFormed [BEq α] [Hashable α] : HashMapImp α β → Prop where
   | mkWff     : ∀ n,                    WellFormed (mkHashMapImp n)
   | insertWff : ∀ m a b, WellFormed m → WellFormed (insert m a b)
   | eraseWff  : ∀ m a,   WellFormed m → WellFormed (erase m a)

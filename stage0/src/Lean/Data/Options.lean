@@ -13,10 +13,10 @@ def Options.empty : Options  := {}
 instance : Inhabited Options := ⟨Options.empty⟩
 instance : ToString Options := inferInstanceAs (ToString KVMap)
 
-structure OptionDecl :=
-  (defValue : DataValue)
-  (group    : String := "")
-  (descr    : String := "")
+structure OptionDecl where
+  defValue : DataValue
+  group    : String := ""
+  descr    : String := ""
 
 def OptionDecls := NameMap OptionDecl
 
@@ -95,8 +95,8 @@ builtin_initialize
     descr := "maximum amount of memory available for Lean in megabytes"
   }
 
-class MonadOptions (m : Type → Type) :=
-  (getOptions : m Options)
+class MonadOptions (m : Type → Type) where
+  getOptions : m Options
 
 export MonadOptions (getOptions)
 

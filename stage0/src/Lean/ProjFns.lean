@@ -9,11 +9,11 @@ namespace Lean
 
 /- Given a structure `S`, Lean automatically creates an auxiliary definition (projection function)
    for each field. This structure caches information about these auxiliary definitions. -/
-structure ProjectionFunctionInfo :=
-  (ctorName : Name)  -- Constructor associated with the auxiliary projection function.
-  (nparams : Nat)    -- Number of parameters in the structure
-  (i : Nat)          -- The field index associated with the auxiliary projection function.
-  (fromClass : Bool) -- `true` if the structure is a class
+structure ProjectionFunctionInfo where
+  ctorName : Name  -- Constructor associated with the auxiliary projection function.
+  nparams : Nat    -- Number of parameters in the structure
+  i : Nat          -- The field index associated with the auxiliary projection function.
+  fromClass : Bool -- `true` if the structure is a class
 
 @[export lean_mk_projection_info]
 def mkProjectionInfoEx (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : Bool) : ProjectionFunctionInfo :=

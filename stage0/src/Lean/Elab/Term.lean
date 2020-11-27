@@ -66,17 +66,17 @@ namespace Lean.Elab.Term
 def setElabConfig (cfg : Meta.Config) : Meta.Config :=
   { cfg with foApprox := true, ctxApprox := true, constApprox := false, quasiPatternApprox := false }
 
-structure Context :=
-  (fileName        : String)
-  (fileMap         : FileMap)
-  (declName?       : Option Name     := none)
-  (levelNames      : List Name       := [])
-  (macroStack      : MacroStack      := [])
-  (currMacroScope  : MacroScope      := firstFrontendMacroScope)
+structure Context where
+  fileName        : String
+  fileMap         : FileMap
+  declName?       : Option Name     := none
+  levelNames      : List Name       := []
+  macroStack      : MacroStack      := []
+  currMacroScope  : MacroScope      := firstFrontendMacroScope
   /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
      The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
      the list of pending synthetic metavariables, and returns `?m`. -/
-  (mayPostpone     : Bool            := true)
+  mayPostpone     : Bool            := true
   /- When `errToSorry` is set to true, the method `elabTerm` catches
      exceptions and converts them into synthetic `sorry`s.
      The implementation of choice nodes and overloaded symbols rely on the fact
@@ -84,16 +84,16 @@ structure Context :=
      `errToSorry` remains `false` for all elaboration functions invoked by `F`.
      That is, it is safe to transition `errToSorry` from `true` to `false`, but
      we must not set `errToSorry` to `true` when it is currently set to `false`. -/
-  (errToSorry      : Bool            := true)
+  errToSorry      : Bool            := true
   /- When `unboundImplicit` is set to true, instead of producing
      an "unknown identifier" error for unbound variables, we generate an
      internal exception. This exception is caught at `elabBinders` and
      `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
      for the unbound variable and try again. -/
-  (unboundImplicit : Bool            := false)
+  unboundImplicit : Bool            := false
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
-inductive SyntheticMVarKind :=
+inductive SyntheticMVarKind where
   -- typeclass instance search
   | typeClass
   /- Similar to typeClass, but error messages are different.
@@ -106,36 +106,38 @@ inductive SyntheticMVarKind :=
   -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
   | postponed (macroStack : MacroStack) (declName? : Option Name)
 
-structure SyntheticMVarDecl :=
-  (mvarId : MVarId) (stx : Syntax) (kind : SyntheticMVarKind)
+structure SyntheticMVarDecl where
+  mvarId : MVarId
+  stx : Syntax
+  kind : SyntheticMVarKind
 
-inductive MVarErrorKind :=
+inductive MVarErrorKind where
   | implicitArg (ctx : Expr)
   | hole
   | custom (msgData : MessageData)
 
-structure MVarErrorInfo :=
-  (mvarId    : MVarId)
-  (ref       : Syntax)
-  (kind      : MVarErrorKind)
+structure MVarErrorInfo where
+  mvarId    : MVarId
+  ref       : Syntax
+  kind      : MVarErrorKind
 
-structure LetRecToLift :=
-  (ref            : Syntax)
-  (fvarId         : FVarId)
-  (attrs          : Array Attribute)
-  (shortDeclName  : Name)
-  (declName       : Name)
-  (lctx           : LocalContext)
-  (localInstances : LocalInstances)
-  (type           : Expr)
-  (val            : Expr)
-  (mvarId         : MVarId)
+structure LetRecToLift where
+  ref            : Syntax
+  fvarId         : FVarId
+  attrs          : Array Attribute
+  shortDeclName  : Name
+  declName       : Name
+  lctx           : LocalContext
+  localInstances : LocalInstances
+  type           : Expr
+  val            : Expr
+  mvarId         : MVarId
 
-structure State :=
-  (syntheticMVars    : List SyntheticMVarDecl := [])
-  (mvarErrorInfos    : List MVarErrorInfo := [])
-  (messages          : MessageLog := {})
-  (letRecsToLift     : List LetRecToLift := [])
+structure State where
+  syntheticMVars    : List SyntheticMVarDecl := []
+  mvarErrorInfos    : List MVarErrorInfo := []
+  messages          : MessageLog := {}
+  letRecsToLift     : List LetRecToLift := []
 
 instance : Inhabited State := ⟨{}⟩
 
@@ -146,10 +148,10 @@ open Meta
 
 instance {α} : Inhabited (TermElabM α) := ⟨throw arbitrary⟩
 
-structure SavedState :=
-  (core   : Core.State)
-  (meta   : Meta.State)
-  («elab» : State)
+structure SavedState where
+  core   : Core.State
+  meta   : Meta.State
+  «elab» : State
 
 instance : Inhabited SavedState := ⟨⟨arbitrary, arbitrary, arbitrary⟩⟩
 
@@ -266,7 +268,7 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
   Example: `a.foo[i].1` is represented as the `Syntax` `a` and the list
   `[LVal.fieldName "foo", LVal.getOp i, LVal.fieldIdx 1]`.
   Recall that the notation `a[i]` is not just for accessing arrays in Lean. -/
-inductive LVal :=
+inductive LVal where
   | fieldIdx  (i : Nat)
   | fieldName (name : String)
   | getOp     (idx : Syntax)

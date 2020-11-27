@@ -33,8 +33,8 @@ def mkProjMap (d : Decl) : ProjMap :=
   | Decl.fdecl _ _ _ b => CollectProjMap.collectFnBody b {}
   | _ => {}
 
-structure Context :=
-  (projMap : ProjMap)
+structure Context where
+  projMap : ProjMap
 
 /- Return true iff `x` is consumed in all branches of the current block.
    Here consumption means the block contains a `dec x` or `reuse x ...`. -/

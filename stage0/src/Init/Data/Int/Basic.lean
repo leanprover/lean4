@@ -14,7 +14,7 @@ open Nat
 
 /- the Type, coercions, and notation -/
 
-inductive Int : Type :=
+inductive Int : Type where
   | ofNat   : Nat → Int
   | negSucc : Nat → Int
 
@@ -70,7 +70,7 @@ protected def sub (m n : @& Int) : Int :=
 
 instance : Sub Int := ⟨Int.sub⟩
 
-inductive NonNeg : Int → Prop :=
+inductive NonNeg : Int → Prop where
   | mk (n : Nat) : NonNeg (ofNat n)
 
 protected def LessEq (a b : Int) : Prop := NonNeg (b - a)

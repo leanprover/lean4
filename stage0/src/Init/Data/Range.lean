@@ -9,10 +9,10 @@ import Init.Meta
 namespace Std
 -- We put `Range` in `Init` because we want the notation `[i:j]`  without importing `Std`
 -- We don't put `Range` in the top-level namespace to avoid collisions with user defined types
-structure Range :=
-  (start : Nat := 0)
-  (stop  : Nat)
-  (step  : Nat := 1)
+structure Range where
+  start : Nat := 0
+  stop  : Nat
+  step  : Nat := 1
 
 namespace Range
 universes u v

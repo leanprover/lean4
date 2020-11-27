@@ -21,9 +21,12 @@ namespace Lean.IR
 abbrev FunId := Name
 abbrev Index := Nat
 /- Variable identifier -/
-structure VarId := (idx : Index)
+structure VarId where
+  idx : Index
+
 /- Join point identifier -/
-structure JoinPointId := (idx : Index)
+structure JoinPointId where
+  idx : Index
 
 abbrev Index.lt (a b : Index) : Bool := a < b
 
@@ -72,7 +75,7 @@ then one of the following must hold in each (execution) branch.
    of one of its components. Minor refinement: we don't need to consume scalar fields or struct/union
    fields that do not contain object fields.
 -/
-inductive IRType :=
+inductive IRType where
   | float | uint8 | uint16 | uint32 | uint64 | usize
   | irrelevant | object | tobject
   | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
@@ -128,7 +131,7 @@ end IRType
    We use `irrelevant` for Lean types, propositions and proofs that have been erased.
    Recall that for a Function `f`, we also generate `f._rarg` which does not take
    `irrelevant` arguments. However, `f._rarg` is only safe to be used in full applications. -/
-inductive Arg :=
+inductive Arg where
   | var (id : VarId)
   | irrelevant
 
@@ -142,7 +145,7 @@ instance : Inhabited Arg := ⟨Arg.irrelevant⟩
 
 @[export lean_ir_mk_var_arg] def mkVarArg (id : VarId) : Arg := Arg.var id
 
-inductive LitVal :=
+inductive LitVal where
   | num (v : Nat)
   | str (v : String)
 
@@ -164,12 +167,12 @@ instance : BEq LitVal := ⟨LitVal.beq⟩
 Recall that a Constructor object contains a header, then a sequence of
 pointers to other Lean objects, a sequence of `USize` (i.e., `size_t`)
 scalar values, and a sequence of other scalar values. -/
-structure CtorInfo :=
-  (name : Name)
-  (cidx : Nat)
-  (size : Nat)
-  (usize : Nat)
-  (ssize : Nat)
+structure CtorInfo where
+  name : Name
+  cidx : Nat
+  size : Nat
+  usize : Nat
+  ssize : Nat
 
 def CtorInfo.beq : CtorInfo → CtorInfo → Bool
   | ⟨n₁, cidx₁, size₁, usize₁, ssize₁⟩, ⟨n₂, cidx₂, size₂, usize₂, ssize₂⟩ =>
@@ -183,7 +186,7 @@ def CtorInfo.isRef (info : CtorInfo) : Bool :=
 def CtorInfo.isScalar (info : CtorInfo) : Bool :=
   !info.isRef
 
-inductive Expr :=
+inductive Expr where
   /- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
      This instruction is also used to creat `struct` and `union` return values.
      For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
@@ -226,21 +229,21 @@ inductive Expr :=
 @[export lean_ir_mk_num_expr]   def mkNumExpr (v : Nat) : Expr := Expr.lit (LitVal.num v)
 @[export lean_ir_mk_str_expr]   def mkStrExpr (v : String) : Expr := Expr.lit (LitVal.str v)
 
-structure Param :=
-  (x : VarId)
-  (borrow : Bool)
-  (ty : IRType)
+structure Param where
+  x : VarId
+  borrow : Bool
+  ty : IRType
 
 instance : Inhabited Param := ⟨{ x := { idx := 0 }, borrow := false, ty := IRType.object }⟩
 
 @[export lean_ir_mk_param]
 def mkParam (x : VarId) (borrow : Bool) (ty : IRType) : Param := ⟨x, borrow, ty⟩
 
-inductive AltCore (FnBody : Type) : Type :=
+inductive AltCore (FnBody : Type) : Type where
   | ctor (info : CtorInfo) (b : FnBody) : AltCore FnBody
   | default (b : FnBody) : AltCore FnBody
 
-inductive FnBody :=
+inductive FnBody where
   /- `let x : ty := e; b` -/
   | vdecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody)
   /- Join point Declaration `block_j (xs) := e; b` -/
@@ -387,7 +390,7 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 @[export lean_ir_mk_alt] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt :=
   Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
 
-inductive Decl :=
+inductive Decl where
   | fdecl  (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody)
   | extern (f : FunId) (xs : Array Param) (ty : IRType) (ext : ExternAttrData)
 
@@ -428,7 +431,7 @@ instance : Inhabited IndexSet := ⟨{}⟩
 def mkIndexSet (idx : Index) : IndexSet :=
   RBTree.empty.insert idx
 
-inductive LocalContextEntry :=
+inductive LocalContextEntry where
   | param     : IRType → LocalContextEntry
   | localVar  : IRType → Expr → LocalContextEntry
   | joinPoint : Array Param → FnBody → LocalContextEntry
@@ -491,8 +494,8 @@ def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
 
 abbrev IndexRenaming := RBMap Index Index Index.lt
 
-class AlphaEqv (α : Type) :=
-  (aeqv : IndexRenaming → α → α → Bool)
+class AlphaEqv (α : Type) where
+  aeqv : IndexRenaming → α → α → Bool
 
 export AlphaEqv (aeqv)
 

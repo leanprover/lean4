@@ -8,8 +8,9 @@ import Std.Data.RBTree
 namespace Lean
 
 -- mantissa * 10^-exponent
-structure JsonNumber :=
-  (mantissa : Int) (exponent : Nat)
+structure JsonNumber where
+  mantissa : Int
+  exponent : Nat
 
 protected def JsonNumber.decEq : (a b : JsonNumber) → Decidable (a = b)
   | ⟨m1, e1⟩, ⟨m2, e2⟩ =>
@@ -82,7 +83,7 @@ def strLt (a b : String) := Decidable.decide (a < b)
 
 open Std (RBNode RBNode.leaf)
 
-inductive Json :=
+inductive Json where
   | null
   | bool (b : Bool)
   | num (n : JsonNumber)
@@ -143,7 +144,7 @@ def getArrVal? : Json → Nat → Option Json
 def getObjValD (j : Json) (k : String) : Json :=
   (j.getObjVal? k).getD null
 
-inductive Structured :=
+inductive Structured where
   | arr (elems : Array Json)
   | obj (kvPairs : RBNode String (fun _ => Json))
 

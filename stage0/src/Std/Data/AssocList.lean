@@ -7,7 +7,7 @@ universes u v w w'
 namespace Std
 
 /- List-like type to avoid extra level of indirection -/
-inductive AssocList (α : Type u) (β : Type v) :=
+inductive AssocList (α : Type u) (β : Type v) where
   | nil : AssocList α β
   | cons (key : α) (value : β) (tail : AssocList α β) : AssocList α β
 

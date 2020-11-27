@@ -8,7 +8,7 @@ import Lean.Compiler.Util
 
 namespace Lean.Compiler
 
-inductive SpecializeAttributeKind :=
+inductive SpecializeAttributeKind where
   | specialize | nospecialize
 
 namespace SpecializeAttributeKind
@@ -53,22 +53,22 @@ def hasSpecializeAttribute (env : Environment) (n : Name) : Bool :=
 def hasNospecializeAttribute (env : Environment) (n : Name) : Bool :=
   hasSpecializeAttrAux env SpecializeAttributeKind.nospecialize n
 
-inductive SpecArgKind :=
+inductive SpecArgKind where
   | fixed
   | fixedNeutral -- computationally neutral
   | fixedHO      -- higher order
   | fixedInst    -- type class instance
   | other
 
-structure SpecInfo :=
-  (mutualDecls : List Name)
-  (argKinds : SpecArgKind)
+structure SpecInfo where
+  mutualDecls : List Name
+  argKinds : SpecArgKind
 
-structure SpecState :=
-  (specInfo : SMap Name SpecInfo := {})
-  (cache    : SMap Expr Name := {})
+structure SpecState where
+  specInfo : SMap Name SpecInfo := {}
+  cache    : SMap Expr Name := {}
 
-inductive SpecEntry :=
+inductive SpecEntry where
   | info (name : Name) (info : SpecInfo)
   | cache (key : Expr) (fn : Name)
 

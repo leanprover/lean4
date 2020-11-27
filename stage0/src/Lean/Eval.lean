@@ -12,8 +12,8 @@ universe u
 /-- `Eval` extension that gives access to the current environment & options.
     The basic `Eval` class is in the prelude and should not depend on these
     types. -/
-class MetaEval (α : Type u) :=
-  (eval : Environment → Options → α → (hideUnit : Bool) → IO Environment)
+class MetaEval (α : Type u) where
+  eval : Environment → Options → α → (hideUnit : Bool) → IO Environment
 
 instance {α : Type u} [Eval α] : MetaEval α :=
   ⟨fun env opts a hideUnit => do Eval.eval (fun _ => a) hideUnit; pure env⟩

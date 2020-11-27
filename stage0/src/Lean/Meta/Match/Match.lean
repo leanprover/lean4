@@ -52,9 +52,9 @@ where
 def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
   withGoalOf p (assignExprMVar p.mvarId e)
 
-structure State :=
-  (used            : Std.HashSet Nat := {}) -- used alternatives
-  (counterExamples : List (List Example) := [])
+structure State where
+  used            : Std.HashSet Nat := {} -- used alternatives
+  counterExamples : List (List Example) := []
 
 /-- Return true if the given (sub-)problem has been solved. -/
 private def isDone (p : Problem) : Bool :=
@@ -179,11 +179,11 @@ private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool 
 
 namespace Unify
 
-structure Context :=
-  (altFVarDecls : List LocalDecl)
+structure Context where
+  altFVarDecls : List LocalDecl
 
-structure State :=
-  (fvarSubst : FVarSubst := {})
+structure State where
+  fvarSubst : FVarSubst := {}
 
 abbrev M := ReaderT Context $ StateRefT State MetaM
 

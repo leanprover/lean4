@@ -8,11 +8,11 @@ import Lean.Meta.Match.CaseValues
 
 namespace Lean.Meta
 
-structure CaseArraySizesSubgoal :=
-  (mvarId : MVarId)
-  (elems  : Array FVarId := #[])
-  (diseqs : Array FVarId := #[])
-  (subst  : FVarSubst := {})
+structure CaseArraySizesSubgoal where
+  mvarId : MVarId
+  elems  : Array FVarId := #[]
+  diseqs : Array FVarId := #[]
+  subst  : FVarSubst := {}
 
 instance : Inhabited CaseArraySizesSubgoal :=
   ⟨{ mvarId := arbitrary }⟩

@@ -8,51 +8,44 @@ universe u
 
 namespace Lean
 
-class ToExpr (α : Type u) :=
-(toExpr     : α → Expr)
-(toTypeExpr : Expr)
+class ToExpr (α : Type u) where
+  toExpr     : α → Expr
+  toTypeExpr : Expr
 
 export ToExpr (toExpr toTypeExpr)
 
-instance : ToExpr Expr := {
-  toExpr     := id,
+instance : ToExpr Expr where
+  toExpr     := id
   toTypeExpr := mkConst `Expr
-}
 
-instance : ToExpr Nat := {
-  toExpr     := mkNatLit,
+instance : ToExpr Nat where
+  toExpr     := mkNatLit
   toTypeExpr := mkConst `Nat
-}
 
-instance : ToExpr Bool := {
-  toExpr     := fun b => if b then mkConst `Bool.true else mkConst `Bool.false,
+instance : ToExpr Bool where
+  toExpr     := fun b => if b then mkConst `Bool.true else mkConst `Bool.false
   toTypeExpr := mkConst `Bool
-}
 
-instance : ToExpr Char := {
-  toExpr     := fun c => mkApp (mkConst `Char.ofNat) (toExpr c.toNat),
+instance : ToExpr Char where
+  toExpr     := fun c => mkApp (mkConst `Char.ofNat) (toExpr c.toNat)
   toTypeExpr := mkConst `Char
-}
 
-instance : ToExpr String := {
-  toExpr     := mkStrLit,
+instance : ToExpr String where
+  toExpr     := mkStrLit
   toTypeExpr := mkConst `String
-}
 
-instance : ToExpr Unit := {
-  toExpr     := fun _ => mkConst `Unit.unit,
+instance : ToExpr Unit where
+  toExpr     := fun _ => mkConst `Unit.unit
   toTypeExpr := mkConst `Unit
-}
 
 def Name.toExprAux : Name → Expr
   | Name.anonymous  => mkConst `Lean.Name.anonymous
   | Name.str p s _  => mkAppB (mkConst `Lean.Name.mkStr) (toExprAux p) (toExpr s)
   | Name.num p n _  => mkAppB (mkConst `Lean.Name.mkNum) (toExprAux p) (toExpr n)
 
-instance : ToExpr Name := {
-  toExpr     := Name.toExprAux,
+instance : ToExpr Name where
+  toExpr     := Name.toExprAux
   toTypeExpr := mkConst `Name
-}
 
 instance {α : Type} [ToExpr α] : ToExpr (Option α) :=
   let type := toTypeExpr α

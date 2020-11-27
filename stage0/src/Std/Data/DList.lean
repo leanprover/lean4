@@ -11,9 +11,9 @@ contents of the difference List prepended to the given List.
 This structure supports `O(1)` `append` and `concat` operations on lists, making it
 useful for append-heavy uses such as logging and pretty printing.
 -/
-structure DList (α : Type u) :=
-  (apply     : List α → List α)
-  (invariant : ∀ l, apply l = apply [] ++ l)
+structure DList (α : Type u) where
+  apply     : List α → List α
+  invariant : ∀ l, apply l = apply [] ++ l
 
 namespace DList
 variables {α : Type u}

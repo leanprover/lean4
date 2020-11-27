@@ -26,9 +26,9 @@ def when {m : Type → Type u} [Applicative m] (c : Prop) [h : Decidable c] (t :
 def «unless» {m : Type → Type u} [Applicative m] (c : Prop) [h : Decidable c] (e : m Unit) : m Unit :=
   if c then pure () else e
 
-class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) :=
-  (failure : {α : Type u} → f α)
-  (orElse  : {α : Type u} → f α → f α → f α)
+class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) where
+  failure : {α : Type u} → f α
+  orElse  : {α : Type u} → f α → f α → f α
 
 instance (f : Type u → Type v) (α : Type u) [Alternative f] : OrElse (f α) := ⟨Alternative.orElse⟩
 
@@ -42,8 +42,8 @@ export Alternative (failure)
 @[inline] def optional (x : f α) : f (Option α) :=
   some <$> x <|> pure none
 
-class ToBool (α : Type u) :=
-  (toBool : α → Bool)
+class ToBool (α : Type u) where
+  toBool : α → Bool
 
 export ToBool (toBool)
 
@@ -73,29 +73,28 @@ infixr:35 " <&&> " => andM
 @[macroInline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
   not <$> x
 
-class MonadControl (m : Type u → Type v) (n : Type u → Type w) :=
-  (stM      : Type u → Type u)
-  (liftWith : {α : Type u} → (({β : Type u} → n β → m (stM β)) → m α) → n α)
-  (restoreM : {α : Type u} → m (stM α) → n α)
+class MonadControl (m : Type u → Type v) (n : Type u → Type w) where
+  stM      : Type u → Type u
+  liftWith : {α : Type u} → (({β : Type u} → n β → m (stM β)) → m α) → n α
+  restoreM : {α : Type u} → m (stM α) → n α
 
-class MonadControlT (m : Type u → Type v) (n : Type u → Type w) :=
-  (stM      : Type u → Type u)
-  (liftWith : {α : Type u} → (({β : Type u} → n β → m (stM β)) → m α) → n α)
-  (restoreM {α : Type u} : stM α → n α)
+class MonadControlT (m : Type u → Type v) (n : Type u → Type w) where
+  stM      : Type u → Type u
+  liftWith : {α : Type u} → (({β : Type u} → n β → m (stM β)) → m α) → n α
+  restoreM {α : Type u} : stM α → n α
 
 export MonadControlT (stM liftWith restoreM)
 
-instance (m n o) [MonadControlT m n] [MonadControl n o] : MonadControlT m o := {
-  stM      := fun α => stM m n (MonadControl.stM n o α)
-  liftWith := fun f => MonadControl.liftWith fun x₂ => liftWith fun x₁ => f (x₁ ∘ x₂)
+instance (m n o) [MonadControlT m n] [MonadControl n o] : MonadControlT m o where
+  stM α := stM m n (MonadControl.stM n o α)
+  liftWith f := MonadControl.liftWith fun x₂ => liftWith fun x₁ => f (x₁ ∘ x₂)
   restoreM := MonadControl.restoreM ∘ restoreM
-}
 
-instance (m : Type u → Type v) [Pure m] : MonadControlT m m := {
-  stM      := fun α => α
-  liftWith := fun f => f fun x => x
-  restoreM := fun x => pure x
-}
+
+instance (m : Type u → Type v) [Pure m] : MonadControlT m m where
+  stM α := α
+  liftWith f := f fun x => x
+  restoreM x := pure x
 
 @[inline]
 def controlAt (m : Type u → Type v) {n : Type u → Type w} [s1 : MonadControlT m n] [s2 : Bind n] {α : Type u}

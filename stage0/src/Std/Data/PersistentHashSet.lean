@@ -8,7 +8,7 @@ import Std.Data.PersistentHashMap
 namespace Std
 universes u v
 
-structure PersistentHashSet (α : Type u) [BEq α] [Hashable α] :=
+structure PersistentHashSet (α : Type u) [BEq α] [Hashable α] where
   (set : PersistentHashMap α Unit)
 
 abbrev PHashSet (α : Type u) [BEq α] [Hashable α] := PersistentHashSet α

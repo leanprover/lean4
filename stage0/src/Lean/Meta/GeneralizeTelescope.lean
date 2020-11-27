@@ -8,10 +8,10 @@ import Lean.Meta.KAbstract
 namespace Lean.Meta
 namespace GeneralizeTelescope
 
-structure Entry :=
-  (expr     : Expr)
-  (type     : Expr)
-  (modified : Bool)
+structure Entry where
+  expr     : Expr
+  type     : Expr
+  modified : Bool
 
 partial def updateTypes (e eNew : Expr) (entries : Array Entry) (i : Nat) : MetaM (Array Entry) :=
   if h : i < entries.size then

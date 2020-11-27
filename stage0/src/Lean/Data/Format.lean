@@ -9,7 +9,7 @@ universes u v
 namespace Lean
 namespace Format
 
-inductive FlattenBehavior :=
+inductive FlattenBehavior where
   | allOrNone
   | fill
 
@@ -25,7 +25,7 @@ end Format
 
 open Format
 
-inductive Format :=
+inductive Format where
   | nil                 : Format
   | line                : Format
   | text                : String → Format
@@ -56,10 +56,10 @@ def isNil : Format → Bool
   | nil => true
   | _   => false
 
-private structure SpaceResult :=
-  (foundLine              : Bool := false)
-  (foundFlattenedHardLine : Bool := false)
-  (space                  : Nat  := 0)
+private structure SpaceResult where
+  foundLine              : Bool := false
+  foundFlattenedHardLine : Bool := false
+  space                  : Nat  := 0
 
 instance : Inhabited SpaceResult := ⟨{}⟩
 
@@ -80,23 +80,23 @@ private def spaceUptoLine : Format → Bool → Nat → SpaceResult
   | nest _ f,     flatten, w => spaceUptoLine f flatten w
   | group f _,    _,       w => spaceUptoLine f true w
 
-private structure WorkItem :=
-  (f : Format)
-  (indent : Int)
+private structure WorkItem where
+  f : Format
+  indent : Int
 
-private structure WorkGroup :=
-  (flatten : Bool)
-  (flb     : FlattenBehavior)
-  (items   : List WorkItem)
+private structure WorkGroup where
+  flatten : Bool
+  flb     : FlattenBehavior
+  items   : List WorkItem
 
 private partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
   | [],                           w => {}
   |   { items := [],    .. }::gs, w => spaceUptoLine' gs w
   | g@{ items := i::is, .. }::gs, w => merge w (spaceUptoLine i.f g.flatten w) (spaceUptoLine' ({ g with items := is }::gs))
 
-private structure State :=
-  (out    : String := "")
-  (column : Nat    := 0)
+private structure State where
+  out    : String := ""
+  column : Nat    := 0
 
 private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat) : StateM State (List WorkGroup) := do
   let k  := (← get).column
@@ -200,8 +200,8 @@ end Format
 
 open Lean.Format
 
-class ToFormat (α : Type u) :=
-  (format : α → Format)
+class ToFormat (α : Type u) where
+  format : α → Format
 
 export Lean.ToFormat (format)
 

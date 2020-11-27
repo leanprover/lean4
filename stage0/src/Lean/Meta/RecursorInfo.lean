@@ -19,7 +19,7 @@ def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuf
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
 def mkBInductionOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName binductionOnSuffix
 
-inductive RecursorUnivLevelPos :=
+inductive RecursorUnivLevelPos where
   | motive                -- marks where the universe of the motive should go
   | majorType (idx : Nat) -- marks where the #idx universe of the major premise type goes
 
@@ -27,17 +27,17 @@ instance : ToString RecursorUnivLevelPos := ⟨fun
   | RecursorUnivLevelPos.motive        => "<motive-univ>"
   | RecursorUnivLevelPos.majorType idx => toString idx⟩
 
-structure RecursorInfo :=
-  (recursorName  : Name)
-  (typeName      : Name)
-  (univLevelPos  : List RecursorUnivLevelPos)
-  (depElim       : Bool)
-  (recursive     : Bool)
-  (numArgs       : Nat) -- Total number of arguments
-  (majorPos      : Nat)
-  (paramsPos     : List (Option Nat)) -- Position of the recursor parameters in the major premise, instance implicit arguments are `none`
-  (indicesPos    : List Nat) -- Position of the recursor indices in the major premise
-  (produceMotive : List Bool) -- If the i-th element is true then i-th minor premise produces the motive
+structure RecursorInfo where
+  recursorName  : Name
+  typeName      : Name
+  univLevelPos  : List RecursorUnivLevelPos
+  depElim       : Bool
+  recursive     : Bool
+  numArgs       : Nat -- Total number of arguments
+  majorPos      : Nat
+  paramsPos     : List (Option Nat) -- Position of the recursor parameters in the major premise, instance implicit arguments are `none`
+  indicesPos    : List Nat -- Position of the recursor indices in the major premise
+  produceMotive : List Bool -- If the i-th element is true then i-th minor premise produces the motive
 
 namespace RecursorInfo
 

@@ -52,10 +52,10 @@ def assertExt (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) (hName 
     assignExprMVar mvarId (mkApp2 newMVar val rflPrf)
     pure newMVar.mvarId!
 
-structure AssertAfterResult :=
-  (fvarId : FVarId)
-  (mvarId : MVarId)
-  (subst  : FVarSubst)
+structure AssertAfterResult where
+  fvarId : FVarId
+  mvarId : MVarId
+  subst  : FVarSubst
 
 /--
   Convert the given goal `Ctx |- target` into a goal containing `(userName : type)` after the local declaration with if `fvarId`.

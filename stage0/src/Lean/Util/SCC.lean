@@ -16,16 +16,16 @@ open Std
 section
 variables (α : Type) [BEq α] [Hashable α]
 
-structure Data :=
-  (index?   : Option Nat := none)
-  (lowlink? : Option Nat := none)
-  (onStack  : Bool       := false)
+structure Data where
+  index?   : Option Nat := none
+  lowlink? : Option Nat := none
+  onStack  : Bool       := false
 
-structure State :=
-  (stack     : List α := [])
-  (nextIndex : Nat := 0)
-  (data      : Std.HashMap α Data := {})
-  (sccs      : List (List α) := [])
+structure State where
+  stack     : List α := []
+  nextIndex : Nat := 0
+  data      : Std.HashMap α Data := {}
+  sccs      : List (List α) := []
 
 abbrev M := StateM (State α)
 end

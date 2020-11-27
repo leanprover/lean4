@@ -12,25 +12,25 @@ import Lean.Elab.DeclModifiers
 
 namespace Lean.Elab.Command
 
-structure Scope :=
-  (kind          : String)
-  (header        : String)
-  (opts          : Options := {})
-  (currNamespace : Name := Name.anonymous)
-  (openDecls     : List OpenDecl := [])
-  (levelNames    : List Name := [])
-  (varDecls      : Array Syntax := #[])
+structure Scope where
+  kind          : String
+  header        : String
+  opts          : Options := {}
+  currNamespace : Name := Name.anonymous
+  openDecls     : List OpenDecl := []
+  levelNames    : List Name := []
+  varDecls      : Array Syntax := #[]
 
 instance : Inhabited Scope := ⟨{ kind := "", header := "" }⟩
 
-structure State :=
-  (env            : Environment)
-  (messages       : MessageLog := {})
-  (scopes         : List Scope := [{ kind := "root", header := "" }])
-  (nextMacroScope : Nat := firstFrontendMacroScope + 1)
-  (maxRecDepth    : Nat)
-  (nextInstIdx    : Nat := 1) -- for generating anonymous instance names
-  (ngen           : NameGenerator := {})
+structure State where
+  env            : Environment
+  messages       : MessageLog := {}
+  scopes         : List Scope := [{ kind := "root", header := "" }]
+  nextMacroScope : Nat := firstFrontendMacroScope + 1
+  maxRecDepth    : Nat
+  nextInstIdx    : Nat := 1 -- for generating anonymous instance names
+  ngen           : NameGenerator := {}
 
 instance : Inhabited State := ⟨{ env := arbitrary, maxRecDepth := 0 }⟩
 
@@ -41,14 +41,14 @@ def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options :=
   maxRecDepth := getMaxRecDepth opts
 }
 
-structure Context :=
-  (fileName       : String)
-  (fileMap        : FileMap)
-  (currRecDepth   : Nat := 0)
-  (cmdPos         : String.Pos := 0)
-  (macroStack     : MacroStack := [])
-  (currMacroScope : MacroScope := firstFrontendMacroScope)
-  (ref            : Syntax := Syntax.missing)
+structure Context where
+  fileName       : String
+  fileMap        : FileMap
+  currRecDepth   : Nat := 0
+  cmdPos         : String.Pos := 0
+  macroStack     : MacroStack := []
+  currMacroScope : MacroScope := firstFrontendMacroScope
+  ref            : Syntax := Syntax.missing
 
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception

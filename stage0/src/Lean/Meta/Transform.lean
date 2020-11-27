@@ -7,7 +7,7 @@ import Lean.Meta.Basic
 
 namespace Lean
 
-inductive TransformStep :=
+inductive TransformStep where
   | done  (e : Expr)
   | visit (e : Expr)
 

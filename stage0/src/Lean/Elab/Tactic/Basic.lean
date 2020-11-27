@@ -23,19 +23,19 @@ def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit := do
 
 namespace Tactic
 
-structure Context :=
-  (main : MVarId)
+structure Context where
+  main : MVarId
 
-structure State :=
-  (goals : List MVarId)
+structure State where
+  goals : List MVarId
 
 instance : Inhabited State := ⟨{ goals := [] }⟩
 
-structure BacktrackableState :=
-  (env   : Environment)
-  (mctx  : MetavarContext)
-  (term  : Term.State)
-  (goals : List MVarId)
+structure BacktrackableState where
+  env   : Environment
+  mctx  : MetavarContext
+  term  : Term.State
+  goals : List MVarId
 
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
@@ -65,11 +65,11 @@ instance : MonadExcept Exception TacticM := {
 
 instance {α} : OrElse (TacticM α) := ⟨Tactic.orElse⟩
 
-structure SavedState :=
-  (core   : Core.State)
-  (meta   : Meta.State)
-  (term   : Term.State)
-  (tactic : State)
+structure SavedState where
+  core   : Core.State
+  meta   : Meta.State
+  term   : Term.State
+  tactic : State
 
 instance : Inhabited SavedState := ⟨⟨arbitrary, arbitrary, arbitrary, arbitrary⟩⟩
 

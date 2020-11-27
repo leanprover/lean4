@@ -8,8 +8,8 @@ import Lean.Util.ReplaceExpr
 namespace Lean.Meta
 
 /- A mapping from MVarId to MVarId -/
-structure MVarRenaming :=
-  (map : NameMap MVarId := {})
+structure MVarRenaming where
+  map : NameMap MVarId := {}
 
 def MVarRenaming.isEmpty (s : MVarRenaming) : Bool :=
   s.map.isEmpty

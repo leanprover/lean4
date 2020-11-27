@@ -9,10 +9,10 @@ namespace Lean
 
 namespace CollectLevelParams
 
-structure State :=
-  (visitedLevel : LevelSet   := {})
-  (visitedExpr  : ExprSet    := {})
-  (params       : Array Name := #[])
+structure State where
+  visitedLevel : LevelSet   := {}
+  visitedExpr  : ExprSet    := {}
+  params       : Array Name := #[]
 
 instance : Inhabited State := ⟨{}⟩
 

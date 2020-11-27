@@ -8,10 +8,10 @@ import Lean.Meta.Tactic.Clear
 
 namespace Lean.Meta
 
-structure CaseValueSubgoal :=
-  (mvarId : MVarId)
-  (newH   : FVarId)
-  (subst  : FVarSubst := {})
+structure CaseValueSubgoal where
+  mvarId : MVarId
+  newH   : FVarId
+  subst  : FVarSubst := {}
 
 instance : Inhabited CaseValueSubgoal :=
   ⟨{ mvarId := arbitrary, newH := arbitrary }⟩
@@ -59,10 +59,10 @@ def caseValue (mvarId : MVarId) (fvarId : FVarId) (value : Expr) : MetaM (CaseVa
   appendTagSuffix s.2.mvarId `elseBranch
   pure s
 
-structure CaseValuesSubgoal :=
-  (mvarId : MVarId)
-  (newHs  : Array FVarId := #[])
-  (subst  : FVarSubst := {})
+structure CaseValuesSubgoal where
+  mvarId : MVarId
+  newHs  : Array FVarId := #[]
+  subst  : FVarSubst := {}
 
 instance : Inhabited CaseValuesSubgoal :=
   ⟨{ mvarId := arbitrary }⟩

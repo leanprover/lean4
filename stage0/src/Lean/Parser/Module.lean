@@ -28,9 +28,9 @@ def updateTokens (c : ParserContext) : ParserContext :=
 
 end Module
 
-structure ModuleParserState :=
-  (pos        : String.Pos := 0)
-  (recovering : Bool       := false)
+structure ModuleParserState where
+  pos        : String.Pos := 0
+  recovering : Bool       := false
 
 instance : Inhabited ModuleParserState := ⟨{}⟩
 

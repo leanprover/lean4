@@ -10,13 +10,13 @@ namespace Lean
 
 universes u
 
-class FromJson (α : Type u) :=
-  (fromJson? : Json → Option α)
+class FromJson (α : Type u) where
+  fromJson? : Json → Option α
 
 export FromJson (fromJson?)
 
-class ToJson (α : Type u) :=
-  (toJson : α → Json)
+class ToJson (α : Type u) where
+  toJson : α → Json
 
 export ToJson (toJson)
 

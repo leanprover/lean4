@@ -16,16 +16,16 @@ namespace Lsp
 
 open Json
 
-structure ClientInfo :=
-  (name : String)
-  (version? : Option String := none)
+structure ClientInfo where
+  name : String
+  version? : Option String := none
 
 instance : FromJson ClientInfo := ⟨fun j => do
   let name ← j.getObjValAs? String "name"
   let version? := j.getObjValAs? String "version"
   pure ⟨name, version?⟩⟩
 
-inductive Trace :=
+inductive Trace where
   | off
   | messages
   | verbose
@@ -37,17 +37,17 @@ instance : FromJson Trace := ⟨fun j =>
   | some "verbose"  => Trace.verbose
   | _               => none⟩
 
-structure InitializeParams :=
-  (processId? : Option Int := none)
-  (clientInfo? : Option ClientInfo := none)
+structure InitializeParams where
+  processId? : Option Int := none
+  clientInfo? : Option ClientInfo := none
   /- We don't support the deprecated rootPath
   (rootPath? : Option String) -/
-  (rootUri? : Option String := none)
-  (initializationOptions? : Option Json := none)
-  (capabilities : ClientCapabilities)
+  rootUri? : Option String := none
+  initializationOptions? : Option Json := none
+  capabilities : ClientCapabilities
   /- If omitted, we default to off. -/
-  (trace : Trace := Trace.off)
-  (workspaceFolders? : Option (Array WorkspaceFolder) := none)
+  trace : Trace := Trace.off
+  workspaceFolders? : Option (Array WorkspaceFolder) := none
 
 instance : FromJson InitializeParams := ⟨fun j => do
   /- Many of these params can be null instead of not present.
@@ -66,23 +66,23 @@ instance : FromJson InitializeParams := ⟨fun j => do
   let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"
   pure ⟨processId?, clientInfo?, rootUri?, initializationOptions?, capabilities, trace, workspaceFolders?⟩⟩
 
-inductive InitializedParams :=
+inductive InitializedParams where
   | mk
 
 instance : FromJson InitializedParams :=
   ⟨fun j => InitializedParams.mk⟩
 
-structure ServerInfo :=
-  (name : String)
-  (version? : Option String := none)
+structure ServerInfo where
+  name : String
+  version? : Option String := none
 
 instance : ToJson ServerInfo := ⟨fun o => mkObj $
   ⟨"name", o.name⟩ ::
   opt "version" o.version?⟩
 
-structure InitializeResult :=
-  (capabilities : ServerCapabilities)
-  (serverInfo? : Option ServerInfo := none)
+structure InitializeResult where
+  capabilities : ServerCapabilities
+  serverInfo? : Option ServerInfo := none
 
 instance : ToJson InitializeResult := ⟨fun o =>
   mkObj $

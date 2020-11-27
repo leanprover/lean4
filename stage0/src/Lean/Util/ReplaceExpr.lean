@@ -12,9 +12,9 @@ namespace ReplaceImpl
 
 abbrev cacheSize : USize := 8192
 
-structure State :=
-  (keys    : Array Expr) -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
-  (results : Array Expr)
+structure State where
+  keys    : Array Expr -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
+  results : Array Expr
 
 abbrev ReplaceM := StateM State
 

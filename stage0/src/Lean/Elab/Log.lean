@@ -8,11 +8,11 @@ import Lean.Elab.Exception
 
 namespace Lean.Elab
 
-class MonadLog (m : Type → Type) :=
-  (getRef       : m Syntax)
-  (getFileMap   : m FileMap)
-  (getFileName  : m String)
-  (logMessage   : Message → m Unit)
+class MonadLog (m : Type → Type) where
+  getRef       : m Syntax
+  getFileMap   : m FileMap
+  getFileName  : m String
+  logMessage   : Message → m Unit
 
 instance (m n) [MonadLog m] [MonadLift m n] : MonadLog n := {
   getRef      := liftM (MonadLog.getRef : m _),

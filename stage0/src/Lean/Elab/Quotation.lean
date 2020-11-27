@@ -133,16 +133,16 @@ private abbrev Alt := List Syntax × Syntax
 
 /-- Information on a pattern's head that influences the compilation of a single
     match step. -/
-structure HeadInfo :=
+structure HeadInfo where
   -- Node kind to match, if any
-  (kind    : Option SyntaxNodeKind     := none)
+  kind    : Option SyntaxNodeKind     := none
   -- Nested patterns for each argument, if any. In a single match step, we only
   -- check that the arity matches. The arity is usually implied by the node kind,
   -- but not in the case of `many` nodes.
-  (argPats : Option (Array Syntax)     := none)
+  argPats : Option (Array Syntax)     := none
   -- Function to apply to the right-hand side in case the match succeeds. Used to
   -- bind pattern variables.
-  (rhsFn   : Syntax → TermElabM Syntax := pure)
+  rhsFn   : Syntax → TermElabM Syntax := pure
 
 instance : Inhabited HeadInfo := ⟨{}⟩
 

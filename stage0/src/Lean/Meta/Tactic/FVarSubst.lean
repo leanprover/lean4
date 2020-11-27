@@ -15,8 +15,8 @@ namespace Lean.Meta
   It is just a mapping from the original FVarId (internal) name
   to an expression. The free variables occurring in the expression must
   be defined in the new goal. -/
-structure FVarSubst :=
-  (map : Std.AssocList FVarId Expr := {})
+structure FVarSubst where
+  map : Std.AssocList FVarId Expr := {}
 
 namespace FVarSubst
 

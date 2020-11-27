@@ -70,9 +70,9 @@ def appendBefore : Name → String → Name
 
 end Name
 
-structure NameGenerator :=
-  (namePrefix : Name := `_uniq)
-  (idx        : Nat  := 1)
+structure NameGenerator where
+  namePrefix : Name := `_uniq
+  idx        : Nat  := 1
 
 namespace NameGenerator
 
@@ -90,9 +90,9 @@ instance : Inhabited NameGenerator := ⟨{}⟩
 
 end NameGenerator
 
-class MonadNameGenerator (m : Type → Type) :=
-  (getNGen : m NameGenerator)
-  (setNGen : NameGenerator → m Unit)
+class MonadNameGenerator (m : Type → Type) where
+  getNGen : m NameGenerator
+  setNGen : NameGenerator → m Unit
 
 export MonadNameGenerator (getNGen setNGen)
 
@@ -195,9 +195,9 @@ def mkAtom (val : String) : Syntax :=
   Syntax.node k args
 
 /- Syntax objects for a Lean module. -/
-structure Module :=
-  (header   : Syntax)
-  (commands : Array Syntax)
+structure Module where
+  header   : Syntax
+  commands : Array Syntax
 
 /-- Expand all macros in the given syntax -/
 partial def expandMacros : Syntax → MacroM Syntax
@@ -522,8 +522,8 @@ def find? (stx : Syntax) (p : Syntax → Bool) : Option Syntax :=
 end Syntax
 
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
-class Quote (α : Type) :=
-  (quote : α → Syntax)
+class Quote (α : Type) where
+  quote : α → Syntax
 
 export Quote (quote)
 

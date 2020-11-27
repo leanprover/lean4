@@ -496,6 +496,7 @@ theorem Nat.leStep : {n m : Nat} → LessEq n m → LessEq n (succ m)
     have LessEq n (succ m) from leStep this
     succLeSucc this
 
+set_option pp.raw true
 protected theorem Nat.leTrans : {n m k : Nat} → LessEq n m → LessEq m k → LessEq n k
   | zero,   m,      k,      h₁, h₂ => zeroLe _
   | succ n, zero,   k,      h₁, h₂ => Bool.noConfusion h₁
@@ -503,6 +504,7 @@ protected theorem Nat.leTrans : {n m k : Nat} → LessEq n m → LessEq m k → 
   | succ n, succ m, succ k, h₁, h₂ =>
     have h₁' : LessEq n m from h₁
     have h₂' : LessEq m k from h₂
+    show LessEq n k from
     Nat.leTrans h₁' h₂'
 
 protected theorem Nat.ltTrans {n m k : Nat} (h₁ : Less n m) : Less m k → Less n k :=

@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_43____closed__7;
-extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3285____closed__2;
+extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3284____closed__2;
 lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__10;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_43____closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -69,7 +69,7 @@ static lean_object* _init_l___kind_term____x40_Init_Data_ToString_Macro___hyg_2_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3285____closed__2;
+x_1 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3284____closed__2;
 x_2 = l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

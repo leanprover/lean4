@@ -141,7 +141,7 @@ instance : AddMessageContext MetaM := {
   pure (a, sCore, s)
 
 instance [MetaEval α] : MetaEval (MetaM α) :=
-  ⟨fun env opts x _ => MetaEval.eval env opts x.run' true⟩
+  ⟨fun env opts x _ => MetaEval.eval env opts (x.run' : CoreM _) true⟩ -- TODO: check why we need type ascription here
 
 protected def throwIsDefEqStuck {α} : MetaM α :=
   throw $ Exception.internal isDefEqStuckExceptionId

@@ -39,9 +39,6 @@ export Alternative (failure)
 @[inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
   if p then pure () else failure
 
-@[inline] def assert {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f (Inhabited p) :=
-  if h : p then pure ⟨h⟩ else failure
-
 @[inline] def optional (x : f α) : f (Option α) :=
   some <$> x <|> pure none
 

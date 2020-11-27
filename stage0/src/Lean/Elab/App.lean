@@ -311,7 +311,6 @@ private def addEtaArg (k : M Expr) : M Expr := do
 private def finalize : M Expr := do
   let s ← get
   let mut e     := s.f
-  let mut eType := s.fType
   -- all user explicit arguments have been consumed
   trace[Elab.app.finalize]! e
   let ref ← getRef
@@ -320,7 +319,11 @@ private def finalize : M Expr := do
     registerMVarErrorImplicitArgInfo mvarId ref e
   if !s.etaArgs.isEmpty then
     e ← mkLambdaFVars s.etaArgs e
-    eType ← inferType e
+  /-
+    Remark: we should not use `s.fType` as `eType` even when
+    `s.etaArgs.isEmpty`. Reason: it may have been unfolded.
+  -/
+  let eType ← inferType e
   trace[Elab.app.finalize]! "after etaArgs, {e} : {eType}"
   match s.expectedType? with
   | none              => pure ()

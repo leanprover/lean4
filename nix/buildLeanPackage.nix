@@ -1,4 +1,6 @@
-{ debug ? false, stdenv, lib, coreutils, gnused, lean, leanc ? lean, lean-final ? lean, writeShellScriptBin, bash, lean-emacs, nix, substituteAll, symlinkJoin, linkFarmFromDrvs }:
+{ debug ? false, leanFlags ? [], leancFlags ? [],
+  lean, leanc ? lean, lean-final ? lean,
+  stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, nix, substituteAll, symlinkJoin, linkFarmFromDrvs }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
@@ -68,10 +70,11 @@ in
       outputs = [ "out" "c" ];
       oleanPath = relpath + ".olean";
       cPath = relpath + ".c";
+      inherit leanFlags;
       buildCommand = ''
         mkdir -p $(dirname $relpath) $out/$(dirname $relpath) $c/$(dirname $relpath)
         cp $src $leanPath
-        lean -o $out/$oleanPath -c $c/$cPath $leanPath
+        lean -o $out/$oleanPath -c $c/$cPath $leanPath $leanFlags
       '';
     } // {
       inherit deps;
@@ -81,11 +84,12 @@ in
       buildInputs = [ leanc ];
       hardeningDisable = [ "all" ];
       oPath = drv.relpath + ".o";
+      inherit leancFlags;
       buildCommand = ''
         mkdir -p $out/$(dirname ${drv.relpath})
         # make local "copy" so `drv`'s Nix store path doesn't end up in ccache's hash
         ln -s ${drv.c}/${drv.cPath} src.c
-        leanc -c -o $out/$oPath src.c ${if debug then "-g" else "-O3 -DNDEBUG"}
+        leanc -c -o $out/$oPath src.c $leancFlags ${if debug then "-g" else "-O3 -DNDEBUG"}
       '';
     };
     singleton = name: value: listToAttrs [ { inherit name value; } ];

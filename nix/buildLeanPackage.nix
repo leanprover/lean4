@@ -1,5 +1,5 @@
 { debug ? false, leanFlags ? [], leancFlags ? [],
-  lean, leanc ? lean, lean-final ? lean,
+  lean, leanc ? lean, lean-leanDeps ? lean, lean-final ? lean,
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, nix, substituteAll, symlinkJoin, linkFarmFromDrvs }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
@@ -51,7 +51,7 @@ in
     leanDeps = mod: mkDerivation {
       name ="${mod}-deps";
       src = src + ("/" + modToLean mod);
-      buildInputs = [ lean gnused ];
+      buildInputs = [ lean-leanDeps gnused ];
       buildCommand = ''
         export LEAN_PATH=${fakeDepRoot};
         lean --deps $src | sed "s!$LEAN_PATH/!!;s!/!.!g;s!.olean!!" > $out

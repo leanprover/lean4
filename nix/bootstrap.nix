@@ -55,6 +55,8 @@ rec {
       desc = "stage${toString stage}";
       build = buildLeanPackage.override {
         lean = prevStage;
+        # use same stage for retrieving dependencies
+        lean-leanDeps = stage0;
         lean-final = self;
         inherit debug;
         leanFlags = [ "-Dinterpreter.prefer_native=false" ];

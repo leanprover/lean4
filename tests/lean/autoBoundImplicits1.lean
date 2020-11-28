@@ -20,7 +20,7 @@ def Vec.map (xs : Vec α n) (f : α → β) : Vec β n :=
 def Vec.map2 (xs : Vec α size /- error: unknown identifier size -/) (f : α → β) : Vec β n :=
   ⟨ xs.val.map f, sorry ⟩
 
-set_option unboundImplicitLocal false in
+set_option autoBoundImplicitLocal false in
 def Vec.map3 (xs : Vec α n) (f : α → β) : Vec β n := -- Errors, unknown identifiers 'α', 'n', 'β'
   ⟨ xs.val.map f, sorry ⟩
 

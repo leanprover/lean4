@@ -148,9 +148,8 @@ private partial def elabBinderViews {α} (binderViews : Array BinderView) (catch
     if h : i < binderViews.size then
       let binderView := binderViews.get ⟨i, h⟩
       if catchAutoBoundImplicit then
-        elabTypeWithAutoBoundImplicit binderView.type fun autoBoundImplicitFVars type => do
+        elabTypeWithAutoBoundImplicit binderView.type fun type => do
           registerFailedToInferBinderTypeInfo type binderView.type
-          let fvars := fvars ++ autoBoundImplicitFVars
           withLocalDecl binderView.id.getId binderView.bi type fun fvar =>
             loop (i+1) (fvars.push fvar)
       else

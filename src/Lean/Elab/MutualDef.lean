@@ -76,17 +76,19 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : Term
 private def elabFunType {α} (ref : Syntax) (xs : Array Expr) (view : DefView) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
   match view.type? with
   | some typeStx =>
-    elabTypeWithAutoBoundImplicit typeStx fun autoBoundImplicitFVars type => do
+    elabTypeWithAutoBoundImplicit typeStx fun type => do
       synthesizeSyntheticMVarsNoPostponing
       let type ← instantiateMVars type
       registerFailedToInferDefTypeInfo type typeStx
-      let xs := xs ++ autoBoundImplicitFVars
       k xs (← mkForallFVars xs type)
   | none =>
     let hole := mkHole ref
     let type ← elabType hole
     registerFailedToInferDefTypeInfo type ref
     k xs (← mkForallFVars xs type)
+
+def isAutoImplicit (fvarId : FVarId) : TermElabM Bool :=
+  return (← read).autoBoundImplicits.any fun x => x.fvarId! == fvarId
 
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
   let mut headers := #[]
@@ -98,6 +100,8 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
         elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun xs => do
           let refForElabFunType := view.value
           elabFunType refForElabFunType xs view fun xs type => do
+            let type ← mkForallFVars (← read).autoBoundImplicits.toArray type
+            let xs ← addAutoBoundImplicits xs
             let newHeader := {
               ref           := view.ref,
               modifiers     := view.modifiers,

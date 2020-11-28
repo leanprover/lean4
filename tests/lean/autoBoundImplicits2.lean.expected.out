@@ -1,0 +1,1 @@
+autoBoundImplicits2.lean:9:0: error: invalid auto implicit argument 'b', it depends on explicitly provided argument 'n'

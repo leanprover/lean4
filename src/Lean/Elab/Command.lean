@@ -302,6 +302,7 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
     Term.withAutoBoundImplicitLocal <|
       Term.elabBinders (getVarDecls s) (catchAutoBoundImplicit := true) fun xs => do
         Term.resetMessageLog
+        let xs ← Term.addAutoBoundImplicits xs
         Term.withAutoBoundImplicitLocal (flag := false) <| elabFn xs
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>

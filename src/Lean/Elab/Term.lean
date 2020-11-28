@@ -90,7 +90,8 @@ structure Context where
      internal exception. This exception is caught at `elabBinders` and
      `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
      for the unbound variable and try again. -/
-  autoBoundImplicit : Bool          := false
+  autoBoundImplicit  : Bool            := false
+  autoBoundImplicits : Std.PArray Expr := {}
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
@@ -305,7 +306,8 @@ private def getAutoBoundImplicitLocalOption (opts : Options) : Bool :=
 
 /-- Execute `x` with `autoBoundImplicit = (options.get `autoBoundImplicitLocal) && flag` -/
 def withAutoBoundImplicitLocal {α} (x : TermElabM α) (flag := true) : TermElabM α := do
-  withReader (fun ctx => { ctx with autoBoundImplicit := getAutoBoundImplicitLocalOption (← getOptions) && flag }) x
+  let flag := getAutoBoundImplicitLocalOption (← getOptions) && flag
+  withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) x
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
@@ -1047,19 +1049,36 @@ def elabType (stx : Syntax) : TermElabM Expr := do
 
 /--
   Elaborate `stx` creating new implicit variables for unbound ones when `autoBoundImplicit == true`, and then
-  execute the continuation `k` in the potentially extended local context. -/
-partial def elabTypeWithAutoBoundImplicit {α} (stx : Syntax) (k : Array Expr → Expr → TermElabM α) : TermElabM α  := do
+  execute the continuation `k` in the potentially extended local context.
+  The auto bound implicit locals are stored in the context variable `autoBoundImplicits`
+ -/
+partial def elabTypeWithAutoBoundImplicit {α} (stx : Syntax) (k : Expr → TermElabM α) : TermElabM α  := do
   if (← read).autoBoundImplicit then
-    let rec loop (xs : Array Expr) : TermElabM α := do
+    let rec loop : TermElabM α := do
       try
-        k xs (← elabType stx)
+        k (← elabType stx)
       catch
         | ex => match isAutoBoundImplicitLocalException? ex with
-          | some n => withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x => loop (xs.push x)
+          | some n =>
+            withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x =>
+              withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } )
+                loop
           | none   => throw ex
-    loop #[]
+    loop
   else
-    k #[] (← elabType stx)
+    k (← elabType stx)
+
+/--
+  Return `autoBoundImplicits ++ xs.
+  This methoid throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs` -/
+def addAutoBoundImplicits (xs : Array Expr) : TermElabM (Array Expr) := do
+  let autoBoundImplicits := (← read).autoBoundImplicits
+  for auto in autoBoundImplicits do
+    let localDecl ← getLocalDecl auto.fvarId!
+    for x in xs do
+      if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
+        throwError! "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
+  return autoBoundImplicits.toArray ++ xs
 
 def mkAuxName (suffix : Name) : TermElabM Name := do
   match (← read).declName? with

@@ -1,5 +1,3 @@
-open Lean
-
 structure S where
   carrier : Type
   mul : carrier → carrier → carrier
@@ -12,15 +10,11 @@ def Int.S : S where
   carrier := Int
   mul := (· * ·)
 
-@[unificationHint]
-def NatHint (s : S) : UnificationHint where
- pattern := s.carrier =?= Nat
- constraints := [ s =?= Nat.S ]
+unif_hint (s : S) where
+  s =?= Nat.S ⊢ s.carrier =?= Nat
 
-@[unificationHint]
-def IntHint (s : S) : UnificationHint where
- pattern := s.carrier =?= Int
- constraints := [ s =?= Int.S ]
+unif_hint (s : S) where
+  s =?= Int.S ⊢ s.carrier =?= Int
 
 def mul {s : S} (a b : s.carrier) : s.carrier :=
   s.mul a b
@@ -43,10 +37,8 @@ def sext (x : BV s) (n : Nat) : BV (s+n) :=
 def bvmul (x y : BV w) : BV w :=
   x
 
-@[unificationHint]
-def add64Eq128Hint (x : Nat) : UnificationHint where
- pattern := Nat.add 64 x =?= 128
- constraints := [ x =?= 64 ]
+unif_hint (x : Nat) where
+  x =?= 64 ⊢ Nat.add 64 x =?= 128
 
 set_option pp.all false
 

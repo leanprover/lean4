@@ -74,18 +74,18 @@ instance : Inhabited ElabHeaderResult :=
 private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc : Array ElabHeaderResult) : TermElabM (Array ElabHeaderResult) := do
   if h : i < views.size then
     let view := views.get ⟨i, h⟩
-    let acc ← Term.withUnboundImplicitLocal <| Term.elabBinders view.binders.getArgs (catchUnboundImplicit := true) fun params => do
+    let acc ← Term.withAutoBoundImplicitLocal <| Term.elabBinders view.binders.getArgs (catchAutoBoundImplicit := true) fun params => do
       match view.type? with
       | none         =>
         let u ← mkFreshLevelMVar
         let type := mkSort u
         pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params, type := type, view := view }
       | some typeStx =>
-        Term.elabTypeWithUnboundImplicit typeStx fun unboundImplicitFVars type => do
+        Term.elabTypeWithAutoBoundImplicit typeStx fun autoBoundImplicitFVars type => do
           unless (← isTypeFormerType type) do
             throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
-          trace[Meta.debug]! "type: {type}, params: {params}, unboundImplicitFVars: {unboundImplicitFVars}"
-          pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params ++ unboundImplicitFVars, type := type, view := view }
+          trace[Meta.debug]! "type: {type}, params: {params}, autoBoundImplicitFVars: {autoBoundImplicitFVars}"
+          pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params ++ autoBoundImplicitFVars, type := type, view := view }
     elabHeaderAux views (i+1) acc
   else
     pure acc

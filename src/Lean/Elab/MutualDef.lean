@@ -76,11 +76,11 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : Term
 private def elabFunType {α} (ref : Syntax) (xs : Array Expr) (view : DefView) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
   match view.type? with
   | some typeStx =>
-    elabTypeWithUnboundImplicit typeStx fun unboundImplicitFVars type => do
+    elabTypeWithAutoBoundImplicit typeStx fun autoBoundImplicitFVars type => do
       synthesizeSyntheticMVarsNoPostponing
       let type ← instantiateMVars type
       registerFailedToInferDefTypeInfo type typeStx
-      let xs := xs ++ unboundImplicitFVars
+      let xs := xs ++ autoBoundImplicitFVars
       k xs (← mkForallFVars xs type)
   | none =>
     let hole := mkHole ref
@@ -94,8 +94,8 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
     let newHeader ← withRef view.ref do
       let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
-      withUnboundImplicitLocal <| withLevelNames levelNames <|
-        elabBinders (catchUnboundImplicit := true) view.binders.getArgs fun xs => do
+      withAutoBoundImplicitLocal <| withLevelNames levelNames <|
+        elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun xs => do
           let refForElabFunType := view.value
           elabFunType refForElabFunType xs view fun xs type => do
             let newHeader := {

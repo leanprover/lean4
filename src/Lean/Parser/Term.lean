@@ -219,13 +219,14 @@ end Term
 @[builtinTermParser] def Level.quot  : Parser := parser! "`(level|" >> toggleInsideQuot levelParser >> ")"
 
 builtin_initialize
-  registerParserAlias! "letDecl"       Term.letDecl
-  registerParserAlias! "haveDecl"      Term.haveDecl
-  registerParserAlias! "sufficesDecl"  Term.sufficesDecl
-  registerParserAlias! "letRecDecls"   Term.letRecDecls
-  registerParserAlias! "hole"          Term.hole
-  registerParserAlias! "syntheticHole" Term.syntheticHole
-  registerParserAlias! "matchDiscr"    Term.matchDiscr
+  registerParserAlias! "letDecl"         Term.letDecl
+  registerParserAlias! "haveDecl"        Term.haveDecl
+  registerParserAlias! "sufficesDecl"    Term.sufficesDecl
+  registerParserAlias! "letRecDecls"     Term.letRecDecls
+  registerParserAlias! "hole"            Term.hole
+  registerParserAlias! "syntheticHole"   Term.syntheticHole
+  registerParserAlias! "matchDiscr"      Term.matchDiscr
+  registerParserAlias! "bracketedBinder" Term.bracketedBinder
 
 end Parser
 end Lean

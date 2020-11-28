@@ -207,6 +207,11 @@ export Lean.ToFormat (format)
 
 def fmt {α : Type u} [ToFormat α] : α → Format := format
 
+syntax:max "f!" interpolatedStr(term) : term
+
+macro_rules
+  | `(f! $interpStr) => do interpStr.expandInterpolatedStr (← `(Format)) (← `(fmt))
+
 instance {α : Type u} [ToString α] : ToFormat α := ⟨text ∘ toString⟩
 
 -- note: must take precendence over the above instance to avoid premature formatting

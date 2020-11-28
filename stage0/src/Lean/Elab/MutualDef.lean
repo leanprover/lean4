@@ -76,11 +76,10 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : Term
 private def elabFunType {α} (ref : Syntax) (xs : Array Expr) (view : DefView) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
   match view.type? with
   | some typeStx =>
-    elabTypeWithUnboundImplicit typeStx fun unboundImplicitFVars type => do
+    elabTypeWithAutoBoundImplicit typeStx fun type => do
       synthesizeSyntheticMVarsNoPostponing
       let type ← instantiateMVars type
       registerFailedToInferDefTypeInfo type typeStx
-      let xs := xs ++ unboundImplicitFVars
       k xs (← mkForallFVars xs type)
   | none =>
     let hole := mkHole ref
@@ -88,16 +87,22 @@ private def elabFunType {α} (ref : Syntax) (xs : Array Expr) (view : DefView) (
     registerFailedToInferDefTypeInfo type ref
     k xs (← mkForallFVars xs type)
 
+def isAutoImplicit (fvarId : FVarId) : TermElabM Bool :=
+  return (← read).autoBoundImplicits.any fun x => x.fvarId! == fvarId
+
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
   let mut headers := #[]
   for view in views do
     let newHeader ← withRef view.ref do
       let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
-      withUnboundImplicitLocal <| withLevelNames levelNames <|
-        elabBinders (catchUnboundImplicit := true) view.binders.getArgs fun xs => do
+      withAutoBoundImplicitLocal <| withLevelNames levelNames <|
+        elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun xs => do
           let refForElabFunType := view.value
           elabFunType refForElabFunType xs view fun xs type => do
+            let type ← mkForallFVars (← read).autoBoundImplicits.toArray type
+            let xs ← addAutoBoundImplicits xs
+            let levelNames ← getLevelNames
             let newHeader := {
               ref           := view.ref,
               modifiers     := view.modifiers,

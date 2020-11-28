@@ -11,7 +11,7 @@ namespace Lean.Elab
 builtin_initialize postponeExceptionId : InternalExceptionId ← registerInternalExceptionId `postpone
 builtin_initialize unsupportedSyntaxExceptionId : InternalExceptionId ← registerInternalExceptionId `unsupportedSyntax
 builtin_initialize abortExceptionId : InternalExceptionId ← registerInternalExceptionId `abortElab
-builtin_initialize unboundImplicitExceptionId : InternalExceptionId ← registerInternalExceptionId `unboundImplicit
+builtin_initialize autoBoundImplicitExceptionId : InternalExceptionId ← registerInternalExceptionId `autoBoundImplicit
 
 def throwPostpone [MonadExceptOf Exception m] : m α :=
   throw $ Exception.internal postponeExceptionId
@@ -22,13 +22,13 @@ def throwUnsupportedSyntax [MonadExceptOf Exception m] : m α :=
 def throwIllFormedSyntax [Monad m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] : m α :=
   throwError "ill-formed syntax"
 
-def throwUnboundImplicitLocal [MonadExceptOf Exception m] (n : Name) : m α :=
-  throw $ Exception.internal unboundImplicitExceptionId <| KVMap.empty.insert `localId n
+def throwAutoBoundImplicitLocal [MonadExceptOf Exception m] (n : Name) : m α :=
+  throw $ Exception.internal autoBoundImplicitExceptionId <| KVMap.empty.insert `localId n
 
-def isUnboundImplicitLocalException? (ex : Exception) : Option Name :=
+def isAutoBoundImplicitLocalException? (ex : Exception) : Option Name :=
   match ex with
   | Exception.internal id k =>
-    if id == unboundImplicitExceptionId then
+    if id == autoBoundImplicitExceptionId then
       some <| k.getName `localId `x
     else
       none

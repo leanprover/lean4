@@ -37,6 +37,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include <lean/apply.h>
 #include <lean/interrupt.h>
 #include <lean/io.h>
+#include "library/time_task.h"
 #include "library/trace.h"
 #include "library/compiler/ir.h"
 #include "library/compiler/init_attribute.h"
@@ -313,6 +314,7 @@ class interpreter {
     };
     std::vector<frame> m_call_stack;
     environment const & m_env;
+    options const & m_opts;
     // if `false`, use IR code where possible
     bool m_prefer_native;
     // if we were called within the execution of a different interpreter, restore the value of `g_interpreter` in the end
@@ -381,7 +383,7 @@ class interpreter {
         unsigned cls_size = 3 + decl_params(d).size();
         object * cls = alloc_closure(get_stub(cls_size), cls_size, 3 + n);
         closure_set(cls, 0, m_env.to_obj_arg());
-        closure_set(cls, 1, box(m_prefer_native));
+        closure_set(cls, 1, m_opts.to_obj_arg());
         closure_set(cls, 2, d.to_obj_arg());
         for (unsigned i = 0; i < n ; i++)
             closure_set(cls, 3 + i, args[i]);
@@ -837,14 +839,18 @@ class interpreter {
 
     // closure stub stub
     static object * stub_m_aux(object ** args) {
-        environment env(args[0]);
-        bool prefer_native = unbox(args[1]);
+        environment const & env = TO_REF(environment, args[0]);
+        options const & opts = TO_REF(options, args[1]);
         if (g_interpreter && is_eqp(g_interpreter->m_env, env)) {
             return g_interpreter->stub_m(args);
         } else {
             // We changed threads or the closure was stored and called in a different context.
             // Create new interpreter with new stacks.
-            return interpreter(env, prefer_native).stub_m(args);
+            time_task t("interpretation",
+                        message_builder(env, get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
+            abstract_type_context trace_ctx(opts);
+            scope_trace_env scope_trace(env, opts, trace_ctx);
+            return interpreter(env, opts).stub_m(args);
         }
     }
 
@@ -889,12 +895,11 @@ class interpreter {
         }
     }
 public:
-    explicit interpreter(environment const & env, bool prefer_native) : m_env(env), m_prefer_native(prefer_native) {
+    explicit interpreter(environment const & env, options const & opts) : m_env(env), m_opts(opts) {
         m_prev_interpreter = g_interpreter;
         g_interpreter = this;
+        m_prefer_native = opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE);
     }
-    explicit interpreter(environment const & env, options const & opts) :
-        interpreter(env, opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE)) {}
 
     ~interpreter() {
         for_each(m_constant_cache, [](name const &, constant_cache_entry const & e) {
@@ -1002,9 +1007,16 @@ uint32 run_main(environment const & env, options const & opts, int argv, char * 
     return interpreter(env, opts).run_main(argv, argc);
 }
 
-extern "C" object * lean_eval_const(object * env, object * opts, object * c) {
+extern "C" object * lean_eval_const(object * lenv, object * lopts, object * c) {
+    environment const & env = TO_REF(environment, lenv);
+    options const & opts = TO_REF(options, lopts);
+    time_task t("interpretation",
+                message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
+    abstract_type_context trace_ctx(opts);
+    scope_trace_env scope_trace(env, opts, trace_ctx);
+
     try {
-        return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, c), 0, 0)).steal();
+        return mk_cnstr(1, run_boxed(env, opts, TO_REF(name, c), 0, 0)).steal();
     } catch (exception & ex) {
         return mk_cnstr(0, string_ref(ex.what())).steal();
     }

@@ -262,7 +262,6 @@ private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) 
     fileName       := ctx.fileName,
     fileMap        := ctx.fileMap,
     currMacroScope := ctx.currMacroScope,
-    levelNames     := scope.levelNames,
     declName?      := declName? }
 
 private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
@@ -280,7 +279,7 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
   let messages         := s.messages
-  let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := {} }
+  let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := {}, levelNames := scope.levelNames }
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
   let (((ea, termS), _), coreS) ← liftEIO x
@@ -299,10 +298,11 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   liftTermElabM declName? <|
     -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
     -- So, we use `Term.resetMessageLog`.
-    Term.withUnboundImplicitLocal <|
-      Term.elabBinders (getVarDecls s) (catchUnboundImplicit := true) fun xs => do
+    Term.withAutoBoundImplicitLocal <|
+      Term.elabBinders (getVarDecls s) (catchAutoBoundImplicit := true) fun xs => do
         Term.resetMessageLog
-        Term.withUnboundImplicitLocal (flag := false) <| elabFn xs
+        let xs ← Term.addAutoBoundImplicits xs
+        Term.withAutoBoundImplicitLocal (flag := false) <| elabFn xs
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
@@ -507,16 +507,16 @@ def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit := do
   -- `variable` bracketedBinder
   let binder := n[1]
   -- Try to elaborate `binder` for sanity checking
-  runTermElabM none fun _ => Term.withUnboundImplicitLocal <|
-    Term.elabBinder binder (catchUnboundImplicit := true) fun _ => pure ()
+  runTermElabM none fun _ => Term.withAutoBoundImplicitLocal <|
+    Term.elabBinder binder (catchAutoBoundImplicit := true) fun _ => pure ()
   modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder }
 
 @[builtinCommandElab «variables»] def elabVariables : CommandElab := fun n => do
   -- `variables` bracketedBinder+
   let binders := n[1].getArgs
   -- Try to elaborate `binders` for sanity checking
-  runTermElabM none fun _ => Term.withUnboundImplicitLocal <|
-    Term.elabBinders binders (catchUnboundImplicit := true) fun _ => pure ()
+  runTermElabM none fun _ => Term.withAutoBoundImplicitLocal <|
+    Term.elabBinders binders (catchAutoBoundImplicit := true) fun _ => pure ()
   modifyScope fun scope => { scope with varDecls := scope.varDecls ++ binders }
 
 open Meta

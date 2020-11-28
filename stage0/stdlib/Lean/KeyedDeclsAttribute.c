@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.KeyedDeclsAttribute
-// Imports: Init Lean.Attributes Lean.Compiler.InitAttr Lean.ToExpr Lean.Data.FormatMacro
+// Imports: Init Lean.Attributes Lean.Compiler.InitAttr Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5855,7 +5855,6 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Attributes(lean_object*);
 lean_object* initialize_Lean_Compiler_InitAttr(lean_object*);
 lean_object* initialize_Lean_ToExpr(lean_object*);
-lean_object* initialize_Lean_Data_FormatMacro(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_KeyedDeclsAttribute(lean_object* w) {
 lean_object * res;
@@ -5871,9 +5870,6 @@ res = initialize_Lean_Compiler_InitAttr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ToExpr(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_FormatMacro(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_KeyedDeclsAttribute_Def_evalKey___default___rarg___closed__1 = _init_l_Lean_KeyedDeclsAttribute_Def_evalKey___default___rarg___closed__1();

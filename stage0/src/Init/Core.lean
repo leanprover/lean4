@@ -1038,16 +1038,4 @@ constant reduceNat (n : Nat) : Nat := n
 axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b)    : a = b
 
-structure UnificationConstraint where
-  {α : Type u}
-  lhs : α
-  rhs : α
-
-infix:50 " ≟ "   => UnificationConstraint.mk
-infix:50 " =?= " => UnificationConstraint.mk
-
-structure UnificationHint where
-  constraints : List UnificationConstraint.{u}
-  pattern     : UnificationConstraint.{u}
-
 end Lean

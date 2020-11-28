@@ -70,7 +70,6 @@ structure Context where
   fileName        : String
   fileMap         : FileMap
   declName?       : Option Name     := none
-  levelNames      : List Name       := []
   macroStack      : MacroStack      := []
   currMacroScope  : MacroScope      := firstFrontendMacroScope
   /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
@@ -85,12 +84,13 @@ structure Context where
      That is, it is safe to transition `errToSorry` from `true` to `false`, but
      we must not set `errToSorry` to `true` when it is currently set to `false`. -/
   errToSorry      : Bool            := true
-  /- When `unboundImplicit` is set to true, instead of producing
+  /- When `autoBoundImplicit` is set to true, instead of producing
      an "unknown identifier" error for unbound variables, we generate an
      internal exception. This exception is caught at `elabBinders` and
      `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
      for the unbound variable and try again. -/
-  unboundImplicit : Bool            := false
+  autoBoundImplicit  : Bool            := false
+  autoBoundImplicits : Std.PArray Expr := {}
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
@@ -134,6 +134,7 @@ structure LetRecToLift where
   mvarId         : MVarId
 
 structure State where
+  levelNames        : List Name       := []
   syntheticMVars    : List SyntheticMVarDecl := []
   mvarErrorInfos    : List MVarErrorInfo := []
   messages          : MessageLog := {}
@@ -215,7 +216,7 @@ instance : MonadLiftT MetaM TermElabM :=
   ⟨Term.liftMetaM⟩
 
 def getLevelNames : TermElabM (List Name) :=
-  return (← read).levelNames
+  return (← get).levelNames
 
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   match (← getLCtx).find? fvar.fvarId! with
@@ -287,25 +288,31 @@ def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyTh
 def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with declName? := name }) x
 
-def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with levelNames := levelNames }) x
+def setLevelNames (levelNames : List Name) : TermElabM Unit :=
+  modify fun s => { s with levelNames := levelNames }
+
+def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM α := do
+  let levelNamesSaved ← getLevelNames
+  setLevelNames levelNames
+  try x finally setLevelNames levelNamesSaved
 
 def withoutErrToSorry {α} (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with errToSorry := false }) x
 
 builtin_initialize
-  registerOption `unboundImplicitLocal {
+  registerOption `autoBoundImplicitLocal {
     defValue := true,
     group    := "",
     descr    := "Unbound local variables in declaration headers become implicit arguments if they are a lower case or greek letter. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}"
 }
 
-private def getUnboundImplicitLocalOption (opts : Options) : Bool :=
-  opts.get `unboundImplicitLocal true
+private def getAutoBoundImplicitLocalOption (opts : Options) : Bool :=
+  opts.get `autoBoundImplicitLocal true
 
-/-- Execute `x` with `unboundImplicit = (options.get `unboundImplicitLocal) && flag` -/
-def withUnboundImplicitLocal {α} (x : TermElabM α) (flag := true) : TermElabM α := do
-  withReader (fun ctx => { ctx with unboundImplicit := getUnboundImplicitLocalOption (← getOptions) && flag }) x
+/-- Execute `x` with `autoBoundImplicit = (options.get `autoBoundImplicitLocal) && flag` -/
+def withAutoBoundImplicitLocal {α} (x : TermElabM α) (flag := true) : TermElabM α := do
+  let flag := getAutoBoundImplicitLocalOption (← getOptions) && flag
+  withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) x
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
@@ -328,9 +335,9 @@ def liftLevelM {α} (x : LevelElabM α) : TermElabM α := do
   let ref ← getRef
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := { ref := ref, levelNames := ctx.levelNames }
-  match (x lvlCtx).run { ngen := ngen, mctx := mctx } with
-  | EStateM.Result.ok a newS  => do setMCtx newS.mctx; setNGen newS.ngen; pure a
+  let lvlCtx : Level.Context := { ref := ref, autoBoundImplicit := ctx.autoBoundImplicit }
+  match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
+  | EStateM.Result.ok a newS  => setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; pure a
   | EStateM.Result.error ex _ => throw ex
 
 def elabLevel (stx : Syntax) : TermElabM Level :=
@@ -432,9 +439,9 @@ def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
 
   Remark: we make sure the generated parameter names do not clash with the universes at `ctx.levelNames`. -/
 def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) : TermElabM (Expr × Nat) := do
-  let ctx ← read
   let mctx ← getMCtx
-  let r := mctx.levelMVarToParam (fun n => ctx.levelNames.elem n) e `u nextParamIdx
+  let levelNames ← getLevelNames
+  let r := mctx.levelMVarToParam (fun n => levelNames.elem n) e `u nextParamIdx
   setMCtx r.mctx
   pure (r.expr, r.nextParamIdx)
 
@@ -1046,20 +1053,37 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   withRef stx $ ensureType type
 
 /--
-  Elaborate `stx` creating new implicit variables for unbound ones when `unboundImplicit == true`, and then
-  execute the continuation `k` in the potentially extended local context. -/
-partial def elabTypeWithUnboundImplicit {α} (stx : Syntax) (k : Array Expr → Expr → TermElabM α) : TermElabM α  := do
-  if (← read).unboundImplicit then
-    let rec loop (xs : Array Expr) : TermElabM α := do
+  Elaborate `stx` creating new implicit variables for unbound ones when `autoBoundImplicit == true`, and then
+  execute the continuation `k` in the potentially extended local context.
+  The auto bound implicit locals are stored in the context variable `autoBoundImplicits`
+ -/
+partial def elabTypeWithAutoBoundImplicit {α} (stx : Syntax) (k : Expr → TermElabM α) : TermElabM α  := do
+  if (← read).autoBoundImplicit then
+    let rec loop : TermElabM α := do
       try
-        k xs (← elabType stx)
+        k (← elabType stx)
       catch
-        | ex => match isUnboundImplicitLocalException? ex with
-          | some n => withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x => loop (xs.push x)
+        | ex => match isAutoBoundImplicitLocalException? ex with
+          | some n =>
+            withLocalDecl n BinderInfo.implicit (← mkFreshTypeMVar) fun x =>
+              withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } )
+                loop
           | none   => throw ex
-    loop #[]
+    loop
   else
-    k #[] (← elabType stx)
+    k (← elabType stx)
+
+/--
+  Return `autoBoundImplicits ++ xs.
+  This methoid throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs` -/
+def addAutoBoundImplicits (xs : Array Expr) : TermElabM (Array Expr) := do
+  let autoBoundImplicits := (← read).autoBoundImplicits
+  for auto in autoBoundImplicits do
+    let localDecl ← getLocalDecl auto.fvarId!
+    for x in xs do
+      if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
+        throwError! "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
+  return autoBoundImplicits.toArray ++ xs
 
 def mkAuxName (suffix : Name) : TermElabM Name := do
   match (← read).declName? with
@@ -1195,7 +1219,7 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
    let const ← mkConst constName explicitLevels
    pure $ (const, projs) :: result
 
-def isValidUnboundImplicitName (n : Name) : Bool :=
+def isValidAutoBoundImplicitName (n : Name) : Bool :=
   match n.eraseMacroScopes with
   | Name.str Name.anonymous s _ => s.length == 1 && (isGreek s[0] || s[0].isLower)
   | _ => false
@@ -1209,8 +1233,8 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
   | none =>
     let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
       if candidates.isEmpty then
-        if (← read).unboundImplicit && isValidUnboundImplicitName n then
-          throwUnboundImplicitLocal n
+        if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n then
+          throwAutoBoundImplicitLocal n
         else
           let mainModule ← getMainModule
           let view := extractMacroScopes n

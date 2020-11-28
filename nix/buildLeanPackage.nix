@@ -118,7 +118,7 @@ in
     '';
 
     lean-package = writeShellScriptBin "lean" ''
-      LEAN_PATH=${modRoot} ${lean-final}/bin/lean $@
+      LEAN_PATH=${modRoot}:$LEAN_PATH ${lean-final}/bin/lean $@
     '';
     emacs-package = makeEmacsWrapper "emacs-package" lean-package;
 

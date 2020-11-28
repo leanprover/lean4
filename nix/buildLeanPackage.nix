@@ -1,5 +1,5 @@
 { debug ? false, leanFlags ? [], leancFlags ? [],
-  lean, leanc ? lean, lean-leanDeps ? lean, lean-final ? lean,
+  lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, nix, substituteAll, symlinkJoin, linkFarmFromDrvs }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
@@ -40,12 +40,12 @@ with builtins; let
     allowSubstitutes = false;
   };
 in
-  { name, src, srcDir ? "", deps }: let
+  { name, src, srcDir ? name, deps ? [ lean.Lean ] }: let
     srcRoot = src;
     fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
       mkdir $out
       cd $out
-      mkdir ${lib.concatStringsSep " " ([name] ++ attrNames deps)}
+      mkdir ${lib.concatStringsSep " " ([name] ++ map (dep: dep.name) deps)}
     '';
     # build a file containing the module names of all immediate dependencies of `mod`
     leanDeps = mod: mkDerivation {
@@ -106,7 +106,8 @@ in
       ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" $@
     '';
   in rec {
-    mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues deps));
+    inherit name lean;
+    mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} deps);
     modRoot   = depRoot name [ mods.${name} ];
     cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (builtins.attrValues mods); };
     objects   = mapAttrs compileMod mods;

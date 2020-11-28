@@ -38,7 +38,8 @@
         inherit buildLeanPackage;
       };
       buildLeanPackage = callPackage (import ./nix/buildLeanPackage.nix) {
-        inherit (lean) stdenv lean leanc;
+        inherit (lean) stdenv leanc;
+        lean = lean.stage1;
         inherit lean-emacs;
         nix = nix-pinned;
       };
@@ -107,5 +108,13 @@
       defaultPackage = packages.lean;
 
       checks.lean = packages.test;
-    });
+
+    }) // rec {
+      templates.pkg = {
+        path = ./nix/templates/pkg;
+        description = "A custom Lean package";
+      };
+
+      defaultTemplate = templates.pkg;
+    };
 }

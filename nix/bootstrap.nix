@@ -62,9 +62,9 @@ rec {
         leanFlags = [ "-Dinterpreter.prefer_native=false" ];
       };
     in (all: all // all.lean) rec {
-      Init = build { name = "Init"; src = ../src; srcDir = "/src"; deps = {}; };
-      Std  = build { name = "Std";  src = ../src; srcDir = "/src"; deps = { inherit Init; }; };
-      Lean = build { name = "Lean"; src = ../src; srcDir = "/src"; deps = { inherit Init Std; }; };
+      Init = build { name = "Init"; src = ../src; srcDir = "/src"; deps = []; };
+      Std  = build { name = "Std";  src = ../src; srcDir = "/src"; deps = [ Init ]; };
+      Lean = build { name = "Lean"; src = ../src; srcDir = "/src"; deps = [ Init Std ]; };
       inherit (Lean) emacs-dev emacs-package;
       mods = Init.mods // Std.mods // Lean.mods;
       lean = stdenv.mkDerivation {

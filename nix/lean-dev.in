@@ -30,10 +30,13 @@ while [[ "$root" != / ]]; do
     root="$(realpath "$root/..")"
 done
 if [[ "$root" == / ]]; then
+    # if we're outside of any project, just call Lean without any packages
     call @lean@/bin/lean $@
 elif [[ "$input" != "$root@srcDir@/"* ]]; then
+    # otherwise, if we're inside the package but not its source directory, call Lean with the full package available
     call nix run "$root#lean-package" -- $@
 else
+    # otherwise call Lean with the file's dependencies available
     input="$(realpath --relative-to="$root@srcDir@" "$input")"
     input="${input%.lean}"
     input="${input//\//.}"

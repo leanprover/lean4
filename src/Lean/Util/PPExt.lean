@@ -44,18 +44,24 @@ builtin_initialize ppFnsRef : IO.Ref PPFns ←
 builtin_initialize ppExt : EnvExtension PPFns ←
   registerEnvExtension ppFnsRef.get
 
-def ppExpr (ctx : PPContext) (e : Expr) : IO Format :=
+def ppExpr (ctx : PPContext) (e : Expr) : IO Format := do
   let e := ctx.mctx.instantiateMVars e |>.1
   if getPPRaw ctx.opts then
     return format (toString e)
   else
-    ppExt.getState ctx.env |>.ppExpr ctx e
+    try
+      ppExt.getState ctx.env |>.ppExpr ctx e
+    catch ex =>
+      pure f!"[Error pretty printing expression: {ex}. Falling back to raw printer.]{Format.line}{e}"
 
 def ppTerm (ctx : PPContext) (stx : Syntax) : IO Format :=
   if getPPRaw ctx.opts then
     return stx.formatStx (getSyntaxMaxDepth ctx.opts)
   else
-    ppExt.getState ctx.env |>.ppTerm ctx stx
+    try
+      ppExt.getState ctx.env |>.ppTerm ctx stx
+    catch ex =>
+      pure f!"[Error pretty printing syntax: {ex}. Falling back to raw printer.]{Format.line}{stx}"
 
 def ppGoal (ctx : PPContext) (mvarId : MVarId) : IO Format :=
     ppExt.getState ctx.env |>.ppGoal ctx mvarId

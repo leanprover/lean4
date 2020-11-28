@@ -34,7 +34,7 @@ partial def skipWs (it : String.Iterator) : String.Iterator :=
    it
 
 @[inline]
-protected def pure {α : Type} (a : α) : Quickparse α := fun it =>
+protected def pure (a : α) : Quickparse α := fun it =>
   success it a
 
 @[inline]
@@ -44,7 +44,7 @@ protected def bind {α β : Type} (f : Quickparse α) (g : α → Quickparse β)
   | error pos msg => error pos msg
 
 @[inline]
-def fail {α : Type} (msg : String) : Quickparse α := fun it =>
+def fail (msg : String) : Quickparse α := fun it =>
   error it msg
 
 @[inline]

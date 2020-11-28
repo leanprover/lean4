@@ -45,8 +45,6 @@ def renderString (s : String) : String :=
   "\"" ++ escape s ++ "\""
 
 section
-variables {α : Type}
-
 @[specialize]
 partial def render : Json → Format
   | null       => "null"

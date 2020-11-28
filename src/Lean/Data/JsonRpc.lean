@@ -38,8 +38,7 @@ inductive ErrorCode where
   | requestCancelled
   | contentModified
 
-instance : FromJson ErrorCode := ⟨fun j =>
-  match j with
+instance : FromJson ErrorCode := ⟨fun
   | num (-32700 : Int) => ErrorCode.parseError
   | num (-32600 : Int) => ErrorCode.invalidRequest
   | num (-32601 : Int) => ErrorCode.methodNotFound
@@ -53,8 +52,7 @@ instance : FromJson ErrorCode := ⟨fun j =>
   | num (-32801 : Int) => ErrorCode.contentModified
   | _  => none⟩
 
-instance : ToJson ErrorCode := ⟨fun e =>
-  match e with
+instance : ToJson ErrorCode := ⟨fun
   | ErrorCode.parseError           => (-32700 : Int)
   | ErrorCode.invalidRequest       => (-32600 : Int)
   | ErrorCode.methodNotFound       => (-32601 : Int)
@@ -213,19 +211,19 @@ def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) 
 def writeMessage (h : FS.Stream) (m : Message) : IO Unit :=
   h.writeJson (toJson m)
 
-def writeRequest {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (method : String) (params : α) : IO Unit :=
+def writeRequest [ToJson α] (h : FS.Stream) (id : RequestID) (method : String) (params : α) : IO Unit :=
   h.writeMessage (Message.request id method (fromJson? (toJson params)))
 
-def writeNotification {α : Type} [ToJson α] (h : FS.Stream) (method : String) (params : α) : IO Unit :=
+def writeNotification [ToJson α] (h : FS.Stream) (method : String) (params : α) : IO Unit :=
   h.writeMessage (Message.notification method (fromJson? (toJson params)))
 
-def writeResponse {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
+def writeResponse [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
   h.writeMessage (Message.response id (toJson r))
 
 def writeResponseError (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) : IO Unit :=
   h.writeMessage (Message.responseError id code message none)
 
-def writeResponseErrorWithData {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : IO Unit :=
+def writeResponseErrorWithData [ToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : IO Unit :=
   h.writeMessage (Message.responseError id code message (toJson data))
 
 end IO.FS.Stream

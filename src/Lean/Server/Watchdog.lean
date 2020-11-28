@@ -67,10 +67,10 @@ open Lsp
 open JsonRpc
 open System.FilePath
 
-structure OpenDocument :=
-  (version : Nat)
-  (text : FileMap)
-  (headerAst : Syntax)
+structure OpenDocument where
+  version : Nat
+  text : FileMap
+  headerAst : Syntax
 
 def workerCfg : Process.StdioConfig :=
   { stdin  := Process.Stdio.piped,
@@ -80,11 +80,11 @@ def workerCfg : Process.StdioConfig :=
     stderr := Process.Stdio.null }
 
 -- Events that a forwarding task of a worker signals to the main task
-inductive WorkerEvent :=
+inductive WorkerEvent where
   | terminated
   | crashed (e : IO.Error)
 
-inductive WorkerState :=
+inductive WorkerState where
   -- The watchdog can detect a crashed file worker in two places: When trying to send a message to the file worker
   -- and when reading a request reply.
   -- In the latter case, the forwarding task terminates and delegates a `crashed` event to the main task.
@@ -97,13 +97,13 @@ inductive WorkerState :=
 
 abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message (fun a b => Decidable.decide (a < b))
 
-structure FileWorker :=
-  (doc : OpenDocument)
-  (proc : Process.Child workerCfg)
-  (commTask : Task WorkerEvent)
-  (state : WorkerState)
+structure FileWorker where
+  doc : OpenDocument
+  proc : Process.Child workerCfg
+  commTask : Task WorkerEvent
+  state : WorkerState
   -- NOTE: this should not be mutated outside of namespace FileWorker
-  (pendingRequestsRef : IO.Ref PendingRequestMap)
+  pendingRequestsRef : IO.Ref PendingRequestMap
 
 namespace FileWorker
 
@@ -124,10 +124,10 @@ def readMessage (fw : FileWorker) : IO JsonRpc.Message := do
 def writeMessage (fw : FileWorker) (msg : JsonRpc.Message) : IO Unit :=
   writeLspMessage fw.stdin msg
 
-def writeNotification {α : Type} [ToJson α] (fw : FileWorker) (method : String) (param : α) : IO Unit :=
+def writeNotification [ToJson α] (fw : FileWorker) (method : String) (param : α) : IO Unit :=
   writeLspNotification fw.stdin method param
 
-def writeRequest {α : Type} [ToJson α] (fw : FileWorker) (id : RequestID) (method : String) (param : α) : IO Unit := do
+def writeRequest [ToJson α] (fw : FileWorker) (id : RequestID) (method : String) (param : α) : IO Unit := do
   writeLspRequest fw.stdin id method param
   fw.pendingRequestsRef.modify $ fun pendingRequests =>
     pendingRequests.insert id (Message.request id method (Json.toStructured? param))
@@ -140,13 +140,13 @@ end FileWorker
 
 abbrev FileWorkerMap := RBMap DocumentUri FileWorker (fun a b => Decidable.decide (a < b))
 
-structure ServerContext :=
-  (hIn hOut : FS.Stream)
-  (hLog : FS.Stream)
-  (fileWorkersRef : IO.Ref FileWorkerMap)
+structure ServerContext where
+  hIn hOut : FS.Stream
+  hLog : FS.Stream
+  fileWorkersRef : IO.Ref FileWorkerMap
   /- We store these to pass them to workers. -/
-  (initParams : InitializeParams)
-  (workerPath : String)
+  initParams : InitializeParams
+  workerPath : String
 
 abbrev ServerM := ReaderT ServerContext IO
 
@@ -339,7 +339,7 @@ def shutdown : ServerM Unit := do
   fileWorkers.forM (fun id _ => terminateFileWorker id)
   fileWorkers.forM (fun _ fw => do let _ ← IO.wait fw.commTask)
 
-inductive ServerEvent :=
+inductive ServerEvent where
   | WorkerEvent (uri : DocumentUri) (fw : FileWorker) (ev : WorkerEvent)
   | ClientMsg (msg : JsonRpc.Message)
   | ClientError (e : IO.Error)

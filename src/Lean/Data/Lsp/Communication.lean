@@ -65,19 +65,19 @@ def writeLspMessage (h : FS.Stream) (msg : Message) : IO Unit := do
   h.putStr (header ++ j)
   h.flush
 
-def writeLspRequest {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (method : String) (params : α) : IO Unit :=
+def writeLspRequest [ToJson α] (h : FS.Stream) (id : RequestID) (method : String) (params : α) : IO Unit :=
   writeLspMessage h (Message.request id method (fromJson? (toJson params)))
 
-def writeLspNotification {α : Type} [ToJson α] (h : FS.Stream) (method : String) (r : α) : IO Unit :=
+def writeLspNotification [ToJson α] (h : FS.Stream) (method : String) (r : α) : IO Unit :=
   writeLspMessage h (Message.notification method (fromJson? (toJson r)))
 
-def writeLspResponse {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
+def writeLspResponse [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
   writeLspMessage h (Message.response id (toJson r))
 
 def writeLspResponseError (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) : IO Unit :=
   writeLspMessage h (Message.responseError id code message none)
 
-def writeLspResponseErrorWithData {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : IO Unit :=
+def writeLspResponseErrorWithData [ToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : IO Unit :=
   writeLspMessage h (Message.responseError id code message (toJson data))
 
 end Lsp

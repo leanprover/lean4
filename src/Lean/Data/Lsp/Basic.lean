@@ -18,7 +18,8 @@ namespace Lsp
 
 open Json
 
-structure CancelParams := (id : JsonRpc.RequestID)
+structure CancelParams where
+  id : JsonRpc.RequestID
 
 instance CancelParams.hasFromJson : FromJson CancelParams :=
   ⟨fun j => do
@@ -28,7 +29,6 @@ instance CancelParams.hasFromJson : FromJson CancelParams :=
 instance CancelParams.hasToJson : ToJson CancelParams :=
   ⟨fun o => mkObj $
     ⟨"id", toJson o.id⟩ :: []⟩
-
 
 abbrev DocumentUri := String
 

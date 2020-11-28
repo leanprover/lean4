@@ -13,15 +13,12 @@ universes u v
 /-- An async IO list is like a lazy list but instead of being *unevaluated* `Thunk`s,
 lazy tails are `Task`s *being evaluated asynchronously*. A tail can signal the end
 of computation (successful or due to a failure) with a terminating value of type `ε`. -/
-inductive AsyncList (ε : Type u) (α : Type v) :=
+inductive AsyncList (ε : Type u) (α : Type v) where
   | cons (hd : α) (tl : AsyncList ε α)
   | asyncCons (hd : α) (tl : Task $ Except ε $ AsyncList ε α)
   | nil
 
 namespace AsyncList
-
--- TODO(WN): IO doesn't like universes :(
-variables {ε : Type} {α : Type}
 
 instance asyncListInhabited : Inhabited (AsyncList ε α) := ⟨nil⟩
 

@@ -9,7 +9,7 @@ import Lean.Data.Lsp
 
 namespace IO
 
-def throwServerError {α : Type} (err : String) : IO α :=
+def throwServerError (err : String) : IO α :=
   throw (userError err)
 
 namespace FS
@@ -107,7 +107,6 @@ end Lean
 namespace List
 
 universe u
-variable {α : Type u}
 
 def takeWhile (p : α → Bool) : List α → List α
   | []       => []

@@ -19,6 +19,7 @@ Author: Jared Roesch
 #include <strsafe.h>
 #else
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 #endif
 
@@ -78,7 +79,7 @@ static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object **
         HANDLE readh;
         HANDLE writeh;
         if (!CreatePipe(&readh, &writeh, saAttr, 0))
-            throw errno;
+            throw 0xc0de; // TODO(WN): translate Win32 errors or report them directly
         *ours = io_wrap_handle(in ? from_win_handle(writeh, "w") : from_win_handle(readh, "r"));
         *theirs = in ? readh : writeh;
         // Ensure the write handle to the pipe for STDIN is not inherited.
@@ -86,7 +87,16 @@ static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object **
         return;
     }
     case stdio::NUL:
-        /* We should map /dev/null. */
+        HANDLE hNul = CreateFile("NUL",
+                                 in ? GENERIC_READ : GENERIC_WRITE,
+                                 0, // TODO(WN): does NUL have to be shared?
+                                 saAttr,
+                                 OPEN_EXISTING,
+                                 FILE_ATTRIBUTE_NORMAL,
+                                 NULL);
+        if (hNul == INVALID_HANDLE_VALUE)
+            throw 0xc0de; // TODO(WN): translate Win32 errors or report them directly
+        *theirs = hNul;
         return;
     }
     lean_unreachable();
@@ -101,7 +111,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     SECURITY_ATTRIBUTES saAttr;
 
-    // Set the bInheritHandle flag so pipe handles are inherited.
+    // Set the bInheritHandle flag so pipe/NUL handles are inherited.
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
     saAttr.bInheritHandle = TRUE;
     saAttr.lpSecurityDescriptor = NULL;
@@ -172,7 +182,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     }
 
     if (!bSuccess) {
-        throw errno;
+        throw 0xc0de; // TODO(WN): translate Win32 errors or report them directly
     }
 
     // Close handle to primary thread, we don't need it.
@@ -193,7 +203,7 @@ void finalize_process() {}
 
 #else
 
-extern "C" obj_res lean_io_process_child_wait(b_obj_arg, obj_arg child, obj_arg) {
+extern "C" obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
     int status;
@@ -250,16 +260,25 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         if (stdin_pipe) {
             dup2(stdin_pipe->m_read_fd, STDIN_FILENO);
             close(stdin_pipe->m_write_fd);
+        } else if (stdin_mode == stdio::NUL) {
+            int fd = open("/dev/null", O_RDONLY);
+            dup2(fd, STDIN_FILENO);
         }
 
         if (stdout_pipe) {
             dup2(stdout_pipe->m_write_fd, STDOUT_FILENO);
             close(stdout_pipe->m_read_fd);
+        } else if (stdout_mode == stdio::NUL) {
+            int fd = open("/dev/null", O_WRONLY);
+            dup2(fd, STDOUT_FILENO);
         }
 
         if (stderr_pipe) {
             dup2(stderr_pipe->m_write_fd, STDERR_FILENO);
             close(stderr_pipe->m_read_fd);
+        } else if (stderr_mode == stdio::NUL) {
+            int fd = open("/dev/null", O_WRONLY);
+            dup2(fd, STDERR_FILENO);
         }
 
         if (cwd) {

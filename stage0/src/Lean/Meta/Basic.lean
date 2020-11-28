@@ -53,6 +53,7 @@ structure Config where
   zetaNonDep         : Bool := true
   /- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
   trackZeta          : Bool := false
+  unificationHints   : Bool := true
 
 structure ParamInfo where
   implicit     : Bool      := false

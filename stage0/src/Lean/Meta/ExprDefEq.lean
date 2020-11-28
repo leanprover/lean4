@@ -10,6 +10,7 @@ import Lean.Meta.FunInfo
 import Lean.Meta.LevelDefEq
 import Lean.Meta.Check
 import Lean.Meta.Offset
+import Lean.Meta.UnificationHint
 
 namespace Lean.Meta
 
@@ -1142,9 +1143,9 @@ end
   | none   => failK
 
 private def isDefEqOnFailure (t s : Expr) : MetaM Bool :=
-  unstuckMVar t (fun t => Meta.isExprDefEqAux t s) $
-  unstuckMVar s (fun s => Meta.isExprDefEqAux t s) $
-  pure false
+  unstuckMVar t (fun t => Meta.isExprDefEqAux t s) <|
+  unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
+  tryUnificationHints t s <||> tryUnificationHints s t
 
 private def isDefEqProj : Expr → Expr → MetaM Bool
   | Expr.proj _ i t _, Expr.proj _ j s _ => pure (i == j) <&&> Meta.isExprDefEqAux t s

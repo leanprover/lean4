@@ -36,11 +36,11 @@ instance : ToJson Int := ⟨fun n => Json.num n⟩
 instance : FromJson String := ⟨Json.getStr?⟩
 instance : ToJson String := ⟨fun s => s⟩
 
-instance {α : Type u} [FromJson α] : FromJson (Array α) := ⟨fun
+instance [FromJson α] : FromJson (Array α) := ⟨fun
   | Json.arr a => a.mapM fromJson?
   | _ => none⟩
 
-instance {α : Type u} [ToJson α] : ToJson (Array α) :=
+instance [ToJson α] : ToJson (Array α) :=
   ⟨fun a => Json.arr (a.map toJson)⟩
 
 namespace Json
@@ -54,13 +54,13 @@ instance : ToJson Structured := ⟨fun
   | Structured.arr a => arr a
   | Structured.obj o => obj o⟩
 
-def toStructured? {α : Type} [ToJson α] (v : α) : Option Structured :=
+def toStructured? [ToJson α] (v : α) : Option Structured :=
   fromJson? (toJson v)
 
 def getObjValAs? (j : Json) (α : Type u) [FromJson α] (k : String) : Option α :=
   (j.getObjVal? k).bind fromJson?
 
-def opt {α : Type u} [ToJson α] (k : String) : Option α → List (String × Json)
+def opt [ToJson α] (k : String) : Option α → List (String × Json)
   | some o => [⟨k, toJson o⟩]
   | none   => []
 

@@ -55,7 +55,7 @@ private def sendDiagnostics (h : FS.Stream) (uri : DocumentUri) (version : Nat) 
 private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
   IO.eprintln $ "`" ++ text.source.extract s.beginPos (s.endPos-1) ++ "`"
 
-inductive TaskError :=
+inductive TaskError where
   | aborted
   | eof
   | ioError (e : IO.Error)
@@ -93,13 +93,13 @@ def unfoldCmdSnaps (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents
 /-- A document editable in the sense that we track the environment
 and parser state after each command so that edits can be applied
 without recompiling code appearing earlier in the file. -/
-structure EditableDocument :=
-  (version : Nat)
-  (text : FileMap)
+structure EditableDocument where
+  version : Nat
+  text : FileMap
   /- The first snapshot is that after the header. -/
-  (headerSnap : Snapshot)
+  headerSnap : Snapshot
   /- Subsequent snapshots occur after each command. -/
-  (cmdSnaps : AsyncList TaskError Snapshot)
+  cmdSnaps : AsyncList TaskError Snapshot
 
 namespace EditableDocument
 
@@ -153,10 +153,10 @@ open JsonRpc
 
 abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) (fun a b => Decidable.decide (a < b))
 
-structure ServerContext :=
-  (hIn hOut : FS.Stream)
-  (docRef : IO.Ref EditableDocument)
-  (pendingRequestsRef : IO.Ref PendingRequestMap)
+structure ServerContext where
+  hIn hOut : FS.Stream
+  docRef : IO.Ref EditableDocument
+  pendingRequestsRef : IO.Ref PendingRequestMap
 
 abbrev ServerM := ReaderT ServerContext IO
 
@@ -217,7 +217,7 @@ def handleNotification (method : String) (params : Json) : ServerM Unit := do
   | "$/cancelRequest"        => handle CancelParams handleCancelRequest
   | _                        => throwServerError $ "Got unsupported notification method: " ++ method
 
-def queueRequest {α : Type} (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α)
+def queueRequest (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α)
 : ServerM Unit := do
   let requestTask ← asTask (handler params (←getDocument))
   updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)

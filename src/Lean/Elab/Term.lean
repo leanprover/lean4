@@ -70,7 +70,6 @@ structure Context where
   fileName        : String
   fileMap         : FileMap
   declName?       : Option Name     := none
-  levelNames      : List Name       := []
   macroStack      : MacroStack      := []
   currMacroScope  : MacroScope      := firstFrontendMacroScope
   /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
@@ -135,6 +134,7 @@ structure LetRecToLift where
   mvarId         : MVarId
 
 structure State where
+  levelNames        : List Name       := []
   syntheticMVars    : List SyntheticMVarDecl := []
   mvarErrorInfos    : List MVarErrorInfo := []
   messages          : MessageLog := {}
@@ -216,7 +216,7 @@ instance : MonadLiftT MetaM TermElabM :=
   ⟨Term.liftMetaM⟩
 
 def getLevelNames : TermElabM (List Name) :=
-  return (← read).levelNames
+  return (← get).levelNames
 
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   match (← getLCtx).find? fvar.fvarId! with
@@ -288,8 +288,13 @@ def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyTh
 def withDeclName {α} (name : Name) (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with declName? := name }) x
 
-def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with levelNames := levelNames }) x
+def setLevelNames (levelNames : List Name) : TermElabM Unit :=
+  modify fun s => { s with levelNames := levelNames }
+
+def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM α := do
+  let levelNamesSaved ← getLevelNames
+  setLevelNames levelNames
+  try x finally setLevelNames levelNamesSaved
 
 def withoutErrToSorry {α} (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with errToSorry := false }) x
@@ -330,9 +335,9 @@ def liftLevelM {α} (x : LevelElabM α) : TermElabM α := do
   let ref ← getRef
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := { ref := ref, levelNames := ctx.levelNames }
-  match (x lvlCtx).run { ngen := ngen, mctx := mctx } with
-  | EStateM.Result.ok a newS  => do setMCtx newS.mctx; setNGen newS.ngen; pure a
+  let lvlCtx : Level.Context := { ref := ref, autoBoundImplicit := ctx.autoBoundImplicit }
+  match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
+  | EStateM.Result.ok a newS  => setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; pure a
   | EStateM.Result.error ex _ => throw ex
 
 def elabLevel (stx : Syntax) : TermElabM Level :=
@@ -434,9 +439,9 @@ def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
 
   Remark: we make sure the generated parameter names do not clash with the universes at `ctx.levelNames`. -/
 def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) : TermElabM (Expr × Nat) := do
-  let ctx ← read
   let mctx ← getMCtx
-  let r := mctx.levelMVarToParam (fun n => ctx.levelNames.elem n) e `u nextParamIdx
+  let levelNames ← getLevelNames
+  let r := mctx.levelMVarToParam (fun n => levelNames.elem n) e `u nextParamIdx
   setMCtx r.mctx
   pure (r.expr, r.nextParamIdx)
 

@@ -102,6 +102,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
           elabFunType refForElabFunType xs view fun xs type => do
             let type ← mkForallFVars (← read).autoBoundImplicits.toArray type
             let xs ← addAutoBoundImplicits xs
+            let levelNames ← getLevelNames
             let newHeader := {
               ref           := view.ref,
               modifiers     := view.modifiers,

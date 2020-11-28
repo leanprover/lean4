@@ -10,12 +10,13 @@ import Lean.Elab.Log
 namespace Lean.Elab.Level
 
 structure Context where
-  ref        : Syntax
-  levelNames : List Name
+  ref               : Syntax
+  autoBoundImplicit : Bool
 
 structure State where
-  ngen : NameGenerator
-  mctx : MetavarContext
+  ngen       : NameGenerator
+  mctx       : MetavarContext
+  levelNames : List Name
 
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
@@ -37,6 +38,11 @@ def mkFreshLevelMVar : LevelElabM Level := do
   let mvarId ← mkFreshId
   modify fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId }
   return mkLevelMVar mvarId
+
+private def isValidAutoBoundLevelName (n : Name) : Bool :=
+  match n.eraseMacroScopes with
+  | Name.str Name.anonymous s _ => s.length == 1 && s[0].isLower
+  | _ => false
 
 partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
   let kind := stx.getKind
@@ -64,8 +70,11 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
     | none     => throwIllFormedSyntax
   else if kind == identKind then
     let paramName := stx.getId
-    unless (← read).levelNames.contains paramName do
-      throwError ("unknown universe level " ++ paramName)
+    unless (← get).levelNames.contains paramName do
+      if (← read).autoBoundImplicit && isValidAutoBoundLevelName paramName then
+        modify fun s => { s with levelNames := paramName :: s.levelNames }
+      else
+        throwError ("unknown universe level " ++ paramName)
     return mkLevelParam paramName
   else if kind == `Lean.Parser.Level.addLit then
     let lvl ← elabLevel (stx.getArg 0)

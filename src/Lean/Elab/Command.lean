@@ -262,7 +262,6 @@ private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) 
     fileName       := ctx.fileName,
     fileMap        := ctx.fileMap,
     currMacroScope := ctx.currMacroScope,
-    levelNames     := scope.levelNames,
     declName?      := declName? }
 
 private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
@@ -280,7 +279,7 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
   let messages         := s.messages
-  let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := {} }
+  let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := {}, levelNames := scope.levelNames }
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
   let (((ea, termS), _), coreS) ← liftEIO x

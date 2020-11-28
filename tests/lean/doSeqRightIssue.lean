@@ -1,5 +1,5 @@
-
-
+--
+set_option autoBoundImplicitLocal false
 universes u
 variables {α : Type u}
 variables {β : α → Type v}

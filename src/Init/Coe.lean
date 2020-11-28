@@ -149,3 +149,12 @@ instance hasOfNatOfCoe {α : Type u} {β : Type v} [OfNat α] [Coe α β] : OfNa
 @[inline] def coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β := do
   let a ← x
   pure <| coe a
+
+instance [CoeFun α β] (a : α) : CoeDep α a (β a) where
+  coe := coeFun a
+
+instance [CoeFun α (fun _ => β)] : Coe α β  where
+  coe a := coeFun a
+
+instance [CoeSort α β] : Coe α β where
+  coe a := coeSort a

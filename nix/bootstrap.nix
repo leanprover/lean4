@@ -1,4 +1,6 @@
-{ debug ? false, stdenv, lib, cmake, gmp, buildLeanPackage, writeShellScriptBin }:
+{ debug ? false, extraCMakeFlags ? [],
+  stdenv, lib, cmake, gmp, buildLeanPackage, writeShellScriptBin,
+  ... }:
 rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
@@ -6,7 +8,7 @@ rec {
     buildInputs = [ gmp ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
-    cmakeFlags = [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" ] ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
+    cmakeFlags = [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" ] ++ extraCMakeFlags ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
     dontStrip = (args.debug or debug);
 
     postConfigure = ''

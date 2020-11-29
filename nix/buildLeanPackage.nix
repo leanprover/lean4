@@ -1,6 +1,7 @@
 { debug ? false, leanFlags ? [], leancFlags ? [],
   lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
-  stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, nix, substituteAll, symlinkJoin, linkFarmFromDrvs }:
+  stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
+  ... }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;

@@ -53,7 +53,7 @@ private def sendDiagnostics (h : FS.Stream) (uri : DocumentUri) (version : Nat) 
       : PublishDiagnosticsParams }
 
 private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
-  IO.eprintln $ "`" ++ text.source.extract s.beginPos (s.endPos-1) ++ "`"
+  IO.eprintln s!"[{s.beginPos}, {s.endPos}]: `{text.source.extract s.beginPos (s.endPos-1)}`"
 
 inductive TaskError where
   | aborted
@@ -135,11 +135,25 @@ def updateDocument (h : FS.Stream) (uri : DocumentUri) (doc : EditableDocument) 
     -- so a change on some whitespace after a command recompiles it. We could
     -- be more precise.
     let validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
+    -- TODO(MH): remove temporary logging
+    IO.eprintln s!"changePos: {changePos}"
+    IO.eprintln "validSnaps:"
+    for snap in validSnaps do
+      logSnapContent snap doc.text
+    IO.eprintln "finishedPrefix:"
+    for snap in cmdSnaps.finishedPrefix do
+      logSnapContent snap doc.text
+    IO.eprintln "---"
     -- NOTE: the watchdog never sends didChange notifs with a header change to the
     -- worker, so the header snapshot is always valid.
     let lastSnap := validSnaps.getLastD doc.headerSnap
-    let newSnaps ← unfoldCmdSnaps h uri newVersion newText lastSnap
-    let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
+    let newCmdSnaps ← match validSnaps.get? (validSnaps.length - 2) with
+      | none => do
+        let newSnaps ← unfoldCmdSnaps h uri newVersion newText lastSnap
+        pure $ AsyncList.ofList validSnaps.dropLast ++ newSnaps
+      | some secondLastSnap => do
+        let newSnaps ← unfoldCmdSnaps h uri newVersion newText secondLastSnap
+        pure $ AsyncList.ofList (validSnaps.take (validSnaps.length - 2)) ++ newSnaps
     -- NOTE: We do not cancel old tasks explicitly, the GC does this for us when no refs remain.
     pure ⟨newVersion, newText, newHeaderSnap, newCmdSnaps⟩
 

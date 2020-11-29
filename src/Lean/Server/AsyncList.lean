@@ -94,7 +94,7 @@ partial def updateFinishedPrefix : AsyncList ε α → IO (AsyncList ε α × Op
 private partial def finishedPrefixAux : List α → AsyncList ε α → List α
   | acc, cons hd tl      => finishedPrefixAux (hd :: acc) tl
   | acc, nil             => acc
-  | acc, asyncCons hd tl => acc
+  | acc, asyncCons hd tl => hd :: acc
 
 /-- The longest already-computed prefix of the stream. -/
 def finishedPrefix : AsyncList ε α → List α :=

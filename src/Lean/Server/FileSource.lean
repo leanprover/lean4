@@ -9,8 +9,8 @@ import Lean.Data.Lsp
 namespace Lean
 namespace Lsp
 
-class FileSource (α : Type) :=
-  (fileSource : α → DocumentUri)
+class FileSource (α : Type) where
+  fileSource : α → DocumentUri
 export FileSource (fileSource)
 
 instance Location.hasFileSource : FileSource Location :=

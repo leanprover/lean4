@@ -11,6 +11,7 @@
 - [Type classes](./typeclass.md)
 - [The `do` Notation](./do.md)
 - [Tactics](./tactics.md)
+- [Thunks, Tasks and Threads](./thunks.md)
 - [String interpolation](./stringinterp.md)
 
 # Other

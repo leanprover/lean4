@@ -58,14 +58,14 @@ where
 private partial def validateHint (declName : Name) (hint : UnificationHint) : MetaM Unit := do
   hint.constraints.forM fun c => do
     unless (← isDefEq c.lhs c.rhs) do
-      throwError! "invalid unification hint '{declName}', failed to unify constraint left-hand-side{indentExpr c.lhs}\nwith right-hand-side{indentExpr c.rhs}"
+      throwError! "invalid unification hint, failed to unify constraint left-hand-side{indentExpr c.lhs}\nwith right-hand-side{indentExpr c.rhs}"
   unless (← isDefEq hint.pattern.lhs hint.pattern.rhs) do
-    throwError! "invalid unification hint '{declName}', failed to unify pattern left-hand-side{indentExpr hint.pattern.lhs}\nwith right-hand-side{indentExpr hint.pattern.rhs}"
+    throwError! "invalid unification hint, failed to unify pattern left-hand-side{indentExpr hint.pattern.lhs}\nwith right-hand-side{indentExpr hint.pattern.rhs}"
 
 def addUnificationHint (declName : Name) : MetaM Unit := do
   let info ← getConstInfo declName
   match info.value? with
-  | none => throwError! "invalid unification hint '{declName}', it must be a definition"
+  | none => throwError! "invalid unification hint, it must be a definition"
   | some val =>
     let (_, _, body) ← lambdaMetaTelescope val
     match decodeUnificationHint body with
@@ -101,27 +101,31 @@ where
   isDefEqPattern p e :=
     withReducible <| Meta.isExprDefEqAux p e
 
-  tryCandidate candidate : MetaM Bool := commitWhen do
-    trace[Meta.isDefEq.hint]! "trying hint {candidate} at {t} =?= {s}"
-    let cinfo ← getConstInfo candidate
-    let hint? ← withConfig (fun cfg => { cfg with unificationHints := false }) do
-      let us ← cinfo.lparams.mapM fun _ => mkFreshLevelMVar
-      let val := cinfo.instantiateValueLevelParams us
-      let (_, _, body) ← lambdaMetaTelescope val
-      match decodeUnificationHint body with
-      | Except.error _ => return none
-      | Except.ok hint =>
-        if (← isDefEqPattern hint.pattern.lhs t <&&> isDefEqPattern hint.pattern.rhs s) then
-          return some hint
-        else
-          return none
-    match hint? with
-    | none      => return false
-    | some hint =>
-      trace[Meta.isDefEq.hint]! "{candidate} succeeded, applying constraints"
-      for c in hint.constraints do
-        unless (← Meta.isExprDefEqAux c.lhs c.rhs) do
-          return false
-      return true
+  tryCandidate candidate : MetaM Bool :=
+    traceCtx `Meta.isDefEq.hint <| commitWhen do
+      trace[Meta.isDefEq.hint]! "trying hint {candidate} at {t} =?= {s}"
+      let cinfo ← getConstInfo candidate
+      let hint? ← withConfig (fun cfg => { cfg with unificationHints := false }) do
+        let us ← cinfo.lparams.mapM fun _ => mkFreshLevelMVar
+        let val := cinfo.instantiateValueLevelParams us
+        let (_, _, body) ← lambdaMetaTelescope val
+        match decodeUnificationHint body with
+        | Except.error _ => return none
+        | Except.ok hint =>
+          if (← isDefEqPattern hint.pattern.lhs t <&&> isDefEqPattern hint.pattern.rhs s) then
+            return some hint
+          else
+            return none
+      match hint? with
+      | none      => return false
+      | some hint =>
+        trace[Meta.isDefEq.hint]! "{candidate} succeeded, applying constraints"
+        for c in hint.constraints do
+          unless (← Meta.isExprDefEqAux c.lhs c.rhs) do
+            return false
+        return true
+
+builtin_initialize
+  registerTraceClass `Meta.isDefEq.hint
 
 end Lean.Meta

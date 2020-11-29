@@ -60,14 +60,21 @@ def expandBrackedBinders (combinatorDeclName : Name) (bracketedExplicitBinders :
 syntax unifConstraint := term (" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
-syntax "unif_hint " bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
+syntax "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
+
+private def mkHintBody (cs : Array Syntax) (p : Syntax) : MacroM Syntax := do
+  let mut body ← `($(p[0]) = $(p[2]))
+  for c in cs.reverse do
+    body ← `($(c[0][0]) = $(c[0][2]) → $body)
+  return body
 
 macro_rules
   | `(unif_hint $bs* where $cs* |- $p) => do
-    let mut body ← `($(p[0]) = $(p[2]))
-    for c in cs.reverse do
-      body ← `($(c[0][0]) = $(c[0][2]) → $body)
+    let body ← mkHintBody cs p
     `(@[unificationHint] def hint $bs:explicitBinder* : Sort _ := $body)
+  | `(unif_hint $n:ident $bs* where $cs* |- $p) => do
+    let body ← mkHintBody cs p
+    `(@[unificationHint] def $n:ident $bs:explicitBinder* : Sort _ := $body)
 
 end Lean
 

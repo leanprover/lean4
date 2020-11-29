@@ -255,7 +255,7 @@ def isLevelDefEq (u v : Level) : m Bool := liftMetaM do
   isLevelDefEqImp u v
 
 def isExprDefEqImp (t s : Expr) : MetaM Bool :=
-  traceCtx `Meta.isDefEq $ do
+  traceCtx `Meta.isDefEq do
     let b ← commitWhen (mayPostpone := true) $ Meta.isExprDefEqAux t s
     trace[Meta.isDefEq]! "{t} =?= {s} ... {if b then "success" else "failure"}"
     pure b

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.Recognizers
 import Lean.Meta.DiscrTree
 import Lean.Meta.LevelDefEq
 
@@ -37,24 +38,22 @@ structure UnificationHint where
   constraints : List UnificationConstraint
 
 private partial def decodeUnificationHint (e : Expr) : ExceptT MessageData Id UnificationHint := do
-  unless e.isAppOfArity `Lean.UnificationHint.mk 2 do
-    throw m!"invalid unification hint, unexpected term{indentExpr e}"
-  return {
-    pattern     := (← decodeConstraint (e.getArg! 1))
-    constraints := (← decodeConstraints (e.getArg! 0))
-  }
+  decode e #[]
 where
-  decodeConstraint (c : Expr) := do
-    unless c.isAppOfArity `Lean.UnificationConstraint.mk 3 do
-      throw m!"invalid unification hint constraint, unexpected term{indentExpr c}"
-    return { lhs := c.getArg! 1, rhs := c.getArg! 2 }
-  decodeConstraints (cs : Expr) := do
-    if cs.isAppOfArity `List.nil 1 then
-      return []
-    else if cs.isAppOfArity `List.cons 3 then
-      return (← decodeConstraint (cs.getArg! 1)) :: (← decodeConstraints (cs.getArg! 2))
-    else
-      throw m!"invalid unification hint constraints, unexpected list term{indentExpr cs}"
+  decodeConstraint (e : Expr) : ExceptT MessageData Id UnificationConstraint :=
+    match e.eq? with
+    | some (_, lhs, rhs) => return UnificationConstraint.mk lhs rhs
+    | none => throw m!"invalid unification hint constraint, unexpected term{indentExpr e}"
+  decode (e : Expr) (cs : Array UnificationConstraint) : ExceptT MessageData Id UnificationHint := do
+    match e with
+    | Expr.forallE _ d b _ => do
+      let c ← decodeConstraint d
+      if b.hasLooseBVars then
+        throw m!"invalid unification hint constraint, unexpected dependency{indentExpr e}"
+      decode b (cs.push c)
+    | _ => do
+      let p ← decodeConstraint e
+      return { pattern := p, constraints := cs.toList }
 
 private partial def validateHint (declName : Name) (hint : UnificationHint) : MetaM Unit := do
   hint.constraints.forM fun c => do
@@ -65,10 +64,6 @@ private partial def validateHint (declName : Name) (hint : UnificationHint) : Me
 
 def addUnificationHint (declName : Name) : MetaM Unit := do
   let info ← getConstInfo declName
-  -- check type
-  forallTelescopeReducing info.type fun _ type =>
-    unless type.isConstOf `Lean.UnificationHint do
-      throwError! "invalid unification hint '{declName}', unexpected type{indentExpr type}"
   match info.value? with
   | none => throwError! "invalid unification hint '{declName}', it must be a definition"
   | some val =>

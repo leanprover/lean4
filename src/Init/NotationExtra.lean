@@ -57,29 +57,17 @@ def expandBrackedBinders (combinatorDeclName : Name) (bracketedExplicitBinders :
   let combinator := mkIdentFrom (← getRef) combinatorDeclName
   expandBrackedBindersAux combinator #[bracketedExplicitBinders] body
 
-structure UnificationConstraint.{u} where
-  {α : Type u}
-  lhs : α
-  rhs : α
-
-structure UnificationHint.{u} where
-  constraints : List UnificationConstraint.{u}
-  pattern     : UnificationConstraint.{u}
-
-syntax unifConstraint := term:50 (" =?= " <|> " ≟ ") term:50
+syntax unifConstraint := term (" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
 syntax "unif_hint " bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
 
 macro_rules
   | `(unif_hint $bs* where $cs* |- $p) => do
-    let mut csNew ← `([])
+    let mut body ← `($(p[0]) = $(p[2]))
     for c in cs.reverse do
-      csNew ← `((UnificationConstraint.mk $(c[0][0]) $(c[0][2])) :: $csNew)
-    `(@[unificationHint] def hint $bs:explicitBinder* : UnificationHint := {
-        constraints := $csNew
-        pattern := UnificationConstraint.mk $(p[0]) $(p[2])
-      })
+      body ← `($(c[0][0]) = $(c[0][2]) → $body)
+    `(@[unificationHint] def hint $bs:explicitBinder* : Sort _ := $body)
 
 end Lean
 

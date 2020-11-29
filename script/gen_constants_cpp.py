@@ -74,6 +74,7 @@ def main(argv=None):
                 f.write('"%s"' % part)
                 first = False
             f.write('};\n')
+            f.write('    mark_persistent(g_%s->raw());\n' % c[0])
         f.write('}\n')
         # finalize constants
         f.write('void finalize_constants() {\n')

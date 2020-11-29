@@ -839,8 +839,8 @@ class interpreter {
 
     // closure stub stub
     static object * stub_m_aux(object ** args) {
-        environment const & env = TO_REF(environment, args[0]);
-        options const & opts = TO_REF(options, args[1]);
+        environment env(args[0]);
+        options opts(args[1]);
         if (g_interpreter && is_eqp(g_interpreter->m_env, env)) {
             return g_interpreter->stub_m(args);
         } else {

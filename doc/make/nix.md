@@ -104,3 +104,17 @@ nix run .\?rev=$(git rev-parse @^) scratch.lean
 ```
 
 ...more surely to come...
+
+# Debugging
+
+Since Nix copies all source files before compilation, you will need to map debug symbols back to the original path using `set substitute-path` in GDB.
+For example, for a build on Linux with the Nix sandbox activated:
+```bash
+(gdb) f
+#1  0x0000000000d23a4f in lean_inc (o=0x1) at /build/source/build/include/lean/lean.h:562
+562	/build/source/build/include/lean/lean.h: No such file or directory.
+(gdb) set substitute-path /build/source/build src
+(gdb) f
+#1  0x0000000000d23a4f in lean_inc (o=0x1) at /build/source/build/include/lean/lean.h:562
+562	static inline void lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_ref(o); }
+```

@@ -267,10 +267,11 @@ void heap::export_objs() {
 void heap::alloc_segment() {
     if (heap * h = g_heap_manager->pop_orphan()) {
         lean_assert(h->m_curr_segment);
+        /* import pending objects, before moving `h`'s segment to *this* heap. */
+        h->import_objs();
         segment * s = h->m_curr_segment;
         h->m_curr_segment = s->m_next;
         s->move_to_heap(this);
-        h->import_objs();
         if (h->m_curr_segment != nullptr) {
             g_heap_manager->push_orphan(h);
         } else {

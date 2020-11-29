@@ -97,7 +97,7 @@ def test (x : Nat) : Nat :=
 Now, the message `add1: 2` is printed twice.
 It may come as a surprise that it was printed twice instead of three times.
 As we pointed out, `dbgTrace!` is a macro used for debugging purposes only,
-and `add1` is still considered to be pure function.
+and `add1` is still considered to be a pure function.
 The Lean compiler performs common subexpression elimination when compiling `double`,
 and the produced code for `double` executes `x ()` only once instead of twice.
 This transformation is safe because `x : Unit -> Nat` is pure.

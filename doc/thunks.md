@@ -3,6 +3,7 @@
 A `Thunk` is defined as
 ```lean
 # namespace Ex
+# universe u
 structure Thunk (α : Type u) : Type u where
   fn : Unit → α
 # end Ex
@@ -71,7 +72,7 @@ def test (x : Nat) : Nat :=
 
 #eval test 2
 -- add1: 2
-9
+-- 9
 ```
 Note that the message `add1: 2` is printed only once.
 Now, consider the same example using `Unit -> Nat` instead of `Thunk Nat`.
@@ -92,7 +93,7 @@ def test (x : Nat) : Nat :=
 #eval test 2
 -- add1: 2
 -- add1: 2
-9
+-- 9
 ```
 Now, the message `add1: 2` is printed twice.
 It may come as a surprise that it was printed twice instead of three times.

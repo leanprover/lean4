@@ -370,7 +370,10 @@ extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     if (LEAN_UNLIKELY(r == nullptr)) {
         if (g_heap->m_page_free_list[slot_idx] == nullptr) {
             g_heap->import_objs();
-            p = alloc_page(g_heap, sz);
+            lean_assert(g_heap->m_curr_page[slot_idx] == p);
+            /* g_heap->import_objs() may add objects to p->m_header.m_free_list */
+            if (p->m_header.m_free_list == nullptr)
+                p = alloc_page(g_heap, sz);
         } else {
             p = page_list_pop(g_heap->m_page_free_list[slot_idx]);
             p->m_header.m_in_page_free_list = false;

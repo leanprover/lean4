@@ -122,6 +122,9 @@ instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (Exc
   throw e := ExceptT.mk <| pure (Except.error e)
   tryCatch := ExceptT.tryCatch
 
+instance [Monad m] [Inhabited ε] : Inhabited (ExceptT ε m α) where
+  default := throw arbitrary
+
 instance (ε) : MonadExceptOf ε (Except ε) where
   throw    := Except.error
   tryCatch := Except.tryCatch

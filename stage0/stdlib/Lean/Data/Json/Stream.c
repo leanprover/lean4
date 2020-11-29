@@ -19,11 +19,10 @@ lean_object* l_IO_FS_Stream_readJson(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_parse(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_IO_FS_Stream_readJson___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___rarg(lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object*);
+lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeJson(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -50,14 +49,6 @@ return x_7;
 }
 }
 }
-lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___rarg___boxed), 2, 0);
-return x_2;
-}
-}
 lean_object* l_IO_FS_Stream_readJson(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -79,7 +70,7 @@ lean_dec(x_7);
 x_10 = lean_string_from_utf8_unchecked(x_8);
 lean_dec(x_8);
 x_11 = l_Lean_Json_parse(x_10);
-x_12 = l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___rarg(x_11, x_9);
+x_12 = l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(x_11, x_9);
 lean_dec(x_11);
 return x_12;
 }
@@ -107,11 +98,11 @@ return x_16;
 }
 }
 }
-lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___rarg(x_1, x_2);
+x_3 = l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

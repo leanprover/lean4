@@ -11,6 +11,12 @@ import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Term
 open Meta
 
+builtin_initialize elabWithoutExpectedTypeAttr : TagAttribute ←
+  registerTagAttribute `elabWithoutExpectedType "mark that applications of the given declaration should be elaborated without the expected type"
+
+def hasElabWithoutExpectedType (env : Environment) (declName : Name) : Bool :=
+  elabWithoutExpectedTypeAttr.hasTag env declName
+
 /--
   Auxiliary inductive datatype for combining unelaborated syntax
   and already elaborated expressions. It is used to elaborate applications. -/
@@ -94,7 +100,7 @@ structure State where
   toSetErrorCtx     : Array MVarId := #[] -- metavariables that we need the set the error context using the application being built
   instMVars         : Array MVarId := #[] -- metavariables for the instance implicit arguments that have already been processed
   -- The following field is used to implement the `propagateExpectedType` heuristic.
-  alreadyPropagated : Bool := false       -- true when expectedType has already been propagated
+  propagateExpected : Bool  -- true when expectedType has not been propagated yet
 
 abbrev M := StateRefT State TermElabM
 
@@ -255,7 +261,7 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
   if shouldPropagateExpectedTypeFor arg then
     let s ← get
     -- TODO: handle s.etaArgs.size > 0
-    unless !s.etaArgs.isEmpty || s.alreadyPropagated do
+    unless !s.etaArgs.isEmpty || !s.propagateExpected do
       match s.expectedType? with
       | none              => pure ()
       | some expectedType =>
@@ -282,7 +288,7 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
 
            We currently use a different workaround, we just don't propagate the expected type when it is `Prop`. -/
         if expectedType.isProp then
-          modify fun s => { s with alreadyPropagated := true }
+          modify fun s => { s with propagateExpected := false }
         else
           let numRemainingArgs := s.args.length
           trace[Elab.app.propagateExpectedType]! "etaArgs.size: {s.etaArgs.size}, numRemainingArgs: {numRemainingArgs}, fType: {s.fType}"
@@ -293,8 +299,8 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
               unless (← hasOptAutoParams fTypeBody) do
                 trace[Elab.app.propagateExpectedType]! "{expectedType} =?= {fTypeBody}"
                 if (← isDefEq expectedType fTypeBody) then
-                  /- Note that we only set `alreadyPropagated := true` when propagation has succeeded. -/
-                  modify fun s => { s with alreadyPropagated := true }
+                  /- Note that we only set `propagateExpected := false` when propagation has succeeded. -/
+                  modify fun s => { s with propagateExpected := false }
 
 /-
   Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
@@ -456,6 +462,11 @@ partial def main : M Expr := do
 
 end ElabAppArgs
 
+private def propagateExpectedTypeFor (f : Expr) : TermElabM Bool :=
+  match f.getAppFn with
+  | Expr.const declName .. => return !hasElabWithoutExpectedType (← getEnv) declName
+  | _ => return true
+
 private def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis : Bool) : TermElabM Expr := do
   let fType ← inferType f
@@ -471,6 +482,7 @@ private def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Ar
     namedArgs := namedArgs.toList,
     f := f,
     fType := fType
+    propagateExpected := (← propagateExpectedTypeFor f)
   }
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/

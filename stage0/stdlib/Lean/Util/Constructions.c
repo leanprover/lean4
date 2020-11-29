@@ -170,7 +170,7 @@ lean_dec(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 lean_dec(x_10);
-x_12 = l_Lean_throwKernelException___rarg(x_3, x_4, x_5, x_6, x_7, x_11, lean_box(0));
+x_12 = l_Lean_throwKernelException___rarg(x_3, x_4, x_5, x_6, lean_box(0), x_7, x_11);
 return x_12;
 }
 else
@@ -235,7 +235,7 @@ lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, x_6, x_10, lean_box(0));
+x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_6, x_10);
 return x_11;
 }
 else
@@ -308,7 +308,7 @@ lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, x_6, x_10, lean_box(0));
+x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_6, x_10);
 return x_11;
 }
 else
@@ -381,7 +381,7 @@ lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, x_6, x_10, lean_box(0));
+x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_6, x_10);
 return x_11;
 }
 else
@@ -454,7 +454,7 @@ lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, x_6, x_10, lean_box(0));
+x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_6, x_10);
 return x_11;
 }
 else
@@ -527,7 +527,7 @@ lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, x_6, x_10, lean_box(0));
+x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_6, x_10);
 return x_11;
 }
 else
@@ -600,7 +600,7 @@ lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, x_6, x_10, lean_box(0));
+x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_6, x_10);
 return x_11;
 }
 else
@@ -673,7 +673,7 @@ lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, x_6, x_10, lean_box(0));
+x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_6, x_10);
 return x_11;
 }
 else

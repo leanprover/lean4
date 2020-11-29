@@ -18,7 +18,6 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__5;
 lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__8;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -47,6 +46,7 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2(lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3(lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_PrettyPrinter_runForNodeKind___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -143,7 +143,7 @@ x_16 = l_Lean_throwUnknownConstant___rarg___closed__3;
 x_17 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1(x_17, lean_box(0), x_2, x_3, x_8);
+x_18 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(x_17, x_2, x_3, x_8);
 return x_18;
 }
 else
@@ -185,7 +185,7 @@ x_29 = l_Lean_throwUnknownConstant___rarg___closed__3;
 x_30 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
-x_31 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1(x_30, lean_box(0), x_2, x_3, x_21);
+x_31 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(x_30, x_2, x_3, x_21);
 return x_31;
 }
 else
@@ -215,7 +215,7 @@ x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
-x_8 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1(x_7, lean_box(0), x_2, x_3, x_4);
+x_8 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(x_7, x_2, x_3, x_4);
 return x_8;
 }
 else
@@ -403,7 +403,7 @@ x_30 = l_Lean_throwUnknownConstant___rarg___closed__3;
 x_31 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
-x_32 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1(x_31, lean_box(0), x_4, x_5, x_15);
+x_32 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(x_31, x_4, x_5, x_15);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_32;
@@ -598,7 +598,7 @@ x_75 = l_Lean_throwUnknownConstant___rarg___closed__3;
 x_76 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_76, 0, x_74);
 lean_ctor_set(x_76, 1, x_75);
-x_77 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1(x_76, lean_box(0), x_4, x_5, x_60);
+x_77 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(x_76, x_4, x_5, x_60);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_77;

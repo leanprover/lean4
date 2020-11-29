@@ -14,14 +14,14 @@
 extern "C" {
 #endif
 lean_object* l_instHashableProd_match__1(lean_object*, lean_object*, lean_object*);
-size_t l_instHashableProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+size_t l_instHashableProd___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableList(lean_object*);
 lean_object* l_List_foldl___at_instHashableList___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 size_t l_Option_hash___rarg(lean_object*, lean_object*);
 lean_object* l_instHashableOption(lean_object*);
 lean_object* l_Option_hash_match__1(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_instHashableList___spec__1(lean_object*);
-lean_object* l_instHashableProd(lean_object*);
+lean_object* l_instHashableProd(lean_object*, lean_object*);
 lean_object* l_Option_hash___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_instHashableOption_match__1(lean_object*, lean_object*);
 lean_object* l_instHashableList___rarg___boxed(lean_object*, lean_object*);
@@ -31,7 +31,7 @@ size_t l_instHashableNat(lean_object*);
 size_t l_instHashableList___rarg(lean_object*, lean_object*);
 lean_object* l_instHashableOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableOption___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableNat___boxed(lean_object*);
 size_t lean_usize_mix_hash(size_t, size_t);
 size_t l_instHashableOption___rarg(lean_object*, lean_object*);
@@ -77,40 +77,40 @@ x_4 = lean_alloc_closure((void*)(l_instHashableProd_match__1___rarg), 2, 0);
 return x_4;
 }
 }
-size_t l_instHashableProd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+size_t l_instHashableProd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; lean_object* x_9; size_t x_10; size_t x_11; 
-x_5 = lean_ctor_get(x_4, 0);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; lean_object* x_8; size_t x_9; size_t x_10; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
-lean_dec(x_4);
-x_7 = lean_apply_1(x_1, x_5);
-x_8 = lean_unbox_usize(x_7);
-lean_dec(x_7);
-x_9 = lean_apply_1(x_3, x_6);
-x_10 = lean_unbox_usize(x_9);
-lean_dec(x_9);
-x_11 = lean_usize_mix_hash(x_8, x_10);
-return x_11;
+lean_dec(x_3);
+x_6 = lean_apply_1(x_1, x_4);
+x_7 = lean_unbox_usize(x_6);
+lean_dec(x_6);
+x_8 = lean_apply_1(x_2, x_5);
+x_9 = lean_unbox_usize(x_8);
+lean_dec(x_8);
+x_10 = lean_usize_mix_hash(x_7, x_9);
+return x_10;
 }
 }
-lean_object* l_instHashableProd(lean_object* x_1) {
+lean_object* l_instHashableProd(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 4, 0);
-return x_2;
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 0);
+return x_3;
 }
 }
-lean_object* l_instHashableProd___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_instHashableProd___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-size_t x_5; lean_object* x_6; 
-x_5 = l_instHashableProd___rarg(x_1, x_2, x_3, x_4);
-x_6 = lean_box_usize(x_5);
-return x_6;
+size_t x_4; lean_object* x_5; 
+x_4 = l_instHashableProd___rarg(x_1, x_2, x_3);
+x_5 = lean_box_usize(x_4);
+return x_5;
 }
 }
 lean_object* l_Option_hash_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

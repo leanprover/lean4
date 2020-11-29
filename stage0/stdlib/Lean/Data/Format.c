@@ -184,6 +184,7 @@ lean_object* l___private_Lean_Data_Format_0__Lean_Format_be_match__3(lean_object
 lean_object* l_Lean_Format_getUnicode___closed__2;
 lean_object* l_Lean_Format_getUnicode___closed__1;
 lean_object* l_Lean_Format_joinArraySep_match__2(lean_object*);
+extern lean_object* l_Lean___kind_command____x40_Init_NotationExtra___hyg_914____closed__1;
 extern lean_object* l_instReprIterator___closed__2;
 lean_object* l_Lean_instToFormatProd_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_formatEntry___closed__1;
@@ -242,7 +243,6 @@ lean_object* l_Lean_Format_initFn____x40_Lean_Data_Format___hyg_970____closed__3
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 lean_object* l_Lean_formatDataValue_match__1(lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be_match__2___rarg(uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Lean___kind_command____x40_Init_NotationExtra___hyg_924____closed__1;
 lean_object* l_Lean_Format_sbracket___closed__1;
 lean_object* l_Lean_Format_initFn____x40_Lean_Data_Format___hyg_970____closed__5;
 lean_object* l_Lean_Format_paren___closed__2;
@@ -4346,7 +4346,7 @@ static lean_object* _init_l_Lean___kind_term____x40_Lean_Data_Format___hyg_1082_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean___kind_command____x40_Init_NotationExtra___hyg_924____closed__1;
+x_1 = l_Lean___kind_command____x40_Init_NotationExtra___hyg_914____closed__1;
 x_2 = l___kind_term____x40_Init_Notation___hyg_3____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

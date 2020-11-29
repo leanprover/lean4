@@ -19,7 +19,7 @@ lean_object* l_Lean_checkCache___rarg___lambda__1(lean_object*, lean_object*, le
 lean_object* l_Lean_MonadCacheT_instMonadExceptOfMonadCacheT___rarg(lean_object*);
 lean_object* l_Lean_MonadCacheT_instMonadMonadCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_instMonadControlMonadCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_tryFinally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_tryFinally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadCacheT_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instMonadCacheReaderT(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instMonadCacheExceptT(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -677,10 +677,9 @@ lean_object* l_Lean_MonadCacheT_instMonadFinallyMonadCacheT___rarg(lean_object* 
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_ReaderT_tryFinally___rarg___boxed), 8, 3);
+x_3 = lean_alloc_closure((void*)(l_ReaderT_tryFinally___rarg___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
-lean_closure_set(x_3, 2, lean_box(0));
 return x_3;
 }
 }

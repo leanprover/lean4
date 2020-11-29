@@ -860,7 +860,7 @@ x_13 = l_Lean_throwUnknownConstant___rarg___closed__3;
 x_14 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
-x_15 = l_Lean_throwError___rarg(x_2, x_3, x_4, x_5, x_14, lean_box(0));
+x_15 = l_Lean_throwError___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_14);
 return x_15;
 }
 else
@@ -996,7 +996,7 @@ x_16 = l_Lean_getConstInfoInduct___rarg___lambda__1___closed__2;
 x_17 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___rarg(x_2, x_3, x_4, x_5, x_17, lean_box(0));
+x_18 = l_Lean_throwError___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_17);
 return x_18;
 }
 }
@@ -1116,7 +1116,7 @@ x_16 = l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2;
 x_17 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___rarg(x_2, x_3, x_4, x_5, x_17, lean_box(0));
+x_18 = l_Lean_throwError___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_17);
 return x_18;
 }
 }
@@ -1236,7 +1236,7 @@ x_16 = l_Lean_getConstInfoRec___rarg___lambda__1___closed__2;
 x_17 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___rarg(x_2, x_3, x_4, x_5, x_17, lean_box(0));
+x_18 = l_Lean_throwError___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_17);
 return x_18;
 }
 }
@@ -1600,7 +1600,7 @@ lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, x_6, x_10, lean_box(0));
+x_11 = l_Lean_throwKernelException___rarg(x_2, x_3, x_4, x_5, lean_box(0), x_6, x_10);
 return x_11;
 }
 else
@@ -1701,7 +1701,7 @@ lean_dec(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 lean_dec(x_10);
-x_12 = l_Lean_throwKernelException___rarg(x_3, x_4, x_5, x_6, x_7, x_11, lean_box(0));
+x_12 = l_Lean_throwKernelException___rarg(x_3, x_4, x_5, x_6, lean_box(0), x_7, x_11);
 return x_12;
 }
 else
@@ -1842,7 +1842,7 @@ x_8 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 x_9 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
-x_10 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, x_9, lean_box(0));
+x_10 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_9);
 return x_10;
 }
 else
@@ -1951,7 +1951,7 @@ x_8 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 x_9 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
-x_10 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, x_9, lean_box(0));
+x_10 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_9);
 return x_10;
 }
 else

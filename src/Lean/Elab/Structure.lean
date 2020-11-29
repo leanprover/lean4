@@ -97,7 +97,7 @@ The structure constructor syntax is
 parser! try (declModifiers >> ident >> optional inferMod >> " :: ")
 ```
 -/
-private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM StructCtorView :=
+private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM StructCtorView :=
   let useDefault :=
     pure { ref := structStx, modifiers := {}, inferMod := false, name := defaultCtorName, declName := structDeclName ++ defaultCtorName }
   if structStx[5].isNone then
@@ -121,7 +121,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let declName ← applyVisibility ctorModifiers.visibility declName
       pure { ref := ctor, name := name, modifiers := ctorModifiers, inferMod := inferMod, declName := declName }
 
-def checkValidFieldModifier (modifiers : Modifiers) : CommandElabM Unit := do
+def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
   if modifiers.isNoncomputable then
     throwError "invalid use of 'noncomputable' in field declaration"
   if modifiers.isPartial then
@@ -142,7 +142,7 @@ def structSimpleBinder   := parser! atomic (declModifiers true >> many1 ident) >
 def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
-private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM (Array StructFieldView) :=
+private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM (Array StructFieldView) :=
   let fieldBinders := if structStx[5].isNone then #[] else structStx[5][2][0].getArgs
   fieldBinders.foldlM (init := #[]) fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do
     let mut fieldBinder := fieldBinder
@@ -470,7 +470,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
       trace[Elab.structure]! "type: {type}"
       let usedLevelNames ← collectLevelParamsInStructure type scopeVars view.params fieldInfos
       match sortDeclLevelParams view.scopeLevelNames view.allUserLevelNames usedLevelNames with
-      | Except.error msg      => throwError msg
+      | Except.error msg      => withRef view.ref <| throwError msg
       | Except.ok levelParams =>
         let params := scopeVars ++ view.params
         let ctor ← mkCtor view levelParams params fieldInfos
@@ -528,24 +528,30 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   let parents   := if exts.isNone then #[] else exts[0][1].getSepArgs
   let optType   := stx[4]
   let type ← if optType.isNone then `(Sort _) else pure optType[0][1]
-  let scopeLevelNames ← getLevelNames
-  let ⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
-  let ctor ← expandCtor stx modifiers declName
-  let fields ← expandFields stx modifiers declName
-  runTermElabM declName $ fun scopeVars => Term.withLevelNames allUserLevelNames $ Term.elabBinders params fun params => elabStructureView {
-    ref               := stx,
-    modifiers         := modifiers,
-    scopeLevelNames   := scopeLevelNames,
-    allUserLevelNames := allUserLevelNames,
-    declName          := declName,
-    isClass           := isClass,
-    scopeVars         := scopeVars,
-    params            := params,
-    parents           := parents,
-    type              := type,
-    ctor              := ctor,
-    fields            := fields
-  }
+  runTermElabM none fun scopeVars => do
+    let scopeLevelNames ← Term.getLevelNames
+    let ⟨name, declName, allUserLevelNames⟩ ← Elab.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
+    let ctor ← expandCtor stx modifiers declName
+    let fields ← expandFields stx modifiers declName
+    Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicitLocal <|
+      Term.elabBinders params (catchAutoBoundImplicit := true) fun params => do
+        let params ← Term.addAutoBoundImplicits params
+        let allUserLevelNames ← Term.getLevelNames
+        Term.withAutoBoundImplicitLocal (flag := false) do
+          elabStructureView {
+            ref               := stx,
+            modifiers         := modifiers,
+            scopeLevelNames   := scopeLevelNames,
+            allUserLevelNames := allUserLevelNames,
+            declName          := declName,
+            isClass           := isClass,
+            scopeVars         := scopeVars,
+            params            := params,
+            parents           := parents,
+            type              := type,
+            ctor              := ctor,
+            fields            := fields
+          }
 
 builtin_initialize registerTraceClass `Elab.structure
 

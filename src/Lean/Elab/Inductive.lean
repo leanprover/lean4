@@ -18,7 +18,10 @@ open Meta
 builtin_initialize
   registerTraceClass `Elab.inductive
 
-def checkValidInductiveModifier (modifiers : Modifiers) : CommandElabM Unit := do
+section
+variables {m : Type → Type} [Monad m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
+
+def checkValidInductiveModifier (modifiers : Modifiers) : m Unit := do
   if modifiers.isNoncomputable then
     throwError "invalid use of 'noncomputable' in inductive declaration"
   if modifiers.isPartial then
@@ -26,7 +29,7 @@ def checkValidInductiveModifier (modifiers : Modifiers) : CommandElabM Unit := d
   unless modifiers.attrs.size == 0 || (modifiers.attrs.size == 1 && modifiers.attrs[0].name == `class) do
     throwError "invalid use of attributes in inductive declaration"
 
-def checkValidCtorModifier (modifiers : Modifiers) : CommandElabM Unit := do
+def checkValidCtorModifier (modifiers : Modifiers) : m Unit := do
   if modifiers.isNoncomputable then
     throwError "invalid use of 'noncomputable' in constructor declaration"
   if modifiers.isPartial then
@@ -35,6 +38,8 @@ def checkValidCtorModifier (modifiers : Modifiers) : CommandElabM Unit := do
     throwError "invalid use of 'unsafe' in constructor declaration"
   if modifiers.attrs.size != 0 then
     throwError "invalid use of attributes in constructor declaration"
+
+end
 
 structure CtorView where
   ref       : Syntax
@@ -448,7 +453,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
   checkLevelNames views
   let allUserLevelNames := view0.levelNames
   let isUnsafe          := view0.modifiers.isUnsafe
-  withRef view0.ref $ Term.withLevelNames allUserLevelNames do
+  withRef view0.ref <| Term.withLevelNames allUserLevelNames do
     let rs ← elabHeader views
     withInductiveLocalDecls rs fun params indFVars => do
       let numExplicitParams := params.size

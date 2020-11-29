@@ -1,6 +1,6 @@
 { debug ? false, extraCMakeFlags ? [],
   stdenv, lib, cmake, gmp, buildLeanPackage, writeShellScriptBin,
-  ... }:
+  ... } @ args:
 rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
@@ -116,7 +116,7 @@ rec {
         git commit -m "chore: update stage0"
       '';
     };
-  stage1 = stage { stage = 1; prevStage = stage0; self = stage1; };
+  stage1 = stage { stage = 1; prevStage = args.stage0 or stage0; self = stage1; };
   stage2 = stage { stage = 2; prevStage = stage1; self = stage2; };
   stage3 = stage { stage = 3; prevStage = stage2; self = stage3; };
 }

@@ -1,11 +1,6 @@
 ## Building
 
-(Assuming `lean4` is the `elan` toolchain for stage 1)
-```
-cd $LEAN4_HOME/src/Lean/Server/
-leanmake +lean4 bin PKG=Watchdog LINK_OPTS=-rdynamic
-leanmake +lean4 bin PKG=FileWorker LINK_OPTS=-rdynamic
-```
+The server gets built together with the main `lean` binary.
 
 ## Connecting clients
 
@@ -21,13 +16,14 @@ An easy way to get an LSP client is to build the [sample extension](https://gith
 
 ```typescript
   let serverOptions: ServerOptions = {
-    command: "$LEAN4_HOME/src/Lean/Server/build/bin/Watchdog",
-    args: [],
+    command: "$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage1/bin/lean",
+    args: ["--server"],
     options: {
       env: {
         LEAN_PATH: "$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage1/lib/lean/",
-        LEAN_WORKER_PATH: "$LEAN4_HOME/src/Lean/Server/build/bin/FileWorker"
-        // Add this for LSP message logs
+        // Set to use a different Lean binary for the worker
+        //, LEAN_WORKER_PATH: "$LEAN4_HOME/build/$RELEASE_OR_DEBUG/stage1/bin/lean"
+        // Add this to log LSP messages to a folder
         //, LEAN_SERVER_LOG_DIR: "my/log/dir"
       }
     }

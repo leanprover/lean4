@@ -332,6 +332,11 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
   | `(infixl:$prec $op => $f)  =>  let prec1 : Syntax := quote (prec.toNat+1); `(notation:$prec lhs $op:strLit rhs:$prec1 => $f lhs rhs)
   | `(prefix:$prec $op => $f)  => `(notation:$prec $op:strLit arg:$prec => $f arg)
   | `(postfix:$prec $op => $f) => `(notation:$prec arg $op:strLit => $f arg)
+  | `(infix:$prec [$prio] $op => $f)   => `(infixl:$prec [$prio] $op => $f)
+  | `(infixr:$prec [$prio] $op => $f)  => `(notation:$prec [$prio] lhs $op:strLit rhs:$prec => $f lhs rhs)
+  | `(infixl:$prec [$prio] $op => $f)  =>  let prec1 : Syntax := quote (prec.toNat+1); `(notation:$prec [$prio] lhs $op:strLit rhs:$prec1 => $f lhs rhs)
+  | `(prefix:$prec [$prio] $op => $f)  => `(notation:$prec [$prio] $op:strLit arg:$prec => $f arg)
+  | `(postfix:$prec [$prio] $op => $f) => `(notation:$prec [$prio] arg $op:strLit => $f arg)
   | _ => Macro.throwUnsupported
 
 /- Wrap all occurrences of the given `ident` nodes in antiquotations -/
@@ -372,7 +377,7 @@ def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
   else
     Macro.throwUnsupported
 
-private def expandNotationAux (ref : Syntax) (currNamespace : Name) (prec? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : MacroM Syntax := do
+private def expandNotationAux (ref : Syntax) (currNamespace : Name) (prec? : Option Syntax) (prio : Nat) (items : Array Syntax) (rhs : Syntax) : MacroM Syntax := do
   let kind ← mkFreshKind `term
   -- build parser
   let syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem
@@ -386,15 +391,17 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name) (prec? : Opt
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
   let pat := Syntax.node (currNamespace ++ kind) patArgs
   match prec? with
-  | none      => `(syntax [$(mkIdentFrom ref kind):ident] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
-  | some prec => `(syntax:$prec [$(mkIdentFrom ref kind):ident] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
+  | none      => `(syntax [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
+  | some prec => `(syntax:$prec [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
 
 @[builtinCommandElab «notation»] def expandNotation : CommandElab :=
   adaptExpander fun stx => do
     let currNamespace ← getCurrNamespace
     match_syntax stx with
-    | `(notation:$prec $items* => $rhs)        => liftMacroM $ expandNotationAux stx currNamespace prec items rhs
-    | `(notation $items:notationItem* => $rhs) => liftMacroM $ expandNotationAux stx currNamespace none items rhs
+    | `(notation:$prec $items* => $rhs)                => liftMacroM <| expandNotationAux stx currNamespace prec 0 items rhs
+    | `(notation $items:notationItem* => $rhs)         => liftMacroM <| expandNotationAux stx currNamespace none 0 items rhs
+    | `(notation:$prec [$prio] $items* => $rhs)        => liftMacroM <| expandNotationAux stx currNamespace prec (prio.isNatLit?.getD 0) items rhs
+    | `(notation [$prio] $items:notationItem* => $rhs) => liftMacroM <| expandNotationAux stx currNamespace none (prio.isNatLit?.getD 0) items rhs
     | _ => throwUnsupportedSyntax
 
 /- Convert `macro` argument into a `syntax` command item -/

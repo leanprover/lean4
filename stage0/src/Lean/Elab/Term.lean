@@ -1255,7 +1255,7 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
 
 @[builtinTermElab numLit] def elabNumLit : TermElab := fun stx expectedType? => do
   let val ← match stx.isNatLit? with
-    | some val => pure (mkNatLit val)
+    | some val => pure val
     | none     => throwIllFormedSyntax
   let typeMVar ← mkFreshTypeMVar MetavarKind.synthetic
   match expectedType? with
@@ -1263,8 +1263,15 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
   | _                 => pure ()
   let u ← getLevel typeMVar
   let u ← decLevel u
-  let mvar ← mkInstMVar (mkApp (Lean.mkConst `OfNat [u]) typeMVar)
-  pure $ mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar mvar val
+  if val == 0 then
+    let mvar ← mkInstMVar (mkApp (Lean.mkConst `Zero [u]) typeMVar)
+    return mkApp2 (Lean.mkConst `Zero.zero [u]) typeMVar mvar
+  else if val == 1 then
+    let mvar ← mkInstMVar (mkApp (Lean.mkConst `One [u]) typeMVar)
+    return mkApp2 (Lean.mkConst `One.one [u]) typeMVar mvar
+  else
+    let mvar ← mkInstMVar (mkApp (Lean.mkConst `OfNat [u]) typeMVar)
+    return mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar mvar (mkNatLit val)
 
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with

@@ -69,7 +69,7 @@ private def mkHintBody (cs : Array Syntax) (p : Syntax) : MacroM Syntax := do
   return body
 
 macro_rules
-  | `(unif_hint $bs* where $cs* |- $p) => do
+  | `(unif_hint $bs:explicitBinder* where $cs* |- $p) => do
     let body ← mkHintBody cs p
     `(@[unificationHint] def hint $bs:explicitBinder* : Sort _ := $body)
   | `(unif_hint $n:ident $bs* where $cs* |- $p) => do

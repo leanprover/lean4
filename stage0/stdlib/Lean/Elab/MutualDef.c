@@ -74,6 +74,7 @@ lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_check___lambda__6
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_expandWhereDeclsAsStructInst___spec__2(size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_FixPoint_markModified___rarg(lean_object*);
 lean_object* l_Lean_CollectFVars_main(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1157____closed__45;
 lean_object* l_Lean_Elab_Term_elabMutualDef___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 uint8_t l_Lean_Elab_Term_MutualClosure_FixPoint_State_modified___default;
@@ -353,7 +354,6 @@ lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withFunLocalDecls
 lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_FixPoint_fixpoint_match__1(lean_object*);
 lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_check_match__1(lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Term_MutualClosure_getModifiersForLetRecs___spec__2(lean_object*, size_t, size_t);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1157____closed__49;
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabHeaders___spec__4___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverse___rarg(lean_object*);
 extern lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqNDRecImp___closed__6;
@@ -5444,7 +5444,7 @@ lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_declValToTerm(lea
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1157____closed__49;
+x_4 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1157____closed__45;
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)

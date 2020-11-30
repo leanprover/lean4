@@ -305,6 +305,7 @@ extern "C" b_obj_res lean_thunk_get_core(b_obj_arg t) {
         object * r = lean_apply_1(c, lean_box(0));
         lean_assert(r != nullptr); /* Closure must return a valid lean object */
         lean_assert(lean_to_thunk(t)->m_value == nullptr);
+        mark_mt(r);
         lean_to_thunk(t)->m_value = r;
         return r;
     } else {

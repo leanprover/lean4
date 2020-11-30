@@ -22,7 +22,8 @@ NB: if `a` is written to but this stream is never read from,
 the output will *not* be duplicated. Use this if you only care
 about the data that was actually read. -/
 def chainRight (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream :=
-  { isEof := a.isEof
+  { a with
+    flush := a.flush *> b.flush
     read := fun sz => do
       let bs ← a.read sz
       b.write bs
@@ -32,16 +33,11 @@ def chainRight (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream
       let ln ← a.getLine
       b.putStr ln
       when flushEagerly b.flush
-      pure ln
-    flush := a.flush *> b.flush
-    write := a.write
-    putStr := a.putStr }
+      pure ln }
 
 /-- Like `tee a | b` on Unix. See `chainOut`. -/
 def chainLeft (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream :=
-  { isEof := b.isEof
-    read := b.read
-    getLine := b.getLine
+  { b with
     flush := a.flush *> b.flush
     write := fun bs => do
       a.write bs
@@ -54,10 +50,7 @@ def chainLeft (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream 
 
 /-- Prefixes all written outputs with `pre`. -/
 def withPrefix (a : Stream) (pre : String) : Stream :=
-  { isEof := a.isEof
-    read := a.read
-    getLine := a.getLine
-    flush := a.flush
+  { a with
     write := fun bs => do
       a.putStr pre
       a.write bs

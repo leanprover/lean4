@@ -340,6 +340,9 @@ inductive Nat where
   | zero : Nat
   | succ (n : Nat) : Nat
 
+instance : Inhabited Nat where
+  default := Nat.zero
+
 /- For numeric literals notation -/
 class OfNat (α : Type u) where
   ofNat : Nat → α
@@ -350,8 +353,25 @@ export OfNat (ofNat)
 instance : OfNat Nat where
   ofNat x := x
 
-instance : Inhabited Nat where
-  default := 0
+class One (α : Type u) where
+  one : α
+
+instance [OfNat α] : One α where
+  one := ofNat Nat.zero.succ
+
+class Zero (α : Type u) where
+  zero : α
+
+instance [OfNat α] : Zero α where
+  zero := ofNat Nat.zero
+
+@[defaultInstance]
+instance : One Nat where
+  one := Nat.zero.succ
+
+@[defaultInstance]
+instance : Zero Nat where
+  zero := Nat.zero
 
 class HasLessEq (α : Type u) where LessEq : α → α → Prop
 class HasLess   (α : Type u) where Less : α → α → Prop

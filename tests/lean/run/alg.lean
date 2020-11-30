@@ -57,9 +57,14 @@ theorem inv_eq_of_mul_eq_one [Group α] {a b : α} (h : a * b = 1) : a⁻¹ = b 
 theorem inv_inv [Group α] (a : α) : (a⁻¹)⁻¹ = a :=
   inv_eq_of_mul_eq_one (mul_left_inv a)
 
-theorem mul_right_inv [Group α] (a : α) : a * a⁻¹ = 1 :=
+theorem mul_right_inv [Group α] (a : α) : a * a⁻¹ = 1 := by
   have a⁻¹⁻¹ * a⁻¹ = 1 by rw [mul_left_inv]
-  by rw [inv_inv] at this; assumption
+  rw [inv_inv] at this
+  assumption
 
-theorem mul_inv_rev [Group α] (a b : α) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
-  inv_eq_of_mul_eq_one <| by rw [mul_assoc, ← mul_assoc b, mul_right_inv, one_mul, mul_right_inv]
+theorem mul_inv_rev [Group α] (a b : α) : (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
+  apply inv_eq_of_mul_eq_one
+  rw [mul_assoc, ← mul_assoc b, mul_right_inv, one_mul, mul_right_inv]
+
+theorem mul_inv [CommGroup α] (a b : α) : (a * b)⁻¹ = a⁻¹ * b⁻¹ := by
+  rewrite [mul_inv_rev, mul_comm]; rfl

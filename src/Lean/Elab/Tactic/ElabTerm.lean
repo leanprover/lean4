@@ -95,6 +95,9 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
   | `(tactic| exists $e) => evalApplyLikeTactic (fun mvarId e => return [(← Meta.existsIntro mvarId e)]) e
   | _ => throwUnsupportedSyntax
 
+@[builtinTactic Lean.Parser.Tactic.withReducible] def evalWithReducible : Tactic := fun stx =>
+  withReducible <| evalTactic stx[1]
+
 /--
   Elaborate `stx`. If it a free variable, return it. Otherwise, assert it, and return the free variable.
   Note that, the main goal is updated when `Meta.assert` is used in the second case. -/

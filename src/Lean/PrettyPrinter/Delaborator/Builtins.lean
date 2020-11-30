@@ -134,6 +134,19 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
         pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
   Syntax.mkApp fnStx argStxs
 
+@[builtinDelab app]
+def delabAppWithUnexpander : Delab := whenPPOption getPPNotation do
+  let Expr.const c _ _ ← pure (← getExpr).getAppFn | failure
+  let stx ← delabAppImplicit
+  match_syntax stx with
+  | `($cPP:ident $args*) => do
+    let some (f::_) ← pure <| (appUnexpanderAttribute.ext.getState (← getEnv)).table.find? c
+      | pure stx
+    let EStateM.Result.ok stx _ ← f stx |>.run ()
+      | pure stx
+    pure stx
+  | _ => pure stx
+
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
   info      : MatcherInfo

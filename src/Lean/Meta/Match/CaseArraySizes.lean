@@ -59,33 +59,34 @@ private partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNameP
   n) `..., x_1 ... x_{sizes[n-1]}  |- C #[x_1, ..., x_{sizes[n-1]}]`
   n+1) `..., (h_1 : a.size != sizes[0]), ..., (h_n : a.size != sizes[n-1]) |- C a`
   where `n = sizes.size` -/
-def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNamePrefix := `x) (hNamePrefix := `h) : MetaM (Array CaseArraySizesSubgoal) := do
-  let a := mkFVar fvarId
-  let α ← getArrayArgType a
-  let aSize ← mkAppM `Array.size #[a]
-  let mvarId ← assertExt mvarId `aSize (mkConst `Nat) aSize
-  let (aSizeFVarId, mvarId) ← intro1 mvarId
-  let (hEq, mvarId) ← intro1 mvarId
-  let subgoals ← caseValues mvarId aSizeFVarId (sizes.map mkNatLit) hNamePrefix
-  subgoals.mapIdxM fun i subgoal => do
-    let subst  := subgoal.subst
-    let mvarId := subgoal.mvarId
-    let hEqSz  := (subst.get hEq).fvarId!
-    if h : i.val < sizes.size then
-       let n := sizes.get ⟨i, h⟩
-       let mvarId ← clear mvarId subgoal.newHs[0]
-       let mvarId ← clear mvarId (subst.get aSizeFVarId).fvarId!
-       withMVarContext mvarId do
-         let hEqSzSymm ← mkEqSymm (mkFVar hEqSz)
-         let mvarId ← introArrayLit mvarId a n xNamePrefix hEqSzSymm
-         let (xs, mvarId)  ← introN mvarId n
-         let (hEqLit, mvarId) ← intro1 mvarId
-         let mvarId ← clear mvarId hEqSz
-         let (subst, mvarId) ← substCore mvarId hEqLit false subst
-         pure { mvarId := mvarId, elems := xs, subst := subst }
-    else
-       let (subst, mvarId) ← substCore mvarId hEq false subst
-       let diseqs := subgoal.newHs.map fun fvarId => (subst.get fvarId).fvarId!
-       pure { mvarId := mvarId, diseqs := diseqs, subst := subst }
+def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNamePrefix := `x) (hNamePrefix := `h) : MetaM (Array CaseArraySizesSubgoal) :=
+  withMVarContext mvarId do
+    let a := mkFVar fvarId
+    let α ← getArrayArgType a
+    let aSize ← mkAppM `Array.size #[a]
+    let mvarId ← assertExt mvarId `aSize (mkConst `Nat) aSize
+    let (aSizeFVarId, mvarId) ← intro1 mvarId
+    let (hEq, mvarId) ← intro1 mvarId
+    let subgoals ← caseValues mvarId aSizeFVarId (sizes.map mkNatLit) hNamePrefix
+    subgoals.mapIdxM fun i subgoal => do
+      let subst  := subgoal.subst
+      let mvarId := subgoal.mvarId
+      let hEqSz  := (subst.get hEq).fvarId!
+      if h : i.val < sizes.size then
+         let n := sizes.get ⟨i, h⟩
+         let mvarId ← clear mvarId subgoal.newHs[0]
+         let mvarId ← clear mvarId (subst.get aSizeFVarId).fvarId!
+         withMVarContext mvarId do
+           let hEqSzSymm ← mkEqSymm (mkFVar hEqSz)
+           let mvarId ← introArrayLit mvarId a n xNamePrefix hEqSzSymm
+           let (xs, mvarId)  ← introN mvarId n
+           let (hEqLit, mvarId) ← intro1 mvarId
+           let mvarId ← clear mvarId hEqSz
+           let (subst, mvarId) ← substCore mvarId hEqLit false subst
+           pure { mvarId := mvarId, elems := xs, subst := subst }
+      else
+         let (subst, mvarId) ← substCore mvarId hEq false subst
+         let diseqs := subgoal.newHs.map fun fvarId => (subst.get fvarId).fvarId!
+         pure { mvarId := mvarId, diseqs := diseqs, subst := subst }
 
 end Lean.Meta

@@ -76,17 +76,22 @@ def getGlobalInstancesIndex : MetaM (DiscrTree Expr) :=
 structure DefaultInstanceEntry where
   className    : Name
   instanceName : Name
+  priority     : Nat
+
+abbrev PrioritySet := Std.RBTree Nat (.<.)
 
 structure DefaultInstances where
-  defaultInstances : NameMap (List Name) := {}
+  defaultInstances : NameMap (List (Name × Nat)) := {}
+  priorities       : PrioritySet := {}
 
 instance : Inhabited DefaultInstances where
   default := {}
 
 def addDefaultInstanceEntry (d : DefaultInstances) (e : DefaultInstanceEntry) : DefaultInstances :=
+  let d := { d with priorities := d.priorities.insert e.priority }
   match d.defaultInstances.find? e.className with
-  | some insts => { defaultInstances := d.defaultInstances.insert e.className <| e.instanceName :: insts }
-  | none       => { defaultInstances := d.defaultInstances.insert e.className [e.instanceName] }
+  | some insts => { d with defaultInstances := d.defaultInstances.insert e.className <| (e.instanceName, e.priority) :: insts }
+  | none       => { d with defaultInstances := d.defaultInstances.insert e.className [(e.instanceName, e.priority)] }
 
 builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension DefaultInstanceEntry DefaultInstances ←
   registerSimplePersistentEnvExtension {
@@ -95,7 +100,7 @@ builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension Defau
     addImportedFn := fun es => (mkStateFromImportedEntries addDefaultInstanceEntry {} es)
   }
 
-def addDefaultInstance (declName : Name) : MetaM Unit := do
+def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
   match (← getEnv).find? declName with
   | none => throwError! "unknown constant '{declName}'"
   | some info =>
@@ -104,7 +109,7 @@ def addDefaultInstance (declName : Name) : MetaM Unit := do
       | Expr.const className _ _ =>
         unless isClass (← getEnv) className do
           throwError! "invalid default instance '{declName}', it has type '({className} ...)', but {className}' is not a type class"
-        setEnv <| defaultInstanceExtension.addEntry (← getEnv) { className := className, instanceName := declName }
+        setEnv <| defaultInstanceExtension.addEntry (← getEnv) { className := className, instanceName := declName, priority := prio }
       | _ => throwError! "invalid default instance '{declName}', type must be of the form '(C ...)' where 'C' is a type class"
 
 builtin_initialize
@@ -118,7 +123,10 @@ builtin_initialize
       pure ()
   }
 
-def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List Name) :=
+def getDefaultInstancesPriorities [Monad m] [MonadEnv m] : m PrioritySet :=
+  return defaultInstanceExtension.getState (← getEnv) |>.priorities
+
+def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) :=
   return defaultInstanceExtension.getState (← getEnv) |>.defaultInstances.find? className |>.getD []
 
 end Lean.Meta

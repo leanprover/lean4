@@ -155,7 +155,7 @@ def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) : MetaM (Option (List
        match (← getDefaultInstances className) with
        | [] => return none
        | defaultInstances =>
-         for defaultInstance in defaultInstances do
+         for (defaultInstance, prio) in defaultInstances do
             match (← tryToSynthesizeUsingDefaultInstance mvarId defaultInstance) with
             | some newMVarDecls => return some newMVarDecls
             | none => continue

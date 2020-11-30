@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter
-// Imports: Init Lean.Delaborator Lean.PrettyPrinter.Parenthesizer Lean.PrettyPrinter.Formatter Lean.Parser.Module Lean.ParserCompiler
+// Imports: Init Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Parenthesizer Lean.PrettyPrinter.Formatter Lean.Parser.Module Lean.ParserCompiler
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -79,7 +79,7 @@ extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_PPContext_runCoreM___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext_match__1(lean_object*);
-lean_object* l_Lean_delab(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_delab(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_formatCommand(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_ppModule___closed__2;
 lean_object* l_Lean_PPContext_runCoreM(lean_object*);
@@ -437,7 +437,7 @@ x_13 = l_Lean_LocalContext_sanitizeNames(x_9, x_12);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = lean_alloc_closure((void*)(l_Lean_delab), 9, 4);
+x_15 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_delab), 9, 4);
 lean_closure_set(x_15, 0, x_1);
 lean_closure_set(x_15, 1, x_2);
 lean_closure_set(x_15, 2, x_3);
@@ -1653,7 +1653,7 @@ return x_6;
 }
 }
 lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Delaborator(lean_object*);
+lean_object* initialize_Lean_PrettyPrinter_Delaborator(lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Parenthesizer(lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Formatter(lean_object*);
 lean_object* initialize_Lean_Parser_Module(lean_object*);
@@ -1666,7 +1666,7 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Delaborator(lean_io_mk_world());
+res = initialize_Lean_PrettyPrinter_Delaborator(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Parenthesizer(lean_io_mk_world());

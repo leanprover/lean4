@@ -3,7 +3,7 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
-import Lean.Delaborator
+import Lean.PrettyPrinter.Delaborator
 import Lean.PrettyPrinter.Parenthesizer
 import Lean.PrettyPrinter.Formatter
 import Lean.Parser.Module

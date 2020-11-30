@@ -453,9 +453,9 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
         let elems    := subgoal.elems.toList
         let newVars  := elems.map mkFVar ++ xs
         let newVars  := newVars.map fun x => x.applyFVarSubst subst
-        let subex    := Example.arrayLit $ elems.map Example.var
-        let examples := p.examples.map $ Example.replaceFVarId x.fvarId! subex
-        let examples := examples.map $ Example.applyFVarSubst subst
+        let subex    := Example.arrayLit <| elems.map Example.var
+        let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
+        let examples := examples.map <| Example.applyFVarSubst subst
         let newAlts  := p.alts.filter fun alt => match alt.patterns with
           | Pattern.arrayLit _ ps :: _ => ps.length == size
           | Pattern.var _ :: _         => true
@@ -463,7 +463,9 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
         let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
         let newAlts ← newAlts.mapM fun alt => match alt.patterns with
           | Pattern.arrayLit _ pats :: ps => pure { alt with patterns := pats ++ ps }
-          | Pattern.var fvarId :: ps      => do let α ← getArrayArgType x; expandVarIntoArrayLit { alt with patterns := ps } fvarId α size
+          | Pattern.var fvarId :: ps      => do
+            let α ← getArrayArgType <| subst.apply x
+            expandVarIntoArrayLit { alt with patterns := ps } fvarId α size
           | _  => unreachable!
         pure { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
       else do

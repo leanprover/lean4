@@ -26,7 +26,7 @@ instance : Inhabited CaseValueSubgoal :=
   Remark: `subst` field of the second subgoal is equal to the input `subst`. -/
 def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h) (subst : FVarSubst := {})
     : MetaM (CaseValueSubgoal × CaseValueSubgoal) :=
-  withMVarContext mvarId $ do
+  withMVarContext mvarId do
     let tag ← getMVarTag mvarId
     checkNotAssigned mvarId `caseValue
     let target ← getMVarType mvarId

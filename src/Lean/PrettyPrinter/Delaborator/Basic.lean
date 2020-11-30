@@ -122,14 +122,14 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
     name := `delab,
     descr := "Register a delaborator.
 
-  [delab k] registers a declaration of type `Lean.Delaborator.Delab` for the `Lean.Expr`
+  [delab k] registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the `Lean.Expr`
   constructor `k`. Multiple delaborators for a single constructor are tried in turn until
   the first success. If the term to be delaborated is an application of a constant `c`,
   elaborators for `app.c` are tried first; this is also done for `Expr.const`s (\"nullary applications\")
   to reduce special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k`
   is tried first.",
-    valueTypeName := `Lean.Delaborator.Delab
-  } `Lean.Delaborator.delabAttribute
+    valueTypeName := `Lean.PrettyPrinter.Delaborator.Delab
+  } `Lean.PrettyPrinter.Delaborator.delabAttribute
 @[builtinInit mkDelabAttribute] constant delabAttribute : KeyedDeclsAttribute Delab
 
 def getExpr : DelabM Expr := do

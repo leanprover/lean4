@@ -58,6 +58,10 @@ where
         return v₁ * v₂
       else if c == `OfNat.ofNat && nargs == 3 then
         evalNat (e.getArg! 2)
+      else if c == `One.one && nargs == 2 then
+        return 1
+      else if c == `Zero.zero && nargs == 2 then
+        return 0
       else
         failure
     | _ => failure

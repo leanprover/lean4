@@ -37,7 +37,7 @@ fun (x x_1 : Option Nat) =>
   | x_2, x_3 => none : Option Nat → Option Nat → Option Nat
 fun (x : Nat) =>
   (match x with 
-    | 0 => id
+    | Nat.zero => id
     | Nat.succ x_1 => id)
     x : Nat → Nat
 fun (x : Array Nat) =>

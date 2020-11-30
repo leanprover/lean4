@@ -603,7 +603,21 @@ def delabLit : Delab := do
 @[builtinDelab app.OfNat.ofNat]
 def delabOfNat : Delab := whenPPOption getPPCoercions do
   let e@(Expr.app _ (Expr.lit (Literal.natVal n) _) _) ← getExpr | failure
-  pure $ quote n
+  return quote n
+
+-- `One.one` ~> `1`
+@[builtinDelab app.One.one]
+def delabOne : Delab := whenPPOption getPPCoercions do
+  let e ← getExpr
+  guard <| e.getAppNumArgs == 2
+  return quote (1:Nat)
+
+-- `Zero.zero` ~> `0`
+@[builtinDelab app.Zero.zero]
+def delabZero : Delab := whenPPOption getPPCoercions do
+  let e ← getExpr
+  guard <| e.getAppNumArgs == 2
+  return quote (0:Nat)
 
 /--
 Delaborate a projection primitive. These do not usually occur in

@@ -5,6 +5,7 @@ open Lean.Elab
 open Lean.Elab.Term
 open Lean.Elab.Command
 open Lean.Format
+open Lean.PrettyPrinter
 
 open Lean.Meta
 

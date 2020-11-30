@@ -36,8 +36,8 @@
 (add-to-list 'lsp-language-id-configuration
              '(lean4-lsp-mode . "lean4"))
 
-(defconst lean4-server-bin (concat lean4-home "/src/Lean/Server/build/bin/Watchdog"))
-(defconst lean4-worker-bin (concat lean4-home "/src/Lean/Server/build/bin/FileWorker"))
+(defconst lean4-server-bin (concat lean4-home "/build/release/stage1/bin/lean"))
+(defconst lean4-worker-bin (concat lean4-home "/build/release/stage1/bin/lean"))
 (defconst lean4-lib (concat lean4-home "/build/release/stage1/lib/lean/"))
 
 (lsp-register-client

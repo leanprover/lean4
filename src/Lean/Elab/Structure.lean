@@ -531,27 +531,28 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   runTermElabM none fun scopeVars => do
     let scopeLevelNames ← Term.getLevelNames
     let ⟨name, declName, allUserLevelNames⟩ ← Elab.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
-    let ctor ← expandCtor stx modifiers declName
-    let fields ← expandFields stx modifiers declName
-    Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicitLocal <|
-      Term.elabBinders params (catchAutoBoundImplicit := true) fun params => do
-        let params ← Term.addAutoBoundImplicits params
-        let allUserLevelNames ← Term.getLevelNames
-        Term.withAutoBoundImplicitLocal (flag := false) do
-          elabStructureView {
-            ref               := stx,
-            modifiers         := modifiers,
-            scopeLevelNames   := scopeLevelNames,
-            allUserLevelNames := allUserLevelNames,
-            declName          := declName,
-            isClass           := isClass,
-            scopeVars         := scopeVars,
-            params            := params,
-            parents           := parents,
-            type              := type,
-            ctor              := ctor,
-            fields            := fields
-          }
+    Term.withDeclName declName do
+      let ctor ← expandCtor stx modifiers declName
+      let fields ← expandFields stx modifiers declName
+      Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicitLocal <|
+        Term.elabBinders params (catchAutoBoundImplicit := true) fun params => do
+          let params ← Term.addAutoBoundImplicits params
+          let allUserLevelNames ← Term.getLevelNames
+          Term.withAutoBoundImplicitLocal (flag := false) do
+            elabStructureView {
+              ref               := stx,
+              modifiers         := modifiers,
+              scopeLevelNames   := scopeLevelNames,
+              allUserLevelNames := allUserLevelNames,
+              declName          := declName,
+              isClass           := isClass,
+              scopeVars         := scopeVars,
+              params            := params,
+              parents           := parents,
+              type              := type,
+              ctor              := ctor,
+              fields            := fields
+            }
 
 builtin_initialize registerTraceClass `Elab.structure
 

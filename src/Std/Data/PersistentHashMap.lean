@@ -67,11 +67,9 @@ abbrev EntriesNode (α β) := { n : Node α β // IsEntriesNode n }
 private theorem setSizeEq {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (i : Fin ks.size) (j : Fin vs.size) (k : α) (v : β)
                            : (ks.set i k).size = (vs.set j v).size := by
   rw [Array.sizeSetEq, Array.sizeSetEq vs, h]
-  rfl
 
 private theorem pushSizeEq {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (k : α) (v : β) : (ks.push k).size = (vs.push v).size := by
   rw [Array.sizePushEq, Array.sizePushEq, h]
-  rfl
 
 partial def insertAtCollisionNodeAux [BEq α] : CollisionNode α β → Nat → α → β → CollisionNode α β
   | n@⟨Node.collision keys vals heq, _⟩, i, k, v =>
@@ -224,7 +222,7 @@ partial def eraseAux [BEq α] : Node α β → USize → α → Node α β × Bo
     | some idx =>
       let ⟨keys', keq⟩ := keys.eraseIdx' idx
       let ⟨vals', veq⟩ := vals.eraseIdx' (Eq.ndrec idx heq)
-      have keys.size - 1 = vals.size - 1 by rw [heq]; rfl
+      have keys.size - 1 = vals.size - 1 by rw [heq]
       (Node.collision keys' vals' (keq.trans (this.trans veq.symm)), true)
     | none     => (n, false)
   | n@(Node.entries entries), h, k =>

@@ -260,7 +260,7 @@ def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : 
     | i+1, inv =>
       have j < as.size by rw [← inv, Nat.addAssoc, Nat.addComm 1 j, Nat.addLeftComm]; apply Nat.leAddRight
       let idx : Fin as.size := ⟨j, this⟩
-      have i + (j + 1) = as.size by rw [← inv, Nat.addComm j 1, Nat.addAssoc]; exact rfl
+      have i + (j + 1) = as.size by rw [← inv, Nat.addComm j 1, Nat.addAssoc]
       map i (j+1) this (bs.push (← f idx (as.get idx)))
   map as.size 0 rfl (mkEmpty as.size)
 
@@ -409,7 +409,7 @@ def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
           some j
         else
           have i + (j+1) = as.size by
-            rw [← inv, Nat.addComm j 1, Nat.addAssoc]; exact rfl
+            rw [← inv, Nat.addComm j 1, Nat.addAssoc]
           loop i (j+1) this
     else
       none
@@ -581,7 +581,6 @@ theorem ext (a b : Array α)
           apply this
         have tailEq : as = bs from ih bs h₁' h₂'
         rw [headEq, tailEq]
-        rfl
   cases a; cases b
   apply congrArg
   apply extAux
@@ -628,7 +627,6 @@ def eraseIdx (a : Array α) (i : Nat) : Array α :=
 theorem sizeSwapEq (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
   show ((a.set i (a.get j)).set (sizeSetEq a i _ ▸ j) (a.get i)).size = a.size
   rw [sizeSetEq, sizeSetEq]
-  rfl
 
 theorem sizePopEq (a : Array α) : a.pop.size = a.size - 1 :=
   List.lengthDropLast ..

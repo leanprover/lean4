@@ -22,14 +22,13 @@ def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) 
 
 @[reducible] def StateM (σ α : Type u) : Type u := StateT σ Id α
 
-instance {σ α} [Subsingleton σ] [Subsingleton α] : Subsingleton (StateM σ α) := ⟨by
-  intro x y
-  apply funext
-  intro s
-  match x s, y s with
-  | (a₁, s₁), (a₂, s₂) =>
-    rw [Subsingleton.elim a₁ a₂, Subsingleton.elim s₁ s₂]
-    exact rfl⟩
+instance {σ α} [Subsingleton σ] [Subsingleton α] : Subsingleton (StateM σ α) where
+  allEq x y := by
+    apply funext
+    intro s
+    match x s, y s with
+    | (a₁, s₁), (a₂, s₂) =>
+      rw [Subsingleton.elim a₁ a₂, Subsingleton.elim s₁ s₂]
 
 namespace StateT
 section

@@ -469,12 +469,12 @@ theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (fun x => p x)
 
 /- Subsingleton -/
 
-class inductive Subsingleton (α : Sort u) : Prop where
-  | intro (h : (a b : α) → a = b) : Subsingleton α
+class Subsingleton (α : Sort u) : Prop where
+  intro ::
+    allEq : (a b : α) → a = b
 
 protected def Subsingleton.elim {α : Sort u} [h : Subsingleton α] : (a b : α) → a = b :=
-  match h with
-  | intro h => h
+  h.allEq
 
 protected def Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : a ≅ b := by
   subst h₂

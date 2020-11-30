@@ -60,6 +60,7 @@ non-standard extensions in case they're needed, for example to communicate tacti
 
 namespace Lean
 namespace Server
+namespace Watchdog
 
 open IO
 open Std (RBMap RBMap.empty)
@@ -202,7 +203,10 @@ private def parseHeaderAst (input : String) : IO Syntax := do
 def startFileWorker (uri : DocumentUri) (version : Nat) (text : FileMap) : ServerM Unit := do
   let st ← read
   let headerAst ← parseHeaderAst text.source
-  let workerProc ← Process.spawn { toStdioConfig := workerCfg, cmd := st.workerPath }
+  let workerProc ← Process.spawn
+    { toStdioConfig := workerCfg
+      cmd := st.workerPath
+      args := #["--worker"] }
   let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
   -- the task will never access itself, so this is fine
   let commTaskFw : FileWorker := {
@@ -405,10 +409,8 @@ def initAndRunWatchdogAux : ServerM Unit := do
      throw err
 
 def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
-  let workerPath ← IO.getEnv "LEAN_WORKER_PATH"
-  let appDir ← IO.appDir
-  let workerPath := match workerPath with
-    | none   => appDir ++ pathSeparator.toString ++ "FileWorker" ++ exeSuffix
+  let workerPath ← match (← IO.getEnv "LEAN_WORKER_PATH") with
+    | none   => IO.appPath
     | some p => p
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i
@@ -437,20 +439,23 @@ def runWatchdogWithInputFile (fn : String) (searchPath : Option String) : IO Uni
   let e ← IO.getStderr
   FS.withFile fn FS.Mode.read $ fun hFile => do
     Lean.initSearchPath searchPath
-    try Lean.Server.initAndRunWatchdog (FS.Stream.ofHandle hFile) o e
+    try initAndRunWatchdog (FS.Stream.ofHandle hFile) o e
     catch err => e.putStrLn (toString err)
 
 end Test
-end Server
-end Lean
 
--- TODO: compile separately OR add as a flag to the `lean` binary in order to stop
--- polluting the global symbol list with a `main` (and ditto in FileWorker.lean)
-def main (args : List String) : IO UInt32 := do
+@[export lean_server_watchdog_main]
+def watchdogMain : IO UInt32 := do
   let i ← IO.getStdin
   let o ← IO.getStdout
   let e ← IO.getStderr
-  Lean.initSearchPath
-  try Lean.Server.initAndRunWatchdog i o e
-  catch err => e.putStrLn (toString err)
-  pure 0
+  try
+    initAndRunWatchdog i o e
+    return 0
+  catch err =>
+    e.putStrLn (toString err)
+    return 1
+
+end Watchdog
+end Server
+end Lean

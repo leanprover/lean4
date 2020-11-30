@@ -38,6 +38,7 @@ command that the request is looking for and the request sends a "content changed
 
 namespace Lean
 namespace Server
+namespace FileWorker
 
 open Lsp
 open IO
@@ -303,18 +304,23 @@ def runWorkerWithInputFile (fn : String) (searchPath : Option String) : IO Unit 
   let e ← IO.getStderr
   FS.withFile fn FS.Mode.read $ fun hFile => do
     Lean.initSearchPath searchPath
-    try Lean.Server.initAndRunWorker (FS.Stream.ofHandle hFile) o e
+    try initAndRunWorker (FS.Stream.ofHandle hFile) o e
     catch err => e.putStrLn (toString err)
 
 end Test
-end Server
-end Lean
 
-def main (args : List String) : IO UInt32 := do
+@[export lean_server_worker_main]
+def workerMain : IO UInt32 := do
   let i ← IO.getStdin
   let o ← IO.getStdout
   let e ← IO.getStderr
-  Lean.initSearchPath
-  try Lean.Server.initAndRunWorker i o e
-  catch err => e.putStrLn (toString err)
-  pure 0
+  try
+    initAndRunWorker i o e
+    return 0
+  catch err =>
+    e.putStrLn (toString err)
+    return 1
+
+end FileWorker
+end Server
+end Lean

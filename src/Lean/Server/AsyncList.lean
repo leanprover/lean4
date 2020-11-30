@@ -15,17 +15,17 @@ lazy tails are `Task`s *being evaluated asynchronously*. A tail can signal the e
 of computation (successful or due to a failure) with a terminating value of type `ε`. -/
 inductive AsyncList (ε : Type u) (α : Type v) where
   | cons (hd : α) (tl : AsyncList ε α)
-  | asyncCons (hd : α) (tl : Task $ Except ε $ AsyncList ε α)
+  | asyncTail (tl : Task $ Except ε $ AsyncList ε α)
   | nil
 
 namespace AsyncList
 
-instance asyncListInhabited : Inhabited (AsyncList ε α) := ⟨nil⟩
+instance : Inhabited (AsyncList ε α) := ⟨nil⟩
 
 -- TODO(WN): tail-recursion without forcing sync?
 partial def append : AsyncList ε α → AsyncList ε α → AsyncList ε α
   | cons hd tl, s => cons hd (append tl s)
-  | asyncCons hd ttl, s => asyncCons hd (ttl.map $ Except.map (append · s))
+  | asyncTail ttl, s => asyncTail (ttl.map $ Except.map (append · s))
   | nil, s => s
 
 instance : Append (AsyncList ε α) := ⟨append⟩
@@ -37,8 +37,9 @@ instance : Coe (List α) (AsyncList ε α) := ⟨ofList⟩
 
 /-- Given a step computation `f` which takes the accumulator and either produces
 another value or stops with a terminating value, produces an async stream of its
-iterated applications. The computation can throw IO exceptions, so to handle this
-the terminating value type must include `IO.Error`.
+iterated applications. The initial value is *not* included. The computation can
+throw IO exceptions, so to handle this the terminating value type must include
+`IO.Error`.
 
 Optionally, a specified computation can be ran on task cancellation.
 An alternative for cooperative concurrency is to check this in `f`. -/
@@ -56,10 +57,10 @@ partial def unfoldAsync [Coe Error ε] (f : α → ExceptT ε IO α)
     else
       let aNext ← f a
       let tNext ← coeErr <$> asTask (step aNext)
-      return asyncCons aNext tNext
+      return cons aNext $ asyncTail tNext
 
   let tInit ← coeErr <$> asTask (step init)
-  asyncCons init tInit
+  asyncTail tInit
 
 /-- Waits for the entire computation to finish and returns the computed
 list. If computation was ongoing, also returns the terminating value. -/
@@ -68,12 +69,10 @@ partial def waitAll : AsyncList ε α → List α × Option ε
     let ⟨l, e?⟩ := tl.waitAll
     ⟨hd :: l, e?⟩
   | nil => ⟨[], none⟩
-  | asyncCons hd tl =>
+  | asyncTail tl =>
     match tl.get with
-    | Except.ok tl =>
-      let ⟨l, e?⟩ := tl.waitAll
-      ⟨hd :: l, e?⟩
-    | Except.error e => ⟨[hd], some e⟩
+    | Except.ok tl => tl.waitAll
+    | Except.error e => ⟨[], some e⟩
 
 /-- Extends the `finishedPrefix` as far as possible. If computation was ongoing
 and has finished, also returns the terminating value. -/
@@ -82,19 +81,17 @@ partial def updateFinishedPrefix : AsyncList ε α → IO (AsyncList ε α × Op
     let ⟨tl, e?⟩ ← tl.updateFinishedPrefix
     pure ⟨cons hd tl, e?⟩
   | nil => pure ⟨nil, none⟩
-  | l@(asyncCons hd tl) => do
+  | l@(asyncTail tl) => do
     if (← hasFinished tl) then
       match tl.get with
-      | Except.ok tl =>
-        let ⟨tl, e?⟩ ← tl.updateFinishedPrefix
-        pure ⟨cons hd tl, e?⟩
-      | Except.error e => pure ⟨cons hd nil, some e⟩
+      | Except.ok tl => tl.updateFinishedPrefix
+      | Except.error e => pure ⟨nil, some e⟩
     else pure ⟨l, none⟩
 
 private partial def finishedPrefixAux : List α → AsyncList ε α → List α
-  | acc, cons hd tl      => finishedPrefixAux (hd :: acc) tl
-  | acc, nil             => acc
-  | acc, asyncCons hd tl => hd :: acc
+  | acc, cons hd tl   => finishedPrefixAux (hd :: acc) tl
+  | acc, nil          => acc
+  | acc, asyncTail tl => acc
 
 /-- The longest already-computed prefix of the stream. -/
 def finishedPrefix : AsyncList ε α → List α :=

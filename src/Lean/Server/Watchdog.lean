@@ -75,9 +75,8 @@ structure OpenDocument where
 def workerCfg : Process.StdioConfig :=
   { stdin  := Process.Stdio.piped,
     stdout := Process.Stdio.piped,
-    /- The watchdog doesn't read workers' stderr,
-    so we let it be null so as to not overfill a pipe. -/
-    stderr := Process.Stdio.null }
+    /- We pass workers' stderr through to the editor. -/
+    stderr := Process.Stdio.inherit }
 
 -- Events that a forwarding task of a worker signals to the main task
 inductive WorkerEvent where

@@ -26,6 +26,9 @@ inductive SnapshotData where
   | headerData : Environment → MessageLog → Options → SnapshotData
   | cmdData : Command.State → SnapshotData
 
+instance : Inhabited SnapshotData :=
+  ⟨SnapshotData.headerData arbitrary arbitrary arbitrary⟩
+
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot where
   /- Where the command which produced this snapshot begins. Note that
@@ -33,24 +36,28 @@ structure Snapshot where
   since inputs outside the grammar advance the parser but do not produce
   snapshots. -/
   beginPos : String.Pos
+  stx : Syntax
   mpState : Parser.ModuleParserState
   data : SnapshotData
 
 namespace Snapshot
 
+instance : Inhabited Snapshot :=
+  ⟨⟨arbitrary, arbitrary, arbitrary, arbitrary⟩⟩
+
 def endPos (s : Snapshot) : String.Pos := s.mpState.pos
 
 def env : Snapshot → Environment
-  | ⟨_, _, SnapshotData.headerData env_ _ _⟩ => env_
-  | ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState.env
+  | ⟨_, _, _, SnapshotData.headerData env_ _ _⟩ => env_
+  | ⟨_, _, _, SnapshotData.cmdData cmdState⟩ => cmdState.env
 
 def msgLog : Snapshot → MessageLog
-  | ⟨_, _, SnapshotData.headerData _ msgLog_ _⟩ => msgLog_
-  | ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState.messages
+  | ⟨_, _, _, SnapshotData.headerData _ msgLog_ _⟩ => msgLog_
+  | ⟨_, _, _, SnapshotData.cmdData cmdState⟩ => cmdState.messages
 
 def toCmdState : Snapshot → Command.State
-  | ⟨_, _, SnapshotData.headerData env msgLog opts⟩ => Command.mkState env msgLog opts
-  | ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState
+  | ⟨_, _, _, SnapshotData.headerData env msgLog opts⟩ => Command.mkState env msgLog opts
+  | ⟨_, _, _, SnapshotData.cmdData cmdState⟩ => cmdState
 
 end Snapshot
 
@@ -63,6 +70,7 @@ def compileHeader (contents : String) (opts : Options := {}) : IO Snapshot := do
   let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
   pure { 
     beginPos := 0
+    stx := headerStx
     mpState := headerParserState
     data := SnapshotData.headerData headerEnv msgLog opts
   }
@@ -74,6 +82,14 @@ def reparseHeader (contents : String) (header : Snapshot) (opts : Options := {})
 
 private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
   nomatch ex
+
+/-- Parses the next command occurring after the given snapshot
+without elaborating it. -/
+def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
+  let inputCtx := Parser.mkInputContext contents "<input>"
+  let (cmdStx, _, _) :=
+    Parser.parseCommand snap.env inputCtx snap.mpState snap.msgLog
+  cmdStx
 
 /-- Compiles the next command occurring after the given snapshot.
 If there is no next command (file ended), returns messages produced
@@ -105,6 +121,7 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
     let postCmdState ← cmdStateRef.get
     let postCmdSnap : Snapshot := {
         beginPos := cmdPos
+        stx := cmdStx
         mpState := cmdParserState
         data := SnapshotData.cmdData postCmdState
       }

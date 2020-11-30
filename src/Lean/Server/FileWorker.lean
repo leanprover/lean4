@@ -65,6 +65,8 @@ instance : Coe IO.Error TaskError := ⟨TaskError.ioError⟩
 private def nextCmdSnap (h : FS.Stream) (uri : DocumentUri) (version : Nat) (contents : FileMap)
 : Snapshot → ExceptT TaskError IO Snapshot := fun parentSnap => do
   let maybeSnap ← compileNextCmd contents.source parentSnap
+  if (← IO.checkCanceled) then
+    throw TaskError.aborted
   match maybeSnap with
   | Sum.inl snap =>
     -- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
@@ -108,7 +110,7 @@ open Elab
 /-- Compiles the contents of a Lean file. -/
 def compileDocument (h : FS.Stream) (uri : DocumentUri) (version : Nat) (text : FileMap)
 : IO EditableDocument := do
-  let headerSnap@⟨_, _, SnapshotData.headerData env msgLog opts⟩ ← Snapshots.compileHeader text.source
+  let headerSnap@⟨_, _, _, SnapshotData.headerData env msgLog opts⟩ ← Snapshots.compileHeader text.source
     | throwServerError "Internal server error: invalid header snapshot"
   -- TODO(WN): Remove the hardcoded option once the server is linked against stage0
   let opts' := opts.setBool `interpreter.prefer_native false
@@ -124,38 +126,44 @@ def updateDocument (h : FS.Stream) (uri : DocumentUri) (doc : EditableDocument) 
   -- If e.g. a newline is deleted, it will not restart this file worker, but we still
   -- need to reparse the header so the offsets are correct.
   let newHeaderSnap ← reparseHeader newText.source doc.headerSnap
+  if newHeaderSnap.stx != doc.headerSnap.stx then
+    throwServerError "Internal server error: header changed but worker wasn't restarted."
+
   let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix
   match e? with
   -- this case should not be possible. only the main task aborts tasks and ensures that aborted tasks
   -- do not show up in `snapshots` of an EditableDocument.
-  | some TaskError.aborted => throwServerError "Internal server error: reached case that should not be possible during server file worker task branching"
+  | some TaskError.aborted =>
+    throwServerError "Internal server error: elab task was aborted while still in use."
   | some (TaskError.ioError ioError) => throw ioError
   | _ => -- No error or EOF
-    -- NOTE(WN): endPos is greedy in that it consumes input until the next token,
-    -- so a change on some whitespace after a command recompiles it. We could
-    -- be more precise.
-    let validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
-    -- TODO(MH): remove temporary logging
-    IO.eprintln s!"changePos: {changePos}"
-    IO.eprintln "validSnaps:"
-    for snap in validSnaps do
-      logSnapContent snap doc.text
-    IO.eprintln "finishedPrefix:"
-    for snap in cmdSnaps.finishedPrefix do
-      logSnapContent snap doc.text
-    IO.eprintln "---"
-    -- NOTE: the watchdog never sends didChange notifs with a header change to the
-    -- worker, so the header snapshot is always valid.
-    let lastSnap := validSnaps.getLastD doc.headerSnap
-    let newCmdSnaps ← match validSnaps.get? (validSnaps.length - 2) with
-      | none => do
-        let newSnaps ← unfoldCmdSnaps h uri newVersion newText lastSnap
-        pure $ AsyncList.ofList validSnaps.dropLast ++ newSnaps
-      | some secondLastSnap => do
-        let newSnaps ← unfoldCmdSnaps h uri newVersion newText secondLastSnap
-        pure $ AsyncList.ofList (validSnaps.take (validSnaps.length - 2)) ++ newSnaps
-    -- NOTE: We do not cancel old tasks explicitly, the GC does this for us when no refs remain.
-    pure ⟨newVersion, newText, newHeaderSnap, newCmdSnaps⟩
+    -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
+    -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
+    let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
+
+    if validSnaps.length = 0 then
+      let newCmdSnaps ← unfoldCmdSnaps h uri newVersion newText newHeaderSnap
+      pure ⟨newVersion, newText, newHeaderSnap, newCmdSnaps⟩
+    else
+      -- When at least one valid non-header snap exists, it may happen that a change does not fall
+      -- within the syntactic range of that last snap but still modifies it by appending tokens.
+      -- We check for this here. We do not currently handle crazy grammars in which an appended
+      -- token can merge two or more previous commands into one. To do so would require reparsing
+      -- the entire file.
+      let mut lastSnap := validSnaps.getLast!
+      let preLastSnap :=
+        if validSnaps.length ≥ 2
+        then validSnaps.get! (validSnaps.length - 2)
+        else newHeaderSnap
+      let newLastStx ← parseNextCmd newText.source preLastSnap
+      if newLastStx != lastSnap.stx then
+        validSnaps ← validSnaps.dropLast
+        lastSnap ← preLastSnap
+
+      let newSnaps ← unfoldCmdSnaps h uri newVersion newText lastSnap
+      let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
+      -- NOTE: We do not cancel old tasks explicitly, the GC does this for us when no refs remain.
+      pure ⟨newVersion, newText, newHeaderSnap, newCmdSnaps⟩
 
 end EditableDocument
 
@@ -196,9 +204,9 @@ def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
   let docId := p.textDocument
   let changes := p.contentChanges
   let oldDoc ← getDocument
-  let some newVersion ← pure docId.version? 
+  let some newVersion ← pure docId.version?
     | throwServerError "Expected version number"
-  if newVersion <= oldDoc.version then 
+  if newVersion <= oldDoc.version then
     throwServerError "Got outdated version number"
   if ¬ changes.isEmpty then
     let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.text
@@ -250,7 +258,7 @@ partial def mainLoop : ServerM Unit := do
   let st ← read
   let msg ← readLspMessage st.hIn
   let pendingRequests ← st.pendingRequestsRef.get
-  let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit) 
+  let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit)
   → ServerM PendingRequestMap := fun acc id task => do
     if (←hasFinished task) then acc.erase id
     else acc
@@ -273,18 +281,19 @@ partial def mainLoop : ServerM Unit := do
 def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
-  let e ← maybeTee "fwErr.txt" true e
   -- TODO(WN): act in accordance with InitializeParams
   let _ ← Lsp.readLspRequestAs i "initialize" InitializeParams
   let param ← Lsp.readLspNotificationAs i "textDocument/didOpen" DidOpenTextDocumentParams
-  let _ ← IO.setStderr e -- TODO(WN): use a stream var in WorkerM instead of global state
+  let e ← e.withPrefix s!"[{param.textDocument.uri}] "
+  let _ ← IO.setStderr e
+
   let doc ← openDocument o param
-  ReaderT.run mainLoop { 
+  ReaderT.run mainLoop {
     hIn := i
     hOut := o
     docRef := ←IO.mkRef doc
     pendingRequestsRef := ←IO.mkRef (RBMap.empty : PendingRequestMap)
-    : ServerContext 
+    : ServerContext
   }
 
 namespace Test

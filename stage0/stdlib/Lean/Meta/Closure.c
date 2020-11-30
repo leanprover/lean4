@@ -216,7 +216,6 @@ extern lean_object* l_Lean_Expr_updateMData_x21___closed__3;
 lean_object* l_Std_HashMapImp_expand___at_Lean_Meta_Closure_visitLevel___spec__5(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_mkNextUserName___rarg___closed__1;
-extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11741____closed__4;
 lean_object* l_Nat_foldRev_loop___at_Lean_Meta_Closure_mkForall___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwKernelException___at___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefinitionImp___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_collectExprAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -255,6 +254,7 @@ lean_object* l_Lean_Meta_mkAuxDefinition___rarg___lambda__1(lean_object*, lean_o
 lean_object* l_Lean_Meta_Closure_pickNextToProcess_x3f___boxed(lean_object*);
 lean_object* l___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefinitionImp(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_instInhabitedToProcessElement;
+extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11764____closed__4;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getZetaFVarIds___at_Lean_Meta_Closure_process___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateLet_x21___closed__2;
@@ -14255,7 +14255,7 @@ static lean_object* _init_l___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefini
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11741____closed__4;
+x_1 = l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11764____closed__4;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

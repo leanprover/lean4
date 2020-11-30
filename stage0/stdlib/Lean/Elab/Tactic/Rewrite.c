@@ -1726,7 +1726,7 @@ lean_object* l_Lean_Elab_Tactic_evalRewrite(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 uint8_t x_11; lean_object* x_12; 
-x_11 = 2;
+x_11 = 3;
 x_12 = l_Lean_Elab_Tactic_evalRewriteCore(x_11, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }

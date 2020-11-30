@@ -74,11 +74,9 @@ protected theorem addAssoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
 
 protected theorem addLeftComm (n m k : Nat) : n + (m + k) = m + (n + k) := by
   rw [← Nat.addAssoc, Nat.addComm n m, Nat.addAssoc]
-  exact rfl
 
 protected theorem addRightComm (n m k : Nat) : (n + m) + k = (n + k) + m := by
   rw [Nat.addAssoc, Nat.addComm m k, ← Nat.addAssoc]
-  exact rfl
 
 protected theorem addLeftCancel : ∀ {n m k : Nat}, n + m = n + k → m = k
   | 0,      m, k, h => Nat.zeroAdd m ▸ Nat.zeroAdd k ▸ h
@@ -146,8 +144,8 @@ protected theorem mulAssoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
   | n, m, succ k =>
     have h₁ : n * m * succ k = n * m * (k + 1)              from rfl
     have h₂ : n * m * (k + 1) = (n * m * k) + n * m * 1     from Nat.leftDistrib ..
-    have h₃ : (n * m * k) + n * m * 1 = (n * m * k) + n * m by rw [Nat.mulOne (n*m)]; exact rfl
-    have h₄ : (n * m * k) + n * m = (n * (m * k)) + n * m   by rw [Nat.mulAssoc n m k]; exact rfl
+    have h₃ : (n * m * k) + n * m * 1 = (n * m * k) + n * m by rw [Nat.mulOne (n*m)]
+    have h₄ : (n * m * k) + n * m = (n * (m * k)) + n * m   by rw [Nat.mulAssoc n m k]
     have h₅ : (n * (m * k)) + n * m = n * (m * k + m)       from (Nat.leftDistrib n (m*k) m).symm
     have h₆ : n * (m * k + m) = n * (m * succ k)            from Nat.mulSucc m k ▸ rfl
     ((((h₁.trans h₂).trans h₃).trans h₄).trans h₅).trans h₆

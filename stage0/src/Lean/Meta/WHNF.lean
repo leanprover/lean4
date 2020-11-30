@@ -7,6 +7,7 @@ import Lean.ToExpr
 import Lean.AuxRecursor
 import Lean.Meta.Basic
 import Lean.Meta.LevelDefEq
+import Lean.Meta.GetConst
 import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta

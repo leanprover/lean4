@@ -89,6 +89,7 @@ lean_object* l_Subarray_forInUnsafe_loop_match__1(lean_object*, lean_object*);
 lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_845____closed__2;
 lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_682____closed__1;
 lean_object* l_Subarray_forInUnsafe_loop___at_Array_ofSubarray___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3373____closed__3;
 lean_object* l_Array_foldlMUnsafe_fold___at_Subarray_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5739____closed__20;
 lean_object* l_Array_anyMUnsafe_any___at_Subarray_allM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -99,7 +100,6 @@ extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 lean_object* l_Subarray_forInUnsafe(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__9;
 lean_object* l_Array_foldlMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__3;
 lean_object* l_Array___kind_term____x40_Init_Data_Array_Subarray___hyg_572____closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_8830____closed__18;
 lean_object* l_Array_anyMUnsafe_any___at_Array_allM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*);
@@ -156,7 +156,6 @@ lean_object* l_Subarray_forM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 extern lean_object* l_Lean_Name_hasMacroScopes___closed__1;
 lean_object* l_Array___kind_term____x40_Init_Data_Array_Subarray___hyg_627____closed__3;
-extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__1;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__3;
 uint8_t l_Subarray_all___rarg(lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
@@ -172,6 +171,7 @@ lean_object* l_Array___kind_term____x40_Init_Data_Array_Subarray___hyg_627____cl
 lean_object* l_Subarray_forRevM(lean_object*, lean_object*);
 lean_object* l_Array___kind_term____x40_Init_Data_Array_Subarray___hyg_510____closed__6;
 lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_forRevM___spec__1(lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3373____closed__1;
 lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_845____closed__3;
 lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_forRevM___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Subarray_all___spec__1___rarg(lean_object*, lean_object*, size_t, size_t);
@@ -1874,7 +1874,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__3;
+x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3373____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1924,7 +1924,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array___kind_term____x40_Init_Data_Array_Subarray___hyg_510____closed__5;
-x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__1;
+x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3373____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1934,7 +1934,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array___kind_term____x40_Init_Data_Array_Subarray___hyg_510____closed__6;
-x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__3;
+x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3373____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

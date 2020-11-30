@@ -72,7 +72,7 @@ def «rewrite» := parser! "rewrite" >> rwRule >> optional location
 ```
 -/
 @[builtinTactic Lean.Parser.Tactic.rewrite] def evalRewrite : Tactic :=
-  evalRewriteCore TransparencyMode.reducible
+  evalRewriteCore TransparencyMode.instances
 
 @[builtinTactic Lean.Parser.Tactic.erewrite] def evalERewrite : Tactic :=
   evalRewriteCore TransparencyMode.default

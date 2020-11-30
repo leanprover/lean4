@@ -243,7 +243,6 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 lean_object* l_Lean_formatDataValue_match__1(lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be_match__2___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Format_sbracket___closed__1;
-extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11741____closed__4;
 lean_object* l_Lean_Format_initFn____x40_Lean_Data_Format___hyg_970____closed__5;
 lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_myMacro____x40_Lean_Data_Format___hyg_1123____closed__13;
@@ -263,7 +262,6 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__1;
 lean_object* l_Lean_instReprFormat___closed__1;
 lean_object* l_Lean_Format_instInhabitedFormat;
 lean_object* l_Lean_Format_instAppendFormat(lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__1;
 extern lean_object* l___kind_term____x40_Init_Notation___hyg_3____closed__3;
 lean_object* l_Lean_myMacro____x40_Lean_Data_Format___hyg_1123____closed__11;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5739____closed__9;
@@ -290,7 +288,9 @@ lean_object* l_Lean_Option_format_match__1(lean_object*, lean_object*);
 extern lean_object* l_Array_instReprArray___rarg___closed__1;
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_Format_defIndent;
+extern lean_object* l___kind_term____x40_Init_Data_Array_Basic___hyg_3373____closed__1;
 lean_object* l_Lean_Format_joinArraySep(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11764____closed__4;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_be___closed__5;
 lean_object* l_Lean_instToFormat___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_List_format___rarg___closed__3;
@@ -4377,7 +4377,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean___kind_term____x40_Lean_Data_Format___hyg_1082____closed__3;
-x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3349____closed__1;
+x_2 = l___kind_term____x40_Init_Data_Array_Basic___hyg_3373____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -6620,7 +6620,7 @@ static lean_object* _init_l_Lean_formatEntry___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11741____closed__4;
+x_1 = l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11764____closed__4;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

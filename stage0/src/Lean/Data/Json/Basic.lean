@@ -17,7 +17,7 @@ protected def JsonNumber.decEq : (a b : JsonNumber) → Decidable (a = b)
     match decEq m1 m2 with
     | isTrue hm =>
       match decEq e1 e2 with
-      | isTrue he  => isTrue $ by rw [hm, he]; rfl
+      | isTrue he  => isTrue $ by rw [hm, he]
       | isFalse he => isFalse (fun h => JsonNumber.noConfusion h (fun hm he2 => he he2))
     | isFalse hm => isFalse (fun h => JsonNumber.noConfusion h (fun hm2 he => hm hm2))
 

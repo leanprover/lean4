@@ -52,7 +52,6 @@ theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ 
   | a::as, bs, cs => by
     show ((a::as) ++ bs) ++ cs = (a::as) ++ (bs ++ cs)
     rw [consAppend, consAppend, appendAssoc, consAppend]
-    exact rfl
 
 instance : EmptyCollection (List α) := ⟨List.nil⟩
 
@@ -336,7 +335,6 @@ def lengthReplicateEq {α} (n : Nat) (a : α) : (replicate n a).length = n :=
     | succ n ih =>
       show length (replicate.loop a n (a::as)) = Nat.succ n + length as
       rw [ih, lengthConsEq, Nat.addSucc, Nat.succAdd]
-      rfl
   aux n []
 
 def lengthConcatEq {α} (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
@@ -345,7 +343,6 @@ def lengthConcatEq {α} (as : List α) (a : α) : (concat as a).length = as.leng
   | cons x xs ih =>
     show length (x :: concat xs a) = length (x :: xs) + 1
     rw [lengthConsEq, lengthConsEq, ih]
-    rfl
 
 def lengthSetEq {α} (as : List α) (i : Nat) (a : α) : (as.set i a).length = as.length := by
   induction as generalizing i with
@@ -356,7 +353,6 @@ def lengthSetEq {α} (as : List α) (i : Nat) (a : α) : (as.set i a).length = a
     | succ i =>
       show length (x :: set xs i a) = length (x :: xs)
       rw [lengthConsEq, lengthConsEq, ih]
-      rfl
 
 def lengthDropLast {α} (as : List α) : as.dropLast.length = as.length - 1 := by
   match as with

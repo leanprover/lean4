@@ -4,7 +4,7 @@ let
   nix-pinned = writeShellScriptBin "nix" ''
     ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false $@
   '';
-  llvmPackages = llvmPackages_11;
+  llvmPackages = llvmPackages_10;
   cc = ccacheWrapper.override rec {
     # macOS doesn't like the lld override, but I guess it already uses that anyway
     cc = if system == "x86_64-darwin" then llvmPackages.clang else llvmPackages.clang.override {

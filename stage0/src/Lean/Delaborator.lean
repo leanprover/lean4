@@ -127,8 +127,8 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   elaborators for `app.c` are tried first; this is also done for `Expr.const`s (\"nullary applications\")
   to reduce special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k`
   is tried first.",
-    valueTypeName := `Lean.Delaborator.Delab
-  } `Lean.Delaborator.delabAttribute
+    valueTypeName := `Lean.PrettyPrinter.Delaborator.Delab
+  } `Lean.PrettyPrinter.Delaborator.delabAttribute
 @[builtinInit mkDelabAttribute] constant delabAttribute : KeyedDeclsAttribute Delab
 
 def getExpr : DelabM Expr := do

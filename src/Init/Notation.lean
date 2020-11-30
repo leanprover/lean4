@@ -135,6 +135,7 @@ syntax[failIfSuccess] "failIfSuccess " tacticSeq : tactic
 syntax[generalize] "generalize " atomic(ident " : ")? term:51 " = " ident : tactic
 syntax[paren] "(" tacticSeq ")" : tactic
 syntax[withReducible] "withReducible " tacticSeq : tactic
+syntax[withReducibleAndInstances] "withReducibleAndInstances " tacticSeq : tactic
 syntax:2[orelse] tactic "<|>" tactic:1 : tactic
 macro "try " t:tacticSeq : tactic => `(($t) <|> skip)
 

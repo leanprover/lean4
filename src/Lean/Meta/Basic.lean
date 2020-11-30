@@ -424,6 +424,9 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withReducible {α} (x : n α) : n α :=
   withTransparency TransparencyMode.reducible x
 
+@[inline] def withReducibleAndInstances {α} (x : n α) : n α :=
+  withTransparency TransparencyMode.instances x
+
 @[inline] def withAtLeastTransparency {α} (mode : TransparencyMode) (x : n α) : n α :=
   withConfig
     (fun config =>
@@ -431,44 +434,6 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
       let mode    := if oldMode.lt mode then mode else oldMode
       { config with transparency := mode })
     x
-
-def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
-  let env ← getEnv
-  match env.find? constName with
-  | some (info@(ConstantInfo.thmInfo _)) =>
-    if (← shouldReduceAll) then
-      pure (some info)
-    else
-      pure none
-  | some (info@(ConstantInfo.defnInfo _)) =>
-    if (← shouldReduceReducibleOnly) then
-      if (← isReducible constName) then
-        pure (some info)
-      else
-        pure none
-    else
-      pure (some info)
-  | some info => pure (some info)
-  | none      => throwUnknownConstant constName
-
-def getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
-  let env ← getEnv
-  match env.find? constName with
-  | some (info@(ConstantInfo.thmInfo _)) =>
-    if (← shouldReduceAll) then
-      pure (some info)
-    else
-      pure none
-  | some (info@(ConstantInfo.defnInfo _)) =>
-    if (← shouldReduceReducibleOnly) then
-      if (← isReducible constName) then
-        pure (some info)
-      else
-        pure none
-    else
-      pure (some info)
-  | some info => pure (some info)
-  | none      => pure none
 
 /-- Save cache, execute `x`, restore cache -/
 @[inline] private def savingCacheImpl {α} (x : MetaM α) : MetaM α := do
@@ -479,12 +444,40 @@ def getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
 @[inline] def savingCache {α} : n α → n α :=
   mapMetaM savingCacheImpl
 
+def getTheoremInfo (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
+  if (← shouldReduceAll) then
+    return some info
+  else
+    return none
+
+private def getDefInfoTemp (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
+  match (← read).config.transparency with
+  | TransparencyMode.all => return some info
+  | TransparencyMode.default => return some info
+  | _ =>
+    if (← isReducible info.name) then
+      return some info
+    else
+      return none
+
+/- Remark: we later define `getConst?` at `GetConst.lean` after we define `Instances.lean`.
+   This method is only used to implement `isClassQuickConst?`.
+   It is very similar to `getConst?`, but it returns none when `TransparencyMode.instances` and
+   `constName` is an instance. This difference should be irrelevant for `isClassQuickConst?`. -/
+private def getConstTemp? (constName : Name) : MetaM (Option ConstantInfo) := do
+  let env ← getEnv
+  match env.find? constName with
+  | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
+  | some (info@(ConstantInfo.defnInfo _)) => getDefInfoTemp info
+  | some info                             => pure (some info)
+  | none                                  => throwUnknownConstant constName
+
 private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
   let env ← getEnv
   if isClass env constName then
     pure (LOption.some constName)
   else
-    match (← getConst? constName) with
+    match (← getConstTemp? constName) with
     | some _ => pure LOption.undef
     | none   => pure LOption.none
 

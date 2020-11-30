@@ -1135,6 +1135,7 @@ end
 @[specialize] private def unstuckMVar (e : Expr) (successK : Expr → MetaM Bool) (failK : MetaM Bool): MetaM Bool := do
   match (← getStuckMVar? e) with
   | some mvarId =>
+    trace[Meta.isDefEq.stuckMVar]! "found stuck MVar {mkMVar mvarId}"
     if (← Meta.synthPending mvarId) then
       let e ← instantiateMVars e
       successK e

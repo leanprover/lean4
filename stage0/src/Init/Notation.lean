@@ -134,6 +134,14 @@ syntax[traceState] "traceState" : tactic
 syntax[failIfSuccess] "failIfSuccess " tacticSeq : tactic
 syntax[generalize] "generalize " atomic(ident " : ")? term:51 " = " ident : tactic
 syntax[paren] "(" tacticSeq ")" : tactic
+syntax[withReducible] "withReducible " tacticSeq : tactic
+syntax:2[orelse] tactic "<|>" tactic:1 : tactic
+macro "try " t:tacticSeq : tactic => `(($t) <|> skip)
+
+
+macro "rfl" : tactic => `(exact rfl)
+macro "decide!" : tactic => `(exact decide!)
+macro "admit" : tactic => `(exact sorry)
 
 syntax locationWildcard := "*"
 syntax locationTarget   := "⊢" <|> "|-"
@@ -156,23 +164,24 @@ syntax[rwSeq, 1] "rw " rwRuleSeq (location)? : tactic
 syntax[erw] "erw " rwRule (location)? : tactic
 syntax[erwSeq, 1] "erw " rwRuleSeq (location)? : tactic
 
+private def withCheapRefl (tac : Syntax) : MacroM Syntax :=
+  `(tactic| $tac; try (withReducible rfl))
+
 @[macro rw]
 def expandRw : Macro :=
-  fun stx => return stx.setKind `Lean.Parser.Tactic.rewrite |>.setArg 0 (mkAtomFrom stx "rewrite")
+  fun stx => withCheapRefl (stx.setKind `Lean.Parser.Tactic.rewrite |>.setArg 0 (mkAtomFrom stx "rewrite"))
 
 @[macro rwSeq]
 def expandRwSeq : Macro :=
-  fun stx => return stx.setKind `Lean.Parser.Tactic.rewriteSeq |>.setArg 0 (mkAtomFrom stx "rewrite")
+  fun stx => withCheapRefl (stx.setKind `Lean.Parser.Tactic.rewriteSeq |>.setArg 0 (mkAtomFrom stx "rewrite"))
 
 @[macro erw]
 def expandERw : Macro :=
-  fun stx => return stx.setKind `Lean.Parser.Tactic.erewrite |>.setArg 0 (mkAtomFrom stx "erewrite")
+  fun stx => withCheapRefl (stx.setKind `Lean.Parser.Tactic.erewrite |>.setArg 0 (mkAtomFrom stx "erewrite"))
 
 @[macro erwSeq]
 def expandERwSeq : Macro :=
-  fun stx => return stx.setKind `Lean.Parser.Tactic.erewriteSeq |>.setArg 0 (mkAtomFrom stx "erewrite")
-
-syntax:2[orelse] tactic "<|>" tactic:1 : tactic
+  fun stx => withCheapRefl (stx.setKind `Lean.Parser.Tactic.erewriteSeq |>.setArg 0 (mkAtomFrom stx "erewrite"))
 
 syntax[injection] "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
 
@@ -197,16 +206,11 @@ syntax[introMatch] "intro " matchAlts : tactic
 
 syntax[existsIntro] "exists " term : tactic
 
-macro "rfl" : tactic => `(exact rfl)
-macro "decide!" : tactic => `(exact decide!)
-macro "admit" : tactic => `(exact sorry)
 /- We use a priority > 0, to avoid ambiguity with the builtin `have` notation -/
 macro[1] "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
 
 syntax "repeat " tacticSeq : tactic
 macro_rules
   | `(tactic| repeat $seq) => `(tactic| (($seq); repeat $seq) <|> skip)
-
-macro "try " t:tacticSeq : tactic => `(($t) <|> skip)
 
 end Lean.Parser.Tactic

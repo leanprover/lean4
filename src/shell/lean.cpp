@@ -209,7 +209,7 @@ static void display_help(std::ostream & out) {
 #if defined(LEAN_JSON)
     std::cout << "  --json             print JSON-formatted structured error messages\n";
     std::cout << "  --server           start lean in server mode\n";
-    std::cout << "  --server=file      start lean in server mode, redirecting standard input from the specified file (for debugging)\n";
+    std::cout << "  --worker           start lean in server-worker mode\n";
 #endif
     std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
     std::cout << "  --stats            display environment statistics\n";
@@ -239,7 +239,8 @@ static struct option g_long_options[] = {
     {"exitOnPanic",  no_argument,       0, 'e'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
-    {"server",       optional_argument, 0, 'S'},
+    {"server",       no_argument,       0, 'S'},
+    {"worker",       no_argument,       0, 'W'},
 #endif
 #if defined(LEAN_MULTI_THREAD)
     {"tstack",       required_argument, 0, 's'},
@@ -340,6 +341,18 @@ pair_ref<environment, pair_ref<messages, module_stx>> run_new_frontend(std::stri
         lean_run_frontend(mk_string(input), opts.to_obj_arg(), mk_string(file_name), main_module_name.to_obj_arg(), io_mk_world()));
 }
 
+/* def workerMain : IO UInt32 */
+extern "C" object* lean_server_worker_main(object* w);
+uint32_t run_server_worker() {
+    return get_io_scalar_result<uint32_t>(lean_server_worker_main(io_mk_world()));
+}
+
+/* def watchdogMain : IO Uint32 */
+extern "C" object* lean_server_watchdog_main(object* w);
+uint32_t run_server_watchdog() {
+    return get_io_scalar_result<uint32_t>(lean_server_watchdog_main(io_mk_world()));
+}
+
 extern "C" object* lean_init_search_path(object* opt_path, object* w);
 void init_search_path() {
     get_io_scalar_result<unsigned>(lean_init_search_path(mk_option_none(), io_mk_world()));
@@ -436,6 +449,8 @@ int main(int argc, char ** argv) {
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
     bool only_deps = false;
     bool stats = false;
+    // 0 = don't run server, 1 = watchdog, 2 = worker
+    int run_server = 0; 
     unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
     num_threads = hardware_concurrency();
@@ -535,6 +550,12 @@ int main(int argc, char ** argv) {
                 opts = opts.update(lean::name{"trace", "as_messages"}, true);
                 json_output = true;
                 break;
+            case 'S':
+                run_server = 1;
+                break;
+            case 'W':
+                run_server = 2;
+                break;
 #endif
             case 'P':
                 opts = opts.update("profiler", true);
@@ -583,6 +604,11 @@ int main(int argc, char ** argv) {
     std::string contents;
 
     try {
+        if (run_server == 1)
+            return run_server_watchdog();
+        else if (run_server == 2)
+            return run_server_worker();
+            
         if (use_stdin) {
             if (argc - optind != 0) {
                 mod_fn = argv[optind++];
@@ -641,13 +667,14 @@ int main(int argc, char ** argv) {
             std::string str = get_message_string(msg);
             cpp_msgs.push_back(message(mod_fn, pos, sev, str));
         }
-        if (json_output) {
 #if defined(LEAN_JSON)
+        if (json_output) {
             for (auto msg : cpp_msgs) {
                 print_json(std::cout, msg);
-#endif
             }
-        } else {
+        } else
+#endif
+        {
             for (auto msg : cpp_msgs) {
                 std::cout << msg;
             }
@@ -682,7 +709,9 @@ int main(int argc, char ** argv) {
             out.close();
         }
 
+#ifdef LEAN_JSON
         if (!json_output)
+#endif
             display_cumulative_profiling_times(std::cerr);
 
         return ok ? 0 : 1;

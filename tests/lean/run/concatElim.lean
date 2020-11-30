@@ -57,12 +57,11 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
       injection h with h
       injection h
     | succ n =>
-      have (x₁ :: x₂ :: xs).length = xs.length + 2 by rw [lengthCons, lengthCons]; rfl
+      have (x₁ :: x₂ :: xs).length = xs.length + 2 by rw [lengthCons, lengthCons]
       have xs.length = n by rw [this] at h; injection h with h; injection h with h; assumption
       have ih : (dropLast (x₂::xs)).length = xs.length from dropLastLen (x₂::xs) xs.length (lengthCons _ _)
       show (x₁ :: dropLast (x₂ :: xs)).length = n+1
       rw [lengthCons, ih, this]
-      rfl
 
 @[inline]
 def concatElim {α}

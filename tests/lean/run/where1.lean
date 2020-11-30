@@ -24,7 +24,6 @@ where
     | cons a as ih =>
       show (reverse.loop as (a::bs)).length = (a :: as).length + bs.length
       erw [ih, List.lengthConsEq, List.lengthConsEq, Nat.addSucc, Nat.succAdd]
-      rfl
 
 def h : Nat -> Nat
   | 0    => g 0

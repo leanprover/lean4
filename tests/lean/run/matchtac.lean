@@ -1,5 +1,3 @@
-
-
 theorem tst1 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p :=
 by match h:xs with
    | []    => exact h₂ h
@@ -77,4 +75,4 @@ match xs, h:last xs with
 theorem tst9 {α} [Inhabited α] (xs : List α) : xs ≠ [] → xs = popBack xs ++ [back xs] := by
 match xs, h:last xs with
 | _, ListLast.empty         => intro h; exact absurd rfl h
-| _, ListLast.nonEmpty ys y => intro; rw [popBackEq, backEq]; exact rfl
+| _, ListLast.nonEmpty ys y => intro; rw [popBackEq, backEq]

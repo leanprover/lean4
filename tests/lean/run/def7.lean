@@ -1,5 +1,3 @@
-
-
 inductive InfTree.{u} (α : Type u)
 | leaf : α → InfTree α
 | node : (Nat → InfTree α) → InfTree α
@@ -43,4 +41,4 @@ theorem L.appendNil {α} : (as : L α) → append as nil = as
   have thunkAux : (fun _ => as ()) = as from funext fun x => by
     cases x
     exact rfl
-  by rw [ih, thunkAux]; exact rfl
+  by rw [ih, thunkAux]

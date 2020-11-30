@@ -3,10 +3,10 @@ axiom appendAssoc {α} (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs
 axiom reverseEq {α} (as : List α) : as.reverse.reverse = as
 
 theorem ex1 {α} (as bs : List α) : as.reverse.reverse ++ [] ++ [] ++ bs ++ bs = as ++ (bs ++ bs) := by
-rw [appendNil, appendNil, reverseEq];
-traceState;
-rw ←appendAssoc;
-exact rfl
+  rw [appendNil, appendNil, reverseEq];
+  traceState;
+  rw ←appendAssoc;
+
 
 theorem ex2 {α} (as bs : List α) : as.reverse.reverse ++ [] ++ [] ++ bs ++ bs = as ++ (bs ++ bs) := by
 rewrite [reverseEq, reverseEq]; -- Error on second reverseEq

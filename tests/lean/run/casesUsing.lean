@@ -33,7 +33,6 @@ theorem time2Eq (n : Nat) : 2*n = n + n := by
   rw Nat.mulComm
   show (0 + n) + n = n+n
   rw Nat.zeroAdd
-  rfl
 
 theorem ex3 (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
   cases n using parityElim with
@@ -41,12 +40,10 @@ theorem ex3 (n : Nat) : Exists (fun m => n = m + m ∨ n = m + m + 1) := by
     apply Exists.intro i
     apply Or.inl
     rw time2Eq
-    rfl
   | odd i =>
     apply Exists.intro i
     apply Or.inr
     rw time2Eq
-    rfl
 
 def ex4 {α} (xs : List α) (h : xs = [] → False) : α := by
   cases he:xs with

@@ -152,7 +152,6 @@ theorem ex2 :
   funext (a, b) (c, d)
   show a + d = d + a
   rw [Nat.addComm]
-  rfl
 ```
 
 ## Induction
@@ -228,7 +227,7 @@ theorem memSplit {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :
     match bs, memSplit h with
     | _, ⟨s, ⟨t, rfl⟩⟩ =>
       exists b::s; exists t;
-      rw [List.consAppend]; rfl
+      rw [List.consAppend]
 ```
 
 We can use `match-with` nested in tactics.
@@ -248,7 +247,7 @@ theorem memSplit {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :
       match bs, ih h with
       | _, ⟨s, ⟨t, rfl⟩⟩ =>
         exists b::s; exists t
-        rw [List.consAppend]; rfl
+        rw [List.consAppend]
 ```
 
 You can create your own notation using existing tactics. In the following example,
@@ -269,7 +268,7 @@ theorem memSplit {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :
     | tail a b bs h =>
       obtain ⟨s, ⟨t, h⟩⟩ from ih h
       exists b::s; exists t
-      rw [h, List.consAppend]; rfl
+      rw [h, List.consAppend]
     | head a bs => exact ⟨[], ⟨bs, rfl⟩⟩
   | nil => cases h
 
@@ -323,7 +322,6 @@ theorem lengthReplicateEq {α} (n : Nat) (a : α) : (List.replicate n a).length 
     | n+1 =>
       show List.length (List.replicate.loop a n (a::as)) = Nat.succ n + as.length
       rw [aux n, List.lengthConsEq, Nat.addSucc, Nat.succAdd]
-      rfl
   exact aux n []
 ```
 
@@ -340,9 +338,7 @@ where
     | n+1 =>
       show List.length (List.replicate.loop a n (a::as)) = Nat.succ n + as.length
       rw [replicateLoopEq n, List.lengthConsEq, Nat.addSucc, Nat.succAdd]
-      rfl
 ```
-
 
 # `begin-end` lovers
 
@@ -362,7 +358,6 @@ macro "begin " ts:sepByT(tactic, ", ") "end" : term => do
 theorem ex (x : Nat) : x + 0 = 0 + x :=
   begin
     rw Nat.zeroAdd,
-    rw Nat.addZero,
-    rfl
+    rw Nat.addZero
   end
 ```

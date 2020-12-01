@@ -95,7 +95,9 @@ nix run github:leanprover/lean4/7e4edeb#emacs-package
 
 Open a shell with `lean` and `LEAN_PATH` set up for compiling a specific module (this is exactly what `emacs-dev` is doing internally):
 ```bash
-nix develop .#mods."Lean.Parser.Basic"
+nix develop .#mods.\"Lean.Parser.Basic\"
+# alternatively, directly pass a command to execute:
+nix develop .#stage2.mods.\"Init.Control.Basic\" -c bash -c 'lean $src -Dtrace.Elab.command=true'
 ```
 
 Not sure what you just broke? Run Lean from (e.g.) the previous commit on a file:

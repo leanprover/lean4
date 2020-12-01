@@ -1,39 +1,9 @@
-class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hmul : α → β → γ
-
-class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hadd : α → β → γ
-
 instance [Mul α] : HMul α (Array α) (Array α) where
-  hmul a as := as.map (a * .)
-
-@[defaultInstance 1]
-instance [Mul α] : HMul α α α where
-  hmul a b := a * b
-
-@[defaultInstance 1]
-instance [Add α] : HAdd α α α where
-  hadd a b := a + b
-
-infix:70 [1] "*" => HMul.hmul
-
-infix:65 [1] "+" => HAdd.hadd
+  hMul a as := as.map (a * .)
 
 #check fun x => x * 2
 #check fun y : Int => let  x := 1; x * y
 #check fun y : Int => let* x := 1; x * y
-
-instance : HMul Nat Int Int where
-  hmul a b := Int.mul a b
-
-instance : HMul Int Nat Int where
-  hmul a b := Int.mul a b
-
-instance : HAdd Nat Int Int where
-  hadd a b := Int.add a b
-
-instance : HAdd Int Nat Int where
-  hadd a b := Int.add a b
 
 def f1 (n : Nat) (i : Int) :=
   i * n

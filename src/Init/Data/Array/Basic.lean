@@ -613,7 +613,7 @@ partial def eraseIdxAux : Nat → Array α → Array α
   | i, a =>
     if h : i < a.size then
       let idx  : Fin a.size := ⟨i, h⟩;
-      let idx1 : Fin a.size := ⟨i - 1, Nat.ltOfLeOfLt (Nat.predLe i) h⟩;
+      let idx1 : Fin a.size := ⟨i - 1, by exact Nat.ltOfLeOfLt (Nat.predLe i) h⟩;
       eraseIdxAux (i+1) (a.swap idx idx1)
     else
       a.pop
@@ -641,7 +641,7 @@ partial def eraseIdxSzAux (a : Array α) : ∀ (i : Nat) (r : Array α), r.size 
   | i, r, heq =>
     if h : i < r.size then
       let idx  : Fin r.size := ⟨i, h⟩;
-      let idx1 : Fin r.size := ⟨i - 1, Nat.ltOfLeOfLt (Nat.predLe i) h⟩;
+      let idx1 : Fin r.size := ⟨i - 1, by exact Nat.ltOfLeOfLt (Nat.predLe i) h⟩;
       eraseIdxSzAux a (i+1) (r.swap idx idx1) ((sizeSwapEq r idx idx1).trans heq)
     else
       ⟨r.pop, (sizePopEq r).trans (heq ▸ rfl)⟩

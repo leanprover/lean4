@@ -25,7 +25,7 @@ def UInt8.div (a b : UInt8) : UInt8 := ⟨a.val / b.val⟩
 @[extern c inline "#2 == 0 ? 0 : #1 % #2"]
 def UInt8.mod (a b : UInt8) : UInt8 := ⟨a.val % b.val⟩
 @[extern "lean_uint8_modn"]
-def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨a.val %ₙ n⟩
+def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨a.val % n⟩
 @[extern c inline "#1 & #2"]
 def UInt8.land (a b : UInt8) : UInt8 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
@@ -38,7 +38,7 @@ instance : Add UInt8       := ⟨UInt8.add⟩
 instance : Sub UInt8       := ⟨UInt8.sub⟩
 instance : Mul UInt8       := ⟨UInt8.mul⟩
 instance : Mod UInt8       := ⟨UInt8.mod⟩
-instance : ModN UInt8      := ⟨UInt8.modn⟩
+instance : HMod UInt8 Nat UInt8 := ⟨UInt8.modn⟩
 instance : Div UInt8       := ⟨UInt8.div⟩
 instance : HasLess UInt8   := ⟨UInt8.lt⟩
 instance : HasLessEq UInt8 := ⟨UInt8.le⟩
@@ -74,7 +74,7 @@ def UInt16.div (a b : UInt16) : UInt16 := ⟨a.val / b.val⟩
 @[extern c inline "#2 == 0 ? 0 : #1 % #2"]
 def UInt16.mod (a b : UInt16) : UInt16 := ⟨a.val % b.val⟩
 @[extern "lean_uint16_modn"]
-def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨a.val %ₙ n⟩
+def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨a.val % n⟩
 @[extern c inline "#1 & #2"]
 def UInt16.land (a b : UInt16) : UInt16 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
@@ -88,7 +88,7 @@ instance : Add UInt16       := ⟨UInt16.add⟩
 instance : Sub UInt16       := ⟨UInt16.sub⟩
 instance : Mul UInt16       := ⟨UInt16.mul⟩
 instance : Mod UInt16       := ⟨UInt16.mod⟩
-instance : ModN UInt16      := ⟨UInt16.modn⟩
+instance : HMod UInt16 Nat UInt16 := ⟨UInt16.modn⟩
 instance : Div UInt16       := ⟨UInt16.div⟩
 instance : HasLess UInt16   := ⟨UInt16.lt⟩
 instance : HasLessEq UInt16 := ⟨UInt16.le⟩
@@ -124,7 +124,7 @@ def UInt32.div (a b : UInt32) : UInt32 := ⟨a.val / b.val⟩
 @[extern c inline "#2 == 0 ? 0 : #1 % #2"]
 def UInt32.mod (a b : UInt32) : UInt32 := ⟨a.val % b.val⟩
 @[extern "lean_uint32_modn"]
-def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨a.val %ₙ n⟩
+def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨a.val % n⟩
 @[extern c inline "#1 & #2"]
 def UInt32.land (a b : UInt32) : UInt32 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
@@ -141,7 +141,7 @@ instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
 instance : Mul UInt32       := ⟨UInt32.mul⟩
 instance : Mod UInt32       := ⟨UInt32.mod⟩
-instance : ModN UInt32      := ⟨UInt32.modn⟩
+instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
 instance : Div UInt32       := ⟨UInt32.div⟩
 
 @[extern c inline "#1 << #2"]
@@ -165,7 +165,7 @@ def UInt64.div (a b : UInt64) : UInt64 := ⟨a.val / b.val⟩
 @[extern c inline "#2 == 0 ? 0 : #1 % #2"]
 def UInt64.mod (a b : UInt64) : UInt64 := ⟨a.val % b.val⟩
 @[extern "lean_uint64_modn"]
-def UInt64.modn (a : UInt64) (n : @& Nat) : UInt64 := ⟨a.val %ₙ n⟩
+def UInt64.modn (a : UInt64) (n : @& Nat) : UInt64 := ⟨a.val % n⟩
 @[extern c inline "#1 & #2"]
 def UInt64.land (a b : UInt64) : UInt64 := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
@@ -192,7 +192,7 @@ instance : Add UInt64       := ⟨UInt64.add⟩
 instance : Sub UInt64       := ⟨UInt64.sub⟩
 instance : Mul UInt64       := ⟨UInt64.mul⟩
 instance : Mod UInt64       := ⟨UInt64.mod⟩
-instance : ModN UInt64      := ⟨UInt64.modn⟩
+instance : HMod UInt64 Nat UInt64 := ⟨UInt64.modn⟩
 instance : Div UInt64       := ⟨UInt64.div⟩
 instance : HasLess UInt64   := ⟨UInt64.lt⟩
 instance : HasLessEq UInt64 := ⟨UInt64.le⟩
@@ -234,7 +234,7 @@ def USize.div (a b : USize) : USize := ⟨a.val / b.val⟩
 @[extern c inline "#2 == 0 ? 0 : #1 % #2"]
 def USize.mod (a b : USize) : USize := ⟨a.val % b.val⟩
 @[extern "lean_usize_modn"]
-def USize.modn (a : USize) (n : @& Nat) : USize := ⟨a.val %ₙ n⟩
+def USize.modn (a : USize) (n : @& Nat) : USize := ⟨a.val % n⟩
 @[extern c inline "#1 & #2"]
 def USize.land (a b : USize) : USize := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
@@ -259,7 +259,7 @@ instance : Add USize       := ⟨USize.add⟩
 instance : Sub USize       := ⟨USize.sub⟩
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩
-instance : ModN USize      := ⟨USize.modn⟩
+instance : HMod USize Nat USize := ⟨USize.modn⟩
 instance : Div USize       := ⟨USize.div⟩
 instance : HasLess USize   := ⟨USize.lt⟩
 instance : HasLessEq USize := ⟨USize.le⟩
@@ -279,5 +279,5 @@ def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
 instance (a b : USize) : Decidable (a < b) := USize.decLt a b
 instance (a b : USize) : Decidable (a ≤ b) := USize.decLe a b
 
-theorem USize.modnLt {m : Nat} : ∀ (u : USize), m > 0 → USize.toNat (u %ₙ m) < m
+theorem USize.modnLt {m : Nat} : ∀ (u : USize), m > 0 → USize.toNat (u % m) < m
   | ⟨u⟩, h => Fin.modnLt u h

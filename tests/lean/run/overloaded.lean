@@ -1,4 +1,4 @@
-
+--
 
 def A.x : Nat := 10
 def B.x : String := "hello"
@@ -9,7 +9,7 @@ open B
 #check f x
 #check g x
 
-macro "foo!" x:term : term => `($x + 1)
+macro "foo!" x:term : term => `($x + (1:Nat))
 macro "foo!" x:term : term => `($x ++ " world")
 
 #check f (foo! 1)

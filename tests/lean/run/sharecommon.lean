@@ -121,8 +121,8 @@ pure ()
 @[noinline] def mkByteArray1 (x : Nat) : ByteArray :=
 let r := ByteArray.empty
 let r := r.push x.toUInt8
-let r := r.push (x+1).toUInt8
-let r := r.push (x+2).toUInt8
+let r := r.push (x+(1:Nat)).toUInt8
+let r := r.push (x+(2:Nat)).toUInt8
 r
 
 @[noinline] def mkByteArray2 (x : Nat) : ByteArray :=

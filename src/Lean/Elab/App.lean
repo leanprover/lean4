@@ -529,7 +529,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       else
         /- `structName` was declared using `inductive` command.
            So, we don't projection functions for it. Thus, we use `Expr.proj` -/
-        pure $ LValResolution.projIdx structName (idx - 1)
+        pure $ LValResolution.projIdx structName (idx - (1:Nat)) -- TODO: investigate why we need (1:Nat)
     else
       throwLValError e eType m!"invalid projection, structure has only {fieldNames.size} field(s)"
   | Expr.const structName _ _, LVal.fieldName fieldName =>

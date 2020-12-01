@@ -1,19 +1,8 @@
-typeOf.lean:11:21: error: application type mismatch
-  Add.add x
-argument
-  x
-has type
-  Nat
-but is expected to have type
-  Bool
-typeOf.lean:12:0: error: application type mismatch
-  Add.add r
-argument
-  r
-has type
-  Bool
-but is expected to have type
-  Nat
+typeOf.lean:11:21: error: failed to synthesize instance
+  HAdd Nat Nat Bool
+typeOf.lean:12:0: error: failed to synthesize instance
+  HAdd Bool Nat Nat
+typeOf.lean:10:0: error: (kernel) kernel type checker does not support meta variables
 typeOf.lean:20:54: error: invalid reassignment, term has type
   Bool
 but is expected to have type

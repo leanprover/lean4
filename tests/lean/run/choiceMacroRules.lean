@@ -1,10 +1,8 @@
-
-
 syntax:65 [myAdd1] term "+++" term:65 : term
 syntax:65 [myAdd2] term "+++" term:65 : term
 
 macro_rules [myAdd1]
-| `($a +++ $b) => `($a + $b)
+| `($a +++ $b) => `(Nat.add $a $b)
 
 macro_rules [myAdd2]
 | `($a +++ $b) => `($a ++ $b)

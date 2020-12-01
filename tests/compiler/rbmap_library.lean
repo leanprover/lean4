@@ -27,11 +27,12 @@ def tst2 : IO Unit :=
 do let Map := RBMap Nat Nat (fun a b => a < b)
    let m : Map := {}
    let n : Nat := 10000
-   let m := n.fold (fun i (m : Map) => m.insert i (i*10)) m
+   let mut m := n.fold (fun i (m : Map) => m.insert i (i*10)) m
    check (m.all (fun k v => v == k*10))
    check (sz m == n)
    IO.println (">> " ++ toString (depth m) ++ ", " ++ toString (sz m))
-   let m := (n/2).fold (fun i (m : Map) => m.erase (2*i)) m
+   for i in [:n/2] do
+     m := m.erase (2*i)
    check (m.all (fun k v => v == k*10))
    check (sz m == n / 2)
    IO.println (">> " ++ toString (depth m) ++ ", " ++ toString (sz m))

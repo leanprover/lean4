@@ -277,7 +277,7 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
       if ws.contains '\n' then do
         -- Indentation is automatically increased when entering a category, but comments should be aligned
         -- with the actual token, so dedent
-        indent (push s!"{ss'}\n") (some (0 - Format.getIndent (← getOptions)))
+        indent (push s!"{ss'}\n") (some ((0:Int) - Format.getIndent (← getOptions)))
       else
         push s!"{ss'} "
       modify fun st => { st with leadWord := "" }

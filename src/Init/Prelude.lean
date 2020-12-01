@@ -348,7 +348,7 @@ class OfNat (α : Type u) (n : Nat) where
   ofNat : α
 
 @[defaultInstance]
-instance instOfNatDefault (n : Nat) : OfNat Nat n where
+instance (n : Nat) : OfNat Nat n where
   ofNat := n
 
 class HasLessEq (α : Type u) where LessEq : α → α → Prop
@@ -357,21 +357,81 @@ class HasLess   (α : Type u) where Less : α → α → Prop
 export HasLess (Less)
 export HasLessEq (LessEq)
 
-class Add     (α : Type u) where add : α → α → α
-class Mul     (α : Type u) where mul : α → α → α
-class Neg     (α : Type u) where neg : α → α
-class Sub     (α : Type u) where sub : α → α → α
-class Div     (α : Type u) where div : α → α → α
-class Mod     (α : Type u) where mod : α → α → α
-class ModN    (α : Type u) where modn : α → Nat → α
-class Pow     (α : Type u) (β : Type v) where pow : α → β → α
-class Append  (α : Type u) where append : α → α → α
-class OrElse  (α : Type u) where orElse  : α → α → α
-class AndThen (α : Type u) where andThen : α → α → α
+class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hAdd : α → β → γ
 
-open Add (add)
-open Mul (mul)
-open Pow (pow)
+class HSub (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hSub : α → β → γ
+
+class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hMul : α → β → γ
+
+class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hDiv : α → β → γ
+
+class HMod (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hMod : α → β → γ
+
+class HPow (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hPow : α → β → α
+
+class Add (α : Type u) where
+  add : α → α → α
+
+class Sub (α : Type u) where
+  sub : α → α → α
+
+class Mul (α : Type u) where
+  mul : α → α → α
+
+class Neg (α : Type u) where
+  neg : α → α
+
+class Div (α : Type u) where
+  div : α → α → α
+
+class Mod (α : Type u) where
+  mod : α → α → α
+
+class Pow (α : Type u) where
+  pow : α → α → α
+
+class Append (α : Type u) where
+  append : α → α → α
+
+class OrElse (α : Type u) where
+  orElse  : α → α → α
+
+class AndThen (α : Type u) where
+  andThen : α → α → α
+
+@[defaultInstance 1]
+instance [Add α] : HAdd α α α where
+  hAdd a b := Add.add a b
+
+@[defaultInstance 1]
+instance [Sub α] : HSub α α α where
+  hSub a b := Sub.sub a b
+
+@[defaultInstance 1]
+instance [Mul α] : HMul α α α where
+  hMul a b := Mul.mul a b
+
+@[defaultInstance 1]
+instance [Div α] : HDiv α α α where
+  hDiv a b := Div.div a b
+
+@[defaultInstance 1]
+instance [Mod α] : HMod α α α where
+  hMod a b := Mod.mod a b
+
+@[defaultInstance 1]
+instance [Pow α] : HPow α α α where
+  hPow a b := Pow.pow a b
+
+open HAdd (hAdd)
+open HMul (hMul)
+open HPow (hPow)
 open Append (append)
 
 @[reducible] def GreaterEq {α : Type u} [HasLessEq α] (a b : α) : Prop := LessEq b a
@@ -388,7 +448,7 @@ instance : Add Nat where
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
-attribute [matchPattern] Nat.add Add.add Neg.neg
+attribute [matchPattern] Nat.add Add.add HAdd.hAdd Neg.neg
 
 set_option bootstrap.gen_matcher_code false in
 @[extern "lean_nat_mul"]
@@ -405,7 +465,7 @@ protected def Nat.pow (m : @& Nat) : (@& Nat) → Nat
   | 0      => 1
   | succ n => Nat.mul (Nat.pow m n) m
 
-instance : Pow Nat Nat where
+instance : Pow Nat where
   pow := Nat.pow
 
 set_option bootstrap.gen_matcher_code false in
@@ -739,13 +799,13 @@ instance : DecidableEq UInt64 := UInt64.decEq
 instance : Inhabited UInt64 where
   default := UInt64.ofNatCore 0 decide!
 
-def USize.size : Nat := pow 2 System.Platform.numBits
+def USize.size : Nat := hPow 2 System.Platform.numBits
 
 theorem usizeSzEq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
-  show Or (Eq (pow 2 System.Platform.numBits) 4294967296) (Eq (pow 2 System.Platform.numBits) 18446744073709551616) from
+  show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBitsEq with
-  | _, Or.inl rfl => Or.inl (decide! : (Eq (pow 2 32) (4294967296:Nat)))
-  | _, Or.inr rfl => Or.inr (decide! : (Eq (pow 2 64) (18446744073709551616:Nat)))
+  | _, Or.inl rfl => Or.inl (decide! : (Eq (hPow 2 32) (4294967296:Nat)))
+  | _, Or.inr rfl => Or.inr (decide! : (Eq (hPow 2 64) (18446744073709551616:Nat)))
 
 structure USize where
   val : Fin USize.size
@@ -935,7 +995,7 @@ def String.csize (c : Char) : Nat :=
 
 private def String.utf8ByteSizeAux : List Char → Nat → Nat
   | List.nil,       r => r
-  | List.cons c cs, r => utf8ByteSizeAux cs (add r (csize c))
+  | List.cons c cs, r => utf8ByteSizeAux cs (hAdd r (csize c))
 
 @[extern "lean_string_utf8_byte_size"]
 def String.utf8ByteSize : (@& String) → Nat
@@ -1013,7 +1073,7 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
       (fun hlt =>
         match i with
         | 0           => as
-        | Nat.succ i' => loop i' (add j 1) (as.push (bs.get ⟨j, hlt⟩)))
+        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.get ⟨j, hlt⟩)))
       (fun _ => as)
   loop bs.size 0 as
 
@@ -1577,7 +1637,7 @@ partial def getHeadInfo : Syntax → Option SourceInfo
       match decide (Less i args.size) with
       | true => match getHeadInfo (args.get! i) with
          | some info => some info
-         | none      => loop (add i 1)
+         | none      => loop (hAdd i 1)
       | false => none
     loop 0
   | _                => none
@@ -1623,7 +1683,7 @@ abbrev MacroScope := Nat
 /-- Macro scope used internally. It is not available for our frontend. -/
 def reservedMacroScope := 0
 /-- First macro scope available for our frontend -/
-def firstFrontendMacroScope := add reservedMacroScope 1
+def firstFrontendMacroScope := hAdd reservedMacroScope 1
 
 /-- A monad that supports syntax quotations. Syntax quotations (in term
     position) are monadic values that when executed retrieve the current "macro
@@ -1850,14 +1910,14 @@ def throwErrorAt {α} (ref : Syntax) (msg : String) : MacroM α :=
   withRef ref (throwError msg)
 
 @[inline] protected def withFreshMacroScope {α} (x : MacroM α) : MacroM α :=
-  bind (modifyGet (fun s => (s, add s 1))) fun fresh =>
+  bind (modifyGet (fun s => (s, hAdd s 1))) fun fresh =>
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α :=
   bind read fun ctx =>
   match beq ctx.currRecDepth ctx.maxRecDepth with
   | true  => throw (Exception.error ref maxRecDepthErrorMessage)
-  | false => withReader (fun ctx => { ctx with currRecDepth := add ctx.currRecDepth 1 }) x
+  | false => withReader (fun ctx => { ctx with currRecDepth := hAdd ctx.currRecDepth 1 }) x
 
 instance : MonadQuotation MacroM where
   getCurrMacroScope   := fun ctx => pure ctx.currMacroScope

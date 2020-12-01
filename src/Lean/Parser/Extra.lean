@@ -58,7 +58,7 @@ open PrettyPrinter
 @[combinatorFormatter Lean.Parser.ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := Formatter.indent p
 @[combinatorFormatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
   let opts ← getOptions
-  Formatter.indent p (some (0 - Format.getIndent opts))
+  Formatter.indent p (some ((0:Int) - Format.getIndent opts))
 end
 
 namespace Parser

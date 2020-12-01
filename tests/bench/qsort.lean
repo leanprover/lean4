@@ -21,7 +21,6 @@ abbrev Idx := UInt32
 
 macro:max "↑" x:term:max : term => `(UInt32.toNat $x)
 
-
 @[specialize] private partial def partitionAux {α : Type} [Inhabited α] (lt : α → α → Bool) (hi : Idx) (pivot : α) : Array α → Idx → Idx → Idx × Array α
 | as, i, j =>
   if j < hi then
@@ -34,8 +33,9 @@ macro:max "↑" x:term:max : term => `(UInt32.toNat $x)
     let as := as.swap! ↑i ↑hi;
     (i, as)
 
+set_option pp.all true
 @[inline] def partition {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) (lo hi : Idx) : Idx × Array α :=
-let mid := (lo + hi) / 2;
+let mid : Idx := (lo + hi) / 2;
 let as  := if lt (as.get! ↑mid) (as.get! ↑lo) then as.swap! ↑lo ↑mid else as;
 let as  := if lt (as.get! ↑hi)  (as.get! ↑lo) then as.swap! ↑lo ↑hi  else as;
 let as  := if lt (as.get! ↑mid) (as.get! ↑hi) then as.swap! ↑mid ↑hi else as;

@@ -60,26 +60,47 @@ protected def mul (m n : @& Int) : Int :=
   | negSucc m, ofNat n   => negOfNat (succ m * n)
   | negSucc m, negSucc n => ofNat (succ m * succ n)
 
-instance : Neg Int := ⟨Int.neg⟩
-instance : Add Int := ⟨Int.add⟩
-instance : Mul Int := ⟨Int.mul⟩
+instance : Neg Int where
+  neg := Int.neg
+instance : Add Int where
+  add := Int.add
+instance : Mul Int where
+  mul := Int.mul
+
+instance : HAdd Int Nat Int where
+  hAdd a b := Int.add a b
+instance : HAdd Nat Int Int where
+  hAdd a b := Int.add a b
+
+instance : HMul Int Nat Int where
+  hMul a b := Int.mul a b
+instance : HMul Nat Int Int where
+  hMul a b := Int.mul a b
 
 @[extern "lean_int_sub"]
 protected def sub (m n : @& Int) : Int :=
   m + (- n)
 
-instance : Sub Int := ⟨Int.sub⟩
+instance : Sub Int where
+  sub := Int.sub
+
+instance : HSub Int Nat Int where
+  hSub a b := Int.sub a b
+instance : HSub Nat Int Int where
+  hSub a b := Int.sub a b
 
 inductive NonNeg : Int → Prop where
   | mk (n : Nat) : NonNeg (ofNat n)
 
 protected def LessEq (a b : Int) : Prop := NonNeg (b - a)
 
-instance : HasLessEq Int := ⟨Int.LessEq⟩
+instance : HasLessEq Int where
+  LessEq := Int.LessEq
 
 protected def Less (a b : Int) : Prop := (a + 1) ≤ b
 
-instance : HasLess Int := ⟨Int.Less⟩
+instance : HasLess Int where
+  Less := Int.Less
 
 set_option bootstrap.gen_matcher_code false in
 @[extern "lean_int_dec_eq"]
@@ -122,9 +143,14 @@ protected def repr : Int → String
   | ofNat m   => Nat.repr m
   | negSucc m => "-" ++ Nat.repr (succ m)
 
-instance : Repr Int := ⟨Int.repr⟩
-instance : ToString Int := ⟨Int.repr⟩
-instance : OfNat Int n := ⟨Int.ofNat n⟩
+instance : Repr Int where
+  repr := Int.repr
+
+instance : ToString Int where
+  toString := Int.repr
+
+instance : OfNat Int n where
+  ofNat := Int.ofNat n
 
 @[extern "lean_int_div"]
 def div : (@& Int) → (@& Int) → Int
@@ -140,14 +166,34 @@ def mod : (@& Int) → (@& Int) → Int
   | negSucc m, ofNat n   => -ofNat (succ m % n)
   | negSucc m, negSucc n => -ofNat (succ m % succ n)
 
-instance : Div Int := ⟨Int.div⟩
-instance : Mod Int := ⟨Int.mod⟩
+instance : Div Int where
+  div := Int.div
+
+instance : Mod Int where
+  mod := Int.mod
+
+instance : HDiv Int Nat Int where
+  hDiv a b := Int.div a b
+instance : HDiv Nat Int Int where
+  hDiv a b := Int.div a b
+
+instance : HMod Int Nat Int where
+  hMod a b := Int.mod a b
+instance : HMod Nat Int Int where
+  hMod a b := Int.mod a b
 
 def toNat : Int → Nat
   | ofNat n   => n
   | negSucc n => 0
 
 def natMod (m n : Int) : Nat := (m % n).toNat
+
+protected def Int.pow (m : Int) : Nat → Int
+  | 0      => 1
+  | succ n => Int.pow m n * m
+
+instance : HPow Int Nat Int where
+  hPow := Int.pow
 
 end Int
 

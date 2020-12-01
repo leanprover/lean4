@@ -146,36 +146,33 @@ def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Nam
     else
       return none
 
-def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) : MetaM (Option (List SyntheticMVarDecl)) :=
+def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) (prio : Nat) : MetaM (Option (List SyntheticMVarDecl)) :=
   withMVarContext mvarId do
     let mvarType := (← Meta.getMVarDecl mvarId).type
-     match (← isClass? mvarType) with
-     | none => return none
-     | some className =>
-       match (← getDefaultInstances className) with
-       | [] => return none
-       | defaultInstances =>
-         for (defaultInstance, prio) in defaultInstances do
+    match (← isClass? mvarType) with
+    | none => return none
+    | some className =>
+      match (← getDefaultInstances className) with
+      | [] => return none
+      | defaultInstances =>
+        for (defaultInstance, instPrio) in defaultInstances do
+          if instPrio == prio then
             match (← tryToSynthesizeUsingDefaultInstance mvarId defaultInstance) with
             | some newMVarDecls => return some newMVarDecls
             | none => continue
-         return none
+        return none
 
-/--
-  Apply default value to any pending synthetic metavariable of kind `SyntheticMVarKind.withDefault`
-  Return true if something was synthesized. -/
-def synthesizeUsingDefault : TermElabM Bool := do
-  let s ← get
-  let currLength := s.syntheticMVars.length
+/- Used to implement `synthesizeUsingDefault`. This method only consider default instances with the given priority. -/
+def synthesizeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
   let mut syntheticMVarsNew := []
   let mut modified := false
   /- Recall that s.syntheticMVars is essentially a stack. The first metavariable was the last one created.
      We want to apply the default instance in reverse creation order. Otherwise,
      `toString 0` will produce a `OfNat String` cannot be synthesized error. -/
-  for mvarDecl in s.syntheticMVars.reverse do
+  for mvarDecl in (← get).syntheticMVars.reverse do
     match mvarDecl.kind with
     | SyntheticMVarKind.typeClass =>
-        match (← withRef mvarDecl.stx <| tryToSynthesizeUsingDefaultInstances mvarDecl.mvarId) with
+        match (← withRef mvarDecl.stx <| tryToSynthesizeUsingDefaultInstances mvarDecl.mvarId prio) with
         | none =>
           syntheticMVarsNew := mvarDecl :: syntheticMVarsNew
         | some newMVarDecls =>
@@ -184,6 +181,17 @@ def synthesizeUsingDefault : TermElabM Bool := do
     | _ => syntheticMVarsNew := mvarDecl :: syntheticMVarsNew
   modify fun s => { s with syntheticMVars := syntheticMVarsNew }
   return modified
+
+/--
+  Apply default value to any pending synthetic metavariable of kind `SyntheticMVarKind.withDefault`
+  Return true if something was synthesized. -/
+def synthesizeUsingDefault : TermElabM Bool := do
+  let prioSet ← getDefaultInstancesPriorities
+  /- Recall that `prioSet` is stored in descending order -/
+  for prio in prioSet do
+    if (← synthesizeUsingDefaultPrio prio) then
+      return true
+  return false
 
 /-- Report an error for each synthetic metavariable that could not be resolved. -/
 private def reportStuckSyntheticMVars : TermElabM Unit := do

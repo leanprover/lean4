@@ -67,27 +67,12 @@ instance : Add Int where
 instance : Mul Int where
   mul := Int.mul
 
-instance : HAdd Int Nat Int where
-  hAdd a b := Int.add a b
-instance : HAdd Nat Int Int where
-  hAdd a b := Int.add a b
-
-instance : HMul Int Nat Int where
-  hMul a b := Int.mul a b
-instance : HMul Nat Int Int where
-  hMul a b := Int.mul a b
-
 @[extern "lean_int_sub"]
 protected def sub (m n : @& Int) : Int :=
   m + (- n)
 
 instance : Sub Int where
   sub := Int.sub
-
-instance : HSub Int Nat Int where
-  hSub a b := Int.sub a b
-instance : HSub Nat Int Int where
-  hSub a b := Int.sub a b
 
 inductive NonNeg : Int → Prop where
   | mk (n : Nat) : NonNeg (ofNat n)
@@ -171,16 +156,6 @@ instance : Div Int where
 
 instance : Mod Int where
   mod := Int.mod
-
-instance : HDiv Int Nat Int where
-  hDiv a b := Int.div a b
-instance : HDiv Nat Int Int where
-  hDiv a b := Int.div a b
-
-instance : HMod Int Nat Int where
-  hMod a b := Int.mod a b
-instance : HMod Nat Int Int where
-  hMod a b := Int.mod a b
 
 def toNat : Int → Nat
   | ofNat n   => n

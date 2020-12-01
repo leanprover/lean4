@@ -149,3 +149,35 @@ instance [CoeFun α (fun _ => β)] : CoeTail α β  where
 
 instance [CoeSort α β] : CoeTail α β where
   coe a := coeSort a
+
+/- Coe and heterogeneous operators, we use `CoeTC` instead of `CoeT` to avoid expensive coercions such as `CoeDep` -/
+
+instance [CoeTC α β] [Add β] : HAdd α β β where
+  hAdd a b := Add.add a b
+
+instance [CoeTC α β] [Add β] : HAdd β α β where
+  hAdd a b := Add.add a b
+
+instance [CoeTC α β] [Sub β] : HSub α β β where
+  hSub a b := Sub.sub a b
+
+instance [CoeTC α β] [Sub β] : HSub β α β where
+  hSub a b := Sub.sub a b
+
+instance [CoeTC α β] [Mul β] : HMul α β β where
+  hMul a b := Mul.mul a b
+
+instance [CoeTC α β] [Mul β] : HMul β α β where
+  hMul a b := Mul.mul a b
+
+instance [CoeTC α β] [Div β] : HDiv α β β where
+  hDiv a b := Div.div a b
+
+instance [CoeTC α β] [Div β] : HDiv β α β where
+  hDiv a b := Div.div a b
+
+instance [CoeTC α β] [Mod β] : HMod α β β where
+  hMod a b := Mod.mod a b
+
+instance [CoeTC α β] [Mod β] : HMod β α β where
+  hMod a b := Mod.mod a b

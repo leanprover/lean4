@@ -118,7 +118,7 @@ builtin_initialize
     descr := "type class default instance",
     add   := fun declName args persistent => do
       let prio ←
-        if args.isNone then
+        if args.getNumArgs == 0 then
           pure 0
         else if args.getNumArgs == 1 then
           match args[0].isNatLit? with

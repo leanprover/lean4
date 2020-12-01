@@ -4,6 +4,9 @@ class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hadd : α → β → γ
 
+instance [Mul α] : HMul α (Array α) (Array α) where
+  hmul a as := as.map (a * .)
+
 @[defaultInstance 1]
 instance [Mul α] : HMul α α α where
   hmul a b := a * b
@@ -11,9 +14,6 @@ instance [Mul α] : HMul α α α where
 @[defaultInstance 1]
 instance [Add α] : HAdd α α α where
   hadd a b := a + b
-
-instance [Mul α] : HMul α (Array α) (Array α) where
-  hmul a as := as.map (a * .)
 
 infix:70 [1] "*" => HMul.hmul
 
@@ -53,4 +53,12 @@ def f5 (n : Nat) (i : Int) :=
 #eval (2:Nat) * #[3, 4, 5]
 
 def f6 (n : Nat) (i : Int) :=
-  n + n * (2:Nat) * i
+  let y := 2 * i
+  let x := y * n
+  n + x
+
+def f7 (n : Nat) (i : Int) :=
+  n + (n * 2 * i)
+
+def f8 (n : Nat) (i : Int) :=
+  n * 2 + (i * 1 * n * 2 * i)

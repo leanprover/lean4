@@ -20,7 +20,7 @@ variables {α : Type u}
 open List
 
 def ofList (l : List α) : DList α :=
-  ⟨Append.append l, fun t => by rw appendNil⟩
+  ⟨(l ++ ·), fun t => by show _ = (l ++ []) ++ _; rw appendNil⟩
 
 def empty : DList α :=
   ⟨id, fun t => rfl⟩

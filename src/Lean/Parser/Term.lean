@@ -170,11 +170,6 @@ def matchAltsWhereDecls := parser! matchAlts false >> optional whereDecls
 @[builtinTermParser] def ensureTypeOf       := parser! "ensureTypeOf! " >> termParser maxPrec >> strLit >> termParser
 @[builtinTermParser] def ensureExpectedType := parser! "ensureExpectedType! " >> strLit >> termParser maxPrec
 
-@[builtinTermParser] def not    := parser! "¬" >> termParser 40
-@[builtinTermParser] def bnot   := parser! "!" >> termParser 40
--- symbol precedence should be higher, but must match the one of `sub` below
-@[builtinTermParser] def uminus := parser!:65 "-" >> termParser 100
-
 def namedArgument  := parser! atomic ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := parser! ".."
 @[builtinTermParser] def app      := tparser!:(maxPrec-1) many1 $

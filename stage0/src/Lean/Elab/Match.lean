@@ -748,15 +748,13 @@ private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltVi
    ```
    If `synthesizeSyntheticMVarsNoPostponing`, the example above fails at `x.fst` because
    the type of `x` is only available adfer we proces the last argument of `List.forM`.
-  -/
-  synthesizeSyntheticMVars
-  /-
+
    We apply pending default types to make sure we can process examples such as
    ```
    let (a, b) := (0, 0)
    ```
   -/
-  synthesizeUsingDefault
+  synthesizeSyntheticMVarsUsingDefault
   let rhss := alts.map Prod.snd
   let matchType ← instantiateMVars matchType
   let altLHSS ← alts.toList.mapM fun alt => do

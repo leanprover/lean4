@@ -163,24 +163,6 @@ private def getPropToDecide (expectedType? : Option Expr) : TermElabM Expr := do
   let rflPrf ← mkEqRefl (toExpr true)
   pure $ mkApp3 (Lean.mkConst `ofDecideEqTrue) p s rflPrf
 
-def expandInfix (f : Syntax) : Macro := fun stx => do
-  -- term `op` term
-  let a := stx[0]
-  let b := stx[2]
-  pure (Syntax.mkApp f #[a, b])
-
-def expandInfixOp (op : Name) : Macro := fun stx =>
-  expandInfix (mkCIdentFrom stx[1] op) stx
-
-def expandPrefixOp (op : Name) : Macro := fun stx => do
-  -- `op` term
-  let a := stx[1]
-  pure (Syntax.mkApp (mkCIdentFrom stx[0] op) #[a])
-
-@[builtinMacro Lean.Parser.Term.not] def expandNot : Macro := expandPrefixOp `Not
-@[builtinMacro Lean.Parser.Term.bnot] def expandBNot : Macro := expandPrefixOp `not
-@[builtinMacro Lean.Parser.Term.uminus] def expandUMinus : Macro := expandPrefixOp `Neg.neg
-
 @[builtinTermElab panic] def elabPanic : TermElab := fun stx expectedType? => do
   let arg := stx[1]
   let pos ← getRefPosition

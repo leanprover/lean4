@@ -1910,4 +1910,22 @@ end Macro
 
 export Macro (expandMacro?)
 
+namespace PrettyPrinter
+
+abbrev UnexpandM := EStateM Unit Unit
+
+/--
+  Function that tries to reverse macro expansions as a post-processing step of delaboration.
+  While less general than an arbitrary delaborator, it can be declared without importing `Lean`.
+  Used by the `[appUnexpander]` attribute. -/
+abbrev Unexpander := Syntax → UnexpandM Syntax
+
+-- unexpanders should not need to introduce new names
+instance : MonadQuotation UnexpandM where
+  getCurrMacroScope   := pure 0
+  getMainModule       := pure `_fakeMod
+  withFreshMacroScope := id
+
+end PrettyPrinter
+
 end Lean

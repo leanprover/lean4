@@ -357,7 +357,6 @@ extern lean_object* l_Lean_Parser_Term_match___elambda__1___closed__7;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_atomic_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_7407____closed__3;
 lean_object* l_Lean_Parser_Command_elab__rules___closed__5;
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_1681____closed__2;
 lean_object* l_Lean_Parser_Command_macro___closed__5;
 lean_object* l_Lean_Parser_optPrecedence_formatter___closed__1;
 lean_object* l_Lean_Parser_many1Fn(lean_object*, lean_object*, lean_object*);
@@ -867,6 +866,7 @@ lean_object* l_Lean_Parser_precedenceLit___closed__3;
 lean_object* l_Lean_Parser_Command_parserKind___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Command_optKindPrio___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Command_optKindPrio___elambda__1(lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_1512____closed__2;
 lean_object* l_Lean_Parser_Syntax_nonReserved_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Syntax_atom___closed__1;
 lean_object* l_Lean_Parser_Command_macroArgSimple___elambda__1___closed__10;
@@ -13938,7 +13938,7 @@ static lean_object* _init_l_Lean_Parser_Command_elabTail___elambda__1___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_1681____closed__2;
+x_1 = l___kind_term____x40_Init_Notation___hyg_1512____closed__2;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -14488,7 +14488,7 @@ static lean_object* _init_l_Lean_Parser_Command_elabTail_formatter___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_1681____closed__2;
+x_1 = l___kind_term____x40_Init_Notation___hyg_1512____closed__2;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

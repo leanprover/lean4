@@ -85,6 +85,7 @@ lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_InitParamMap_visitFnBody_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_Borrow_updateParamMap___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Int_Int_pow___closed__1;
 lean_object* l_Lean_IR_Borrow_BorrowInfState_owned___default;
 lean_object* l_Lean_IR_Borrow_OwnedSet_beq_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_instToFormatParamMap___closed__1;
@@ -229,7 +230,6 @@ lean_object* l_Lean_IR_Borrow_InitParamMap_visitFnBody_match__1(lean_object*);
 lean_object* l_Lean_IR_Borrow_getParamInfo___closed__4;
 lean_object* l_Lean_IR_Borrow_updateParamMap_match__1(lean_object*);
 lean_object* l_Lean_IR_Borrow_ownParamsUsingArgs_match__1(lean_object*);
-extern lean_object* l_stdNext___closed__7;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_BorrowInfCtx_currFn___default;
 lean_object* l_Lean_IR_Borrow_preserveTailCall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1177,7 +1177,7 @@ static lean_object* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_stdNext___closed__7;
+x_1 = l_Int_Int_pow___closed__1;
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1243,7 +1243,7 @@ x_10 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
 x_11 = lean_box(0);
 x_12 = l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_ParamMap_fmt___spec__2(x_2, x_9, x_10, x_11);
-x_13 = l_stdNext___closed__7;
+x_13 = l_Int_Int_pow___closed__1;
 x_14 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_12);

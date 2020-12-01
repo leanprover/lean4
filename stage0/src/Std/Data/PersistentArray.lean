@@ -144,7 +144,7 @@ private def emptyArray {α : Type u} : Array (PersistentArrayNode α) :=
 partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (PersistentArrayNode α)
   | n@(node cs) =>
     if h : cs.size ≠ 0 then
-      let idx : Fin cs.size := ⟨cs.size - 1, Nat.predLt h⟩
+      let idx : Fin cs.size := ⟨cs.size - 1, by exact Nat.predLt h⟩
       let last := cs.get idx
       let cs'  := cs.set idx arbitrary
       match popLeaf last with

@@ -29,7 +29,6 @@ lean_object* l_EStateM_instMonadFinallyEStateM_match__1___rarg(lean_object*, lea
 lean_object* l_EStateM_instToStringResult_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadFinallyEStateM(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orElse_x27_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11474____closed__21;
 lean_object* l_EStateM_instToStringResult___rarg___closed__1;
 lean_object* l_EStateM_instReprResult(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instReprResult_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44,6 +43,7 @@ lean_object* l_EStateM_orElse_x27_match__1___rarg(lean_object*, lean_object*, le
 lean_object* l_EStateM_instMonadFinallyEStateM_match__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadFinallyEStateM_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadFinallyEStateM_match__2___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11163____closed__21;
 lean_object* l_EStateM_orElse_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orElse_x27_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instToStringResult_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -189,7 +189,7 @@ x_5 = lean_apply_1(x_2, x_4);
 x_6 = l_Except_toString___rarg___closed__2;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_myMacro____x40_Init_Notation___hyg_11474____closed__21;
+x_8 = l_myMacro____x40_Init_Notation___hyg_11163____closed__21;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -204,7 +204,7 @@ x_11 = lean_apply_1(x_1, x_10);
 x_12 = l_Except_toString___rarg___closed__1;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);
-x_14 = l_myMacro____x40_Init_Notation___hyg_11474____closed__21;
+x_14 = l_myMacro____x40_Init_Notation___hyg_11163____closed__21;
 x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }

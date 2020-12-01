@@ -13,13 +13,12 @@ syntax[rawNatLit] "natLit! " num : term
 infixr:90 " ∘ "  => Function.comp
 infixr:35 " × "  => Prod
 
-infixl:65 " + "  => Add.add
-infixl:65 " - "  => Sub.sub
-infixl:70 " * "  => Mul.mul
-infixl:70 " / "  => Div.div
-infixl:70 " % "  => Mod.mod
-infixl:70 " %ₙ " => ModN.modn
-infixr:80 " ^ "  => Pow.pow
+infixl:65 " + "  => HAdd.hAdd
+infixl:65 " - "  => HSub.hSub
+infixl:70 " * "  => HMul.hMul
+infixl:70 " / "  => HDiv.hDiv
+infixl:70 " % "  => HMod.hMod
+infixr:80 " ^ "  => HPow.hPow
 prefix:100 "-"   => Neg.neg
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins

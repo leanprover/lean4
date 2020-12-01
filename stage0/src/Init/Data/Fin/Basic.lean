@@ -67,12 +67,12 @@ instance : Sub (Fin n)         := ⟨Fin.sub⟩
 instance : Mul (Fin n)         := ⟨Fin.mul⟩
 instance : Mod (Fin n)         := ⟨Fin.mod⟩
 instance : Div (Fin n)         := ⟨Fin.div⟩
-instance : ModN (Fin n)        := ⟨Fin.modn⟩
+instance : HMod (Fin n) Nat (Fin n) := ⟨Fin.modn⟩
 
 theorem vneOfNe {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eqOfVeq h') h
 
-theorem modnLt : ∀ {m : Nat} (i : Fin n), m > 0 → (i %ₙ m).val < m
+theorem modnLt : ∀ {m : Nat} (i : Fin n), m > 0 → (i % m).val < m
   | m, ⟨a, h⟩, hp =>  Nat.ltOfLeOfLt (modLe _ _) (modLt _ hp)
 
 end Fin

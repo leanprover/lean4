@@ -38,6 +38,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Fin_sub_match__1(lean_object*, lean_object*);
 lean_object* l_Fin_mod_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_elim0_match__1(lean_object*);
+lean_object* l_Fin_instHModFinNatFin(lean_object*);
 lean_object* l_Fin_coeToNat___boxed(lean_object*);
 lean_object* l_Fin_modn_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_add(lean_object*, lean_object*, lean_object*);
@@ -46,7 +47,6 @@ lean_object* l_Fin_sub(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_mul_match__1___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_div_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_mul_match__1(lean_object*, lean_object*);
-lean_object* l_Fin_instModNFin(lean_object*);
 lean_object* l_Fin_div_match__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
 lean_object* l_Fin_sub___boxed(lean_object*, lean_object*, lean_object*);
@@ -592,7 +592,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Fin_instModNFin(lean_object* x_1) {
+lean_object* l_Fin_instHModFinNatFin(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

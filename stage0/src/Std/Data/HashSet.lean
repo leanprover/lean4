@@ -28,7 +28,7 @@ namespace HashSetImp
 variables {α : Type u}
 
 def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
-  ⟨u %ₙ n, USize.modnLt _ h⟩
+  ⟨u % n, USize.modnLt _ h⟩
 
 @[inline] def reinsertAux (hashFn : α → USize) (data : HashSetBucket α) (a : α) : HashSetBucket α :=
   let ⟨i, h⟩ := mkIdx data.property (hashFn a)

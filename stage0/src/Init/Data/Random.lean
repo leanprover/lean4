@@ -37,12 +37,14 @@ instance : Inhabited StdGen := ⟨{ s1 := 0, s2 := 0 }⟩
 
 def stdRange := (1, 2147483562)
 
-instance : Repr StdGen := {
+instance : Repr StdGen where
   repr := fun ⟨s1, s2⟩ => "⟨" ++ toString s1 ++ ", " ++ toString s2 ++ "⟩"
-}
+
 
 def stdNext : StdGen → Nat × StdGen
   | ⟨s1, s2⟩ =>
+    let s1   : Int := s1
+    let s2   : Int := s2
     let k    : Int := s1 / 53668
     let s1'  : Int := 40014 * ((s1 : Int) - k * 53668) - k * 12211
     let s1'' : Int := if s1' < 0 then s1' + 2147483563 else s1'

@@ -197,9 +197,9 @@ uint8_t l_instDecidableFalse;
 lean_object* l_instDecidableArrow(lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Core___hyg_1461____closed__4;
 lean_object* l_prodHasDecidableLt___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_2793____closed__4;
 lean_object* l_Quotient_mk___rarg(lean_object*);
 lean_object* l_Prod_map___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_3104____closed__4;
 lean_object* l___kind_term____x40_Init_Core___hyg_966____closed__5;
 lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*);
 lean_object* l_instDecidableEqProd_match__4___rarg(lean_object*, lean_object*);
@@ -1079,7 +1079,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_rawNatLit___closed__4;
 x_2 = l___kind_term____x40_Init_Core___hyg_966____closed__3;
-x_3 = l___kind_term____x40_Init_Notation___hyg_3104____closed__4;
+x_3 = l___kind_term____x40_Init_Notation___hyg_2793____closed__4;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -1555,7 +1555,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_rawNatLit___closed__4;
 x_2 = l___kind_term____x40_Init_Core___hyg_1426____closed__3;
-x_3 = l___kind_term____x40_Init_Notation___hyg_3104____closed__4;
+x_3 = l___kind_term____x40_Init_Notation___hyg_2793____closed__4;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -1925,7 +1925,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_rawNatLit___closed__4;
 x_2 = l___kind_term____x40_Init_Core___hyg_1962____closed__3;
-x_3 = l___kind_term____x40_Init_Notation___hyg_3104____closed__4;
+x_3 = l___kind_term____x40_Init_Notation___hyg_2793____closed__4;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);

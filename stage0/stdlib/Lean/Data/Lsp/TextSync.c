@@ -37,6 +37,7 @@ lean_object* l_Lean_Lsp_instToJsonSaveOptions___boxed(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncOptions___closed__7;
 lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncKind(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonSaveOptions___closed__1;
+extern lean_object* l_Int_Int_pow___closed__1;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonLocation___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instFromJsonDidChangeTextDocumentParams___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -77,7 +78,6 @@ lean_object* l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent(lean_object*)
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonDidOpenTextDocumentParams___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncKind_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___closed__1;
-extern lean_object* l_stdNext___closed__7;
 lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncKind___boxed(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonDidChangeTextDocumentParams___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instFromJsonDidChangeTextDocumentParams___spec__2(size_t, size_t, lean_object*);
@@ -365,7 +365,7 @@ static lean_object* _init_l_Lean_Lsp_instToJsonTextDocumentSyncKind___closed__3(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_stdNext___closed__7;
+x_1 = l_Int_Int_pow___closed__1;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

@@ -41,7 +41,6 @@ lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonLocation___sp
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instFromJsonDidChangeTextDocumentParams___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonPosition___spec__1(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___closed__7;
 lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind(uint8_t);
 lean_object* l_Lean_Lsp_instFromJsonDidOpenTextDocumentParams(lean_object*);
@@ -122,18 +121,17 @@ x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_dec_eq(x_7, x_8);
 if (x_9 == 0)
 {
-lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+lean_object* x_10; uint8_t x_11; 
 lean_dec(x_2);
 x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_sub(x_7, x_10);
-lean_dec(x_7);
-x_12 = lean_nat_dec_eq(x_11, x_8);
-if (x_12 == 0)
+x_11 = lean_nat_dec_eq(x_7, x_10);
+if (x_11 == 0)
 {
-uint8_t x_13; 
+lean_object* x_12; uint8_t x_13; 
 lean_dec(x_3);
-x_13 = lean_nat_dec_eq(x_11, x_10);
-lean_dec(x_11);
+x_12 = lean_unsigned_to_nat(2u);
+x_13 = lean_nat_dec_eq(x_7, x_12);
+lean_dec(x_7);
 if (x_13 == 0)
 {
 lean_object* x_14; 
@@ -154,7 +152,7 @@ return x_16;
 else
 {
 lean_object* x_17; lean_object* x_18; 
-lean_dec(x_11);
+lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
@@ -240,16 +238,15 @@ x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_nat_dec_eq(x_4, x_5);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_7; uint8_t x_8; 
 x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_sub(x_4, x_7);
-lean_dec(x_4);
-x_9 = lean_nat_dec_eq(x_8, x_5);
-if (x_9 == 0)
+x_8 = lean_nat_dec_eq(x_4, x_7);
+if (x_8 == 0)
 {
-uint8_t x_10; 
-x_10 = lean_nat_dec_eq(x_8, x_7);
-lean_dec(x_8);
+lean_object* x_9; uint8_t x_10; 
+x_9 = lean_unsigned_to_nat(2u);
+x_10 = lean_nat_dec_eq(x_4, x_9);
+lean_dec(x_4);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -266,7 +263,7 @@ return x_12;
 else
 {
 lean_object* x_13; 
-lean_dec(x_8);
+lean_dec(x_4);
 x_13 = l_Lean_Lsp_instFromJsonTextDocumentSyncKind___closed__2;
 return x_13;
 }
@@ -725,16 +722,15 @@ x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_nat_dec_eq(x_8, x_9);
 if (x_10 == 0)
 {
-lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_object* x_11; uint8_t x_12; 
 x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_sub(x_8, x_11);
-lean_dec(x_8);
-x_13 = lean_nat_dec_eq(x_12, x_9);
-if (x_13 == 0)
+x_12 = lean_nat_dec_eq(x_8, x_11);
+if (x_12 == 0)
 {
-uint8_t x_14; 
-x_14 = lean_nat_dec_eq(x_12, x_11);
-lean_dec(x_12);
+lean_object* x_13; uint8_t x_14; 
+x_13 = lean_unsigned_to_nat(2u);
+x_14 = lean_nat_dec_eq(x_8, x_13);
+lean_dec(x_8);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -751,7 +747,7 @@ return x_16;
 else
 {
 lean_object* x_17; 
-lean_dec(x_12);
+lean_dec(x_8);
 x_17 = l_Lean_Lsp_instFromJsonTextDocumentSyncKind___closed__2;
 return x_17;
 }

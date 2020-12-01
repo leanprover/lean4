@@ -110,6 +110,7 @@ lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isPropImp(lean_object*
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_ToHide_hasVisibleDep___spec__23___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_5688____closed__6;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__42(lean_object*, lean_object*, size_t, size_t);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__41(lean_object*, lean_object*, size_t, size_t);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__12(lean_object*, lean_object*, size_t, size_t);
@@ -326,7 +327,6 @@ lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__
 lean_object* l_Lean_Meta_ppGoal_match__1(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__33(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Std_PersistentArray_forM___at_Lean_Meta_ToHide_fixpointStep___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppExpr___at_Lean_Meta_ppGoal_pushPending___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -14702,7 +14702,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
+x_1 = l___kind_term____x40_Init_Notation___hyg_5688____closed__6;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

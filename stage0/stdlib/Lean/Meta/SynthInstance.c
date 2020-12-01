@@ -505,6 +505,7 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_S
 lean_object* l_Lean_Meta_SynthInstance_instInhabitedAnswer;
 lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__3;
 lean_object* l_Std_PersistentHashMap_insertAux___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthInstanceImp_x3f___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_6305____closed__6;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_3236____closed__3;
 lean_object* l_Lean_Meta_SynthInstance_MkTableKey_normExpr(lean_object*, lean_object*, lean_object*);
@@ -520,7 +521,6 @@ lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_mkAn
 lean_object* l_Lean_Meta_SynthInstance_resume___closed__2;
 lean_object* l_Lean_Meta_inferType___at_Lean_Meta_SynthInstance_mkTableKeyFor___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_generate___closed__4;
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_6289____closed__6;
 lean_object* l_Lean_Meta_SynthInstance_main___closed__1;
 lean_object* l_Lean_Meta_SynthInstance_newSubgoal___closed__3;
 lean_object* l_Lean_Meta_SynthInstance_resume___closed__1;
@@ -3857,7 +3857,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_getInstances___lambda__1___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_6289____closed__6;
+x_1 = l___kind_term____x40_Init_Notation___hyg_6305____closed__6;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

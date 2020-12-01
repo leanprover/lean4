@@ -15,7 +15,8 @@ extern "C" {
 #endif
 lean_object* l_Id_instOfNatId___rarg(lean_object*);
 lean_object* l_Id_instMonadId___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Id_instOfNatId(lean_object*);
+lean_object* l_Id_instOfNatId(lean_object*, lean_object*);
+lean_object* l_Id_instOfNatId___boxed(lean_object*, lean_object*);
 lean_object* l_Id_run(lean_object*);
 lean_object* l_Id_instMonadId___lambda__5___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonadId___closed__2;
@@ -251,12 +252,12 @@ lean_inc(x_1);
 return x_1;
 }
 }
-lean_object* l_Id_instOfNatId(lean_object* x_1) {
+lean_object* l_Id_instOfNatId(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Id_instOfNatId___rarg___boxed), 1, 0);
-return x_2;
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Id_instOfNatId___rarg___boxed), 1, 0);
+return x_3;
 }
 }
 lean_object* l_Id_instOfNatId___rarg___boxed(lean_object* x_1) {
@@ -266,6 +267,15 @@ lean_object* x_2;
 x_2 = l_Id_instOfNatId___rarg(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+lean_object* l_Id_instOfNatId___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Id_instOfNatId(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 lean_object* initialize_Init_Core(lean_object*);

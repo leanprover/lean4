@@ -35,6 +35,7 @@ lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__6;
 lean_object* l_Lean_getConstInfo___at_Lean_PrettyPrinter_runForNodeKind___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_getValues___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_54____closed__2;
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__3;
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_4____closed__1;
@@ -42,7 +43,6 @@ lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_4____closed__2;
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__7;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2(lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -279,7 +279,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__2
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_54____closed__2;
 x_2 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -297,7 +297,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__4
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_54____closed__2;
 x_2 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

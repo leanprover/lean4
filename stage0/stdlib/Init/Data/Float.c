@@ -30,7 +30,7 @@ double l_Nat_toFloat(lean_object*);
 lean_object* l_instSubFloat___closed__1;
 lean_object* l_Float_cos___boxed(lean_object*);
 extern uint8_t l_instDecidableTrue;
-lean_object* l_instOfNatFloat;
+double l_instOfNatFloat(lean_object*);
 uint8_t l_Float_beq(double, double);
 double sqrt(double);
 lean_object* l_Float_log10___boxed(lean_object*);
@@ -90,12 +90,12 @@ lean_object* l_Float_sqrt___boxed(lean_object*);
 uint8_t l_floatDecLt(double, double);
 lean_object* l_floatSpec;
 lean_object* l_floatDecLe___boxed(lean_object*, lean_object*);
+lean_object* l_instOfNatFloat___boxed(lean_object*);
 lean_object* l_Float_toString___boxed(lean_object*);
 double exp2(double);
 lean_object* l_instPowFloatFloat___closed__1;
 lean_object* l_instMulFloat;
 lean_object* l_Float_beq___boxed(lean_object*, lean_object*);
-lean_object* l_instOfNatFloat___closed__1;
 lean_object* l_instHasLessEqFloat;
 lean_object* l_instBEqFloat___closed__1;
 lean_object* l_Float_exp___boxed(lean_object*);
@@ -233,20 +233,22 @@ x_6 = lean_box_float(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_instOfNatFloat___closed__1() {
+double l_instOfNatFloat(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Float_ofNat___boxed), 1, 0);
-return x_1;
+double x_2; 
+x_2 = lean_float_of_nat(x_1);
+return x_2;
 }
 }
-static lean_object* _init_l_instOfNatFloat() {
+lean_object* l_instOfNatFloat___boxed(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_instOfNatFloat___closed__1;
-return x_1;
+double x_2; lean_object* x_3; 
+x_2 = l_instOfNatFloat(x_1);
+lean_dec(x_1);
+x_3 = lean_box_float(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_instAddFloat___closed__1() {
@@ -744,10 +746,6 @@ l_instInhabitedFloat___closed__1 = _init_l_instInhabitedFloat___closed__1();
 lean_mark_persistent(l_instInhabitedFloat___closed__1);
 l_instInhabitedFloat = _init_l_instInhabitedFloat();
 lean_mark_persistent(l_instInhabitedFloat);
-l_instOfNatFloat___closed__1 = _init_l_instOfNatFloat___closed__1();
-lean_mark_persistent(l_instOfNatFloat___closed__1);
-l_instOfNatFloat = _init_l_instOfNatFloat();
-lean_mark_persistent(l_instOfNatFloat);
 l_instAddFloat___closed__1 = _init_l_instAddFloat___closed__1();
 lean_mark_persistent(l_instAddFloat___closed__1);
 l_instAddFloat = _init_l_instAddFloat();

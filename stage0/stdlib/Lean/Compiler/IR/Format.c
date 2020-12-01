@@ -32,7 +32,6 @@ lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed_
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_IR_formatFnBodyHead___closed__33;
-extern lean_object* l___kind_stx____x40_Init_Notation___hyg_7943____closed__2;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__15;
 extern lean_object* l_Lean_IR_instToStringJoinPointId___closed__1;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__9;
@@ -48,11 +47,11 @@ lean_object* l_Lean_IR_formatAlt___closed__1;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__8;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__17;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__24;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_8830____closed__15;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__22;
 extern lean_object* l_Lean_Parser_Tactic_let___closed__2;
 lean_object* l_Lean_IR_instToStringIRType___closed__1;
 lean_object* l_Lean_IR_formatFnBody_loop(lean_object*, lean_object*);
+extern lean_object* l___kind_stx____x40_Init_Notation___hyg_7959____closed__2;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__5;
@@ -68,6 +67,7 @@ lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed_
 extern lean_object* l_Lean_formatKVMap___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_formatParams___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_formatArray___at_Lean_IR_formatParams___spec__1(lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_5688____closed__6;
 lean_object* l_Lean_IR_formatAlt___closed__2;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__19;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__11;
@@ -191,7 +191,6 @@ lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___close
 extern lean_object* l_Lean_instReprFormat___closed__1;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatParam_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo(lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatParam(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatParam_match__1(lean_object*);
 lean_object* l_Lean_IR_formatDecl___closed__4;
@@ -226,6 +225,7 @@ lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___close
 lean_object* l_Lean_IR_formatFnBodyHead___closed__19;
 lean_object* l_Lean_IR_formatAlt_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__16;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_8846____closed__15;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__36;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_IR_formatFnBody_loop___closed__3;
@@ -1242,7 +1242,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_stx____x40_Init_Notation___hyg_7943____closed__2;
+x_1 = l___kind_stx____x40_Init_Notation___hyg_7959____closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -2503,7 +2503,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatP
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
+x_1 = l___kind_term____x40_Init_Notation___hyg_5688____closed__6;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -4459,7 +4459,7 @@ static lean_object* _init_l_Lean_IR_formatFnBody_loop___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_8830____closed__15;
+x_1 = l_myMacro____x40_Init_Notation___hyg_8846____closed__15;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

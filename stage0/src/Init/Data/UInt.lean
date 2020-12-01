@@ -33,7 +33,7 @@ def UInt8.lor (a b : UInt8) : UInt8 := ⟨Fin.lor a.val b.val⟩
 def UInt8.lt (a b : UInt8) : Prop := a.val < b.val
 def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
 
-instance : OfNat UInt8     := ⟨UInt8.ofNat⟩
+instance : OfNat UInt8 n   := ⟨UInt8.ofNat n⟩
 instance : Add UInt8       := ⟨UInt8.add⟩
 instance : Sub UInt8       := ⟨UInt8.sub⟩
 instance : Mul UInt8       := ⟨UInt8.mul⟩
@@ -83,7 +83,7 @@ def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
 def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
 
 
-instance : OfNat UInt16     := ⟨UInt16.ofNat⟩
+instance : OfNat UInt16 n   := ⟨UInt16.ofNat n⟩
 instance : Add UInt16       := ⟨UInt16.add⟩
 instance : Sub UInt16       := ⟨UInt16.sub⟩
 instance : Mul UInt16       := ⟨UInt16.mul⟩
@@ -136,7 +136,7 @@ def UInt32.toUInt16 (a : UInt32) : UInt16 := a.toNat.toUInt16
 @[extern c inline "((uint32_t)#1)"]
 def UInt8.toUInt32 (a : UInt8) : UInt32 := a.toNat.toUInt32
 
-instance : OfNat UInt32     := ⟨UInt32.ofNat⟩
+instance : OfNat UInt32 n   := ⟨UInt32.ofNat n⟩
 instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
 instance : Mul UInt32       := ⟨UInt32.mul⟩
@@ -187,7 +187,7 @@ constant UInt64.shiftLeft (a b : UInt64) : UInt64
 @[extern c inline "#1 >> #2"]
 constant UInt64.shiftRight (a b : UInt64) : UInt64
 
-instance : OfNat UInt64     := ⟨UInt64.ofNat⟩
+instance : OfNat UInt64 n   := ⟨UInt64.ofNat n⟩
 instance : Add UInt64       := ⟨UInt64.add⟩
 instance : Sub UInt64       := ⟨UInt64.sub⟩
 instance : Mul UInt64       := ⟨UInt64.mul⟩
@@ -254,7 +254,7 @@ constant USize.shiftRight (a b : USize) : USize
 def USize.lt (a b : USize) : Prop := a.val < b.val
 def USize.le (a b : USize) : Prop := a.val ≤ b.val
 
-instance : OfNat USize     := ⟨USize.ofNat⟩
+instance : OfNat USize n   := ⟨USize.ofNat n⟩
 instance : Add USize       := ⟨USize.add⟩
 instance : Sub USize       := ⟨USize.sub⟩
 instance : Mul USize       := ⟨USize.mul⟩

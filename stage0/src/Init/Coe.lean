@@ -130,9 +130,8 @@ instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α :=
   Remark: one may question why we use `OfNat α` instead of `Coe Nat α`.
   Reason: `OfNat` is for implementing polymorphic numeric literals, and we may
   want to have numberic literals for a type α and **no** coercion from `Nat` to `α`. -/
-instance hasOfNatOfCoe {α : Type u} {β : Type v} [OfNat α] [Coe α β] : OfNat β := {
-  ofNat := fun (n : Nat) => coe (OfNat.ofNat n : α)
-}
+instance hasOfNatOfCoe [OfNat α n] [Coe α β] : OfNat β n where
+  ofNat := coe (OfNat.ofNat n : α)
 
 @[inline] def liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
   let a ← liftM x

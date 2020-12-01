@@ -78,7 +78,6 @@ lean_object* l_Lean_Level_mkData___closed__4;
 lean_object* l_Nat_max(lean_object*, lean_object*);
 lean_object* l_Lean_Level_getOffsetAux(lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasParam(lean_object*);
-extern lean_object* l___kind_stx____x40_Init_Notation___hyg_7296____closed__8;
 lean_object* l_Lean_Level_LevelToFormat_parenIfFalse_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_depth(lean_object*);
 lean_object* l_Lean_Level_isSucc___boxed(lean_object*);
@@ -273,8 +272,10 @@ lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at_Lean_Level_
 size_t lean_usize_mix_hash(size_t, size_t);
 lean_object* lean_level_mk_zero(lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_Result_imax_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_stx____x40_Init_Notation___hyg_7312____closed__8;
 uint8_t l_Lean_Level_isZero(lean_object*);
 lean_object* l_Lean_Level_hasParam___boxed(lean_object*);
+extern lean_object* l___kind_stx____x40_Init_Notation___hyg_7364____closed__2;
 uint8_t l_Lean_Level_occurs(lean_object*, lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_mkIMaxAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_hashEx___boxed(lean_object*);
@@ -296,7 +297,6 @@ lean_object* l_Lean_Level_instBEqLevel___closed__1;
 lean_object* l_Lean_Level_isMVar_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_toResult___closed__1;
-extern lean_object* l___kind_stx____x40_Init_Notation___hyg_7348____closed__2;
 lean_object* l_Lean_Level_updateMax_x21_match__1(lean_object*);
 lean_object* l_Lean_levelOne;
 uint8_t lean_level_eq(lean_object*, lean_object*);
@@ -5374,7 +5374,7 @@ static lean_object* _init_l_Lean_Level_LevelToFormat_Result_format___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_stx____x40_Init_Notation___hyg_7296____closed__8;
+x_1 = l___kind_stx____x40_Init_Notation___hyg_7312____closed__8;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -5682,7 +5682,7 @@ static lean_object* _init_l_Lean_Level_LevelToFormat_toResult___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_stx____x40_Init_Notation___hyg_7348____closed__2;
+x_1 = l___kind_stx____x40_Init_Notation___hyg_7364____closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

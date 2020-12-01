@@ -124,7 +124,7 @@ protected def repr : Int → String
 
 instance : Repr Int := ⟨Int.repr⟩
 instance : ToString Int := ⟨Int.repr⟩
-instance : OfNat Int := ⟨Int.ofNat⟩
+instance : OfNat Int n := ⟨Int.ofNat n⟩
 
 @[extern "lean_int_div"]
 def div : (@& Int) → (@& Int) → Int

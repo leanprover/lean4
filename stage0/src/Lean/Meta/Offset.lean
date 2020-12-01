@@ -56,6 +56,18 @@ where
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
         return v₁ * v₂
+      else if c == `HAdd.hadd && nargs == 6 then
+        let v₁ ← evalNat (e.getArg! 3)
+        let v₂ ← evalNat (e.getArg! 5)
+        return v₁ + v₂
+      else if c == `HSub.hsub && nargs == 6 then
+        let v₁ ← evalNat (e.getArg! 4)
+        let v₂ ← evalNat (e.getArg! 5)
+        return v₁ - v₂
+      else if c == `HMul.hmul && nargs == 6 then
+        let v₁ ← evalNat (e.getArg! 4)
+        let v₂ ← evalNat (e.getArg! 5)
+        return v₁ * v₂
       else if c == `OfNat.ofNat && nargs == 3 then
         evalNat (e.getArg! 1)
       else

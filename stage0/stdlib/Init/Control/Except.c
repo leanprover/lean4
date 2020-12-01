@@ -103,6 +103,7 @@ lean_object* l_ExceptT_bindCont___at_ExceptT_instMonadExceptT___spec__4___rarg(l
 lean_object* l_ExceptT_instMonadExceptT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_instMonadExcept___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_pure___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
 lean_object* l_ExceptT_finally(lean_object*, lean_object*);
 lean_object* l_Except_tryCatch___rarg(lean_object*, lean_object*);
 lean_object* l_Except_instMonadExcept___closed__8;
@@ -120,7 +121,6 @@ lean_object* l_instReprExcept___rarg(lean_object*, lean_object*);
 lean_object* l_Except_mapError(lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadExceptOfExceptT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_instMonadExcept___lambda__3(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5739____closed__21;
 lean_object* l_MonadExcept_orelse_x27(lean_object*, lean_object*);
 lean_object* l_ExceptT_mk___rarg(lean_object*);
 lean_object* l_instMonadExceptOfExceptT__1(lean_object*, lean_object*);
@@ -238,7 +238,7 @@ x_5 = lean_apply_1(x_1, x_4);
 x_6 = l_Except_toString___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_myMacro____x40_Init_Notation___hyg_5739____closed__21;
+x_8 = l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -253,7 +253,7 @@ x_11 = lean_apply_1(x_2, x_10);
 x_12 = l_Except_toString___rarg___closed__2;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);
-x_14 = l_myMacro____x40_Init_Notation___hyg_5739____closed__21;
+x_14 = l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
 x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }
@@ -314,7 +314,7 @@ x_5 = lean_apply_1(x_1, x_4);
 x_6 = l_Except_toString___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_myMacro____x40_Init_Notation___hyg_5739____closed__21;
+x_8 = l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -329,7 +329,7 @@ x_11 = lean_apply_1(x_2, x_10);
 x_12 = l_Except_toString___rarg___closed__2;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);
-x_14 = l_myMacro____x40_Init_Notation___hyg_5739____closed__21;
+x_14 = l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
 x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }

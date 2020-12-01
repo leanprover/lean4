@@ -22,7 +22,7 @@ instance : Monad Id := {
 
 @[inline] protected def run (x : Id α) : α := x
 
-instance [OfNat α] : OfNat (Id α) :=
-  inferInstanceAs (OfNat α)
+instance [OfNat α n] : OfNat (Id α) n :=
+  inferInstanceAs (OfNat α n)
 
 end Id

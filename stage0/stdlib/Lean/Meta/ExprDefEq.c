@@ -173,6 +173,7 @@ lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_etaEq___boxed(lean_obj
 lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_CheckAssignment_check___spec__8___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__67(lean_object*, size_t, size_t);
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_CheckAssignment_check___spec__44(lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_5688____closed__6;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignment_process___closed__2;
 lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_CheckAssignment_check___spec__15___boxed(lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_CheckAssignment_check___spec__16(lean_object*, lean_object*);
@@ -484,6 +485,7 @@ lean_object* l_Lean_Meta_getLocalDecl___at_Lean_Meta_getFVarLocalDecl___spec__1(
 lean_object* l_Lean_Meta_CheckAssignmentQuick_check_visit_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5___closed__1;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuick_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11780____closed__4;
 lean_object* l_Lean_Meta_CheckAssignment_throwCheckAssignmentFailure___rarg(lean_object*);
 lean_object* l_Lean_Meta_isDefEqNat_match__1(lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_Meta_CheckAssignment_check___spec__9___boxed(lean_object*, lean_object*);
@@ -562,7 +564,6 @@ lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_ExprDefEq_0__Lean_M
 extern lean_object* l_Lean_Meta_isLevelDefEqAux___closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isSynthetic_match__1(lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
 lean_object* l_Lean_Meta_CheckAssignment_checkMVar_match__2(lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___at_Lean_Meta_CheckAssignment_check___spec__44___boxed(lean_object*, lean_object*);
@@ -623,7 +624,6 @@ lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_de
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDeltaCandidate_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___closed__10;
 lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
-extern lean_object* l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11764____closed__4;
 lean_object* l_Lean_LocalContext_foldlM___at_Lean_Meta_CheckAssignment_check___spec__48___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduceNative_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___at_Lean_Meta_isExprDefEqAuxImpl___spec__1(lean_object*);
@@ -5433,7 +5433,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkType
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_5672____closed__6;
+x_1 = l___kind_term____x40_Init_Notation___hyg_5688____closed__6;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -5442,7 +5442,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkType
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11764____closed__4;
+x_1 = l_Lean_Parser_Tactic___kind_tactic____x40_Init_Notation___hyg_11780____closed__4;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

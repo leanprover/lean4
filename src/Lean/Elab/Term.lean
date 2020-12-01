@@ -1263,15 +1263,8 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
   | _                 => pure ()
   let u ← getLevel typeMVar
   let u ← decLevel u
-  if val == 0 then
-    let mvar ← mkInstMVar (mkApp (Lean.mkConst `Zero [u]) typeMVar)
-    return mkApp2 (Lean.mkConst `Zero.zero [u]) typeMVar mvar
-  else if val == 1 then
-    let mvar ← mkInstMVar (mkApp (Lean.mkConst `One [u]) typeMVar)
-    return mkApp2 (Lean.mkConst `One.one [u]) typeMVar mvar
-  else
-    let mvar ← mkInstMVar (mkApp (Lean.mkConst `OfNat [u]) typeMVar)
-    return mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar mvar (mkNatLit val)
+  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst `OfNat [u]) typeMVar (mkNatLit val))
+  return mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
 
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with

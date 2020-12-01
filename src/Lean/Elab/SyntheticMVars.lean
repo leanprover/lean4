@@ -180,7 +180,7 @@ private def synthesizeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
           return true
   /- Recall that s.syntheticMVars is essentially a stack. The first metavariable was the last one created.
      We want to apply the default instance in reverse creation order. Otherwise,
-     `toString 0` will produce a `OfNat String` cannot be synthesized error. -/
+     `toString 0` will produce a `OfNat String _` cannot be synthesized error. -/
   visit (← get).syntheticMVars.reverse []
 
 /--

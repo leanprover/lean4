@@ -11,7 +11,7 @@ universes u v w
 @[reducible] def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a
 
-infixr:100 " <&> " => Fuctor.mapRev
+infixr:100 " <&> " => Functor.mapRev
 
 def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
   Functor.mapConst PUnit.unit x

@@ -260,6 +260,17 @@ def delab : Delab := do
   let k ← getExprKind
   delabFor k <|> (liftM $ show MetaM Syntax from throwError $ "don't know how to delaborate '" ++ toString k ++ "'")
 
+unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
+  KeyedDeclsAttribute.init {
+    name := `appUnexpander,
+    descr := "Register an unexpander for applications of a given constant.
+
+[appUnexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is
+passed the result of pre-pretty printing the application *without* implicitly passed arguments. If `pp.explicit` is set
+to true or `pp.notation` is set to false, it will not be called at all.",
+    valueTypeName := `Lean.PrettyPrinter.Unexpander
+  } `Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute
+@[builtinInit mkAppUnexpanderAttribute] constant appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
 
 end Delaborator
 

@@ -21,21 +21,22 @@ infixl:70 " % "  => Mod.mod
 infixl:70 " %ₙ " => ModN.modn
 infixr:80 " ^ "  => Pow.pow
 
-infix:50 " ≤ "  => HasLessEq.LessEq
+-- declare ASCII alternatives first so that the latter Unicode unexpander wins
 infix:50 " <= " => HasLessEq.LessEq
+infix:50 " ≤ "  => HasLessEq.LessEq
 infix:50 " < "  => HasLess.Less
-infix:50 " ≥ "  => GreaterEq
 infix:50 " >= " => GreaterEq
+infix:50 " ≥ "  => GreaterEq
 infix:50 " > "  => Greater
 infix:50 " = "  => Eq
 infix:50 " == " => BEq.beq
 infix:50 " ~= " => HEq
 infix:50 " ≅ "  => HEq
 
-infixr:35 " ∧ "   => And
 infixr:35 " /\\ " => And
-infixr:30 " ∨   " => Or
+infixr:35 " ∧ "   => And
 infixr:30 " \\/ " => Or
+infixr:30 " ∨   " => Or
 
 infixl:35 " && " => and
 infixl:30 " || " => or

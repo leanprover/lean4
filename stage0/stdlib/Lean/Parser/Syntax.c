@@ -695,7 +695,6 @@ lean_object* l_Lean_Parser_Command_elab_parenthesizer(lean_object*, lean_object*
 lean_object* l_Lean_Parser_syntaxParser_formatter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_macro___closed__10;
 lean_object* l_Lean_Parser_Command_syntax___elambda__1___closed__10;
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_1697____closed__2;
 lean_object* l_Lean_Parser_Command_syntax___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Command_infixr_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_elab___elambda__1___closed__2;
@@ -1258,6 +1257,7 @@ lean_object* l___regBuiltin_Lean_Parser_Command_macro__rules_parenthesizer___clo
 lean_object* l_Lean_Parser_Command_parserKindPrio_formatter___closed__5;
 lean_object* l_Lean_Parser_Command_parserPrio;
 lean_object* l_Lean_Parser_Command_infix_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_1528____closed__2;
 lean_object* l___regBuiltin_Lean_Parser_Command_elab__rules_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_syntaxParser_formatter(lean_object*);
 lean_object* l_Lean_Parser_Command_elab___closed__1;
@@ -13938,7 +13938,7 @@ static lean_object* _init_l_Lean_Parser_Command_elabTail___elambda__1___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_1697____closed__2;
+x_1 = l___kind_term____x40_Init_Notation___hyg_1528____closed__2;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -14488,7 +14488,7 @@ static lean_object* _init_l_Lean_Parser_Command_elabTail_formatter___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___kind_term____x40_Init_Notation___hyg_1697____closed__2;
+x_1 = l___kind_term____x40_Init_Notation___hyg_1528____closed__2;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

@@ -27,7 +27,7 @@ abbrev Key := Name
 
  Important: `mkConst valueTypeName` and `γ` must be definitionally equal. -/
 structure Def (γ : Type) where
-  builtinName   : Name    -- Builtin attribute name (e.g., `builtinTermElab)
+  builtinName   : Name := Name.anonymous  -- Builtin attribute name, if any (e.g., `builtinTermElab)
   name          : Name    -- Attribute name (e.g., `termElab)
   descr         : String  -- Attribute description
   valueTypeName : Name
@@ -129,23 +129,24 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
     exportEntriesFn := fun s => s.newEntries.reverse.toArray,
     statsFn         := fun s => f!"number of local entries: {s.newEntries.length}"
   }
-  registerBuiltinAttribute {
-    name  := df.builtinName,
-    descr := "(builtin) " ++ df.descr,
-    add   := fun declName arg persistent => do
-      unless persistent do throwError! "invalid attribute '{df.builtinName}', must be persistent"
-      let key ← df.evalKey true arg
-      let decl ← getConstInfo declName
-      match decl.type with
-      | Expr.const c _ _ =>
-        if c != df.valueTypeName then throwError! "unexpected type at '{declName}', '{df.valueTypeName}' expected"
-        else
-          let env ← getEnv
-          let env ← declareBuiltin df attrDeclName env key declName
-          setEnv env
-      | _ => throwError! "unexpected type at '{declName}', '{df.valueTypeName}' expected",
-    applicationTime := AttributeApplicationTime.afterCompilation
-  }
+  unless df.builtinName.isAnonymous do
+    registerBuiltinAttribute {
+      name  := df.builtinName,
+      descr := "(builtin) " ++ df.descr,
+      add   := fun declName arg persistent => do
+        unless persistent do throwError! "invalid attribute '{df.builtinName}', must be persistent"
+        let key ← df.evalKey true arg
+        let decl ← getConstInfo declName
+        match decl.type with
+        | Expr.const c _ _ =>
+          if c != df.valueTypeName then throwError! "unexpected type at '{declName}', '{df.valueTypeName}' expected"
+          else
+            let env ← getEnv
+            let env ← declareBuiltin df attrDeclName env key declName
+            setEnv env
+        | _ => throwError! "unexpected type at '{declName}', '{df.valueTypeName}' expected",
+      applicationTime := AttributeApplicationTime.afterCompilation
+    }
   registerBuiltinAttribute {
     name            := df.name,
     descr           := df.descr,

@@ -3905,7 +3905,7 @@ static lean_object* _init_l___kind_term____x40_Init_Notation___hyg_1528____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ≤ ");
+x_1 = lean_mk_string(" <= ");
 return x_1;
 }
 }
@@ -4154,7 +4154,7 @@ static lean_object* _init_l___kind_term____x40_Init_Notation___hyg_1697____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" <= ");
+x_1 = lean_mk_string(" ≤ ");
 return x_1;
 }
 }
@@ -4537,7 +4537,7 @@ static lean_object* _init_l___kind_term____x40_Init_Notation___hyg_2035____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ≥ ");
+x_1 = lean_mk_string(" >= ");
 return x_1;
 }
 }
@@ -4748,7 +4748,7 @@ static lean_object* _init_l___kind_term____x40_Init_Notation___hyg_2200____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" >= ");
+x_1 = lean_mk_string(" ≥ ");
 return x_1;
 }
 }
@@ -5910,7 +5910,7 @@ static lean_object* _init_l___kind_term____x40_Init_Notation___hyg_3193____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ∧ ");
+x_1 = lean_mk_string(" /\\ ");
 return x_1;
 }
 }
@@ -6121,7 +6121,7 @@ static lean_object* _init_l___kind_term____x40_Init_Notation___hyg_3357____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" /\\ ");
+x_1 = lean_mk_string(" ∧ ");
 return x_1;
 }
 }
@@ -6267,7 +6267,7 @@ static lean_object* _init_l___kind_term____x40_Init_Notation___hyg_3521____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ∨   ");
+x_1 = lean_mk_string(" \\/ ");
 return x_1;
 }
 }
@@ -6490,7 +6490,7 @@ static lean_object* _init_l___kind_term____x40_Init_Notation___hyg_3685____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" \\/ ");
+x_1 = lean_mk_string(" ∨   ");
 return x_1;
 }
 }

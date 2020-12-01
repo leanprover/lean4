@@ -152,7 +152,7 @@ private partial def whnfEta (e : Expr) : MetaM Expr := do
   Then, `DiscrTree` users may control which symbols should be treated as wildcards.
   Different `DiscrTree` users may populate this set using, for example, attributes. -/
 private def shouldAddAsStar (constName : Name) : Bool :=
-  constName == `Nat.zero || constName == `Nat.succ || constName == `Nat.add || constName == `Add.add
+  constName == `Nat.zero || constName == `Nat.succ || constName == `Nat.add || constName == `Add.add || constName == `HAdd.hAdd
 
 private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
   let e ← whnfEta e

@@ -44,7 +44,7 @@ def Float.lt  : Float → Float → Prop := fun a b =>
 def Float.le  : Float → Float → Prop := fun a b =>
   floatSpec.le a.val b.val
 
-instance : OfNat Float     := ⟨Float.ofNat⟩
+instance : OfNat Float n   := ⟨Float.ofNat n⟩
 instance : Add Float       := ⟨Float.add⟩
 instance : Sub Float       := ⟨Float.sub⟩
 instance : Mul Float       := ⟨Float.mul⟩

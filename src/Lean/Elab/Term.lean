@@ -1266,6 +1266,11 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
   let mvar ← mkInstMVar (mkApp2 (Lean.mkConst `OfNat [u]) typeMVar (mkNatLit val))
   return mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
 
+@[builtinTermElab rawNatLit] def elabRawNatLit : TermElab :=  fun stx expectedType? => do
+  match stx[1].isNatLit? with
+  | some val => return mkNatLit val
+  | none     => throwIllFormedSyntax
+
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with
   | some val => return mkApp (Lean.mkConst `Char.ofNat) (mkNatLit val.toNat)

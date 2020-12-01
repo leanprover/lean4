@@ -8,6 +8,8 @@ Notation for operators defined at Prelude.lean
 prelude
 import Init.Prelude
 
+syntax[rawNatLit] "natLit! " num : term
+
 infixr:90 " ∘ "  => Function.comp
 infixr:35 " × "  => Prod
 

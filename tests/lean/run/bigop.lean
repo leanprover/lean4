@@ -37,8 +37,8 @@ partial def finElems : (n : Nat) → List (Fin n)
 instance {n} : Enumerable (Fin n) :=
 { elems := (finElems n).reverse }
 
-instance {n} : OfNat (Fin (Nat.succ n)) :=
-⟨Fin.ofNat⟩
+instance : OfNat (Fin (Nat.succ n)) m :=
+⟨Fin.ofNat m⟩
 
 -- Declare a new syntax category for "indexing" big operators
 declare_syntax_cat index

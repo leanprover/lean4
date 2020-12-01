@@ -1,3 +1,5 @@
+import Lean
+
 universe u
 
 structure Magma where
@@ -9,6 +11,8 @@ instance : CoeSort Magma (Type u) where
 
 abbrev mul {M : Magma} (a b : M) : M :=
   M.mul a b
+
+set_option pp.all true
 
 infix:70 [1] "*" => mul
 
@@ -52,11 +56,11 @@ abbrev inv {G : Group} (a : G) : G :=
 
 postfix:max "⁻¹" => inv
 
-instance (G : Group) : One (coeSort G.toMagma) where
-  one := G.one
+instance (G : Group) : OfNat (coeSort G.toMagma) (natLit! 1) where
+  ofNat := G.one
 
-instance (G : Group) : One (G.toMagma.α) where
-  one := G.one
+instance (G : Group) : OfNat (G.toMagma.α) (natLit! 1) where
+  ofNat := G.one
 
 structure CommGroup extends Group where
   mul_comm (a b : α) : a * b = b * a

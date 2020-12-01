@@ -85,7 +85,6 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(le
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_hasBadIndexDep_x3f_match__2(lean_object*);
 lean_object* l_Lean_addTrace___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_mkBRecOn___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_throwToBelowFailed___rarg___closed__3;
-extern lean_object* l_Lean_Meta_evalNat_visit___closed__12;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_replaceRecApps_loop___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -522,6 +521,7 @@ lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structu
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isLet(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+extern lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___lambda__2___closed__1;
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_findRecArg_loop___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_getFixedPrefix_match__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -7236,7 +7236,7 @@ lean_closure_set(x_18, 0, x_14);
 lean_closure_set(x_18, 1, x_1);
 lean_closure_set(x_18, 2, x_4);
 lean_closure_set(x_18, 3, x_5);
-x_19 = l_Lean_Meta_evalNat_visit___closed__12;
+x_19 = l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___lambda__2___closed__1;
 x_20 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___spec__1___rarg(x_16, x_19, x_18, x_7, x_8, x_9, x_10, x_17);
 return x_20;
 }
@@ -12084,7 +12084,7 @@ lean_closure_set(x_36, 3, x_2);
 lean_closure_set(x_36, 4, x_6);
 lean_closure_set(x_36, 5, x_1);
 lean_closure_set(x_36, 6, x_28);
-x_37 = l_Lean_Meta_evalNat_visit___closed__12;
+x_37 = l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___lambda__2___closed__1;
 x_38 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_mkBRecOn___spec__4___rarg(x_32, x_37, x_36, x_11, x_12, x_13, x_14, x_15, x_35);
 return x_38;
 }
@@ -12114,7 +12114,7 @@ lean_closure_set(x_46, 3, x_2);
 lean_closure_set(x_46, 4, x_6);
 lean_closure_set(x_46, 5, x_1);
 lean_closure_set(x_46, 6, x_28);
-x_47 = l_Lean_Meta_evalNat_visit___closed__12;
+x_47 = l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___lambda__2___closed__1;
 x_48 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Elab_PreDefinition_Structural_0__Lean_Elab_Structural_mkBRecOn___spec__4___rarg(x_32, x_47, x_46, x_11, x_12, x_13, x_14, x_15, x_45);
 return x_48;
 }

@@ -43,6 +43,20 @@ protected def max : RBNode α β → Option (Sigma (fun k => β k))
     let b ← f b k v
     foldM f b r
 
+@[inline] def forIn [Monad m] (as : RBNode α β) (init : σ) (f : (k : α) → β k → σ → m (ForInStep σ)) : m σ := do
+  let rec @[specialize] visit : RBNode α β → σ → m (ForInStep σ)
+    | leaf, b           => return ForInStep.yield b
+    | node _ l k v r, b => do
+      match (← visit l b) with
+      | r@(ForInStep.done _) => return r
+      | ForInStep.yield b    =>
+        match (← f k v b) with
+        | r@(ForInStep.done _) => return r
+        | ForInStep.yield b    => visit r b
+  match ← visit as init with
+  | ForInStep.done b  => pure b
+  | ForInStep.yield b => pure b
+
 @[specialize] def revFold (f : σ → (k : α) → β k → σ) : (init : σ) → RBNode α β → σ
   | b, leaf           => b
   | b, node _ l k v r => revFold f (f (revFold f b r) k v) l
@@ -232,11 +246,14 @@ def depth (f : Nat → Nat → Nat) (t : RBMap α β lt) : Nat :=
 @[inline] def revFold (f : σ → α → β → σ) : (init : σ) → RBMap α β lt → σ
   | b, ⟨t, _⟩ => t.revFold f b
 
-@[inline] def foldM {m : Type w → Type w'} [Monad m] (f : σ → α → β → m σ) : (init : σ) → RBMap α β lt → m σ
+@[inline] def foldM [Monad m] (f : σ → α → β → m σ) : (init : σ) → RBMap α β lt → m σ
   | b, ⟨t, _⟩ => t.foldM f b
 
-@[inline] def forM {m : Type w → Type w'} [Monad m] (f : α → β → m PUnit) (t : RBMap α β lt) : m PUnit :=
+@[inline] def forM [Monad m] (f : α → β → m PUnit) (t : RBMap α β lt) : m PUnit :=
   t.foldM (fun _ k v => f k v) ⟨⟩
+
+@[inline] def forIn [Monad m] (t : RBMap α β lt) (init : σ) (f : (α × β) → σ → m (ForInStep σ)) : m σ :=
+  t.val.forIn init (fun a b acc => f (a, b) acc)
 
 @[inline] def isEmpty : RBMap α β lt → Bool
   | ⟨leaf, _⟩ => true

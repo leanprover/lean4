@@ -78,7 +78,7 @@ structure DefaultInstanceEntry where
   instanceName : Name
   priority     : Nat
 
-abbrev PrioritySet := Std.RBTree Nat (.<.)
+abbrev PrioritySet := Std.RBTree Nat (.>.)
 
 structure DefaultInstances where
   defaultInstances : NameMap (List (Name × Nat)) := {}
@@ -117,9 +117,17 @@ builtin_initialize
     name  := `defaultInstance,
     descr := "type class default instance",
     add   := fun declName args persistent => do
-      if args.hasArgs then throwError "invalid attribute 'defaultInstance', unexpected argument"
+      let prio ←
+        if args.getNumArgs == 0 then
+          pure 0
+        else if args.getNumArgs == 1 then
+          match args[0].isNatLit? with
+          | none => throwErrorAt args[0] "unexpected argument at attribute 'defaultInstance', numeral expected"
+          | some n => pure n
+        else
+          throwErrorAt args "too many arguments at attribute 'defaultInstance', numeral expected"
       unless persistent do throwError "invalid attribute 'defaultInstance', must be persistent"
-      addDefaultInstance declName |>.run {} {}
+      addDefaultInstance declName prio |>.run {} {}
       pure ()
   }
 

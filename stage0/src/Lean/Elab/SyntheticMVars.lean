@@ -129,7 +129,7 @@ private def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : 
   modify fun s => { s with syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars }
   pure $ numSyntheticMVars != remainingSyntheticMVars.length
 
-def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : MetaM (Option (List SyntheticMVarDecl)) :=
+private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : MetaM (Option (List SyntheticMVarDecl)) :=
   commitWhenSome? do
     let constInfo ← getConstInfo defaultInstance
     let candidate := Lean.mkConst defaultInstance (← mkFreshLevelMVars constInfo.lparams.length)
@@ -142,48 +142,57 @@ def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Nam
       for i in [:bis.size] do
         if bis[i] == BinderInfo.instImplicit then
            result := { mvarId := mvars[i].mvarId!, stx := (← getRef), kind := SyntheticMVarKind.typeClass } :: result
+      trace[Elab.resume]! "worked"
       return some result
     else
       return none
 
-def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) : MetaM (Option (List SyntheticMVarDecl)) :=
+private def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) (prio : Nat) : MetaM (Option (List SyntheticMVarDecl)) :=
   withMVarContext mvarId do
     let mvarType := (← Meta.getMVarDecl mvarId).type
-     match (← isClass? mvarType) with
-     | none => return none
-     | some className =>
-       match (← getDefaultInstances className) with
-       | [] => return none
-       | defaultInstances =>
-         for (defaultInstance, prio) in defaultInstances do
+    match (← isClass? mvarType) with
+    | none => return none
+    | some className =>
+      match (← getDefaultInstances className) with
+      | [] => return none
+      | defaultInstances =>
+        for (defaultInstance, instPrio) in defaultInstances do
+          if instPrio == prio then
             match (← tryToSynthesizeUsingDefaultInstance mvarId defaultInstance) with
             | some newMVarDecls => return some newMVarDecls
             | none => continue
-         return none
+        return none
+
+/- Used to implement `synthesizeUsingDefault`. This method only consider default instances with the given priority. -/
+private def synthesizeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
+  let rec visit (syntheticMVars : List SyntheticMVarDecl) (syntheticMVarsNew : List SyntheticMVarDecl) : TermElabM Bool := do
+    match syntheticMVars with
+    | [] => return false
+    | mvarDecl :: mvarDecls =>
+      match mvarDecl.kind with
+      | SyntheticMVarKind.typeClass =>
+        match (← withRef mvarDecl.stx <| tryToSynthesizeUsingDefaultInstances mvarDecl.mvarId prio) with
+        | none => visit mvarDecls (mvarDecl :: syntheticMVarsNew)
+        | some newMVarDecls =>
+          let syntheticMVarsNew := newMVarDecls ++ syntheticMVarsNew
+          let syntheticMVarsNew := mvarDecls.reverse ++ syntheticMVarsNew
+          modify fun s => { s with syntheticMVars := syntheticMVarsNew }
+          return true
+  /- Recall that s.syntheticMVars is essentially a stack. The first metavariable was the last one created.
+     We want to apply the default instance in reverse creation order. Otherwise,
+     `toString 0` will produce a `OfNat String _` cannot be synthesized error. -/
+  visit (← get).syntheticMVars.reverse []
 
 /--
   Apply default value to any pending synthetic metavariable of kind `SyntheticMVarKind.withDefault`
   Return true if something was synthesized. -/
-def synthesizeUsingDefault : TermElabM Bool := do
-  let s ← get
-  let currLength := s.syntheticMVars.length
-  let mut syntheticMVarsNew := []
-  let mut modified := false
-  /- Recall that s.syntheticMVars is essentially a stack. The first metavariable was the last one created.
-     We want to apply the default instance in reverse creation order. Otherwise,
-     `toString 0` will produce a `OfNat String` cannot be synthesized error. -/
-  for mvarDecl in s.syntheticMVars.reverse do
-    match mvarDecl.kind with
-    | SyntheticMVarKind.typeClass =>
-        match (← withRef mvarDecl.stx <| tryToSynthesizeUsingDefaultInstances mvarDecl.mvarId) with
-        | none =>
-          syntheticMVarsNew := mvarDecl :: syntheticMVarsNew
-        | some newMVarDecls =>
-          syntheticMVarsNew := newMVarDecls ++ syntheticMVarsNew
-          modified := true
-    | _ => syntheticMVarsNew := mvarDecl :: syntheticMVarsNew
-  modify fun s => { s with syntheticMVars := syntheticMVarsNew }
-  return modified
+private def synthesizeUsingDefault : TermElabM Bool := do
+  let prioSet ← getDefaultInstancesPriorities
+  /- Recall that `prioSet` is stored in descending order -/
+  for prio in prioSet do
+    if (← synthesizeUsingDefaultPrio prio) then
+      return true
+  return false
 
 /-- Report an error for each synthetic metavariable that could not be resolved. -/
 private def reportStuckSyntheticMVars : TermElabM Unit := do
@@ -256,11 +265,21 @@ partial def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
 def synthesizeSyntheticMVarsNoPostponing : TermElabM Unit :=
   synthesizeSyntheticMVars (mayPostpone := false)
 
+/- Keep invoking `synthesizeUsingDefault` until it returns false. -/
+private partial def synthesizeUsingDefaultLoop : TermElabM Unit := do
+  if (← synthesizeUsingDefault) then
+    synthesizeSyntheticMVars (mayPostpone := true)
+    synthesizeUsingDefaultLoop
+
+def synthesizeSyntheticMVarsUsingDefault : TermElabM Unit := do
+  synthesizeSyntheticMVars (mayPostpone := true)
+  synthesizeUsingDefaultLoop
+
 /--
   Execute `k`, and synthesize pending synthetic metavariables created while executing `k` are solved.
   If `mayPostpone == false`, then all of them must be synthesized.
   Remark: even if `mayPostpone == true`, the method still uses `synthesizeUsingDefault` -/
-def withSynthesize {α} (k : TermElabM α) (mayPostpone := false) : TermElabM α := do
+partial def withSynthesize {α} (k : TermElabM α) (mayPostpone := false) : TermElabM α := do
   let s ← get
   let syntheticMVarsSaved := s.syntheticMVars
   modify fun s => { s with syntheticMVars := [] }
@@ -268,8 +287,7 @@ def withSynthesize {α} (k : TermElabM α) (mayPostpone := false) : TermElabM α
     let a ← k
     synthesizeSyntheticMVars mayPostpone
     if mayPostpone then
-      if (← synthesizeUsingDefault) then
-        synthesizeSyntheticMVars mayPostpone
+      synthesizeUsingDefaultLoop
     pure a
   finally
     modify fun s => { s with syntheticMVars := s.syntheticMVars ++ syntheticMVarsSaved }

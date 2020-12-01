@@ -37,6 +37,9 @@ variables {α : Type u} {β : Type v} {lt : α → α → Bool}
 @[inline] def forM {m : Type v → Type w} [Monad m] (f : α → m PUnit) (t : RBTree α lt) : m PUnit :=
   t.foldM (fun _ a => f a) ⟨⟩
 
+@[inline] def forIn [Monad m] (t : RBTree α lt) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ :=
+  t.val.forIn init (fun a _ acc => f a acc)
+
 @[inline] def isEmpty (t : RBTree α lt) : Bool :=
   RBMap.isEmpty t
 

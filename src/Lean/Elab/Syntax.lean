@@ -164,6 +164,7 @@ def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) :
 end Term
 
 namespace Command
+open Term.Quotation (mkAntiquotNode)
 
 private def getCatSuffix (catName : Name) : String :=
   match catName with
@@ -344,7 +345,7 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
   | stx => match_syntax stx with
   | `($id:ident) =>
     if (vars.findIdx? (fun var => var.getId == id.getId)).isSome then
-      Syntax.node `antiquot #[mkAtom "$", mkNullNode, id, mkNullNode, mkNullNode]
+      mkAntiquotNode id
     else
       stx
   | _ => match stx with
@@ -370,8 +371,7 @@ def strLitToPattern (stx: Syntax) : MacroM Syntax :=
 def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
   if k == `Lean.Parser.Command.identPrec then
-    let item := stx[0]
-    pure $ mkNode `antiquot #[mkAtom "$", mkNullNode, item, mkNullNode, mkNullNode]
+    mkAntiquotNode stx[0]
   else if k == strLitKind then
     strLitToPattern stx
   else

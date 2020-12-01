@@ -15,6 +15,19 @@ namespace Lean.Elab.Term.Quotation
 open Lean.Syntax (isQuot isAntiquot)
 open Meta
 
+def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none) (kind := Name.anonymous) (splice := false) : Syntax :=
+  let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
+  let term := match term.isIdent with
+    | true  => term
+    | false => mkNode `antiquotNestedExpr #[mkAtom "(", term, mkAtom ")"]
+  let name := match name with
+    | some name => mkNode `antiquotName #[mkAtom ":", mkAtom name]
+    | none      => mkNullNode
+  let splice := match splice with
+    | true  => mkNullNode #[mkAtom "*"]
+    | false => mkNullNode
+  mkNode (kind ++ `antiquot) #[mkAtom "$", nesting, term, name, splice]
+
 -- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros.
 def isEscapedAntiquot (stx : Syntax) : Bool :=
   !stx[1].getArgs.isEmpty

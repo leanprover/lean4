@@ -20,6 +20,7 @@ infixl:70 " / "  => Div.div
 infixl:70 " % "  => Mod.mod
 infixl:70 " %ₙ " => ModN.modn
 infixr:80 " ^ "  => Pow.pow
+prefix:100 "-"   => Neg.neg
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
 infix:50 " <= " => HasLessEq.LessEq
@@ -37,9 +38,11 @@ infixr:35 " /\\ " => And
 infixr:35 " ∧ "   => And
 infixr:30 " \\/ " => Or
 infixr:30 " ∨   " => Or
+notation:max "¬" p:40 => Not p
 
 infixl:35 " && " => and
 infixl:30 " || " => or
+notation:max "!" b:40 => not b
 
 infixl:65 " ++ " => Append.append
 infixr:67 " :: " => List.cons

@@ -21,7 +21,6 @@ lean_object* l_Int_instNegInt;
 lean_object* l_Int_natMod(lean_object*, lean_object*);
 lean_object* l_Int_repr___boxed(lean_object*);
 lean_object* l_String_toInt_x21___closed__1;
-lean_object* l_Int_repr___closed__1;
 lean_object* l_Substring_toNat_x3f(lean_object*);
 lean_object* l_String_isInt___boxed(lean_object*);
 lean_object* l_String_toInt_x21___closed__2;
@@ -91,6 +90,7 @@ lean_object* l_Int_toNat_match__1___rarg___boxed(lean_object*, lean_object*, lea
 lean_object* l_Int_negOfNat(lean_object*);
 lean_object* l_Int_instOfNatInt(lean_object*);
 lean_object* l_Int_subNatNat_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_2814____closed__2;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Int_div_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_subNatNat___boxed(lean_object*, lean_object*);
@@ -542,14 +542,6 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Int_repr___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("-");
-return x_1;
-}
-}
 lean_object* l_Int_repr(lean_object* x_1) {
 _start:
 {
@@ -573,7 +565,7 @@ lean_dec(x_6);
 x_9 = lean_nat_add(x_8, x_7);
 lean_dec(x_8);
 x_10 = l_Nat_repr(x_9);
-x_11 = l_Int_repr___closed__1;
+x_11 = l___kind_term____x40_Init_Notation___hyg_2814____closed__2;
 x_12 = lean_string_append(x_11, x_10);
 lean_dec(x_10);
 return x_12;
@@ -1211,8 +1203,6 @@ l_Int_instHasLessEqInt = _init_l_Int_instHasLessEqInt();
 lean_mark_persistent(l_Int_instHasLessEqInt);
 l_Int_instHasLessInt = _init_l_Int_instHasLessInt();
 lean_mark_persistent(l_Int_instHasLessInt);
-l_Int_repr___closed__1 = _init_l_Int_repr___closed__1();
-lean_mark_persistent(l_Int_repr___closed__1);
 l_Int_instReprInt___closed__1 = _init_l_Int_instReprInt___closed__1();
 lean_mark_persistent(l_Int_instReprInt___closed__1);
 l_Int_instReprInt = _init_l_Int_instReprInt();

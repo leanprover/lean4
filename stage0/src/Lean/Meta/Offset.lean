@@ -56,15 +56,15 @@ where
         let v₁ ← evalNat (e.getArg! 2)
         let v₂ ← evalNat (e.getArg! 3)
         return v₁ * v₂
-      else if c == `HAdd.hadd && nargs == 6 then
+      else if c == `HAdd.hAdd && nargs == 6 then
         let v₁ ← evalNat (e.getArg! 3)
         let v₂ ← evalNat (e.getArg! 5)
         return v₁ + v₂
-      else if c == `HSub.hsub && nargs == 6 then
+      else if c == `HSub.hSub && nargs == 6 then
         let v₁ ← evalNat (e.getArg! 4)
         let v₂ ← evalNat (e.getArg! 5)
         return v₁ - v₂
-      else if c == `HMul.hmul && nargs == 6 then
+      else if c == `HMul.hMul && nargs == 6 then
         let v₁ ← evalNat (e.getArg! 4)
         let v₂ ← evalNat (e.getArg! 5)
         return v₁ * v₂
@@ -93,6 +93,10 @@ private partial def getOffsetAux : Expr → Bool → OptionT MetaM (Expr × Nat)
         let v      ← evalNat (e.getArg! 3)
         let (s, k) ← getOffsetAux (e.getArg! 2) false
         pure (s, k+v)
+      else if c == `HAdd.hAdd && nargs == 6 then do
+        let v      ← evalNat (e.getArg! 5)
+        let (s, k) ← getOffsetAux (e.getArg! 4) false
+        pure (s, k+v)
       else if top then failure else pure (e, 0)
     | _ => if top then failure else pure (e, 0)
   | e, top => if top then failure else pure (e, 0)
@@ -107,7 +111,7 @@ private partial def isOffset : Expr → OptionT MetaM (Expr × Nat)
     | Expr.mvar .. => withInstantiatedMVars e isOffset
     | Expr.const c _ _ =>
       let nargs := e.getAppNumArgs
-      if (c == `Nat.succ && nargs == 1) || (c == `Nat.add && nargs == 2) || (c == `Add.add && nargs == 4) then
+      if (c == `Nat.succ && nargs == 1) || (c == `Nat.add && nargs == 2) || (c == `Add.add && nargs == 4) || (c == `HAdd.hAdd && nargs == 6) then
         getOffset e
       else
         failure

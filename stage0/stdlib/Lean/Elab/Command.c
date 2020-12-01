@@ -165,6 +165,7 @@ lean_object* l_Lean_ofExcept___at_Lean_Elab_Command_elabEvalUnsafe___spec__3(lea
 lean_object* l_Lean_Elab_Command_elabOpen___closed__2;
 lean_object* l_Lean_Elab_Command_failIfSucceeds___lambda__1___closed__3;
 lean_object* l___regBuiltin_Lean_Elab_Command_elabVariable(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13903____closed__22;
 lean_object* l_Lean_Elab_Command_liftTermElabM(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabSection(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Elab_Command_elabCommand___spec__3(lean_object*, size_t, lean_object*);
@@ -429,7 +430,6 @@ lean_object* l___regBuiltin_Lean_Elab_Command_expandInCmd___closed__1;
 uint8_t l_Lean_Name_isAtomic(lean_object*);
 lean_object* l_Lean_Elab_Command_liftCoreM_match__2(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elbChoice(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_8184____closed__22;
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabExport(lean_object*);
 lean_object* l___private_Lean_Elab_Command_0__Lean_Elab_Command_addScopes___closed__2;
@@ -22005,7 +22005,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_8184____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_13903____closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -22059,7 +22059,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__7;
-x_2 = l_myMacro____x40_Init_Notation___hyg_8184____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_13903____closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

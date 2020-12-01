@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_6305____closed__10;
 extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader_match__1(lean_object*);
 lean_object* l_Lean_Lsp_readLspMessage(lean_object*, lean_object*);
@@ -43,7 +42,9 @@ lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader__
 uint8_t l_instDecidableNot___rarg(uint8_t);
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* l_Lean_Lsp_writeLspNotification___rarg___closed__2;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11474____closed__9;
 extern lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__7;
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_12024____closed__10;
 lean_object* l_List_lookup___at___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_writeLspNotification___rarg___closed__1;
 extern lean_object* l___private_Init_Util_0__mkPanicMessage___closed__2;
@@ -54,7 +55,7 @@ lean_object* l_Lean_Lsp_readLspRequestAs(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader_match__2___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__44;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11474____closed__21;
 lean_object* l_Lean_Lsp_writeLspNotification_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_dropRight(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_writeLspNotification(lean_object*);
@@ -73,7 +74,6 @@ extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__8;
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readHeaderFields(lean_object*, lean_object*);
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__32;
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__20;
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_6305____closed__2;
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_parseHeaderField___closed__1;
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__4;
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__40;
@@ -85,13 +85,13 @@ lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_parseHeaderFiel
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readHeaderFields_match__1(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___closed__3;
 extern lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__4;
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_12024____closed__6;
 lean_object* l_String_toNat_x3f(lean_object*);
 extern lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__13;
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_12024____closed__2;
 lean_object* l_Lean_Lsp_readLspNotificationAs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__12;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5755____closed__9;
 extern lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__9;
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_6305____closed__6;
 lean_object* l_IO_FS_Stream_readRequestAs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_writeLspMessage___closed__1;
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readHeaderFields___closed__1;
@@ -652,12 +652,12 @@ x_6 = 0;
 x_7 = l_List_toStringAux___at___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___spec__3(x_6, x_5);
 x_8 = lean_ctor_get(x_4, 0);
 x_9 = lean_ctor_get(x_4, 1);
-x_10 = l_myMacro____x40_Init_Notation___hyg_5755____closed__9;
+x_10 = l_myMacro____x40_Init_Notation___hyg_11474____closed__9;
 x_11 = lean_string_append(x_10, x_8);
-x_12 = l___kind_term____x40_Init_Notation___hyg_6305____closed__6;
+x_12 = l___kind_term____x40_Init_Notation___hyg_12024____closed__6;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_string_append(x_13, x_9);
-x_15 = l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
+x_15 = l_myMacro____x40_Init_Notation___hyg_11474____closed__21;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = lean_string_append(x_12, x_16);
 lean_dec(x_16);
@@ -683,12 +683,12 @@ x_22 = 0;
 x_23 = l_List_toStringAux___at___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___spec__3(x_22, x_21);
 x_24 = lean_ctor_get(x_20, 0);
 x_25 = lean_ctor_get(x_20, 1);
-x_26 = l_myMacro____x40_Init_Notation___hyg_5755____closed__9;
+x_26 = l_myMacro____x40_Init_Notation___hyg_11474____closed__9;
 x_27 = lean_string_append(x_26, x_24);
-x_28 = l___kind_term____x40_Init_Notation___hyg_6305____closed__6;
+x_28 = l___kind_term____x40_Init_Notation___hyg_12024____closed__6;
 x_29 = lean_string_append(x_27, x_28);
 x_30 = lean_string_append(x_29, x_25);
-x_31 = l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
+x_31 = l_myMacro____x40_Init_Notation___hyg_11474____closed__21;
 x_32 = lean_string_append(x_30, x_31);
 x_33 = lean_string_append(x_32, x_23);
 lean_dec(x_23);
@@ -716,10 +716,10 @@ uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* 
 x_4 = 1;
 x_5 = l_List_toStringAux___at___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___spec__3(x_4, x_1);
 lean_dec(x_1);
-x_6 = l___kind_term____x40_Init_Notation___hyg_6305____closed__2;
+x_6 = l___kind_term____x40_Init_Notation___hyg_12024____closed__2;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l___kind_term____x40_Init_Notation___hyg_6305____closed__10;
+x_8 = l___kind_term____x40_Init_Notation___hyg_12024____closed__10;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -737,10 +737,10 @@ lean_ctor_set(x_12, 1, x_11);
 x_13 = 1;
 x_14 = l_List_toStringAux___at___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___spec__3(x_13, x_12);
 lean_dec(x_12);
-x_15 = l___kind_term____x40_Init_Notation___hyg_6305____closed__2;
+x_15 = l___kind_term____x40_Init_Notation___hyg_12024____closed__2;
 x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);
-x_17 = l___kind_term____x40_Init_Notation___hyg_6305____closed__10;
+x_17 = l___kind_term____x40_Init_Notation___hyg_12024____closed__10;
 x_18 = lean_string_append(x_16, x_17);
 return x_18;
 }

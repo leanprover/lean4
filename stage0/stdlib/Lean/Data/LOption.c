@@ -28,7 +28,7 @@ lean_object* l_Lean_LOption_beq(lean_object*);
 lean_object* l_Lean_LOption_instBEqLOption___rarg(lean_object*);
 lean_object* l_Lean_LOption_instToStringLOption___rarg___closed__1;
 lean_object* l_Lean_LOption_instBEqLOption(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11474____closed__21;
 lean_object* l_Option_toLOption___rarg___boxed(lean_object*);
 lean_object* l_Lean_LOption_instToStringLOption_match__1(lean_object*, lean_object*);
 lean_object* l_Option_toLOption(lean_object*);
@@ -119,7 +119,7 @@ x_5 = lean_apply_1(x_1, x_4);
 x_6 = l_instReprOption___rarg___closed__2;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
+x_8 = l_myMacro____x40_Init_Notation___hyg_11474____closed__21;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }

@@ -31,7 +31,6 @@ uint8_t l_Lean_MessageData_isNest(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__19;
 lean_object* l_Lean___kind_term____x40_Lean_Message___hyg_1839____closed__8;
 extern lean_object* l_addParenHeuristic___closed__2;
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_6305____closed__10;
 lean_object* l_Lean_KernelException_toMessageData___closed__49;
 lean_object* l_Lean_Message_getMessageStringEx_match__1(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -86,7 +85,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_rawNatLit___closed__4;
 lean_object* l_Lean_MessageData_instCoeStringMessageData___lambda__1(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__16;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_8184____closed__9;
 lean_object* l_Lean_MessageData_instCoeArrayExprMessageData___closed__1;
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1878____closed__3;
@@ -124,6 +122,7 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFr
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1878____closed__6;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_toList(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13903____closed__9;
 extern lean_object* l___kind_term____x40_Init_Data_ToString_Macro___hyg_2____closed__11;
 lean_object* l_Lean_instToMessageDataLevel(lean_object*);
 lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*);
@@ -150,7 +149,9 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_instCoeOptionExprMessageData_match__1(lean_object*);
 lean_object* l_Lean_MessageData_instAppendMessageData(lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__29;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11474____closed__9;
 lean_object* l_Lean_stringToMessageData___boxed(lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_12024____closed__10;
 lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
 lean_object* l_Lean_instToMessageDataOption_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_instAppendMessageLog;
@@ -222,8 +223,8 @@ lean_object* l_Lean_instToMessageDataMessageData;
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_toList___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MessageLog_toList___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString_match__1(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11474____closed__21;
 lean_object* l_Lean_MessageData_ofList___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
 lean_object* l_Lean_KernelException_toMessageData___closed__27;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_MessageLog_hasErrors___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instReprIterator___closed__2;
@@ -287,7 +288,6 @@ lean_object* l_Lean_mkErrorStringWithPos___boxed(lean_object*, lean_object*, lea
 lean_object* l_Lean_KernelException_toMessageData___closed__47;
 extern lean_object* l_Lean_Format_sbracket___closed__4;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_6305____closed__2;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MessageLog_toList___spec__5(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_MessageLog_getInfoMessages(lean_object*);
 lean_object* l_Std_PersistentArray_forM___rarg(lean_object*, lean_object*, lean_object*);
@@ -352,13 +352,13 @@ lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1878____closed__10;
 lean_object* l_Lean_KernelException_toMessageData_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__44;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___kind_term____x40_Init_Notation___hyg_12024____closed__2;
 lean_object* l_Lean_Message_toString___closed__5;
 lean_object* l_Lean_instToMessageDataOptionExpr_match__1(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* lean_message_pos(lean_object*);
 uint8_t l_Lean_MessageLog_isEmpty(lean_object*);
 lean_object* l_Lean_MessageLog_errorsToWarnings_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5755____closed__9;
 lean_object* l_Lean_KernelException_toMessageData___closed__26;
 lean_object* l_Lean_Message_getSeverityEx___boxed(lean_object*);
 lean_object* l_Lean_MessageLog_append___boxed(lean_object*, lean_object*);
@@ -401,7 +401,7 @@ lean_object* l_Lean_mkErrorStringWithPos(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_5 = l_myMacro____x40_Init_Notation___hyg_8184____closed__9;
+x_5 = l_myMacro____x40_Init_Notation___hyg_13903____closed__9;
 x_6 = lean_string_append(x_1, x_5);
 x_7 = l_Nat_repr(x_2);
 x_8 = lean_string_append(x_6, x_7);
@@ -3032,8 +3032,8 @@ lean_object* l_Lean_MessageData_paren(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_myMacro____x40_Init_Notation___hyg_5755____closed__9;
-x_3 = l_myMacro____x40_Init_Notation___hyg_5755____closed__21;
+x_2 = l_myMacro____x40_Init_Notation___hyg_11474____closed__9;
+x_3 = l_myMacro____x40_Init_Notation___hyg_11474____closed__21;
 x_4 = l_Lean_MessageData_bracket(x_2, x_1, x_3);
 return x_4;
 }
@@ -3042,8 +3042,8 @@ lean_object* l_Lean_MessageData_sbracket(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l___kind_term____x40_Init_Notation___hyg_6305____closed__2;
-x_3 = l___kind_term____x40_Init_Notation___hyg_6305____closed__10;
+x_2 = l___kind_term____x40_Init_Notation___hyg_12024____closed__2;
+x_3 = l___kind_term____x40_Init_Notation___hyg_12024____closed__10;
 x_4 = l_Lean_MessageData_bracket(x_2, x_1, x_3);
 return x_4;
 }
@@ -3229,8 +3229,8 @@ else
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = l_Lean_MessageData_ofList___closed__4;
 x_4 = l_Lean_MessageData_joinSep(x_1, x_3);
-x_5 = l___kind_term____x40_Init_Notation___hyg_6305____closed__2;
-x_6 = l___kind_term____x40_Init_Notation___hyg_6305____closed__10;
+x_5 = l___kind_term____x40_Init_Notation___hyg_12024____closed__2;
+x_6 = l___kind_term____x40_Init_Notation___hyg_12024____closed__10;
 x_7 = l_Lean_MessageData_bracket(x_5, x_4, x_6);
 return x_7;
 }

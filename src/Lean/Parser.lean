@@ -25,6 +25,7 @@ def mkAntiquot.parenthesizer (name : String) (kind : Option SyntaxNodeKind) (ano
 -- (e.g. `ident`) is not equal to the parser name `Lean.Parser.Term.ident`.
 @[builtinParenthesizer ident] def ident.parenthesizer : Parenthesizer := Parser.Term.ident.parenthesizer
 @[builtinParenthesizer numLit] def numLit.parenthesizer : Parenthesizer := Parser.Term.num.parenthesizer
+@[builtinParenthesizer decimalLit] def decimalLit.parenthesizer : Parenthesizer := Parser.Term.decimal.parenthesizer
 @[builtinParenthesizer charLit] def charLit.parenthesizer : Parenthesizer := Parser.Term.char.parenthesizer
 @[builtinParenthesizer strLit] def strLit.parenthesizer : Parenthesizer := Parser.Term.str.parenthesizer
 
@@ -38,6 +39,7 @@ def mkAntiquot.formatter (name : String) (kind : Option SyntaxNodeKind) (anonymo
 
 @[builtinFormatter ident] def ident.formatter : Formatter := Parser.Term.ident.formatter
 @[builtinFormatter numLit] def numLit.formatter : Formatter := Parser.Term.num.formatter
+@[builtinFormatter decimalLit] def decimalLit.formatter : Formatter := Parser.Term.decimal.formatter
 @[builtinFormatter charLit] def charLit.formatter : Formatter := Parser.Term.char.formatter
 @[builtinFormatter strLit] def strLit.formatter : Formatter := Parser.Term.str.formatter
 

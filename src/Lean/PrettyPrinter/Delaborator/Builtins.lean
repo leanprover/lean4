@@ -368,6 +368,15 @@ def delabOfNat : Delab := whenPPOption getPPCoercions do
   let (Expr.app (Expr.app _ (Expr.lit (Literal.natVal n) _) _) _ _) ← getExpr | failure
   return quote n
 
+-- `@OfDecimal.ofDecimal _ _ m e` ~> `m*10^(-e)`
+@[builtinDelab app.OfDecimal.ofDecimal]
+def delabOfDecimal : Delab := whenPPOption getPPCoercions do
+  let (Expr.app (Expr.app _ (Expr.lit (Literal.natVal m) _) _) (Expr.lit (Literal.natVal e) _) _) ← getExpr | failure
+  let str  := toString m
+  let mStr := str.extract 0 (str.length - e)
+  let eStr := str.extract (str.length - e) str.length
+  return Syntax.mkDecimalLit (mStr ++ "." ++ eStr)
+
 /--
 Delaborate a projection primitive. These do not usually occur in
 user code, but are pretty-printed when e.g. `#print`ing a projection

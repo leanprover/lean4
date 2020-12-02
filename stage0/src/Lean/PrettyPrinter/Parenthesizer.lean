@@ -407,6 +407,7 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesi
 @[combinatorParenthesizer Lean.Parser.strLitNoAntiquot] def strLitNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.nameLitNoAntiquot] def nameLitNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.numLitNoAntiquot] def numLitNoAntiquot.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.decimalLitNoAntiquot] def decimalLitNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.fieldIdx] def fieldIdx.parenthesizer := visitToken
 
 @[combinatorParenthesizer Lean.Parser.many]
@@ -494,6 +495,7 @@ builtin_initialize
   registerAlias "ws" checkWsBefore.parenthesizer
   registerAlias "noWs" checkNoWsBefore.parenthesizer
   registerAlias "num" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer)
+  registerAlias "decimal" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "decimalLit" `decimalLit) decimalLitNoAntiquot.parenthesizer)
   registerAlias "str" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer)
   registerAlias "char" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer)
   registerAlias "name" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer)

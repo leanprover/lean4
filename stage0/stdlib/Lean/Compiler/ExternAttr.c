@@ -19,7 +19,6 @@ lean_object* l_Lean_setEnv___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hy
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_353____spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_getExternAttrData___spec__2(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternEntries_match__4(lean_object*);
 lean_object* l_Lean_getExternEntryForAux(lean_object*, lean_object*);
 lean_object* l_Lean_getExternConstArity___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,6 +51,7 @@ lean_object* l_Lean_instInhabitedExternAttrData;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedExternAttrData___closed__1;
+lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPattern(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -985,7 +985,7 @@ lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39;
 x_36 = l_Lean_instInhabitedSyntax;
 x_37 = lean_array_get(x_36, x_3, x_34);
 x_38 = l_Lean_numLitKind;
-x_39 = l_Lean_Syntax_isNatLitAux(x_38, x_37);
+x_39 = l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(x_38, x_37);
 lean_dec(x_37);
 if (lean_obj_tag(x_39) == 0)
 {

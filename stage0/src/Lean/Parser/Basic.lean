@@ -68,7 +68,7 @@ namespace Lean
 namespace Parser
 
 def isLitKind (k : SyntaxNodeKind) : Bool :=
-  k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind
+  k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind || k == decimalLitKind || k == scientificLitKind
 
 abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
   Syntax.atom info val
@@ -812,16 +812,17 @@ def decimalNumberFn (startPos : Nat) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
   let curr  := input.get i
-  let s :=
-    /- TODO(Leo): should we use a different kind for numerals containing decimal points? -/
-    if curr == '.' then
-      let i    := input.next i
-      let curr := input.get i
+  if curr == '.' then
+    let i    := input.next i
+    let curr := input.get i
+    let s :=
       if curr.isDigit then
         takeWhileFn (fun c => c.isDigit) c (s.setPos i)
-      else s
-    else s
-  mkNodeToken numLitKind startPos c s
+      else
+        s
+    mkNodeToken decimalLitKind startPos c s
+  else
+    mkNodeToken numLitKind startPos c s
 
 def binNumberFn (startPos : Nat) : ParserFn := fun c s =>
   let s := takeWhile1Fn (fun c => c == '0' || c == '1') "binary number" c s
@@ -1159,6 +1160,17 @@ def numLitFn : ParserFn :=
 @[inline] def numLitNoAntiquot : Parser := {
   fn   := numLitFn,
   info := mkAtomicInfo "numLit"
+}
+
+def decimalLitFn : ParserFn :=
+  fun c s =>
+    let iniPos := s.pos
+    let s      := tokenFn c s
+    if s.hasError || !(s.stxStack.back.isOfKind decimalLitKind) then s.mkErrorAt "decimal number" iniPos else s
+
+@[inline] def decimalLitNoAntiquot : Parser := {
+  fn   := decimalLitFn,
+  info := mkAtomicInfo "decimalLit"
 }
 
 def strLitFn : ParserFn := fun c s =>
@@ -1593,6 +1605,9 @@ def rawIdent : Parser :=
 
 def numLit : Parser :=
   withAntiquot (mkAntiquot "numLit" numLitKind) numLitNoAntiquot
+
+def decimalLit : Parser :=
+  withAntiquot (mkAntiquot "decimalLit" decimalLitKind) decimalLitNoAntiquot
 
 def strLit : Parser :=
   withAntiquot (mkAntiquot "strLit" strLitKind) strLitNoAntiquot

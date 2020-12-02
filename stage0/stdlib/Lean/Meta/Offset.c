@@ -63,6 +63,7 @@ lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isOffset_match__1___rarg(
 lean_object* l_Lean_Meta_evalNat_visit___closed__13;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_672____closed__7;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux_match__2___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Syntax_decodeNatLitVal_x3f___closed__1;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux_match__1(lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__14;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isOffset_match__2(lean_object*);
@@ -92,7 +93,6 @@ lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__7;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux_match__4___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Syntax_decodeNatLitVal___closed__1;
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isDefEqOffset_match__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isNatZero_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -3592,7 +3592,7 @@ return x_20;
 else
 {
 lean_object* x_21; lean_object* x_22; 
-x_21 = l_Lean_Syntax_decodeNatLitVal___closed__1;
+x_21 = l_Lean_Syntax_decodeNatLitVal_x3f___closed__1;
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_6);

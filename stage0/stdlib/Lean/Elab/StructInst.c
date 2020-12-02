@@ -38,7 +38,6 @@ lean_object* l_Lean_Elab_Term_StructInst_elabStructInst_match__2(lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_instInhabitedField(lean_object*);
-lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__1;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_Struct_modifyFieldsM(lean_object*);
@@ -115,6 +114,7 @@ lean_object* l_Lean_Elab_Term_StructInst_initFn____x40_Lean_Elab_StructInst___hy
 lean_object* l_List_foldlM___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkFieldMap___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_mkDefaultValueAux_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_isModifyOp_x3f___spec__1___closed__5;
+lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkCtorHeaderAux___closed__1;
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabStruct_match__2(lean_object*);
@@ -6275,7 +6275,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = l_Lean_fieldIdxKind;
-x_9 = l_Lean_Syntax_isNatLitAux(x_8, x_1);
+x_9 = l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(x_8, x_1);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
@@ -6321,7 +6321,7 @@ if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
 x_21 = l_Lean_fieldIdxKind;
-x_22 = l_Lean_Syntax_isNatLitAux(x_21, x_19);
+x_22 = l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(x_21, x_19);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; 

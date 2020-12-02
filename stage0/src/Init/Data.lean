@@ -21,3 +21,4 @@ import Init.Data.Random
 import Init.Data.ToString
 import Init.Data.Range
 import Init.Data.Hashable
+import Init.Data.OfDecimal

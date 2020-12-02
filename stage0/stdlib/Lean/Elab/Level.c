@@ -16,7 +16,6 @@ extern "C" {
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM;
 lean_object* lean_erase_macro_scopes(lean_object*);
-lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___closed__10;
 lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__1___boxed(lean_object*, lean_object*);
@@ -30,6 +29,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_MetavarContext_addLevelMVarDecl(lean_object*, lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Elab_Level_elabLevel___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__4;
+lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1166,7 +1166,7 @@ x_30 = lean_ctor_get(x_27, 1);
 x_31 = lean_unsigned_to_nat(2u);
 x_32 = l_Lean_Syntax_getArg(x_1, x_31);
 lean_dec(x_1);
-x_33 = l_Lean_Syntax_isNatLitAux(x_17, x_32);
+x_33 = l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(x_17, x_32);
 lean_dec(x_32);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -1200,7 +1200,7 @@ lean_dec(x_27);
 x_39 = lean_unsigned_to_nat(2u);
 x_40 = l_Lean_Syntax_getArg(x_1, x_39);
 lean_dec(x_1);
-x_41 = l_Lean_Syntax_isNatLitAux(x_17, x_40);
+x_41 = l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(x_17, x_40);
 lean_dec(x_40);
 if (lean_obj_tag(x_41) == 0)
 {
@@ -1405,7 +1405,7 @@ else
 {
 lean_object* x_89; 
 lean_dec(x_4);
-x_89 = l_Lean_Syntax_isNatLitAux(x_17, x_1);
+x_89 = l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(x_17, x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_89) == 0)
 {
@@ -1740,7 +1740,7 @@ if (lean_is_exclusive(x_174)) {
 x_178 = lean_unsigned_to_nat(2u);
 x_179 = l_Lean_Syntax_getArg(x_1, x_178);
 lean_dec(x_1);
-x_180 = l_Lean_Syntax_isNatLitAux(x_164, x_179);
+x_180 = l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(x_164, x_179);
 lean_dec(x_179);
 if (lean_obj_tag(x_180) == 0)
 {
@@ -1943,7 +1943,7 @@ else
 {
 lean_object* x_222; 
 lean_dec(x_4);
-x_222 = l_Lean_Syntax_isNatLitAux(x_164, x_1);
+x_222 = l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(x_164, x_1);
 lean_dec(x_1);
 if (lean_obj_tag(x_222) == 0)
 {

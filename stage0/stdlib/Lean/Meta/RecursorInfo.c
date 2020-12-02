@@ -31,7 +31,6 @@ lean_object* l_Array_binSearchAux___at_Lean_Meta_getMajorPos_x3f___spec__2___box
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Std_RBNode_fold___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2050____spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2050____closed__5;
-lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 extern lean_object* l_instReprOption___rarg___closed__1;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,6 +68,7 @@ lean_object* l_Array_qpartition_loop___at_Lean_Meta_initFn____x40_Lean_Meta_Recu
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 lean_object* l_Lean_Meta_mkBRecOnName(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
+lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -9099,7 +9099,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9;
 x_6 = l_Lean_instInhabitedSyntax;
 x_7 = lean_array_get(x_6, x_2, x_4);
 x_8 = l_Lean_numLitKind;
-x_9 = l_Lean_Syntax_isNatLitAux(x_8, x_7);
+x_9 = l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(x_8, x_7);
 lean_dec(x_7);
 if (lean_obj_tag(x_9) == 0)
 {

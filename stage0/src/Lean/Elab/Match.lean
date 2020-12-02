@@ -747,7 +747,7 @@ private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltVi
      | _ => pure ()
    ```
    If `synthesizeSyntheticMVarsNoPostponing`, the example above fails at `x.fst` because
-   the type of `x` is only available adfer we proces the last argument of `List.forM`.
+   the type of `x` is only available after we proces the last argument of `List.forM`.
 
    We apply pending default types to make sure we can process examples such as
    ```

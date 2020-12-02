@@ -56,7 +56,7 @@ def modPathToFilePath : Name → String
 def findOLean (mod : Name) : IO String := do
   let sp ← searchPathRef.get
   let pkg := mod.getRoot.toString
-  let some root ← sp.findM? (fun path => IO.isDir $ path ++ pathSep ++ pkg)
+  let some root ← sp.findM? (fun path => IO.isDir s!"{path}{pathSep}{pkg}" <||> IO.fileExists s!"{path}{pathSep}{pkg}.olean")
     | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'"
   pure $ root ++ modPathToFilePath mod ++ ".olean"
 

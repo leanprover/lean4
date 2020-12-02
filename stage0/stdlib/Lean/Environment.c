@@ -280,7 +280,6 @@ uint8_t l_Lean_SMap_contains___at_Lean_Environment_contains___spec__1(lean_objec
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_modifyState(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getEntries___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_IO_fileExists___at_Lean_importModulesAux___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp___elambda__1(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_importModules___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtension(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -436,7 +435,6 @@ uint8_t l_Lean_Environment_hasUnsafe___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___closed__5;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_importModulesAux_match__1___rarg(lean_object*, lean_object*);
-lean_object* l_IO_fileExists___at_Lean_importModulesAux___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_registerNamespace(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedEnvExtensionInterface___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getNamespaceSet(lean_object*);
@@ -7258,14 +7256,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_importModulesAux_match__3___rarg), 4, 0)
 return x_2;
 }
 }
-lean_object* l_IO_fileExists___at_Lean_importModulesAux___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_io_file_exists(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_importModulesAux___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -8159,15 +8149,6 @@ goto _start;
 }
 }
 }
-}
-}
-lean_object* l_IO_fileExists___at_Lean_importModulesAux___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_IO_fileExists___at_Lean_importModulesAux___spec__1(x_1, x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* l_Lean_importModulesAux___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

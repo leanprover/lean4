@@ -181,7 +181,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVar(lean_object*, lean_objec
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabNil___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVar___closed__4;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabStructureInstance___closed__4;
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_PrettyPrinter_Delaborator_withBindingBody___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabListToArray(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabConsList___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___kind_stx____x40_Init_Notation___hyg_12776____closed__2;
@@ -587,6 +586,7 @@ extern lean_object* l_Lean_getSanitizeNames___closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_365____closed__1;
 extern lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Elab_Term_0__Lean_Elab_Term_isLambdaWithImplicit___spec__1___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabProj___closed__4;
+lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_ForEachExpr_0__Lean_Meta_ForEachExpr_visitBinder___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch_match__2(lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabLetE___closed__1;
@@ -15464,7 +15464,7 @@ lean_object* l_Lean_Meta_withLetDecl___at_Lean_PrettyPrinter_Delaborator_delabLe
 _start:
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = lean_alloc_closure((void*)(l_Lean_Meta_withLocalDecl___at_Lean_PrettyPrinter_Delaborator_withBindingBody___spec__1___rarg___lambda__1), 8, 2);
+x_11 = lean_alloc_closure((void*)(l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_ForEachExpr_0__Lean_Meta_ForEachExpr_visitBinder___spec__1___rarg___lambda__1), 8, 2);
 lean_closure_set(x_11, 0, x_4);
 lean_closure_set(x_11, 1, x_5);
 x_12 = l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp___rarg(x_1, x_2, x_3, x_11, x_6, x_7, x_8, x_9, x_10);

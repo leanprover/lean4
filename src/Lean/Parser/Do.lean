@@ -24,7 +24,7 @@ def doSeqBracketed := parser! "{" >> withoutPosition (many1 doSeqItem) >> ppLine
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
 def notFollowedByRedefinedTermToken :=
-  notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> "try") "token at 'do' element"
+  notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try") "token at 'do' element"
 
 @[builtinDoElemParser] def doLet      := parser! "let " >> optional "mut " >> letDecl
 

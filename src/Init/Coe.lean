@@ -187,3 +187,15 @@ instance [CoeTC α β] [Append β] : HAppend α β β where
 
 instance [CoeTC α β] [Append β] : HAppend β α β where
   hAppend a b := Append.append a b
+
+instance [CoeTC α β] [OrElse β] : HOrElse α β β where
+  hOrElse a b := OrElse.orElse a b
+
+instance [CoeTC α β] [OrElse β] : HOrElse β α β where
+  hOrElse a b := OrElse.orElse a b
+
+instance [CoeTC α β] [AndThen β] : HAndThen α β β where
+  hAndThen a b := AndThen.andThen a b
+
+instance [CoeTC α β] [AndThen β] : HAndThen β α β where
+  hAndThen a b := AndThen.andThen a b

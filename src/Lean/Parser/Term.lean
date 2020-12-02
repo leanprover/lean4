@@ -52,8 +52,8 @@ def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p
 @[builtinTermParser] def hole := parser! "_"
 @[builtinTermParser] def syntheticHole := parser! "?" >> (ident <|> hole)
 @[builtinTermParser] def «sorry» := parser! "sorry"
-@[builtinTermParser] def cdot   := parser! "·" <|> "."
-@[builtinTermParser] def emptyC := parser! "∅" <|> ("{" >> "}")
+@[builtinTermParser] def cdot   := parser! symbol "·" <|> "."
+@[builtinTermParser] def emptyC := parser! "∅" <|> (symbol "{" >> "}")
 def typeAscription := parser! " : " >> termParser
 def tupleTail      := parser! ", " >> sepBy1 termParser ", "
 def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
@@ -80,7 +80,7 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def inaccessible := parser! ".(" >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
-def binderTactic  := parser! atomic (" := " >> " by ") >> Tactic.tacticSeq
+def binderTactic  := parser! atomic (symbol " := " >> " by ") >> Tactic.tacticSeq
 def binderDefault := parser! " := " >> termParser
 def explicitBinder (requireType := false) := ppGroup $ parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
 def implicitBinder (requireType := false) := ppGroup $ parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
@@ -122,7 +122,7 @@ def matchDiscr := parser! optional (atomic (ident >> checkNoWsBefore "no space b
 @[builtinTermParser] def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
 @[builtinTermParser] def «nomatch»  := parser!:leadPrec "nomatch " >> termParser
 
-def funImplicitBinder := atomic (lookahead ("{" >> many1 binderIdent >> (" : " <|> "}"))) >> implicitBinder
+def funImplicitBinder := atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
 def funSimpleBinder   := atomic (lookahead (many1 binderIdent >> " : ")) >> simpleBinder
 def funBinder : Parser := funImplicitBinder <|> instBinder <|> funSimpleBinder <|> termParser maxPrec
 -- NOTE: we use `nodeWithAntiquot` to ensure that `fun $b => ...` remains a `term` antiquotation

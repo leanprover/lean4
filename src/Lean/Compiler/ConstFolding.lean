@@ -10,8 +10,8 @@ import Lean.Compiler.Util
 
 namespace Lean.Compiler
 
-def BinFoldFn := Bool → Expr → Expr → Option Expr
-def UnFoldFn  := Bool → Expr → Option Expr
+abbrev BinFoldFn := Bool → Expr → Expr → Option Expr
+abbrev UnFoldFn  := Bool → Expr → Option Expr
 
 def mkUIntTypeName (nbytes : Nat) : Name :=
   Name.mkSimple ("UInt" ++ toString nbytes)

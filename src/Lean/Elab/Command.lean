@@ -239,7 +239,7 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
           let k := stx.getKind;
           match table.find? k with
           | some elabFns => elabCommandUsing s stx elabFns
-          | none         => throwError ("elaboration function for '" ++ toString k ++ "' has not been implemented")
+          | none         => throwError! "elaboration function for '{k}' has not been implemented"
     | _ => throwError "unexpected command"
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/

@@ -53,10 +53,10 @@ def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroS
   match macroStack with
   | []             => pure msgData
   | stack@(top::_) =>
-    let msgData := msgData ++ Format.line ++ "with resulting expansion" ++ MessageData.nest 2 (Format.line ++ top.after)
+    let msgData := msgData ++ Format.line ++ "with resulting expansion" ++ indentD top.after
     pure $ stack.foldl
       (fun (msgData : MessageData) (elem : MacroStackElem) =>
-        msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ elem.before))
+        msgData ++ Format.line ++ "while expanding" ++ indentD elem.before)
       msgData
 
 def checkSyntaxNodeKind (k : Name) : AttrM Name := do

@@ -5,7 +5,7 @@ macro_rules [myAdd1]
 | `($a +++ $b) => `(Nat.add $a $b)
 
 macro_rules [myAdd2]
-| `($a +++ $b) => `($a ++ $b)
+| `($a +++ $b) => `(Append.append $a $b)
 
 #check (1:Nat) +++ 3
 
@@ -18,10 +18,3 @@ rfl
 
 theorem tst2 : ([1, 2] +++ [3, 4]) = [1, 2] ++ [3, 4] :=
 rfl
-
-syntax:65 [myAdd3] term "++" term:65 : term
-
-macro_rules [myAdd3]
-| `($a ++ $b) => `($a + $b)
-
-#check (1:Nat) ++ 2

@@ -74,7 +74,7 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
       if (← read).autoBoundImplicit && isValidAutoBoundLevelName paramName then
         modify fun s => { s with levelNames := paramName :: s.levelNames }
       else
-        throwError ("unknown universe level " ++ paramName)
+        throwError! "unknown universe level '{paramName}'"
     return mkLevelParam paramName
   else if kind == `Lean.Parser.Level.addLit then
     let lvl ← elabLevel (stx.getArg 0)

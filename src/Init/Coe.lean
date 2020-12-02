@@ -181,3 +181,9 @@ instance [CoeTC α β] [Mod β] : HMod α β β where
 
 instance [CoeTC α β] [Mod β] : HMod β α β where
   hMod a b := Mod.mod a b
+
+instance [CoeTC α β] [Append β] : HAppend α β β where
+  hAppend a b := Append.append a b
+
+instance [CoeTC α β] [Append β] : HAppend β α β where
+  hAppend a b := Append.append a b

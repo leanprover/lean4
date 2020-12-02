@@ -9,7 +9,7 @@ structure MyState :=
 abbrev M := CoreM
 
 def tst1 : M Unit :=
-do trace! `module ("hello" ++ MessageData.nest 9 (Format.line ++ "world"));
+do trace! `module (m!"hello" ++ MessageData.nest 9 (m!"\n" ++ "world"));
    trace! `module.aux "another message";
    pure ()
 
@@ -37,7 +37,7 @@ do traceCtx `module $ do {
    trace! `bughunt "at end of tst3";
    -- Messages are computed lazily. The following message will only be computed
    -- if `trace.slow is active.
-   trace! `slow ("slow message: " ++ toString (slow b))
+   trace! `slow (m!"slow message: " ++ toString (slow b))
 
 def run (x : M Unit) : M Unit :=
 withReader

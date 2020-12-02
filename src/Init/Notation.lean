@@ -43,7 +43,7 @@ infixl:35 " && " => and
 infixl:30 " || " => or
 notation:max "!" b:40 => not b
 
-infixl:65 " ++ " => Append.append
+infixl:65 " ++ " => HAppend.hAppend
 infixr:67 " :: " => List.cons
 
 infixr:2   " <|> " => OrElse.orElse

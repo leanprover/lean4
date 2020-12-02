@@ -86,7 +86,7 @@ let ⟨zId, nId, subst⟩ ← assertAfter m.mvarId! x.fvarId! `z nat val;
 print m;
 print (← ppGoal nId);
 withMVarContext nId do {
-  print (subst.apply x ++ " " ++ subst.apply y ++ " " ++ mkFVar zId);
+  print m!"{subst.apply x} {subst.apply y} {mkFVar zId}";
   assignExprMVar nId (← mkAppM `Add.add #[subst.apply x, mkFVar zId]);
   print (mkMVar nId)
 };
@@ -127,7 +127,7 @@ let ⟨zId, nId, subst⟩ ← assertAfter m.mvarId! y.fvarId! `z nat val;
 print m;
 print (← ppGoal nId);
 withMVarContext nId do {
-  print (subst.apply x ++ " " ++ subst.apply y ++ " " ++ mkFVar zId);
+  print m!"{subst.apply x} {subst.apply y} {mkFVar zId}";
   assignExprMVar nId (← mkAppM `Add.add #[subst.apply x, mkFVar zId]);
   print (mkMVar nId)
 };

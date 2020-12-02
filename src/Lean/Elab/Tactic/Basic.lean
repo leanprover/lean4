@@ -16,7 +16,7 @@ namespace Lean.Elab
 open Meta
 
 def goalsToMessageData (goals : List MVarId) : MessageData :=
-  MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
+  MessageData.joinSep (goals.map $ MessageData.ofGoal) m!"\n\n"
 
 def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit := do
   throwError! "unsolved goals\n{goalsToMessageData goals}"

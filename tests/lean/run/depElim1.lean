@@ -170,7 +170,7 @@ withDepElimFrom ex numPats fun majors alts => do
   unless r.counterExamples.isEmpty do
     throwError m!"missing cases:\n{counterExamplesToMessageData r.counterExamples}"
   unless r.unusedAltIdxs.isEmpty do
-    throwError ("unused alternatives: " ++ toString (r.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)))
+    throwError (m!"unused alternatives: " ++ toString (r.unusedAltIdxs.map fun idx => "#" ++ toString (idx+1)))
   let cinfo ← getConstInfo elimName
   IO.println (toString cinfo.name ++ " : " ++ toString cinfo.type)
   pure ()

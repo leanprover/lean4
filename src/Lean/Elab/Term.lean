@@ -850,7 +850,7 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
   an error is found. -/
 private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
     : List TermElab → TermElabM Expr
-  | []                => do throwError! "unexpected syntax{MessageData.nestD (Format.line ++ stx)}"
+  | []                => do throwError! "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) => do
     try
       elabFn stx expectedType?

@@ -109,8 +109,8 @@ private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (pos
   Return `true` if at least one of them was synthesized. -/
 private def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
   let ctx ← read
-  traceAtCmdPos `Elab.resuming $ fun _ =>
-    fmt "resuming synthetic metavariables, mayPostpone: " ++ fmt ctx.mayPostpone ++ ", postponeOnError: " ++ toString postponeOnError
+  traceAtCmdPos `Elab.resuming fun _ =>
+    m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
   let s ← get
   let syntheticMVars    := s.syntheticMVars
   let numSyntheticMVars := syntheticMVars.length

@@ -10,7 +10,7 @@ open B
 #check g x
 
 macro "foo!" x:term : term => `($x + (1:Nat))
-macro "foo!" x:term : term => `($x ++ " world")
+macro "foo!" x:term : term => `(Append.append $x " world")
 
 #check f (foo! 1)
 #check g (foo! "hello")

@@ -65,7 +65,7 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
         -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
         -- synthesize a formatter for it immediately, so we just check for a declaration in this case
         if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
-        else throwError ("invalid [formatter] argument, unknown syntax kind '" ++ toString id ++ "'")
+        else throwError! "invalid [formatter] argument, unknown syntax kind '{id}'"
       | none    => throwError "invalid [formatter] argument, expected identifier"
   } `Lean.PrettyPrinter.formatterAttribute
 @[builtinInit mkFormatterAttribute] constant formatterAttribute : KeyedDeclsAttribute Formatter
@@ -175,7 +175,7 @@ def withAntiquot.formatter (antiP p : Formatter) : Formatter :=
 @[combinatorFormatter Lean.Parser.categoryParser]
 def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
   let stx ← getCur
-  trace[PrettyPrinter.format]! "formatting {MessageData.nest 2 (Format.line ++ fmt stx)}"
+  trace[PrettyPrinter.format]! "formatting {indentD (fmt stx)}"
   if stx.getKind == `choice then
     visitArgs do
       -- format only last choice

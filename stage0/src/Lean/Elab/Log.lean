@@ -68,7 +68,7 @@ def logException [MonadLiftT IO m] (ex : Exception) : m Unit := do
   | Exception.internal id _ =>
     unless id == abortExceptionId do
       let name ← id.getName
-      logError ("internal exception: " ++ name)
+      logError m!"internal exception: {name}"
 
 def logTrace (cls : Name) (msgData : MessageData) : m Unit := do
   logInfo (MessageData.tagged cls msgData)

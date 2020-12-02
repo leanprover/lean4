@@ -373,7 +373,10 @@ class HMod (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hMod : α → β → γ
 
 class HPow (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hPow : α → β → α
+  hPow : α → β → γ
+
+class HAppend (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hAppend : α → β → γ
 
 class Add (α : Type u) where
   add : α → α → α
@@ -429,10 +432,14 @@ instance [Mod α] : HMod α α α where
 instance [Pow α] : HPow α α α where
   hPow a b := Pow.pow a b
 
+@[defaultInstance 1]
+instance [Append α] : HAppend α α α where
+  hAppend a b := Append.append a b
+
 open HAdd (hAdd)
 open HMul (hMul)
 open HPow (hPow)
-open Append (append)
+open HAppend (hAppend)
 
 @[reducible] def GreaterEq {α : Type u} [HasLessEq α] (a b : α) : Prop := LessEq b a
 @[reducible] def Greater {α : Type u} [HasLess α] (a b : α) : Prop     := Less b a
@@ -1778,7 +1785,7 @@ def MacroScopesView.review (view : MacroScopesView) : Name :=
   match view.scopes with
   | List.nil      => view.name
   | List.cons _ _ =>
-    let base := (Name.mkStr (append (append (Name.mkStr view.name "_@") view.imported) view.mainModule) "_hyg")
+    let base := (Name.mkStr (hAppend (hAppend (Name.mkStr view.name "_@") view.imported) view.mainModule) "_hyg")
     view.scopes.foldl Name.mkNum base
 
 private def assembleParts : List Name → Name → Name
@@ -1825,12 +1832,12 @@ def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
     | true  => Name.mkNum n scp
     | false =>
       { view with
-        imported   := view.scopes.foldl Name.mkNum (append view.imported view.mainModule),
+        imported   := view.scopes.foldl Name.mkNum (hAppend view.imported view.mainModule),
         mainModule := mainModule,
         scopes     := List.cons scp List.nil
       }.review
   | false =>
-    Name.mkNum (Name.mkStr (append (Name.mkStr n "_@") mainModule) "_hyg") scp
+    Name.mkNum (Name.mkStr (hAppend (Name.mkStr n "_@") mainModule) "_hyg") scp
 
 @[inline] def MonadQuotation.addMacroScope {m : Type → Type} [MonadQuotation m] [Monad m] (n : Name) : m Name :=
   bind getMainModule     fun mainModule =>

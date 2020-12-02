@@ -433,6 +433,7 @@ lean_object* l_EStateM_nonBacktrackable___closed__2;
 uint8_t l_instDecidableEqUSize(size_t, size_t);
 lean_object* l_Lean_Macro_withIncRecDepth_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_instHSub(lean_object*);
+lean_object* l_instHAppend___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_UInt16_size;
 lean_object* l_Lean_Syntax_getHeadInfo_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instDecidableAnd_match__1(lean_object*, lean_object*);
@@ -441,6 +442,7 @@ lean_object* l_decEq(lean_object*);
 lean_object* l_or___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_withRef___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_pred(lean_object*);
+lean_object* l_instHAppend(lean_object*);
 lean_object* l_throwThe(lean_object*, lean_object*);
 lean_object* l_instMonadExcept___rarg(lean_object*);
 lean_object* l_instDecidableAnd_match__2___rarg(uint8_t, lean_object*, lean_object*);
@@ -2195,6 +2197,22 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_instHPow___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_instHAppend___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_instHAppend(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instHAppend___rarg), 3, 0);
 return x_2;
 }
 }

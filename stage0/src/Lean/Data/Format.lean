@@ -50,7 +50,7 @@ instance : Coe String Format    := ⟨text⟩
 instance : Inhabited Format     := ⟨nil⟩
 
 def join (xs : List Format) : Format :=
-  xs.foldl Append.append ""
+  xs.foldl (·++·) ""
 
 def isNil : Format → Bool
   | nil => true

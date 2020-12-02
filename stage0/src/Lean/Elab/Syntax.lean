@@ -237,7 +237,8 @@ def «syntax»      := parser! "syntax " >> optPrecedence >> optKindPrio >> many
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab := fun stx => do
   let env ← getEnv
   let cat := stx[5].getId.eraseMacroScopes
-  unless (Parser.isParserCategory env cat) do throwErrorAt stx[5] ("unknown category '" ++ cat ++ "'")
+  unless (Parser.isParserCategory env cat) do
+    throwErrorAt! stx[5] "unknown category '{cat}'"
   let syntaxParser := stx[3]
   -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec

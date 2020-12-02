@@ -122,7 +122,7 @@ def expandExternPattern (pattern : String) (args : List String) : String :=
   expandExternPatternAux args pattern.length pattern.mkIterator ""
 
 def mkSimpleFnCall (fn : String) (args : List String) : String :=
-  fn ++ "(" ++ ((args.intersperse ", ").foldl Append.append "") ++ ")"
+  fn ++ "(" ++ ((args.intersperse ", ").foldl (·++·) "") ++ ")"
 
 def ExternEntry.backend : ExternEntry → Name
   | ExternEntry.adhoc n      => n

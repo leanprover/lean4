@@ -833,7 +833,7 @@ private def toMessageData (ex : Exception) : TermElabM MessageData := do
       pure m!"{exPosition.line}:{exPosition.column} {ex.toMessageData}"
 
 private def toMessageList (msgs : Array MessageData) : MessageData :=
-  indentD (MessageData.joinSep msgs.toList (Format.line ++ Format.line))
+  indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
 private def mergeFailures {α} (failures : Array TermElabResult) : TermElabM α := do
   let msgs ← failures.mapM fun failure =>

@@ -10689,7 +10689,7 @@ static lean_object* _init_l_myMacro____x40_Init_Notation___hyg_8333____closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Append.append");
+x_1 = lean_mk_string("HAppend.hAppend");
 return x_1;
 }
 }
@@ -10720,7 +10720,7 @@ static lean_object* _init_l_myMacro____x40_Init_Notation___hyg_8333____closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Append");
+x_1 = lean_mk_string("HAppend");
 return x_1;
 }
 }
@@ -10738,7 +10738,7 @@ static lean_object* _init_l_myMacro____x40_Init_Notation___hyg_8333____closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("append");
+x_1 = lean_mk_string("hAppend");
 return x_1;
 }
 }

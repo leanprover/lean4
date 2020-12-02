@@ -564,9 +564,9 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
   let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
   let motiveType ← mkForallFVars majors (mkSort uElimGen)
   withLocalDeclD `motive motiveType fun motive => do
-  trace! `Meta.Match.debug ("motiveType: " ++ motiveType)
+  trace[Meta.Match.debug]! "motiveType: {motiveType}"
   let mvarType  := mkAppN motive majors
-  trace! `Meta.Match.debug ("target: " ++ mvarType)
+  trace[Meta.Match.debug]! "target: {mvarType}"
   withAlts motive lhss fun alts minors => do
     let mvar ← mkFreshExprMVar mvarType
     let examples := majors.toList.map fun major => Example.var major.fvarId!
@@ -574,7 +574,7 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
     let args := #[motive] ++ majors ++ minors.map Prod.fst
     let type ← mkForallFVars args mvarType
     let val  ← mkLambdaFVars args mvar
-    trace! `Meta.Match.debug ("matcher value: " ++ val ++ "\ntype: " ++ type)
+    trace[Meta.Match.debug]! "matcher value: {val}\ntype: {type}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
        for compiling `src/Init/Data/Int`. It is needed because the compiler uses `Int.decLt`
        for generating code for `Int.casesOn` applications, but `Int.casesOn` is used to
@@ -587,7 +587,7 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
        ```
        which is defined **before** `Int.decLt` -/
     let matcher ← mkAuxDefinition matcherName type val (compile := generateMatcherCode (← getOptions))
-    trace! `Meta.Match.debug ("matcher levels: " ++ toString matcher.getAppFn.constLevels! ++ ", uElim: " ++ toString uElimGen)
+    trace[Meta.Match.debug]! "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
     isLevelDefEq uElimGen uElim
     addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := numDiscrs, altNumParams := minors.map Prod.snd, uElimPos? := uElimPos? }

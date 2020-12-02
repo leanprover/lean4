@@ -15,7 +15,7 @@ private def lparamsToMessageData (lparams : List Name) : MessageData :=
   match lparams with
   | []    => ""
   | u::us => do
-    let mut m : MessageData := ".{" ++ u
+    let mut m := m!".\{{u}"
     for u in us do
       m := m ++ ", " ++ u
     return m ++ "}"

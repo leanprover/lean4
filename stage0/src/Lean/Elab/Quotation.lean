@@ -200,7 +200,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
       -- Splices should only appear inside a nullKind node, see next case
       if isAntiquotSplice quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
       else if anti.isIdent then { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
-      else unconditional fun _ => throwErrorAt anti ("match_syntax: antiquotation must be variable " ++ toString anti)
+      else unconditional fun _ => throwErrorAt! anti "match_syntax: antiquotation must be variable {anti}"
     else if isAntiquotSplicePat quoted && quoted.getArgs.size == 1 then
       -- quotation is a single antiquotation splice => bind args array
       let anti := getAntiquotTerm quoted[0]
@@ -212,7 +212,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
       let argPats := quoted.getArgs.map (pat.setArg 1);
       { kind := quoted.getKind, argPats := argPats }
   else
-    unconditional $ fun _ => throwErrorAt pat ("match_syntax: unexpected pattern kind " ++ toString pat)
+    unconditional $ fun _ => throwErrorAt! pat "match_syntax: unexpected pattern kind {pat}"
 
 -- Assuming that the first pattern of the alternative is taken, replace it with patterns (if any) for its
 -- child nodes.

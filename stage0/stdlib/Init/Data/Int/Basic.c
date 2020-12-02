@@ -19,19 +19,14 @@ uint8_t l_String_isInt(lean_object*);
 lean_object* l_Int_instAddInt___closed__1;
 lean_object* l_Int_toNat_match__1(lean_object*);
 lean_object* l_Int_instNegInt;
-lean_object* l_Int_instHMulNatIntInt___boxed(lean_object*, lean_object*);
 lean_object* l_Int_natMod(lean_object*, lean_object*);
 lean_object* l_Int_repr___boxed(lean_object*);
 lean_object* l_String_toInt_x21___closed__1;
 lean_object* l_Substring_toNat_x3f(lean_object*);
 lean_object* l_String_isInt___boxed(lean_object*);
-lean_object* l_Int_instHSubIntNatInt(lean_object*, lean_object*);
 lean_object* l_String_toInt_x21___closed__2;
 lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
 uint8_t l_Int_instDecidableEqInt(lean_object*, lean_object*);
-lean_object* l_Int_instHAddIntNatInt___boxed(lean_object*, lean_object*);
-lean_object* l_Int_instHDivNatIntInt___boxed(lean_object*, lean_object*);
-lean_object* l_Int_instHDivIntNatInt___boxed(lean_object*, lean_object*);
 lean_object* l_Int_negSucc___boxed(lean_object*);
 lean_object* l_String_toInt_x3f(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -42,17 +37,12 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_toInt_x21(lean_object*);
 lean_object* l_Int_instMulInt___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Int_instHAddIntNatInt(lean_object*, lean_object*);
-lean_object* l_Int_instHModIntNatInt(lean_object*, lean_object*);
 lean_object* l_Int_Int_pow___closed__1;
-lean_object* l_Int_instHModNatIntInt___boxed(lean_object*, lean_object*);
 lean_object* l_Int_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_Int_mod_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Int_instHDivNatIntInt(lean_object*, lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Int_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_Int_repr_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Int_instHModNatIntInt(lean_object*, lean_object*);
 lean_object* lean_int_mod(lean_object*, lean_object*);
 lean_object* l_Int_instSubInt;
 lean_object* l_Int_mod_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,12 +64,10 @@ lean_object* l_Int_negOfNat_match__1___rarg(lean_object*, lean_object*, lean_obj
 lean_object* l_Int_div_match__1(lean_object*);
 lean_object* l_Int_instHPowIntNatInt;
 lean_object* l_Int_subNatNat(lean_object*, lean_object*);
-lean_object* l_Int_instHMulIntNatInt___boxed(lean_object*, lean_object*);
 lean_object* l_Int_instModInt;
 lean_object* l_Int_toNat___boxed(lean_object*);
 lean_object* l_Int_mod___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
-lean_object* l_Int_instHAddNatIntInt(lean_object*, lean_object*);
 uint8_t lean_int_dec_nonneg(lean_object*);
 lean_object* l_Int_Int_pow_match__1(lean_object*);
 lean_object* l_Int_div_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,26 +82,21 @@ lean_object* l_Int_Int_pow_match__1___rarg(lean_object*, lean_object*, lean_obje
 lean_object* l_Int_negOfNat_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_repr_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Int_instHSubIntNatInt___boxed(lean_object*, lean_object*);
 lean_object* l_Int_instHasLessEqInt;
 lean_object* l_Int_natMod___boxed(lean_object*, lean_object*);
 lean_object* l_Int_toNat(lean_object*);
 lean_object* l_Int_toNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_instToStringInt;
 lean_object* lean_int_neg(lean_object*);
-lean_object* l_Int_instHSubNatIntInt___boxed(lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
-lean_object* l_Int_instHDivIntNatInt(lean_object*, lean_object*);
 lean_object* l_instCoeNatInt(lean_object*);
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 lean_object* l_Int_Int_pow___boxed(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
-lean_object* l_Int_instHSubNatIntInt(lean_object*, lean_object*);
 lean_object* l_Int_toNat_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_negOfNat(lean_object*);
 lean_object* l_Int_instOfNatInt(lean_object*);
 lean_object* l_Int_subNatNat_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Int_instHAddNatIntInt___boxed(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Int_div_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_subNatNat___boxed(lean_object*, lean_object*);
@@ -122,7 +105,6 @@ lean_object* l_Int_instInhabitedInt___closed__1;
 lean_object* l_Int_subNatNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
-lean_object* l_Int_instHMulIntNatInt(lean_object*, lean_object*);
 lean_object* l_Int_repr_match__1(lean_object*);
 lean_object* l_Int_instHasLessInt;
 lean_object* l_Int_ofNat___boxed(lean_object*);
@@ -130,9 +112,7 @@ lean_object* l_String_toInt_x21___closed__4;
 lean_object* l_Int_instReprInt;
 lean_object* l_Int_instReprInt___closed__1;
 lean_object* lean_int_sub(lean_object*, lean_object*);
-lean_object* l_Int_instHModIntNatInt___boxed(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
-lean_object* l_Int_instHMulNatIntInt(lean_object*, lean_object*);
 lean_object* l_String_toNat_x3f(lean_object*);
 lean_object* l_Int_natAbs___boxed(lean_object*);
 lean_object* l_Int_neg___boxed(lean_object*);
@@ -413,82 +393,6 @@ x_1 = l_Int_instMulInt___closed__1;
 return x_1;
 }
 }
-lean_object* l_Int_instHAddIntNatInt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_2);
-x_4 = lean_int_add(x_1, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Int_instHAddIntNatInt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_instHAddIntNatInt(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Int_instHAddNatIntInt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_1);
-x_4 = lean_int_add(x_3, x_2);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Int_instHAddNatIntInt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_instHAddNatIntInt(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-lean_object* l_Int_instHMulIntNatInt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_2);
-x_4 = lean_int_mul(x_1, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Int_instHMulIntNatInt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_instHMulIntNatInt(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Int_instHMulNatIntInt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_1);
-x_4 = lean_int_mul(x_3, x_2);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Int_instHMulNatIntInt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_instHMulNatIntInt(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 lean_object* l_Int_sub___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -513,44 +417,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Int_instSubInt___closed__1;
 return x_1;
-}
-}
-lean_object* l_Int_instHSubIntNatInt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_2);
-x_4 = lean_int_sub(x_1, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Int_instHSubIntNatInt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_instHSubIntNatInt(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Int_instHSubNatIntInt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_1);
-x_4 = lean_int_sub(x_3, x_2);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Int_instHSubNatIntInt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_instHSubNatIntInt(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Int_instHasLessEqInt() {
@@ -971,82 +837,6 @@ x_1 = l_Int_instModInt___closed__1;
 return x_1;
 }
 }
-lean_object* l_Int_instHDivIntNatInt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_2);
-x_4 = lean_int_div(x_1, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Int_instHDivIntNatInt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_instHDivIntNatInt(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Int_instHDivNatIntInt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_1);
-x_4 = lean_int_div(x_3, x_2);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Int_instHDivNatIntInt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_instHDivNatIntInt(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-lean_object* l_Int_instHModIntNatInt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_2);
-x_4 = lean_int_mod(x_1, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Int_instHModIntNatInt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_instHModIntNatInt(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Int_instHModNatIntInt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_nat_to_int(x_1);
-x_4 = lean_int_mod(x_3, x_2);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_Int_instHModNatIntInt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_instHModNatIntInt(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 lean_object* l_Int_toNat_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1448,7 +1238,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_toInt_x21___closed__1;
 x_2 = l_String_toInt_x21___closed__2;
-x_3 = lean_unsigned_to_nat(218u);
+x_3 = lean_unsigned_to_nat(193u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_String_toInt_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

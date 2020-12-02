@@ -54,15 +54,15 @@ def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifier
 instance : ToFormat Modifiers := ⟨fun m =>
   let components : List Format :=
     (match m.docString with
-     | some str => ["/--" ++ str ++ "-/"]
+     | some str => [f!"/--{str}-/"]
      | none     => [])
     ++ (match m.visibility with
      | Visibility.regular   => []
-     | Visibility.protected => ["protected"]
-     | Visibility.private   => ["private"])
-    ++ (if m.isNoncomputable then ["noncomputable"] else [])
-    ++ (if m.isPartial then ["partial"] else [])
-    ++ (if m.isUnsafe then ["unsafe"] else [])
+     | Visibility.protected => [f!"protected"]
+     | Visibility.private   => [f!"private"])
+    ++ (if m.isNoncomputable then [f!"noncomputable"] else [])
+    ++ (if m.isPartial then [f!"partial"] else [])
+    ++ (if m.isUnsafe then [f!"unsafe"] else [])
     ++ m.attrs.toList.map (fun attr => fmt attr)
   Format.bracket "{" (Format.joinSep components ("," ++ Format.line)) "}"⟩
 

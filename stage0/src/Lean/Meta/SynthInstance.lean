@@ -419,10 +419,10 @@ def resume : SynthM Unit := do
     match (← tryAnswer cNode.mctx mvar answer) with
     | none      => pure ()
     | some mctx =>
-      withMCtx mctx $ traceM `Meta.synthInstance.resume do
+      withMCtx mctx <| traceM `Meta.synthInstance.resume do
         let goal    ← inferType cNode.mvar
         let subgoal ← inferType mvar
-        pure (goal ++ " <== " ++ subgoal)
+        pure m!"{goal} <== {subgoal}"
       consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx := mctx }
 
 def step : SynthM Bool := do

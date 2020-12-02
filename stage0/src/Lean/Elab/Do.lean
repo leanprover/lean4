@@ -175,7 +175,7 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
     | Code.«return» _ v           => m!"return {v} {us}"
     | Code.«match» _ ds t alts    =>
       m!"match {ds} with"
-      ++ alts.foldl (init := "") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
+      ++ alts.foldl (init := m!"") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
   loop codeBlock.code
 
 /- Return true if the give code contains an exit point that satisfies `p` -/

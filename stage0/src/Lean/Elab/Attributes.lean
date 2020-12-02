@@ -13,7 +13,7 @@ structure Attribute where
   args : Syntax := Syntax.missing
 
 instance : ToFormat Attribute := ⟨fun attr =>
-  Format.bracket "@[" (toString attr.name ++ (if attr.args.isMissing then "" else toString attr.args)) "]"⟩
+  Format.bracket "@[" f!"{attr.name}{if attr.args.isMissing then "" else toString attr.args}" "]"⟩
 
 instance : Inhabited Attribute := ⟨{ name := arbitrary }⟩
 

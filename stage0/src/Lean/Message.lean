@@ -126,7 +126,7 @@ def joinSep : List MessageData → MessageData → MessageData
   | a::as, sep => a ++ sep ++ joinSep as sep
 def ofList: List MessageData → MessageData
   | [] => "[]"
-  | xs => sbracket $ joinSep xs ("," ++ Format.line)
+  | xs => sbracket $ joinSep xs (ofFormat "," ++ Format.line)
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
 
@@ -216,40 +216,6 @@ def indentD (msg : MessageData) : MessageData :=
 def indentExpr (e : Expr) : MessageData :=
   indentD e
 
-namespace KernelException
-
-private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-  MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
-
-def toMessageData (e : KernelException) (opts : Options) : MessageData :=
-  match e with
-  | unknownConstant env constName       => mkCtx env {} opts $ "(kernel) unknown constant " ++ constName
-  | alreadyDeclared env constName       => mkCtx env {} opts $ "(kernel) constant has already been declared " ++ constName
-  | declTypeMismatch env decl givenType =>
-    let process (n : Name) (expectedType : Expr) : MessageData :=
-      "(kernel) declaration type mismatch " ++ n
-      ++ Format.line ++ "has type" ++ indentExpr givenType
-      ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
-    match decl with
-    | Declaration.defnDecl { name := n, type := type, .. } => process n type
-    | Declaration.thmDecl { name := n, type := type, .. }  => process n type
-    | _ => "(kernel) declaration type mismatch" -- TODO fix type checker, type mismatch for mutual decls does not have enough information
-  | declHasMVars env constName _        => mkCtx env {} opts $ "(kernel) declaration has metavariables " ++ constName
-  | declHasFVars env constName _        => mkCtx env {} opts $ "(kernel) declaration has free variables " ++ constName
-  | funExpected env lctx e              => mkCtx env lctx opts $ "(kernel) function expected" ++ indentExpr e
-  | typeExpected env lctx e             => mkCtx env lctx opts $ "(kernel) type expected" ++ indentExpr e
-  | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts $ "(kernel) let-declaration type mismatch " ++ n
-  | exprTypeMismatch env lctx e _       => mkCtx env lctx opts $ "(kernel) type mismatch at " ++ indentExpr e
-  | appTypeMismatch  env lctx e fnType argType =>
-    mkCtx env lctx opts $
-      "application type mismatch" ++ indentExpr e
-      ++ Format.line ++ "argument has type" ++ indentExpr argType
-      ++ Format.line ++ "but function has type" ++ indentExpr fnType
-  | invalidProj env lctx e              => mkCtx env lctx opts $ "(kernel) invalid projection" ++ indentExpr e
-  | other msg                           => "(kernel) " ++ msg
-
-end KernelException
-
 class AddMessageContext (m : Type → Type) where
   addMessageContext : MessageData → m MessageData
 
@@ -298,4 +264,33 @@ syntax:max "m!" interpolatedStr(term) : term
 macro_rules
   | `(m! $interpStr) => do interpStr.expandInterpolatedStr (← `(MessageData)) (← `(toMessageData))
 
+
+namespace KernelException
+
+private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
+  MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
+
+def toMessageData (e : KernelException) (opts : Options) : MessageData :=
+  match e with
+  | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
+  | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{constName}'"
+  | declTypeMismatch env decl givenType =>
+    let process (n : Name) (expectedType : Expr) : MessageData :=
+      m!"(kernel) declaration type mismatch, '{n}' has type{indentExpr givenType}\n, but it is expected to have type{indentExpr expectedType}";
+    match decl with
+    | Declaration.defnDecl { name := n, type := type, .. } => process n type
+    | Declaration.thmDecl { name := n, type := type, .. }  => process n type
+    | _ => "(kernel) declaration type mismatch" -- TODO fix type checker, type mismatch for mutual decls does not have enough information
+  | declHasMVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has metavariables '{constName}'"
+  | declHasFVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has free variables '{constName}'"
+  | funExpected env lctx e              => mkCtx env lctx opts m!"(kernel) function expected{indentExpr e}"
+  | typeExpected env lctx e             => mkCtx env lctx opts m!"(kernel) type expected{indentExpr e}"
+  | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts m!"(kernel) let-declaration type mismatch '{n}'"
+  | exprTypeMismatch env lctx e _       => mkCtx env lctx opts m!"(kernel) type mismatch at{indentExpr e}"
+  | appTypeMismatch  env lctx e fnType argType =>
+    mkCtx env lctx opts m!"application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
+  | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
+  | other msg                           => m!"(kernel) {msg}"
+
+end KernelException
 end Lean

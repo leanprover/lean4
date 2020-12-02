@@ -17,7 +17,6 @@ lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed_
 lean_object* lean_string_push(lean_object*, uint32_t);
 size_t l_USize_add(size_t, size_t);
 lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Json_render___lambda__1___closed__1;
 lean_object* l_Lean_Json_escape(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_Json_render___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -423,27 +422,15 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Json_render_match__1___rarg), 8, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_render___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_13596____closed__9;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_Json_render___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
 x_4 = l_Lean_Json_renderString(x_2);
-x_5 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_5, 0, x_4);
-x_6 = l_Lean_Json_render___lambda__1___closed__1;
-x_7 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_7, 0, x_5);
-lean_ctor_set(x_7, 1, x_6);
+x_5 = l_myMacro____x40_Init_Notation___hyg_13596____closed__9;
+x_6 = lean_string_append(x_4, x_5);
+x_7 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
 x_8 = lean_box(1);
 x_9 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
@@ -987,8 +974,6 @@ l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2 = _init_l_
 lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2);
 l_Lean_Json_escape___closed__1 = _init_l_Lean_Json_escape___closed__1();
 lean_mark_persistent(l_Lean_Json_escape___closed__1);
-l_Lean_Json_render___lambda__1___closed__1 = _init_l_Lean_Json_render___lambda__1___closed__1();
-lean_mark_persistent(l_Lean_Json_render___lambda__1___closed__1);
 l_Lean_Json_render___closed__1 = _init_l_Lean_Json_render___closed__1();
 lean_mark_persistent(l_Lean_Json_render___closed__1);
 l_Lean_Json_render___closed__2 = _init_l_Lean_Json_render___closed__2();

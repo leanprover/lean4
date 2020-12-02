@@ -126,7 +126,7 @@ unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
         -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
         -- synthesize a parenthesizer for it immediately, so we just check for a declaration in this case
         if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
-        else throwError ("invalid [parenthesizer] argument, unknown syntax kind '" ++ toString id ++ "'")
+        else throwError! "invalid [parenthesizer] argument, unknown syntax kind '{id}'"
       | none    => throwError "invalid [parenthesizer] argument, expected identifier"
   } `Lean.PrettyPrinter.parenthesizerAttribute
 @[builtinInit mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer
@@ -149,7 +149,7 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
       match attrParamSyntaxToIdentifier args with
       | some id =>
         if Parser.isParserCategory env id then pure id
-        else throwError ("invalid [parenthesizer] argument, unknown parser category '" ++ toString id ++ "'")
+        else throwError! "invalid [parenthesizer] argument, unknown parser category '{toString id}'"
       | none    => throwError "invalid [parenthesizer] argument, expected identifier"
   } `Lean.PrettyPrinter.categoryParenthesizerAttribute
 @[builtinInit mkCategoryParenthesizerAttribute] constant categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer
@@ -208,7 +208,7 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
   let st ← get
   -- reset precs for the recursive call
   set { stxTrav := st.stxTrav : State }
-  trace[PrettyPrinter.parenthesize]! "parenthesizing (cont := {(st.contPrec, st.contCat)}){MessageData.nest 2 (line ++ fmt stx)}"
+  trace[PrettyPrinter.parenthesize]! "parenthesizing (cont := {(st.contPrec, st.contCat)}){indentD (fmt stx)}"
   x
   let { minPrec := some minPrec, trailPrec := trailPrec, trailCat := trailCat, .. } ← get
     | panic! s!"maybeParenthesize: visited a syntax tree without precedences?!{line ++ fmt stx}"
@@ -228,7 +228,7 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
         let stx := (stx.setHeadInfo { hi with trailing := "".toSubstring }).setTailInfo { ti with leading := "".toSubstring }
         setCur stx
       | _, _ => setCur (mkParen stx)
-      let stx ← getCur; trace! `PrettyPrinter.parenthesize ("parenthesized: " ++ stx.formatStx none)
+      let stx ← getCur; trace! `PrettyPrinter.parenthesize m!"parenthesized: {stx.formatStx none}"
       goLeft
       -- after parenthesization, there is no more trailing parser
       modify (fun st => { st with contPrec := Parser.maxPrec, contCat := cat, trailPrec := none })

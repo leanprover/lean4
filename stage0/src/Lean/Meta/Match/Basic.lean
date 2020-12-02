@@ -112,8 +112,8 @@ instance : Inhabited Alt := ⟨⟨arbitrary, 0, arbitrary, [], []⟩⟩
 
 partial def toMessageData (alt : Alt) : MetaM MessageData := do
   withExistingLocalDecls alt.fvarDecls do
-    let msg : List MessageData := alt.fvarDecls.map fun d => d.toExpr ++ ":(" ++ d.type ++ ")"
-    let msg : MessageData := msg ++ " |- " ++ (alt.patterns.map Pattern.toMessageData) ++ " => " ++ alt.rhs
+    let msg : List MessageData := alt.fvarDecls.map fun d => m!"{d.toExpr}:({d.type})"
+    let msg : MessageData := m!"{msg} |- {alt.patterns.map Pattern.toMessageData} => {alt.rhs}"
     addMessageContext msg
 
 def applyFVarSubst (s : FVarSubst) (alt : Alt) : Alt :=
@@ -218,7 +218,7 @@ partial def varsToUnderscore : Example → Example
 partial def toMessageData : Example → MessageData
   | var fvarId        => mkFVar fvarId
   | ctor ctorName []  => mkConst ctorName
-  | ctor ctorName exs => "(" ++ mkConst ctorName ++ exs.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil ++ ")"
+  | ctor ctorName exs => m!"({mkConst ctorName}{exs.foldl (fun msg pat => m!"{msg} {toMessageData pat}") Format.nil})"
   | arrayLit exs      => "#" ++ MessageData.ofList (exs.map toMessageData)
   | val e             => e
   | underscore        => "_"
@@ -242,11 +242,8 @@ instance : Inhabited Problem := ⟨{ mvarId := arbitrary, vars := [], alts := []
 def Problem.toMessageData (p : Problem) : MetaM MessageData :=
   withGoalOf p do
     let alts ← p.alts.mapM Alt.toMessageData
-    let vars ← p.vars.mapM fun x => do let xType ← inferType x; pure (x ++ ":(" ++ xType ++ ")" : MessageData)
-    return "remaining variables: " ++ vars
-      ++ Format.line ++ "alternatives:" ++ indentD (MessageData.joinSep alts Format.line)
-      ++ Format.line ++ "examples: " ++ examplesToMessageData p.examples
-      ++ Format.line
+    let vars ← p.vars.mapM fun x => do let xType ← inferType x; pure m!"{x}:({xType})"
+    return m!"remaining variables: {vars}\nalternatives:{indentD (MessageData.joinSep alts Format.line)}\nexamples:{examplesToMessageData p.examples}\n"
 
 abbrev CounterExample := List Example
 

@@ -285,6 +285,12 @@ def mkStrLit (val : String) (info : SourceInfo := {}) : Syntax :=
 def mkNumLit (val : String) (info : SourceInfo := {}) : Syntax :=
   mkLit numLitKind val info
 
+def mkDecimalLit (val : String) (info : SourceInfo := {}) : Syntax :=
+  mkLit decimalLitKind val info
+
+def mkScientificLit (val : String) (info : SourceInfo := {}) : Syntax :=
+  mkLit scientificLitKind val info
+
 /- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
    The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
    different ways of representing them. So, our atoms contain just the parsed string.
@@ -328,7 +334,7 @@ private partial def decodeDecimalLitAux (s : String) (i : String.Pos) (val : Nat
     if '0' ≤ c && c ≤ '9' then decodeDecimalLitAux s (s.next i) (10*val + c.toNat - '0'.toNat)
     else none
 
-def decodeNatLitVal (s : String) : Option Nat :=
+def decodeNatLitVal? (s : String) : Option Nat :=
   let len := s.length
   if len == 0 then none
   else
@@ -356,9 +362,9 @@ def isLit? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=
       none
   | _ => none
 
-def isNatLitAux (litKind : SyntaxNodeKind) (stx : Syntax) : Option Nat :=
+private def isNatLitAux (litKind : SyntaxNodeKind) (stx : Syntax) : Option Nat :=
   match isLit? litKind stx with
-  | some val => decodeNatLitVal val
+  | some val => decodeNatLitVal? val
   | _        => none
 
 def isNatLit? (s : Syntax) : Option Nat :=
@@ -366,6 +372,32 @@ def isNatLit? (s : Syntax) : Option Nat :=
 
 def isFieldIdx? (s : Syntax) : Option Nat :=
   isNatLitAux fieldIdxKind s
+
+partial def decodeDecimalLitVal? (s : String) : Option (Nat × Nat) :=
+  let len := s.length
+  if len == 0 then none
+  else
+    let c := s.get 0
+    if c.isDigit then
+      decode 0 0 0 false
+    else none
+where
+  decode (i : String.Pos) (val : Nat) (e : Nat) (foundDot : Bool) : Option (Nat × Nat) :=
+    if s.atEnd i then
+      if foundDot then some (val, e) else none
+    else
+      let c := s.get i
+      if '0' ≤ c && c ≤ '9' then
+        decode (s.next i) (10*val + c.toNat - '0'.toNat) (if foundDot then e+1 else e) foundDot
+      else if c == '.' && !foundDot then
+        decode (s.next i) val e true
+      else
+        none
+
+def isDecimalLit? (stx : Syntax) : Option (Nat × Nat) :=
+  match isLit? decimalLitKind stx with
+  | some val => decodeDecimalLitVal? val
+  | _        => none
 
 def isIdOrAtom? : Syntax → Option String
   | Syntax.atom _ val           => some val

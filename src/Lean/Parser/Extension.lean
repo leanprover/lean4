@@ -26,6 +26,8 @@ builtin_initialize
   registerBuiltinNodeKind identKind
   registerBuiltinNodeKind strLitKind
   registerBuiltinNodeKind numLitKind
+  registerBuiltinNodeKind decimalLitKind
+  registerBuiltinNodeKind scientificLitKind
   registerBuiltinNodeKind charLitKind
   registerBuiltinNodeKind nameLitKind
 

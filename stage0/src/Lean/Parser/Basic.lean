@@ -819,7 +819,7 @@ def decimalNumberFn (startPos : Nat) : ParserFn := fun c s =>
       if curr.isDigit then
         takeWhileFn (fun c => c.isDigit) c (s.setPos i)
       else
-        s
+        s.setPos i
     mkNodeToken decimalLitKind startPos c s
   else
     mkNodeToken numLitKind startPos c s

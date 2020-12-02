@@ -20,6 +20,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_AppMatchState_moreArgs___default;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabProjectionApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppImplicit___closed__4;
 extern lean_object* l_Lean_Name_toString___closed__1;
+extern lean_object* l_Lean_decimalLitKind;
 lean_object* l_Array_mapIdxM_map___at_Lean_PrettyPrinter_Delaborator_delabStructureInstance___spec__1___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabTuple___closed__1;
 extern lean_object* l_Lean_Meta_Match_Pattern_toExpr_visit___closed__2;
@@ -177,6 +178,7 @@ extern lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFn___rarg___closed__
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDo___lambda__1___closed__1;
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getOptParamDefault_x3f(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabNil___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVar___closed__4;
@@ -315,6 +317,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabConst___lambda__2(lean_object
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch___lambda__3___closed__5;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabMData___closed__5;
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabCoe___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabBVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabConst___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -324,6 +327,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabListToArray___lambda__1(lean_
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabSort___closed__3;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabTuple___lambda__1___closed__1;
 lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_shouldGroupWithNext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVar_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__1;
 lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_skippingBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -353,6 +357,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabTuple___lambda__1___boxed(lea
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVar___closed__5;
 lean_object* l_Lean_Meta_inferType___at___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_delabPatterns___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
+extern lean_object* l_Lean_Elab_Term_elabDecimalLit___closed__3;
 size_t l_Lean_Name_hash(lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_Delaborator_delabAttribute;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch___lambda__3___closed__15;
@@ -367,6 +372,7 @@ extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_333____clos
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabBVar_match__1(lean_object*);
 lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_unresolveUsingNamespace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_8644____closed__4;
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal_match__1(lean_object*);
 extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfNat___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__5;
@@ -379,6 +385,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabForall(lean_object*, lean_obj
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfNat___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_headD___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_mkExplicitBinder___closed__5;
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_13596____closed__8;
 lean_object* l_Array_mapIdxM_map___at___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_delabPatterns___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppExplicit_match__2(lean_object*);
@@ -390,6 +397,7 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_13219____closed__8;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabLam___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAtomic(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabStructureInstance___lambda__3___closed__6;
 extern lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__4;
 extern lean_object* l_Lean_protectedExt;
@@ -422,6 +430,7 @@ size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNil___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabProjectionApp___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkSimpleThunk___closed__1;
+lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__3;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppWithUnexpander___closed__3;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabConst_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabMData(lean_object*);
@@ -481,6 +490,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch___lambda__3___closed
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabFVar(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppWithUnexpander_match__2___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabListToArray___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_getParamKinds___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Match_Pattern_toExpr_visit___closed__3;
@@ -628,9 +638,11 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabSort_match__1(lean_object*);
 lean_object* l_Lean_Meta_setMCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_liftMkBindingM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_9577____closed__6;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2;
 extern lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__5;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabForall_match__1(lean_object*);
 lean_object* l_Lean_getPPExplicit___boxed(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_delabDo___spec__1___closed__2;
 lean_object* l_Array_zipWithAux___at_Lean_PrettyPrinter_Delaborator_delabAppMatch___spec__4___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabConst___lambda__1___closed__5;
@@ -680,6 +692,7 @@ lean_object* l_Array_mapIdxM_map___at___private_Lean_PrettyPrinter_Delaborator_B
 lean_object* l_Lean_Meta_inferType___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_instReprArray___rarg___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfNat___closed__3;
+lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppWithUnexpander___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAppWithUnexpander(lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_PrettyPrinter_Delaborator_delabMData___spec__3___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -696,6 +709,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabSort___closed__11;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabBVar___closed__1;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_PrettyPrinter_Delaborator_delabAppWithUnexpander___spec__5___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDo___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_PrettyPrinter_Delaborator_delabMData___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -776,6 +790,7 @@ lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabCoeFun___closed_
 extern lean_object* l_addParenHeuristic___closed__1;
 lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_shouldGroupWithNext_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_unresolveUsingNamespace___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Term_elabDecimalLit___closed__1;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_PrettyPrinter_Delaborator_delabAppWithUnexpander___spec__6___boxed(lean_object*, lean_object*);
 extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_578____closed__8;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppImplicit_match__3___rarg(lean_object*, lean_object*);
@@ -783,6 +798,7 @@ lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabProjectionApp(le
 uint8_t l_Lean_Expr_isLet(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_14258____closed__2;
 uint8_t l_Lean_isStructure(lean_object*, lean_object*);
+lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabNamedPattern(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNil(lean_object*);
 lean_object* l_Lean_Syntax_mkLit(lean_object*, lean_object*, lean_object*);
@@ -16316,6 +16332,332 @@ x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 5)
+{
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+if (lean_obj_tag(x_4) == 5)
+{
+lean_object* x_5; 
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+if (lean_obj_tag(x_5) == 9)
+{
+lean_object* x_6; 
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_7; 
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+if (lean_obj_tag(x_7) == 9)
+{
+lean_object* x_8; 
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+if (lean_obj_tag(x_8) == 0)
+{
+uint64_t x_9; lean_object* x_10; uint64_t x_11; uint64_t x_12; lean_object* x_13; uint64_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_dec(x_3);
+x_9 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
+lean_dec(x_1);
+x_10 = lean_ctor_get(x_4, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get_uint64(x_4, sizeof(void*)*2);
+lean_dec(x_4);
+x_12 = lean_ctor_get_uint64(x_5, sizeof(void*)*1);
+lean_dec(x_5);
+x_13 = lean_ctor_get(x_6, 0);
+lean_inc(x_13);
+lean_dec(x_6);
+x_14 = lean_ctor_get_uint64(x_7, sizeof(void*)*1);
+lean_dec(x_7);
+x_15 = lean_ctor_get(x_8, 0);
+lean_inc(x_15);
+lean_dec(x_8);
+x_16 = lean_box_uint64(x_12);
+x_17 = lean_box_uint64(x_11);
+x_18 = lean_box_uint64(x_14);
+x_19 = lean_box_uint64(x_9);
+x_20 = lean_apply_7(x_2, x_10, x_13, x_16, x_17, x_15, x_18, x_19);
+return x_20;
+}
+else
+{
+lean_object* x_21; 
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+x_21 = lean_apply_1(x_3, x_1);
+return x_21;
+}
+}
+else
+{
+lean_object* x_22; 
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+x_22 = lean_apply_1(x_3, x_1);
+return x_22;
+}
+}
+else
+{
+lean_object* x_23; 
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+x_23 = lean_apply_1(x_3, x_1);
+return x_23;
+}
+}
+else
+{
+lean_object* x_24; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+x_24 = lean_apply_1(x_3, x_1);
+return x_24;
+}
+}
+else
+{
+lean_object* x_25; 
+lean_dec(x_4);
+lean_dec(x_2);
+x_25 = lean_apply_1(x_3, x_1);
+return x_25;
+}
+}
+else
+{
+lean_object* x_26; 
+lean_dec(x_2);
+x_26 = lean_apply_1(x_3, x_1);
+return x_26;
+}
+}
+}
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_delabOfDecimal_match__1___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+if (lean_obj_tag(x_1) == 5)
+{
+lean_object* x_8; 
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+if (lean_obj_tag(x_8) == 5)
+{
+lean_object* x_9; 
+x_9 = lean_ctor_get(x_8, 1);
+lean_inc(x_9);
+lean_dec(x_8);
+if (lean_obj_tag(x_9) == 9)
+{
+lean_object* x_10; 
+x_10 = lean_ctor_get(x_9, 0);
+lean_inc(x_10);
+lean_dec(x_9);
+if (lean_obj_tag(x_10) == 0)
+{
+lean_object* x_11; 
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
+lean_dec(x_1);
+if (lean_obj_tag(x_11) == 9)
+{
+lean_object* x_12; 
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+lean_dec(x_11);
+if (lean_obj_tag(x_12) == 0)
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+x_13 = lean_ctor_get(x_10, 0);
+lean_inc(x_13);
+lean_dec(x_10);
+x_14 = lean_ctor_get(x_12, 0);
+lean_inc(x_14);
+lean_dec(x_12);
+x_15 = l_Nat_repr(x_13);
+x_16 = lean_string_length(x_15);
+x_17 = lean_nat_sub(x_16, x_14);
+lean_dec(x_14);
+x_18 = lean_unsigned_to_nat(0u);
+x_19 = lean_string_utf8_extract(x_15, x_18, x_17);
+x_20 = lean_string_utf8_extract(x_15, x_17, x_16);
+lean_dec(x_16);
+lean_dec(x_17);
+lean_dec(x_15);
+x_21 = l_Lean_Name_toString___closed__1;
+x_22 = lean_string_append(x_19, x_21);
+x_23 = lean_string_append(x_22, x_20);
+lean_dec(x_20);
+x_24 = l_Lean_decimalLitKind;
+x_25 = l_Lean_instInhabitedSourceInfo___closed__1;
+x_26 = l_Lean_Syntax_mkLit(x_24, x_23, x_25);
+x_27 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_27, 0, x_26);
+lean_ctor_set(x_27, 1, x_7);
+return x_27;
+}
+else
+{
+lean_object* x_28; 
+lean_dec(x_12);
+lean_dec(x_10);
+x_28 = l_Lean_PrettyPrinter_Delaborator_failure___rarg(x_7);
+return x_28;
+}
+}
+else
+{
+lean_object* x_29; 
+lean_dec(x_11);
+lean_dec(x_10);
+x_29 = l_Lean_PrettyPrinter_Delaborator_failure___rarg(x_7);
+return x_29;
+}
+}
+else
+{
+lean_object* x_30; 
+lean_dec(x_10);
+lean_dec(x_1);
+x_30 = l_Lean_PrettyPrinter_Delaborator_failure___rarg(x_7);
+return x_30;
+}
+}
+else
+{
+lean_object* x_31; 
+lean_dec(x_9);
+lean_dec(x_1);
+x_31 = l_Lean_PrettyPrinter_Delaborator_failure___rarg(x_7);
+return x_31;
+}
+}
+else
+{
+lean_object* x_32; 
+lean_dec(x_8);
+lean_dec(x_1);
+x_32 = l_Lean_PrettyPrinter_Delaborator_failure___rarg(x_7);
+return x_32;
+}
+}
+else
+{
+lean_object* x_33; 
+lean_dec(x_1);
+x_33 = l_Lean_PrettyPrinter_Delaborator_failure___rarg(x_7);
+return x_33;
+}
+}
+}
+static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___lambda__1___boxed), 7, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_PrettyPrinter_Delaborator_delabAppExplicit___closed__1;
+x_2 = l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1;
+x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_PrettyPrinter_Delaborator_delabAppExplicit___spec__2___rarg), 8, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = l_Lean_PrettyPrinter_Delaborator_delabOfNat___closed__3;
+x_8 = l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2;
+x_9 = l_Lean_PrettyPrinter_Delaborator_whenPPOption(x_7, x_8, x_1, x_2, x_3, x_4, x_5, x_6);
+return x_9;
+}
+}
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_8;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__5;
+x_2 = l_Lean_Elab_Term_elabDecimalLit___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1;
+x_2 = l_Lean_Elab_Term_elabDecimalLit___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_delabOfDecimal), 6, 0);
+return x_1;
+}
+}
+lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = l_Lean_PrettyPrinter_Delaborator_delabAttribute;
+x_3 = l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2;
+x_4 = l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__3;
+x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
+return x_5;
+}
+}
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabProj_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -16366,7 +16708,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabProj___closed__1;
-x_3 = lean_unsigned_to_nat(378u);
+x_3 = lean_unsigned_to_nat(387u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -21038,7 +21380,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabDoElems___closed__1;
-x_3 = lean_unsigned_to_nat(519u);
+x_3 = lean_unsigned_to_nat(528u);
 x_4 = lean_unsigned_to_nat(40u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -22030,6 +22372,19 @@ lean_mark_persistent(l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfNat___
 l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfNat___closed__3 = _init_l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfNat___closed__3();
 lean_mark_persistent(l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfNat___closed__3);
 res = l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfNat(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1 = _init_l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1();
+lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1);
+l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2 = _init_l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2();
+lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2);
+l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1 = _init_l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1();
+lean_mark_persistent(l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__1);
+l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2 = _init_l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2();
+lean_mark_persistent(l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__2);
+l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__3 = _init_l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__3();
+lean_mark_persistent(l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal___closed__3);
+res = l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabOfDecimal(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_PrettyPrinter_Delaborator_delabProj___closed__1 = _init_l_Lean_PrettyPrinter_Delaborator_delabProj___closed__1();

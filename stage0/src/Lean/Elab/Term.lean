@@ -1253,16 +1253,19 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
   | some val => pure $ mkStrLit val
   | none     => throwIllFormedSyntax
 
-@[builtinTermElab numLit] def elabNumLit : TermElab := fun stx expectedType? => do
-  let val ← match stx.isNatLit? with
-    | some val => pure val
-    | none     => throwIllFormedSyntax
+private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr := do
   let typeMVar ← mkFreshTypeMVar MetavarKind.synthetic
   match expectedType? with
   | some expectedType => isDefEq expectedType typeMVar; pure ()
   | _                 => pure ()
-  let u ← getLevel typeMVar
-  let u ← decLevel u
+  return typeMVar
+
+@[builtinTermElab numLit] def elabNumLit : TermElab := fun stx expectedType? => do
+  let val ← match stx.isNatLit? with
+    | some val => pure val
+    | none     => throwIllFormedSyntax
+  let typeMVar ← mkFreshTypeMVarFor expectedType?
+  let u ← getDecLevel typeMVar
   let mvar ← mkInstMVar (mkApp2 (Lean.mkConst `OfNat [u]) typeMVar (mkNatLit val))
   return mkApp3 (Lean.mkConst `OfNat.ofNat [u]) typeMVar (mkNatLit val) mvar
 
@@ -1270,6 +1273,15 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
   match stx[1].isNatLit? with
   | some val => return mkNatLit val
   | none     => throwIllFormedSyntax
+
+@[builtinTermElab decimalLit] def elabDecimalLit : TermElab := fun stx expectedType? => do
+  match stx.isDecimalLit? with
+  | none        => throwIllFormedSyntax
+  | some (m, e) =>
+    let typeMVar ← mkFreshTypeMVarFor expectedType?
+    let u ← getDecLevel typeMVar
+    let mvar ← mkInstMVar (mkApp (Lean.mkConst `OfDecimal [u]) typeMVar)
+    return mkApp4 (Lean.mkConst `OfDecimal.ofDecimal [u]) typeMVar mvar (mkNatLit m) (mkNatLit e)
 
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with

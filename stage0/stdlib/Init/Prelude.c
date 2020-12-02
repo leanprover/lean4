@@ -215,6 +215,7 @@ lean_object* l_Applicative_map___default___rarg(lean_object*, lean_object*, lean
 lean_object* l_EStateM_orElse_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Monad_seqLeft___default___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_maxRecDepthErrorMessage___closed__1;
+lean_object* l_instHOrElse(lean_object*);
 lean_object* l_Lean_Name_instAppendName___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_get___boxed(lean_object*, lean_object*, lean_object*);
@@ -764,6 +765,7 @@ lean_object* l_id(lean_object*);
 uint8_t l_instDecidableEqBool(uint8_t, uint8_t);
 lean_object* l___private_Init_Prelude_0__Lean_assembleParts___closed__1;
 lean_object* l_Lean_Syntax_getOp___boxed(lean_object*, lean_object*);
+lean_object* l_instHOrElse___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_extractMainModule_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dite___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_utf8ByteSize___boxed(lean_object*);
@@ -804,6 +806,7 @@ uint8_t l_UInt32_decLe(uint32_t, uint32_t);
 uint8_t l_instDecidableOr___rarg(uint8_t, uint8_t);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_extractImported_match__1(lean_object*);
+lean_object* l_instHAndThen(lean_object*);
 lean_object* l_instOfNatNat___boxed(lean_object*);
 lean_object* l_Lean_MonadQuotation_addMacroScope(lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
@@ -829,6 +832,7 @@ lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___closed__1;
 lean_object* l___private_Init_Prelude_0__Lean_extractImported_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getOp(lean_object*, lean_object*);
 lean_object* l_Array_mk___boxed(lean_object*, lean_object*);
+lean_object* l_instHAndThen___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_modifyGetThe___rarg(lean_object*, lean_object*);
 lean_object* l_modify___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -2213,6 +2217,38 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_instHAppend___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_instHOrElse___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_instHOrElse(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instHOrElse___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_instHAndThen___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_instHAndThen(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instHAndThen___rarg), 3, 0);
 return x_2;
 }
 }

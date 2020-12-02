@@ -1030,12 +1030,14 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_6, 1);
 lean_inc(x_10);
 lean_dec(x_6);
-x_11 = lean_ctor_get(x_2, 2);
-lean_inc(x_11);
 lean_inc(x_5);
-x_12 = lean_apply_1(x_5, x_9);
-x_13 = l_List_firstM___rarg(x_1, x_2, lean_box(0), lean_box(0), x_5, x_10);
-x_14 = lean_apply_3(x_11, lean_box(0), x_12, x_13);
+x_11 = lean_apply_1(x_5, x_9);
+lean_inc(x_2);
+x_12 = l_List_firstM___rarg(x_1, x_2, lean_box(0), lean_box(0), x_5, x_10);
+x_13 = lean_ctor_get(x_2, 2);
+lean_inc(x_13);
+lean_dec(x_2);
+x_14 = lean_apply_3(x_13, lean_box(0), x_11, x_12);
 return x_14;
 }
 }

@@ -38,13 +38,13 @@ lean_object* l_ReaderT_orElse___rarg(lean_object* x_1, lean_object* x_2, lean_ob
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_ctor_get(x_1, 2);
-lean_inc(x_5);
-lean_dec(x_1);
 lean_inc(x_4);
-x_6 = lean_apply_1(x_2, x_4);
-x_7 = lean_apply_1(x_3, x_4);
-x_8 = lean_apply_3(x_5, lean_box(0), x_6, x_7);
+x_5 = lean_apply_1(x_2, x_4);
+x_6 = lean_apply_1(x_3, x_4);
+x_7 = lean_ctor_get(x_1, 2);
+lean_inc(x_7);
+lean_dec(x_1);
+x_8 = lean_apply_3(x_7, lean_box(0), x_5, x_6);
 return x_8;
 }
 }
@@ -99,13 +99,13 @@ lean_object* l_ReaderT_instAlternativeReaderT___rarg___lambda__2(lean_object* x_
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_1, 2);
-lean_inc(x_6);
-lean_dec(x_1);
 lean_inc(x_5);
-x_7 = lean_apply_1(x_3, x_5);
-x_8 = lean_apply_1(x_4, x_5);
-x_9 = lean_apply_3(x_6, lean_box(0), x_7, x_8);
+x_6 = lean_apply_1(x_3, x_5);
+x_7 = lean_apply_1(x_4, x_5);
+x_8 = lean_ctor_get(x_1, 2);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_apply_3(x_8, lean_box(0), x_6, x_7);
 return x_9;
 }
 }

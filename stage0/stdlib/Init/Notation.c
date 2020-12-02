@@ -11409,7 +11409,7 @@ static lean_object* _init_l_myMacro____x40_Init_Notation___hyg_8955____closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("OrElse.orElse");
+x_1 = lean_mk_string("HOrElse.hOrElse");
 return x_1;
 }
 }
@@ -11440,7 +11440,7 @@ static lean_object* _init_l_myMacro____x40_Init_Notation___hyg_8955____closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("OrElse");
+x_1 = lean_mk_string("HOrElse");
 return x_1;
 }
 }
@@ -11458,7 +11458,7 @@ static lean_object* _init_l_myMacro____x40_Init_Notation___hyg_8955____closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("orElse");
+x_1 = lean_mk_string("hOrElse");
 return x_1;
 }
 }
@@ -11769,7 +11769,7 @@ static lean_object* _init_l_myMacro____x40_Init_Notation___hyg_9266____closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("AndThen.andThen");
+x_1 = lean_mk_string("HAndThen.hAndThen");
 return x_1;
 }
 }
@@ -11800,7 +11800,7 @@ static lean_object* _init_l_myMacro____x40_Init_Notation___hyg_9266____closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("AndThen");
+x_1 = lean_mk_string("HAndThen");
 return x_1;
 }
 }
@@ -11818,7 +11818,7 @@ static lean_object* _init_l_myMacro____x40_Init_Notation___hyg_9266____closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andThen");
+x_1 = lean_mk_string("hAndThen");
 return x_1;
 }
 }

@@ -46,8 +46,8 @@ notation:max "!" b:40 => not b
 infixl:65 " ++ " => HAppend.hAppend
 infixr:67 " :: " => List.cons
 
-infixr:2   " <|> " => OrElse.orElse
-infixr:60  " >> "  => AndThen.andThen
+infixr:2   " <|> " => HOrElse.hOrElse
+infixr:60  " >> "  => HAndThen.hAndThen
 infixl:55  " >>= " => Bind.bind
 infixl:60  " <*> " => Seq.seq
 infixl:60  " <* "  => SeqLeft.seqLeft

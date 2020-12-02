@@ -28,6 +28,7 @@ lean_object* l_coeD___rarg(lean_object*);
 lean_object* l_coeOfTCOfTail(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHMul__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_instHOrElse__2(lean_object*, lean_object*);
 lean_object* l_instHSub__1(lean_object*, lean_object*);
 lean_object* l_instHDiv__1(lean_object*, lean_object*);
 lean_object* l_coeTC___rarg(lean_object*, lean_object*);
@@ -50,6 +51,8 @@ lean_object* l_instHSub__1___rarg(lean_object*, lean_object*, lean_object*, lean
 extern lean_object* l_rawNatLit___closed__4;
 lean_object* l_instHMul__2(lean_object*, lean_object*);
 lean_object* l_coeOfHeadOfTC___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_instHAndThen__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instHAndThen__2(lean_object*, lean_object*);
 lean_object* l_decPropToBool___rarg___boxed(lean_object*);
 lean_object* l_coeSort___rarg(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -67,6 +70,7 @@ lean_object* l_liftCoeM___rarg___lambda__1(lean_object*, lean_object*, lean_obje
 lean_object* l_coeOfHeadOfTC(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeOfTCOfTail___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Coe___hyg_176____closed__1;
+lean_object* l_instHOrElse__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___kind_term____x40_Init_Coe___hyg_141____closed__3;
 lean_object* l_instHSub__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coe___boxed(lean_object*, lean_object*, lean_object*);
@@ -74,6 +78,7 @@ lean_object* l___kind_term____x40_Init_Coe___hyg_141____closed__6;
 lean_object* l_instHMod__1(lean_object*, lean_object*);
 lean_object* l_subtypeCoe___rarg___boxed(lean_object*);
 lean_object* l_coeOfHead(lean_object*, lean_object*);
+lean_object* l_instHOrElse__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 lean_object* l_optionCoe___rarg(lean_object*);
 lean_object* l_instHAppend__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -112,6 +117,7 @@ extern lean_object* l_Lean_Name_hasMacroScopes___closed__1;
 lean_object* l_coeId(lean_object*);
 lean_object* l_subtypeCoe___rarg(lean_object*);
 lean_object* l_coeFun___rarg(lean_object*, lean_object*);
+lean_object* l_instHAndThen__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_coeB(lean_object*, lean_object*);
 lean_object* l_subtypeCoe(lean_object*, lean_object*);
@@ -132,11 +138,13 @@ lean_object* l_unexpand____x40_Init_Coe___hyg_141____closed__1;
 lean_object* l_coeId___rarg(lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_intro___closed__14;
 lean_object* l_coeId___rarg___boxed(lean_object*);
+lean_object* l_instHAndThen__1(lean_object*, lean_object*);
 lean_object* l_instCoeTail(lean_object*, lean_object*);
 lean_object* l_coeD___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Coe___hyg_176____closed__3;
 lean_object* l_instHAdd__2(lean_object*, lean_object*);
 lean_object* l_instHDiv__2(lean_object*, lean_object*);
+lean_object* l_instHOrElse__1(lean_object*, lean_object*);
 lean_object* l_instHAppend__1(lean_object*, lean_object*);
 lean_object* l_decPropToBool(lean_object*);
 lean_object* l_coeOfHeafOfTCOfTail(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1279,6 +1287,74 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_instHAppend__2___rarg), 4, 0);
+return x_3;
+}
+}
+lean_object* l_instHOrElse__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_apply_1(x_1, x_3);
+x_6 = lean_apply_2(x_2, x_5, x_4);
+return x_6;
+}
+}
+lean_object* l_instHOrElse__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_instHOrElse__1___rarg), 4, 0);
+return x_3;
+}
+}
+lean_object* l_instHOrElse__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_apply_1(x_1, x_4);
+x_6 = lean_apply_2(x_2, x_3, x_5);
+return x_6;
+}
+}
+lean_object* l_instHOrElse__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_instHOrElse__2___rarg), 4, 0);
+return x_3;
+}
+}
+lean_object* l_instHAndThen__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_apply_1(x_1, x_3);
+x_6 = lean_apply_2(x_2, x_5, x_4);
+return x_6;
+}
+}
+lean_object* l_instHAndThen__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_instHAndThen__1___rarg), 4, 0);
+return x_3;
+}
+}
+lean_object* l_instHAndThen__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_apply_1(x_1, x_4);
+x_6 = lean_apply_2(x_2, x_3, x_5);
+return x_6;
+}
+}
+lean_object* l_instHAndThen__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_instHAndThen__2___rarg), 4, 0);
 return x_3;
 }
 }

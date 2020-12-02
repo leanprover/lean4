@@ -45,10 +45,10 @@ def «constant»       := parser! "constant " >> declId >> declSig >> optional d
 def «instance»       := parser! "instance " >> optional declId >> declSig >> declVal
 def «axiom»          := parser! "axiom " >> declId >> declSig
 def «example»        := parser! "example " >> declSig >> declVal
-def inferMod         := parser! atomic ("{" >> "}")
+def inferMod         := parser! atomic (symbol "{" >> "}")
 def ctor             := parser! "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
-def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> optional (":=" <|> "where") >> many ctor
-def classInductive   := parser! atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional (":=" <|> "where") >> many ctor
+def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor
+def classInductive   := parser! atomic (group (symbol "class " >> "inductive ")) >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor
 def structExplicitBinder := parser! atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
 def structImplicitBinder := parser! atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
 def structInstBinder     := parser! atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
@@ -60,7 +60,7 @@ def classTk              := parser! "class "
 def «extends»            := parser! " extends " >> sepBy1 termParser ", "
 def «structure»          := parser!
     (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType
-    >> optional ((" := " <|> " where ") >> optional structCtor >> structFields)
+    >> optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields)
 @[builtinCommandParser] def declaration := parser!
 declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
 

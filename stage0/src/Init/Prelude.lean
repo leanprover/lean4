@@ -378,6 +378,12 @@ class HPow (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 class HAppend (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAppend : α → β → γ
 
+class HOrElse (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hOrElse : α → β → γ
+
+class HAndThen (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+  hAndThen : α → β → γ
+
 class Add (α : Type u) where
   add : α → α → α
 
@@ -435,6 +441,14 @@ instance [Pow α] : HPow α α α where
 @[defaultInstance 1]
 instance [Append α] : HAppend α α α where
   hAppend a b := Append.append a b
+
+@[defaultInstance 1]
+instance [OrElse α] : HOrElse α α α where
+  hOrElse a b := OrElse.orElse a b
+
+@[defaultInstance 1]
+instance [AndThen α] : HAndThen α α α where
+  hAndThen a b := AndThen.andThen a b
 
 open HAdd (hAdd)
 open HMul (hMul)

@@ -41,12 +41,13 @@ with builtins; let
     allowSubstitutes = false;
   };
 in
-  { name, src, srcDir ? name, deps ? [ lean.Lean ] }: let
+  { name, src, srcDir ? name, deps ? [ lean.Std ] }: let
     srcRoot = src;
+    allDeps = lib.foldr (dep: allDeps: allDeps // { ${dep.name} = dep; } // dep.allDeps) {} deps;
     fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
       mkdir $out
       cd $out
-      mkdir ${lib.concatStringsSep " " ([name] ++ map (dep: dep.name) deps)}
+      mkdir ${lib.concatStringsSep " " ([name] ++ attrNames allDeps)}
     '';
     # build a file containing the module names of all immediate dependencies of `mod`
     leanDeps = mod: mkDerivation {
@@ -107,10 +108,10 @@ in
       ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" $@
     '';
   in rec {
-    inherit name lean;
-    mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} deps);
+    inherit name lean deps allDeps;
+    mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues allDeps));
     modRoot   = depRoot name [ mods.${name} ];
-    cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (builtins.attrValues mods); };
+    cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
     objects   = mapAttrs compileMod mods;
     oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
     staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''

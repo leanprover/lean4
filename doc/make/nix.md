@@ -116,3 +116,25 @@ For example, for a build on Linux with the Nix sandbox activated:
 #1  0x0000000000d23a4f in lean_inc (o=0x1) at /build/source/build/include/lean/lean.h:562
 562	static inline void lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_ref(o); }
 ```
+
+# Building Lean Packages with Nix
+
+From a Lean shell, run
+```bash
+$ nix flake new mypkg -t github:leanprover/lean4
+```
+to create a new Lean package in directory `mypkg`.
+The Lean package comes with a package root file `MyPackage.lean` and a `flake.nix` set up so you can run most command from above on your own package.
+In particular, you can run `nix run .#emacs-dev` in the package directory to start Emacs configured to automatically build and provide any intra- and extra-package dependencies on the fly.
+
+Note that if you rename `MyPackage.lean`, you also have to adjust the `name` attribute in `flake.nix` accordingly.
+
+Package dependencies can be added as further input flakes and passed to the `deps` list of `buildLeanPackage`. Example: https://github.com/Kha/testpkg2/blob/master/flake.nix
+
+For hacking, it can be useful to temporarily override an input with a local checkout/different version of a dependency:
+```bash
+$ nix build --override-input somedep path/to/somedep
+```
+
+In the future, we would like to introduce a simpler, more generic package description file akin to Lean 3's `leanpkg.toml` that is not Nix-specific and can be produced and consumed by other package manager implementations.
+It should be possible to consume it with `builtins.fromTOML` in the Nix setup.

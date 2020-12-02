@@ -82,10 +82,6 @@ there is no mutable directory incrementally filled by the build that we could po
 Instead, `emacs-dev` will gather the individual dependency outputs from the Nix store when checking a file -- and build them on the fly when necessary.
 However, it will only ever load changes saved to disk, not ones opened in other buffers.
 
-Because of technical limitations, there are currently two further restrictions for files in `src/`:
-* They must be reachable from `src/Lean.lean` to be editable. Note that they have to be so anyway to be included in the full stage compilation, but it might initially be confusing when creating a new file.
-* New imports, even when already compiled, will only be accessible after saving the file.
-
 # Other Fun Stuff to Do with Nix
 
 Open Emacs with Lean set up from an arbitrary commit (without even cloning Lean beforehand... if your Nix is new enough):

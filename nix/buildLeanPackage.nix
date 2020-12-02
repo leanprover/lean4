@@ -41,7 +41,7 @@ with builtins; let
     allowSubstitutes = false;
   };
 in
-  { name, src, srcDir ? name, deps ? [ lean.Std ] }: let
+  { name, src, deps ? [ lean.Lean ] }: let
     srcRoot = src;
     allDeps = lib.foldr (dep: allDeps: allDeps // { ${dep.name} = dep; } // dep.allDeps) {} deps;
     fakeDepRoot = runCommandLocal "${name}-dep-root" {} ''
@@ -49,14 +49,17 @@ in
       cd $out
       mkdir ${lib.concatStringsSep " " ([name] ++ attrNames allDeps)}
     '';
+    print-lean-deps = writeShellScriptBin "print-lean-deps" ''
+      export LEAN_PATH=${fakeDepRoot}
+      ${lean-leanDeps}/bin/lean --deps --stdin | ${gnused}/bin/sed "s!$LEAN_PATH/!!;s!/!.!g;s!.olean!!"
+    '';
     # build a file containing the module names of all immediate dependencies of `mod`
     leanDeps = mod: mkDerivation {
       name ="${mod}-deps";
       src = src + ("/" + modToLean mod);
-      buildInputs = [ lean-leanDeps gnused ];
+      buildInputs = [ print-lean-deps ];
       buildCommand = ''
-        export LEAN_PATH=${fakeDepRoot};
-        lean --deps $src | sed "s!$LEAN_PATH/!!;s!/!.!g;s!.olean!!" > $out
+        print-lean-deps < $src > $out
       '';
       preferLocalBuild = true;
       allowSubstitutes = false;
@@ -107,8 +110,12 @@ in
     makeEmacsWrapper = name: lean: writeShellScriptBin name ''
       ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" $@
     '';
+    checkMod = deps: writeShellScriptBin "check-mod" ''
+      LEAN_PATH=${depRoot "check-mod" deps} ${lean}/bin/lean "$@"
+    '';
+    makeCheckModFor = deps: mods: checkMod deps // mapAttrs (_: mod: makeCheckModFor (deps ++ [mod]) mods) mods;
   in rec {
-    inherit name lean deps allDeps;
+    inherit name lean deps allDeps print-lean-deps;
     mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues allDeps));
     modRoot   = depRoot name [ mods.${name} ];
     cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
@@ -124,12 +131,13 @@ in
     '';
     emacs-package = makeEmacsWrapper "emacs-package" lean-package;
 
+    check-mod = makeCheckModFor [] mods;
     lean-dev = substituteAll {
       name = "lean";
       dir = "bin";
       src = ./lean-dev.in;
       isExecutable = true;
-      inherit lean bash nix srcDir;
+      inherit lean bash nix srcRoot;
     };
     emacs-dev = makeEmacsWrapper "emacs-dev" lean-dev;
   }

@@ -19,26 +19,30 @@ call() {
 
 json=0
 input=
+inputFile=
 for p in "$@"; do
-    [[ "$p" == --json ]] && json=1
-    [[ "$p" != -* ]] && input="$(realpath "$p")"
+    case "$p" in
+        --json) json=1;;
+        --stdin) input="$(< /dev/stdin)";;
+        -*) ;;
+        *) inputFile="$p";;
+    esac
 done
+if [[ -z "$input" && -f "$inputFile" ]]; then
+    input="$(< "$inputFile")"
+fi
 
-root="$(dirname "${input:-/}")"
+# find package root of input file
+root="$(dirname "${inputFile:-/}")"
 while [[ "$root" != / ]]; do
     [ -f "$root/flake.nix" ] && break
     root="$(realpath "$root/..")"
 done
-if [[ "$root" == / ]]; then
-    # if we're outside of any project, just call Lean without any packages
-    call @lean@/bin/lean $@
-elif [[ "$input" != "$root@srcDir@/"* ]]; then
-    # otherwise, if we're inside the package but not its source directory, call Lean with the full package available
-    call nix run "$root#lean-package" -- $@
-else
-    # otherwise call Lean with the file's dependencies available
-    input="$(realpath --relative-to="$root@srcDir@" "$input")"
-    input="${input%.lean}"
-    input="${input//\//.}"
-    call nix develop "$root#mods.\"$input\"" -c lean $@
-fi
+# fall back to current package
+[[ "$root" == / ]] && root="@srcRoot@"
+deps="$(echo -n "$input" | nix run "$root#print-lean-deps" 2> /dev/null)"
+attrPath="check-mod"
+for dep in $deps; do
+    attrPath="$attrPath.\"$dep\""
+done
+echo -n "$input" | call nix run "$root#$attrPath" -- "$@"

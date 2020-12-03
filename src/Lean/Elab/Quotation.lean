@@ -105,8 +105,8 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
     `(Syntax.atom (SourceInfo.mk none none none) $(quote val))
   | Syntax.missing => unreachable!
 
-def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
-  let quoted := stx[1]
+def stxQuot.expand (stx : Syntax) (quotedOffset := 1) : TermElabM Syntax := do
+  let quoted := stx[quotedOffset]
   /- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
      the macro scope once for each quotation, then build the syntax tree in a completely pure computation
      depending on this binding. Note that regular function calls do not introduce a new macro scope (i.e.
@@ -138,6 +138,7 @@ def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
 @[builtinTermElab Parser.Tactic.quotSeq] def elabTacticQuotSeq : TermElab := adaptExpander stxQuot.expand
 @[builtinTermElab Parser.Term.stx.quot] def elabStxQuot : TermElab := adaptExpander stxQuot.expand
 @[builtinTermElab Parser.Term.doElem.quot] def elabDoElemQuot : TermElab := adaptExpander stxQuot.expand
+@[builtinTermElab Parser.Term.dynamicQuot] def elabDynamicQuot : TermElab := adaptExpander (stxQuot.expand · 3)
 
 /- match_syntax -/
 

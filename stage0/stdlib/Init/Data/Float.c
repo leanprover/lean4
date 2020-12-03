@@ -23,6 +23,7 @@ double sin(double);
 double asin(double);
 double tan(double);
 uint8_t l_floatSpec___elambda__1(lean_object*, lean_object*);
+double lean_float_of_scientific(lean_object*, uint8_t, lean_object*);
 double tanh(double);
 double lean_float_of_nat(lean_object*);
 double l_Nat_toFloat(lean_object*);
@@ -55,6 +56,7 @@ lean_object* l_Float_acos___boxed(lean_object*);
 lean_object* l_Float_ofNat___boxed(lean_object*);
 lean_object* lean_float_to_string(double);
 double l_Float_div(double, double);
+lean_object* l_Float_ofScientific___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instToStringFloat;
 lean_object* l_Float_decLt___boxed(lean_object*, lean_object*);
 double cosh(double);
@@ -721,6 +723,17 @@ _start:
 lean_object* x_1; 
 x_1 = l_instPowFloat___closed__1;
 return x_1;
+}
+}
+lean_object* l_Float_ofScientific___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; double x_5; lean_object* x_6; 
+x_4 = lean_unbox(x_2);
+lean_dec(x_2);
+x_5 = lean_float_of_scientific(x_1, x_4, x_3);
+x_6 = lean_box_float(x_5);
+return x_6;
 }
 }
 lean_object* initialize_Init_Core(lean_object*);

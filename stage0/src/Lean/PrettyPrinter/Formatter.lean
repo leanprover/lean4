@@ -353,7 +353,7 @@ def visitAtom (k : SyntaxNodeKind) : Formatter := do
 @[combinatorFormatter Lean.Parser.strLitNoAntiquot] def strLitNoAntiquot.formatter := visitAtom strLitKind
 @[combinatorFormatter Lean.Parser.nameLitNoAntiquot] def nameLitNoAntiquot.formatter := visitAtom nameLitKind
 @[combinatorFormatter Lean.Parser.numLitNoAntiquot] def numLitNoAntiquot.formatter := visitAtom numLitKind
-@[combinatorFormatter Lean.Parser.decimalLitNoAntiquot] def decimalLitNoAntiquot.formatter := visitAtom decimalLitKind
+@[combinatorFormatter Lean.Parser.scientificLitNoAntiquot] def scientificLitNoAntiquot.formatter := visitAtom scientificLitKind
 @[combinatorFormatter Lean.Parser.fieldIdx] def fieldIdx.formatter := visitAtom fieldIdxKind
 
 @[combinatorFormatter Lean.Parser.many]
@@ -440,7 +440,7 @@ builtin_initialize
   registerAlias "ws" checkWsBefore.formatter
   registerAlias "noWs" checkNoWsBefore.formatter
   registerAlias "num" (withAntiquot.formatter (mkAntiquot.formatter' "numLit" `numLit) numLitNoAntiquot.formatter)
-  registerAlias "decimal" (withAntiquot.formatter (mkAntiquot.formatter' "decimalLit" `decimalLit) decimalLitNoAntiquot.formatter)
+  registerAlias "scientific" (withAntiquot.formatter (mkAntiquot.formatter' "scientificLit" `scientificLit) scientificLitNoAntiquot.formatter)
   registerAlias "str" (withAntiquot.formatter (mkAntiquot.formatter' "strLit" `strLit) strLitNoAntiquot.formatter)
   registerAlias "char" (withAntiquot.formatter (mkAntiquot.formatter' "charLit" `charLit) charLitNoAntiquot.formatter)
   registerAlias "name" (withAntiquot.formatter (mkAntiquot.formatter' "nameLit" `nameLit) nameLitNoAntiquot.formatter)

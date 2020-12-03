@@ -17,7 +17,6 @@ lean_object* lean_string_data(lean_object*);
 lean_object* l_idRhs(lean_object*);
 lean_object* l_EStateM_run___rarg(lean_object*, lean_object*);
 lean_object* l_String_csize(uint32_t);
-lean_object* l_Lean_decimalLitKind;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_tryCatch_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_instMonadRefMacroM___closed__2;
@@ -784,8 +783,6 @@ lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__3;
 lean_object* l_instHasLessEqFin(lean_object*);
 lean_object* l_EStateM_bind(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableLessEq(uint32_t, uint32_t);
-lean_object* l_Lean_decimalLitKind___closed__2;
-lean_object* l_Lean_decimalLitKind___closed__1;
 lean_object* l_UInt32_val___boxed(lean_object*);
 lean_object* l_dite___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -8110,32 +8107,6 @@ x_1 = l_Lean_numLitKind___closed__2;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_decimalLitKind___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("decimalLit");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_decimalLitKind___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_decimalLitKind___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_decimalLitKind() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_decimalLitKind___closed__2;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_scientificLitKind___closed__1() {
 _start:
 {
@@ -11925,12 +11896,6 @@ l_Lean_numLitKind___closed__2 = _init_l_Lean_numLitKind___closed__2();
 lean_mark_persistent(l_Lean_numLitKind___closed__2);
 l_Lean_numLitKind = _init_l_Lean_numLitKind();
 lean_mark_persistent(l_Lean_numLitKind);
-l_Lean_decimalLitKind___closed__1 = _init_l_Lean_decimalLitKind___closed__1();
-lean_mark_persistent(l_Lean_decimalLitKind___closed__1);
-l_Lean_decimalLitKind___closed__2 = _init_l_Lean_decimalLitKind___closed__2();
-lean_mark_persistent(l_Lean_decimalLitKind___closed__2);
-l_Lean_decimalLitKind = _init_l_Lean_decimalLitKind();
-lean_mark_persistent(l_Lean_decimalLitKind);
 l_Lean_scientificLitKind___closed__1 = _init_l_Lean_scientificLitKind___closed__1();
 lean_mark_persistent(l_Lean_scientificLitKind___closed__1);
 l_Lean_scientificLitKind___closed__2 = _init_l_Lean_scientificLitKind___closed__2();

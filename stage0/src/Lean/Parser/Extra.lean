@@ -15,7 +15,7 @@ namespace Parser
 -- (because `Parser.Extension` depends on them)
 attribute [runBuiltinParserAttributeHooks]
   leadingNode termParser commandParser antiquotNestedExpr antiquotExpr mkAntiquot nodeWithAntiquot
-  ident numLit decimalLit charLit strLit nameLit
+  ident numLit scientificLit charLit strLit nameLit
 
 @[runBuiltinParserAttributeHooks, inline] def group (p : Parser) : Parser :=
   node nullKind p

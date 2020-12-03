@@ -19,6 +19,7 @@ lean_object* l_Lean_Parser_Term_doIdDecl_parenthesizer___closed__3;
 lean_object* l___regBuiltin_Lean_Parser_Term_doBreak_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_doExpr___closed__1;
 extern lean_object* l_Lean_Parser_Term_tupleTail_parenthesizer___closed__2;
+extern lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1890____closed__19;
 lean_object* l_Lean_Parser_Term_termReturn___closed__1;
 lean_object* l_Lean_Parser_Term_liftMethod_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_doSeqBracketed_formatter___closed__2;
@@ -1559,7 +1560,6 @@ lean_object* l_Lean_Parser_Term_doTry___closed__5;
 lean_object* l_Lean_Parser_Term_doReassign_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Term_doIf___closed__11;
 lean_object* l_Lean_Parser_Term_termTry___elambda__1___closed__1;
-extern lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1898____closed__19;
 lean_object* l_Lean_Parser_Term_doPatDecl___closed__8;
 lean_object* l_Lean_Parser_Term_do_parenthesizer___closed__2;
 lean_object* l_Lean_Parser_Term_notFollowedByRedefinedTermToken___elambda__1___closed__17;
@@ -4761,7 +4761,7 @@ static lean_object* _init_l_Lean_Parser_Term_doPatDecl___elambda__1___closed__11
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1898____closed__19;
+x_1 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_1890____closed__19;
 x_2 = l_Lean_Parser_Term_doPatDecl___elambda__1___closed__10;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);

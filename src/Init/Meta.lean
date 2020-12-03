@@ -285,8 +285,8 @@ def mkStrLit (val : String) (info : SourceInfo := {}) : Syntax :=
 def mkNumLit (val : String) (info : SourceInfo := {}) : Syntax :=
   mkLit numLitKind val info
 
-def mkDecimalLit (val : String) (info : SourceInfo := {}) : Syntax :=
-  mkLit decimalLitKind val info
+def mkScientificLit (val : String) (info : SourceInfo := {}) : Syntax :=
+  mkLit scientificLitKind val info
 
 /- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
    The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
@@ -370,7 +370,7 @@ def isNatLit? (s : Syntax) : Option Nat :=
 def isFieldIdx? (s : Syntax) : Option Nat :=
   isNatLitAux fieldIdxKind s
 
-partial def decodeDecimalLitVal? (s : String) : Option (Nat × Bool × Nat) :=
+partial def decodeScientificLitVal? (s : String) : Option (Nat × Bool × Nat) :=
   let len := s.length
   if len == 0 then none
   else
@@ -427,9 +427,9 @@ where
       else
         none
 
-def isDecimalLit? (stx : Syntax) : Option (Nat × Bool × Nat) :=
-  match isLit? decimalLitKind stx with
-  | some val => decodeDecimalLitVal? val
+def isScientificLit? (stx : Syntax) : Option (Nat × Bool × Nat) :=
+  match isLit? scientificLitKind stx with
+  | some val => decodeScientificLitVal? val
   | _        => none
 
 def isIdOrAtom? : Syntax → Option String

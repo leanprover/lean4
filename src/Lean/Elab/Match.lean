@@ -481,7 +481,7 @@ partial def collect : Syntax → M Syntax
       pure stx
     else if k == numLitKind then
       pure stx
-    else if k == decimalLitKind then
+    else if k == scientificLitKind then
       pure stx
     else if k == charLitKind then
       pure stx

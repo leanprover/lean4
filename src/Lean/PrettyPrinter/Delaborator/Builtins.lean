@@ -369,8 +369,8 @@ def delabOfNat : Delab := whenPPOption getPPCoercions do
   return quote n
 
 -- `@OfDecimal.ofDecimal _ _ m s e` ~> `m*10^(sign * e)` where `sign == 1` if `s = false` and `sign = -1` if `s = true`
-@[builtinDelab app.OfDecimal.ofDecimal]
-def delabOfDecimal : Delab := whenPPOption getPPCoercions do
+@[builtinDelab app.OfScientific.ofScientific]
+def delabOfScientific : Delab := whenPPOption getPPCoercions do
   let expr ← getExpr
   guard <| expr.getAppNumArgs == 5
   let Expr.lit (Literal.natVal m) _ ← pure (expr.getArg! 2) | failure
@@ -381,13 +381,13 @@ def delabOfDecimal : Delab := whenPPOption getPPCoercions do
     | _ => failure
   let str  := toString m
   if s && e == str.length then
-    return Syntax.mkDecimalLit ("0." ++ str)
+    return Syntax.mkScientificLit ("0." ++ str)
   else if s && e < str.length then
     let mStr := str.extract 0 (str.length - e)
     let eStr := str.extract (str.length - e) str.length
-    return Syntax.mkDecimalLit (mStr ++ "." ++ eStr)
+    return Syntax.mkScientificLit (mStr ++ "." ++ eStr)
   else
-    return Syntax.mkDecimalLit (str ++ "e" ++ (if s then "-" else "") ++ toString e)
+    return Syntax.mkScientificLit (str ++ "e" ++ (if s then "-" else "") ++ toString e)
 
 /--
 Delaborate a projection primitive. These do not usually occur in

@@ -44,7 +44,7 @@ def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p
 -- `checkPrec` necessary for the pretty printer
 @[builtinTermParser] def ident := checkPrec maxPrec >> Parser.ident
 @[builtinTermParser] def num : Parser := checkPrec maxPrec >> numLit
-@[builtinTermParser] def decimal : Parser := checkPrec maxPrec >> decimalLit
+@[builtinTermParser] def scientific : Parser := checkPrec maxPrec >> scientificLit
 @[builtinTermParser] def str : Parser := checkPrec maxPrec >> strLit
 @[builtinTermParser] def char : Parser := checkPrec maxPrec >> charLit
 @[builtinTermParser] def type := parser! "Type" >> optional (checkWsBefore "" >> checkPrec leadPrec >> checkColGt >> levelParser maxPrec)

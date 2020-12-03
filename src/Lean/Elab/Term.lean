@@ -1274,14 +1274,15 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
   | some val => return mkNatLit val
   | none     => throwIllFormedSyntax
 
-@[builtinTermElab decimalLit] def elabDecimalLit : TermElab := fun stx expectedType? => do
-  match stx.isDecimalLit? with
+@[builtinTermElab scientificLit]
+def elabScientificLit : TermElab := fun stx expectedType? => do
+  match stx.isScientificLit? with
   | none        => throwIllFormedSyntax
   | some (m, sign, e) =>
     let typeMVar ← mkFreshTypeMVarFor expectedType?
     let u ← getDecLevel typeMVar
-    let mvar ← mkInstMVar (mkApp (Lean.mkConst `OfDecimal [u]) typeMVar)
-    return mkApp5 (Lean.mkConst `OfDecimal.ofDecimal [u]) typeMVar mvar (mkNatLit m) (toExpr sign) (mkNatLit e)
+    let mvar ← mkInstMVar (mkApp (Lean.mkConst `OfScientific [u]) typeMVar)
+    return mkApp5 (Lean.mkConst `OfScientific.ofScientific [u]) typeMVar mvar (mkNatLit m) (toExpr sign) (mkNatLit e)
 
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with

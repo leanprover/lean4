@@ -98,4 +98,4 @@ abbrev Nat.toFloat (n : Nat) : Float :=
 
 instance : Pow Float := ⟨Float.pow⟩
 
-@[extern "lean_float_of_decimal"] constant Float.ofDecimal (m : Nat) (s : Bool) (e : Nat) : Float
+@[extern "lean_float_of_scientific"] constant Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float

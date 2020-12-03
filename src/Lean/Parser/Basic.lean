@@ -68,7 +68,7 @@ namespace Lean
 namespace Parser
 
 def isLitKind (k : SyntaxNodeKind) : Bool :=
-  k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind || k == decimalLitKind
+  k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind || k == scientificLitKind
 
 abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
   Syntax.atom info val
@@ -815,7 +815,7 @@ def decimalNumberFn (startPos : Nat) (c : ParserContext) : ParserState → Parse
   if curr == '.' || curr == 'e' || curr == 'E' then
     let s := parseOptDot s
     let s := parseOptExp s
-    mkNodeToken decimalLitKind startPos c s
+    mkNodeToken scientificLitKind startPos c s
   else
     mkNodeToken numLitKind startPos c s
 where
@@ -1186,15 +1186,15 @@ def numLitFn : ParserFn :=
   info := mkAtomicInfo "numLit"
 }
 
-def decimalLitFn : ParserFn :=
+def scientificLitFn : ParserFn :=
   fun c s =>
     let iniPos := s.pos
     let s      := tokenFn c s
-    if s.hasError || !(s.stxStack.back.isOfKind decimalLitKind) then s.mkErrorAt "decimal number" iniPos else s
+    if s.hasError || !(s.stxStack.back.isOfKind scientificLitKind) then s.mkErrorAt "scientific number" iniPos else s
 
-@[inline] def decimalLitNoAntiquot : Parser := {
-  fn   := decimalLitFn,
-  info := mkAtomicInfo "decimalLit"
+@[inline] def scientificLitNoAntiquot : Parser := {
+  fn   := scientificLitFn,
+  info := mkAtomicInfo "scientificLit"
 }
 
 def strLitFn : ParserFn := fun c s =>
@@ -1630,8 +1630,8 @@ def rawIdent : Parser :=
 def numLit : Parser :=
   withAntiquot (mkAntiquot "numLit" numLitKind) numLitNoAntiquot
 
-def decimalLit : Parser :=
-  withAntiquot (mkAntiquot "decimalLit" decimalLitKind) decimalLitNoAntiquot
+def scientificLit : Parser :=
+  withAntiquot (mkAntiquot "scientificLit" scientificLitKind) scientificLitNoAntiquot
 
 def strLit : Parser :=
   withAntiquot (mkAntiquot "strLit" strLitKind) strLitNoAntiquot

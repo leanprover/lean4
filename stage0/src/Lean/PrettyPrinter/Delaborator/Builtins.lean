@@ -5,9 +5,11 @@ Authors: Sebastian Ullrich
 -/
 
 import Lean.PrettyPrinter.Delaborator.Basic
+import Lean.Parser
 
 namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
+open Lean.Parser.Term
 
 @[builtinDelab fvar]
 def delabFVar : Delab := do
@@ -167,8 +169,8 @@ private def skippingBinders {α} : (numParams : Nat) → (x : DelabM α) → Del
 
 /--
   Extract arguments of motive applications from the matcher type.
-  For the example below: `#[`([]), `(a::as)]` -/
-private def delabPatterns (st : AppMatchState) : DelabM (Array Syntax) := do
+  For the example below: `#[#[`([])], #[`(a::as)]]` -/
+private def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) := do
   let ty ← instantiateForall st.matcherTy st.params
   forallTelescope ty fun params _ => do
     -- skip motive and discriminators
@@ -178,7 +180,7 @@ private def delabPatterns (st : AppMatchState) : DelabM (Array Syntax) := do
       withReader ({ · with expr := ty }) $
         skippingBinders st.info.altNumParams[idx] do
           let pats ← withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
-          Syntax.mkSep pats (mkAtom ",")
+          mkSepArray pats (mkAtom ",")
 
 /--
   Delaborate applications of "matchers" such as
@@ -218,9 +220,9 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
     Syntax.mkApp stx st.moreArgs
   | _,        #[] => failure
   | _,        _   =>
-    let discrs := st.discrs.map fun discr => mkNode `Lean.Parser.Term.matchDiscr #[mkNullNode, discr]
+    let discrs ← st.discrs.mapM fun discr => `(matchDiscr|$discr:term)
     let pats ← delabPatterns st
-    let alts := pats.zipWith st.rhss fun pat rhs => mkNode `Lean.Parser.Term.matchAlt #[pat, mkAtom "=>", rhs]
+    let alts ← pats.zipWith st.rhss (fun pats rhs => `(matchAlt|$pats* => $rhs)) |>.mapM id
     let stx ← `(match $(mkSepArray discrs (mkAtom ",")):matchDiscr* with | $(mkSepArray alts (mkAtom "|")):matchAlt*)
     Syntax.mkApp stx st.moreArgs
 
@@ -439,12 +441,7 @@ def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
         pure (idx + 1, fields)
       else
         let val ← delab
-        let field := Syntax.node `Lean.Parser.Term.structInstField #[
-          mkIdent $ fieldNames.get! (idx - s.nparams),
-          mkNullNode,
-          mkAtom ":=",
-          val
-        ]
+        let field ← `(structInstField|$(mkIdent <| fieldNames.get! (idx - s.nparams)):ident := $val)
         pure (idx + 1, fields.push field)
   let fields := fields.mapIdx fun idx field =>
       let comma := if idx.val < fields.size - 1 then mkNullNode #[mkAtom ","] else mkNullNode
@@ -556,7 +553,7 @@ def delabDo : Delab := whenPPOption getPPNotation do
   unless (← getExpr).isAppOfArity `Bind.bind 6 do
     failure
   let elems ← delabDoElems
-  let items := elems.toArray.map (mkNode `Lean.Parser.Term.doSeqItem #[·, mkNullNode])
+  let items ← elems.toArray.mapM (`(doSeqItem|$(·):doElem))
   `(do $items:doSeqItem*)
 
 end Lean.PrettyPrinter.Delaborator

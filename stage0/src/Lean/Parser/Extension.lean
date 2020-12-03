@@ -278,8 +278,6 @@ builtin_initialize
   registerAlias "sepByT" (sepBy (allowTrailingSep := true))
   registerAlias "sepBy1T" (sepBy1 (allowTrailingSep := true))
 
-
-
 partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser :=
   let rec visit : ParserDescr → ImportM Parser
     | ParserDescr.const n                             => getConstAlias parserAliasesRef n

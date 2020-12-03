@@ -1911,7 +1911,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
-x_12 = lean_ctor_get(x_10, 3);
+x_12 = lean_ctor_get(x_10, 2);
 lean_inc(x_12);
 lean_dec(x_10);
 x_13 = l_Lean_Elab_Command_getScope___rarg(x_3, x_11);
@@ -1920,7 +1920,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = lean_ctor_get(x_13, 0);
-x_16 = lean_ctor_get(x_15, 4);
+x_16 = lean_ctor_get(x_15, 3);
 lean_inc(x_16);
 lean_dec(x_15);
 x_17 = l_Lean_ResolveName_resolveGlobalName(x_8, x_12, x_16, x_1);
@@ -1936,7 +1936,7 @@ x_19 = lean_ctor_get(x_13, 1);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_13);
-x_20 = lean_ctor_get(x_18, 4);
+x_20 = lean_ctor_get(x_18, 3);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = l_Lean_ResolveName_resolveGlobalName(x_8, x_12, x_20, x_1);

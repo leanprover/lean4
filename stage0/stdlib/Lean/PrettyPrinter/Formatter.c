@@ -297,6 +297,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_checkColGt_formatter(lean_object*, l
 lean_object* l_Lean_PrettyPrinter_Formatter_lookahead_formatter___rarg(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_13407____closed__4;
 lean_object* l_Lean_PrettyPrinter_combinatorFormatterAttribute;
+lean_object* l_Lean_throwError___at_Lean_AttributeImpl_addScoped___default___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_many1Unbox_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_symbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -451,7 +452,6 @@ lean_object* l_Lean_PrettyPrinter_format_match__1(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2500____closed__14;
 lean_object* l_Lean_PrettyPrinter_Formatter_concat___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_setStack(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_instInhabitedFormat;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_visitAtom___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -884,7 +884,7 @@ lean_object* x_12; lean_object* x_13;
 lean_dec(x_10);
 lean_free_object(x_6);
 x_12 = l_Lean_PrettyPrinter_mkFormatterAttribute___lambda__1___closed__3;
-x_13 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_12, x_3, x_4, x_9);
+x_13 = l_Lean_throwError___at_Lean_AttributeImpl_addScoped___default___spec__1___rarg(x_12, x_3, x_4, x_9);
 return x_13;
 }
 else
@@ -915,7 +915,7 @@ x_20 = l_Lean_KernelException_toMessageData___closed__3;
 x_21 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_21, x_3, x_4, x_9);
+x_22 = l_Lean_throwError___at_Lean_AttributeImpl_addScoped___default___spec__1___rarg(x_21, x_3, x_4, x_9);
 return x_22;
 }
 else
@@ -946,7 +946,7 @@ x_27 = l_Lean_KernelException_toMessageData___closed__3;
 x_28 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_28, x_3, x_4, x_9);
+x_29 = l_Lean_throwError___at_Lean_AttributeImpl_addScoped___default___spec__1___rarg(x_28, x_3, x_4, x_9);
 return x_29;
 }
 else
@@ -981,7 +981,7 @@ if (lean_obj_tag(x_33) == 0)
 lean_object* x_34; lean_object* x_35; 
 lean_dec(x_32);
 x_34 = l_Lean_PrettyPrinter_mkFormatterAttribute___lambda__1___closed__3;
-x_35 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_34, x_3, x_4, x_31);
+x_35 = l_Lean_throwError___at_Lean_AttributeImpl_addScoped___default___spec__1___rarg(x_34, x_3, x_4, x_31);
 return x_35;
 }
 else
@@ -1011,7 +1011,7 @@ x_42 = l_Lean_KernelException_toMessageData___closed__3;
 x_43 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
-x_44 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_43, x_3, x_4, x_31);
+x_44 = l_Lean_throwError___at_Lean_AttributeImpl_addScoped___default___spec__1___rarg(x_43, x_3, x_4, x_31);
 return x_44;
 }
 else
@@ -1044,7 +1044,7 @@ x_50 = l_Lean_KernelException_toMessageData___closed__3;
 x_51 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_51, 0, x_49);
 lean_ctor_set(x_51, 1, x_50);
-x_52 = l_Lean_throwError___at_Lean_addAttribute___spec__2___rarg(x_51, x_3, x_4, x_31);
+x_52 = l_Lean_throwError___at_Lean_AttributeImpl_addScoped___default___spec__1___rarg(x_51, x_3, x_4, x_31);
 return x_52;
 }
 else

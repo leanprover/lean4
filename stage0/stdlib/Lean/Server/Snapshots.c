@@ -631,9 +631,9 @@ if (lean_is_exclusive(x_6)) {
  x_13 = lean_box(0);
 }
 x_14 = l_List_head_x21___at_Lean_Elab_Command_instMonadOptionsCommandElabM___spec__1(x_8);
-x_15 = lean_ctor_get(x_14, 3);
+x_15 = lean_ctor_get(x_14, 2);
 lean_inc(x_15);
-x_16 = lean_ctor_get(x_14, 4);
+x_16 = lean_ctor_get(x_14, 3);
 lean_inc(x_16);
 lean_dec(x_14);
 lean_inc(x_7);

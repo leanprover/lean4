@@ -33,6 +33,11 @@ structure AttributeImplCore where
 
 structure AttributeImpl extends AttributeImplCore where
   add (decl : Name) (args : Syntax) (persistent : Bool) : AttrM Unit
+  addScoped (decl : Name) (args : Syntax) : AttrM Unit  := throwError "scoped attribute not supported for this kind of attribute"
+  erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
+  activateScoped (namespaceName : Name) : AttrM Unit := pure ()
+  pushScope : AttrM Unit := pure ()
+  popScope : AttrM Unit := pure ()
 
 instance : Inhabited AttributeImpl :=
   ⟨{ name := arbitrary, descr := arbitrary, add := fun env _ _ _ => pure () }⟩
@@ -169,10 +174,30 @@ def registerAttributeOfBuilder (env : Environment) (builderId : Name) (args : Li
   else
     pure $ attributeExtension.addEntry env (AttributeExtensionOLeanEntry.builder builderId args, attrImpl)
 
-def addAttribute (decl : Name) (attrName : Name) (args : Syntax) (persistent : Bool := true) : AttrM Unit := do
-  let env ← getEnv
-  let attr ← ofExcept $ getAttributeImpl env attrName
-  attr.add decl args persistent
+def Attribute.add (declName : Name) (attrName : Name) (args : Syntax) (persistent : Bool := true) : AttrM Unit := do
+  let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName
+  attr.add declName args persistent
+
+def Attribute.addScoped (declName : Name) (attrName : Name) (args : Syntax) : AttrM Unit := do
+  let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName
+  attr.addScoped declName args
+
+def Attribute.erase (declName : Name) (attrName : Name) : AttrM Unit := do
+  let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName
+  attr.erase declName
+
+@[inline]
+def Attribute.forEach (f : AttributeImpl → AttrM Unit) : AttrM Unit := do
+  (attributeExtension.getState (← getEnv)).map.forM fun _ attrImpl => f attrImpl
+
+def Attribute.pushScope : AttrM Unit := do
+  forEach fun attr => attr.pushScope
+
+def Attribute.popScope : AttrM Unit := do
+  forEach fun attr => attr.popScope
+
+def Attribute.activateScoped (namespaceName : Name) : AttrM Unit := do
+  forEach fun attr => attr.activateScoped namespaceName
 
 /--
   Tag attributes are simple and efficient. They are useful for marking declarations in the modules where
@@ -250,7 +275,9 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
       r.qsort (fun a b => Name.quickLt a.1 b.1),
     statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
   }
-  let attrImpl : AttributeImpl := { impl with
+  let attrImpl : AttributeImpl := {
+    name  := impl.name
+    descr := impl.descr
     add   := fun decl args persistent => do
       unless persistent do throwError! "invalid attribute '{impl.name}', must be persistent"
       let env ← getEnv

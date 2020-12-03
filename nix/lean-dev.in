@@ -42,6 +42,8 @@ done
 [[ "$root" == / ]] && root="@srcRoot@"
 deps="$(echo -n "$input" | nix run "$root#print-lean-deps" 2> /dev/null)"
 attrPath="check-mod"
+# HACK: use stage 0 instead of 0 inside Lean's own `src/`
+[[ -d "$root/src/Lean" && "$inputFile" == "$root/src/"* ]] && attrPath="stage0check-mod"
 for dep in $deps; do
     attrPath="$attrPath.\"$dep\""
 done

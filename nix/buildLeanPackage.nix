@@ -110,10 +110,10 @@ in
     makeEmacsWrapper = name: lean: writeShellScriptBin name ''
       ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" $@
     '';
-    checkMod = deps: writeShellScriptBin "check-mod" ''
+    checkMod = lean: deps: writeShellScriptBin "check-mod" ''
       LEAN_PATH=${depRoot "check-mod" deps} ${lean}/bin/lean "$@"
     '';
-    makeCheckModFor = deps: mods: checkMod deps // mapAttrs (_: mod: makeCheckModFor (deps ++ [mod]) mods) mods;
+    makeCheckModFor = lean: deps: mods: checkMod lean deps // mapAttrs (_: mod: makeCheckModFor lean (deps ++ [mod]) mods) mods;
   in rec {
     inherit name lean deps allDeps print-lean-deps;
     mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues allDeps));
@@ -131,7 +131,7 @@ in
     '';
     emacs-package = makeEmacsWrapper "emacs-package" lean-package;
 
-    check-mod = makeCheckModFor [] mods;
+    check-mod = lib.makeOverridable (lean: makeCheckModFor lean [] mods) lean-final;
     lean-dev = substituteAll {
       name = "lean";
       dir = "bin";

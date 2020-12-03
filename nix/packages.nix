@@ -75,6 +75,7 @@ let
 in {
   inherit cc lean4-mode buildLeanPackage llvmPackages;
   lean = lean.stage1;
+  stage0check-mod = lean.stage1.Lean.check-mod.override lean.stage0;
   temci = (import temci {}).override { doCheck = false; };
   nix = nix-pinned;
   nixpkgs = pkgs;

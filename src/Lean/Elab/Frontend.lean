@@ -49,8 +49,10 @@ def processCommand : FrontendM Bool := do
   let cmdState ← getCommandState
   let ictx ← getInputContext
   let pstate ← getParserState
+  let scope := cmdState.scopes.head!
+  let pmctx := { env := cmdState.env, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let pos := ictx.fileMap.toPosition pstate.pos
-  match profileit "parsing" pos fun _ => Parser.parseCommand cmdState.env ictx pstate cmdState.messages with
+  match profileit "parsing" pos fun _ => Parser.parseCommand ictx pmctx pstate cmdState.messages with
   | (cmd, ps, messages) =>
     modify fun s => { s with commands := s.commands.push cmd }
     setParserState ps

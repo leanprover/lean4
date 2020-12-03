@@ -62,6 +62,7 @@ import Lean.Environment
 import Lean.Attributes
 import Lean.Message
 import Lean.Compiler.InitAttr
+import Lean.ResolveName
 
 namespace Lean
 
@@ -120,14 +121,23 @@ instance : Inhabited InputContext := ⟨{
   input := "", fileName := "", fileMap := arbitrary
 }⟩
 
-structure ParserContext extends InputContext where
+/-- Input context derived from elaboration of previous commands. -/
+structure ParserModuleContext where
+  env           : Environment
+  -- for name lookup
+  currNamespace : Name := Name.anonymous
+  openDecls     : List OpenDecl := []
+
+structure ParserContext extends InputContext, ParserModuleContext where
   prec               : Nat
-  env                : Environment
   tokens             : TokenTable
   insideQuot         : Bool := false
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos := none
   forbiddenTk?       : Option Token := none
+
+def ParserContext.resolveName (ctx : ParserContext) (id : Name) : List (Name × List String) :=
+  ResolveName.resolveGlobalName ctx.env ctx.currNamespace ctx.openDecls id
 
 structure Error where
   unexpected : String := ""

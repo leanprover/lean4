@@ -422,11 +422,11 @@ def mkInputContext (input : String) (fileName : String) : InputContext := {
   fileMap  := input.toFileMap
 }
 
-def mkParserContext (env : Environment) (ctx : InputContext) : ParserContext := {
-  prec           := 0,
-  toInputContext := ctx,
-  env            := env,
-  tokens         := getTokenTable env
+def mkParserContext (ictx : InputContext) (pmctx : ParserModuleContext) : ParserContext := {
+  prec                  := 0,
+  toInputContext        := ictx,
+  toParserModuleContext := pmctx,
+  tokens                := getTokenTable pmctx.env
 }
 
 def mkParserState (input : String) : ParserState :=
@@ -434,7 +434,7 @@ def mkParserState (input : String) : ParserState :=
 
 /- convenience function for testing -/
 def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>") : Except String Syntax :=
-  let c := mkParserContext env (mkInputContext input fileName)
+  let c := mkParserContext (mkInputContext input fileName) { env := env }
   let s := mkParserState input
   let s := whitespace c s
   let s := categoryParserFnImpl catName c s

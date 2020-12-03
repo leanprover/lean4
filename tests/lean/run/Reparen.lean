@@ -23,7 +23,7 @@ let (debug, f) : Bool × String := match args with
   | [f]       => (false, f)
   | _         => panic! "usage: file [-d]";
 let env ← mkEmptyEnvironment;
-let stx ← Lean.Parser.parseFile env args.head!;
+let stx ← Lean.Parser.testParseFile env args.head!;
 let header := stx.getArg 0;
 let some s ← pure header.reprint | throw $ IO.userError "header reprint failed";
 IO.print s;

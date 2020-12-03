@@ -78,8 +78,11 @@ through the file. -/
 -- isServer? conditionals and not be worth it due to how short it is.
 def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot MessageLog) := do
   let inputCtx := Parser.mkInputContext contents "<input>";
+  let cmdState := snap.toCmdState;
+  let scope := cmdState.scopes.head!
+  let pmctx := { env := cmdState.env, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, cmdParserState, msgLog) :=
-    Parser.parseCommand snap.env inputCtx snap.mpState snap.msgLog;
+    Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog;
   let cmdPos := cmdStx.getHeadInfo.get!.pos.get!; -- TODO(WN): always `some`?
   if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
     pure $ Sum.inr msgLog

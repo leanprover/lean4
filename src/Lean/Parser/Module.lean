@@ -40,7 +40,7 @@ private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : St
 
 def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × MessageLog) := do
   let dummyEnv ← mkEmptyEnvironment
-  let ctx := mkParserContext dummyEnv inputCtx
+  let ctx := mkParserContext inputCtx { env := dummyEnv }
   let ctx := Module.updateTokens ctx
   let s   := mkParserState ctx.input
   let s   := whitespace ctx s
@@ -76,13 +76,13 @@ def topLevelCommandParserFn : ParserFn :=
     (andthenFn (lookaheadFn termParser.fn) (errorFn "expected command, but found term; this error may be due to parsing precedence levels, consider parenthesizing the term"))
     false /- do not merge errors -/
 
-partial def parseCommand (env : Environment) (inputCtx : InputContext) (s : ModuleParserState) (messages : MessageLog) : Syntax × ModuleParserState × MessageLog :=
+partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext) (s : ModuleParserState) (messages : MessageLog) : Syntax × ModuleParserState × MessageLog :=
   let rec parse (s : ModuleParserState) (messages : MessageLog) :=
     let { pos := pos, recovering := recovering } := s
     if inputCtx.input.atEnd pos then
       (mkEOI pos, s, messages)
     else
-      let c   := mkParserContext env inputCtx
+      let c   := mkParserContext inputCtx pmctx
       let s   := { cache := initCacheForInput c.input, pos := pos : ParserState }
       let s   := whitespace c s
       let s   := topLevelCommandParserFn c s
@@ -104,29 +104,11 @@ partial def parseCommand (env : Environment) (inputCtx : InputContext) (s : Modu
           -- (stx, { pos := pos, recovering := true }, messages)
   parse s messages
 
-private partial def testModuleParserAux (env : Environment) (inputCtx : InputContext) (displayStx : Bool) (s : ModuleParserState) (messages : MessageLog) : IO Bool :=
-  let rec loop (s : ModuleParserState) (messages : MessageLog) := do
-    match parseCommand env inputCtx s messages with
-    | (stx, s, messages) =>
-      if isEOI stx || isExitCommand stx then
-        messages.forM fun msg => msg.toString >>= IO.println
-        pure (!messages.hasErrors)
-      else
-        if displayStx then IO.println stx
-        loop s messages
-  loop s messages
+-- only useful for testing since most Lean files cannot be parsed without elaboration
 
-@[export lean_test_module_parser]
-def testModuleParser (env : Environment) (input : String) (fileName := "<input>") (displayStx := false) : IO Bool :=
-  timeit (fileName ++ " parser") do
-    let inputCtx           := mkInputContext input fileName
-    let (stx, s, messages) ← parseHeader inputCtx
-    if displayStx then IO.println stx
-    testModuleParserAux env inputCtx displayStx s messages
-
-partial def parseModuleAux (env : Environment) (inputCtx : InputContext) (s : ModuleParserState) (msgs : MessageLog) (stxs  : Array Syntax) : IO (Array Syntax) :=
+partial def testParseModuleAux (env : Environment) (inputCtx : InputContext) (s : ModuleParserState) (msgs : MessageLog) (stxs  : Array Syntax) : IO (Array Syntax) :=
   let rec parse (state : ModuleParserState) (msgs : MessageLog) (stxs : Array Syntax) :=
-    match parseCommand env inputCtx state msgs with
+    match parseCommand inputCtx { env := env } state msgs with
     | (stx, state, msgs) =>
       if isEOI stx then
         if msgs.isEmpty then
@@ -138,17 +120,17 @@ partial def parseModuleAux (env : Environment) (inputCtx : InputContext) (s : Mo
         parse state msgs (stxs.push stx)
   parse s msgs stxs
 
-def parseModule (env : Environment) (fname contents : String) : IO Syntax := do
+def testParseModule (env : Environment) (fname contents : String) : IO Syntax := do
   let fname ← IO.realPath fname
   let inputCtx := mkInputContext contents fname
   let (header, state, messages) ← parseHeader inputCtx
-  let cmds ← parseModuleAux env inputCtx state messages #[]
+  let cmds ← testParseModuleAux env inputCtx state messages #[]
   let stx := Syntax.node `Lean.Parser.Module.module #[header, mkListNode cmds]
   pure stx.updateLeading
 
-def parseFile (env : Environment) (fname : String) : IO Syntax := do
+def testParseFile (env : Environment) (fname : String) : IO Syntax := do
   let contents ← IO.FS.readFile fname
-  parseModule env fname contents
+  testParseModule env fname contents
 
 end Parser
 end Lean

@@ -332,11 +332,6 @@ public:
 };
 
 namespace lean {
-extern "C" object* lean_test_module_parser(object* env, object* input, object* filename, uint8 displayCtx, object* w);
-bool test_module_parser(environment const & env, std::string const & input, std::string const & filename) {
-    return get_io_scalar_result<bool>(lean_test_module_parser(env.to_obj_arg(), mk_string(input), mk_string(filename), false, io_mk_world()));
-}
-
 typedef list_ref<object_ref> messages;
 typedef object_ref module_stx;
 extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, object * w);

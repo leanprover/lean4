@@ -466,22 +466,29 @@ def mkFreshIdent (ref : Syntax) : TermElabM Syntax :=
   return mkIdentFrom ref (← mkFreshBinderName)
 
 private def liftAttrM {α} (x : AttrM α) : TermElabM α := do
-  let ctx ← read
   liftCoreM x
 
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
     (applicationTime? : Option AttributeApplicationTime) (persistent : Bool) : TermElabM Unit :=
   for attr in attrs do
-   let env ← getEnv
-   match getAttributeImpl env attr.name with
-   | Except.error errMsg => throwError errMsg
-   | Except.ok attrImpl  =>
-     match applicationTime? with
-     | none => liftAttrM $ attrImpl.add declName attr.args persistent
-     | some applicationTime =>
-       if applicationTime ==  attrImpl.applicationTime then
-         liftAttrM $ attrImpl.add declName attr.args persistent
+    let env ← getEnv
+    match getAttributeImpl env attr.name with
+    | Except.error errMsg => throwError errMsg
+    | Except.ok attrImpl  =>
+      match applicationTime? with
+      | none => apply attrImpl declName attr.scoped attr.args persistent
+      | some applicationTime =>
+        if applicationTime == attrImpl.applicationTime then
+          apply attrImpl declName attr.scoped attr.args persistent
+where
+  apply attrImpl declName scoped args persistent := do
+    if !persistent && scoped then
+      throwError "scoped attributes must be persistent"
+    if scoped then
+      liftAttrM <| attrImpl.addScoped declName args
+    else
+      liftAttrM <| attrImpl.add declName args persistent
 
 /-- Apply given attributes **at** a given application time -/
 def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) (persistent : Bool := true) : TermElabM Unit :=

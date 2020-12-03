@@ -13,7 +13,6 @@ import Lean.Elab.DeclModifiers
 namespace Lean.Elab.Command
 
 structure Scope where
-  kind          : String
   header        : String
   opts          : Options := {}
   currNamespace : Name := Name.anonymous
@@ -21,12 +20,12 @@ structure Scope where
   levelNames    : List Name := []
   varDecls      : Array Syntax := #[]
 
-instance : Inhabited Scope := ⟨{ kind := "", header := "" }⟩
+instance : Inhabited Scope := ⟨{ header := "" }⟩
 
 structure State where
   env            : Environment
   messages       : MessageLog := {}
-  scopes         : List Scope := [{ kind := "root", header := "" }]
+  scopes         : List Scope := [{ header := "" }]
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   nextInstIdx    : Nat := 1 -- for generating anonymous instance names
@@ -37,7 +36,7 @@ instance : Inhabited State := ⟨{ env := arbitrary, maxRecDepth := 0 }⟩
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
   env := env,
   messages := messages,
-  scopes := [{ kind := "root", header := "", opts := opts }],
+  scopes := [{ header := "", opts := opts }],
   maxRecDepth := getMaxRecDepth opts
 }
 
@@ -307,23 +306,29 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
-private def addScope (kind : String) (header : String) (newNamespace : Name) : CommandElabM Unit :=
+private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
+  liftCoreM x
+
+private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
   modify fun s => {
     s with
     env    := s.env.registerNamespace newNamespace,
-    scopes := { s.scopes.head! with kind := kind, header := header, currNamespace := newNamespace } :: s.scopes
+    scopes := { s.scopes.head! with header := header, currNamespace := newNamespace } :: s.scopes
   }
+  liftAttrM Attribute.pushScope
+  if isNewNamespace then
+    liftAttrM <| Attribute.activateScoped newNamespace
 
-private def addScopes (kind : String) (updateNamespace : Bool) : Name → CommandElabM Unit
+private def addScopes (isNewNamespace : Bool) : Name → CommandElabM Unit
   | Name.anonymous => pure ()
   | Name.str p header _ => do
-    addScopes kind updateNamespace p
+    addScopes isNewNamespace p
     let currNamespace ← getCurrNamespace
-    addScope kind header (if updateNamespace then Name.mkStr currNamespace header else currNamespace)
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace)
   | _ => throwError "invalid scope"
 
 private def addNamespace (header : Name) : CommandElabM Unit :=
-  addScopes "namespace" true header
+  addScopes (isNewNamespace := true) header
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match_syntax stx with
@@ -332,8 +337,8 @@ private def addNamespace (header : Name) : CommandElabM Unit :=
 
 @[builtinCommandElab «section»] def elabSection : CommandElab := fun stx =>
   match_syntax stx with
-  | `(section $header:ident) => addScopes "section" false header.getId
-  | `(section)               => do let currNamespace ← getCurrNamespace; addScope "section" "" currNamespace
+  | `(section $header:ident) => addScopes (isNewNamespace := false) header.getId
+  | `(section)               => do let currNamespace ← getCurrNamespace; addScope (isNewNamespace := false) "" currNamespace
   | _                        => throwUnsupportedSyntax
 
 def getScopes : CommandElabM (List Scope) := do
@@ -348,6 +353,10 @@ private def checkEndHeader : Name → List Scope → Bool
   | Name.str p s _, { header := h, .. } :: scopes => h == s && checkEndHeader p scopes
   | _,              _                             => false
 
+private def popAttributeScopes (numScopes : Nat) : CommandElabM Unit :=
+  for i in [0:numScopes] do
+    liftAttrM <| Attribute.popScope
+
 @[builtinCommandElab «end»] def elabEnd : CommandElab := fun stx => do
   let header? := (stx.getArg 1).getOptionalIdent?;
   let endSize := match header? with
@@ -356,8 +365,11 @@ private def checkEndHeader : Name → List Scope → Bool
   let scopes ← getScopes
   if endSize < scopes.length then
     modify fun s => { s with scopes := s.scopes.drop endSize }
+    popAttributeScopes endSize
   else -- we keep "root" scope
-    modify fun s => { s with scopes := s.scopes.drop (s.scopes.length - 1) }
+    let n := (← get).scopes.length - 1
+    modify fun s => { s with scopes := s.scopes.drop n }
+    popAttributeScopes n
     throwError "invalid 'end', insufficient scopes"
   match header? with
   | none        => unless checkAnonymousScope scopes do throwError "invalid 'end', name is missing"
@@ -444,6 +456,7 @@ def elabOpenSimple (n : SyntaxNode) : CommandElabM Unit :=
   nss.forArgsM fun ns => do
     let ns ← resolveNamespace ns.getId
     addOpenDecl (OpenDecl.simple ns [])
+    liftAttrM <| Attribute.activateScoped ns
 
 -- `open` id `(` id+ `)`
 def elabOpenOnly (n : SyntaxNode) : CommandElabM Unit := do

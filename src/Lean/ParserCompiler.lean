@@ -111,7 +111,7 @@ def compileCategoryParser {α} (ctx : Context α) (declName : Name) (builtin : B
   -- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
   -- using `parser!` or `syntax`.
   let kind := declName
-  addAttribute c' (if builtin then ctx.categoryAttr.defn.builtinName else ctx.categoryAttr.defn.name) (mkNullNode #[mkIdent kind])
+  Attribute.add c' (if builtin then ctx.categoryAttr.defn.builtinName else ctx.categoryAttr.defn.name) (mkNullNode #[mkIdent kind])
 
 variables {α} (ctx : Context α) in
 def compileEmbeddedParsers : ParserDescr → MetaM Unit

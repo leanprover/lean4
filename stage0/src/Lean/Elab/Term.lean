@@ -482,10 +482,10 @@ private def applyAttributesCore
         if applicationTime == attrImpl.applicationTime then
           apply attrImpl declName attr.scoped attr.args persistent
 where
-  apply attrImpl declName scoped args persistent := do
-    if !persistent && scoped then
+  apply attrImpl declName «scoped» args persistent := do
+    if !persistent && «scoped» then
       throwError "scoped attributes must be persistent"
-    if scoped then
+    if «scoped» then
       liftAttrM <| attrImpl.addScoped declName args
     else
       liftAttrM <| attrImpl.add declName args persistent

@@ -207,6 +207,8 @@ def macroLastArg   := macroDollarArg <|> macroArg
 -- Macro for avoiding exponentially big terms when using `STWorld`
 @[builtinTermParser] def stateRefT   := parser! "StateRefT" >> macroArg >> macroLastArg
 
+@[builtinTermParser] def dynamicQuot := parser! "`(" >> ident >> "|" >> parserOfStack 1 >> ")"
+
 end Term
 
 @[builtinTermParser 1] def Tactic.quot    : Parser := parser! "`(tactic|" >> toggleInsideQuot tacticParser >> ")"

@@ -69,7 +69,6 @@ lean_object* l_Lean_Server_handleDidOpen_match__1___rarg(lean_object*, lean_obje
 lean_object* l_Lean_Server_parseParams___rarg___closed__1;
 lean_object* l_Lean_Server_handleHover___rarg(lean_object*);
 lean_object* l_Lean_Server_handleNotification___closed__1;
-lean_object* l_IO_FS_Handle_mk___at_Lean_Parser_parseFile___spec__2(lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Server_Snapshots_compileCmdsAfter(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_mainLoop___rarg___closed__1;
@@ -115,6 +114,7 @@ lean_object* l_Std_RBNode_del___at_Lean_Server_handleDidClose___spec__2(lean_obj
 lean_object* l_Lean_Server_handleDidOpen(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonInitializeParams___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_msgToDiagnostic___closed__1;
+lean_object* l_IO_FS_Handle_mk___at_Lean_Parser_testParseFile___spec__2(lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* l___private_Lean_Server_0__Lean_Server_replaceLspRange(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_Server_findOpenDocument___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_updateOpenDocuments___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8447,7 +8447,7 @@ lean_inc(x_9);
 lean_dec(x_7);
 x_10 = 0;
 x_11 = 1;
-x_12 = l_IO_FS_Handle_mk___at_Lean_Parser_parseFile___spec__2(x_1, x_10, x_11, x_9);
+x_12 = l_IO_FS_Handle_mk___at_Lean_Parser_testParseFile___spec__2(x_1, x_10, x_11, x_9);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 

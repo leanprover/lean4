@@ -225,7 +225,6 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
     let alts ← pats.zipWith st.rhss (fun pats rhs => `(matchAlt|$pats* => $rhs)) |>.mapM id
     let stx ← `(match $(mkSepArray discrs (mkAtom ",")):matchDiscr* with | $(mkSepArray alts (mkAtom "|")):matchAlt*)
     Syntax.mkApp stx st.moreArgs
-    #print delabAppMatch
 
 @[builtinDelab mdata]
 def delabMData : Delab := do
@@ -442,12 +441,7 @@ def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
         pure (idx + 1, fields)
       else
         let val ← delab
-        let field := Syntax.node `Lean.Parser.Term.structInstField #[
-          mkIdent $ fieldNames.get! (idx - s.nparams),
-          mkNullNode,
-          mkAtom ":=",
-          val
-        ]
+        let field ← `(structInstField|$(mkIdent <| fieldNames.get! (idx - s.nparams)):ident := $val)
         pure (idx + 1, fields.push field)
   let fields := fields.mapIdx fun idx field =>
       let comma := if idx.val < fields.size - 1 then mkNullNode #[mkAtom ","] else mkNullNode

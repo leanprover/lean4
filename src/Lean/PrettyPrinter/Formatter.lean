@@ -190,6 +190,12 @@ def categoryParserOfStack.formatter (offset : Nat) : Formatter := do
   let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset)
   categoryParser.formatter stx.getId
 
+@[combinatorFormatter Lean.Parser.parserOfStack]
+def parserOfStack.formatter (offset : Nat) (prec : Nat := 0) : Formatter := do
+  let st ← get
+  let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset)
+  formatterForKind stx.getKind
+
 @[combinatorFormatter Lean.Parser.error]
 def error.formatter (msg : String) : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.errorAtSavedPos]

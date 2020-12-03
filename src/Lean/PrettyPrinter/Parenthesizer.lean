@@ -310,6 +310,12 @@ def categoryParserOfStack.parenthesizer (offset : Nat) (prec : Nat) : Parenthesi
   let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset)
   categoryParser.parenthesizer stx.getId prec
 
+@[combinatorParenthesizer Lean.Parser.parserOfStack]
+def parserOfStack.parenthesizer (offset : Nat) (prec : Nat := 0) : Parenthesizer := do
+  let st ← get
+  let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset)
+  parenthesizerForKind stx.getKind
+
 @[builtinCategoryParenthesizer term]
 def term.parenthesizer : CategoryParenthesizer | prec => do
   let stx ← getCur

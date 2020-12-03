@@ -1464,17 +1464,25 @@ extern "C" lean_obj_res lean_float_to_string(double a) {
     return mk_string(std::to_string(a));
 }
 
-static double of_decimal(mpz const & m, size_t e) {
-    return (mpq(m)/mpz(10).pow(e)).get_double();
+static double of_decimal(mpz const & m, bool sign, size_t e) {
+    if (sign)
+        return (mpq(m)/mpz(10).pow(e)).get_double();
+    else
+        return (mpq(m)*mpz(10).pow(e)).get_double();
 }
 
-extern "C" double lean_float_of_decimal(b_lean_obj_arg m, b_lean_obj_arg e) {
-    if (!lean_is_scalar(e))
-        return 0.0;
+extern "C" double lean_float_of_decimal(b_lean_obj_arg m, uint8 esign, b_lean_obj_arg e) {
+    if (!lean_is_scalar(e)) {
+        if (esign) {
+            return 0.0;
+        } else {
+            return std::numeric_limits<double>::infinity();
+        }
+    }
     if (lean_is_scalar(m)) {
-        return of_decimal(mpz::of_size_t(lean_unbox(m)), lean_unbox(e));
+        return of_decimal(mpz::of_size_t(lean_unbox(m)), esign, lean_unbox(e));
     } else {
-        return of_decimal(mpz_value(m), lean_unbox(e));
+        return of_decimal(mpz_value(m), esign, lean_unbox(e));
     }
 }
 

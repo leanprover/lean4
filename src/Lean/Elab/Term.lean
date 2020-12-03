@@ -1277,11 +1277,11 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
 @[builtinTermElab decimalLit] def elabDecimalLit : TermElab := fun stx expectedType? => do
   match stx.isDecimalLit? with
   | none        => throwIllFormedSyntax
-  | some (m, e) =>
+  | some (m, sign, e) =>
     let typeMVar ← mkFreshTypeMVarFor expectedType?
     let u ← getDecLevel typeMVar
     let mvar ← mkInstMVar (mkApp (Lean.mkConst `OfDecimal [u]) typeMVar)
-    return mkApp4 (Lean.mkConst `OfDecimal.ofDecimal [u]) typeMVar mvar (mkNatLit m) (mkNatLit e)
+    return mkApp5 (Lean.mkConst `OfDecimal.ofDecimal [u]) typeMVar mvar (mkNatLit m) (toExpr sign) (mkNatLit e)
 
 @[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with

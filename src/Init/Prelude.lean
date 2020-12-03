@@ -1596,7 +1596,6 @@ def strLitKind : SyntaxNodeKind := `strLit
 def charLitKind : SyntaxNodeKind := `charLit
 def numLitKind : SyntaxNodeKind := `numLit
 def decimalLitKind : SyntaxNodeKind := `decimalLit
-def scientificLitKind : SyntaxNodeKind := `scientificLit
 def nameLitKind : SyntaxNodeKind := `nameLit
 def fieldIdxKind : SyntaxNodeKind := `fieldIdx
 def interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind

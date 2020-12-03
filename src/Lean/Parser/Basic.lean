@@ -68,7 +68,7 @@ namespace Lean
 namespace Parser
 
 def isLitKind (k : SyntaxNodeKind) : Bool :=
-  k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind || k == decimalLitKind || k == scientificLitKind
+  k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind || k == decimalLitKind
 
 abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
   Syntax.atom info val
@@ -807,22 +807,46 @@ partial def strLitFnAux (startPos : Nat) : ParserFn := fun c s =>
     else if curr == '\\' then andthenFn quotedCharFn (strLitFnAux startPos) c s
     else strLitFnAux startPos c s
 
-def decimalNumberFn (startPos : Nat) : ParserFn := fun c s =>
+def decimalNumberFn (startPos : Nat) (c : ParserContext) : ParserState → ParserState := fun s =>
   let s     := takeWhileFn (fun c => c.isDigit) c s
   let input := c.input
   let i     := s.pos
   let curr  := input.get i
-  if curr == '.' then
-    let i    := input.next i
-    let curr := input.get i
-    let s :=
+  if curr == '.' || curr == 'e' || curr == 'E' then
+    let s := parseOptDot s
+    let s := parseOptExp s
+    mkNodeToken decimalLitKind startPos c s
+  else
+    mkNodeToken numLitKind startPos c s
+where
+  parseOptDot s :=
+    let input := c.input
+    let i     := s.pos
+    let curr  := input.get i
+    if curr == '.' then
+      let i    := input.next i
+      let curr := input.get i
       if curr.isDigit then
         takeWhileFn (fun c => c.isDigit) c (s.setPos i)
       else
         s.setPos i
-    mkNodeToken decimalLitKind startPos c s
-  else
-    mkNodeToken numLitKind startPos c s
+    else
+      s
+
+  parseOptExp s :=
+    let input := c.input
+    let i     := s.pos
+    let curr  := input.get i
+    if curr == 'e' || curr == 'E' then
+      let i    := input.next i
+      let i    := if input.get i == '-' then input.next i else i
+      let curr := input.get i
+      if curr.isDigit then
+        takeWhileFn (fun c => c.isDigit) c (s.setPos i)
+      else
+        s.setPos i
+    else
+      s
 
 def binNumberFn (startPos : Nat) : ParserFn := fun c s =>
   let s := takeWhile1Fn (fun c => c == '0' || c == '1') "binary number" c s

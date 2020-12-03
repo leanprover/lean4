@@ -9,9 +9,9 @@ import Lean.MonadEnv
 namespace Lean.Elab
 
 structure Attribute where
-  scoped : Bool := false
-  name   : Name
-  args   : Syntax := Syntax.missing
+  «scoped» : Bool := false
+  name     : Name
+  args     : Syntax := Syntax.missing
 
 instance : ToFormat Attribute where
   format attr :=
@@ -22,18 +22,18 @@ instance : Inhabited Attribute where
 
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m Attribute := do
   -- optional "scoped" >> rawIdent >> many attrArg
-  let scoped  := false -- !stx[0].isNone
-  let nameStx := stx[0] -- TODO: change to 1
+  let «scoped»  := !stx[0].isNone
+  let nameStx := stx[1]
   let attrName ← match nameStx.isIdOrAtom? with
     | none     => withRef nameStx $ throwError "identifier expected"
     | some str => pure $ Name.mkSimple str
   unless isAttribute (← getEnv) attrName do
     throwError! "unknown attribute [{attrName}]"
-  let mut args := stx[1] -- TODO: change to 2
+  let mut args := stx[2]
   -- the old frontend passes Syntax.missing for empty args, for reasons
   if args.getNumArgs == 0 then
     args := Syntax.missing
-  pure { scoped := scoped, name := attrName, args := args }
+  pure { «scoped» := «scoped», name := attrName, args := args }
 
 -- sepBy1 attrInstance ", "
 def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) := do

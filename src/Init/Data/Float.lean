@@ -97,3 +97,5 @@ abbrev Nat.toFloat (n : Nat) : Float :=
 @[extern "cbrt"] constant Float.cbrt : Float → Float
 
 instance : Pow Float := ⟨Float.pow⟩
+
+@[extern "lean_float_of_decimal"] constant Float.ofDecimal (m : Nat) (e : Nat) : Float

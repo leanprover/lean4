@@ -12,14 +12,6 @@ import Init.Data.Nat
 class OfDecimal (α : Type u) where
   ofDecimal : Nat → Nat → α
 
-def Float.fromDecimal (m : Nat) (e : Nat) : Float :=
-  fromDec (Float.ofNat m) e
-where
-  fromDec (m : Float) (e : Nat) : Float :=
-    match e with
-    | 0 => m
-    | e+1 => fromDec (m/10) e
-
 @[defaultInstance]
 instance : OfDecimal Float where
-  ofDecimal m e := Float.fromDecimal m e
+  ofDecimal m e := Float.ofDecimal m e

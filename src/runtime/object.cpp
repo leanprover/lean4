@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <deque>
 #include <cmath>
 #include <lean/object.h>
+#include <lean/mpq.h>
 #include <lean/thread.h>
 #include <lean/utf8.h>
 #include <lean/alloc.h>
@@ -1463,6 +1464,19 @@ extern "C" lean_obj_res lean_float_to_string(double a) {
     return mk_string(std::to_string(a));
 }
 
+static double of_decimal(mpz const & m, size_t e) {
+    return (mpq(m)/mpz(10).pow(e)).get_double();
+}
+
+extern "C" double lean_float_of_decimal(b_lean_obj_arg m, b_lean_obj_arg e) {
+    if (!lean_is_scalar(e))
+        return 0.0;
+    if (lean_is_scalar(m)) {
+        return of_decimal(mpz::of_size_t(lean_unbox(m)), lean_unbox(e));
+    } else {
+        return of_decimal(mpz_value(m), lean_unbox(e));
+    }
+}
 
 // =======================================
 // Strings

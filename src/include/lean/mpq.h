@@ -33,6 +33,7 @@ public:
     mpq & operator=(double v) { mpq_set_d(m_val, v); return *this; }
 
     mpq() { mpq_init(m_val); }
+    mpq(mpz const & v):mpq() { operator=(v); }
     mpq(mpq const & v):mpq() { operator=(v); }
     mpq(mpq && s):mpq() { mpq_swap(m_val, s.m_val); }
     template<typename T> explicit mpq(T const & v):mpq() { operator=(v); }

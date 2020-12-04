@@ -79,9 +79,9 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `unificationHint
     descr := "unification hint"
-    add   := fun declName args persistent => do
+    add   := fun declName args kind => do
       if args.hasArgs then throwError "invalid attribute 'unificationHint', unexpected argument"
-      unless persistent do throwError "invalid attribute 'unificationHint', must be persistent"
+      unless kind == AttributeKind.global do throwError "invalid attribute 'unificationHint', must be global"
       addUnificationHint declName |>.run
       pure ()
   }

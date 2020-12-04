@@ -133,8 +133,8 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
     registerBuiltinAttribute {
       name  := df.builtinName,
       descr := "(builtin) " ++ df.descr,
-      add   := fun declName arg persistent => do
-        unless persistent do throwError! "invalid attribute '{df.builtinName}', must be persistent"
+      add   := fun declName arg kind => do
+        unless kind == AttributeKind.global do throwError! "invalid attribute '{df.builtinName}', must be global"
         let key ← df.evalKey true arg
         let decl ← getConstInfo declName
         match decl.type with

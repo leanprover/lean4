@@ -448,9 +448,9 @@ def getParserPriority (args : Syntax) : Except String Nat :=
   | _ => throw "invalid parser attribute, no argument or numeral expected"
 
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
-    (declName : Name) (args : Syntax) (persistent : Bool) : AttrM Unit := do
+    (declName : Name) (args : Syntax) (kind : AttributeKind) : AttrM Unit := do
   let prio ← ofExcept (getParserPriority args)
-  unless persistent do throwError! "invalid attribute '{attrName}', must be persistent"
+  unless kind == AttributeKind.global do throwError! "invalid attribute '{attrName}', must be global"
   let decl ← getConstInfo declName
   let env ← getEnv
   match decl.type with
@@ -471,11 +471,11 @@ def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (leadingId
   registerBuiltinAttribute {
    name            := attrName,
    descr           := "Builtin parser",
-   add             := fun declName args persistent => liftM $ BuiltinParserAttribute.add attrName catName declName args persistent,
+   add             := fun declName args kind => liftM $ BuiltinParserAttribute.add attrName catName declName args kind,
    applicationTime := AttributeApplicationTime.afterCompilation
   }
 
-private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) («scoped» persistent : Bool) : AttrM Unit := do
+private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) (kind : AttributeKind) : AttrM Unit := do
   let prio ← ofExcept (getParserPriority args)
   let env ← getEnv
   let opts ← getOptions
@@ -492,21 +492,18 @@ private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : N
   let kinds := parser.info.collectKinds {}
   kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind
   let entry := ParserExtension.Entry.parser catName declName leading parser prio
-  match addParser categories catName declName leading parser prio, «scoped» with
+  match addParser categories catName declName leading parser prio, kind with
   | Except.error ex, _ => throwError ex
-  | Except.ok _, false => modifyEnv fun env => parserExtension.addEntry env entry
-  | Except.ok _, true => modifyEnv fun env  => parserExtension.addScopedEntry env (← getCurrNamespace) entry
+  | Except.ok _, AttributeKind.global => modifyEnv fun env => parserExtension.addEntry env entry
+  | Except.ok _, AttributeKind.scoped => modifyEnv fun env  => parserExtension.addScopedEntry env (← getCurrNamespace) entry
+  | Except.ok _, AttributeKind.local  => throwError! "local parsers have not been implemented yet"
   runParserAttributeHooks catName declName (builtin := false)
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl where
-  name      := attrName
-  descr     := "parser"
-  pushScope := modifyEnv parserExtension.pushScope
-  popScope  := modifyEnv parserExtension.popScope
-  add declName args persistent := ParserAttribute.add attrName catName declName args («scoped» := false) persistent
-  addScoped declName args      := ParserAttribute.add attrName catName declName args («scoped» := true) (persistent := true)
-  activateScoped ns := modifyEnv (parserExtension.activateScoped · ns)
-  applicationTime   := AttributeApplicationTime.afterCompilation
+  name                   := attrName
+  descr                  := "parser"
+  add declName args kind := ParserAttribute.add attrName catName declName args kind
+  applicationTime        := AttributeApplicationTime.afterCompilation
 
 /- A builtin parser attribute that can be extended by users. -/
 def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : IO Unit := do

@@ -483,12 +483,13 @@ private def applyAttributesCore
           apply attrImpl declName attr.scoped attr.args persistent
 where
   apply attrImpl declName «scoped» args persistent := do
-    if !persistent && «scoped» then
-      throwError "scoped attributes must be persistent"
-    if «scoped» then
-      liftAttrM <| attrImpl.addScoped declName args
-    else
-      liftAttrM <| attrImpl.add declName args persistent
+    let kind ←
+      match persistent, «scoped» with
+      | true,  true  => pure AttributeKind.scoped
+      | false, true  => throwError "scoped local attributes are not allowed"
+      | true,  false => pure AttributeKind.global
+      | false, false => pure AttributeKind.local
+    liftAttrM <| attrImpl.add declName args kind
 
 /-- Apply given attributes **at** a given application time -/
 def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) (persistent : Bool := true) : TermElabM Unit :=

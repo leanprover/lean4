@@ -31,13 +31,19 @@ structure AttributeImplCore where
   descr : String
   applicationTime := AttributeApplicationTime.afterTypeChecking
 
+inductive AttributeKind
+  | «global» | «local» | «scoped»
+
+instance : BEq AttributeKind where
+  beq
+    | AttributeKind.global, AttributeKind.global => true
+    | AttributeKind.local,  AttributeKind.local  => true
+    | AttributeKind.scoped, AttributeKind.scoped => true
+    | _, _ => false
+
 structure AttributeImpl extends AttributeImplCore where
-  add (decl : Name) (args : Syntax) (persistent : Bool) : AttrM Unit
-  addScoped (decl : Name) (args : Syntax) : AttrM Unit  := throwError "scoped attribute not supported for this kind of attribute"
+  add (decl : Name) (args : Syntax) (kind : AttributeKind) : AttrM Unit
   erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
-  activateScoped (namespaceName : Name) : AttrM Unit := pure ()
-  pushScope : AttrM Unit := pure ()
-  popScope : AttrM Unit := pure ()
 
 instance : Inhabited AttributeImpl :=
   ⟨{ name := arbitrary, descr := arbitrary, add := fun env _ _ _ => pure () }⟩
@@ -174,30 +180,13 @@ def registerAttributeOfBuilder (env : Environment) (builderId : Name) (args : Li
   else
     pure $ attributeExtension.addEntry env (AttributeExtensionOLeanEntry.builder builderId args, attrImpl)
 
-def Attribute.add (declName : Name) (attrName : Name) (args : Syntax) (persistent : Bool := true) : AttrM Unit := do
+def Attribute.add (declName : Name) (attrName : Name) (args : Syntax) (kind := AttributeKind.global) : AttrM Unit := do
   let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName
-  attr.add declName args persistent
-
-def Attribute.addScoped (declName : Name) (attrName : Name) (args : Syntax) : AttrM Unit := do
-  let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName
-  attr.addScoped declName args
+  attr.add declName args kind
 
 def Attribute.erase (declName : Name) (attrName : Name) : AttrM Unit := do
   let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName
   attr.erase declName
-
-@[inline]
-def Attribute.forEach (f : AttributeImpl → AttrM Unit) : AttrM Unit := do
-  (attributeExtension.getState (← getEnv)).map.forM fun _ attrImpl => f attrImpl
-
-def Attribute.pushScope : AttrM Unit := do
-  forEach fun attr => attr.pushScope
-
-def Attribute.popScope : AttrM Unit := do
-  forEach fun attr => attr.popScope
-
-def Attribute.activateScoped (namespaceName : Name) : AttrM Unit := do
-  forEach fun attr => attr.activateScoped namespaceName
 
 /--
   Tag attributes are simple and efficient. They are useful for marking declarations in the modules where
@@ -225,9 +214,9 @@ def registerTagAttribute (name : Name) (descr : String) (validate : Name → Att
   let attrImpl : AttributeImpl := {
     name  := name,
     descr := descr,
-    add   := fun decl args persistent => do
+    add   := fun decl args kind => do
       if args.hasArgs then throwError! "invalid attribute '{name}', unexpected argument"
-      unless persistent do throwError! "invalid attribute '{name}', must be persistent"
+      unless kind == AttributeKind.global do throwError! "invalid attribute '{name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
         throwError! "invalid attribute '{name}', declaration is in an imported module"
@@ -278,8 +267,8 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
   let attrImpl : AttributeImpl := {
     name  := impl.name
     descr := impl.descr
-    add   := fun decl args persistent => do
-      unless persistent do throwError! "invalid attribute '{impl.name}', must be persistent"
+    add   := fun decl args kind => do
+      unless kind == AttributeKind.global do throwError! "invalid attribute '{impl.name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
         throwError! "invalid attribute '{impl.name}', declaration is in an imported module"
@@ -337,8 +326,8 @@ def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDesc
   let attrs := attrDescrs.map fun (name, descr, val) => {
     name            := name,
     descr           := descr,
-    add             := fun decl args persistent => do
-      unless persistent do throwError! "invalid attribute '{name}', must be persistent"
+    add             := fun decl args kind => do
+      unless kind == AttributeKind.global do throwError! "invalid attribute '{name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
         throwError! "invalid attribute '{name}', declaration is in an imported module"

@@ -443,21 +443,16 @@ def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
         let val ← delab
         let field ← `(structInstField|$(mkIdent <| fieldNames.get! (idx - s.nparams)):ident := $val)
         pure (idx + 1, fields.push field)
-  let fields := fields.mapIdx fun idx field =>
-      let comma := if idx.val < fields.size - 1 then mkNullNode #[mkAtom ","] else mkNullNode
-      mkNullNode #[field, comma]
-  if (← getPPOption getPPStructureInstanceType) then
-    let ty ← inferType e
-    -- `ty` is not actually part of `e`, but since `e` must be an application or constant, we know that
-    -- index 2 is unused.
-    let stxTy ← descend ty 2 delab
-    return Syntax.node `Lean.Parser.Term.structInst #[
-      mkAtom "{", mkNullNode, mkNullNode fields, mkNullNode,
-      mkNullNode #[ mkAtom ":", stxTy ],
-      mkAtom "}"
-    ]
-  else
-    return Syntax.node `Lean.Parser.Term.structInst #[ mkAtom "{", mkNullNode, mkNullNode fields, mkNullNode, mkNullNode, mkAtom "}"]
+  let lastField := fields[fields.size - 1]
+  let fields := fields.pop
+  let ty ←
+    if (← getPPOption getPPStructureInstanceType) then
+      let ty ← inferType e
+      -- `ty` is not actually part of `e`, but since `e` must be an application or constant, we know that
+      -- index 2 is unused.
+      pure <| some (← descend ty 2 delab)
+    else pure <| none
+  `({ $[$fields, ]* $lastField $[: $ty]? })
 
 @[builtinDelab app.Prod.mk]
 def delabTuple : Delab := whenPPOption getPPNotation do

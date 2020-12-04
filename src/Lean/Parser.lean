@@ -13,6 +13,35 @@ import Lean.Parser.Syntax
 import Lean.Parser.Do
 
 namespace Lean
+namespace Parser
+
+builtin_initialize
+  registerAlias "ws" checkWsBefore
+  registerAlias "noWs" checkNoWsBefore
+  registerAlias "num" numLit
+  registerAlias "str" strLit
+  registerAlias "char" charLit
+  registerAlias "name" nameLit
+  registerAlias "ident" ident
+  registerAlias "colGt" checkColGt
+  registerAlias "colGe" checkColGe
+  registerAlias "lookahead" lookahead
+  registerAlias "atomic" atomic
+  registerAlias "many" many
+  registerAlias "many1" many1
+  registerAlias "notFollowedBy" (notFollowedBy · "element")
+  registerAlias "optional" optional
+  registerAlias "withPosition" withPosition
+  registerAlias "interpolatedStr" interpolatedStr
+  registerAlias "sepBy" sepBy
+  registerAlias "sepBy1" sepBy1
+  registerAlias "orelse" orelse
+  registerAlias "andthen" andthen
+  registerAlias "sepByT" (sepBy (allowTrailingSep := true))
+  registerAlias "sepBy1T" (sepBy1 (allowTrailingSep := true))
+
+end Parser
+
 namespace PrettyPrinter
 namespace Parenthesizer
 

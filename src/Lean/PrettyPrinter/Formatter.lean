@@ -445,28 +445,15 @@ instance : Coe (Formatter → Formatter → Formatter) FormatterAliasValue := { 
 builtin_initialize
   registerAlias "ws" checkWsBefore.formatter
   registerAlias "noWs" checkNoWsBefore.formatter
-  registerAlias "num" (withAntiquot.formatter (mkAntiquot.formatter' "numLit" `numLit) numLitNoAntiquot.formatter)
-  registerAlias "scientific" (withAntiquot.formatter (mkAntiquot.formatter' "scientificLit" `scientificLit) scientificLitNoAntiquot.formatter)
-  registerAlias "str" (withAntiquot.formatter (mkAntiquot.formatter' "strLit" `strLit) strLitNoAntiquot.formatter)
-  registerAlias "char" (withAntiquot.formatter (mkAntiquot.formatter' "charLit" `charLit) charLitNoAntiquot.formatter)
-  registerAlias "name" (withAntiquot.formatter (mkAntiquot.formatter' "nameLit" `nameLit) nameLitNoAntiquot.formatter)
-  registerAlias "ident" (withAntiquot.formatter (mkAntiquot.formatter' "ident" `ident) identNoAntiquot.formatter)
   registerAlias "colGt" checkColGt.formatter
   registerAlias "colGe" checkColGe.formatter
   registerAlias "lookahead" lookahead.formatter
   registerAlias "atomic" atomic.formatter
-  registerAlias "many" many.formatter
-  registerAlias "many1" many1.formatter
   registerAlias "notFollowedBy" notFollowedBy.formatter
-  registerAlias "optional" optional.formatter
   registerAlias "withPosition" withPosition.formatter
   registerAlias "interpolatedStr" interpolatedStr.formatter
-  registerAlias "sepBy" sepBy.formatter
-  registerAlias "sepBy1" sepBy1.formatter
   registerAlias "orelse" orelse.formatter
   registerAlias "andthen" andthen.formatter
-  registerAlias "sepByT" sepBy.formatter
-  registerAlias "sepBy1T" sepBy1.formatter
 
 @[export lean_pretty_printer_formatter_interpret_parser_descr]
 unsafe def interpretParserDescr : ParserDescr → CoreM Formatter

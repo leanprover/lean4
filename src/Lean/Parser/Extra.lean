@@ -82,4 +82,39 @@ builtin_initialize
   registerParserAlias! "ppDedent" ppDedent
 
 end Parser
+
+open Parser
+
+open PrettyPrinter.Parenthesizer (registerAlias) in
+builtin_initialize
+  registerAlias "num" numLit.parenthesizer
+  registerAlias "scientific" scientificLit.parenthesizer
+  registerAlias "str" strLit.parenthesizer
+  registerAlias "char" charLit.parenthesizer
+  registerAlias "name" nameLit.parenthesizer
+  registerAlias "ident" ident.parenthesizer
+  registerAlias "many" many.parenthesizer
+  registerAlias "many1" many1.parenthesizer
+  registerAlias "optional" optional.parenthesizer
+  registerAlias "sepBy" sepBy.parenthesizer
+  registerAlias "sepBy1" sepBy1.parenthesizer
+  registerAlias "sepByT" sepBy.parenthesizer
+  registerAlias "sepBy1T" sepBy1.parenthesizer
+
+open PrettyPrinter.Formatter (registerAlias) in
+builtin_initialize
+  registerAlias "num" numLit.formatter
+  registerAlias "scientific" scientificLit.formatter
+  registerAlias "str" strLit.formatter
+  registerAlias "char" charLit.formatter
+  registerAlias "name" nameLit.formatter
+  registerAlias "ident" ident.formatter
+  registerAlias "many" many.formatter
+  registerAlias "many1" many1.formatter
+  registerAlias "optional" optional.formatter
+  registerAlias "sepBy" sepBy.formatter
+  registerAlias "sepBy1" sepBy1.formatter
+  registerAlias "sepByT" sepBy.formatter
+  registerAlias "sepBy1T" sepBy1.formatter
+
 end Lean

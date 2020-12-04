@@ -500,28 +500,15 @@ instance : Coe (Parenthesizer → Parenthesizer → Parenthesizer) Parenthesizer
 builtin_initialize
   registerAlias "ws" checkWsBefore.parenthesizer
   registerAlias "noWs" checkNoWsBefore.parenthesizer
-  registerAlias "num" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "numLit" `numLit) numLitNoAntiquot.parenthesizer)
-  registerAlias "scientific" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "scientificLit" `scientificLit) scientificLitNoAntiquot.parenthesizer)
-  registerAlias "str" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "strLit" `strLit) strLitNoAntiquot.parenthesizer)
-  registerAlias "char" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "charLit" `charLit) charLitNoAntiquot.parenthesizer)
-  registerAlias "name" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "nameLit" `nameLit) nameLitNoAntiquot.parenthesizer)
-  registerAlias "ident" (withAntiquot.parenthesizer (mkAntiquot.parenthesizer' "ident" `ident) identNoAntiquot.parenthesizer)
   registerAlias "colGt" checkColGt.parenthesizer
   registerAlias "colGe" checkColGe.parenthesizer
   registerAlias "lookahead" lookahead.parenthesizer
   registerAlias "atomic" atomic.parenthesizer
-  registerAlias "many" many.parenthesizer
-  registerAlias "many1" many1.parenthesizer
   registerAlias "notFollowedBy" notFollowedBy.parenthesizer
-  registerAlias "optional" optional.parenthesizer
   registerAlias "withPosition" withPosition.parenthesizer
   registerAlias "interpolatedStr" interpolatedStr.parenthesizer
-  registerAlias "sepBy" sepBy.parenthesizer
-  registerAlias "sepBy1" sepBy1.parenthesizer
   registerAlias "orelse" orelse.parenthesizer
   registerAlias "andthen" andthen.parenthesizer
-  registerAlias "sepByT" sepBy.parenthesizer
-  registerAlias "sepBy1T" sepBy1.parenthesizer
 
 @[export lean_pretty_printer_parenthesizer_interpret_parser_descr]
 unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer

@@ -268,31 +268,6 @@ def ensureBinaryParserAlias (aliasName : Name) : IO Unit :=
 def ensureConstantParserAlias (aliasName : Name) : IO Unit :=
   discard $ getConstAlias parserAliasesRef aliasName
 
-builtin_initialize
-  registerAlias "ws" checkWsBefore
-  registerAlias "noWs" checkNoWsBefore
-  registerAlias "num" numLit
-  registerAlias "str" strLit
-  registerAlias "char" charLit
-  registerAlias "name" nameLit
-  registerAlias "ident" ident
-  registerAlias "colGt" checkColGt
-  registerAlias "colGe" checkColGe
-  registerAlias "lookahead" lookahead
-  registerAlias "atomic" atomic
-  registerAlias "many" many
-  registerAlias "many1" many1
-  registerAlias "notFollowedBy" (notFollowedBy · "element")
-  registerAlias "optional" optional
-  registerAlias "withPosition" withPosition
-  registerAlias "interpolatedStr" interpolatedStr
-  registerAlias "sepBy" sepBy
-  registerAlias "sepBy1" sepBy1
-  registerAlias "orelse" orelse
-  registerAlias "andthen" andthen
-  registerAlias "sepByT" (sepBy (allowTrailingSep := true))
-  registerAlias "sepBy1T" (sepBy1 (allowTrailingSep := true))
-
 partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser :=
   let rec visit : ParserDescr → ImportM Parser
     | ParserDescr.const n                             => getConstAlias parserAliasesRef n

@@ -3,12 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-
-/-! Extensible parsing via attributes -/
-
+import Lean.ScopedEnvExtension
 import Lean.Parser.Basic
 import Lean.Parser.StrInterpolation
 import Lean.KeyedDeclsAttribute
+
+/-! Extensible parsing via attributes -/
 
 namespace Lean
 namespace Parser
@@ -47,29 +47,45 @@ private def addBuiltinParserCategory (catName : Name) (leadingIdentAsSymbol : Bo
   let categories ← IO.ofExcept $ addParserCategoryCore categories catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol}
   builtinParserCategoriesRef.set categories
 
-inductive ParserExtensionOleanEntry where
-  | token     (val : Token) : ParserExtensionOleanEntry
-  | kind      (val : SyntaxNodeKind) : ParserExtensionOleanEntry
-  | category  (catName : Name) (leadingIdentAsSymbol : Bool)
-  | parser    (catName : Name) (declName : Name) (prio : Nat) : ParserExtensionOleanEntry
+namespace ParserExtension
 
-inductive ParserExtensionEntry where
-  | token     (val : Token) : ParserExtensionEntry
-  | kind      (val : SyntaxNodeKind) : ParserExtensionEntry
+inductive OLeanEntry where
+  | token     (val : Token) : OLeanEntry
+  | kind      (val : SyntaxNodeKind) : OLeanEntry
   | category  (catName : Name) (leadingIdentAsSymbol : Bool)
-  | parser    (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : ParserExtensionEntry
+  | parser    (catName : Name) (declName : Name) (prio : Nat) : OLeanEntry
 
-structure ParserExtensionState where
+inductive Entry where
+  | token     (val : Token) : Entry
+  | kind      (val : SyntaxNodeKind) : Entry
+  | category  (catName : Name) (leadingIdentAsSymbol : Bool)
+  | parser    (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Entry
+
+instance : Inhabited OLeanEntry where
+  default := OLeanEntry.token arbitrary
+
+instance : Inhabited Entry where
+  default := Entry.token arbitrary
+
+def Entry.toOLeanEntry : Entry → OLeanEntry
+  | token v             => OLeanEntry.token v
+  | kind v              => OLeanEntry.kind v
+  | category c l        => OLeanEntry.category c l
+  | parser c d _ _ prio => OLeanEntry.parser c d prio
+
+structure State where
   tokens      : TokenTable := {}
   kinds       : SyntaxNodeKindSet := {}
   categories  : ParserCategories := {}
-  newEntries  : List ParserExtensionOleanEntry := []
 
-instance : Inhabited ParserExtensionState := ⟨{}⟩
+instance : Inhabited State := ⟨{}⟩
 
-abbrev ParserExtension := PersistentEnvExtension ParserExtensionOleanEntry ParserExtensionEntry ParserExtensionState
+end ParserExtension
 
-private def ParserExtension.mkInitial : IO ParserExtensionState := do
+open ParserExtension in
+abbrev ParserExtension := ScopedEnvExtension OLeanEntry Entry State
+
+private def ParserExtension.mkInitial : IO ParserExtension.State := do
   let tokens     ← builtinTokenTable.get
   let kinds      ← builtinSyntaxNodeKindSetRef.get
   let categories ← builtinParserCategoriesRef.get
@@ -145,22 +161,21 @@ def addBuiltinLeadingParser (catName : Name) (declName : Name) (p : Parser) (pri
 def addBuiltinTrailingParser (catName : Name) (declName : Name) (p : TrailingParser) (prio : Nat) : IO Unit :=
   addBuiltinParser catName declName false p prio
 
-private def ParserExtensionAddEntry (s : ParserExtensionState) (e : ParserExtensionEntry) : ParserExtensionState :=
+def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
   match e with
-  | ParserExtensionEntry.token tk =>
+  | Entry.token tk =>
     match addTokenConfig s.tokens tk with
-    | Except.ok tokens => { s with tokens := tokens, newEntries := ParserExtensionOleanEntry.token tk :: s.newEntries }
+    | Except.ok tokens => { s with tokens := tokens }
     | _                => unreachable!
-  | ParserExtensionEntry.kind k =>
-    { s with kinds := s.kinds.insert k, newEntries := ParserExtensionOleanEntry.kind k :: s.newEntries  }
-  | ParserExtensionEntry.category catName leadingIdentAsSymbol =>
+  | Entry.kind k =>
+    { s with kinds := s.kinds.insert k }
+  | Entry.category catName leadingIdentAsSymbol =>
     if s.categories.contains catName then s
     else { s with
-           categories := s.categories.insert catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol },
-           newEntries := ParserExtensionOleanEntry.category catName leadingIdentAsSymbol :: s.newEntries }
-  | ParserExtensionEntry.parser catName declName leading parser prio =>
+           categories := s.categories.insert catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol } }
+  | Entry.parser catName declName leading parser prio =>
     match addParser s.categories catName declName leading parser prio with
-    | Except.ok categories => { s with categories := categories, newEntries := ParserExtensionOleanEntry.parser catName declName prio :: s.newEntries }
+    | Except.ok categories => { s with categories := categories }
     | _ => unreachable!
 
 unsafe def mkParserOfConstantUnsafe
@@ -331,32 +346,22 @@ builtin_initialize
       runParserAttributeHooks Name.anonymous decl (builtin := false)
   }
 
-private def ParserExtension.addImported (es : Array (Array ParserExtensionOleanEntry)) : ImportM ParserExtensionState := do
-  let s ← ParserExtension.mkInitial
-  es.foldlM (init := s) fun s entries =>
-    entries.foldlM (init := s) fun s entry =>
-      match entry with
-      | ParserExtensionOleanEntry.token tk => do
-        let tokens ← IO.ofExcept (addTokenConfig s.tokens tk)
-        pure { s with tokens := tokens }
-      | ParserExtensionOleanEntry.kind k =>
-        pure { s with kinds := s.kinds.insert k }
-      | ParserExtensionOleanEntry.category catName leadingIdentAsSymbol => do
-        let categories ← IO.ofExcept (addParserCategoryCore s.categories catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol})
-        pure { s with categories := categories }
-      | ParserExtensionOleanEntry.parser catName declName prio => do
-        let p ← mkParserOfConstant s.categories declName
-        let categories ← IO.ofExcept $ addParser s.categories catName declName p.1 p.2 prio
-        pure { s with categories := categories }
+private def ParserExtension.OLeanEntry.toEntry (s : State) : OLeanEntry → ImportM Entry
+  | token tk     => return Entry.token tk
+  | kind k       => return Entry.kind k
+  | category c l => return Entry.category c l
+  | parser catName declName prio => do
+    let (leading, p) ← mkParserOfConstant s.categories declName
+    Entry.parser catName declName leading p prio
 
 builtin_initialize parserExtension : ParserExtension ←
-  registerPersistentEnvExtension {
-    name            := `parserExt,
-    mkInitial       := ParserExtension.mkInitial,
-    addImportedFn   := ParserExtension.addImported,
-    addEntryFn      := ParserExtensionAddEntry,
-    exportEntriesFn := fun s => s.newEntries.reverse.toArray,
-    statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
+  registerScopedEnvExtension {
+    name            := `parserExt
+    mkInitial       := ParserExtension.mkInitial
+    addEntry        := ParserExtension.addEntryImpl
+    toOLeanEntry    := ParserExtension.Entry.toOLeanEntry
+    ofOLeanEntry    := ParserExtension.OLeanEntry.toEntry
+    eraseEntry      := fun s _ => s
   }
 
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
@@ -366,7 +371,7 @@ def addParserCategory (env : Environment) (catName : Name) (leadingIdentAsSymbol
   if isParserCategory env catName then
     throwParserCategoryAlreadyDefined catName
   else
-    pure $ parserExtension.addEntry env $ ParserExtensionEntry.category catName leadingIdentAsSymbol
+    return parserExtension.addEntry env <| ParserExtension.Entry.category catName leadingIdentAsSymbol
 
 /-
   Return true if in the given category leading identifiers in parsers may be treated as atoms/symbols.
@@ -398,10 +403,10 @@ def addToken (env : Environment) (tk : Token) : Except String Environment := do
   -- Recall that `ParserExtension.addEntry` is pure, and assumes `addTokenConfig` does not fail.
   -- So, we must run it here to handle exception.
   addTokenConfig (parserExtension.getState env).tokens tk
-  pure $ parserExtension.addEntry env $ ParserExtensionEntry.token tk
+  pure $ parserExtension.addEntry env <| ParserExtension.Entry.token tk
 
 def addSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Environment :=
-  parserExtension.addEntry env $ ParserExtensionEntry.kind k
+  parserExtension.addEntry env <| ParserExtension.Entry.kind k
 
 def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
   let kinds := (parserExtension.getState env).kinds
@@ -512,14 +517,14 @@ private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : N
   let kinds := parser.info.collectKinds {}
   kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind
   match addParser categories catName declName leading parser prio with
-  | Except.ok _     => modifyEnv fun env => parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName leading parser prio
+  | Except.ok _     => modifyEnv fun env => parserExtension.addEntry env <| ParserExtension.Entry.parser catName declName leading parser prio
   | Except.error ex => throwError ex
   runParserAttributeHooks catName declName /- builtin -/ false
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl := {
-  name            := attrName,
-  descr           := "parser",
-  add             := fun declName args persistent => liftM $ ParserAttribute.add attrName catName declName args persistent,
+  name            := attrName
+  descr           := "parser"
+  add             := fun declName args persistent => ParserAttribute.add attrName catName declName args persistent
   applicationTime := AttributeApplicationTime.afterCompilation
 }
 

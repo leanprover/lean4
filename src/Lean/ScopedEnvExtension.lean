@@ -32,10 +32,20 @@ instance : Inhabited (StateStack α β σ) where
 structure Descr (α : Type) (β : Type) (σ : Type) where
   name           : Name
   mkInitial      : IO σ
-  fromOLeanEntry : α → ImportM β
+  ofOLeanEntry   : σ → α → ImportM β
   toOLeanEntry   : β → α
   addEntry       : σ → β → σ
   eraseEntry     : σ → β → σ
+
+instance [Inhabited α] : Inhabited (Descr α β σ) where
+  default := {
+    name         := arbitrary
+    mkInitial    := arbitrary
+    ofOLeanEntry := arbitrary
+    toOLeanEntry := arbitrary
+    addEntry     := fun s _ => s
+    eraseEntry   := fun s _ => s
+  }
 
 def mkInitial (descr : Descr α β σ) : IO (StateStack α β σ) :=
   return { stateStack := [ { state := (← descr.mkInitial ) } ] }
@@ -52,10 +62,10 @@ def addImportedFn (descr : Descr α β σ) (as : Array (Array (Entry α))) : Imp
     for e in a do
       match e with
       | Entry.global a =>
-        let b ← descr.fromOLeanEntry a
+        let b ← descr.ofOLeanEntry s a
         s := descr.addEntry s b
       | Entry.scoped ns a =>
-        let b ← descr.fromOLeanEntry a
+        let b ← descr.ofOLeanEntry s a
         scopedEntries := scopedEntries.insert ns b
   return { stateStack := [ { state := s } ], scopedEntries := scopedEntries }
 
@@ -88,6 +98,12 @@ open ScopedEnvExtension
 structure ScopedEnvExtension (α : Type) (β : Type) (σ : Type) where
   descr : Descr α β σ
   ext   : PersistentEnvExtension (Entry α) (Entry β) (StateStack α β σ)
+
+instance [Inhabited α] : Inhabited (ScopedEnvExtension α β σ) where
+  default := {
+    descr := arbitrary
+    ext   := arbitrary
+  }
 
 def registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ) := do
   let ext ← registerPersistentEnvExtension {

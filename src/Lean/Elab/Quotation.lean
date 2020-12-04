@@ -62,17 +62,6 @@ def isAntiquotSplice (stx : Syntax) : Bool :=
 def isAntiquotSplicePat (stx : Syntax) : Bool :=
   stx.isOfKind nullKind && stx.getArgs.any fun arg => isAntiquotSplice arg && !isEscapedAntiquot arg
 
-/-- A term like `($e) is actually ambiguous: the antiquotation could be of kind `term`,
-    or `ident`, or ... . But it shouldn't really matter because antiquotations without
-    explicit kinds behave the same at runtime. So we replace `choice` nodes that contain
-    at least one implicit antiquotation with that antiquotation. -/
-private partial def elimAntiquotChoices : Syntax → Syntax
-  | Syntax.node `choice args => match args.find? fun arg => antiquotKind? arg == Name.anonymous with
-    | some anti => anti
-    | none      => Syntax.node `choice $ args.map elimAntiquotChoices
-  | Syntax.node k args       => Syntax.node k $ args.map elimAntiquotChoices
-  | stx                      => stx
-
 -- Elaborate the content of a syntax quotation term
 private partial def quoteSyntax : Syntax → TermElabM Syntax
   | Syntax.ident info rawVal val preresolved => do
@@ -113,7 +102,7 @@ def stxQuot.expand (stx : Syntax) (quotedOffset := 1) : TermElabM Syntax := do
      we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
      including it literally in a syntax quotation. -/
   -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
-  let stx ← quoteSyntax (elimAntiquotChoices quoted);
+  let stx ← quoteSyntax quoted;
   `(Bind.bind getCurrMacroScope (fun scp => Bind.bind getMainModule (fun mainModule => Pure.pure $stx)))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
@@ -305,7 +294,7 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
     let pat ←
       if pats.getArgs.size == 1 then pure pats[0]
       else throwError "match_syntax: expected exactly one pattern per alternative"
-    let pat := if isQuot pat then pat.setArg 1 $ elimAntiquotChoices $ pat[1] else pat
+    let pat := if isQuot pat then pat.setArg 1 pat[1] else pat
     match pat.find? $ fun stx => stx.getKind == choiceKind with
     | some choiceStx => throwErrorAt choiceStx "invalid pattern, nested syntax has multiple interpretations"
     | none           =>

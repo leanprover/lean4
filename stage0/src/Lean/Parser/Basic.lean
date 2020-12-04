@@ -515,7 +515,7 @@ def optionalFn (p : ParserFn) : ParserFn := fun c s =>
   firstTokens   := p.firstTokens.toOptional
 }
 
-@[inline] def optional (p : Parser) : Parser := {
+@[inline] def optionalNoAntiquot (p : Parser) : Parser := {
   info := optionaInfo p.info,
   fn   := optionalFn p.fn
 }
@@ -559,7 +559,7 @@ partial def manyAux (p : ParserFn) : ParserFn := fun c s =>
   let s := manyAux p c s
   s.mkNode nullKind iniSz
 
-@[inline] def many (p : Parser) : Parser := {
+@[inline] def manyNoAntiquot (p : Parser) : Parser := {
   info := noFirstTokenInfo p.info,
   fn   := manyFn p.fn
 }
@@ -569,7 +569,7 @@ partial def manyAux (p : ParserFn) : ParserFn := fun c s =>
   let s := andthenFn p (manyAux p) c s
   s.mkNode nullKind iniSz
 
-@[inline] def many1 (p : Parser) : Parser := {
+@[inline] def many1NoAntiquot (p : Parser) : Parser := {
   info := p.info,
   fn   := many1Fn p.fn
 }
@@ -618,12 +618,12 @@ def sepBy1Fn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserF
   firstTokens   := p.firstTokens
 }
 
-@[inline] def sepBy (p sep : Parser) (allowTrailingSep : Bool := false) : Parser := {
+@[inline] def sepByNoAntiquot (p sep : Parser) (allowTrailingSep : Bool := false) : Parser := {
   info := sepByInfo p.info sep.info,
   fn   := sepByFn allowTrailingSep p.fn sep.fn
 }
 
-@[inline] def sepBy1 (p sep : Parser) (allowTrailingSep : Bool := false) : Parser := {
+@[inline] def sepBy1NoAntiquot (p sep : Parser) (allowTrailingSep : Bool := false) : Parser := {
   info := sepBy1Info p.info sep.info,
   fn   := sepBy1Fn allowTrailingSep p.fn sep.fn
 }
@@ -647,7 +647,7 @@ def withResultOfFn (p : ParserFn) (f : Syntax → Syntax) : ParserFn := fun c s 
 }
 
 @[inline] def many1Unbox (p : Parser) : Parser :=
-  withResultOf (many1 p) fun stx => if stx.getNumArgs == 1 then stx.getArg 0 else stx
+  withResultOf (many1NoAntiquot p) fun stx => if stx.getNumArgs == 1 then stx.getArg 0 else stx
 
 partial def satisfyFn (p : Char → Bool) (errorMsg : String := "unexpected character") : ParserFn := fun c s =>
   let i := s.pos
@@ -1603,10 +1603,10 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
   -- antiquotations are not part of the "standard" syntax, so hide "expected '$'" on error
   leadingNode kind maxPrec $ atomic $
     setExpected [] "$" >>
-    many (checkNoWsBefore "" >> "$") >>
+    manyNoAntiquot (checkNoWsBefore "" >> "$") >>
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
     nameP >>
-    optional (checkNoWsBefore "" >> symbol "*")
+    optionalNoAntiquot (checkNoWsBefore "" >> symbol "*")
 
 def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
   let (s, stx?) := peekToken c s
@@ -1623,34 +1623,20 @@ def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
   info := orelseInfo antiquotP.info p.info
 }
 
-/- ===================== -/
-/- End of Antiquotations -/
-/- ===================== -/
+def mkAntiquotScope (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
+  let kind := kind ++ `antiquot_scope
+  leadingNode kind maxPrec $ atomic $
+    setExpected [] "$" >>
+    manyNoAntiquot (checkNoWsBefore "" >> "$") >>
+    checkNoWsBefore "no space before spliced term" >> symbol "[" >> node nullKind p >> symbol "]" >>
+    suffix
 
 def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anonymous := false) : Parser :=
   withAntiquot (mkAntiquot name kind anonymous) $ node kind p
 
-def ident : Parser :=
-  withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot
-
--- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
-def rawIdent : Parser :=
-  withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
-
-def numLit : Parser :=
-  withAntiquot (mkAntiquot "numLit" numLitKind) numLitNoAntiquot
-
-def scientificLit : Parser :=
-  withAntiquot (mkAntiquot "scientificLit" scientificLitKind) scientificLitNoAntiquot
-
-def strLit : Parser :=
-  withAntiquot (mkAntiquot "strLit" strLitKind) strLitNoAntiquot
-
-def charLit : Parser :=
-  withAntiquot (mkAntiquot "charLit" charLitKind) charLitNoAntiquot
-
-def nameLit : Parser :=
-  withAntiquot (mkAntiquot "nameLit" nameLitKind) nameLitNoAntiquot
+/- ===================== -/
+/- End of Antiquotations -/
+/- ===================== -/
 
 def categoryParserOfStackFn (offset : Nat) : ParserFn := fun ctx s =>
   let stack := s.stxStack

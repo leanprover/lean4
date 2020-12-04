@@ -79,6 +79,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_initFn____x40_Lean_PrettyPrinter_D
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+extern lean_object* l___kind_stx____x40_Init_Notation___hyg_12728____closed__8;
 lean_object* l_Lean_Level_quote___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFn___rarg___closed__1;
 lean_object* l_Lean_Level_quote___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -86,7 +87,6 @@ uint8_t l_Lean_getPPStructureProjections(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___closed__6;
 lean_object* l_Lean_PrettyPrinter_Delaborator_annotatePos___closed__1;
 lean_object* l_Lean_Level_getOffsetAux(lean_object*, lean_object*);
-extern lean_object* l___kind_stx____x40_Init_Notation___hyg_12724____closed__8;
 lean_object* l_Lean_Level_quote_match__1(lean_object*);
 lean_object* l_Lean_getPPFullNames___closed__1;
 lean_object* l_Std_RBNode_find___at_Lean_PrettyPrinter_Delaborator_getPPOption___spec__1(lean_object*, lean_object*);
@@ -561,7 +561,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_instInhabitedSourceInfo___closed__1;
-x_2 = l___kind_stx____x40_Init_Notation___hyg_12724____closed__8;
+x_2 = l___kind_stx____x40_Init_Notation___hyg_12728____closed__8;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

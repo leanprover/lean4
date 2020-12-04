@@ -28,10 +28,11 @@ def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none)
     | false => mkNullNode
   mkNode (kind ++ `antiquot) #[mkAtom "$", nesting, term, name, splice]
 
--- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros.
+-- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros. Also works for antiquotation scopes.
 def isEscapedAntiquot (stx : Syntax) : Bool :=
   !stx[1].getArgs.isEmpty
 
+-- Also works for antiquotation scopes.
 def unescapeAntiquot (stx : Syntax) : Syntax :=
   if isAntiquot stx then
     stx.setArg 1 $ mkNullNode stx[1].getArgs.pop
@@ -57,21 +58,35 @@ def antiquotKind? : Syntax → Option SyntaxNodeKind
 def isAntiquotSplice (stx : Syntax) : Bool :=
   isAntiquot stx && stx[4].getOptional?.isSome
 
+-- An "antiquotation scope" is something like `$[...]?` or `$[...]*`. Note that the latter could be of kind `many` or
+-- `sepBy`, which have different implementations.
+def antiquotScopeKind? : Syntax → Option SyntaxNodeKind
+  | Syntax.node (Name.str k "antiquot_scope" _) args => some k
+  | _                                                => none
+
+def isAntiquotScope (stx : Syntax) : Bool :=
+  antiquotScopeKind? stx |>.isSome
+
+def getAntiquotScopeContents (stx : Syntax) : Array Syntax :=
+  stx[3].getArgs
+
+def getAntiquotScopeSuffix (stx : Syntax) : Syntax :=
+  stx[5]
+
 -- If any item of a `many` node is an antiquotation splice, its result should
 -- be substituted into the `many` node's children
 def isAntiquotSplicePat (stx : Syntax) : Bool :=
   stx.isOfKind nullKind && stx.getArgs.any fun arg => isAntiquotSplice arg && !isEscapedAntiquot arg
 
-/-- A term like `($e) is actually ambiguous: the antiquotation could be of kind `term`,
-    or `ident`, or ... . But it shouldn't really matter because antiquotations without
-    explicit kinds behave the same at runtime. So we replace `choice` nodes that contain
-    at least one implicit antiquotation with that antiquotation. -/
-private partial def elimAntiquotChoices : Syntax → Syntax
-  | Syntax.node `choice args => match args.find? fun arg => antiquotKind? arg == Name.anonymous with
-    | some anti => anti
-    | none      => Syntax.node `choice $ args.map elimAntiquotChoices
-  | Syntax.node k args       => Syntax.node k $ args.map elimAntiquotChoices
-  | stx                      => stx
+partial def getAntiquotationIds : Syntax → TermElabM (List Syntax)
+  | stx@(Syntax.node k args) =>
+    if isAntiquot stx && !isEscapedAntiquot stx then
+      let anti := getAntiquotTerm stx
+      if anti.isIdent then [anti]
+      else throwErrorAt stx "complex antiquotation not allowed here"
+    else
+      List.join <$> args.toList.mapM getAntiquotationIds
+  | _ => []
 
 -- Elaborate the content of a syntax quotation term
 private partial def quoteSyntax : Syntax → TermElabM Syntax
@@ -89,6 +104,8 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
       -- splices must occur in a `many` node
       if isAntiquotSplice stx then throwErrorAt stx "unexpected antiquotation splice"
       else pure $ getAntiquotTerm stx
+    else if isAntiquotScope stx && !isEscapedAntiquot stx then
+      throwErrorAt stx "unexpected antiquotation splice"
     else
       let empty ← `(Array.empty);
       -- if escaped antiquotation, decrement by one escape level
@@ -97,6 +114,28 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
         if k == nullKind && isAntiquotSplice arg then
           -- antiquotation splice pattern: inject args array
           `(Array.appendCore $args $(getAntiquotTerm arg))
+        else if k == nullKind && isAntiquotScope arg then do
+          let k := antiquotScopeKind? arg
+          let inner ← (getAntiquotScopeContents arg).mapM quoteSyntax
+          let arr ← match (← getAntiquotationIds arg) with
+            | [] => throwErrorAt stx "antiquotation scope must contain at least one antiquotation"
+            | [id] => match k with
+              | `optional => `(match $id:ident with
+                | some $id:ident => $(quote inner)
+                | none           => #[])
+              | _ => `(Array.map (fun $id => $(inner[0])) $id)
+            | [id1, id2] => match k with
+              | `optional => `(match $id1:ident, $id2:ident with
+                | some $id1:ident, some $id2:ident => $(quote inner)
+                | _                                => #[])
+              | _ => `(Array.zipWith $id1 $id2 fun $id1 $id2 => $(inner[0]))
+            | _ => throwErrorAt stx "too many antiquotations in antiquotation scope; don't be greedy"
+          let arr ←
+            if k == `sepBy then
+              let Syntax.atom _ sep ← (getAntiquotScopeSuffix arg)[0] | unreachable!
+              `(mkSepArray $arr (mkAtom $(Syntax.mkStrLit sep)))
+            else arr
+          `(Array.appendCore $args $arr)
         else do
           let arg ← quoteSyntax arg;
           `(Array.push $args $arg)) empty
@@ -113,7 +152,7 @@ def stxQuot.expand (stx : Syntax) (quotedOffset := 1) : TermElabM Syntax := do
      we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
      including it literally in a syntax quotation. -/
   -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
-  let stx ← quoteSyntax (elimAntiquotChoices quoted);
+  let stx ← quoteSyntax quoted;
   `(Bind.bind getCurrMacroScope (fun scp => Bind.bind getMainModule (fun mainModule => Pure.pure $stx)))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
@@ -257,21 +296,11 @@ private partial def compileStxMatch : List Syntax → List Alt → TermElabM Syn
     `(let discr := $discr; ite (Eq $cond true) $yes $no)
   | _, _ => unreachable!
 
-private partial def getPatternVarsAux : Syntax → List Syntax
-  | stx@(Syntax.node k args) =>
-    if isAntiquot stx && !isEscapedAntiquot stx then
-      let anti := getAntiquotTerm stx
-      if anti.isIdent then [anti]
-      else []
-    else
-      List.join $ args.toList.map getPatternVarsAux
-  | _ => []
-
 -- Get all pattern vars (as `Syntax.ident`s) in `stx`
-partial def getPatternVars (stx : Syntax) : List Syntax :=
+partial def getPatternVars (stx : Syntax) : TermElabM (List Syntax) :=
   if isQuot stx then do
     let quoted := stx.getArg 1;
-    getPatternVarsAux stx
+    getAntiquotationIds stx
   else if stx.isIdent then
     [stx]
   else []
@@ -281,7 +310,7 @@ partial def getPatternVars (stx : Syntax) : List Syntax :=
 private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → List Alt → TermElabM Syntax
   | [],                altsRev' => cont altsRev'.reverse
   | (pats, rhs)::alts, altsRev' => do
-    let vars := List.join $ pats.map getPatternVars
+    let vars ← List.join <$> pats.mapM getPatternVars
     match vars with
     -- no antiquotations => introduce Unit parameter to preserve evaluation order
     | [] =>
@@ -305,7 +334,7 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
     let pat ←
       if pats.getArgs.size == 1 then pure pats[0]
       else throwError "match_syntax: expected exactly one pattern per alternative"
-    let pat := if isQuot pat then pat.setArg 1 $ elimAntiquotChoices $ pat[1] else pat
+    let pat := if isQuot pat then pat.setArg 1 pat[1] else pat
     match pat.find? $ fun stx => stx.getKind == choiceKind with
     | some choiceStx => throwErrorAt choiceStx "invalid pattern, nested syntax has multiple interpretations"
     | none           =>

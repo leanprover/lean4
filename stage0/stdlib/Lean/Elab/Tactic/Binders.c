@@ -30,7 +30,6 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_11163____closed__11;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandHaveTactic(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandShowTactic___closed__6;
-extern lean_object* l___kind_stx____x40_Init_Notation___hyg_12776____closed__2;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandLetTactic(lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__1;
@@ -46,7 +45,6 @@ extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 lean_object* l_Lean_Elab_Tactic_expandShowTactic___closed__7;
 extern lean_object* l_Lean_Parser_Tactic_let___closed__1;
 lean_object* l_Lean_Elab_Tactic_expandShowTactic___closed__10;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13596____closed__17;
 lean_object* l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__5;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandHaveTactic___closed__1;
 lean_object* l_Lean_Elab_Tactic_expandSufficesTactic___boxed(lean_object*, lean_object*, lean_object*);
@@ -54,7 +52,9 @@ lean_object* l_Lean_Elab_Tactic_expandShowTactic___closed__8;
 extern lean_object* l_Lean_Parser_Error_toString___closed__2;
 lean_object* l_Lean_Elab_Tactic_expandHaveTactic___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandShowTactic(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13600____closed__17;
 extern lean_object* l_Lean_Parser_Tactic_suffices___closed__2;
+extern lean_object* l___kind_stx____x40_Init_Notation___hyg_12780____closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_11163____closed__20;
 lean_object* l___regBuiltin_Lean_Elab_Tactic_expandLetRecTactic(lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandSufficesTactic(lean_object*, lean_object*, lean_object*);
@@ -167,7 +167,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_instInhabitedSourceInfo___closed__1;
-x_2 = l___kind_stx____x40_Init_Notation___hyg_12776____closed__2;
+x_2 = l___kind_stx____x40_Init_Notation___hyg_12780____closed__2;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -189,7 +189,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_Tactic_Binders_0__Lean_Elab_Tactic_liftTermBinderSyntax___closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_13596____closed__17;
+x_2 = l_myMacro____x40_Init_Notation___hyg_13600____closed__17;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

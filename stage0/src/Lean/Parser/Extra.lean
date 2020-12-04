@@ -14,8 +14,48 @@ namespace Parser
 -- synthesize pretty printers for parsers declared prior to `Lean.PrettyPrinter`
 -- (because `Parser.Extension` depends on them)
 attribute [runBuiltinParserAttributeHooks]
-  leadingNode termParser commandParser antiquotNestedExpr antiquotExpr mkAntiquot nodeWithAntiquot
-  ident numLit scientificLit charLit strLit nameLit
+  leadingNode termParser commandParser mkAntiquot nodeWithAntiquot
+
+@[runBuiltinParserAttributeHooks] def optional (p : Parser) : Parser :=
+  optionalNoAntiquot (withAntiquot (mkAntiquotScope `optional p (symbol "?")) p)
+
+@[runBuiltinParserAttributeHooks] def many (p : Parser) : Parser :=
+  manyNoAntiquot (withAntiquot (mkAntiquotScope `many p (symbol "*")) p)
+
+@[runBuiltinParserAttributeHooks] def many1 (p : Parser) : Parser :=
+  many1NoAntiquot (withAntiquot (mkAntiquotScope `many p (symbol "*")) p)
+
+-- all the separators you could ever want
+@[runBuiltinParserAttributeHooks] def sepByScopeSuffixes : Parser :=
+parser! (symbol "," <|> symbol ";" <|> symbol "|") >> symbol "*"
+
+@[runBuiltinParserAttributeHooks] def sepBy (p psep : Parser) (allowTrailingSep : Bool := false) : Parser :=
+  sepByNoAntiquot (withAntiquot (mkAntiquotScope `sepBy p sepByScopeSuffixes) p) psep allowTrailingSep
+
+@[runBuiltinParserAttributeHooks] def sepBy1 (p psep : Parser) (allowTrailingSep : Bool := false) : Parser :=
+  sepBy1NoAntiquot (withAntiquot (mkAntiquotScope `sepBy p sepByScopeSuffixes) p) psep allowTrailingSep
+
+@[runBuiltinParserAttributeHooks] def ident : Parser :=
+  withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot
+
+-- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
+@[runBuiltinParserAttributeHooks] def rawIdent : Parser :=
+  withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
+
+@[runBuiltinParserAttributeHooks] def numLit : Parser :=
+  withAntiquot (mkAntiquot "numLit" numLitKind) numLitNoAntiquot
+
+@[runBuiltinParserAttributeHooks] def scientificLit : Parser :=
+  withAntiquot (mkAntiquot "scientificLit" scientificLitKind) scientificLitNoAntiquot
+
+@[runBuiltinParserAttributeHooks] def strLit : Parser :=
+  withAntiquot (mkAntiquot "strLit" strLitKind) strLitNoAntiquot
+
+@[runBuiltinParserAttributeHooks] def charLit : Parser :=
+  withAntiquot (mkAntiquot "charLit" charLitKind) charLitNoAntiquot
+
+@[runBuiltinParserAttributeHooks] def nameLit : Parser :=
+  withAntiquot (mkAntiquot "nameLit" nameLitKind) nameLitNoAntiquot
 
 @[runBuiltinParserAttributeHooks, inline] def group (p : Parser) : Parser :=
   node nullKind p
@@ -82,4 +122,39 @@ builtin_initialize
   registerParserAlias! "ppDedent" ppDedent
 
 end Parser
+
+open Parser
+
+open PrettyPrinter.Parenthesizer (registerAlias) in
+builtin_initialize
+  registerAlias "num" numLit.parenthesizer
+  registerAlias "scientific" scientificLit.parenthesizer
+  registerAlias "str" strLit.parenthesizer
+  registerAlias "char" charLit.parenthesizer
+  registerAlias "name" nameLit.parenthesizer
+  registerAlias "ident" ident.parenthesizer
+  registerAlias "many" many.parenthesizer
+  registerAlias "many1" many1.parenthesizer
+  registerAlias "optional" optional.parenthesizer
+  registerAlias "sepBy" sepBy.parenthesizer
+  registerAlias "sepBy1" sepBy1.parenthesizer
+  registerAlias "sepByT" sepBy.parenthesizer
+  registerAlias "sepBy1T" sepBy1.parenthesizer
+
+open PrettyPrinter.Formatter (registerAlias) in
+builtin_initialize
+  registerAlias "num" numLit.formatter
+  registerAlias "scientific" scientificLit.formatter
+  registerAlias "str" strLit.formatter
+  registerAlias "char" charLit.formatter
+  registerAlias "name" nameLit.formatter
+  registerAlias "ident" ident.formatter
+  registerAlias "many" many.formatter
+  registerAlias "many1" many1.formatter
+  registerAlias "optional" optional.formatter
+  registerAlias "sepBy" sepBy.formatter
+  registerAlias "sepBy1" sepBy1.formatter
+  registerAlias "sepByT" sepBy.formatter
+  registerAlias "sepBy1T" sepBy1.formatter
+
 end Lean

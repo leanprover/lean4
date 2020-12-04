@@ -56,11 +56,11 @@ def addGlobalInstance [Monad m] [MonadEnv m] [MonadLiftT IO m] (declName : Name)
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `instance,
-    descr := "type class instance",
-    add   := fun declName args persistent => do
+    name  := `instance
+    descr := "type class instance"
+    add   := fun declName args kind => do
       if args.hasArgs then throwError "invalid attribute 'instance', unexpected argument"
-      unless persistent do throwError "invalid attribute 'instance', must be persistent"
+      unless kind == AttributeKind.global do throwError "invalid attribute 'instance', must be global"
       addGlobalInstance declName
   }
 
@@ -114,9 +114,9 @@ def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `defaultInstance,
-    descr := "type class default instance",
-    add   := fun declName args persistent => do
+    name  := `defaultInstance
+    descr := "type class default instance"
+    add   := fun declName args kind => do
       let prio ←
         if args.getNumArgs == 0 then
           pure 0
@@ -126,7 +126,7 @@ builtin_initialize
           | some n => pure n
         else
           throwErrorAt args "too many arguments at attribute 'defaultInstance', numeral expected"
-      unless persistent do throwError "invalid attribute 'defaultInstance', must be persistent"
+      unless kind == AttributeKind.global do throwError "invalid attribute 'defaultInstance', must be global"
       addDefaultInstance declName prio |>.run {} {}
       pure ()
   }

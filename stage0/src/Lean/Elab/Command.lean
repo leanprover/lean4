@@ -315,9 +315,9 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
     env    := s.env.registerNamespace newNamespace,
     scopes := { s.scopes.head! with header := header, currNamespace := newNamespace } :: s.scopes
   }
-  liftAttrM Attribute.pushScope
+  pushScope
   if isNewNamespace then
-    liftAttrM <| Attribute.activateScoped newNamespace
+    activateScoped newNamespace
 
 private def addScopes (isNewNamespace : Bool) : Name → CommandElabM Unit
   | Name.anonymous => pure ()
@@ -353,9 +353,9 @@ private def checkEndHeader : Name → List Scope → Bool
   | Name.str p s _, { header := h, .. } :: scopes => h == s && checkEndHeader p scopes
   | _,              _                             => false
 
-private def popAttributeScopes (numScopes : Nat) : CommandElabM Unit :=
+private def popScopes (numScopes : Nat) : CommandElabM Unit :=
   for i in [0:numScopes] do
-    liftAttrM <| Attribute.popScope
+    popScope
 
 @[builtinCommandElab «end»] def elabEnd : CommandElab := fun stx => do
   let header? := (stx.getArg 1).getOptionalIdent?;
@@ -365,11 +365,11 @@ private def popAttributeScopes (numScopes : Nat) : CommandElabM Unit :=
   let scopes ← getScopes
   if endSize < scopes.length then
     modify fun s => { s with scopes := s.scopes.drop endSize }
-    popAttributeScopes endSize
+    popScopes endSize
   else -- we keep "root" scope
     let n := (← get).scopes.length - 1
     modify fun s => { s with scopes := s.scopes.drop n }
-    popAttributeScopes n
+    popScopes n
     throwError "invalid 'end', insufficient scopes"
   match header? with
   | none        => unless checkAnonymousScope scopes do throwError "invalid 'end', name is missing"
@@ -456,7 +456,7 @@ def elabOpenSimple (n : SyntaxNode) : CommandElabM Unit :=
   nss.forArgsM fun ns => do
     let ns ← resolveNamespace ns.getId
     addOpenDecl (OpenDecl.simple ns [])
-    liftAttrM <| Attribute.activateScoped ns
+    activateScoped ns
 
 -- `open` id `(` id+ `)`
 def elabOpenOnly (n : SyntaxNode) : CommandElabM Unit := do

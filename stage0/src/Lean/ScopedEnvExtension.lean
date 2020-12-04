@@ -78,7 +78,8 @@ def addEntryFn (descr : Descr α β σ) (s : StateStack α β σ) (e : Entry β)
         newEntries    := (Entry.global (descr.toOLeanEntry b)) :: newEntries
         stateStack    := stateStack.map fun s => { s with state := descr.addEntry s.state b }
       }
-    | Entry.«scoped» ns b => {
+    | Entry.«scoped» ns b =>
+      {
         scopedEntries := scopedEntries.insert ns b
         newEntries    := (Entry.«scoped» ns (descr.toOLeanEntry b)) :: newEntries
         stateStack    := stateStack.map fun s =>
@@ -105,7 +106,9 @@ instance [Inhabited α] : Inhabited (ScopedEnvExtension α β σ) where
     ext   := arbitrary
   }
 
-def registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ) := do
+builtin_initialize scopedEnvExtensionsRef : IO.Ref (Array (ScopedEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]
+
+unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ) := do
   let ext ← registerPersistentEnvExtension {
     name            := descr.name
     mkInitial       := mkInitial descr
@@ -114,7 +117,12 @@ def registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension
     exportEntriesFn := exportEntriesFn
     statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
   }
-  return { descr := descr, ext := ext }
+  let ext := { descr := descr, ext := ext : ScopedEnvExtension α β σ }
+  scopedEnvExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
+  return ext
+
+@[implementedBy registerScopedEnvExtensionUnsafe]
+constant registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
 def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   let s := ext.ext.getState env
@@ -166,5 +174,17 @@ def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env :
           { state := state, activeScopes := activeScopes }
       ext.ext.setState env { s with stateStack := top :: stack }
   | _ => env
+
+def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
+  for ext in (← scopedEnvExtensionsRef.get) do
+    modifyEnv ext.pushScope
+
+def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
+  for ext in (← scopedEnvExtensionsRef.get) do
+    modifyEnv ext.popScope
+
+def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do
+  for ext in (← scopedEnvExtensionsRef.get) do
+    modifyEnv (ext.activateScoped · namespaceName)
 
 end Lean

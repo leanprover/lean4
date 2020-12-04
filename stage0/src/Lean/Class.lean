@@ -113,10 +113,10 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `class,
     descr := "type class",
-    add   := fun decl args persistent => do
+    add   := fun decl args kind => do
       let env ← getEnv
       if args.hasArgs then throwError "invalid attribute 'class', unexpected argument"
-      unless persistent do throwError "invalid attribute 'class', must be persistent"
+      unless kind == AttributeKind.global do throwError "invalid attribute 'class', must be global"
       let env ← ofExcept (addClass env decl)
       setEnv env
   }

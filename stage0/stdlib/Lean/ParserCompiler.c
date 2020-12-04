@@ -23861,7 +23861,7 @@ lean_dec(x_30);
 x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
 lean_dec(x_31);
-x_33 = 1;
+x_33 = 0;
 x_34 = l_Lean_Attribute_add(x_24, x_32, x_29, x_33, x_4, x_5, x_23);
 return x_34;
 }
@@ -23877,7 +23877,7 @@ lean_dec(x_35);
 x_37 = lean_ctor_get(x_36, 0);
 lean_inc(x_37);
 lean_dec(x_36);
-x_38 = 1;
+x_38 = 0;
 x_39 = l_Lean_Attribute_add(x_24, x_37, x_29, x_38, x_4, x_5, x_23);
 return x_39;
 }

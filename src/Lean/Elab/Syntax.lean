@@ -232,30 +232,39 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
     kind == `Lean.Parser.Syntax.atom
 
 /-
-def «syntax»      := parser! "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
+def «syntax»      := parser! optional "scoped" >> "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
 -/
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab := fun stx => do
   let env ← getEnv
-  let cat := stx[5].getId.eraseMacroScopes
+  let «scoped» := !stx[0].isNone
+  let cat      := stx[6].getId.eraseMacroScopes
   unless (Parser.isParserCategory env cat) do
-    throwErrorAt! stx[5] "unknown category '{cat}'"
-  let syntaxParser := stx[3]
+    throwErrorAt! stx[6] "unknown category '{cat}'"
+  let syntaxParser := stx[4]
   -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec
-  let prec := (Term.expandOptPrecedence stx[1]).getD precDefault
-  let (kind, prio) ← elabKindPrio stx[2] cat
+  let prec := (Term.expandOptPrecedence stx[2]).getD precDefault
+  let (kind, prio) ← elabKindPrio stx[3] cat
   /-
     The declaration name and the syntax node kind should be the same.
     We are using `def $kind ...`. So, we must append the current namespace to create the name fo the Syntax `node`. -/
   let stxNodeKind := (← getCurrNamespace) ++ kind
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser")
   let (val, trailingParser) ← runTermElabM none fun _ => Term.toParserDescr syntaxParser cat
+  let declName := mkIdentFrom stx kind
   let d ←
-    if trailingParser then
-      `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.TrailingParserDescr :=
+    match trailingParser, «scoped» with
+    | true, false =>
+      `(@[$catParserId:ident $(quote prio):numLit] def $declName : Lean.TrailingParserDescr :=
          ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $val)
-    else
-      `(@[$catParserId:ident $(quote prio):numLit] def $(mkIdentFrom stx kind) : Lean.ParserDescr :=
+    | false, false =>
+      `(@[$catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
+         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
+    | true, true =>
+      `(@[scoped $catParserId:ident $(quote prio):numLit] def $declName : Lean.TrailingParserDescr :=
+         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $val)
+    | false, true =>
+      `(@[scoped $catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
          ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d $ elabCommand d
@@ -327,8 +336,9 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
   | `(macro_rules [$kind] | $alts:matchAlt*) => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
   | _                                        => throwUnsupportedSyntax
 
-@[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro :=
-  fun stx => match_syntax stx with
+-- TODO: cleanup after we have support for optional syntax at `match_syntax`
+@[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
+  match_syntax stx with
   | `(infix:$prec $op => $f)   => `(infixl:$prec $op => $f)
   | `(infixr:$prec $op => $f)  => `(notation:$prec lhs $op:strLit rhs:$prec => $f lhs rhs)
   | `(infixl:$prec $op => $f)  =>  let prec1 : Syntax := quote (prec.toNat+1); `(notation:$prec lhs $op:strLit rhs:$prec1 => $f lhs rhs)
@@ -339,6 +349,17 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
   | `(infixl:$prec [$prio] $op => $f)  =>  let prec1 : Syntax := quote (prec.toNat+1); `(notation:$prec [$prio] lhs $op:strLit rhs:$prec1 => $f lhs rhs)
   | `(prefix:$prec [$prio] $op => $f)  => `(notation:$prec [$prio] $op:strLit arg:$prec => $f arg)
   | `(postfix:$prec [$prio] $op => $f) => `(notation:$prec [$prio] arg $op:strLit => $f arg)
+  -- Scoped versions
+  | `(scoped infix:$prec $op => $f)   => `(scoped infixl:$prec $op => $f)
+  | `(scoped infixr:$prec $op => $f)  => `(scoped notation:$prec lhs $op:strLit rhs:$prec => $f lhs rhs)
+  | `(scoped infixl:$prec $op => $f)  =>  let prec1 : Syntax := quote (prec.toNat+1); `(scoped notation:$prec lhs $op:strLit rhs:$prec1 => $f lhs rhs)
+  | `(scoped prefix:$prec $op => $f)  => `(scoped notation:$prec $op:strLit arg:$prec => $f arg)
+  | `(scoped postfix:$prec $op => $f) => `(scoped notation:$prec arg $op:strLit => $f arg)
+  | `(scoped infix:$prec [$prio] $op => $f)   => `(scoped infixl:$prec [$prio] $op => $f)
+  | `(scoped infixr:$prec [$prio] $op => $f)  => `(scoped notation:$prec [$prio] lhs $op:strLit rhs:$prec => $f lhs rhs)
+  | `(scoped infixl:$prec [$prio] $op => $f)  =>  let prec1 : Syntax := quote (prec.toNat+1); `(scoped notation:$prec [$prio] lhs $op:strLit rhs:$prec1 => $f lhs rhs)
+  | `(scoped prefix:$prec [$prio] $op => $f)  => `(scoped notation:$prec [$prio] $op:strLit arg:$prec => $f arg)
+  | `(scoped postfix:$prec [$prio] $op => $f) => `(scoped notation:$prec [$prio] arg $op:strLit => $f arg)
   | _ => Macro.throwUnsupported
 
 /- Wrap all occurrences of the given `ident` nodes in antiquotations -/
@@ -396,7 +417,8 @@ def mkSimpleDelab (vars : Array Syntax) (pat qrhs : Syntax) : OptionT CommandEla
        | `($qrhs) => `($pat)
        | _        => throw ())
 
-private def expandNotationAux (ref : Syntax) (currNamespace : Name) (prec? : Option Syntax) (prio : Nat) (items : Array Syntax) (rhs : Syntax) : CommandElabM Syntax := do
+private def expandNotationAux (ref : Syntax)
+    (currNamespace : Name) («scoped» : Bool) (prec? : Option Syntax) (prio : Nat) (items : Array Syntax) (rhs : Syntax) : CommandElabM Syntax := do
   let kind ← liftMacroM <| mkFreshKind `term
   -- build parser
   let syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem
@@ -410,9 +432,11 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name) (prec? : Opt
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
   let fullKind := currNamespace ++ kind
   let pat := Syntax.node fullKind patArgs
-  let stxDecl ← match prec? with
-    | none      => `(syntax [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat)
-    | some prec => `(syntax:$prec [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat)
+  let stxDecl ← match prec?, «scoped» with
+    | none, false      => `(syntax [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat)
+    | some prec, false => `(syntax:$prec [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat)
+    | none, true       => `(scoped syntax [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat)
+    | some prec, true  => `(scoped syntax:$prec [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat)
   let macroDecl ← `(macro_rules | `($pat) => `($qrhs))
   match (← mkSimpleDelab vars pat qrhs |>.run) with
   | some delabDecl => mkNullNode #[stxDecl, macroDecl, delabDecl]
@@ -422,10 +446,14 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name) (prec? : Opt
   adaptExpander fun stx => do
     let currNamespace ← getCurrNamespace
     match_syntax stx with
-    | `(notation:$prec $items* => $rhs)                => expandNotationAux stx currNamespace prec 0 items rhs
-    | `(notation $items:notationItem* => $rhs)         => expandNotationAux stx currNamespace none 0 items rhs
-    | `(notation:$prec [$prio] $items* => $rhs)        => expandNotationAux stx currNamespace prec (prio.isNatLit?.getD 0) items rhs
-    | `(notation [$prio] $items:notationItem* => $rhs) => expandNotationAux stx currNamespace none (prio.isNatLit?.getD 0) items rhs
+    | `(notation:$prec $items* => $rhs)                => expandNotationAux stx currNamespace false prec 0 items rhs
+    | `(notation $items:notationItem* => $rhs)         => expandNotationAux stx currNamespace false none 0 items rhs
+    | `(notation:$prec [$prio] $items* => $rhs)        => expandNotationAux stx currNamespace false prec (prio.isNatLit?.getD 0) items rhs
+    | `(notation [$prio] $items:notationItem* => $rhs) => expandNotationAux stx currNamespace false none (prio.isNatLit?.getD 0) items rhs
+    | `(scoped notation:$prec $items* => $rhs)                => expandNotationAux stx currNamespace true prec 0 items rhs
+    | `(scoped notation $items:notationItem* => $rhs)         => expandNotationAux stx currNamespace true none 0 items rhs
+    | `(scoped notation:$prec [$prio] $items* => $rhs)        => expandNotationAux stx currNamespace true prec (prio.isNatLit?.getD 0) items rhs
+    | `(scoped notation [$prio] $items:notationItem* => $rhs) => expandNotationAux stx currNamespace true none (prio.isNatLit?.getD 0) items rhs
     | _ => throwUnsupportedSyntax
 
 /- Convert `macro` argument into a `syntax` command item -/

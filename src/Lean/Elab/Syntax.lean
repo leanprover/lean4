@@ -190,7 +190,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   declareSyntaxCatQuotParser catName
 
 def mkFreshKind (catName : Name) : MacroM Name :=
-  Macro.addMacroScope (`_kind ++ catName.eraseMacroScopes)
+  Macro.addMacroScope (catName.eraseMacroScopes.appendAfter "Kind")
 
 private def elabKindPrio (stx : Syntax) (catName : Name) : CommandElabM (Name × Nat) := do
   if stx.isNone then

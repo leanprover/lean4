@@ -451,6 +451,7 @@ def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 @[combinatorParenthesizer Lean.Parser.withoutPosition] def withoutPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.withForbidden] def withForbidden.parenthesizer (tk : Parser.Token) (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.withoutForbidden] def withoutForbidden.parenthesizer (p : Parenthesizer) : Parenthesizer := p
+@[combinatorParenthesizer Lean.Parser.withoutInfo] def withoutInfo.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.setExpected]
 def setExpected.parenthesizer (expected : List String) (p : Parenthesizer) : Parenthesizer := p
 

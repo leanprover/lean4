@@ -46,11 +46,11 @@ lean_object* l_Lean_Meta_existsIntro___lambda__1___boxed(lean_object*, lean_obje
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__1;
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
-extern lean_object* l___kind_term____x40_Init_NotationExtra___hyg_2209____closed__2;
 lean_object* l_Lean_Meta_existsIntro___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__2;
+extern lean_object* l___kind_term____x40_Init_NotationExtra___hyg_2221____closed__2;
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 lean_object* l_Lean_Meta_existsIntro_match__2(lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__3;
@@ -875,7 +875,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___kind_term____x40_Init_NotationExtra___hyg_2209____closed__2;
+x_2 = l___kind_term____x40_Init_NotationExtra___hyg_2221____closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

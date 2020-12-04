@@ -14,8 +14,48 @@ namespace Parser
 -- synthesize pretty printers for parsers declared prior to `Lean.PrettyPrinter`
 -- (because `Parser.Extension` depends on them)
 attribute [runBuiltinParserAttributeHooks]
-  leadingNode termParser commandParser antiquotNestedExpr antiquotExpr mkAntiquot nodeWithAntiquot
-  ident numLit scientificLit charLit strLit nameLit
+  leadingNode termParser commandParser mkAntiquot nodeWithAntiquot
+
+@[runBuiltinParserAttributeHooks] def optional (p : Parser) : Parser :=
+  optionalNoAntiquot (withAntiquot (mkAntiquotScope `optional p (symbol "?")) p)
+
+@[runBuiltinParserAttributeHooks] def many (p : Parser) : Parser :=
+  manyNoAntiquot (withAntiquot (mkAntiquotScope `many p (symbol "*")) p)
+
+@[runBuiltinParserAttributeHooks] def many1 (p : Parser) : Parser :=
+  many1NoAntiquot (withAntiquot (mkAntiquotScope `many p (symbol "*")) p)
+
+-- all the separators you could ever want
+@[runBuiltinParserAttributeHooks] def sepByScopeSuffixes : Parser :=
+parser! (symbol "," <|> symbol ";" <|> symbol "|") >> symbol "*"
+
+@[runBuiltinParserAttributeHooks] def sepBy (p psep : Parser) (allowTrailingSep : Bool := false) : Parser :=
+  sepByNoAntiquot (withAntiquot (mkAntiquotScope `sepBy p sepByScopeSuffixes) p) psep allowTrailingSep
+
+@[runBuiltinParserAttributeHooks] def sepBy1 (p psep : Parser) (allowTrailingSep : Bool := false) : Parser :=
+  sepBy1NoAntiquot (withAntiquot (mkAntiquotScope `sepBy p sepByScopeSuffixes) p) psep allowTrailingSep
+
+@[runBuiltinParserAttributeHooks] def ident : Parser :=
+  withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot
+
+-- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
+@[runBuiltinParserAttributeHooks] def rawIdent : Parser :=
+  withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
+
+@[runBuiltinParserAttributeHooks] def numLit : Parser :=
+  withAntiquot (mkAntiquot "numLit" numLitKind) numLitNoAntiquot
+
+@[runBuiltinParserAttributeHooks] def scientificLit : Parser :=
+  withAntiquot (mkAntiquot "scientificLit" scientificLitKind) scientificLitNoAntiquot
+
+@[runBuiltinParserAttributeHooks] def strLit : Parser :=
+  withAntiquot (mkAntiquot "strLit" strLitKind) strLitNoAntiquot
+
+@[runBuiltinParserAttributeHooks] def charLit : Parser :=
+  withAntiquot (mkAntiquot "charLit" charLitKind) charLitNoAntiquot
+
+@[runBuiltinParserAttributeHooks] def nameLit : Parser :=
+  withAntiquot (mkAntiquot "nameLit" nameLitKind) nameLitNoAntiquot
 
 @[runBuiltinParserAttributeHooks, inline] def group (p : Parser) : Parser :=
   node nullKind p

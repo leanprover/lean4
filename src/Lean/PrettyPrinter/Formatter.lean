@@ -337,14 +337,14 @@ def identNoAntiquot.formatter : Formatter := do
       pushToken info id.toString
   goLeft
 
-@[combinatorFormatter Lean.Parser.rawIdent] def rawIdent.formatter : Formatter := do
+@[combinatorFormatter Lean.Parser.rawIdentNoAntiquot] def rawIdentNoAntiquot.formatter : Formatter := do
   checkKind identKind
   let Syntax.ident info _ id _ ← getCur
     | throwError m!"not an ident: {← getCur}"
   pushToken info id.toString
   goLeft
 
-@[combinatorFormatter Lean.Parser.identEq] def identEq.formatter (id : Name) := rawIdent.formatter
+@[combinatorFormatter Lean.Parser.identEq] def identEq.formatter (id : Name) := rawIdentNoAntiquot.formatter
 
 def visitAtom (k : SyntaxNodeKind) : Formatter := do
   let stx ← getCur
@@ -362,30 +362,30 @@ def visitAtom (k : SyntaxNodeKind) : Formatter := do
 @[combinatorFormatter Lean.Parser.scientificLitNoAntiquot] def scientificLitNoAntiquot.formatter := visitAtom scientificLitKind
 @[combinatorFormatter Lean.Parser.fieldIdx] def fieldIdx.formatter := visitAtom fieldIdxKind
 
-@[combinatorFormatter Lean.Parser.many]
-def many.formatter (p : Formatter) : Formatter := do
+@[combinatorFormatter Lean.Parser.manyNoAntiquot]
+def manyNoAntiquot.formatter (p : Formatter) : Formatter := do
   let stx ← getCur
   visitArgs $ stx.getArgs.size.forM fun _ => p
 
-@[combinatorFormatter Lean.Parser.many1] def many1.formatter (p : Formatter) : Formatter := many.formatter p
+@[combinatorFormatter Lean.Parser.many1NoAntiquot] def many1NoAntiquot.formatter (p : Formatter) : Formatter := manyNoAntiquot.formatter p
 
-@[combinatorFormatter Lean.Parser.optional]
-def optional.formatter (p : Formatter) : Formatter := visitArgs p
+@[combinatorFormatter Lean.Parser.optionalNoAntiquot]
+def optionalNoAntiquot.formatter (p : Formatter) : Formatter := visitArgs p
 
 @[combinatorFormatter Lean.Parser.many1Unbox]
 def many1Unbox.formatter (p : Formatter) : Formatter := do
   let stx ← getCur
   if stx.getKind == nullKind then do
-    many.formatter p
+    manyNoAntiquot.formatter p
   else
     p
 
-@[combinatorFormatter Lean.Parser.sepBy]
-def sepBy.formatter (p pSep : Formatter) : Formatter := do
+@[combinatorFormatter Lean.Parser.sepByNoAntiquot]
+def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
   let stx ← getCur
   visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 then p else pSep
 
-@[combinatorFormatter Lean.Parser.sepBy1] def sepBy1.formatter := sepBy.formatter
+@[combinatorFormatter Lean.Parser.sepBy1NoAntiquot] def sepBy1NoAntiquot.formatter := sepByNoAntiquot.formatter
 
 @[combinatorFormatter Lean.Parser.withPosition] def withPosition.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.withoutPosition] def withoutPosition.formatter (p : Formatter) : Formatter := p

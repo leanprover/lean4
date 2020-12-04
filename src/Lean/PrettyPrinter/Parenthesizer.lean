@@ -405,7 +405,7 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesi
 @[combinatorParenthesizer Lean.Parser.unicodeSymbol] def unicodeSymbol.parenthesizer (sym asciiSym : String) := visitToken
 
 @[combinatorParenthesizer Lean.Parser.identNoAntiquot] def identNoAntiquot.parenthesizer := visitToken
-@[combinatorParenthesizer Lean.Parser.rawIdent] def rawIdent.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.rawIdentNoAntiquot] def rawIdentNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.identEq] def identEq.parenthesizer (id : Name) := visitToken
 @[combinatorParenthesizer Lean.Parser.nonReservedSymbol] def nonReservedSymbol.parenthesizer (sym : String) (includeIdent : Bool) := visitToken
 
@@ -416,33 +416,33 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesi
 @[combinatorParenthesizer Lean.Parser.scientificLitNoAntiquot] def scientificLitNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.fieldIdx] def fieldIdx.parenthesizer := visitToken
 
-@[combinatorParenthesizer Lean.Parser.many]
-def many.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+@[combinatorParenthesizer Lean.Parser.manyNoAntiquot]
+def manyNoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   visitArgs $ stx.getArgs.size.forM fun _ => p
 
-@[combinatorParenthesizer Lean.Parser.many1]
-def many1.parenthesizer (p : Parenthesizer) : Parenthesizer := do
-  many.parenthesizer p
+@[combinatorParenthesizer Lean.Parser.many1NoAntiquot]
+def many1NoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+  manyNoAntiquot.parenthesizer p
 
 @[combinatorParenthesizer Lean.Parser.many1Unbox]
 def many1Unbox.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   if stx.getKind == nullKind then
-    many.parenthesizer p
+    manyNoAntiquot.parenthesizer p
   else
     p
 
-@[combinatorParenthesizer Lean.Parser.optional]
-def optional.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+@[combinatorParenthesizer Lean.Parser.optionalNoAntiquot]
+def optionalNoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   visitArgs p
 
-@[combinatorParenthesizer Lean.Parser.sepBy]
-def sepBy.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
+@[combinatorParenthesizer Lean.Parser.sepByNoAntiquot]
+def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 then p else pSep
 
-@[combinatorParenthesizer Lean.Parser.sepBy1] def sepBy1.parenthesizer := sepBy.parenthesizer
+@[combinatorParenthesizer Lean.Parser.sepBy1NoAntiquot] def sepBy1NoAntiquot.parenthesizer := sepByNoAntiquot.parenthesizer
 
 @[combinatorParenthesizer Lean.Parser.withPosition] def withPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   -- We assume the formatter will indent syntax sufficiently such that parenthesizing a `withPosition` node is never necessary

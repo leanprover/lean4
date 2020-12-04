@@ -475,7 +475,7 @@ def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (leadingId
    applicationTime := AttributeApplicationTime.afterCompilation
   }
 
-private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) (persistent : Bool) : AttrM Unit := do
+private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) («scoped» persistent : Bool) : AttrM Unit := do
   let prio ← ofExcept (getParserPriority args)
   let env ← getEnv
   let opts ← getOptions
@@ -491,17 +491,22 @@ private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : N
       | Except.error msg => throwError! "invalid parser '{declName}', {msg}"
   let kinds := parser.info.collectKinds {}
   kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind
-  match addParser categories catName declName leading parser prio with
-  | Except.ok _     => modifyEnv fun env => parserExtension.addEntry env <| ParserExtension.Entry.parser catName declName leading parser prio
-  | Except.error ex => throwError ex
-  runParserAttributeHooks catName declName /- builtin -/ false
+  let entry := ParserExtension.Entry.parser catName declName leading parser prio
+  match addParser categories catName declName leading parser prio, «scoped» with
+  | Except.error ex, _ => throwError ex
+  | Except.ok _, false => modifyEnv fun env => parserExtension.addEntry env entry
+  | Except.ok _, true => modifyEnv fun env  => parserExtension.addScopedEntry env (← getCurrNamespace) entry
+  runParserAttributeHooks catName declName (builtin := false)
 
-def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl := {
-  name            := attrName
-  descr           := "parser"
-  add             := fun declName args persistent => ParserAttribute.add attrName catName declName args persistent
-  applicationTime := AttributeApplicationTime.afterCompilation
-}
+def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl where
+  name      := attrName
+  descr     := "parser"
+  pushScope := modifyEnv parserExtension.pushScope
+  popScope  := modifyEnv parserExtension.popScope
+  add declName args persistent := ParserAttribute.add attrName catName declName args («scoped» := false) persistent
+  addScoped declName args      := ParserAttribute.add attrName catName declName args («scoped» := true) (persistent := true)
+  activateScoped ns := modifyEnv (parserExtension.activateScoped · ns)
+  applicationTime   := AttributeApplicationTime.afterCompilation
 
 /- A builtin parser attribute that can be extended by users. -/
 def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : IO Unit := do

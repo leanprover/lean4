@@ -47,11 +47,15 @@ open Snapshots
 private def sendDiagnostics (h : FS.Stream) (uri : DocumentUri) (version : Nat) (text : FileMap) (log : MessageLog)
 : IO Unit := do
   let diagnostics ← log.msgs.mapM (msgToDiagnostic text)
-  Lsp.writeLspNotification h "textDocument/publishDiagnostics"
-    { uri         := uri,
-      version?    := version,
+  h.writeLspNotification { 
+    method := "textDocument/publishDiagnostics"
+    param  := { 
+      uri         := uri
+      version?    := version
       diagnostics := diagnostics.toArray
-      : PublishDiagnosticsParams }
+      : PublishDiagnosticsParams 
+    } 
+  }
 
 private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
   IO.eprintln s!"[{s.beginPos}, {s.endPos}]: `{text.source.extract s.beginPos (s.endPos-1)}`"
@@ -257,7 +261,7 @@ def handleRequest (id : RequestID) (method : String) (params : Json)
 
 partial def mainLoop : ServerM Unit := do
   let st ← read
-  let msg ← readLspMessage st.hIn
+  let msg ← st.hIn.readLspMessage
   let pendingRequests ← st.pendingRequestsRef.get
   let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit)
   → ServerM PendingRequestMap := fun acc id task => do
@@ -283,8 +287,8 @@ def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
   -- TODO(WN): act in accordance with InitializeParams
-  let _ ← Lsp.readLspRequestAs i "initialize" InitializeParams
-  let param ← Lsp.readLspNotificationAs i "textDocument/didOpen" DidOpenTextDocumentParams
+  let _ ← i.readLspRequestAs "initialize" InitializeParams
+  let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
   let e ← e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
 

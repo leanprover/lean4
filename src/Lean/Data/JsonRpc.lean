@@ -75,20 +75,38 @@ inductive Message where
 
 def Batch := Array Message
 
--- data types for reading expected messages
-structure Request (α : Type) where
-  id : RequestID
-  param : α
+-- Compound type with simplified APIs for passing around
+-- jsonrpc data
+structure Request (α) where
+  id     : RequestID
+  method : String
+  param  : α
 
-structure Response (α : Type) where
-  id : RequestID
+instance [ToJson α] : Coe (Request α) Message :=
+⟨fun r => Message.request r.id r.method (toStructured? r.param)⟩
+
+structure Notification (α) where
+  method : String
+  param  : α
+
+instance [ToJson α] : Coe (Notification α) Message :=
+⟨fun r => Message.notification r.method (toStructured? r.param)⟩
+
+structure Response (α) where
+  id     : RequestID
   result : α
 
-structure Error where
-  id : RequestID
-  code : JsonNumber
+instance [ToJson α] : Coe (Response α) Message :=
+⟨fun r => Message.response r.id (toJson r.result)⟩
+
+structure ResponseError (α) where
+  id      : RequestID
+  code    : ErrorCode
   message : String
-  data? : Option Json
+  data?   : Option α := none
+
+instance [ToJson α] : Coe (ResponseError α) Message :=
+⟨fun r => Message.responseError r.id r.code r.message (r.data?.map toJson)⟩
 
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
@@ -168,62 +186,69 @@ namespace IO.FS.Stream
 
 open Lean
 open Lean.JsonRpc
-open IO
 
-def readMessage (h : FS.Stream) (nBytes : Nat) : IO Message := do
-  let j ← h.readJson nBytes
-  match fromJson? j with
-  | some m => pure m
-  | none   => throw $ userError ("JSON '" ++ j.compress ++ "' did not have the format of a JSON-RPC message")
+section
+  variables (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α) [FromJson α]
 
-def readRequestAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α : Type) [FromJson α] : IO (Request α) := do
-  let m ← h.readMessage nBytes
-  match m with
-  | Message.request id method params? =>
-    if method = expectedMethod then
-      match params? with
-      | some params =>
-        let j := toJson params
-        match fromJson? j with
-        | some v => pure ⟨id, v⟩
-        | none   => throw $ userError ("unexpected param '" ++ j.compress  ++ "' for method '" ++ expectedMethod ++ "'")
-      | none => throw $ userError ("unexpected lack of param for method '" ++ expectedMethod ++ "'")
-    else
-      throw $ userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'")
-  | _ => throw $ userError "expected request, got other type of message"
+  def readMessage : IO Message := do
+    let j ← h.readJson nBytes
+    match fromJson? j with
+    | some m => pure m
+    | none   => throw $ userError ("JSON '" ++ j.compress ++ "' did not have the format of a JSON-RPC message")
 
-def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α : Type) [FromJson α] : IO α := do
-  let m ← h.readMessage nBytes
-  match m with
-  | Message.notification method params? =>
-    if method = expectedMethod then
-      match params? with
-      | some params =>
-        let j := toJson params
-        match fromJson? j with
-        | some v => pure v
-        | none   => throw $ userError ("unexpected param '" ++ j.compress  ++ "' for method '" ++ expectedMethod ++ "'")
-      | none => throw $ userError ("unexpected lack of param for method '" ++ expectedMethod ++ "'")
-    else
-      throw $ userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'")
-  | _ => throw $ userError "expected notification, got other type of message"
+  def readRequestAs : IO (Request α) := do
+    let m ← h.readMessage nBytes
+    match m with
+    | Message.request id method params? =>
+      if method = expectedMethod then
+        match params? with
+        | some params =>
+          let j := toJson params
+          match fromJson? j with
+          | some v => pure ⟨id, expectedMethod, v⟩
+          | none   => throw $ userError ("unexpected param '" ++ j.compress  ++ "' for method '" ++ expectedMethod ++ "'")
+        | none => throw $ userError ("unexpected lack of param for method '" ++ expectedMethod ++ "'")
+      else
+        throw $ userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'")
+    | _ => throw $ userError "expected request, got other type of message"
 
-def writeMessage (h : FS.Stream) (m : Message) : IO Unit :=
-  h.writeJson (toJson m)
+  def readNotificationAs : IO (Notification α) := do
+    let m ← h.readMessage nBytes
+    match m with
+    | Message.notification method params? =>
+      if method = expectedMethod then
+        match params? with
+        | some params =>
+          let j := toJson params
+          match fromJson? j with
+          | some v => pure ⟨expectedMethod, v⟩
+          | none   => throw $ userError ("unexpected param '" ++ j.compress  ++ "' for method '" ++ expectedMethod ++ "'")
+        | none => throw $ userError ("unexpected lack of param for method '" ++ expectedMethod ++ "'")
+      else
+        throw $ userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'")
+    | _ => throw $ userError "expected notification, got other type of message"
+end
 
-def writeRequest [ToJson α] (h : FS.Stream) (id : RequestID) (method : String) (params : α) : IO Unit :=
-  h.writeMessage (Message.request id method (fromJson? (toJson params)))
+section
+  variables [ToJson α] (h : FS.Stream)
 
-def writeNotification [ToJson α] (h : FS.Stream) (method : String) (params : α) : IO Unit :=
-  h.writeMessage (Message.notification method (fromJson? (toJson params)))
+  def writeMessage (m : Message) : IO Unit :=
+    h.writeJson (toJson m)
 
-def writeResponse [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
-  h.writeMessage (Message.response id (toJson r))
+  def writeRequest (r : Request α) : IO Unit :=
+    h.writeMessage r
 
-def writeResponseError (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) : IO Unit :=
-  h.writeMessage (Message.responseError id code message none)
+  def writeNotification (n : Notification α) : IO Unit :=
+    h.writeMessage n
 
-def writeResponseErrorWithData [ToJson α] (h : FS.Stream) (id : RequestID) (code : ErrorCode) (message : String) (data : α) : IO Unit :=
-  h.writeMessage (Message.responseError id code message (toJson data))
+  def writeResponse (r : Response α) : IO Unit :=
+    h.writeMessage r
+
+  def writeResponseError (e : ResponseError Unit) : IO Unit :=
+    h.writeMessage (Message.responseError e.id e.code e.message none)
+
+  def writeResponseErrorWithData (e : ResponseError α) : IO Unit :=
+    h.writeMessage e
+end
 
 end IO.FS.Stream

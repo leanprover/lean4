@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Environment
 import Lean.Data.NameTrie
+import Lean.Attributes
 
 namespace Lean
 
@@ -149,6 +150,12 @@ def ScopedEnvExtension.addLocalEntry (ext : ScopedEnvExtension α β σ) (env : 
   | top :: states =>
     let top := { top with state := ext.descr.addEntry top.state b }
     ext.ext.setState env { s with stateStack := top :: states }
+
+def ScopedEnvExtension.add [Monad m] [MonadResolveName m] [MonadEnv m] (ext : ScopedEnvExtension α β σ) (b : β) (kind := AttributeKind.global) : m Unit := do
+  match kind with
+  | AttributeKind.global => modifyEnv (ext.addEntry · b)
+  | AttributeKind.local  => modifyEnv (ext.addLocalEntry · b)
+  | AttributeKind.scoped => modifyEnv (ext.addScopedEntry · (← getCurrNamespace) b)
 
 def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : σ :=
   match ext.ext.getState env |>.stateStack with

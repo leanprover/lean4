@@ -34,6 +34,12 @@ structure AttributeImplCore where
 inductive AttributeKind
   | «global» | «local» | «scoped»
 
+instance : ToString AttributeKind where
+  toString
+    | AttributeKind.global => "global"
+    | AttributeKind.local  => "local"
+    | AttributeKind.scoped => "scoped"
+
 instance : BEq AttributeKind where
   beq
     | AttributeKind.global, AttributeKind.global => true

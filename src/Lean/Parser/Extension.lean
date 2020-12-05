@@ -475,7 +475,7 @@ def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (leadingId
    applicationTime := AttributeApplicationTime.afterCompilation
   }
 
-private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) (kind : AttributeKind) : AttrM Unit := do
+private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
   let prio ← ofExcept (getParserPriority args)
   let env ← getEnv
   let opts ← getOptions
@@ -492,18 +492,16 @@ private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : N
   let kinds := parser.info.collectKinds {}
   kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind
   let entry := ParserExtension.Entry.parser catName declName leading parser prio
-  match addParser categories catName declName leading parser prio, kind with
-  | Except.error ex, _ => throwError ex
-  | Except.ok _, AttributeKind.global => modifyEnv fun env => parserExtension.addEntry env entry
-  | Except.ok _, AttributeKind.scoped => modifyEnv fun env => parserExtension.addScopedEntry env (← getCurrNamespace) entry
-  | Except.ok _, AttributeKind.local  => modifyEnv fun env => parserExtension.addLocalEntry env entry
+  match addParser categories catName declName leading parser prio with
+  | Except.error ex => throwError ex
+  | Except.ok _     => parserExtension.add entry attrKind
   runParserAttributeHooks catName declName (builtin := false)
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl where
-  name                   := attrName
-  descr                  := "parser"
-  add declName args kind := ParserAttribute.add attrName catName declName args kind
-  applicationTime        := AttributeApplicationTime.afterCompilation
+  name                       := attrName
+  descr                      := "parser"
+  add declName args attrKind := ParserAttribute.add attrName catName declName args attrKind
+  applicationTime            := AttributeApplicationTime.afterCompilation
 
 /- A builtin parser attribute that can be extended by users. -/
 def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : IO Unit := do

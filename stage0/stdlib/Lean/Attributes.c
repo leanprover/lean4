@@ -118,7 +118,6 @@ lean_object* l_Lean_attributeImplBuilderTableRef;
 lean_object* l_Lean_AttributeApplicationTime_beq_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_attrParamSyntaxToIdentifier_match__1(lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__15;
 lean_object* l_Lean_attributeExtension___elambda__2___boxed(lean_object*);
 lean_object* l_Std_RBNode_fold___at_Lean_registerParametricAttribute___spec__1(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_744_(lean_object*);
@@ -176,6 +175,7 @@ lean_object* l_Lean_instInhabitedAttributeExtensionState;
 lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_getBuiltinAttributeImpl___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_getAttributeImpl_match__1(lean_object*);
 lean_object* l_Lean_attrParamSyntaxToIdentifier_match__2(lean_object*);
+lean_object* l_Lean_instToStringAttributeKind___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
@@ -862,6 +862,14 @@ x_1 = lean_mk_string("local");
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_instToStringAttributeKind___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("scoped");
+return x_1;
+}
+}
 lean_object* l_Lean_instToStringAttributeKind(uint8_t x_1) {
 _start:
 {
@@ -881,7 +889,7 @@ return x_3;
 default: 
 {
 lean_object* x_4; 
-x_4 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__15;
+x_4 = l_Lean_instToStringAttributeKind___closed__3;
 return x_4;
 }
 }
@@ -11118,6 +11126,8 @@ l_Lean_instToStringAttributeKind___closed__1 = _init_l_Lean_instToStringAttribut
 lean_mark_persistent(l_Lean_instToStringAttributeKind___closed__1);
 l_Lean_instToStringAttributeKind___closed__2 = _init_l_Lean_instToStringAttributeKind___closed__2();
 lean_mark_persistent(l_Lean_instToStringAttributeKind___closed__2);
+l_Lean_instToStringAttributeKind___closed__3 = _init_l_Lean_instToStringAttributeKind___closed__3();
+lean_mark_persistent(l_Lean_instToStringAttributeKind___closed__3);
 l_Lean_AttributeImpl_erase___default___rarg___closed__1 = _init_l_Lean_AttributeImpl_erase___default___rarg___closed__1();
 lean_mark_persistent(l_Lean_AttributeImpl_erase___default___rarg___closed__1);
 l_Lean_AttributeImpl_erase___default___rarg___closed__2 = _init_l_Lean_AttributeImpl_erase___default___rarg___closed__2();

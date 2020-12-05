@@ -22,7 +22,6 @@ uint8_t l_Lean_Expr_bindingInfo_x21(lean_object*);
 lean_object* l_Lean_BinderInfo_beq_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateSort___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__35;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsFalse___closed__2;
 lean_object* l_Lean_Expr_bvarIdx_x21___closed__3;
@@ -599,6 +598,7 @@ lean_object* l_Lean_Expr_instToStringExpr;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isFVar_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint64_t l_UInt32_toUInt64(uint32_t);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__28;
 lean_object* l_Lean_ExprStructEq_instToStringExprStructEq___boxed(lean_object*);
 lean_object* l_Lean_Expr_inferImplicit___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_BinderInfo_isAuxDecl___boxed(lean_object*);
@@ -3325,7 +3325,7 @@ return x_4;
 case 3:
 {
 lean_object* x_5; 
-x_5 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__35;
+x_5 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__28;
 return x_5;
 }
 case 4:

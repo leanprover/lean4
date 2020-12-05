@@ -280,7 +280,6 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_liftCoreM(lean_object*);
 extern lean_object* l_Lean_Parser_maxPrec;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_nonReservedSymbol_parenthesizer___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__41;
 lean_object* l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___closed__11;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_sepBy1NoAntiquot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_getCur___at_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___spec__2___boxed(lean_object*);
@@ -416,6 +415,7 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_initFn____x40_Lean_PrettyPrinter
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_13266____closed__3;
 uint8_t l_Lean_Parser_isValidSyntaxNodeKind(lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__34;
 lean_object* l_Lean_Syntax_Traverser_right(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PrettyPrinter_Parenthesizer_interpolatedStr_parenthesizer___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_visitToken___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7913,7 +7913,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__41;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__34;
 x_2 = l_myMacro____x40_Init_Notation___hyg_9707____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

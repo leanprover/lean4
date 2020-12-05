@@ -202,7 +202,6 @@ extern lean_object* l_term_x5b___x2c_x5d___closed__11;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabQuotedName___closed__2;
 lean_object* l_Lean_Elab_Term_withDeclName(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__36;
 extern lean_object* l_Std_PersistentArray_empty___closed__1;
 extern lean_object* l_Lean_Elab_throwAbort___rarg___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -433,6 +432,7 @@ lean_object* l_Lean_Elab_Term_MVarErrorInfo_logError___closed__1;
 lean_object* l_Lean_Elab_Term_mkTypeMismatchError___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_9707____closed__8;
 lean_object* l_Lean_Elab_Term_isExprMVarAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__29;
 lean_object* l_Lean_Elab_Term_elabProp___rarg(lean_object*);
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabImplicitLambdaAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__29;
@@ -29829,7 +29829,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Term_termElabAttribute;
-x_3 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__36;
+x_3 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__29;
 x_4 = l___regBuiltin_Lean_Elab_Term_elabSort___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

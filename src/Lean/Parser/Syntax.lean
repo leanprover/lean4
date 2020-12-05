@@ -44,28 +44,25 @@ namespace Command
 
 def optPrio   := optional ("[" >> numLit >> "]")
 
-def «scoped» := parser! "scoped "
-def «local»  := parser! "local "
-def attrKind := optional («scoped» <|> «local»)
 def «prefix»   := parser! "prefix"
 def «infix»    := parser! "infix"
 def «infixl»   := parser! "infixl"
 def «infixr»   := parser! "infixr"
 def «postfix»  := parser! "postfix"
 def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
-@[builtinCommandParser] def «mixfix»   := parser! attrKind >> mixfixKind >> optPrecedence >> optPrio >> ppSpace >> strLit >> darrow >> termParser
+@[builtinCommandParser] def «mixfix»   := parser! Term.attrKind >> mixfixKind >> optPrecedence >> optPrio >> ppSpace >> strLit >> darrow >> termParser
 -- NOTE: We use `suppressInsideQuot` in the following parsers because quotations inside them are evaluated in the same stage and
 -- thus should be ignored when we use `checkInsideQuot` to prepare the next stage for a builtin syntax change
 def identPrec  := parser! ident >> optPrecedence
 def optKind : Parser := optional ("[" >> ident >> "]")
 def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> identPrec)
-@[builtinCommandParser] def «notation»    := parser! attrKind >> "notation" >> optPrecedence >> optPrio >> many notationItem >> darrow >> termParser
+@[builtinCommandParser] def «notation»    := parser! Term.attrKind >> "notation" >> optPrecedence >> optPrio >> many notationItem >> darrow >> termParser
 @[builtinCommandParser] def «macro_rules» := suppressInsideQuot (parser! "macro_rules" >> optKind >> Term.matchAlts)
 def parserKind     := parser! ident
 def parserPrio     := parser! numLit
 def parserKindPrio := parser! atomic (ident >> ", ") >> numLit
 def optKindPrio : Parser := optional ("[" >> (parserKindPrio <|> parserKind <|> parserPrio) >> "]")
-@[builtinCommandParser] def «syntax»      := parser! attrKind >> "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
+@[builtinCommandParser] def «syntax»      := parser! Term.attrKind >> "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
 def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> syntaxParser maxPrec

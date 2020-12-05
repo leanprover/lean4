@@ -69,15 +69,16 @@ open JsonRpc
 open System.FilePath
 
 structure OpenDocument where
-  version : Nat
-  text : FileMap
+  version   : Nat
+  text      : FileMap
   headerAst : Syntax
 
-def workerCfg : Process.StdioConfig :=
-  { stdin  := Process.Stdio.piped,
-    stdout := Process.Stdio.piped,
-    /- We pass workers' stderr through to the editor. -/
-    stderr := Process.Stdio.inherit }
+def workerCfg : Process.StdioConfig := { 
+  stdin  := Process.Stdio.piped
+  stdout := Process.Stdio.piped
+  /- We pass workers' stderr through to the editor. -/
+  stderr := Process.Stdio.inherit
+}
 
 -- Events that a forwarding task of a worker signals to the main task
 inductive WorkerEvent where
@@ -98,10 +99,10 @@ inductive WorkerState where
 abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message (fun a b => Decidable.decide (a < b))
 
 structure FileWorker where
-  doc : OpenDocument
-  proc : Process.Child workerCfg
-  commTask : Task WorkerEvent
-  state : WorkerState
+  doc                : OpenDocument
+  proc               : Process.Child workerCfg
+  commTask           : Task WorkerEvent
+  state              : WorkerState
   -- NOTE: this should not be mutated outside of namespace FileWorker
   pendingRequestsRef : IO.Ref PendingRequestMap
 
@@ -114,7 +115,7 @@ def stdout (fw : FileWorker) : FS.Stream :=
   FS.Stream.ofHandle fw.proc.stdout
 
 def readMessage (fw : FileWorker) : IO JsonRpc.Message := do
-  let msg ← readLspMessage fw.stdout
+  let msg ← fw.stdout.readLspMessage
   match msg with
   | Message.request id method params? =>
     fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.erase id)
@@ -122,19 +123,18 @@ def readMessage (fw : FileWorker) : IO JsonRpc.Message := do
   msg
 
 def writeMessage (fw : FileWorker) (msg : JsonRpc.Message) : IO Unit :=
-  writeLspMessage fw.stdin msg
+  fw.stdin.writeLspMessage msg
 
-def writeNotification [ToJson α] (fw : FileWorker) (method : String) (param : α) : IO Unit :=
-  writeLspNotification fw.stdin method param
+def writeNotification [ToJson α] (fw : FileWorker) (n : Notification α) : IO Unit :=
+  fw.stdin.writeLspNotification n
 
-def writeRequest [ToJson α] (fw : FileWorker) (id : RequestID) (method : String) (param : α) : IO Unit := do
-  writeLspRequest fw.stdin id method param
-  fw.pendingRequestsRef.modify $ fun pendingRequests =>
-    pendingRequests.insert id (Message.request id method (Json.toStructured? param))
+def writeRequest [ToJson α] (fw : FileWorker) (r : Request α) : IO Unit := do
+  fw.stdin.writeLspRequest r
+  fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.insert r.id r)
 
 def errorPendingRequests (fw : FileWorker) (hOut : FS.Stream) (code : ErrorCode) (msg : String) : IO Unit := do
   let pendingRequests ← fw.pendingRequestsRef.modifyGet (fun pendingRequests => (pendingRequests, RBMap.empty))
-  pendingRequests.forM (fun id _ => writeLspResponseError hOut id code msg)
+  pendingRequests.forM (fun id _ => hOut.writeLspResponseError {id := id, code := code, message := msg})
 
 end FileWorker
 
@@ -175,7 +175,7 @@ partial def fwdMsgTask (fw : FileWorker) : ServerM (Task WorkerEvent) := do
     try
       let msg ← fw.readMessage
       -- NOTE: Writes to Lean I/O channels are atomic, so these won't trample on each other.
-      writeLspMessage o msg
+      o.writeLspMessage msg
       loop
     catch err =>
       -- NOTE: if writeLspMessage from above errors we will block here, but the main task will
@@ -218,14 +218,17 @@ def startFileWorker (uri : DocumentUri) (version : Nat) (text : FileMap) : Serve
   }
   let commTask ← fwdMsgTask commTaskFw
   let fw : FileWorker := { commTaskFw with commTask := commTask }
-  writeLspRequest fw.stdin (0 : Nat) "initialize" st.initParams
-  fw.writeNotification "textDocument/didOpen" {
-    textDocument := {
-      uri        := uri
-      languageId := "lean"
-      version    := version
-      text       := text.source
-    } : DidOpenTextDocumentParams
+  fw.stdin.writeLspRequest ⟨0, "initialize", st.initParams⟩
+  fw.writeNotification {
+    method := "textDocument/didOpen" 
+    param  := {
+      textDocument := {
+        uri        := uri
+        languageId := "lean"
+        version    := version
+        text       := text.source
+      } : DidOpenTextDocumentParams
+    }
   }
   updateFileWorkers uri fw
 
@@ -298,7 +301,7 @@ def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
       match fw.state with
       | WorkerState.crashed queuedMsgs => restartCrashedFileWorker doc.uri newFw (queuedMsgs.push msg)
       | WorkerState.running =>
-        try fw.writeNotification "textDocument/didChange" p
+        try fw.writeNotification ⟨"textDocument/didChange", p⟩
         catch _ => handleCrash doc.uri #[msg]
 
 def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
@@ -310,7 +313,7 @@ def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     match fw.state with
     | WorkerState.crashed queuedMsgs => restartCrashedFileWorker uri fw queuedMsgs
     | WorkerState.running =>
-      try fw.writeNotification "$/cancelRequest" p
+      try fw.writeNotification ⟨"$/cancelRequest", p⟩
       catch _ => handleCrash uri #[]
 
 def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
@@ -322,7 +325,7 @@ def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM U
     match fw.state with
     | WorkerState.crashed queuedMsgs => restartCrashedFileWorker uri fw (queuedMsgs.push msg)
     | WorkerState.running =>
-      try fw.writeRequest id method parsedParams
+      try fw.writeRequest ⟨id, method, parsedParams⟩
       catch _ => handleCrash uri #[msg]
   match method with
   | "textDocument/hover" => handle HoverParams
@@ -348,7 +351,7 @@ inductive ServerEvent where
   | ClientError (e : IO.Error)
 
 def runClientTask : ServerM (Task ServerEvent) := do
-  let readMsg : IO ServerEvent := ServerEvent.ClientMsg (←readLspMessage (←read).hIn)
+  let readMsg : IO ServerEvent := ServerEvent.ClientMsg (←(←read).hIn.readLspMessage)
   let clientTask ← (←IO.asTask readMsg).map $ fun
     | Except.ok ev   => ev
     | Except.error e => ServerEvent.ClientError e
@@ -369,7 +372,7 @@ partial def mainLoop (clientTask : Task ServerEvent) : ServerM Unit := do
     match msg with
     | Message.request id "shutdown" _ =>
       shutdown
-      writeLspResponse st.hOut id Json.null
+      st.hOut.writeLspResponse ⟨id, Json.null⟩
     | Message.request id method (some params) =>
       handleRequest id method (toJson params)
       let newClientTask ← runClientTask
@@ -399,10 +402,10 @@ def mkLeanServerCapabilities : ServerCapabilities :=
 def initAndRunWatchdogAux : ServerM Unit := do
   let st ← read
   try
-    let _ ← readLspNotificationAs st.hIn "initialized" InitializedParams
+    let _ ← st.hIn.readLspNotificationAs "initialized" InitializedParams
     let clientTask ← runClientTask
     mainLoop clientTask
-    let Message.notification "exit" none ← readLspMessage st.hIn
+    let Message.notification "exit" none ← st.hIn.readLspMessage
       | throwServerError "Expected an exit notification"
    catch err =>
      shutdown
@@ -416,12 +419,18 @@ def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o
   let e ← maybeTee "wdErr.txt" true e
-  let initRequest ← readLspRequestAs i "initialize" InitializeParams
-  writeLspResponse o initRequest.id
-    { capabilities := mkLeanServerCapabilities,
-      serverInfo?  := some { name     := "Lean 4 server"
-                             version? := "0.0.1" }
-      : InitializeResult }
+  let initRequest ← i.readLspRequestAs "initialize" InitializeParams
+  o.writeLspResponse {
+    id     := initRequest.id
+    result := { 
+      capabilities := mkLeanServerCapabilities
+      serverInfo?  := some { 
+        name     := "Lean 4 server"
+        version? := "0.0.1" 
+      }
+      : InitializeResult 
+    }
+  }
   ReaderT.run
     initAndRunWatchdogAux
     { hIn            := i

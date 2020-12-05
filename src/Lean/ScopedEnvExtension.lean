@@ -142,6 +142,14 @@ def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Envir
 def ScopedEnvExtension.addScopedEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.«scoped» namespaceName b)
 
+def ScopedEnvExtension.addLocalEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
+  let s := ext.ext.getState env
+  match s.stateStack with
+  | [] => env
+  | top :: states =>
+    let top := { top with state := ext.descr.addEntry top.state b }
+    ext.ext.setState env { s with stateStack := top :: states }
+
 def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : σ :=
   match ext.ext.getState env |>.stateStack with
   | top :: _ => top.state

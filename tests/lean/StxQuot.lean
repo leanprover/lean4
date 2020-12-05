@@ -38,7 +38,7 @@ end Syntax
 #eval run $ do let a ← `(a.{0}); match_syntax a with `($id:ident) => pure id | _ => pure a
 #eval run $ do let a ← `(match a with | a => 1 | _ => 2); match_syntax a with `(match $e with $eqns:matchAlt*) => pure eqns | _ => pure #[]
 
-#eval run do let a ← some <$> `(a); `({ a := a $[: $a]?})
+#eval run do let a ← some <$> `(a); `({ a := a $[: $(id a)]?})
 #eval run do let a ← pure none; `({ a := a $[: $a]?})
 
 #eval run do

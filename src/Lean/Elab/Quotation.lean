@@ -78,6 +78,19 @@ def getAntiquotScopeSuffix (stx : Syntax) : Syntax :=
 def isAntiquotSplicePat (stx : Syntax) : Bool :=
   stx.isOfKind nullKind && stx.getArgs.any fun arg => isAntiquotSplice arg && !isEscapedAntiquot arg
 
+/-- `C[$(e)]` ~> `let a := e; C[$a]`. Used in the implementation of antiquot scopes. -/
+private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermElabM Syntax) TermElabM Syntax
+  | stx@(Syntax.node k args) => do
+    if isAntiquot stx && !isEscapedAntiquot stx then
+      let e := getAntiquotTerm stx
+      if !e.isIdent then
+        return ← withFreshMacroScope do
+          let a ← `(a)
+          modify (fun cont stx => (`(let $a:ident := $e; $stx) : TermElabM _))
+          stx.setArg 2 a
+    Syntax.node k (← args.mapM floatOutAntiquotTerms)
+  | stx => pure stx
+
 partial def getAntiquotationIds : Syntax → TermElabM (List Syntax)
   | stx@(Syntax.node k args) =>
     if isAntiquot stx && !isEscapedAntiquot stx then
@@ -116,6 +129,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
           `(Array.appendCore $args $(getAntiquotTerm arg))
         else if k == nullKind && isAntiquotScope arg then do
           let k := antiquotScopeKind? arg
+          let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
           let inner ← (getAntiquotScopeContents arg).mapM quoteSyntax
           let arr ← match (← getAntiquotationIds arg) with
             | [] => throwErrorAt stx "antiquotation scope must contain at least one antiquotation"
@@ -135,6 +149,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
               let Syntax.atom _ sep ← (getAntiquotScopeSuffix arg)[0] | unreachable!
               `(mkSepArray $arr (mkAtom $(Syntax.mkStrLit sep)))
             else arr
+          let arr ← bindLets arr
           `(Array.appendCore $args $arr)
         else do
           let arg ← quoteSyntax arg;

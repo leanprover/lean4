@@ -115,20 +115,9 @@ partial def main (type : Syntax) : CommandElabM Name := do
   let type ← liftMacroM <| expandMacros type
   let (_, str) ← collect type |>.run ""
   if str.isEmpty then
-     mkFreshInstanceName
+    mkFreshInstanceName
   else
-    let name := Name.mkSimple ("inst" ++ str)
-    let currNamespace ← getCurrNamespace
-    if (← getEnv).contains (currNamespace ++ name) then
-      let rec loop (idx : Nat) :=
-         let name := name.appendIndexAfter idx
-         if (← getEnv).contains (currNamespace ++ name) then
-           loop (idx+1)
-         else
-           name
-      return loop 1
-    else
-      return name
+    mkUnusedBaseName <| Name.mkSimple ("inst" ++ str)
 
 end MkInstanceName
 

@@ -26,13 +26,16 @@ instance : Inhabited Attribute where
 
 /-
   ```
-  attrKind := optional («scoped» <|> «local»)
+  attrKind := parser! optional («scoped» <|> «local»)
   ```
 -/
 def toAttributeKind (attrKindStx : Syntax) : AttributeKind :=
-  if attrKindStx.isNone then AttributeKind.global
-  else if attrKindStx[0].getKind == `Lean.Parser.Term.scoped then AttributeKind.scoped
+  if attrKindStx[0].isNone then AttributeKind.global
+  else if attrKindStx[0][0].getKind == `Lean.Parser.Term.scoped then AttributeKind.scoped
   else AttributeKind.local
+
+def mkAttrKindGlobal : Syntax :=
+  Syntax.node `Lean.Parser.Term.attrKind #[mkNullNode]
 
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m Attribute := do
   -- attrKind >> rawIdent >> many attrArg

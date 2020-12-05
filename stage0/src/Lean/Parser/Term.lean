@@ -154,7 +154,7 @@ def attrArg : Parser := ident <|> strLit <|> numLit
 -- use `rawIdent` because of attribute names such as `instance`
 def «scoped» := parser! "scoped "
 def «local»  := parser! "local "
-def attrKind := (checkOutsideQuot >> optional («scoped» <|> «local»)) <|> (checkInsideQuot >> parser! optional («scoped» <|> «local»))
+def attrKind := parser! optional («scoped» <|> «local»)
 def attrInstance     := ppGroup $ parser! attrKind >> rawIdent >> many (ppSpace >> attrArg)
 
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
@@ -229,6 +229,7 @@ builtin_initialize
   registerParserAlias! "syntheticHole"   Term.syntheticHole
   registerParserAlias! "matchDiscr"      Term.matchDiscr
   registerParserAlias! "bracketedBinder" Term.bracketedBinder
+  registerParserAlias! "attrKind"        Term.attrKind
 
 end Parser
 end Lean

@@ -178,7 +178,6 @@ lean_object* l_Lean_Parser_Term_stx_quot___closed__2;
 lean_object* l_Lean_Parser_Command_parserKind___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Command_syntaxAbbrev___closed__4;
 lean_object* l___regBuiltin_Lean_Parser_Term_stx_quot_formatter(lean_object*);
-extern lean_object* l_Lean_Parser_Term_attrKind___closed__7;
 lean_object* l_Lean_Parser_Command_macroTailDefault_parenthesizer___closed__4;
 lean_object* l_Lean_Parser_Command_elab__rules_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_parserPrio_formatter___closed__1;
@@ -751,6 +750,7 @@ lean_object* l_Lean_Parser_Syntax_binary___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Syntax_cat___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Command_prefix___closed__2;
 lean_object* l_Lean_Parser_Command_macroArg___elambda__1___closed__1;
+extern lean_object* l_Lean_Parser_Term_attrKind___closed__4;
 lean_object* l_Lean_Parser_Command_notationItem___closed__2;
 lean_object* l_Lean_Parser_Command_elab__rules___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Command_optKindPrio_formatter___closed__4;
@@ -5977,7 +5977,7 @@ static lean_object* _init_l_Lean_Parser_Command_mixfix___elambda__1___closed__10
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_attrKind___closed__7;
+x_1 = l_Lean_Parser_Term_attrKind___closed__4;
 x_2 = l_Lean_Parser_Command_mixfix___elambda__1___closed__9;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -7616,7 +7616,7 @@ static lean_object* _init_l_Lean_Parser_Command_notation___elambda__1___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_attrKind___closed__7;
+x_1 = l_Lean_Parser_Term_attrKind___closed__4;
 x_2 = l_Lean_Parser_Command_notation___elambda__1___closed__11;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -9471,7 +9471,7 @@ static lean_object* _init_l_Lean_Parser_Command_syntax___elambda__1___closed__12
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_attrKind___closed__7;
+x_1 = l_Lean_Parser_Term_attrKind___closed__4;
 x_2 = l_Lean_Parser_Command_syntax___elambda__1___closed__11;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);

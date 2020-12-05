@@ -470,33 +470,24 @@ private def liftAttrM {α} (x : AttrM α) : TermElabM α := do
 
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
-    (applicationTime? : Option AttributeApplicationTime) (persistent : Bool) : TermElabM Unit :=
+    (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit :=
   for attr in attrs do
     let env ← getEnv
     match getAttributeImpl env attr.name with
     | Except.error errMsg => throwError errMsg
     | Except.ok attrImpl  =>
       match applicationTime? with
-      | none => apply attrImpl declName attr.scoped attr.args persistent
+      | none => liftAttrM <| attrImpl.add declName attr.args attr.kind
       | some applicationTime =>
         if applicationTime == attrImpl.applicationTime then
-          apply attrImpl declName attr.scoped attr.args persistent
-where
-  apply attrImpl declName «scoped» args persistent := do
-    let kind ←
-      match persistent, «scoped» with
-      | true,  true  => pure AttributeKind.scoped
-      | false, true  => throwError "scoped local attributes are not allowed"
-      | true,  false => pure AttributeKind.global
-      | false, false => pure AttributeKind.local
-    liftAttrM <| attrImpl.add declName args kind
+          liftAttrM <| attrImpl.add declName attr.args attr.kind
 
 /-- Apply given attributes **at** a given application time -/
-def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) (persistent : Bool := true) : TermElabM Unit :=
-  applyAttributesCore declName attrs applicationTime persistent
+def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : TermElabM Unit :=
+  applyAttributesCore declName attrs applicationTime
 
-def applyAttributes (declName : Name) (attrs : Array Attribute) (persistent : Bool) : TermElabM Unit :=
-  applyAttributesCore declName attrs none persistent
+def applyAttributes (declName : Name) (attrs : Array Attribute) : TermElabM Unit :=
+  applyAttributesCore declName attrs none
 
 def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (expectedType : Expr) : MessageData :=
   let header : MessageData := match header? with

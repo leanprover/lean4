@@ -149,6 +149,7 @@ lean_object* l_Lean_Elab_instToFormatModifiers_match__1(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Elab_mkDeclName___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_instToFormatAttribute___closed__5;
 lean_object* l_Lean_Elab_expandDeclId___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Modifiers_isPrivate___boxed(lean_object*);
 extern lean_object* l_Lean_Elab_instToFormatAttribute___closed__2;
@@ -1015,19 +1016,28 @@ x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = l_Lean_Syntax_isMissing(x_5);
-if (x_2 == 0)
+switch (x_2) {
+case 0:
 {
 lean_object* x_42; 
 x_42 = l_Lean_instInhabitedParserDescr___closed__1;
 x_7 = x_42;
 goto block_41;
 }
-else
+case 1:
 {
 lean_object* x_43; 
 x_43 = l_Lean_Elab_instToFormatAttribute___closed__4;
 x_7 = x_43;
 goto block_41;
+}
+default: 
+{
+lean_object* x_44; 
+x_44 = l_Lean_Elab_instToFormatAttribute___closed__5;
+x_7 = x_44;
+goto block_41;
+}
 }
 block_41:
 {

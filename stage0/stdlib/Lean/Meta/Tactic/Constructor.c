@@ -50,7 +50,6 @@ lean_object* l_Lean_Meta_existsIntro___lambda__2(lean_object*, lean_object*, lea
 lean_object* l_Lean_Meta_existsIntro_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__2;
-extern lean_object* l___kind_term____x40_Init_NotationExtra___hyg_2221____closed__2;
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 lean_object* l_Lean_Meta_existsIntro_match__2(lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__3;
@@ -58,6 +57,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
+extern lean_object* l_termKind____x40_Init_NotationExtra___hyg_2201____closed__2;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__6;
 lean_object* l_Lean_Meta_existsIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -875,7 +875,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___kind_term____x40_Init_NotationExtra___hyg_2221____closed__2;
+x_2 = l_termKind____x40_Init_NotationExtra___hyg_2201____closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

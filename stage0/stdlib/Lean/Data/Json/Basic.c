@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_2503____closed__2;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_JsonNumber_decEq_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_Json_mkObj___spec__1(lean_object*, lean_object*, lean_object*);
@@ -68,6 +67,7 @@ lean_object* l_Lean_Json_getArrVal_x3f_match__1___rarg(lean_object*, lean_object
 lean_object* l_Lean_Json_instCoeBoolJson(uint8_t);
 lean_object* l_Lean_Json_getObj_x3f(lean_object*);
 lean_object* l_Lean_Json_getInt_x3f(lean_object*);
+extern lean_object* l_termKind____x40_Init_Notation___hyg_2423____closed__2;
 lean_object* l_Lean_JsonNumber_decEq_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_JsonNumber_decEq_match__1(lean_object*, lean_object*, lean_object*);
@@ -111,7 +111,6 @@ lean_object* l_Lean_Json_mkObj_match__1(lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13223____closed__7;
 lean_object* l_Lean_Json_getBool_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_toString___closed__4;
 lean_object* l_Lean_JsonNumber_toString___closed__2;
@@ -132,6 +131,7 @@ lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getBool_x3f(lean_object*);
 lean_object* l_Lean_JsonNumber_shiftr(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_decEq_match__2(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12785____closed__7;
 lean_object* l_Lean_JsonNumber_shiftr_match__1(lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValD___boxed(lean_object*, lean_object*);
@@ -592,7 +592,7 @@ lean_dec(x_29);
 if (x_7 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-x_34 = l___kind_term____x40_Init_Notation___hyg_2503____closed__2;
+x_34 = l_termKind____x40_Init_Notation___hyg_2423____closed__2;
 x_35 = lean_string_append(x_34, x_30);
 lean_dec(x_30);
 x_36 = l_Lean_Name_toString___closed__1;
@@ -926,7 +926,7 @@ lean_dec(x_2);
 x_5 = l_instReprSigma___rarg___closed__1;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);
-x_7 = l_myMacro____x40_Init_Notation___hyg_13223____closed__7;
+x_7 = l_myMacro____x40_Init_Notation___hyg_12785____closed__7;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Nat_repr(x_3);
 x_10 = lean_string_append(x_8, x_9);

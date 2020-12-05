@@ -61,13 +61,13 @@ lean_object* l_Lean_Meta_evalNat_visit___closed__18;
 extern lean_object* l_Lean_Literal_type___closed__2;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isOffset_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__13;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_672____closed__7;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux_match__2___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Syntax_decodeNatLitVal_x3f___closed__1;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux_match__1(lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__14;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isOffset_match__2(lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__6;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_947____closed__7;
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_mkOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__8;
@@ -81,18 +81,18 @@ lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux_match__2(lea
 lean_object* l_Lean_Meta_evalNat_visit___closed__17;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__3;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1248____closed__7;
 lean_object* l_Lean_Meta_evalNat_visit___closed__15;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_983____closed__7;
 lean_object* l_Lean_Meta_isDefEqOffset_match__5___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__2;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1294____closed__7;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_mkOffset___closed__1;
 lean_object* l_Lean_Meta_isDefEqOffset_match__3(lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Meta_evalNat_visit___closed__7;
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux_match__4___rarg(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_646____closed__7;
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isDefEqOffset_match__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isNatZero_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -1350,19 +1350,19 @@ block_213:
 {
 lean_object* x_54; uint8_t x_55; lean_object* x_56; uint8_t x_57; 
 lean_dec(x_53);
-x_54 = l_myMacro____x40_Init_Notation___hyg_672____closed__7;
+x_54 = l_myMacro____x40_Init_Notation___hyg_646____closed__7;
 x_55 = lean_name_eq(x_35, x_54);
 x_56 = lean_unsigned_to_nat(6u);
 x_57 = lean_nat_dec_eq(x_37, x_56);
 if (x_55 == 0)
 {
 lean_object* x_58; uint8_t x_59; 
-x_58 = l_myMacro____x40_Init_Notation___hyg_983____closed__7;
+x_58 = l_myMacro____x40_Init_Notation___hyg_947____closed__7;
 x_59 = lean_name_eq(x_35, x_58);
 if (x_59 == 0)
 {
 lean_object* x_60; uint8_t x_61; 
-x_60 = l_myMacro____x40_Init_Notation___hyg_1294____closed__7;
+x_60 = l_myMacro____x40_Init_Notation___hyg_1248____closed__7;
 x_61 = lean_name_eq(x_35, x_60);
 if (x_61 == 0)
 {
@@ -4259,7 +4259,7 @@ block_120:
 {
 lean_object* x_41; uint8_t x_42; 
 lean_dec(x_40);
-x_41 = l_myMacro____x40_Init_Notation___hyg_672____closed__7;
+x_41 = l_myMacro____x40_Init_Notation___hyg_646____closed__7;
 x_42 = lean_name_eq(x_37, x_41);
 lean_dec(x_37);
 if (x_42 == 0)
@@ -5609,7 +5609,7 @@ x_46 = l_Lean_Meta_evalNat_visit___closed__7;
 x_47 = lean_name_eq(x_35, x_46);
 x_48 = lean_unsigned_to_nat(4u);
 x_49 = lean_nat_dec_eq(x_37, x_48);
-x_50 = l_myMacro____x40_Init_Notation___hyg_672____closed__7;
+x_50 = l_myMacro____x40_Init_Notation___hyg_646____closed__7;
 x_51 = lean_name_eq(x_35, x_50);
 lean_dec(x_35);
 if (x_39 == 0)

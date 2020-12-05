@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l___kind_term____x40_Init_Notation___hyg_2503____closed__2;
 lean_object* l_Int_instNegInt___closed__1;
 uint8_t l_String_isInt(lean_object*);
 lean_object* l_Int_instAddInt___closed__1;
@@ -62,6 +61,7 @@ lean_object* l_Int_subNatNat_match__1(lean_object*);
 lean_object* l_Int_instSubInt___closed__1;
 lean_object* l_Int_negOfNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_div_match__1(lean_object*);
+extern lean_object* l_termKind____x40_Init_Notation___hyg_2423____closed__2;
 lean_object* l_Int_instHPowIntNatInt;
 lean_object* l_Int_subNatNat(lean_object*, lean_object*);
 lean_object* l_Int_instModInt;
@@ -573,7 +573,7 @@ lean_dec(x_6);
 x_9 = lean_nat_add(x_8, x_7);
 lean_dec(x_8);
 x_10 = l_Nat_repr(x_9);
-x_11 = l___kind_term____x40_Init_Notation___hyg_2503____closed__2;
+x_11 = l_termKind____x40_Init_Notation___hyg_2423____closed__2;
 x_12 = lean_string_append(x_11, x_10);
 lean_dec(x_10);
 return x_12;

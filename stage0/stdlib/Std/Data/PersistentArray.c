@@ -296,7 +296,6 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Std_PersistentArray_findSomeRevMAux___at_Std_PersistentArray_findSomeRev_x3f___spec__3___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_foldlM___at_Std_PersistentArray_toArray___spec__1(lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Std_PersistentArray_findSomeRev_x3f___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_333____closed__20;
 lean_object* l_Std_PersistentArray_anyMAux___at_Std_PersistentArray_allM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_append___spec__4___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Std_PersistentArray_map___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -310,6 +309,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Std_PersistentArray_findSome_x3f___sp
 lean_object* l_Array_foldlMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_PersistentArray_forMAux___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_mapMAux___at_Std_PersistentArray_map___spec__2(lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_309____closed__20;
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_toList___spec__11(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_foldl___spec__12___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Array_allM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*);
@@ -12690,7 +12690,7 @@ lean_dec(x_1);
 x_14 = l_Nat_repr(x_13);
 x_15 = lean_string_append(x_12, x_14);
 lean_dec(x_14);
-x_16 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_333____closed__20;
+x_16 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_309____closed__20;
 x_17 = lean_string_append(x_15, x_16);
 return x_17;
 }

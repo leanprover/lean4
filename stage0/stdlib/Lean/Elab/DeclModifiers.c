@@ -80,7 +80,6 @@ lean_object* l_Lean_Elab_instToStringVisibility_match__1___rarg(uint8_t, lean_ob
 lean_object* l_Lean_Elab_instToStringVisibility_match__1(lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__1;
 extern lean_object* l_Lean_Format_join___closed__1;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_333____closed__20;
 lean_object* l_Lean_Elab_Modifiers_isProtected_match__1(lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
 lean_object* l_Lean_Syntax_getId(lean_object*);
@@ -88,6 +87,7 @@ lean_object* l_Lean_Elab_expandDeclId___rarg___lambda__1___boxed(lean_object*, l
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__9;
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__4;
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__17;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_309____closed__20;
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__4;
 lean_object* l_Lean_Elab_instToStringModifiers___closed__2;
 uint8_t l_Lean_Elab_Modifiers_isPartial___default;
@@ -162,6 +162,7 @@ lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*, 
 lean_object* l_Lean_Elab_applyVisibility(lean_object*);
 lean_object* l_Lean_Elab_elabModifiers_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Modifiers_isPrivate_match__1(lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1151____closed__2;
 lean_object* l_List_map___at_Lean_Elab_instToFormatModifiers___spec__2(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Lean_Elab_instToFormatModifiers(lean_object*);
@@ -192,7 +193,6 @@ lean_object* l_Lean_Elab_Modifiers_isPrivate_match__1___rarg(lean_object*, lean_
 lean_object* l_Lean_Elab_mkDeclName___rarg___closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1161____closed__2;
 lean_object* l_Lean_Elab_instToFormatModifiers_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_expandDeclId(lean_object*);
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__15;
@@ -1187,7 +1187,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_333____closed__20;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_309____closed__20;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -2154,7 +2154,7 @@ static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1161____closed__2;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1151____closed__2;
 x_2 = l_Lean_Elab_instToStringVisibility___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -2164,7 +2164,7 @@ static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1161____closed__2;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1151____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

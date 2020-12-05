@@ -9,20 +9,34 @@ import Lean.MonadEnv
 namespace Lean.Elab
 
 structure Attribute where
-  «scoped» : Bool := false
+  kind     : AttributeKind := AttributeKind.global
   name     : Name
   args     : Syntax := Syntax.missing
 
 instance : ToFormat Attribute where
   format attr :=
-    Format.bracket "@[" f!"{if attr.scoped then "scoped" else ""}{attr.name}{if attr.args.isMissing then "" else toString attr.args}" "]"
+   let kindStr := match attr.kind with
+     | AttributeKind.global => ""
+     | AttributeKind.local  => "local "
+     | AttributeKind.scoped => "scoped "
+   Format.bracket "@[" f!"{kindStr}{attr.name}{if attr.args.isMissing then "" else toString attr.args}" "]"
 
 instance : Inhabited Attribute where
   default := { name := arbitrary }
 
+/-
+  ```
+  attrKind := optional («scoped» <|> «local»)
+  ```
+-/
+def toAttributeKind (attrKindStx : Syntax) : AttributeKind :=
+  if attrKindStx.isNone then AttributeKind.global
+  else if attrKindStx[0].getKind == `Lean.Parser.Term.scoped then AttributeKind.scoped
+  else AttributeKind.local
+
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m Attribute := do
-  -- optional "scoped" >> rawIdent >> many attrArg
-  let «scoped»  := !stx[0].isNone
+  -- attrKind >> rawIdent >> many attrArg
+  let kind := toAttributeKind stx[0]
   let nameStx := stx[1]
   let attrName ← match nameStx.isIdOrAtom? with
     | none     => withRef nameStx $ throwError "identifier expected"
@@ -33,7 +47,7 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m]
   -- the old frontend passes Syntax.missing for empty args, for reasons
   if args.getNumArgs == 0 then
     args := Syntax.missing
-  pure { «scoped» := «scoped», name := attrName, args := args }
+  pure { kind := kind, name := attrName, args := args }
 
 -- sepBy1 attrInstance ", "
 def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) := do

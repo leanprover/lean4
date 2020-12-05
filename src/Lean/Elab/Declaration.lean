@@ -252,12 +252,12 @@ def elabMutual : CommandElab := fun stx => do
 
 /- parser! optional "local " >> "attribute " >> "[" >> sepBy1 Term.attrInstance ", " >> "]" >> many1 ident -/
 @[builtinCommandElab «attribute»] def elabAttr : CommandElab := fun stx => do
-  let persistent := stx[0].isNone
+  -- let persistent := stx[0].isNone -- TODO: remove
   let attrs ← elabAttrs stx[3]
   let idents := stx[5].getArgs
   for ident in idents do withRef ident $ liftTermElabM none do
     let declName ← resolveGlobalConstNoOverload ident.getId
-    Term.applyAttributes declName attrs persistent
+    Term.applyAttributes declName attrs
 
 def expandInitCmd (builtin : Bool) : Macro := fun stx =>
   let optHeader := stx[1]

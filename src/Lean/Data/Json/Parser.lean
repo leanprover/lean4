@@ -187,7 +187,7 @@ def num : Quickparse JsonNumber := do
   let sign : Int ←
     if c = '-' then
       skip
-      pure (-1)
+      pure (-1 : Int)
     else
       pure 1
   let c ← peek!

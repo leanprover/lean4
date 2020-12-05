@@ -374,7 +374,7 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 
 -- TODO: cleanup after we have support for optional syntax at `match_syntax`
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
-  withAttrKind stx fun stx =>
+  withAttrKindGlobal stx fun stx =>
     match_syntax stx with
     | `(infix:$prec $op => $f)   => `(infixl:$prec $op => $f)
     | `(infixr:$prec $op => $f)  => `(notation:$prec lhs $op:strLit rhs:$prec => $f lhs rhs)
@@ -388,10 +388,10 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
     | `(postfix:$prec [$prio] $op => $f) => `(notation:$prec [$prio] arg $op:strLit => $f arg)
     | _ => Macro.throwUnsupported
 where
-  -- Remove `attrKind`, apply `f`, and add `attrKind` to result
-  withAttrKind stx f := do
+  -- set "global" `attrKind`, apply `f`, and restore `attrKind` to result
+  withAttrKindGlobal stx f := do
     let attrKind := stx[0]
-    let stx  := stx.setArg 0 mkNullNode
+    let stx  := stx.setArg 0 mkAttrKindGlobal
     let stx ← f stx
     return stx.setArg 0 attrKind
 
@@ -480,7 +480,7 @@ private def expandNotationAux (ref : Syntax)
 @[builtinCommandElab «notation»] def expandNotation : CommandElab :=
   adaptExpander fun stx => do
     let attrKind := toAttributeKind stx[0]
-    let stx := stx.setArg 0 mkNullNode
+    let stx := stx.setArg 0 mkAttrKindGlobal
     let currNamespace ← getCurrNamespace
     match_syntax stx with
     | `(notation:$prec $items* => $rhs)                => expandNotationAux stx currNamespace attrKind prec 0 items rhs

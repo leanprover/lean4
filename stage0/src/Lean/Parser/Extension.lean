@@ -495,8 +495,8 @@ private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : N
   match addParser categories catName declName leading parser prio, kind with
   | Except.error ex, _ => throwError ex
   | Except.ok _, AttributeKind.global => modifyEnv fun env => parserExtension.addEntry env entry
-  | Except.ok _, AttributeKind.scoped => modifyEnv fun env  => parserExtension.addScopedEntry env (← getCurrNamespace) entry
-  | Except.ok _, AttributeKind.local  => throwError! "local parsers have not been implemented yet"
+  | Except.ok _, AttributeKind.scoped => modifyEnv fun env => parserExtension.addScopedEntry env (← getCurrNamespace) entry
+  | Except.ok _, AttributeKind.local  => modifyEnv fun env => parserExtension.addLocalEntry env entry
   runParserAttributeHooks catName declName (builtin := false)
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl where

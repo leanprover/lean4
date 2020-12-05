@@ -452,7 +452,7 @@ def delabStructureInstance : Delab := whenPPOption getPPStructureInstances do
       -- index 2 is unused.
       pure <| some (← descend ty 2 delab)
     else pure <| none
-  `(FIXME) -- `({ $[$fields, ]* $lastField $[: $ty]? })
+  `({ $[$fields, ]* $lastField $[: $ty]? })
 
 @[builtinDelab app.Prod.mk]
 def delabTuple : Delab := whenPPOption getPPNotation do

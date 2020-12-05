@@ -15,12 +15,12 @@ extern "C" {
 #endif
 lean_object* l_Lean_Meta_CaseArraySizesSubgoal_subst___default;
 size_t l_USize_add(size_t, size_t);
+extern lean_object* l_Array_term_____x5b___x3a___x5d___closed__2;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_mkForallFVarsImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_termKind____x40_Init_Data_Array_Subarray___hyg_510____closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,10 +51,8 @@ uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_caseArraySizes___spec__2(lean_object*, size_t, size_t, lean_object*);
 lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_989____closed__10;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_mkDecideProof___rarg___lambda__1___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_3336____closed__7;
 lean_object* l_Array_mapIdxM_map___at_Lean_Meta_caseArraySizes___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -107,12 +105,13 @@ extern lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 lean_object* l_Lean_Meta_mkArrayLit___at___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseArraySizes_match__4___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__1;
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3418____closed__5;
 lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__4;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkListLitImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseArraySizes_match__3(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3432____closed__5;
 lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValues(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2996____closed__7;
 extern lean_object* l_Lean_instInhabitedName;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkExpectedTypeHintImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseArraySizes___lambda__1___closed__3;
@@ -124,6 +123,7 @@ lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Match_CaseArrayS
 lean_object* l_Lean_Meta_mkEqSymm___at_Lean_Meta_substCore___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
+extern lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_919____closed__10;
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
@@ -244,7 +244,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = l_Array_termKind____x40_Init_Data_Array_Subarray___hyg_510____closed__1;
+x_13 = l_Array_term_____x5b___x3a___x5d___closed__2;
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = l_Lean_Expr_isAppOfArity(x_11, x_13, x_14);
 if (x_15 == 0)
@@ -376,7 +376,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = l_Lean_Syntax_mkApp___closed__1;
 x_9 = lean_array_push(x_8, x_1);
 x_10 = lean_array_push(x_9, x_2);
-x_11 = l_myMacro____x40_Init_Notation___hyg_3336____closed__7;
+x_11 = l_myMacro____x40_Init_Notation___hyg_2996____closed__7;
 x_12 = l_Lean_Meta_mkAppM___at_Lean_Meta_mkDecideProof___spec__6(x_11, x_10, x_3, x_4, x_5, x_6, x_7);
 return x_12;
 }
@@ -566,7 +566,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_termKind____x40_Init_Data_Array_Subarray___hyg_510____closed__1;
+x_1 = l_Array_term_____x5b___x3a___x5d___closed__2;
 x_2 = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_mkArrayGetLit___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -728,7 +728,7 @@ x_14 = lean_box(0);
 x_15 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_15, 0, x_9);
 lean_ctor_set(x_15, 1, x_14);
-x_16 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3432____closed__5;
+x_16 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3418____closed__5;
 x_17 = l_Lean_mkConst(x_16, x_15);
 x_18 = l_Lean_mkApp(x_17, x_1);
 x_19 = l_Lean_mkApp(x_18, x_13);
@@ -747,7 +747,7 @@ x_22 = lean_box(0);
 x_23 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_23, 0, x_9);
 lean_ctor_set(x_23, 1, x_22);
-x_24 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3432____closed__5;
+x_24 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3418____closed__5;
 x_25 = l_Lean_mkConst(x_24, x_23);
 x_26 = l_Lean_mkApp(x_25, x_1);
 x_27 = l_Lean_mkApp(x_26, x_20);
@@ -1047,7 +1047,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_termKind____x40_Init_Data_Array_Subarray___hyg_510____closed__1;
+x_1 = l_Array_term_____x5b___x3a___x5d___closed__2;
 x_2 = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -2240,8 +2240,8 @@ static lean_object* _init_l_Lean_Meta_caseArraySizes___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_termKind____x40_Init_Data_Array_Subarray___hyg_510____closed__1;
-x_2 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_989____closed__10;
+x_1 = l_Array_term_____x5b___x3a___x5d___closed__2;
+x_2 = l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_919____closed__10;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

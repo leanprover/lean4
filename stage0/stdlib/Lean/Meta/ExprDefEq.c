@@ -73,7 +73,6 @@ lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_ExprDefEq_0__Lean_M
 uint8_t l_Std_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isSynthetic_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_moveEntries___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_CheckAssignment_cache___spec__4(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_tacticKind____x40_Init_Notation___hyg_16696____closed__4;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqOnFailure___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_CheckAssignment_check___spec__28___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -186,10 +185,10 @@ lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqProj(lean_objec
 extern lean_object* l_Lean_MetavarContext_findLocalDeclDependsOn___closed__1;
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1019____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_commitWhen___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_tryHeuristic___spec__1___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_tacticHave_____x3a_x3d_____closed__5;
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isPropImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_etaEq___boxed(lean_object*, lean_object*);
-extern lean_object* l_termKind____x40_Init_Notation___hyg_10736____closed__6;
 lean_object* l_Std_PersistentArray_anyM___at_Lean_Meta_CheckAssignment_check___spec__8___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__67(lean_object*, size_t, size_t);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_hasLetDeclsInBetween_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -284,7 +283,6 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Met
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_CheckAssignment_check___spec__63___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignment_process_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_879____closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_assignConst___lambda__1___closed__2;
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
@@ -324,6 +322,7 @@ lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_assignConst___lambda__
 lean_object* l_Lean_Meta_CheckAssignment_checkFVar___closed__16;
 lean_object* l_ReaderT_pure___at_Lean_Meta_isExprDefEqAuxImpl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_sameHeadSymbol(lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_807____closed__1;
 lean_object* l_Lean_Meta_CheckAssignment_assignToConstFun___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignment_process___spec__2(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_CheckAssignment_initFn____x40_Lean_Meta_ExprDefEq___hyg_2248____closed__1;
@@ -740,6 +739,7 @@ uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgs___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_CheckAssignment_check___spec__37(lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_CheckAssignment_check___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_termIf_____x3a__Then__Else_____closed__7;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__47___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignmentQuick_check_visit___spec__1(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5500,7 +5500,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkType
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termKind____x40_Init_Notation___hyg_10736____closed__6;
+x_1 = l_termIf_____x3a__Then__Else_____closed__7;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -5509,7 +5509,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkType
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_tacticKind____x40_Init_Notation___hyg_16696____closed__4;
+x_1 = l_Lean_Parser_Tactic_tacticHave_____x3a_x3d_____closed__5;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -64795,7 +64795,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isExprDefEqImp___closed__2;
-x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_879____closed__1;
+x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_807____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

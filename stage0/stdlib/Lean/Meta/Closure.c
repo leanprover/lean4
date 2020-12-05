@@ -31,7 +31,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 extern lean_object* l_Lean_Level_LevelToFormat_toResult___closed__3;
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_tacticKind____x40_Init_Notation___hyg_16696____closed__4;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Meta_inferType___at___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_getMVarDecl___rarg___lambda__1___closed__2;
@@ -62,7 +61,7 @@ lean_object* l_Lean_Meta_Closure_State_nextExprIdx___default;
 uint8_t l_Lean_Level_hasParam(lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_Closure_visitExpr___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1019____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_termKind____x40_Init_Notation___hyg_10736____closed__6;
+extern lean_object* l_Lean_Parser_Tactic_tacticHave_____x3a_x3d_____closed__5;
 lean_object* l_Lean_Meta_Closure_State_levelArgs___default;
 lean_object* l_Std_AssocList_contains___at_Lean_Meta_Closure_visitLevel___spec__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getZetaFVarIds___at_Lean_Meta_Closure_process___spec__1(lean_object*, lean_object*, lean_object*);
@@ -279,6 +278,7 @@ lean_object* l_Lean_Meta_Closure_process_match__1(lean_object*);
 lean_object* l_Lean_mkFreshId___at_Lean_Meta_Closure_collectExprAux___spec__2___rarg(lean_object*, lean_object*);
 lean_object* l_List_mapM___at_Lean_Meta_Closure_collectExprAux___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_resetZetaFVarIds___at_Lean_Meta_Closure_mkValueTypeClosureAux___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_termIf_____x3a__Then__Else_____closed__7;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Closure_mkBinding___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateForallE_x21___closed__2;
@@ -14246,7 +14246,7 @@ static lean_object* _init_l___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefini
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termKind____x40_Init_Notation___hyg_10736____closed__6;
+x_1 = l_termIf_____x3a__Then__Else_____closed__7;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -14255,7 +14255,7 @@ static lean_object* _init_l___private_Lean_Meta_Closure_0__Lean_Meta_mkAuxDefini
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_tacticKind____x40_Init_Notation___hyg_16696____closed__4;
+x_1 = l_Lean_Parser_Tactic_tacticHave_____x3a_x3d_____closed__5;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

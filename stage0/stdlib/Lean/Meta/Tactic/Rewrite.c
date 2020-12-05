@@ -46,6 +46,7 @@ lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqReflImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVarsImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Core___hyg_169____closed__4;
 lean_object* l_Lean_Meta_postprocessAppMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite_match__4___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqRefl___at_Lean_Meta_rewrite___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,7 +68,6 @@ lean_object* l_Lean_Meta_rewrite___lambda__4___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_Meta_rewrite_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite___lambda__4___closed__2;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Core___hyg_179____closed__4;
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_rewrite(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
@@ -1727,7 +1727,7 @@ x_26 = lean_ctor_get(x_22, 1);
 lean_inc(x_26);
 lean_dec(x_22);
 x_27 = l_Lean_mkAppN(x_1, x_24);
-x_28 = l_myMacro____x40_Init_Core___hyg_179____closed__4;
+x_28 = l_myMacro____x40_Init_Core___hyg_169____closed__4;
 x_29 = lean_unsigned_to_nat(2u);
 x_30 = l_Lean_Expr_isAppOfArity(x_26, x_28, x_29);
 if (x_30 == 0)

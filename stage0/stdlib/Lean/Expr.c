@@ -187,6 +187,7 @@ lean_object* l_Lean_Expr_bindingName_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_getAppArgs___closed__1;
 uint8_t l_Lean_Level_hasParam(lean_object*);
 lean_object* l_Lean_Expr_updateMData_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11836____closed__14;
 lean_object* l_Lean_Expr_updateApp_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mkAppRevRange(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateLet_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -209,7 +210,6 @@ lean_object* l_Lean_Expr_isNatLit_match__1(lean_object*);
 lean_object* l_Lean_Expr_mkDataForBinder___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_BinderInfo_hash___boxed(lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_mkAppRev___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1151____closed__27;
 lean_object* l_Lean_Expr_ctorName___boxed(lean_object*);
 lean_object* lean_expr_mk_forall(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_expr_instantiate(lean_object*, lean_object*);
@@ -279,6 +279,7 @@ uint8_t l_Lean_ExprStructEq_beq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ExprStructEq_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParams___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__7;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux_match__1(lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateSort_x21(lean_object*, lean_object*);
@@ -324,7 +325,6 @@ lean_object* l_Lean_Expr_isMData_match__1___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_Expr_etaExpandedStrict_x3f_match__1(lean_object*);
 lean_object* l_Lean_Expr_looseBVarRangeEx___boxed(lean_object*);
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_48____closed__7;
 lean_object* l_Lean_BinderInfo_beq_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_abstractRange___boxed(lean_object*, lean_object*, lean_object*);
@@ -366,6 +366,7 @@ lean_object* l_Lean_Expr_instBEqExpr___closed__1;
 lean_object* l_Lean_Expr_hasMVarEx___boxed(lean_object*);
 lean_object* l_Lean_mkAppRange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateForallE_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2534____closed__17;
 lean_object* l_Lean_Expr_updateLambdaE_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21___boxed(lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21___closed__1;
@@ -515,7 +516,6 @@ lean_object* l_Lean_Expr_isForall_match__1___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_Expr_bindingName_x21(lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21___boxed(lean_object*);
 lean_object* l_Lean_Expr_ctorName___closed__10;
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2546____closed__16;
 lean_object* l_Lean_Expr_constLevels_x21___closed__1;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_mkAppRev___spec__1(lean_object*, size_t, size_t, lean_object*);
@@ -741,7 +741,6 @@ lean_object* l_Lean_Expr_getRevArg_x21___closed__2;
 lean_object* l_Lean_Expr_updateForallE_x21___closed__1;
 lean_object* l_Lean_Expr_hasAnyFVar_visit(lean_object*, lean_object*);
 lean_object* lean_expr_update_const(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13146____closed__14;
 lean_object* l_Lean_Expr_appFn_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_updateSort_x21___closed__1;
 lean_object* l_Lean_Expr_isConst___boxed(lean_object*);
@@ -767,6 +766,7 @@ lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParam
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isBVar_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Expr_mkData(size_t, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1121____closed__27;
 lean_object* l_Lean_Expr_isProj_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_has_level_param(lean_object*);
 static lean_object* _init_l_Lean_instInhabitedLiteral___closed__1() {
@@ -3325,7 +3325,7 @@ return x_4;
 case 3:
 {
 lean_object* x_5; 
-x_5 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1151____closed__27;
+x_5 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1121____closed__27;
 return x_5;
 }
 case 4:
@@ -3337,7 +3337,7 @@ return x_6;
 case 5:
 {
 lean_object* x_7; 
-x_7 = l_myMacro____x40_Init_Notation___hyg_48____closed__7;
+x_7 = l_myMacro____x40_Init_Notation___hyg_38____closed__7;
 return x_7;
 }
 case 6:
@@ -5465,7 +5465,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_2546____closed__16;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_2534____closed__17;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -5486,7 +5486,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_13146____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_11836____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

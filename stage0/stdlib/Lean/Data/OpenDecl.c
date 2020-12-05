@@ -14,14 +14,13 @@
 extern "C" {
 #endif
 extern lean_object* l_Lean_Name_toString___closed__1;
-extern lean_object* l_termKind____x40_Init_Notation___hyg_11337____closed__2;
 lean_object* l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__2(lean_object*);
 lean_object* l_Lean_rootNamespace;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;
-extern lean_object* l_termKind____x40_Init_Notation___hyg_11337____closed__6;
 lean_object* l_List_beq___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
+extern lean_object* l_term_x5b___x2c_x5d___closed__11;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_rootNamespace___closed__1;
@@ -33,10 +32,11 @@ lean_object* l_Lean_OpenDecl_instInhabitedOpenDecl;
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl_match__1(lean_object*);
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl(lean_object*);
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_termKind____x40_Init_Notation___hyg_11337____closed__10;
+extern lean_object* l_term_x5b___x2c_x5d___closed__3;
 lean_object* l_List_toStringAux___at_Lean_OpenDecl_instToStringOpenDecl___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl___closed__1;
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl___closed__2;
+extern lean_object* l_term_x5b___x2c_x5d___closed__7;
 lean_object* l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1;
 uint8_t l_List_beq___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
@@ -168,7 +168,7 @@ lean_inc(x_5);
 lean_dec(x_2);
 x_6 = l_Lean_Name_toString___closed__1;
 x_7 = l_Lean_Name_toStringWithSep(x_6, x_4);
-x_8 = l_termKind____x40_Init_Notation___hyg_11337____closed__6;
+x_8 = l_term_x5b___x2c_x5d___closed__7;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
 x_10 = 0;
@@ -223,10 +223,10 @@ if (x_3 == 0)
 uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = 1;
 x_5 = l_List_toStringAux___at_Lean_OpenDecl_instToStringOpenDecl___spec__3(x_4, x_1);
-x_6 = l_termKind____x40_Init_Notation___hyg_11337____closed__2;
+x_6 = l_term_x5b___x2c_x5d___closed__3;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
-x_8 = l_termKind____x40_Init_Notation___hyg_11337____closed__10;
+x_8 = l_term_x5b___x2c_x5d___closed__11;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -243,10 +243,10 @@ lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
 x_13 = 1;
 x_14 = l_List_toStringAux___at_Lean_OpenDecl_instToStringOpenDecl___spec__3(x_13, x_12);
-x_15 = l_termKind____x40_Init_Notation___hyg_11337____closed__2;
+x_15 = l_term_x5b___x2c_x5d___closed__3;
 x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);
-x_17 = l_termKind____x40_Init_Notation___hyg_11337____closed__10;
+x_17 = l_term_x5b___x2c_x5d___closed__11;
 x_18 = lean_string_append(x_16, x_17);
 return x_18;
 }

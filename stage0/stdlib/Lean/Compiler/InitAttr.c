@@ -27,7 +27,6 @@ lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*,
 lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_isIOUnit_match__1(lean_object*);
 lean_object* l_Lean_builtinInitAttr;
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2546____closed__13;
 lean_object* l_List_toString___at_Lean_resolveGlobalConstNoOverload___spec__2(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
@@ -93,6 +92,7 @@ lean_object* l_Lean_registerInitAttrUnsafe___lambda__1(lean_object*, lean_object
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__10;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isIOUnitInitFnCore_match__1(lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2534____closed__4;
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__5;
 extern lean_object* l_Lean_instInhabitedAttributeImpl___closed__3;
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__7;
@@ -132,6 +132,7 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_registerInitAttrUnsafe___spec__11(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe_match__2(lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2534____closed__14;
 lean_object* l_IO_ofExcept___at_Lean_registerInitAttrUnsafe___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_538____closed__2;
 lean_object* l_Lean_registerInitAttrUnsafe_match__5___rarg(lean_object*, lean_object*);
@@ -164,7 +165,6 @@ lean_object* l_Array_qsort_sort___at_Lean_registerInitAttrUnsafe___spec__11___bo
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Array_qpartition_loop___at_Lean_registerInitAttrUnsafe___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isIOUnitInitFn___boxed(lean_object*, lean_object*);
-extern lean_object* l_termKind____x40_Init_System_IO___hyg_2504____closed__3;
 lean_object* l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_builtin_init_fn_name_for(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
@@ -227,7 +227,7 @@ x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
 x_12 = lean_ctor_get_usize(x_5, 2);
 lean_dec(x_5);
-x_13 = l_termKind____x40_Init_System_IO___hyg_2504____closed__3;
+x_13 = l_myMacro____x40_Init_System_IO___hyg_2534____closed__4;
 x_14 = lean_string_dec_eq(x_11, x_13);
 lean_dec(x_11);
 if (x_14 == 0)
@@ -318,7 +318,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get(x_3, 1);
-x_7 = l_termKind____x40_Init_System_IO___hyg_2504____closed__3;
+x_7 = l_myMacro____x40_Init_System_IO___hyg_2534____closed__4;
 x_8 = lean_string_dec_eq(x_6, x_7);
 if (x_8 == 0)
 {
@@ -396,7 +396,7 @@ x_8 = lean_ctor_get(x_4, 1);
 lean_inc(x_8);
 x_9 = lean_ctor_get_usize(x_4, 2);
 lean_dec(x_4);
-x_10 = l_myMacro____x40_Init_System_IO___hyg_2546____closed__13;
+x_10 = l_myMacro____x40_Init_System_IO___hyg_2534____closed__14;
 x_11 = lean_string_dec_eq(x_8, x_10);
 lean_dec(x_8);
 if (x_11 == 0)
@@ -469,7 +469,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_myMacro____x40_Init_System_IO___hyg_2546____closed__13;
+x_5 = l_myMacro____x40_Init_System_IO___hyg_2534____closed__14;
 x_6 = lean_string_dec_eq(x_4, x_5);
 return x_6;
 }

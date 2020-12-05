@@ -53,7 +53,7 @@ protected def normalize : JsonNumber → Int × Nat × Int
           mAbs := mAbs / 10
         else
           break
-      (sign, mAbs, -e + nDigits)
+      (sign, mAbs, -(e : Int) + nDigits)
 
 def lt (a b : JsonNumber) : Bool :=
   let (as, am, ae) := a.normalize
@@ -98,7 +98,7 @@ protected def toString : JsonNumber → String
     -- this is mostly done for memory usage reasons:
     -- the size of the representation would otherwise
     -- grow exponentially in the value of exponent.
-    let exp : Int := 9 + countDigits m - e
+    let exp : Int := 9 + countDigits m - (e : Int)
     let exp := if exp < 0 then exp else 0
     let e' := (10 : Int) ^ (e - exp.natAbs)
     let left := (m / e').repr

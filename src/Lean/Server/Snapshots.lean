@@ -87,8 +87,11 @@ private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
 without elaborating it. -/
 def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
   let inputCtx := Parser.mkInputContext contents "<input>"
+  let cmdState := snap.toCmdState
+  let scope := cmdState.scopes.head!
+  let pmctx := { env := cmdState.env, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, _, _) :=
-    Parser.parseCommand snap.env inputCtx snap.mpState snap.msgLog
+    Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   cmdStx
 
 /-- Compiles the next command occurring after the given snapshot.

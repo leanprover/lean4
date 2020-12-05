@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
 import Lean.Meta.DiscrTree
 import Lean.Meta.LevelDefEq
@@ -13,6 +14,9 @@ structure UnificationHintEntry where
   keys        : Array DiscrTree.Key
   val         : Name
 
+instance : Inhabited UnificationHintEntry where
+  default := { keys := #[], val := arbitrary }
+
 structure UnificationHints where
   discrTree       : DiscrTree Name := DiscrTree.empty
 
@@ -22,11 +26,14 @@ instance : Inhabited UnificationHints where
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
   { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
 
-builtin_initialize unificationHintExtension : SimplePersistentEnvExtension UnificationHintEntry UnificationHints ←
-  registerSimplePersistentEnvExtension {
+builtin_initialize unificationHintExtension : ScopedEnvExtension UnificationHintEntry UnificationHintEntry UnificationHints ←
+  registerScopedEnvExtension {
     name          := `unifHints
-    addEntryFn    := UnificationHints.add
-    addImportedFn := fun es => (mkStateFromImportedEntries UnificationHints.add {} es)
+    mkInitial     := return {}
+    addEntry      := UnificationHints.add
+    toOLeanEntry  := id
+    ofOLeanEntry  := fun s a => return a
+    eraseEntry    := fun s _ => s
   }
 
 structure UnificationConstraint where
@@ -62,7 +69,7 @@ private partial def validateHint (declName : Name) (hint : UnificationHint) : Me
   unless (← isDefEq hint.pattern.lhs hint.pattern.rhs) do
     throwError! "invalid unification hint, failed to unify pattern left-hand-side{indentExpr hint.pattern.lhs}\nwith right-hand-side{indentExpr hint.pattern.rhs}"
 
-def addUnificationHint (declName : Name) : MetaM Unit := do
+def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit := do
   let info ← getConstInfo declName
   match info.value? with
   | none => throwError! "invalid unification hint, it must be a definition"
@@ -73,7 +80,7 @@ def addUnificationHint (declName : Name) : MetaM Unit := do
     | Except.ok hint =>
       validateHint declName hint
       let keys ← DiscrTree.mkPath hint.pattern.lhs
-      modifyEnv fun env => unificationHintExtension.addEntry env { keys := keys, val := declName }
+      unificationHintExtension.add { keys := keys, val := declName } kind
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -81,8 +88,7 @@ builtin_initialize
     descr := "unification hint"
     add   := fun declName args kind => do
       if args.hasArgs then throwError "invalid attribute 'unificationHint', unexpected argument"
-      unless kind == AttributeKind.global do throwError "invalid attribute 'unificationHint', must be global"
-      addUnificationHint declName |>.run
+      addUnificationHint declName kind |>.run
       pure ()
   }
 

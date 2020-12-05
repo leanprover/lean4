@@ -296,6 +296,7 @@ extern lean_object* l_Lean_Elab_Term_mkExplicitBinder___closed__5;
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__3___closed__7;
 lean_object* l_Lean_Elab_Term_Quotation_antiquotKind_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabMatchSyntax(lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__41;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_11836____closed__17;
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__14;
 lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -447,7 +448,6 @@ lean_object* l_List_filterAux___at___private_Lean_Elab_Quotation_0__Lean_Elab_Te
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___closed__33;
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1121____closed__33;
 lean_object* l_Lean_Elab_Term_Quotation_mkAntiquotNode___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
@@ -9167,7 +9167,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_elabLevelQuot_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1121____closed__33;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__41;
 x_2 = l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

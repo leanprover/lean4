@@ -34,7 +34,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Elab_elabModifiers_match__2___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Modifiers_isProtected(lean_object*);
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1121____closed__2;
 lean_object* l_Lean_Elab_mkDeclName(lean_object*);
 lean_object* l_Lean_withRef___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__18;
@@ -129,9 +128,11 @@ lean_object* l_Lean_Elab_elabModifiers___rarg(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Elab_elabModifiers(lean_object*);
 lean_object* l_Lean_Elab_mkDeclName___rarg___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isMissing(lean_object*);
+extern lean_object* l_Lean_commandScopedLocalUnif__hint______Where___x7c_x2d_u22a2_____closed__5;
 uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Modifiers_isProtected_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_commandScopedLocalUnif__hint______Where___x7c_x2d_u22a2_____closed__3;
 lean_object* l_Lean_Elab_Modifiers_isProtected___boxed(lean_object*);
 lean_object* l_Lean_Elab_mkDeclName___rarg___lambda__1___closed__2;
 lean_object* l_Lean_Elab_expandDeclId_match__2___rarg(lean_object*, lean_object*);
@@ -139,7 +140,6 @@ lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1(lean_object*
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_getSepArgs___spec__1(lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_expandDeclIdCore___boxed(lean_object*);
-extern lean_object* l_Lean_Elab_instToFormatAttribute___closed__4;
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__4;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -149,7 +149,6 @@ lean_object* l_Lean_Elab_instToFormatModifiers_match__1(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Elab_mkDeclName___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_instToFormatAttribute___closed__5;
 lean_object* l_Lean_Elab_expandDeclId___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Modifiers_isPrivate___boxed(lean_object*);
 extern lean_object* l_Lean_Elab_instToFormatAttribute___closed__2;
@@ -168,6 +167,7 @@ lean_object* l_List_map___at_Lean_Elab_instToFormatModifiers___spec__2(lean_obje
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Lean_Elab_instToFormatModifiers(lean_object*);
 extern lean_object* l_Lean_Elab_instToFormatAttribute___closed__3;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__2;
 lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(lean_object*);
 lean_object* l_Lean_Elab_Modifiers_addAttribute(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -1027,14 +1027,14 @@ goto block_41;
 case 1:
 {
 lean_object* x_43; 
-x_43 = l_Lean_Elab_instToFormatAttribute___closed__4;
+x_43 = l_Lean_commandScopedLocalUnif__hint______Where___x7c_x2d_u22a2_____closed__5;
 x_7 = x_43;
 goto block_41;
 }
 default: 
 {
 lean_object* x_44; 
-x_44 = l_Lean_Elab_instToFormatAttribute___closed__5;
+x_44 = l_Lean_commandScopedLocalUnif__hint______Where___x7c_x2d_u22a2_____closed__3;
 x_7 = x_44;
 goto block_41;
 }
@@ -2164,7 +2164,7 @@ static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1121____closed__2;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__2;
 x_2 = l_Lean_Elab_instToStringVisibility___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -2174,7 +2174,7 @@ static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1121____closed__2;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1135____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

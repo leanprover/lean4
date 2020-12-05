@@ -81,7 +81,6 @@ extern lean_object* l_termKind____x40_Init_Data_ToString_Macro___hyg_2____closed
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_scientificLit_formatter(lean_object*);
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____lambda__1___closed__1;
 extern lean_object* l_Lean_Parser_nameLit;
-extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2500____closed__10;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_charLit_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__22;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_strLit_formatter(lean_object*);
@@ -137,6 +136,7 @@ extern lean_object* l_Lean_Parser_instAndThenParser___closed__1;
 extern lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_977____closed__12;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_scientificLit_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__34;
+extern lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2508____closed__10;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__21;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__38;
 lean_object* l_Lean_PrettyPrinter_Formatter_mkAntiquot_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -688,7 +688,7 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41;
 x_38 = lean_ctor_get(x_37, 1);
 lean_inc(x_38);
 lean_dec(x_37);
-x_39 = l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2500____closed__10;
+x_39 = l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_2508____closed__10;
 x_40 = l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__16;
 x_41 = l_Lean_Parser_registerAliasCore___rarg(x_2, x_39, x_40, x_38);
 if (lean_obj_tag(x_41) == 0)

@@ -310,7 +310,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Do_ToCodeBlock_doTryT
 lean_object* l_Lean_Elab_Term_Do_ToTerm_mkNestedKind_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTerm(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_pullExitPointsAux___lambda__1___closed__2;
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_829____closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_10797____closed__20;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Term_Do_extendUpdatedVarsAux_update___spec__3(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Elab_Term_Do_eraseOptVar(lean_object*, lean_object*);
@@ -1151,6 +1150,7 @@ lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_extractBind___closed__1;
 lean_object* l_Lean_Elab_Term_Do_ToTerm_seqToTermCore___closed__6;
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__2___closed__5;
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_tryCatchPred(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_893____closed__1;
 lean_object* l_Lean_Elab_Term_Do_pullExitPoints_match__1(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__2___closed__3;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_11188____closed__4;
@@ -48000,7 +48000,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_elabDo___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_829____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_893____closed__1;
 x_2 = l___private_Lean_Elab_Do_0__Lean_Elab_Term_liftMethodDelimiter___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

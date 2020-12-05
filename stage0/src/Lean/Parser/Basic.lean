@@ -1623,8 +1623,13 @@ def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
   info := orelseInfo antiquotP.info p.info
 }
 
+def withoutInfo (p : Parser) : Parser :=
+  { fn := p.fn }
+
 def mkAntiquotScope (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
   let kind := kind ++ `antiquot_scope
+  -- prevent `p`'s info from being collected twice, since it should also be in use outside of the antiquot scope
+  let p := withoutInfo p
   leadingNode kind maxPrec $ atomic $
     setExpected [] "$" >>
     manyNoAntiquot (checkNoWsBefore "" >> "$") >>

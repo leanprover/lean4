@@ -162,7 +162,6 @@ lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_FunBinders_elabFunB
 lean_object* l___regBuiltin_Lean_Elab_Term_elabArrow(lean_object*);
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderModifier___closed__10;
 lean_object* l_Lean_Meta_isExprDefEq___at_Lean_Elab_Term_elabLetDeclAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_829____closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_10797____closed__20;
 lean_object* l_Lean_Elab_Term_elabLetDeclAux___lambda__2___closed__1;
 lean_object* l_Lean_Elab_Term_mkLetRec___boxed(lean_object*, lean_object*, lean_object*);
@@ -506,6 +505,7 @@ lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_elabBinderViews___r
 lean_object* l_Lean_mkFreshId___at___private_Lean_Elab_Binders_0__Lean_Elab_Term_FunBinders_elabFunBinderViews___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_matchBinder___closed__1;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabLetDecl___closed__1;
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_893____closed__1;
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_matchBinder___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_FunBinders_propagateExpectedType_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabLetDeclCore___closed__5;
@@ -2112,7 +2112,7 @@ static lean_object* _init_l_Lean_Elab_Term_declareTacticSyntax___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_829____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_893____closed__1;
 x_2 = l_Lean_Expr_getAutoParamTactic_x3f___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -19494,7 +19494,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabLetDeclAux___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_829____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_893____closed__1;
 x_2 = l_myMacro____x40_Init_Notation___hyg_13800____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

@@ -159,6 +159,20 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
     [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (x : Macro) (stx : Syntax) : m Syntax :=
   liftMacroM (x stx)
 
+partial def mkUnusedBaseName [Monad m] [MonadEnv m] [MonadResolveName m] (baseName : Name) : m Name := do
+  let currNamespace ← getCurrNamespace
+  let env ← getEnv
+  if env.contains (currNamespace ++ baseName) then
+    let rec loop (idx : Nat) :=
+       let name := baseName.appendIndexAfter idx
+       if env.contains (currNamespace ++ name) then
+         loop (idx+1)
+       else
+         name
+    return loop 1
+  else
+    return baseName
+
 builtin_initialize
   registerTraceClass `Elab
   registerTraceClass `Elab.step

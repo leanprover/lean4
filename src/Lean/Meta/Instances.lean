@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.ScopedEnvExtension
 import Lean.Meta.DiscrTree
 
 namespace Lean.Meta
@@ -11,6 +12,9 @@ structure InstanceEntry where
   keys        : Array DiscrTree.Key
   val         : Expr
   globalName? : Option Name := none
+
+instance : Inhabited InstanceEntry where
+  default := { keys := #[], val := arbitrary }
 
 structure Instances where
   discrTree       : DiscrTree Expr := DiscrTree.empty
@@ -27,11 +31,14 @@ def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances := {
       | none   => d.globalInstances
 }
 
-builtin_initialize instanceExtension : SimplePersistentEnvExtension InstanceEntry Instances ←
-  registerSimplePersistentEnvExtension {
+builtin_initialize instanceExtension : ScopedEnvExtension InstanceEntry InstanceEntry Instances ←
+  registerScopedEnvExtension {
     name          := `instanceExt,
-    addEntryFn    := addInstanceEntry,
-    addImportedFn := fun es => (mkStateFromImportedEntries addInstanceEntry {} es)
+    mkInitial     := return {}
+    addEntry      := addInstanceEntry
+    toOLeanEntry  := id
+    ofOLeanEntry  := fun s a => return a
+    eraseEntry    := fun s _ => s
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
@@ -40,28 +47,20 @@ private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
     let (_, _, type) ← forallMetaTelescopeReducing type
     DiscrTree.mkPath type
 
-@[export lean_add_instance]
-def addGlobalInstanceImp (env : Environment) (constName : Name) : IO Environment := do
-  match env.find? constName with
-  | none => throw <| IO.userError s!"unknown constant '{constName}'"
-  | some cinfo =>
-    let c := mkConst constName (cinfo.lparams.map mkLevelParam)
-    let (keys, s, _) ← (mkInstanceKey c).toIO {} { env := env } {} {}
-    return instanceExtension.addEntry s.env { keys := keys, val := c, globalName? := constName }
-
-def addGlobalInstance [Monad m] [MonadEnv m] [MonadLiftT IO m] (declName : Name) : m Unit := do
-  let env ← getEnv
-  let env ← Meta.addGlobalInstanceImp env declName
-  setEnv env
+def addInstance (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+  let cinfo ← getConstInfo declName
+  let c := mkConst declName (cinfo.lparams.map mkLevelParam)
+  let keys ← mkInstanceKey c
+  instanceExtension.add { keys := keys, val := c, globalName? := declName } attrKind
 
 builtin_initialize
   registerBuiltinAttribute {
     name  := `instance
     descr := "type class instance"
-    add   := fun declName args kind => do
+    add   := fun declName args attrKind => do
       if args.hasArgs then throwError "invalid attribute 'instance', unexpected argument"
-      unless kind == AttributeKind.global do throwError "invalid attribute 'instance', must be global"
-      addGlobalInstance declName
+      addInstance declName attrKind |>.run {} {}
+      return ()
   }
 
 @[export lean_is_instance]

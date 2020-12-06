@@ -489,7 +489,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
           pure (info.isSubobject && decl.binderInfo.isInstImplicit)
         let projInstances := instParents.toList.map fun info => info.declName
         Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
-        projInstances.forM addGlobalInstance
+        projInstances.forM fun declName => addInstance declName AttributeKind.global
         let lctx ← getLCtx
         let fieldsWithDefault := fieldInfos.filter fun info => info.value?.isSome
         let defaultAuxDecls ← fieldsWithDefault.mapM fun info => do

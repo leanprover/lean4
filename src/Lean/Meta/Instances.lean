@@ -31,13 +31,11 @@ def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances := {
       | none   => d.globalInstances
 }
 
-builtin_initialize instanceExtension : ScopedEnvExtension InstanceEntry InstanceEntry Instances ←
-  registerScopedEnvExtension {
-    name          := `instanceExt,
-    mkInitial     := return {}
-    addEntry      := addInstanceEntry
-    toOLeanEntry  := id
-    ofOLeanEntry  := fun s a => return a
+builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
+  registerSimpleScopedEnvExtension {
+    name     := `instanceExt
+    initial  := {}
+    addEntry := addInstanceEntry
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
@@ -93,8 +91,8 @@ def addDefaultInstanceEntry (d : DefaultInstances) (e : DefaultInstanceEntry) : 
 
 builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension DefaultInstanceEntry DefaultInstances ←
   registerSimplePersistentEnvExtension {
-    name          := `defaultInstanceExt,
-    addEntryFn    := addDefaultInstanceEntry,
+    name          := `defaultInstanceExt
+    addEntryFn    := addDefaultInstanceEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addDefaultInstanceEntry {} es)
   }
 

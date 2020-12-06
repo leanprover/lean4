@@ -192,4 +192,20 @@ def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (name
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv (ext.activateScoped · namespaceName)
 
+abbrev SimpleScopedEnvExtension (α : Type) (σ : Type) := ScopedEnvExtension α α σ
+
+structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
+  name           : Name
+  addEntry       : σ → α → σ
+  initial        : σ
+
+def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
+  registerScopedEnvExtension {
+    name          := descr.name
+    mkInitial     := return descr.initial
+    addEntry      := descr.addEntry
+    toOLeanEntry  := id
+    ofOLeanEntry  := fun s a => return a
+  }
+
 end Lean

@@ -26,13 +26,11 @@ instance : Inhabited UnificationHints where
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
   { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
 
-builtin_initialize unificationHintExtension : ScopedEnvExtension UnificationHintEntry UnificationHintEntry UnificationHints ←
-  registerScopedEnvExtension {
-    name          := `unifHints
-    mkInitial     := return {}
-    addEntry      := UnificationHints.add
-    toOLeanEntry  := id
-    ofOLeanEntry  := fun s a => return a
+builtin_initialize unificationHintExtension : SimpleScopedEnvExtension UnificationHintEntry UnificationHints ←
+  registerSimpleScopedEnvExtension {
+    name     := `unifHints
+    addEntry := UnificationHints.add
+    initial  := {}
   }
 
 structure UnificationConstraint where

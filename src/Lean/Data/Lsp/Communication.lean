@@ -15,8 +15,6 @@ open Lean
 open Lean.JsonRpc
 
 section
-  variables (h : FS.Stream) (expectedMethod : String) (α) [FromJson α]
-
   private def parseHeaderField (s : String) : Option (String × String) := do
     guard $ s ≠ "" ∧ s.takeRight 2 = "\r\n"
     let xs := (s.dropRight 2).splitOn ": "
@@ -27,19 +25,19 @@ section
       let value := ": ".intercalate (value :: rest)
       some ⟨name, value⟩
 
-  private partial def readHeaderFields : IO (List (String × String)) := do
+  private partial def readHeaderFields (h : FS.Stream) : IO (List (String × String)) := do
     let l ← h.getLine
     if l = "\r\n" then
       pure []
     else
       match parseHeaderField l with
       | some hf =>
-        let tail ← readHeaderFields
+        let tail ← readHeaderFields h
         pure (hf :: tail)
       | none => throw $ userError ("Invalid header field: " ++ l)
 
   /-- Returns the Content-Length. -/
-  private def readLspHeader : IO Nat := do
+  private def readLspHeader (h : FS.Stream) : IO Nat := do
     let fields ← readHeaderFields h
     match fields.lookup "Content-Length" with
     | some length => match length.toNat? with
@@ -47,21 +45,21 @@ section
       | none   => throw $ userError ("Content-Length header value '" ++ length ++ "' is not a Nat")
     | none => throw $ userError ("No Content-Length header in header fields: " ++ toString fields)
 
-  def readLspMessage : IO Message := do
+  def readLspMessage (h : FS.Stream) : IO Message := do
     let nBytes ← readLspHeader h
     h.readMessage nBytes
 
-  def readLspRequestAs : IO (Request α) := do
+  def readLspRequestAs (h : FS.Stream) (expectedMethod : String) (α) [FromJson α] : IO (Request α) := do
     let nBytes ← readLspHeader h
     h.readRequestAs nBytes expectedMethod α
 
-  def readLspNotificationAs : IO (Notification α) := do
+  def readLspNotificationAs (h : FS.Stream) (expectedMethod : String) (α) [FromJson α] : IO (Notification α) := do
     let nBytes ← readLspHeader h
     h.readNotificationAs nBytes expectedMethod α
 end
 
 section
-  variables [ToJson α] (h : FS.Stream)
+  variable [ToJson α] 
 
   def writeLspMessage (h : FS.Stream) (msg : Message) : IO Unit := do
     -- inlined implementation instead of using jsonrpc's writeMessage
@@ -71,19 +69,19 @@ section
     h.putStr (header ++ j)
     h.flush
 
-  def writeLspRequest (r : Request α): IO Unit :=
+  def writeLspRequest (h : FS.Stream) (r : Request α): IO Unit :=
     h.writeLspMessage r
 
-  def writeLspNotification (n : Notification α) : IO Unit :=
+  def writeLspNotification (h : FS.Stream) (n : Notification α) : IO Unit :=
     h.writeLspMessage n
 
-  def writeLspResponse (r : Response α) : IO Unit :=
+  def writeLspResponse (h : FS.Stream) (r : Response α) : IO Unit :=
     h.writeLspMessage r
 
-  def writeLspResponseError (e : ResponseError Unit) : IO Unit :=
+  def writeLspResponseError (h : FS.Stream) (e : ResponseError Unit) : IO Unit :=
     h.writeLspMessage (Message.responseError e.id e.code e.message none)
 
-  def writeLspResponseErrorWithData (e : ResponseError α) : IO Unit :=
+  def writeLspResponseErrorWithData (h : FS.Stream) (e : ResponseError α) : IO Unit :=
     h.writeLspMessage e
 end
 

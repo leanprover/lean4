@@ -188,15 +188,13 @@ open Lean
 open Lean.JsonRpc
 
 section
-  variables (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α) [FromJson α]
-
-  def readMessage : IO Message := do
+  def readMessage (h : FS.Stream) (nBytes : Nat) : IO Message := do
     let j ← h.readJson nBytes
     match fromJson? j with
     | some m => pure m
     | none   => throw $ userError ("JSON '" ++ j.compress ++ "' did not have the format of a JSON-RPC message")
 
-  def readRequestAs : IO (Request α) := do
+  def readRequestAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α) [FromJson α] : IO (Request α) := do
     let m ← h.readMessage nBytes
     match m with
     | Message.request id method params? =>
@@ -212,7 +210,7 @@ section
         throw $ userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'")
     | _ => throw $ userError "expected request, got other type of message"
 
-  def readNotificationAs : IO (Notification α) := do
+  def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α) [FromJson α] : IO (Notification α) := do
     let m ← h.readMessage nBytes
     match m with
     | Message.notification method params? =>
@@ -230,24 +228,24 @@ section
 end
 
 section
-  variables [ToJson α] (h : FS.Stream)
+  variable [ToJson α] 
 
-  def writeMessage (m : Message) : IO Unit :=
+  def writeMessage (h : FS.Stream) (m : Message) : IO Unit :=
     h.writeJson (toJson m)
 
-  def writeRequest (r : Request α) : IO Unit :=
+  def writeRequest (h : FS.Stream) (r : Request α) : IO Unit :=
     h.writeMessage r
 
-  def writeNotification (n : Notification α) : IO Unit :=
+  def writeNotification (h : FS.Stream) (n : Notification α) : IO Unit :=
     h.writeMessage n
 
-  def writeResponse (r : Response α) : IO Unit :=
+  def writeResponse (h : FS.Stream) (r : Response α) : IO Unit :=
     h.writeMessage r
 
-  def writeResponseError (e : ResponseError Unit) : IO Unit :=
+  def writeResponseError (h : FS.Stream) (e : ResponseError Unit) : IO Unit :=
     h.writeMessage (Message.responseError e.id e.code e.message none)
 
-  def writeResponseErrorWithData (e : ResponseError α) : IO Unit :=
+  def writeResponseErrorWithData (h : FS.Stream) (e : ResponseError α) : IO Unit :=
     h.writeMessage e
 end
 

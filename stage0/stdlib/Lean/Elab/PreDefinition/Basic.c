@@ -21,6 +21,7 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Basic
 extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_fixLevelParams___spec__4(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Elab_addAsAxiom(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_map___at_Lean_Meta_addInstance___spec__1(lean_object*);
 lean_object* l_Lean_addDecl___at_Lean_Elab_Term_declareTacticSyntax___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_instantiateMVarsAtPreDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -103,7 +104,6 @@ lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_levelMVarToP
 size_t lean_ptr_addr(lean_object*);
 lean_object* l_Lean_Elab_fixLevelParams_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_CollectLevelParams_instInhabitedState___closed__1;
-lean_object* l_List_map___at_Lean_Meta_addGlobalInstanceImp___spec__1(lean_object*);
 lean_object* l_Lean_Meta_abstractNestedProofs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addNonRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addAsAxiom___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2998,7 +2998,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
-x_15 = l_List_map___at_Lean_Meta_addGlobalInstanceImp___spec__1(x_14);
+x_15 = l_List_map___at_Lean_Meta_addInstance___spec__1(x_14);
 x_16 = lean_array_get_size(x_11);
 x_17 = lean_usize_of_nat(x_16);
 lean_dec(x_16);
@@ -3020,7 +3020,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_12);
 lean_inc(x_22);
-x_24 = l_List_map___at_Lean_Meta_addGlobalInstanceImp___spec__1(x_22);
+x_24 = l_List_map___at_Lean_Meta_addInstance___spec__1(x_22);
 x_25 = lean_array_get_size(x_11);
 x_26 = lean_usize_of_nat(x_25);
 lean_dec(x_25);

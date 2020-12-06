@@ -135,17 +135,18 @@ def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   }
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
-  -- parser! "instance " >> optional declId >> declSig >> declVal
-  let (binders, type) := expandDeclSig (stx.getArg 2)
-  let modifiers       := modifiers.addAttribute { name := `instance }
-  let declId ← match (stx.getArg 1).getOptional? with
+  -- parser! attrKind >> "instance " >> optional declId >> declSig >> declVal
+  let attrKind        := toAttributeKind stx[0]
+  let (binders, type) := expandDeclSig stx[3]
+  let modifiers       := modifiers.addAttribute { kind := attrKind, name := `instance }
+  let declId ← match stx[2].getOptional? with
     | some declId => pure declId
     | none        =>
       let id ← MkInstanceName.main type
       pure <| Syntax.node `Lean.Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
   return {
     ref := stx, kind := DefKind.def, modifiers := modifiers,
-    declId := declId, binders := binders, type? := type, value := stx.getArg 3
+    declId := declId, binders := binders, type? := type, value := stx[4]
   }
 
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=

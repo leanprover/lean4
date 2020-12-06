@@ -1,0 +1,15 @@
+scopedLocalInsts.lean:12:6: error: failed to synthesize instance
+  ToString A
+scopedLocalInsts.lean:12:0: error: failed to synthesize
+  Lean.Eval ?m
+"A.mk 10 20"
+scopedLocalInsts.lean:21:6: error: failed to synthesize instance
+  ToString A
+scopedLocalInsts.lean:21:0: error: failed to synthesize
+  Lean.Eval ?m
+"{ x := 10, y := 20 }"
+scopedLocalInsts.lean:32:6: error: failed to synthesize instance
+  ToString A
+scopedLocalInsts.lean:32:0: error: failed to synthesize
+  Lean.Eval ?m
+"A.mk 10 20"

@@ -36,7 +36,6 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   ofOLeanEntry   : σ → α → ImportM β
   toOLeanEntry   : β → α
   addEntry       : σ → β → σ
-  eraseEntry     : σ → β → σ
 
 instance [Inhabited α] : Inhabited (Descr α β σ) where
   default := {
@@ -45,7 +44,6 @@ instance [Inhabited α] : Inhabited (Descr α β σ) where
     ofOLeanEntry := arbitrary
     toOLeanEntry := arbitrary
     addEntry     := fun s _ => s
-    eraseEntry   := fun s _ => s
   }
 
 def mkInitial (descr : Descr α β σ) : IO (StateStack α β σ) :=
@@ -161,14 +159,6 @@ def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β �
   match ext.ext.getState env |>.stateStack with
   | top :: _ => top.state
   | _        => unreachable!
-
-def ScopedEnvExtension.eraseEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
-  let s := ext.ext.getState env
-  match s.stateStack with
-  | top :: stack =>
-    let top := { top with state := ext.descr.eraseEntry top.state b }
-    ext.ext.setState env { s with stateStack := top :: stack }
-  | _ => env
 
 def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment :=
   let s := ext.ext.getState env

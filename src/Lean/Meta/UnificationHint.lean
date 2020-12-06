@@ -33,7 +33,6 @@ builtin_initialize unificationHintExtension : ScopedEnvExtension UnificationHint
     addEntry      := UnificationHints.add
     toOLeanEntry  := id
     ofOLeanEntry  := fun s a => return a
-    eraseEntry    := fun s _ => s
   }
 
 structure UnificationConstraint where

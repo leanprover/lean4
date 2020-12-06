@@ -38,7 +38,6 @@ builtin_initialize instanceExtension : ScopedEnvExtension InstanceEntry Instance
     addEntry      := addInstanceEntry
     toOLeanEntry  := id
     ofOLeanEntry  := fun s a => return a
-    eraseEntry    := fun s _ => s
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do

@@ -336,7 +336,6 @@ builtin_initialize parserExtension : ParserExtension ←
     addEntry        := ParserExtension.addEntryImpl
     toOLeanEntry    := ParserExtension.Entry.toOLeanEntry
     ofOLeanEntry    := ParserExtension.OLeanEntry.toEntry
-    eraseEntry      := fun s _ => s
   }
 
 def isParserCategory (env : Environment) (catName : Name) : Bool :=

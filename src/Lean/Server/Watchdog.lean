@@ -74,23 +74,23 @@ section Utils
   def workerCfg : Process.StdioConfig := { 
     stdin  := Process.Stdio.piped
     stdout := Process.Stdio.piped
-    /- We pass workers' stderr through to the editor. -/
+    -- We pass workers' stderr through to the editor.
     stderr := Process.Stdio.inherit
   }
 
-  -- Events that a forwarding task of a worker signals to the main task
+  /-- Events that a forwarding task of a worker signals to the main task -/
   inductive WorkerEvent where
     | terminated
     | crashed (e : IO.Error)
 
   inductive WorkerState where
-    -- The watchdog can detect a crashed file worker in two places: When trying to send a message to the file worker
-    -- and when reading a request reply.
-    -- In the latter case, the forwarding task terminates and delegates a `crashed` event to the main task.
-    -- Then, in both cases, the file worker has its state set to `crashed` and requests that are in-flight are errored.
-    -- Upon receiving the next packet for that file worker, the file worker is restarted and the packet is forwarded
-    -- to it. If the crash was detected while writing a packet, we queue that packet until the next packet for the file
-    -- worker arrives.
+    /- The watchdog can detect a crashed file worker in two places: When trying to send a message to the file worker
+       and when reading a request reply.
+       In the latter case, the forwarding task terminates and delegates a `crashed` event to the main task.
+       Then, in both cases, the file worker has its state set to `crashed` and requests that are in-flight are errored.
+       Upon receiving the next packet for that file worker, the file worker is restarted and the packet is forwarded
+       to it. If the crash was detected while writing a packet, we queue that packet until the next packet for the file
+       worker arrives. -/
     | crashed (queuedMsgs : Array JsonRpc.Message)
     | running
 
@@ -108,7 +108,7 @@ section FileWorker
     proc               : Process.Child workerCfg
     commTask           : Task WorkerEvent
     state              : WorkerState
-    -- NOTE: this should not be mutated outside of namespace FileWorker
+    -- This should not be mutated outside of namespace FileWorker, as it is used as shared mutable state
     pendingRequestsRef : IO.Ref PendingRequestMap
 
   namespace FileWorker
@@ -153,7 +153,7 @@ section ServerM
   structure ServerContext where
     hIn hOut hLog  : FS.Stream
     fileWorkersRef : IO.Ref FileWorkerMap
-    /- We store these to pass them to workers. -/
+    -- We store these to pass them to workers.
     initParams     : InitializeParams
     workerPath     : String
 
@@ -182,19 +182,19 @@ section ServerM
     let rec loop : IO WorkerEvent := do
       try
         let msg ← fw.readMessage
-        -- NOTE: Writes to Lean I/O channels are atomic, so these won't trample on each other.
+        -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
         o.writeLspMessage msg
         loop
       catch err =>
-        -- NOTE: if writeLspMessage from above errors we will block here, but the main task will
+        -- If writeLspMessage from above errors we will block here, but the main task will
         -- quit eventually anyways if that happens
         let exitCode ← fw.proc.wait
         if exitCode = 0 then
-          -- worker was terminated
+          -- Worker was terminated
           fw.errorPendingRequests o ErrorCode.contentModified "File header changed or file was closed"
           return WorkerEvent.terminated
         else
-          -- worker crashed
+          -- Worker crashed
           fw.errorPendingRequests o ErrorCode.internalError
             "Server process of file crashed, likely due to a stack overflow in user code"
           return WorkerEvent.crashed err
@@ -212,7 +212,7 @@ section ServerM
       args          := #["--worker"] 
     }
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
-    -- the task will never access itself, so this is fine
+    -- The task will never access itself, so this is fine
     let commTaskFw : FileWorker := {
       doc                := ⟨version, text, headerAst⟩
       proc               := workerProc
@@ -237,12 +237,12 @@ section ServerM
     updateFileWorkers uri fw
 
   def terminateFileWorker (uri : DocumentUri) : ServerM Unit := do
-    -- the file worker must have crashed just when we were about to terminate it!
-    -- that's fine - just forget about it then.
-    -- (on didClose we won't need the crashed file worker anymore,
-    -- when the header changed we'll start a new one right after
-    -- anyways and when we're shutting down the server
-    -- it's over either way.)
+    /- The file worker must have crashed just when we were about to terminate it!
+       That's fine - just forget about it then.
+       (on didClose we won't need the crashed file worker anymore,
+       when the header changed we'll start a new one right after
+       anyways and when we're shutting down the server
+       it's over either way.) -/
     try (←findFileWorker uri).writeMessage (Message.notification "exit" none)
     catch err => ()
     eraseFileWorker uri
@@ -250,14 +250,10 @@ section ServerM
   def handleCrash (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
     updateFileWorkers uri { ←findFileWorker uri with state := WorkerState.crashed queuedMsgs }
 
-  /- Crashes are dealt with in two steps: First, when the crash is detected, handleCrash
-     is called to mark the respective FileWorker as having crashed.
-     This can occur in two places: The forwarding task (while reading from the file worker)
-     and the main task (while trying to send packets to the file worker).
-     Then, when another message for that FileWorker is received, it is restarted. 
-     This way, we avoid crash loops.
-     Messages that couldn't be sent can be queued up via the queueFailedMessage flag and
-     will be discharged after the FileWorker is restarted. -/
+  /-- Tries to write a message, sets the state of the FileWorker to `crashed` if it does not succeed
+      and restarts the file worker if the `crashed` flag was already set.
+      Messages that couldn't be sent can be queued up via the queueFailedMessage flag and
+      will be discharged after the FileWorker is restarted. -/
   def tryWriteMessage [Coe α JsonRpc.Message] (uri : DocumentUri) (msg : α) (writeAction : FileWorker → α → IO Unit) 
   (queueFailedMessage := true) : ServerM Unit := do
     let fw ← findFileWorker uri
@@ -294,11 +290,11 @@ end ServerM
 section NotificationHandling
   def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit :=
     let doc := p.textDocument
-    -- NOTE(WN): `toFileMap` marks line beginnings as immediately following
-    -- "\n", which should be enough to handle both LF and CRLF correctly.
-    -- This is because LSP always refers to characters by (line, column),
-    -- so if we get the line number correct it shouldn't matter that there
-    -- is a CR there.
+    /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
+       "\n", which should be enough to handle both LF and CRLF correctly.
+       This is because LSP always refers to characters by (line, column),
+       so if we get the line number correct it shouldn't matter that there
+       is a CR there. -/
     startFileWorker doc.uri doc.version doc.text.toFileMap
 
   def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
@@ -315,9 +311,9 @@ section NotificationHandling
     let (newDocText, _) := foldDocumentChanges changes oldDoc.text
     let newHeaderAst ← parseHeaderAst newDocText.source
     if newHeaderAst != oldDoc.headerAst then
-      -- TODO(WN): we should amortize this somehow
-      -- when the user is typing in an import, this
-      -- may rapidly destroy/create new processes
+      /- TODO(WN): we should amortize this somehow
+         when the user is typing in an import, this
+         may rapidly destroy/create new processes -/
       terminateFileWorker doc.uri
       startFileWorker doc.uri newVersion newDocText
     else
@@ -378,7 +374,7 @@ section MainLoop
     let clientTask ← (←IO.asTask readMsg).map $ fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.ClientError e
-    clientTask
+    return clientTask
 
   partial def mainLoop (clientTask : Task ServerEvent) : ServerM Unit := do
     let st ← read

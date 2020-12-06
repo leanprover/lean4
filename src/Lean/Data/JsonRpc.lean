@@ -12,8 +12,7 @@ import Lean.Data.Json
 /-! Implementation of JSON-RPC 2.0 (https://www.jsonrpc.org/specification)
 for use in the LSP server. -/
 
-namespace Lean
-namespace JsonRpc
+namespace Lean.JsonRpc
 
 open Json
 open Std (RBNode)
@@ -179,8 +178,7 @@ instance : FromJson Message := ⟨fun j => do
       let data? := err.getObjVal? "data"
       pure (Message.responseError id code message data?))⟩
 
-end JsonRpc
-end Lean
+end Lean.JsonRpc
 
 namespace IO.FS.Stream
 

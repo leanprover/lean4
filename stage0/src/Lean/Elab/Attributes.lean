@@ -29,17 +29,22 @@ instance : Inhabited Attribute where
   attrKind := parser! optional («scoped» <|> «local»)
   ```
 -/
-def toAttributeKind (attrKindStx : Syntax) : AttributeKind :=
-  if attrKindStx[0].isNone then AttributeKind.global
-  else if attrKindStx[0][0].getKind == `Lean.Parser.Term.scoped then AttributeKind.scoped
-  else AttributeKind.local
+def toAttributeKind [Monad m] [MonadResolveName m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (attrKindStx : Syntax) : m AttributeKind := do
+  if attrKindStx[0].isNone then
+    return AttributeKind.global
+  else if attrKindStx[0][0].getKind == `Lean.Parser.Term.scoped then
+    if (← getCurrNamespace).isAnonymous then
+      throwError! "scoped attributes must be used inside namespaces"
+    return AttributeKind.scoped
+  else
+    return AttributeKind.local
 
 def mkAttrKindGlobal : Syntax :=
   Syntax.node `Lean.Parser.Term.attrKind #[mkNullNode]
 
-def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m Attribute := do
+def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m Attribute := do
   -- attrKind >> rawIdent >> many attrArg
-  let kind := toAttributeKind stx[0]
+  let attrKind ← toAttributeKind stx[0]
   let nameStx := stx[1]
   let attrName ← match nameStx.isIdOrAtom? with
     | none     => withRef nameStx $ throwError "identifier expected"
@@ -50,17 +55,19 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m]
   -- the old frontend passes Syntax.missing for empty args, for reasons
   if args.getNumArgs == 0 then
     args := Syntax.missing
-  pure { kind := kind, name := attrName, args := args }
+  pure { kind := attrKind, name := attrName, args := args }
 
 -- sepBy1 attrInstance ", "
-def elabAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) := do
+def elabAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax)
+    : m (Array Attribute) := do
   let mut attrs := #[]
   for attr in stx.getSepArgs do
     attrs := attrs.push (← elabAttr attr)
   return attrs
 
 -- parser! "@[" >> sepBy1 attrInstance ", " >> "]"
-def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax) : m (Array Attribute) :=
+def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (stx : Syntax)
+    : m (Array Attribute) :=
   elabAttrs stx[1]
 
 end Lean.Elab

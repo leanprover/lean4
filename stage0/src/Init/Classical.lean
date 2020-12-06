@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Core
+import Init.NotationExtra
 
 universes u v
 
@@ -14,21 +15,21 @@ namespace Classical
 
 axiom choice {α : Sort u} : Nonempty α → α
 
-noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : Exists (fun x => p x)) : {x // p x} :=
+noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : ∃ x, p x) : {x // p x} :=
   choice <| let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 
-noncomputable def choose {α : Sort u} {p : α → Prop} (h : Exists (fun x => p x)) : α :=
+noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
   (indefiniteDescription p h).val
 
-theorem chooseSpec {α : Sort u} {p : α → Prop} (h : Exists (fun x => p x)) : p (choose h) :=
+theorem chooseSpec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose h) :=
   (indefiniteDescription p h).property
 
 /- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
 theorem em (p : Prop) : p ∨ ¬p :=
   let U (x : Prop) : Prop := x = True ∨ p;
   let V (x : Prop) : Prop := x = False ∨ p;
-  have exU : Exists (fun x => U x) from ⟨True, Or.inl rfl⟩;
-  have exV : Exists (fun x => V x) from ⟨False, Or.inl rfl⟩;
+  have exU : ∃ x, U x from ⟨True, Or.inl rfl⟩;
+  have exV : ∃ x, V x from ⟨False, Or.inl rfl⟩;
   let u : Prop := choose exU;
   let v : Prop := choose exV;
   have uDef : U u from chooseSpec exU;
@@ -57,13 +58,13 @@ theorem em (p : Prop) : p ∨ ¬p :=
   | Or.inl hne => Or.inr (mt pImpliesUv hne)
   | Or.inr h   => Or.inl h
 
-theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → Exists (fun (x : α) => True)
+theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → ∃ x : α, True
   | ⟨x⟩ => ⟨x, trivial⟩
 
 noncomputable def inhabitedOfNonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
   ⟨choice h⟩
 
-noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : Exists (fun x => p x)) : Inhabited α :=
+noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : Inhabited α :=
   inhabitedOfNonempty (Exists.elim h (fun w hw => ⟨w⟩))
 
 /- all propositions are Decidable -/
@@ -83,10 +84,10 @@ noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
   | (isTrue hp)  => PSum.inl (@arbitrary _ (inhabitedOfNonempty hp))
   | (isFalse hn) => PSum.inr (fun a => absurd (Nonempty.intro a) hn)
 
-noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h : Nonempty α) : {x : α // Exists (fun (y : α) => p y) → p x} :=
-  @dite _ (Exists (fun (x : α) => p x)) (propDecidable _)
-    (fun (hp : Exists (fun (x : α) => p x)) =>
-      show {x : α // Exists (fun (y : α) => p y) → p x} from
+noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h : Nonempty α) : {x : α // (∃ y : α, p y) → p x} :=
+  @dite _ (∃ x : α, p x) (propDecidable _)
+    (fun (hp : ∃ x : α, p x) =>
+      show {x : α // (∃ y : α, p y) → p x} from
       let xp := indefiniteDescription _ hp;
       ⟨xp.val, fun h' => xp.property⟩)
     (fun hp => ⟨choice h, fun h => absurd h hp⟩)
@@ -96,10 +97,10 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h
 noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α :=
   (strongIndefiniteDescription p h).val
 
-theorem epsilonSpecAux {α : Sort u} (h : Nonempty α) (p : α → Prop) : Exists (fun y => p y) → p (@epsilon α h p) :=
+theorem epsilonSpecAux {α : Sort u} (h : Nonempty α) (p : α → Prop) : (∃ y, p y) → p (@epsilon α h p) :=
   (strongIndefiniteDescription p h).property
 
-theorem epsilonSpec {α : Sort u} {p : α → Prop} (hex : Exists (fun y => p y)) : p (@epsilon α (nonemptyOfExists hex) p) :=
+theorem epsilonSpec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@epsilon α (nonemptyOfExists hex) p) :=
   epsilonSpecAux (nonemptyOfExists hex) p hex
 
 theorem epsilonSingleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (fun y => y = x) = x :=
@@ -107,10 +108,10 @@ theorem epsilonSingleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (fun y => 
 
 /- the axiom of choice -/
 
-theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : ∀ x, β x → Prop} (h : ∀ x, Exists (fun y => r x y)) : Exists (fun (f : ∀ x, β x) => ∀ x, r x (f x)) :=
+theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : ∀ x, β x → Prop} (h : ∀ x, ∃ y, r x y) : ∃ (f : ∀ x, β x), ∀ x, r x (f x) :=
   ⟨_, fun x => chooseSpec (h x)⟩
 
-theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (∀ x, Exists (fun y => p x y)) ↔ Exists (fun (f : ∀ x, b x) => ∀ x, p x (f x)) :=
+theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (∀ x, ∃ y, p x y) ↔ ∃ (f : ∀ x, b x), ∀ x, p x (f x) :=
   ⟨axiomOfChoice, fun ⟨f, hw⟩ (x) => ⟨f x, hw x⟩⟩
 
 theorem propComplete (a : Prop) : a = True ∨ a = False := by

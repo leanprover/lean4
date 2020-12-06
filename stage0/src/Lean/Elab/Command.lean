@@ -539,6 +539,7 @@ open Meta
   withoutModifyingEnv $ runTermElabM (some `_check) $ fun _ => do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
+    let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
     let type ← inferType e
     logInfo m!"{e} : {type}"
 

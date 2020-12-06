@@ -1,0 +1,4 @@
+scopedInstanceOutsideNamespace.lean:1:0: error: scoped attributes must be used inside namespaces
+"true"
+scopedInstanceOutsideNamespace.lean:6:0: error: scoped attributes must be used inside namespaces
+scopedInstanceOutsideNamespace.lean:8:0: error: scoped attributes must be used inside namespaces

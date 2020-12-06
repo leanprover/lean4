@@ -263,7 +263,7 @@ def «syntax»      := parser! attrKind >> "syntax " >> optPrecedence >> optKind
 -/
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab := fun stx => do
   let env ← getEnv
-  let attrKind := toAttributeKind stx[0]
+  let attrKind ← toAttributeKind stx[0]
   let cat      := stx[6].getId.eraseMacroScopes
   unless (Parser.isParserCategory env cat) do
     throwErrorAt! stx[6] "unknown category '{cat}'"
@@ -303,7 +303,7 @@ def «syntax»      := parser! attrKind >> "syntax " >> optPrecedence >> optKind
       `(@[local $catParserId:ident $(quote prio):numLit] def $declName : Lean.ParserDescr :=
          ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
-  withMacroExpansion stx d $ elabCommand d
+  withMacroExpansion stx d <| elabCommand d
 
 /-
 def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
@@ -479,7 +479,7 @@ private def expandNotationAux (ref : Syntax)
 
 @[builtinCommandElab «notation»] def expandNotation : CommandElab :=
   adaptExpander fun stx => do
-    let attrKind := toAttributeKind stx[0]
+    let attrKind ← toAttributeKind stx[0]
     let stx := stx.setArg 0 mkAttrKindGlobal
     let currNamespace ← getCurrNamespace
     match_syntax stx with

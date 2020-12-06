@@ -136,7 +136,7 @@ def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- parser! attrKind >> "instance " >> optional declId >> declSig >> declVal
-  let attrKind        := toAttributeKind stx[0]
+  let attrKind        ← toAttributeKind stx[0]
   let (binders, type) := expandDeclSig stx[3]
   let modifiers       := modifiers.addAttribute { kind := attrKind, name := `instance }
   let declId ← match stx[2].getOptional? with

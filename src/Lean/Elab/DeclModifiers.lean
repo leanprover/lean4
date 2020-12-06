@@ -70,7 +70,7 @@ instance : ToString Modifiers := ⟨toString ∘ format⟩
 
 section Methods
 
-variables {m : Type → Type} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
+variables {m : Type → Type} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
 
 def elabModifiers (stx : Syntax) : m Modifiers := do
   let docCommentStx := stx[0]

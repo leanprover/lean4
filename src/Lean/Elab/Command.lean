@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.ResolveName
+import Lean.Meta.Reduce
 import Lean.Elab.Log
 import Lean.Elab.Term
 import Lean.Elab.Binders
@@ -542,6 +543,17 @@ open Meta
     let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
     let type ← inferType e
     logInfo m!"{e} : {type}"
+
+@[builtinCommandElab Lean.Parser.Command.reduce] def elabReduce : CommandElab := fun stx => do
+  let term := stx[1]
+  withoutModifyingEnv $ runTermElabM (some `_check) $ fun _ => do
+    let e ← Term.elabTerm term none
+    Term.synthesizeSyntheticMVarsNoPostponing
+    let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
+    -- TODO: add options or notation for setting the following parameters
+    withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
+      let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := false) (skipTypes := false)
+      logInfo e
 
 def hasNoErrorMessages : CommandElabM Bool := do
   return !(← get).messages.hasErrors

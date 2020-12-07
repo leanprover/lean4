@@ -46,6 +46,6 @@ fun (x : Array Nat) =>
   | #[] => 0
   | #[3, 4, 5] => 3
   | x_1 => 4 : Array Nat → Nat
-g.match_1 : (motive : List ?m → Sort _) →
+g.match_1 : (motive : List ?m → Sort u_2) →
   (x : List ?m) → ((a : ?m) → motive [a]) → ((x_1 : List ?m) → motive x_1) → motive x
-fun (e : Empty) => nomatch e : (e : Empty) → (fun (e_1 : Empty) => False) e
+fun (e : Empty) => nomatch e : Empty → False

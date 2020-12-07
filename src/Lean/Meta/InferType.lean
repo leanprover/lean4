@@ -6,7 +6,65 @@ Authors: Leonardo de Moura
 import Lean.Data.LBool
 import Lean.Meta.Basic
 
-namespace Lean.Meta
+namespace Lean
+
+/-
+Auxiliary function for instantiating the loose bound variables in `e` with `args[start:stop]`.
+This function is similar to `instantiateRevRange`, but it applies beta-reduction when
+we instantiate a bound variable with a lambda expression.
+Example: Given the term `#0 a`, and `start := 0, stop := 1, args := #[fun x => x]` the result is
+`a` instead of `(fun x => x) a`.
+This reduction is useful when we are inferring the type of eliminator-like applications.
+For example, given `(n m : Nat) (f : Nat → Nat) (h : m = n)`,
+the type of `Eq.subst (motive := fun x => f m = f x) h rfl`
+is `motive n` which is `(fun (x : Nat) => f m = f x) n`
+This function reduces the new application to `f m = f n`
+
+We use it to implement `inferAppType`
+-/
+partial def Expr.instantiateBetaRevRange (e : Expr) (start : Nat) (stop : Nat) (args : Array Expr) : Expr :=
+  if e.hasLooseBVars && stop > start then
+    assert! stop ≤ args.size
+    runST fun ω => visit e 0 |>.run
+  else
+    e
+where
+  visit {ω} (e : Expr) (offset : Nat) : MonadCacheT (Expr × Nat) Expr (ST ω) Expr :=
+    if offset >= e.looseBVarRange then
+      -- `e` doesn't have free variables
+      return e
+    else checkCache (e, offset) fun _ => do
+      match e with
+      | Expr.forallE _ d b _   => return e.updateForallE! (← visit d offset) (← visit b (offset+1))
+      | Expr.lam _ d b _       => return e.updateLambdaE! (← visit d offset) (← visit b (offset+1))
+      | Expr.letE _ t v b _    => return e.updateLet! (← visit t offset) (← visit v offset) (← visit b (offset+1))
+      | Expr.mdata _ b _       => return e.updateMData! (← visit b offset)
+      | Expr.proj _ _ b _      => return e.updateProj! (← visit b offset)
+      | Expr.app f a _         =>
+        e.withAppRev fun f revArgs => do
+        let fNew    ← visit f offset
+        let revArgs ← revArgs.mapM (visit · offset)
+        if f.isBVar then
+          -- try to beta reduce if `f` was a bound variable
+          return fNew.betaRev revArgs
+        else
+          return mkAppRev fNew revArgs
+      | Expr.bvar vidx _       =>
+        -- Recall that looseBVarRange for `Expr.bvar` is `vidx+1`.
+        -- So, we must have offset ≤ vidx, since we are in the "else" branch of  `if offset >= e.looseBVarRange`
+        let n := stop - start
+        if vidx < offset + n then
+          return args[stop - (vidx - offset) - 1].liftLooseBVars 0 offset
+        else
+          return mkBVar (vidx - n)
+      -- The following cases are unreachable because they never contain loose bound variables
+      | Expr.const .. => unreachable!
+      | Expr.fvar ..  => unreachable!
+      | Expr.mvar ..  => unreachable!
+      | Expr.sort ..  => unreachable!
+      | Expr.lit ..   => unreachable!
+
+namespace Meta
 
 def throwFunctionExpected {α} (f : Expr) : MetaM α :=
   throwError! "function expected{indentExpr f}"
@@ -14,14 +72,16 @@ def throwFunctionExpected {α} (f : Expr) : MetaM α :=
 private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
   let mut fType ← inferType f
   let mut j := 0
+  /- TODO: check whether `instantiateBetaRevRange` is too expensive, and
+     use it only when `args` contains a lambda expression. -/
   for i in [:args.size] do
     match fType with
     | Expr.forallE _ _ b _ => fType := b
     | _ =>
-      match (← whnf $ fType.instantiateRevRange j i args) with
+      match (← whnf <| fType.instantiateBetaRevRange j i args) with
       | Expr.forallE _ _ b _ => j := i; fType := b
-      | _ => throwFunctionExpected $ mkAppRange f 0 (i+1) args
-  pure $ fType.instantiateRevRange j args.size args
+      | _ => throwFunctionExpected <| mkAppRange f 0 (i+1) args
+  return fType.instantiateBetaRevRange j args.size args
 
 def throwIncorrectNumberOfLevels {α} (constName : Name) (us : List Level) : MetaM α :=
   throwError! "incorrect number of universe levels {mkConst constName us}"

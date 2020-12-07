@@ -100,7 +100,7 @@ Here ``u_1`` is a variable ranging over type levels. The output of the ``#check`
 #check Prod    -- Type u_1 → Type u_2 → Type (max u_1 u_2)
 ```
 
-To define polymorphic constants and variables, Lean allows us to declare universe variables explicitly:
+To define polymorphic constants and variables, Lean allows us to declare universe variables explicitly using the `universe` command:
 
 ```lean
 universe u
@@ -113,3 +113,17 @@ Equivalently, we can write ``Type _`` to avoid giving the arbitrary universe a n
 constant α : Type _
 #check α
 ```
+
+Several Lean 3 users use the shorhand `Type*` for `Type _`. The `Type*` notation is not builtin in Lean 4, but you can be easily define it using a `macro`.
+```lean
+macro "Type*" : term => `(Type _)
+
+def f (α : Type*) (a : α) := a
+
+def g (α : Type _) (a : α) := a
+
+#check f
+#check g
+```
+
+We explain later how the `macro` command works.

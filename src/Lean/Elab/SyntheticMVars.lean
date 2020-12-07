@@ -83,7 +83,7 @@ private def synthesizePendingCoeInstMVar
     (instMVar : MVarId) (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool :=
   withMVarContext instMVar do
     try
-      synthesizeInstMVarCore instMVar
+      synthesizeCoeInstMVarCore instMVar
     catch
       | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
       | _                     => unreachable!

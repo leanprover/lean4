@@ -525,11 +525,11 @@ def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) 
    Return `true` if the instance was synthesized successfully, and `false` if
    the instance contains unassigned metavariables that are blocking the type class
    resolution procedure. Throw an exception if resolution or assignment irrevocably fails. -/
-def synthesizeInstMVarCore (instMVar : MVarId) : TermElabM Bool := do
+def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) : TermElabM Bool := do
   let instMVarDecl ← getMVarDecl instMVar
   let type := instMVarDecl.type
   let type ← instantiateMVars type
-  let result ← trySynthInstance type
+  let result ← trySynthInstance type maxResultSize?
   match result with
   | LOption.some val =>
     if (← isExprMVarAssigned instMVar) then
@@ -541,6 +541,15 @@ def synthesizeInstMVarCore (instMVar : MVarId) : TermElabM Bool := do
     pure true
   | LOption.undef    => pure false -- we will try later
   | LOption.none     => throwError! "failed to synthesize instance{indentExpr type}"
+
+def maxCoeSizeDefault := 16
+builtin_initialize
+  registerOption `maxCoeSize { defValue := maxCoeSizeDefault, group := "", descr := "maximum number of instances used to construct an automatic coercion" }
+private def getCoeMaxSize (opts : Options) : Nat :=
+  opts.getNat `maxCoeSize maxCoeSizeDefault
+
+def synthesizeCoeInstMVarCore (instMVar : MVarId) : TermElabM Bool := do
+  synthesizeInstMVarCore instMVar (getCoeMaxSize (← getOptions))
 
 /-
 The coercion from `α` to `Thunk α` cannot be implemented using an instance because it would
@@ -576,7 +585,7 @@ private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eTyp
       let mvarId := mvar.mvarId!
       try
         withoutMacroStackAtErr do
-          unless (← synthesizeInstMVarCore mvarId) do
+          unless (← synthesizeCoeInstMVarCore mvarId) do
             registerSyntheticMVarWithCurrRef mvarId (SyntheticMVarKind.coe errorMsgHeader? expectedType eType e f?)
           pure eNew
       catch
@@ -1023,7 +1032,7 @@ private def tryCoeSort (α : Expr) (a : Expr) : TermElabM Expr := do
   let mvarId := mvar.mvarId!
   try
     withoutMacroStackAtErr do
-      if (← synthesizeInstMVarCore mvarId) then
+      if (← synthesizeCoeInstMVarCore mvarId) then
         pure $ mkAppN (Lean.mkConst `coeSort [u, v]) #[α, β, a, mvar]
       else
         throwError "type expected"

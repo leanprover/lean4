@@ -205,21 +205,22 @@ def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) 
     mkForallFVars xs (← elabType term)
 
 /--
-  Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into `#[id_1, ..., id_m]`
+  Auxiliary functions for converting `id_1 ... id_n` application into `#[id_1, ..., id_m]`
   It is used at `expandFunBinders`. -/
-private partial def getFunBinderIds? (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
-  let rec loop (idOnly : Bool) (stx : Syntax) (acc : Array Syntax) :=
+private partial def getFunBinderIds? (stx : Syntax) : OptionT TermElabM (Array Syntax) :=
+  let convertElem (stx : Syntax) : OptionT TermElabM Syntax :=
     match_syntax stx with
-    | `($f $a) => do
-       if idOnly then
-         pure none
-       else
-         let (some acc) ← loop false f acc | pure none
-         loop true a acc
-    | `(_) => do let ident ← mkFreshIdent stx; pure (some (acc.push ident))
-    | `($id:ident) => pure (some (acc.push id))
-    | _ => pure none
-  loop false stx #[]
+    | `(_) => do let ident ← mkFreshIdent stx; pure ident
+    | `($id:ident) => pure id
+    | _ => failure
+  match_syntax stx with
+  | `($f $args*) => do
+     let mut acc := #[].push (← convertElem f)
+     for arg in args do
+       acc := acc.push (← convertElem arg)
+     return acc
+  | _ =>
+    return #[].push (← convertElem stx)
 
 /--
   Auxiliary function for expanding `fun` notation binders. Recall that `fun` parser is defined as

@@ -37,8 +37,10 @@ structure ConsumerNode where
   key      : Expr
   mctx     : MetavarContext
   subgoals : List Expr
+  size     : Nat -- instance size so far
 
-instance : Inhabited ConsumerNode := ⟨⟨arbitrary, arbitrary, arbitrary, []⟩⟩
+instance : Inhabited ConsumerNode where
+  default := { mvar := arbitrary, key := arbitrary, mctx := arbitrary, subgoals := [], size := 0 }
 
 inductive Waiter where
   | consumerNode : ConsumerNode → Waiter
@@ -133,12 +135,17 @@ def mkTableKey (mctx : MetavarContext) (e : Expr) : Expr :=
 structure Answer where
   result     : AbstractMVarsResult
   resultType : Expr
+  size       : Nat
 
-instance : Inhabited Answer := ⟨⟨arbitrary, arbitrary⟩⟩
+instance : Inhabited Answer where
+  default := { result := arbitrary, resultType := arbitrary, size := 0 }
 
 structure TableEntry where
   waiters : Array Waiter
   answers : Array Answer := #[]
+
+structure Context where
+  maxResultSize : Nat
 
 /-
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.
@@ -153,13 +160,13 @@ structure State where
   resumeStack    : Array (ConsumerNode × Answer) := #[]
   tableEntries   : HashMap Expr TableEntry       := {}
 
-abbrev SynthM := StateRefT State MetaM
+abbrev SynthM := ReaderT Context $ StateRefT State MetaM
 
 @[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
   monadMap @f
 
-instance {α} : Inhabited (SynthM α) :=
-  ⟨fun _ => arbitrary⟩
+instance {α} : Inhabited (SynthM α) where
+  default := fun _ _ => arbitrary
 
 /-- Return globals and locals instances that may unify with `type` -/
 def getInstances (type : Expr) : MetaM (Array Expr) := do
@@ -311,7 +318,7 @@ def tryResolveCore (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext �
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mctx : MetavarContext) (mvar : Expr) (inst : Expr) : SynthM (Option (MetavarContext × List Expr)) :=
-  traceCtx `Meta.synthInstance.tryResolve $ withMCtx mctx $ tryResolveCore mvar inst
+  traceCtx `Meta.synthInstance.tryResolve <| withMCtx mctx <| tryResolveCore mvar inst
 
 /--
   Assign a precomputed answer to `mvar`.
@@ -330,7 +337,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
     if answer.result.paramNames.isEmpty && answer.result.numMVars == 0 then
       modify fun s => { s with result := answer.result.expr }
     else
-      let (_, _, answerExpr) ← liftM $ openAbstractMVarsResult answer.result
+      let (_, _, answerExpr) ← openAbstractMVarsResult answer.result
       trace[Meta.synthInstance]! "skip answer containing metavariables {answerExpr}"
       pure ()
   | Waiter.consumerNode cNode =>
@@ -344,25 +351,29 @@ def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
 
 private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
   withMCtx cNode.mctx do
-    traceM `Meta.synthInstance.newAnswer do pure (← inferType cNode.mvar)
+    traceM `Meta.synthInstance.newAnswer do m!"size: {cNode.size}, {← inferType cNode.mvar}"
     let val ← instantiateMVars cNode.mvar
     let result ← abstractMVars val -- assignable metavariables become parameters
     let resultType ← inferType result.expr
-    pure { result := result, resultType := resultType }
+    pure { result := result, resultType := resultType, size := cNode.size + 1 }
 
 /--
   Create a new answer after `cNode` resolved all subgoals.
   That is, `cNode.subgoals == []`.
   And then, store it in the tabled entries map, and wakeup waiters. -/
 def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
-  let answer ← mkAnswer cNode
-  -- Remark: `answer` does not contain assignable or assigned metavariables.
-  let key := cNode.key
-  let entry ← getEntry key
-  if isNewAnswer entry.answers answer then
-    let newEntry := { entry with answers := entry.answers.push answer }
-    modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
-    entry.waiters.forM (wakeUp answer)
+  if cNode.size ≥ (← read).maxResultSize then
+    traceM `Meta.synthInstance.discarded do m!"size: {cNode.size} ≥ {(← read).maxResultSize}, {← inferType cNode.mvar}"
+    return ()
+  else
+    let answer ← mkAnswer cNode
+    -- Remark: `answer` does not contain assignable or assigned metavariables.
+    let key := cNode.key
+    let entry ← getEntry key
+    if isNewAnswer entry.answers answer then
+      let newEntry := { entry with answers := entry.answers.push answer }
+      modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
+      entry.waiters.forM (wakeUp answer)
 
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit :=
@@ -400,7 +411,7 @@ def generate : SynthM Unit := do
     modifyTop fun gNode => { gNode with currInstanceIdx := idx }
     match (← tryResolve mctx mvar inst) with
     | none                  => pure ()
-    | some (mctx, subgoals) => consume { key := key, mvar := mvar, subgoals := subgoals, mctx := mctx }
+    | some (mctx, subgoals) => consume { key := key, mvar := mvar, subgoals := subgoals, mctx := mctx, size := 0 }
 
 def getNextToResume : SynthM (ConsumerNode × Answer) := do
   let s ← get
@@ -422,8 +433,8 @@ def resume : SynthM Unit := do
       withMCtx mctx <| traceM `Meta.synthInstance.resume do
         let goal    ← inferType cNode.mvar
         let subgoal ← inferType mvar
-        pure m!"{goal} <== {subgoal}"
-      consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx := mctx }
+        pure m!"size: {cNode.size + answer.size}, {goal} <== {subgoal}"
+      consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx := mctx, size := cNode.size + answer.size }
 
 def step : SynthM Bool := do
   let s ← get
@@ -439,21 +450,16 @@ def step : SynthM Bool := do
 def getResult : SynthM (Option Expr) := do
   pure (← get).result
 
-def synth : Nat → SynthM (Option Expr)
-  | 0   => do
-    trace[Meta.synthInstance]! "synthInstance is out of fuel"
+partial def synth : SynthM (Option Expr) := do
+  if (← step) then
+    match (← getResult) with
+    | none        => synth
+    | some result => pure result
+  else
+    trace[Meta.synthInstance]! "failed"
     pure none
-  | fuel+1 => do
-    trace[Meta.synthInstance]! "remaining fuel {fuel}"
-    if (← step) then
-      match (← getResult) with
-      | none        => synth fuel
-      | some result => pure result
-    else
-      trace[Meta.synthInstance]! "failed"
-      pure none
 
-def main (type : Expr) (fuel : Nat) : MetaM (Option Expr) :=
+def main (type : Expr) (maxResultSize : Nat) : MetaM (Option Expr) :=
   traceCtx `Meta.synthInstance do
      trace[Meta.synthInstance]! "main goal {type}"
      let mvar ← mkFreshExprMVar type
@@ -461,8 +467,8 @@ def main (type : Expr) (fuel : Nat) : MetaM (Option Expr) :=
      let key    := mkTableKey mctx type
      let action : SynthM (Option Expr) := do
        newSubgoal mctx key mvar Waiter.root
-       synth fuel
-     action.run' {}
+       synth
+     action.run { maxResultSize := maxResultSize } |>.run' {}
 
 end SynthInstance
 
@@ -524,15 +530,15 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
         mkForallFVars xs (mkAppN c args)
     | _ => pure type
 
-def maxStepsDefault := 1000
+def maxResultSizeDefault := 128
 builtin_initialize
-  registerOption `synthInstance.maxSteps { defValue := maxStepsDefault, group := "", descr := "maximum steps for the type class instance synthesis procedure" }
-private def getMaxSteps (opts : Options) : Nat :=
-  opts.getNat `synthInstance.maxSteps maxStepsDefault
+  registerOption `maxInstSize { defValue := maxResultSizeDefault, group := "", descr := "maximum number of instances used to construct a solution in the type class instance synthesis procedure" }
+private def getMaxSize (opts : Options) : Nat :=
+  opts.getNat `maxInstSize maxResultSizeDefault
 
-private def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := profileitM Exception "typeclass inference" ⟨0, 0⟩ do
+private def synthInstanceImp? (type : Expr) (maxResultSize? : Option Nat) : MetaM (Option Expr) := profileitM Exception "typeclass inference" ⟨0, 0⟩ do
   let opts ← getOptions
-  let fuel := getMaxSteps opts
+  let maxResultSize := maxResultSize?.getD (getMaxSize opts)
   let inputConfig ← getConfig
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.reducible,
                                           foApprox := true, ctxApprox := true, constApprox := false }) do
@@ -545,7 +551,7 @@ private def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := profileitM 
       let result? ← withNewMCtxDepth do
         let normType ← preprocessOutParam type
         trace[Meta.synthInstance]! "{type} ==> {normType}"
-        match (← SynthInstance.main normType fuel) with
+        match (← SynthInstance.main normType maxResultSize) with
         | none        => pure none
         | some result =>
           trace[Meta.synthInstance]! "FOUND result {result}"
@@ -559,7 +565,7 @@ private def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := profileitM 
         | some result => do
           trace[Meta.synthInstance]! "result {result}"
           let resultType ← inferType result
-          if (← withConfig (fun _ => inputConfig) $ isDefEq type resultType) then
+          if (← withConfig (fun _ => inputConfig) <| isDefEq type resultType) then
             let result ← instantiateMVars result
             pure (some result)
           else
@@ -573,28 +579,28 @@ private def synthInstanceImp? (type : Expr) : MetaM (Option Expr) := profileitM 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if
   instance cannot be synthesized right now because `type` contains metavariables. -/
-private def trySynthInstanceImp (type : Expr) : MetaM (LOption Expr) := do
+private def trySynthInstanceImp (type : Expr) (maxResultSize? : Option Nat) : MetaM (LOption Expr) := do
   catchInternalId isDefEqStuckExceptionId
-    (toLOptionM $ synthInstanceImp? type)
+    (toLOptionM $ synthInstanceImp? type maxResultSize?)
     (fun _ => pure LOption.undef)
 
-private def synthInstanceImp (type : Expr) : MetaM Expr :=
+private def synthInstanceImp (type : Expr) (maxResultSize? : Option Nat) : MetaM Expr :=
   catchInternalId isDefEqStuckExceptionId
     (do
-      let result? ← synthInstanceImp? type
+      let result? ← synthInstanceImp? type maxResultSize?
       match result? with
       | some result => pure result
       | none        => throwError! "failed to synthesize{indentExpr type}")
     (fun _ => throwError! "failed to synthesize{indentExpr type}")
 
-private def synthPendingImp (mvarId : MVarId) : MetaM Bool := do
+private def synthPendingImp (mvarId : MVarId) (maxResultSize? : Option Nat) : MetaM Bool := do
   let mvarDecl ← getMVarDecl mvarId
   match mvarDecl.kind with
   | MetavarKind.synthetic =>
     match (← isClass? mvarDecl.type) with
     | none   => pure false
     | some _ => do
-      let val? ← catchInternalId isDefEqStuckExceptionId (synthInstanceImp? mvarDecl.type) (fun _ => pure none)
+      let val? ← catchInternalId isDefEqStuckExceptionId (synthInstanceImp? mvarDecl.type maxResultSize?) (fun _ => pure none)
       match val? with
       | none     => pure false
       | some val =>
@@ -606,7 +612,7 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := do
   | _ => pure false
 
 builtin_initialize
-  synthPendingRef.set synthPendingImp
+  synthPendingRef.set (synthPendingImp · none)
 
 builtin_initialize
   registerTraceClass `Meta.synthInstance
@@ -618,13 +624,18 @@ builtin_initialize
 
 variables {m : Type → Type} [MonadLiftT MetaM m]
 
-def synthInstance? (type : Expr) : m (Option Expr) :=
-  liftMetaM $ synthInstanceImp? type
+/-
+  Remark: when `maxResultSize? == none`, the configuration option `synthInstance.maxResultSize` is used.
+  Remark: we use a different option for controlling the maximum result size for coercions.
+-/
 
-def trySynthInstance (type : Expr) : m (LOption Expr) :=
-  liftMetaM $ trySynthInstanceImp type
+def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : m (Option Expr) :=
+  synthInstanceImp? type maxResultSize?
 
-def synthInstance (type : Expr) : m Expr :=
-  liftMetaM $ synthInstanceImp type
+def trySynthInstance (type : Expr) (maxResultSize? : Option Nat := none) : m (LOption Expr) :=
+  trySynthInstanceImp type maxResultSize?
+
+def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : m Expr :=
+  synthInstanceImp type maxResultSize?
 
 end Lean.Meta

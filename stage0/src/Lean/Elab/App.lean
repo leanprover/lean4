@@ -73,7 +73,7 @@ private def tryCoeFun? (α : Expr) (a : Expr) : TermElabM (Option Expr) := do
   let mvar ← mkFreshExprMVar coeFunInstType MetavarKind.synthetic
   let mvarId := mvar.mvarId!
   try
-    if (← synthesizeInstMVarCore mvarId) then
+    if (← synthesizeCoeInstMVarCore mvarId) then
       pure $ some $ mkAppN (Lean.mkConst `coeFun [u, v]) #[α, γ, a, mvar]
     else
       pure none

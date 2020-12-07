@@ -8,7 +8,7 @@ partial def mkTower : Nat → Expr
 
 partial def depth : Expr → MonadCacheT Expr Nat CoreM Nat
 | e =>
-  checkCache e fun e =>
+  checkCache e fun _ =>
     match e with
     | Expr.const c [] _ => pure 1
     | Expr.app f a _    => do pure $ Nat.max (← depth f) (← depth a) + 1
@@ -18,7 +18,7 @@ partial def depth : Expr → MonadCacheT Expr Nat CoreM Nat
 
 partial def visit : Expr → MonadCacheT Expr Expr CoreM Expr
 | e =>
-  checkCache e fun e =>
+  checkCache e fun _ =>
     match e with
     | Expr.const `a [] _ => pure $ mkConst `b
     | Expr.app f a _     => e.updateApp! <$> visit f <*> visit a

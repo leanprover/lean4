@@ -25,11 +25,11 @@ We use it to implement `inferAppType`
 partial def Expr.instantiateBetaRevRange (e : Expr) (start : Nat) (stop : Nat) (args : Array Expr) : Expr :=
   if e.hasLooseBVars && stop > start then
     assert! stop ≤ args.size
-    runST fun ω => visit e 0 |>.run
+    visit e 0 |>.run
   else
     e
 where
-  visit {ω} (e : Expr) (offset : Nat) : MonadCacheT (Expr × Nat) Expr (ST ω) Expr :=
+  visit (e : Expr) (offset : Nat) : MonadStateCacheT (Expr × Nat) Expr Id Expr :=
     if offset >= e.looseBVarRange then
       -- `e` doesn't have free variables
       return e

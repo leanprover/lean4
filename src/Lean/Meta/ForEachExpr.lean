@@ -35,7 +35,7 @@ private partial def visitBinder (fn : Expr → MetaM Bool) : Array Expr → Nat 
   | fvars, j, e => visit fn $ e.instantiateRevRange j fvars.size fvars
 
 partial def visit (fn : Expr → MetaM Bool) (e : Expr) : M Unit :=
-  checkCache e fun e => do
+  checkCache e fun _ => do
     if (← liftM (fn e)) then
       match e with
       | Expr.forallE _ _ _ _   => visitBinder fn #[] 0 e

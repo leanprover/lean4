@@ -75,7 +75,7 @@ partial def visitVisibleExpr (e : Expr) : M Unit := do
 where
   visit (e : Expr) : MonadCacheT Expr Unit M Unit := do
     if e.hasFVar then
-      checkCache e fun e => do
+      checkCache e fun _ => do
         match e with
         | Expr.forallE _ d b _   => visit d; visit b
         | Expr.lam _ d b _       => visit d; visit b

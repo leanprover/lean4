@@ -34,7 +34,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
   let inst : STWorld IO.RealWorld m := ⟨⟩
   let inst : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := CoreM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT Expr Expr m Expr :=
-    checkCache e fun e => Core.withIncRecDepth do
+    checkCache e fun _ => Core.withIncRecDepth do
       let rec visitPost (e : Expr) : MonadCacheT Expr Expr m Expr := do
         match (← post e) with
         | TransformStep.done e  => pure e
@@ -66,7 +66,7 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
   let inst : STWorld IO.RealWorld m := ⟨⟩
   let inst : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT Expr Expr m Expr :=
-    checkCache e fun e => Meta.withIncRecDepth do
+    checkCache e fun _ => Meta.withIncRecDepth do
       let rec visitPost (e : Expr) : MonadCacheT Expr Expr m Expr := do
         match (← post e) with
         | TransformStep.done e  => pure e

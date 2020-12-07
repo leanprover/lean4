@@ -47,7 +47,7 @@ partial def visit (e : Expr) : M Expr := do
            | none       => pure localDecl
         lctx :=lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
-    checkCache e fun e => do
+    checkCache e fun _ => do
       if (← isNonTrivialProof e) then
         mkAuxLemma e
       else match e with

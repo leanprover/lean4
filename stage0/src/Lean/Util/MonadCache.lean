@@ -13,11 +13,11 @@ class MonadCache (α β : Type) (m : Type → Type) where
 
 /-- If entry `a := b` is already in the cache, then return `b`.
     Otherwise, execute `b ← f a`, store `a := b` in the cache and return `b`. -/
-@[inline] def checkCache {α β : Type} {m : Type → Type} [MonadCache α β m] [Monad m] (a : α) (f : α → m β) : m β := do
+@[inline] def checkCache {α β : Type} {m : Type → Type} [MonadCache α β m] [Monad m] (a : α) (f : Unit → m β) : m β := do
 match (← MonadCache.findCached? a) with
   | some b => pure b
   | none   => do
-    let b ← f a
+    let b ← f ()
     MonadCache.cache a b
     pure b
 
@@ -77,4 +77,29 @@ instance [MonadFinally m] : MonadFinally (MonadCacheT α β m) := inferInstanceA
 instance [MonadRef m] : MonadRef (MonadCacheT α β m) := inferInstanceAs (MonadRef (StateRefT' _ _ _))
 
 end MonadCacheT
+
+/- Similar to `MonadCacheT`, but using `StateT` instead of `StateRefT` -/
+def MonadStateCacheT (α β : Type) (m : Type → Type) [BEq α] [Hashable α] := StateT (HashMap α β) m
+
+namespace MonadStateCacheT
+
+variables {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
+
+instance  : MonadHashMapCacheAdapter α β (MonadStateCacheT α β m) := {
+  getCache    := (get : StateT ..),
+  modifyCache := fun f => (modify f : StateT ..)
+}
+
+@[inline] def run {σ} (x : MonadStateCacheT α β m σ) : m σ :=
+  x.run' Std.mkHashMap
+
+instance : Monad (MonadStateCacheT α β m) := inferInstanceAs (Monad (StateT _ _))
+instance : MonadLift m (MonadStateCacheT α β m) := inferInstanceAs (MonadLift m (StateT _ _))
+instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (MonadStateCacheT α β m) := inferInstanceAs (MonadExceptOf ε (StateT _ _))
+instance : MonadControl m (MonadStateCacheT α β m) := inferInstanceAs (MonadControl m (StateT _ _))
+instance [MonadFinally m] : MonadFinally (MonadStateCacheT α β m) := inferInstanceAs (MonadFinally (StateT _ _))
+instance [MonadRef m] : MonadRef (MonadStateCacheT α β m) := inferInstanceAs (MonadRef (StateT _ _))
+
+end MonadStateCacheT
+
 end Lean

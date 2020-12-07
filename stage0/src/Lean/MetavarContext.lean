@@ -520,7 +520,7 @@ partial def instantiateLevelMVars {m} [Monad m] [MonadMCtx m] : Level → m Leve
 partial def instantiateExprMVars {m ω} [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLiftT (ST ω) m] (e : Expr) : MonadCacheT Expr Expr m Expr :=
   if !e.hasMVar then
     pure e
-  else checkCache e fun e => do match e with
+  else checkCache e fun _ => do match e with
     | Expr.proj _ _ s _    => return e.updateProj! (← instantiateExprMVars s)
     | Expr.forallE _ d b _ => return e.updateForallE! (← instantiateExprMVars d) (← instantiateExprMVars b)
     | Expr.lam _ d b _     => return e.updateLambdaE! (← instantiateExprMVars d) (← instantiateExprMVars b)
@@ -579,7 +579,7 @@ partial def instantiateExprMVars {m ω} [Monad m] [MonadMCtx m] [STWorld ω m] [
               let result := mkAppRange result fvars.size args.size args
               pure $ result
       | _ => instApp
-    | e@(Expr.mvar mvarId _)   => checkCache e fun e => do
+    | e@(Expr.mvar mvarId _)   => checkCache e fun _ => do
       let mctx ← getMCtx
       match mctx.getExprAssignment? mvarId with
       | some newE => do
@@ -838,7 +838,7 @@ private def anyDependsOn (mctx : MetavarContext) (es : Array Expr) (fvarId : FVa
 private partial def elimMVarDepsAux (xs : Array Expr) (e : Expr) : M Expr :=
   let rec
     visit (e : Expr) : M Expr :=
-      if !e.hasMVar then pure e else checkCache e elim,
+      if !e.hasMVar then pure e else checkCache e fun _ => elim e,
     elim (e : Expr) : M Expr := do
       match e with
       | Expr.proj _ _ s _    => return e.updateProj! (← visit s)

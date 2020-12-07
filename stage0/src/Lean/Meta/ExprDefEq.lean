@@ -301,7 +301,7 @@ where
      The context `Nat` is the position of `xs[0]` in the local context. -/
   collectLetDeclsFrom (e : Expr) : ReaderT Nat (StateRefT NameHashSet MetaM) Unit := do
     let rec visit (e : Expr) : MonadCacheT Expr Unit (ReaderT Nat (StateRefT NameHashSet MetaM)) Unit :=
-      checkCache e fun e => do
+      checkCache e fun _ => do
         match e with
         | Expr.forallE _ d b _   => visit d; visit b
         | Expr.lam _ d b _       => visit d; visit b
@@ -559,7 +559,7 @@ instance : MonadCache Expr Expr CheckAssignmentM := {
 }
 
 @[inline] private def visit (f : Expr → CheckAssignmentM Expr) (e : Expr) : CheckAssignmentM Expr :=
-  if !e.hasExprMVar && !e.hasFVar then pure e else checkCache e f
+  if !e.hasExprMVar && !e.hasFVar then pure e else checkCache e (fun _ => f e)
 
 private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData := do
   let ctx ← read

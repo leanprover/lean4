@@ -5,6 +5,12 @@
 
 # Language Manual
 
+- [Dependent Types](./deptypes.md)
+  - [Simple Type Theory](./simptypes.md)
+  - [Types as objects](./typeobjs.md)
+  - [Function Abstraction and Evaluation](./funabst.md)
+  - [Introducing Definitions](./introdef.md)
+  - [What makes dependent type theory dependent?](./dep.md)
 - [Functions](./functions.md)
 - [Sections](./sections.md)
 - [Namespaces](./namespaces.md)

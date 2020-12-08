@@ -26,7 +26,7 @@
     IO.println (if c then "canceled! 2" else "done! 2")
   };
   IO.cancel t1;
-  IO.wait t1;
+  discard $ IO.wait t1;
   pure ()
 
 #eval IO.waitAny [

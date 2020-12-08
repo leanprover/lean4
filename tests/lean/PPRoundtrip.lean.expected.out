@@ -57,6 +57,6 @@ id
 typeAs Nat
   (do 
     let x ← pure 1
-    pure 2
+    discard (pure 2)
     let y : Nat := 3
     pure (x + y))

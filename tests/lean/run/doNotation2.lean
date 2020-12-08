@@ -4,11 +4,11 @@ let aux (y : Nat) (z : Nat) : IO Nat := do
   IO.println "aux started"
   IO.println s!"y: {y}, z: {z}"
   pure (x+y)
-aux x
+discard <| aux x
   (x + 1) -- It is part of the application since it is indented
-aux x (x -- parentheses use `withoutPosition`
+discard <| aux x (x -- parentheses use `withoutPosition`
 -1)
-aux x x;
+discard <| aux x x;
   aux x
  x
 

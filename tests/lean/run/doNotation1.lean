@@ -35,10 +35,10 @@ pure (a + 1)
 
 def h₃ (x : Nat) : StateT Nat IO Nat := do
 let m1 := do    -- Type inferred from application below
-  g x           -- liftM inserted here
+  discard <| g x           -- liftM inserted here
   IO.println 1
 let m2 (y : Nat) := do   -- Type inferred from application below
-  h (x+y)       -- liftM inserted here
+  discard <| h (x+y)       -- liftM inserted here
   myPrint y     -- liftM inserted here
 let a ← h 1        -- liftM inserted here
 IO.println x

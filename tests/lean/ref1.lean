@@ -1,4 +1,4 @@
-
+--
 def inc (r : IO.Ref Nat) : IO Unit := do
 let v ← r.get;
 r.set (v+1);
@@ -11,7 +11,7 @@ n.forM $ fun i => do
 def showArrayRef (r : IO.Ref (Array Nat)) : IO Unit := do
 let a ← r.swap ∅;
 a.size.forM (fun i => IO.println ("[" ++ toString i ++ "]: " ++ toString (a.get! i)));
-r.swap a;
+discard $ r.swap a;
 pure ()
 
 def tst (n : Nat) : IO Unit := do

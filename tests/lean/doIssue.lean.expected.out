@@ -1,0 +1,30 @@
+doIssue.lean:2:2: error: application type mismatch
+  do 
+    pure x 
+    IO.println x
+argument
+  fun (x_1 : PUnit) => IO.println x
+has type
+  PUnit → IO Unit
+but is expected to have type
+  Nat → IO Unit
+doIssue.lean:10:2: error: application type mismatch
+  do 
+    pure (Array.set! xs 0 1)
+    IO.println xs
+argument
+  fun (x : PUnit) => IO.println xs
+has type
+  PUnit → IO Unit
+but is expected to have type
+  Array Nat → IO Unit
+doIssue.lean:18:2: error: application type mismatch
+  do 
+    pure (Array.set! xs 0 1)
+    IO.println xs
+argument
+  fun (x : PUnit) => IO.println xs
+has type
+  PUnit → IO Unit
+but is expected to have type
+  Array Nat → IO Unit

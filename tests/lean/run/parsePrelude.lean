@@ -5,7 +5,7 @@ if System.Platform.isWindows then
   pure () -- TODO investigate why the following doesn't work on Windows
 else do
   let env ← Lean.mkEmptyEnvironment;
-  Lean.Parser.testParseFile env (System.mkFilePath ["..", "..", "..", "src", "Init", "Prelude.lean"]);
+  discard <| Lean.Parser.testParseFile env (System.mkFilePath ["..", "..", "..", "src", "Init", "Prelude.lean"]);
   IO.println "done"
 
 #eval test

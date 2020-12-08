@@ -93,9 +93,9 @@ do
 end Expr
 
 def main (xs : List String) : IO UInt32 :=
-do let x := Expr.Var "x";
-   let f := Expr.pow x x;
-   Expr.nest Expr.deriv 7 f;
+do let x := Expr.Var "x"
+   let f := Expr.pow x x
+   discard <| Expr.nest Expr.deriv 7 f
    pure 0
 
 -- setOption profiler True

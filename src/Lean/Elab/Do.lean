@@ -887,11 +887,11 @@ def seqToTermCore (action : Syntax) (k : Syntax) : MacroM Syntax := withFreshMac
     let cond := action[1]
     `(assert! $cond; $k)
   else
-    `(Bind.bind $action (fun _ => $k))
+    `(Bind.bind $action (fun (_ : PUnit) => $k))
 
 def seqToTerm (action : Syntax) (k : Syntax) : MacroM Syntax := do
   let r ← seqToTermCore action k
-  pure $ r.copyInfo action
+  return r.copyInfo action
 
 def declToTermCore (decl : Syntax) (k : Syntax) : M Syntax := withFreshMacroScope do
   let kind := decl.getKind

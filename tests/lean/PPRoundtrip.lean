@@ -94,6 +94,6 @@ set_option pp.structure_instance_type true in
 
 #eval checkM `(typeAs Nat (do
   let x ← pure 1
-  pure 2
+  discard <| pure 2
   let y := 3
   return x + y))

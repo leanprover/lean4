@@ -110,7 +110,7 @@ def main (xs : List String) : IO UInt32 :=
 do let x := Expr.Var "x";
    let f := Expr.add x (Expr.mul x (Expr.mul x (Expr.add x x)));
    IO.println f;
-   Expr.nest Expr.deriv 3 f;
+   discard <| Expr.nest Expr.deriv 3 f;
    pure 0
 
 -- setOption profiler True

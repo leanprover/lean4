@@ -339,8 +339,7 @@ private def withUsed {α} (scopeVars : Array Expr) (params : Array Expr) (fieldI
 
 private def levelMVarToParamFVar (fvar : Expr) : StateRefT Nat TermElabM Unit := do
   let type ← inferType fvar
-  Term.levelMVarToParam' type
-  pure ()
+  discard <| Term.levelMVarToParam' type
 
 private def levelMVarToParamFVars (fvars : Array Expr) : StateRefT Nat TermElabM Unit :=
   fvars.forM levelMVarToParamFVar
@@ -445,7 +444,7 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
     defaultAuxDecls.forM fun (declName, type, value) => do
       /- The identity function is used as "marker". -/
       let value ← mkId value
-      mkAuxDefinition declName type value (zeta := true)
+      discard <| mkAuxDefinition declName type value (zeta := true)
       setReducibleAttribute declName
 
 private def elabStructureView (view : StructView) : TermElabM Unit := do

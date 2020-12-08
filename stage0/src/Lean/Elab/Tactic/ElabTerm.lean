@@ -48,7 +48,7 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
     else
       let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← getMVarDecl mvarId).kind.isNatural
       let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← getMVarDecl mvarId).kind.isNatural
-      Term.logUnassignedUsingErrorInfos naturalMVarIds
+      discard <| Term.logUnassignedUsingErrorInfos naturalMVarIds
       pure syntheticMVarIds.toList
   tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
   pure (val, newMVarIds)

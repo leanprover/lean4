@@ -13,7 +13,7 @@ universes u v w
 
 infixr:100 " <&> " => Functor.mapRev
 
-def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
+@[inline] def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
   Functor.mapConst PUnit.unit x
 
 export Functor (discard)

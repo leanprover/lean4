@@ -376,8 +376,8 @@ def categoryParserFnImpl (catName : Name) : ParserFn := fun ctx s =>
 def addToken (env : Environment) (tk : Token) : Except String Environment := do
   -- Recall that `ParserExtension.addEntry` is pure, and assumes `addTokenConfig` does not fail.
   -- So, we must run it here to handle exception.
-  addTokenConfig (parserExtension.getState env).tokens tk
-  pure $ parserExtension.addEntry env <| ParserExtension.Entry.token tk
+  discard <| addTokenConfig (parserExtension.getState env).tokens tk
+  return parserExtension.addEntry env <| ParserExtension.Entry.token tk
 
 def addSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Environment :=
   parserExtension.addEntry env <| ParserExtension.Entry.kind k

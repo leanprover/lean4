@@ -229,7 +229,7 @@ def initAndRunServer (i o : FS.Stream) : IO Unit := do
       { capabilities := mkLeanServerCapabilities,
         serverInfo? := some { name := "Lean 4 server",
                               version? := "0.0.1" } : InitializeResult }
-    readLspNotificationAs "initialized" InitializedParams
+    discard <| readLspNotificationAs "initialized" InitializedParams
     mainLoop ()
     let Message.notification "exit" none ← readLspMessage
       | throw (userError "Expected an Exit Notification.")

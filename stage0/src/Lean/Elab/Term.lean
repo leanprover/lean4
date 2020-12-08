@@ -1264,7 +1264,7 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
 private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr := do
   let typeMVar ← mkFreshTypeMVar MetavarKind.synthetic
   match expectedType? with
-  | some expectedType => isDefEq expectedType typeMVar; pure ()
+  | some expectedType => discard <| isDefEq expectedType typeMVar
   | _                 => pure ()
   return typeMVar
 

@@ -223,8 +223,9 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
     let (b, bLiveVars) := visitFnBody b ctx
     processVDecl ctx x t v b bLiveVars
   | FnBody.jdecl j xs v b,     ctx =>
-    let (v, vLiveVars) := visitFnBody v (updateVarInfoWithParams ctx xs)
-    let v   := addDecForDeadParams ctx xs v vLiveVars
+    let ctxAtV := updateVarInfoWithParams ctx xs
+    let (v, vLiveVars) := visitFnBody v ctxAtV
+    let v   := addDecForDeadParams ctxAtV xs v vLiveVars
     let ctx := { ctx with
       localCtx     := ctx.localCtx.addJP j xs v
       jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap

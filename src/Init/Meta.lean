@@ -565,6 +565,8 @@ def getId : Syntax → Name
 def isNone (stx : Syntax) : Bool :=
   match stx with
   | Syntax.node k args => k == nullKind && args.size == 0
+  -- when elaborating partial syntax trees, it's reasonable to interpret missing parts as `none`
+  | Syntax.missing     => true
   | _                  => false
 
 def getOptional? (stx : Syntax) : Option Syntax :=

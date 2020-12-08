@@ -60,6 +60,7 @@ protected def mul (m n : @& Int) : Int :=
   | negSucc m, ofNat n   => negOfNat (succ m * n)
   | negSucc m, negSucc n => ofNat (succ m * succ n)
 
+@[defaultInstance 10]
 instance : Neg Int where
   neg := Int.neg
 instance : Add Int where

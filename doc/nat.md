@@ -42,8 +42,8 @@ As we described in the previous sections, we define the `Nat` type as an `induct
 ```lean
 # namespace hidden
 inductive Nat where
- | zero : Nat
- | succ : Nat → Nat
+  | zero : Nat
+  | succ : Nat → Nat
 # end hidden
 ```
 However, the internal representation of `Nat` is optimized. Small natural numbers (i.e., < `2^63` in a 64-bit machine) are

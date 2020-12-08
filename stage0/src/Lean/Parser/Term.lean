@@ -115,7 +115,7 @@ def matchAlt : Parser :=
 
 def matchAlts (optionalFirstBar := true) : Parser :=
   parser! ppDedent $ withPosition $
-    ppLine >> (if optionalFirstBar then optional "| " else "| ") >>
+    ppLine >> (if optionalFirstBar then optional "| " else group "| ") >>
     sepBy1 (ppIndent matchAlt) (ppLine >> checkColGe "alternatives must be indented" >> "| ")
 
 def matchDiscr := parser! optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser

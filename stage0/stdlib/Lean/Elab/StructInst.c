@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.StructInst
-// Imports: Init Lean.Util.FindExpr Lean.Elab.App Lean.Elab.Binders Lean.Elab.Quotation
+// Imports: Init Lean.Util.FindExpr Lean.Elab.App Lean.Elab.Binders
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -573,6 +573,7 @@ lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabM
 lean_object* l_Lean_Elab_Term_StructInst_Struct_modifyFieldsM___at_Lean_Elab_Term_StructInst_Struct_modifyFields___spec__1(lean_object*, lean_object*);
 extern lean_object* l_List_head_x21___rarg___closed__3;
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Elab_Term_elabLetDeclAux___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_tryPostponeIfMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStructureCtor(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -686,7 +687,6 @@ uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_StructInst_DefaultFields_propagateLoop___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_FieldLHS_toSyntax_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___closed__10;
-lean_object* l_Lean_throwError___at_Lean_Elab_Term_Quotation_match__syntax_expand___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabStruct_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_StructInst_formatField___closed__4;
 lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getFieldIdx___closed__1;
@@ -1807,7 +1807,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__4;
 x_2 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__5;
-x_3 = lean_unsigned_to_nat(82u);
+x_3 = lean_unsigned_to_nat(81u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6000,7 +6000,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__4;
 x_2 = l_Lean_Elab_Term_StructInst_FieldVal_toSyntax___closed__1;
-x_3 = lean_unsigned_to_nat(263u);
+x_3 = lean_unsigned_to_nat(262u);
 x_4 = lean_unsigned_to_nat(25u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6128,7 +6128,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__4;
 x_2 = l_Lean_Elab_Term_StructInst_Field_toSyntax___closed__1;
-x_3 = lean_unsigned_to_nat(274u);
+x_3 = lean_unsigned_to_nat(273u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8998,7 +8998,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__4;
 x_2 = l_List_map___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandParentFields___spec__1___closed__1;
-x_3 = lean_unsigned_to_nat(366u);
+x_3 = lean_unsigned_to_nat(365u);
 x_4 = lean_unsigned_to_nat(34u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10017,7 +10017,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__4;
 x_2 = l_List_foldlM___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkFieldMap___spec__10___closed__1;
-x_3 = lean_unsigned_to_nat(384u);
+x_3 = lean_unsigned_to_nat(383u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -21410,7 +21410,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__4;
 x_2 = l_Lean_Elab_Term_StructInst_DefaultFields_findDefaultMissing_x3f___lambda__1___closed__1;
-x_3 = lean_unsigned_to_nat(615u);
+x_3 = lean_unsigned_to_nat(614u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -21645,7 +21645,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__4;
 x_2 = l_Lean_Elab_Term_StructInst_DefaultFields_getFieldName___closed__1;
-x_3 = lean_unsigned_to_nat(623u);
+x_3 = lean_unsigned_to_nat(622u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -24773,7 +24773,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructSource___closed__4;
 x_2 = l_List_forIn_loop___at_Lean_Elab_Term_StructInst_DefaultFields_step___spec__1___lambda__1___closed__1;
-x_3 = lean_unsigned_to_nat(746u);
+x_3 = lean_unsigned_to_nat(745u);
 x_4 = lean_unsigned_to_nat(25u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -26579,7 +26579,7 @@ x_15 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 x_16 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
-x_17 = l_Lean_throwError___at_Lean_Elab_Term_Quotation_match__syntax_expand___spec__2___rarg(x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_17 = l_Lean_throwError___at_Lean_Elab_Term_elabLetDeclAux___spec__3___rarg(x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -27443,7 +27443,6 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Util_FindExpr(lean_object*);
 lean_object* initialize_Lean_Elab_App(lean_object*);
 lean_object* initialize_Lean_Elab_Binders(lean_object*);
-lean_object* initialize_Lean_Elab_Quotation(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Elab_StructInst(lean_object* w) {
 lean_object * res;
@@ -27459,9 +27458,6 @@ res = initialize_Lean_Elab_App(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Binders(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Quotation(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___regBuiltin_Lean_Elab_Term_StructInst_expandStructInstExpectedType___closed__1 = _init_l___regBuiltin_Lean_Elab_Term_StructInst_expandStructInstExpectedType___closed__1();

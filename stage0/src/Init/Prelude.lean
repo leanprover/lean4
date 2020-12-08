@@ -1138,6 +1138,17 @@ instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m �
 instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) where
   default := pure arbitrary
 
+-- A fusion of Haskell's `sequence` and `map`
+def Array.sequenceMap {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m β) : m (Array β) :=
+  let rec loop (i : Nat) (j : Nat) (bs : Array β) : m (Array β) :=
+    dite (Less j as.size)
+      (fun hlt =>
+        match i with
+        | 0           => pure bs
+        | Nat.succ i' => Bind.bind (f (as.get ⟨j, hlt⟩)) fun b => loop i' (hAdd j 1) (bs.push b))
+      (fun _ => bs)
+  loop as.size 0 Array.empty
+
 /-- A Function for lifting a computation from an inner Monad to an outer Monad.
     Like [MonadTrans](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html),
     but `n` does not have to be a monad transformer.

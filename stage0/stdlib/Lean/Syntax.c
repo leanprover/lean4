@@ -204,6 +204,7 @@ lean_object* l_Lean_Syntax_isMissing_match__1___rarg(lean_object*, lean_object*,
 uint8_t l_Lean_Syntax_isMissing(lean_object*);
 lean_object* l_Lean_Syntax_replaceM___at_Lean_Syntax_updateLeading___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_getNumArgs(lean_object*);
+lean_object* l_Lean_Syntax_isAntiquotSplice___boxed(lean_object*);
 lean_object* l_Lean_Syntax_instToStringSyntax___closed__1;
 lean_object* l_String_posOfAux(lean_object*, uint32_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo_match__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -241,6 +242,7 @@ lean_object* l_Lean_mkSimpleAtom(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo_match__3(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goDown___rarg___lambda__1(lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_List_beq___at_Lean_Syntax_structEq___spec__3___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__1;
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg___lambda__1(lean_object*);
@@ -285,6 +287,7 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goLeft(lean_object*);
 lean_object* l_Lean_Syntax_reprint_match__1(lean_object*);
+uint8_t l_Lean_Syntax_isAntiquotSplice(lean_object*);
 lean_object* l_Lean_SourceInfo_updateTrailing(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -594,6 +597,37 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Syntax_isAntiquot(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Lean_Syntax_isAntiquotSplice(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_2 = l_Lean_Syntax_isAntiquot(x_1);
+x_3 = lean_unsigned_to_nat(4u);
+x_4 = l_Lean_Syntax_getArg(x_1, x_3);
+x_5 = l_Lean_Syntax_isNone(x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+return x_2;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
+}
+}
+}
+lean_object* l_Lean_Syntax_isAntiquotSplice___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Syntax_isAntiquotSplice(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
@@ -1033,7 +1067,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Syntax_getAtomVal_x21___closed__1;
 x_2 = l_Lean_Syntax_getAtomVal_x21___closed__2;
-x_3 = lean_unsigned_to_nat(80u);
+x_3 = lean_unsigned_to_nat(84u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Syntax_getAtomVal_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

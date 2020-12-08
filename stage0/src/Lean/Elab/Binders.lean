@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Term
-import Lean.Elab.Quotation
 
 namespace Lean.Elab.Term
 open Meta
@@ -40,15 +39,15 @@ structure BinderView where
   bi : BinderInfo
 
 partial def quoteAutoTactic : Syntax → TermElabM Syntax
-  | stx@(Syntax.ident _ _ _ _) => throwErrorAt stx "invalic auto tactic, identifier is not allowed"
+  | stx@(Syntax.ident _ _ _ _) => throwErrorAt stx "invalid auto tactic, identifier is not allowed"
   | stx@(Syntax.node k args)   => do
     if stx.isAntiquot then
-      throwErrorAt stx "invalic auto tactic, antiquotation is not allowed"
+      throwErrorAt stx "invalid auto tactic, antiquotation is not allowed"
     else
       let mut quotedArgs ← `(Array.empty)
       for arg in args do
-        if k == nullKind && Quotation.isAntiquotSplice arg then
-          throwErrorAt arg "invalic auto tactic, antiquotation is not allowed"
+        if k == nullKind && arg.isAntiquotSplice then
+          throwErrorAt arg "invalid auto tactic, antiquotation is not allowed"
         else
           let quotedArg ← quoteAutoTactic arg
           quotedArgs ← `(Array.push $quotedArgs $quotedArg)

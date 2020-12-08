@@ -7,7 +7,6 @@ import Init.Data.ToString
 import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.KAbstract
 import Lean.Elab.Term
-import Lean.Elab.Quotation
 import Lean.Elab.SyntheticMVars
 
 namespace Lean.Elab.Term

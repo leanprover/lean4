@@ -30,6 +30,10 @@ def Syntax.isAntiquot : Syntax → Bool
   | Syntax.node (Name.str _ "antiquot" _) _ => true
   | _                                       => false
 
+-- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
+def Syntax.isAntiquotSplice (stx : Syntax) : Bool :=
+  stx.isAntiquot && !stx[4].isNone
+
 inductive IsNode : Syntax → Prop where
   | mk (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node kind args)
 

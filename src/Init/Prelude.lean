@@ -320,19 +320,22 @@ instance {p} [dp : Decidable p] : Decidable (Not p) :=
 
 /- Boolean operators -/
 
-@[macroInline] def cond {a : Type u} : Bool → a → a → a
-  | true,  x, y => x
-  | false, x, y => y
+@[macroInline] def cond {α : Type u} (c : Bool) (x y : α) : α :=
+  match c with
+  | true  => x
+  | false => y
 
-@[macroInline] def or : Bool → Bool → Bool
-  | true,  _ => true
-  | false, b => b
+@[macroInline] def or (x y : Bool) : Bool :=
+  match x with
+  | true  => true
+  | false => y
 
-@[macroInline] def and : Bool → Bool → Bool
-  | false, _ => false
-  | true,  b => b
+@[macroInline] def and (x y : Bool) : Bool :=
+  match x with
+  | false => false
+  | true  => y
 
-@[macroInline] def not : Bool → Bool
+@[inline] def not : Bool → Bool
   | true  => false
   | false => true
 

@@ -414,39 +414,39 @@ class OrElse (α : Type u) where
 class AndThen (α : Type u) where
   andThen : α → α → α
 
-@[defaultInstance 1]
+@[defaultInstance 10]
 instance [Add α] : HAdd α α α where
   hAdd a b := Add.add a b
 
-@[defaultInstance 1]
+@[defaultInstance 10]
 instance [Sub α] : HSub α α α where
   hSub a b := Sub.sub a b
 
-@[defaultInstance 1]
+@[defaultInstance 10]
 instance [Mul α] : HMul α α α where
   hMul a b := Mul.mul a b
 
-@[defaultInstance 1]
+@[defaultInstance 10]
 instance [Div α] : HDiv α α α where
   hDiv a b := Div.div a b
 
-@[defaultInstance 1]
+@[defaultInstance 10]
 instance [Mod α] : HMod α α α where
   hMod a b := Mod.mod a b
 
-@[defaultInstance 1]
+@[defaultInstance 10]
 instance [Pow α] : HPow α α α where
   hPow a b := Pow.pow a b
 
-@[defaultInstance 1]
+@[defaultInstance 10]
 instance [Append α] : HAppend α α α where
   hAppend a b := Append.append a b
 
-@[defaultInstance 1]
+@[defaultInstance 10]
 instance [OrElse α] : HOrElse α α α where
   hOrElse a b := OrElse.orElse a b
 
-@[defaultInstance 1]
+@[defaultInstance 10]
 instance [AndThen α] : HAndThen α α α where
   hAndThen a b := AndThen.andThen a b
 

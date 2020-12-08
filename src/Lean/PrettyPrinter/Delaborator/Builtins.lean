@@ -80,7 +80,7 @@ def delabConst : Delab := do
   if ls.isEmpty || !ppUnivs then
     pure $ mkIdent c
   else
-    `($(mkIdent c).{$(mkSepArray (ls.toArray.map quote) (mkAtom ","))*})
+    `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 
 inductive ParamKind where
   | explicit
@@ -179,8 +179,7 @@ private def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) :
       let ty ← inferType alt
       withReader ({ · with expr := ty }) $
         skippingBinders st.info.altNumParams[idx] do
-          let pats ← withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
-          mkSepArray pats (mkAtom ",")
+          withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
 
 /--
   Delaborate applications of "matchers" such as
@@ -222,8 +221,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
   | _,        _   =>
     let discrs ← st.discrs.mapM fun discr => `(matchDiscr|$discr:term)
     let pats ← delabPatterns st
-    let alts ← pats.zipWith st.rhss (fun pats rhs => `(matchAlt|$pats* => $rhs)) |>.mapM id
-    let stx ← `(match $(mkSepArray discrs (mkAtom ",")):matchDiscr* with | $(mkSepArray alts (mkAtom "|")):matchAlt*)
+    let stx ← `(match $[$discrs],* with | $[$[$pats],* => $st.rhss]|*)
     Syntax.mkApp stx st.moreArgs
 
 @[builtinDelab mdata]
@@ -461,10 +459,8 @@ def delabTuple : Delab := whenPPOption getPPNotation do
   let a ← withAppFn $ withAppArg delab
   let b ← withAppArg delab
   match b with
-  | `(($b, $bs*)) =>
-    let bs := #[b, mkAtom ","] ++ bs;
-    `(($a, $bs*))
-  | _ => `(($a, $b))
+  | `(($b, $bs*)) => `(($a, $b, $bs*))
+  | _             => `(($a, $b))
 
 -- abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
 @[builtinDelab app.coe]
@@ -474,11 +470,8 @@ def delabCoe : Delab := whenPPOption getPPCoercions do
   -- delab as application, then discard function
   let stx ← delabAppImplicit
   match stx with
-  | `($fn $args*) =>
-    if args.size == 1 then
-      pure $ args.get! 0
-    else
-      `($(args.get! 0) $(args.eraseIdx 0)*)
+  | `($fn $arg)   => arg
+  | `($fn $args*) => `($(args.get! 0) $(args.eraseIdx 0)*)
   | _             => failure
 
 -- abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a

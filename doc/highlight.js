@@ -1106,7 +1106,7 @@ hljs.registerLanguage("lean", function(hljs) {
   var LEAN_KEYWORDS = {
     $pattern: /#?\w+/,
     keyword:
-      'theorem|10 def class structure instance ' +
+      'theorem|10 def class structure instance set_option ' +
       'example inductive coinductive ' +
       'axiom constant ' +
       'partial unsafe private protected ' +

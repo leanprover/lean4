@@ -15,6 +15,7 @@
   - [Sections](./sections.md)
   - [Namespaces](./namespaces.md)
   - [Implicit Arguments](./implicit.md)
+  - [Auto Bound Implicit Arguments](./autobound.md)
 - [Functions](./functions.md)
 - [Type classes](./typeclass.md)
 - [The `do` Notation](./do.md)

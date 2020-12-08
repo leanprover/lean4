@@ -64,12 +64,12 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
             | #[id] => match k with
               | `optional => `(match $id:ident with
                 | some $id:ident => $(quote inner)
-                | none           => #[])
+                | none           => Array.empty)
               | _ => `(Array.map (fun $id => $(inner[0])) $id)
             | #[id1, id2] => match k with
               | `optional => `(match $id1:ident, $id2:ident with
                 | some $id1:ident, some $id2:ident => $(quote inner)
-                | _                                => #[])
+                | _                                => Array.empty)
               | _ => `(Array.zipWith $id1 $id2 fun $id1 $id2 => $(inner[0]))
             | _ => throwErrorAt stx "too many antiquotations in antiquotation scope; don't be greedy"
           let arr ←
@@ -160,10 +160,12 @@ def HeadInfo.generalizes : HeadInfo → HeadInfo → Bool
   | antiquotScope stx1, antiquotScope stx2             => stx1 == stx2
   | _, _                                               => false
 
-def mkTuple : Array Syntax → TermElabM Syntax
-  | #[]  => `(())
+partial def mkTuple : Array Syntax → TermElabM Syntax
+  | #[]  => `(Unit.unit)
   | #[e] => e
-  | es   => `(($(es[0]), $(es.eraseIdx 0)*))
+  | es   => do
+    let stx ← mkTuple (es.eraseIdx 0)
+    `(Prod.mk $(es[0]) $stx)
 
 private def getHeadInfo (alt : Alt) : HeadInfo :=
   let pat := alt.fst.head!;

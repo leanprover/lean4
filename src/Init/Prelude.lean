@@ -1065,10 +1065,13 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
 def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
   a.data.get i.val i.isLt
 
+@[inline] def Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
+  dite (Less i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => v₀)
+
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-  dite (Less i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => arbitrary)
+  Array.getD a i arbitrary
 
 def Array.getOp {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
   self.get! idx
@@ -1083,9 +1086,12 @@ def Array.set (a : Array α) (i : @& Fin a.size) (v : α) : Array α := {
   data := a.data.set i.val v
 }
 
+@[inline] def Array.setD (a : Array α) (i : Nat) (v : α) : Array α :=
+  dite (Less i a.size) (fun h => a.set ⟨i, h⟩ v) (fun _ => a)
+
 @[extern "lean_array_set"]
 def Array.set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
-  dite (Less i a.size) (fun h => a.set ⟨i, h⟩ v) (fun _ => a)
+  Array.setD a i v
 
 -- Slower `Array.append` used in quotations.
 protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
@@ -1634,7 +1640,7 @@ def isOfKind (stx : Syntax) (k : SyntaxNodeKind) : Bool :=
 
 def getArg (stx : Syntax) (i : Nat) : Syntax :=
   match stx with
-  | Syntax.node _ args => args.get! i
+  | Syntax.node _ args => args.getD i Syntax.missing
   | _                  => Syntax.missing
 
 -- Add `stx[i]` as sugar for `stx.getArg i`
@@ -1658,7 +1664,7 @@ def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
 
 def setArg (stx : Syntax) (i : Nat) (arg : Syntax) : Syntax :=
   match stx with
-  | node k args => node k (args.set! i arg)
+  | node k args => node k (args.setD i arg)
   | stx         => stx
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/

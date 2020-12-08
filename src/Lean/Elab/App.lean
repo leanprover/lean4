@@ -864,7 +864,9 @@ partial def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × A
   let f    := stx[0]
   let args := stx[1].getArgs
   let (args, ellipsis) :=
-    if args.back.isOfKind `Lean.Parser.Term.ellipsis then
+    if args.isEmpty then
+      (args, false)
+    else if args.back.isOfKind `Lean.Parser.Term.ellipsis then
       (args.pop, true)
     else
       (args, false)

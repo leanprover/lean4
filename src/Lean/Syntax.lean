@@ -257,6 +257,10 @@ structure Traverser where
 
 namespace Traverser
 
+-- TODO(Kha): check this
+def idxsBack (t : Traverser) : Nat :=
+  if t.idxs.isEmpty then 0 else t.idxs.back
+
 def fromSyntax (stx : Syntax) : Traverser :=
   ⟨stx, #[], #[]⟩
 
@@ -273,7 +277,7 @@ def down (t : Traverser) (idx : Nat) : Traverser :=
 /-- Advance to the parent of the current node, if any. -/
 def up (t : Traverser) : Traverser :=
   if t.parents.size > 0 then
-    let cur := if t.idxs.back < t.parents.back.getNumArgs then t.parents.back.setArg t.idxs.back t.cur else t.parents.back
+    let cur := if t.idxsBack < t.parents.back.getNumArgs then t.parents.back.setArg t.idxsBack t.cur else t.parents.back
     { cur := cur, parents := t.parents.pop, idxs := t.idxs.pop }
   else
     t
@@ -281,14 +285,14 @@ def up (t : Traverser) : Traverser :=
 /-- Advance to the left sibling of the current node, if any. -/
 def left (t : Traverser) : Traverser :=
   if t.parents.size > 0 then
-    t.up.down (t.idxs.back - 1)
+    t.up.down (t.idxsBack - 1)
   else
     t
 
 /-- Advance to the right sibling of the current node, if any. -/
 def right (t : Traverser) : Traverser :=
   if t.parents.size > 0 then
-    t.up.down (t.idxs.back + 1)
+    t.up.down (t.idxsBack + 1)
   else
     t
 
@@ -311,7 +315,7 @@ def goRight               : m Unit := @modify _ _ t.st (fun t => t.right)
 
 def getIdx : m Nat := do
   let st ← t.st.get
-  pure st.idxs.back
+  pure st.idxsBack
 
 end MonadTraverser
 end Syntax

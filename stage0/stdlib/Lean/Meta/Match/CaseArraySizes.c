@@ -32,6 +32,7 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_caseArraySizes___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseArraySizes___lambda__1___closed__2;
+extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__16;
 lean_object* l_Lean_Meta_caseArraySizes_match__6___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CaseArraySizesSubgoal_elems___default;
 extern lean_object* l_Lean_Literal_type___closed__3;
@@ -72,7 +73,6 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_caseValue___closed__2;
 lean_object* l_Lean_Meta_getArrayArgType___closed__1;
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
-lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__5;
 lean_object* l_Lean_Meta_clear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getArrayArgType___closed__2;
@@ -1056,26 +1056,17 @@ return x_3;
 static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__4() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string("hEqALit");
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__5() {
+static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__4;
+x_2 = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1120,7 +1111,7 @@ x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
 x_23 = l_Lean_mkNatLit(x_3);
-x_24 = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__3;
+x_24 = l_Lean_Syntax_mkAntiquotNode___closed__16;
 x_25 = lean_array_push(x_24, x_2);
 x_26 = lean_array_push(x_25, x_23);
 x_27 = lean_array_push(x_26, x_5);
@@ -1143,7 +1134,7 @@ lean_closure_set(x_32, 0, x_1);
 lean_closure_set(x_32, 1, x_8);
 lean_closure_set(x_32, 2, x_9);
 lean_closure_set(x_32, 3, x_30);
-x_33 = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__5;
+x_33 = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__4;
 x_34 = 0;
 x_35 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___spec__2___rarg(x_33, x_34, x_21, x_32, x_10, x_11, x_12, x_13, x_31);
 return x_35;
@@ -2659,8 +2650,6 @@ l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___clo
 lean_mark_persistent(l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__3);
 l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__4 = _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__4();
 lean_mark_persistent(l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__4);
-l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__5 = _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__5();
-lean_mark_persistent(l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__5);
 l_Lean_Meta_caseArraySizes___lambda__1___closed__1 = _init_l_Lean_Meta_caseArraySizes___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_caseArraySizes___lambda__1___closed__1);
 l_Lean_Meta_caseArraySizes___lambda__1___closed__2 = _init_l_Lean_Meta_caseArraySizes___lambda__1___closed__2();

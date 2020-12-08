@@ -123,7 +123,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Parser_testParseModuleAux_parse
 lean_object* l_Lean_Parser_Module_import_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_initCacheForInput(lean_object*);
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__4;
-extern lean_object* l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__4;
 extern lean_object* l_Lean_Parser_Term_quot___elambda__1___closed__4;
 lean_object* l_Lean_Parser_testParseModuleAux_parse___closed__1;
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__11;
@@ -319,6 +318,7 @@ lean_object* l_Lean_Parser_parseCommand(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_Parser_testParseModule(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_prelude___closed__6;
 lean_object* l_Lean_Parser_Module_header_formatter___closed__1;
+extern lean_object* l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__2;
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_import___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_isEOI___boxed(lean_object*);
@@ -2741,7 +2741,7 @@ static lean_object* _init_l_Lean_Parser_topLevelCommandParserFn___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__4;
+x_1 = l_Lean_Parser_antiquotNestedExpr___elambda__1___closed__2;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_lookaheadFn), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

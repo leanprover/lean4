@@ -100,6 +100,7 @@ extern lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed
 lean_object* l_Lean_Meta_withNewMCtxDepth___at___private_Lean_Meta_Instances_0__Lean_Meta_mkInstanceKey___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabNativeRefl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instReprBool___closed__1;
+extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__16;
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabParserMacro___lambda__1___closed__4;
 lean_object* l___regBuiltin_Lean_Elab_Term_expandAssert___closed__2;
@@ -603,7 +604,6 @@ lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabTParser
 lean_object* l_Lean_Elab_Term_expandShow___closed__14;
 lean_object* l_Lean_Elab_Term_expandAssert___closed__1;
 lean_object* l_Lean_Elab_Term_elabSubst_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_tryCoe___closed__3;
 lean_object* l_Lean_Elab_Term_elabSubst___closed__6;
 lean_object* l_Lean_Elab_Term_expandUnreachable___rarg___closed__8;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabAnonymousCtor___closed__1;
@@ -14391,7 +14391,7 @@ lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean
 x_35 = lean_ctor_get(x_34, 1);
 lean_inc(x_35);
 lean_dec(x_34);
-x_36 = l___private_Lean_Elab_Term_0__Lean_Elab_Term_tryCoe___closed__3;
+x_36 = l_Lean_Syntax_mkAntiquotNode___closed__16;
 x_37 = lean_array_push(x_36, x_25);
 x_38 = lean_array_push(x_37, x_1);
 x_39 = lean_array_push(x_38, x_19);

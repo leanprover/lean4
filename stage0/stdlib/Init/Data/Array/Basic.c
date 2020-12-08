@@ -21,7 +21,6 @@ lean_object* l_Array_findM_x3f(lean_object*, lean_object*);
 lean_object* l_List_repr___rarg(lean_object*, lean_object*);
 lean_object* l_Array_findSomeM_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Array_findRevM_x3f___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_indexOfAux_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Array_getEvenElems___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_getMax_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Array_findIdxM_x3f___spec__1___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,7 +47,6 @@ lean_object* l_Array_findSome_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Array_findSomeM_x3f___spec__1___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapIdxM(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_isPrefixOfAux_match__1(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_allDiffAux___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_toListLitAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -301,7 +299,6 @@ lean_object* l_Array_forInUnsafe_loop___rarg___lambda__1(lean_object*, size_t, l
 lean_object* l_Array_foldlMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_swapAt_x21___rarg___closed__1;
 lean_object* l_Array_findSomeRevM_x3f_find___at_Array_findRev_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_Basic_0__Array_allDiffAux_match__1(lean_object*);
 lean_object* l_Array_swapAt_x21___rarg___closed__2;
 lean_object* l_Array_zipWith(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_isPrefixOfAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -312,7 +309,6 @@ lean_object* l_Array_findSomeRevM_x3f_find___rarg___boxed(lean_object*, lean_obj
 lean_object* l_Array_filterMap(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Array_allM___spec__1___rarg___lambda__1(lean_object*, uint8_t);
 lean_object* l_Array_findSomeM_x3f___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_isPrefixOfAux_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Array_eraseIdxSzAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3418____closed__2;
@@ -533,7 +529,6 @@ lean_object* l_Array_partition_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Array_filterMap___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_filterMapM_match__1(lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3418____closed__7;
-lean_object* l_Array_indexOfAux_match__1(lean_object*);
 lean_object* l_Array_forRevM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3418____closed__10;
 lean_object* l_Array_shrink_loop_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -588,7 +583,6 @@ lean_object* l_Array_zipWithAux___at_Array_zip___spec__1___rarg(lean_object*, le
 lean_object* l_Array_filter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSome_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Data_Array_Basic_0__Array_allDiffAuxAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_Basic_0__Array_allDiffAux_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Array_findSomeM_x3f___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldrM_fold(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_insertAt___rarg(lean_object*, lean_object*, lean_object*);
@@ -8878,22 +8872,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Array_indexOfAux_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_2, x_1);
-return x_3;
-}
-}
-lean_object* l_Array_indexOfAux_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_indexOfAux_match__1___rarg), 2, 0);
-return x_2;
-}
-}
 lean_object* l_Array_indexOfAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -9546,22 +9524,6 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_Array_isPrefixOfAux_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_2, x_1);
-return x_3;
-}
-}
-lean_object* l_Array_isPrefixOfAux_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_isPrefixOfAux_match__1___rarg), 2, 0);
-return x_2;
-}
-}
 uint8_t l_Array_isPrefixOfAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -9781,22 +9743,6 @@ x_6 = l___private_Init_Data_Array_Basic_0__Array_allDiffAuxAux___rarg(x_1, x_2, 
 lean_dec(x_2);
 x_7 = lean_box(x_6);
 return x_7;
-}
-}
-lean_object* l___private_Init_Data_Array_Basic_0__Array_allDiffAux_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_2, x_1);
-return x_3;
-}
-}
-lean_object* l___private_Init_Data_Array_Basic_0__Array_allDiffAux_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_allDiffAux_match__1___rarg), 2, 0);
-return x_2;
 }
 }
 uint8_t l___private_Init_Data_Array_Basic_0__Array_allDiffAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

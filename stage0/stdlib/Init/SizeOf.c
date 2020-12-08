@@ -51,31 +51,13 @@ lean_object* l_instSizeOfList_loop_match__1___rarg(lean_object*, lean_object*, l
 lean_object* l_instSizeOfSigma_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSizeOfNat___boxed(lean_object*);
 lean_object* l_instSizeOfSigma_match__1___rarg(lean_object*, lean_object*);
-lean_object* l_default_sizeOf_match__1(lean_object*, lean_object*);
 lean_object* l_default_sizeOf(lean_object*, lean_object*);
 lean_object* l_instSizeOfProd___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSizeOfOption___rarg(lean_object*, lean_object*);
 lean_object* l_instSizeOfPSigma___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_default_sizeOf_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_instSizeOfSubtype_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_instSizeOfOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSizeOfBool(uint8_t);
-lean_object* l_default_sizeOf_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_2, x_1);
-return x_3;
-}
-}
-lean_object* l_default_sizeOf_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_default_sizeOf_match__1___rarg), 2, 0);
-return x_3;
-}
-}
 lean_object* l_default_sizeOf(lean_object* x_1, lean_object* x_2) {
 _start:
 {

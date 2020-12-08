@@ -10,13 +10,14 @@ import Lean.Elab.Term
 import Lean.Elab.App
 import Lean.Elab.Binders
 import Lean.Elab.LetRec
-import Lean.Elab.Quotation
 import Lean.Elab.Frontend
 import Lean.Elab.BuiltinNotation
 import Lean.Elab.Declaration
 import Lean.Elab.Tactic
-import Lean.Elab.Syntax
 import Lean.Elab.Match
+-- HACK: must come after `Match` because builtin elaborators (for `match` in this case) do not take priorities
+import Lean.Elab.Quotation
+import Lean.Elab.Syntax
 import Lean.Elab.Do
 import Lean.Elab.StructInst
 import Lean.Elab.Inductive

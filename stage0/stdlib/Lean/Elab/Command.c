@@ -166,6 +166,7 @@ lean_object* l_Lean_Elab_Command_instMonadRefCommandElabM;
 lean_object* l___private_Lean_Elab_Command_0__Lean_Elab_Command_addScopes___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabSynth___closed__3;
 lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_1150____closed__1;
+extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__16;
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___at_Lean_Elab_Command_addUnivLevel___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabInitQuot___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_ensureNoUnassignedMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -825,7 +826,6 @@ lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFr
 uint8_t l_Lean_Elab_getMacroStackOption(lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at_Lean_Elab_Command_expandDeclId___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg___closed__1;
-extern lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_tryCoe___closed__3;
 lean_object* l_Lean_Elab_Command_elabNamespace___closed__1;
 lean_object* l_Lean_ScopedEnvExtension_activateScoped___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadLogCommandElabM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -20553,7 +20553,7 @@ _start:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_12 = l_Lean_Elab_Command_elabEvalUnsafe___lambda__4___closed__1;
 x_13 = lean_name_mk_string(x_1, x_12);
-x_14 = l___private_Lean_Elab_Term_0__Lean_Elab_Term_tryCoe___closed__3;
+x_14 = l_Lean_Syntax_mkAntiquotNode___closed__16;
 lean_inc(x_2);
 x_15 = lean_array_push(x_14, x_2);
 lean_inc(x_4);

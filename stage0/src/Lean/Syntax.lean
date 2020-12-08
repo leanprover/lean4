@@ -20,20 +20,6 @@ def Syntax.isMissing : Syntax → Bool
   | Syntax.missing => true
   | _ => false
 
--- quotation node kinds are formed from a unique quotation name plus "quot"
-def Syntax.isQuot : Syntax → Bool
-  | Syntax.node (Name.str _ "quot" _) _ => true
-  | _                                   => false
-
--- antiquotation node kinds are formed from the original node kind (if any) plus "antiquot"
-def Syntax.isAntiquot : Syntax → Bool
-  | Syntax.node (Name.str _ "antiquot" _) _ => true
-  | _                                       => false
-
--- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
-def Syntax.isAntiquotSplice (stx : Syntax) : Bool :=
-  stx.isAntiquot && !stx[4].isNone
-
 inductive IsNode : Syntax → Prop where
   | mk (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node kind args)
 
@@ -343,4 +329,80 @@ def mkSimpleAtom (val : String) : Syntax :=
 def mkListNode (args : Array Syntax) : Syntax :=
   Syntax.node nullKind args
 
+namespace Syntax
+
+-- quotation node kinds are formed from a unique quotation name plus "quot"
+def isQuot : Syntax → Bool
+  | Syntax.node (Name.str _ "quot" _) _ => true
+  | _                                   => false
+
+-- antiquotation node kinds are formed from the original node kind (if any) plus "antiquot"
+def isAntiquot : Syntax → Bool
+  | Syntax.node (Name.str _ "antiquot" _) _ => true
+  | _                                       => false
+
+-- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
+def isAntiquotSplice (stx : Syntax) : Bool :=
+  stx.isAntiquot && !stx[4].isNone
+
+def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none) (kind := Name.anonymous) (splice := false) : Syntax :=
+  let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
+  let term := match term.isIdent with
+    | true  => term
+    | false => mkNode `antiquotNestedExpr #[mkAtom "(", term, mkAtom ")"]
+  let name := match name with
+    | some name => mkNode `antiquotName #[mkAtom ":", mkAtom name]
+    | none      => mkNullNode
+  let splice := match splice with
+    | true  => mkNullNode #[mkAtom "*"]
+    | false => mkNullNode
+  mkNode (kind ++ `antiquot) #[mkAtom "$", nesting, term, name, splice]
+
+-- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros. Also works for antiquotation scopes.
+def isEscapedAntiquot (stx : Syntax) : Bool :=
+  !stx[1].getArgs.isEmpty
+
+-- Also works for antiquotation scopes.
+def unescapeAntiquot (stx : Syntax) : Syntax :=
+  if isAntiquot stx then
+    stx.setArg 1 $ mkNullNode stx[1].getArgs.pop
+  else
+    stx
+
+def getAntiquotTerm (stx : Syntax) : Syntax :=
+  let e := stx[2]
+  if e.isIdent then e
+  else
+    -- `e` is from `"(" >> termParser >> ")"`
+    e[1]
+
+def antiquotKind? : Syntax → Option SyntaxNodeKind
+  | Syntax.node (Name.str k "antiquot" _) args =>
+    if args[3].isOfKind `antiquotName then some k
+    else
+      -- we treat all antiquotations where the kind was left implicit (`$e`) the same (see `elimAntiquotChoices`)
+      some Name.anonymous
+  | _                                          => none
+
+-- An "antiquotation scope" is something like `$[...]?` or `$[...]*`. Note that the latter could be of kind `many` or
+-- `sepBy`, which have different implementations.
+def antiquotScopeKind? : Syntax → Option SyntaxNodeKind
+  | Syntax.node (Name.str k "antiquot_scope" _) args => some k
+  | _                                                => none
+
+def isAntiquotScope (stx : Syntax) : Bool :=
+  antiquotScopeKind? stx |>.isSome
+
+def getAntiquotScopeContents (stx : Syntax) : Array Syntax :=
+  stx[3].getArgs
+
+def getAntiquotScopeSuffix (stx : Syntax) : Syntax :=
+  stx[5]
+
+-- If any item of a `many` node is an antiquotation splice, its result should
+-- be substituted into the `many` node's children
+def isAntiquotSplicePat (stx : Syntax) : Bool :=
+  stx.isOfKind nullKind && stx.getArgs.any fun arg => isAntiquotSplice arg && !isEscapedAntiquot arg
+
+end Syntax
 end Lean

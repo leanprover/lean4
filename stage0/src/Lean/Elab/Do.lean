@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.Match
+import Lean.Elab.Quotation.Util
 
 namespace Lean.Elab.Term
 open Meta
@@ -529,12 +530,23 @@ def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Name) (k : CodeBl
 def getLetIdDeclVar (letIdDecl : Syntax) : Name :=
   letIdDecl[0].getId
 
-def getLetPatDeclVars (letPatDecl : Syntax) : TermElabM (Array Name) := do
-  let pattern := letPatDecl[0]
-  let patternVars ← getPatternVars pattern
-  pure $ patternVars.filterMap fun
+def getPatternVarNames (pvars : Array PatternVar) : Array Name :=
+  pvars.filterMap fun
     | PatternVar.localVar x => some x
     | _ => none
+
+-- support both regular and syntax match
+def getPatternVarsEx (pattern : Syntax) : TermElabM (Array Name) :=
+  getPatternVarNames <$> getPatternVars pattern <|>
+  Array.map Syntax.getId <$> Quotation.getPatternVars pattern
+
+def getPatternsVarsEx (patterns : Array Syntax) : TermElabM (Array Name) :=
+  getPatternVarNames <$> getPatternsVars patterns <|>
+  Array.map Syntax.getId <$> Quotation.getPatternsVars patterns
+
+def getLetPatDeclVars (letPatDecl : Syntax) : TermElabM (Array Name) := do
+  let pattern := letPatDecl[0]
+  getPatternVarsEx pattern
 
 def getLetEqnsDeclVar (letEqnsDecl : Syntax) : Name :=
   letEqnsDecl[0].getId
@@ -583,16 +595,10 @@ def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Name) := do
 def getDoIdDeclVar (doIdDecl : Syntax) : Name :=
   doIdDecl[0].getId
 
-def getPatternVarNames (pvars : Array PatternVar) : Array Name :=
-  pvars.filterMap fun
-    | PatternVar.localVar x => some x
-    | _ => none
-
 -- termParser >> leftArrow >> termParser >> optional (" | " >> termParser)
 def getDoPatDeclVars (doPatDecl : Syntax) : TermElabM (Array Name) := do
   let pattern := doPatDecl[0]
-  let patternVars ← getPatternVars pattern
-  pure $ getPatternVarNames patternVars
+  getPatternVarsEx pattern
 
 -- parser! "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
 def getDoLetArrowVars (doLetArrow : Syntax) : TermElabM (Array Name) := do
@@ -1338,8 +1344,7 @@ def doMatchToCode (doSeqToCode : List Syntax → M CodeBlock) (doMatch : Syntax)
   let matchAlts := doMatch[4][1].getSepArgs -- Array of `doMatchAlt`
   let alts ←  matchAlts.mapM fun matchAlt => do
     let patterns := matchAlt[0]
-    let pvars ← getPatternsVars patterns.getSepArgs
-    let vars := getPatternVarNames pvars
+    let vars ← getPatternsVarsEx patterns.getSepArgs
     let rhs  := matchAlt[2]
     let rhs ← doSeqToCode (getDoSeqElems rhs)
     pure { ref := matchAlt, vars := vars, patterns := patterns, rhs := rhs : Alt CodeBlock }

@@ -31,7 +31,7 @@ def registerCombinatorAttribute (name : Name) (descr : String)
       let env ← getEnv
       match attrParamSyntaxToIdentifier args with
       | some parserDeclName => do
-        getConstInfo parserDeclName
+        discard <| getConstInfo parserDeclName
         setEnv <| ext.addEntry env (parserDeclName, decl)
       | none            => throwError! "invalid [{name}] argument, expected identifier"
   }

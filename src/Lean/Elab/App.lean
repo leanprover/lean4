@@ -336,8 +336,7 @@ private def finalize : M Expr := do
   | some expectedType =>
      trace[Elab.app.finalize]! "expected type: {expectedType}"
      -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
-     isDefEq expectedType eType
-     pure ()
+     discard <| isDefEq expectedType eType
   synthesizeAppInstMVars
   pure e
 

@@ -471,7 +471,7 @@ partial def collect : Syntax → M Syntax
       /- Recall that
          def namedPattern := check... >> tparser! "@" >> termParser -/
       let id := stx[0]
-      processVar id
+      discard <| processVar id
       let pat := stx[2]
       let pat ← collect pat
       `(namedPattern $id $pat)
@@ -521,8 +521,7 @@ def getPatternVars (patternStx : Syntax) : TermElabM (Array PatternVar) := do
 def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := do
   let collect : CollectPatternVars.M Unit := do
     for pattern in patterns do
-      CollectPatternVars.collect (← liftMacroM $ expandMacros pattern)
-      pure ()
+      discard <| CollectPatternVars.collect (← liftMacroM $ expandMacros pattern)
   let (_, s) ← collect.run {}
   pure s.vars
 
@@ -552,8 +551,7 @@ private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array P
       decls.forM fun decl => match decl with
         | PatternVarDecl.anonymousVar mvarId fvarId => do
           let type ← inferType (mkFVar fvarId)
-          mkFreshExprMVarWithId mvarId type
-          pure ()
+          discard <| mkFreshExprMVarWithId mvarId type
         | _ => pure ()
       k decls
   loop 0 #[]

@@ -383,7 +383,7 @@ def toStringArgs (ys : Array Arg) : List String :=
 def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M Unit := do
   emit f; emit "("
   -- We must remove irrelevant arguments to extern calls.
-  ys.size.foldM
+  discard <| ys.size.foldM
     (fun i (first : Bool) =>
       if ps[i].ty.isIrrelevant then
         pure first

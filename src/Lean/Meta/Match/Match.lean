@@ -589,7 +589,7 @@ def mkMatcher (matcherName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : 
     let matcher ← mkAuxDefinition matcherName type val (compile := generateMatcherCode (← getOptions))
     trace[Meta.Match.debug]! "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen
-    isLevelDefEq uElimGen uElim
+    discard <| isLevelDefEq uElimGen uElim
     addMatcherInfo matcherName { numParams := matcher.getAppNumArgs, numDiscrs := numDiscrs, altNumParams := minors.map Prod.snd, uElimPos? := uElimPos? }
     setInlineAttribute matcherName
     trace[Meta.Match.debug]! "matcher: {matcher}"

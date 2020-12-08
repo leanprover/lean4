@@ -85,8 +85,7 @@ builtin_initialize
     descr := "unification hint"
     add   := fun declName args kind => do
       if args.hasArgs then throwError "invalid attribute 'unificationHint', unexpected argument"
-      addUnificationHint declName kind |>.run
-      pure ()
+      discard <| addUnificationHint declName kind |>.run
   }
 
 def tryUnificationHints (t s : Expr) : MetaM Bool := do

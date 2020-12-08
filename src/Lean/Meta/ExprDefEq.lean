@@ -166,9 +166,8 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
         let a₂   := args₂[i]
         let info := finfo.paramInfo[i]
         if info.instImplicit then
-          trySynthPending a₁
-          trySynthPending a₂
-          pure ()
+          discard <| trySynthPending a₁
+          discard <| trySynthPending a₂
         withAtLeastTransparency TransparencyMode.default $ Meta.isExprDefEqAux a₁ a₂
     else
       pure false

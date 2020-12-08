@@ -322,7 +322,7 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
   let m ← elabTerm m (← mkArrow (mkSort levelOne) (mkSort levelOne))
   let ω ← mkFreshExprMVar (mkSort levelOne)
   let stWorld ← mkAppM `STWorld #[ω, m]
-  mkInstMVar stWorld
+  discard <| mkInstMVar stWorld
   mkAppM `StateRefT' #[ω, σ, m]
 
 end Lean.Elab.Term

@@ -270,8 +270,7 @@ builtin_initialize recursorAttribute : ParametricAttribute Nat ←
     descr := "user defined recursor, numerical parameter specifies position of the major premise",
     getParam := fun _ stx => ofExcept $ syntaxToMajorPos stx,
     afterSet := fun declName majorPos => do
-      (mkRecursorInfoCore declName (some majorPos)).run'
-      pure ()
+      discard <| mkRecursorInfoCore declName (some majorPos) |>.run'
   }
 
 def getMajorPos? (env : Environment) (declName : Name) : Option Nat :=

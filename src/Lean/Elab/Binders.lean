@@ -298,7 +298,7 @@ private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : 
     let expectedType ← whnfForall expectedType
     match expectedType with
     | Expr.forallE _ d b _ =>
-      isDefEq fvarType d
+      discard <| isDefEq fvarType d
       let b := b.instantiate1 fvar
       pure { s with expectedType? := some b }
     | _ => pure { s with expectedType? := none }

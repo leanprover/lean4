@@ -504,8 +504,7 @@ private def propagateExpectedType (type : Expr) (numFields : Nat) (expectedType?
       | none           => pure ()
       | some typeBody =>
         unless typeBody.hasLooseBVars do
-          isDefEq expectedType typeBody
-          pure ()
+          discard <| isDefEq expectedType typeBody
 
 private def mkCtorHeader (ctorVal : ConstructorVal) (expectedType? : Option Expr) : TermElabM CtorHeaderResult := do
   let lvls ← ctorVal.lparams.mapM fun _ => mkFreshLevelMVar

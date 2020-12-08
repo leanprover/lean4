@@ -14,8 +14,7 @@ whether terms produced by tactics and `isDefEq` are type correct.
 namespace Lean.Meta
 
 private def ensureType (e : Expr) : MetaM Unit := do
-  getLevel e
-  pure ()
+  discard <| getLevel e
 
 def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
   let lctx ← getLCtx

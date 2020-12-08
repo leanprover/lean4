@@ -56,8 +56,7 @@ builtin_initialize
     descr := "type class instance"
     add   := fun declName args attrKind => do
       if args.hasArgs then throwError "invalid attribute 'instance', unexpected argument"
-      addInstance declName attrKind |>.run {} {}
-      return ()
+      discard <| addInstance declName attrKind |>.run {} {}
   }
 
 @[export lean_is_instance]
@@ -123,8 +122,7 @@ builtin_initialize
         else
           throwErrorAt args "too many arguments at attribute 'defaultInstance', numeral expected"
       unless kind == AttributeKind.global do throwError "invalid attribute 'defaultInstance', must be global"
-      addDefaultInstance declName prio |>.run {} {}
-      pure ()
+      discard <| addDefaultInstance declName prio |>.run {} {}
   }
 
 def getDefaultInstancesPriorities [Monad m] [MonadEnv m] : m PrioritySet :=

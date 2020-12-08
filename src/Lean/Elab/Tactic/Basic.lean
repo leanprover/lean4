@@ -184,7 +184,7 @@ def getMainTag : TacticM Name := do
 def ensureHasNoMVars (e : Expr) : TacticM Unit := do
   let e ← instantiateMVars e
   let pendingMVars ← getMVars e
-  Term.logUnassignedUsingErrorInfos pendingMVars
+  discard <| Term.logUnassignedUsingErrorInfos pendingMVars
   if e.hasExprMVar then
     throwError! "tactic failed, resulting expression contains metavariables{indentExpr e}"
 
@@ -244,8 +244,11 @@ def try? {α} (tactic : TacticM α) : TacticM (Option α) := do
 
 -- TODO: rename?
 def «try» {α} (tactic : TacticM α) : TacticM Bool := do
-  try tactic; pure true
-  catch _ => pure false
+  try
+    discard tactic
+    pure true
+  catch _ =>
+    pure false
 
 /--
   Use `parentTag` to tag untagged goals at `newGoals`.

@@ -364,7 +364,7 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
       `($defCmd:command macro_rules $altsNotK:matchAlt*)
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
-  adaptExpander fun stx => match_syntax stx with
+  adaptExpander fun stx => match stx with
   | `(macro_rules $alts:matchAlt*)           => elabNoKindMacroRulesAux alts
   | `(macro_rules | $alts:matchAlt*)         => elabNoKindMacroRulesAux alts
   | `(macro_rules [$kind] $alts:matchAlt*)   => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
@@ -374,7 +374,7 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 -- TODO: cleanup after we have support for optional syntax at `match_syntax`
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
   withAttrKindGlobal stx fun stx =>
-    match_syntax stx with
+    match stx with
     | `(infix:$prec $op => $f)   => `(infixl:$prec $op => $f)
     | `(infixr:$prec $op => $f)  => `(notation:$prec lhs $op:strLit rhs:$prec => $f lhs rhs)
     | `(infixl:$prec $op => $f)  =>  let prec1 : Syntax := quote (prec.toNat+1); `(notation:$prec lhs $op:strLit rhs:$prec1 => $f lhs rhs)
@@ -396,7 +396,7 @@ where
 
 /- Wrap all occurrences of the given `ident` nodes in antiquotations -/
 private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
-  | stx => match_syntax stx with
+  | stx => match stx with
   | `($id:ident) =>
     if (vars.findIdx? (fun var => var.getId == id.getId)).isSome then
       mkAntiquotNode id
@@ -435,7 +435,7 @@ def expandNotationItemIntoPattern (stx : Syntax) : CommandElabM Syntax :=
     The notation must be of the form `notation ... => c var_1 ... var_n`
     where `c` is a declaration in the current scope and the `var_i` are a permutation of the LHS vars. -/
 def mkSimpleDelab (vars : Array Syntax) (pat qrhs : Syntax) : OptionT CommandElabM Syntax :=
-  match_syntax qrhs with
+  match qrhs with
   | `($c:ident $args*) => go c args
   | `($c:ident)        => go c #[]
   | _                  => failure
@@ -481,7 +481,7 @@ private def expandNotationAux (ref : Syntax)
     let attrKind ← toAttributeKind stx[0]
     let stx := stx.setArg 0 mkAttrKindGlobal
     let currNamespace ← getCurrNamespace
-    match_syntax stx with
+    match stx with
     | `(notation:$prec $items* => $rhs)                => expandNotationAux stx currNamespace attrKind prec 0 items rhs
     | `(notation $items:notationItem* => $rhs)         => expandNotationAux stx currNamespace attrKind none 0 items rhs
     | `(notation:$prec [$prio] $items* => $rhs)        => expandNotationAux stx currNamespace attrKind prec (prio.isNatLit?.getD 0) items rhs

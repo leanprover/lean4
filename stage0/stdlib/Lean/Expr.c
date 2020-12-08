@@ -47,6 +47,7 @@ lean_object* l_Lean_mkSort(lean_object*);
 uint8_t l_Lean_Expr_isHeadBetaTargetFn(lean_object*);
 uint8_t l_UInt64_decEq(uint64_t, uint64_t);
 lean_object* l_Lean_Expr_bindingDomain_x21___closed__2;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11225____closed__14;
 lean_object* l_Lean_Expr_abstract___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21___closed__1;
 lean_object* l_Lean_Expr_isAtomic_match__1(lean_object*);
@@ -187,7 +188,6 @@ lean_object* l_Lean_Expr_bindingName_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_getAppArgs___closed__1;
 uint8_t l_Lean_Level_hasParam(lean_object*);
 lean_object* l_Lean_Expr_updateMData_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11836____closed__14;
 lean_object* l_Lean_Expr_updateApp_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mkAppRevRange(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateLet_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -5486,7 +5486,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_11836____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_11225____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

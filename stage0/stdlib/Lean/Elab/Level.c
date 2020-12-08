@@ -36,9 +36,9 @@ lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__2(lean_object*, 
 lean_object* l_Lean_Elab_Level_elabLevel___closed__9;
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_9203____closed__7;
 lean_object* l_Lean_Elab_Level_elabLevel(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instAddMessageContextLevelElabM(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_9707____closed__7;
 lean_object* l_Lean_Elab_Level_mkFreshLevelMVar___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
@@ -99,6 +99,7 @@ lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__2;
 lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___rarg(lean_object*);
 lean_object* l_Lean_Elab_Level_instAddMessageContextLevelElabM___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__1;
+lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__1;
@@ -106,7 +107,6 @@ lean_object* l_Lean_Level_ofNat(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
-lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__4;
 lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__3;
 lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -1002,7 +1002,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__34;
-x_2 = l_myMacro____x40_Init_Notation___hyg_9707____closed__7;
+x_2 = l_myMacro____x40_Init_Notation___hyg_9203____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1449,7 +1449,7 @@ x_96 = l_Lean_Syntax_getArg(x_1, x_95);
 lean_dec(x_1);
 x_97 = l_Lean_Syntax_getArgs(x_96);
 lean_dec(x_96);
-x_98 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_97);
+x_98 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_97);
 lean_inc(x_2);
 x_99 = l_Lean_Elab_Level_elabLevel(x_98, x_2, x_3);
 if (lean_obj_tag(x_99) == 0)
@@ -1555,7 +1555,7 @@ x_124 = l_Lean_Syntax_getArg(x_1, x_123);
 lean_dec(x_1);
 x_125 = l_Lean_Syntax_getArgs(x_124);
 lean_dec(x_124);
-x_126 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_125);
+x_126 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_125);
 lean_inc(x_2);
 x_127 = l_Lean_Elab_Level_elabLevel(x_126, x_2, x_3);
 if (lean_obj_tag(x_127) == 0)
@@ -1987,7 +1987,7 @@ x_229 = l_Lean_Syntax_getArg(x_1, x_228);
 lean_dec(x_1);
 x_230 = l_Lean_Syntax_getArgs(x_229);
 lean_dec(x_229);
-x_231 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_230);
+x_231 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_230);
 lean_inc(x_157);
 x_232 = l_Lean_Elab_Level_elabLevel(x_231, x_157, x_3);
 if (lean_obj_tag(x_232) == 0)
@@ -2099,7 +2099,7 @@ x_257 = l_Lean_Syntax_getArg(x_1, x_256);
 lean_dec(x_1);
 x_258 = l_Lean_Syntax_getArgs(x_257);
 lean_dec(x_257);
-x_259 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_258);
+x_259 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_258);
 lean_inc(x_157);
 x_260 = l_Lean_Elab_Level_elabLevel(x_259, x_157, x_3);
 if (lean_obj_tag(x_260) == 0)

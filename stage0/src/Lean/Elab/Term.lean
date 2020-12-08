@@ -907,7 +907,7 @@ instance : MonadMacroAdapter TermElabM := {
 }
 
 private def isExplicit (stx : Syntax) : Bool :=
-  match_syntax stx with
+  match stx with
   | `(@$f) => true
   | _      => false
 
@@ -918,12 +918,12 @@ private def isExplicitApp (stx : Syntax) : Bool :=
   Return true if `stx` if a lambda abstraction containing a `{}` or `[]` binder annotation.
   Example: `fun {α} (a : α) => a` -/
 private def isLambdaWithImplicit (stx : Syntax) : Bool :=
-  match_syntax stx with
+  match stx with
   | `(fun $binders* => $body) => binders.any fun b => b.isOfKind `Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
   | _                         => false
 
 private partial def dropTermParens : Syntax → Syntax | stx =>
-  match_syntax stx with
+  match stx with
   | `(($stx)) => dropTermParens stx
   | _         => stx
 

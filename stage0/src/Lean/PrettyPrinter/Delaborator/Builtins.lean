@@ -80,7 +80,7 @@ def delabConst : Delab := do
   if ls.isEmpty || !ppUnivs then
     pure $ mkIdent c
   else
-    `($(mkIdent c).{$(mkSepArray (ls.toArray.map quote) (mkAtom ","))*})
+    `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 
 inductive ParamKind where
   | explicit
@@ -140,7 +140,7 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
 def delabAppWithUnexpander : Delab := whenPPOption getPPNotation do
   let Expr.const c _ _ ← pure (← getExpr).getAppFn | failure
   let stx ← delabAppImplicit
-  match_syntax stx with
+  match stx with
   | `($cPP:ident $args*) => do
     let some (f::_) ← pure <| (appUnexpanderAttribute.ext.getState (← getEnv)).table.find? c
       | pure stx
@@ -179,8 +179,7 @@ private def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) :
       let ty ← inferType alt
       withReader ({ · with expr := ty }) $
         skippingBinders st.info.altNumParams[idx] do
-          let pats ← withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
-          mkSepArray pats (mkAtom ",")
+          withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
 
 /--
   Delaborate applications of "matchers" such as
@@ -222,8 +221,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
   | _,        _   =>
     let discrs ← st.discrs.mapM fun discr => `(matchDiscr|$discr:term)
     let pats ← delabPatterns st
-    let alts ← pats.zipWith st.rhss (fun pats rhs => `(matchAlt|$pats* => $rhs)) |>.mapM id
-    let stx ← `(match $(mkSepArray discrs (mkAtom ",")):matchDiscr* with | $(mkSepArray alts (mkAtom "|")):matchAlt*)
+    let stx ← `(match $[$discrs],* with | $[$[$pats],* => $st.rhss]|*)
     Syntax.mkApp stx st.moreArgs
 
 @[builtinDelab mdata]
@@ -322,7 +320,7 @@ def delabLam : Delab :=
         | BinderInfo.implicit,    false  => `(funBinder| {$curNames*})
         | BinderInfo.instImplicit, _     => `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
         | _                      , _     => unreachable!;
-      match_syntax stxBody with
+      match stxBody with
       | `(fun $binderGroups* => $stxBody) => `(fun $group $binderGroups* => $stxBody)
       | _                                 => `(fun $group => $stxBody)
 
@@ -460,11 +458,9 @@ def delabTuple : Delab := whenPPOption getPPNotation do
   guard $ e.getAppNumArgs == 4
   let a ← withAppFn $ withAppArg delab
   let b ← withAppArg delab
-  match_syntax b with
-  | `(($b, $bs*)) =>
-    let bs := #[b, mkAtom ","] ++ bs;
-    `(($a, $bs*))
-  | _ => `(($a, $b))
+  match b with
+  | `(($b, $bs*)) => `(($a, $b, $bs*))
+  | _             => `(($a, $b))
 
 -- abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
 @[builtinDelab app.coe]
@@ -473,12 +469,9 @@ def delabCoe : Delab := whenPPOption getPPCoercions do
   guard $ e.getAppNumArgs >= 4
   -- delab as application, then discard function
   let stx ← delabAppImplicit
-  match_syntax stx with
-  | `($fn $args*) =>
-    if args.size == 1 then
-      pure $ args.get! 0
-    else
-      `($(args.get! 0) $(args.eraseIdx 0)*)
+  match stx with
+  | `($fn $arg)   => arg
+  | `($fn $args*) => `($(args.get! 0) $(args.eraseIdx 0)*)
   | _             => failure
 
 -- abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
@@ -494,7 +487,7 @@ def delabNil : Delab := whenPPOption getPPNotation do
 def delabConsList : Delab := whenPPOption getPPNotation do
   guard $ (← getExpr).getAppNumArgs == 3
   let x ← withAppFn (withAppArg delab)
-  match_syntax (← withAppArg delab) with
+  match (← withAppArg delab) with
   | `([])     => `([$x])
   | `([$xs*]) => `([$x, $xs*])
   | _         => failure
@@ -502,7 +495,7 @@ def delabConsList : Delab := whenPPOption getPPNotation do
 @[builtinDelab app.List.toArray]
 def delabListToArray : Delab := whenPPOption getPPNotation do
   guard $ (← getExpr).getAppNumArgs == 2
-  match_syntax (← withAppArg delab) with
+  match (← withAppArg delab) with
   | `([$xs*]) => `(#[$xs*])
   | _         => failure
 

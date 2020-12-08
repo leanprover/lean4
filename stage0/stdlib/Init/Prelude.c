@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_string_data(lean_object*);
+lean_object* l_Array_getD(lean_object*);
 lean_object* l_idRhs(lean_object*);
 lean_object* l_EStateM_run___rarg(lean_object*, lean_object*);
 lean_object* l_String_csize(uint32_t);
@@ -42,6 +43,7 @@ uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_Functor_mapConst___default(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Fin_decLe___boxed(lean_object*);
+lean_object* l_Array_getD___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo_loop_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Applicative_seqRight___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -350,6 +352,7 @@ lean_object* l_UInt64_mk___boxed(lean_object*);
 uint8_t l_instDecidableAnd___rarg(uint8_t, uint8_t);
 lean_object* l_inferInstanceAs___rarg___boxed(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_setD___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadFunctorReaderT___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instDecidableEqList(lean_object*);
 lean_object* l_Lean_Syntax_getArgs___boxed(lean_object*);
@@ -541,6 +544,7 @@ lean_object* l_Lean_Name_eraseMacroScopes_match__1___rarg(uint8_t, lean_object*,
 lean_object* l_Lean_mkAtomFrom_match__1(lean_object*);
 lean_object* l_Lean_replaceRef___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_getD___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__6;
 lean_object* l_ReaderT_read(lean_object*, lean_object*);
 lean_object* l_instDecidableEqFin_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -660,6 +664,7 @@ lean_object* l_instHasLessUInt32;
 uint32_t l_Char_utf8Size(uint32_t);
 lean_object* l_EStateM_run_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_getThe___rarg___boxed(lean_object*);
+lean_object* l_Array_setD(lean_object*);
 lean_object* l_instDecidableAnd(lean_object*, lean_object*);
 lean_object* l_Lean_Name_hasMacroScopes___boxed(lean_object*);
 uint32_t l_Char_utf8Size___closed__4;
@@ -811,6 +816,7 @@ lean_object* l_List_get_match__1___rarg(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_mkAtomFrom_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo_loop___boxed(lean_object*, lean_object*);
 uint16_t lean_uint16_of_nat(lean_object*);
+lean_object* l_Array_setD___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedDepArrow(lean_object*, lean_object*);
 lean_object* l_Lean_Macro_instMonadQuotationMacroM___closed__2;
 lean_object* l_instInhabitedArrow(lean_object*, lean_object*);
@@ -4583,6 +4589,45 @@ lean_dec(x_2);
 return x_4;
 }
 }
+lean_object* l_Array_getD___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_array_get_size(x_1);
+x_5 = lean_nat_dec_lt(x_2, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+lean_inc(x_3);
+return x_3;
+}
+else
+{
+lean_object* x_6; 
+x_6 = lean_array_fget(x_1, x_2);
+return x_6;
+}
+}
+}
+lean_object* l_Array_getD(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Array_getD___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Array_getD___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Array_getD___rarg(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
+}
+}
 lean_object* l_Array_get_x21___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -4634,6 +4679,43 @@ lean_object* x_5;
 x_5 = lean_array_fset(x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
+}
+}
+lean_object* l_Array_setD___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_array_get_size(x_1);
+x_5 = lean_nat_dec_lt(x_2, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+lean_dec(x_3);
+return x_1;
+}
+else
+{
+lean_object* x_6; 
+x_6 = lean_array_fset(x_1, x_2, x_3);
+return x_6;
+}
+}
+}
+lean_object* l_Array_setD(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Array_setD___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Array_setD___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Array_setD___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
 }
 }
 lean_object* l_Array_set_x21___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -8662,17 +8744,29 @@ _start:
 {
 if (lean_obj_tag(x_1) == 1)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 1);
-x_4 = l_Lean_instInhabitedSyntax;
-x_5 = lean_array_get(x_4, x_3, x_2);
-return x_5;
-}
-else
+x_4 = lean_array_get_size(x_3);
+x_5 = lean_nat_dec_lt(x_2, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
 {
 lean_object* x_6; 
 x_6 = lean_box(0);
 return x_6;
+}
+else
+{
+lean_object* x_7; 
+x_7 = lean_array_fget(x_3, x_2);
+return x_7;
+}
+}
+else
+{
+lean_object* x_8; 
+x_8 = lean_box(0);
+return x_8;
 }
 }
 }
@@ -8929,25 +9023,53 @@ uint8_t x_4;
 x_4 = !lean_is_exclusive(x_1);
 if (x_4 == 0)
 {
-lean_object* x_5; lean_object* x_6; 
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_array_set(x_5, x_2, x_3);
-lean_ctor_set(x_1, 1, x_6);
+x_6 = lean_array_get_size(x_5);
+x_7 = lean_nat_dec_lt(x_2, x_6);
+lean_dec(x_6);
+if (x_7 == 0)
+{
+lean_dec(x_3);
 return x_1;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_ctor_get(x_1, 0);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
-lean_inc(x_7);
+lean_object* x_8; 
+x_8 = lean_array_fset(x_5, x_2, x_3);
+lean_ctor_set(x_1, 1, x_8);
+return x_1;
+}
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_9 = lean_ctor_get(x_1, 0);
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
+lean_inc(x_9);
 lean_dec(x_1);
-x_9 = lean_array_set(x_8, x_2, x_3);
-x_10 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_10, 0, x_7);
-lean_ctor_set(x_10, 1, x_9);
-return x_10;
+x_11 = lean_array_get_size(x_10);
+x_12 = lean_nat_dec_lt(x_2, x_11);
+lean_dec(x_11);
+if (x_12 == 0)
+{
+lean_object* x_13; 
+lean_dec(x_3);
+x_13 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_13, 0, x_9);
+lean_ctor_set(x_13, 1, x_10);
+return x_13;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_array_fset(x_10, x_2, x_3);
+x_15 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_15, 0, x_9);
+lean_ctor_set(x_15, 1, x_14);
+return x_15;
+}
 }
 }
 else
@@ -10050,7 +10172,7 @@ static lean_object* _init_l___private_Init_Prelude_0__Lean_assembleParts___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable @ assembleParts");
+x_1 = lean_mk_string("Error: unreachable @ assembleParts");
 return x_1;
 }
 }
@@ -10203,7 +10325,7 @@ static lean_object* _init_l___private_Init_Prelude_0__Lean_extractImported___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable @ extractImported");
+x_1 = lean_mk_string("Error: unreachable @ extractImported");
 return x_1;
 }
 }
@@ -10365,7 +10487,7 @@ static lean_object* _init_l___private_Init_Prelude_0__Lean_extractMainModule___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable @ extractMainModule");
+x_1 = lean_mk_string("Error: unreachable @ extractMainModule");
 return x_1;
 }
 }
@@ -10486,7 +10608,7 @@ static lean_object* _init_l___private_Init_Prelude_0__Lean_extractMacroScopesAux
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable @ extractMacroScopesAux");
+x_1 = lean_mk_string("Error: unreachable @ extractMacroScopesAux");
 return x_1;
 }
 }

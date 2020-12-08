@@ -13,7 +13,7 @@ namespace Lean.Elab.Term
 open Meta
 
 @[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab := fun stx expectedType? =>
-  match_syntax stx with
+  match stx with
   | `(⟨$args*⟩) => do
     tryPostponeIfNoneOrMVar expectedType?
     match expectedType? with
@@ -31,19 +31,19 @@ open Meta
   | _ => throwUnsupportedSyntax
 
 @[builtinTermElab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>
-  match_syntax stx with
+  match stx with
   | `(@& $e) => return markBorrowed (← elabTerm e expectedType?)
   | _ => throwUnsupportedSyntax
 
 @[builtinMacro Lean.Parser.Term.show] def expandShow : Macro := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(show $type from $val)         => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $thisId)
   | `(show $type by $tac:tacticSeq) => `(show $type from by $tac:tacticSeq)
   | _                               => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
   let stx := stx.setArg 4 (mkNullNode #[mkAtomFrom stx ";"]) -- HACK
-  match_syntax stx with
+  match stx with
   | `(have $type from $val; $body)              => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
   | `(have $type by $tac:tacticSeq; $body)      => `(have $type from by $tac:tacticSeq; $body)
   | `(have $type := $val; $body)                => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
@@ -54,7 +54,7 @@ open Meta
 
 @[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro := fun stx =>
   let stx := stx.setArg 4 (mkNullNode #[mkAtomFrom stx ";"]) -- HACK
-  match_syntax stx with
+  match stx with
   | `(suffices $type from $val; $body)              => `(have $type from $body; $val)
   | `(suffices $type by $tac:tacticSeq; $body)      => `(have $type from $body; by $tac:tacticSeq)
   | `(suffices $x : $type from $val; $body)         => `(have $x:ident : $type from $body; $val)
@@ -78,7 +78,7 @@ private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax :
   | _  => throwError "invalid `parser!` macro, unexpected declaration name"
 
 @[builtinTermElab «parser!»] def elabParserMacro : TermElab :=
-  adaptExpander fun stx => match_syntax stx with
+  adaptExpander fun stx => match stx with
   | `(parser! $e)         => elabParserMacroAux (quote Parser.maxPrec) e
   | `(parser! : $prec $e) => elabParserMacroAux prec e
   | _                     => throwUnsupportedSyntax
@@ -90,7 +90,7 @@ private def elabTParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax 
   | none          => throwError "invalid `tparser!` macro, it must be used in definitions"
 
 @[builtinTermElab «tparser!»] def elabTParserMacro : TermElab :=
-  adaptExpander fun stx => match_syntax stx with
+  adaptExpander fun stx => match stx with
   | `(tparser! $e)         => elabTParserMacroAux (quote Parser.maxPrec) e
   | `(tparser! : $prec $e) => elabTParserMacroAux prec e
   | _                      => throwUnsupportedSyntax
@@ -261,7 +261,7 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
   | none      => elabTerm stx expectedType?
 
 @[builtinTermElab paren] def elabParen : TermElab := fun stx expectedType? =>
-  match_syntax stx with
+  match stx with
   | `(())           => pure $ Lean.mkConst `Unit.unit
   | `(($e : $type)) => do
     let type ← withSynthesize (mayPostpone := true) $ elabType type
@@ -275,7 +275,7 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
 
 @[builtinTermElab subst] def elabSubst : TermElab := fun stx expectedType? => do
   let expectedType ← tryPostponeIfHasMVars expectedType? "invalid `▸` notation"
-  match_syntax stx with
+  match stx with
   | `($heq ▸ $h) => do
      let mut heq ← elabTerm heq none
      let heqType ← inferType heq

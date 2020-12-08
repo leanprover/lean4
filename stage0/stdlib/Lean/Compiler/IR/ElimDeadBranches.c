@@ -31,7 +31,6 @@ lean_object* l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDe
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_UnreachableBranches_inferStep___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_Decl_instInhabitedDecl;
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_539____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_getD___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_elimDeadAux_match__1(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -5893,19 +5892,31 @@ _start:
 switch (lean_obj_tag(x_1)) {
 case 2:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 1);
-x_4 = lean_box(0);
-x_5 = l_Array_getD___rarg(x_3, x_2, x_4);
-return x_5;
+x_4 = lean_array_get_size(x_3);
+x_5 = lean_nat_dec_lt(x_2, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+x_6 = lean_box(0);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+x_7 = lean_array_fget(x_3, x_2);
+return x_7;
+}
 }
 case 3:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_1, 0);
-x_7 = lean_box(0);
-x_8 = l_List_foldl___at_Lean_IR_UnreachableBranches_projValue___spec__1(x_2, x_7, x_6);
-return x_8;
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_box(0);
+x_10 = l_List_foldl___at_Lean_IR_UnreachableBranches_projValue___spec__1(x_2, x_9, x_8);
+return x_10;
 }
 default: 
 {

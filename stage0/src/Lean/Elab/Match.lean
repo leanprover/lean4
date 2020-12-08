@@ -345,7 +345,7 @@ private partial def processCtorAppAux (collect : Syntax → M Syntax) (ctx : Con
 
 def processCtorApp (collect : Syntax → M Syntax) (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) : M Syntax := do
   let args := args.toList
-  let (fId, explicit) ← match_syntax f with
+  let (fId, explicit) ← match f with
     | `($fId:ident)  => pure (fId, false)
     | `(@$fId:ident) => pure (fId, true)
     | _              => throwError "identifier expected"
@@ -888,7 +888,7 @@ private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermEla
 
 -- parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
 @[builtinTermElab «match»] def elabMatch : TermElab := fun stx expectedType? =>
-  match_syntax stx with
+  match stx with
   | `(match $discr:term with $y:ident => $rhs:term)           => expandSimpleMatch stx discr y rhs expectedType?
   | `(match $discr:term with | $y:ident => $rhs:term)         => expandSimpleMatch stx discr y rhs expectedType?
   | `(match $discr:term : $type with $y:ident => $rhs:term)   => expandSimpleMatchWithType stx discr y type rhs expectedType?
@@ -909,7 +909,7 @@ pure ()
 
 -- parser!:leadPrec "nomatch " >> termParser
 @[builtinTermElab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? =>
-  match_syntax stx with
+  match stx with
   | `(nomatch $discrExpr) => do
       let expectedType ← waitExpectedType expectedType?
       let discr := Syntax.node `Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]

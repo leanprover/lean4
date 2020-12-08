@@ -26,7 +26,7 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
   ensureHasType expectedType? e
 
 @[builtinTactic «exact»] def evalExact : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| exact $e) => do
     let (g, gs) ← getMainGoal
     withMVarContext g do
@@ -66,12 +66,12 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
     setGoals (gs ++ gs')
 
 @[builtinTactic «refine»] def evalRefine : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| refine $e) => refineCore e `refine (allowNaturalHoles := false)
   | _                    => throwUnsupportedSyntax
 
 @[builtinTactic «refine!»] def evalRefineBang : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| refine! $e) => refineCore e `refine (allowNaturalHoles := true)
   | _                     => throwUnsupportedSyntax
 
@@ -86,12 +86,12 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
   setGoals (gs' ++ gs)
 
 @[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| apply $e) => evalApplyLikeTactic Meta.apply e
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.existsIntro] def evalExistsIntro : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| exists $e) => evalApplyLikeTactic (fun mvarId e => return [(← Meta.existsIntro mvarId e)]) e
   | _ => throwUnsupportedSyntax
 

@@ -21,7 +21,7 @@ private def expandBinderType (ref : Syntax) (stx : Syntax) : Syntax :=
 
 /-- Given syntax of the form `ident <|> hole`, return `ident`. If `hole`, then we create a new anonymous name. -/
 private def expandBinderIdent (stx : Syntax) : TermElabM Syntax :=
-  match_syntax stx with
+  match stx with
   | `(_) => mkFreshIdent stx
   | _    => pure stx
 
@@ -184,7 +184,7 @@ def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) 
   elabBinders #[binder] (catchAutoBoundImplicit := catchAutoBoundImplicit) (fun fvars => x (fvars.get! 0))
 
 @[builtinTermElab «forall»] def elabForall : TermElab := fun stx _ =>
-  match_syntax stx with
+  match stx with
   | `(forall $binders*, $term) =>
     elabBinders binders fun xs => do
       let e ← elabType term
@@ -192,7 +192,7 @@ def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) 
   | _ => throwUnsupportedSyntax
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
-  adaptExpander fun stx => match_syntax stx with
+  adaptExpander fun stx => match stx with
   | `($dom:term -> $rng) => `(forall (a : $dom), $rng)
   | _                    => throwUnsupportedSyntax
 
@@ -208,11 +208,11 @@ def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) 
   It is used at `expandFunBinders`. -/
 private partial def getFunBinderIds? (stx : Syntax) : OptionT TermElabM (Array Syntax) :=
   let convertElem (stx : Syntax) : OptionT TermElabM Syntax :=
-    match_syntax stx with
+    match stx with
     | `(_) => do let ident ← mkFreshIdent stx; pure ident
     | `($id:ident) => pure id
     | _ => failure
-  match_syntax stx with
+  match stx with
   | `($f $args*) => do
      let mut acc := #[].push (← convertElem f)
      for arg in args do
@@ -479,7 +479,7 @@ def expandMatchAltsWhereDecls (ref : Syntax) (matchAltsWhereDecls : Syntax) : Ma
       `(@fun $x => $body)
   loop (getMatchAltNumPatterns matchAlts) #[]
 
-@[builtinTermElab «fun»] def elabFun : TermElab := fun stx expectedType? => match_syntax stx with
+@[builtinTermElab «fun»] def elabFun : TermElab := fun stx expectedType? => match stx with
   | `(fun $binders* => $body) => do
     let (binders, body, expandedPattern) ← expandFunBinders binders body
     if expandedPattern then

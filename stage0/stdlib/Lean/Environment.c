@@ -6617,11 +6617,24 @@ lean_dec(x_7);
 x_9 = lean_array_get_size(x_8);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_sub(x_9, x_10);
-lean_dec(x_9);
 x_12 = lean_unsigned_to_nat(0u);
-x_13 = l_Array_binSearchAux___at_Lean_TagDeclarationExtension_isTagged___spec__1(x_8, x_3, x_12, x_11);
+x_13 = lean_nat_dec_lt(x_12, x_9);
+lean_dec(x_9);
+if (x_13 == 0)
+{
+uint8_t x_14; 
+lean_dec(x_11);
 lean_dec(x_8);
-return x_13;
+x_14 = 0;
+return x_14;
+}
+else
+{
+uint8_t x_15; 
+x_15 = l_Array_binSearchAux___at_Lean_TagDeclarationExtension_isTagged___spec__1(x_8, x_3, x_12, x_11);
+lean_dec(x_8);
+return x_15;
+}
 }
 }
 }

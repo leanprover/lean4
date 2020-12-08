@@ -26,10 +26,18 @@ namespace Array
     else found none
 
 @[inline] def binSearch {α : Type} [Inhabited α] (as : Array α) (k : α) (lt : α → α → Bool) (lo := 0) (hi := as.size - 1) : Option α :=
-  binSearchAux lt id as k lo hi
+  if lo < as.size then
+    let hi := if hi < as.size then hi else as.size - 1
+    binSearchAux lt id as k lo hi
+  else
+    none
 
 @[inline] def binSearchContains {α : Type} [Inhabited α] (as : Array α) (k : α) (lt : α → α → Bool) (lo := 0) (hi := as.size - 1) : Bool :=
-  binSearchAux lt Option.isSome as k lo hi
+  if lo < as.size then
+    let hi := if hi < as.size then hi else as.size - 1
+    binSearchAux lt Option.isSome as k lo hi
+  else
+    false
 
 @[specialize] private partial def binInsertAux {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α]
     (lt : α → α → Bool)

@@ -64,12 +64,12 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
             | #[id] => match k with
               | `optional => `(match $id:ident with
                 | some $id:ident => $(quote inner)
-                | none           => #[])
+                | none           => Array.empty)
               | _ => `(Array.map (fun $id => $(inner[0])) $id)
             | #[id1, id2] => match k with
               | `optional => `(match $id1:ident, $id2:ident with
                 | some $id1:ident, some $id2:ident => $(quote inner)
-                | _                                => #[])
+                | _                                => Array.empty)
               | _ => `(Array.zipWith $id1 $id2 fun $id1 $id2 => $(inner[0]))
             | _ => throwErrorAt stx "too many antiquotations in antiquotation scope; don't be greedy"
           let arr ←
@@ -122,7 +122,7 @@ def stxQuot.expand (stx : Syntax) (quotedOffset := 1) : TermElabM Syntax := do
 @[builtinTermElab Parser.Term.doElem.quot] def elabDoElemQuot : TermElab := adaptExpander stxQuot.expand
 @[builtinTermElab Parser.Term.dynamicQuot] def elabDynamicQuot : TermElab := adaptExpander (stxQuot.expand · 3)
 
-/- match_syntax -/
+/- match -/
 
 -- an "alternative" of patterns plus right-hand side
 private abbrev Alt := List Syntax × Syntax
@@ -160,10 +160,12 @@ def HeadInfo.generalizes : HeadInfo → HeadInfo → Bool
   | antiquotScope stx1, antiquotScope stx2             => stx1 == stx2
   | _, _                                               => false
 
-def mkTuple : Array Syntax → TermElabM Syntax
-  | #[]  => `(())
+partial def mkTuple : Array Syntax → TermElabM Syntax
+  | #[]  => `(Unit.unit)
   | #[e] => e
-  | es   => `(($(es[0]), $(es.eraseIdx 0)*))
+  | es   => do
+    let stx ← mkTuple (es.eraseIdx 0)
+    `(Prod.mk $(es[0]) $stx)
 
 private def getHeadInfo (alt : Alt) : HeadInfo :=
   let pat := alt.fst.head!;
@@ -182,7 +184,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
       -- quotation contains a single antiquotation
       let k := antiquotKind? quoted;
       -- Antiquotation kinds like `$id:ident` influence the parser, but also need to be considered by
-      -- match_syntax (but not by quotation terms). For example, `($id:ident) and `($e) are not
+      -- match (but not by quotation terms). For example, `($id:ident) and `($e) are not
       -- distinguishable without checking the kind of the node to be captured. Note that some
       -- antiquotations like the latter one for terms do not correspond to any actual node kind
       -- (signified by `k == Name.anonymous`), so we would only check for `ident` here.
@@ -228,7 +230,7 @@ private def explodeHeadPat (numArgs : Nat) : HeadInfo × Alt → TermElabM Alt
   | _ => unreachable!
 
 private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : TermElabM Syntax := do
-  trace[Elab.match_syntax]! "match_syntax {discrs} with {alts}"
+  trace[Elab.match_syntax]! "match {discrs} with {alts}"
   match discrs, alts with
   | [],            ([], rhs)::_ => pure rhs  -- nothing left to match
   | _,             []           => throwError "non-exhaustive 'match_syntax'"
@@ -298,8 +300,8 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
           | none => $no)
   | _, _ => unreachable!
 
--- Transform alternatives by binding all right-hand sides to outside the match_syntax in order to prevent
--- code duplication during match_syntax compilation
+-- Transform alternatives by binding all right-hand sides to outside the match in order to prevent
+-- code duplication during match compilation
 private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → List Alt → TermElabM Syntax
   | [],                altsRev' => cont altsRev'.reverse
   | (pats, rhs)::alts, altsRev' => do
@@ -319,7 +321,7 @@ private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → Li
       `(let rhs := $rhs; $stx)
 
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
-  match_syntax stx with
+  match stx with
   | `(match $[$discrs:term],* with $[|]? $[$[$patss],* => $rhss]|*) => do
     -- letBindRhss ...
     if patss.all (·.all (!·.isQuot)) then

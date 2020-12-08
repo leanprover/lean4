@@ -766,7 +766,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
     withReader (fun ctx => { ctx with errToSorry := false }) do
       f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc) acc
-  else match_syntax f with
+  else match f with
   | `($(e).$idx:fieldIdx) =>
     let idx := idx.isFieldIdx?.get!
     elabAppFn e (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
@@ -864,7 +864,9 @@ partial def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × A
   let f    := stx[0]
   let args := stx[1].getArgs
   let (args, ellipsis) :=
-    if args.back.isOfKind `Lean.Parser.Term.ellipsis then
+    if args.isEmpty then
+      (args, false)
+    else if args.back.isOfKind `Lean.Parser.Term.ellipsis then
       (args.pop, true)
     else
       (args, false)
@@ -895,7 +897,7 @@ private def elabAtom : TermElab := fun stx expectedType? =>
 @[builtinTermElab pipeProj] def expandPipeProj : TermElab := elabAtom
 
 @[builtinTermElab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
-  match_syntax stx with
+  match stx with
   | `(@$id:ident)        => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
   | `(@$id:ident.{$us*}) => elabAtom stx expectedType?
   | `(@($t))             => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas

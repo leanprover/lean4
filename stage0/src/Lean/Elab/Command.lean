@@ -332,12 +332,12 @@ private def addNamespace (header : Name) : CommandElabM Unit :=
   addScopes (isNewNamespace := true) header
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(namespace $n) => addNamespace n.getId
   | _               => throwUnsupportedSyntax
 
 @[builtinCommandElab «section»] def elabSection : CommandElab := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(section $header:ident) => addScopes (isNewNamespace := false) header.getId
   | `(section)               => do let currNamespace ← getCurrNamespace; addScope (isNewNamespace := false) "" currNamespace
   | _                        => throwUnsupportedSyntax

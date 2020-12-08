@@ -1065,10 +1065,13 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
 def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
   a.data.get i.val i.isLt
 
+@[inline] def Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
+  dite (Less i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => v₀)
+
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-  dite (Less i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => arbitrary)
+  Array.getD a i arbitrary
 
 def Array.getOp {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
   self.get! idx
@@ -1083,9 +1086,12 @@ def Array.set (a : Array α) (i : @& Fin a.size) (v : α) : Array α := {
   data := a.data.set i.val v
 }
 
+@[inline] def Array.setD (a : Array α) (i : Nat) (v : α) : Array α :=
+  dite (Less i a.size) (fun h => a.set ⟨i, h⟩ v) (fun _ => a)
+
 @[extern "lean_array_set"]
 def Array.set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
-  dite (Less i a.size) (fun h => a.set ⟨i, h⟩ v) (fun _ => @panic _ ⟨a⟩ "index out of bounds at 'Array.set!'")
+  Array.setD a i v
 
 -- Slower `Array.append` used in quotations.
 protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
@@ -1634,8 +1640,8 @@ def isOfKind (stx : Syntax) (k : SyntaxNodeKind) : Bool :=
 
 def getArg (stx : Syntax) (i : Nat) : Syntax :=
   match stx with
-  | Syntax.node _ args => args.get! i
-  | _                  => Syntax.missing -- panic! "Syntax.getArg: not a node"
+  | Syntax.node _ args => args.getD i Syntax.missing
+  | _                  => Syntax.missing
 
 -- Add `stx[i]` as sugar for `stx.getArg i`
 @[inline] def getOp (self : Syntax) (idx : Nat) : Syntax :=
@@ -1658,7 +1664,7 @@ def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
 
 def setArg (stx : Syntax) (i : Nat) (arg : Syntax) : Syntax :=
   match stx with
-  | node k args => node k (args.set! i arg)
+  | node k args => node k (args.setD i arg)
   | stx         => stx
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
@@ -1818,7 +1824,7 @@ private def assembleParts : List Name → Name → Name
   | List.nil,                      acc => acc
   | List.cons (Name.str _ s _) ps, acc => assembleParts ps (Name.mkStr acc s)
   | List.cons (Name.num _ n _) ps, acc => assembleParts ps (Name.mkNum acc n)
-  | _,                             acc => panic "unreachable @ assembleParts"
+  | _,                             acc => panic "Error: unreachable @ assembleParts"
 
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
   | n@(Name.str p str _), parts =>
@@ -1826,7 +1832,7 @@ private def extractImported (scps : List MacroScope) (mainModule : Name) : Name 
     | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     | false => extractImported scps mainModule p (List.cons n parts)
   | n@(Name.num p str _), parts => extractImported scps mainModule p (List.cons n parts)
-  | _,                    _     => panic "unreachable @ extractImported"
+  | _,                    _     => panic "Error: unreachable @ extractImported"
 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
   | n@(Name.str p str _), parts =>
@@ -1834,12 +1840,12 @@ private def extractMainModule (scps : List MacroScope) : Name → List Name → 
     | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     | false => extractMainModule scps p (List.cons n parts)
   | n@(Name.num p num _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
-  | _,                    _   => panic "unreachable @ extractMainModule"
+  | _,                    _   => panic "Error: unreachable @ extractMainModule"
 
 private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
   | Name.num p scp _, acc => extractMacroScopesAux p (List.cons scp acc)
   | Name.str p str _, acc => extractMainModule acc p List.nil -- str must be "_hyg"
-  | _,                _   => panic "unreachable @ extractMacroScopesAux"
+  | _,                _   => panic "Error: unreachable @ extractMacroScopesAux"
 
 /--
   Revert all `addMacroScope` calls. `v = extractMacroScopes n → n = v.review`.

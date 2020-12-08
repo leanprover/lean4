@@ -275,7 +275,7 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
           yesNoMatch ← `(let $id := none; $yesNoMatch)
         `(let discr := $discr;
           if discr.isNone then $yesNoMatch
-          else match_syntax discr with
+          else match discr with
             | `($(mkNullNode contents)) => $yesMatch
             | _                         => $no)
       | _ =>
@@ -291,7 +291,7 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
               let idx := Syntax.mkLit fieldIdxKind (toString (i + 1));
               yes ← `(let $(ids[i]) := tuples.map (·.$idx:fieldIdx); $yes)
             `(tuples)
-        `(match ($(discrs).sequenceMap fun discr => match_syntax discr with
+        `(match ($(discrs).sequenceMap fun
             | `($(contents[0])) => some $tuple
             | _                 => none) with
           | some $resId => $yes
@@ -319,25 +319,18 @@ private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → Li
       `(let rhs := $rhs; $stx)
 
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
-  let discr := stx[1]
-  let alts  := stx[3][1]
-  let alts ← alts.getSepArgs.mapM $ fun alt => do
-    let pats := alt.getArg 0;
-    let pat ←
-      if pats.getArgs.size == 1 then pure pats[0]
-      else throwError "match_syntax: expected exactly one pattern per alternative"
-    let pat := if isQuot pat then pat.setArg 1 pat[1] else pat
-    match pat.find? $ fun stx => stx.getKind == choiceKind with
-    | some choiceStx => throwErrorAt choiceStx "invalid pattern, nested syntax has multiple interpretations"
-    | none           =>
-      let rhs := alt.getArg 2
-      pure ([pat], rhs)
-  -- letBindRhss (compileStxMatch stx [discr]) alts.toList []
-  let stx ← compileStxMatch [discr] alts.toList
-  trace[Elab.match_syntax.result]! "{stx}"
-  stx
+  match_syntax stx with
+  | `(match $[$discrs:term],* with $[|]? $[$[$patss],* => $rhss]|*) => do
+    -- letBindRhss ...
+    if patss.all (·.all (!·.isQuot)) then
+      -- no quotations => fall back to regular `match`
+      throwUnsupportedSyntax
+    let stx ← compileStxMatch discrs.toList (patss.map (·.toList) |>.zip rhss).toList
+    trace[Elab.match_syntax.result]! "{stx}"
+    stx
+  | _ => throwUnsupportedSyntax
 
-@[builtinTermElab «match_syntax»] def elabMatchSyntax : TermElab :=
+@[builtinTermElab «match»] def elabMatchSyntax : TermElab :=
   adaptExpander match_syntax.expand
 
 builtin_initialize

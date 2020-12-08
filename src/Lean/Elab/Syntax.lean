@@ -339,7 +339,7 @@ def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM 
     else
       throwErrorAt! alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
   `(@[macro $(Lean.mkIdent k)] def myMacro : Macro :=
-     fun stx => match_syntax stx with $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
+     fun | $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
 
 def inferMacroRulesAltKind (alt : Syntax) : CommandElabM SyntaxNodeKind := do
   let lhs := alt[0]
@@ -445,7 +445,7 @@ def mkSimpleDelab (vars : Array Syntax) (pat qrhs : Syntax) : OptionT CommandEla
     guard <| args.allDiff
     -- replace head constant with fresh (unused) antiquotation so we're not dependent on the exact pretty printing of the head
     let qrhs ← `($(mkAntiquotNode (mkIdent "c")) $args*)
-    `(@[appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander := fun stx => match_syntax stx with
+    `(@[appUnexpander $(mkIdent c):ident] def unexpand : Lean.PrettyPrinter.Unexpander := fun
        | `($qrhs) => `($pat)
        | _        => throw ())
 
@@ -603,7 +603,7 @@ def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
       let expId := expectedTypeSpec[1]
       `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
         @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab :=
-        fun stx expectedType? => match_syntax stx with
+        fun stx expectedType? => match stx with
           | `($pat) => Lean.Elab.Command.withExpectedType expectedType? fun $expId => $rhs
           | _ => throwUnsupportedSyntax)
     else
@@ -611,19 +611,19 @@ def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   else if catName == `term then
     `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
       @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab :=
-      fun stx _ => match_syntax stx with
+      fun stx _ => match stx with
         | `($pat) => $rhs
         | _ => throwUnsupportedSyntax)
   else if catName == `command then
     `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
       @[commandElab $kindId:ident] def elabFn : Lean.Elab.Command.CommandElab :=
-      fun stx => match_syntax stx with
+      fun
         | `($pat) => $rhs
         | _ => throwUnsupportedSyntax)
   else if catName == `tactic then
     `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
       @[tactic $kindId:ident] def elabFn : Lean.Elab.Tactic.Tactic :=
-      fun stx => match_syntax stx with
+      fun
         | `(tactic|$pat) => $rhs
         | _ => throwUnsupportedSyntax)
   else

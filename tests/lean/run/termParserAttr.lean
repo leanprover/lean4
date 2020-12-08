@@ -32,7 +32,7 @@ ParserDescr.node `boo2 10 (ParserDescr.parser `tst2)
 open Lean.Elab.Term
 
 @[termElab tst] def elabTst : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
+adaptExpander $ fun stx => match stx with
  | `((| $e |)) => pure e
  | _           => throwUnsupportedSyntax
 
@@ -41,7 +41,7 @@ fun stx expected? =>
   elabTerm (stx.getArg 1) expected?
 
 @[termElab boo2] def elabBool2 : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
+adaptExpander $ fun stx => match stx with
  | `((|| $e ||)) => `($e + 1)
  | _             => throwUnsupportedSyntax
 
@@ -53,7 +53,7 @@ adaptExpander $ fun stx => match_syntax stx with
 -- #eval run "#check (| id 1, id 1 |)" -- it will fail
 
 @[termElab tst] def elabTst2 : TermElab :=
-adaptExpander $ fun stx => match_syntax stx with
+adaptExpander $ fun stx => match stx with
  | `((| $e1, $e2 |)) => `(($e1, $e2))
  | _                 => throwUnsupportedSyntax
 

@@ -135,8 +135,6 @@ def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 @[builtinTermParser] def «tparser!» := parser!:leadPrec "tparser! " >> optExprPrecedence >> termParser
 @[builtinTermParser] def borrowed   := parser! "@&" >> termParser leadPrec
 @[builtinTermParser] def quotedName := parser! nameLit
--- NOTE: syntax quotations are defined in Init.Lean.Parser.Command
-@[builtinTermParser] def «match_syntax» := parser!:leadPrec "match_syntax" >> termParser >> " with " >> matchAlts
 
 def simpleBinderWithoutType := node `Lean.Parser.Term.simpleBinder (many1 binderIdent >> pushNone)
 

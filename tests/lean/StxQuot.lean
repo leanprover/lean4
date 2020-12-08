@@ -22,30 +22,30 @@ end Syntax
 #eval run $ do let a ← `(Nat.one); `(f $ f $a 1)
 #eval run $ do let a ← `(Nat.one); `(f $(id a))
 #eval run $ do let a ← `(Nat.one); `($(a).b)
-#eval run $ do let a ← `(1 + 2); match_syntax a with `($a + $b) => `($b + $a) | _ => pure Syntax.missing
-#eval run $ do let a ← `(def foo := 1); match_syntax a with `($f:command) => pure f | _ => pure Syntax.missing
-#eval run $ do let a ← `(def foo := 1 def bar := 2); match_syntax a with `($f:command $g:command) => `($g:command $f:command) | _ => pure Syntax.missing
+#eval run $ do let a ← `(1 + 2); match a with `($a + $b) => `($b + $a) | _ => pure Syntax.missing
+#eval run $ do let a ← `(def foo := 1); match a with `($f:command) => pure f | _ => pure Syntax.missing
+#eval run $ do let a ← `(def foo := 1 def bar := 2); match a with `($f:command $g:command) => `($g:command $f:command) | _ => pure Syntax.missing
 
-#eval run $ do let a ← `(aa); match_syntax a with `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
-#eval run $ do let a ← `(1 + 2); match_syntax a with `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
+#eval run $ do let a ← `(aa); match a with `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
+#eval run $ do let a ← `(1 + 2); match a with `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
 #eval run $ do let params ← #[`(a), `((b : Nat))].mapM id; `(fun $params* => 1)
-#eval run $ do let a ← `(fun (a : Nat) b => c); match_syntax a with `(fun $aa* => $e) => pure aa | _ => pure #[]
-#eval run $ do let a ← `(∀ a, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a
-#eval run $ do let a ← `(∀ _, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a
+#eval run $ do let a ← `(fun (a : Nat) b => c); match a with `(fun $aa* => $e) => pure aa | _ => pure #[]
+#eval run $ do let a ← `(∀ a, c); match a with `(∀ $id:ident, $e) => pure id | _ => pure a
+#eval run $ do let a ← `(∀ _, c); match a with `(∀ $id:ident, $e) => pure id | _ => pure a
 -- this one should NOT check the kind of the matched node
-#eval run $ do let a ← `(∀ _, c); match_syntax a with `(∀ $a, $e) => pure a | _ => pure a
-#eval run $ do let a ← `(a); match_syntax a with `($id:ident) => pure id | _ => pure a
-#eval run $ do let a ← `(a.{0}); match_syntax a with `($id:ident) => pure id | _ => pure a
-#eval run $ do let a ← `(match a with | a => 1 | _ => 2); match_syntax a with `(match $e with $eqns:matchAlt*) => pure eqns | _ => pure #[]
+#eval run $ do let a ← `(∀ _, c); match a with `(∀ $a, $e) => pure a | _ => pure a
+#eval run $ do let a ← `(a); match a with `($id:ident) => pure id | _ => pure a
+#eval run $ do let a ← `(a.{0}); match a with `($id:ident) => pure id | _ => pure a
+#eval run $ do let a ← `(match a with | a => 1 | _ => 2); match a with `(match $e with $eqns:matchAlt*) => pure eqns | _ => pure #[]
 
-def f (stx : Syntax) : Unhygienic Syntax := match_syntax stx with
+def f (stx : Syntax) : Unhygienic Syntax := match stx with
   | `({ a := a $[: $a]?}) => `({ a := a $[: $(id a)]?})
   | _ => unreachable!
 #eval run do f (← `({ a := a : a }))
 #eval run do f (← `({ a := a }))
 
 #eval run do
-  match_syntax ← `(match a with a => b | a + 1 => b + 1) with
+  match ← `(match a with a => b | a + 1 => b + 1) with
   | `(match a with $[$pats => $rhss]|*) => `(match a with $[$pats => $rhss]|*)
   | _ => unreachable!
 end Lean

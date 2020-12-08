@@ -12,7 +12,7 @@ match parens.getHeadInfo, body.getHeadInfo, body.getTailInfo, parens.getTailInfo
 partial def unparen : Syntax → Syntax
 -- don't remove parentheses in syntax quotations, they might be semantically significant
 | stx => if stx.isOfKind `Lean.Parser.Term.stxQuot then stx
-  else match_syntax stx with
+  else match stx with
   | `(($stx')) => unparenAux stx $ unparen stx'
   | `(level|($stx')) => unparenAux stx $ unparen stx'
   | _ => stx.modifyArgs $ Array.map unparen

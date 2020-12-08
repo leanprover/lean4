@@ -322,7 +322,7 @@ private def introStep (n : Name) : TacticM Unit :=
     pure [mvarId]
 
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| intro)           => liftMetaTactic fun mvarId => do let (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
   | `(tactic| intro $h:ident)  => introStep h.getId
   | `(tactic| intro _)         => introStep `_
@@ -351,7 +351,7 @@ def getNameOfIdent' (id : Syntax) : Name :=
   if id.isIdent then id.getId else `_
 
 @[builtinTactic «intros»] def evalIntros : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| intros)       => liftMetaTactic fun mvarId => do
     let type ← Meta.getMVarType mvarId
     let type ← instantiateMVars type
@@ -373,7 +373,7 @@ def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
   withMainMVarContext $ ids.mapM getFVarId
 
 @[builtinTactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| revert $hs*) => do
      let (g, gs) ← getMainGoal
      let fvarIds ← getFVarIds hs
@@ -393,7 +393,7 @@ private def sortFVarIds (fvarIds : Array FVarId) : TacticM (Array FVarId) :=
       | none,    none    => Name.quickLt fvarId₁ fvarId₂
 
 @[builtinTactic Lean.Parser.Tactic.clear] def evalClear : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| clear $hs*) => do
     let fvarIds ← getFVarIds hs
     let fvarIds ← sortFVarIds fvarIds
@@ -413,7 +413,7 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
       setGoals (g :: gs)
 
 @[builtinTactic Lean.Parser.Tactic.subst] def evalSubst : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| subst $hs*) => forEachVar hs Meta.subst
   | _                     => throwUnsupportedSyntax
 
@@ -427,7 +427,7 @@ private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) :
   | none   => gs.findM? (fun g => do pure $ tag.isPrefixOf (← getMVarDecl g).userName)
 
 @[builtinTactic «case»] def evalCase : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| case $tag => $tac:tacticSeq) => do
      let tag := tag.getId
      let gs ← getUnsolvedGoals
@@ -445,7 +445,7 @@ private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) :
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «orelse»] def evalOrelse : Tactic := fun stx =>
-  match_syntax stx with
+  match stx with
   | `(tactic| $tac1 <|> $tac2) => evalTactic tac1 <|> evalTactic tac2
   | _                          => throwUnsupportedSyntax
 

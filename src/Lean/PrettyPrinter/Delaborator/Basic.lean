@@ -39,10 +39,10 @@ protected partial def quote : Level → Syntax
   | l@(succ _ _) => match l.toNat with
     | some n => Unhygienic.run `(level|$(quote n):numLit)
     | none   => Unhygienic.run `(level|$(Level.quote l.getLevelOffset) + $(quote l.getOffset):numLit)
-  | max l1 l2 _  => match_syntax Level.quote l2 with
+  | max l1 l2 _  => match Level.quote l2 with
     | `(level|max $ls*) => Unhygienic.run `(level|max $(Level.quote l1) $ls*)
     | l2                => Unhygienic.run `(level|max $(Level.quote l1) $l2)
-  | imax l1 l2 _ => match_syntax Level.quote l2 with
+  | imax l1 l2 _ => match Level.quote l2 with
     | `(level|imax $ls*) => Unhygienic.run `(level|imax $(Level.quote l1) $ls*)
     | l2                 => Unhygienic.run `(level|imax $(Level.quote l1) $l2)
   | param n _    => Unhygienic.run `(level|$(mkIdent n):ident)

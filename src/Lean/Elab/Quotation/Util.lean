@@ -22,7 +22,7 @@ partial def getAntiquotationIds : Syntax → TermElabM (Array Syntax) :=
 
 -- Get all pattern vars (as `Syntax.ident`s) in `stx`
 partial def getPatternVars (stx : Syntax) : TermElabM (Array Syntax) :=
-  match_syntax stx with
+  match stx with
   | `(`($quoted)) => getAntiquotationIds quoted
   | `($id:ident)  => #[id]
   | `(_)          => #[]

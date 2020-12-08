@@ -140,7 +140,7 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
 def delabAppWithUnexpander : Delab := whenPPOption getPPNotation do
   let Expr.const c _ _ ← pure (← getExpr).getAppFn | failure
   let stx ← delabAppImplicit
-  match_syntax stx with
+  match stx with
   | `($cPP:ident $args*) => do
     let some (f::_) ← pure <| (appUnexpanderAttribute.ext.getState (← getEnv)).table.find? c
       | pure stx
@@ -322,7 +322,7 @@ def delabLam : Delab :=
         | BinderInfo.implicit,    false  => `(funBinder| {$curNames*})
         | BinderInfo.instImplicit, _     => `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
         | _                      , _     => unreachable!;
-      match_syntax stxBody with
+      match stxBody with
       | `(fun $binderGroups* => $stxBody) => `(fun $group $binderGroups* => $stxBody)
       | _                                 => `(fun $group => $stxBody)
 
@@ -460,7 +460,7 @@ def delabTuple : Delab := whenPPOption getPPNotation do
   guard $ e.getAppNumArgs == 4
   let a ← withAppFn $ withAppArg delab
   let b ← withAppArg delab
-  match_syntax b with
+  match b with
   | `(($b, $bs*)) =>
     let bs := #[b, mkAtom ","] ++ bs;
     `(($a, $bs*))
@@ -473,7 +473,7 @@ def delabCoe : Delab := whenPPOption getPPCoercions do
   guard $ e.getAppNumArgs >= 4
   -- delab as application, then discard function
   let stx ← delabAppImplicit
-  match_syntax stx with
+  match stx with
   | `($fn $args*) =>
     if args.size == 1 then
       pure $ args.get! 0
@@ -494,7 +494,7 @@ def delabNil : Delab := whenPPOption getPPNotation do
 def delabConsList : Delab := whenPPOption getPPNotation do
   guard $ (← getExpr).getAppNumArgs == 3
   let x ← withAppFn (withAppArg delab)
-  match_syntax (← withAppArg delab) with
+  match (← withAppArg delab) with
   | `([])     => `([$x])
   | `([$xs*]) => `([$x, $xs*])
   | _         => failure
@@ -502,7 +502,7 @@ def delabConsList : Delab := whenPPOption getPPNotation do
 @[builtinDelab app.List.toArray]
 def delabListToArray : Delab := whenPPOption getPPNotation do
   guard $ (← getExpr).getAppNumArgs == 2
-  match_syntax (← withAppArg delab) with
+  match (← withAppArg delab) with
   | `([$xs*]) => `(#[$xs*])
   | _         => failure
 

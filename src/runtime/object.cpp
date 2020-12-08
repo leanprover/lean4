@@ -286,6 +286,15 @@ extern "C" lean_object * lean_array_data(lean_obj_arg a, lean_obj_arg i) {
     return r;
 }
 
+extern "C" lean_obj_res lean_array_get_panic(lean_obj_arg def_val) {
+    return lean_panic_fn(def_val, lean_mk_string("Error: index out of bounds"));
+}
+
+extern "C" lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v) {
+    lean_dec(v);
+    return lean_panic_fn(a, lean_mk_string("Error: index out of bounds"));
+}
+
 // =======================================
 // Thunks
 

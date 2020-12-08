@@ -918,22 +918,21 @@ static inline lean_obj_res lean_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
     return lean_array_uget(a, lean_unbox(i));
 }
 
+lean_obj_res lean_array_get_panic(lean_obj_arg def_val);
+
 static inline lean_object * lean_array_get(lean_obj_arg def_val, b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
         if (idx < lean_array_size(a)) {
             lean_dec(def_val);
             return lean_array_uget(a, idx);
-        } else {
-            return def_val;
         }
-    } else {
-        /* The index must be out of bounds because
-           i > LEAN_MAX_SMALL_NAT == MAX_UNSIGNED >> 1
-           but each array entry is 8 bytes in 64-bit machines and 4 in 32-bit ones.
-           In both cases, we would be out-of-memory. */
-        return def_val;
     }
+    /* Recall that if `i` is not a scalar, then it must be out of bounds because
+       i > LEAN_MAX_SMALL_NAT == MAX_UNSIGNED >> 1
+       but each array entry is 8 bytes in 64-bit machines and 4 in 32-bit ones.
+       In both cases, we would be out-of-memory. */
+    return lean_array_get_panic(def_val);
 }
 
 lean_obj_res lean_copy_expand_array(lean_obj_arg a, bool expand);
@@ -959,14 +958,15 @@ static inline lean_object * lean_array_fset(lean_obj_arg a, b_lean_obj_arg i, le
     return lean_array_uset(a, lean_unbox(i), v);
 }
 
+lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v);
+
 static inline lean_object * lean_array_set(lean_obj_arg a, b_lean_obj_arg i, lean_obj_arg v) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
         if (idx < lean_array_size(a))
             return lean_array_uset(a, idx, v);
     }
-    lean_dec(v);
-    return a;
+    return lean_array_set_panic(a, v);
 }
 
 static inline lean_object * lean_array_pop(lean_obj_arg a) {

@@ -1085,7 +1085,7 @@ def Array.set (a : Array α) (i : @& Fin a.size) (v : α) : Array α := {
 
 @[extern "lean_array_set"]
 def Array.set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
-  dite (Less i a.size) (fun h => a.set ⟨i, h⟩ v) (fun _ => @panic _ ⟨a⟩ "index out of bounds at 'Array.set!'")
+  dite (Less i a.size) (fun h => a.set ⟨i, h⟩ v) (fun _ => a)
 
 -- Slower `Array.append` used in quotations.
 protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
@@ -1635,7 +1635,7 @@ def isOfKind (stx : Syntax) (k : SyntaxNodeKind) : Bool :=
 def getArg (stx : Syntax) (i : Nat) : Syntax :=
   match stx with
   | Syntax.node _ args => args.get! i
-  | _                  => Syntax.missing -- panic! "Syntax.getArg: not a node"
+  | _                  => Syntax.missing
 
 -- Add `stx[i]` as sugar for `stx.getArg i`
 @[inline] def getOp (self : Syntax) (idx : Nat) : Syntax :=
@@ -1818,7 +1818,7 @@ private def assembleParts : List Name → Name → Name
   | List.nil,                      acc => acc
   | List.cons (Name.str _ s _) ps, acc => assembleParts ps (Name.mkStr acc s)
   | List.cons (Name.num _ n _) ps, acc => assembleParts ps (Name.mkNum acc n)
-  | _,                             acc => panic "unreachable @ assembleParts"
+  | _,                             acc => panic "Error: unreachable @ assembleParts"
 
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
   | n@(Name.str p str _), parts =>
@@ -1826,7 +1826,7 @@ private def extractImported (scps : List MacroScope) (mainModule : Name) : Name 
     | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     | false => extractImported scps mainModule p (List.cons n parts)
   | n@(Name.num p str _), parts => extractImported scps mainModule p (List.cons n parts)
-  | _,                    _     => panic "unreachable @ extractImported"
+  | _,                    _     => panic "Error: unreachable @ extractImported"
 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
   | n@(Name.str p str _), parts =>
@@ -1834,12 +1834,12 @@ private def extractMainModule (scps : List MacroScope) : Name → List Name → 
     | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     | false => extractMainModule scps p (List.cons n parts)
   | n@(Name.num p num _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
-  | _,                    _   => panic "unreachable @ extractMainModule"
+  | _,                    _   => panic "Error: unreachable @ extractMainModule"
 
 private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
   | Name.num p scp _, acc => extractMacroScopesAux p (List.cons scp acc)
   | Name.str p str _, acc => extractMainModule acc p List.nil -- str must be "_hyg"
-  | _,                _   => panic "unreachable @ extractMacroScopesAux"
+  | _,                _   => panic "Error: unreachable @ extractMacroScopesAux"
 
 /--
   Revert all `addMacroScope` calls. `v = extractMacroScopes n → n = v.review`.

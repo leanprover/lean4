@@ -102,11 +102,3 @@ and `add1` is still considered to be a pure function.
 The Lean compiler performs common subexpression elimination when compiling `double`,
 and the produced code for `double` executes `x ()` only once instead of twice.
 This transformation is safe because `x : Unit -> Nat` is pure.
-
-## Tasks
-
-TODO
-
-## Threads
-
-TODO

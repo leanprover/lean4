@@ -20,6 +20,9 @@ structure VarInfo where
 
 abbrev VarMap := Std.RBMap VarId VarInfo (fun x y => x.idx < y.idx)
 
+instance : Inhabited VarInfo where
+  default := {}
+
 structure Context where
   env            : Environment
   decls          : Array Decl
@@ -30,17 +33,17 @@ structure Context where
 def getDecl (ctx : Context) (fid : FunId) : Decl :=
   match findEnvDecl' ctx.env fid ctx.decls with
   | some decl => decl
-  | none      => arbitrary -- unreachable if well-formed
+  | none      => unreachable!
 
 def getVarInfo (ctx : Context) (x : VarId) : VarInfo :=
   match ctx.varMap.find? x with
   | some info => info
-  | none      => {} -- unreachable in well-formed code
+  | none      => unreachable!
 
 def getJPParams (ctx : Context) (j : JoinPointId) : Array Param :=
   match ctx.localCtx.getJPParams j with
   | some ps => ps
-  | none    => #[] -- unreachable in well-formed code
+  | none    => unreachable!
 
 def getJPLiveVars (ctx : Context) (j : JoinPointId) : LiveVarSet :=
   match ctx.jpLiveVarMap.find? j with
@@ -222,7 +225,10 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
   | FnBody.jdecl j xs v b,     ctx =>
     let (v, vLiveVars) := visitFnBody v (updateVarInfoWithParams ctx xs)
     let v   := addDecForDeadParams ctx xs v vLiveVars
-    let ctx := { ctx with jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap }
+    let ctx := { ctx with
+      localCtx     := ctx.localCtx.addJP j xs v
+      jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap
+    }
     let (b, bLiveVars) := visitFnBody b ctx
     (FnBody.jdecl j xs v b, bLiveVars)
   | FnBody.uset x i y b,       ctx =>

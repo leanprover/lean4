@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Command
-import Lean.Elab.Quotation
 
 namespace Lean.Elab.Term
 /-
@@ -164,7 +163,7 @@ def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) :
 end Term
 
 namespace Command
-open Term.Quotation
+open Lean.Syntax
 
 private def getCatSuffix (catName : Name) : String :=
   match catName with

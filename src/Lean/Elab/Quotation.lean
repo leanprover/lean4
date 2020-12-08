@@ -12,7 +12,7 @@ import Lean.Elab.Term
 
 namespace Lean.Elab.Term.Quotation
 
-open Lean.Syntax (isQuot isAntiquot)
+open Lean.Syntax (isQuot isAntiquot isAntiquotSplice)
 open Meta
 
 def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none) (kind := Name.anonymous) (splice := false) : Syntax :=
@@ -53,10 +53,6 @@ def antiquotKind? : Syntax → Option SyntaxNodeKind
       -- we treat all antiquotations where the kind was left implicit (`$e`) the same (see `elimAntiquotChoices`)
       some Name.anonymous
   | _                                          => none
-
--- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
-def isAntiquotSplice (stx : Syntax) : Bool :=
-  isAntiquot stx && stx[4].getOptional?.isSome
 
 -- An "antiquotation scope" is something like `$[...]?` or `$[...]*`. Note that the latter could be of kind `many` or
 -- `sepBy`, which have different implementations.

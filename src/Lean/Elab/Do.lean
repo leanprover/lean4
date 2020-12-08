@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Term
 import Lean.Elab.Binders
-import Lean.Elab.Quotation
 import Lean.Elab.Match
 
 namespace Lean.Elab.Term

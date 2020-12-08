@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 import Lean.Util.FindExpr
 import Lean.Elab.App
 import Lean.Elab.Binders
-import Lean.Elab.Quotation
 
 namespace Lean.Elab.Term.StructInst
 

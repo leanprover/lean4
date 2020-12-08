@@ -101,32 +101,35 @@ return x_5;
 uint8_t l_Lean_hasNeverExtractAttribute_visit(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; uint8_t x_4; uint8_t x_5; 
+lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_neverExtractAttr;
 x_4 = l_Lean_TagAttribute_hasTag(x_3, x_1, x_2);
+if (x_4 == 0)
+{
+uint8_t x_5; 
 x_5 = l_Lean_Name_isInternal(x_2);
 if (x_5 == 0)
 {
+uint8_t x_6; 
 lean_dec(x_2);
-return x_4;
+x_6 = 0;
+return x_6;
 }
 else
 {
-if (x_4 == 0)
-{
-lean_object* x_6; 
-x_6 = l_Lean_Name_getPrefix(x_2);
+lean_object* x_7; 
+x_7 = l_Lean_Name_getPrefix(x_2);
 lean_dec(x_2);
-x_2 = x_6;
+x_2 = x_7;
 goto _start;
 }
+}
 else
 {
-uint8_t x_8; 
+uint8_t x_9; 
 lean_dec(x_2);
-x_8 = 1;
-return x_8;
-}
+x_9 = 1;
+return x_9;
 }
 }
 }

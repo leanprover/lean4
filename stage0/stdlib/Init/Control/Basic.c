@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_notM___rarg___lambda__1___boxed(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_8915____closed__5;
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_603____closed__1;
 lean_object* l_term___x3c_x7c_x7c_x3e_____closed__3;
@@ -58,6 +57,7 @@ lean_object* l_instMonadControlT___rarg___lambda__1(lean_object*, lean_object*, 
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_instMonadControlT__1(lean_object*);
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_937____closed__6;
+lean_object* l_not___boxed(lean_object*);
 lean_object* l_unexpand____x40_Init_Control_Basic___hyg_902____closed__1;
 lean_object* l_andM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_term___x3c_x26_x3e_____closed__1;
@@ -116,7 +116,6 @@ lean_object* l_orM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, 
 lean_object* l_term___x3c_x7c_x7c_x3e_____closed__4;
 lean_object* l_unexpand____x40_Init_Control_Basic___hyg_568____closed__1;
 lean_object* l_andM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_notM___rarg___lambda__1(uint8_t);
 lean_object* l_andM_match__1(lean_object*);
 lean_object* l_myMacro____x40_Init_Control_Basic___hyg_937____closed__1;
 lean_object* l_term___x3c_x26_x26_x3e_____closed__6;
@@ -1538,28 +1537,11 @@ return x_29;
 }
 }
 }
-uint8_t l_notM___rarg___lambda__1(uint8_t x_1) {
-_start:
-{
-if (x_1 == 0)
-{
-uint8_t x_2; 
-x_2 = 1;
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
-}
-}
 static lean_object* _init_l_notM___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_notM___rarg___lambda__1___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_not___boxed), 1, 0);
 return x_1;
 }
 }
@@ -1584,17 +1566,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_notM___rarg), 2, 0);
 return x_2;
-}
-}
-lean_object* l_notM___rarg___lambda__1___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = lean_unbox(x_1);
-lean_dec(x_1);
-x_3 = l_notM___rarg___lambda__1(x_2);
-x_4 = lean_box(x_3);
-return x_4;
 }
 }
 lean_object* l_instMonadControlT___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

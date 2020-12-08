@@ -5374,96 +5374,100 @@ goto _start;
 }
 case 10:
 {
-lean_object* x_44; lean_object* x_45; uint8_t x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; 
+lean_object* x_44; lean_object* x_45; uint8_t x_46; 
 x_44 = lean_ctor_get(x_2, 1);
 x_45 = lean_ctor_get(x_2, 3);
 x_46 = lean_nat_dec_eq(x_1, x_44);
+if (x_46 == 0)
+{
+lean_object* x_47; lean_object* x_48; uint8_t x_49; 
 x_47 = lean_array_get_size(x_45);
 x_48 = lean_unsigned_to_nat(0u);
 x_49 = lean_nat_dec_lt(x_48, x_47);
 if (x_49 == 0)
 {
-lean_dec(x_47);
-return x_46;
-}
-else
-{
 uint8_t x_50; 
-x_50 = lean_nat_dec_le(x_47, x_47);
-if (x_50 == 0)
-{
 lean_dec(x_47);
-return x_46;
+x_50 = 0;
+return x_50;
 }
 else
 {
-if (x_46 == 0)
+uint8_t x_51; 
+x_51 = lean_nat_dec_le(x_47, x_47);
+if (x_51 == 0)
 {
-size_t x_51; size_t x_52; uint8_t x_53; 
-x_51 = 0;
-x_52 = lean_usize_of_nat(x_47);
+uint8_t x_52; 
 lean_dec(x_47);
-x_53 = l_Array_anyMUnsafe_any___at_Lean_IR_HasIndex_visitFnBody___spec__1(x_1, x_45, x_51, x_52);
-return x_53;
+x_52 = 0;
+return x_52;
 }
 else
 {
-uint8_t x_54; 
+size_t x_53; size_t x_54; uint8_t x_55; 
+x_53 = 0;
+x_54 = lean_usize_of_nat(x_47);
 lean_dec(x_47);
-x_54 = 1;
-return x_54;
+x_55 = l_Array_anyMUnsafe_any___at_Lean_IR_HasIndex_visitFnBody___spec__1(x_1, x_45, x_53, x_54);
+return x_55;
 }
 }
+}
+else
+{
+uint8_t x_56; 
+x_56 = 1;
+return x_56;
 }
 }
 case 11:
 {
-lean_object* x_55; uint8_t x_56; 
-x_55 = lean_ctor_get(x_2, 0);
-x_56 = l_Lean_IR_HasIndex_visitArg(x_1, x_55);
-return x_56;
+lean_object* x_57; uint8_t x_58; 
+x_57 = lean_ctor_get(x_2, 0);
+x_58 = l_Lean_IR_HasIndex_visitArg(x_1, x_57);
+return x_58;
 }
 case 12:
 {
-lean_object* x_57; lean_object* x_58; uint8_t x_59; 
-x_57 = lean_ctor_get(x_2, 0);
-x_58 = lean_ctor_get(x_2, 1);
-x_59 = lean_nat_dec_eq(x_1, x_57);
-if (x_59 == 0)
+lean_object* x_59; lean_object* x_60; uint8_t x_61; 
+x_59 = lean_ctor_get(x_2, 0);
+x_60 = lean_ctor_get(x_2, 1);
+x_61 = lean_nat_dec_eq(x_1, x_59);
+if (x_61 == 0)
 {
-uint8_t x_60; 
-x_60 = l_Lean_IR_HasIndex_visitArgs(x_1, x_58);
-return x_60;
+uint8_t x_62; 
+x_62 = l_Lean_IR_HasIndex_visitArgs(x_1, x_60);
+return x_62;
 }
 else
 {
-uint8_t x_61; 
-x_61 = 1;
-return x_61;
+uint8_t x_63; 
+x_63 = 1;
+return x_63;
 }
 }
 case 13:
 {
-uint8_t x_62; 
-x_62 = 0;
-return x_62;
+uint8_t x_64; 
+x_64 = 0;
+return x_64;
 }
 default: 
 {
-lean_object* x_63; lean_object* x_64; uint8_t x_65; 
-x_63 = lean_ctor_get(x_2, 0);
-x_64 = lean_ctor_get(x_2, 2);
-x_65 = lean_nat_dec_eq(x_1, x_63);
-if (x_65 == 0)
+lean_object* x_65; lean_object* x_66; uint8_t x_67; 
+x_65 = lean_ctor_get(x_2, 0);
+x_66 = lean_ctor_get(x_2, 2);
+x_67 = lean_nat_dec_eq(x_1, x_65);
+if (x_67 == 0)
 {
-x_2 = x_64;
+x_2 = x_66;
 goto _start;
 }
 else
 {
-uint8_t x_67; 
-x_67 = 1;
-return x_67;
+uint8_t x_69; 
+x_69 = 1;
+return x_69;
 }
 }
 }

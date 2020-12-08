@@ -638,22 +638,21 @@ lean_object* l_System_FilePath_normalizePath(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = l_System_FilePath_isCaseInsensitive;
+x_2 = l_System_FilePath_normalizePath___closed__2;
 if (x_2 == 0)
 {
-uint8_t x_3; 
-x_3 = l_System_FilePath_normalizePath___closed__2;
-if (x_3 == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_String_mapAux___at_System_FilePath_normalizePath___spec__2(x_4, x_1);
-return x_5;
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_String_mapAux___at_System_FilePath_normalizePath___spec__2(x_3, x_1);
+return x_4;
 }
 else
 {
+uint8_t x_5; 
+x_5 = l_System_FilePath_isCaseInsensitive;
+if (x_5 == 0)
+{
 return x_1;
-}
 }
 else
 {
@@ -661,6 +660,7 @@ lean_object* x_6; lean_object* x_7;
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_String_mapAux___at_System_FilePath_normalizePath___spec__4(x_6, x_1);
 return x_7;
+}
 }
 }
 }

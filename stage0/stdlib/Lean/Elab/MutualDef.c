@@ -9112,7 +9112,7 @@ return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
@@ -9124,9 +9124,6 @@ lean_inc(x_2);
 x_8 = l_Std_RBNode_fold___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkFreeVarMap___spec__2(x_1, x_2, x_3, x_5);
 lean_inc(x_2);
 x_9 = l_Lean_LocalContext_contains(x_2, x_6);
-x_10 = l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1(x_1, x_6);
-if (x_10 == 0)
-{
 if (x_9 == 0)
 {
 lean_dec(x_6);
@@ -9136,12 +9133,15 @@ goto _start;
 }
 else
 {
+uint8_t x_11; 
+x_11 = l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1(x_1, x_6);
+if (x_11 == 0)
+{
 lean_object* x_12; 
 x_12 = lean_array_push(x_8, x_6);
 x_3 = x_12;
 x_4 = x_7;
 goto _start;
-}
 }
 else
 {
@@ -9149,6 +9149,7 @@ lean_dec(x_6);
 x_3 = x_8;
 x_4 = x_7;
 goto _start;
+}
 }
 }
 }
@@ -9163,7 +9164,7 @@ return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
@@ -9175,9 +9176,6 @@ lean_inc(x_2);
 x_8 = l_Std_RBNode_fold___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkFreeVarMap___spec__3(x_1, x_2, x_3, x_5);
 lean_inc(x_2);
 x_9 = l_Lean_LocalContext_contains(x_2, x_6);
-x_10 = l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1(x_1, x_6);
-if (x_10 == 0)
-{
 if (x_9 == 0)
 {
 lean_dec(x_6);
@@ -9187,12 +9185,15 @@ goto _start;
 }
 else
 {
+uint8_t x_11; 
+x_11 = l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1(x_1, x_6);
+if (x_11 == 0)
+{
 lean_object* x_12; 
 x_12 = lean_array_push(x_8, x_6);
 x_3 = x_12;
 x_4 = x_7;
 goto _start;
-}
 }
 else
 {
@@ -9200,6 +9201,7 @@ lean_dec(x_6);
 x_3 = x_8;
 x_4 = x_7;
 goto _start;
+}
 }
 }
 }

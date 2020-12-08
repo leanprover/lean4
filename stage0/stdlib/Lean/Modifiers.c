@@ -15,10 +15,10 @@ extern "C" {
 #endif
 uint8_t lean_is_protected(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___closed__1;
-lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_31____closed__1;
 lean_object* l_Lean_protectedExt___closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___closed__5;
+lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_30____closed__1;
 lean_object* l_Lean_privateHeader;
 lean_object* lean_mk_private_name(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
@@ -35,7 +35,7 @@ lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__2;
 uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_3_(lean_object*);
-lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_31_(lean_object*);
+lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_30_(lean_object*);
 lean_object* l___private_Lean_Modifiers_0__Lean_privateToUserNameAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* lean_add_protected(lean_object*, lean_object*);
@@ -264,7 +264,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_31____closed__1() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_30____closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -274,11 +274,11 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_31_(lean_object* x_1) {
+lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_30_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_initFn____x40_Lean_Modifiers___hyg_31____closed__1;
+x_2 = l_Lean_initFn____x40_Lean_Modifiers___hyg_30____closed__1;
 x_3 = l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(x_2, x_1);
 return x_3;
 }
@@ -711,9 +711,9 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_protectedExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_protectedExt);
 lean_dec_ref(res);
-l_Lean_initFn____x40_Lean_Modifiers___hyg_31____closed__1 = _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_31____closed__1();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Modifiers___hyg_31____closed__1);
-res = l_Lean_initFn____x40_Lean_Modifiers___hyg_31_(lean_io_mk_world());
+l_Lean_initFn____x40_Lean_Modifiers___hyg_30____closed__1 = _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_30____closed__1();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Modifiers___hyg_30____closed__1);
+res = l_Lean_initFn____x40_Lean_Modifiers___hyg_30_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_privateExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_privateExt);

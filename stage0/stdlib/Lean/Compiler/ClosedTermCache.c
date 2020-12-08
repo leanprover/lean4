@@ -66,7 +66,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_Compiler_Clo
 lean_object* l_Lean_SMap_find_x3f___at_Lean_getClosedTermName_x3f___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
 lean_object* l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__16(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2531____closed__4;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__15(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__1(lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__4___boxed(lean_object*, lean_object*);
@@ -118,6 +117,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 extern size_t l_Std_PersistentHashMap_insertAux___rarg___closed__2;
 lean_object* l_Lean_closedTermCacheExt___closed__4;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2520____closed__4;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____spec__19(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_get_closed_term_name(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__2;
@@ -1548,7 +1548,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_8____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2531____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2520____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

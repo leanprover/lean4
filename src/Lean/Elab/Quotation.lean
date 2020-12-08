@@ -254,9 +254,9 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
     | basic { kind := none, .. } => `(let discr := $discr; $yes)
     -- conditional match step
     | basic { kind := some kind, argPats := pats, .. } =>
-      let cond ← match pats with
-      | some pats => `(and (Syntax.isOfKind discr $(quote kind)) (BEq.beq (Array.size (Syntax.getArgs discr)) $(quote pats.size)))
-      | none      => `(Syntax.isOfKind discr $(quote kind))
+      let cond ← match kind, pats with
+      | `null, some pats => `(and (Syntax.isOfKind discr $(quote kind)) (BEq.beq (Array.size (Syntax.getArgs discr)) $(quote pats.size)))
+      | _,     _         => `(Syntax.isOfKind discr $(quote kind))
       let no ← mkNo
       `(let discr := $discr; ite (Eq $cond true) $yes $no)
     -- terrifying match step

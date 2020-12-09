@@ -1118,7 +1118,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'syntax macro_rules macro ' +
       'fun ' +
       '#check #check_failure #eval #reduce #print ' +
-      'section namespace end infix prefix ',
+      'section namespace end infix infixl infixr postfix prefix ',
     built_in:
       'Type Prop|10 Sort rw|10 rewrite rwa erw subst substs ' +
       'simp dsimp simpa simp_intros finish using generalizing ' +

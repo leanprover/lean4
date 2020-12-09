@@ -1017,7 +1017,6 @@ lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Term_Do_attachJPs___spec__
 lean_object* l_Lean_Elab_Term_Do_ToTerm_matchNestedTermResult___closed__34;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Term_Do_hasBreakContinueReturn___spec__2(lean_object*, size_t, size_t);
 lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_extractBind_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___rarg___lambda__3___closed__8;
 lean_object* l___regBuiltin_Lean_Elab_Term_Do_elabDo___closed__1;
 lean_object* l_Lean_Elab_Term_Do_mkIte_match__1(lean_object*);
@@ -1123,6 +1122,7 @@ lean_object* l_Lean_Elab_Term_Do_getDoLetArrowVars___closed__2;
 lean_object* l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__12;
 lean_object* l_Lean_Elab_Term_Do_ToTerm_seqToTerm(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_mkTuple___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_returnToTermCore___closed__11;
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_Do_mkJmp___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Do_ToTerm_continueToTermCore___closed__22;
@@ -18205,7 +18205,7 @@ x_9 = lean_nat_dec_eq(x_5, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_10 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_2);
+x_10 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_2);
 x_11 = lean_nat_sub(x_5, x_8);
 lean_dec(x_5);
 x_12 = l_Array_extract___rarg(x_2, x_6, x_11);

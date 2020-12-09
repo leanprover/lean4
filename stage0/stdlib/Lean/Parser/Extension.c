@@ -496,7 +496,6 @@ lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_ob
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_throwParserCategoryAlreadyDefined___rarg___closed__1;
 lean_object* l_Lean_Parser_mkParserOfConstant(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_addTrailingParserAux(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(lean_object*);
 lean_object* lean_io_initializing(lean_object*);
 lean_object* l_Lean_Parser_getConstAlias___rarg___closed__3;
 lean_object* l_Lean_ScopedEnvExtension_add___at___private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -537,6 +536,7 @@ lean_object* l_Lean_registerAttributeImplBuilder(lean_object*, lean_object*, lea
 lean_object* l_Lean_Parser_ParserState_mkUnexpectedError(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3652____closed__2;
 lean_object* l_Lean_Parser_getSyntaxNodeKinds___boxed(lean_object*);
+lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_ParserExtension_OLeanEntry_toEntry_match__2(lean_object*);
 lean_object* l_IO_ofExcept___at_Lean_KeyedDeclsAttribute_declareBuiltin___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_containsAux___at_Lean_Parser_isValidSyntaxNodeKind___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -10099,7 +10099,7 @@ lean_dec(x_9);
 x_20 = lean_ctor_get(x_12, 0);
 lean_inc(x_20);
 lean_dec(x_12);
-x_21 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_20);
+x_21 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_20);
 lean_dec(x_20);
 x_22 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_22, 0, x_21);

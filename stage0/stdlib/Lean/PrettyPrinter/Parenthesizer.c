@@ -160,6 +160,7 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer(lean_objec
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_errorAtSavedPos_parenthesizer___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_instMonadQuotationParenthesizerM___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_parenthesizerForKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_back_x3f___rarg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkPrec_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_unicodeSymbol_parenthesizer___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_sepByNoAntiquot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -204,7 +205,6 @@ lean_object* l_Lean_Syntax_Traverser_setCur(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_intro___closed__12;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_term___x24_______closed__4;
-lean_object* l_Lean_Syntax_Traverser_idxsBack(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_parenthesizerForKindUnsafe___closed__1;
@@ -482,7 +482,6 @@ lean_object* l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___closed__2;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_lookahead_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_mkRef___at_Lean_PrettyPrinter_Parenthesizer_initFn____x40_Lean_PrettyPrinter_Parenthesizer___hyg_2401____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___lambda__4___closed__1;
-lean_object* l_Array_back___at_Lean_Syntax_Traverser_idxsBack___spec__1(lean_object*);
 lean_object* l_Lean_PrettyPrinter_mkCombinatorParenthesizerAttribute(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -541,6 +540,7 @@ lean_object* l_Lean_PrettyPrinter_Parenthesizer_instMonadQuotationParenthesizerM
 lean_object* l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed__6;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkColGt_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_getIdx___at_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesizer___closed__1;
 lean_object* l_ReaderT_bind___at_Lean_PrettyPrinter_Parenthesizer_trailingNode_parenthesizer___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_initFn____x40_Lean_PrettyPrinter_Parenthesizer___hyg_2466____closed__14;
@@ -3340,33 +3340,69 @@ x_7 = lean_st_ref_get(x_1, x_6);
 x_8 = !lean_is_exclusive(x_7);
 if (x_8 == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_ctor_get(x_7, 0);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_Syntax_Traverser_idxsBack(x_10);
+x_11 = lean_ctor_get(x_10, 2);
+lean_inc(x_11);
 lean_dec(x_10);
-lean_ctor_set(x_7, 0, x_11);
+x_12 = l_Array_back_x3f___rarg(x_11);
+lean_dec(x_11);
+if (lean_obj_tag(x_12) == 0)
+{
+lean_object* x_13; 
+x_13 = lean_unsigned_to_nat(0u);
+lean_ctor_set(x_7, 0, x_13);
 return x_7;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_12 = lean_ctor_get(x_7, 0);
-x_13 = lean_ctor_get(x_7, 1);
-lean_inc(x_13);
-lean_inc(x_12);
-lean_dec(x_7);
+lean_object* x_14; 
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = l_Lean_Syntax_Traverser_idxsBack(x_14);
-lean_dec(x_14);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_13);
-return x_16;
+lean_ctor_set(x_7, 0, x_14);
+return x_7;
+}
+}
+else
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_15 = lean_ctor_get(x_7, 0);
+x_16 = lean_ctor_get(x_7, 1);
+lean_inc(x_16);
+lean_inc(x_15);
+lean_dec(x_7);
+x_17 = lean_ctor_get(x_15, 0);
+lean_inc(x_17);
+lean_dec(x_15);
+x_18 = lean_ctor_get(x_17, 2);
+lean_inc(x_18);
+lean_dec(x_17);
+x_19 = l_Array_back_x3f___rarg(x_18);
+lean_dec(x_18);
+if (lean_obj_tag(x_19) == 0)
+{
+lean_object* x_20; lean_object* x_21; 
+x_20 = lean_unsigned_to_nat(0u);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_16);
+return x_21;
+}
+else
+{
+lean_object* x_22; lean_object* x_23; 
+x_22 = lean_ctor_get(x_19, 0);
+lean_inc(x_22);
+lean_dec(x_19);
+x_23 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_23, 0, x_22);
+lean_ctor_set(x_23, 1, x_16);
+return x_23;
+}
 }
 }
 }
@@ -7342,12 +7378,12 @@ lean_inc(x_13);
 lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
-x_15 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_14);
+x_15 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_14);
 lean_dec(x_14);
 x_16 = lean_ctor_get(x_13, 2);
 lean_inc(x_16);
 lean_dec(x_13);
-x_17 = l_Array_back___at_Lean_Syntax_Traverser_idxsBack___spec__1(x_16);
+x_17 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_16);
 lean_dec(x_16);
 x_18 = lean_nat_sub(x_17, x_1);
 lean_dec(x_17);
@@ -7388,12 +7424,12 @@ lean_inc(x_13);
 lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
-x_15 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_14);
+x_15 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_14);
 lean_dec(x_14);
 x_16 = lean_ctor_get(x_13, 2);
 lean_inc(x_16);
 lean_dec(x_13);
-x_17 = l_Array_back___at_Lean_Syntax_Traverser_idxsBack___spec__1(x_16);
+x_17 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_16);
 lean_dec(x_16);
 x_18 = lean_nat_sub(x_17, x_1);
 lean_dec(x_17);

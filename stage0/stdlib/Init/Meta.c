@@ -356,7 +356,6 @@ lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__4___boxed(lean_object*,
 lean_object* l_Lean_Syntax_mkApp___closed__1;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_Syntax_decodeQuotedChar_match__6(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3393____closed__5;
 lean_object* l___private_Init_Meta_0__Lean_quoteName_match__1(lean_object*);
 lean_object* l_Lean_Name_appendAfter(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getSepArgs(lean_object*);
@@ -369,6 +368,7 @@ lean_object* l_Lean_instQuoteString___boxed(lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks___closed__1;
 lean_object* l_Lean_instQuoteBool___closed__2;
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks_match__3___rarg(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3405____closed__5;
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_getSepArgs___spec__1(lean_object*, size_t, size_t, lean_object*);
@@ -9292,7 +9292,7 @@ x_3 = lean_array_to_list(lean_box(0), x_2);
 x_4 = l___private_Init_Meta_0__Lean_quoteList___rarg(x_1, x_3);
 x_5 = l_Lean_mkOptionalNode___closed__2;
 x_6 = lean_array_push(x_5, x_4);
-x_7 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3393____closed__5;
+x_7 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3405____closed__5;
 x_8 = l_Lean_Syntax_mkCApp(x_7, x_6);
 return x_8;
 }

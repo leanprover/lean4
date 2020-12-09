@@ -24,9 +24,12 @@ structure Context (α : Type) where
 
 def Context.tyName {α} (ctx : Context α) : Name := ctx.categoryAttr.defn.valueTypeName
 
--- replace all references of `Parser` with `tyName` as a first approximation
-def preprocessParserBody {α} (ctx : Context α) (e : Expr) : Expr :=
-  e.replace fun e => if e.isConstOf `Lean.Parser.Parser then mkConst ctx.tyName else none
+-- replace all references of `Parser` with `tyName`
+def replaceParserTy {α} (ctx : Context α) (e : Expr) : Expr :=
+  e.replace fun e =>
+    -- strip `optParam`
+    let e := if e.isOptParam then e.appFn!.appArg! else e
+    if e.isConstOf `Lean.Parser.Parser then mkConst ctx.tyName else none
 
 section
 open Meta
@@ -73,13 +76,10 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           | throwError! "don't know how to generate {ctx.varName} for non-definition '{e}'"
         unless (env.getModuleIdxFor? c).isNone || force do
           throwError! "refusing to generate code for imported parser declaration '{c}'; use `@[runParserAttributeHooks]` on its definition instead."
-        let value ← compileParserExpr $ preprocessParserBody ctx value
+        let value ← compileParserExpr $ replaceParserTy ctx value
         let ty ← forallTelescope cinfo.type fun params _ =>
           params.foldrM (init := mkConst ctx.tyName) fun param ty => do
-            let paramTy ← inferType param;
-            let paramTy ← forallTelescope paramTy fun _ b => pure $
-              if b.isConstOf `Lean.Parser.Parser then mkConst ctx.tyName
-              else b
+            let paramTy ← replaceParserTy ctx <$> inferType param
             pure $ mkForall `_ BinderInfo.default paramTy ty
         let decl := Declaration.defnDecl {
           name := c', lparams := [],

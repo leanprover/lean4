@@ -374,14 +374,7 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := d
   match mvarErrorInfo.kind with
   | MVarErrorKind.implicitArg app => do
     let app ← instantiateMVars app
-    let f    := app.getAppFn
-    let args := app.getAppArgs
-    let msg  := args.foldl (init := "@" ++ MessageData.ofExpr f) fun (msg : MessageData) (arg : Expr) =>
-      if arg.getAppFn.isMVar then
-        msg ++ " " ++ arg.getAppFn
-      else
-        msg ++ " …"
-    let msg : MessageData := m!"don't know how to synthesize implicit argument{indentD msg}"
+    let msg : MessageData := m!"don't know how to synthesize implicit argument{indentExpr app.setAppPPExplicit}"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
     logErrorAt mvarErrorInfo.ref msg
   | MVarErrorKind.hole => do

@@ -1,6 +1,6 @@
 Sum.someRight c : Option Nat
 evalWithMVar.lean:13:6: error: don't know how to synthesize implicit argument
-  @Sum.someRight ?m … …
+  @Sum.someRight ?m Nat c
 context:
 ⊢ Type _
 evalWithMVar.lean:13:20: error: don't know how to synthesize implicit argument

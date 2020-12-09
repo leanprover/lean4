@@ -11,12 +11,12 @@ x : Nat
 y : Nat := g x + g x
 ⊢ Nat
 holes.lean:10:15: error: don't know how to synthesize implicit argument
-  @g … ?m …
+  @g Nat (?m x) x
 context:
 x : Nat
 ⊢ Type
 holes.lean:10:9: error: don't know how to synthesize implicit argument
-  @g … ?m …
+  @g Nat (?m x) x
 context:
 x : Nat
 ⊢ Type

@@ -29,6 +29,8 @@ namespace Syntax
 @[builtinSyntaxParser] def cat             := parser! ident >> optPrecedence
 @[builtinSyntaxParser] def unary           := parser! ident >> checkNoWsBefore >> "(" >> many1 syntaxParser >> ")"
 @[builtinSyntaxParser] def binary          := parser! ident >> checkNoWsBefore >> "(" >> many1 syntaxParser >> ", " >> many1 syntaxParser >> ")"
+@[builtinSyntaxParser] def sepBy           := parser! "sepBy(" >> many1 syntaxParser >> ", " >> strLit >> optional (", " >> many1 syntaxParser) >> optional (", " >> nonReservedSymbol "allowTrailingSep") >> ")"
+@[builtinSyntaxParser] def sepBy1          := parser! "sepBy1(" >> many1 syntaxParser >> ", " >> strLit >> optional (", " >> many1 syntaxParser) >> optional (", " >> nonReservedSymbol "allowTrailingSep") >> ")"
 @[builtinSyntaxParser] def atom            := parser! strLit
 @[builtinSyntaxParser] def nonReserved     := parser! "&" >> strLit
 

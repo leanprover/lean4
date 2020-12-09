@@ -8,6 +8,28 @@ Notation for operators defined at Prelude.lean
 prelude
 import Init.Prelude
 
+-- Basic notation for defining parsers
+syntax   stx "+" : stx
+syntax   stx "*" : stx
+syntax   stx "?" : stx
+syntax:2 stx " <|> " stx:1 : stx
+
+macro_rules
+  | `(stx| $p +) => `(stx| many1($p))
+  | `(stx| $p *) => `(stx| many($p))
+  | `(stx| $p ?) => `(stx| optional($p))
+  | `(stx| $p₁ <|> $p₂) => `(stx| orelse($p₁, $p₂))
+
+/- Comma-separated sequence. -/
+macro x:stx ",*"   : stx => `(stx| sepBy($x, ",", ", "))
+macro x:stx ",+"   : stx => `(stx| sepBy1($x, ",", ", "))
+/- Comma-separated sequence with optional trailing comma. -/
+macro x:stx ",*,?" : stx => `(stx| sepBy($x, ",", ", ", allowTrailingSep))
+/- Pipe-separated sequence, must be indentend at least as much as outer `withPosition` call. -/
+macro x:stx "|+"   : stx => `(stx| sepBy1($x, "|", colGe "| "))
+
+macro "!" x:stx : stx => `(stx| notFollowedBy($x))
+
 syntax[rawNatLit] "natLit! " num : term
 
 infixr:90 " ∘ "  => Function.comp
@@ -60,7 +82,7 @@ macro "if" h:ident " : " c:term " then " t:term " else " e:term : term =>
 macro "if" c:term " then " t:term " else " e:term : term =>
   `(ite $c $t $e)
 
-syntax "[" sepBy(term, ", ") "]"  : term
+syntax "[" term,* "]"  : term
 
 open Lean in
 macro_rules
@@ -91,20 +113,6 @@ syntax:0 term atomic("$" ws) term:0 : term
 macro_rules
   | `($f $args* $ $a) => let args := args.push a; `($f $args*)
   | `($f $ $a) => `($f $a)
-
--- Basic notation for defining parsers
-syntax   stx "+" : stx
-syntax   stx "*" : stx
-syntax   stx "?" : stx
-syntax:2 stx " <|> " stx:1 : stx
-
-macro_rules
-  | `(stx| $p +) => `(stx| many1($p))
-  | `(stx| $p *) => `(stx| many($p))
-  | `(stx| $p ?) => `(stx| optional($p))
-  | `(stx| $p₁ <|> $p₂) => `(stx| orelse($p₁, $p₂))
-
-macro "!" x:stx : stx => `(stx| notFollowedBy($x))
 
 syntax "{ " ident (" : " term)? " // " term " }" : term
 
@@ -158,7 +166,7 @@ syntax[change] "change " term (location)? : tactic
 syntax[changeWith] "change " term " with " term (location)? : tactic
 
 syntax rwRule    := ("←" <|> "<-")? term
-syntax rwRuleSeq := "[" sepBy1T(rwRule, ", ") "]"
+syntax rwRuleSeq := "[" rwRule,*,? "]"
 
 syntax[rewrite] "rewrite " rwRule (location)? : tactic
 syntax[rewriteSeq, 1] "rewrite " rwRuleSeq (location)? : tactic
@@ -199,14 +207,14 @@ syntax[«let!»] "let! " letDecl : tactic
 syntax[letrec] withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
 
 syntax inductionAlt  := (ident <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
-syntax inductionAlts := "with " withPosition("| " sepBy1(inductionAlt, "| ", colGe "| "))
-syntax[induction] "induction " sepBy1(term, ", ") (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
+syntax inductionAlts := "with " withPosition("| " inductionAlt|+)
+syntax[induction] "induction " term,+ (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
 syntax casesTarget := atomic(ident " : ")? term
-syntax[cases] "cases " sepBy1(casesTarget, ", ") (" using " ident)? (inductionAlts)? : tactic
+syntax[cases] "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 
-syntax matchAlt  := sepBy1(term, ", ") " => " (hole <|> syntheticHole <|> tacticSeq)
-syntax matchAlts := withPosition("| " sepBy1(matchAlt, "| ", colGe "| "))
-syntax[«match»] "match " sepBy1(matchDiscr, ", ") (" : " term)? " with " matchAlts : tactic
+syntax matchAlt  := term,+ " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax matchAlts := withPosition("| " matchAlt|+)
+syntax[«match»] "match " matchDiscr,+ (" : " term)? " with " matchAlts : tactic
 
 syntax[introMatch] "intro " matchAlts : tactic
 

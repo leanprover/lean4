@@ -1,4 +1,4 @@
-syntax[beginEndKind] "begin " sepByT(tactic, ", ") "end" : term
+syntax[beginEndKind] "begin " tactic,*,? "end" : term
 
 open Lean in
 @[macro beginEndKind] def expandBeginEnd : Lean.Macro := fun stx =>

@@ -45,6 +45,9 @@ def back [Inhabited α] (a : Array α) : α :=
 def get? (a : Array α) (i : Nat) : Option α :=
   if h : i < a.size then some (a.get ⟨i, h⟩) else none
 
+def back? (a : Array α) : Option α :=
+  a.get? (a.size - 1)
+
 -- auxiliary declaration used in the equation compiler when pattern matching array literals.
 abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = n) (h₂ : i < n) : α :=
   a.get ⟨i, h₁.symm ▸ h₂⟩

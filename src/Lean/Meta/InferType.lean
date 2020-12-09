@@ -121,9 +121,7 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
 def throwTypeExcepted {α} (type : Expr) : MetaM α :=
   throwError! "type expected{indentExpr type}"
 
-variables {m : Type → Type} [MonadLiftT MetaM m]
-
-private def getLevelImp (type : Expr) : MetaM Level := do
+def getLevel (type : Expr) : MetaM Level := do
   let typeType ← inferType type
   let typeType ← whnfD typeType
   match typeType with
@@ -136,9 +134,6 @@ private def getLevelImp (type : Expr) : MetaM Level := do
       assignExprMVar mvarId (mkSort lvl)
       pure lvl
   | _ => throwTypeExcepted type
-
-def getLevel (type : Expr) : m Level :=
-  liftMetaM $ getLevelImp type
 
 private def inferForallType (e : Expr) : MetaM Expr :=
   forallTelescope e fun xs e => do
@@ -261,7 +256,7 @@ partial def isPropQuick : Expr → MetaM LBool
      to decide whether is a proposition or not. We return `false` in this
      case. We considered using `LBool` and retuning `LBool.undef`, but
      we have no applications for it. -/
-private def isPropImp (e : Expr) : MetaM Bool := do
+def isProp (e : Expr) : MetaM Bool := do
   let r ← isPropQuick e
   match r with
   | LBool.true  => pure true
@@ -272,9 +267,6 @@ private def isPropImp (e : Expr) : MetaM Bool := do
     match type with
     | Expr.sort u _ => return isAlwaysZero (← instantiateLevelMVars u)
     | _             => pure false
-
-def isProp (e : Expr) : m Bool :=
-  liftMetaM $ isPropImp e
 
 /--
   `isArrowProposition type n` is an "approximate" predicate which returns `LBool.true`
@@ -321,7 +313,7 @@ partial def isProofQuick : Expr → MetaM LBool
 
 end
 
-private def isProofImp (e : Expr) : MetaM Bool := do
+def isProof (e : Expr) : MetaM Bool := do
   let r ← isProofQuick e
   match r with
   | LBool.true  => pure true
@@ -329,9 +321,6 @@ private def isProofImp (e : Expr) : MetaM Bool := do
   | LBool.undef => do
     let type ← inferType e
     Meta.isProp type
-
-def isProof (e : Expr) : m Bool :=
-  liftMetaM $ isProofImp e
 
 /--
   `isArrowType type n` is an "approximate" predicate which returns `LBool.true`
@@ -376,7 +365,7 @@ partial def isTypeQuick : Expr → MetaM LBool
   | Expr.mvar mvarId _    => do let mvarType  ← inferMVarType mvarId;  isArrowType mvarType 0
   | Expr.app f _ _        => isTypeQuickApp f 1
 
-private def isTypeImp (e : Expr) : m Bool := liftMetaM do
+def isType (e : Expr) : MetaM Bool := do
   let r ← isTypeQuick e
   match r with
   | LBool.true  => pure true
@@ -388,25 +377,19 @@ private def isTypeImp (e : Expr) : m Bool := liftMetaM do
     | Expr.sort _ _ => pure true
     | _             => pure false
 
-def isType (e : Expr) : m Bool :=
-  liftMetaM $ isTypeImp e
-
-private partial def isTypeFormerTypeImp (type : Expr) : MetaM Bool := do
+partial def isTypeFormerType (type : Expr) : MetaM Bool := do
   let type ← whnfD type
   match type with
   | Expr.sort _ _ => pure true
   | Expr.forallE n d b c =>
     withLocalDecl' n c.binderInfo d fun fvar =>
-    isTypeFormerTypeImp (b.instantiate1 fvar)
+    isTypeFormerType (b.instantiate1 fvar)
   | _ => pure false
-
-def isTypeFormerType (e : Expr) : m Bool :=
-  liftMetaM $ isTypeFormerTypeImp e
 
 /--
   Return true iff `e : Sort _` or `e : (forall As, Sort _)`.
   Remark: it subsumes `isType` -/
-def isTypeFormer (e : Expr) : m Bool := liftMetaM do
+def isTypeFormer (e : Expr) : MetaM Bool := do
   let type ← inferType e
   isTypeFormerType type
 

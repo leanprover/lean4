@@ -7,6 +7,6 @@ but is expected to have type
 typeMismatch.lean:12:0: error: type mismatch
   Meta.isDefEq x x
 has type
-  ReaderT Meta.Context (StateRefT' IO.RealWorld Meta.State CoreM) Bool
+  MetaM Bool
 but is expected to have type
   MetaM Unit

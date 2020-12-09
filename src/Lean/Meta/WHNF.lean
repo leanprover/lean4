@@ -30,14 +30,9 @@ private def useSmartUnfolding (opts : Options) : Bool :=
 /- ===========================
    Helper methods
    =========================== -/
-variables {m : Type → Type} [MonadLiftT MetaM m]
-
-private def isAuxDefImp? (constName : Name) : MetaM Bool := do
+def isAuxDef? (constName : Name) : MetaM Bool := do
   let env ← getEnv
   pure (isAuxRecursor env constName || isNoConfusion env constName)
-
-@[inline] def isAuxDef? (constName : Name) : m Bool :=
-  liftMetaM $ isAuxDefImp? constName
 
 @[inline] private def matchConstAux {α} (e : Expr) (failK : Unit → MetaM α) (k : ConstantInfo → List Level → MetaM α) : MetaM α :=
   match e with
@@ -159,7 +154,7 @@ mutual
       if h : majorIdx < recArgs.size then do
         let major := recArgs.get ⟨majorIdx, h⟩
         let major ← whnf major
-        getStuckMVarImp? major
+        getStuckMVar? major
       else
         pure none
 
@@ -168,7 +163,7 @@ mutual
       if h : majorPos < recArgs.size then do
         let major := recArgs.get ⟨majorPos, h⟩
         let major ← whnf major
-        getStuckMVarImp? major
+        getStuckMVar? major
       else
         pure none
     match recVal.kind with
@@ -177,9 +172,9 @@ mutual
     | _             => pure none
 
   /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
-  private partial def getStuckMVarImp? : Expr → MetaM (Option MVarId)
-    | Expr.mdata _ e _       => getStuckMVarImp? e
-    | Expr.proj _ _ e _      => do getStuckMVarImp? (← whnf e)
+  partial def getStuckMVar? : Expr → MetaM (Option MVarId)
+    | Expr.mdata _ e _       => getStuckMVar? e
+    | Expr.proj _ _ e _      => do getStuckMVar? (← whnf e)
     | e@(Expr.mvar mvarId _) => pure (some mvarId)
     | e@(Expr.app f _ _) =>
       let f := f.getAppFn
@@ -194,9 +189,6 @@ mutual
       | _ => pure none
     | _ => pure none
 end
-
-@[inline] def getStuckMVar? (e : Expr) : m (Option MVarId) :=
-  liftM $ getStuckMVarImp? e
 
 /- ===========================
    Weak Head Normal Form auxiliary combinators
@@ -294,20 +286,20 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
 /--
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
   expand let-expressions, expand assigned meta-variables. -/
-private partial def whnfCoreImp (e : Expr) : MetaM Expr :=
+partial def whnfCore (e : Expr) : MetaM Expr :=
   whnfEasyCases e fun e => do
     trace[Meta.whnf]! e
     match e with
     | e@(Expr.const _ _ _)    => pure e
-    | e@(Expr.letE _ _ v b _) => whnfCoreImp $ b.instantiate1 v
+    | e@(Expr.letE _ _ v b _) => whnfCore $ b.instantiate1 v
     | e@(Expr.app f _ _)      =>
       let f := f.getAppFn
-      let f' ← whnfCoreImp f
+      let f' ← whnfCore f
       if f'.isLambda then
         let revArgs := e.getAppRevArgs
-        whnfCoreImp $ f'.betaRev revArgs
+        whnfCore <| f'.betaRev revArgs
       else match (← reduceMatcher? e) with
-        | ReduceMatcherResult.reduced eNew => whnfCoreImp eNew
+        | ReduceMatcherResult.reduced eNew => whnfCore eNew
         | ReduceMatcherResult.partialApp   => pure e
         | ReduceMatcherResult.stuck _      => pure e
         | ReduceMatcherResult.notMatcher   =>
@@ -315,12 +307,12 @@ private partial def whnfCoreImp (e : Expr) : MetaM Expr :=
             if f == f' then pure e else pure $ e.updateFn f'
           matchConstAux f' done fun cinfo lvls =>
             match cinfo with
-            | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs done whnfCoreImp
-            | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs done whnfCoreImp
+            | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs done whnfCore
+            | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs done whnfCore
             | c@(ConstantInfo.defnInfo _) => do
               let unfold? ← isAuxDef? c.name
               if unfold? then
-                deltaBetaDefinition c lvls e.getAppRevArgs done whnfCoreImp
+                deltaBetaDefinition c lvls e.getAppRevArgs done whnfCore
               else
                 done ()
             | _ => done ()
@@ -331,20 +323,17 @@ private partial def whnfCoreImp (e : Expr) : MetaM Expr :=
         | ConstantInfo.ctorInfo ctorVal =>
           let argIdx := ctorVal.nparams + i
           if argIdx < c.getAppNumArgs then
-            whnfCoreImp $ c.getArg! argIdx
+            whnfCore <| c.getArg! argIdx
           else
             pure e
         | _ => pure e
     | _ => unreachable!
 
-@[inline] def whnfCore (e : Expr) : m Expr :=
-  liftMetaM $ whnfCoreImp e
-
 mutual
   /-- Reduce `e` until `idRhs` application is exposed or it gets stuck.
       This is a helper method for implementing smart unfolding. -/
   private partial def whnfUntilIdRhs (e : Expr) : MetaM Expr := do
-    let e ← whnfCoreImp e
+    let e ← whnfCore e
     match (← getStuckMVar? e) with
     | some mvarId =>
       /- Try to "unstuck" by resolving pending TC problems -/
@@ -356,12 +345,12 @@ mutual
       if isIdRhsApp e then
         pure e -- done
       else
-        match (← unfoldDefinitionImp? e) with
+        match (← unfoldDefinition? e) with
         | some e => whnfUntilIdRhs e
         | none   => pure e -- failed because of symbolic argument
 
   /-- Unfold definition using "smart unfolding" if possible. -/
-  private partial def unfoldDefinitionImp? (e : Expr) : MetaM (Option Expr) :=
+  partial def unfoldDefinition? (e : Expr) : MetaM (Option Expr) :=
     match e with
     | Expr.app f _ _ =>
       matchConstAux f.getAppFn (fun _ => pure none) fun fInfo fLvls => do
@@ -392,26 +381,20 @@ mutual
     | _ => pure none
 end
 
-@[specialize] partial def whnfHeadPredImp (e : Expr) (pred : Expr → MetaM Bool) : MetaM Expr :=
+@[specialize] partial def whnfHeadPred (e : Expr) (pred : Expr → MetaM Bool) : MetaM Expr :=
   whnfEasyCases e fun e => do
-    let e ← whnfCoreImp e
+    let e ← whnfCore e
     if (← pred e) then
-        match (← unfoldDefinitionImp? e) with
-        | some e => whnfHeadPredImp e pred
+        match (← unfoldDefinition? e) with
+        | some e => whnfHeadPred e pred
         | none   => pure e
     else
       pure e
 
-@[inline] partial def whnfHeadPred (e : Expr) (pred : Expr → MetaM Bool) : m Expr :=
-  liftMetaM $ whnfHeadPredImp e pred
-
-def whnfUntil (e : Expr) (declName : Name) : m (Option Expr) := liftMetaM do
-  let e ← whnfHeadPredImp e (fun e => pure $ !e.isAppOf declName)
+def whnfUntil (e : Expr) (declName : Name) : MetaM (Option Expr) := do
+  let e ← whnfHeadPred e (fun e => pure $ !e.isAppOf declName)
   if e.isAppOf declName then pure e
   else pure none
-
-@[inline] def unfoldDefinition? (e : Expr) : m (Option Expr) :=
-  liftMetaM $ unfoldDefinitionImp? e
 
 unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := evalConstCheck Bool `Bool constName
 unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstCheck Nat `Nat constName
@@ -507,7 +490,7 @@ partial def whnfImp (e : Expr) : MetaM Expr :=
     match (← cached? useCache e) with
     | some e' => pure e'
     | none    =>
-      let e' ← whnfCoreImp e
+      let e' ← whnfCore e
       match (← reduceNat? e') with
       | some v => cache useCache e v
       | none   =>

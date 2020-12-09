@@ -164,22 +164,30 @@ builtin_initialize
   controlAt MetaM fun runInBase => f fun b c => runInBase $ k b c
 
 section Methods
-variables {m : Type → Type} [MonadLiftT MetaM m]
 variables {n : Type → Type} [MonadControlT MetaM n] [Monad n]
 
-def getLocalInstances : m LocalInstances := liftMetaM do pure (← read).localInstances
-def getConfig : m Config := liftMetaM do pure (← read).config
-def setMCtx (mctx : MetavarContext) : m Unit := liftMetaM $ modify fun s => { s with mctx := mctx }
-def resetZetaFVarIds : m Unit := liftMetaM $ modify fun s => { s with zetaFVarIds := {} }
-def getZetaFVarIds : m NameSet := liftMetaM do pure (← get).zetaFVarIds
+def getLocalInstances : MetaM LocalInstances :=
+  return (← read).localInstances
 
-def getPostponed : m (PersistentArray PostponedEntry) := liftMetaM do
-  pure (← get).postponed
+def getConfig : MetaM Config :=
+  return (← read).config
 
-def setPostponed (postponed : PersistentArray PostponedEntry) : m Unit := liftMetaM $
+def setMCtx (mctx : MetavarContext) : MetaM Unit :=
+  modify fun s => { s with mctx := mctx }
+
+def resetZetaFVarIds : MetaM Unit :=
+  modify fun s => { s with zetaFVarIds := {} }
+
+def getZetaFVarIds : MetaM NameSet :=
+  return (← get).zetaFVarIds
+
+def getPostponed : MetaM (PersistentArray PostponedEntry) :=
+  return (← get).postponed
+
+def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
   modify fun s => { s with postponed := postponed }
 
-@[inline] def modifyPostponed (f : PersistentArray PostponedEntry → PersistentArray PostponedEntry) : m Unit := liftMetaM $
+@[inline] def modifyPostponed (f : PersistentArray PostponedEntry → PersistentArray PostponedEntry) : MetaM Unit :=
   modify fun s => { s with postponed := f s.postponed }
 
 builtin_initialize whnfRef : IO.Ref (Expr → MetaM Expr) ← IO.mkRef fun _ => throwError "whnf implementation was not set"
@@ -187,15 +195,15 @@ builtin_initialize inferTypeRef : IO.Ref (Expr → MetaM Expr) ← IO.mkRef fun 
 builtin_initialize isExprDefEqAuxRef : IO.Ref (Expr → Expr → MetaM Bool) ← IO.mkRef fun _ _ => throwError "isDefEq implementation was not set"
 builtin_initialize synthPendingRef : IO.Ref (MVarId → MetaM Bool) ← IO.mkRef fun _ => pure false
 
-def whnf (e : Expr) : m Expr :=
-  liftMetaM $ withIncRecDepth do (← whnfRef.get) e
+def whnf (e : Expr) : MetaM Expr :=
+  withIncRecDepth do (← whnfRef.get) e
 
-def whnfForall [Monad m] (e : Expr) : m Expr := do
+def whnfForall (e : Expr) : MetaM Expr := do
   let e' ← whnf e
   if e'.isForall then pure e' else pure e
 
-def inferType (e : Expr) : m Expr :=
-  liftMetaM $ withIncRecDepth do (← inferTypeRef.get) e
+def inferType (e : Expr) : MetaM Expr :=
+  withIncRecDepth do (← inferTypeRef.get) e
 
 protected def isExprDefEqAux (t s : Expr) : MetaM Bool :=
   withIncRecDepth do (← isExprDefEqAuxRef.get) t s
@@ -215,14 +223,14 @@ private def mkFreshExprMVarAtCore
 def mkFreshExprMVarAt
     (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr)
     (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous) (numScopeArgs : Nat := 0)
-    : m Expr := liftMetaM do
+    : MetaM Expr := do
   let mvarId ← mkFreshId
   mkFreshExprMVarAtCore mvarId lctx localInsts type kind userName numScopeArgs
 
-def mkFreshLevelMVar : m Level := liftMetaM do
+def mkFreshLevelMVar : MetaM Level := do
   let mvarId ← mkFreshId
   modifyMCtx fun mctx => mctx.addLevelMVarDecl mvarId;
-  pure $ mkLevelMVar mvarId
+  return mkLevelMVar mvarId
 
 private def mkFreshExprMVarCore (type : Expr) (kind : MetavarKind) (userName : Name) : MetaM Expr := do
   let lctx ← getLCtx
@@ -237,10 +245,10 @@ private def mkFreshExprMVarImpl (type? : Option Expr) (kind : MetavarKind) (user
     let type ← mkFreshExprMVarCore (mkSort u) MetavarKind.natural Name.anonymous
     mkFreshExprMVarCore type kind userName
 
-def mkFreshExprMVar (type? : Option Expr) (kind := MetavarKind.natural) (userName := Name.anonymous) : m Expr :=
-  liftMetaM $ mkFreshExprMVarImpl type? kind userName
+def mkFreshExprMVar (type? : Option Expr) (kind := MetavarKind.natural) (userName := Name.anonymous) : MetaM Expr :=
+  mkFreshExprMVarImpl type? kind userName
 
-def mkFreshTypeMVar (kind := MetavarKind.natural) (userName := Name.anonymous) : m Expr := liftMetaM do
+def mkFreshTypeMVar (kind := MetavarKind.natural) (userName := Name.anonymous) : MetaM Expr := do
   let u ← mkFreshLevelMVar
   mkFreshExprMVar (mkSort u) kind userName
 
@@ -248,12 +256,12 @@ def mkFreshTypeMVar (kind := MetavarKind.natural) (userName := Name.anonymous) :
    the metavar using this method. -/
 private def mkFreshExprMVarWithIdCore (mvarId : MVarId) (type : Expr)
     (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous) (numScopeArgs : Nat := 0)
-    : m Expr := liftMetaM do
+    : MetaM Expr := do
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   mkFreshExprMVarAtCore mvarId lctx localInsts type kind userName numScopeArgs
 
-def mkFreshExprMVarWithIdImpl (mvarId : MVarId) (type? : Option Expr) (kind : MetavarKind) (userName : Name) : MetaM Expr :=
+def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName := Name.anonymous) : MetaM Expr :=
   match type? with
   | some type => mkFreshExprMVarWithIdCore mvarId type kind userName
   | none      => do
@@ -261,116 +269,106 @@ def mkFreshExprMVarWithIdImpl (mvarId : MVarId) (type? : Option Expr) (kind : Me
     let type ← mkFreshExprMVar (mkSort u)
     mkFreshExprMVarWithIdCore mvarId type kind userName
 
-def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName := Name.anonymous) : m Expr :=
-  liftMetaM $ mkFreshExprMVarWithIdImpl mvarId type? kind userName
-
-def shouldReduceAll : MetaM Bool := liftMetaM do
+def shouldReduceAll : MetaM Bool :=
   return (← read).config.transparency == TransparencyMode.all
 
-def shouldReduceReducibleOnly : m Bool := liftMetaM do
+def shouldReduceReducibleOnly : MetaM Bool :=
   return (← read).config.transparency == TransparencyMode.reducible
 
-def getTransparency : m TransparencyMode := liftMetaM do
+def getTransparency : MetaM TransparencyMode :=
   return (← read).config.transparency
 
-def getMVarDecl (mvarId : MVarId) : m MetavarDecl := liftMetaM do
+def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   let mctx ← getMCtx
   match mctx.findDecl? mvarId with
   | some d => pure d
   | none   => throwError! "unknown metavariable '{mkMVar mvarId}'"
 
-def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : m Unit := liftMetaM do
+def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
 
 /- Update the type of the given metavariable. This function assumes the new type is
    definitionally equal to the current one -/
-def setMVarType (mvarId : MVarId) (type : Expr) : m Unit := liftMetaM do
+def setMVarType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.setMVarType mvarId type
 
-def isReadOnlyExprMVar (mvarId : MVarId) : m Bool := liftMetaM do
+def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
   let mvarDecl ← getMVarDecl mvarId
   let mctx     ← getMCtx
-  pure $ mvarDecl.depth != mctx.depth
+  return mvarDecl.depth != mctx.depth
 
-def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : m Bool := liftMetaM do
+def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
   let mvarDecl ← getMVarDecl mvarId
   match mvarDecl.kind with
   | MetavarKind.syntheticOpaque => pure true
-  | _ => do
+  | _ =>
     let mctx ← getMCtx
-    pure $ mvarDecl.depth != mctx.depth
+    return mvarDecl.depth != mctx.depth
 
-def isReadOnlyLevelMVar (mvarId : MVarId) : m Bool := liftMetaM do
+def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
   let mctx ← getMCtx
   match mctx.findLevelDepth? mvarId with
-  | some depth => pure $ depth != mctx.depth
+  | some depth => return depth != mctx.depth
   | _          => throwError! "unknown universe metavariable '{mkLevelMVar mvarId}'"
 
-def renameMVar (mvarId : MVarId) (newUserName : Name) : m Unit := liftMetaM do
+def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.renameMVar mvarId newUserName
 
-def isExprMVarAssigned (mvarId : MVarId) : m Bool := liftMetaM do
-  let mctx ← getMCtx
-  pure $ mctx.isExprAssigned mvarId
+def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool :=
+  return (← getMCtx).isExprAssigned mvarId
 
-def getExprMVarAssignment? (mvarId : MVarId) : m (Option Expr) := liftMetaM do
-  let mctx ← getMCtx
-  pure (mctx.getExprAssignment? mvarId)
+def getExprMVarAssignment? (mvarId : MVarId) : MetaM (Option Expr) :=
+  return (← getMCtx).getExprAssignment? mvarId
 
-def assignExprMVar (mvarId : MVarId) (val : Expr) : m Unit := liftMetaM do
+def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.assignExpr mvarId val
 
-def isDelayedAssigned (mvarId : MVarId) : m Bool := liftMetaM do
+def isDelayedAssigned (mvarId : MVarId) : MetaM Bool :=
   return (← getMCtx).isDelayedAssigned mvarId
 
-def getDelayedAssignment? (mvarId : MVarId) : m (Option DelayedMetavarAssignment) := liftMetaM do
+def getDelayedAssignment? (mvarId : MVarId) : MetaM (Option DelayedMetavarAssignment) :=
   return (← getMCtx).getDelayedAssignment? mvarId
 
-def hasAssignableMVar (e : Expr) : m Bool := liftMetaM do
+def hasAssignableMVar (e : Expr) : MetaM Bool :=
   return (← getMCtx).hasAssignableMVar e
 
 def throwUnknownFVar {α} (fvarId : FVarId) : MetaM α :=
   throwError! "unknown free variable '{mkFVar fvarId}'"
 
-def findLocalDecl? (fvarId : FVarId) : m (Option LocalDecl) := liftMetaM do
+def findLocalDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
   return (← getLCtx).find? fvarId
 
-def getLocalDecl (fvarId : FVarId) : m LocalDecl := liftMetaM do
+def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
   match (← getLCtx).find? fvarId with
   | some d => pure d
   | none   => throwUnknownFVar fvarId
 
-def getFVarLocalDecl (fvar : Expr) : m LocalDecl := liftMetaM do
+def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
   getLocalDecl fvar.fvarId!
 
-def getLocalDeclFromUserName (userName : Name) : m LocalDecl := liftMetaM do
+def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   match (← getLCtx).findFromUserName? userName with
   | some d => pure d
   | none   => throwError! "unknown local declaration '{userName}'"
 
-def instantiateLevelMVarsImp (u : Level) : MetaM Level :=
+def instantiateLevelMVars (u : Level) : MetaM Level :=
   MetavarContext.instantiateLevelMVars u
 
-def instantiateLevelMVars (u : Level) : m Level := liftMetaM do
-  instantiateLevelMVarsImp u
-
-def instantiateMVarsImp (e : Expr) : MetaM Expr :=
+def instantiateMVars (e : Expr) : MetaM Expr :=
   (MetavarContext.instantiateExprMVars e).run
 
-def instantiateMVars (e : Expr) : m Expr := liftMetaM do
-  instantiateMVarsImp e
-
-def instantiateLocalDeclMVars (localDecl : LocalDecl) : m LocalDecl := liftMetaM do
+def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl := do
   match localDecl with
   | LocalDecl.cdecl idx id n type bi  =>
     let type ← instantiateMVars type
-    pure $ LocalDecl.cdecl idx id n type bi
+    return LocalDecl.cdecl idx id n type bi
   | LocalDecl.ldecl idx id n type val nonDep =>
     let type ← instantiateMVars type
     let val ← instantiateMVars val
-    pure $ LocalDecl.ldecl idx id n type val nonDep
+    return LocalDecl.ldecl idx id n type val nonDep
 
-@[inline] private def liftMkBindingM {α} (x : MetavarContext.MkBindingM α) : MetaM α := do
+@[inline]
+private def liftMkBindingM {α} (x : MetavarContext.MkBindingM α) : MetaM α := do
   match x (← getLCtx) { mctx := (← getMCtx), ngen := (← getNGen) } with
   | EStateM.Result.ok e newS => do
     setNGen newS.ngen;
@@ -381,36 +379,24 @@ def instantiateLocalDeclMVars (localDecl : LocalDecl) : m LocalDecl := liftMetaM
     setNGen newS.ngen;
     throwError "failed to create binder due to failure when reverting variable dependencies"
 
-def mkForallFVarsImp (xs : Array Expr) (e : Expr) : MetaM Expr :=
+def mkForallFVars (xs : Array Expr) (e : Expr) : MetaM Expr :=
   if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkForall xs e
 
-def mkForallFVars (xs : Array Expr) (e : Expr) : m Expr := liftMetaM do
-  mkForallFVarsImp xs e
-
-def mkLambdaFVarsImp (xs : Array Expr) (e : Expr) : MetaM Expr :=
+def mkLambdaFVars (xs : Array Expr) (e : Expr) : MetaM Expr :=
   if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkLambda xs e
 
-def mkLambdaFVars (xs : Array Expr) (e : Expr) : m Expr := liftMetaM do
-  mkLambdaFVarsImp xs e
-
-def mkLetFVars (xs : Array Expr) (e : Expr) : m Expr :=
+def mkLetFVars (xs : Array Expr) (e : Expr) : MetaM Expr :=
   mkLambdaFVars xs e
 
-def mkArrow (d b : Expr) : m Expr := liftMetaM do
+def mkArrow (d b : Expr) : MetaM Expr := do
   let n ← mkFreshUserName `x
   return Lean.mkForall n BinderInfo.default d b
 
-def mkForallUsedOnlyImp (xs : Array Expr) (e : Expr) : MetaM (Expr × Nat) := do
+def mkForallUsedOnly (xs : Array Expr) (e : Expr) : MetaM (Expr × Nat) := do
   if xs.isEmpty then pure (e, 0) else liftMkBindingM <| MetavarContext.mkForallUsedOnly xs e
 
-def mkForallUsedOnly (xs : Array Expr) (e : Expr) : m (Expr × Nat) := liftMetaM do
-  mkForallUsedOnlyImp xs e
-
-def elimMVarDepsImp (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : MetaM Expr :=
+def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : MetaM Expr :=
   if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.elimMVarDeps xs e preserveOrder
-
-def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : m Expr := liftMetaM do
-  elimMVarDepsImp xs e preserveOrder
 
 @[inline] def withConfig {α} (f : Config → Config) : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with config := f ctx.config })
@@ -645,7 +631,7 @@ mutual
           pure $ if isClass env c then some c else none
         | _ => pure none
 
-  private partial def isClassImp? (type : Expr) : MetaM (Option Name) := do
+  partial def isClass? (type : Expr) : MetaM (Option Name) := do
     match (← isClassQuick? type) with
     | LOption.none   => pure none
     | LOption.some c => pure (some c)
@@ -658,9 +644,6 @@ private def withNewLocalInstancesImpAux {α} (fvars : Array Expr) (j : Nat) : n 
 
 partial def withNewLocalInstances {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
   mapMetaM $ withNewLocalInstancesImpAux fvars j
-
-def isClass? (type : Expr) : m (Option Name) :=
-  liftMetaM do try isClassImp? type catch _ => pure none
 
 @[inline] private def forallTelescopeImp {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
   forallTelescopeReducingAuxAux (reducing := false) (maxFVars? := none) type k
@@ -744,16 +727,13 @@ def lambdaLetTelescope {α} (type : Expr) (k : Array Expr → Expr → n α) : n
 def lambdaTelescope {α} (type : Expr) (k : Array Expr → Expr → n α) : n α :=
   map2MetaM (fun k => lambdaTelescopeImp type false k) k
 
-def getParamNamesImp (declName : Name) : MetaM (Array Name) := do
+/-- Return the parameter names for the givel global declaration. -/
+def getParamNames (declName : Name) : MetaM (Array Name) := do
   let cinfo ← getConstInfo declName
   forallTelescopeReducing cinfo.type fun xs _ => do
     xs.mapM fun x => do
       let localDecl ← getLocalDecl x.fvarId!
       pure localDecl.userName
-
-/-- Return the parameter names for the givel global declaration. -/
-def getParamNames (declName : Name) : m (Array Name) :=
-  liftMetaM $ getParamNamesImp declName
 
 -- `kind` specifies the metavariable kind for metavariables not corresponding to instance implicit `[ ... ]` arguments.
 private partial def forallMetaTelescopeReducingAux
@@ -789,15 +769,15 @@ private partial def forallMetaTelescopeReducingAux
   process #[] #[] 0 e
 
 /-- Similar to `forallTelescope`, but creates metavariables instead of free variables. -/
-def forallMetaTelescope (e : Expr) (kind := MetavarKind.natural) : m (Array Expr × Array BinderInfo × Expr) :=
-  liftMetaM $ forallMetaTelescopeReducingAux e (reducing := false) (maxMVars? := none) kind
+def forallMetaTelescope (e : Expr) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+  forallMetaTelescopeReducingAux e (reducing := false) (maxMVars? := none) kind
 
 /-- Similar to `forallTelescopeReducing`, but creates metavariables instead of free variables. -/
-def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) (kind := MetavarKind.natural) : m (Array Expr × Array BinderInfo × Expr) :=
-  liftMetaM $ forallMetaTelescopeReducingAux e (reducing := true) maxMVars? kind
+def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+  forallMetaTelescopeReducingAux e (reducing := true) maxMVars? kind
 
 /-- Similar to `forallMetaTelescopeReducingAux` but for lambda expressions. -/
-private partial def lambdaMetaTelescopeImp (e : Expr) (maxMVars? : Option Nat) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+partial def lambdaMetaTelescope (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=
   let rec process (mvars : Array Expr) (bis : Array BinderInfo) (j : Nat) (type : Expr) : MetaM (Array Expr × Array BinderInfo × Expr) := do
     let finalize : Unit → MetaM (Array Expr × Array BinderInfo × Expr) := fun _ => do
       let type := type.instantiateRevRange j mvars.size mvars
@@ -819,10 +799,6 @@ private partial def lambdaMetaTelescopeImp (e : Expr) (maxMVars? : Option Nat) :
       else
         finalize ()
   process #[] #[] 0 e
-
-/-- Similar to `forallMetaTelescope` but for lambda expressions. -/
-partial def lambdaMetaTelescope (e : Expr) (maxMVars? : Option Nat := none) : m (Array Expr × Array BinderInfo × Expr) :=
-  liftMetaM $ lambdaMetaTelescopeImp e maxMVars?
 
 private def withNewFVar {α} (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
   match (← isClass? fvarType) with
@@ -935,16 +911,17 @@ def withMCtx {α} (mctx : MetavarContext) : n α → n α :=
 @[inline] def fullApproxDefEq {α} : n α → n α :=
   mapMetaM fullApproxDefEqImp
 
-def normalizeLevel (u : Level) : m Level :=
-  liftMetaM do let u ← instantiateLevelMVars u; pure u.normalize
+def normalizeLevel (u : Level) : MetaM Level := do
+  let u ← instantiateLevelMVars u
+  pure u.normalize
 
-def assignLevelMVar (mvarId : MVarId) (u : Level) : m Unit := liftMetaM do
+def assignLevelMVar (mvarId : MVarId) (u : Level) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.assignLevel mvarId u
 
 def whnfD [MonadLiftT MetaM n] (e : Expr) : n Expr :=
-  withTransparency TransparencyMode.default $ whnf e
+  withTransparency TransparencyMode.default <| whnf e
 
-def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): m Unit := liftMetaM do
+def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): MetaM Unit := do
   let env ← getEnv
   match Compiler.setInlineAttribute env declName kind with
   | Except.ok env    => setEnv env
@@ -961,8 +938,8 @@ private partial def instantiateForallAux (ps : Array Expr) (i : Nat) (e : Expr) 
     pure e
 
 /- Given `e` of the form `forall (a_1 : A_1) ... (a_n : A_n), B[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `B[p_1, ..., p_n]`. -/
-def instantiateForall (e : Expr) (ps : Array Expr) : m Expr :=
-  liftMetaM $ instantiateForallAux ps 0 e
+def instantiateForall (e : Expr) (ps : Array Expr) : MetaM Expr :=
+  instantiateForallAux ps 0 e
 
 private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
   if h : i < ps.size then
@@ -976,24 +953,20 @@ private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) 
 
 /- Given `e` of the form `fun (a_1 : A_1) ... (a_n : A_n) => t[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `t[p_1, ..., p_n]`.
    It uses `whnf` to reduce `e` if it is not a lambda -/
-def instantiateLambda (e : Expr) (ps : Array Expr) : m Expr :=
-  liftMetaM $ instantiateLambdaAux ps 0 e
+def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
+  instantiateLambdaAux ps 0 e
 
 /-- Return true iff `e` depends on the free variable `fvarId` -/
-def dependsOn (e : Expr) (fvarId : FVarId) : m Bool := liftMetaM do
-  let mctx ← getMCtx
-  pure $ mctx.exprDependsOn e fvarId
+def dependsOn (e : Expr) (fvarId : FVarId) : MetaM Bool :=
+  return (← getMCtx).exprDependsOn e fvarId
 
-def ppExprImp (e : Expr) : MetaM Format := do
+def ppExpr (e : Expr) : MetaM Format := do
   let env  ← getEnv
   let mctx ← getMCtx
   let lctx ← getLCtx
   let opts ← getOptions
   let ctxCore  ← readThe Core.Context
   Lean.ppExpr { env := env, mctx := mctx, lctx := lctx, opts := opts, currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls  } e
-
-def ppExpr (e : Expr) : m Format :=
-  liftMetaM $ ppExprImp e
 
 @[inline] protected def orelse {α} (x y : MetaM α) : MetaM α := do
   let env  ← getEnv

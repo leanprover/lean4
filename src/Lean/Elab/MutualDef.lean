@@ -589,7 +589,7 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
     letRecsToLift.forM fun toLift => withLCtx toLift.lctx toLift.localInstances do Meta.check toLift.type; Meta.check toLift.val
     let letRecClosures ← mkLetRecClosures letRecsToLift freeVarMap
     -- mkLetRecClosures assign metavariables that were placeholders for the lifted declarations.
-    let mainVals    ← mainVals.mapM instantiateMVars
+    let mainVals    ← mainVals.mapM (instantiateMVars ·)
     let mainHeaders ← mainHeaders.mapM instantiateMVarsAtHeader
     let letRecClosures ← letRecClosures.mapM fun closure => do pure { closure with toLift := (← instantiateMVarsAtLetRecToLift closure.toLift) }
     -- Replace fvarIds for functions being defined with closed terms
@@ -621,7 +621,7 @@ def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :
     if isExample views then
       pure ()
     else
-      let values ← values.mapM instantiateMVars
+      let values ← values.mapM (instantiateMVars ·)
       let headers ← headers.mapM instantiateMVarsAtHeader
       let letRecsToLift ← getLetRecsToLift
       let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift

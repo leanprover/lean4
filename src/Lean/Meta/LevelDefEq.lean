@@ -37,9 +37,7 @@ private partial def decAux? : Level → MetaM (Option Level)
     | Level.imax u v _ => process u v
     | _                => unreachable!
 
-variables {m : Type → Type} [MonadLiftT MetaM m]
-
-private def decLevelImp (u : Level) : MetaM (Option Level) := do
+def decLevel? (u : Level) : MetaM (Option Level) := do
   let mctx ← getMCtx
   match (← decAux? u) with
   | some v => pure $ some v
@@ -47,10 +45,7 @@ private def decLevelImp (u : Level) : MetaM (Option Level) := do
     modify fun s => { s with mctx := mctx }
     pure none
 
-def decLevel? (u : Level) : m (Option Level) :=
-  liftMetaM $ decLevelImp u
-
-def decLevel (u : Level) : m Level := liftMetaM do
+def decLevel (u : Level) : MetaM Level := do
   match (← decLevel? u) with
   | some u => pure u
   | none   => throwError! "invalid universe level, {u} is not greater than 0"
@@ -58,7 +53,7 @@ def decLevel (u : Level) : m Level := liftMetaM do
 /- This method is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
    Recall that `Type u` is `Sort (u+1)` in Lean. Thus, given `α`, we must infer its universe level,
    and then decrement 1 to obtain `u`. -/
-def getDecLevel (type : Expr) : m Level := liftMetaM do
+def getDecLevel (type : Expr) : MetaM Level := do
   let u ← getLevel type
   decLevel u
 
@@ -245,35 +240,29 @@ private def postponedToMessageData (ps : PersistentArray PostponedEntry) : Messa
 @[inline] def withoutPostponingUniverseConstraints {α m} [MonadControlT MetaM m] [Monad m] : m α → m α :=
   mapMetaM $ withoutPostponingUniverseConstraintsImp
 
-private def isLevelDefEqImp (u v : Level) : MetaM Bool :=
+def isLevelDefEq (u v : Level) : MetaM Bool :=
   traceCtx `Meta.isLevelDefEq do
     let b ← commitWhen (mayPostpone := true) $ Meta.isLevelDefEqAux u v
     trace[Meta.isLevelDefEq]! "{u} =?= {v} ... {if b then "success" else "failure"}"
     pure b
 
-def isLevelDefEq (u v : Level) : m Bool := liftMetaM do
-  isLevelDefEqImp u v
-
-def isExprDefEqImp (t s : Expr) : MetaM Bool :=
+def isExprDefEq (t s : Expr) : MetaM Bool :=
   traceCtx `Meta.isDefEq do
     let b ← commitWhen (mayPostpone := true) $ Meta.isExprDefEqAux t s
     trace[Meta.isDefEq]! "{t} =?= {s} ... {if b then "success" else "failure"}"
     pure b
 
-def isExprDefEq (t s : Expr) : m Bool := liftMetaM do
-  isExprDefEqImp t s
-
-abbrev isDefEq (t s : Expr) : m Bool :=
+abbrev isDefEq (t s : Expr) : MetaM Bool :=
   isExprDefEq t s
 
-def isExprDefEqGuarded (a b : Expr) : m Bool := liftMetaM do
+def isExprDefEqGuarded (a b : Expr) : MetaM Bool := do
   try isExprDefEq a b catch _ => pure false
 
-abbrev isDefEqGuarded (t s : Expr) : m Bool :=
+abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
   isExprDefEqGuarded t s
 
-def isDefEqNoConstantApprox (t s : Expr) : m Bool := liftMetaM do
-  approxDefEq $ isDefEq t s
+def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
+  approxDefEq <| isDefEq t s
 
 builtin_initialize
   registerTraceClass `Meta.isLevelDefEq

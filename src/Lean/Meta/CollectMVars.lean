@@ -28,32 +28,21 @@ partial def collectMVars (e : Expr) : StateRefT CollectMVars.State MetaM Unit :=
     | none   => pure ()
     | some d => collectMVars d.val
 
-variables {m : Type → Type} [MonadLiftT MetaM m]
-
-def getMVarsImp (e : Expr) : MetaM (Array MVarId) := do
+/-- Return metavariables in occuring the given expression. See `collectMVars` -/
+def getMVars (e : Expr) : MetaM (Array MVarId) := do
   let (_, s) ← (collectMVars e).run {}
   pure s.result
 
-/-- Return metavariables in occuring the given expression. See `collectMVars` -/
-def getMVars (e : Expr) : m (Array MVarId) :=
-  liftM $ getMVarsImp e
-
-def getMVarsNoDelayedImp (e : Expr) : MetaM (Array MVarId) := do
+/-- Similar to getMVars, but removes delayed assignments. -/
+def getMVarsNoDelayed (e : Expr) : MetaM (Array MVarId) := do
   let mvarIds ← getMVars e
   mvarIds.filterM fun mvarId => not <$> isDelayedAssigned mvarId
-
-/-- Similar to getMVars, but removes delayed assignments. -/
-def getMVarsNoDelayed (e : Expr) : m (Array MVarId) :=
-  liftM $ getMVarsNoDelayedImp e
 
 def collectMVarsAtDecl (d : Declaration) : StateRefT CollectMVars.State MetaM Unit :=
   d.forExprM collectMVars
 
-def getMVarsAtDeclImp (d : Declaration) : MetaM (Array MVarId) := do
+def getMVarsAtDecl (d : Declaration) : MetaM (Array MVarId) := do
   let (_, s) ← (collectMVarsAtDecl d).run {}
   pure s.result
-
-def getMVarsAtDecl (d : Declaration) : m (Array MVarId) :=
-  liftM $ getMVarsAtDeclImp d
 
 end Lean.Meta

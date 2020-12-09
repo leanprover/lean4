@@ -536,7 +536,12 @@ builtin_initialize
 private def getMaxSize (opts : Options) : Nat :=
   opts.getNat `maxInstSize maxResultSizeDefault
 
-private def synthInstanceImp? (type : Expr) (maxResultSize? : Option Nat) : MetaM (Option Expr) := profileitM Exception "typeclass inference" ⟨0, 0⟩ do
+/-
+  Remark: when `maxResultSize? == none`, the configuration option `synthInstance.maxResultSize` is used.
+  Remark: we use a different option for controlling the maximum result size for coercions.
+-/
+
+def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := profileitM Exception "typeclass inference" ⟨0, 0⟩ do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (getMaxSize opts)
   let inputConfig ← getConfig
@@ -579,15 +584,15 @@ private def synthInstanceImp? (type : Expr) (maxResultSize? : Option Nat) : Meta
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if
   instance cannot be synthesized right now because `type` contains metavariables. -/
-private def trySynthInstanceImp (type : Expr) (maxResultSize? : Option Nat) : MetaM (LOption Expr) := do
+def trySynthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (LOption Expr) := do
   catchInternalId isDefEqStuckExceptionId
-    (toLOptionM $ synthInstanceImp? type maxResultSize?)
+    (toLOptionM <| synthInstance? type maxResultSize?)
     (fun _ => pure LOption.undef)
 
-private def synthInstanceImp (type : Expr) (maxResultSize? : Option Nat) : MetaM Expr :=
+def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Expr :=
   catchInternalId isDefEqStuckExceptionId
     (do
-      let result? ← synthInstanceImp? type maxResultSize?
+      let result? ← synthInstance? type maxResultSize?
       match result? with
       | some result => pure result
       | none        => throwError! "failed to synthesize{indentExpr type}")
@@ -600,7 +605,7 @@ private def synthPendingImp (mvarId : MVarId) (maxResultSize? : Option Nat) : Me
     match (← isClass? mvarDecl.type) with
     | none   => pure false
     | some _ => do
-      let val? ← catchInternalId isDefEqStuckExceptionId (synthInstanceImp? mvarDecl.type maxResultSize?) (fun _ => pure none)
+      let val? ← catchInternalId isDefEqStuckExceptionId (synthInstance? mvarDecl.type maxResultSize?) (fun _ => pure none)
       match val? with
       | none     => pure false
       | some val =>
@@ -621,21 +626,5 @@ builtin_initialize
   registerTraceClass `Meta.synthInstance.tryResolve
   registerTraceClass `Meta.synthInstance.resume
   registerTraceClass `Meta.synthInstance.generate
-
-variables {m : Type → Type} [MonadLiftT MetaM m]
-
-/-
-  Remark: when `maxResultSize? == none`, the configuration option `synthInstance.maxResultSize` is used.
-  Remark: we use a different option for controlling the maximum result size for coercions.
--/
-
-def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : m (Option Expr) :=
-  synthInstanceImp? type maxResultSize?
-
-def trySynthInstance (type : Expr) (maxResultSize? : Option Nat := none) : m (LOption Expr) :=
-  trySynthInstanceImp type maxResultSize?
-
-def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : m Expr :=
-  synthInstanceImp type maxResultSize?
 
 end Lean.Meta

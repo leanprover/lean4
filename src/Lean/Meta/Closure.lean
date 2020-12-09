@@ -342,9 +342,14 @@ def mkValueTypeClosure (type : Expr) (value : Expr) (zeta : Bool) : MetaM MkValu
 
 end Closure
 
-variables {m : Type → Type} [MonadLiftT MetaM m]
-
-private def mkAuxDefinitionImp (name : Name) (type : Expr) (value : Expr) (zeta : Bool) (compile : Bool) : MetaM Expr := do
+/--
+  Create an auxiliary definition with the given name, type and value.
+  The parameters `type` and `value` may contain free and meta variables.
+  A "closure" is computed, and a term of the form `name.{u_1 ... u_n} t_1 ... t_m` is
+  returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
+  and `t_j`s are free and meta variables `type` and `value` depend on. -/
+def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := false) (compile : Bool := true) : MetaM Expr := do
+  trace[Meta.debug]! "{name} : {type} := {value}"
   let result ← Closure.mkValueTypeClosure type value zeta
   let env ← getEnv
   let decl := Declaration.defnDecl {
@@ -361,18 +366,8 @@ private def mkAuxDefinitionImp (name : Name) (type : Expr) (value : Expr) (zeta 
     compileDecl decl
   pure $ mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
-/--
-  Create an auxiliary definition with the given name, type and value.
-  The parameters `type` and `value` may contain free and meta variables.
-  A "closure" is computed, and a term of the form `name.{u_1 ... u_n} t_1 ... t_m` is
-  returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
-  and `t_j`s are free and meta variables `type` and `value` depend on. -/
-def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta := false) (compile := true) : m Expr := liftMetaM do
-  trace[Meta.debug]! "{name} : {type} := {value}"
-  mkAuxDefinitionImp name type value zeta compile
-
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
-def mkAuxDefinitionFor (name : Name) (value : Expr) : m Expr := liftMetaM do
+def mkAuxDefinitionFor (name : Name) (value : Expr) : MetaM Expr := do
   let type ← inferType value
   let type := type.headBeta
   mkAuxDefinition name type value

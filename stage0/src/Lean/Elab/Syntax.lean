@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Command
+import Lean.Parser.Syntax
 
 namespace Lean.Elab.Term
 /-
@@ -90,6 +91,22 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef s
     let d₁ ← withNestedParser $ toParserDescrAux stx[2]
     let d₂ ← withNestedParser $ toParserDescrAux stx[4]
     `(ParserDescr.binary $(quote aliasName) $d₁ $d₂)
+  else if kind == `Lean.Parser.Syntax.sepBy then
+    let p ← withNestedParser $ toParserDescrAux stx[1]
+    let sep := stx[3]
+    let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else toParserDescrAux stx[4][1]
+    let allowTrailingSep := !stx[5].isNone
+    --`(ParserDescr.sepBy $p $sep $psep $(quote allowTrailingSep))
+    let sepBy := if allowTrailingSep then `sepByT else `sepBy
+    `(ParserDescr.binary $(quote sepBy) $p $psep)
+  else if kind == `Lean.Parser.Syntax.sepBy1 then
+    let p ← withNestedParser $ toParserDescrAux stx[1]
+    let sep := stx[3]
+    let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else toParserDescrAux stx[4][1]
+    let allowTrailingSep := !stx[5].isNone
+    --`(ParserDescr.sepBy1 $p $sep $psep $(quote allowTrailingSep))
+    let sepBy := if allowTrailingSep then `sepBy1T else `sepBy1
+    `(ParserDescr.binary $(quote sepBy) $p $psep)
   else if kind == `Lean.Parser.Syntax.cat then
     let cat   := stx[0].getId.eraseMacroScopes
     let prec? : Option Nat  := expandOptPrecedence stx[1]

@@ -1117,7 +1117,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'for in unless try catch finally mutual mut return continue break where rec ' +
       'syntax macro_rules macro ' +
       'fun ' +
-      '#check #eval #reduce #print ' +
+      '#check #check_failure #eval #reduce #print ' +
       'section namespace end infix prefix ',
     built_in:
       'Type Prop|10 Sort rw|10 rewrite rwa erw subst substs ' +

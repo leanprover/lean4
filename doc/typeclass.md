@@ -99,11 +99,11 @@ Let us start with the first step of the program above, declaring an appropriate 
 
 ```lean
 # namespace Ex
-class Inhabited (a : Type _) where
+class Inhabited (a : Type u) where
   default : a
 
 #check @Inhabited.default
--- Inhabited.default : {a : Type _} → [self : Inhabited a] → a
+-- Inhabited.default : {a : Type u} → [self : Inhabited a] → a
 # end Ex
 ```
 Note `Inhabited.default` doesn't have any explicit argument.
@@ -220,3 +220,11 @@ instance [Inhabited b] : Inhabited (a -> b) where
   default := fun _ => arbitrary
 ```
 As an exercise, try defining default instances for other types, such as `List` and `Sum` types.
+
+## Local instances
+
+TODO
+
+## Scoped Instances
+
+TODO

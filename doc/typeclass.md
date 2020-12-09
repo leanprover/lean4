@@ -343,11 +343,6 @@ class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 
 export HMul (hMul)
 
-class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hMul : α → β → γ
-
-export HMul (hMul)
-
 instance : HMul Nat Nat Nat where
   hMul := Nat.mul
 

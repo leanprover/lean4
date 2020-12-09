@@ -542,7 +542,8 @@ open Meta
     Term.synthesizeSyntheticMVarsNoPostponing
     let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
     let type ← inferType e
-    logInfo m!"{e} : {type}"
+    unless e.isSyntheticSorry do
+      logInfo m!"{e} : {type}"
 
 @[builtinCommandElab Lean.Parser.Command.reduce] def elabReduce : CommandElab := fun stx => do
   let term := stx[1]

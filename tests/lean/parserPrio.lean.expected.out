@@ -4,5 +4,4 @@ parserPrio.lean:26:7: error: ambiguous, possible interpretations
   2 * 1
   
   [1]
-sorryAx ?m : ?m
 [1, 2, 3]

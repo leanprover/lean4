@@ -6,7 +6,6 @@ has type
   Nat
 but is expected to have type
   Bool
-sorryAx ?m : ?m
 g ?m ?m : Nat
 20
 foo (fun (x : Nat) => ?m x) ?m : Nat

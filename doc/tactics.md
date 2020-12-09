@@ -347,7 +347,7 @@ in Lean 4 using macros in a few lines of code.
 
 ```lean
 open Lean in
-macro "begin " ts:sepByT(tactic, ", ") "end" : term => do
+macro "begin " ts:tactic,*,? "end" : term => do
   let stx  ← getRef
   let ts   := ts.getSepArgs.map (mkNullNode #[·, mkNullNode])
   let tseq := mkNode `Lean.Parser.Tactic.tacticSeqBracketed #[

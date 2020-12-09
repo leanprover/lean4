@@ -1,13 +1,11 @@
-syntax[beginEndKind] "begin " tactic,*,? "end" : term
-
 open Lean in
-@[macro beginEndKind] def expandBeginEnd : Lean.Macro := fun stx =>
-  match stx with
-  | `(begin $ts* end) => do
-     let ts   := ts.getSepElems.map fun t => mkNullNode #[t, mkNullNode]
-     let tseq := mkNode `Lean.Parser.Tactic.tacticSeqBracketed #[mkAtomFrom stx "{", mkNullNode ts, mkAtomFrom stx[2] "}"]
-     `(by $tseq:tacticSeqBracketed)
-  | _ => Macro.throwUnsupported
+macro "begin " ts:tactic,*,? "end" : term => do
+  let stx  ← getRef
+  let ts   := ts.getSepArgs.map (mkNullNode #[·, mkNullNode])
+  let tseq := mkNode `Lean.Parser.Tactic.tacticSeqBracketed #[
+     mkAtomFrom stx "{", mkNullNode ts, mkAtomFrom stx[2] "}"
+  ]
+  `(by $tseq:tacticSeqBracketed)
 
 theorem ex1 (x : Nat) : x + 0 = 0 + x :=
   begin

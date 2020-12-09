@@ -369,7 +369,6 @@ lean_object* l_Lean_registerTagAttribute___lambda__5___closed__1;
 lean_object* l_Lean_EnumAttributes_getValue_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TagAttribute_instInhabitedTagAttribute;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__1;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute___lambda__2___closed__1;
 lean_object* l_Std_RBNode_find___at_Lean_ParametricAttribute_getParam___spec__1(lean_object*);
@@ -470,6 +469,7 @@ lean_object* l_Lean_attributeExtension___elambda__4___boxed(lean_object*, lean_o
 lean_object* l_Lean_instBEqAttributeKind_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnumAttributes_setValue(lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__1;
 lean_object* l_List_map___at_Lean_registerEnumAttributes___spec__9___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getAttributeImpl(lean_object*, lean_object*);
 lean_object* l_Lean_AttributeImpl_erase___default___boxed(lean_object*);
@@ -3161,7 +3161,7 @@ x_14 = lean_ctor_get(x_5, 1);
 x_15 = lean_ctor_get_usize(x_5, 2);
 x_16 = lean_ctor_get(x_5, 0);
 lean_dec(x_16);
-x_17 = l_myMacro____x40_Init_Notation___hyg_38____closed__1;
+x_17 = l_myMacro____x40_Init_Notation___hyg_49____closed__1;
 x_18 = lean_string_dec_eq(x_14, x_17);
 lean_dec(x_14);
 if (x_18 == 0)
@@ -3252,7 +3252,7 @@ x_38 = lean_ctor_get(x_5, 1);
 x_39 = lean_ctor_get_usize(x_5, 2);
 lean_inc(x_38);
 lean_dec(x_5);
-x_40 = l_myMacro____x40_Init_Notation___hyg_38____closed__1;
+x_40 = l_myMacro____x40_Init_Notation___hyg_49____closed__1;
 x_41 = lean_string_dec_eq(x_38, x_40);
 lean_dec(x_38);
 if (x_41 == 0)
@@ -3333,7 +3333,7 @@ if (lean_is_exclusive(x_5)) {
  lean_dec_ref(x_5);
  x_58 = lean_box(0);
 }
-x_59 = l_myMacro____x40_Init_Notation___hyg_38____closed__1;
+x_59 = l_myMacro____x40_Init_Notation___hyg_49____closed__1;
 x_60 = lean_string_dec_eq(x_56, x_59);
 lean_dec(x_56);
 if (x_60 == 0)
@@ -3551,7 +3551,7 @@ lean_dec(x_14);
 x_18 = lean_ctor_get(x_15, 1);
 lean_inc(x_18);
 lean_dec(x_15);
-x_19 = l_myMacro____x40_Init_Notation___hyg_38____closed__1;
+x_19 = l_myMacro____x40_Init_Notation___hyg_49____closed__1;
 x_20 = lean_string_dec_eq(x_18, x_19);
 lean_dec(x_18);
 if (x_20 == 0)

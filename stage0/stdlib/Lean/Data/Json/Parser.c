@@ -111,7 +111,6 @@ lean_object* l_Lean_Json_Parser_num___lambda__1___boxed(lean_object*, lean_objec
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_Quickparse_skip(lean_object*);
 lean_object* l_Lean_Quickparse_bind_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11225____closed__9;
 lean_object* l_Lean_Json_Parser_strCore___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_objectCore___closed__2;
 lean_object* l_Lean_Json_Parser_num___lambda__5___closed__3;
@@ -174,6 +173,7 @@ lean_object* l_Lean_Json_Parser_hexChar___closed__1;
 lean_object* l_Lean_Quickparse_peek_x21_match__1(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_Json_Parser_anyCore___rarg___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12176____closed__9;
 lean_object* l_Lean_Json_Parser_escapedChar_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Parser_natNonZero(lean_object*);
 lean_object* l_Lean_Json_Parser_num___lambda__5___closed__2___boxed__const__1;
@@ -3898,7 +3898,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Json_Parser_lookahead___rarg___closed__1;
-x_2 = l_myMacro____x40_Init_Notation___hyg_11225____closed__9;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12176____closed__9;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }

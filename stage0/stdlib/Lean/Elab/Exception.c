@@ -36,6 +36,7 @@ lean_object* l_Lean_Elab_mkMessageCore___boxed(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMessageCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+extern lean_object* l_Lean_Meta_mkArrow___closed__2;
 lean_object* l_Lean_KVMap_getName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1;
 lean_object* l_Lean_Elab_throwAbort___rarg(lean_object*);
@@ -69,7 +70,6 @@ lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___closed__2;
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_42____closed__1;
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_mkArrow___rarg___closed__2;
 static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_3____closed__1() {
 _start:
 {
@@ -391,7 +391,7 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___closed__2;
-x_9 = l_Lean_Meta_mkArrow___rarg___closed__2;
+x_9 = l_Lean_Meta_mkArrow___closed__2;
 x_10 = l_Lean_KVMap_getName(x_4, x_8, x_9);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_10);

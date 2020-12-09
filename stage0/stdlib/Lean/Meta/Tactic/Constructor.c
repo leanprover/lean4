@@ -15,9 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__5;
 lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__3;
-extern lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1018____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___closed__1;
 lean_object* l_Lean_Meta_existsIntro___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__1;
@@ -33,15 +31,13 @@ lean_object* l_Lean_Meta_checkApp(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_Lean_Meta_apply(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallMetaTelescopeReducingAux(lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_inferType___at_Lean_Meta_existsIntro___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__4;
 lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_getConstInfo___at_Lean_Meta_getParamNamesImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_termExists___x2c_____closed__3;
+lean_object* l_Lean_getConstInfo___at_Lean_Meta_getParamNames___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
@@ -53,10 +49,10 @@ lean_object* l_Lean_Meta_existsIntro___lambda__1(lean_object*, lean_object*, lea
 lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__2;
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 lean_object* l_Lean_Meta_existsIntro_match__2(lean_object*);
+lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__3;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro_match__2___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_inferType___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__6;
@@ -132,56 +128,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_existsIntro_match__2___rarg), 2, 0)
 return x_2;
 }
 }
-lean_object* l_Lean_Meta_inferType___at_Lean_Meta_existsIntro___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = lean_ctor_get(x_4, 1);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_4, 2);
-lean_inc(x_8);
-x_9 = lean_nat_dec_eq(x_7, x_8);
-lean_dec(x_8);
-if (x_9 == 0)
-{
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_box(0);
-x_11 = l_Lean_Meta_inferType___rarg___lambda__1(x_7, x_1, x_10, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_7);
-return x_11;
-}
-else
-{
-lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-lean_dec(x_7);
-lean_dec(x_1);
-x_12 = l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
-x_13 = l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1018____spec__1___rarg(x_12, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_14 = !lean_is_exclusive(x_13);
-if (x_14 == 0)
-{
-return x_13;
-}
-else
-{
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_ctor_get(x_13, 0);
-x_16 = lean_ctor_get(x_13, 1);
-lean_inc(x_16);
-lean_inc(x_15);
-lean_dec(x_13);
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_16);
-return x_17;
-}
-}
-}
-}
 static lean_object* _init_l_Lean_Meta_existsIntro___lambda__1___closed__1() {
 _start:
 {
@@ -241,7 +187,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_26);
-x_27 = l_Lean_Meta_inferType___at_Lean_Meta_existsIntro___spec__1(x_26, x_8, x_9, x_10, x_11, x_12);
+x_27 = l_Lean_Meta_inferType(x_26, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; uint8_t x_35; lean_object* x_36; 
@@ -656,7 +602,7 @@ lean_object* x_32; lean_object* x_33;
 x_32 = lean_ctor_get(x_27, 0);
 lean_inc(x_32);
 lean_dec(x_27);
-x_33 = l_Lean_getConstInfo___at_Lean_Meta_getParamNamesImp___spec__1(x_32, x_5, x_6, x_7, x_8, x_18);
+x_33 = l_Lean_getConstInfo___at_Lean_Meta_getParamNames___spec__1(x_32, x_5, x_6, x_7, x_8, x_18);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; 

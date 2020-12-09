@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_stx___x3c_x7c_x3e_____closed__4;
 lean_object* l_coeTC(lean_object*, lean_object*);
 lean_object* l_coeBase___rarg(lean_object*);
 lean_object* l_instCoeDep___rarg(lean_object*, lean_object*);
@@ -47,7 +48,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_instHSub__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_term_u2191_____closed__3;
-extern lean_object* l_rawNatLit___closed__4;
 lean_object* l_instHMul__2(lean_object*, lean_object*);
 lean_object* l_coeOfHeadOfTC___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHAndThen__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,7 +85,6 @@ lean_object* l_instHAdd__1(lean_object*, lean_object*);
 lean_object* l_coeOfTC(lean_object*, lean_object*);
 uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_term_u2191_____closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__8;
 lean_object* l_myMacro____x40_Init_Coe___hyg_160____closed__5;
 lean_object* l_coeD___rarg___boxed(lean_object*);
 lean_object* l_liftCoeM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -109,6 +108,7 @@ lean_object* l_instHMod__2(lean_object*, lean_object*);
 lean_object* l_instHAppend__2(lean_object*, lean_object*);
 lean_object* l_coeM(lean_object*, lean_object*, lean_object*);
 lean_object* l_unexpand____x40_Init_Coe___hyg_141_(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1625____closed__4;
 lean_object* l_coeId(lean_object*);
 lean_object* l_subtypeCoe___rarg(lean_object*);
 lean_object* l_coeFun___rarg(lean_object*, lean_object*);
@@ -316,7 +316,7 @@ static lean_object* _init_l_term_u2191_____closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_rawNatLit___closed__4;
+x_1 = l_stx___x3c_x7c_x3e_____closed__4;
 x_2 = l_term_u2191_____closed__4;
 x_3 = l_Lean_Parser_Tactic_intro___closed__14;
 x_4 = lean_alloc_ctor(2, 3, 0);
@@ -460,7 +460,7 @@ x_22 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_20);
 x_23 = lean_array_push(x_19, x_22);
-x_24 = l_myMacro____x40_Init_Notation___hyg_38____closed__8;
+x_24 = l_myMacro____x40_Init_Notation___hyg_1625____closed__4;
 x_25 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_23);
@@ -497,7 +497,7 @@ lean_object* l_unexpand____x40_Init_Coe___hyg_141_(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_myMacro____x40_Init_Notation___hyg_38____closed__8;
+x_3 = l_myMacro____x40_Init_Notation___hyg_1625____closed__4;
 lean_inc(x_1);
 x_4 = l_Lean_Syntax_isOfKind(x_1, x_3);
 if (x_4 == 0)

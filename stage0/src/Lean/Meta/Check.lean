@@ -29,18 +29,19 @@ private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := d
   unless us.length == cinfo.lparams.length do
     throwIncorrectNumberOfLevels constName us
 
-private def getFunctionDomain (f : Expr) : MetaM Expr := do
+private def getFunctionDomain (f : Expr) : MetaM (Expr × BinderInfo) := do
   let fType ← inferType f
   let fType ← whnfD fType
   match fType with
-  | Expr.forallE _ d _ _ => pure d
+  | Expr.forallE _ d _ c => return (d, c.binderInfo)
   | _                    => throwFunctionExpected f
 
-def throwAppTypeMismatch {α} {m} [Monad m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] [MonadLiftT MetaM m]
-    (f a : Expr) (extraMsg : MessageData := Format.nil) : m α := do
-  let e := mkApp f a
+def throwAppTypeMismatch {α} (f a : Expr) (extraMsg : MessageData := Format.nil) : MetaM α := do
+  let (expectedType, binfo) ← getFunctionDomain f
+  let mut e := mkApp f a
+  unless binfo.isExplicit do
+    e := e.setAppPPExplicit
   let aType ← inferType a
-  let expectedType ← liftM $ getFunctionDomain f
   throwError! "application type mismatch{indentExpr e}\nargument{indentExpr a}\nhas type{indentExpr aType}\nbut is expected to have type{indentExpr expectedType}{extraMsg}"
 
 def checkApp (f a : Expr) : MetaM Unit := do

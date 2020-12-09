@@ -36,7 +36,6 @@ lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__2(lean_object*, 
 lean_object* l_Lean_Elab_Level_elabLevel___closed__9;
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_9203____closed__7;
 lean_object* l_Lean_Elab_Level_elabLevel(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_instAddMessageContextLevelElabM(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_mkFreshLevelMVar___boxed(lean_object*, lean_object*);
@@ -105,6 +104,7 @@ lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__1;
 lean_object* l_Lean_Level_ofNat(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_10790____closed__7;
 lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__4;
@@ -1002,7 +1002,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__34;
-x_2 = l_myMacro____x40_Init_Notation___hyg_9203____closed__7;
+x_2 = l_myMacro____x40_Init_Notation___hyg_10790____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

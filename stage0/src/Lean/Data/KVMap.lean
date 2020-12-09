@@ -149,44 +149,44 @@ def eqv (m₁ m₂ : KVMap) : Bool :=
 
 instance : BEq KVMap := ⟨eqv⟩
 
-class KVMapVal (α : Type) where
+class Value (α : Type) where
   defVal : α
   set    : KVMap → Name → α → KVMap
   get    : KVMap → Name → α → α
 
-export KVMapVal (set)
+export Value (set)
 
-@[inline] def get {α : Type} [s : KVMapVal α] (m : KVMap) (k : Name) (defVal := s.defVal) : α :=
-  KVMapVal.get m k defVal
+@[inline] def get {α : Type} [s : Value α] (m : KVMap) (k : Name) (defVal := s.defVal) : α :=
+  Value.get m k defVal
 
-@[inline] def set {α : Type} [s : KVMapVal α] (m : KVMap) (k : Name) (v : α) : KVMap :=
-  KVMapVal.set m k v
+@[inline] def set {α : Type} [s : Value α] (m : KVMap) (k : Name) (v : α) : KVMap :=
+  Value.set m k v
 
-instance : KVMapVal Bool := {
+instance : Value Bool := {
   defVal := false,
   set := setBool,
   get := fun k n v => getBool k n v
 }
 
-instance : KVMapVal Nat := {
+instance : Value Nat := {
   defVal := 0,
   set := setNat,
   get := fun k n v => getNat k n v
 }
 
-instance : KVMapVal Int := {
+instance : Value Int := {
   defVal := 0,
   set := setInt,
   get := fun k n v => getInt k n v
 }
 
-instance : KVMapVal Name := {
+instance : Value Name := {
   defVal := Name.anonymous,
   set := setName,
   get := fun k n v => getName k n v
 }
 
-instance : KVMapVal String := {
+instance : Value String := {
   defVal := "",
   set := setString,
   get := fun k n v => getString k n v

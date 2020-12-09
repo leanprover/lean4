@@ -352,7 +352,7 @@ def processCtorApp (collect : Syntax → M Syntax) (f : Syntax) (namedArgs : Arr
   let some (Expr.const fName _ _) ← resolveId? fId | throwCtorExpected
   let fInfo ← getConstInfo fName
   forallTelescopeReducing fInfo.type fun xs _ => do
-    let paramDecls ← xs.mapM getFVarLocalDecl
+    let paramDecls ← xs.mapM (getFVarLocalDecl ·)
     match fInfo with
     | ConstantInfo.ctorInfo val =>
       processCtorAppAux collect
@@ -704,7 +704,7 @@ private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array Patte
     (k : AltLHS → Expr → TermElabM α) : TermElabM α := do
   let (patterns, matchType) ← withSynthesize $ elabPatterns patternStxs matchType
   let localDecls ← finalizePatternDecls patternVarDecls
-  let patterns ← patterns.mapM instantiateMVars
+  let patterns ← patterns.mapM (instantiateMVars ·)
   withDepElimPatterns localDecls patterns fun localDecls patterns =>
     k { ref := ref, fvarDecls := localDecls.toList, patterns := patterns.toList } matchType
 

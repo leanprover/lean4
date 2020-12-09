@@ -183,6 +183,7 @@ lean_object* l_Lean_KeyedDeclsAttribute_Table_insert_match__1(lean_object*, lean
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_KeyedDeclsAttribute_getValues___spec__5___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_Table_insert___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_KeyedDeclsAttribute_Table_insert___spec__21(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__2;
 lean_object* l_Std_AssocList_replace___at_Lean_KeyedDeclsAttribute_Table_insert___spec__30(lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_KeyedDeclsAttribute_init___spec__1(lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
@@ -229,7 +230,6 @@ lean_object* l_Lean_KeyedDeclsAttribute_ExtensionState_table___default(lean_obje
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_Result_format___spec__1(lean_object*);
 lean_object* l_Lean_Environment_addAndCompile(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_38____closed__2;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_KeyedDeclsAttribute_Table_insert___spec__24(lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_KeyedDeclsAttribute_getValues___spec__5___rarg___boxed(lean_object*, lean_object*);
@@ -3946,7 +3946,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_38____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_49____closed__2;
 x_2 = l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__6;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

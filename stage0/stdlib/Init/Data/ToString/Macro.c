@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_stx___x3c_x7c_x3e_____closed__4;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__10;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23_(lean_object*, lean_object*, lean_object*);
@@ -20,7 +21,6 @@ lean_object* l_termS_x21_____closed__7;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__5;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__7;
 lean_object* l_termS_x21_____closed__3;
-extern lean_object* l_rawNatLit___closed__4;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_termS_x21_____closed__2;
 extern lean_object* l_Lean_instQuoteSubstring___closed__1;
@@ -118,7 +118,7 @@ static lean_object* _init_l_termS_x21_____closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_rawNatLit___closed__4;
+x_1 = l_stx___x3c_x7c_x3e_____closed__4;
 x_2 = l_termS_x21_____closed__4;
 x_3 = l_termS_x21_____closed__7;
 x_4 = lean_alloc_ctor(2, 3, 0);

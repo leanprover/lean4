@@ -14,3 +14,8 @@ theorem ex1 (x : Nat) : x + 0 = 0 + x :=
     rw Nat.zeroAdd,
     rw Nat.addZero,
   end
+
+theorem ex2 (x : Nat) : x + 0 = 0 + x :=
+  begin
+    rw Nat.zeroAdd
+  end  -- error should be shown here

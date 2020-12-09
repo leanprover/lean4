@@ -1,0 +1,3 @@
+beginEndAsMacro.lean:21:2: error: unsolved goals
+x : Nat
+⊢ x + 0 = x

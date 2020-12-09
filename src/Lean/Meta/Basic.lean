@@ -623,21 +623,24 @@ mutual
         k #[] type
 
   private partial def isClassExpensive? : Expr → MetaM (Option Name)
-    | type => withReducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
+    | type => withReducible <| -- when testing whether a type is a type class, we only unfold reducible constants.
       forallTelescopeReducingAux type none fun xs type => do
         match type.getAppFn with
         | Expr.const c _ _ => do
           let env ← getEnv
-          pure $ if isClass env c then some c else none
+          return if isClass env c then some c else none
         | _ => pure none
 
-  partial def isClass? (type : Expr) : MetaM (Option Name) := do
+  private partial def isClassImp? (type : Expr) : MetaM (Option Name) := do
     match (← isClassQuick? type) with
     | LOption.none   => pure none
     | LOption.some c => pure (some c)
     | LOption.undef  => isClassExpensive? type
 
 end
+
+def isClass? (type : Expr) : MetaM (Option Name) :=
+  try isClassImp? type catch _ => pure none
 
 private def withNewLocalInstancesImpAux {α} (fvars : Array Expr) (j : Nat) : n α → n α :=
   mapMetaM $ withNewLocalInstancesImp fvars j

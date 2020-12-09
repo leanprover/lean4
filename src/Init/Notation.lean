@@ -21,13 +21,13 @@ macro_rules
   | `(stx| $p₁ <|> $p₂) => `(stx| orelse($p₁, $p₂))
 
 /- Comma-separated sequence. -/
-macro x:stx ",*"   : stx => `(stx| sepBy($x, ",", ", "))
-macro x:stx ",+"   : stx => `(stx| sepBy1($x, ",", ", "))
+macro:max x:stx ",*"   : stx => `(stx| sepBy($x, ",", ", "))
+macro:max x:stx ",+"   : stx => `(stx| sepBy1($x, ",", ", "))
 /- Comma-separated sequence with optional trailing comma. -/
-macro x:stx ",*,?" : stx => `(stx| sepBy($x, ",", ", ", allowTrailingSep))
-macro x:stx ",+,?" : stx => `(stx| sepBy1($x, ",", ", ", allowTrailingSep))
+macro:max x:stx ",*,?" : stx => `(stx| sepBy($x, ",", ", ", allowTrailingSep))
+macro:max x:stx ",+,?" : stx => `(stx| sepBy1($x, ",", ", ", allowTrailingSep))
 /- Pipe-separated sequence, must be indentend at least as much as outer `withPosition` call. -/
-macro x:stx "|+"   : stx => `(stx| sepBy1($x, "|", colGe "| "))
+macro:max x:stx "|+"   : stx => `(stx| sepBy1($x, "|", colGe "| "))
 
 macro "!" x:stx : stx => `(stx| notFollowedBy($x))
 

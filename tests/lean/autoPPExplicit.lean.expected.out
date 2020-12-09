@@ -1,0 +1,8 @@
+autoPPExplicit.lean:2:2: error: application type mismatch
+  @Eq.trans α a (b = c)
+argument
+  b = c
+has type
+  Prop
+but is expected to have type
+  α

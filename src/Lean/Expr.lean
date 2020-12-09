@@ -983,6 +983,25 @@ private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' 
 def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=
   instantiateLevelParamsCore (fun p => getParamSubstArray paramNames lvls p 0) e
 
+/- Annotate `e` with the given option. -/
+def setOption (e : Expr) (optionName : Name) [KVMap.Value α] (val : α) : Expr :=
+  mkMData (MData.empty.set optionName val) e
+
+/- Annotate `e` with `pp.explicit := true`
+   The delaborator uses `pp` options. -/
+def setPPExplicit (e : Expr) (flag : Bool) :=
+  e.setOption `pp.explicit flag
+
+/- If `e` is an application `f a_1 ... a_n` annotate `f`, `a_1` ... `a_n` with `pp.explicit := false`,
+   and annotate `e` with `pp.explicit := true`. -/
+def setAppPPExplicit (e : Expr) : Expr :=
+  match e with
+  | app .. =>
+    let f    := e.getAppFn.setPPExplicit false
+    let args := e.getAppArgs.map (·.setPPExplicit false)
+    mkAppN f args |>.setPPExplicit true
+  | _      => e
+
 end Expr
 
 def mkAnnotation (kind : Name) (e : Expr) : Expr :=

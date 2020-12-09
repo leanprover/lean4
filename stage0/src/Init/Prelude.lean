@@ -1709,6 +1709,8 @@ inductive ParserDescr where
   | cat (catName : Name) (rbp : Nat)
   | parser (declName : Name)
   | nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : ParserDescr)
+  | sepBy  (p : ParserDescr) (sep : String) (psep : ParserDescr) (allowTrailingSep : Bool := false)
+  | sepBy1 (p : ParserDescr) (sep : String) (psep : ParserDescr) (allowTrailingSep : Bool := false)
 
 instance : Inhabited ParserDescr where
   default := ParserDescr.symbol ""

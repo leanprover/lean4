@@ -511,19 +511,6 @@ builtin_initialize
   registerAlias "orelse" orelse.parenthesizer
   registerAlias "andthen" andthen.parenthesizer
 
-@[export lean_pretty_printer_parenthesizer_interpret_parser_descr]
-unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
-  | ParserDescr.const n                             => getConstAlias parenthesizerAliasesRef n
-  | ParserDescr.unary n d                           => return (← getUnaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d)
-  | ParserDescr.binary n d₁ d₂                      => return (← getBinaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
-  | ParserDescr.node k prec d                       => return leadingNode.parenthesizer k prec (← interpretParserDescr d)
-  | ParserDescr.nodeWithAntiquot _ k d              => return node.parenthesizer k (← interpretParserDescr d)
-  | ParserDescr.trailingNode k prec d               => return trailingNode.parenthesizer k prec (← interpretParserDescr d)
-  | ParserDescr.symbol tk                           => return symbol.parenthesizer tk
-  | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.parenthesizer tk includeIdent
-  | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
-  | ParserDescr.cat catName prec                    => return categoryParser.parenthesizer catName prec
-
 end Parenthesizer
 open Parenthesizer
 

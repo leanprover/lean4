@@ -121,6 +121,8 @@ def compileEmbeddedParsers : ParserDescr → MetaM Unit
   | ParserDescr.parser constName       => discard $ compileParserExpr ctx (mkConst constName) (force := false)
   | ParserDescr.node _ _ d             => compileEmbeddedParsers d
   | ParserDescr.nodeWithAntiquot _ _ d => compileEmbeddedParsers d
+  | ParserDescr.sepBy p _ psep _       => compileEmbeddedParsers p *> compileEmbeddedParsers psep
+  | ParserDescr.sepBy1 p _ psep _      => compileEmbeddedParsers p *> compileEmbeddedParsers psep
   | ParserDescr.trailingNode _ _ d     => compileEmbeddedParsers d
   | ParserDescr.symbol _               => pure ()
   | ParserDescr.nonReservedSymbol _ _  => pure ()

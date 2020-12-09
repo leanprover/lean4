@@ -33,12 +33,8 @@ builtin_initialize
   registerAlias "optional" optional
   registerAlias "withPosition" withPosition
   registerAlias "interpolatedStr" interpolatedStr
-  registerAlias "sepBy" sepBy
-  registerAlias "sepBy1" sepBy1
   registerAlias "orelse" orelse
   registerAlias "andthen" andthen
-  registerAlias "sepByT" (sepBy (allowTrailingSep := true))
-  registerAlias "sepBy1T" (sepBy1 (allowTrailingSep := true))
 
 end Parser
 
@@ -58,6 +54,23 @@ def mkAntiquot.parenthesizer (name : String) (kind : Option SyntaxNodeKind) (ano
 @[builtinParenthesizer charLit] def charLit.parenthesizer : Parenthesizer := Parser.Term.char.parenthesizer
 @[builtinParenthesizer strLit] def strLit.parenthesizer : Parenthesizer := Parser.Term.str.parenthesizer
 
+open Lean.Parser
+
+@[export lean_pretty_printer_parenthesizer_interpret_parser_descr]
+unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
+  | ParserDescr.const n                             => getConstAlias parenthesizerAliasesRef n
+  | ParserDescr.unary n d                           => return (← getUnaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d)
+  | ParserDescr.binary n d₁ d₂                      => return (← getBinaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
+  | ParserDescr.node k prec d                       => return leadingNode.parenthesizer k prec (← interpretParserDescr d)
+  | ParserDescr.nodeWithAntiquot _ k d              => return node.parenthesizer k (← interpretParserDescr d)
+  | ParserDescr.sepBy p sep psep trail              => return sepBy.parenthesizer (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
+  | ParserDescr.sepBy1 p sep psep trail             => return sepBy1.parenthesizer (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
+  | ParserDescr.trailingNode k prec d               => return trailingNode.parenthesizer k prec (← interpretParserDescr d)
+  | ParserDescr.symbol tk                           => return symbol.parenthesizer tk
+  | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.parenthesizer tk includeIdent
+  | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
+  | ParserDescr.cat catName prec                    => return categoryParser.parenthesizer catName prec
+
 end Parenthesizer
 
 namespace Formatter
@@ -71,6 +84,23 @@ def mkAntiquot.formatter (name : String) (kind : Option SyntaxNodeKind) (anonymo
 @[builtinFormatter scientificLit] def scientificLit.formatter : Formatter := Parser.Term.scientific.formatter
 @[builtinFormatter charLit] def charLit.formatter : Formatter := Parser.Term.char.formatter
 @[builtinFormatter strLit] def strLit.formatter : Formatter := Parser.Term.str.formatter
+
+open Lean.Parser
+
+@[export lean_pretty_printer_formatter_interpret_parser_descr]
+unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
+  | ParserDescr.const n                             => getConstAlias formatterAliasesRef n
+  | ParserDescr.unary n d                           => return (← getUnaryAlias formatterAliasesRef n) (← interpretParserDescr d)
+  | ParserDescr.binary n d₁ d₂                      => return (← getBinaryAlias formatterAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
+  | ParserDescr.node k prec d                       => return node.formatter k (← interpretParserDescr d)
+  | ParserDescr.nodeWithAntiquot _ k d              => return node.formatter k (← interpretParserDescr d)
+  | ParserDescr.sepBy p sep psep trail              => return sepBy.formatter (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
+  | ParserDescr.sepBy1 p sep psep trail             => return sepBy1.formatter (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
+  | ParserDescr.trailingNode k prec d               => return trailingNode.formatter k prec (← interpretParserDescr d)
+  | ParserDescr.symbol tk                           => return symbol.formatter tk
+  | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.formatter tk
+  | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
+  | ParserDescr.cat catName prec                    => return categoryParser.formatter catName
 
 end Formatter
 end PrettyPrinter

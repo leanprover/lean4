@@ -1643,6 +1643,15 @@ def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anony
 /- End of Antiquotations -/
 /- ===================== -/
 
+def sepByElemParser (p : Parser) (sep : String) : Parser :=
+  withAntiquot (mkAntiquotScope `sepBy p (symbol (sep.trim ++ "*"))) p
+
+def sepBy (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  sepByNoAntiquot (sepByElemParser p sep) psep allowTrailingSep
+
+def sepBy1 (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  sepBy1NoAntiquot (sepByElemParser p sep) psep allowTrailingSep
+
 def categoryParserOfStackFn (offset : Nat) : ParserFn := fun ctx s =>
   let stack := s.stxStack
   if stack.size < offset + 1 then

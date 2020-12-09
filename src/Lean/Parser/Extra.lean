@@ -14,7 +14,7 @@ namespace Parser
 -- synthesize pretty printers for parsers declared prior to `Lean.PrettyPrinter`
 -- (because `Parser.Extension` depends on them)
 attribute [runBuiltinParserAttributeHooks]
-  leadingNode termParser commandParser mkAntiquot nodeWithAntiquot
+  leadingNode termParser commandParser mkAntiquot nodeWithAntiquot sepBy sepBy1
 
 @[runBuiltinParserAttributeHooks] def optional (p : Parser) : Parser :=
   optionalNoAntiquot (withAntiquot (mkAntiquotScope `optional p (symbol "?")) p)
@@ -24,16 +24,6 @@ attribute [runBuiltinParserAttributeHooks]
 
 @[runBuiltinParserAttributeHooks] def many1 (p : Parser) : Parser :=
   many1NoAntiquot (withAntiquot (mkAntiquotScope `many p (symbol "*")) p)
-
--- all the separators you could ever want
-@[runBuiltinParserAttributeHooks] def sepByScopeSuffixes : Parser :=
-parser! (symbol "," <|> symbol ";" <|> symbol "|") >> symbol "*"
-
-@[runBuiltinParserAttributeHooks] def sepBy (p psep : Parser) (allowTrailingSep : Bool := false) : Parser :=
-  sepByNoAntiquot (withAntiquot (mkAntiquotScope `sepBy p sepByScopeSuffixes) p) psep allowTrailingSep
-
-@[runBuiltinParserAttributeHooks] def sepBy1 (p psep : Parser) (allowTrailingSep : Bool := false) : Parser :=
-  sepBy1NoAntiquot (withAntiquot (mkAntiquotScope `sepBy p sepByScopeSuffixes) p) psep allowTrailingSep
 
 @[runBuiltinParserAttributeHooks] def ident : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot
@@ -136,10 +126,6 @@ builtin_initialize
   registerAlias "many" many.parenthesizer
   registerAlias "many1" many1.parenthesizer
   registerAlias "optional" optional.parenthesizer
-  registerAlias "sepBy" sepBy.parenthesizer
-  registerAlias "sepBy1" sepBy1.parenthesizer
-  registerAlias "sepByT" sepBy.parenthesizer
-  registerAlias "sepBy1T" sepBy1.parenthesizer
 
 open PrettyPrinter.Formatter (registerAlias) in
 builtin_initialize
@@ -152,9 +138,5 @@ builtin_initialize
   registerAlias "many" many.formatter
   registerAlias "many1" many1.formatter
   registerAlias "optional" optional.formatter
-  registerAlias "sepBy" sepBy.formatter
-  registerAlias "sepBy1" sepBy1.formatter
-  registerAlias "sepByT" sepBy.formatter
-  registerAlias "sepBy1T" sepBy1.formatter
 
 end Lean

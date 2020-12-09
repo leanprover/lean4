@@ -77,9 +77,7 @@ def elseIf := atomic (group (withPosition (" else " >> checkLineEq >> " if ")))
 @[builtinDoElemParser] def doUnless := parser! "unless " >> withForbidden "do" termParser >> "do " >> doSeq
 @[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> withForbidden "do" termParser >> "do " >> doSeq
 
-/- `match`-expression where the right-hand-side of alternatives is a `doSeq` instead of a `term` -/
-def doMatchAlt : Parser  := parser! sepBy1 termParser ", " >> darrow >> doSeq
-def doMatchAlts : Parser := parser! withPosition $ (optional "| ") >> sepBy1 doMatchAlt (checkColGe "alternatives must be indented" >> "| ")
+def doMatchAlts := matchAlts (rhsParser := doSeq)
 @[builtinDoElemParser] def doMatch := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
 
 def doCatch      := parser! atomic ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq

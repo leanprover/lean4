@@ -74,8 +74,8 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
             | _ => throwErrorAt stx "too many antiquotations in antiquotation scope; don't be greedy"
           let arr ←
             if k == `sepBy then
-              let Syntax.atom _ sep ← (getAntiquotScopeSuffix arg)[0] | unreachable!
-              `(mkSepArray $arr (mkAtom $(Syntax.mkStrLit sep)))
+              let Syntax.atom _ sep ← getAntiquotScopeSuffix arg | unreachable!
+              `(mkSepArray $arr (mkAtom $(Syntax.mkStrLit (sep.dropRight 1))))
             else arr
           let arr ← bindLets arr
           `(Array.appendCore $args $arr)

@@ -25,6 +25,7 @@ macro x:stx ",*"   : stx => `(stx| sepBy($x, ",", ", "))
 macro x:stx ",+"   : stx => `(stx| sepBy1($x, ",", ", "))
 /- Comma-separated sequence with optional trailing comma. -/
 macro x:stx ",*,?" : stx => `(stx| sepBy($x, ",", ", ", allowTrailingSep))
+macro x:stx ",+,?" : stx => `(stx| sepBy1($x, ",", ", ", allowTrailingSep))
 /- Pipe-separated sequence, must be indentend at least as much as outer `withPosition` call. -/
 macro x:stx "|+"   : stx => `(stx| sepBy1($x, "|", colGe "| "))
 
@@ -166,7 +167,7 @@ syntax[change] "change " term (location)? : tactic
 syntax[changeWith] "change " term " with " term (location)? : tactic
 
 syntax rwRule    := ("←" <|> "<-")? term
-syntax rwRuleSeq := "[" rwRule,*,? "]"
+syntax rwRuleSeq := "[" rwRule,+,? "]"
 
 syntax[rewrite] "rewrite " rwRule (location)? : tactic
 syntax[rewriteSeq, 1] "rewrite " rwRuleSeq (location)? : tactic

@@ -85,7 +85,7 @@ jobs:
         if: matrix.name == 'Linux'
       - name: Push to Cachix
         run: |
-          [ -z "$CACHIX_AUTH_TOKEN" ] || cachix push -j4 lean4 ./push-*
+          [ -z "$CACHIX_AUTH_TOKEN" ] || cachix push -j4 lean4 ./push-* || true
         env:
           CACHIX_AUTH_TOKEN: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Publish manual

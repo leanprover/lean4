@@ -1290,10 +1290,14 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | some val => return mkApp (Lean.mkConst `Char.ofNat) (mkNatLit val.toNat)
   | none     => throwIllFormedSyntax
 
-@[builtinTermElab quotedName] def elabQuotedName : TermElab :=
-fun stx _ =>
+@[builtinTermElab quotedName] def elabQuotedName : TermElab := fun stx _ =>
   match stx[0].isNameLit? with
   | some val => pure $ toExpr val
+  | none     => throwIllFormedSyntax
+
+@[builtinTermElab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ => do
+  match stx[1].isNameLit? with
+  | some val => toExpr (← resolveGlobalConstNoOverload val)
   | none     => throwIllFormedSyntax
 
 @[builtinTermElab typeOf] def elabTypeOf : TermElab := fun stx _ => do

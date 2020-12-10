@@ -43,23 +43,20 @@ open Meta
 
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
   let stx := stx.setArg 4 (mkNullNode #[mkAtomFrom stx ";"]) -- HACK
+  let mkId (x? : Option Syntax) : Syntax :=
+    x?.getD <| mkIdentFrom stx `this
   match stx with
-  | `(have $type from $val; $body)              => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
-  | `(have $type by $tac:tacticSeq; $body)      => `(have $type from by $tac:tacticSeq; $body)
-  | `(have $type := $val; $body)                => let thisId := mkIdentFrom stx `this; `(let! $thisId : $type := $val; $body)
-  | `(have $x : $type from $val; $body)         => `(let! $x:ident : $type := $val; $body)
-  | `(have $x : $type by $tac:tacticSeq; $body) => `(have $x : $type from by $tac:tacticSeq; $body)
-  | `(have $x : $type := $val; $body)           => `(let! $x:ident : $type := $val; $body)
-  | _                                           => Macro.throwUnsupported
+  | `(have $[$x :]? $type from $val $[;]? $body)              => let x := mkId x; `(let! $x : $type := $val; $body)
+  | `(have $[$x :]? $type := $val $[;]? $body)                => let x := mkId x; `(let! $x : $type := $val; $body)
+  | `(have $[$x :]? $type by $tac:tacticSeq $[;]? $body)      => `(have $[$x :]? $type from by $tac:tacticSeq; $body)
+  | _                                                         => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro := fun stx =>
   let stx := stx.setArg 4 (mkNullNode #[mkAtomFrom stx ";"]) -- HACK
   match stx with
-  | `(suffices $type from $val; $body)              => `(have $type from $body; $val)
-  | `(suffices $type by $tac:tacticSeq; $body)      => `(have $type from $body; by $tac:tacticSeq)
-  | `(suffices $x : $type from $val; $body)         => `(have $x:ident : $type from $body; $val)
-  | `(suffices $x : $type by $tac:tacticSeq; $body) => `(have $x:ident : $type from $body; by $tac:tacticSeq)
-  | _                                           => Macro.throwUnsupported
+  | `(suffices $[$x :]? $type from $val $[;]? $body)         => `(have $[$x :]? $type from $body; $val)
+  | `(suffices $[$x :]? $type by $tac:tacticSeq $[;]? $body) => `(have $[$x :]? $type from $body; by $tac:tacticSeq)
+  | _                                                        => Macro.throwUnsupported
 
 private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
   let (some declName) ← getDeclName?

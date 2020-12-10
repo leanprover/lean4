@@ -348,6 +348,21 @@ private def addImplicitArg (k : M Expr) : M Expr := do
   addNewArg arg
   k
 
+/- Return true if there is a named argument that depends on the next argument. -/
+private def anyNamedArgDependsOnCurrent : M Bool := do
+  let s ← get
+  if s.namedArgs.isEmpty then
+    return false
+  else
+    forallTelescopeReducing s.fType fun xs _ => do
+      let curr := xs[0]
+      for i in [1:xs.size] do
+        let xDecl ← getLocalDecl xs[i].fvarId!
+        if s.namedArgs.any fun arg => arg.name == xDecl.userName then
+          if (← getMCtx).localDeclDependsOn xDecl curr.fvarId! then
+            return true
+      return false
+
 /-
   Process a `fType` of the form `(x : A) → B x`.
   This method assume `fType` is a function type -/
@@ -383,7 +398,10 @@ private def processExplictArg (k : M Expr) : M Expr := do
       throwError "invalid autoParam, argument must be a constant"
     | _, _, _ =>
       if !s.namedArgs.isEmpty then
-        addEtaArg k
+        if (← anyNamedArgDependsOnCurrent) then
+          addImplicitArg k
+        else
+          addEtaArg k
       else if !s.explicit then
         if (← fTypeHasOptAutoParams) then
           addEtaArg k

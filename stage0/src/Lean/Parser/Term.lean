@@ -135,6 +135,7 @@ def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 @[builtinTermParser] def «tparser!» := parser!:leadPrec "tparser! " >> optExprPrecedence >> termParser
 @[builtinTermParser] def borrowed   := parser! "@&" >> termParser leadPrec
 @[builtinTermParser] def quotedName := parser! nameLit
+@[builtinTermParser] def doubleQuotedName := parser! "`" >> checkNoWsBefore >> nameLit
 
 def simpleBinderWithoutType := node `Lean.Parser.Term.simpleBinder (many1 binderIdent >> pushNone)
 

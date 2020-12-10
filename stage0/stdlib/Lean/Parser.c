@@ -42,6 +42,7 @@ extern lean_object* l_Lean_identKind___closed__2;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____closed__19;
 extern lean_object* l_Lean_Parser_ident;
+extern lean_object* l_Lean_Parser_Term_doubleQuotedName___elambda__1___closed__5;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__12;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lean_charLitKind___closed__2;
@@ -73,7 +74,6 @@ lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__10__
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Formatter_charLit_formatter___closed__1;
 lean_object* l_Lean_Parser_registerAliasCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Term_proj___elambda__1___closed__2;
 extern lean_object* l_term___x24_______closed__8;
 extern lean_object* l_Lean_PrettyPrinter_parenthesizerAttribute;
 lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -262,7 +262,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser___hyg_4____clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Term_proj___elambda__1___closed__2;
+x_1 = l_Lean_Parser_Term_doubleQuotedName___elambda__1___closed__5;
 x_2 = l_Lean_Parser_checkNoWsBefore(x_1);
 return x_2;
 }

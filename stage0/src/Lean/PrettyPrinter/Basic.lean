@@ -19,7 +19,7 @@ unsafe def runForNodeKind {α} (attr : KeyedDeclsAttribute α) (k : SyntaxNodeKi
   | _ =>
     -- assume `k` is from a `ParserDescr`, in which case we assume it's also the declaration name
     let info ← getConstInfo k
-    if info.type.isConstOf `Lean.ParserDescr || info.type.isConstOf `Lean.TrailingParserDescr then
+    if info.type.isConstOf ``ParserDescr || info.type.isConstOf ``TrailingParserDescr then
       let d ← evalConst ParserDescr k
       interp d
     else

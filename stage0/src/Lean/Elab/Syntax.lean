@@ -505,15 +505,6 @@ def expandMacroArgIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
   else
     Macro.throwUnsupported
 
-/- Convert `macro` head into a `syntax` command item -/
-def expandMacroHeadIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
-  if stx.isIdent then
-    let info := stx.getHeadInfo.getD {}
-    let id   := stx.getId
-    pure $ Syntax.node `Lean.Parser.Syntax.atom #[Syntax.mkStrLit (toString id) info]
-  else
-    expandMacroArgIntoSyntaxItem stx
-
 /- Convert `macro` arg into a pattern element -/
 def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
@@ -524,13 +515,6 @@ def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax :=
     strLitToPattern stx
   else
     Macro.throwUnsupported
-
-/- Convert `macro` head into a pattern element -/
-def expandMacroHeadIntoPattern (stx : Syntax) : MacroM Syntax :=
-  if stx.isIdent then
-    pure $ mkAtomFrom stx (toString stx.getId)
-  else
-    expandMacroArgIntoPattern stx
 
 def expandOptPrio (stx : Syntax) : Nat :=
   if stx.isNone then
@@ -545,13 +529,13 @@ def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := d
   let args := stx[4].getArgs
   let cat  := stx[6]
   -- build parser
-  let stxPart  ← liftMacroM <| expandMacroHeadIntoSyntaxItem head
+  let stxPart  ← liftMacroM <| expandMacroArgIntoSyntaxItem head
   let stxParts ← liftMacroM <| args.mapM expandMacroArgIntoSyntaxItem
   let stxParts := #[stxPart] ++ stxParts
   -- kind
   let kind ← mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
   -- build macro rules
-  let patHead ← liftMacroM <| expandMacroHeadIntoPattern head
+  let patHead ← liftMacroM <| expandMacroArgIntoPattern head
   let patArgs ← liftMacroM <| args.mapM expandMacroArgIntoPattern
   /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
@@ -595,13 +579,13 @@ def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   let rhs     := stx[9]
   let catName := cat.getId
   -- build parser
-  let stxPart  ← liftMacroM <| expandMacroHeadIntoSyntaxItem head
+  let stxPart  ← liftMacroM <| expandMacroArgIntoSyntaxItem head
   let stxParts ← liftMacroM <| args.mapM expandMacroArgIntoSyntaxItem
   let stxParts := #[stxPart] ++ stxParts
   -- kind
   let kind ← mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
   -- build pattern for `martch_syntax
-  let patHead ← liftMacroM <| expandMacroHeadIntoPattern head
+  let patHead ← liftMacroM <| expandMacroArgIntoPattern head
   let patArgs ← liftMacroM <| args.mapM expandMacroArgIntoPattern
   let pat := Syntax.node (currNamespace ++ kind) (#[patHead] ++ patArgs)
   let kindId    := mkIdentFrom ref kind

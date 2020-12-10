@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Match
-// Imports: Init Lean.Elab.Match Lean.Elab.Tactic.Basic Lean.Elab.Tactic.Induction
+// Imports: Init Lean.Parser.Term Lean.Elab.Match Lean.Elab.Tactic.Basic Lean.Elab.Tactic.Induction
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1226,6 +1226,7 @@ return x_5;
 }
 }
 lean_object* initialize_Init(lean_object*);
+lean_object* initialize_Lean_Parser_Term(lean_object*);
 lean_object* initialize_Lean_Elab_Match(lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Basic(lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Induction(lean_object*);
@@ -1235,6 +1236,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Term(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Match(lean_io_mk_world());

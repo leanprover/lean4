@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Parser.Command
 import Lean.ResolveName
 import Lean.Meta.Reduce
 import Lean.Elab.Log
@@ -508,11 +509,11 @@ def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit := do
 @[builtinCommandElab «open»] def elabOpen : CommandElab := fun n => do
   let body := (n.getArg 1).asNode
   let k    := body.getKind;
-  if k == `Lean.Parser.Command.openSimple then
+  if k == ``Parser.Command.openSimple then
     elabOpenSimple body
-  else if k == `Lean.Parser.Command.openOnly then
+  else if k == ``Parser.Command.openOnly then
     elabOpenOnly body
-  else if k == `Lean.Parser.Command.openHiding then
+  else if k == ``Parser.Command.openHiding then
     elabOpenHiding body
   else
     elabOpenRenaming body
@@ -598,9 +599,9 @@ unsafe def elabEvalUnsafe : CommandElab := fun stx => do
   let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
-    let e ← withLocalDeclD `env (mkConst `Lean.Environment) fun env =>
-        withLocalDeclD `opts (mkConst `Lean.Options) fun opts => do
-          let e ← mkAppM `Lean.runMetaEval #[env, opts, e];
+    let e ← withLocalDeclD `env (mkConst ``Lean.Environment) fun env =>
+        withLocalDeclD `opts (mkConst ``Lean.Options) fun opts => do
+          let e ← mkAppM ``Lean.runMetaEval #[env, opts, e];
           mkLambdaFVars #[env, opts] e
     let env ← getEnv
     let opts ← getOptions
@@ -616,7 +617,7 @@ unsafe def elabEvalUnsafe : CommandElab := fun stx => do
     let e ← Term.elabTerm term none
     let e := mkSimpleThunk e
     Term.synthesizeSyntheticMVarsNoPostponing
-    let e ← mkAppM `Lean.runEval #[e]
+    let e ← mkAppM ``Lean.runEval #[e]
     let env ← getEnv
     let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) n finally setEnv env
     let (out, res) ← liftM (m := IO) act
@@ -624,7 +625,7 @@ unsafe def elabEvalUnsafe : CommandElab := fun stx => do
     match res with
     | Except.error e => throwError e.toString
     | Except.ok _    => pure ()
-  if (← getEnv).contains `Lean.MetaEval then do
+  if (← getEnv).contains ``Lean.MetaEval then do
     elabMetaEval
   else
     elabEval

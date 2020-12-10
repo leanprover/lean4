@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Parser.Command
 import Lean.Meta.Closure
 import Lean.Elab.Command
 import Lean.Elab.DeclModifiers
@@ -146,14 +147,14 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
   let fieldBinders := if structStx[5].isNone then #[] else structStx[5][2][0].getArgs
   fieldBinders.foldlM (init := #[]) fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do
     let mut fieldBinder := fieldBinder
-    if fieldBinder.getKind == `Lean.Parser.Command.structSimpleBinder then
-      fieldBinder := Syntax.node `Lean.Parser.Command.structExplicitBinder
+    if fieldBinder.getKind == ``Parser.Command.structSimpleBinder then
+      fieldBinder := Syntax.node ``Parser.Command.structExplicitBinder
         #[ fieldBinder[0], mkAtomFrom fieldBinder "(", fieldBinder[1], fieldBinder[2], fieldBinder[3], fieldBinder[4], mkAtomFrom fieldBinder ")" ]
     let k := fieldBinder.getKind
     let binfo ←
-      if k == `Lean.Parser.Command.structExplicitBinder then pure BinderInfo.default
-      else if k == `Lean.Parser.Command.structImplicitBinder then pure BinderInfo.implicit
-      else if k == `Lean.Parser.Command.structInstBinder then pure BinderInfo.instImplicit
+      if k == ``Parser.Command.structExplicitBinder then pure BinderInfo.default
+      else if k == ``Parser.Command.structImplicitBinder then pure BinderInfo.implicit
+      else if k == ``Parser.Command.structInstBinder then pure BinderInfo.instImplicit
       else throwError "unexpected kind of structure field"
     let fieldModifiers ← elabModifiers fieldBinder[0]
     checkValidFieldModifier fieldModifiers
@@ -519,7 +520,7 @@ def structCtor           := parser! try (declModifiers >> ident >> optional infe
 -/
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   checkValidInductiveModifier modifiers
-  let isClass   := stx[0].getKind == `Lean.Parser.Command.classTk
+  let isClass   := stx[0].getKind == ``Parser.Command.classTk
   let modifiers := if isClass then modifiers.addAttribute { name := `class } else modifiers
   let declId    := stx[1]
   let params    := stx[2].getArgs

@@ -42,7 +42,6 @@ open Meta
   | _                               => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
-  let stx := stx.setArg 4 (mkNullNode #[mkAtomFrom stx ";"]) -- HACK
   let mkId (x? : Option Syntax) : Syntax :=
     x?.getD <| mkIdentFrom stx `this
   match stx with
@@ -51,9 +50,7 @@ open Meta
   | `(have $[$x :]? $type by $tac:tacticSeq $[;]? $body)      => `(have $[$x :]? $type from by $tac:tacticSeq; $body)
   | _                                                         => Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro := fun stx =>
-  let stx := stx.setArg 4 (mkNullNode #[mkAtomFrom stx ";"]) -- HACK
-  match stx with
+@[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro
   | `(suffices $[$x :]? $type from $val $[;]? $body)         => `(have $[$x :]? $type from $body; $val)
   | `(suffices $[$x :]? $type by $tac:tacticSeq $[;]? $body) => `(have $[$x :]? $type from $body; by $tac:tacticSeq)
   | _                                                        => Macro.throwUnsupported

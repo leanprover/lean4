@@ -17,6 +17,7 @@ lean_object* l_Lean_Elab_instToFormatModifiers_match__2___rarg___boxed(lean_obje
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_expandDeclId___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 size_t l_USize_add(size_t, size_t);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__26;
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__2;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,7 +86,6 @@ lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_expandDeclId___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__9;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__22;
 lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__4;
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__17;
 lean_object* l_Lean_Elab_instToFormatModifiers___closed__4;
@@ -1197,7 +1197,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__22;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__26;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

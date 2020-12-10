@@ -94,6 +94,8 @@ class add_inductive_fn {
     level                  m_elim_level;
     bool                   m_K_target;
 
+    bool                   m_is_nested;
+
     struct rec_info {
         expr         m_C;        /* free variable for "main" motive */
         buffer<expr> m_minors;   /* minor premises */
@@ -106,8 +108,9 @@ class add_inductive_fn {
     buffer<rec_info>       m_rec_infos;
 
 public:
-    add_inductive_fn(environment const & env, inductive_decl const & decl):
-        m_env(env), m_ngen(*g_ind_fresh), m_lparams(decl.get_lparams()), m_is_unsafe(decl.is_unsafe()) {
+    add_inductive_fn(environment const & env, inductive_decl const & decl, bool is_nested):
+        m_env(env), m_ngen(*g_ind_fresh), m_lparams(decl.get_lparams()), m_is_unsafe(decl.is_unsafe()),
+        m_is_nested(is_nested) {
         if (!decl.get_nparams().is_small())
             throw kernel_exception(env, "invalid inductive datatype, number of parameters is too big");
         m_nparams = decl.get_nparams().get_small_value();
@@ -269,7 +272,7 @@ public:
                 cnstr_names.push_back(constructor_name(cnstr));
             }
             m_env.add_core(constant_info(inductive_val(n, m_lparams, ind_type.get_type(), m_nparams, m_nindices[idx],
-                                                       all, names(cnstr_names), rec, m_is_unsafe, reflexive)));
+                                                       all, names(cnstr_names), rec, m_is_unsafe, reflexive, m_is_nested)));
         }
     }
 
@@ -1044,8 +1047,9 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
 
 environment environment::add_inductive(declaration const & d) const {
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
-    environment aux_env = add_inductive_fn(*this, inductive_decl(res.m_aux_decl))();
-    if (res.m_aux2nested.empty()) {
+    bool is_nested = !res.m_aux2nested.empty();
+    environment aux_env = add_inductive_fn(*this, inductive_decl(res.m_aux_decl), is_nested)();
+    if (!is_nested) {
         /* `d` did not contain nested inductive types. */
         return aux_env;
     } else {
@@ -1088,7 +1092,7 @@ environment environment::add_inductive(declaration const & d) const {
             new_env.add_core(constant_info(inductive_val(ind_info.get_name(), ind_info.get_lparams(), ind_info.get_type(),
                                                          ind_val.get_nparams(), ind_val.get_nindices(),
                                                          all_ind_names, ind_val.get_cnstrs(),
-                                                         ind_val.is_rec(), ind_val.is_unsafe(), ind_val.is_reflexive())));
+                                                         ind_val.is_rec(), ind_val.is_unsafe(), ind_val.is_reflexive(), ind_val.is_nested())));
             for (name const & cnstr_name : ind_val.get_cnstrs()) {
                 constant_info   cnstr_info = aux_env.get(cnstr_name);
                 constructor_val cnstr_val  = cnstr_info.to_constructor_val();

@@ -65,7 +65,7 @@ extern lean_object* l_Lean_Parser_Tactic_match___closed__2;
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 lean_object* l_Lean_Elab_Tactic_AuxMatchTermState_nextIdx___default;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__13;
+extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__12;
 extern lean_object* l_Lean_Parser_Tactic_refine___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalMatch_match__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_refine___closed__2;
@@ -308,7 +308,7 @@ lean_object* l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryM
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_7 = l_Lean_Elab_Term_expandFunBinders_loop___closed__13;
+x_7 = l_Lean_Elab_Term_expandFunBinders_loop___closed__12;
 x_8 = l_Lean_Syntax_setKind(x_3, x_7);
 x_9 = lean_unsigned_to_nat(2u);
 x_10 = l_Lean_Syntax_getArg(x_8, x_9);

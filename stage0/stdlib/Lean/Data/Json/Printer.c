@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1;
 lean_object* lean_string_push(lean_object*, uint32_t);
 size_t l_USize_add(size_t, size_t);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__26;
 lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_escape(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -49,7 +50,6 @@ lean_object* l_Lean_Json_render___closed__2;
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* l_Lean_Format_joinSep___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_foldrAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__22;
 lean_object* l_Lean_Json_renderString(lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Json_renderString___boxed(lean_object*);
@@ -507,7 +507,7 @@ static lean_object* _init_l_Lean_Json_render___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__22;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__26;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -915,7 +915,7 @@ x_28 = l_String_intercalate(x_27, x_26);
 x_29 = l_addParenHeuristic___closed__1;
 x_30 = lean_string_append(x_29, x_28);
 lean_dec(x_28);
-x_31 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__22;
+x_31 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__26;
 x_32 = lean_string_append(x_30, x_31);
 return x_32;
 }

@@ -287,7 +287,7 @@ structure inductive_val extends constant_val where
 class inductive_val : public object_ref {
 public:
     inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                  unsigned nindices, names const & all, names const & cnstrs, bool is_rec, bool is_unsafe, bool is_reflexive);
+                  unsigned nindices, names const & all, names const & cnstrs, bool is_rec, bool is_unsafe, bool is_reflexive, bool is_nested);
     inductive_val(inductive_val const & other):object_ref(other) {}
     inductive_val(inductive_val && other):object_ref(other) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
@@ -301,6 +301,7 @@ public:
     bool is_rec() const;
     bool is_unsafe() const;
     bool is_reflexive() const;
+    bool is_nested() const;
 };
 
 /*

@@ -62,6 +62,7 @@ lean_object* l_Lean_Elab_Command_elabAxiom_match__1___rarg(lean_object*, lean_ob
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12176____closed__11;
 lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView_match__3___rarg(lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__19;
 lean_object* l_Lean_Elab_Command_elabAxiom_match__3(lean_object*);
 lean_object* l_Lean_Elab_Command_elabDeclaration_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView___spec__5___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -288,7 +289,6 @@ lean_object* l_Lean_Elab_Modifiers_addAttribute(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidCtorModifier___at___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkValidCtorModifier___at___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_expandMacro_x3fImp(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__5;
 lean_object* l_Lean_Elab_Command_expandInitCmd___closed__6;
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandMutualNamespace(lean_object*, lean_object*, lean_object*);
@@ -7006,7 +7006,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__1;
-x_2 = l_Lean_Elab_Term_expandFunBinders_loop___closed__5;
+x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__19;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -7251,7 +7251,7 @@ x_130 = lean_array_push(x_120, x_129);
 x_131 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_131, 0, x_122);
 lean_ctor_set(x_131, 1, x_130);
-x_132 = l_Lean_Elab_Term_expandFunBinders_loop___closed__5;
+x_132 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__19;
 x_133 = lean_array_push(x_132, x_131);
 x_134 = lean_array_push(x_133, x_116);
 x_135 = lean_array_push(x_134, x_116);

@@ -365,6 +365,7 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_quotedNameToPattern(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_mkUserNameFor_match__1(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12803____closed__1;
+extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__7;
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_throwInvalidPattern___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_nameToPattern___closed__12;
@@ -504,7 +505,6 @@ lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_waitExpectedTypeAndDi
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_ToDepElimPattern_alreadyVisited___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux___closed__4;
 lean_object* l_Lean_Elab_Term_CollectPatternVars_resolveId_x3f_match__4(lean_object*);
-extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__13;
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_withPatternVars_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_CtorApp_processExplicitArg___closed__3;
 lean_object* l_Lean_Elab_Term_elabMatch_match__15(lean_object*);
@@ -543,6 +543,7 @@ lean_object* l_Lean_Elab_Term_getPatternVars(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_nameToPattern___closed__7;
+extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__12;
 lean_object* l_Lean_Elab_Term_instToStringPatternVar_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_CtorApp_finalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Syntax_mkApp___closed__1;
@@ -789,7 +790,6 @@ lean_object* l_List_forIn_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_ToDepElimPattern_main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_reportMatcherResultErrors(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_withElaboratedLHS_match__1(lean_object*);
-extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__8;
 lean_object* l_Lean_Elab_Term_CollectPatternVars_collect___closed__3;
 lean_object* l_Lean_Elab_Term_elabMatch_match__12(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12176____closed__8;
@@ -4046,7 +4046,7 @@ _start:
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_getKind(x_1);
-x_6 = l_Lean_Elab_Term_expandFunBinders_loop___closed__13;
+x_6 = l_Lean_Elab_Term_expandFunBinders_loop___closed__12;
 x_7 = lean_name_eq(x_5, x_6);
 lean_dec(x_5);
 if (x_7 == 0)
@@ -28236,7 +28236,7 @@ lean_object* x_548; lean_object* x_549; lean_object* x_550; uint8_t x_551;
 lean_dec(x_185);
 x_548 = lean_unsigned_to_nat(4u);
 x_549 = l_Lean_Syntax_getArg(x_1, x_548);
-x_550 = l_Lean_Elab_Term_expandFunBinders_loop___closed__8;
+x_550 = l_Lean_Elab_Term_expandFunBinders_loop___closed__7;
 lean_inc(x_549);
 x_551 = l_Lean_Syntax_isOfKind(x_549, x_550);
 if (x_551 == 0)
@@ -28526,7 +28526,7 @@ else
 lean_object* x_615; lean_object* x_616; uint8_t x_617; 
 x_615 = l_Lean_Syntax_getArg(x_608, x_123);
 lean_dec(x_608);
-x_616 = l_Lean_Elab_Term_expandFunBinders_loop___closed__13;
+x_616 = l_Lean_Elab_Term_expandFunBinders_loop___closed__12;
 lean_inc(x_615);
 x_617 = l_Lean_Syntax_isOfKind(x_615, x_616);
 if (x_617 == 0)
@@ -29048,7 +29048,7 @@ else
 lean_object* x_733; lean_object* x_734; uint8_t x_735; 
 x_733 = l_Lean_Syntax_getArg(x_726, x_123);
 lean_dec(x_726);
-x_734 = l_Lean_Elab_Term_expandFunBinders_loop___closed__13;
+x_734 = l_Lean_Elab_Term_expandFunBinders_loop___closed__12;
 lean_inc(x_733);
 x_735 = l_Lean_Syntax_isOfKind(x_733, x_734);
 if (x_735 == 0)
@@ -29792,7 +29792,7 @@ x_244 = l_Lean_Syntax_getArg(x_193, x_114);
 lean_dec(x_193);
 x_245 = lean_unsigned_to_nat(4u);
 x_246 = l_Lean_Syntax_getArg(x_1, x_245);
-x_247 = l_Lean_Elab_Term_expandFunBinders_loop___closed__8;
+x_247 = l_Lean_Elab_Term_expandFunBinders_loop___closed__7;
 lean_inc(x_246);
 x_248 = l_Lean_Syntax_isOfKind(x_246, x_247);
 if (x_248 == 0)
@@ -30087,7 +30087,7 @@ else
 lean_object* x_312; lean_object* x_313; uint8_t x_314; 
 x_312 = l_Lean_Syntax_getArg(x_305, x_123);
 lean_dec(x_305);
-x_313 = l_Lean_Elab_Term_expandFunBinders_loop___closed__13;
+x_313 = l_Lean_Elab_Term_expandFunBinders_loop___closed__12;
 lean_inc(x_312);
 x_314 = l_Lean_Syntax_isOfKind(x_312, x_313);
 if (x_314 == 0)
@@ -30615,7 +30615,7 @@ else
 lean_object* x_430; lean_object* x_431; uint8_t x_432; 
 x_430 = l_Lean_Syntax_getArg(x_423, x_123);
 lean_dec(x_423);
-x_431 = l_Lean_Elab_Term_expandFunBinders_loop___closed__13;
+x_431 = l_Lean_Elab_Term_expandFunBinders_loop___closed__12;
 lean_inc(x_430);
 x_432 = l_Lean_Syntax_isOfKind(x_430, x_431);
 if (x_432 == 0)

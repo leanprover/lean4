@@ -9422,7 +9422,7 @@ x_17 = lean_array_uset(x_3, x_2, x_16);
 x_18 = x_15;
 x_19 = l_Lean_Syntax_getArg(x_18, x_16);
 lean_dec(x_18);
-x_20 = lean_unsigned_to_nat(3u);
+x_20 = lean_unsigned_to_nat(2u);
 x_21 = l_Lean_Syntax_getArg(x_19, x_20);
 lean_inc(x_10);
 lean_inc(x_9);

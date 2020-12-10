@@ -152,7 +152,7 @@ private def expandWhereDeclsAsStructInst (whereDecls : Syntax) : MacroM Syntax :
       val ← `(fun $binders* => $val:term)
       val := val.copyInfo letIdDecl
     return Syntax.node `Lean.Parser.Term.structInstField #[
-      fieldId, mkNullNode, mkAtomFrom fieldId ":=", val
+      Syntax.node ``Parser.Term.structInstLVal #[fieldId, mkNullNode], mkAtomFrom fieldId ":=", val
     ]
   let ref := whereDecls
   let structInst := Syntax.node `Lean.Parser.Term.structInst #[

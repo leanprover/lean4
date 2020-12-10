@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.FindExpr
+import Lean.Parser.Term
 import Lean.Elab.App
 import Lean.Elab.Binders
 
@@ -94,11 +95,11 @@ private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
     let arg := p[0]
     /- Remark: the syntax for `structInstField` is
        ```
-       def structInstLVal   := (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
+       def structInstLVal   := parser! (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
        def structInstField  := parser! structInstLVal >> " := " >> termParser
        ``` -/
     let lval := arg[0]
-    let k    := lval.getKind
+    let k    := lval[0].getKind
     if k == `Lean.Parser.Term.structInstArrayRef then
       match s? with
       | none   => pure (some arg)
@@ -117,28 +118,27 @@ private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
           pure s?
   match s? with
   | none   => pure none
-  | some s => if s[0].getKind == `Lean.Parser.Term.structInstArrayRef then pure s? else pure none
+  | some s => if s[0][0].getKind == `Lean.Parser.Term.structInstArrayRef then pure s? else pure none
 
 private def elabModifyOp (stx modifyOp source : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let cont (val : Syntax) : TermElabM Expr := do
-    let lval := modifyOp[0]
+    let lval := modifyOp[0][0]
     let idx  := lval[1]
     let self := source[0]
     let stxNew ← `($(self).modifyOp (idx := $idx) (fun s => $val))
     trace[Elab.struct.modifyOp]! "{stx}\n===>\n{stxNew}"
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   trace[Elab.struct.modifyOp]! "{modifyOp}\nSource: {source}"
-  let rest := modifyOp[1]
+  let rest := modifyOp[0][1]
   if rest.isNone then
-    cont modifyOp[3]
+    cont modifyOp[2]
   else
     let s ← `(s)
     let valFirst  := rest[0]
     let valFirst  := if valFirst.getKind == `Lean.Parser.Term.structInstArrayRef then valFirst else valFirst[1]
     let restArgs  := rest.getArgs
     let valRest   := mkNullNode restArgs[1:restArgs.size]
-    let valField  := modifyOp.setArg 0 valFirst
-    let valField  := valField.setArg 1 valRest
+    let valField  := modifyOp.setArg 0 <| Syntax.node ``Parser.Term.structInstLVal #[valFirst, valRest]
     let valSource := source.modifyArg 0 fun _ => s
     let val       := stx.setArg 1 valSource
     let val       := val.setArg 2 <| mkNullNode #[mkNullNode #[valField, mkNullNode]]
@@ -247,7 +247,7 @@ instance : ToString (Field Struct) := ⟨toString ∘ format⟩
 Recall that `structInstField` elements have the form
 ```
    def structInstField  := parser! structInstLVal >> " := " >> termParser
-   def structInstLVal   := (ident <|> numLit <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
+   def structInstLVal   := parser! (ident <|> numLit <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
    def structInstArrayRef := parser! "[" >> termParser >>"]"
 -/
 
@@ -264,12 +264,9 @@ def FieldVal.toSyntax : FieldVal Struct → Syntax
 def Field.toSyntax : Field Struct → Syntax
   | field =>
     let stx := field.ref
-    let stx := stx.setArg 3 field.val.toSyntax
+    let stx := stx.setArg 2 field.val.toSyntax
     match field.lhs with
-    | first::rest =>
-      let stx := stx.setArg 0 <| first.toSyntax true
-      let stx := stx.setArg 1 <| mkNullNode <| rest.toArray.map (FieldLHS.toSyntax false)
-      stx
+    | first::rest => stx.setArg 0 <| mkNullNode #[first.toSyntax true, mkNullNode <| rest.toArray.map (FieldLHS.toSyntax false) ]
     | _ => unreachable!
 
 private def toFieldLHS (stx : Syntax) : Except String FieldLHS :=
@@ -295,9 +292,9 @@ private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : 
      ``` -/
   let fieldsStx := stx[2].getArgs.map (·[0])
   let fields ← fieldsStx.toList.mapM fun fieldStx => do
-    let val   := fieldStx[3]
-    let first ← toFieldLHS fieldStx[0]
-    let rest  ← fieldStx[1].getArgs.toList.mapM toFieldLHS
+    let val   := fieldStx[2]
+    let first ← toFieldLHS fieldStx[0][0]
+    let rest  ← fieldStx[0][1].getArgs.toList.mapM toFieldLHS
     pure { ref := fieldStx, lhs := first :: rest, val := FieldVal.term val : Field Struct }
   pure ⟨stx, structName, fields, source⟩
 

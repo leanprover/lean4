@@ -69,7 +69,7 @@ def sufficesDecl := optIdent >> termParser >> (fromTerm <|> byTactic)
 @[builtinTermParser] def «suffices» := parser!:leadPrec withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
 @[builtinTermParser] def «show»     := parser!:leadPrec "show " >> termParser >> (fromTerm <|> byTactic)
 def structInstArrayRef := parser! "[" >> termParser >>"]"
-def structInstLVal   := (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
+def structInstLVal   := parser! (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
 def structInstField  := ppGroup $ parser! structInstLVal >> " := " >> termParser
 @[builtinTermParser] def structInst := parser! "{" >> ppHardSpace >> optional (atomic (termParser >> " with "))
   >> manyIndent (group (structInstField >> optional ", "))

@@ -1,4 +1,4 @@
-
+--
 
 #check `foo
 #check `foo.bla
@@ -7,8 +7,8 @@
 #check `«foo bla».boo.«hello world»
 #check `foo.«hello»
 
-macro dummy1 : term => `(`hello)
-macro dummy2 : term => `(`hello.«world !!!»)
+macro "dummy1" : term => `(`hello)
+macro "dummy2" : term => `(`hello.«world !!!»)
 
 #check dummy1
 #check dummy2

@@ -1,6 +1,4 @@
-
-
-macro ext_tactic t:tactic "=>" newT:tactic : command => `(macro_rules | `($t) => `($newT))
+macro "ext_tactic" t:tactic "=>" newT:tactic : command => `(macro_rules | `($t) => `($newT))
 
 syntax "trivial" : tactic
 

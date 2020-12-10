@@ -1,0 +1,4 @@
+weirdmacro.lean:1:6: error: expected no space before ':' or string literal
+weirdmacro.lean:1:30: error: elaboration function for 'antiquot' has not been implemented
+weirdmacro.lean:1:32: error: expected term
+weirdmacro.lean:3:7: error: unknown identifier 'term'

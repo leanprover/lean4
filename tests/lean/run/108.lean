@@ -1,6 +1,4 @@
-
-
-macro m n:ident : command => `(def $n := 1)
+macro "m" n:ident : command => `(def $n := 1)
 
 m foo
 

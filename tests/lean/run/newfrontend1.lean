@@ -63,9 +63,9 @@ by {
   assumption
 }
 
-macro intro3 : tactic => `(intro; intro; intro)
-macro check2 x:term : command => `(#check $x #check $x)
-macro foo x:term "," y:term : term => `($x + $y + $x)
+macro "intro3" : tactic => `(intro; intro; intro)
+macro "check2" x:term : command => `(#check $x #check $x)
+macro "foo" x:term "," y:term : term => `($x + $y + $x)
 
 set_option pp.all false
 

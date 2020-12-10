@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Std.ShareCommon
+import Lean.Parser.Command
 import Lean.Util.CollectLevelParams
 import Lean.Util.FoldConsts
 import Lean.Elab.CollectFVars
@@ -68,12 +69,12 @@ namespace MkInstanceName
 -- Table for `mkInstanceName`
 private def kindReplacements : NameMap String :=
   Std.RBMap.ofList [
-    (`Lean.Parser.Term.depArrow, "DepArrow"),
-    (`Lean.Parser.Term.«forall», "Forall"),
-    (`Lean.Parser.Term.arrow, "Arrow"),
-    (`Lean.Parser.Term.prop,  "Prop"),
-    (`Lean.Parser.Term.sort,  "Sort"),
-    (`Lean.Parser.Term.type,  "Type")
+    (``Parser.Term.depArrow, "DepArrow"),
+    (``Parser.Term.«forall», "Forall"),
+    (``Parser.Term.arrow, "Arrow"),
+    (``Parser.Term.prop,  "Prop"),
+    (``Parser.Term.sort,  "Sort"),
+    (``Parser.Term.type,  "Type")
   ]
 
 abbrev M := StateRefT String CommandElabM
@@ -128,7 +129,7 @@ def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
     | some val => pure val
     | none     =>
       let val ← `(arbitrary)
-      pure $ Syntax.node `Lean.Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
+      pure $ Syntax.node ``Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
   return {
     ref := stx, kind := DefKind.opaque, modifiers := modifiers,
     declId := stx.getArg 1, binders := binders, type? := some type, value := val
@@ -143,7 +144,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
     | some declId => pure declId
     | none        =>
       let id ← MkInstanceName.main type
-      pure <| Syntax.node `Lean.Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
+      pure <| Syntax.node ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
   return {
     ref := stx, kind := DefKind.def, modifiers := modifiers,
     declId := declId, binders := binders, type? := type, value := stx[4]
@@ -153,32 +154,32 @@ def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- parser! "example " >> declSig >> declVal
   let (binders, type) := expandDeclSig (stx.getArg 1)
   let id              := mkIdentFrom stx `_example
-  let declId          := Syntax.node `Lean.Parser.Command.declId #[id, mkNullNode]
+  let declId          := Syntax.node ``Parser.Command.declId #[id, mkNullNode]
   { ref := stx, kind := DefKind.example, modifiers := modifiers,
     declId := declId, binders := binders, type? := some type, value := stx.getArg 2 }
 
 def isDefLike (stx : Syntax) : Bool :=
   let declKind := stx.getKind
-  declKind == `Lean.Parser.Command.«abbrev» ||
-  declKind == `Lean.Parser.Command.«def» ||
-  declKind == `Lean.Parser.Command.«theorem» ||
-  declKind == `Lean.Parser.Command.«constant» ||
-  declKind == `Lean.Parser.Command.«instance» ||
-  declKind == `Lean.Parser.Command.«example»
+  declKind == ``Parser.Command.«abbrev» ||
+  declKind == ``Parser.Command.«def» ||
+  declKind == ``Parser.Command.«theorem» ||
+  declKind == ``Parser.Command.«constant» ||
+  declKind == ``Parser.Command.«instance» ||
+  declKind == ``Parser.Command.«example»
 
 def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView :=
   let declKind := stx.getKind
-  if declKind == `Lean.Parser.Command.«abbrev» then
+  if declKind == ``Parser.Command.«abbrev» then
     pure $ mkDefViewOfAbbrev modifiers stx
-  else if declKind == `Lean.Parser.Command.«def» then
+  else if declKind == ``Parser.Command.«def» then
     pure $ mkDefViewOfDef modifiers stx
-  else if declKind == `Lean.Parser.Command.«theorem» then
+  else if declKind == ``Parser.Command.«theorem» then
     pure $ mkDefViewOfTheorem modifiers stx
-  else if declKind == `Lean.Parser.Command.«constant» then
+  else if declKind == ``Parser.Command.«constant» then
     mkDefViewOfConstant modifiers stx
-  else if declKind == `Lean.Parser.Command.«instance» then
+  else if declKind == ``Parser.Command.«instance» then
     mkDefViewOfInstance modifiers stx
-  else if declKind == `Lean.Parser.Command.«example» then
+  else if declKind == ``Parser.Command.«example» then
     pure $ mkDefViewOfExample modifiers stx
   else
     throwError "unexpected kind of definition"

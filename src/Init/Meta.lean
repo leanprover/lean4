@@ -601,27 +601,27 @@ instance : Quote Nat := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[quote s.toString]⟩
 
 private def quoteName : Name → Syntax
-  | Name.anonymous => mkCIdent `Lean.Name.anonymous
-  | Name.str n s _ => Syntax.mkCApp `Lean.Name.mkStr #[quoteName n, quote s]
-  | Name.num n i _ => Syntax.mkCApp `Lean.Name.mkNum #[quoteName n, quote i]
+  | Name.anonymous => mkCIdent ``Name.anonymous
+  | Name.str n s _ => Syntax.mkCApp ``Name.mkStr #[quoteName n, quote s]
+  | Name.num n i _ => Syntax.mkCApp ``Name.mkNum #[quoteName n, quote i]
 
 instance : Quote Name := ⟨quoteName⟩
 
 instance {α β : Type} [Quote α] [Quote β] : Quote (α × β) :=
-  ⟨fun ⟨a, b⟩ => Syntax.mkCApp `Prod.mk #[quote a, quote b]⟩
+  ⟨fun ⟨a, b⟩ => Syntax.mkCApp ``Prod.mk #[quote a, quote b]⟩
 
 private def quoteList {α : Type} [Quote α] : List α → Syntax
-  | []      => mkCIdent `List.nil
-  | (x::xs) => Syntax.mkCApp `List.cons #[quote x, quoteList xs]
+  | []      => mkCIdent ``List.nil
+  | (x::xs) => Syntax.mkCApp ``List.cons #[quote x, quoteList xs]
 
 instance {α : Type} [Quote α] : Quote (List α) := ⟨quoteList⟩
 
 instance {α : Type} [Quote α] : Quote (Array α) :=
-  ⟨fun xs => Syntax.mkCApp `List.toArray #[quote xs.toList]⟩
+  ⟨fun xs => Syntax.mkCApp ``List.toArray #[quote xs.toList]⟩
 
 private def quoteOption {α : Type} [Quote α] : Option α → Syntax
-  | none     => mkIdent `Option.none
-  | (some x) => Syntax.mkCApp `Option.some #[quote x]
+  | none     => mkIdent ``none
+  | (some x) => Syntax.mkCApp ``some #[quote x]
 
 instance Option.hasQuote {α : Type} [Quote α] : Quote (Option α) := ⟨quoteOption⟩
 

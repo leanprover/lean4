@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Parser.Term
 import Lean.Elab.Match
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.Induction
@@ -17,11 +18,11 @@ private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : Sta
   let matchAlts := matchTac[4]
   let alts      := matchAlts[1].getArgs
   let newAlts ← alts.mapSepElemsM fun alt => do
-    let alt    := alt.setKind `Lean.Parser.Term.matchAlt
+    let alt    := alt.setKind ``Parser.Term.matchAlt
     let holeOrTacticSeq := alt[2]
-    if holeOrTacticSeq.isOfKind `Lean.Parser.Term.syntheticHole then
+    if holeOrTacticSeq.isOfKind ``Parser.Term.syntheticHole then
       pure alt
-    else if holeOrTacticSeq.isOfKind `Lean.Parser.Term.hole then
+    else if holeOrTacticSeq.isOfKind ``Parser.Term.hole then
       let s ← get
       let tag := if alts.size > 1 then parentTag ++ (`match).appendIndexAfter s.nextIdx else parentTag
       let holeName := mkIdentFrom holeOrTacticSeq tag
@@ -34,7 +35,7 @@ private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : Sta
       let newCase ← `(tactic| case $newHoleId => $holeOrTacticSeq:tacticSeq )
       modify fun s => { s with cases := s.cases.push newCase }
       pure $ alt.setArg 2 newHole
-  let result  := matchTac.setKind `Lean.Parser.Term.«match»
+  let result  := matchTac.setKind ``Parser.Term.«match»
   let result  := result.setArg 4 (matchAlts.setArg 1 (mkNullNode newAlts))
   pure result
 

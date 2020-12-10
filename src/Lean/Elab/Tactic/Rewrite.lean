@@ -14,12 +14,12 @@ open Meta
 @[builtinMacro Lean.Parser.Tactic.rewriteSeq] def expandRewriteTactic : Macro := fun stx =>
   let seq := stx[1][1].getSepArgs
   let loc := stx[2]
-  return mkNullNode <| seq.map fun rwRule => Syntax.node `Lean.Parser.Tactic.rewrite #[mkAtomFrom rwRule "rewrite ", rwRule, loc]
+  return mkNullNode <| seq.map fun rwRule => Syntax.node ``Parser.Tactic.rewrite #[mkAtomFrom rwRule "rewrite ", rwRule, loc]
 
 @[builtinMacro Lean.Parser.Tactic.erewriteSeq] def expandERewriteTactic : Macro := fun stx =>
   let seq := stx[1][1].getSepArgs
   let loc := stx[2]
-  return mkNullNode <| seq.map fun rwRule => Syntax.node `Lean.Parser.Tactic.erewrite #[mkAtomFrom rwRule "erewrite ", rwRule, loc]
+  return mkNullNode <| seq.map fun rwRule => Syntax.node ``Parser.Tactic.erewrite #[mkAtomFrom rwRule "erewrite ", rwRule, loc]
 
 def rewriteTarget (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : TacticM Unit := do
   let (g, gs) ← getMainGoal

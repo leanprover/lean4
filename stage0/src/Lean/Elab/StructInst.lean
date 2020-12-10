@@ -18,7 +18,7 @@ open Meta
 
       "{" >> optional (atomic (termParser >> " with "))
           >> manyIndent (group (structInstField >> optional ", "))
-          >> optional ".."
+          >> optEllipsis
           >> optional (" : " >> termParser)
           >> " }"
 -/
@@ -72,11 +72,11 @@ private def getStructSource (stx : Syntax) : TermElabM Source :=
   withRef stx do
     let explicitSource := stx[1]
     let implicitSource := stx[3]
-    if explicitSource.isNone && implicitSource.isNone then
+    if explicitSource.isNone && implicitSource[0].isNone then
       return Source.none
     else if explicitSource.isNone then
       return Source.implicit implicitSource
-    else if implicitSource.isNone then
+    else if implicitSource[0].isNone then
       let fvar? ← isLocalIdent? explicitSource[0]
       match fvar? with
       | none      => unreachable! -- expandNonAtomicExplicitSource must have been used when we get here

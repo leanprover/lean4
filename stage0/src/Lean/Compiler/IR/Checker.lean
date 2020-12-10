@@ -82,8 +82,6 @@ def checkScalarVar (x : VarId) : M Unit :=
   checkVarType x IRType.isScalar
 
 def checkFullApp (c : FunId) (ys : Array Arg) : M Unit := do
-  if c == `hugeFuel then
-    throw "the auxiliary constant `hugeFuel` cannot be used in code, it is used internally for compiling `partial` definitions"
   let decl ← getDecl c
   unless ys.size == decl.params.size do
     throw s!"incorrect number of arguments to '{c}', {ys.size} provided, {decl.params.size} expected"

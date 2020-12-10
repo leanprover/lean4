@@ -71,9 +71,10 @@ def sufficesDecl := optIdent >> termParser >> (fromTerm <|> byTactic)
 def structInstArrayRef := parser! "[" >> termParser >>"]"
 def structInstLVal   := parser! (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
 def structInstField  := ppGroup $ parser! structInstLVal >> " := " >> termParser
+def optEllipsis      := parser! optional ".."
 @[builtinTermParser] def structInst := parser! "{" >> ppHardSpace >> optional (atomic (termParser >> " with "))
   >> manyIndent (group (structInstField >> optional ", "))
-  >> optional ".."
+  >> optEllipsis
   >> optional (" : " >> termParser) >> " }"
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec

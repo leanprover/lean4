@@ -175,3 +175,21 @@ def tst9 : MetaM Unit := do
   pure ()
 
 #eval tst9
+
+
+mutual
+inductive Foo (α : Type) where
+  | mk : List (Bla α) → Foo α
+  | leaf : α → Foo α
+inductive Bla (α : Type) where
+  | nil : Bla α
+  | cons : Foo α → Bla α → Bla α
+end
+
+def tst10 : MetaM Unit := do
+  assert! !(← getConstInfoInduct `List).isNested
+  assert! (← getConstInfoInduct `Bla).isNested
+  assert! (← getConstInfoInduct `Foo).isNested
+  assert! !(← getConstInfoInduct `Prod).isNested
+
+#eval tst10

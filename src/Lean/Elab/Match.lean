@@ -434,8 +434,8 @@ partial def collect : Syntax → M Syntax
           -- p is of the form (group (structInstField >> optional ", "))
           let field := p[0]
           -- parser! structInstLVal >> " := " >> termParser
-          let newVal ← collect field[3] -- `structInstLVal` has arity 2
-          let field := field.setArg 3 newVal
+          let newVal ← collect field[2]
+          let field := field.setArg 2 newVal
           pure <| field.setArg 0 field
       pure <| Syntax.node k (args.set! 2 <| mkNullNode fields)
     else if k == `Lean.Parser.Term.hole then

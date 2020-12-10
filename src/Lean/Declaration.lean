@@ -184,25 +184,28 @@ structure InductiveVal extends ConstantVal where
   isRec : Bool        -- `true` Iff it is recursive
   isUnsafe : Bool
   isReflexive : Bool
+  isNested : Bool
 
 @[export lean_mk_inductive_val]
 def mkInductiveValEx (name : Name) (lparams : List Name) (type : Expr) (nparams nindices : Nat)
-    (all ctors : List Name) (isRec isUnsafe isReflexive : Bool) : InductiveVal := {
-  name := name,
-  lparams := lparams,
-  type := type,
-  nparams := nparams,
-  nindices := nindices,
-  all := all,
-  ctors := ctors,
-  isRec := isRec,
-  isUnsafe := isUnsafe,
+    (all ctors : List Name) (isRec isUnsafe isReflexive isNested : Bool) : InductiveVal := {
+  name := name
+  lparams := lparams
+  type := type
+  nparams := nparams
+  nindices := nindices
+  all := all
+  ctors := ctors
+  isRec := isRec
+  isUnsafe := isUnsafe
   isReflexive := isReflexive
+  isNested := isNested
 }
 
 @[export lean_inductive_val_is_rec] def InductiveVal.isRecEx (v : InductiveVal) : Bool := v.isRec
 @[export lean_inductive_val_is_unsafe] def InductiveVal.isUnsafeEx (v : InductiveVal) : Bool := v.isUnsafe
 @[export lean_inductive_val_is_reflexive] def InductiveVal.isReflexiveEx (v : InductiveVal) : Bool := v.isReflexive
+@[export lean_inductive_val_is_nested] def InductiveVal.isNestedEx (v : InductiveVal) : Bool := v.isNested
 
 def InductiveVal.nctors (v : InductiveVal) : Nat := v.ctors.length
 

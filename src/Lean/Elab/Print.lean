@@ -9,7 +9,7 @@ import Lean.Elab.Command
 namespace Lean.Elab.Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
-  throwError! "unknown identifier '{id}'"
+  throwError! "unknown identifier '{mkConst id}'"
 
 private def lparamsToMessageData (lparams : List Name) : MessageData :=
   match lparams with

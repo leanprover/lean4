@@ -1,0 +1,3 @@
+unknownId.lean:3:7: error: unknown identifier 'bla✝'
+unknownId.lean:6:2: error: unknown identifier 'bla✝'
+unknownId.lean:11:6: error: unknown identifier 'bla✝'

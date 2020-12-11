@@ -1237,9 +1237,7 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
         if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n then
           throwAutoBoundImplicitLocal n
         else
-          let mainModule ← getMainModule
-          let view := extractMacroScopes n
-          throwError! "unknown identifier '{view.format mainModule}'"
+          throwError! "unknown identifier '{Lean.mkConst n}'"
       mkConsts candidates explicitLevels
     if preresolved.isEmpty then
       process (← resolveGlobalName n)

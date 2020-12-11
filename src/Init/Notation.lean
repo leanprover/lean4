@@ -83,18 +83,6 @@ macro "if" h:ident " : " c:term " then " t:term " else " e:term : term =>
 macro "if" c:term " then " t:term " else " e:term : term =>
   `(ite $c $t $e)
 
-syntax "[" term,* "]"  : term
-
-open Lean in
-macro_rules
-  | `([ $elems* ]) => do
-    let rec expandListLit (i : Nat) (skip : Bool) (result : Syntax) : MacroM Syntax := do
-      match i, skip with
-      | 0,   _     => pure result
-      | i+1, true  => expandListLit i false result
-      | i+1, false => expandListLit i true  (← `(List.cons $(elems[i]) $result))
-    expandListLit elems.size false (← `(List.nil))
-
 syntax:0 term "<|" term:0 : term
 
 macro_rules
@@ -127,7 +115,24 @@ macro_rules
   expected type is known. So, `withoutExpected!` is not effective in this case. -/
 macro "withoutExpectedType! " x:term : term => `(let aux := $x; aux)
 
-namespace Lean.Parser.Tactic
+syntax "[" term,* "]"  : term
+syntax "%[" term,* "|" term "]" : term -- auxiliary notation for creating big list literals
+
+namespace Lean
+
+macro_rules
+  | `([ $elems* ]) => do
+    let rec expandListLit (i : Nat) (skip : Bool) (result : Syntax) : MacroM Syntax := do
+      match i, skip with
+      | 0,   _     => pure result
+      | i+1, true  => expandListLit i false result
+      | i+1, false => expandListLit i true  (← `(List.cons $(elems[i]) $result))
+    if elems.size < 64 then
+      expandListLit elems.size false (← `(List.nil))
+    else
+      `(%[ $elems* | List.nil ])
+
+namespace Parser.Tactic
 
 syntax[intro] "intro " notFollowedBy("|") (colGt term:max)* : tactic
 syntax[intros] "intros " (colGt (ident <|> "_"))* : tactic
@@ -228,4 +233,5 @@ syntax "repeat " tacticSeq : tactic
 macro_rules
   | `(tactic| repeat $seq) => `(tactic| (($seq); repeat $seq) <|> skip)
 
-end Lean.Parser.Tactic
+end Parser.Tactic
+end Lean

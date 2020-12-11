@@ -94,3 +94,15 @@ macro_rules
       `(tactic| apply funext; intro $(xs[0]):term)
     else
       `(tactic| apply funext; intro $(xs[0]):term; funext $(xs[1:])*)
+
+macro_rules
+  | `(%[ $[$x],* | $k ]) =>
+    if x.size < 8 then
+      x.foldrM (init := k) fun x k =>
+        `(List.cons $x $k)
+    else
+      let m := x.size / 2
+      let y := x[m:]
+      let z := x[:m]
+      `(let y := %[ $[$y],* | $k ]
+        %[ $[$z],* | y ])

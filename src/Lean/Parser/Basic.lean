@@ -1673,7 +1673,13 @@ unsafe def parserOfStackFnUnsafe (offset : Nat) : ParserFn := fun ctx s =>
     | Syntax.ident (val := parserName) .. =>
       match ctx.resolveName parserName with
       | [(parserName, [])] => match ctx.env.evalConstCheck Parser {} `Lean.Parser.Parser parserName with
-        | Except.ok p    => p.fn ctx s
+        | Except.ok p    =>
+          let iniSz := s.stackSize
+          let s := p.fn ctx s
+          if !s.hasError && s.stackSize != iniSz + 1 then
+            s.mkUnexpectedError "expected parser to return exactly one syntax object"
+          else
+            s
         | Except.error e => s.mkUnexpectedError s!"error running parser {parserName}: {e}"
       | _::_::_ => s.mkUnexpectedError s!"ambiguous parser name {parserName}"
       | _ => s.mkUnexpectedError s!"unknown parser {parserName}"

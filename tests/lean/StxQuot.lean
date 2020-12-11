@@ -54,3 +54,5 @@ open Parser.Term
   match ← `(structInstField|a := b) with
   | `(Parser.Term.structInstField| $lhs:ident := $rhs) => #[lhs, rhs]
   | _ => unreachable!
+
+#eval run `(sufficesDecl|x from x)

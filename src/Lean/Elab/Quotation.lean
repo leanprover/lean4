@@ -87,15 +87,14 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
     `(Syntax.atom (SourceInfo.mk none none none) $(quote val))
   | Syntax.missing => unreachable!
 
-def stxQuot.expand (stx : Syntax) (quotedOffset := 1) : TermElabM Syntax := do
-  let quoted := stx[quotedOffset]
+def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
   /- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
      the macro scope once for each quotation, then build the syntax tree in a completely pure computation
      depending on this binding. Note that regular function calls do not introduce a new macro scope (i.e.
      we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
      including it literally in a syntax quotation. -/
   -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
-  let stx ← quoteSyntax quoted;
+  let stx ← quoteSyntax stx.getQuotContent;
   `(Bind.bind getCurrMacroScope (fun scp => Bind.bind getMainModule (fun mainModule => Pure.pure $stx)))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
@@ -120,7 +119,7 @@ def stxQuot.expand (stx : Syntax) (quotedOffset := 1) : TermElabM Syntax := do
 @[builtinTermElab Parser.Tactic.quotSeq] def elabTacticQuotSeq : TermElab := adaptExpander stxQuot.expand
 @[builtinTermElab Parser.Term.stx.quot] def elabStxQuot : TermElab := adaptExpander stxQuot.expand
 @[builtinTermElab Parser.Term.doElem.quot] def elabDoElemQuot : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Term.dynamicQuot] def elabDynamicQuot : TermElab := adaptExpander (stxQuot.expand · 3)
+@[builtinTermElab Parser.Term.dynamicQuot] def elabDynamicQuot : TermElab := adaptExpander stxQuot.expand
 
 /- match -/
 
@@ -176,7 +175,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
   else if pat.isOfKind `Lean.Parser.Term.hole then unconditional pure
   -- quotation pattern
   else if isQuot pat then
-    let quoted := pat[1]
+    let quoted := getQuotContent pat
     if quoted.isAtom then
       -- We assume that atoms are uniquely determined by the node kind and never have to be checked
       unconditional pure
@@ -210,7 +209,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
     else
       -- not an antiquotation or escaped antiquotation: match head shape
       let quoted  := unescapeAntiquot quoted
-      let argPats := quoted.getArgs.map (pat.setArg 1);
+      let argPats := quoted.getArgs.map fun arg => Unhygienic.run `(`($(arg)))
       basic { kind := quoted.getKind, argPats := argPats }
   else
     unconditional $ fun _ => throwErrorAt! pat "match_syntax: unexpected pattern kind {pat}"

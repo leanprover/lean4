@@ -1,18 +1,18 @@
 import Lean
 
-namespace Lean
+open Lean
 open Lean.Elab
 
 def run {α} [ToString α] : Unhygienic α → String := toString ∘ Unhygienic.run
 
 #eval run `(Nat.one)
 #eval run `($Syntax.missing)
-namespace Syntax
+namespace Lean.Syntax
 #eval run `($missing)
 #eval run `($(missing))
 #eval run `($(id Syntax.missing) + 1)
 #eval run $ let id := Syntax.missing; `($id + 1)
-end Syntax
+end Lean.Syntax
 #eval run `(1 + 1)
 #eval run $ `(fun a => a) >>= pure
 #eval run $ `(def foo := 1)
@@ -48,4 +48,9 @@ def f (stx : Syntax) : Unhygienic Syntax := match stx with
   match ← `(match a with a => b | a + 1 => b + 1) with
   | `(match a with $[$pats => $rhss]|*) => `(match a with $[$pats => $rhss]|*)
   | _ => unreachable!
-end Lean
+
+open Parser.Term
+#eval run do
+  match ← `(structInstField|a := b) with
+  | `(Parser.Term.structInstField| $lhs:ident := $rhs) => #[lhs, rhs]
+  | _ => unreachable!

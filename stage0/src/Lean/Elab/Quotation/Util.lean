@@ -22,11 +22,12 @@ partial def getAntiquotationIds : Syntax → TermElabM (Array Syntax) :=
 
 -- Get all pattern vars (as `Syntax.ident`s) in `stx`
 partial def getPatternVars (stx : Syntax) : TermElabM (Array Syntax) :=
-  match stx with
-  | `(`($quoted)) => getAntiquotationIds quoted
-  | `($id:ident)  => #[id]
-  | `(_)          => #[]
-  | _             => throwErrorAt stx "unsupported pattern in syntax match"
+  if stx.isQuot then
+    getAntiquotationIds stx
+  else if stx.isIdent then
+    #[stx]
+  else
+    throwErrorAt stx "unsupported pattern in syntax match"
 
 partial def getPatternsVars (pats : Array Syntax) : TermElabM (Array Syntax) :=
   pats.foldlM (fun vars pat => do return vars ++ (← getPatternVars pat)) #[]

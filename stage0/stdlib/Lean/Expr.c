@@ -388,6 +388,7 @@ lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Literal_hash_match__1(lean_object*);
 lean_object* l_Lean_Expr_getArg_x21___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingDomain_x21___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11918____closed__14;
 lean_object* l_Lean_Expr_isConst_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_BinderInfo_isInstImplicit_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParams___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -494,7 +495,6 @@ lean_object* l_Lean_Expr_instantiateRevRange___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_Expr_hasLooseBVarInExplicitDomain_match__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instInhabitedExpr;
 uint8_t l_Lean_instInhabitedBinderInfo;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12176____closed__14;
 lean_object* l_Lean_Expr_updateLambda_x21___closed__1;
 lean_object* l_Lean_mkAppN___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingInfo_x21_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5538,7 +5538,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_12176____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_11918____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

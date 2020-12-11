@@ -684,7 +684,6 @@ lean_object* l_Lean_Parser_Command_optKindPrio_formatter___closed__3;
 lean_object* l_Lean_Parser_Command_parserKind___closed__3;
 lean_object* l_Lean_Parser_Command_optPrio_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_mixfix_formatter___closed__2;
-extern lean_object* l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__13;
 lean_object* l_Lean_Parser_Term_stx_quot___elambda__1___closed__12;
 lean_object* l_Lean_Parser_Command_elab_formatter___closed__11;
 lean_object* l_Lean_Parser_Syntax_binary_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1313,6 +1312,7 @@ lean_object* l_Lean_Parser_Command_elab_formatter___closed__12;
 lean_object* l_Lean_Parser_Syntax_sepBy1___elambda__1___closed__4;
 extern lean_object* l_Lean_Parser_Tactic_quotSeq___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Command_notation___elambda__1___closed__5;
+extern lean_object* l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__11;
 lean_object* l_Lean_Parser_Command_macroArg_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_Command_elabTail___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_optKind___closed__5;
@@ -12589,7 +12589,7 @@ static lean_object* _init_l_Lean_Parser_Command_macroTailTactic___elambda__1___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__13;
+x_1 = l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__11;
 x_2 = l_Lean_Parser_Tactic_quotSeq___elambda__1___closed__6;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -12767,7 +12767,7 @@ static lean_object* _init_l_Lean_Parser_Command_macroTailCommand___elambda__1___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__13;
+x_1 = l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__11;
 x_2 = l_Lean_Parser_Command_macroTailCommand___elambda__1___closed__4;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -12935,7 +12935,7 @@ static lean_object* _init_l_Lean_Parser_Command_macroTailDefault___elambda__1___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__13;
+x_1 = l_Lean_Parser_Term_dynamicQuot___elambda__1___closed__11;
 x_2 = l_Lean_Parser_Command_macroTailDefault___elambda__1___closed__3;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);

@@ -54,6 +54,7 @@ lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__1(lean_object*, le
 lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_termPrintln_x21_______closed__5;
 lean_object* l_Lean_instMonadRecDepthMonadCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_intro___closed__12;
 lean_object* l_Lean_Exception_toMessageData_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withIncRecDepth___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_663____closed__5;
@@ -120,7 +121,6 @@ lean_object* l_Lean_termThrowError_x21_______closed__4;
 lean_object* l_Lean_termThrowErrorAt_x21_________closed__2;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_termThrowError_x21_______closed__3;
-extern lean_object* l_Lean_Parser_Tactic_intro___closed__14;
 lean_object* l_Lean_ofExcept(lean_object*);
 lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -967,7 +967,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_stx___x3c_x7c_x3e_____closed__4;
 x_2 = l_Lean_termThrowErrorAt_x21_________closed__4;
-x_3 = l_Lean_Parser_Tactic_intro___closed__14;
+x_3 = l_Lean_Parser_Tactic_intro___closed__12;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);

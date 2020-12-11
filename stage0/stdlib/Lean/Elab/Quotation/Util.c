@@ -13,14 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t l_Lean_Syntax_isQuot(lean_object*);
 size_t l_USize_add(size_t, size_t);
-extern lean_object* l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__3;
-extern lean_object* l_Lean_identKind___closed__2;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -38,22 +36,17 @@ lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_Term_0__Lean_Elab_Term
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Quotation_getAntiquotationIds_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1625____closed__2;
 size_t lean_usize_of_nat(lean_object*);
 uint8_t l_Lean_Syntax_isAntiquot(lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__4;
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go___closed__1;
 lean_object* l_Lean_Elab_Term_Quotation_getPatternsVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12176____closed__13;
-uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go___closed__2;
 uint8_t l_Lean_Syntax_isEscapedAntiquot(lean_object*);
-lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
@@ -346,19 +339,19 @@ return x_9;
 static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_1625____closed__2;
-x_2 = l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string("unsupported pattern in syntax match");
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("unsupported pattern in syntax match");
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_Term_Quotation_getPatternVars___closed__1;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__3() {
@@ -366,16 +359,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Term_Quotation_getPatternVars___closed__2;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Term_Quotation_getPatternVars___closed__3;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -384,65 +367,39 @@ return x_2;
 lean_object* l_Lean_Elab_Term_Quotation_getPatternVars(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_9; uint8_t x_10; 
-x_9 = l_Lean_Elab_Term_Quotation_getPatternVars___closed__1;
-lean_inc(x_1);
-x_10 = l_Lean_Syntax_isOfKind(x_1, x_9);
+uint8_t x_9; 
+x_9 = l_Lean_Syntax_isQuot(x_1);
+if (x_9 == 0)
+{
+uint8_t x_10; 
+x_10 = l_Lean_Syntax_isIdent(x_1);
 if (x_10 == 0)
 {
-lean_object* x_11; uint8_t x_12; 
-x_11 = l_Lean_identKind___closed__2;
-lean_inc(x_1);
-x_12 = l_Lean_Syntax_isOfKind(x_1, x_11);
-if (x_12 == 0)
+lean_object* x_11; lean_object* x_12; 
+x_11 = l_Lean_Elab_Term_Quotation_getPatternVars___closed__3;
+x_12 = l_Lean_throwErrorAt___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__1___rarg(x_1, x_11, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_1);
+return x_12;
+}
+else
 {
-lean_object* x_13; uint8_t x_14; 
-x_13 = l_myMacro____x40_Init_Notation___hyg_12176____closed__13;
-lean_inc(x_1);
-x_14 = l_Lean_Syntax_isOfKind(x_1, x_13);
-if (x_14 == 0)
+lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_dec(x_6);
+lean_dec(x_2);
+x_13 = l_Lean_mkOptionalNode___closed__2;
+x_14 = lean_array_push(x_13, x_1);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_8);
+return x_15;
+}
+}
+else
 {
-lean_object* x_15; lean_object* x_16; 
-x_15 = l_Lean_Elab_Term_Quotation_getPatternVars___closed__4;
-x_16 = l_Lean_throwErrorAt___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__1___rarg(x_1, x_15, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_object* x_16; 
+x_16 = l_Lean_Elab_Term_Quotation_getAntiquotationIds(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_1);
 return x_16;
-}
-else
-{
-lean_object* x_17; lean_object* x_18; 
-lean_dec(x_6);
-lean_dec(x_2);
-lean_dec(x_1);
-x_17 = l_Array_empty___closed__1;
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_8);
-return x_18;
-}
-}
-else
-{
-lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_dec(x_6);
-lean_dec(x_2);
-x_19 = l_Lean_mkOptionalNode___closed__2;
-x_20 = lean_array_push(x_19, x_1);
-x_21 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_8);
-return x_21;
-}
-}
-else
-{
-lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = lean_unsigned_to_nat(1u);
-x_23 = l_Lean_Syntax_getArg(x_1, x_22);
-lean_dec(x_1);
-x_24 = l_Lean_Elab_Term_Quotation_getAntiquotationIds(x_23, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_23);
-return x_24;
 }
 }
 }
@@ -628,8 +585,6 @@ l_Lean_Elab_Term_Quotation_getPatternVars___closed__2 = _init_l_Lean_Elab_Term_Q
 lean_mark_persistent(l_Lean_Elab_Term_Quotation_getPatternVars___closed__2);
 l_Lean_Elab_Term_Quotation_getPatternVars___closed__3 = _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__3();
 lean_mark_persistent(l_Lean_Elab_Term_Quotation_getPatternVars___closed__3);
-l_Lean_Elab_Term_Quotation_getPatternVars___closed__4 = _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__4();
-lean_mark_persistent(l_Lean_Elab_Term_Quotation_getPatternVars___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

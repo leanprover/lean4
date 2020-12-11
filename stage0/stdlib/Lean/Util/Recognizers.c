@@ -84,9 +84,9 @@ extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Expr_isHEq___boxed(lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11316____closed__5;
 lean_object* l___private_Lean_Util_Recognizers_0__Lean_Expr_getConstructorVal_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5449____closed__4;
+extern lean_object* l_Lean_myMacro____x40_Init_Notation___hyg_12778____closed__8;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_5961____closed__4;
 lean_object* l_Lean_Expr_listLit_x3f_loop(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_arrow_x3f_match__1(lean_object*);
@@ -513,7 +513,7 @@ lean_object* l_Lean_Expr_listLit_x3f_loop(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_myMacro____x40_Init_Notation___hyg_11316____closed__5;
+x_3 = l_Lean_myMacro____x40_Init_Notation___hyg_12778____closed__8;
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = l_Lean_Expr_isAppOfArity(x_1, x_3, x_4);
 if (x_5 == 0)

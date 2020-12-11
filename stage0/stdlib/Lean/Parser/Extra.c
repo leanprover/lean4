@@ -488,6 +488,7 @@ lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_nameLit___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_646____closed__27;
 lean_object* l_Lean_Parser_rawIdent___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11918____closed__9;
 lean_object* l_Lean_Parser_scientificLit_formatter___closed__2;
 lean_object* l_Lean_ppLine_formatter___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_charLitNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -543,7 +544,6 @@ lean_object* l_Lean_PrettyPrinter_Formatter_group(lean_object*, lean_object*, le
 lean_object* l_Lean_Parser_identFn(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_nameLit_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12176____closed__9;
 lean_object* l_Lean_Parser_scientificLit_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_myMacro____x40_Lean_Parser_Extra___hyg_277____closed__36;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_646____closed__2;
@@ -858,7 +858,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot_formatter___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12176____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_11918____closed__9;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

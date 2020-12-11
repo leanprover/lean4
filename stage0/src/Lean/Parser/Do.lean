@@ -23,6 +23,14 @@ def doSeqIndent    := parser! many1Indent doSeqItem
 def doSeqBracketed := parser! "{" >> withoutPosition (many1 doSeqItem) >> ppLine >> "}"
 def doSeq          := doSeqBracketed <|> doSeqIndent
 
+def termBeforeDo := withForbidden "do" termParser
+
+attribute [runBuiltinParserAttributeHooks] doSeq termBeforeDo
+
+builtin_initialize
+  registerParserAlias! "doSeq" doSeq
+  registerParserAlias! "termBeforeDo" termBeforeDo
+
 def notFollowedByRedefinedTermToken :=
   notFollowedBy ("if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbgTrace!" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try") "token at 'do' element"
 

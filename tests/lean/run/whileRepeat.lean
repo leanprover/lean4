@@ -8,24 +8,16 @@ partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (loop : L
       | ForInStep.yield b => loop b
   loop init
 
-syntax "while " termBeforeDo "do" doSeq : doElem
-syntax "repeat " doSeq "until" term : doElem
+syntax "repeat " doSeq : doElem
+
+macro_rules
+  | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
+
+syntax "while " termBeforeDo " do " doSeq : doElem
 
 macro_rules
   | `(doElem| while $cond do $seq) =>
-    `(doElem|
-      for _ in Loop.mk do
-        if $cond then
-          $seq
-        else
-          break)
-
-macro_rules
-  | `(doElem| repeat $seq until $cond) =>
-    `(doElem|
-      for i in Loop.mk do
-        do $seq
-        if $cond then break)
+    `(doElem| repeat if $cond then $seq else break)
 
 def test1 : IO Unit := do
   let mut i := 0
@@ -36,6 +28,12 @@ def test1 : IO Unit := do
 
 #eval test1
 
+syntax "repeat " doSeq " until " term : doElem
+
+macro_rules
+  | `(doElem| repeat $seq until $cond) =>
+    `(doElem| repeat do $seq; if $cond then break)
+
 def test2 : IO Unit := do
   let mut i := 0
   repeat
@@ -45,3 +43,13 @@ def test2 : IO Unit := do
   println! "test2 done {i}"
 
 #eval test2
+
+def test3 : IO Unit := do
+  let mut i := 0
+  repeat
+    println! "{i}"
+    if i > 10 && i % 3 == 0 then break
+    i := i + 1
+  println! "test3 done {i}"
+
+#eval test3

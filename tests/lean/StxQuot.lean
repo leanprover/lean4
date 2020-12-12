@@ -45,9 +45,20 @@ def f (stx : Syntax) : Unhygienic Syntax := match stx with
 #eval run do f (← `({ a := a : a }))
 #eval run do f (← `({ a := a }))
 
+def f' (stx : Syntax) : Unhygienic Syntax := match stx with
+  | `(section $(id?)?) => `(section $(id?)?)
+  | _ => unreachable!
+#eval run do f' (← `(section))
+#eval run do f' (← `(section foo))
+
 #eval run do
   match ← `(match a with a => b | a + 1 => b + 1) with
   | `(match a with $[$pats => $rhss]|*) => `(match a with $[$pats => $rhss]|*)
+  | _ => unreachable!
+
+#eval run do
+  match ← `(match a with a => b | a + 1 => b + 1) with
+  | `(match a with $alts:matchAlt|*) => `(match a with $alts:matchAlt|*)
   | _ => unreachable!
 
 open Parser.Term

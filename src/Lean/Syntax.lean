@@ -391,8 +391,7 @@ def antiquotKind? : Syntax → Option SyntaxNodeKind
       some Name.anonymous
   | _                                          => none
 
--- An "antiquotation scope" is something like `$[...]?` or `$[...]*`. Note that the latter could be of kind `many` or
--- `sepBy`, which have different implementations.
+-- An "antiquotation scope" is something like `$[...]?` or `$[...]*`.
 def antiquotScopeKind? : Syntax → Option SyntaxNodeKind
   | Syntax.node (Name.str k "antiquot_scope" _) args => some k
   | _                                                => none
@@ -405,6 +404,22 @@ def getAntiquotScopeContents (stx : Syntax) : Array Syntax :=
 
 def getAntiquotScopeSuffix (stx : Syntax) : Syntax :=
   stx[5]
+
+-- `$x,*` etc.
+def antiquotSuffixSplice? : Syntax → Option SyntaxNodeKind
+  | Syntax.node (Name.str k "antiquot_suffix_splice" _) args => some k
+  | _                                                        => none
+
+def isAntiquotSuffixSplice (stx : Syntax) : Bool :=
+  antiquotSuffixSplice? stx |>.isSome
+
+-- `$x` in the example above
+def getAntiquotSuffixSpliceInner (stx : Syntax) : Syntax :=
+  stx[0]
+
+-- `",*"` in the example above
+def getAntiquotSuffixSpliceSuffix (stx : Syntax) : Syntax :=
+  stx[1]
 
 -- If any item of a `many` node is an antiquotation splice, its result should
 -- be substituted into the `many` node's children

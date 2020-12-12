@@ -29,6 +29,9 @@
 "#[]"
 "(Term.structInst\n \"{\"\n []\n [[(Term.structInstField (Term.structInstLVal `a._@.UnhygienicMain._hyg.1 []) \":=\" `a._@.UnhygienicMain._hyg.1) []]]\n (Term.optEllipsis [])\n [\":\" `a._@.UnhygienicMain._hyg.1]\n \"}\")"
 "(Term.structInst\n \"{\"\n []\n [[(Term.structInstField (Term.structInstLVal `a._@.UnhygienicMain._hyg.1 []) \":=\" `a._@.UnhygienicMain._hyg.1) []]]\n (Term.optEllipsis [])\n []\n \"}\")"
+"(Command.section \"section\" [])"
+"(Command.section \"section\" [`foo._@.UnhygienicMain._hyg.1])"
+"(Term.match\n \"match\"\n [(Term.matchDiscr [] `a._@.UnhygienicMain._hyg.1)]\n []\n \"with\"\n (Term.matchAlts\n  []\n  [(Term.matchAlt [`a._@.UnhygienicMain._hyg.1] \"=>\" `b._@.UnhygienicMain._hyg.1)\n   \"|\"\n   (Term.matchAlt\n    [(term_+_ `a._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\"))]\n    \"=>\"\n    (term_+_ `b._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\")))]))"
 "(Term.match\n \"match\"\n [(Term.matchDiscr [] `a._@.UnhygienicMain._hyg.1)]\n []\n \"with\"\n (Term.matchAlts\n  []\n  [(Term.matchAlt [`a._@.UnhygienicMain._hyg.1] \"=>\" `b._@.UnhygienicMain._hyg.1)\n   \"|\"\n   (Term.matchAlt\n    [(term_+_ `a._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\"))]\n    \"=>\"\n    (term_+_ `b._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\")))]))"
 "#[`a._@.UnhygienicMain._hyg.1, `b._@.UnhygienicMain._hyg.1]"
-StxQuot.lean:59:33: error: expected parser to return exactly one syntax object
+StxQuot.lean:70:33: error: expected parser to return exactly one syntax object

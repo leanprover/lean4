@@ -395,8 +395,12 @@ def isAntiquotScope (stx : Syntax) : Bool :=
 def getAntiquotScopeContents (stx : Syntax) : Array Syntax :=
   stx[3].getArgs
 
-def getAntiquotScopeSuffix (stx : Syntax) : Syntax :=
-  stx[5]
+-- `$[..],*` or `$x,*` ~> `,*`
+def getAntiquotSpliceSuffix (stx : Syntax) : Syntax :=
+  if stx.isAntiquotScope then
+    stx[5]
+  else
+    stx[1]
 
 -- `$x,*` etc.
 def antiquotSuffixSplice? : Syntax → Option SyntaxNodeKind
@@ -409,10 +413,6 @@ def isAntiquotSuffixSplice (stx : Syntax) : Bool :=
 -- `$x` in the example above
 def getAntiquotSuffixSpliceInner (stx : Syntax) : Syntax :=
   stx[0]
-
--- `",*"` in the example above
-def getAntiquotSuffixSpliceSuffix (stx : Syntax) : Syntax :=
-  stx[1]
 
 end Syntax
 end Lean

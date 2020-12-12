@@ -29,6 +29,10 @@ private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermEl
     Syntax.node k (← args.mapM floatOutAntiquotTerms)
   | stx => pure stx
 
+private def getSepFromSplice (splice : Syntax) : Syntax := do
+  let Syntax.atom _ sep ← getAntiquotSpliceSuffix splice | unreachable!
+  Syntax.mkStrLit (sep.dropRight 1)
+
 -- Elaborate the content of a syntax quotation term
 private partial def quoteSyntax : Syntax → TermElabM Syntax
   | Syntax.ident info rawVal val preresolved => do
@@ -52,7 +56,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
       let empty ← `(Array.empty);
       -- if escaped antiquotation, decrement by one escape level
       let stx := unescapeAntiquot stx
-      let args ← stx.getArgs.foldlM (fun args arg =>
+      let args ← stx.getArgs.foldlM (fun args arg => do
         if k == nullKind && isAntiquotSuffixSplice arg then
           let antiquot := getAntiquotSuffixSpliceInner arg
           match antiquotSuffixSplice? arg with
@@ -60,12 +64,9 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
             | some x => Array.empty.push x
             | none   => Array.empty))
           | `many     => `(Array.appendCore $args $(getAntiquotTerm antiquot))
-          | `sepBy    => do
-            let Syntax.atom _ sep ← getAntiquotSuffixSpliceSuffix arg | unreachable!
-            let sep := Syntax.mkStrLit (sep.dropRight 1)
-            `(Array.appendCore $args (mkSepArray $(getAntiquotTerm antiquot) (mkAtom $sep)))
+          | `sepBy    => `(Array.appendCore $args (@SepArray.elemsAndSeps $(getSepFromSplice arg) $(getAntiquotTerm antiquot)))
           | k         => throwErrorAt! arg "invalid antiquotation suffix splice kind '{k}'"
-        else if k == nullKind && isAntiquotScope arg then do
+        else if k == nullKind && isAntiquotScope arg then
           let k := antiquotScopeKind? arg
           let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
           let inner ← (getAntiquotScopeContents arg).mapM quoteSyntax
@@ -84,8 +85,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
             | _ => throwErrorAt stx "too many antiquotations in antiquotation scope; don't be greedy"
           let arr ←
             if k == `sepBy then
-              let Syntax.atom _ sep ← getAntiquotScopeSuffix arg | unreachable!
-              `(mkSepArray $arr (mkAtom $(Syntax.mkStrLit (sep.dropRight 1))))
+              `(mkSepArray $arr (mkAtom $(getSepFromSplice arg)))
             else arr
           let arr ← bindLets arr
           `(Array.appendCore $args $arr)
@@ -213,7 +213,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
       unconditional fun rhs => match antiquotSuffixSplice? quoted[0] with
         | `optional => `(let $anti := Syntax.getOptional? discr; $rhs)
         | `many     => `(let $anti := Syntax.getArgs discr; $rhs)
-        | `sepBy    => `(let $anti := Array.getSepElems (Syntax.getArgs discr); $rhs)
+        | `sepBy    => `(let $anti := @SepArray.mk $(getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
         | k         => throwErrorAt! quoted "invalid antiquotation suffix splice kind '{k}'"
       -- TODO: support for more complex antiquotation splices
     else if quoted.getArgs.size == 1 && isAntiquotScope quoted[0] then

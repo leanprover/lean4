@@ -1115,7 +1115,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'import open export theory prelude renaming hiding exposing ' +
       'calc  match with do by let extends ' +
       'for in unless try catch finally mutual mut return continue break where rec ' +
-      'syntax macro_rules macro ' +
+      'syntax macro_rules macro deriving ' +
       'fun ' +
       '#check #check_failure #eval #reduce #print ' +
       'section namespace end infix infixl infixr postfix prefix ',

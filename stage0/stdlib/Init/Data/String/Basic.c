@@ -286,9 +286,11 @@ lean_object* l_String_prev_match__1(lean_object*);
 lean_object* l_String_extract___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Iterator_curr_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Substring_take_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_decapitalize(lean_object*);
 lean_object* l_String_takeWhile___boxed(lean_object*, lean_object*);
 lean_object* l_String_mapAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_str(lean_object*, uint32_t);
+lean_object* l_Char_toLower(uint32_t);
 lean_object* l_String_Iterator_prev_match__1(lean_object*);
 uint8_t l_String_Iterator_hasPrev(lean_object*);
 lean_object* l_Substring_dropWhile_match__1(lean_object*);
@@ -5838,6 +5840,19 @@ lean_object* x_2; uint32_t x_3; lean_object* x_4; uint32_t x_5; lean_object* x_6
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
 x_4 = l_Char_toUpper(x_3);
+x_5 = lean_unbox_uint32(x_4);
+lean_dec(x_4);
+x_6 = lean_string_utf8_set(x_1, x_2, x_5);
+return x_6;
+}
+}
+lean_object* l_String_decapitalize(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint32_t x_3; lean_object* x_4; uint32_t x_5; lean_object* x_6; 
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_string_utf8_get(x_1, x_2);
+x_4 = l_Char_toLower(x_3);
 x_5 = lean_unbox_uint32(x_4);
 lean_dec(x_4);
 x_6 = lean_string_utf8_set(x_1, x_2, x_5);

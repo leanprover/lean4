@@ -112,3 +112,9 @@ macro_rules
   | `($a[$start : ])      => `(let a := $a; Array.toSubarray a $start a.size)
 
 end Array
+
+def Subarray.toArray (s : Subarray α) : Array α :=
+  Array.ofSubarray s
+
+instance : HAppend (Subarray α) (Subarray α) (Array α) where
+  hAppend x y := x.toArray ++ y.toArray

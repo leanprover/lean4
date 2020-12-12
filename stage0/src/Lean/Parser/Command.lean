@@ -91,7 +91,7 @@ def openOnly         := parser! atomic (ident >> "(") >> many1 ident >> ")"
 def openSimple       := parser! many1 ident
 @[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
 
-@[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 (notSymbol "end" >> commandParser) >> "end"
+@[builtinCommandParser] def «mutual» := parser! "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end")
 @[builtinCommandParser] def «initialize» := parser! "initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 @[builtinCommandParser] def «builtin_initialize» := parser! "builtin_initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 

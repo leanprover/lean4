@@ -30,6 +30,7 @@ uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_term_____x5b___x3a___x5d___closed__8;
 lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_forRevM___spec__2___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Subarray_forM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12545____closed__18;
 lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_762_(lean_object*, lean_object*, lean_object*);
@@ -42,6 +43,7 @@ lean_object* l_Array_term_____x5b___x3a___x5d___closed__1;
 size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Subarray_anyM___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_instHAppendSubarraySubarrayArray(lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
@@ -70,6 +72,7 @@ lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_622____closed
 lean_object* l_Subarray_anyM(lean_object*, lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__10;
 lean_object* l_Subarray_all___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Subarray_toArray___rarg(lean_object*);
 lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_905____closed__2;
 uint8_t l_Subarray_any___rarg(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12545____closed__2;
@@ -79,12 +82,14 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_905____closed__8;
 lean_object* l_Array_term_____x5b_x3a___x5d___closed__3;
 lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_905____closed__4;
+lean_object* l_Subarray_toArray___rarg___boxed(lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12545____closed__8;
 lean_object* l_Subarray_forInUnsafe_loop(lean_object*, lean_object*, lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop_match__1(lean_object*, lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop___at_Array_ofSubarray___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Subarray_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Subarray_allM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Subarray_toArray(lean_object*);
 lean_object* l_Subarray_forInUnsafe_loop___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Subarray_foldl___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_905____closed__1;
@@ -145,8 +150,10 @@ lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__1___rarg(lean
 lean_object* l_Subarray_forM___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_1625____closed__4;
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
+lean_object* l_instHAppendSubarraySubarrayArray___rarg(lean_object*, lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__4;
 uint8_t l_Subarray_all___rarg(lean_object*, lean_object*);
+lean_object* l_instHAppendSubarraySubarrayArray___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_forRevM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_term_____x5b___x3a_x5d___closed__2;
 extern lean_object* l_termIf_____x3a__Then__Else_____closed__10;
@@ -2618,6 +2625,60 @@ lean_ctor_set(x_57, 0, x_56);
 lean_ctor_set(x_57, 1, x_3);
 return x_57;
 }
+}
+}
+lean_object* l_Subarray_toArray___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Array_ofSubarray___rarg(x_1);
+return x_2;
+}
+}
+lean_object* l_Subarray_toArray(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Subarray_toArray___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+lean_object* l_Subarray_toArray___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Subarray_toArray___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_instHAppendSubarraySubarrayArray___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = l_Array_ofSubarray___rarg(x_1);
+x_4 = l_Array_ofSubarray___rarg(x_2);
+x_5 = l_Array_append___rarg(x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+lean_object* l_instHAppendSubarraySubarrayArray(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instHAppendSubarraySubarrayArray___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+lean_object* l_instHAppendSubarraySubarrayArray___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instHAppendSubarraySubarrayArray___rarg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 lean_object* initialize_Init_Data_Array_Basic(lean_object*);

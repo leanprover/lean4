@@ -686,7 +686,6 @@ lean_object* l_Lean_Meta_Context_localInstances___default;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_getDefInfoTemp_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
 lean_object* l_Lean_Meta_getTheoremInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_LocalInstance_beq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Meta_Cache_funInfo___default___closed__2;
 uint8_t l_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey(lean_object*, lean_object*);
@@ -22088,27 +22087,33 @@ return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_10 = lean_array_fget(x_4, x_6);
 x_11 = lean_array_fget(x_5, x_6);
-x_12 = l_Lean_LocalInstance_beq(x_10, x_11);
-lean_dec(x_11);
+x_12 = lean_ctor_get(x_10, 1);
+lean_inc(x_12);
 lean_dec(x_10);
-if (x_12 == 0)
+x_13 = lean_ctor_get(x_11, 1);
+lean_inc(x_13);
+lean_dec(x_11);
+x_14 = lean_expr_eqv(x_12, x_13);
+lean_dec(x_13);
+lean_dec(x_12);
+if (x_14 == 0)
 {
-uint8_t x_13; 
+uint8_t x_15; 
 lean_dec(x_6);
-x_13 = 0;
-return x_13;
+x_15 = 0;
+return x_15;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; 
-x_14 = lean_unsigned_to_nat(1u);
-x_15 = lean_nat_add(x_6, x_14);
+lean_object* x_16; lean_object* x_17; 
+x_16 = lean_unsigned_to_nat(1u);
+x_17 = lean_nat_add(x_6, x_16);
 lean_dec(x_6);
 x_3 = lean_box(0);
-x_6 = x_15;
+x_6 = x_17;
 goto _start;
 }
 }

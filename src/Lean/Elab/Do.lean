@@ -30,7 +30,6 @@ private def liftMethodDelimiter (k : SyntaxNodeKind) : Bool :=
   k == `Lean.Parser.Term.do ||
   k == `Lean.Parser.Term.doSeqIndent ||
   k == `Lean.Parser.Term.doSeqBracketed ||
-  k == `Lean.Parser.Term.quot ||
   k == `Lean.Parser.Term.termReturn ||
   k == `Lean.Parser.Term.termUnless ||
   k == `Lean.Parser.Term.termTry ||
@@ -39,6 +38,8 @@ private def liftMethodDelimiter (k : SyntaxNodeKind) : Bool :=
 private partial def hasLiftMethod : Syntax → Bool
   | Syntax.node k args =>
     if liftMethodDelimiter k then false
+    -- NOTE: We don't check for lifts in quotations here, which doesn't break anything but merely makes this rare case a
+    -- bit slower
     else if k == `Lean.Parser.Term.liftMethod then true
     else args.any hasLiftMethod
   | _ => false
@@ -1158,18 +1159,19 @@ def ensureEOS (doElems : List Syntax) : M Unit :=
   unless doElems.isEmpty do
     throwError "must be last element in a 'do' sequence"
 
-private partial def expandLiftMethodAux : Syntax → StateT (List Syntax) MacroM Syntax
+private partial def expandLiftMethodAux (inQuot : Bool) : Syntax → StateT (List Syntax) MacroM Syntax
   | stx@(Syntax.node k args) =>
     if liftMethodDelimiter k then
       pure stx
-    else if k == `Lean.Parser.Term.liftMethod then withFreshMacroScope do
+    else if k == `Lean.Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       let term := args[1]
-      let term ← expandLiftMethodAux term
+      let term ← expandLiftMethodAux inQuot term
       let auxDoElem ← `(doElem| let a ← $term:term)
       modify fun s => s ++ [auxDoElem]
       `(a)
     else do
-      let args ← args.mapM expandLiftMethodAux
+      let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
+      let args ← args.mapM (expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot))
       pure $ Syntax.node k args
   | stx => pure stx
 
@@ -1177,7 +1179,7 @@ def expandLiftMethod (doElem : Syntax) : MacroM (List Syntax × Syntax) := do
   if !hasLiftMethod doElem then
     pure ([], doElem)
   else
-    let (doElem, doElemsNew) ← (expandLiftMethodAux doElem).run []
+    let (doElem, doElemsNew) ← (expandLiftMethodAux false doElem).run []
     pure (doElemsNew, doElem)
 
 /- "Concatenate" `c` with `doSeqToCode doElems` -/

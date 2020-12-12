@@ -18,6 +18,7 @@ end Lean.Syntax
 #eval run $ `(def foo := 1)
 #eval run $ `(def foo := 1 def bar := 2)
 #eval run $ do let a ← `(Nat.one); `($a)
+#eval run $ do `($(← `(Nat.one)))
 #eval run $ do let a ← `(Nat.one); `(f $a $a)
 #eval run $ do let a ← `(Nat.one); `(f $ f $a 1)
 #eval run $ do let a ← `(Nat.one); `(f $(id a))

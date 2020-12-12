@@ -186,6 +186,9 @@ structure InductiveVal extends ConstantVal where
   isReflexive : Bool
   isNested : Bool
 
+instance : Inhabited InductiveVal where
+  default := ⟨arbitrary, 0, 0, [], [], false, false, false, false⟩
+
 @[export lean_mk_inductive_val]
 def mkInductiveValEx (name : Name) (lparams : List Name) (type : Expr) (nparams nindices : Nat)
     (all ctors : List Name) (isRec isUnsafe isReflexive isNested : Bool) : InductiveVal := {

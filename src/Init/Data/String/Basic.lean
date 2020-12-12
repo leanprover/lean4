@@ -518,6 +518,9 @@ def trim (s : String) : String :=
 def capitalize (s : String) :=
   s.set 0 <| s.get 0 |>.toUpper
 
+def decapitalize (s : String) :=
+  s.set 0 <| s.get 0 |>.toLower
+
 end String
 
 protected def Char.toString (c : Char) : String :=

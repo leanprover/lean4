@@ -12,8 +12,7 @@ namespace IO
 def throwServerError (err : String) : IO α :=
   throw (userError err)
 
-namespace FS
-namespace Stream
+namespace FS.Stream
 
 /-- Chains two streams by creating a new stream s.t. writing to it
 just writes to `a` but reading from it also duplicates the read output
@@ -57,12 +56,18 @@ def withPrefix (a : Stream) (pre : String) : Stream :=
     putStr := fun s =>
       a.putStr (pre ++ s) }
 
-end Stream
-end FS
+end FS.Stream
 end IO
 
-namespace Lean
-namespace Server
+namespace Lean.Server
+
+structure DocumentMeta where
+  uri     : Lsp.DocumentUri
+  version : Nat
+  text    : FileMap
+
+instance : Inhabited DocumentMeta :=
+⟨⟨Inhabited.default, Inhabited.default, Inhabited.default⟩⟩
 
 def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
   let start := text.lspPosToUtf8Pos r.start
@@ -106,8 +111,7 @@ def foldDocumentChanges (changes : @& Array Lsp.TextDocumentContentChangeEvent) 
   -- NOTE: We assume Lean files are below 16 EiB.
   changes.foldl accumulateChanges (oldText, 0xffffffff)
 
-end Server
-end Lean
+end Lean.Server
 
 namespace List
 

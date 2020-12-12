@@ -348,11 +348,7 @@ def isAntiquot : Syntax → Bool
   | Syntax.node (Name.str _ "antiquot" _) _ => true
   | _                                       => false
 
--- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
-def isAntiquotSplice (stx : Syntax) : Bool :=
-  stx.isAntiquot && !stx[4].isNone
-
-def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none) (kind := Name.anonymous) (splice := false) : Syntax :=
+def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none) (kind := Name.anonymous) : Syntax :=
   let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
   let term := match term.isIdent with
     | true  => term
@@ -360,10 +356,7 @@ def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none)
   let name := match name with
     | some name => mkNode `antiquotName #[mkAtom ":", mkAtom name]
     | none      => mkNullNode
-  let splice := match splice with
-    | true  => mkNullNode #[mkAtom "*"]
-    | false => mkNullNode
-  mkNode (kind ++ `antiquot) #[mkAtom "$", nesting, term, name, splice]
+  mkNode (kind ++ `antiquot) #[mkAtom "$", nesting, term, name]
 
 -- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros. Also works for antiquotation scopes.
 def isEscapedAntiquot (stx : Syntax) : Bool :=
@@ -420,11 +413,6 @@ def getAntiquotSuffixSpliceInner (stx : Syntax) : Syntax :=
 -- `",*"` in the example above
 def getAntiquotSuffixSpliceSuffix (stx : Syntax) : Syntax :=
   stx[1]
-
--- If any item of a `many` node is an antiquotation splice, its result should
--- be substituted into the `many` node's children
-def isAntiquotSplicePat (stx : Syntax) : Bool :=
-  stx.isOfKind nullKind && stx.getArgs.any fun arg => isAntiquotSplice arg && !isEscapedAntiquot arg
 
 end Syntax
 end Lean

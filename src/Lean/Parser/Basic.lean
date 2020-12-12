@@ -1605,8 +1605,7 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
     setExpected [] "$" >>
     manyNoAntiquot (checkNoWsBefore "" >> "$") >>
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
-    nameP >>
-    optionalNoAntiquot (checkNoWsBefore "" >> symbol "*")
+    nameP
 
 def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
   let (s, stx?) := peekToken c s

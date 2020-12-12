@@ -42,10 +42,9 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   -- if antiquotation, insert contents as-is, else recurse
   | stx@(Syntax.node k _) => do
     if isAntiquot stx && !isEscapedAntiquot stx then
-      -- splices must occur in a `many` node
-      if isAntiquotSplice stx then throwErrorAt stx "unexpected antiquotation splice"
-      else pure $ getAntiquotTerm stx
+      getAntiquotTerm stx
     else if isAntiquotSuffixSplice stx && !isEscapedAntiquot stx then
+      -- splices must occur in a `many` node
       throwErrorAt stx "unexpected antiquotation splice"
     else if isAntiquotScope stx && !isEscapedAntiquot stx then
       throwErrorAt stx "unexpected antiquotation splice"
@@ -54,10 +53,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
       -- if escaped antiquotation, decrement by one escape level
       let stx := unescapeAntiquot stx
       let args ← stx.getArgs.foldlM (fun args arg =>
-        if k == nullKind && isAntiquotSplice arg then
-          -- antiquotation splice pattern: inject args array
-          `(Array.appendCore $args $(getAntiquotTerm arg))
-        else if k == nullKind && isAntiquotSuffixSplice arg then
+        if k == nullKind && isAntiquotSuffixSplice arg then
           let antiquot := getAntiquotSuffixSpliceInner arg
           match antiquotSuffixSplice? arg with
           | `optional => `(Array.appendCore $args (match $(getAntiquotTerm antiquot):term with
@@ -208,17 +204,10 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
       --   let e := stx; ...
       let kind := if k == Name.anonymous then none else k
       let anti := getAntiquotTerm quoted
-      -- Splices should only appear inside a nullKind node, see next case
-      if isAntiquotSplice quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
-      else if anti.isIdent then basic { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
+      if anti.isIdent then basic { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
       else unconditional fun _ => throwErrorAt! anti "match_syntax: antiquotation must be variable {anti}"
     else if isAntiquotSuffixSplice quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
     else if isAntiquotScope quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
-    else if isAntiquotSplicePat quoted && quoted.getArgs.size == 1 then
-      -- quotation is a single antiquotation splice => bind args array
-      let anti := getAntiquotTerm quoted[0]
-      unconditional fun rhs => `(let $anti := Syntax.getArgs discr; $rhs)
-      -- TODO: support for more complex antiquotation splices
     else if quoted.getArgs.size == 1 && isAntiquotSuffixSplice quoted[0] then
       let anti := getAntiquotTerm (getAntiquotSuffixSpliceInner quoted[0])
       unconditional fun rhs => match antiquotSuffixSplice? quoted[0] with
@@ -226,6 +215,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
         | `many     => `(let $anti := Syntax.getArgs discr; $rhs)
         | `sepBy    => `(let $anti := Array.getSepElems (Syntax.getArgs discr); $rhs)
         | k         => throwErrorAt! quoted "invalid antiquotation suffix splice kind '{k}'"
+      -- TODO: support for more complex antiquotation splices
     else if quoted.getArgs.size == 1 && isAntiquotScope quoted[0] then
       antiquotScope quoted[0]
     else

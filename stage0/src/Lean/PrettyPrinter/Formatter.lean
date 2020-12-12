@@ -172,6 +172,13 @@ def withAntiquot.formatter (antiP p : Formatter) : Formatter :=
   -- fix the backtracking hack outright.
   orelse.formatter antiP p
 
+@[combinatorFormatter Lean.Parser.withAntiquotSuffixSplice]
+def withAntiquotSuffixSplice.formatter (k : SyntaxNodeKind) (p suffix : Formatter) : Formatter := do
+  if (← getCur).isAntiquotSuffixSplice then
+    visitArgs <| suffix *> p
+  else
+    p
+
 @[combinatorFormatter Lean.Parser.categoryParser]
 def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
   let stx ← getCur

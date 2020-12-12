@@ -24,6 +24,7 @@ lean_object* l_Lean_Compiler_numScalarTypes;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__15;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__18;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__23;
+extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__3;
 uint8_t l_List_foldr___at_Lean_Compiler_isToNat___spec__1(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Compiler_NumScalarTypeInfo_id___default(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -68,7 +69,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__19;
 extern lean_object* l_instReprBool___closed__1;
 lean_object* l_Lean_Compiler_foldNatDecLe___closed__2;
-extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__16;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__9;
 lean_object* l_Lean_Compiler_foldUIntSub___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_USize_size___closed__1;
@@ -218,6 +218,7 @@ lean_object* l_Lean_Compiler_natFoldFns___closed__6;
 lean_object* l_Lean_Compiler_foldUIntMod(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_toDecidableExpr_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldToNat___boxed(lean_object*);
+extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__9;
 lean_object* l_Lean_Compiler_boolFoldFns___closed__1;
 lean_object* l_Lean_Compiler_foldStrictOr_match__1(lean_object*);
 lean_object* l_Lean_Compiler_foldNatBinPred(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -261,7 +262,6 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkNatLe___closed__1;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__2;
 lean_object* l_Lean_Compiler_mkNatLe___closed__4;
-extern lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 lean_object* l_Lean_Compiler_foldUIntDiv___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_toDecidableExpr_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkNatLt___closed__6;
@@ -2302,7 +2302,7 @@ static lean_object* _init_l_Lean_Compiler_mkNatEq___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Syntax_mkAntiquotNode___closed__16;
+x_1 = l_Lean_Syntax_mkAntiquotNode___closed__9;
 x_2 = l_Lean_Compiler_mkNatEq___closed__3;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
@@ -2375,7 +2375,7 @@ static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
+x_1 = l_Lean_Syntax_mkAntiquotNode___closed__3;
 x_2 = l_Lean_Compiler_mkNatEq___closed__3;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;

@@ -1605,8 +1605,7 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
     setExpected [] "$" >>
     manyNoAntiquot (checkNoWsBefore "" >> "$") >>
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
-    nameP >>
-    optionalNoAntiquot (checkNoWsBefore "" >> symbol "*")
+    nameP
 
 def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
   let (s, stx?) := peekToken c s
@@ -1626,15 +1625,35 @@ def tryAnti (c : ParserContext) (s : ParserState) : Bool :=
 def withoutInfo (p : Parser) : Parser :=
   { fn := p.fn }
 
+/-- Parse `$[p]suffix`, e.g. `$[p],*`. -/
 def mkAntiquotScope (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
   let kind := kind ++ `antiquot_scope
-  -- prevent `p`'s info from being collected twice, since it should also be in use outside of the antiquot scope
-  let p := withoutInfo p
   leadingNode kind maxPrec $ atomic $
     setExpected [] "$" >>
     manyNoAntiquot (checkNoWsBefore "" >> "$") >>
     checkNoWsBefore "no space before spliced term" >> symbol "[" >> node nullKind p >> symbol "]" >>
     suffix
+
+@[inline] def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (p suffix : ParserFn) : ParserFn := fun c s => do
+  let s := p c s
+  if s.hasError || !s.stxStack.back.isAntiquot then
+    return s
+  let iniSz  := s.stackSize
+  let iniPos := s.pos
+  let s      := suffix c s
+  if s.hasError then
+    return s.restore iniSz iniPos
+  s.mkNode (kind ++ `antiquot_suffix_splice) (s.stxStack.size - 2)
+
+/-- Parse `suffix` after an antiquotation, e.g. `$x,*`, and put both into a new node. -/
+@[inline] def withAntiquotSuffixSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser := {
+  info := andthenInfo p.info suffix.info,
+  fn   := withAntiquotSuffixSpliceFn kind p.fn suffix.fn
+}
+
+def withAntiquotScopeAndSuffix (kind : SyntaxNodeKind) (p suffix : Parser) :=
+  -- prevent `p`'s info from being collected twice
+  withAntiquot (mkAntiquotScope kind (withoutInfo p) suffix) (withAntiquotSuffixSplice kind p suffix)
 
 def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anonymous := false) : Parser :=
   withAntiquot (mkAntiquot name kind anonymous) $ node kind p
@@ -1644,7 +1663,7 @@ def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anony
 /- ===================== -/
 
 def sepByElemParser (p : Parser) (sep : String) : Parser :=
-  withAntiquot (mkAntiquotScope `sepBy p (symbol (sep.trim ++ "*"))) p
+  withAntiquotScopeAndSuffix `sepBy p (symbol (sep.trim ++ "*"))
 
 def sepBy (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
   sepByNoAntiquot (sepByElemParser p sep) psep allowTrailingSep

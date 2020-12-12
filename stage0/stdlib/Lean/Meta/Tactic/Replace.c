@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Meta_replaceTargetDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_mkEqMP___rarg___closed__2;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
+extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__3;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
@@ -77,7 +78,6 @@ lean_object* l_Lean_Meta_replaceLocalDecl___lambda__1(lean_object*, lean_object*
 lean_object* l_Lean_Meta_changeLocalDecl___lambda__1___closed__2;
 lean_object* l_Lean_Meta_replaceTargetDefEq___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_changeLocalDecl_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkExpectedTypeHintImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -177,7 +177,7 @@ lean_ctor_set(x_28, 0, x_20);
 lean_ctor_set(x_28, 1, x_27);
 x_29 = l_Lean_Meta_mkEqMPR___rarg___closed__2;
 x_30 = l_Lean_mkConst(x_29, x_28);
-x_31 = l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
+x_31 = l_Lean_Syntax_mkAntiquotNode___closed__3;
 x_32 = lean_array_push(x_31, x_17);
 x_33 = lean_array_push(x_32, x_2);
 x_34 = lean_array_push(x_33, x_3);

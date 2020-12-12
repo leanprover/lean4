@@ -29,6 +29,7 @@ lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttri
 lean_object* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
 extern lean_object* l_Lean_Syntax_strLitToAtom___closed__3;
 lean_object* l_Std_PersistentHashMap_containsAtAux___at_Lean_Parser_isValidSyntaxNodeKind___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__3;
 lean_object* l_Lean_Parser_parserExtension___lambda__1(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Parser_andthenInfo(lean_object*, lean_object*);
@@ -434,7 +435,6 @@ lean_object* l_Lean_registerScopedEnvExtensionUnsafe___rarg(lean_object*, lean_o
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_runParserCategory(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_addLeadingParser(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_2560____closed__5;
 lean_object* l_Lean_Parser_ParserExtension_addEntryImpl___closed__3;
 lean_object* l_Std_RBNode_find___at_Lean_Parser_notFollowedByCategoryTokenFn___spec__1___boxed(lean_object*, lean_object*);
@@ -10474,7 +10474,7 @@ x_12 = l_Lean_Name_toExprAux(x_4);
 lean_inc(x_4);
 x_13 = l_Lean_mkConst(x_4, x_9);
 x_14 = l_Lean_mkNatLit(x_5);
-x_15 = l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
+x_15 = l_Lean_Syntax_mkAntiquotNode___closed__3;
 x_16 = lean_array_push(x_15, x_11);
 x_17 = lean_array_push(x_16, x_12);
 x_18 = lean_array_push(x_17, x_13);

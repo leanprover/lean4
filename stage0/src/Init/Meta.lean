@@ -267,6 +267,12 @@ namespace Syntax
 def mkSep (a : Array Syntax) (sep : Syntax) : Syntax :=
   mkNullNode <| mkSepArray a sep
 
+def SepArray.ofElems {sep} (elems : Array Syntax) : SepArray sep :=
+⟨mkSepArray elems (mkAtom sep)⟩
+
+instance (sep) : Coe (Array Syntax) (SepArray sep) :=
+⟨SepArray.ofElems⟩
+
 /-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
 def mkApp (fn : Syntax) : (args : Array Syntax) → Syntax
   | #[]  => fn
@@ -674,6 +680,16 @@ def mapSepElems (a : Array Syntax) (f : Syntax → Syntax) : Array Syntax :=
   Id.run <| a.mapSepElemsM f
 
 end Array
+
+namespace Lean.Syntax.SepArray
+
+def getElems {sep} (sa : SepArray sep) : Array Syntax :=
+sa.elemsAndSeps.getSepElems
+
+instance (sep) : Coe (SepArray sep) (Array Syntax) :=
+⟨getElems⟩
+
+end Lean.Syntax.SepArray
 
 /--
   Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses

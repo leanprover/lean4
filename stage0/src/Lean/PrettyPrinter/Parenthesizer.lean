@@ -284,6 +284,13 @@ def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer :=
   -- fix the backtracking hack outright.
   orelse.parenthesizer antiP p
 
+@[combinatorParenthesizer Lean.Parser.withAntiquotSuffixSplice]
+def withAntiquotSuffixSplice.parenthesizer (k : SyntaxNodeKind) (p suffix : Parenthesizer) : Parenthesizer := do
+  if (← getCur).isAntiquotSuffixSplice then
+    visitArgs <| suffix *> p
+  else
+    p
+
 def parenthesizeCategoryCore (cat : Name) (prec : Nat) : Parenthesizer :=
   withReader (fun ctx => { ctx with cat := cat }) do
     let stx ← getCur

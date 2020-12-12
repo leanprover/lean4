@@ -17,13 +17,13 @@ attribute [runBuiltinParserAttributeHooks]
   leadingNode termParser commandParser mkAntiquot nodeWithAntiquot sepBy sepBy1
 
 @[runBuiltinParserAttributeHooks] def optional (p : Parser) : Parser :=
-  optionalNoAntiquot (withAntiquot (mkAntiquotScope `optional p (symbol "?")) p)
+  optionalNoAntiquot (withAntiquotScopeAndSuffix `optional p (symbol "?"))
 
 @[runBuiltinParserAttributeHooks] def many (p : Parser) : Parser :=
-  manyNoAntiquot (withAntiquot (mkAntiquotScope `many p (symbol "*")) p)
+  manyNoAntiquot (withAntiquotScopeAndSuffix `many p (symbol "*"))
 
 @[runBuiltinParserAttributeHooks] def many1 (p : Parser) : Parser :=
-  many1NoAntiquot (withAntiquot (mkAntiquotScope `many p (symbol "*")) p)
+  many1NoAntiquot (withAntiquotScopeAndSuffix `many p (symbol "*"))
 
 @[runBuiltinParserAttributeHooks] def ident : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot

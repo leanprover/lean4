@@ -9,8 +9,8 @@ structure InternalExceptionId where
   idx : Nat := 0
 
 instance : Inhabited InternalExceptionId := ⟨{}⟩
-instance : BEq InternalExceptionId :=
-  ⟨fun id₁ id₂ => id₁.idx == id₂.idx⟩
+instance : BEq InternalExceptionId where
+  beq id₁ id₂ := id₁.idx == id₂.idx
 
 builtin_initialize internalExceptionsRef : IO.Ref (Array Name) ← IO.mkRef #[]
 

@@ -14,11 +14,10 @@ def Id (type : Type u) : Type u := type
 
 namespace Id
 
-instance : Monad Id := {
-  pure := fun x => x
-  bind := fun x f => f x
-  map  := fun f x => f x
-}
+instance : Monad Id where
+  pure x := x
+  bind x f := f x
+  map f x := f x
 
 @[inline] protected def run (x : Id α) : α := x
 

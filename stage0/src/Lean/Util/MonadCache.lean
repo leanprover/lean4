@@ -21,15 +21,13 @@ match (← MonadCache.findCached? a) with
     MonadCache.cache a b
     pure b
 
-instance {α β ρ : Type} {m : Type → Type} [MonadCache α β m] : MonadCache α β (ReaderT ρ m) := {
-  findCached? := fun a r   => MonadCache.findCached? a,
-  cache       := fun a b r => MonadCache.cache a b
-}
+instance {α β ρ : Type} {m : Type → Type} [MonadCache α β m] : MonadCache α β (ReaderT ρ m) where
+  findCached? a r := MonadCache.findCached? a
+  cache a b r := MonadCache.cache a b
 
-instance {α β ε : Type} {m : Type → Type} [MonadCache α β m] [Monad m] : MonadCache α β (ExceptT ε m) := {
-  findCached? := fun a   => ExceptT.lift $ MonadCache.findCached? a,
-  cache       := fun a b => ExceptT.lift $ MonadCache.cache a b
-}
+instance {α β ε : Type} {m : Type → Type} [MonadCache α β m] [Monad m] : MonadCache α β (ExceptT ε m) where
+  findCached? a := ExceptT.lift $ MonadCache.findCached? a
+  cache a b := ExceptT.lift $ MonadCache.cache a b
 
 open Std (HashMap)
 
@@ -48,10 +46,9 @@ namespace MonadHashMapCacheAdapter
 @[inline] def cache {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [MonadHashMapCacheAdapter α β m] (a : α) (b : β) : m Unit :=
   modifyCache fun s => s.insert a b
 
-instance {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] : MonadCache α β m := {
-  findCached? := MonadHashMapCacheAdapter.findCached?,
+instance {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] : MonadCache α β m where
+  findCached? := MonadHashMapCacheAdapter.findCached?
   cache       := MonadHashMapCacheAdapter.cache
-}
 
 end MonadHashMapCacheAdapter
 
@@ -61,10 +58,9 @@ namespace MonadCacheT
 
 variables {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
 
-instance  : MonadHashMapCacheAdapter α β (MonadCacheT α β m) := {
-  getCache    := (get : StateRefT' ..),
-  modifyCache := fun f => (modify f : StateRefT' ..)
-}
+instance  : MonadHashMapCacheAdapter α β (MonadCacheT α β m) where
+  getCache := (get : StateRefT' ..)
+  modifyCache f := (modify f : StateRefT' ..)
 
 @[inline] def run {σ} (x : MonadCacheT α β m σ) : m σ :=
   x.run' Std.mkHashMap
@@ -85,10 +81,9 @@ namespace MonadStateCacheT
 
 variables {ω α β : Type} {m : Type → Type} [STWorld ω m] [BEq α] [Hashable α] [MonadLiftT (ST ω) m] [Monad m]
 
-instance  : MonadHashMapCacheAdapter α β (MonadStateCacheT α β m) := {
-  getCache    := (get : StateT ..),
-  modifyCache := fun f => (modify f : StateT ..)
-}
+instance  : MonadHashMapCacheAdapter α β (MonadStateCacheT α β m) where
+  getCache := (get : StateT ..)
+  modifyCache f := (modify f : StateT ..)
 
 @[inline] def run {σ} (x : MonadStateCacheT α β m σ) : m σ :=
   x.run' Std.mkHashMap

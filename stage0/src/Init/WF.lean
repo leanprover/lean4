@@ -172,10 +172,9 @@ def sizeofMeasure (α : Sort u) [SizeOf α] : α → α → Prop :=
 def sizeofMeasureWf (α : Sort u) [SizeOf α] : WellFounded (sizeofMeasure α) :=
   measureWf sizeOf
 
-instance hasWellFoundedOfSizeOf (α : Sort u) [SizeOf α] : WellFoundedRelation α := {
-  r := sizeofMeasure α,
+instance hasWellFoundedOfSizeOf (α : Sort u) [SizeOf α] : WellFoundedRelation α where
+  r := sizeofMeasure α
   wf := sizeofMeasureWf α
-}
 
 namespace Prod
 open WellFounded
@@ -228,10 +227,9 @@ def rprodWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Rprod ra 
 
 end
 
-instance {α : Type u} {β : Type v} [s₁ : WellFoundedRelation α] [s₂ : WellFoundedRelation β] : WellFoundedRelation (α × β) := {
-  r  := Lex s₁.r s₂.r,
+instance {α : Type u} {β : Type v} [s₁ : WellFoundedRelation α] [s₂ : WellFoundedRelation β] : WellFoundedRelation (α × β) where
+  r  := Lex s₁.r s₂.r
   wf := lexWf s₁.wf s₂.wf
-}
 
 end Prod
 
@@ -274,7 +272,7 @@ def lexNdep (r : α → α → Prop) (s : β → β → Prop) :=
   Lex r (fun a => s)
 
 def lexNdepWf {r  : α → α → Prop} {s : β → β → Prop} (ha : WellFounded r) (hb : WellFounded s) : WellFounded (lexNdep r s) :=
-    WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) (fun x => hb) b
+  WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) (fun x => hb) b
 end
 
 section
@@ -318,9 +316,8 @@ def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → P
   RevLex.right _ _ h
 end
 
-instance WellFoundedRelation {α : Type u} {β : α → Type v} [s₁ : WellFoundedRelation α] [s₂ : ∀ a, WellFoundedRelation (β a)] : WellFoundedRelation (PSigma β) := {
-  r  := Lex s₁.r (fun a => (s₂ a).r),
+instance WellFoundedRelation {α : Type u} {β : α → Type v} [s₁ : WellFoundedRelation α] [s₂ : ∀ a, WellFoundedRelation (β a)] : WellFoundedRelation (PSigma β) where
+  r  := Lex s₁.r (fun a => (s₂ a).r)
   wf := lexWf s₁.wf (fun a => (s₂ a).wf)
-}
 
 end PSigma

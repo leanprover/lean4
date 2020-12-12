@@ -1692,8 +1692,8 @@ def getPos (stx : Syntax) : Option String.Pos :=
 /--
   An array of syntax elements interspersed with separators. Can be coerced to/from `Array Syntax` to automatically
   remove/insert the separators. -/
-structure SepArray (sep : String) :=
-(elemsAndSeps : Array Syntax)
+structure SepArray (sep : String) where
+  elemsAndSeps : Array Syntax
 
 end Syntax
 

@@ -35,51 +35,44 @@ abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 
 instance : Inhabited (CoreM α) := ⟨fun _ _ => throw arbitrary⟩
 
-instance : MonadRef CoreM := {
-  getRef  := do let ctx ← read; pure ctx.ref,
-  withRef := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
-}
+instance : MonadRef CoreM where
+  getRef := return (← read).ref
+  withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
 
-instance : MonadEnv CoreM := {
-  getEnv    := do pure (← get).env,
-  modifyEnv := fun f => modify fun s => { s with env := f s.env }
-}
 
-instance : MonadOptions CoreM := {
-  getOptions := do pure (← read).options
-}
+instance : MonadEnv CoreM where
+  getEnv := return (← get).env
+  modifyEnv f := modify fun s => { s with env := f s.env }
 
-instance : AddMessageContext CoreM := {
+instance : MonadOptions CoreM where
+  getOptions := return (← read).options
+
+instance : AddMessageContext CoreM where
   addMessageContext := addMessageContextPartial
-}
 
-instance : MonadNameGenerator CoreM := {
-  getNGen := do pure (← get).ngen,
-  setNGen := fun ngen => modify fun s => { s with ngen := ngen } }
+instance : MonadNameGenerator CoreM where
+  getNGen := return (← get).ngen
+  setNGen ngen := modify fun s => { s with ngen := ngen }
 
-instance : MonadRecDepth CoreM := {
-  withRecDepth   := fun d x => withReader (fun ctx => { ctx with currRecDepth := d }) x,
-  getRecDepth    := do pure (← read).currRecDepth,
-  getMaxRecDepth := do pure (← read).maxRecDepth
-}
+instance : MonadRecDepth CoreM where
+  withRecDepth d x := withReader (fun ctx => { ctx with currRecDepth := d }) x
+  getRecDepth := return (← read).currRecDepth
+  getMaxRecDepth := return (← read).maxRecDepth
 
-instance : MonadResolveName CoreM := {
-  getCurrNamespace := do pure (← read).currNamespace,
-  getOpenDecls     := do pure (← read).openDecls
-}
+instance : MonadResolveName CoreM where
+  getCurrNamespace := return (← read).currNamespace
+  getOpenDecls := return (← read).openDecls
 
 @[inline] def liftIOCore (x : IO α) : CoreM α := do
   let ref ← getRef
   IO.toEIO (fun (err : IO.Error) => Exception.error ref (toString err)) x
 
-instance : MonadLift IO CoreM := {
+instance : MonadLift IO CoreM where
   monadLift := liftIOCore
-}
 
-instance : MonadTrace CoreM := {
-  getTraceState    := do pure (← get).traceState,
-  modifyTraceState := fun f => modify fun s => { s with traceState := f s.traceState }
-}
+instance : MonadTrace CoreM where
+  getTraceState := return (← get).traceState
+  modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
@@ -101,12 +94,11 @@ def mkFreshUserName [MonadLiftT CoreM m] (n : Name) : m Name :=
   | Except.error (Exception.internal id _) => throw $ IO.userError $ "internal exception #" ++ toString id.idx
   | Except.ok a => pure a
 
-instance [MetaEval α] : MetaEval (CoreM α) := {
-  eval := fun env opts x _ => do
+instance [MetaEval α] : MetaEval (CoreM α) where
+  eval env opts x _ := do
     let x : CoreM α := do try x finally printTraces
     let (a, s) ← x.toIO { maxRecDepth := getMaxRecDepth opts, options := opts } { env := env }
     MetaEval.eval s.env opts a (hideUnit := true)
-}
 
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=

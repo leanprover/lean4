@@ -270,8 +270,8 @@ def mkSep (a : Array Syntax) (sep : Syntax) : Syntax :=
 def SepArray.ofElems {sep} (elems : Array Syntax) : SepArray sep :=
 ⟨mkSepArray elems (mkAtom sep)⟩
 
-instance (sep) : Coe (Array Syntax) (SepArray sep) :=
-⟨SepArray.ofElems⟩
+instance (sep) : Coe (Array Syntax) (SepArray sep) where
+  coe := SepArray.ofElems
 
 /-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
 def mkApp (fn : Syntax) : (args : Array Syntax) → Syntax
@@ -613,23 +613,26 @@ private def quoteName : Name → Syntax
 
 instance : Quote Name := ⟨quoteName⟩
 
-instance {α β : Type} [Quote α] [Quote β] : Quote (α × β) :=
-  ⟨fun ⟨a, b⟩ => Syntax.mkCApp ``Prod.mk #[quote a, quote b]⟩
+instance {α β : Type} [Quote α] [Quote β] : Quote (α × β) where
+  quote
+    | ⟨a, b⟩ => Syntax.mkCApp ``Prod.mk #[quote a, quote b]
 
 private def quoteList {α : Type} [Quote α] : List α → Syntax
   | []      => mkCIdent ``List.nil
   | (x::xs) => Syntax.mkCApp ``List.cons #[quote x, quoteList xs]
 
-instance {α : Type} [Quote α] : Quote (List α) := ⟨quoteList⟩
+instance {α : Type} [Quote α] : Quote (List α) where
+  quote := quoteList
 
-instance {α : Type} [Quote α] : Quote (Array α) :=
-  ⟨fun xs => Syntax.mkCApp ``List.toArray #[quote xs.toList]⟩
+instance {α : Type} [Quote α] : Quote (Array α) where
+  quote xs := Syntax.mkCApp ``List.toArray #[quote xs.toList]
 
 private def quoteOption {α : Type} [Quote α] : Option α → Syntax
   | none     => mkIdent ``none
   | (some x) => Syntax.mkCApp ``some #[quote x]
 
-instance Option.hasQuote {α : Type} [Quote α] : Quote (Option α) := ⟨quoteOption⟩
+instance Option.hasQuote {α : Type} [Quote α] : Quote (Option α) where
+  quote := quoteOption
 
 end Lean
 
@@ -684,10 +687,10 @@ end Array
 namespace Lean.Syntax.SepArray
 
 def getElems {sep} (sa : SepArray sep) : Array Syntax :=
-sa.elemsAndSeps.getSepElems
+  sa.elemsAndSeps.getSepElems
 
-instance (sep) : Coe (SepArray sep) (Array Syntax) :=
-⟨getElems⟩
+instance (sep) : Coe (SepArray sep) (Array Syntax) where
+  coe := getElems
 
 end Lean.Syntax.SepArray
 

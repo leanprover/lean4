@@ -47,8 +47,9 @@ def «axiom»          := parser! "axiom " >> declId >> declSig
 def «example»        := parser! "example " >> declSig >> declVal
 def inferMod         := parser! atomic (symbol "{" >> "}")
 def ctor             := parser! "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
-def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor
-def classInductive   := parser! atomic (group (symbol "class " >> "inductive ")) >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor
+def optDeriving      := parser! optional ("deriving " >> sepBy1 ident ", ")
+def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor >> optDeriving
+def classInductive   := parser! atomic (group (symbol "class " >> "inductive ")) >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor >> optDeriving
 def structExplicitBinder := parser! atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
 def structImplicitBinder := parser! atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
 def structInstBinder     := parser! atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
@@ -61,9 +62,10 @@ def «extends»            := parser! " extends " >> sepBy1 termParser ", "
 def «structure»          := parser!
     (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType
     >> optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields)
+    >> optDeriving
 @[builtinCommandParser] def declaration := parser!
 declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
-
+@[builtinCommandParser] def «deriving»     := parser! "deriving " >> "instance " >> sepBy1 ident ", " >> " for " >> ident
 @[builtinCommandParser] def «section»      := parser! "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := parser! "namespace " >> ident
 @[builtinCommandParser] def «end»          := parser! "end " >> optional ident

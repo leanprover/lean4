@@ -47,7 +47,8 @@ class ToBool (α : Type u) where
 
 export ToBool (toBool)
 
-instance : ToBool Bool := ⟨id⟩
+instance : ToBool Bool where
+  toBool b := b
 
 @[macroInline] def bool {β : Type u} {α : Type v} [ToBool β] (f t : α) (b : β) : α :=
   match toBool b with
@@ -89,7 +90,6 @@ instance (m n o) [MonadControlT m n] [MonadControl n o] : MonadControlT m o wher
   stM α := stM m n (MonadControl.stM n o α)
   liftWith f := MonadControl.liftWith fun x₂ => liftWith fun x₁ => f (x₁ ∘ x₂)
   restoreM := MonadControl.restoreM ∘ restoreM
-
 
 instance (m : Type u → Type v) [Pure m] : MonadControlT m m where
   stM α := α

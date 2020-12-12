@@ -12,17 +12,15 @@ namespace EStateM
 
 variables {ε σ α : Type u}
 
-instance [ToString ε] [ToString α] : ToString (Result ε σ α) := {
-  toString := fun
+instance [ToString ε] [ToString α] : ToString (Result ε σ α) where
+  toString
     | Result.ok a _    => "ok: " ++ toString a
     | Result.error e _ => "error: " ++ toString e
-}
 
-instance [Repr ε] [Repr α] : Repr (Result ε σ α) := {
-  repr := fun
+instance [Repr ε] [Repr α] : Repr (Result ε σ α) where
+  repr
     | Result.error e _ => "(error " ++ repr e ++ ")"
     | Result.ok a _    => "(ok " ++ repr a ++ ")"
-}
 
 end EStateM
 

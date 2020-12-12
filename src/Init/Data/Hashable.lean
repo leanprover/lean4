@@ -8,24 +8,20 @@ import Init.Data.UInt
 import Init.Data.String
 universes u
 
-instance : Hashable Nat := {
-  hash := fun n => USize.ofNat n
-}
+instance : Hashable Nat where
+  hash n := USize.ofNat n
 
-instance [Hashable α] [Hashable β] : Hashable (α × β) := {
-  hash := fun (a, b) => mixHash (hash a) (hash b)
-}
+instance [Hashable α] [Hashable β] : Hashable (α × β) where
+  hash | (a, b) => mixHash (hash a) (hash b)
 
 protected def Option.hash [Hashable α] : Option α → USize
   | none   => 11
   | some a => mixHash (hash a) 13
 
-instance [Hashable α] : Hashable (Option α) := {
-  hash := fun
+instance [Hashable α] : Hashable (Option α) where
+  hash
     | none   => 11
     | some a => mixHash (hash a) 13
-}
 
-instance [Hashable α] : Hashable (List α) := {
-  hash := fun as => as.foldl (fun r a => mixHash r (hash a)) 7
-}
+instance [Hashable α] : Hashable (List α) where
+  hash as := as.foldl (fun r a => mixHash r (hash a)) 7

@@ -18,19 +18,16 @@ namespace ReaderT
 @[inline] protected def failure [Alternative m] : ReaderT ρ m α :=
   fun s => failure
 
-instance [Monad m] [Alternative m] : Alternative (ReaderT ρ m) := {
+instance [Monad m] [Alternative m] : Alternative (ReaderT ρ m) where
   failure := ReaderT.failure
   orElse  := ReaderT.orElse
-}
 
 end ReaderT
 
-instance : MonadControl m (ReaderT ρ m) := {
+instance : MonadControl m (ReaderT ρ m) where
   stM      := id
-  liftWith := fun f ctx => f fun x => x ctx
-  restoreM := fun x ctx => x
-}
+  liftWith f ctx := f fun x => x ctx
+  restoreM x ctx := x
 
-instance ReaderT.tryFinally [MonadFinally m] [Monad m] : MonadFinally (ReaderT ρ m) := {
-  tryFinally' := fun x h ctx => tryFinally' (x ctx) (fun a? => h a? ctx)
-}
+instance ReaderT.tryFinally [MonadFinally m] [Monad m] : MonadFinally (ReaderT ρ m) where
+  tryFinally' x h ctx := tryFinally' (x ctx) (fun a? => h a? ctx)

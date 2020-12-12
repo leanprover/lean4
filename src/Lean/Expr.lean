@@ -674,7 +674,8 @@ def replaceFVarId (e : Expr) (fvarId : FVarId) (v : Expr) : Expr :=
 def replaceFVars (e : Expr) (fvars : Array Expr) (vs : Array Expr) : Expr :=
   (e.abstract fvars).instantiateRev vs
 
-instance : ToString Expr := ⟨Expr.dbgToString⟩
+instance : ToString Expr where
+  toString := Expr.dbgToString
 
 -- TODO: should not use dbgToString, but constructors.
 instance : Repr Expr := ⟨Expr.dbgToString⟩

@@ -36,9 +36,9 @@ structure State where
 instance : Inhabited State := ⟨{ env := arbitrary, maxRecDepth := 0 }⟩
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
-  env := env,
-  messages := messages,
-  scopes := [{ header := "", opts := opts }],
+  env := env
+  messages := messages
+  scopes := [{ header := "", opts := opts }]
   maxRecDepth := getMaxRecDepth opts
 }
 
@@ -61,38 +61,33 @@ abbrev Linter := Syntax → CommandElabM Unit
 builtin_initialize lintersRef : IO.Ref (Array Linter) ← IO.mkRef #[]
 
 def addLinter (l : Linter) : IO Unit := do
-let ls ← lintersRef.get
-lintersRef.set (ls.push l)
+  let ls ← lintersRef.get
+  lintersRef.set (ls.push l)
 
-instance : MonadEnv CommandElabM := {
-  getEnv    := do pure (← get).env,
-  modifyEnv := fun f => modify fun s => { s with env := f s.env }
-}
+instance : MonadEnv CommandElabM where
+  getEnv := do pure (← get).env
+  modifyEnv f := modify fun s => { s with env := f s.env }
 
-instance : MonadOptions CommandElabM := {
+instance : MonadOptions CommandElabM where
   getOptions := do pure (← get).scopes.head!.opts
-}
 
-protected def getRef : CommandElabM Syntax := do
-  pure (← read).ref
+protected def getRef : CommandElabM Syntax :=
+  return (← read).ref
 
-instance : AddMessageContext CommandElabM := {
+instance : AddMessageContext CommandElabM where
   addMessageContext := addMessageContextPartial
-}
 
-instance : MonadRef CommandElabM := {
-  getRef     := Command.getRef,
-  withRef    := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
-}
+instance : MonadRef CommandElabM where
+  getRef := Command.getRef
+  withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
 
-instance : AddErrorMessageContext CommandElabM := {
-  add := fun ref msg => do
+instance : AddErrorMessageContext CommandElabM where
+  add ref msg := do
     let ctx ← read
     let ref := getBetterRef ref ctx.macroStack
     let msg ← addMessageContext msg
     let msg ← addMacroStack msg ctx.macroStack
-    pure (ref, msg)
-}
+    return (ref, msg)
 
 def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
   mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
@@ -132,21 +127,19 @@ instance : MonadLiftT IO CommandElabM := { monadLift := liftIO }
 
 def getScope : CommandElabM Scope := do pure (← get).scopes.head!
 
-instance : MonadResolveName CommandElabM := {
-  getCurrNamespace := do pure (← getScope).currNamespace,
-  getOpenDecls     := do pure (← getScope).openDecls
-}
+instance : MonadResolveName CommandElabM where
+  getCurrNamespace := return (← getScope).currNamespace
+  getOpenDecls     := return (← getScope).openDecls
 
-instance : MonadLog CommandElabM := {
-  getRef      := getRef,
-  getFileMap  := do pure (← read).fileMap,
-  getFileName := do pure (← read).fileName,
-  logMessage  := fun msg => do
+instance : MonadLog CommandElabM where
+  getRef      := getRef
+  getFileMap  := return (← read).fileMap
+  getFileName := return (← read).fileName
+  logMessage msg := do
     let currNamespace ← getCurrNamespace
     let openDecls ← getOpenDecls
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
     modify fun s => { s with messages := s.messages.add msg }
-}
 
 def runLinters (stx : Syntax) : CommandElabM Unit := do
   let linters ← lintersRef.get
@@ -167,11 +160,10 @@ protected def getMainModule     : CommandElabM Name := do pure (← getEnv).main
   let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
-instance : MonadQuotation CommandElabM := {
-  getCurrMacroScope   := Command.getCurrMacroScope,
-  getMainModule       := Command.getMainModule,
+instance : MonadQuotation CommandElabM where
+  getCurrMacroScope   := Command.getCurrMacroScope
+  getMainModule       := Command.getMainModule
   withFreshMacroScope := Command.withFreshMacroScope
-}
 
 unsafe def mkCommandElabAttributeUnsafe : IO (KeyedDeclsAttribute CommandElab) :=
   mkElabAttribute CommandElab `Lean.Elab.Command.commandElabAttribute `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command"
@@ -192,17 +184,15 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
   withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
-instance : MonadMacroAdapter CommandElabM := {
-  getCurrMacroScope := getCurrMacroScope,
-  getNextMacroScope := do pure (← get).nextMacroScope,
-  setNextMacroScope := fun next => modify fun s => { s with nextMacroScope := next }
-}
+instance : MonadMacroAdapter CommandElabM where
+  getCurrMacroScope := getCurrMacroScope
+  getNextMacroScope := return (← get).nextMacroScope
+  setNextMacroScope next := modify fun s => { s with nextMacroScope := next }
 
-instance : MonadRecDepth CommandElabM := {
-  withRecDepth   := fun d x => withReader (fun ctx => { ctx with currRecDepth := d }) x,
-  getRecDepth    := return (← read).currRecDepth,
+instance : MonadRecDepth CommandElabM where
+  withRecDepth d x := withReader (fun ctx => { ctx with currRecDepth := d }) x
+  getRecDepth := return (← read).currRecDepth
   getMaxRecDepth := return (← get).maxRecDepth
-}
 
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
   try
@@ -219,7 +209,7 @@ instance : MonadRecDepth CommandElabM := {
 builtin_initialize registerTraceClass `Elab.command
 
 partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
-  withLogging $ withRef stx $ withIncRecDepth $ withFreshMacroScope do
+  withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
     runLinters stx
     match stx with
     | Syntax.node k args =>
@@ -258,11 +248,11 @@ private def mkMetaContext : Meta.Context := {
 }
 
 private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context :=
-  let scope      := s.scopes.head!;
-  { macroStack     := ctx.macroStack,
-    fileName       := ctx.fileName,
-    fileMap        := ctx.fileMap,
-    currMacroScope := ctx.currMacroScope,
+  let scope      := s.scopes.head!
+  { macroStack     := ctx.macroStack
+    fileName       := ctx.fileName
+    fileMap        := ctx.fileMap
+    currMacroScope := ctx.currMacroScope
     declName?      := declName? }
 
 private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
@@ -285,9 +275,9 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
   let (((ea, termS), _), coreS) ← liftEIO x
   modify fun s => { s with
-    env            := coreS.env,
-    messages       := addTraceAsMessages ctx (messages ++ termS.messages) coreS.traceState,
-    nextMacroScope := coreS.nextMacroScope,
+    env            := coreS.env
+    messages       := addTraceAsMessages ctx (messages ++ termS.messages) coreS.traceState
+    nextMacroScope := coreS.nextMacroScope
     ngen           := coreS.ngen
   }
   match ea with
@@ -472,7 +462,7 @@ def elabOpenOnly (n : SyntaxNode) : CommandElabM Unit := do
     if env.contains declName then
       addOpenDecl (OpenDecl.explicit id declName)
     else
-      withRef idStx $ logUnknownDecl declName
+      withRef idStx do logUnknownDecl declName
 
 -- `open` id `hiding` id+
 def elabOpenHiding (n : SyntaxNode) : CommandElabM Unit := do
@@ -480,13 +470,13 @@ def elabOpenHiding (n : SyntaxNode) : CommandElabM Unit := do
   let ns ← resolveNamespace ns
   let idsStx := n.getArg 2
   let env ← getEnv
-  let ids : List Name ← idsStx.foldArgsM (fun idStx ids => do
+  let ids ← idsStx.foldArgsM (fun idStx ids => do
     let id := idStx.getId
     let declName := ns ++ id
     if env.contains declName then
       pure (id::ids)
     else do
-      withRef idStx $ logUnknownDecl declName
+      withRef idStx do logUnknownDecl declName
       pure ids)
     []
   addOpenDecl (OpenDecl.simple ns ids)
@@ -504,7 +494,7 @@ def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit := do
     if env.contains declName then
       addOpenDecl (OpenDecl.explicit toId declName)
     else
-      withRef stx $ logUnknownDecl declName
+      withRef stx do logUnknownDecl declName
 
 @[builtinCommandElab «open»] def elabOpen : CommandElab := fun n => do
   let body := (n.getArg 1).asNode
@@ -538,7 +528,7 @@ open Meta
 
 @[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab := fun stx => do
   let term := stx[1]
-  withoutModifyingEnv $ runTermElabM (some `_check) $ fun _ => do
+  withoutModifyingEnv $ runTermElabM (some `_check) fun _ => do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
     let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
@@ -548,7 +538,7 @@ open Meta
 
 @[builtinCommandElab Lean.Parser.Command.reduce] def elabReduce : CommandElab := fun stx => do
   let term := stx[1]
-  withoutModifyingEnv $ runTermElabM (some `_check) $ fun _ => do
+  withoutModifyingEnv $ runTermElabM (some `_check) fun _ => do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
     let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
@@ -582,7 +572,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     throwError "unexpected success"
 
 @[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab := fun stx =>
-  failIfSucceeds $ elabCheck stx
+  failIfSucceeds <| elabCheck stx
 
 unsafe def elabEvalUnsafe : CommandElab := fun stx => do
   let ref  := stx
@@ -644,7 +634,7 @@ constant elabEval : CommandElab
     pure ()
 
 def setOption (optionName : Name) (val : DataValue) : CommandElabM Unit := do
-  let decl ← liftIO $ getOptionDecl optionName
+  let decl ← liftIO <| getOptionDecl optionName
   unless decl.defValue.sameCtor val do throwError "type mismatch at set_option"
   modifyScope fun scope => { scope with opts := scope.opts.insert optionName val }
   match optionName, val with

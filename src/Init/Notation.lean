@@ -121,16 +121,16 @@ syntax "%[" term,* "|" term "]" : term -- auxiliary notation for creating big li
 namespace Lean
 
 macro_rules
-  | `([ $elems* ]) => do
+  | `([ $elems,* ]) => do
     let rec expandListLit (i : Nat) (skip : Bool) (result : Syntax) : MacroM Syntax := do
       match i, skip with
       | 0,   _     => pure result
       | i+1, true  => expandListLit i false result
-      | i+1, false => expandListLit i true  (← `(List.cons $(elems[i]) $result))
-    if elems.size < 64 then
-      expandListLit elems.size false (← `(List.nil))
+      | i+1, false => expandListLit i true  (← `(List.cons $(elems.elemsAndSeps[i]) $result))
+    if elems.elemsAndSeps.size < 64 then
+      expandListLit elems.elemsAndSeps.size false (← `(List.nil))
     else
-      `(%[ $elems* | List.nil ])
+      `(%[ $elems,* | List.nil ])
 
 namespace Parser.Tactic
 

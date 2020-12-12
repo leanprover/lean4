@@ -459,8 +459,8 @@ def delabTuple : Delab := whenPPOption getPPNotation do
   let a ← withAppFn $ withAppArg delab
   let b ← withAppArg delab
   match b with
-  | `(($b, $bs*)) => `(($a, $b, $bs*))
-  | _             => `(($a, $b))
+  | `(($b, $bs,*)) => `(($a, $b, $bs,*))
+  | _              => `(($a, $b))
 
 -- abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
 @[builtinDelab app.coe]
@@ -488,15 +488,15 @@ def delabConsList : Delab := whenPPOption getPPNotation do
   guard $ (← getExpr).getAppNumArgs == 3
   let x ← withAppFn (withAppArg delab)
   match (← withAppArg delab) with
-  | `([])     => `([$x])
-  | `([$xs*]) => `([$x, $xs*])
-  | _         => failure
+  | `([])      => `([$x])
+  | `([$xs,*]) => `([$x, $xs,*])
+  | _          => failure
 
 @[builtinDelab app.List.toArray]
 def delabListToArray : Delab := whenPPOption getPPNotation do
   guard $ (← getExpr).getAppNumArgs == 2
   match (← withAppArg delab) with
-  | `([$xs*]) => `(#[$xs*])
+  | `([$xs,*]) => `(#[$xs,*])
   | _         => failure
 
 @[builtinDelab app.namedPattern]

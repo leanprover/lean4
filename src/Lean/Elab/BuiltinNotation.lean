@@ -14,7 +14,7 @@ open Meta
 
 @[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab := fun stx expectedType? =>
   match stx with
-  | `(⟨$args*⟩) => do
+  | `(⟨$args,*⟩) => do
     tryPostponeIfNoneOrMVar expectedType?
     match expectedType? with
     | some expectedType =>
@@ -24,7 +24,7 @@ open Meta
         (fun ival us => do
           match ival.ctors with
           | [ctor] =>
-            let newStx ← `($(mkCIdentFrom stx ctor) $(args.getSepElems)*)
+            let newStx ← `($(mkCIdentFrom stx ctor) $(args)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
           | _ => throwError! "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
     | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
@@ -262,8 +262,8 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
     let e ← elabCDot e type
     ensureHasType type e
   | `(($e))         => elabCDot e expectedType?
-  | `(($e, $es*))   => do
-    let pairs ← liftMacroM $ mkPairs (#[e] ++ es.getEvenElems)
+  | `(($e, $es,*))  => do
+    let pairs ← liftMacroM $ mkPairs (#[e] ++ es)
     withMacroExpansion stx pairs (elabTerm pairs expectedType?)
   | _ => throwError "unexpected parentheses notation"
 

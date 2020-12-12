@@ -352,7 +352,7 @@ def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM 
     else
       throwErrorAt! alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
   `(@[macro $(Lean.mkIdent k)] def myMacro : Macro :=
-     fun | $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
+     fun | $(SepArray.mk alts):matchAlt|* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
 
 def inferMacroRulesAltKind (alt : Syntax) : CommandElabM SyntaxNodeKind := do
   let lhs := alt[0]
@@ -374,13 +374,13 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
     if altsNotK.isEmpty then
       pure defCmd
     else
-      `($defCmd:command macro_rules $altsNotK:matchAlt*)
+      `($defCmd:command macro_rules $(SepArray.mk altsNotK):matchAlt|*)
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with
-  | `(macro_rules $[|]? $alts:matchAlt*)         => elabNoKindMacroRulesAux alts
-  | `(macro_rules [$kind] $[|]? $alts:matchAlt*) => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
-  | _                                            => throwUnsupportedSyntax
+  | `(macro_rules $[|]? $alts:matchAlt|*)         => elabNoKindMacroRulesAux alts.elemsAndSeps
+  | `(macro_rules [$kind] $[|]? $alts:matchAlt|*) => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts.elemsAndSeps
+  | _                                             => throwUnsupportedSyntax
 
 -- TODO: cleanup after we have support for optional syntax at `match_syntax`
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
@@ -478,9 +478,9 @@ private def expandNotationAux (ref : Syntax)
   let fullKind := currNamespace ++ kind
   let pat := Syntax.node fullKind patArgs
   let stxDecl ← match attrKind with
-    | AttributeKind.global => `(syntax $[: $prec?]? [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat)
-    | AttributeKind.scoped => `(scoped syntax $[: $prec? ]? [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat)
-    | AttributeKind.local  => `(local syntax $[: $prec? ]? [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $syntaxParts* : $cat)
+    | AttributeKind.global => `(syntax $[: $prec?]? [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $[$syntaxParts]* : $cat)
+    | AttributeKind.scoped => `(scoped syntax $[: $prec? ]? [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $[$syntaxParts]* : $cat)
+    | AttributeKind.local  => `(local syntax $[: $prec? ]? [$(mkIdentFrom ref kind):ident, $(quote prio):numLit] $[$syntaxParts]* : $cat)
   let macroDecl ← `(macro_rules | `($pat) => `($qrhs))
   match (← mkSimpleDelab vars pat qrhs |>.run) with
   | some delabDecl => mkNullNode #[stxDecl, macroDecl, delabDecl]
@@ -523,7 +523,7 @@ def expandOptPrio (stx : Syntax) : Nat :=
     stx[1].isNatLit?.getD 0
 
 def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
-  let prec := stx[1].getArgs
+  let prec := stx[1].getOptional?
   let prio := expandOptPrio stx[2]
   let head := stx[3]
   let args := stx[4].getArgs
@@ -543,12 +543,13 @@ def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := d
   if stx.getArgs.size == 9 then
     -- `stx` is of the form `macro $head $args* : $cat => term`
     let rhs := stx[8]
-    `(syntax $prec* [$(mkIdentFrom stx kind):ident, $(quote prio):numLit] $stxParts* : $cat
+    -- NOTE: can't use `$stxParts*` here because it would interpret as a single antiquotation with the `stx` star postfix operator
+    `(syntax $(prec)? [$(mkIdentFrom stx kind):ident, $(quote prio):numLit] $[$stxParts]* : $cat
       macro_rules | `($pat) => $rhs)
   else
     -- `stx` is of the form `macro $head $args* : $cat => `( $body )`
     let rhsBody := stx[9]
-    `(syntax $prec* [$(mkIdentFrom stx kind):ident, $(quote prio):numLit] $stxParts* : $cat
+    `(syntax $(prec)? [$(mkIdentFrom stx kind):ident, $(quote prio):numLit] $[$stxParts]* : $cat
       macro_rules | `($pat) => `($rhsBody))
 
 @[builtinCommandElab «macro»] def elabMacro : CommandElab :=
@@ -570,7 +571,7 @@ parser! "elab " >> optPrecedence >> optPrio >> elabHead >> many elabArg >> elabT
 -/
 def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   let ref := stx
-  let prec    := stx[1].getArgs
+  let prec    := stx[1].getOptional?
   let prio    := expandOptPrio stx[2]
   let head    := stx[3]
   let args    := stx[4].getArgs
@@ -592,7 +593,7 @@ def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   if expectedTypeSpec.hasArgs then
     if catName == `term then
       let expId := expectedTypeSpec[1]
-      `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
+      `(syntax $(prec)? [$kindId:ident, $(quote prio):numLit] $[$stxParts]* : $cat
         @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab :=
         fun stx expectedType? => match stx with
           | `($pat) => Lean.Elab.Command.withExpectedType expectedType? fun $expId => $rhs
@@ -600,19 +601,19 @@ def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
     else
       throwErrorAt! expectedTypeSpec "syntax category '{catName}' does not support expected type specification"
   else if catName == `term then
-    `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
+    `(syntax $(prec)? [$kindId:ident, $(quote prio):numLit] $[$stxParts]* : $cat
       @[termElab $kindId:ident] def elabFn : Lean.Elab.Term.TermElab :=
       fun stx _ => match stx with
         | `($pat) => $rhs
         | _ => throwUnsupportedSyntax)
   else if catName == `command then
-    `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
+    `(syntax $(prec)? [$kindId:ident, $(quote prio):numLit] $[$stxParts]* : $cat
       @[commandElab $kindId:ident] def elabFn : Lean.Elab.Command.CommandElab :=
       fun
         | `($pat) => $rhs
         | _ => throwUnsupportedSyntax)
   else if catName == `tactic then
-    `(syntax $prec* [$kindId:ident, $(quote prio):numLit] $stxParts* : $cat
+    `(syntax $(prec)? [$kindId:ident, $(quote prio):numLit] $[$stxParts]* : $cat
       @[tactic $kindId:ident] def elabFn : Lean.Elab.Tactic.Tactic :=
       fun
         | `(tactic|$pat) => $rhs

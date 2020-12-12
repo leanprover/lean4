@@ -3,8 +3,8 @@ syntax [mycheck] "#check" sepBy(term, ",") : command
 open Lean
 
 macro_rules [mycheck]
-| `(#check $es*) =>
-  let cmds := es.getSepElems.map $ fun e => Syntax.node `Lean.Parser.Command.check #[Syntax.atom {} "#check", e]
+| `(#check $es,*) =>
+  let cmds := es.getElems.map $ fun e => Syntax.node `Lean.Parser.Command.check #[Syntax.atom {} "#check", e]
   pure $ mkNullNode cmds
 
 #check true

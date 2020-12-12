@@ -384,7 +384,8 @@ private def processExplictArg (k : M Expr) : M Expr := do
       match evalSyntaxConstant env opts tacticDecl with
       | Except.error err       => throwError err
       | Except.ok tacticSyntax =>
-        let tacticBlock ← `(by { $(tacticSyntax.getArgs)* })
+        -- TODO(Leo): does this work correctly for tactic sequences?
+        let tacticBlock ← `(by $tacticSyntax)
         -- tacticBlock does not have any position information.
         -- So, we use the current ref
         let ref ← getRef
@@ -800,12 +801,12 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     throwError "unexpected occurrence of named pattern"
   | `($id:ident) => do
     elabAppFnId id [] lvals namedArgs args expectedType? explicit ellipsis overloaded acc
-  | `($id:ident.{$us*}) => do
-    let us ← elabExplicitUnivs us.getSepElems
+  | `($id:ident.{$us,*}) => do
+    let us ← elabExplicitUnivs us
     elabAppFnId id us lvals namedArgs args expectedType? explicit ellipsis overloaded acc
   | `(@$id:ident) =>
     elabAppFn id lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
-  | `(@$id:ident.{$us*}) =>
+  | `(@$id:ident.{$us,*}) =>
     elabAppFn (f.getArg 1) lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
   | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
   | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
@@ -916,11 +917,11 @@ private def elabAtom : TermElab := fun stx expectedType? =>
 
 @[builtinTermElab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
-  | `(@$id:ident)        => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
-  | `(@$id:ident.{$us*}) => elabAtom stx expectedType?
-  | `(@($t))             => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
-  | `(@$t)               => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
-  | _                    => throwUnsupportedSyntax
+  | `(@$id:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
+  | `(@$id:ident.{$us,*}) => elabAtom stx expectedType?
+  | `(@($t))              => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
+  | `(@$t)                => elabTermWithoutImplicitLambdas t expectedType?    -- `@` is being used just to disable implicit lambdas
+  | _                     => throwUnsupportedSyntax
 
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom

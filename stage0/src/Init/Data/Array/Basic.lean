@@ -486,7 +486,7 @@ export Array (mkArray)
 syntax "#[" sepBy(term, ", ") "]" : term
 
 macro_rules
-  | `(#[ $elems* ]) => `(List.toArray [ $elems* ])
+  | `(#[ $elems,* ]) => `(List.toArray [ $elems,* ])
 
 namespace Array
 

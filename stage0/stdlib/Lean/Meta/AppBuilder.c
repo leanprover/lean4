@@ -269,7 +269,7 @@ lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkCongrFunImp___close
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Meta_mkAppM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_arrayExpr_toMessageData(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_14019____closed__1;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_14025____closed__1;
 lean_object* l_Lean_Meta_mkHEqRefl___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqOfHEqImp___lambda__1___closed__1;
 lean_object* l_Lean_Meta_mkAppOptM___at_Lean_Meta_mkDecideProof___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10908,7 +10908,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkDecIsTrue___closed__2;
-x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_14019____closed__1;
+x_2 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_14025____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

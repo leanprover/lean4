@@ -23,8 +23,8 @@ variables {α : Type u} [BEq α] [Hashable α]
 @[inline] def empty : PersistentHashSet α :=
   { set := PersistentHashMap.empty }
 
-instance : Inhabited (PersistentHashSet α) :=
-  ⟨empty⟩
+instance : Inhabited (PersistentHashSet α) where
+  default := empty
 
 instance : EmptyCollection (PersistentHashSet α) :=
   ⟨empty⟩

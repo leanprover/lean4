@@ -24,8 +24,8 @@ def empty : Trie α :=
 instance : EmptyCollection (Trie α) :=
   ⟨empty⟩
 
-instance : Inhabited (Trie α) :=
-  ⟨Node none RBNode.leaf⟩
+instance : Inhabited (Trie α) where
+  default := Node none RBNode.leaf
 
 partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
   let rec insertEmpty (i : String.Pos) : Trie α :=

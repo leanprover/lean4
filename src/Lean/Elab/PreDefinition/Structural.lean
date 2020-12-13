@@ -80,9 +80,8 @@ structure State where
 
 abbrev M := StateRefT State MetaM
 
-instance {α} : Inhabited (M α) := {
+instance {α} : Inhabited (M α) where
   default := throwError "failed"
-}
 
 private def run {α} (x : M α) (s : State := {}) : MetaM (α × State) :=
   StateRefT'.run x s

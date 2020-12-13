@@ -11,8 +11,7 @@ namespace Lean
 inductive Literal where
   | natVal (val : Nat)
   | strVal (val : String)
-
-instance : Inhabited Literal := ⟨Literal.natVal 0⟩
+  deriving Inhabited
 
 protected def Literal.hash : Literal → USize
   | Literal.natVal v => hash v
@@ -40,6 +39,7 @@ instance (a b : Literal) : Decidable (a < b) :=
 
 inductive BinderInfo where
   | default | implicit | strictImplicit | instImplicit | auxDecl
+  deriving Inhabited
 
 def BinderInfo.hash : BinderInfo → USize
   | BinderInfo.default        => 947
@@ -55,8 +55,6 @@ def BinderInfo.isExplicit : BinderInfo → Bool
   | _                         => true
 
 instance : Hashable BinderInfo := ⟨BinderInfo.hash⟩
-
-instance : Inhabited BinderInfo := ⟨BinderInfo.default⟩
 
 def BinderInfo.isInstImplicit : BinderInfo → Bool
   | BinderInfo.instImplicit => true
@@ -181,11 +179,9 @@ inductive Expr where
   | lit     : Literal → Data → Expr                   -- literals
   | mdata   : MData → Expr → Data → Expr              -- metadata
   | proj    : Name → Nat → Expr → Data → Expr         -- projection
+  deriving Inhabited
 
 namespace Expr
-
-instance : Inhabited Expr where
-  default := sort arbitrary arbitrary
 
 @[inline] def data : Expr → Data
   | bvar _ d        => d

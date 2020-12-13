@@ -50,8 +50,8 @@ theorem isValidChar0 : isValidChar 0 :=
 @[inline] def toNat (c : Char) : Nat :=
   c.val.toNat
 
-instance : Inhabited Char :=
-  ⟨'A'⟩
+instance : Inhabited Char where
+  default := 'A'
 
 def isWhitespace (c : Char) : Bool :=
   c = ' ' || c = '\t' || c = '\r' || c = '\n'

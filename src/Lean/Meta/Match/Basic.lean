@@ -15,10 +15,9 @@ inductive Pattern : Type where
   | val          (e : Expr) : Pattern
   | arrayLit     (type : Expr) (xs : List Pattern) : Pattern
   | as           (varId : FVarId) (p : Pattern) : Pattern
+  deriving Inhabited
 
 namespace Pattern
-
-instance : Inhabited Pattern := ⟨Pattern.inaccessible arbitrary⟩
 
 partial def toMessageData : Pattern → MessageData
   | inaccessible e         => m!".({e})"
@@ -105,10 +104,9 @@ structure Alt where
   rhs       : Expr
   fvarDecls : List LocalDecl
   patterns  : List Pattern
+  deriving Inhabited
 
 namespace Alt
-
-instance : Inhabited Alt := ⟨⟨arbitrary, 0, arbitrary, [], []⟩⟩
 
 partial def toMessageData (alt : Alt) : MetaM MessageData := do
   withExistingLocalDecls alt.fvarDecls do
@@ -233,11 +231,10 @@ structure Problem where
   vars          : List Expr
   alts          : List Alt
   examples      : List Example
+  deriving Inhabited
 
 def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
   withMVarContext p.mvarId x
-
-instance : Inhabited Problem := ⟨{ mvarId := arbitrary, vars := [], alts := [], examples := []}⟩
 
 def Problem.toMessageData (p : Problem) : MetaM MessageData :=
   withGoalOf p do

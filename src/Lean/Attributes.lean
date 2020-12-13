@@ -11,6 +11,7 @@ namespace Lean
 
 inductive AttributeApplicationTime where
   | afterTypeChecking | afterCompilation | beforeElaboration
+  deriving Inhabited
 
 def AttributeApplicationTime.beq : AttributeApplicationTime → AttributeApplicationTime → Bool
   | AttributeApplicationTime.afterTypeChecking, AttributeApplicationTime.afterTypeChecking => true
@@ -30,6 +31,7 @@ structure AttributeImplCore where
   name : Name
   descr : String
   applicationTime := AttributeApplicationTime.afterTypeChecking
+  deriving Inhabited
 
 inductive AttributeKind
   | «global» | «local» | «scoped»
@@ -50,9 +52,7 @@ instance : BEq AttributeKind where
 structure AttributeImpl extends AttributeImplCore where
   add (decl : Name) (args : Syntax) (kind : AttributeKind) : AttrM Unit
   erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
-
-instance : Inhabited AttributeImpl :=
-  ⟨{ name := arbitrary, descr := arbitrary, add := fun env _ _ _ => pure () }⟩
+  deriving Inhabited
 
 open Std (PersistentHashMap)
 
@@ -88,10 +88,9 @@ inductive AttributeExtensionOLeanEntry where
 structure AttributeExtensionState where
   newEntries : List AttributeExtensionOLeanEntry := []
   map        : PersistentHashMap Name AttributeImpl
+  deriving Inhabited
 
 abbrev AttributeExtension := PersistentEnvExtension AttributeExtensionOLeanEntry (AttributeExtensionOLeanEntry × AttributeImpl) AttributeExtensionState
-
-instance : Inhabited AttributeExtensionState := ⟨{ map := {} }⟩
 
 private def AttributeExtension.mkInitial : IO AttributeExtensionState := do
   let map ← attributeMapRef.get
@@ -205,6 +204,7 @@ def Attribute.erase (declName : Name) (attrName : Name) : AttrM Unit := do
 structure TagAttribute where
   attr : AttributeImpl
   ext  : PersistentEnvExtension Name Name NameSet
+  deriving Inhabited
 
 def registerTagAttribute (name : Name) (descr : String) (validate : Name → AttrM Unit := fun _ => pure ()) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
@@ -235,8 +235,6 @@ def registerTagAttribute (name : Name) (descr : String) (validate : Name → Att
 
 namespace TagAttribute
 
-instance : Inhabited TagAttribute := ⟨{ attr := arbitrary, ext := arbitrary }⟩
-
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
@@ -253,6 +251,7 @@ end TagAttribute
 structure ParametricAttribute (α : Type) where
   attr : AttributeImpl
   ext  : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
+  deriving Inhabited
 
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   getParam : Name → Syntax → AttrM α
@@ -288,8 +287,6 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
 
 namespace ParametricAttribute
 
-instance {α : Type} : Inhabited (ParametricAttribute α) := ⟨{attr := arbitrary, ext := arbitrary }⟩
-
 def getParam {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
@@ -315,6 +312,7 @@ end ParametricAttribute
 structure EnumAttributes (α : Type) where
   attrs : List AttributeImpl
   ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
+  deriving Inhabited
 
 def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α))
     (validate : Name → α → AttrM Unit := fun _ _ => pure ())
@@ -346,8 +344,6 @@ def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDesc
   pure { ext := ext, attrs := attrs }
 
 namespace EnumAttributes
-
-instance {α : Type} : Inhabited (EnumAttributes α) := ⟨{attrs := [], ext := arbitrary }⟩
 
 def getValue {α : Type} [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with

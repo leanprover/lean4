@@ -158,8 +158,6 @@ protected def toString (msg : Message) : IO String := do
      | MessageSeverity.error => "error: ") ++
     (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ str)
 
-instance : Inhabited Message := ⟨{ fileName := "", pos := ⟨0, 1⟩, data := arbitrary }⟩
-
 @[export lean_message_pos] def getPostEx (msg : Message) : Position := msg.pos
 @[export lean_message_severity] def getSeverityEx (msg : Message) : MessageSeverity := msg.severity
 @[export lean_message_string] unsafe def getMessageStringEx (msg : Message) : String :=
@@ -171,14 +169,13 @@ end Message
 
 structure MessageLog where
   msgs : Std.PersistentArray Message := {}
+  deriving Inhabited
 
 namespace MessageLog
 def empty : MessageLog := ⟨{}⟩
 
 def isEmpty (log : MessageLog) : Bool :=
   log.msgs.isEmpty
-
-instance : Inhabited MessageLog := ⟨{}⟩
 
 def add (msg : Message) (log : MessageLog) : MessageLog :=
   ⟨log.msgs.push msg⟩

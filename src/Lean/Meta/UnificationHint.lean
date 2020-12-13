@@ -13,15 +13,11 @@ namespace Lean.Meta
 structure UnificationHintEntry where
   keys        : Array DiscrTree.Key
   val         : Name
-
-instance : Inhabited UnificationHintEntry where
-  default := { keys := #[], val := arbitrary }
+  deriving Inhabited
 
 structure UnificationHints where
   discrTree       : DiscrTree Name := DiscrTree.empty
-
-instance : Inhabited UnificationHints where
-  default := {}
+  deriving Inhabited
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
   { hints with discrTree := hints.discrTree.insertCore e.keys e.val }

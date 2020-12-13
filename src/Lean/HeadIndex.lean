@@ -16,10 +16,9 @@ inductive HeadIndex where
   | sort
   | lam
   | forallE
+  deriving Inhabited
 
 namespace HeadIndex
-
-instance : Inhabited HeadIndex := ⟨sort⟩
 
 protected def HeadIndex.hash : HeadIndex → USize
   | fvar fvarId         => mixHash 11 $ hash fvarId

@@ -54,6 +54,7 @@ structure StructView where
 
 inductive StructFieldKind where
   | newField | fromParent | subobject
+  deriving Inhabited
 
 structure StructFieldInfo where
   name     : Name
@@ -62,9 +63,7 @@ structure StructFieldInfo where
   kind     : StructFieldKind
   inferMod : Bool := false
   value?   : Option Expr := none
-
-instance : Inhabited StructFieldInfo :=
-  ⟨{ name := arbitrary, declName := arbitrary, fvar := arbitrary, kind := StructFieldKind.newField }⟩
+  deriving Inhabited
 
 def StructFieldInfo.isFromParent (info : StructFieldInfo) : Bool :=
   match info.kind with

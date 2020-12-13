@@ -14,17 +14,14 @@ open Std (PersistentArray)
 structure TraceElem where
   ref : Syntax
   msg : MessageData
-
-instance : Inhabited TraceElem :=
-  ⟨⟨arbitrary, arbitrary⟩⟩
+  deriving Inhabited
 
 structure TraceState where
   enabled : Bool := true
   traces  : PersistentArray TraceElem := {}
+  deriving Inhabited
 
 namespace TraceState
-
-instance : Inhabited TraceState := ⟨{}⟩
 
 private def toFormat (traces : PersistentArray TraceElem) (sep : Format) : IO Format :=
   traces.size.foldM

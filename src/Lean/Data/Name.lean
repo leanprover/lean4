@@ -137,7 +137,8 @@ variable {α : Type}
 
 instance (α : Type) : EmptyCollection (NameMap α) := ⟨mkNameMap α⟩
 
-instance (α : Type) : Inhabited (NameMap α) := ⟨{}⟩
+instance (α : Type) : Inhabited (NameMap α) where
+  default := {}
 
 def insert (m : NameMap α) (n : Name) (a : α) := Std.RBMap.insert m n a
 

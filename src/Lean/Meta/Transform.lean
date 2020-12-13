@@ -51,6 +51,9 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
         | _                    => visitPost e
   visit input |>.run
 
+def betaReduce (e : Expr) : CoreM Expr :=
+  transform e (pre := fun e => return TransformStep.visit e.headBeta)
+
 end Core
 
 namespace Meta

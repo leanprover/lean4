@@ -95,8 +95,8 @@ instance: Inhabited Expr.Data :=
 def Expr.Data.hash (c : Expr.Data) : USize :=
   c.toUInt32.toUSize
 
-instance : BEq Expr.Data :=
-  ⟨fun (a b : UInt64) => a == b⟩
+instance : BEq Expr.Data where
+  beq (a b : UInt64) := a == b
 
 def Expr.Data.looseBVarRange (c : Expr.Data) : UInt32 :=
   (c.shiftRight 40).toUInt32
@@ -715,6 +715,7 @@ abbrev PExprSet := PersistentExprSet
 /- Auxiliary type for forcing `==` to be structural equality for `Expr` -/
 structure ExprStructEq where
   val : Expr
+  deriving Inhabited
 
 instance : Coe Expr ExprStructEq := ⟨ExprStructEq.mk⟩
 
@@ -726,8 +727,6 @@ protected def beq : ExprStructEq → ExprStructEq → Bool
 protected def hash : ExprStructEq → USize
   | ⟨e⟩ => e.hash
 
-instance : Inhabited ExprStructEq where
-  default := { val := arbitrary }
 instance : BEq ExprStructEq := ⟨ExprStructEq.beq⟩
 instance : Hashable ExprStructEq := ⟨ExprStructEq.hash⟩
 instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
@@ -844,6 +843,8 @@ def isAutoParam (e : Expr) : Bool :=
     | e                      => false
   visit e
 
+def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
+  e.hasAnyFVar (· == fvarId)
 
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.

@@ -41,6 +41,23 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandE
          logException ex
   | _ => throwUnsupportedSyntax
 
+structure DerivingClassView where
+  ref : Syntax
+  className : Name
+
+/- parser! optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ") -/
+def getOptDerivingClasses [Monad m] [MonadRef m] [MonadEnv m] [MonadExceptOf Exception m] [MonadResolveName m] [AddErrorMessageContext m]
+    (optDeriving : Syntax) : m (Array DerivingClassView) := do
+  if optDeriving.isNone then
+    return #[]
+  else
+    optDeriving[0][1].getSepArgs.mapM fun ident => do
+      let className ← resolveGlobalConstNoOverload ident.getId
+      return { ref := ident, className := className }
+
+def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Array Name) : CommandElabM Unit :=
+  withRef view.ref do applyDerivingHandlers view.className declNames
+
 builtin_initialize
   registerTraceClass `Elab.Deriving
 

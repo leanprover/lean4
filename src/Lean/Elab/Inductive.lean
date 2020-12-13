@@ -11,6 +11,7 @@ import Lean.Elab.Command
 import Lean.Elab.CollectFVars
 import Lean.Elab.DefView
 import Lean.Elab.DeclUtil
+import Lean.Elab.Deriving.Basic
 
 namespace Lean.Elab.Command
 open Meta
@@ -53,18 +54,19 @@ instance : Inhabited CtorView :=
   ⟨{ ref := arbitrary, modifiers := {}, inferMod := false, declName := arbitrary, binders := arbitrary, type? := none }⟩
 
 structure InductiveView where
-  ref           : Syntax
-  modifiers     : Modifiers
-  shortDeclName : Name
-  declName      : Name
-  levelNames    : List Name
-  binders       : Syntax
-  type?         : Option Syntax
-  ctors         : Array CtorView
+  ref             : Syntax
+  modifiers       : Modifiers
+  shortDeclName   : Name
+  declName        : Name
+  levelNames      : List Name
+  binders         : Syntax
+  type?           : Option Syntax
+  ctors           : Array CtorView
+  derivingClasses : Array DerivingClassView
 
 instance : Inhabited InductiveView :=
   ⟨{ ref := arbitrary, modifiers := {}, shortDeclName := arbitrary, declName := arbitrary,
-     levelNames := [], binders := arbitrary, type? := none, ctors := #[] }⟩
+     levelNames := [], binders := arbitrary, type? := none, ctors := #[], derivingClasses := #[] }⟩
 
 structure ElabHeaderResult where
   view       : InductiveView
@@ -488,10 +490,24 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
           for view in views do
             Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
 
+private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM Unit := do
+  let mut processed : NameSet := {}
+  for view in views do
+    for classView in view.derivingClasses do
+      let className := classView.className
+      unless processed.contains className do
+        processed := processed.insert className
+        let mut declNames := #[]
+        for view in views do
+          if view.derivingClasses.any fun classView => classView.className == className then
+            declNames := declNames.push view.declName
+        classView.applyHandlers declNames
+
 def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
   let view0 := views[0]
   let ref := view0.ref
   runTermElabM view0.declName fun vars => withRef ref do
     mkInductiveDecl vars views
+  applyDerivingHandlers views
 
 end Lean.Elab.Command

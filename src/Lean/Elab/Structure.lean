@@ -507,7 +507,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         addDefaults lctx defaultAuxDecls
 
 /-
-parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
+parser! (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields >> optDeriving
 
 where
 def «extends» := parser! " extends " >> sepBy1 termParser ", "
@@ -527,32 +527,36 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   let exts      := stx[3]
   let parents   := if exts.isNone then #[] else exts[0][1].getSepArgs
   let optType   := stx[4]
+  let derivingClassViews ← getOptDerivingClasses stx[6]
   let type ← if optType.isNone then `(Sort _) else pure optType[0][1]
-  runTermElabM none fun scopeVars => do
-    let scopeLevelNames ← Term.getLevelNames
-    let ⟨name, declName, allUserLevelNames⟩ ← Elab.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
-    Term.withDeclName declName do
-      let ctor ← expandCtor stx modifiers declName
-      let fields ← expandFields stx modifiers declName
-      Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicitLocal <|
-        Term.elabBinders params (catchAutoBoundImplicit := true) fun params => do
-          let params ← Term.addAutoBoundImplicits params
-          let allUserLevelNames ← Term.getLevelNames
-          Term.withAutoBoundImplicitLocal (flag := false) do
-            elabStructureView {
-              ref               := stx,
-              modifiers         := modifiers,
-              scopeLevelNames   := scopeLevelNames,
-              allUserLevelNames := allUserLevelNames,
-              declName          := declName,
-              isClass           := isClass,
-              scopeVars         := scopeVars,
-              params            := params,
-              parents           := parents,
-              type              := type,
-              ctor              := ctor,
-              fields            := fields
-            }
+  let declName ←
+    runTermElabM none fun scopeVars => do
+      let scopeLevelNames ← Term.getLevelNames
+      let ⟨name, declName, allUserLevelNames⟩ ← Elab.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
+      Term.withDeclName declName do
+        let ctor ← expandCtor stx modifiers declName
+        let fields ← expandFields stx modifiers declName
+        Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicitLocal <|
+          Term.elabBinders params (catchAutoBoundImplicit := true) fun params => do
+            let params ← Term.addAutoBoundImplicits params
+            let allUserLevelNames ← Term.getLevelNames
+            Term.withAutoBoundImplicitLocal (flag := false) do
+              elabStructureView {
+                ref               := stx
+                modifiers         := modifiers
+                scopeLevelNames   := scopeLevelNames
+                allUserLevelNames := allUserLevelNames
+                declName          := declName
+                isClass           := isClass
+                scopeVars         := scopeVars
+                params            := params
+                parents           := parents
+                type              := type
+                ctor              := ctor
+                fields            := fields
+              }
+            return declName
+  derivingClassViews.forM fun view => view.applyHandlers #[declName]
 
 builtin_initialize registerTraceClass `Elab.structure
 

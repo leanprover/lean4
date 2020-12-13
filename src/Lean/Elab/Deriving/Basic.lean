@@ -41,4 +41,7 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandE
          logException ex
   | _ => throwUnsupportedSyntax
 
+builtin_initialize
+  registerTraceClass `Elab.Deriving
+
 end Lean.Elab

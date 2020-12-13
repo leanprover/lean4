@@ -99,7 +99,6 @@ namespace Deriving
 /- For type classes such as BEq, ToString, Format -/
 namespace Default
 
-
 structure ContextCore where
   classInfo   : ConstantInfo
   typeInfos   : Array InductiveVal

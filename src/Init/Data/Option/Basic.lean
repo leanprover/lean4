@@ -92,13 +92,12 @@ instance [DecidableEq α] : DecidableEq (Option α) := fun a b =>
     | (isTrue e)  => isTrue (congrArg (@some α) e)
     | (isFalse n) => isFalse (fun h => Option.noConfusion h (fun e => absurd e n))
 
-instance [BEq α] : BEq (Option α) := {
-  beq := fun
+instance [BEq α] : BEq (Option α) where
+  beq
     | none,      none      => true
     | none,      (some v₂) => false
     | (some v₁), none      => false
     | (some v₁), (some v₂) => v₁ == v₂
-}
 
 instance [HasLess α] : HasLess (Option α) := {
   Less := Option.lt (· < ·)

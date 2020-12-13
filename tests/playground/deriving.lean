@@ -99,14 +99,6 @@ namespace Deriving
 /- For type classes such as BEq, ToString, Format -/
 namespace Default
 
-structure AuxFun where
-  name    : Name
-  declSig : Array Syntax := #[]
-  type    : Syntax       := Syntax.missing
-  value   : Syntax       := Syntax.missing
-
-structure State where
-  auxFns  : NameMap AuxFun -- type name to function
 
 structure ContextCore where
   classInfo   : ConstantInfo

@@ -264,26 +264,15 @@ object * array_mk_empty() {
     return g_array_empty;
 }
 
-extern "C" object * lean_array_mk(object * sz, object * fn) {
-    if (!lean_is_scalar(sz)) {
-        lean_dec_ref(sz);
-        lean_panic_out_of_memory();
-    }
-    size_t n = lean_unbox(sz);
-    object * r = lean_alloc_array(n, n);
-    for (size_t i = 0; i < n; i++) {
-        lean_inc_ref(fn);
-        lean_array_set_core(r, i, lean_apply_1(fn, lean_box(i)));
-    }
-    lean_dec_ref(fn);
-    return r;
+extern "C" object * lean_list_to_array(object *, object *);
+extern "C" object * lean_array_to_list(object *, object *);
+
+extern "C" object * lean_array_mk(lean_obj_arg lst) {
+    return lean_list_to_array(lean_box(0), lst);
 }
 
-extern "C" lean_object * lean_array_data(lean_obj_arg a, lean_obj_arg i) {
-    object * r = lean_array_fget(a, i);
-    lean_dec(a);
-    lean_dec(i);
-    return r;
+extern "C" lean_object * lean_array_data(lean_obj_arg a) {
+    return lean_array_to_list(lean_box(0), a);
 }
 
 extern "C" lean_obj_res lean_array_get_panic(lean_obj_arg def_val) {

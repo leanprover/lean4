@@ -17,11 +17,9 @@ structure VarInfo where
   ref        : Bool := true  -- true if the variable may be a reference (aka pointer) at runtime
   persistent : Bool := false -- true if the variable is statically known to be marked a Persistent at runtime
   consume    : Bool := false -- true if the variable RC must be "consumed"
+  deriving Inhabited
 
 abbrev VarMap := Std.RBMap VarId VarInfo (fun x y => x.idx < y.idx)
-
-instance : Inhabited VarInfo where
-  default := {}
 
 structure Context where
   env            : Environment

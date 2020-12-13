@@ -1048,8 +1048,8 @@ They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic
 structure Array (α : Type u) where
   data : List α
 
-attribute [extern "lean_array_to_list"] Array.data
-attribute [extern "lean_list_to_array"] Array.mk
+attribute [extern "lean_array_data"] Array.data
+attribute [extern "lean_array_mk"] Array.mk
 
 /- The parameter `c` is the initial capacity -/
 @[extern "lean_mk_empty_array_with_capacity"]

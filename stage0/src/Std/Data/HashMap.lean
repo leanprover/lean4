@@ -124,7 +124,8 @@ def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (nbuckets := 8)
 namespace HashMap
 variables {α : Type u} {β : Type v} [BEq α] [Hashable α]
 
-instance : Inhabited (HashMap α β) := ⟨mkHashMap⟩
+instance : Inhabited (HashMap α β) where
+  default := mkHashMap
 
 instance : EmptyCollection (HashMap α β) := ⟨mkHashMap⟩
 

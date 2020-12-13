@@ -173,7 +173,6 @@ lean_object* l___private_Init_Meta_0__Lean_quoteOption___rarg___closed__6;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Syntax_expandInterpolatedStrChunks___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_8703____closed__7;
 lean_object* l_Lean_instQuoteBool___closed__5;
-lean_object* l_Lean_NameGenerator_instInhabitedNameGenerator___closed__1;
 lean_object* l_Lean_Syntax_decodeScientificLitVal_x3f_decodeExp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isLit_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_instQuoteList(lean_object*);
@@ -191,7 +190,6 @@ uint8_t l_instDecidableNot___rarg(uint8_t);
 lean_object* l_Lean_Syntax_mkStrLit___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkApp_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_NameGenerator_instInhabitedNameGenerator;
 extern lean_object* l_Lean_numLitKind;
 lean_object* l_Lean_Syntax_expandInterpolatedStrChunks_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instQuoteString(lean_object*);
@@ -346,6 +344,7 @@ lean_object* l_Lean_Syntax_isStrLit_x3f___boxed(lean_object*);
 lean_object* l_Lean_Syntax_toNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkNumLit(lean_object*, lean_object*);
+lean_object* l_Lean_instInhabitedNameGenerator___closed__1;
 lean_object* l_Lean_Syntax_unsetTrailing(lean_object*);
 lean_object* l_Lean_isLetterLike___boxed(lean_object*);
 lean_object* l_Lean_Syntax_decodeScientificLitVal_x3f___boxed(lean_object*);
@@ -382,6 +381,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux_match__1(lean_object*);
 lean_object* l_String_quote(lean_object*);
 uint8_t l_Char_isAlphanum(uint32_t);
+lean_object* l_Lean_instInhabitedNameGenerator;
 lean_object* l_Lean_Syntax_isScientificLit_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_SepArray_getElems___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1636,23 +1636,23 @@ x_1 = lean_unsigned_to_nat(1u);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_NameGenerator_instInhabitedNameGenerator___closed__1() {
+static lean_object* _init_l_Lean_instInhabitedNameGenerator___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_NameGenerator_namePrefix___default___closed__2;
-x_2 = lean_unsigned_to_nat(1u);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_NameGenerator_instInhabitedNameGenerator() {
+static lean_object* _init_l_Lean_instInhabitedNameGenerator() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_NameGenerator_instInhabitedNameGenerator___closed__1;
+x_1 = l_Lean_instInhabitedNameGenerator___closed__1;
 return x_1;
 }
 }
@@ -7955,7 +7955,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Syntax_strLitToAtom___closed__1;
 x_2 = l_Lean_Syntax_strLitToAtom___closed__2;
-x_3 = lean_unsigned_to_nat(553u);
+x_3 = lean_unsigned_to_nat(552u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Syntax_strLitToAtom___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -11463,10 +11463,10 @@ l_Lean_NameGenerator_namePrefix___default = _init_l_Lean_NameGenerator_namePrefi
 lean_mark_persistent(l_Lean_NameGenerator_namePrefix___default);
 l_Lean_NameGenerator_idx___default = _init_l_Lean_NameGenerator_idx___default();
 lean_mark_persistent(l_Lean_NameGenerator_idx___default);
-l_Lean_NameGenerator_instInhabitedNameGenerator___closed__1 = _init_l_Lean_NameGenerator_instInhabitedNameGenerator___closed__1();
-lean_mark_persistent(l_Lean_NameGenerator_instInhabitedNameGenerator___closed__1);
-l_Lean_NameGenerator_instInhabitedNameGenerator = _init_l_Lean_NameGenerator_instInhabitedNameGenerator();
-lean_mark_persistent(l_Lean_NameGenerator_instInhabitedNameGenerator);
+l_Lean_instInhabitedNameGenerator___closed__1 = _init_l_Lean_instInhabitedNameGenerator___closed__1();
+lean_mark_persistent(l_Lean_instInhabitedNameGenerator___closed__1);
+l_Lean_instInhabitedNameGenerator = _init_l_Lean_instInhabitedNameGenerator();
+lean_mark_persistent(l_Lean_instInhabitedNameGenerator);
 l_Lean_expandMacros___boxed__const__1 = _init_l_Lean_expandMacros___boxed__const__1();
 lean_mark_persistent(l_Lean_expandMacros___boxed__const__1);
 l_Lean_mkCIdentFrom___closed__1 = _init_l_Lean_mkCIdentFrom___closed__1();

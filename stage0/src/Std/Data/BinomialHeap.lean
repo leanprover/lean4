@@ -15,12 +15,11 @@ structure HeapNodeAux (α : Type u) (h : Type u) where
 inductive Heap (α : Type u) : Type u where
   | empty     : Heap α
   | heap  (ns : List (HeapNodeAux α (Heap α))) : Heap α
+  deriving Inhabited
 
 abbrev HeapNode (α) := HeapNodeAux α (Heap α)
 
 variables {α : Type u}
-
-instance : Inhabited (Heap α) := ⟨Heap.empty⟩
 
 def hRank : List (HeapNode α) → Nat
   | []   => 0

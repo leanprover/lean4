@@ -79,6 +79,7 @@ extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwApplyError___rarg___closed__1;
 lean_object* l_Nat_forM_loop___at_Lean_Meta_synthAppInstances___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forM_loop___at_Lean_Meta_synthAppInstances___spec__1___closed__2;
+extern lean_object* l_Lean_importModules___closed__1;
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Nat_forM_loop___at_Lean_Meta_synthAppInstances___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -122,7 +123,6 @@ lean_object* l_Nat_forM_loop___at_Lean_Meta_appendParentTag___spec__1___boxed(le
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l_Lean_Meta_setMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forM_loop___at_Lean_Meta_appendParentTag___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_importModules___closed__2;
 lean_object* l_Lean_Meta_apply_match__2(lean_object*);
 lean_object* l_Lean_Meta_appendParentTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -1889,7 +1889,7 @@ size_t x_15; size_t x_16; lean_object* x_17; lean_object* x_18;
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_7);
 lean_dec(x_7);
-x_17 = l_Lean_importModules___closed__2;
+x_17 = l_Lean_importModules___closed__1;
 x_18 = l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_reorderNonDependentFirst___spec__1(x_1, x_1, x_15, x_16, x_17, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_18) == 0)
 {

@@ -31,8 +31,7 @@ end Module
 structure ModuleParserState where
   pos        : String.Pos := 0
   recovering : Bool       := false
-
-instance : Inhabited ModuleParserState := ⟨{}⟩
+  deriving Inhabited
 
 private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : String) : Message :=
   let pos := c.fileMap.toPosition pos

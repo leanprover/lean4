@@ -2431,12 +2431,6 @@ x_1 = 0;
 return x_1;
 }
 }
-static lean_object* _init_l_instInhabitedTrue() {
-_start:
-{
-return lean_box(0);
-}
-}
 static lean_object* _init_l_instInhabitedNonScalar() {
 _start:
 {
@@ -2451,6 +2445,12 @@ _start:
 lean_object* x_1; 
 x_1 = lean_unsigned_to_nat(0u);
 return x_1;
+}
+}
+static lean_object* _init_l_instInhabitedTrue() {
+_start:
+{
+return lean_box(0);
 }
 }
 lean_object* l_instInhabitedForInStep___rarg(lean_object* x_1) {
@@ -3896,11 +3896,11 @@ l_instDecidableTrue = _init_l_instDecidableTrue();
 l_instDecidableFalse = _init_l_instDecidableFalse();
 l_instInhabitedProp = _init_l_instInhabitedProp();
 l_instInhabitedBool = _init_l_instInhabitedBool();
-l_instInhabitedTrue = _init_l_instInhabitedTrue();
 l_instInhabitedNonScalar = _init_l_instInhabitedNonScalar();
 lean_mark_persistent(l_instInhabitedNonScalar);
 l_instInhabitedPNonScalar = _init_l_instInhabitedPNonScalar();
 lean_mark_persistent(l_instInhabitedPNonScalar);
+l_instInhabitedTrue = _init_l_instInhabitedTrue();
 l_instInhabitedPUnit = _init_l_instInhabitedPUnit();
 lean_mark_persistent(l_instInhabitedPUnit);
 return lean_io_result_mk_ok(lean_box(0));

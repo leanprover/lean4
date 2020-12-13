@@ -36,9 +36,7 @@ structure Def (γ : Type) where
     fun builtin arg => match attrParamSyntaxToIdentifier arg with
       | some id => pure id
       | none    => throwError "invalid attribute argument, expected identifier"
-
-instance {γ} : Inhabited (Def γ) :=
-  ⟨{ builtinName := arbitrary, name := arbitrary, descr := arbitrary, valueTypeName := arbitrary }⟩
+  deriving Inhabited
 
 structure OLeanEntry where
   key  : Key
@@ -54,6 +52,7 @@ abbrev Table (γ : Type) := SMap Key (List γ)
 structure ExtensionState (γ : Type) where
   newEntries : List OLeanEntry := []
   table      : Table γ := {}
+  deriving Inhabited
 
 abbrev Extension (γ : Type) := PersistentEnvExtension OLeanEntry (AttributeEntry γ) (ExtensionState γ)
 
@@ -65,6 +64,7 @@ structure KeyedDeclsAttribute (γ : Type) where
   tableRef : IO.Ref (KeyedDeclsAttribute.Table γ)
   -- instances from current module
   ext      : KeyedDeclsAttribute.Extension γ
+  deriving Inhabited
 
 namespace KeyedDeclsAttribute
 
@@ -72,11 +72,6 @@ def Table.insert {γ : Type} (table : Table γ) (k : Key) (v : γ) : Table γ :=
   match table.find? k with
   | some vs => SMap.insert table k (v::vs)
   | none    => SMap.insert table k [v]
-
-instance {γ} : Inhabited (ExtensionState γ) := ⟨{}⟩
-
-instance {γ} : Inhabited (KeyedDeclsAttribute γ) :=
-  ⟨{ defn := arbitrary, tableRef := arbitrary, ext := arbitrary }⟩
 
 private def mkInitial {γ} (tableRef : IO.Ref (Table γ)) : IO (ExtensionState γ) := do
   let table ← tableRef.get

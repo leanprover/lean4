@@ -100,9 +100,7 @@ namespace Closure
 structure ToProcessElement where
   fvarId : FVarId
   newFVarId : FVarId
-
-instance : Inhabited ToProcessElement :=
-  ⟨⟨arbitrary, arbitrary⟩⟩
+  deriving Inhabited
 
 structure Context where
   zeta : Bool

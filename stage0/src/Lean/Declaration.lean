@@ -34,6 +34,7 @@ inductive ReducibilityHints where
   | opaque   : ReducibilityHints
   | «abbrev» : ReducibilityHints
   | regular  : UInt32 → ReducibilityHints
+  deriving Inhabited
 
 @[export lean_mk_reducibility_hints_regular]
 def mkReducibilityHintsRegularEx (h : UInt32) : ReducibilityHints :=
@@ -46,8 +47,6 @@ def ReducibilityHints.getHeightEx (h : ReducibilityHints) : UInt32 :=
   | _ => 0
 
 namespace ReducibilityHints
-
-instance : Inhabited ReducibilityHints := ⟨opaque⟩
 
 def lt : ReducibilityHints → ReducibilityHints → Bool
   | «abbrev»,   «abbrev»   => false
@@ -63,8 +62,7 @@ structure ConstantVal where
   name : Name
   lparams : List Name
   type : Expr
-
-instance : Inhabited ConstantVal := ⟨{ name := arbitrary, lparams := arbitrary, type := arbitrary }⟩
+  deriving Inhabited
 
 structure AxiomVal extends ConstantVal where
   isUnsafe : Bool
@@ -136,8 +134,7 @@ inductive Declaration where
   | quotDecl
   | mutualDefnDecl  (defns : List DefinitionVal) -- All definitions must be marked as `unsafe`
   | inductDecl      (lparams : List Name) (nparams : Nat) (types : List InductiveType) (isUnsafe : Bool)
-
-instance : Inhabited Declaration := ⟨Declaration.quotDecl⟩
+  deriving Inhabited
 
 @[export lean_mk_inductive_decl]
 def mkInductiveDeclEs (lparams : List Name) (nparams : Nat) (types : List InductiveType) (isUnsafe : Bool) : Declaration :=
@@ -185,9 +182,7 @@ structure InductiveVal extends ConstantVal where
   isUnsafe : Bool
   isReflexive : Bool
   isNested : Bool
-
-instance : Inhabited InductiveVal where
-  default := ⟨arbitrary, 0, 0, [], [], false, false, false, false⟩
+  deriving Inhabited
 
 @[export lean_mk_inductive_val]
 def mkInductiveValEx (name : Name) (lparams : List Name) (type : Expr) (nparams nindices : Nat)
@@ -218,6 +213,7 @@ structure ConstructorVal extends ConstantVal where
   nparams : Nat   -- Number of parameters in inductive datatype `induct`
   nfields : Nat   -- Number of fields (i.e., arity - nparams)
   isUnsafe : Bool
+  deriving Inhabited
 
 @[export lean_mk_constructor_val]
 def mkConstructorValEx (name : Name) (lparams : List Name) (type : Expr) (induct : Name) (cidx nparams nfields : Nat) (isUnsafe : Bool) : ConstructorVal := {
@@ -232,9 +228,6 @@ def mkConstructorValEx (name : Name) (lparams : List Name) (type : Expr) (induct
 }
 
 @[export lean_constructor_val_is_unsafe] def ConstructorVal.isUnsafeEx (v : ConstructorVal) : Bool := v.isUnsafe
-
-instance : Inhabited ConstructorVal :=
-  ⟨{ toConstantVal := arbitrary, induct := arbitrary, cidx := 0, nparams := 0, nfields := 0, isUnsafe := true }⟩
 
 /-- Information for reducing a recursor -/
 structure RecursorRule where

@@ -15,10 +15,9 @@ inductive Value where
   | top -- any value
   | ctor (i : CtorInfo) (vs : Array Value)
   | choice (vs : List Value)
+  deriving Inhabited
 
 namespace Value
-
-instance : Inhabited Value := ⟨top⟩
 
 protected partial def beq : Value → Value → Bool
   | bot, bot => true

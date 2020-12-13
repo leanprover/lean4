@@ -433,6 +433,7 @@ lean_object* l_Lean_Elab_Command_getCurrMacroScope(lean_object*, lean_object*, l
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabAttrs___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandFields___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_structure___elambda__1___closed__1;
+extern lean_object* l_Lean_Elab_instInhabitedModifiers___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_elabStructureView___spec__5(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -605,7 +606,6 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabModifiers___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_processSubfields_loop___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabStructure___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Command_instInhabitedCtorView___closed__1;
 extern lean_object* l_Lean_Elab_Command_checkValidCtorModifier___rarg___lambda__2___closed__3;
 extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_891____closed__1;
 extern lean_object* l_Lean_Elab_elabAttr___rarg___lambda__5___closed__3;
@@ -2695,7 +2695,7 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_11 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_defaultCtorName;
 x_12 = l_Lean_Name_append(x_3, x_11);
-x_13 = l_Lean_Elab_Command_instInhabitedCtorView___closed__1;
+x_13 = l_Lean_Elab_instInhabitedModifiers___closed__1;
 x_14 = 0;
 lean_inc(x_1);
 x_15 = lean_alloc_ctor(0, 4, 1);

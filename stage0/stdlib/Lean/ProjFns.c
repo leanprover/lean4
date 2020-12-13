@@ -39,7 +39,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l_Array_qsort_sort___at_Lean_initFn____x40_Lean_ProjFns___hyg_40____spec__1___lambda__1(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-extern lean_object* l_IO_Error_instInhabitedError___closed__1;
 lean_object* l_Lean_Environment_getProjectionStructureName_x3f_match__2(lean_object*);
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
@@ -66,6 +65,7 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_ProjFns___hyg_40____spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addProjectionFnInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_IO_instInhabitedError___closed__1;
 lean_object* l_Array_binSearchAux___at_Lean_Environment_getProjectionFnInfo_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_ProjFns___hyg_40____spec__1___lambda__1___boxed(lean_object*, lean_object*);
@@ -845,7 +845,7 @@ lean_object* l_Lean_projectionFnInfoExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_instInhabitedError___closed__1;
+x_2 = l_IO_instInhabitedError___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

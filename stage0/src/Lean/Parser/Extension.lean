@@ -54,18 +54,14 @@ inductive OLeanEntry where
   | kind      (val : SyntaxNodeKind) : OLeanEntry
   | category  (catName : Name) (leadingIdentAsSymbol : Bool)
   | parser    (catName : Name) (declName : Name) (prio : Nat) : OLeanEntry
+  deriving Inhabited
 
 inductive Entry where
   | token     (val : Token) : Entry
   | kind      (val : SyntaxNodeKind) : Entry
   | category  (catName : Name) (leadingIdentAsSymbol : Bool)
   | parser    (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Entry
-
-instance : Inhabited OLeanEntry where
-  default := OLeanEntry.token arbitrary
-
-instance : Inhabited Entry where
-  default := Entry.token arbitrary
+  deriving Inhabited
 
 def Entry.toOLeanEntry : Entry → OLeanEntry
   | token v             => OLeanEntry.token v
@@ -77,8 +73,7 @@ structure State where
   tokens      : TokenTable := {}
   kinds       : SyntaxNodeKindSet := {}
   categories  : ParserCategories := {}
-
-instance : Inhabited State := ⟨{}⟩
+  deriving Inhabited
 
 end ParserExtension
 

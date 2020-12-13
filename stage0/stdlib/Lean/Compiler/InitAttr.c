@@ -56,7 +56,6 @@ lean_object* l_List_map___at_Lean_resolveGlobalConst___spec__2(lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__6;
 lean_object* l_Lean_registerInitAttrUnsafe___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isIOUnitInitFnCore_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_IO_Error_instInhabitedError___closed__1;
 lean_object* l_Lean_registerInitAttrUnsafe___closed__2;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_throwUnknownConstant___at_Lean_registerInitAttrUnsafe___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -98,6 +97,7 @@ extern lean_object* l_Lean_instInhabitedAttributeImpl___closed__3;
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__7;
 lean_object* l_IO_ofExcept___at_Lean_registerInitAttrUnsafe___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getInitFnNameForCore_x3f___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_IO_instInhabitedError___closed__1;
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__3(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isIOUnitBuiltinInitFn___boxed(lean_object*, lean_object*);
@@ -2934,7 +2934,7 @@ lean_object* l_Lean_registerInitAttr___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_instInhabitedError___closed__1;
+x_2 = l_IO_instInhabitedError___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

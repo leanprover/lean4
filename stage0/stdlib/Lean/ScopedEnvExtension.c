@@ -105,7 +105,6 @@ lean_object* l_Lean_ScopedEnvExtension_addLocalEntry(lean_object*, lean_object*,
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean_ScopedEnvExtension_addScopedEntry___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__25(lean_object*);
-extern lean_object* l_IO_Error_instInhabitedError___closed__1;
 lean_object* l_Std_HashMapImp_moveEntries___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__28(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
@@ -187,6 +186,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_pushScope___spec__1___rarg___lam
 lean_object* l_Array_forInUnsafe_loop___at_Lean_pushScope___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_ScopedEntries_insert___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedScopedEnvExtension(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_IO_instInhabitedError___closed__1;
 lean_object* l_Lean_ScopedEnvExtension_activateScoped(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -546,7 +546,7 @@ lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___lambda__1(lea
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_IO_Error_instInhabitedError___closed__1;
+x_5 = l_IO_instInhabitedError___closed__1;
 x_6 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
@@ -5086,7 +5086,7 @@ lean_object* l_Lean_registerScopedEnvExtension___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_instInhabitedError___closed__1;
+x_2 = l_IO_instInhabitedError___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

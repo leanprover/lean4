@@ -60,8 +60,7 @@ structure ParamInfo where
   instImplicit : Bool      := false
   hasFwdDeps   : Bool      := false
   backDeps     : Array Nat := #[]
-
-instance : Inhabited ParamInfo := ⟨{}⟩
+  deriving Inhabited
 
 def ParamInfo.isExplicit (p : ParamInfo) : Bool :=
   !p.implicit && p.instImplicit
@@ -74,9 +73,9 @@ structure InfoCacheKey where
   transparency : TransparencyMode
   expr         : Expr
   nargs?       : Option Nat
+  deriving Inhabited
 
 namespace InfoCacheKey
-instance : Inhabited InfoCacheKey := ⟨⟨arbitrary, arbitrary, arbitrary⟩⟩
 instance : Hashable InfoCacheKey :=
   ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) $ mixHash (hash expr) (hash nargs)⟩
 instance : BEq InfoCacheKey :=
@@ -93,6 +92,7 @@ structure Cache where
   synthInstance : SynthInstanceCache := {}
   whnfDefault   : PersistentExprStructMap Expr := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll       : PersistentExprStructMap Expr := {} -- cache for closed terms and `TransparencyMode.all`
+  deriving Inhabited
 
 structure PostponedEntry where
   lhs       : Level
@@ -104,8 +104,7 @@ structure State where
   /- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
   zetaFVarIds : NameSet := {}
   postponed   : PersistentArray PostponedEntry := {}
-
-instance : Inhabited State := ⟨{}⟩
+  deriving Inhabited
 
 structure Context where
   config         : Config         := {}
@@ -114,22 +113,18 @@ structure Context where
 
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
-instance : Inhabited (MetaM α) := {
+instance : Inhabited (MetaM α) where
   default := fun _ _ => arbitrary
-}
 
-instance : MonadLCtx MetaM := {
-  getLCtx := do pure (← read).lctx
-}
+instance : MonadLCtx MetaM where
+  getLCtx := return (← read).lctx
 
-instance : MonadMCtx MetaM := {
-  getMCtx    := do pure (← get).mctx,
-  modifyMCtx := fun f => modify fun s => { s with mctx := f s.mctx }
-}
+instance : MonadMCtx MetaM where
+  getMCtx    := return (← get).mctx
+  modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
 
-instance : AddMessageContext MetaM := {
+instance : AddMessageContext MetaM where
   addMessageContext := addMessageContextFull
-}
 
 @[inline] def MetaM.run (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
   x ctx |>.run s

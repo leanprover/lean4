@@ -15,7 +15,8 @@ namespace Lean
 /- Opaque environment extension state. -/
 constant EnvExtensionStateSpec : PointedType.{0}
 def EnvExtensionState : Type := EnvExtensionStateSpec.type
-instance : Inhabited EnvExtensionState := ⟨EnvExtensionStateSpec.val⟩
+instance : Inhabited EnvExtensionState where
+  default := EnvExtensionStateSpec.val
 
 def ModuleIdx := Nat
 
@@ -47,6 +48,7 @@ structure EnvironmentHeader where
   imports      : Array Import := #[] -- direct imports
   regions      : Array CompactedRegion := #[] -- compacted regions of all imported modules
   moduleNames  : NameSet      := {}  -- names of all imported modules
+  deriving Inhabited
 
 open Std (HashMap)
 
@@ -55,11 +57,9 @@ structure Environment where
   constants    : ConstMap
   extensions   : Array EnvExtensionState
   header       : EnvironmentHeader := {}
+  deriving Inhabited
 
 namespace Environment
-
-instance : Inhabited Environment :=
-  ⟨{ const2ModIdx := {}, constants := {}, extensions := #[] }⟩
 
 def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
   { env with constants := env.constants.insert cinfo.name cinfo }
@@ -148,15 +148,16 @@ structure EnvExtensionInterface where
   getState     {σ} (e : ext σ) (env : Environment) : σ
   mkInitialExtStates : IO (Array EnvExtensionState)
 
-instance : Inhabited EnvExtensionInterface := ⟨{
-  ext                := id,
-  inhabitedExt       := id,
-  registerExt        := fun mk => mk,
-  setState           := fun _ env _ => env,
-  modifyState        := fun _ env _ => env,
-  getState           := fun ext _ => ext,
-  mkInitialExtStates := pure #[]
-}⟩
+instance : Inhabited EnvExtensionInterface where
+  default := {
+    ext                := id,
+    inhabitedExt       := id,
+    registerExt        := fun mk => mk,
+    setState           := fun _ env _ => env,
+    modifyState        := fun _ env _ => env,
+    getState           := fun ext _ => ext,
+    mkInitialExtStates := pure #[]
+  }
 
 /- Unsafe implementation of `EnvExtensionInterface` -/
 namespace EnvExtensionInterfaceUnsafe
@@ -164,8 +165,7 @@ namespace EnvExtensionInterfaceUnsafe
 structure Ext (σ : Type) where
   idx       : Nat
   mkInitial : IO σ
-
-instance {σ} : Inhabited (Ext σ) := ⟨{idx := 0, mkInitial := arbitrary }⟩
+  deriving Inhabited
 
 private def mkEnvExtensionsRef : IO (IO.Ref (Array (Ext EnvExtensionState))) := IO.mkRef #[]
 @[builtinInit mkEnvExtensionsRef] private constant envExtensionsRef : IO.Ref (Array (Ext EnvExtensionState))
@@ -285,14 +285,15 @@ instance : Inhabited EnvExtensionEntry := ⟨EnvExtensionEntrySpec.val⟩
 instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
   ⟨{importedEntries := #[], state := arbitrary }⟩
 
-instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) := ⟨{
-   toEnvExtension := arbitrary,
-   name := arbitrary,
-   addImportedFn := fun _ => arbitrary,
-   addEntryFn := fun s _ => s,
-   exportEntriesFn := fun _ => #[],
-   statsFn := fun _ => Format.nil
-}⟩
+instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) where
+  default := {
+     toEnvExtension := arbitrary,
+     name := arbitrary,
+     addImportedFn := fun _ => arbitrary,
+     addEntryFn := fun s _ => s,
+     exportEntriesFn := fun _ => #[],
+     statsFn := fun _ => Format.nil
+  }
 
 namespace PersistentEnvExtension
 

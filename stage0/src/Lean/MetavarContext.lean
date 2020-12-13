@@ -221,6 +221,7 @@ we may solve the issue by implementing `isDefEqCheap` that never invokes TC and 
 structure LocalInstance where
   className : Name
   fvar      : Expr
+  deriving Inhabited
 
 abbrev LocalInstances := Array LocalInstance
 
@@ -237,6 +238,7 @@ inductive MetavarKind where
   | natural
   | synthetic
   | syntheticOpaque
+  deriving Inhabited
 
 def MetavarKind.isSyntheticOpaque : MetavarKind → Bool
   | MetavarKind.syntheticOpaque => true
@@ -254,12 +256,11 @@ structure MetavarDecl where
   localInstances : LocalInstances
   kind           : MetavarKind
   numScopeArgs   : Nat := 0 -- See comment at `CheckAssignment` `Meta/ExprDefEq.lean`
+  deriving Inhabited
 
 @[export lean_mk_metavar_decl]
 def mkMetavarDeclEx (userName : Name) (lctx : LocalContext) (type : Expr) (depth : Nat) (localInstances : LocalInstances) (kind : MetavarKind) : MetavarDecl :=
   { userName := userName, lctx := lctx, type := type, depth := depth, localInstances := localInstances, kind := kind }
-
-instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary, type := arbitrary, depth := 0, localInstances := #[], kind := MetavarKind.natural }⟩
 
 /--
   A delayed assignment for a metavariable `?m`. It represents an assignment of the form

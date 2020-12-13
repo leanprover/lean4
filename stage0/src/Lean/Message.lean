@@ -19,6 +19,7 @@ def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : S
 
 inductive MessageSeverity where
   | information | warning | error
+  deriving Inhabited
 
 structure MessageDataContext where
   env : Environment
@@ -51,6 +52,7 @@ inductive MessageData where
      Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
   | node              : Array MessageData → MessageData
+  deriving Inhabited
 
 namespace MessageData
 
@@ -64,8 +66,6 @@ def isNil : MessageData → Bool
 def isNest : MessageData → Bool
   | nest _ _ => true
   | _        => false
-
-instance : Inhabited MessageData := ⟨MessageData.ofFormat arbitrary⟩
 
 def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
   env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, opts := ctx.opts,
@@ -142,6 +142,7 @@ structure Message where
   severity : MessageSeverity := MessageSeverity.error
   caption  : String          := ""
   data     : MessageData
+  deriving Inhabited
 
 @[export lean_mk_message]
 def mkMessageEx (fileName : String) (pos : Position) (endPos : Option Position) (severity : MessageSeverity) (caption : String) (text : String) : Message :=

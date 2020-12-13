@@ -37,6 +37,7 @@ lean_object* l_Lean_Core_instMonadOptionsCoreM;
 lean_object* l_Lean_Core_instMonadEnvCoreM___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
+extern lean_object* l_Lean_instInhabitedEnvironment___closed__4;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadNameGeneratorCoreM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMetaEvalCoreM_match__1(lean_object*, lean_object*);
@@ -58,6 +59,7 @@ lean_object* l_Lean_Core_instMonadLiftIOCoreM(lean_object*);
 lean_object* l_Lean_catchInternalIds___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadTraceCoreM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_LocalContext_mkEmpty___closed__1;
 lean_object* l_List_elem___at_Lean_catchInternalIds___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedException___closed__1;
 lean_object* l_Lean_Core_instMonadOptionsCoreM___closed__2;
@@ -73,7 +75,6 @@ lean_object* l_Lean_Core_instMonadTraceCoreM___closed__2;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Core_instMetaEvalCoreM___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadRecDepthCoreM___closed__4;
 lean_object* l_Lean_Core_instMonadRefCoreM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_NameGenerator_instInhabitedNameGenerator___closed__1;
 lean_object* l_Lean_Core_instMonadRefCoreM___closed__4;
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadResolveNameCoreM___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -107,7 +108,6 @@ lean_object* l_Lean_Core_instMonadRefCoreM___lambda__2(lean_object*, lean_object
 lean_object* l_ReaderT_bind___at_Lean_Core_instMonadRefCoreM___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadRecDepthCoreM___closed__2;
 lean_object* l_Lean_Core_instMonadResolveNameCoreM___closed__1;
-extern lean_object* l_Lean_LocalContext_instInhabitedLocalContext___closed__1;
 lean_object* l_Lean_Core_CoreM_run(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Core_instMonadTraceCoreM;
@@ -130,6 +130,7 @@ lean_object* l_Lean_Core_State_nextMacroScope___default;
 lean_object* l_Lean_Core_instMetaEvalCoreM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_catchInternalIds_match__1(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+extern lean_object* l_Lean_NameGenerator_namePrefix___default___closed__2;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMetaEvalCoreM___rarg(lean_object*);
 lean_object* l_Lean_Core_liftIOCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -171,12 +172,12 @@ lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContex
 lean_object* l_Lean_Core_Context_currRecDepth___default;
 lean_object* l_Lean_Core_liftIOCore(lean_object*);
 lean_object* l_Lean_Core_instInhabitedState___closed__2;
+lean_object* l_Lean_Core_State_ngen___default___closed__1;
 lean_object* l_Lean_catchInternalId_match__1(lean_object*);
 lean_object* l_Lean_Core_instAddMessageContextCoreM;
 extern lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
 lean_object* l_Lean_Core_CoreM_run_x27(lean_object*);
 lean_object* l_Lean_Core_mkFreshUserName(lean_object*);
-extern lean_object* l_Lean_Environment_instInhabitedEnvironment___closed__4;
 lean_object* l_Lean_catchInternalId_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadResolveNameCoreM;
 lean_object* l_Lean_Core_instMonadRefCoreM___closed__3;
@@ -202,11 +203,23 @@ x_1 = l_Lean_Unhygienic_run___rarg___closed__1;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Core_State_ngen___default___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_NameGenerator_namePrefix___default___closed__2;
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Core_State_ngen___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_NameGenerator_instInhabitedNameGenerator___closed__1;
+x_1 = l_Lean_Core_State_ngen___default___closed__1;
 return x_1;
 }
 }
@@ -225,7 +238,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Std_HashMap_instInhabitedHashMap___closed__1;
 x_2 = l_Lean_mkEmptyEnvironment___lambda__1___closed__1;
 x_3 = l_Array_empty___closed__1;
-x_4 = l_Lean_Environment_instInhabitedEnvironment___closed__4;
+x_4 = l_Lean_instInhabitedEnvironment___closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -240,7 +253,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Core_instInhabitedState___closed__1;
 x_2 = l_Lean_Unhygienic_run___rarg___closed__1;
-x_3 = l_Lean_NameGenerator_instInhabitedNameGenerator___closed__1;
+x_3 = l_Lean_Core_State_ngen___default___closed__1;
 x_4 = l_Lean_TraceState_instInhabitedTraceState___closed__1;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
@@ -798,7 +811,7 @@ lean_inc(x_8);
 lean_dec(x_7);
 x_9 = lean_ctor_get(x_2, 0);
 x_10 = l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1;
-x_11 = l_Lean_LocalContext_instInhabitedLocalContext___closed__1;
+x_11 = l_Lean_LocalContext_mkEmpty___closed__1;
 lean_inc(x_9);
 x_12 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_12, 0, x_8);
@@ -824,7 +837,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_ctor_get(x_2, 0);
 x_18 = l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1;
-x_19 = l_Lean_LocalContext_instInhabitedLocalContext___closed__1;
+x_19 = l_Lean_LocalContext_mkEmpty___closed__1;
 lean_inc(x_17);
 x_20 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_20, 0, x_16);
@@ -2668,7 +2681,7 @@ lean_ctor_set(x_34, 3, x_32);
 lean_ctor_set(x_34, 4, x_33);
 lean_ctor_set(x_34, 5, x_30);
 x_35 = l_Lean_Unhygienic_run___rarg___closed__1;
-x_36 = l_Lean_NameGenerator_instInhabitedNameGenerator___closed__1;
+x_36 = l_Lean_Core_State_ngen___default___closed__1;
 x_37 = l_Lean_TraceState_instInhabitedTraceState___closed__1;
 x_38 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_38, 0, x_2);
@@ -3442,6 +3455,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Core_State_nextMacroScope___default = _init_l_Lean_Core_State_nextMacroScope___default();
 lean_mark_persistent(l_Lean_Core_State_nextMacroScope___default);
+l_Lean_Core_State_ngen___default___closed__1 = _init_l_Lean_Core_State_ngen___default___closed__1();
+lean_mark_persistent(l_Lean_Core_State_ngen___default___closed__1);
 l_Lean_Core_State_ngen___default = _init_l_Lean_Core_State_ngen___default();
 lean_mark_persistent(l_Lean_Core_State_ngen___default);
 l_Lean_Core_State_traceState___default = _init_l_Lean_Core_State_traceState___default();

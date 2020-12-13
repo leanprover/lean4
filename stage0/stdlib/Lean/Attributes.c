@@ -122,7 +122,6 @@ lean_object* l_Std_RBNode_fold___at_Lean_registerParametricAttribute___spec__1(l
 lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_741_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_312_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_171_(lean_object*);
-extern lean_object* l_IO_Error_instInhabitedError___closed__1;
 lean_object* l_Lean_mkAttributeImplOfBuilder_match__1(lean_object*);
 lean_object* l_Lean_registerEnumAttributes___rarg___lambda__3___boxed(lean_object*);
 uint8_t l_Lean_instBEqAttributeKind(uint8_t, uint8_t);
@@ -227,6 +226,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerEnumA
 lean_object* l_Lean_AttributeImpl_erase___default___rarg___closed__3;
 lean_object* l_Lean_instInhabitedAttributeImpl;
 lean_object* l_Std_RBNode_fold___at_Lean_registerEnumAttributes___spec__1___rarg___boxed(lean_object*, lean_object*);
+extern lean_object* l_IO_instInhabitedError___closed__1;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__7___closed__1;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -4597,7 +4597,7 @@ lean_object* l_Lean_attributeExtension___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_instInhabitedError___closed__1;
+x_2 = l_IO_instInhabitedError___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

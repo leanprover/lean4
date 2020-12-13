@@ -22,9 +22,7 @@ structure DefViewElabHeader where
   numParams     : Nat
   type          : Expr -- including the parameters
   valueStx      : Syntax
-
-instance : Inhabited DefViewElabHeader :=
-  ⟨⟨arbitrary, {}, DefKind.«def», arbitrary, arbitrary, [], 0, arbitrary, arbitrary ⟩⟩
+  deriving Inhabited
 
 namespace Term
 

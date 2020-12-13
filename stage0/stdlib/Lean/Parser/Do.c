@@ -140,6 +140,7 @@ lean_object* l_Lean_Parser_Term_letIdDeclNoBinders___closed__3;
 lean_object* l_Lean_Parser_Term_doIf_formatter___closed__12;
 lean_object* l_Lean_Parser_Term_termReturn___closed__2;
 lean_object* l_Lean_Parser_Term_doMatchAlts___closed__1;
+extern lean_object* l_Lean_Parser_errorAtSavedPos___closed__1;
 lean_object* l_Lean_Parser_Term_doFinally___elambda__1___closed__7;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_doIf_parenthesizer___closed__8;
@@ -1180,7 +1181,6 @@ extern lean_object* l_Lean_Parser_Tactic_tacticSeqBracketed_parenthesizer___clos
 lean_object* l_Lean_Parser_Term_doFor___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_doTry___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_doExpr___elambda__1___closed__2;
-extern lean_object* l_Lean_Parser_instInhabitedParser___closed__2;
 lean_object* l_Lean_Parser_Term_elseIf___closed__3;
 lean_object* l_Lean_Parser_Term_termFor___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Term_doSeqBracketed_formatter___closed__5;
@@ -2232,7 +2232,7 @@ static lean_object* _init_l_Lean_Parser_Term_doSeqItem___elambda__1___closed__10
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_instInhabitedParser___closed__2;
+x_1 = l_Lean_Parser_instInhabitedParser___closed__1;
 x_2 = l_Lean_Parser_Term_doSeqItem___elambda__1___closed__9;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
@@ -2399,7 +2399,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Parser_Term_doSeqItem;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Lean_Parser_instInhabitedParser___closed__1;
+x_3 = l_Lean_Parser_errorAtSavedPos___closed__1;
 x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }
@@ -4269,7 +4269,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_instInhabitedParser___closed__1;
+x_1 = l_Lean_Parser_errorAtSavedPos___closed__1;
 x_2 = l_Lean_Parser_Term_notFollowedByRedefinedTermToken___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -5393,7 +5393,7 @@ static lean_object* _init_l_Lean_Parser_Term_doPatDecl___elambda__1___closed__13
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_instInhabitedParser___closed__1;
+x_1 = l_Lean_Parser_errorAtSavedPos___closed__1;
 x_2 = l_Lean_Parser_Term_doPatDecl___elambda__1___closed__11;
 x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
@@ -8696,7 +8696,7 @@ static lean_object* _init_l_Lean_Parser_Term_elseIf___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_instInhabitedParser___closed__1;
+x_1 = l_Lean_Parser_errorAtSavedPos___closed__1;
 x_2 = l_Lean_Parser_Term_elseIf___closed__1;
 x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
@@ -9586,7 +9586,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIf___elambda__1___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_instInhabitedParser___closed__1;
+x_1 = l_Lean_Parser_errorAtSavedPos___closed__1;
 x_2 = l_Lean_Parser_Term_doIf___elambda__1___closed__18;
 x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
@@ -9681,7 +9681,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIf___elambda__1___closed__29() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_instInhabitedParser___closed__1;
+x_1 = l_Lean_Parser_errorAtSavedPos___closed__1;
 x_2 = l_Lean_Parser_Term_doIf___elambda__1___closed__27;
 x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
@@ -14616,7 +14616,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Parser_antiquotNestedExpr___closed__2;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Lean_Parser_instInhabitedParser___closed__1;
+x_3 = l_Lean_Parser_errorAtSavedPos___closed__1;
 x_4 = l_Lean_Parser_andthenInfo(x_3, x_2);
 return x_4;
 }

@@ -58,7 +58,6 @@ lean_object* l_Lean_IR_getEnv___rarg(lean_object*);
 lean_object* l_Lean_IR_logMessageIf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LogEntry_fmt(lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
-extern lean_object* l_IO_Error_instInhabitedError___closed__1;
 lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_332____closed__5;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -100,6 +99,7 @@ lean_object* l_Lean_IR_declMapExt___closed__3;
 lean_object* l_Lean_IR_getDecl_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_logMessage___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_logMessage(lean_object*);
+extern lean_object* l_IO_instInhabitedError___closed__1;
 lean_object* l_Lean_IR_getDecl___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_findEnvDecl_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_IR_findEnvDecl___spec__5___boxed(lean_object*, lean_object*);
@@ -2564,7 +2564,7 @@ lean_object* l_Lean_IR_declMapExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_instInhabitedError___closed__1;
+x_2 = l_IO_instInhabitedError___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

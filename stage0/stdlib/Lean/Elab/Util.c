@@ -56,7 +56,6 @@ lean_object* l_Lean_Elab_adaptMacro___rarg___lambda__2(lean_object*, lean_object
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_136____closed__2;
 lean_object* l_Lean_Elab_instMonadMacroAdapter___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
-extern lean_object* l_IO_Error_instInhabitedError___closed__1;
 lean_object* l_Lean_Elab_getMacroStackOption___closed__2;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_136____closed__1;
 lean_object* l_Lean_Elab_addMacroStack___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,7 +82,6 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Lean_Elab_addMacroStack___spec__1___closed__3;
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacro_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_prettyPrint_match__1(lean_object*);
-extern lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedKeyedDeclsAttribute___closed__1;
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__10;
 lean_object* l_Lean_Elab_mkUnusedBaseName___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -95,6 +93,7 @@ lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_454_(lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_136_(lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_891_(lean_object*);
 lean_object* l_Lean_Elab_getMacros(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_IO_instInhabitedError___closed__1;
 lean_object* l_Lean_Syntax_prettyPrint(lean_object*);
 lean_object* l_Lean_Elab_mkUnusedBaseName_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
@@ -108,6 +107,7 @@ lean_object* l_Lean_attrParamSyntaxToIdentifier(lean_object*);
 lean_object* l_Lean_Elab_instMonadMacroAdapter___rarg(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__5;
+extern lean_object* l_Lean_instInhabitedKeyedDeclsAttribute___closed__1;
 lean_object* l_Lean_Elab_mkUnusedBaseName___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addMacroStack(lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1392,7 +1392,7 @@ lean_object* l_Lean_Elab_mkMacroAttribute(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_instInhabitedError___closed__1;
+x_2 = l_IO_instInhabitedError___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

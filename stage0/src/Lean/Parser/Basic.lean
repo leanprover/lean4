@@ -116,10 +116,7 @@ structure InputContext where
   input    : String
   fileName : String
   fileMap  : FileMap
-
-instance : Inhabited InputContext := ⟨{
-  input := "", fileName := "", fileMap := arbitrary
-}⟩
+  deriving Inhabited
 
 /-- Input context derived from elaboration of previous commands. -/
 structure ParserModuleContext where
@@ -142,9 +139,9 @@ def ParserContext.resolveName (ctx : ParserContext) (id : Name) : List (Name × 
 structure Error where
   unexpected : String := ""
   expected : List String := []
+  deriving Inhabited
 
 namespace Error
-instance : Inhabited Error := ⟨{}⟩
 
 private def expectedToString : List String → String
   | []       => ""
@@ -262,13 +259,15 @@ end ParserState
 
 def ParserFn := ParserContext → ParserState → ParserState
 
-instance : Inhabited ParserFn := ⟨fun _ => id⟩
+instance : Inhabited ParserFn where
+  default := fun ctx s => s
 
 inductive FirstTokens where
   | epsilon   : FirstTokens
   | unknown   : FirstTokens
   | tokens    : List Token → FirstTokens
   | optTokens : List Token → FirstTokens
+  deriving Inhabited
 
 namespace FirstTokens
 
@@ -305,13 +304,12 @@ structure ParserInfo where
   collectTokens : List Token → List Token := id
   collectKinds  : SyntaxNodeKindSet → SyntaxNodeKindSet := id
   firstTokens   : FirstTokens := FirstTokens.unknown
+  deriving Inhabited
 
 structure Parser where
   info : ParserInfo := {}
   fn   : ParserFn
-
-instance : Inhabited Parser :=
-  ⟨{ fn := fun _ s => s }⟩
+  deriving Inhabited
 
 abbrev TrailingParser := Parser
 

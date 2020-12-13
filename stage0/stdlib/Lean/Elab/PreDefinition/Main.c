@@ -98,7 +98,6 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg___closed__1;
 lean_object* l_Lean_SCC_scc___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__5___closed__1;
 lean_object* l_List_forM___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__24(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_instInhabitedPreDefinition;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_SCC_scc___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__5___closed__2;
 lean_object* l_List_map___at_Lean_Elab_addPreDefinitions___spec__7(lean_object*);
@@ -137,6 +136,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__8
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Elab_Term_0__Lean_Elab_Term_tryPureCoe_x3f___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__8___lambda__1___closed__1;
+extern lean_object* l_Lean_Elab_instInhabitedPreDefinition__1;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__21(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___rarg___lambda__1(lean_object*, lean_object*);
@@ -179,12 +179,12 @@ lean_object* l_Lean_Meta_setMCtx(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__8(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__17(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_986____closed__2;
 extern lean_object* l_Array_findSomeM_x3f___rarg___closed__1;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__1___closed__1;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_addAndCompilePartial___spec__1___lambda__2___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_addPreDefinitions___spec__6___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_965____closed__2;
 static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_addAndCompilePartial___spec__1___lambda__1___closed__1() {
 _start:
 {
@@ -399,7 +399,7 @@ lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean
 x_43 = lean_ctor_get(x_37, 1);
 lean_inc(x_43);
 lean_dec(x_37);
-x_44 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_965____closed__2;
+x_44 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_986____closed__2;
 x_45 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_postponeElabTerm___spec__2(x_44, x_2, x_3, x_4, x_5, x_6, x_7, x_43);
 x_46 = lean_ctor_get(x_45, 0);
 lean_inc(x_46);
@@ -417,7 +417,7 @@ block_24:
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = lean_ctor_get(x_1, 3);
 lean_inc(x_10);
-x_11 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_965____closed__2;
+x_11 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_986____closed__2;
 lean_inc(x_10);
 x_12 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_addAndCompilePartial___spec__1___lambda__1___boxed), 12, 3);
 lean_closure_set(x_12, 0, x_1);
@@ -495,7 +495,7 @@ x_31 = l_Lean_KernelException_toMessageData___closed__15;
 x_32 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_32, 0, x_30);
 lean_ctor_set(x_32, 1, x_31);
-x_33 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_965____closed__2;
+x_33 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_986____closed__2;
 x_34 = l_Lean_addTrace___at___private_Lean_Elab_Term_0__Lean_Elab_Term_postponeElabTerm___spec__1(x_33, x_32, x_2, x_3, x_4, x_5, x_6, x_7, x_26);
 x_35 = lean_ctor_get(x_34, 1);
 lean_inc(x_35);
@@ -2021,7 +2021,7 @@ x_54 = 8192;
 if (lean_obj_tag(x_49) == 0)
 {
 lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
-x_55 = l_Lean_Elab_instInhabitedPreDefinition;
+x_55 = l_Lean_Elab_instInhabitedPreDefinition__1;
 x_56 = l_Option_get_x21___rarg___closed__4;
 x_57 = lean_panic_fn(x_55, x_56);
 x_58 = lean_ctor_get(x_57, 4);
@@ -2356,7 +2356,7 @@ x_18 = x_3 + x_17;
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_19 = l_Lean_Elab_instInhabitedPreDefinition;
+x_19 = l_Lean_Elab_instInhabitedPreDefinition__1;
 x_20 = l_Option_get_x21___rarg___closed__4;
 x_21 = lean_panic_fn(x_19, x_20);
 x_22 = x_21;
@@ -2880,7 +2880,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefiniti
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_965____closed__2;
+x_1 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_986____closed__2;
 x_2 = l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -3562,7 +3562,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefiniti
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_965____closed__2;
+x_1 = l_Lean_Elab_Command_initFn____x40_Lean_Elab_DefView___hyg_986____closed__2;
 x_2 = l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__8___lambda__3___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -3714,7 +3714,7 @@ return x_70;
 else
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; uint8_t x_74; 
-x_71 = l_Lean_Elab_instInhabitedPreDefinition;
+x_71 = l_Lean_Elab_instInhabitedPreDefinition__1;
 x_72 = lean_unsigned_to_nat(0u);
 x_73 = lean_array_get(x_71, x_1, x_72);
 lean_inc(x_73);

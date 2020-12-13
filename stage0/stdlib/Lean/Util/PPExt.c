@@ -43,6 +43,7 @@ lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_101_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_147_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_3____closed__9;
+extern lean_object* l_Lean_LocalContext_mkEmpty___closed__1;
 lean_object* l_Lean_fmt___at_Lean_ppExpr___spec__3___boxed(lean_object*);
 lean_object* l_Lean_getSyntaxMaxDepth___boxed(lean_object*);
 lean_object* l_Lean_ppTerm___closed__1;
@@ -53,7 +54,6 @@ uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Lean_MetavarContext_instInhabitedMetavarContext___closed__1;
 extern lean_object* l_Lean_Format_join___closed__1;
 extern lean_object* l_Lean_instInhabitedPersistentEnvExtension___closed__1;
-extern lean_object* l_Lean_LocalContext_instInhabitedLocalContext___closed__1;
 lean_object* l_Lean_ppFnsRef;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_147____closed__1;
@@ -286,7 +286,7 @@ static lean_object* _init_l_Lean_PPContext_lctx___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_LocalContext_instInhabitedLocalContext___closed__1;
+x_1 = l_Lean_LocalContext_mkEmpty___closed__1;
 return x_1;
 }
 }

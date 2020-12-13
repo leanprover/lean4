@@ -73,10 +73,9 @@ end Name
 structure NameGenerator where
   namePrefix : Name := `_uniq
   idx        : Nat  := 1
+  deriving Inhabited
 
 namespace NameGenerator
-
-instance : Inhabited NameGenerator := ⟨{}⟩
 
 @[inline] def curr (g : NameGenerator) : Name :=
   Name.mkNum g.namePrefix g.idx

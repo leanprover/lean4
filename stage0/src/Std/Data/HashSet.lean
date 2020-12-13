@@ -116,7 +116,8 @@ def mkHashSet {α : Type u} [BEq α] [Hashable α] (nbuckets := 8) : HashSet α 
 namespace HashSet
 variables {α : Type u} [BEq α] [Hashable α]
 
-instance : Inhabited (HashSet α) := ⟨mkHashSet⟩
+instance : Inhabited (HashSet α) where
+  default := mkHashSet
 
 instance : EmptyCollection (HashSet α) := ⟨mkHashSet⟩
 

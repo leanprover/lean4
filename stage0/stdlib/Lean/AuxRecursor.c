@@ -25,7 +25,6 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_noConfusionExt___closed__5;
 lean_object* l_Lean_auxRecExt___elambda__1___boxed(lean_object*);
 lean_object* l_Lean_noConfusionExt___closed__3;
-extern lean_object* l_IO_Error_instInhabitedError___closed__1;
 lean_object* l_Lean_auxRecExt___elambda__4(lean_object*, lean_object*);
 lean_object* l_Lean_auxRecExt;
 lean_object* l_Lean_auxRecExt___closed__4;
@@ -39,6 +38,7 @@ lean_object* lean_mark_no_confusion(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_3____closed__1;
 lean_object* l_Lean_noConfusionExt___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_auxRecExt___elambda__1(lean_object*);
+extern lean_object* l_IO_instInhabitedError___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_3_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_30_(lean_object*);
 lean_object* l_Lean_noConfusionExt___closed__4;
@@ -116,7 +116,7 @@ lean_object* l_Lean_auxRecExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_instInhabitedError___closed__1;
+x_2 = l_IO_instInhabitedError___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -304,7 +304,7 @@ lean_object* l_Lean_noConfusionExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Error_instInhabitedError___closed__1;
+x_2 = l_IO_instInhabitedError___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

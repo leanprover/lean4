@@ -596,7 +596,7 @@ lean_object* l_Lean_scientificLitKind;
 lean_object* l_instDecidableNot_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Monad_seqRight___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_list_to_array(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 lean_object* l_instDecidableLessEq___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux_match__2(lean_object*);
 lean_object* l_tryCatchThe(lean_object*, lean_object*);
@@ -736,7 +736,7 @@ lean_object* l_instMonadLiftT(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadExceptOfEStateM___rarg___closed__1;
 lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___boxed(lean_object*);
 lean_object* l_UInt16_ofNatCore___boxed(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*);
+lean_object* lean_array_data(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_instOfNatNat(lean_object*);
 size_t lean_usize_mix_hash(size_t, size_t);
@@ -4530,7 +4530,7 @@ lean_object* l_Array_data___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_array_to_list(x_2);
+x_3 = lean_array_data(x_2);
 return x_3;
 }
 }
@@ -4538,7 +4538,7 @@ lean_object* l_Array_mk___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_list_to_array(x_2);
+x_3 = lean_array_mk(x_2);
 return x_3;
 }
 }

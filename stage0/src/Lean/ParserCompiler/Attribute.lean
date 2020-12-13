@@ -14,7 +14,7 @@ namespace ParserCompiler
 structure CombinatorAttribute where
   impl : AttributeImpl
   ext  : SimplePersistentEnvExtension (Name × Name) (NameMap Name)
-
+  deriving Inhabited
 -- TODO(Sebastian): We'll probably want priority support here at some point
 
 def registerCombinatorAttribute (name : Name) (descr : String)
@@ -39,8 +39,6 @@ def registerCombinatorAttribute (name : Name) (descr : String)
   pure { impl := attrImpl, ext := ext }
 
 namespace CombinatorAttribute
-
-instance : Inhabited CombinatorAttribute := ⟨{ impl := arbitrary, ext := arbitrary }⟩
 
 def getDeclFor? (attr : CombinatorAttribute) (env : Environment) (parserDecl : Name) : Option Name :=
   (attr.ext.getState env).find? parserDecl

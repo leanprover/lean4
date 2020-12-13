@@ -84,7 +84,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 
 /-
 parser! "inductive " >> declId >> optDeclSig >> optional ":=" >> many ctor
-parser! atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ":=" >> many ctor
+parser! atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ":=" >> many ctor >> optDeriving
 -/
 private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView := do
   checkValidInductiveModifier modifiers
@@ -105,15 +105,17 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     let inferMod := !ctor[3].isNone
     let (binders, type?) := expandOptDeclSig ctor[4]
     pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
+  let classes ← getOptDerivingClasses decl[5]
   pure {
-    ref           := decl,
-    modifiers     := modifiers,
-    shortDeclName := name,
-    declName      := declName,
-    levelNames    := levelNames,
-    binders       := binders,
-    type?         := type?,
-    ctors         := ctors
+    ref             := decl
+    modifiers       := modifiers
+    shortDeclName   := name
+    declName        := declName
+    levelNames      := levelNames
+    binders         := binders
+    type?           := type?
+    ctors           := ctors
+    derivingClasses := classes
   }
 
 private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView :=

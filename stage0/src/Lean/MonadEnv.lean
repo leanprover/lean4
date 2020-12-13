@@ -15,6 +15,11 @@ variables {m : Type → Type} [MonadEnv m]
 def setEnv (env : Environment) : m Unit :=
   modifyEnv fun _ => env
 
+def isInductive [Monad m] (declName : Name) : m Bool := do
+  match (← getEnv).find? declName with
+  | some (ConstantInfo.inductInfo ..) => return true
+  | _ => return false
+
 @[inline] def withoutModifyingEnv [Monad m] [MonadFinally m] {α : Type} (x : m α) : m α := do
   let env ← getEnv
   try x finally setEnv env

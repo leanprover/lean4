@@ -721,11 +721,17 @@ def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : TermElabM (AltLHS
 def mkMatcher (elimName : Name) (matchType : Expr) (numDiscrs : Nat) (lhss : List AltLHS) : TermElabM MatcherResult :=
   liftMetaM $ Meta.Match.mkMatcher elimName matchType numDiscrs lhss
 
+builtin_initialize
+  registerOption `match.ignoreUnusedAlts { defValue := false, group := "", descr := "if true, do not generate error if an alternative is not used" }
+
+def ignoreUnusedAlts (opts : Options) : Bool :=
+  opts.get `match.ignoreUnusedAlts false
+
 def reportMatcherResultErrors (result : MatcherResult) : TermElabM Unit := do
   -- TODO: improve error messages
   unless result.counterExamples.isEmpty do
     throwError! "missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
-  unless result.unusedAltIdxs.isEmpty do
+  unless ignoreUnusedAlts (← getOptions) || result.unusedAltIdxs.isEmpty do
     throwError! "unused alternatives: {result.unusedAltIdxs.map fun idx => s!"#{idx+1}"}"
 
 private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)

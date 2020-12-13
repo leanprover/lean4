@@ -29,8 +29,7 @@ structure GeneratorNode where
   mctx            : MetavarContext
   instances       : Array Expr
   currInstanceIdx : Nat
-
-instance : Inhabited GeneratorNode := ⟨⟨arbitrary, arbitrary, arbitrary, arbitrary, 0⟩⟩
+  deriving Inhabited
 
 structure ConsumerNode where
   mvar     : Expr
@@ -38,9 +37,7 @@ structure ConsumerNode where
   mctx     : MetavarContext
   subgoals : List Expr
   size     : Nat -- instance size so far
-
-instance : Inhabited ConsumerNode where
-  default := { mvar := arbitrary, key := arbitrary, mctx := arbitrary, subgoals := [], size := 0 }
+  deriving Inhabited
 
 inductive Waiter where
   | consumerNode : ConsumerNode → Waiter

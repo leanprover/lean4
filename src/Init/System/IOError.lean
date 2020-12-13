@@ -51,6 +51,7 @@ inductive IO.Error where
 
   | unexpectedEof
   | userError (msg : String)
+  deriving Inhabited
 
 @[export mk_io_user_error]
 def IO.userError (s : String) : IO.Error :=
@@ -190,6 +191,5 @@ def toString : IO.Error → String
   | userError msg                            => msg
 
 instance : ToString IO.Error := ⟨ IO.Error.toString ⟩
-instance : Inhabited IO.Error := ⟨ userError "" ⟩
 
 end IO.Error

@@ -49,9 +49,7 @@ structure CtorView where
   declName  : Name
   binders   : Syntax
   type?     : Option Syntax
-
-instance : Inhabited CtorView :=
-  ⟨{ ref := arbitrary, modifiers := {}, inferMod := false, declName := arbitrary, binders := arbitrary, type? := none }⟩
+  deriving Inhabited
 
 structure InductiveView where
   ref             : Syntax
@@ -63,10 +61,7 @@ structure InductiveView where
   type?           : Option Syntax
   ctors           : Array CtorView
   derivingClasses : Array DerivingClassView
-
-instance : Inhabited InductiveView :=
-  ⟨{ ref := arbitrary, modifiers := {}, shortDeclName := arbitrary, declName := arbitrary,
-     levelNames := [], binders := arbitrary, type? := none, ctors := #[], derivingClasses := #[] }⟩
+  deriving Inhabited
 
 structure ElabHeaderResult where
   view       : InductiveView
@@ -74,9 +69,7 @@ structure ElabHeaderResult where
   localInsts : LocalInstances
   params     : Array Expr
   type       : Expr
-
-instance : Inhabited ElabHeaderResult :=
-  ⟨{ view := arbitrary, lctx := arbitrary, localInsts := arbitrary, params := #[], type := arbitrary }⟩
+  deriving Inhabited
 
 private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc : Array ElabHeaderResult) : TermElabM (Array ElabHeaderResult) := do
   if h : i < views.size then

@@ -12,6 +12,7 @@ namespace Lean
 inductive LocalDecl where
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
   | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool)
+  deriving Inhabited
 
 @[export lean_mk_local_decl]
 def mkLocalDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) : LocalDecl :=
@@ -25,7 +26,6 @@ def LocalDecl.binderInfoEx : LocalDecl → BinderInfo
   | _                          => BinderInfo.default
 
 namespace LocalDecl
-instance : Inhabited LocalDecl := ⟨ldecl arbitrary arbitrary arbitrary arbitrary arbitrary false⟩
 
 def isLet : LocalDecl → Bool
   | cdecl .. => false
@@ -96,9 +96,9 @@ open Std (PersistentHashMap PersistentArray PArray)
 structure LocalContext where
   fvarIdToDecl : PersistentHashMap FVarId LocalDecl := {}
   decls        : PersistentArray (Option LocalDecl) := {}
+  deriving Inhabited
 
 namespace LocalContext
-instance : Inhabited LocalContext := ⟨{}⟩
 
 @[export lean_mk_empty_local_ctx]
 def mkEmpty : Unit → LocalContext := fun _ => {}

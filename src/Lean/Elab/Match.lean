@@ -268,8 +268,7 @@ structure Context where
   namedArgs     : Array NamedArg
   args          : List Arg
   newArgs       : Array Syntax := #[]
-
-instance : Inhabited Context := ⟨⟨arbitrary, none, false, false, #[], 0, #[], [], #[]⟩⟩
+  deriving Inhabited
 
 private def isDone (ctx : Context) : Bool :=
   ctx.paramDeclIdx ≥ ctx.paramDecls.size

@@ -24,6 +24,7 @@ structure PreDefinition where
   declName  : Name
   type      : Expr
   value     : Expr
+  deriving Inhabited
 
 instance : Inhabited PreDefinition :=
   ⟨⟨DefKind.«def», [], {}, arbitrary, arbitrary, arbitrary⟩⟩

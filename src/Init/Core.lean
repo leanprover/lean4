@@ -440,20 +440,7 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
 instance : Inhabited Prop where
   default := True
 
-instance : Inhabited Bool where
-  default := false
-
-instance : Inhabited True where
-  default := trivial
-
-instance : Inhabited NonScalar where
-  default := ⟨arbitrary⟩
-
-instance : Inhabited PNonScalar.{u} where
-  default := ⟨arbitrary⟩
-
-instance {α} [Inhabited α] : Inhabited (ForInStep α) where
-  default := ForInStep.done (arbitrary)
+deriving instance Inhabited for Bool, NonScalar, PNonScalar, True, ForInStep
 
 class inductive Nonempty (α : Sort u) : Prop where
   | intro (val : α) : Nonempty α

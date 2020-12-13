@@ -21,8 +21,7 @@ structure Scope where
   openDecls     : List OpenDecl := []
   levelNames    : List Name := []
   varDecls      : Array Syntax := #[]
-
-instance : Inhabited Scope := ⟨{ header := "" }⟩
+  deriving Inhabited
 
 structure State where
   env            : Environment
@@ -32,8 +31,7 @@ structure State where
   maxRecDepth    : Nat
   nextInstIdx    : Nat := 1 -- for generating anonymous instance names
   ngen           : NameGenerator := {}
-
-instance : Inhabited State := ⟨{ env := arbitrary, maxRecDepth := 0 }⟩
+  deriving Inhabited
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
   env := env
@@ -241,7 +239,8 @@ def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun st
 private def getVarDecls (s : State) : Array Syntax :=
   s.scopes.head!.varDecls
 
-instance {α} : Inhabited (CommandElabM α) := ⟨throw arbitrary⟩
+instance {α} : Inhabited (CommandElabM α) where
+  default := throw arbitrary
 
 private def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }

@@ -20,10 +20,9 @@ end ClassEntry
 
 structure ClassState where
   hasOutParam : SMap Name Bool := SMap.empty
+  deriving Inhabited
 
 namespace ClassState
-
-instance : Inhabited ClassState := ⟨{}⟩
 
 def addEntry (s : ClassState) (entry : ClassEntry) : ClassState :=
   { s with hasOutParam := s.hasOutParam.insert entry.name entry.hasOutParam }

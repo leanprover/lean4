@@ -10,6 +10,7 @@ namespace Lean
 structure Position where
   line   : Nat
   column : Nat
+  deriving Inhabited
 
 namespace Position
 instance : DecidableEq Position :=
@@ -30,19 +31,15 @@ instance : ToFormat Position :=
 
 instance : ToString Position :=
   ⟨fun ⟨l, c⟩ => "⟨" ++ toString l ++ ", " ++ toString c ++ "⟩"⟩
-
-instance : Inhabited Position := ⟨⟨1, 0⟩⟩
 end Position
 
 structure FileMap where
   source    : String
   positions : Array String.Pos
   lines     : Array Nat
+  deriving Inhabited
 
 namespace FileMap
-
-instance : Inhabited FileMap :=
-  ⟨{ source := "", positions := #[], lines := #[] }⟩
 
 partial def ofString (s : String) : FileMap :=
   let rec loop (i : String.Pos) (line : Nat) (ps : Array String.Pos) (lines : Array Nat) : FileMap :=

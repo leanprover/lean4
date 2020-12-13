@@ -23,8 +23,7 @@ def hasElabWithoutExpectedType (env : Environment) (declName : Name) : Bool :=
 inductive Arg where
   | stx  (val : Syntax)
   | expr (val : Expr)
-
-instance : Inhabited Arg := ⟨Arg.stx arbitrary⟩
+  deriving Inhabited
 
 instance : ToString Arg := ⟨fun
   | Arg.stx  val => toString val
@@ -35,11 +34,10 @@ structure NamedArg where
   ref  : Syntax := Syntax.missing
   name : Name
   val  : Arg
+  deriving Inhabited
 
 instance : ToString NamedArg where
   toString s := "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"
-
-instance : Inhabited NamedArg := ⟨{ name := arbitrary, val := arbitrary }⟩
 
 def throwInvalidNamedArg {α} (namedArg : NamedArg) (fn? : Option Name) : TermElabM α :=
   withRef namedArg.ref $ match fn? with

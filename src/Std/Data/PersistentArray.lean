@@ -10,10 +10,9 @@ namespace Std
 inductive PersistentArrayNode (α : Type u) where
   | node (cs : Array (PersistentArrayNode α)) : PersistentArrayNode α
   | leaf (vs : Array α)                       : PersistentArrayNode α
+  deriving Inhabited
 
 namespace PersistentArrayNode
-
-instance {α : Type u} : Inhabited (PersistentArrayNode α) := ⟨leaf #[]⟩
 
 def isNode {α} : PersistentArrayNode α → Bool
   | node _ => true
@@ -34,6 +33,7 @@ structure PersistentArray (α : Type u) where
   size    : Nat                   := 0
   shift   : USize                 := PersistentArray.initShift
   tailOff : Nat                   := 0
+  deriving Inhabited
 
 abbrev PArray (α : Type u) := PersistentArray α
 
@@ -46,8 +46,6 @@ open Std.PersistentArrayNode
 def empty : PersistentArray α := {}
 
 def isEmpty (a : PersistentArray α) : Bool := a.size == 0
-
-instance : Inhabited (PersistentArray α) := ⟨{}⟩
 
 def mkEmptyArray : Array α := Array.mkEmpty branching.toNat
 

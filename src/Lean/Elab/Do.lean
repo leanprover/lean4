@@ -80,6 +80,7 @@ structure Alt (σ : Type) where
   vars : Array Name
   patterns : Syntax
   rhs : σ
+  deriving Inhabited
 
 /-
   Auxiliary datastructure for representing a `do` code block, and compiling "reassignments" (e.g., `x := x + 1`).
@@ -143,12 +144,7 @@ inductive Code where
   | ite          (ref : Syntax) (h? : Option Name) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
   | «match»      (ref : Syntax) (discrs : Syntax) (optType : Syntax) (alts : Array (Alt Code))
   | jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
-
-instance : Inhabited Code :=
-  ⟨Code.«break» arbitrary⟩
-
-instance : Inhabited (Alt Code) :=
-  ⟨{ ref := arbitrary, vars := #[], patterns := arbitrary, rhs := arbitrary }⟩
+  deriving Inhabited
 
 /- A code block, and the collection of variables updated by it. -/
 structure CodeBlock where

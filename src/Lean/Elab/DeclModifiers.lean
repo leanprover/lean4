@@ -26,6 +26,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception 
 
 inductive Visibility where
   | regular | «protected» | «private»
+  deriving Inhabited
 
 instance : ToString Visibility := ⟨fun
   | Visibility.regular     => "regular"
@@ -39,6 +40,7 @@ structure Modifiers where
   isPartial       : Bool := false
   isUnsafe        : Bool := false
   attrs           : Array Attribute := #[]
+  deriving Inhabited
 
 def Modifiers.isPrivate : Modifiers → Bool
   | { visibility := Visibility.private, .. } => true

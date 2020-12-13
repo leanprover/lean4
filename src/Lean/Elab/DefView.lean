@@ -16,6 +16,7 @@ namespace Lean.Elab
 
 inductive DefKind where
   | «def» | «theorem» | «example» | «opaque» | «abbrev»
+  deriving Inhabited
 
 def DefKind.isTheorem : DefKind → Bool
   | «theorem» => true
@@ -39,6 +40,7 @@ structure DefView where
   binders       : Syntax
   type?         : Option Syntax
   value         : Syntax
+  deriving Inhabited
 
 namespace Command
 

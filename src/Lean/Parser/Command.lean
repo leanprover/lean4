@@ -65,7 +65,7 @@ def «structure»          := parser!
     >> optDeriving
 @[builtinCommandParser] def declaration := parser!
 declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
-@[builtinCommandParser] def «deriving»     := parser! "deriving " >> "instance " >> sepBy1 ident ", " >> " for " >> ident
+@[builtinCommandParser] def «deriving»     := parser! "deriving " >> "instance " >> sepBy1 ident ", " >> " for " >> sepBy1 ident ", "
 @[builtinCommandParser] def «section»      := parser! "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := parser! "namespace " >> ident
 @[builtinCommandParser] def «end»          := parser! "end " >> optional ident

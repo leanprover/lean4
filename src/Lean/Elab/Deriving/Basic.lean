@@ -22,7 +22,7 @@ def registerBuiltinDerivingHandler (className : Name) (handler : DerivingHandler
   derivingHandlersRef.modify fun m => m.insert className handler
 
 def defaultHandler (className : Name) (typeNames : List Name) : CommandElabM Unit := do
-  throwError! "default handlers have not been implemented yet"
+  throwError! "default handlers have not been implemented yet, {typeNames}"
 
 def applyDerivingHandlers (className : Name) (typeNames : List Name) : CommandElabM Unit := do
   match (← derivingHandlersRef.get).find? className with
@@ -30,6 +30,9 @@ def applyDerivingHandlers (className : Name) (typeNames : List Name) : CommandEl
     unless (← handler typeNames) do
       defaultHandler className typeNames
   | none => defaultHandler className typeNames
+
+
+
 
 end Elab
 end Lean

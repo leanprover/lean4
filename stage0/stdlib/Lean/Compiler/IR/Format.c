@@ -32,6 +32,7 @@ lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed_
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__3;
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12814____closed__15;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__33;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__15;
 extern lean_object* l_Lean_IR_instToStringJoinPointId___closed__1;
@@ -132,7 +133,6 @@ lean_object* l_Lean_IR_formatFnBody_loop___closed__1;
 lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatLitVal_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_formatDecl_match__1(lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Position_instToFormatPosition___spec__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12668____closed__15;
 extern lean_object* l_instReprIterator___closed__2;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__26;
 extern lean_object* l_Lean_formatEntry___closed__1;
@@ -4453,7 +4453,7 @@ static lean_object* _init_l_Lean_IR_formatFnBody_loop___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12668____closed__15;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12814____closed__15;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

@@ -142,7 +142,6 @@ lean_object* l_Lean_formatDataValue___closed__3;
 lean_object* l_Lean_List_format(lean_object*);
 lean_object* l_Lean_instToFormat(lean_object*);
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_beqFlattenBehavior____x40_Lean_Data_Format___hyg_13__match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_499____closed__7;
 lean_object* l_Lean_Format_repr___closed__4;
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Format_fill(lean_object*);
@@ -303,6 +302,7 @@ lean_object* l_Lean_Format_prefixJoin___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_instToFormatProdNameDataValue;
 lean_object* l_Lean_instToFormatArray(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_645____closed__7;
 lean_object* l_Lean_Format_sbracket(lean_object*);
 lean_object* l_Lean_termF_x21_____closed__5;
 lean_object* l___private_Lean_Data_Format_0__Lean_Format_beqFlattenBehavior____x40_Lean_Data_Format___hyg_13__match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4962,7 +4962,7 @@ static lean_object* _init_l_Lean_List_format___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_499____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_645____closed__7;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

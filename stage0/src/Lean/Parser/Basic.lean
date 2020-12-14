@@ -86,8 +86,8 @@ def getNext (input : String) (pos : Nat) : Char :=
 
    Note that nothing prevents users from using a higher precedence, but we strongly
    discourage them from doing it. -/
-def maxPrec : Nat := 1024
-def leadPrec := maxPrec - 1
+def maxPrec  : Nat := evalPrec! max
+def leadPrec : Nat := evalPrec! lead
 
 abbrev Token := String
 

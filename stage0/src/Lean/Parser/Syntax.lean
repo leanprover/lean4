@@ -32,8 +32,7 @@ builtin_initialize
 
 -- TODO: `max` is a bad precedence name. Find a new one.
 def maxSymbol := parser! nonReservedSymbol "max" true
-def precedenceLit : Parser := numLit <|> maxSymbol
-def «precedence» := parser! ":" >> precedenceLit
+def «precedence» := parser! ":" >> precedenceParser maxPrec
 def optPrecedence := optional (atomic «precedence»)
 
 namespace Syntax

@@ -635,7 +635,7 @@ instance Option.hasQuote {α : Type} [Quote α] : Quote (Option α) where
 
 /- Evaluator for `prec` DSL -/
 partial def evalPrec : Syntax → MacroM Nat
---  | `(prec| $num:numLit) => return num.isNatLit?.getD 0
+  | `(prec| $num:numLit) => return num.isNatLit?.getD 0
   | `(prec| $a + $b) => return (← evalPrec a) + (← evalPrec b)
   | `(prec| $a - $b) => return (← evalPrec a) - (← evalPrec b)
   | prec => Macro.withIncRecDepth prec do

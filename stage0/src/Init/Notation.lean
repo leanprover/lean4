@@ -17,8 +17,8 @@ syntax:65 [subPrec] prec " - " prec:66 : prec
 
 end Lean.Parser.Syntax
 
--- macro "max"  : prec => `(1024)
--- macro "lead" : prec => `(1023)
+macro "max"  : prec => `(1024)
+macro "lead" : prec => `(1023)
 macro "(" p:prec ")" : prec => p
 
 -- Basic notation for defining parsers

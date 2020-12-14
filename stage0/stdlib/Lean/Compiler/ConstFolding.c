@@ -24,6 +24,7 @@ lean_object* l_Lean_Compiler_numScalarTypes;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__15;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__18;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__23;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_5718____closed__4;
 extern lean_object* l_Lean_Syntax_mkAntiquotNode___closed__3;
 uint8_t l_List_foldr___at_Lean_Compiler_isToNat___spec__1(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Compiler_NumScalarTypeInfo_id___default(lean_object*);
@@ -50,7 +51,6 @@ extern lean_object* l_System_Platform_numBits;
 lean_object* l_Lean_Compiler_foldNatPow___boxed(lean_object*);
 lean_object* l_Lean_Compiler_foldUIntMod___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__14;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5572____closed__4;
 lean_object* l_Lean_Compiler_boolFoldFns___closed__7;
 lean_object* l_Lean_Compiler_natFoldFns___closed__28;
 lean_object* l_Lean_Compiler_natFoldFns___closed__18;
@@ -68,11 +68,11 @@ lean_object* l_Lean_Compiler_foldUIntSub(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldToNat___rarg(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__19;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_4036____closed__7;
 extern lean_object* l_instReprBool___closed__1;
 lean_object* l_Lean_Compiler_foldNatDecLe___closed__2;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__9;
 lean_object* l_Lean_Compiler_foldUIntSub___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_4698____closed__7;
 extern lean_object* l_USize_size___closed__1;
 lean_object* l_Lean_Compiler_NumScalarTypeInfo_size___default(lean_object*);
 lean_object* l_Lean_Compiler_foldUIntSub___closed__1;
@@ -119,6 +119,7 @@ lean_object* l_Lean_Compiler_binFoldFns;
 lean_object* l_Lean_Compiler_mkNatLe___closed__2;
 lean_object* l_Lean_mkDecIsTrue(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldStrictOr___rarg(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_4182____closed__7;
 lean_object* l_Lean_Compiler_natFoldFns___closed__7;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__21;
 lean_object* l_List_lookup___at_Lean_Compiler_findUnFoldFn___spec__1(lean_object*, lean_object*);
@@ -175,7 +176,6 @@ lean_object* l_Lean_Compiler_numScalarTypes___closed__22;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__2;
 lean_object* l_Lean_Compiler_natFoldFns___closed__20;
 lean_object* l_Lean_Compiler_unFoldFns___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_4552____closed__7;
 lean_object* l_Lean_Compiler_natFoldFns___closed__26;
 lean_object* lean_fold_bin_op(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__32;
@@ -2282,7 +2282,7 @@ static lean_object* _init_l_Lean_Compiler_mkNatEq___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_5572____closed__4;
+x_1 = l_myMacro____x40_Init_Notation___hyg_5718____closed__4;
 x_2 = l_Lean_Compiler_mkNatEq___closed__1;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
@@ -2337,7 +2337,7 @@ static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_4552____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_4698____closed__7;
 x_2 = l_Lean_Compiler_mkNatLt___closed__1;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
@@ -2408,7 +2408,7 @@ static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_4036____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_4182____closed__7;
 x_2 = l_Lean_Compiler_mkNatLt___closed__1;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;

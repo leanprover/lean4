@@ -1681,6 +1681,15 @@ def categoryParserOfStackFn (offset : Nat) : ParserFn := fun ctx s =>
 def categoryParserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
   { fn := fun c s => categoryParserOfStackFn offset { c with prec := prec } s }
 
+unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s =>
+  match ctx.env.evalConstCheck Parser {} `Lean.Parser.Parser declName <|>
+        ctx.env.evalConstCheck Parser {} `Lean.Parser.TrailingParser declName with
+  | Except.ok p    => p.fn ctx s
+  | Except.error e => s.mkUnexpectedError s!"error running parser {declName}: {e}"
+
+@[implementedBy evalParserConstUnsafe]
+constant evalParserConst (declName : Name) : ParserFn
+
 unsafe def parserOfStackFnUnsafe (offset : Nat) : ParserFn := fun ctx s =>
   let stack := s.stxStack
   if stack.size < offset + 1 then
@@ -1689,15 +1698,13 @@ unsafe def parserOfStackFnUnsafe (offset : Nat) : ParserFn := fun ctx s =>
     match stack.get! (stack.size - offset - 1) with
     | Syntax.ident (val := parserName) .. =>
       match ctx.resolveName parserName with
-      | [(parserName, [])] => match ctx.env.evalConstCheck Parser {} `Lean.Parser.Parser parserName with
-        | Except.ok p    =>
-          let iniSz := s.stackSize
-          let s := p.fn ctx s
-          if !s.hasError && s.stackSize != iniSz + 1 then
-            s.mkUnexpectedError "expected parser to return exactly one syntax object"
-          else
-            s
-        | Except.error e => s.mkUnexpectedError s!"error running parser {parserName}: {e}"
+      | [(parserName, [])] =>
+        let iniSz := s.stackSize
+        let s := evalParserConst parserName ctx s
+        if !s.hasError && s.stackSize != iniSz + 1 then
+          s.mkUnexpectedError "expected parser to return exactly one syntax object"
+        else
+          s
       | _::_::_ => s.mkUnexpectedError s!"ambiguous parser name {parserName}"
       | _ => s.mkUnexpectedError s!"unknown parser {parserName}"
     | _ => s.mkUnexpectedError ("failed to determine parser using syntax stack, the specified element on the stack is not an identifier")

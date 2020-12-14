@@ -144,8 +144,13 @@ private def updateBuiltinTokens (info : ParserInfo) (declName : Name) : IO Unit 
   | Except.error msg     => throw (IO.userError s!"invalid builtin parser '{declName}', {msg}")
 
 def addBuiltinParser (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : IO Unit := do
+  let fn : ParserFn := fun c s =>
+    if c.insideQuot && c.env.contains declName then
+      evalParserConst declName c s
+    else
+      p.fn c s
   let categories ← builtinParserCategoriesRef.get
-  let categories ← IO.ofExcept $ addParser categories catName declName leading p prio
+  let categories ← IO.ofExcept $ addParser categories catName declName leading { p with fn := fn } prio
   builtinParserCategoriesRef.set categories
   builtinSyntaxNodeKindSetRef.modify p.info.collectKinds
   updateBuiltinTokens p.info declName

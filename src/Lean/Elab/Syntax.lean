@@ -177,6 +177,7 @@ end Term
 
 namespace Command
 open Lean.Syntax
+open Lean.Parser.Command
 
 private def getCatSuffix (catName : Name) : String :=
   match catName with
@@ -506,15 +507,23 @@ def expandMacroArgIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
     Macro.throwUnsupported
 
 /- Convert `macro` arg into a pattern element -/
-def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax :=
-  let k := stx.getKind
-  if k == `Lean.Parser.Command.macroArgSimple then
-    let item := stx[0]
-    pure $ mkNode `antiquot #[mkAtom "$", mkNullNode, item, mkNullNode, mkNullNode]
-  else if k == strLitKind then
-    strLitToPattern stx
-  else
-    Macro.throwUnsupported
+def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax := do
+  match (← expandMacros stx) with
+  | `(macroArg|$id:ident:optional($stx)) =>
+    mkSplicePat `optional id "?"
+  | `(macroArg|$id:ident:many($stx)) =>
+    mkSplicePat `many id "*"
+  | `(macroArg|$id:ident:many1($stx)) =>
+    mkSplicePat `many id "*"
+  | `(macroArg|$id:ident:sepBy($stx, $sep:strLit $[, $stxsep]? $[, allowTrailingSep]?)) =>
+    mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
+  | `(macroArg|$id:ident:sepBy1($stx, $sep:strLit $[, $stxsep]? $[, allowTrailingSep]?)) =>
+    mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
+  | `(macroArg|$id:ident:$stx) => mkAntiquotNode id
+  | `(macroArg|$s:strLit)      => strLitToPattern s
+  | _                          => Macro.throwUnsupported
+  where mkSplicePat kind id suffix :=
+    mkNullNode #[mkAntiquotSuffixSpliceNode kind (mkAntiquotNode id) suffix]
 
 def expandOptPrio (stx : Syntax) : Nat :=
   if stx.isNone then

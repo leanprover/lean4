@@ -1,7 +1,7 @@
 open Lean in
 macro "begin " ts:tactic,*,? "end" : term => do
   let stx  ← getRef
-  let ts   := ts.getSepArgs.map (mkNullNode #[·, mkNullNode])
+  let ts   := ts.getElems.map (mkNullNode #[·, mkNullNode])
   let tseq := mkNode `Lean.Parser.Tactic.tacticSeqBracketed #[
      mkAtomFrom stx "{", mkNullNode ts, mkAtomFrom stx[2] "}"
   ]

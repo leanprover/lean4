@@ -12,19 +12,19 @@ let env ← getEnv;
   pure val.ctors
 | _ => pure [])
 
-def elabAnonCtor (args : Syntax) (τ : Expr) : TermElabM Expr :=
+def elabAnonCtor (args : Array Syntax) (τ : Expr) : TermElabM Expr :=
   match τ.getAppFn with
   | Expr.const C _ _ => do
     let ctors ← getCtors C;
     (match ctors with
     | [c] => do
-      let stx ← `($(Lean.mkIdent c) $(Array.getSepElems args.getArgs)*);
+      let stx ← `($(Lean.mkIdent c) $args*);
       elabTerm stx τ
 -- error handling
     | _ => unreachable!)
   | _ => unreachable!
 
-elab "foo⟨" args:sepBy(term, ", ") "⟩" : term <= τ => do
+elab "foo⟨" args:term,* "⟩" : term <= τ => do
   elabAnonCtor args τ
 
 example : Nat × Nat := foo⟨1, 2⟩

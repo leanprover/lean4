@@ -1715,6 +1715,14 @@ constant parserOfStackFn (offset : Nat) : ParserFn
 def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
   { fn := fun c s => parserOfStackFn offset { c with prec := prec } s }
 
+/-- Run `declName` if possible and inside a quotation, or else `p`. The `ParserInfo` will always be taken from `p`. -/
+def evalInsideQuot (declName : Name) (p : Parser) : Parser := { p with
+  fn := fun c s =>
+    if c.insideQuot && c.env.contains declName then
+      evalParserConst declName c s
+    else
+      p.fn c s }
+
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
   if s.stackSize == iniSz + 1 then s
   else s.mkNode nullKind iniSz -- throw error instead?

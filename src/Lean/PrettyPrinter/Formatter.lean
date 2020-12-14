@@ -404,6 +404,7 @@ def setExpected.formatter (expected : List String) (p : Formatter) : Formatter :
 
 @[combinatorFormatter Lean.Parser.toggleInsideQuot] def toggleInsideQuot.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.suppressInsideQuot] def suppressInsideQuot.formatter (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.evalInsideQuot] def evalInsideQuot.formatter (declName : Name) (p : Formatter) : Formatter := p
 
 @[combinatorFormatter Lean.Parser.checkWsBefore] def checkWsBefore.formatter : Formatter := do
   let st ← get

@@ -67,7 +67,6 @@ lean_object* l_Lean_Syntax_mkAntiquotSuffixSpliceNode___boxed(lean_object*, lean
 lean_object* l_Lean_Syntax_MonadTraverser_getCur___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_ifNodeKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goRight___rarg___lambda__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__3;
 lean_object* l_Lean_Syntax_isEscapedAntiquot___boxed(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateInfo_match__1(lean_object*);
 lean_object* l_Lean_Syntax_getAtomVal_x21___closed__2;
@@ -123,7 +122,6 @@ lean_object* l_Lean_Syntax_getTailWithPos_match__1(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLeadingAux_match__1(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_antiquotSuffixSplice_x3f_match__1___rarg___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__15;
 lean_object* l_Lean_Syntax_modifyArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Syntax_getTailWithPos___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
@@ -158,7 +156,6 @@ lean_object* l_Lean_Syntax_formatStxAux___closed__5;
 lean_object* l_Lean_Syntax_updateTrailing(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkAntiquotSpliceNode___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__13;
 uint8_t l_List_beq___at_Lean_Syntax_structEq___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_replaceM_match__2(lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo___boxed(lean_object*, lean_object*, lean_object*);
@@ -174,6 +171,7 @@ lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__6___boxed(lean_obj
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instToFormatSyntax(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Syntax_updateLeading___spec__2(size_t, size_t, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_340____closed__3;
 lean_object* l_Lean_Syntax_getTailWithPos_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_unreachIsNodeMissing(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_replaceM(lean_object*);
@@ -222,12 +220,12 @@ lean_object* l_Lean_Syntax_isMissing_match__1(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isQuot_match__1(lean_object*);
 lean_object* l_Lean_Syntax_antiquotScopeKind_x3f(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_340____closed__4;
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1___boxed(lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_unreachIsNodeIdent___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Substring_beq(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedSyntax;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1625____closed__2;
 lean_object* l_Lean_Syntax_modifyArg_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_reprint___spec__2(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Syntax_isAntiquotScope___boxed(lean_object*);
@@ -249,6 +247,7 @@ lean_object* l_Lean_Syntax_instToStringSyntax;
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2___boxed(lean_object*);
 lean_object* l_Lean_SyntaxNode_getNumArgs___boxed(lean_object*);
 lean_object* l_Lean_Format_joinSep___at_Lean_Syntax_formatStxAux___spec__2___boxed(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_340____closed__1;
 extern lean_object* l_Lean_Format_sbracket___closed__3;
 lean_object* l_Lean_Syntax_replaceM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -282,7 +281,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* l_Lean_Syntax_asNode_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instToStringSyntax___lambda__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1625____closed__1;
 extern lean_object* l_Lean_Format_sbracket___closed__4;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -293,17 +291,18 @@ lean_object* l_Lean_SyntaxNode_withArgs___rarg(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instToStringSyntax___closed__2;
 lean_object* l_Lean_SyntaxNode_modifyArgs_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__4;
 extern lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg___closed__1;
 lean_object* l_Lean_unreachIsNodeAtom___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLeadingAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkAntiquotNode___closed__2;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1916____closed__1;
 lean_object* l_Lean_Syntax_MonadTraverser_getIdx___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkAntiquotNode_match__2(lean_object*);
 lean_object* l_List_map___at_Lean_Syntax_formatStxAux___spec__1(lean_object*, uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_paren___closed__4;
 lean_object* l_Lean_Syntax_getAntiquotSuffixSpliceInner___boxed(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1916____closed__2;
 lean_object* l_List_beq___at_Lean_Syntax_structEq___spec__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_instReprFormat___closed__1;
 lean_object* l_Lean_mkSimpleAtom(lean_object*);
@@ -325,16 +324,18 @@ lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateLeadingAux(lean_object
 lean_object* l_Lean_mkListNode(lean_object*);
 lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11918____closed__9;
+extern lean_object* l_prec_x28___x29___closed__7;
 lean_object* l_Lean_Syntax_mkAntiquotNode___closed__6;
 lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Syntax_getTailWithPos___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isEscapedAntiquot(lean_object*);
 lean_object* l_Lean_Syntax_MonadTraverser_setCur___rarg___lambda__1(lean_object*, lean_object*);
 uint8_t l_List_beq___at_Lean_Syntax_structEq___spec__2(lean_object*, lean_object*);
+extern lean_object* l_prec_x28___x29___closed__3;
 lean_object* l_Lean_Syntax_getAntiquotScopeContents(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isAntiquot___boxed(lean_object*);
 extern lean_object* l_Lean_Format_paren___closed__3;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12209____closed__9;
 lean_object* l_Lean_Syntax_replaceM___at_Lean_Syntax_updateLeading___spec__1___boxed__const__1;
 lean_object* l_Lean_Syntax_formatStxAux___closed__4;
 lean_object* l_Lean_Syntax_asNode(lean_object*);
@@ -354,7 +355,6 @@ lean_object* l_Lean_Syntax_isQuot___boxed(lean_object*);
 lean_object* l_Lean_Syntax_modifyArgs(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_structEq_match__1(lean_object*);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__1;
 lean_object* l_Lean_SyntaxNode_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_antiquotKind_x3f(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Syntax_rewriteBottomUp___spec__2(lean_object*, size_t, size_t, lean_object*);
@@ -4166,7 +4166,7 @@ lean_dec(x_49);
 lean_dec(x_48);
 x_52 = l_String_quote(x_51);
 lean_dec(x_51);
-x_53 = l_myMacro____x40_Init_Notation___hyg_11918____closed__9;
+x_53 = l_myMacro____x40_Init_Notation___hyg_12209____closed__9;
 x_54 = lean_string_append(x_52, x_53);
 x_7 = x_54;
 goto block_45;
@@ -4213,7 +4213,7 @@ lean_dec(x_15);
 lean_dec(x_14);
 x_18 = l_String_quote(x_17);
 lean_dec(x_17);
-x_19 = l_myMacro____x40_Init_Notation___hyg_11918____closed__9;
+x_19 = l_myMacro____x40_Init_Notation___hyg_12209____closed__9;
 x_20 = lean_string_append(x_19, x_18);
 lean_dec(x_18);
 x_21 = lean_alloc_ctor(2, 1, 0);
@@ -4236,9 +4236,9 @@ lean_dec(x_24);
 x_26 = l_instReprOption___rarg___closed__2;
 x_27 = lean_string_append(x_26, x_25);
 lean_dec(x_25);
-x_28 = l_myMacro____x40_Init_Notation___hyg_49____closed__15;
+x_28 = l_prec_x28___x29___closed__7;
 x_29 = lean_string_append(x_27, x_28);
-x_30 = l_myMacro____x40_Init_Notation___hyg_11918____closed__9;
+x_30 = l_myMacro____x40_Init_Notation___hyg_12209____closed__9;
 x_31 = lean_string_append(x_30, x_29);
 lean_dec(x_29);
 x_32 = lean_alloc_ctor(2, 1, 0);
@@ -4817,7 +4817,7 @@ x_11 = lean_name_eq(x_6, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
-x_12 = l_myMacro____x40_Init_Notation___hyg_49____closed__4;
+x_12 = l_myMacro____x40_Init_Notation___hyg_340____closed__4;
 x_13 = lean_box(0);
 x_14 = l_Lean_Name_replacePrefix(x_6, x_12, x_13);
 x_15 = l_Lean_Name_toString___closed__1;
@@ -6466,7 +6466,7 @@ x_28 = lean_ctor_get(x_19, 1);
 x_29 = lean_ctor_get_usize(x_19, 2);
 x_30 = lean_ctor_get(x_19, 0);
 lean_dec(x_30);
-x_31 = l_myMacro____x40_Init_Notation___hyg_49____closed__1;
+x_31 = l_myMacro____x40_Init_Notation___hyg_340____closed__1;
 x_32 = lean_string_dec_eq(x_28, x_31);
 lean_dec(x_28);
 if (x_32 == 0)
@@ -6501,7 +6501,7 @@ x_38 = lean_ctor_get(x_8, 1);
 lean_dec(x_38);
 x_39 = lean_ctor_get(x_8, 0);
 lean_dec(x_39);
-x_40 = l_myMacro____x40_Init_Notation___hyg_49____closed__3;
+x_40 = l_myMacro____x40_Init_Notation___hyg_340____closed__3;
 x_41 = lean_string_dec_eq(x_24, x_40);
 if (x_41 == 0)
 {
@@ -6534,7 +6534,7 @@ else
 {
 lean_object* x_47; uint8_t x_48; 
 lean_dec(x_24);
-x_47 = l_myMacro____x40_Init_Notation___hyg_1625____closed__1;
+x_47 = l_myMacro____x40_Init_Notation___hyg_1916____closed__1;
 x_48 = lean_string_dec_eq(x_21, x_47);
 if (x_48 == 0)
 {
@@ -6627,7 +6627,7 @@ else
 {
 lean_object* x_66; uint8_t x_67; 
 lean_dec(x_8);
-x_66 = l_myMacro____x40_Init_Notation___hyg_49____closed__3;
+x_66 = l_myMacro____x40_Init_Notation___hyg_340____closed__3;
 x_67 = lean_string_dec_eq(x_24, x_66);
 if (x_67 == 0)
 {
@@ -6669,7 +6669,7 @@ else
 {
 lean_object* x_75; uint8_t x_76; 
 lean_dec(x_24);
-x_75 = l_myMacro____x40_Init_Notation___hyg_1625____closed__1;
+x_75 = l_myMacro____x40_Init_Notation___hyg_1916____closed__1;
 x_76 = lean_string_dec_eq(x_21, x_75);
 if (x_76 == 0)
 {
@@ -6786,7 +6786,7 @@ if (lean_is_exclusive(x_8)) {
  lean_dec_ref(x_8);
  x_98 = lean_box(0);
 }
-x_99 = l_myMacro____x40_Init_Notation___hyg_49____closed__3;
+x_99 = l_myMacro____x40_Init_Notation___hyg_340____closed__3;
 x_100 = lean_string_dec_eq(x_24, x_99);
 if (x_100 == 0)
 {
@@ -6838,7 +6838,7 @@ else
 {
 lean_object* x_109; uint8_t x_110; 
 lean_dec(x_24);
-x_109 = l_myMacro____x40_Init_Notation___hyg_1625____closed__1;
+x_109 = l_myMacro____x40_Init_Notation___hyg_1916____closed__1;
 x_110 = lean_string_dec_eq(x_21, x_109);
 if (x_110 == 0)
 {
@@ -6971,7 +6971,7 @@ x_134 = lean_ctor_get(x_19, 1);
 x_135 = lean_ctor_get_usize(x_19, 2);
 lean_inc(x_134);
 lean_dec(x_19);
-x_136 = l_myMacro____x40_Init_Notation___hyg_49____closed__1;
+x_136 = l_myMacro____x40_Init_Notation___hyg_340____closed__1;
 x_137 = lean_string_dec_eq(x_134, x_136);
 lean_dec(x_134);
 if (x_137 == 0)
@@ -7005,7 +7005,7 @@ if (lean_is_exclusive(x_8)) {
  lean_dec_ref(x_8);
  x_140 = lean_box(0);
 }
-x_141 = l_myMacro____x40_Init_Notation___hyg_49____closed__3;
+x_141 = l_myMacro____x40_Init_Notation___hyg_340____closed__3;
 x_142 = lean_string_dec_eq(x_24, x_141);
 if (x_142 == 0)
 {
@@ -7070,7 +7070,7 @@ else
 {
 lean_object* x_153; uint8_t x_154; 
 lean_dec(x_24);
-x_153 = l_myMacro____x40_Init_Notation___hyg_1625____closed__1;
+x_153 = l_myMacro____x40_Init_Notation___hyg_1916____closed__1;
 x_154 = lean_string_dec_eq(x_21, x_153);
 if (x_154 == 0)
 {
@@ -7241,7 +7241,7 @@ if (lean_is_exclusive(x_19)) {
  lean_dec_ref(x_19);
  x_187 = lean_box(0);
 }
-x_188 = l_myMacro____x40_Init_Notation___hyg_49____closed__1;
+x_188 = l_myMacro____x40_Init_Notation___hyg_340____closed__1;
 x_189 = lean_string_dec_eq(x_185, x_188);
 lean_dec(x_185);
 if (x_189 == 0)
@@ -7275,7 +7275,7 @@ if (lean_is_exclusive(x_8)) {
  lean_dec_ref(x_8);
  x_192 = lean_box(0);
 }
-x_193 = l_myMacro____x40_Init_Notation___hyg_49____closed__3;
+x_193 = l_myMacro____x40_Init_Notation___hyg_340____closed__3;
 x_194 = lean_string_dec_eq(x_183, x_193);
 if (x_194 == 0)
 {
@@ -7354,7 +7354,7 @@ else
 {
 lean_object* x_207; uint8_t x_208; 
 lean_dec(x_183);
-x_207 = l_myMacro____x40_Init_Notation___hyg_1625____closed__1;
+x_207 = l_myMacro____x40_Init_Notation___hyg_1916____closed__1;
 x_208 = lean_string_dec_eq(x_21, x_207);
 if (x_208 == 0)
 {
@@ -7654,7 +7654,7 @@ if (lean_is_exclusive(x_255)) {
  lean_dec_ref(x_255);
  x_264 = lean_box(0);
 }
-x_265 = l_myMacro____x40_Init_Notation___hyg_49____closed__1;
+x_265 = l_myMacro____x40_Init_Notation___hyg_340____closed__1;
 x_266 = lean_string_dec_eq(x_262, x_265);
 lean_dec(x_262);
 if (x_266 == 0)
@@ -7688,7 +7688,7 @@ if (lean_is_exclusive(x_244)) {
  lean_dec_ref(x_244);
  x_269 = lean_box(0);
 }
-x_270 = l_myMacro____x40_Init_Notation___hyg_49____closed__3;
+x_270 = l_myMacro____x40_Init_Notation___hyg_340____closed__3;
 x_271 = lean_string_dec_eq(x_259, x_270);
 if (x_271 == 0)
 {
@@ -7777,7 +7777,7 @@ else
 {
 lean_object* x_285; uint8_t x_286; 
 lean_dec(x_259);
-x_285 = l_myMacro____x40_Init_Notation___hyg_1625____closed__1;
+x_285 = l_myMacro____x40_Init_Notation___hyg_1916____closed__1;
 x_286 = lean_string_dec_eq(x_257, x_285);
 if (x_286 == 0)
 {
@@ -8099,7 +8099,7 @@ x_7 = lean_ctor_get(x_2, 1);
 x_8 = lean_ctor_get(x_3, 1);
 x_9 = lean_ctor_get(x_4, 1);
 x_10 = lean_ctor_get(x_5, 1);
-x_11 = l_myMacro____x40_Init_Notation___hyg_49____closed__1;
+x_11 = l_myMacro____x40_Init_Notation___hyg_340____closed__1;
 x_12 = lean_string_dec_eq(x_10, x_11);
 if (x_12 == 0)
 {
@@ -8111,7 +8111,7 @@ return x_14;
 else
 {
 lean_object* x_15; uint8_t x_16; 
-x_15 = l_myMacro____x40_Init_Notation___hyg_49____closed__3;
+x_15 = l_myMacro____x40_Init_Notation___hyg_340____closed__3;
 x_16 = lean_string_dec_eq(x_9, x_15);
 if (x_16 == 0)
 {
@@ -8123,7 +8123,7 @@ return x_18;
 else
 {
 lean_object* x_19; uint8_t x_20; 
-x_19 = l_myMacro____x40_Init_Notation___hyg_1625____closed__1;
+x_19 = l_myMacro____x40_Init_Notation___hyg_1916____closed__1;
 x_20 = lean_string_dec_eq(x_8, x_19);
 if (x_20 == 0)
 {
@@ -8219,7 +8219,7 @@ static lean_object* _init_l_Lean_Syntax_getQuotContent___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_1625____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_1916____closed__2;
 x_2 = l_Lean_Syntax_isQuot_match__1___rarg___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -8495,7 +8495,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_49____closed__13;
+x_1 = l_prec_x28___x29___closed__3;
 x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }
@@ -8504,7 +8504,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_49____closed__15;
+x_1 = l_prec_x28___x29___closed__7;
 x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }
@@ -8550,7 +8550,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_11918____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12209____closed__9;
 x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }

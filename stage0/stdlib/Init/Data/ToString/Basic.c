@@ -43,14 +43,12 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_instToStringSubstring(lean_object*);
 extern lean_object* l_instReprBool___closed__2;
 extern lean_object* l_instReprSum___rarg___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__15;
 lean_object* l_List_toStringAux___rarg(lean_object*, uint8_t, lean_object*);
 lean_object* l_instToStringUInt32(uint32_t);
 lean_object* l_instToStringDecidable(lean_object*);
 lean_object* l_instToStringUInt8___boxed(lean_object*);
 lean_object* l_instToStringId__1(lean_object*);
 lean_object* l_instToStringOption_match__1(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__13;
 lean_object* l_instToStringUnit___boxed(lean_object*);
 extern lean_object* l_instReprSum___rarg___closed__1;
 lean_object* l_instToStringIterator(lean_object*);
@@ -102,7 +100,9 @@ lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* l_instToStringProd_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_instToStringId___rarg___boxed(lean_object*);
 lean_object* l_instToStringUSize___boxed(lean_object*);
+extern lean_object* l_prec_x28___x29___closed__7;
 lean_object* l_instToStringDecidable___rarg(uint8_t);
+extern lean_object* l_prec_x28___x29___closed__3;
 lean_object* l_instToStringDecidable_match__1(lean_object*, lean_object*);
 lean_object* l_instToStringULift___rarg(lean_object*, lean_object*);
 lean_object* l_addParenHeuristic___closed__3;
@@ -800,7 +800,7 @@ lean_object* l_addParenHeuristic(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_myMacro____x40_Init_Notation___hyg_49____closed__13;
+x_2 = l_prec_x28___x29___closed__3;
 x_3 = l_String_isPrefixOf(x_2, x_1);
 if (x_3 == 0)
 {
@@ -834,7 +834,7 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_14 = lean_string_append(x_2, x_1);
-x_15 = l_myMacro____x40_Init_Notation___hyg_49____closed__15;
+x_15 = l_prec_x28___x29___closed__7;
 x_16 = lean_string_append(x_14, x_15);
 return x_16;
 }
@@ -926,7 +926,7 @@ lean_dec(x_5);
 x_7 = l_instReprOption___rarg___closed__2;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
-x_9 = l_myMacro____x40_Init_Notation___hyg_49____closed__15;
+x_9 = l_prec_x28___x29___closed__7;
 x_10 = lean_string_append(x_8, x_9);
 return x_10;
 }
@@ -989,7 +989,7 @@ lean_dec(x_5);
 x_7 = l_instReprSum___rarg___closed__1;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
-x_9 = l_myMacro____x40_Init_Notation___hyg_49____closed__15;
+x_9 = l_prec_x28___x29___closed__7;
 x_10 = lean_string_append(x_8, x_9);
 return x_10;
 }
@@ -1006,7 +1006,7 @@ lean_dec(x_12);
 x_14 = l_instReprSum___rarg___closed__2;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);
-x_16 = l_myMacro____x40_Init_Notation___hyg_49____closed__15;
+x_16 = l_prec_x28___x29___closed__7;
 x_17 = lean_string_append(x_15, x_16);
 return x_17;
 }
@@ -1051,7 +1051,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = lean_apply_1(x_1, x_4);
-x_7 = l_myMacro____x40_Init_Notation___hyg_49____closed__13;
+x_7 = l_prec_x28___x29___closed__3;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
 x_9 = l_term_x5b___x5d___closed__5;
@@ -1059,7 +1059,7 @@ x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_apply_1(x_2, x_5);
 x_12 = lean_string_append(x_10, x_11);
 lean_dec(x_11);
-x_13 = l_myMacro____x40_Init_Notation___hyg_49____closed__15;
+x_13 = l_prec_x28___x29___closed__7;
 x_14 = lean_string_append(x_12, x_13);
 return x_14;
 }

@@ -81,7 +81,6 @@ lean_object* l_Lean_getExternNameFor_match__1(lean_object*);
 uint8_t l_Lean_expandExternPatternAux___closed__1;
 uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__15;
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_352____closed__4;
 lean_object* l_Lean_expandExternPatternAux_match__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -109,7 +108,6 @@ extern lean_object* l_Lean_numLitKind;
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__13;
 lean_object* l_Lean_ExternAttrData_arity_x3f___default;
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPatternAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -208,7 +206,9 @@ lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData
 lean_object* l_Lean_getExternConstArity_match__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_getExternAttrData___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
+extern lean_object* l_prec_x28___x29___closed__7;
 lean_object* lean_string_length(lean_object*);
+extern lean_object* l_prec_x28___x29___closed__3;
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternEntries_match__3(lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__3;
 extern lean_object* l_Lean_Core_State_ngen___default___closed__1;
@@ -3208,7 +3208,7 @@ lean_object* l_Lean_mkSimpleFnCall(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_3 = l_myMacro____x40_Init_Notation___hyg_49____closed__13;
+x_3 = l_prec_x28___x29___closed__3;
 x_4 = lean_string_append(x_1, x_3);
 x_5 = l_term_x5b___x5d___closed__5;
 x_6 = l_List_intersperse___rarg(x_5, x_2);
@@ -3217,7 +3217,7 @@ x_8 = l_List_foldl___at_String_join___spec__1(x_7, x_6);
 lean_dec(x_6);
 x_9 = lean_string_append(x_4, x_8);
 lean_dec(x_8);
-x_10 = l_myMacro____x40_Init_Notation___hyg_49____closed__15;
+x_10 = l_prec_x28___x29___closed__7;
 x_11 = lean_string_append(x_9, x_10);
 return x_11;
 }

@@ -87,7 +87,6 @@ lean_object* l_IO_FS_Stream_readMessage(lean_object*, lean_object*, lean_object*
 extern lean_object* l_Lean_Lsp_instFromJsonInitializeParams___closed__1;
 lean_object* l_Lean_Lsp_writeLspNotification___at_Lean_Server_clearDiagnostics___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_handleDidChange_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__15;
 lean_object* l_Lean_Server_writeLspResponse___at_Lean_Server_handleRequest___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_handleNotification_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_readLspNotificationAs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -231,6 +230,7 @@ lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonInitializePar
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_instToJsonServerCapabilities___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_mainLoop_match__1___rarg___closed__1;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonDidOpenTextDocumentParams___spec__1(lean_object*, lean_object*);
+extern lean_object* l_prec_x28___x29___closed__7;
 lean_object* l_Std_PersistentArray_mapM___at_Lean_Server_sendDiagnostics___spec__1___boxed__const__1;
 lean_object* l_Lean_Server_mainLoop(lean_object*);
 lean_object* l_Lean_Lsp_readLspNotificationAs___at_Lean_Server_initAndRunServer___spec__8___boxed(lean_object*, lean_object*, lean_object*);
@@ -878,7 +878,7 @@ if (lean_obj_tag(x_8) == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = l_Lean_Server_findOpenDocument___closed__1;
 x_10 = lean_string_append(x_9, x_1);
-x_11 = l_myMacro____x40_Init_Notation___hyg_49____closed__15;
+x_11 = l_prec_x28___x29___closed__7;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -911,7 +911,7 @@ if (lean_obj_tag(x_17) == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_18 = l_Lean_Server_findOpenDocument___closed__1;
 x_19 = lean_string_append(x_18, x_1);
-x_20 = l_myMacro____x40_Init_Notation___hyg_49____closed__15;
+x_20 = l_prec_x28___x29___closed__7;
 x_21 = lean_string_append(x_19, x_20);
 x_22 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_22, 0, x_21);

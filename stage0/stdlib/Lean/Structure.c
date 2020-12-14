@@ -62,7 +62,6 @@ lean_object* l_Lean_getStructureCtor___closed__5;
 lean_object* l_Lean_getStructureCtor___closed__3;
 lean_object* l_Lean_getPathToBaseStructureAux_match__2___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_contains___at_Lean_findField_x3f___spec__1(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11918____closed__14;
 lean_object* l_Lean_getStructureFields(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_getProjFnForField_x3f___spec__1(lean_object*, lean_object*, size_t, size_t);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -81,6 +80,7 @@ uint8_t l___private_Lean_Structure_0__Lean_hasProjFn(lean_object*, lean_object*,
 lean_object* l_Lean_getParentStructures(lean_object*, lean_object*);
 lean_object* l_Lean_mkInternalSubobjectFieldName(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12209____closed__14;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_getParentStructures_match__1(lean_object*);
@@ -323,7 +323,7 @@ lean_object* l_Lean_mkInternalSubobjectFieldName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_myMacro____x40_Init_Notation___hyg_11918____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12209____closed__14;
 x_3 = l_Lean_Name_appendBefore(x_1, x_2);
 return x_3;
 }
@@ -1132,7 +1132,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = l_Lean_getStructureCtor(x_1, x_2);
 x_5 = lean_ctor_get(x_4, 3);
 lean_inc(x_5);
-x_6 = l_myMacro____x40_Init_Notation___hyg_11918____closed__14;
+x_6 = l_myMacro____x40_Init_Notation___hyg_12209____closed__14;
 x_7 = l_Lean_Name_appendBefore(x_3, x_6);
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);

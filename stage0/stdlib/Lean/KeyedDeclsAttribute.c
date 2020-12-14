@@ -160,6 +160,7 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__10;
 lean_object* l___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_addImported_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_340____closed__2;
 lean_object* l_Std_AssocList_find_x3f___at_Lean_KeyedDeclsAttribute_Table_insert___spec__8(lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___closed__2;
 lean_object* l_Std_HashMapImp_expand___at_Lean_KeyedDeclsAttribute_Table_insert___spec__16(lean_object*);
@@ -191,7 +192,6 @@ lean_object* l_Std_HashMapImp_find_x3f___at_Lean_KeyedDeclsAttribute_getValues__
 lean_object* l_Lean_instInhabitedKeyedDeclsAttribute(lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_Table_insert___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_KeyedDeclsAttribute_Table_insert___spec__21(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__2;
 lean_object* l_Std_AssocList_replace___at_Lean_KeyedDeclsAttribute_Table_insert___spec__30(lean_object*);
 lean_object* l_Std_mkHashMap___at_Lean_KeyedDeclsAttribute_init___spec__1(lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
@@ -3990,7 +3990,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_49____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_340____closed__2;
 x_2 = l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__6;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

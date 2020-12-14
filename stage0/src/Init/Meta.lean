@@ -648,6 +648,10 @@ partial def evalPrec : Syntax → MacroM Nat
 
 macro "evalPrec! " p:prec:max : term => return quote (← evalPrec p)
 
+def evalOptPrec : Option Syntax → MacroM Nat
+  | some prec => evalPrec prec
+  | none      => return 0
+
 end Lean
 
 namespace Array

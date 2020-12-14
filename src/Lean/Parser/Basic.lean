@@ -1646,7 +1646,7 @@ def withoutInfo (p : Parser) : Parser :=
   { fn := p.fn }
 
 /-- Parse `$[p]suffix`, e.g. `$[p],*`. -/
-def mkAntiquotScope (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
+def mkAntiquotSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
   let kind := kind ++ `antiquot_scope
   leadingNode kind maxPrec $ atomic $
     setExpected [] "$" >>
@@ -1671,9 +1671,9 @@ def mkAntiquotScope (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
   fn   := withAntiquotSuffixSpliceFn kind p.fn suffix.fn
 }
 
-def withAntiquotScopeAndSuffix (kind : SyntaxNodeKind) (p suffix : Parser) :=
+def withAntiquotSpliceAndSuffix (kind : SyntaxNodeKind) (p suffix : Parser) :=
   -- prevent `p`'s info from being collected twice
-  withAntiquot (mkAntiquotScope kind (withoutInfo p) suffix) (withAntiquotSuffixSplice kind p suffix)
+  withAntiquot (mkAntiquotSplice kind (withoutInfo p) suffix) (withAntiquotSuffixSplice kind p suffix)
 
 def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anonymous := false) : Parser :=
   withAntiquot (mkAntiquot name kind anonymous) $ node kind p
@@ -1683,7 +1683,7 @@ def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anony
 /- ===================== -/
 
 def sepByElemParser (p : Parser) (sep : String) : Parser :=
-  withAntiquotScopeAndSuffix `sepBy p (symbol (sep.trim ++ "*"))
+  withAntiquotSpliceAndSuffix `sepBy p (symbol (sep.trim ++ "*"))
 
 def sepBy (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
   sepByNoAntiquot (sepByElemParser p sep) psep allowTrailingSep

@@ -46,7 +46,7 @@ partial def quoteAutoTactic : Syntax → TermElabM Syntax
     else
       let mut quotedArgs ← `(Array.empty)
       for arg in args do
-        if k == nullKind && (arg.isAntiquotSuffixSplice || arg.isAntiquotScope) then
+        if k == nullKind && (arg.isAntiquotSuffixSplice || arg.isAntiquotSplice) then
           throwErrorAt arg "invalid auto tactic, antiquotation is not allowed"
         else
           let quotedArg ← quoteAutoTactic arg

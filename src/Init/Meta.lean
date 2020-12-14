@@ -633,6 +633,21 @@ private def quoteOption {α : Type} [Quote α] : Option α → Syntax
 instance Option.hasQuote {α : Type} [Quote α] : Quote (Option α) where
   quote := quoteOption
 
+/- Evaluator for `prec` DSL -/
+partial def evalPrec : Syntax → MacroM Nat
+  | `(prec| $num:numLit) => return num.isNatLit?.getD 0
+  | `(prec| $a + $b) => return (← evalPrec a) + (← evalPrec b)
+  | `(prec| $a - $b) => return (← evalPrec a) - (← evalPrec b)
+  | prec => Macro.withIncRecDepth prec do
+    if prec.getKind == choiceKind then
+      evalPrec prec[0]
+    else
+      match (← expandMacro? prec) with
+      | some prec => evalPrec prec
+      | _ =>  Macro.throwErrorAt prec "unexpected precedence"
+
+macro "evalPrec! " p:prec:max : term => return quote (← evalPrec p)
+
 end Lean
 
 namespace Array

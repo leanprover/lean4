@@ -13,8 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__5;
 lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind(lean_object*);
@@ -22,36 +25,41 @@ lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__8;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__4;
+lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__2;
+lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1;
-lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4(lean_object*);
 extern lean_object* l_Lean_throwUnknownConstant___rarg___closed__2;
-lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_4_(lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__3;
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__6(lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__6;
+lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__5(lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_PrettyPrinter_runForNodeKind___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_getValues___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__3(lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__2;
+lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_4____closed__1;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_4____closed__2;
 lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__7;
-lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2(lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3(lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_PrettyPrinter_runForNodeKind___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_backtrackExceptionId;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_4____closed__1() {
 _start:
 {
@@ -111,6 +119,44 @@ x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_runForNodeKind_match__1___
 return x_3;
 }
 }
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_5 = lean_ctor_get(x_2, 3);
+x_6 = l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(x_1, x_2, x_3, x_4);
+x_7 = !lean_is_exclusive(x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_ctor_get(x_6, 0);
+lean_inc(x_5);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_5);
+lean_ctor_set(x_9, 1, x_8);
+lean_ctor_set_tag(x_6, 1);
+lean_ctor_set(x_6, 0, x_9);
+return x_6;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_6, 0);
+x_11 = lean_ctor_get(x_6, 1);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_6);
+lean_inc(x_5);
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_5);
+lean_ctor_set(x_12, 1, x_10);
+x_13 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_11);
+return x_13;
+}
+}
+}
 lean_object* l_Lean_getConstInfo___at_Lean_PrettyPrinter_runForNodeKind___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -143,7 +189,7 @@ x_16 = l_Lean_KernelException_toMessageData___closed__3;
 x_17 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(x_17, x_2, x_3, x_8);
+x_18 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__2(x_17, x_2, x_3, x_8);
 return x_18;
 }
 else
@@ -185,7 +231,7 @@ x_29 = l_Lean_KernelException_toMessageData___closed__3;
 x_30 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
-x_31 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(x_30, x_2, x_3, x_21);
+x_31 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__2(x_30, x_2, x_3, x_21);
 return x_31;
 }
 else
@@ -203,7 +249,99 @@ return x_33;
 }
 }
 }
-lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_5 = lean_ctor_get(x_2, 3);
+x_6 = l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(x_1, x_2, x_3, x_4);
+x_7 = !lean_is_exclusive(x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_ctor_get(x_6, 0);
+lean_inc(x_5);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_5);
+lean_ctor_set(x_9, 1, x_8);
+lean_ctor_set_tag(x_6, 1);
+lean_ctor_set(x_6, 0, x_9);
+return x_6;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_6, 0);
+x_11 = lean_ctor_get(x_6, 1);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_6);
+lean_inc(x_5);
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_5);
+lean_ctor_set(x_12, 1, x_10);
+x_13 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_11);
+return x_13;
+}
+}
+}
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__3(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg___boxed), 4, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__6___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_5 = lean_ctor_get(x_2, 3);
+x_6 = l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(x_1, x_2, x_3, x_4);
+x_7 = !lean_is_exclusive(x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_ctor_get(x_6, 0);
+lean_inc(x_5);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_5);
+lean_ctor_set(x_9, 1, x_8);
+lean_ctor_set_tag(x_6, 1);
+lean_ctor_set(x_6, 0, x_9);
+return x_6;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_6, 0);
+x_11 = lean_ctor_get(x_6, 1);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_6);
+lean_inc(x_5);
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_5);
+lean_ctor_set(x_12, 1, x_10);
+x_13 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_11);
+return x_13;
+}
+}
+}
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__6(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__6___rarg___boxed), 4, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__5___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -215,7 +353,7 @@ x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
-x_8 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__6___rarg(x_7, x_2, x_3, x_4);
 return x_8;
 }
 else
@@ -230,15 +368,15 @@ return x_10;
 }
 }
 }
-lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3(lean_object* x_1) {
+lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__5(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg___boxed), 4, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__5___rarg___boxed), 4, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -254,16 +392,16 @@ lean_dec(x_6);
 x_9 = lean_ctor_get(x_2, 0);
 x_10 = lean_eval_const(x_8, x_9, x_1);
 lean_dec(x_8);
-x_11 = l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(x_10, x_2, x_3, x_7);
+x_11 = l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__5___rarg(x_10, x_2, x_3, x_7);
 lean_dec(x_10);
 return x_11;
 }
 }
-lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2(lean_object* x_1) {
+lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg___boxed), 4, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg___boxed), 4, 0);
 return x_2;
 }
 }
@@ -403,7 +541,7 @@ x_30 = l_Lean_KernelException_toMessageData___closed__3;
 x_31 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
-x_32 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(x_31, x_4, x_5, x_15);
+x_32 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(x_31, x_4, x_5, x_15);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_32;
@@ -411,7 +549,7 @@ return x_32;
 else
 {
 lean_object* x_33; 
-x_33 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_15);
+x_33 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(x_2, x_4, x_5, x_15);
 lean_dec(x_2);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -455,7 +593,7 @@ else
 {
 lean_object* x_41; 
 lean_dec(x_16);
-x_41 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_15);
+x_41 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(x_2, x_4, x_5, x_15);
 lean_dec(x_2);
 if (lean_obj_tag(x_41) == 0)
 {
@@ -598,7 +736,7 @@ x_75 = l_Lean_KernelException_toMessageData___closed__3;
 x_76 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_76, 0, x_74);
 lean_ctor_set(x_76, 1, x_75);
-x_77 = l_Lean_throwError___at_Lean_Core_withIncRecDepth___spec__1___rarg(x_76, x_4, x_5, x_60);
+x_77 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(x_76, x_4, x_5, x_60);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_77;
@@ -606,7 +744,7 @@ return x_77;
 else
 {
 lean_object* x_78; 
-x_78 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_60);
+x_78 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(x_2, x_4, x_5, x_60);
 lean_dec(x_2);
 if (lean_obj_tag(x_78) == 0)
 {
@@ -652,7 +790,7 @@ else
 {
 lean_object* x_86; 
 lean_dec(x_61);
-x_86 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_60);
+x_86 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(x_2, x_4, x_5, x_60);
 lean_dec(x_2);
 if (lean_obj_tag(x_86) == 0)
 {
@@ -749,6 +887,16 @@ x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_runForNodeKind___rarg___bo
 return x_2;
 }
 }
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__2(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
 lean_object* l_Lean_getConstInfo___at_Lean_PrettyPrinter_runForNodeKind___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -759,22 +907,42 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__6___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__6___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
+lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__5___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__5___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);

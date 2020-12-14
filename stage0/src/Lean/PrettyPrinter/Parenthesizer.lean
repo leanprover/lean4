@@ -464,6 +464,7 @@ def setExpected.parenthesizer (expected : List String) (p : Parenthesizer) : Par
 
 @[combinatorParenthesizer Lean.Parser.toggleInsideQuot] def toggleInsideQuot.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.suppressInsideQuot] def suppressInsideQuot.parenthesizer (p : Parenthesizer) : Parenthesizer := p
+@[combinatorParenthesizer Lean.Parser.evalInsideQuot] def evalInsideQuot.parenthesizer (declName : Name) (p : Parenthesizer) : Parenthesizer := p
 
 @[combinatorParenthesizer Lean.Parser.checkStackTop] def checkStackTop.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer := pure ()

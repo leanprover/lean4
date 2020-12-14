@@ -24,7 +24,7 @@ lean_object* l_Lean_Elab_autoBoundImplicitExceptionId;
 lean_object* l_Lean_Elab_throwAbort___rarg___closed__1;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___rarg(lean_object*);
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3;
-lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_29_(lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_42_(lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_3_(lean_object*);
@@ -61,13 +61,13 @@ lean_object* l_Lean_Elab_throwUnsupportedSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwIllFormedSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2;
-lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_abortExceptionId;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_3____closed__1;
 lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_16____closed__1;
 lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___closed__2;
-lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_42____closed__1;
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_3____closed__1() {
@@ -270,20 +270,20 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
-x_5 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3;
-x_6 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_5);
-return x_6;
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Lean_Elab_throwIllFormedSyntax___rarg___closed__3;
+x_4 = l_Lean_throwError___rarg(x_1, x_2, x_3);
+return x_4;
 }
 }
 lean_object* l_Lean_Elab_throwIllFormedSyntax(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwIllFormedSyntax___rarg), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwIllFormedSyntax___rarg), 2, 0);
 return x_3;
 }
 }
@@ -435,29 +435,29 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_6 = lean_alloc_ctor(4, 1, 0);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_4 = lean_alloc_ctor(4, 1, 0);
+lean_ctor_set(x_4, 0, x_3);
+x_5 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2;
+x_6 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
-x_7 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2;
+lean_ctor_set(x_6, 1, x_4);
+x_7 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3;
 x_8 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_6);
-x_9 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__3;
-x_10 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_10, 0, x_8);
-lean_ctor_set(x_10, 1, x_9);
-x_11 = l_Lean_throwError___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_10);
-return x_11;
+lean_ctor_set(x_8, 0, x_6);
+lean_ctor_set(x_8, 1, x_7);
+x_9 = l_Lean_throwError___rarg(x_1, x_2, x_8);
+return x_9;
 }
 }
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg), 5, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg), 3, 0);
 return x_3;
 }
 }

@@ -99,6 +99,16 @@ def openSimple       := parser! many1 ident
 
 @[builtinCommandParser] def «in»  := tparser! " in " >> commandParser
 
+@[runBuiltinParserAttributeHooks] abbrev declModifiersF := declModifiers false
+@[runBuiltinParserAttributeHooks] abbrev declModifiersT := declModifiers true
+
+builtin_initialize
+  registerParserAlias! "declModifiers"       declModifiersF
+  registerParserAlias! "nestedDeclModifiers" declModifiersT
+  registerParserAlias! "declId"              declId
+  registerParserAlias! "declSig"             declSig
+  registerParserAlias! "optDeclSig"          optDeclSig
+
 end Command
 end Parser
 end Lean

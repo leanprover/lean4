@@ -144,6 +144,7 @@ private def updateBuiltinTokens (info : ParserInfo) (declName : Name) : IO Unit 
   | Except.error msg     => throw (IO.userError s!"invalid builtin parser '{declName}', {msg}")
 
 def addBuiltinParser (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : IO Unit := do
+  let p := evalInsideQuot declName p
   let categories ← builtinParserCategoriesRef.get
   let categories ← IO.ofExcept $ addParser categories catName declName leading p prio
   builtinParserCategoriesRef.set categories

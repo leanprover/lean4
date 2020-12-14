@@ -47,7 +47,6 @@ lean_object* l_Lean_Meta_synthAppInstances___boxed(lean_object*, lean_object*, l
 lean_object* l_Lean_Meta_apply(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_FindMVar_main___at___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_dependsOnOthers___spec__1___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_apply___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_apply___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___at_Lean_Meta_apply___spec__1(lean_object*, lean_object*);
@@ -104,6 +103,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Apply_0__
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Nat_forM_loop___at_Lean_Meta_synthAppInstances___spec__1___closed__1;
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
+lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgsAux___closed__1;
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_reorderNonDependentFirst___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_apply___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -169,7 +169,7 @@ uint8_t x_10; lean_object* x_11; lean_object* x_12;
 x_10 = 2;
 lean_ctor_set_uint8(x_8, 5, x_10);
 x_11 = l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgsAux___closed__1;
-x_12 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__3___rarg(x_1, x_11, x_2, x_3, x_4, x_5, x_6);
+x_12 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__4___rarg(x_1, x_11, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 
@@ -240,7 +240,7 @@ lean_ctor_set_uint8(x_30, 7, x_27);
 lean_ctor_set_uint8(x_30, 8, x_28);
 lean_ctor_set(x_2, 0, x_30);
 x_31 = l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgsAux___closed__1;
-x_32 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__3___rarg(x_1, x_31, x_2, x_3, x_4, x_5, x_6);
+x_32 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__4___rarg(x_1, x_31, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
@@ -335,7 +335,7 @@ lean_ctor_set(x_55, 0, x_54);
 lean_ctor_set(x_55, 1, x_42);
 lean_ctor_set(x_55, 2, x_43);
 x_56 = l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgsAux___closed__1;
-x_57 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__3___rarg(x_1, x_56, x_55, x_3, x_4, x_5, x_6);
+x_57 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__4___rarg(x_1, x_56, x_55, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 

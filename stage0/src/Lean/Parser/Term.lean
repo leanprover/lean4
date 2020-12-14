@@ -197,7 +197,10 @@ def isIdent (stx : Syntax) : Bool :=
 
 @[builtinTermParser] def subst := tparser!:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "
 
-@[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot funBinder >> ")"
+-- NOTE: Doesn't call `categoryParser` directly in contrast to most other "static" quotations, so call `evalInsideQuot` explicitly
+@[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot (evalInsideQuot ``funBinder funBinder) >> ")"
+@[builtinTermParser] def bracketedBinder.quot : Parser := parser! "`(bracketedBinder|"  >> toggleInsideQuot (evalInsideQuot ``bracketedBinder bracketedBinder) >> ")"
+@[builtinTermParser] def matchDiscr.quot : Parser := parser! "`(matchDiscr|"  >> toggleInsideQuot (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
 
 @[builtinTermParser] def panic       := parser!:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := parser!:leadPrec "unreachable!"
@@ -211,7 +214,7 @@ def macroLastArg   := macroDollarArg <|> macroArg
 -- Macro for avoiding exponentially big terms when using `STWorld`
 @[builtinTermParser] def stateRefT   := parser! "StateRefT" >> macroArg >> macroLastArg
 
-@[builtinTermParser] def dynamicQuot := parser! "`(" >> ident >> "|" >> parserOfStack 1 >> ")"
+@[builtinTermParser] def dynamicQuot := parser! "`(" >> ident >> "|" >> toggleInsideQuot (parserOfStack 1) >> ")"
 
 end Term
 

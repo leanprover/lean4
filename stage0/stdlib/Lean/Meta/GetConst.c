@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Meta_getConstNoEx_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwUnknownConstant___at___private_Lean_Meta_Basic_0__Lean_Meta_getConstTemp_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_is_instance(lean_object*, lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -28,6 +27,7 @@ lean_object* l___private_Lean_Meta_GetConst_0__Lean_Meta_getDefInfo_match__1___r
 lean_object* l_Lean_Meta_getConst_x3f_match__1(lean_object*);
 lean_object* l___private_Lean_Meta_GetConst_0__Lean_Meta_getDefInfo_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConst_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwUnknownConstant___at___private_Lean_Meta_Basic_0__Lean_Meta_getConstTemp_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConst_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isReducible___at___private_Lean_Meta_Basic_0__Lean_Meta_getDefInfoTemp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConstNoEx_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -486,7 +486,7 @@ if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; 
 lean_free_object(x_7);
-x_13 = l_Lean_throwUnknownConstant___at___private_Lean_Meta_Basic_0__Lean_Meta_getConstTemp_x3f___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_10);
+x_13 = l_Lean_throwUnknownConstant___at___private_Lean_Meta_Basic_0__Lean_Meta_getConstTemp_x3f___spec__1(x_1, x_2, x_3, x_4, x_5, x_10);
 return x_13;
 }
 else
@@ -571,7 +571,7 @@ x_25 = lean_environment_find(x_24, x_1);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; 
-x_26 = l_Lean_throwUnknownConstant___at___private_Lean_Meta_Basic_0__Lean_Meta_getConstTemp_x3f___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_23);
+x_26 = l_Lean_throwUnknownConstant___at___private_Lean_Meta_Basic_0__Lean_Meta_getConstTemp_x3f___spec__1(x_1, x_2, x_3, x_4, x_5, x_23);
 return x_26;
 }
 else

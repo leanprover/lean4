@@ -19,7 +19,7 @@ def throwPostpone [MonadExceptOf Exception m] : m α :=
 def throwUnsupportedSyntax [MonadExceptOf Exception m] : m α :=
   throw $ Exception.internal unsupportedSyntaxExceptionId
 
-def throwIllFormedSyntax [Monad m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] : m α :=
+def throwIllFormedSyntax [Monad m] [MonadError m] : m α :=
   throwError "ill-formed syntax"
 
 def throwAutoBoundImplicitLocal [MonadExceptOf Exception m] (n : Name) : m α :=
@@ -34,7 +34,7 @@ def isAutoBoundImplicitLocalException? (ex : Exception) : Option Name :=
       none
   | _ => none
 
-def throwAlreadyDeclaredUniverseLevel [Monad m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] (u : Name) : m α :=
+def throwAlreadyDeclaredUniverseLevel [Monad m] [MonadError m] (u : Name) : m α :=
   throwError! "a universe level named '{u}' has already been declared"
 
 -- Throw exception to abort elaboration without producing any error message

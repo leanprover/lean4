@@ -155,10 +155,6 @@ instance (m n) [MonadResolveName m] [MonadLift m n] : MonadResolveName n where
   getCurrNamespace := liftM (m:=m) getCurrNamespace
   getOpenDecls     := liftM (m:=m) getOpenDecls
 
-section Methods
-
-variables {m : Type → Type} [Monad m] [MonadResolveName m] [MonadEnv m]
-
 /-
   Given a name `n`, return a list of possible interpretations.
   Each interpretation is a pair `(declName, fieldList)`, where `declName`
@@ -181,28 +177,25 @@ variables {m : Type → Type} [Monad m] [MonadResolveName m] [MonadEnv m]
   - `resolveGlobalName x.y`   => `[(Foo.x.y, [])]`
   - `resolveGlobalName x.z.w` => `[(Foo.x, [z, w]), (Boo.x, [z, w])]`
 -/
-def resolveGlobalName  (id : Name) : m (List (Name × List String)) := do
+def resolveGlobalName [Monad m] [MonadResolveName m] [MonadEnv m] (id : Name) : m (List (Name × List String)) := do
   return ResolveName.resolveGlobalName (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
 
-variables [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
-
-def resolveNamespace (id : Name) : m Name := do
+def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) : m Name := do
   match ResolveName.resolveNamespace? (← getEnv) (← getCurrNamespace) (← getOpenDecls) id with
   | some ns => return ns
   | none    => throwError s!"unknown namespace '{id}'"
 
 /- Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty. -/
-def resolveGlobalConst (n : Name) : m (List Name) := do
+def resolveGlobalConst [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m (List Name) := do
   let cs ← resolveGlobalName n
   let cs := cs.filter fun (_, fieldList) => fieldList.isEmpty
   if cs.isEmpty then throwUnknownConstant n
   return cs.map (·.1)
 
-def resolveGlobalConstNoOverload (n : Name) : m Name := do
+def resolveGlobalConstNoOverload [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m Name := do
   let cs ← resolveGlobalConst n
   match cs with
   | [c] => pure c
   | _   => throwError s!"ambiguous identifier '{mkConst n}', possible interpretations: {cs.map mkConst}"
 
-end Methods
 end Lean

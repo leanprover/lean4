@@ -16,7 +16,7 @@ namespace Lean
 @[extern "lean_mk_brec_on"] constant mkBRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
 @[extern "lean_mk_binduction_on"] constant mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
 
-variables {m} [Monad m] [MonadEnv m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] [MonadOptions m]
+variables {m} [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
 
 @[inline] private def adaptFn (f : Environment → Name → Except KernelException Environment) (declName : Name) : m Unit := do
   match f (← getEnv) declName with

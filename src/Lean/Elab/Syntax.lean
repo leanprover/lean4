@@ -382,14 +382,12 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
 
 -- TODO: cleanup after we have support for optional syntax at `match_syntax`
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
-  withAttrKindGlobal stx fun stx =>
+  withAttrKindGlobal stx fun stx => do
     match stx with
     | `(infix $[: $prec]? $[[$prio]]? $op => $f)   => `(infixl $[: $prec]? $[[$prio]]? $op => $f)
     | `(infixr $[: $prec]? $[[$prio]]? $op => $f)  => `(notation $[: $prec]? $[[$prio]]? lhs $op:strLit rhs $[: $prec]? => $f lhs rhs)
     | `(infixl $[: $prec]? $[[$prio]]? $op => $f)  =>
-       let prec1 : Syntax := match (prec : Option Syntax) with
-         | some prec => quote (prec.toNat+1)
-         | none      => quote 0
+       let prec1 := quote <| (← evalOptPrec prec) + 1
        `(notation $[: $prec]? $[[$prio]]? lhs $op:strLit rhs:$prec1 => $f lhs rhs)
     | `(prefix $[: $prec]? $[[$prio]]? $op => $f)  => `(notation $[: $prec]? $[[$prio]]? $op:strLit arg $[: $prec]? => $f arg)
     | `(postfix $[: $prec]? $[[$prio]]? $op => $f) => `(notation $[: $prec]? $[[$prio]]? arg $op:strLit => $f arg)

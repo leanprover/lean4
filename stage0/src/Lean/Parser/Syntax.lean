@@ -37,6 +37,11 @@ def «precedence» := parser! ":" >> precedenceLit
 def optPrecedence := optional (atomic «precedence»)
 
 namespace Syntax
+@[builtinPrecParser] def numPrec := checkPrec maxPrec >> numLit
+
+@[builtinPrioParser] def numPrio  := checkPrec maxPrec >> numLit
+@[builtinPrioParser] def highPrio := parser!:maxPrec nonReservedSymbol "high" true
+
 @[builtinSyntaxParser] def paren           := parser! "(" >> many1 syntaxParser >> ")"
 @[builtinSyntaxParser] def cat             := parser! ident >> optPrecedence
 @[builtinSyntaxParser] def unary           := parser! ident >> checkNoWsBefore >> "(" >> many1 syntaxParser >> ")"

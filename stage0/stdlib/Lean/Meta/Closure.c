@@ -47,7 +47,6 @@ lean_object* l_Lean_Meta_Closure_collectExprAux_match__2___rarg(lean_object*, le
 lean_object* l_Lean_Meta_Closure_visitLevel_match__1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-extern lean_object* l_termIf_____x3a__Then__Else_____closed__6;
 lean_object* l_Lean_Meta_Closure_State_exprFVarArgs___default;
 lean_object* l_Lean_Meta_Closure_State_nextLevelIdx___default;
 lean_object* l_Lean_Meta_Closure_State_nextExprIdx___default;
@@ -241,6 +240,7 @@ uint8_t lean_level_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_State_newLetDecls___default;
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Lean_Meta_Closure_process_match__1(lean_object*);
+extern lean_object* l_termIf_____x3a__Then__Else_____closed__7;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Closure_mkBinding___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateForallE_x21___closed__2;
@@ -13858,7 +13858,7 @@ static lean_object* _init_l_Lean_Meta_mkAuxDefinition___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termIf_____x3a__Then__Else_____closed__6;
+x_1 = l_termIf_____x3a__Then__Else_____closed__7;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

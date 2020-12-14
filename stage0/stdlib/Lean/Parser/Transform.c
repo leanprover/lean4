@@ -16,7 +16,6 @@ extern "C" {
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Syntax_manyToSepBy___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11081____closed__8;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -28,6 +27,7 @@ lean_object* l_Lean_Syntax_removeParen_match__1___rarg(lean_object*, lean_object
 lean_object* l_Lean_Syntax_manyToSepBy_match__1(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_10913____closed__8;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Syntax_manyToSepBy___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -909,7 +909,7 @@ x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
-x_4 = l_myMacro____x40_Init_Notation___hyg_11081____closed__8;
+x_4 = l_myMacro____x40_Init_Notation___hyg_10913____closed__8;
 x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {

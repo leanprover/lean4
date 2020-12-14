@@ -9,12 +9,16 @@ prelude
 import Init.Prelude
 
 -- DSL for specifying parser precedences
-syntax ident : prec
-syntax num : prec
-syntax:65 prec " + " prec:66 : prec
-syntax:65 prec " - " prec:66 : prec
-macro "max"  : prec => `(1024)
-macro "lead" : prec => `(1023)
+
+namespace Lean.Parser.Syntax
+
+syntax:65 [addPrec] prec " + " prec:66 : prec
+syntax:65 [subPrec] prec " - " prec:66 : prec
+
+end Lean.Parser.Syntax
+
+-- macro "max"  : prec => `(1024)
+-- macro "lead" : prec => `(1023)
 macro "(" p:prec ")" : prec => p
 
 -- Basic notation for defining parsers

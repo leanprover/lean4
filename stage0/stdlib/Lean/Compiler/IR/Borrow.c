@@ -139,6 +139,7 @@ lean_object* l_Std_HashMapImp_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBod
 uint8_t l_Lean_IR_Borrow_ParamMap_beq(lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_instInhabitedFnBody;
 lean_object* l_Lean_IR_Borrow_ownArg_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12041____closed__9;
 lean_object* l_Lean_IR_Borrow_getParamInfo_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_collectDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_ApplyParamMap_visitFnBody_match__3(lean_object*);
@@ -230,7 +231,6 @@ lean_object* l_Lean_IR_Borrow_InitParamMap_visitFnBody_match__1(lean_object*);
 lean_object* l_Lean_IR_Borrow_getParamInfo___closed__4;
 lean_object* l_Lean_IR_Borrow_updateParamMap_match__1(lean_object*);
 lean_object* l_Lean_IR_Borrow_ownParamsUsingArgs_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12209____closed__9;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_BorrowInfCtx_currFn___default;
 lean_object* l_Lean_IR_Borrow_preserveTailCall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1067,7 +1067,7 @@ static lean_object* _init_l_Std_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fm
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12209____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12041____closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

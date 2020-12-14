@@ -57,6 +57,7 @@ lean_object* l_Lean_instMonadLiftImportMAttrM___rarg___boxed(lean_object*, lean_
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_getBuiltinAttributeImpl___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentHashMap_containsAtAux___at_Lean_registerBuiltinAttribute___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_setParam___rarg___closed__1;
+extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__1;
 lean_object* l_Lean_ParametricAttribute_getParam_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Attributes_0__Lean_AttributeExtension_mkInitial(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Attributes_0__Lean_AttributeExtension_addImported___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -302,7 +303,6 @@ lean_object* l_Lean_ParametricAttributeImpl_afterImport___default(lean_object*, 
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_registerTagAttribute___lambda__6___closed__2;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_340____closed__1;
 lean_object* l_Lean_registerAttributeImplBuilder___closed__1;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
@@ -3179,7 +3179,7 @@ x_14 = lean_ctor_get(x_5, 1);
 x_15 = lean_ctor_get_usize(x_5, 2);
 x_16 = lean_ctor_get(x_5, 0);
 lean_dec(x_16);
-x_17 = l_myMacro____x40_Init_Notation___hyg_340____closed__1;
+x_17 = l_Lean_Parser_Syntax_addPrec___closed__1;
 x_18 = lean_string_dec_eq(x_14, x_17);
 lean_dec(x_14);
 if (x_18 == 0)
@@ -3270,7 +3270,7 @@ x_38 = lean_ctor_get(x_5, 1);
 x_39 = lean_ctor_get_usize(x_5, 2);
 lean_inc(x_38);
 lean_dec(x_5);
-x_40 = l_myMacro____x40_Init_Notation___hyg_340____closed__1;
+x_40 = l_Lean_Parser_Syntax_addPrec___closed__1;
 x_41 = lean_string_dec_eq(x_38, x_40);
 lean_dec(x_38);
 if (x_41 == 0)
@@ -3351,7 +3351,7 @@ if (lean_is_exclusive(x_5)) {
  lean_dec_ref(x_5);
  x_58 = lean_box(0);
 }
-x_59 = l_myMacro____x40_Init_Notation___hyg_340____closed__1;
+x_59 = l_Lean_Parser_Syntax_addPrec___closed__1;
 x_60 = lean_string_dec_eq(x_56, x_59);
 lean_dec(x_56);
 if (x_60 == 0)
@@ -3569,7 +3569,7 @@ lean_dec(x_14);
 x_18 = lean_ctor_get(x_15, 1);
 lean_inc(x_18);
 lean_dec(x_15);
-x_19 = l_myMacro____x40_Init_Notation___hyg_340____closed__1;
+x_19 = l_Lean_Parser_Syntax_addPrec___closed__1;
 x_20 = lean_string_dec_eq(x_18, x_19);
 lean_dec(x_18);
 if (x_20 == 0)

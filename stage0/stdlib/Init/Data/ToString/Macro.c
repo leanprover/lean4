@@ -21,19 +21,18 @@ lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__5;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__7;
 lean_object* l_termS_x21_____closed__3;
 lean_object* lean_string_utf8_byte_size(lean_object*);
-extern lean_object* l_prec___x2b_____closed__4;
 lean_object* l_termS_x21_____closed__2;
 extern lean_object* l_Lean_instQuoteSubstring___closed__1;
 extern lean_object* l_Lean_instQuoteSubstring___closed__2;
 lean_object* l_Lean_Syntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__3;
 lean_object* l_termS_x21_____closed__6;
-extern lean_object* l_termIf_____x3a__Then__Else_____closed__9;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__6;
 extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 lean_object* l_termS_x21_____closed__5;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__9;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__2;
+extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__10;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__1;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__13;
@@ -45,6 +44,7 @@ lean_object* l_termS_x21_____closed__8;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__4;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__11;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__12;
+extern lean_object* l_termIf_____x3a__Then__Else_____closed__10;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_termS_x21__;
@@ -107,7 +107,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_termS_x21_____closed__6;
-x_2 = l_termIf_____x3a__Then__Else_____closed__9;
+x_2 = l_termIf_____x3a__Then__Else_____closed__10;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -118,7 +118,7 @@ static lean_object* _init_l_termS_x21_____closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_prec___x2b_____closed__4;
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__10;
 x_2 = l_termS_x21_____closed__4;
 x_3 = l_termS_x21_____closed__7;
 x_4 = lean_alloc_ctor(2, 3, 0);

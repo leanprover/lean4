@@ -34,6 +34,7 @@ lean_object* l_Lean_Elab_elabAttr___rarg___lambda__1___boxed(lean_object*, lean_
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1748____closed__2;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Elab_elabAttr___rarg___lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__11;
@@ -74,7 +75,6 @@ lean_object* l_Lean_Elab_toAttributeKind___rarg___closed__1;
 lean_object* l_Lean_Elab_instToFormatAttribute___closed__2;
 lean_object* l_Lean_Elab_instToFormatAttribute___closed__1;
 lean_object* l_Lean_Elab_elabAttr___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1916____closed__2;
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkAttrKindGlobal___closed__1;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
@@ -433,7 +433,7 @@ static lean_object* _init_l_Lean_Elab_toAttributeKind___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_1916____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_1748____closed__2;
 x_2 = l_Lean_instToStringAttributeKind___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

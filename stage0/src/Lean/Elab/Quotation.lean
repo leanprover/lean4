@@ -124,7 +124,9 @@ def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
 
 @[builtinTermElab Parser.Level.quot] def elabLevelQuot : TermElab := adaptExpander stxQuot.expand
 @[builtinTermElab Parser.Term.quot] def elabTermQuot : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Term.funBinder.quot] def elabfunBinderQuot : TermElab := adaptExpander stxQuot.expand
+@[builtinTermElab Parser.Term.funBinder.quot] def elabFunBinderQuot : TermElab := adaptExpander stxQuot.expand
+@[builtinTermElab Parser.Term.bracketedBinder.quot] def elabBracketedBinderQuot : TermElab := adaptExpander stxQuot.expand
+@[builtinTermElab Parser.Term.matchDiscr.quot] def elabMatchDiscrQuot : TermElab := adaptExpander stxQuot.expand
 @[builtinTermElab Parser.Tactic.quot] def elabTacticQuot : TermElab := adaptExpander stxQuot.expand
 @[builtinTermElab Parser.Tactic.quotSeq] def elabTacticQuotSeq : TermElab := adaptExpander stxQuot.expand
 @[builtinTermElab Parser.Term.stx.quot] def elabStxQuot : TermElab := adaptExpander stxQuot.expand

@@ -37,10 +37,10 @@ instance (m : Type → Type) [AddMessageContext m] [Monad m] : AddErrorMessageCo
     let msg ← addMessageContext msg
     pure (ref, msg)
 
-class MonadError (m : Type → Type) extends MonadExceptOf Exception m, MonadRef m, AddErrorMessageContext m
-
-instance [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] : MonadError m :=
-  @MonadError.mk _ inferInstance inferInstance inferInstance
+class abbrev MonadError (m : Type → Type) :=
+  MonadExceptOf Exception m
+  MonadRef m
+  AddErrorMessageContext m
 
 section Methods
 

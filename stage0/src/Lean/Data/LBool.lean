@@ -10,10 +10,9 @@ inductive LBool where
   | false
   | true
   | undef
+  deriving Inhabited, BEq
 
 namespace LBool
-
-instance : Inhabited LBool := ⟨false⟩
 
 def neg : LBool → LBool
   | true  => false
@@ -23,14 +22,6 @@ def neg : LBool → LBool
 def and : LBool → LBool → LBool
   | true,  b  => b
   | a,     _  => a
-
-def beq : LBool → LBool → Bool
-  | true,  true  => Bool.true
-  | false, false => Bool.true
-  | undef, undef => Bool.true
-  | _,     _     => Bool.false
-
-instance : BEq LBool := ⟨beq⟩
 
 def toString : LBool → String
   | true  => "true"

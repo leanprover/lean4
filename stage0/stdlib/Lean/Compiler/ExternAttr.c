@@ -36,11 +36,11 @@ uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_352____spec__8(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_match__1(lean_object*);
-extern lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_55____closed__3;
 lean_object* l_Lean_getExternNameFor___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___at_String_join___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternEntries___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+extern lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____closed__3;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_352____closed__8;
 lean_object* l_Lean_getExternConstArityExport___closed__1;
 extern lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_ProjFns___hyg_40____spec__1___closed__1;
@@ -356,7 +356,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
 lean_dec(x_2);
-x_9 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_55____closed__3;
+x_9 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____closed__3;
 x_10 = lean_string_dec_eq(x_6, x_9);
 lean_dec(x_6);
 if (x_10 == 0)
@@ -559,7 +559,7 @@ x_23 = lean_string_dec_eq(x_21, x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; uint8_t x_25; 
-x_24 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_55____closed__3;
+x_24 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____closed__3;
 x_25 = lean_string_dec_eq(x_21, x_24);
 lean_dec(x_21);
 if (x_25 == 0)

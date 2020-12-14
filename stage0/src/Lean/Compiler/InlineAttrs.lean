@@ -10,20 +10,7 @@ namespace Lean.Compiler
 
 inductive InlineAttributeKind where
   | inline | noinline | macroInline | inlineIfReduce
-  deriving Inhabited
-
-namespace InlineAttributeKind
-
-protected def beq : InlineAttributeKind → InlineAttributeKind → Bool
-  | inline, inline => true
-  | noinline, noinline => true
-  | macroInline, macroInline => true
-  | inlineIfReduce, inlineIfReduce => true
-  | _, _ => false
-
-instance : BEq InlineAttributeKind := ⟨InlineAttributeKind.beq⟩
-
-end InlineAttributeKind
+  deriving Inhabited, BEq
 
 builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
   registerEnumAttributes `inlineAttrs

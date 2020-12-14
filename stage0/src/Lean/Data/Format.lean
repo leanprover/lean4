@@ -12,14 +12,7 @@ namespace Format
 inductive FlattenBehavior where
   | allOrNone
   | fill
-
-namespace FlattenBehavior
-instance : BEq FlattenBehavior := ⟨fun b₁ b₂ =>
-  match b₁, b₂ with
-  | allOrNone, allOrNone => true
-  | fill,      fill      => true
-  | _,         _         => false⟩
-end FlattenBehavior
+  deriving Inhabited, BEq
 
 end Format
 

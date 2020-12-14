@@ -26,12 +26,12 @@ lean_object* l_Lean_KVMap_getInt___boxed(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_KVMap_findCore_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toStringAux___at_Lean_KVMap_instToStringKVMap___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_DataValue_str_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_DataValue_beq_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__9;
 extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l_Lean_KVMap_findD___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_set(lean_object*);
 lean_object* l_Lean_KVMap_forIn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_instValueName___closed__1;
 lean_object* l_Lean_KVMap_getName_match__1(lean_object*);
 lean_object* l_Lean_KVMap_instValueName;
@@ -48,7 +48,6 @@ lean_object* l_Lean_DataValue_getBoolEx_match__1(lean_object*);
 lean_object* l_Lean_KVMap_insertCore_match__1(lean_object*);
 lean_object* l_Lean_KVMap_get___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_Lean_DataValue_beq_match__1(lean_object*);
 lean_object* l_Lean_KVMap_instToStringKVMap(lean_object*);
 lean_object* l_Lean_KVMap_getName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_instBEqKVMap;
@@ -68,7 +67,6 @@ lean_object* l_Lean_KVMap_instValueNat___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_instValueString___closed__3;
 lean_object* l_Lean_DataValue_sameCtor_match__1(lean_object*);
-uint8_t l_Lean_DataValue_beq(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getBool___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instCoeNameDataValue(lean_object*);
 lean_object* l_Lean_KVMap_insert_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -90,7 +88,6 @@ lean_object* l_Lean_KVMap_getName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_isEmpty___boxed(lean_object*);
 uint8_t l_Lean_KVMap_subset(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_instValueBool___closed__1;
-lean_object* l_Lean_DataValue_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_findD(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instCoeBoolDataValue(uint8_t);
 lean_object* l_Lean_KVMap_setInt(lean_object*, lean_object*, lean_object*);
@@ -109,6 +106,7 @@ lean_object* l_Lean_KVMap_set___rarg(lean_object*, lean_object*, lean_object*, l
 lean_object* l_Lean_KVMap_instValueBool___closed__3;
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_subset_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17__match__1(lean_object*);
 lean_object* l_Lean_KVMap_insertCore_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toStringAux___at_Lean_KVMap_instToStringKVMap___spec__2(uint8_t, lean_object*);
 lean_object* l_List_forIn_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -126,6 +124,7 @@ lean_object* l_Lean_KVMap_getString_match__1(lean_object*);
 lean_object* l_Lean_KVMap_instValueNat___closed__1;
 lean_object* l_Lean_KVMap_instValueNat___closed__2;
 lean_object* l_Lean_DataValue_str_match__1(lean_object*);
+uint8_t l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17_(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_get(lean_object*);
 lean_object* l_Lean_KVMap_empty;
 lean_object* l_Lean_KVMap_instValueString;
@@ -134,6 +133,7 @@ lean_object* lean_data_value_to_string(lean_object*);
 lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getBool_match__1(lean_object*);
 extern lean_object* l_Int_instInhabitedInt___closed__1;
+lean_object* l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_subset_match__1(lean_object*);
 lean_object* l_Lean_KVMap_instValueInt___closed__1;
 lean_object* l_Lean_KVMap_forIn(lean_object*, lean_object*);
@@ -149,6 +149,7 @@ uint8_t l_Lean_KVMap_subsetAux(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_eqv(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
+uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getBool_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_entries___default;
 lean_object* l_Lean_KVMap_subsetAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -175,6 +176,295 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_instInhabitedDataValue___closed__1;
+return x_1;
+}
+}
+lean_object* l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_dec(x_8);
+x_9 = lean_ctor_get(x_1, 0);
+lean_inc(x_9);
+lean_dec(x_1);
+x_10 = lean_ctor_get(x_2, 0);
+lean_inc(x_10);
+lean_dec(x_2);
+x_11 = lean_apply_2(x_3, x_9, x_10);
+return x_11;
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_3);
+x_12 = lean_apply_2(x_8, x_1, x_2);
+return x_12;
+}
+}
+case 1:
+{
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_3);
+if (lean_obj_tag(x_2) == 1)
+{
+uint8_t x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_dec(x_8);
+x_13 = lean_ctor_get_uint8(x_1, 0);
+lean_dec(x_1);
+x_14 = lean_ctor_get_uint8(x_2, 0);
+lean_dec(x_2);
+x_15 = lean_box(x_13);
+x_16 = lean_box(x_14);
+x_17 = lean_apply_2(x_4, x_15, x_16);
+return x_17;
+}
+else
+{
+lean_object* x_18; 
+lean_dec(x_4);
+x_18 = lean_apply_2(x_8, x_1, x_2);
+return x_18;
+}
+}
+case 2:
+{
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+if (lean_obj_tag(x_2) == 2)
+{
+lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_dec(x_8);
+x_19 = lean_ctor_get(x_1, 0);
+lean_inc(x_19);
+lean_dec(x_1);
+x_20 = lean_ctor_get(x_2, 0);
+lean_inc(x_20);
+lean_dec(x_2);
+x_21 = lean_apply_2(x_5, x_19, x_20);
+return x_21;
+}
+else
+{
+lean_object* x_22; 
+lean_dec(x_5);
+x_22 = lean_apply_2(x_8, x_1, x_2);
+return x_22;
+}
+}
+case 3:
+{
+lean_dec(x_7);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+if (lean_obj_tag(x_2) == 3)
+{
+lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_dec(x_8);
+x_23 = lean_ctor_get(x_1, 0);
+lean_inc(x_23);
+lean_dec(x_1);
+x_24 = lean_ctor_get(x_2, 0);
+lean_inc(x_24);
+lean_dec(x_2);
+x_25 = lean_apply_2(x_6, x_23, x_24);
+return x_25;
+}
+else
+{
+lean_object* x_26; 
+lean_dec(x_6);
+x_26 = lean_apply_2(x_8, x_1, x_2);
+return x_26;
+}
+}
+default: 
+{
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+if (lean_obj_tag(x_2) == 4)
+{
+lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+lean_dec(x_8);
+x_27 = lean_ctor_get(x_1, 0);
+lean_inc(x_27);
+lean_dec(x_1);
+x_28 = lean_ctor_get(x_2, 0);
+lean_inc(x_28);
+lean_dec(x_2);
+x_29 = lean_apply_2(x_7, x_27, x_28);
+return x_29;
+}
+else
+{
+lean_object* x_30; 
+lean_dec(x_7);
+x_30 = lean_apply_2(x_8, x_1, x_2);
+return x_30;
+}
+}
+}
+}
+}
+lean_object* l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17__match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17__match__1___rarg), 8, 0);
+return x_2;
+}
+}
+uint8_t l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17_(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = lean_string_dec_eq(x_3, x_4);
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
+}
+}
+case 1:
+{
+if (lean_obj_tag(x_2) == 1)
+{
+uint8_t x_7; 
+x_7 = lean_ctor_get_uint8(x_1, 0);
+if (x_7 == 0)
+{
+uint8_t x_8; 
+x_8 = lean_ctor_get_uint8(x_2, 0);
+if (x_8 == 0)
+{
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
+}
+else
+{
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
+}
+}
+else
+{
+uint8_t x_11; 
+x_11 = lean_ctor_get_uint8(x_2, 0);
+return x_11;
+}
+}
+else
+{
+uint8_t x_12; 
+x_12 = 0;
+return x_12;
+}
+}
+case 2:
+{
+if (lean_obj_tag(x_2) == 2)
+{
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_1, 0);
+x_14 = lean_ctor_get(x_2, 0);
+x_15 = lean_name_eq(x_13, x_14);
+return x_15;
+}
+else
+{
+uint8_t x_16; 
+x_16 = 0;
+return x_16;
+}
+}
+case 3:
+{
+if (lean_obj_tag(x_2) == 3)
+{
+lean_object* x_17; lean_object* x_18; uint8_t x_19; 
+x_17 = lean_ctor_get(x_1, 0);
+x_18 = lean_ctor_get(x_2, 0);
+x_19 = lean_nat_dec_eq(x_17, x_18);
+return x_19;
+}
+else
+{
+uint8_t x_20; 
+x_20 = 0;
+return x_20;
+}
+}
+default: 
+{
+if (lean_obj_tag(x_2) == 4)
+{
+lean_object* x_21; lean_object* x_22; uint8_t x_23; 
+x_21 = lean_ctor_get(x_1, 0);
+x_22 = lean_ctor_get(x_2, 0);
+x_23 = lean_int_dec_eq(x_21, x_22);
+return x_23;
+}
+else
+{
+uint8_t x_24; 
+x_24 = 0;
+return x_24;
+}
+}
+}
+}
+}
+lean_object* l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17____boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17_(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_instBEqDataValue___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17____boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_instBEqDataValue() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_instBEqDataValue___closed__1;
 return x_1;
 }
 }
@@ -253,199 +543,6 @@ uint8_t x_2; lean_object* x_3;
 x_2 = lean_data_value_bool(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-lean_object* l_Lean_DataValue_beq_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_dec(x_5);
-lean_dec(x_4);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_6);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_ctor_get(x_2, 0);
-lean_inc(x_8);
-lean_dec(x_2);
-x_9 = lean_apply_2(x_3, x_7, x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; 
-lean_dec(x_3);
-x_10 = lean_apply_2(x_6, x_1, x_2);
-return x_10;
-}
-}
-case 1:
-{
-lean_dec(x_4);
-lean_dec(x_3);
-if (lean_obj_tag(x_2) == 1)
-{
-uint8_t x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_6);
-x_11 = lean_ctor_get_uint8(x_1, 0);
-lean_dec(x_1);
-x_12 = lean_ctor_get_uint8(x_2, 0);
-lean_dec(x_2);
-x_13 = lean_box(x_11);
-x_14 = lean_box(x_12);
-x_15 = lean_apply_2(x_5, x_13, x_14);
-return x_15;
-}
-else
-{
-lean_object* x_16; 
-lean_dec(x_5);
-x_16 = lean_apply_2(x_6, x_1, x_2);
-return x_16;
-}
-}
-case 3:
-{
-lean_dec(x_5);
-lean_dec(x_3);
-if (lean_obj_tag(x_2) == 3)
-{
-lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_6);
-x_17 = lean_ctor_get(x_1, 0);
-lean_inc(x_17);
-lean_dec(x_1);
-x_18 = lean_ctor_get(x_2, 0);
-lean_inc(x_18);
-lean_dec(x_2);
-x_19 = lean_apply_2(x_4, x_17, x_18);
-return x_19;
-}
-else
-{
-lean_object* x_20; 
-lean_dec(x_4);
-x_20 = lean_apply_2(x_6, x_1, x_2);
-return x_20;
-}
-}
-default: 
-{
-lean_object* x_21; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_21 = lean_apply_2(x_6, x_1, x_2);
-return x_21;
-}
-}
-}
-}
-lean_object* l_Lean_DataValue_beq_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_DataValue_beq_match__1___rarg), 6, 0);
-return x_2;
-}
-}
-uint8_t l_Lean_DataValue_beq(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_string_dec_eq(x_3, x_4);
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 0;
-return x_6;
-}
-}
-case 1:
-{
-if (lean_obj_tag(x_2) == 1)
-{
-uint8_t x_7; 
-x_7 = lean_ctor_get_uint8(x_1, 0);
-if (x_7 == 0)
-{
-uint8_t x_8; 
-x_8 = lean_ctor_get_uint8(x_2, 0);
-if (x_8 == 0)
-{
-uint8_t x_9; 
-x_9 = 1;
-return x_9;
-}
-else
-{
-uint8_t x_10; 
-x_10 = 0;
-return x_10;
-}
-}
-else
-{
-uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_2, 0);
-return x_11;
-}
-}
-else
-{
-uint8_t x_12; 
-x_12 = 0;
-return x_12;
-}
-}
-case 3:
-{
-if (lean_obj_tag(x_2) == 3)
-{
-lean_object* x_13; uint8_t x_14; 
-x_13 = lean_ctor_get(x_2, 0);
-x_14 = lean_nat_dec_eq(x_13, x_13);
-return x_14;
-}
-else
-{
-uint8_t x_15; 
-x_15 = 0;
-return x_15;
-}
-}
-default: 
-{
-uint8_t x_16; 
-x_16 = 0;
-return x_16;
-}
-}
-}
-}
-lean_object* l_Lean_DataValue_beq___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_DataValue_beq(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
 }
 }
 lean_object* l_Lean_DataValue_sameCtor_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -689,22 +786,6 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-static lean_object* _init_l_Lean_instBEqDataValue___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_DataValue_beq___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instBEqDataValue() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instBEqDataValue___closed__1;
-return x_1;
 }
 }
 lean_object* l_Lean_DataValue_str_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -2141,7 +2222,7 @@ lean_object* x_10; uint8_t x_11;
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_Lean_DataValue_beq(x_7, x_10);
+x_11 = l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_17_(x_7, x_10);
 lean_dec(x_10);
 if (x_11 == 0)
 {

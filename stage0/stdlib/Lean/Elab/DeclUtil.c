@@ -84,7 +84,6 @@ lean_object* l_Lean_Elab_expandOptDeclSig___boxed(lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_sortDeclLevelParams___lambda__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
-uint8_t l_Lean_BinderInfo_beq(uint8_t, uint8_t);
 uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
 lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
@@ -111,6 +110,7 @@ lean_object* l_Array_qsort_sort___at_Lean_Elab_sortDeclLevelParams___spec__2___b
 lean_object* l_Lean_Elab_sortDeclLevelParams_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeCompatible___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_206_(uint8_t, uint8_t);
 lean_object* l_Lean_throwError___at_Lean_Meta_throwAppTypeMismatch___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkFreshInstanceName___closed__1;
 lean_object* l_Lean_Meta_forallTelescopeCompatibleAux_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -330,7 +330,7 @@ _start:
 uint8_t x_16; uint8_t x_17; uint8_t x_18; 
 x_16 = (uint8_t)((x_1 << 24) >> 61);
 x_17 = (uint8_t)((x_9 << 24) >> 61);
-x_18 = l_Lean_BinderInfo_beq(x_16, x_17);
+x_18 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_206_(x_16, x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 

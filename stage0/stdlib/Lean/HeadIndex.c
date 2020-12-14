@@ -30,12 +30,12 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_HeadIndex_instBEqHeadIndex;
 lean_object* l_Lean_Expr_toHeadIndex___closed__3;
 lean_object* l_Lean_Expr_head_match__1(lean_object*);
-uint8_t l_Lean_Literal_beq(lean_object*, lean_object*);
 lean_object* l_Lean_HeadIndex_instHashableHeadIndex___closed__1;
 size_t l_Lean_HeadIndex_HeadIndex_hash(lean_object*);
 size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_Expr_headNumArgs(lean_object*);
 lean_object* l_Lean_HeadIndex_instHashableHeadIndex;
+uint8_t l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_14_(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_HeadIndex_HeadIndex_hash_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedHeadIndex;
@@ -647,7 +647,7 @@ if (lean_obj_tag(x_2) == 4)
 lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_23 = lean_ctor_get(x_1, 0);
 x_24 = lean_ctor_get(x_2, 0);
-x_25 = l_Lean_Literal_beq(x_23, x_24);
+x_25 = l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_14_(x_23, x_24);
 return x_25;
 }
 else

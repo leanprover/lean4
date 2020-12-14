@@ -26,9 +26,9 @@ uint8_t l_Lean_Meta_DiscrTree_Key_beq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_hash_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
-uint8_t l_Lean_Literal_beq(lean_object*, lean_object*);
 size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instBEqKey;
+uint8_t l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_14_(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instHashableKey___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey;
@@ -434,7 +434,7 @@ if (lean_obj_tag(x_2) == 2)
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_19 = lean_ctor_get(x_1, 0);
 x_20 = lean_ctor_get(x_2, 0);
-x_21 = l_Lean_Literal_beq(x_19, x_20);
+x_21 = l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_14_(x_19, x_20);
 return x_21;
 }
 else

@@ -13,18 +13,12 @@ inductive DataValue where
   | ofName   (v : Name)
   | ofNat    (v : Nat)
   | ofInt    (v : Int)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_bool_data_value] def mkBoolDataValueEx (b : Bool) : DataValue := DataValue.ofBool b
 @[export lean_data_value_bool] def DataValue.getBoolEx : DataValue → Bool
   | DataValue.ofBool b => b
   | _                  => false
-
-def DataValue.beq : DataValue → DataValue → Bool
-  | DataValue.ofString s₁, DataValue.ofString s₂ => s₁ = s₂
-  | DataValue.ofNat n₁,    DataValue.ofNat n₂    => n₂ = n₂
-  | DataValue.ofBool b₁,   DataValue.ofBool b₂   => b₁ = b₂
-  | _,                       _                   => false
 
 def DataValue.sameCtor : DataValue → DataValue → Bool
   | DataValue.ofString _, DataValue.ofString _ => true
@@ -33,8 +27,6 @@ def DataValue.sameCtor : DataValue → DataValue → Bool
   | DataValue.ofNat _,    DataValue.ofNat _    => true
   | DataValue.ofInt _,    DataValue.ofInt _    => true
   | _,                    _                    => false
-
-instance : BEq DataValue := ⟨DataValue.beq⟩
 
 @[export lean_data_value_to_string]
 def DataValue.str : DataValue → String
@@ -148,7 +140,8 @@ def subset : KVMap → KVMap → Bool
 def eqv (m₁ m₂ : KVMap) : Bool :=
   subset m₁ m₂ && subset m₂ m₁
 
-instance : BEq KVMap := ⟨eqv⟩
+instance : BEq KVMap where
+  beq := eqv
 
 class Value (α : Type) where
   defVal : α

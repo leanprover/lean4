@@ -11,24 +11,14 @@ inductive LOption (α : Type u) where
   | none  : LOption α
   | some  : α → LOption α
   | undef : LOption α
+  deriving Inhabited, BEq
 
-namespace LOption
-variables {α : Type u}
+instance [ToString α] : ToString (LOption α) where
+  toString
+    | LOption.none   => "none"
+    | LOption.undef  => "undef"
+    | LOption.some a => "(some " ++ toString a ++ ")"
 
-instance : Inhabited (LOption α) := ⟨none⟩
-
-instance [ToString α] : ToString (LOption α) :=
-  ⟨fun o => match o with | none   => "none" | undef  => "undef" | (some a) => "(some " ++ toString a ++ ")"⟩
-
-def beq [BEq α] : LOption α → LOption α → Bool
-  | none,   none   => true
-  | undef,  undef  => true
-  | some a, some b => a == b
-  | _,      _      => false
-
-instance [BEq α] : BEq (LOption α) := ⟨beq⟩
-
-end LOption
 end Lean
 
 def Option.toLOption {α : Type u} : Option α → Lean.LOption α

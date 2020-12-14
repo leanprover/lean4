@@ -11,20 +11,13 @@ namespace Lean
 inductive Literal where
   | natVal (val : Nat)
   | strVal (val : String)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 protected def Literal.hash : Literal → USize
   | Literal.natVal v => hash v
   | Literal.strVal v => hash v
 
 instance : Hashable Literal := ⟨Literal.hash⟩
-
-def Literal.beq : Literal → Literal → Bool
-  | Literal.natVal v₁, Literal.natVal v₂ => v₁ == v₂
-  | Literal.strVal v₁, Literal.strVal v₂ => v₁ == v₂
-  | _,                 _                 => false
-
-instance : BEq Literal := ⟨Literal.beq⟩
 
 def Literal.lt : Literal → Literal → Bool
   | Literal.natVal _,  Literal.strVal _  => true
@@ -39,7 +32,7 @@ instance (a b : Literal) : Decidable (a < b) :=
 
 inductive BinderInfo where
   | default | implicit | strictImplicit | instImplicit | auxDecl
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 def BinderInfo.hash : BinderInfo → USize
   | BinderInfo.default        => 947
@@ -63,16 +56,6 @@ def BinderInfo.isInstImplicit : BinderInfo → Bool
 def BinderInfo.isAuxDecl : BinderInfo → Bool
   | BinderInfo.auxDecl => true
   | _                  => false
-
-protected def BinderInfo.beq : BinderInfo → BinderInfo → Bool
-  | BinderInfo.default,        BinderInfo.default        => true
-  | BinderInfo.implicit,       BinderInfo.implicit       => true
-  | BinderInfo.strictImplicit, BinderInfo.strictImplicit => true
-  | BinderInfo.instImplicit,   BinderInfo.instImplicit   => true
-  | BinderInfo.auxDecl,        BinderInfo.auxDecl        => true
-  | _,                         _                         => false
-
-instance : BEq BinderInfo := ⟨BinderInfo.beq⟩
 
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}
@@ -375,7 +358,8 @@ constant lt (a : @& Expr) (b : @& Expr) : Bool
 @[extern "lean_expr_eqv"]
 constant eqv (a : @& Expr) (b : @& Expr) : Bool
 
-instance : BEq Expr := ⟨Expr.eqv⟩
+instance : BEq Expr where
+  beq := Expr.eqv
 
 /- Return true iff `a` and `b` are equal.
    Binder names and annotations are taking into account. -/

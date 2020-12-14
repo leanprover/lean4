@@ -11,9 +11,14 @@ namespace Parser
 
 builtin_initialize
   registerBuiltinParserAttribute `builtinSyntaxParser `stx (leadingIdentAsSymbol := true)
+  registerBuiltinDynamicParserAttribute `stxParser `stx
 
 builtin_initialize
-  registerBuiltinDynamicParserAttribute `stxParser `stx
+  registerBuiltinParserAttribute `builtinPrecParser `prec (leadingIdentAsSymbol := true)
+  registerBuiltinDynamicParserAttribute `precParser `prec
+
+@[inline] def precedenceParser (rbp : Nat := 0) : Parser :=
+  categoryParser `prec rbp
 
 @[inline] def syntaxParser (rbp : Nat := 0) : Parser :=
   categoryParser `stx rbp
@@ -39,6 +44,7 @@ end Syntax
 namespace Term
 
 @[builtinTermParser] def stx.quot : Parser := parser! "`(stx|"  >> toggleInsideQuot syntaxParser >> ")"
+@[builtinTermParser] def prec.quot : Parser := parser! "`(prec|"  >> toggleInsideQuot precedenceParser >> ")"
 
 end Term
 

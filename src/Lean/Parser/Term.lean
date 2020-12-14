@@ -151,10 +151,10 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 @[builtinTermParser] def «let!» := parser!:leadPrec withPosition ("let! " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let*» := parser!:leadPrec withPosition ("let* " >> letDecl) >> optSemicolon termParser
 def attrArg : Parser := ident <|> strLit <|> numLit
--- use `rawIdent` because of attribute names such as `instance`
 def «scoped» := parser! "scoped "
 def «local»  := parser! "local "
 def attrKind := parser! optional («scoped» <|> «local»)
+-- use `rawIdent` because of attribute names such as `instance`
 def attrInstance     := ppGroup $ parser! attrKind >> rawIdent >> many (ppSpace >> attrArg)
 
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"

@@ -249,7 +249,7 @@ lean_object* l_Lean_Expr_bindingName_x21(lean_object*);
 extern lean_object* l_Lean_Expr_ctorName___closed__10;
 lean_object* l_Lean_Level_quote___lambda__4___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppArg(lean_object*);
-extern lean_object* l_Lean_Expr_setPPExplicit___closed__3;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__43;
 lean_object* l_Lean_Level_instQuoteLevel;
 lean_object* l_Lean_PrettyPrinter_Delaborator_instInhabitedDelabM___closed__1;
 lean_object* l_Lean_Level_quote___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1183,7 +1183,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_getSanitizeNames___closed__2;
-x_2 = l_Lean_Expr_setPPExplicit___closed__3;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__43;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

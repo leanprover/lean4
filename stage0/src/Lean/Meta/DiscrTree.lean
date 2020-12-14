@@ -250,7 +250,7 @@ instance {α} [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
 partial def format {α} [ToFormat α] (d : DiscrTree α) : Format :=
   let (_, r) := d.root.foldl
     (fun (p : Bool × Format) k c =>
-      (false, p.2 ++ (if p.1 == true then Format.nil else Format.line) ++ Format.paren (fmt k ++ " => " ++ fmt c))) -- TODO: fix p.1 == true
+      (false, p.2 ++ (if p.1 then Format.nil else Format.line) ++ Format.paren (fmt k ++ " => " ++ fmt c)))
     (true, Format.nil)
   Format.group r
 

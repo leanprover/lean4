@@ -229,7 +229,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasExprMVarEx___boxed(lean_object*);
 lean_object* l_Lean_Expr_hasExprMVar___boxed(lean_object*);
 lean_object* l_Lean_mkAppRev___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_setPPExplicit___closed__4;
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* l_Lean_mkFreshFVarId(lean_object*);
 lean_object* l_Lean_BinderInfo_isExplicit_match__1(lean_object*);
@@ -540,6 +539,7 @@ lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParam
 lean_object* l_Lean_Expr_hasAnyFVar(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_setPPExplicit___closed__3;
 lean_object* l_Lean_Expr_hasMVar___boxed(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__43;
 lean_object* l_Lean_mkForall___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21___closed__2;
@@ -15913,17 +15913,9 @@ return x_3;
 static lean_object* _init_l_Lean_Expr_setPPExplicit___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("explicit");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Expr_setPPExplicit___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Expr_setPPExplicit___closed__2;
-x_2 = l_Lean_Expr_setPPExplicit___closed__3;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__43;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -15932,7 +15924,7 @@ lean_object* l_Lean_Expr_setPPExplicit(lean_object* x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Expr_setPPExplicit___closed__4;
+x_3 = l_Lean_Expr_setPPExplicit___closed__3;
 x_4 = l_Lean_Expr_setOption___at_Lean_Expr_setPPExplicit___spec__1(x_1, x_3, x_2);
 return x_4;
 }
@@ -16484,8 +16476,6 @@ l_Lean_Expr_setPPExplicit___closed__2 = _init_l_Lean_Expr_setPPExplicit___closed
 lean_mark_persistent(l_Lean_Expr_setPPExplicit___closed__2);
 l_Lean_Expr_setPPExplicit___closed__3 = _init_l_Lean_Expr_setPPExplicit___closed__3();
 lean_mark_persistent(l_Lean_Expr_setPPExplicit___closed__3);
-l_Lean_Expr_setPPExplicit___closed__4 = _init_l_Lean_Expr_setPPExplicit___closed__4();
-lean_mark_persistent(l_Lean_Expr_setPPExplicit___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

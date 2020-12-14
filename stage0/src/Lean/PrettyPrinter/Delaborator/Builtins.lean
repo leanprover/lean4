@@ -219,7 +219,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation do
     Syntax.mkApp stx st.moreArgs
   | _,        #[] => failure
   | _,        _   =>
-    let discrs ← st.discrs.mapM fun discr => `(Parser.Term.matchDiscr|$discr:term)
+    let discrs ← st.discrs.mapM fun discr => `(matchDiscr|$discr:term)
     let pats ← delabPatterns st
     let stx ← `(match $[$discrs],* with | $[$[$pats],* => $st.rhss]|*)
     Syntax.mkApp stx st.moreArgs

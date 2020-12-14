@@ -335,7 +335,6 @@ lean_object* l_Lean_IR_UnreachableBranches_Value_addChoice___closed__1;
 lean_object* l_Lean_IR_UnreachableBranches_projValue_match__1(lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapIdxM_map___at_Lean_IR_elimDeadBranches___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_UnreachableBranches_Value_format___closed__6;
 lean_object* l_Std_PersistentArray_get_x21___at_Lean_IR_UnreachableBranches_interpExpr___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_containsCtor_match__1(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -372,6 +371,7 @@ lean_object* l_Lean_IR_UnreachableBranches_getFunctionSummary_x3f(lean_object*, 
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentArray_getAux___rarg___closed__1;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__45;
 static lean_object* _init_l_Lean_IR_UnreachableBranches_instInhabitedValue() {
 _start:
 {
@@ -1752,16 +1752,8 @@ return x_2;
 static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_format___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("@");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_format___closed__6() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_IR_UnreachableBranches_Value_format___closed__5;
+x_1 = l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__45;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1848,7 +1840,7 @@ x_25 = lean_ctor_get(x_1, 0);
 lean_inc(x_25);
 lean_dec(x_1);
 x_26 = l_Lean_List_format___at_Lean_IR_UnreachableBranches_Value_format___spec__3(x_25);
-x_27 = l_Lean_IR_UnreachableBranches_Value_format___closed__6;
+x_27 = l_Lean_IR_UnreachableBranches_Value_format___closed__5;
 x_28 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_26);
@@ -9543,8 +9535,6 @@ l_Lean_IR_UnreachableBranches_Value_format___closed__4 = _init_l_Lean_IR_Unreach
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_format___closed__4);
 l_Lean_IR_UnreachableBranches_Value_format___closed__5 = _init_l_Lean_IR_UnreachableBranches_Value_format___closed__5();
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_format___closed__5);
-l_Lean_IR_UnreachableBranches_Value_format___closed__6 = _init_l_Lean_IR_UnreachableBranches_Value_format___closed__6();
-lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_format___closed__6);
 l_Lean_IR_UnreachableBranches_Value_instToFormatValue___closed__1 = _init_l_Lean_IR_UnreachableBranches_Value_instToFormatValue___closed__1();
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToFormatValue___closed__1);
 l_Lean_IR_UnreachableBranches_Value_instToFormatValue = _init_l_Lean_IR_UnreachableBranches_Value_instToFormatValue();

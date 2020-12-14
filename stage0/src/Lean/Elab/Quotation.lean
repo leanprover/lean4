@@ -122,16 +122,23 @@ def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
      implementation is "self-stabilizing". It was in fact originally compiled
      by an unhygienic prototype implementation. -/
 
-@[builtinTermElab Parser.Level.quot] def elabLevelQuot : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Term.quot] def elabTermQuot : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Term.funBinder.quot] def elabFunBinderQuot : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Term.bracketedBinder.quot] def elabBracketedBinderQuot : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Term.matchDiscr.quot] def elabMatchDiscrQuot : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Tactic.quot] def elabTacticQuot : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Tactic.quotSeq] def elabTacticQuotSeq : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Term.stx.quot] def elabStxQuot : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Term.doElem.quot] def elabDoElemQuot : TermElab := adaptExpander stxQuot.expand
-@[builtinTermElab Parser.Term.dynamicQuot] def elabDynamicQuot : TermElab := adaptExpander stxQuot.expand
+macro "elabStxQuot!" kind:ident : command =>
+  `(@[builtinTermElab $kind:ident] def elabQuot : TermElab := adaptExpander stxQuot.expand)
+
+--
+
+elabStxQuot! Parser.Level.quot
+elabStxQuot! Parser.Term.quot
+elabStxQuot! Parser.Term.funBinder.quot
+elabStxQuot! Parser.Term.bracketedBinder.quot
+elabStxQuot! Parser.Term.matchDiscr.quot
+elabStxQuot! Parser.Tactic.quot
+elabStxQuot! Parser.Tactic.quotSeq
+elabStxQuot! Parser.Term.stx.quot
+elabStxQuot! Parser.Term.prec.quot
+elabStxQuot! Parser.Term.prio.quot
+elabStxQuot! Parser.Term.doElem.quot
+elabStxQuot! Parser.Term.dynamicQuot
 
 /- match -/
 

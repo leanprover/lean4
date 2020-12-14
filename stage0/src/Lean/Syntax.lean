@@ -402,6 +402,10 @@ def getAntiquotSpliceSuffix (stx : Syntax) : Syntax :=
   else
     stx[1]
 
+def mkAntiquotSpliceNode (kind : SyntaxNodeKind) (contents : Array Syntax) (suffix : String) (nesting := 0) : Syntax :=
+  let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
+  mkNode (kind ++ `antiquot_splice) #[mkAtom "$", nesting, mkAtom "[", mkNullNode contents, mkAtom "]", mkAtom suffix]
+
 -- `$x,*` etc.
 def antiquotSuffixSplice? : Syntax → Option SyntaxNodeKind
   | Syntax.node (Name.str k "antiquot_suffix_splice" _) args => some k
@@ -413,6 +417,9 @@ def isAntiquotSuffixSplice (stx : Syntax) : Bool :=
 -- `$x` in the example above
 def getAntiquotSuffixSpliceInner (stx : Syntax) : Syntax :=
   stx[0]
+
+def mkAntiquotSuffixSpliceNode (kind : SyntaxNodeKind) (inner : Syntax) (suffix : String) : Syntax :=
+  mkNode (kind ++ `antiquot_suffix_splice) #[inner, mkAtom suffix]
 
 end Syntax
 end Lean

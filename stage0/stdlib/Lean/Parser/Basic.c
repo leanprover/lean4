@@ -94,6 +94,7 @@ lean_object* l_Lean_Parser_checkInsideQuotFn(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_binNumberFn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_toErrorMsg_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Error_merge_match__1___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Syntax_mkAntiquotSuffixSpliceNode___closed__1;
 lean_object* l_Lean_Parser_numberFnAux(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_withAntiquotSuffixSpliceFn___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_withoutInfo(lean_object*);
@@ -264,7 +265,6 @@ uint8_t l_Lean_Parser_ParserContext_insideQuot___default;
 lean_object* l_Lean_Parser_checkPrecFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_orelseFnCore_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-extern lean_object* l_Lean_Syntax_antiquotSuffixSplice_x3f_match__1___rarg___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_49____closed__15;
 lean_object* l_Lean_Parser_indexed___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__6(lean_object*);
@@ -426,7 +426,6 @@ lean_object* l_Lean_Parser_parserOfStackFnUnsafe___closed__4;
 lean_object* l_Lean_Parser_ParserState_mkNode_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_peekToken(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Error_toString___closed__4;
-lean_object* l_Lean_Parser_withAntiquotSuffixSpliceFn___lambda__1___closed__1;
 lean_object* l_Lean_Parser_SyntaxNodeKindSet_insert(lean_object*, lean_object*);
 extern lean_object* l_Lean_strLitKind___closed__1;
 lean_object* l_Lean_Parser_atomic(lean_object*);
@@ -28329,21 +28328,11 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Parser_withAntiquotSuffixSpliceFn___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Syntax_antiquotSuffixSplice_x3f_match__1___rarg___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_Parser_withAntiquotSuffixSpliceFn___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = l_Lean_Parser_withAntiquotSuffixSpliceFn___lambda__1___closed__1;
+x_4 = l_Lean_Syntax_mkAntiquotSuffixSpliceNode___closed__1;
 x_5 = l_Lean_Name_append(x_1, x_4);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
@@ -31152,8 +31141,6 @@ l_Lean_Parser_mkAntiquotScope___closed__6 = _init_l_Lean_Parser_mkAntiquotScope_
 lean_mark_persistent(l_Lean_Parser_mkAntiquotScope___closed__6);
 l_Lean_Parser_mkAntiquotScope___closed__7 = _init_l_Lean_Parser_mkAntiquotScope___closed__7();
 lean_mark_persistent(l_Lean_Parser_mkAntiquotScope___closed__7);
-l_Lean_Parser_withAntiquotSuffixSpliceFn___lambda__1___closed__1 = _init_l_Lean_Parser_withAntiquotSuffixSpliceFn___lambda__1___closed__1();
-lean_mark_persistent(l_Lean_Parser_withAntiquotSuffixSpliceFn___lambda__1___closed__1);
 l_Lean_Parser_sepByElemParser___closed__1 = _init_l_Lean_Parser_sepByElemParser___closed__1();
 lean_mark_persistent(l_Lean_Parser_sepByElemParser___closed__1);
 l_Lean_Parser_categoryParserOfStackFn___closed__1 = _init_l_Lean_Parser_categoryParserOfStackFn___closed__1();

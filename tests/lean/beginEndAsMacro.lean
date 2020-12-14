@@ -1,12 +1,10 @@
 /- ANCHOR: doc -/
 open Lean in
 macro "begin " ts:tactic,*,? "end" : term => do
-  let stx  ← getRef
-  let ts   := ts.getElems.map (mkNullNode #[·, mkNullNode])
-  let tseq := mkNode `Lean.Parser.Tactic.tacticSeqBracketed #[
-     mkAtomFrom stx "{", mkNullNode ts, mkAtomFrom stx[2] "}"
-  ]
-  `(by $tseq:tacticSeqBracketed)
+  let stx ← `(by { $[$ts:tactic]* })
+  -- preserve position of the last token, which is used
+  -- as the error position in case of an unfinished proof
+  stx.copyTailInfo (← getRef)
 
 theorem ex1 (x : Nat) : x + 0 = 0 + x :=
   begin

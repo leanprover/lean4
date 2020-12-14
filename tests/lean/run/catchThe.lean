@@ -5,30 +5,30 @@ open Lean.Meta
 
 universes u v w
 
-abbrev M := ExceptT String $ MetaM
+abbrev M := ExceptT String MetaM
 
 def testM {α} [BEq α] [ToString α] (x : M α) (expected : α)  : MetaM Unit := do
-let r ← x;
-match r with
-| Except.ok a    => unless a == expected do throwError m!"unexpected result {a}"
-| Except.error e => throwError m!"FAILED: {e}"
+  let r ← x
+  match r with
+  | Except.ok a    => unless a == expected do throwError m!"unexpected result {a}"
+  | Except.error e => throwError m!"FAILED: {e}"
 
 @[noinline] def act1 : M Nat :=
-throwThe Exception $ Exception.error Syntax.missing "Error at act1"
+  throw <| Exception.error Syntax.missing "Error at act1"
 
 def g1 : M Nat :=
-tryCatchThe Exception
-  (tryCatch act1 (fun ex => pure 100))
-  (fun ex => pure 200)
+  tryCatchThe Exception
+    (tryCatchThe String act1 (fun ex => pure 100))
+    (fun ex => pure 200)
 
 #eval testM g1 200
 
 @[noinline] def act2 : M Nat :=
-throw "hello world"
+  throwThe String "hello world"
 
 def g2 : M Nat :=
 tryCatchThe Exception
-  (tryCatch act2 (fun ex => pure 100))
+  (tryCatchThe String act2 (fun ex => pure 100))
   (fun ex => pure 200)
 
 #eval testM g2 100

@@ -9,15 +9,12 @@ import Lean.Parser.Syntax
 namespace Lean.Elab.Term
 /-
 Expand `optional «precedence»` where
- «precedence» := parser! " : " >> precedenceLit
- precedenceLit : Parser := numLit <|> maxSymbol
- maxSymbol := parser! nonReservedSymbol "max" -/
-def expandOptPrecedence (stx : Syntax) : Option Nat :=
+ «precedence» := parser! " : " >> precedenceParser -/
+def expandOptPrecedence (stx : Syntax) : MacroM (Option Nat) :=
   if stx.isNone then
-    none
-  else match stx[0][1].isNatLit? with
-    | some v => some v
-    | _      => some Parser.maxPrec
+    return none
+  else
+    return some (← evalPrec stx[0][1])
 
 private def mkParserSeq (ds : Array Syntax) : TermElabM Syntax := do
   if ds.size == 0 then
@@ -53,7 +50,7 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   if ctx.first && stx.getKind == `Lean.Parser.Syntax.cat then
     let cat := stx[0].getId.eraseMacroScopes
     if cat == ctx.catName then
-      let prec? : Option Nat  := expandOptPrecedence stx[1]
+      let prec? ← liftMacroM <| expandOptPrecedence stx[1]
       unless prec?.isNone do throwErrorAt stx[1] ("invalid occurrence of ':<num>' modifier in head")
       unless ctx.leftRec do
         throwErrorAt! stx[3] "invalid occurrence of '{cat}', parser algorithm does not allow this form of left recursion"
@@ -105,7 +102,7 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef s
     `(ParserDescr.sepBy1 $p $sep $psep $(quote allowTrailingSep))
   else if kind == `Lean.Parser.Syntax.cat then
     let cat   := stx[0].getId.eraseMacroScopes
-    let prec? : Option Nat  := expandOptPrecedence stx[1]
+    let prec? ← liftMacroM <| expandOptPrecedence stx[1]
     if (← Parser.isParserAlias cat) then
       Parser.ensureConstantParserAlias cat
       if prec?.isSome then
@@ -283,7 +280,7 @@ def «syntax»      := parser! attrKind >> "syntax " >> optPrecedence >> optKind
   let syntaxParser := stx[4]
   -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec
-  let prec := (Term.expandOptPrecedence stx[2]).getD precDefault
+  let prec := (← liftMacroM (Term.expandOptPrecedence stx[2])).getD precDefault
   let (kind?, prio) ← elabKindPrio stx[3] cat
   let kind ← match kind? with
     | some kind => pure kind

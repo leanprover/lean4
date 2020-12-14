@@ -51,22 +51,22 @@ let
   });
   doc = stdenv.mkDerivation {
     name ="lean-doc";
-    src = ../doc;
+    src = ../.;
     buildInputs = [ lean-mdbook ];
     buildCommand = ''
-      mdbook build -d $out $src
+      mdbook build -d $out $src/doc
     '';
   };
   # We use a separate derivation instead of `checkPhase` so we can push it but not `doc` to the binary cache
   doc-test = stdenv.mkDerivation {
     name ="lean-doc-test";
-    src = ../doc;
+    src = ../.;
     buildInputs = [ lean-mdbook lean.stage1 strace ];
     patchPhase = ''
+      cd doc
       patchShebangs test
     '';
     buildPhase = ''
-      ./test
       mdbook test
       touch $out
     '';

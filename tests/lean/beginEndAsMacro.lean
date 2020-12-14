@@ -1,3 +1,4 @@
+/- ANCHOR: doc -/
 open Lean in
 macro "begin " ts:tactic,*,? "end" : term => do
   let stx  ← getRef
@@ -12,6 +13,7 @@ theorem ex1 (x : Nat) : x + 0 = 0 + x :=
     rw Nat.zeroAdd,
     rw Nat.addZero,
   end
+/- ANCHOR_END: doc -/
 
 theorem ex2 (x : Nat) : x + 0 = 0 + x :=
   begin

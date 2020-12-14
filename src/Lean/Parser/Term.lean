@@ -199,6 +199,8 @@ def isIdent (stx : Syntax) : Bool :=
 
 -- NOTE: Doesn't call `categoryParser` directly in contrast to most other "static" quotations, so call `evalInsideQuot` explicitly
 @[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot (evalInsideQuot ``funBinder funBinder) >> ")"
+@[builtinTermParser] def bracketedBinder.quot : Parser := parser! "`(bracketedBinder|"  >> toggleInsideQuot (evalInsideQuot ``bracketedBinder bracketedBinder) >> ")"
+@[builtinTermParser] def matchDiscr.quot : Parser := parser! "`(matchDiscr|"  >> toggleInsideQuot (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
 
 @[builtinTermParser] def panic       := parser!:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := parser!:leadPrec "unreachable!"

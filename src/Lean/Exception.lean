@@ -37,27 +37,30 @@ instance (m : Type → Type) [AddMessageContext m] [Monad m] : AddErrorMessageCo
     let msg ← addMessageContext msg
     pure (ref, msg)
 
+class MonadError (m : Type → Type) extends MonadExceptOf Exception m, MonadRef m, AddErrorMessageContext m
+
+instance [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m] : MonadError m :=
+  @MonadError.mk _ inferInstance inferInstance inferInstance
+
 section Methods
 
-variables {m : Type → Type} [Monad m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
-
-def throwError (msg : MessageData) : m α := do
+def throwError [Monad m] [MonadError m] (msg : MessageData) : m α := do
   let ref ← getRef
   let (ref, msg) ← AddErrorMessageContext.add ref msg
   throw $ Exception.error ref msg
 
-def throwUnknownConstant (constName : Name) : m α :=
+def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
   throwError m!"unknown constant '{mkConst constName}'"
 
-def throwErrorAt (ref : Syntax) (msg : MessageData) : m α := do
+def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
   withRef ref <| throwError msg
 
-def ofExcept [ToString ε] (x : Except ε α) : m α :=
+def ofExcept [Monad m] [MonadError m] [ToString ε] (x : Except ε α) : m α :=
   match x with
   | Except.ok a    => pure a
   | Except.error e => throwError $ toString e
 
-def throwKernelException [MonadOptions m] (ex : KernelException) : m α := do
+def throwKernelException [Monad m] [MonadError m] [MonadOptions m] (ex : KernelException) : m α := do
   throwError <| ex.toMessageData (← getOptions)
 
 end Methods
@@ -69,8 +72,8 @@ class MonadRecDepth (m : Type → Type) where
 
 instance [Monad m] [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) where
   withRecDepth d x := fun ctx => MonadRecDepth.withRecDepth d (x ctx)
-  getRecDepth    := fun _ => MonadRecDepth.getRecDepth
-  getMaxRecDepth := fun _ => MonadRecDepth.getMaxRecDepth
+  getRecDepth      := fun _ => MonadRecDepth.getRecDepth
+  getMaxRecDepth   := fun _ => MonadRecDepth.getMaxRecDepth
 
 instance [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
   inferInstanceAs (MonadRecDepth (ReaderT _ _))
@@ -78,8 +81,7 @@ instance [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
 instance [BEq α] [Hashable α] [Monad m] [STWorld ω m] [MonadRecDepth m] : MonadRecDepth (MonadCacheT α β m) :=
   inferInstanceAs (MonadRecDepth (StateRefT' _ _ _))
 
-@[inline] def withIncRecDepth [Monad m] [MonadRecDepth m] [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
-    (x : m α) : m α := do
+@[inline] def withIncRecDepth [Monad m] [MonadError m] [MonadRecDepth m] (x : m α) : m α := do
   let curr ← MonadRecDepth.getRecDepth
   let max  ← MonadRecDepth.getMaxRecDepth
   if curr == max then throwError maxRecDepthErrorMessage

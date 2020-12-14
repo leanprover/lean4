@@ -46,8 +46,7 @@ structure DerivingClassView where
   className : Name
 
 /- parser! optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ") -/
-def getOptDerivingClasses [Monad m] [MonadRef m] [MonadEnv m] [MonadExceptOf Exception m] [MonadResolveName m] [AddErrorMessageContext m]
-    (optDeriving : Syntax) : m (Array DerivingClassView) := do
+def getOptDerivingClasses [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] (optDeriving : Syntax) : m (Array DerivingClassView) := do
   if optDeriving.isNone then
     return #[]
   else

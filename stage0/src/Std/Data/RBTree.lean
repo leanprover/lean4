@@ -10,6 +10,9 @@ universes u v w
 def RBTree (α : Type u) (lt : α → α → Bool) : Type u :=
   RBMap α Unit lt
 
+instance : Inhabited (RBTree α p) where
+  default := RBMap.empty
+
 @[inline] def mkRBTree (α : Type u) (lt : α → α → Bool) : RBTree α lt :=
   mkRBMap α Unit lt
 

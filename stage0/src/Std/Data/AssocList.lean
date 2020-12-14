@@ -10,6 +10,7 @@ namespace Std
 inductive AssocList (α : Type u) (β : Type v) where
   | nil : AssocList α β
   | cons (key : α) (value : β) (tail : AssocList α β) : AssocList α β
+  deriving Inhabited
 
 namespace AssocList
 variables {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w} [Monad m]

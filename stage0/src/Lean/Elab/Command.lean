@@ -641,7 +641,7 @@ def setOption (optionName : Name) (val : DataValue) : CommandElabM Unit := do
   | _,            _                   => pure ()
 
 @[builtinCommandElab «set_option»] def elabSetOption : CommandElab := fun stx => do
-  let optionName := stx[1].getId
+  let optionName := stx[1].getId.eraseMacroScopes
   let val        := stx[2]
   match val.isStrLit? with
   | some str => setOption optionName (DataValue.ofString str)

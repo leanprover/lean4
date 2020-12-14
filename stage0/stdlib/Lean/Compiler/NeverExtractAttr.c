@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_instInhabitedTagAttribute___closed__1;
 lean_object* l_Lean_hasNeverExtractAttribute___boxed(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3____closed__4;
@@ -20,7 +21,6 @@ uint8_t l_Lean_Name_isInternal(lean_object*);
 uint8_t l_Lean_hasNeverExtractAttribute_visit(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3_(lean_object*);
 lean_object* l_Lean_neverExtractAttr;
-extern lean_object* l_Lean_TagAttribute_instInhabitedTagAttribute___closed__1;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3____closed__2;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_3____closed__1;

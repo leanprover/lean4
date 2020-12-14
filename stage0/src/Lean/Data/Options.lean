@@ -10,13 +10,15 @@ namespace Lean
 def Options := KVMap
 
 def Options.empty : Options  := {}
-instance : Inhabited Options := ⟨Options.empty⟩
+instance : Inhabited Options where
+  default := {}
 instance : ToString Options := inferInstanceAs (ToString KVMap)
 
 structure OptionDecl where
   defValue : DataValue
   group    : String := ""
   descr    : String := ""
+  deriving Inhabited
 
 def OptionDecls := NameMap OptionDecl
 

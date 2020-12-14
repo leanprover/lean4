@@ -20,8 +20,7 @@ structure State where
   nextMacroScope  : MacroScope    := firstFrontendMacroScope + 1
   ngen            : NameGenerator := {}
   traceState      : TraceState    := {}
-
-instance : Inhabited State := ⟨{ env := arbitrary }⟩
+  deriving Inhabited
 
 structure Context where
   options        : Options := {}
@@ -33,12 +32,12 @@ structure Context where
 
 abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 
-instance : Inhabited (CoreM α) := ⟨fun _ _ => throw arbitrary⟩
+instance : Inhabited (CoreM α) where
+  default := fun _ _ => throw arbitrary
 
 instance : MonadRef CoreM where
   getRef := return (← read).ref
   withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
-
 
 instance : MonadEnv CoreM where
   getEnv := return (← get).env

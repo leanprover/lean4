@@ -13,6 +13,7 @@ inductive DataValue where
   | ofName   (v : Name)
   | ofNat    (v : Nat)
   | ofInt    (v : Int)
+  deriving Inhabited
 
 @[export lean_mk_bool_data_value] def mkBoolDataValueEx (b : Bool) : DataValue := DataValue.ofBool b
 @[export lean_data_value_bool] def DataValue.getBoolEx : DataValue → Bool
@@ -56,9 +57,9 @@ instance : Coe Int DataValue    := ⟨DataValue.ofInt⟩
    generate C++ code from Lean code. -/
 structure KVMap where
   entries : List (Name × DataValue) := []
+  deriving Inhabited
 
 namespace KVMap
-instance : Inhabited KVMap := ⟨{}⟩
 instance : ToString KVMap := ⟨fun m => toString m.entries⟩
 
 def empty : KVMap :=

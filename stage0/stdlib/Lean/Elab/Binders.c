@@ -291,6 +291,7 @@ lean_object* l___private_Init_Meta_0__Lean_quoteName(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabForall(lean_object*);
 lean_object* l_Lean_Syntax_mkStrLit(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_elabBindersAux_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l_Lean_Elab_Term_quoteAutoTactic___closed__19;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_quoteAutoTactic___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_matchBinder_match__1(lean_object*);
@@ -352,7 +353,6 @@ lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderModifie
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_elabLetDeclAux___spec__1(lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_match___closed__1;
 lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_mkMatch(lean_object*, lean_object*, lean_object*, uint8_t);
-extern lean_object* l_Lean_Expr_instInhabitedExpr;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_quoteAutoTactic___spec__1___lambda__1___closed__5;
 extern lean_object* l_Lean_identKind;
 lean_object* l_Lean_Elab_Term_expandFunBinders_loop_match__1___rarg(lean_object*, lean_object*);
@@ -5754,7 +5754,7 @@ lean_object* l_Lean_Elab_Term_elabBinder___rarg___lambda__1(lean_object* x_1, le
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_10 = l_Lean_Expr_instInhabitedExpr;
+x_10 = l_Lean_instInhabitedExpr;
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_array_get(x_10, x_2, x_11);
 x_13 = lean_apply_8(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);

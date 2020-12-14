@@ -32,6 +32,7 @@ inductive Format where
   | nest (indent : Int) : Format → Format
   | append              : Format → Format → Format
   | group               : Format → (behavior : FlattenBehavior := FlattenBehavior.allOrNone) → Format
+  deriving Inhabited
 
 namespace Format
 def fill (f : Format) : Format :=
@@ -47,7 +48,6 @@ protected def groupEx : Format → Format :=
 
 instance : Append Format     := ⟨Format.append⟩
 instance : Coe String Format    := ⟨text⟩
-instance : Inhabited Format     := ⟨nil⟩
 
 def join (xs : List Format) : Format :=
   xs.foldl (·++·) ""
@@ -60,8 +60,7 @@ private structure SpaceResult where
   foundLine              : Bool := false
   foundFlattenedHardLine : Bool := false
   space                  : Nat  := 0
-
-instance : Inhabited SpaceResult := ⟨{}⟩
+  deriving Inhabited
 
 @[inline] private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Nat → SpaceResult) : SpaceResult :=
   if r₁.space > w || r₁.foundLine then r₁

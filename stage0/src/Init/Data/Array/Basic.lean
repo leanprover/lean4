@@ -24,7 +24,8 @@ theorem sizeMkArrayEq (n : Nat) (v : α) : (mkArray n v).size = n :=
   List.lengthReplicateEq ..
 
 instance : EmptyCollection (Array α) := ⟨Array.empty⟩
-instance : Inhabited (Array α) := ⟨Array.empty⟩
+instance : Inhabited (Array α) where
+  default := Array.empty
 
 def isEmpty (a : Array α) : Bool :=
   a.size = 0
@@ -634,8 +635,8 @@ theorem sizePopEq (a : Array α) : a.pop.size = a.size - 1 :=
 section
 /- Instance for justifying `partial` declaration.
    We should be able to delete it as soon as we restore support for well-founded recursion. -/
-instance eraseIdxSzAuxInstance (a : Array α) : Inhabited { r : Array α // r.size = a.size - 1 } :=
-  ⟨⟨a.pop, sizePopEq a⟩⟩
+instance eraseIdxSzAuxInstance (a : Array α) : Inhabited { r : Array α // r.size = a.size - 1 } where
+  default := ⟨a.pop, sizePopEq a⟩
 
 partial def eraseIdxSzAux (a : Array α) : ∀ (i : Nat) (r : Array α), r.size = a.size → { r : Array α // r.size = a.size - 1 }
   | i, r, heq =>

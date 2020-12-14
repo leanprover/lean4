@@ -41,6 +41,7 @@ lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute_match__1___rarg(l
 lean_object* l_Array_anyMUnsafe_any___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__1;
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
+extern lean_object* l_Lean_registerTagAttribute___closed__5;
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConst___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,7 +67,6 @@ lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSynta
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 size_t lean_usize_of_nat(lean_object*);
-extern lean_object* l_Lean_instInhabitedAttributeImpl___closed__4;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___closed__3;
@@ -100,7 +100,7 @@ static lean_object* _init_l_Lean_ParserCompiler_instInhabitedCombinatorAttribute
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_instInhabitedAttributeImpl___closed__4;
+x_1 = l_Lean_instInhabitedAttributeImpl___closed__3;
 x_2 = l_Lean_instInhabitedPersistentEnvExtension___closed__5;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -723,7 +723,7 @@ lean_inc(x_9);
 x_13 = lean_alloc_closure((void*)(l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1___boxed), 8, 2);
 lean_closure_set(x_13, 0, x_1);
 lean_closure_set(x_13, 1, x_9);
-x_14 = l_Lean_instInhabitedAttributeImpl___closed__3;
+x_14 = l_Lean_registerTagAttribute___closed__5;
 x_15 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_15, 0, x_12);
 lean_ctor_set(x_15, 1, x_13);

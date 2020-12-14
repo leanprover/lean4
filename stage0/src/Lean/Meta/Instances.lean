@@ -12,16 +12,12 @@ structure InstanceEntry where
   keys        : Array DiscrTree.Key
   val         : Expr
   globalName? : Option Name := none
-
-instance : Inhabited InstanceEntry where
-  default := { keys := #[], val := arbitrary }
+  deriving Inhabited
 
 structure Instances where
   discrTree       : DiscrTree Expr := DiscrTree.empty
   globalInstances : NameSet := {}
-
-instance : Inhabited Instances where
-  default := {}
+  deriving Inhabited
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances := {
   d with
@@ -78,9 +74,7 @@ abbrev PrioritySet := Std.RBTree Nat (.>.)
 structure DefaultInstances where
   defaultInstances : NameMap (List (Name × Nat)) := {}
   priorities       : PrioritySet := {}
-
-instance : Inhabited DefaultInstances where
-  default := {}
+  deriving Inhabited
 
 def addDefaultInstanceEntry (d : DefaultInstances) (e : DefaultInstanceEntry) : DefaultInstances :=
   let d := { d with priorities := d.priorities.insert e.priority }

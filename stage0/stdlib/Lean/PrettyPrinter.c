@@ -81,6 +81,7 @@ lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext
 lean_object* l_Lean_PrettyPrinter_delab(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_formatCommand(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_ppModule___closed__2;
+extern lean_object* l_Lean_resetTraceState___rarg___lambda__1___closed__1;
 lean_object* l_Lean_PPContext_runCoreM(lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_combinatorParenthesizerAttribute;
 lean_object* l_Lean_PrettyPrinter_ppModule___closed__1;
@@ -101,7 +102,6 @@ lean_object* l_Lean_PPContext_runMetaM(lean_object*);
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_304____lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_sanitizeNames(lean_object*, lean_object*);
 lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext___at_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_304____spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_TraceState_instInhabitedTraceState___closed__1;
 lean_object* l_Lean_PPContext_runCoreM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -125,7 +125,7 @@ lean_ctor_set(x_11, 4, x_6);
 lean_ctor_set(x_11, 5, x_7);
 x_12 = l_Lean_Unhygienic_run___rarg___closed__1;
 x_13 = l_Lean_Core_State_ngen___default___closed__1;
-x_14 = l_Lean_TraceState_instInhabitedTraceState___closed__1;
+x_14 = l_Lean_resetTraceState___rarg___lambda__1___closed__1;
 lean_inc(x_4);
 x_15 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_15, 0, x_4);
@@ -493,7 +493,7 @@ lean_ctor_set(x_19, 4, x_18);
 lean_ctor_set(x_19, 5, x_7);
 x_20 = l_Lean_Unhygienic_run___rarg___closed__1;
 x_21 = l_Lean_Core_State_ngen___default___closed__1;
-x_22 = l_Lean_TraceState_instInhabitedTraceState___closed__1;
+x_22 = l_Lean_resetTraceState___rarg___lambda__1___closed__1;
 x_23 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_23, 0, x_1);
 lean_ctor_set(x_23, 1, x_20);

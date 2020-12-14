@@ -89,7 +89,8 @@ def empty {α} : DiscrTree α := { root := {} }
 private def tmpMVarId : MVarId := `_discr_tree_tmp
 private def tmpStar := mkMVar tmpMVarId
 
-instance {α} : Inhabited (DiscrTree α) := ⟨{}⟩
+instance {α} : Inhabited (DiscrTree α) where
+  default := {}
 
 /--
   Return true iff the argument should be treated as a "wildcard" by the discrimination tree.

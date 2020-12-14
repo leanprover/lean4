@@ -952,7 +952,7 @@ x_11 = l_Array_swapAt_x21___rarg___closed__2;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l_Array_swapAt_x21___rarg___closed__3;
 x_14 = l_Array_swapAt_x21___rarg___closed__4;
-x_15 = lean_unsigned_to_nat(93u);
+x_15 = lean_unsigned_to_nat(94u);
 x_16 = lean_unsigned_to_nat(4u);
 x_17 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_13, x_14, x_15, x_16, x_12);
 lean_dec(x_12);
@@ -5970,7 +5970,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_swapAt_x21___rarg___closed__3;
 x_2 = l_Array_findSome_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(387u);
+x_3 = lean_unsigned_to_nat(388u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Array_findSome_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -9320,7 +9320,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_swapAt_x21___rarg___closed__3;
 x_2 = l_Array_insertAt___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(669u);
+x_3 = lean_unsigned_to_nat(670u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Array_insertAt___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

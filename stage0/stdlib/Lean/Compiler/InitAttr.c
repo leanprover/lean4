@@ -70,6 +70,7 @@ lean_object* l_Lean_registerInitAttrUnsafe___lambda__3___boxed(lean_object*, lea
 lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_isIOUnit_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2501____closed__14;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_registerInitAttrUnsafe___spec__9___closed__1;
+extern lean_object* l_Lean_registerTagAttribute___closed__5;
 lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_535_(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_519_(lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__12;
@@ -93,7 +94,7 @@ lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__10;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isIOUnitInitFnCore_match__1(lean_object*);
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__5;
-extern lean_object* l_Lean_instInhabitedAttributeImpl___closed__3;
+extern lean_object* l_Lean_instInhabitedParametricAttribute___closed__1;
 lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__7;
 lean_object* l_IO_ofExcept___at_Lean_registerInitAttrUnsafe___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getInitFnNameForCore_x3f___boxed(lean_object*, lean_object*, lean_object*);
@@ -176,7 +177,6 @@ lean_object* l_Lean_throwUnknownConstant___at_Lean_registerInitAttrUnsafe___spec
 lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_registerInitAttrUnsafe___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2501____closed__4;
-extern lean_object* l_Lean_ParametricAttribute_instInhabitedParametricAttribute___closed__1;
 lean_object* lean_run_init(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerInitAttr___boxed(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
@@ -1789,7 +1789,7 @@ x_18 = lean_alloc_closure((void*)(l_Lean_registerParametricAttribute___rarg___la
 lean_closure_set(x_18, 0, x_1);
 lean_closure_set(x_18, 1, x_15);
 lean_closure_set(x_18, 2, x_5);
-x_19 = l_Lean_instInhabitedAttributeImpl___closed__3;
+x_19 = l_Lean_registerTagAttribute___closed__5;
 x_20 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_20, 0, x_3);
 lean_ctor_set(x_20, 1, x_18);
@@ -1923,7 +1923,7 @@ x_50 = lean_alloc_closure((void*)(l_Lean_registerParametricAttribute___rarg___la
 lean_closure_set(x_50, 0, x_1);
 lean_closure_set(x_50, 1, x_46);
 lean_closure_set(x_50, 2, x_36);
-x_51 = l_Lean_instInhabitedAttributeImpl___closed__3;
+x_51 = l_Lean_registerTagAttribute___closed__5;
 x_52 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_52, 0, x_49);
 lean_ctor_set(x_52, 1, x_50);

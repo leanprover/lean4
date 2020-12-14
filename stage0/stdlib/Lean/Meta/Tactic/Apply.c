@@ -73,6 +73,7 @@ lean_object* l_Lean_Meta_apply_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_List_forM___at_Lean_Meta_apply___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_reorderNonDependentFirst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwApplyError___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwApplyError___rarg___closed__2;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
@@ -88,7 +89,6 @@ lean_object* l_Lean_Meta_postprocessAppMVars___boxed(lean_object*, lean_object*,
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_reorderNonDependentFirst_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_apply___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instInhabitedExpr;
 extern uint8_t l_Lean_instInhabitedBinderInfo;
 lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_getExpectedNumArgsAux___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -631,7 +631,7 @@ goto _start;
 else
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_24 = l_Lean_Expr_instInhabitedExpr;
+x_24 = l_Lean_instInhabitedExpr;
 x_25 = lean_array_get(x_24, x_3, x_17);
 lean_dec(x_17);
 lean_inc(x_10);
@@ -876,7 +876,7 @@ lean_dec(x_5);
 x_15 = lean_nat_sub(x_4, x_14);
 x_16 = lean_nat_sub(x_15, x_13);
 lean_dec(x_15);
-x_17 = l_Lean_Expr_instInhabitedExpr;
+x_17 = l_Lean_instInhabitedExpr;
 x_18 = lean_array_get(x_17, x_1, x_16);
 x_19 = l_Lean_Expr_mvarId_x21(x_18);
 lean_dec(x_18);
@@ -1027,7 +1027,7 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_dec(x_13);
 lean_free_object(x_9);
-x_19 = l_Lean_Expr_instInhabitedExpr;
+x_19 = l_Lean_instInhabitedExpr;
 x_20 = lean_unsigned_to_nat(0u);
 x_21 = lean_array_get(x_19, x_2, x_20);
 x_22 = l_Lean_Expr_mvarId_x21(x_21);
@@ -1075,7 +1075,7 @@ else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_26);
-x_33 = l_Lean_Expr_instInhabitedExpr;
+x_33 = l_Lean_instInhabitedExpr;
 x_34 = lean_unsigned_to_nat(0u);
 x_35 = lean_array_get(x_33, x_2, x_34);
 x_36 = l_Lean_Expr_mvarId_x21(x_35);

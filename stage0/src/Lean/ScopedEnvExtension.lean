@@ -21,14 +21,13 @@ structure State (σ : Type) where
 
 structure ScopedEntries (β : Type) where
   map : SMap Name (Std.PArray β) := {}
+  deriving Inhabited
 
 structure StateStack (α : Type) (β : Type) (σ : Type) where
   stateStack    : List (State σ) := {}
   scopedEntries : ScopedEntries β := {}
   newEntries    : List (Entry α) := []
-
-instance : Inhabited (StateStack α β σ) where
-  default := {}
+  deriving Inhabited
 
 structure Descr (α : Type) (β : Type) (σ : Type) where
   name           : Name
@@ -98,12 +97,7 @@ open ScopedEnvExtension
 structure ScopedEnvExtension (α : Type) (β : Type) (σ : Type) where
   descr : Descr α β σ
   ext   : PersistentEnvExtension (Entry α) (Entry β) (StateStack α β σ)
-
-instance [Inhabited α] : Inhabited (ScopedEnvExtension α β σ) where
-  default := {
-    descr := arbitrary
-    ext   := arbitrary
-  }
+  deriving Inhabited
 
 builtin_initialize scopedEnvExtensionsRef : IO.Ref (Array (ScopedEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]
 

@@ -59,6 +59,7 @@ lean_object* l_Std_RBTree_find_x3f(lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Std_RBTree_foldM___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_revFold___at_Std_RBTree_revFold___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_depth___rarg(lean_object*, lean_object*);
+lean_object* l_Std_instInhabitedRBTree(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_forIn_visit___at_Std_RBTree_forIn___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_foldM___at_Std_RBTree_foldM___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_any___at_Std_RBTree_any___spec__1(lean_object*);
@@ -107,6 +108,7 @@ uint8_t l_Std_RBTree_subset___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_findCore___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_instEmptyCollectionRBTree___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_forIn_visit___at_Std_RBTree_forIn___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_instInhabitedRBTree___boxed(lean_object*, lean_object*);
 uint8_t l_Std_RBTree_contains___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_forM___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBTree_any___rarg(lean_object*, lean_object*);
@@ -135,6 +137,23 @@ lean_object* l_Std_RBTree_ofList___rarg(lean_object*, lean_object*);
 lean_object* l_Std_RBTree_fold___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_forIn_visit___at_Std_RBTree_forIn___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_insert(lean_object*);
+lean_object* l_Std_instInhabitedRBTree(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
+}
+}
+lean_object* l_Std_instInhabitedRBTree___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_instInhabitedRBTree(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 lean_object* l_Std_mkRBTree(lean_object* x_1, lean_object* x_2) {
 _start:
 {

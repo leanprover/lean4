@@ -341,7 +341,6 @@ lean_object* l_Lean_Meta_map2MetaM___rarg(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_Meta_whnf___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarDecl___closed__2;
 lean_object* l_Lean_Meta_renameMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instInhabitedExpr___closed__1;
 lean_object* l_Lean_Meta_isExprMVarAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_994____lambda__1___closed__2;
 lean_object* l_Nat_repr(lean_object*);
@@ -516,6 +515,7 @@ lean_object* l_Lean_Meta_getParamNames___lambda__1(lean_object*, lean_object*, l
 lean_object* l_Lean_Meta_getExprMVarAssignment_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
+extern lean_object* l_Lean_resetTraceState___rarg___lambda__1___closed__1;
 uint8_t l_Lean_Expr_isMVar(lean_object*);
 lean_object* lean_expr_update_sort(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_resettingSynthInstanceCache(lean_object*);
@@ -552,6 +552,7 @@ lean_object* l_Lean_Meta_elimMVarDeps___boxed(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Level_normalize(lean_object*);
 lean_object* l_Lean_Meta_instMonadMCtxMetaM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withMVarContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr___closed__1;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallBoundedTelescopeImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_incDepth(lean_object*);
 lean_object* l_Lean_Meta_Context_lctx___default;
@@ -776,7 +777,6 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_isClassImp_x3f(lean_object
 lean_object* l_Lean_Meta_getFVarLocalDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp_process___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateLambdaAux_match__1(lean_object*);
-extern lean_object* l_Lean_TraceState_instInhabitedTraceState___closed__1;
 lean_object* l_Lean_Meta_findLocalDecl_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_savingCacheImpl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -991,8 +991,8 @@ _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
-x_2 = 1;
-x_3 = l_Lean_Expr_instInhabitedExpr___closed__1;
+x_2 = 0;
+x_3 = l_Lean_instInhabitedExpr___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_1);
@@ -2355,7 +2355,7 @@ lean_ctor_set(x_34, 4, x_33);
 lean_ctor_set(x_34, 5, x_30);
 x_35 = l_Lean_Unhygienic_run___rarg___closed__1;
 x_36 = l_Lean_Core_State_ngen___default___closed__1;
-x_37 = l_Lean_TraceState_instInhabitedTraceState___closed__1;
+x_37 = l_Lean_resetTraceState___rarg___lambda__1___closed__1;
 x_38 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_38, 0, x_2);
 lean_ctor_set(x_38, 1, x_35);

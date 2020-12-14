@@ -31,7 +31,6 @@ lean_object* l_Lean_Meta_reduce_visit_match__1___rarg(lean_object*, lean_object*
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instInhabitedExpr___closed__1;
 lean_object* l_Lean_Meta_reduce_visit___lambda__1(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41,6 +40,7 @@ lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__L
 lean_object* l_Lean_Meta_reduce___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr___closed__1;
 lean_object* l_Lean_Meta_getFunInfoNArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduce_visit(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduce_visit___lambda__2(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -169,7 +169,7 @@ else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_33 = lean_array_fget(x_8, x_7);
-x_34 = l_Lean_Expr_instInhabitedExpr___closed__1;
+x_34 = l_Lean_instInhabitedExpr___closed__1;
 x_35 = lean_array_fset(x_8, x_7, x_34);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -243,7 +243,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 x_48 = lean_array_fget(x_8, x_7);
-x_49 = l_Lean_Expr_instInhabitedExpr___closed__1;
+x_49 = l_Lean_instInhabitedExpr___closed__1;
 x_50 = lean_array_fset(x_8, x_7, x_49);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -331,7 +331,7 @@ else
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
 x_67 = lean_array_fget(x_8, x_7);
-x_68 = l_Lean_Expr_instInhabitedExpr___closed__1;
+x_68 = l_Lean_instInhabitedExpr___closed__1;
 x_69 = lean_array_fset(x_8, x_7, x_68);
 lean_inc(x_12);
 lean_inc(x_11);

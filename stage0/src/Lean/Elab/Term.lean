@@ -139,22 +139,21 @@ structure State where
   mvarErrorInfos    : List MVarErrorInfo := []
   messages          : MessageLog := {}
   letRecsToLift     : List LetRecToLift := []
-
-instance : Inhabited State := ⟨{}⟩
+  deriving Inhabited
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
 open Meta
 
-instance {α} : Inhabited (TermElabM α) := ⟨throw arbitrary⟩
+instance {α} : Inhabited (TermElabM α) where
+  default := throw arbitrary
 
 structure SavedState where
   core   : Core.State
   meta   : Meta.State
   «elab» : State
-
-instance : Inhabited SavedState := ⟨⟨arbitrary, arbitrary, arbitrary⟩⟩
+  deriving Inhabited
 
 def saveAllState : TermElabM SavedState := do
   pure { core := (← getThe Core.State), meta := (← getThe Meta.State), «elab» := (← get) }
@@ -167,7 +166,8 @@ def SavedState.restore (s : SavedState) : TermElabM Unit := do
   setTraceState traceState
 
 abbrev TermElabResult := EStateM.Result Exception SavedState Expr
-instance : Inhabited TermElabResult := ⟨EStateM.Result.ok arbitrary arbitrary⟩
+instance : Inhabited TermElabResult where
+  default := EStateM.Result.ok arbitrary arbitrary
 
 def setMessageLog (messages : MessageLog) : TermElabM Unit :=
   modify fun s => { s with messages := messages }

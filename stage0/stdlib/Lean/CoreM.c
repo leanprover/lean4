@@ -138,12 +138,15 @@ lean_object* l_Lean_Core_withIncRecDepth___rarg(lean_object*, lean_object*, lean
 lean_object* l_Lean_catchInternalIds___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadResolveNameCoreM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMetaEvalCoreM(lean_object*);
+extern lean_object* l_Lean_instInhabitedNameGenerator___closed__1;
+extern lean_object* l_Lean_instInhabitedTraceState___closed__1;
 lean_object* l_Lean_Core_instMonadNameGeneratorCoreM___closed__4;
 lean_object* l_Lean_Core_instAddMessageContextCoreM___closed__1;
 lean_object* l_Lean_Core_instMonadNameGeneratorCoreM___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_CoreM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 lean_object* l_IO_println___at_Lean_printTraces___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_resetTraceState___rarg___lambda__1___closed__1;
 lean_object* l_Lean_Core_withIncRecDepth___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_CoreM_toIO_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_printTraces___at_Lean_Core_instMetaEvalCoreM___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -192,7 +195,6 @@ lean_object* l_Lean_Core_instMonadNameGeneratorCoreM___closed__2;
 lean_object* l_Lean_Core_CoreM_toIO___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_liftIOCore___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadEnvCoreM___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_TraceState_instInhabitedTraceState___closed__1;
 lean_object* l_Lean_Core_instMonadRecDepthCoreM;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Core_State_nextMacroScope___default() {
@@ -227,7 +229,7 @@ static lean_object* _init_l_Lean_Core_State_traceState___default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_TraceState_instInhabitedTraceState___closed__1;
+x_1 = l_Lean_resetTraceState___rarg___lambda__1___closed__1;
 return x_1;
 }
 }
@@ -252,9 +254,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Core_instInhabitedState___closed__1;
-x_2 = l_Lean_Unhygienic_run___rarg___closed__1;
-x_3 = l_Lean_Core_State_ngen___default___closed__1;
-x_4 = l_Lean_TraceState_instInhabitedTraceState___closed__1;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = l_Lean_instInhabitedNameGenerator___closed__1;
+x_4 = l_Lean_instInhabitedTraceState___closed__1;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -2682,7 +2684,7 @@ lean_ctor_set(x_34, 4, x_33);
 lean_ctor_set(x_34, 5, x_30);
 x_35 = l_Lean_Unhygienic_run___rarg___closed__1;
 x_36 = l_Lean_Core_State_ngen___default___closed__1;
-x_37 = l_Lean_TraceState_instInhabitedTraceState___closed__1;
+x_37 = l_Lean_resetTraceState___rarg___lambda__1___closed__1;
 x_38 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_38, 0, x_2);
 lean_ctor_set(x_38, 1, x_35);

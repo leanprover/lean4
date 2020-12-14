@@ -43,11 +43,11 @@ lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, lean_object*,
 lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkFnInhabitant_x3f_loop_match__2(lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkFnInhabitant_x3f_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_943____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_findAssumption_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAppOptM___at_Lean_Meta_mkDecideProof___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkInhabitantFor___closed__3;
-extern lean_object* l_Lean_Expr_instInhabitedExpr;
 extern lean_object* l_Lean_Syntax_mkApp___closed__1;
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 lean_object* l_Lean_Elab_mkInhabitantFor_match__2(lean_object*);
@@ -542,7 +542,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_2, x_11);
 lean_dec(x_2);
-x_13 = l_Lean_Expr_instInhabitedExpr;
+x_13 = l_Lean_instInhabitedExpr;
 x_14 = lean_array_get(x_13, x_1, x_12);
 x_15 = l_Lean_mkOptionalNode___closed__2;
 x_16 = lean_array_push(x_15, x_14);

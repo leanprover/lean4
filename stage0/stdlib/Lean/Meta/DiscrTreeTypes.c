@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Meta_DiscrTree_Key_hash_match__1(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instBEqKey___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_root___default(lean_object*);
+lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_Key_beq_match__1(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instHashableKey;
 extern lean_object* l_Std_PersistentHashMap_root___default___closed__2;
@@ -36,11 +37,23 @@ size_t l_Lean_Literal_hash(lean_object*);
 size_t lean_usize_mix_hash(size_t, size_t);
 lean_object* l_Lean_Meta_DiscrTree_Key_hash___boxed(lean_object*);
 size_t l_Lean_Meta_DiscrTree_Key_hash(lean_object*);
+static lean_object* _init_l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Meta_DiscrTree_instInhabitedKey() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_box(3);
+x_1 = l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1;
 return x_1;
 }
 }
@@ -524,6 +537,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Expr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1 = _init_l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1();
+lean_mark_persistent(l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1);
 l_Lean_Meta_DiscrTree_instInhabitedKey = _init_l_Lean_Meta_DiscrTree_instInhabitedKey();
 lean_mark_persistent(l_Lean_Meta_DiscrTree_instInhabitedKey);
 l_Lean_Meta_DiscrTree_instHashableKey___closed__1 = _init_l_Lean_Meta_DiscrTree_instHashableKey___closed__1();

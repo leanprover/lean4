@@ -62,6 +62,7 @@ lean_object* l_Lean_Meta_getElimInfo___lambda__2___closed__2;
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_943____spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getElimInfo___spec__2(lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getElimInfo___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getElimInfo___spec__7___closed__1;
@@ -71,7 +72,6 @@ lean_object* l_Lean_throwError___at_Lean_Meta_getElimInfo___spec__1___rarg(lean_
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_getParamNames___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getElimInfo___spec__7___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
-extern lean_object* l_Lean_Expr_instInhabitedExpr;
 lean_object* l_Array_indexOfAux___at_Lean_Meta_getElimInfo___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getElimInfo___lambda__1___closed__2;
@@ -537,7 +537,7 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_sub(x_5, x_17);
 lean_dec(x_5);
-x_26 = l_Lean_Expr_instInhabitedExpr;
+x_26 = l_Lean_instInhabitedExpr;
 x_27 = lean_array_get(x_26, x_1, x_6);
 x_28 = lean_expr_eqv(x_27, x_2);
 if (x_28 == 0)

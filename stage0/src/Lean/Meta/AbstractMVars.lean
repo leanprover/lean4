@@ -11,8 +11,7 @@ structure AbstractMVarsResult where
   paramNames : Array Name
   numMVars   : Nat
   expr       : Expr
-
-instance : Inhabited AbstractMVarsResult := ⟨⟨#[], 0, arbitrary⟩⟩
+  deriving Inhabited
 
 def AbstractMVarsResult.beq (r₁ r₂ : AbstractMVarsResult) : Bool :=
   r₁.paramNames == r₂.paramNames && r₁.numMVars == r₂.numMVars && r₁.expr == r₂.expr

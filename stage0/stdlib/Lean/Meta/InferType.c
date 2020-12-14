@@ -155,6 +155,7 @@ lean_object* l_Lean_Meta_throwTypeExcepted___rarg___closed__2;
 lean_object* l_Lean_Meta_inferTypeImp_infer___closed__2;
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType_match__3(lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferFVarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_isPropQuickApp_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
@@ -196,7 +197,6 @@ lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__L
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-extern lean_object* l_Lean_Expr_instInhabitedExpr;
 lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isTypeQuick_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferTypeImp_infer_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1301,7 +1301,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Data_Format_0__Lean_Format_be___closed__1;
-x_2 = l_Lean_Expr_instInhabitedExpr;
+x_2 = l_Lean_instInhabitedExpr;
 x_3 = l_instInhabited___rarg(x_1, x_2);
 return x_3;
 }
@@ -1446,7 +1446,7 @@ lean_dec(x_2);
 x_21 = lean_unsigned_to_nat(1u);
 x_22 = lean_nat_sub(x_20, x_21);
 lean_dec(x_20);
-x_23 = l_Lean_Expr_instInhabitedExpr;
+x_23 = l_Lean_instInhabitedExpr;
 x_24 = lean_array_get(x_23, x_3, x_22);
 lean_dec(x_22);
 lean_dec(x_3);
@@ -2414,7 +2414,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_9 = l_Lean_Expr_instInhabitedExpr;
+x_9 = l_Lean_instInhabitedExpr;
 x_10 = l_Lean_Expr_instantiateBetaRevRange___closed__5;
 x_11 = lean_panic_fn(x_9, x_10);
 return x_11;

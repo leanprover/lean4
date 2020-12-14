@@ -75,7 +75,6 @@ lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_isUnsafeEx___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_hasValue___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
-extern lean_object* l_Lean_Expr_instInhabitedExpr___closed__1;
 lean_object* l_Lean_InductiveVal_isNestedEx___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_toConstantVal___boxed(lean_object*);
 uint8_t lean_inductive_val_is_reflexive(lean_object*);
@@ -86,6 +85,7 @@ lean_object* l_Lean_mkOpaqueValEx___boxed(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_Declaration_isUnsafeInductiveDeclEx___boxed(lean_object*);
 lean_object* l_Lean_RecursorVal_kEx___boxed(lean_object*);
 uint8_t lean_recursor_k(lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l_Lean_ReducibilityHints_getHeightEx_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getInduct___boxed(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -102,7 +102,6 @@ lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* lean_mk_constructor_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkDefinitionValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instInhabitedExpr;
 lean_object* l_Lean_ConstantInfo_value_x3f_match__1(lean_object*);
 lean_object* l_Lean_ReducibilityHints_getHeightEx___boxed(lean_object*);
 lean_object* l_Lean_Declaration_foldExprM_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -118,6 +117,7 @@ lean_object* l_Lean_ReducibilityHints_lt_match__1___rarg(lean_object*, lean_obje
 lean_object* l_Lean_ConstantInfo_value_x21_match__1(lean_object*);
 lean_object* l_Lean_instInhabitedConstantVal;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr___closed__1;
 lean_object* l_Lean_Declaration_isUnsafeInductiveDeclEx_match__1(lean_object*);
 lean_object* l_Lean_InductiveVal_nctors___boxed(lean_object*);
 lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -401,7 +401,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
 x_2 = lean_box(0);
-x_3 = l_Lean_Expr_instInhabitedExpr___closed__1;
+x_3 = l_Lean_instInhabitedExpr___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_1);
@@ -2562,7 +2562,7 @@ return x_5;
 default: 
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lean_Expr_instInhabitedExpr;
+x_6 = l_Lean_instInhabitedExpr;
 x_7 = l_Lean_ConstantInfo_value_x21___closed__4;
 x_8 = lean_panic_fn(x_6, x_7);
 return x_8;

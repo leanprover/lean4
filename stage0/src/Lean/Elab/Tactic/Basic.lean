@@ -28,8 +28,7 @@ structure Context where
 
 structure State where
   goals : List MVarId
-
-instance : Inhabited State := ⟨{ goals := [] }⟩
+  deriving Inhabited
 
 structure BacktrackableState where
   env   : Environment

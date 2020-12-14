@@ -17,8 +17,7 @@ inductive Key where
   | lit   : Literal → Key
   | star  : Key
   | other : Key
-
-instance : Inhabited Key := ⟨Key.star⟩
+  deriving Inhabited
 
 protected def Key.hash : Key → USize
   | Key.const n a => mixHash 5237 $ mixHash (hash n) (hash a)

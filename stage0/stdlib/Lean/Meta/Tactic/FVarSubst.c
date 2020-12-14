@@ -57,6 +57,7 @@ lean_object* l_Lean_LocalDecl_applyFVarSubst_match__1___rarg(lean_object*, lean_
 lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_insert___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instInhabitedFVarSubst;
 lean_object* l_Lean_Meta_FVarSubst_empty;
 lean_object* l_Lean_Meta_FVarSubst_apply_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_insert(lean_object*, lean_object*, lean_object*);
@@ -77,6 +78,14 @@ lean_object* l_Lean_LocalDecl_applyFVarSubst(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_ReplaceImpl_initCache;
 lean_object* l_Lean_Expr_applyFVarSubst(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Meta_FVarSubst_map___default() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_instInhabitedFVarSubst() {
 _start:
 {
 lean_object* x_1; 
@@ -1600,6 +1609,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_FVarSubst_map___default = _init_l_Lean_Meta_FVarSubst_map___default();
 lean_mark_persistent(l_Lean_Meta_FVarSubst_map___default);
+l_Lean_Meta_instInhabitedFVarSubst = _init_l_Lean_Meta_instInhabitedFVarSubst();
+lean_mark_persistent(l_Lean_Meta_instInhabitedFVarSubst);
 l_Lean_Meta_FVarSubst_empty = _init_l_Lean_Meta_FVarSubst_empty();
 lean_mark_persistent(l_Lean_Meta_FVarSubst_empty);
 return lean_io_result_mk_ok(lean_box(0));

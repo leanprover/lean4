@@ -4,4 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
 import Lean.Elab.Deriving.Inhabited
+import Lean.Elab.Deriving.BEq

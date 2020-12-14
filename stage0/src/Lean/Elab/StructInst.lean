@@ -56,8 +56,7 @@ inductive Source where
   | none     -- structure instance source has not been provieded
   | implicit (stx : Syntax) -- `..`
   | explicit (stx : Syntax) (src : Expr) -- `src with`
-
-instance : Inhabited Source := ⟨Source.none⟩
+  deriving Inhabited
 
 def Source.isNone : Source → Bool
   | Source.none => true
@@ -171,8 +170,8 @@ inductive FieldLHS where
   | fieldName  (ref : Syntax) (name : Name)
   | fieldIndex (ref : Syntax) (idx : Nat)
   | modifyOp   (ref : Syntax) (index : Syntax)
+  deriving Inhabited
 
-instance : Inhabited FieldLHS := ⟨FieldLHS.fieldName arbitrary arbitrary⟩
 instance : ToFormat FieldLHS := ⟨fun lhs =>
   match lhs with
   | FieldLHS.fieldName _ n  => fmt n
@@ -183,14 +182,14 @@ inductive FieldVal (σ : Type) where
   | term  (stx : Syntax) : FieldVal σ
   | nested (s : σ)       : FieldVal σ
   | default              : FieldVal σ -- mark that field must be synthesized using default value
+  deriving Inhabited
 
 structure Field (σ : Type) where
   ref : Syntax
   lhs : List FieldLHS
   val : FieldVal σ
   expr? : Option Expr := none
-
-instance {σ} : Inhabited (Field σ) := ⟨⟨arbitrary, [], FieldVal.term arbitrary, arbitrary⟩⟩
+  deriving Inhabited
 
 def Field.isSimple {σ} : Field σ → Bool
   | { lhs := [_], .. } => true
@@ -198,8 +197,7 @@ def Field.isSimple {σ} : Field σ → Bool
 
 inductive Struct where
   | mk (ref : Syntax) (structName : Name) (fields : List (Field Struct)) (source : Source)
-
-instance : Inhabited Struct := ⟨⟨arbitrary, arbitrary, [], arbitrary⟩⟩
+  deriving Inhabited
 
 abbrev Fields := List (Field Struct)
 

@@ -56,6 +56,7 @@ inductive Level where
   | imax   : Level → Level → Data → Level
   | param  : Name → Data → Level
   | mvar   : Name → Data → Level
+  deriving Inhabited
 
 namespace Level
 
@@ -120,8 +121,6 @@ def levelOne := mkLevelSucc levelZero
 @[export lean_level_mk_imax] def mkLevelIMaxEx : Level → Level → Level := mkLevelIMax
 
 namespace Level
-
-instance : Inhabited Level := ⟨levelZero⟩
 
 def isZero : Level → Bool
   | zero _ => true

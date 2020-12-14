@@ -17,6 +17,7 @@ namespace Lean.Meta
   be defined in the new goal. -/
 structure FVarSubst where
   map : Std.AssocList FVarId Expr := {}
+  deriving Inhabited
 
 namespace FVarSubst
 

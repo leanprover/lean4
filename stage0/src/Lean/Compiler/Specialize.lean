@@ -10,10 +10,9 @@ namespace Lean.Compiler
 
 inductive SpecializeAttributeKind where
   | specialize | nospecialize
+  deriving Inhabited
 
 namespace SpecializeAttributeKind
-
-instance : Inhabited SpecializeAttributeKind := ⟨SpecializeAttributeKind.specialize⟩
 
 protected def beq : SpecializeAttributeKind → SpecializeAttributeKind → Bool
   | specialize, specialize => true
@@ -59,22 +58,24 @@ inductive SpecArgKind where
   | fixedHO      -- higher order
   | fixedInst    -- type class instance
   | other
+  deriving Inhabited
 
 structure SpecInfo where
   mutualDecls : List Name
   argKinds : SpecArgKind
+  deriving Inhabited
 
 structure SpecState where
   specInfo : SMap Name SpecInfo := {}
   cache    : SMap Expr Name := {}
+  deriving Inhabited
 
 inductive SpecEntry where
   | info (name : Name) (info : SpecInfo)
   | cache (key : Expr) (fn : Name)
+  deriving Inhabited
 
 namespace SpecState
-
-instance : Inhabited SpecState := ⟨{}⟩
 
 def addEntry (s : SpecState) (e : SpecEntry) : SpecState :=
   match e with

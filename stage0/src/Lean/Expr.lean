@@ -11,8 +11,7 @@ namespace Lean
 inductive Literal where
   | natVal (val : Nat)
   | strVal (val : String)
-
-instance : Inhabited Literal := ⟨Literal.natVal 0⟩
+  deriving Inhabited
 
 protected def Literal.hash : Literal → USize
   | Literal.natVal v => hash v
@@ -40,6 +39,7 @@ instance (a b : Literal) : Decidable (a < b) :=
 
 inductive BinderInfo where
   | default | implicit | strictImplicit | instImplicit | auxDecl
+  deriving Inhabited
 
 def BinderInfo.hash : BinderInfo → USize
   | BinderInfo.default        => 947
@@ -55,8 +55,6 @@ def BinderInfo.isExplicit : BinderInfo → Bool
   | _                         => true
 
 instance : Hashable BinderInfo := ⟨BinderInfo.hash⟩
-
-instance : Inhabited BinderInfo := ⟨BinderInfo.default⟩
 
 def BinderInfo.isInstImplicit : BinderInfo → Bool
   | BinderInfo.instImplicit => true
@@ -97,8 +95,8 @@ instance: Inhabited Expr.Data :=
 def Expr.Data.hash (c : Expr.Data) : USize :=
   c.toUInt32.toUSize
 
-instance : BEq Expr.Data :=
-  ⟨fun (a b : UInt64) => a == b⟩
+instance : BEq Expr.Data where
+  beq (a b : UInt64) := a == b
 
 def Expr.Data.looseBVarRange (c : Expr.Data) : UInt32 :=
   (c.shiftRight 40).toUInt32
@@ -181,11 +179,9 @@ inductive Expr where
   | lit     : Literal → Data → Expr                   -- literals
   | mdata   : MData → Expr → Data → Expr              -- metadata
   | proj    : Name → Nat → Expr → Data → Expr         -- projection
+  deriving Inhabited
 
 namespace Expr
-
-instance : Inhabited Expr where
-  default := sort arbitrary arbitrary
 
 @[inline] def data : Expr → Data
   | bvar _ d        => d
@@ -719,6 +715,7 @@ abbrev PExprSet := PersistentExprSet
 /- Auxiliary type for forcing `==` to be structural equality for `Expr` -/
 structure ExprStructEq where
   val : Expr
+  deriving Inhabited
 
 instance : Coe Expr ExprStructEq := ⟨ExprStructEq.mk⟩
 
@@ -730,8 +727,6 @@ protected def beq : ExprStructEq → ExprStructEq → Bool
 protected def hash : ExprStructEq → USize
   | ⟨e⟩ => e.hash
 
-instance : Inhabited ExprStructEq where
-  default := { val := arbitrary }
 instance : BEq ExprStructEq := ⟨ExprStructEq.beq⟩
 instance : Hashable ExprStructEq := ⟨ExprStructEq.hash⟩
 instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
@@ -848,6 +843,8 @@ def isAutoParam (e : Expr) : Bool :=
     | e                      => false
   visit e
 
+def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
+  e.hasAnyFVar (· == fvarId)
 
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.

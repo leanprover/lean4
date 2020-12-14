@@ -67,6 +67,7 @@ extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 lean_object* l_Lean_Elab_Tactic_AuxMatchTermState_nextIdx___default;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_refine___closed__1;
+extern lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5521____closed__1;
 lean_object* l_Lean_Elab_Tactic_evalMatch_match__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_refine___closed__2;
 lean_object* l_Lean_Syntax_setArg(lean_object*, lean_object*, lean_object*);
@@ -90,7 +91,6 @@ lean_object* l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryM
 lean_object* l_Array_mapSepElemsM___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___regBuiltin_Lean_Elab_Term_elabSyntheticHole___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalMatch___closed__1;
-extern lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux___closed__1;
 extern lean_object* l_Lean_Elab_Term_expandFunBinders_loop___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_Tactic_AuxMatchTermState_nextIdx___default() {
@@ -431,7 +431,7 @@ return x_60;
 else
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
-x_61 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux___closed__1;
+x_61 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5521____closed__1;
 x_62 = l_Lean_Name_appendIndexAfter(x_61, x_52);
 x_63 = l_Lean_Name_append(x_2, x_62);
 lean_dec(x_2);
@@ -487,7 +487,7 @@ return x_81;
 else
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; 
-x_82 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux___closed__1;
+x_82 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5521____closed__1;
 x_83 = l_Lean_Name_appendIndexAfter(x_82, x_71);
 x_84 = l_Lean_Name_append(x_2, x_83);
 lean_dec(x_2);

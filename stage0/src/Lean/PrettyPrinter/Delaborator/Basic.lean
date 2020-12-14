@@ -96,7 +96,8 @@ builtin_initialize delabFailureId : InternalExceptionId ← registerInternalExce
 abbrev DelabM := ReaderT Context MetaM
 abbrev Delab := DelabM Syntax
 
-instance {α} : Inhabited (DelabM α) := ⟨throw arbitrary⟩
+instance {α} : Inhabited (DelabM α) where
+  default := throw arbitrary
 
 @[inline] protected def orElse {α} (d₁ d₂ : DelabM α) : DelabM α := do
 catchInternalId delabFailureId d₁ (fun _ => d₂)

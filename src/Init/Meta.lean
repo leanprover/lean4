@@ -652,6 +652,14 @@ def evalOptPrec : Option Syntax → MacroM Nat
   | some prec => evalPrec prec
   | none      => return 0
 
+def evalPrio (stx : Syntax) : MacroM Nat :=
+  evalPrec stx
+
+macro "evalPrio! " p:prio:max : term => return quote (← evalPrio p)
+
+def evalOptPrio (stx : Option Syntax) : MacroM Nat :=
+  evalOptPrec stx
+
 end Lean
 
 namespace Array

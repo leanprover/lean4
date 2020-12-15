@@ -11,21 +11,12 @@ namespace Lean
 
 inductive AttributeApplicationTime where
   | afterTypeChecking | afterCompilation | beforeElaboration
-  deriving Inhabited
-
-def AttributeApplicationTime.beq : AttributeApplicationTime → AttributeApplicationTime → Bool
-  | AttributeApplicationTime.afterTypeChecking, AttributeApplicationTime.afterTypeChecking => true
-  | AttributeApplicationTime.afterCompilation,  AttributeApplicationTime.afterCompilation  => true
-  | AttributeApplicationTime.beforeElaboration, AttributeApplicationTime.beforeElaboration => true
-  | _,                                          _                                          => false
-
-instance : BEq AttributeApplicationTime := ⟨AttributeApplicationTime.beq⟩
+  deriving Inhabited, BEq
 
 abbrev AttrM := CoreM
 
-instance : MonadLift ImportM AttrM := {
-  monadLift := fun x => do liftM (m := IO) (x { env := (← getEnv), opts := (← getOptions) })
-}
+instance : MonadLift ImportM AttrM where
+  monadLift x := do liftM (m := IO) (x { env := (← getEnv), opts := (← getOptions) })
 
 structure AttributeImplCore where
   name : Name
@@ -35,19 +26,13 @@ structure AttributeImplCore where
 
 inductive AttributeKind
   | «global» | «local» | «scoped»
+  deriving BEq
 
 instance : ToString AttributeKind where
   toString
     | AttributeKind.global => "global"
     | AttributeKind.local  => "local"
     | AttributeKind.scoped => "scoped"
-
-instance : BEq AttributeKind where
-  beq
-    | AttributeKind.global, AttributeKind.global => true
-    | AttributeKind.local,  AttributeKind.local  => true
-    | AttributeKind.scoped, AttributeKind.scoped => true
-    | _, _ => false
 
 structure AttributeImpl extends AttributeImplCore where
   add (decl : Name) (args : Syntax) (kind : AttributeKind) : AttrM Unit

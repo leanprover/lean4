@@ -21,6 +21,10 @@ builtin_initialize
   registerBuiltinParserAttribute `builtinAttrParamParser `attrParam
   registerBuiltinDynamicParserAttribute `attrParamParser `attrParam
 
+builtin_initialize
+  registerBuiltinParserAttribute `builtinAttrParser `attr
+  registerBuiltinDynamicParserAttribute `attrParser `attr
+
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=
   categoryParser `tactic rbp
 
@@ -29,6 +33,9 @@ builtin_initialize
 
 @[inline] def attrParamParser (rbp : Nat := 0) : Parser :=
   categoryParser `attrParam rbp
+
+@[inline] def attrParser (rbp : Nat := 0) : Parser :=
+  categoryParser `attr rbp
 
 namespace Tactic
 
@@ -228,6 +235,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def matchDiscr.quot : Parser := parser! "`(matchDiscr|"  >> toggleInsideQuot (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
 
 @[builtinTermParser] def attrParam.quot : Parser := parser! "`(attrParam|"  >> toggleInsideQuot attrParamParser >> ")"
+@[builtinTermParser] def attr.quot : Parser := parser! "`(attr|"  >> toggleInsideQuot attrParser >> ")"
 
 @[builtinTermParser] def panic       := parser!:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := parser!:leadPrec "unreachable!"

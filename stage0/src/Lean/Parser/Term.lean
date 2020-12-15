@@ -40,6 +40,12 @@ end Tactic
 
 def darrow : Parser := " => "
 
+namespace AttrParam
+@[builtinAttrParamParser] def ident := checkPrec maxPrec >> Parser.ident
+@[builtinAttrParamParser] def str   := checkPrec maxPrec >> strLit
+@[builtinAttrParamParser] def num   := checkPrec maxPrec >> numLit
+end AttrParam
+
 namespace Term
 
 /- Built-in parsers -/
@@ -157,7 +163,7 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 @[builtinTermParser] def «let» := parser!:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let!» := parser!:leadPrec withPosition ("let! " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let*» := parser!:leadPrec withPosition ("let* " >> letDecl) >> optSemicolon termParser
-def attrArg : Parser := ident <|> strLit <|> numLit
+def attrArg : Parser := ident <|> strLit <|> numLit -- attrParamParser
 def «scoped» := parser! "scoped "
 def «local»  := parser! "local "
 def attrKind := parser! optional («scoped» <|> «local»)

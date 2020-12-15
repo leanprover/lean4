@@ -17,8 +17,8 @@ def x := 1
 
 #check foo x x
 
-#check match 1 with x => x + 1
-#check match 1 : Int with x => x + 1
+#check match 1 with | x => x + 1
+#check match 1 : Int with | x => x + 1
 #check match 1 with | x => x + 1
 #check match 1 : Int with | x => x + 1
 

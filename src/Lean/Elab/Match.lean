@@ -11,6 +11,7 @@ import Lean.Parser.Term
 
 namespace Lean.Elab.Term
 open Meta
+open Lean.Parser.Term
 
 /- This modules assumes "match"-expressions use the following syntax.
 
@@ -25,6 +26,7 @@ structure MatchAltView where
   ref      : Syntax
   patterns : Array Syntax
   rhs      : Syntax
+  deriving Inhabited
 
 private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let newStx ← `(let $lhsVar := $discr; $rhs)
@@ -115,13 +117,15 @@ def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array Matc
 
 /- Given `stx` a match-expression, return its alternatives. -/
 private def getMatchAlts : Syntax → Array MatchAltView
-  | `(match $discrs,* $[: $ty?]? with $[| $patternss,* => $rhss]*) =>
-    patternss.zipWith rhss fun patterns rhs => {
-      ref      := patterns[0],
-      patterns := patterns,
-      rhs      := rhs
-    }
-  | stx => dbgTrace s!"{stx}" fun _ => unreachable!
+  | `(match $discrs,* $[: $ty?]? with $alts:matchAlt*) =>
+    alts.map fun alt => match alt with
+      | `(matchAltExpr| | $patterns,* => $rhs) => {
+          ref      := alt,
+          patterns := patterns,
+          rhs      := rhs
+        }
+      | _ => unreachable!
+  | _ => unreachable!
 
 /--
   Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
@@ -451,7 +455,7 @@ partial def collect : Syntax → M Syntax
       discard <| processVar id
       let pat := stx[2]
       let pat ← collect pat
-      `(namedPattern $id $pat)
+      `(_root_.namedPattern $id $pat)
     else if k == `Lean.Parser.Term.inaccessible then
       pure stx
     else if k == strLitKind then

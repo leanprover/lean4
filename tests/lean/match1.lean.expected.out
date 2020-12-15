@@ -10,16 +10,16 @@
 4
 ---- inv
 10
-match1.lean:82:2: error: type mismatch during dependent match-elimination at pattern variable 'w' with type
+match1.lean:82:0: error: type mismatch during dependent match-elimination at pattern variable 'w' with type
   VecPred P Vec.nil
 expected type
   VecPred P tail✝
 [false, true, true]
-match1.lean:113:2: error: dependent match elimination failed, inaccessible pattern found
+match1.lean:113:0: error: dependent match elimination failed, inaccessible pattern found
   .(j + j)
 constructor expected
 [false, true, true]
-match1.lean:124:11: error: invalid match-expression, type of pattern variable 'a' contains metavariables
+match1.lean:124:0: error: invalid match-expression, type of pattern variable 'a' contains metavariables
   ?m
 fun (x : ?m × ?m) => ?m x : ?m × ?m → ?m
 fun (x : Nat × Nat) =>

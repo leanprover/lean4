@@ -22,7 +22,7 @@ builtin_initialize
   registerBuiltinDynamicParserAttribute `attrParamParser `attrParam
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinAttrParser `attr
+  registerBuiltinParserAttribute `builtinAttrParser `attr (leadingIdentAsSymbol := true)
   registerBuiltinDynamicParserAttribute `attrParser `attr
 
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=

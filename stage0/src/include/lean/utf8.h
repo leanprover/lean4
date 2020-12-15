@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <vector>
 #include <string>
 #include <lean/optional.h>
-#include "util/buffer.h"
 
 namespace lean {
 using uchar = unsigned char;
@@ -42,7 +42,7 @@ unsigned next_utf8(std::string const & str, size_t & i);
 unsigned next_utf8(char const * str, size_t size, size_t & i);
 
 /* Decode a UTF-8 encoded string `str` into unicode scalar values */
-void utf8_decode(std::string const & str, buffer<unsigned> & out);
+void utf8_decode(std::string const & str, std::vector<unsigned> & out);
 
 /* Push a unicode scalar value into a utf-8 encoded string */
 void push_unicode_scalar(std::string & s, unsigned code);

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Parser.Basic
 import Lean.Attributes
 import Lean.MonadEnv
+import Lean.Elab.Util
 namespace Lean.Elab
 
 structure Attribute where
@@ -42,7 +43,7 @@ def toAttributeKind [Monad m] [MonadResolveName m] [MonadError m] (attrKindStx :
 def mkAttrKindGlobal : Syntax :=
   Syntax.node `Lean.Parser.Term.attrKind #[mkNullNode]
 
-def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] (stx : Syntax) : m Attribute := do
+def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (stx : Syntax) : m Attribute := do
   -- attrKind >> rawIdent >> many attrArg
   let attrKind ← toAttributeKind stx[0]
   let nameStx := stx[1]
@@ -51,22 +52,20 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] (stx
     | some str => pure $ Name.mkSimple str
   unless isAttribute (← getEnv) attrName do
     throwError! "unknown attribute [{attrName}]"
-  let mut args := stx[2]
-  -- the old frontend passes Syntax.missing for empty args, for reasons
-  if args.getNumArgs == 0 then
-    args := Syntax.missing
+  /- The `AttrM` does not have sufficient information for expanding macros in `args`.
+     So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
+  let args ← liftMacroM <| expandMacros stx[2]
   pure { kind := attrKind, name := attrName, args := args }
 
 -- sepBy1 attrInstance ", "
-def elabAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] (stx : Syntax)
-    : m (Array Attribute) := do
+def elabAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (stx : Syntax) : m (Array Attribute) := do
   let mut attrs := #[]
   for attr in stx.getSepArgs do
     attrs := attrs.push (← elabAttr attr)
   return attrs
 
 -- parser! "@[" >> sepBy1 attrInstance ", " >> "]"
-def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] (stx : Syntax) : m (Array Attribute) :=
+def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (stx : Syntax) : m (Array Attribute) :=
   elabAttrs stx[1]
 
 end Lean.Elab

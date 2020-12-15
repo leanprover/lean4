@@ -40,11 +40,12 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
         | some initTypeArg =>
           if decl.type == initTypeArg then pure initFnName
           else throwError! "initialization function '{initFnName}' type mismatch"
-      | _ => match stx with
-        | Syntax.missing =>
+      | _ =>
+        if stx.getNumArgs == 0 then
           if isIOUnit decl.type then pure Name.anonymous
           else throwError "initialization function must have type `IO Unit`"
-        | _ => throwError "unexpected kind of argument",
+        else
+          throwError "unexpected kind of argument",
     afterImport := fun entries => do
       let ctx ← read
       when runAfterImport do

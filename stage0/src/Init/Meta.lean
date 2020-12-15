@@ -634,17 +634,18 @@ instance Option.hasQuote {α : Type} [Quote α] : Quote (Option α) where
   quote := quoteOption
 
 /- Evaluator for `prec` DSL -/
-partial def evalPrec : Syntax → MacroM Nat
-  | `(prec| $num:numLit) => return num.isNatLit?.getD 0
-  | `(prec| $a + $b) => return (← evalPrec a) + (← evalPrec b)
-  | `(prec| $a - $b) => return (← evalPrec a) - (← evalPrec b)
-  | prec => Macro.withIncRecDepth prec do
-    if prec.getKind == choiceKind then
-      evalPrec prec[0]
-    else
-      match (← expandMacro? prec) with
-      | some prec => evalPrec prec
-      | _ =>  Macro.throwErrorAt prec "unexpected precedence"
+def evalPrec (stx : Syntax) : MacroM Nat :=
+  Macro.withIncRecDepth stx do
+    let stx ← expandMacros stx
+    match stx with
+    | `(prec| $num:numLit) => return num.isNatLit?.getD 0
+    | _ => Macro.throwErrorAt stx "unexpected precedence"
+
+macro_rules
+  | `(prec| $a + $b) => do `(prec| $(quote <| (← evalPrec a) + (← evalPrec b)):numLit)
+
+macro_rules
+  | `(prec| $a - $b) => do `(prec| $(quote <| (← evalPrec a) - (← evalPrec b)):numLit)
 
 macro "evalPrec! " p:prec:max : term => return quote (← evalPrec p)
 
@@ -652,18 +653,19 @@ def evalOptPrec : Option Syntax → MacroM Nat
   | some prec => evalPrec prec
   | none      => return 0
 
-/- Evaluator for `prec` DSL -/
-partial def evalPrio : Syntax → MacroM Nat
-  | `(prio| $num:numLit) => return num.isNatLit?.getD 0
-  | `(prio| $a + $b) => return (← evalPrio a) + (← evalPrio b)
-  | `(prio| $a - $b) => return (← evalPrio a) - (← evalPrio b)
-  | prio => Macro.withIncRecDepth prio do
-    if prio.getKind == choiceKind then
-      evalPrio prio[0]
-    else
-      match (← expandMacro? prio) with
-      | some prio => evalPrio prio
-      | _ =>  Macro.throwErrorAt prio "unexpected priority"
+/- Evaluator for `prio` DSL -/
+def evalPrio (stx : Syntax) : MacroM Nat :=
+  Macro.withIncRecDepth stx do
+    let stx ← expandMacros stx
+    match stx with
+    | `(prio| $num:numLit) => return num.isNatLit?.getD 0
+    | _ => Macro.throwErrorAt stx "unexpected priority"
+
+macro_rules
+  | `(prio| $a + $b) => do `(prio| $(quote <| (← evalPrio a) + (← evalPrio b)):numLit)
+
+macro_rules
+  | `(prio| $a - $b) => do `(prio| $(quote <| (← evalPrio a) - (← evalPrio b)):numLit)
 
 macro "evalPrio! " p:prio:max : term => return quote (← evalPrio p)
 

@@ -51,10 +51,7 @@ def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] (stx
     | some str => pure $ Name.mkSimple str
   unless isAttribute (← getEnv) attrName do
     throwError! "unknown attribute [{attrName}]"
-  let mut args := stx[2]
-  -- the old frontend passes Syntax.missing for empty args, for reasons
-  if args.getNumArgs == 0 then
-    args := Syntax.missing
+  let args := stx[2]
   pure { kind := attrKind, name := attrName, args := args }
 
 -- sepBy1 attrInstance ", "

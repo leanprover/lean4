@@ -58,6 +58,10 @@ namespace Term
 
 end Term
 
+namespace AttrParam
+@[builtinAttrParamParser] def prio  := parser!:maxPrec "priority: " >> priorityParser maxPrec
+end AttrParam
+
 namespace Command
 
 def optPrio   := optional ("[" >> priorityParser >> "]")

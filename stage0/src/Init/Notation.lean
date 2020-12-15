@@ -8,18 +8,26 @@ Notation for operators defined at Prelude.lean
 prelude
 import Init.Prelude
 
--- DSL for specifying parser precedences
+-- DSL for specifying parser precedences and priorities
 
 namespace Lean.Parser.Syntax
 
 syntax:65 [addPrec] prec " + " prec:66 : prec
 syntax:65 [subPrec] prec " - " prec:66 : prec
 
+syntax:65 [addPrio] prio " + " prio:66 : prio
+syntax:65 [subPrio] prio " - " prio:66 : prio
+
 end Lean.Parser.Syntax
 
 macro "max"  : prec => `(1024)
 macro "lead" : prec => `(1023)
 macro "(" p:prec ")" : prec => p
+
+macro "default" : prio => `(1000)
+macro "low" : prio => `(100)
+macro "(" p:prio ")" : prio => p
+macro_rules | `(prio| high) => `(10000) -- the 'high' parser is builtin because it is used at `Prelude.lean`
 
 -- Basic notation for defining parsers
 syntax   stx "+" : stx

@@ -224,6 +224,7 @@ lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_obj
 extern lean_object* l_Std_instInhabitedPersistentArray___closed__1;
 lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_1156____closed__1;
 extern lean_object* l_Lean_Parser_Command_section___elambda__1___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12520____closed__22;
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe_match__2___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing_match__1(lean_object*);
 lean_object* l_Lean_Elab_Command_instMonadRefCommandElabM___closed__1;
@@ -575,7 +576,6 @@ lean_object* l_Lean_setEnv___at_Lean_Elab_Command_elabEvalUnsafe___spec__6___box
 lean_object* l_Lean_Syntax_getSepArgs(lean_object*);
 extern lean_object* l_Lean_Parser_Command_end___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_setOption___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12187____closed__22;
 lean_object* l_Lean_Elab_Command_instMonadRefCommandElabM___closed__3;
 extern lean_object* l_Lean_Elab_macroAttribute;
 lean_object* l_Lean_Elab_Command_elabCommand_match__3(lean_object*);
@@ -23231,7 +23231,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_12187____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12520____closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -23285,7 +23285,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__7;
-x_2 = l_myMacro____x40_Init_Notation___hyg_12187____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12520____closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

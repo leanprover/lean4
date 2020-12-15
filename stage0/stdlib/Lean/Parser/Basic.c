@@ -155,7 +155,6 @@ lean_object* l_Lean_Parser_mkAntiquot___closed__17;
 lean_object* l_Lean_Parser_mkAntiquotScope___closed__7;
 lean_object* l_Lean_Parser_parserOfStackFnUnsafe_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquotScope___elambda__1(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_790____closed__1;
 lean_object* l_Lean_Parser_nonReservedSymbolInfo___closed__2;
 lean_object* l_Lean_Parser_anyOfFn_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_strAux_parse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -263,6 +262,7 @@ lean_object* l_Lean_Parser_suppressInsideQuotFn(lean_object*, lean_object*, lean
 lean_object* l_Lean_Parser_instInhabitedParser___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_foldArgsM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_fieldIdx___closed__4;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12520____closed__9;
 lean_object* l_Lean_Parser_instInhabitedParserInfo;
 uint8_t l_Lean_Parser_ParserContext_insideQuot___default;
 lean_object* l_Lean_Parser_checkPrecFn(lean_object*, lean_object*, lean_object*);
@@ -875,6 +875,7 @@ lean_object* l_Lean_Parser_epsilonInfo___elambda__2(lean_object*);
 lean_object* l_Lean_Parser_orelse(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_unicodeSymbolFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_epsilonInfo___elambda__1(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1123____closed__1;
 lean_object* l_Lean_Parser_categoryParserFnExtension;
 lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__5___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_epsilonInfo___elambda__2___boxed(lean_object*);
@@ -896,7 +897,6 @@ lean_object* l_Lean_Parser_instInhabitedParserFn(lean_object*);
 lean_object* l_Lean_Parser_instOrElseParser;
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_Parser_instInhabitedParser___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12187____closed__9;
 lean_object* l_Lean_Parser_mkTokenAndFixPos(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAtomicInfo___elambda__1___boxed(lean_object*);
 lean_object* l_Lean_Parser_FirstTokens_toOptional(lean_object*);
@@ -27641,7 +27641,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12187____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12520____closed__9;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -28603,7 +28603,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_790____closed__1;
+x_2 = l_myMacro____x40_Init_Notation___hyg_1123____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

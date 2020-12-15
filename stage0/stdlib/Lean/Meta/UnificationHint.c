@@ -17,7 +17,6 @@ lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_tryUnificationHin
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint(lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_501____lambda__2___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5718____closed__4;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_List_forM___at___private_Lean_Meta_UnificationHint_0__Lean_Meta_validateHint___spec__1___closed__3;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -62,6 +61,7 @@ lean_object* l_Std_PersistentHashMap_insert___at_Lean_Meta_UnificationHints_add_
 lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate_match__1(lean_object*);
 lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate_match__4___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_6051____closed__4;
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean_ScopedEnvExtension_addScopedEntry___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
@@ -1743,7 +1743,7 @@ lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificatio
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_myMacro____x40_Init_Notation___hyg_5718____closed__4;
+x_2 = l_myMacro____x40_Init_Notation___hyg_6051____closed__4;
 x_3 = lean_unsigned_to_nat(3u);
 x_4 = l_Lean_Expr_isAppOfArity(x_1, x_2, x_3);
 if (x_4 == 0)

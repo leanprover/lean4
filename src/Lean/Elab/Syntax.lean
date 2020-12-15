@@ -240,11 +240,11 @@ private def elabKindPrio (stx : Syntax) (catName : Name) : CommandElabM (Option 
       let k := arg[0].getId
       pure (k, 0)
     else if arg.getKind == `Lean.Parser.Command.parserPrio then
-      let prio := arg[0].isNatLit?.getD 0
+      let prio ← liftMacroM <| evalPrio arg[0]
       pure (none, prio)
     else if arg.getKind == `Lean.Parser.Command.parserKindPrio then
       let k := arg[0].getId
-      let prio := arg[2].isNatLit?.getD 0
+      let prio ← liftMacroM <| evalPrio arg[2]
       pure (k, prio)
     else
       throwError "unexpected syntax kind/priority"
@@ -457,9 +457,7 @@ def mkSimpleDelab (vars : Array Syntax) (pat qrhs : Syntax) : OptionT CommandEla
 
 private def expandNotationAux (ref : Syntax)
     (currNamespace : Name) (attrKind : AttributeKind) (prec? : Option Syntax) (prio? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : CommandElabM Syntax := do
-  let prio := match prio? with
-    | some prio => prio.isNatLit?.getD 0
-    | _         => 0
+  let prio ← liftMacroM <| evalOptPrio prio?
   -- build parser
   let syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem
   let cat := mkIdentFrom ref `term
@@ -520,15 +518,15 @@ def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax := do
   where mkSplicePat kind id suffix :=
     mkNullNode #[mkAntiquotSuffixSpliceNode kind (mkAntiquotNode id) suffix]
 
-def expandOptPrio (stx : Syntax) : Nat :=
+def expandOptPrio (stx : Syntax) : MacroM Nat :=
   if stx.isNone then
-    0
+    return evalPrio! default
   else
-    stx[1].isNatLit?.getD 0
+    evalPrio stx[1]
 
 def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   let prec := stx[1].getOptional?
-  let prio := expandOptPrio stx[2]
+  let prio ← liftMacroM <| expandOptPrio stx[2]
   let head := stx[3]
   let args := stx[4].getArgs
   let cat  := stx[6]
@@ -576,7 +574,7 @@ parser! "elab " >> optPrecedence >> optPrio >> elabHead >> many elabArg >> elabT
 def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   let ref := stx
   let prec    := stx[1].getOptional?
-  let prio    := expandOptPrio stx[2]
+  let prio    ←  liftMacroM <| expandOptPrio stx[2]
   let head    := stx[3]
   let args    := stx[4].getArgs
   let cat     := stx[6]

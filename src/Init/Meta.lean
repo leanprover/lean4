@@ -652,13 +652,24 @@ def evalOptPrec : Option Syntax → MacroM Nat
   | some prec => evalPrec prec
   | none      => return 0
 
-def evalPrio (stx : Syntax) : MacroM Nat :=
-  evalPrec stx
+/- Evaluator for `prec` DSL -/
+partial def evalPrio : Syntax → MacroM Nat
+  | `(prio| $num:numLit) => return num.isNatLit?.getD 0
+  | `(prio| $a + $b) => return (← evalPrio a) + (← evalPrio b)
+  | `(prio| $a - $b) => return (← evalPrio a) - (← evalPrio b)
+  | prio => Macro.withIncRecDepth prio do
+    if prio.getKind == choiceKind then
+      evalPrio prio[0]
+    else
+      match (← expandMacro? prio) with
+      | some prio => evalPrio prio
+      | _ =>  Macro.throwErrorAt prio "unexpected priority"
 
 macro "evalPrio! " p:prio:max : term => return quote (← evalPrio p)
 
-def evalOptPrio (stx : Option Syntax) : MacroM Nat :=
-  evalOptPrec stx
+def evalOptPrio : Option Syntax → MacroM Nat
+  | some prio => evalPrio prio
+  | none      => return evalPrio! default
 
 end Lean
 

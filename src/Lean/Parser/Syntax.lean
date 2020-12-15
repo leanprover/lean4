@@ -60,7 +60,7 @@ end Term
 
 namespace Command
 
-def optPrio   := optional ("[" >> numLit >> "]")
+def optPrio   := optional ("[" >> priorityParser >> "]")
 
 def «prefix»   := parser! "prefix"
 def «infix»    := parser! "infix"
@@ -77,8 +77,8 @@ def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Par
 @[builtinCommandParser] def «notation»    := parser! Term.attrKind >> "notation" >> optPrecedence >> optPrio >> many notationItem >> darrow >> termParser
 @[builtinCommandParser] def «macro_rules» := suppressInsideQuot (parser! "macro_rules" >> optKind >> Term.matchAlts)
 def parserKind     := parser! ident
-def parserPrio     := parser! numLit
-def parserKindPrio := parser! atomic (ident >> ", ") >> numLit
+def parserPrio     := parser! priorityParser
+def parserKindPrio := parser! atomic (ident >> ", ") >> priorityParser
 def optKindPrio : Parser := optional ("[" >> (parserKindPrio <|> parserKind <|> parserPrio) >> "]")
 @[builtinCommandParser] def «syntax»      := parser! Term.attrKind >> "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser

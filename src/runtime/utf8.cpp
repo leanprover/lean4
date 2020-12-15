@@ -205,7 +205,7 @@ unsigned next_utf8(std::string const & str, size_t & i) {
     return next_utf8(str.data(), str.size(), i);
 }
 
-void utf8_decode(std::string const & str, buffer<unsigned> & out) {
+void utf8_decode(std::string const & str, std::vector<unsigned> & out) {
     size_t i = 0;
     while (i < str.size()) {
         out.push_back(next_utf8(str, i));

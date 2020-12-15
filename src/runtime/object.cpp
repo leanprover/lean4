@@ -1614,7 +1614,7 @@ static std::string list_as_string(b_obj_arg lst) {
 }
 
 static obj_res string_to_list_core(std::string const & s, bool reverse = false) {
-    buffer<unsigned> tmp;
+    std::vector<unsigned> tmp;
     utf8_decode(s, tmp);
     if (reverse)
         std::reverse(tmp.begin(), tmp.end());

@@ -12,7 +12,6 @@ open Meta
 def implicitBinderF := Parser.Term.implicitBinder
 def instBinderF     := Parser.Term.instBinder
 def explicitBinderF := Parser.Term.explicitBinder
-def matchAltExpr    := Parser.Term.matchAlt
 
 def mkInductArgNames (indVal : InductiveVal) : TermElabM (Array Name) := do
   forallTelescopeReducing indVal.type fun xs _ => do

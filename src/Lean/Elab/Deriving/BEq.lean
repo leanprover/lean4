@@ -8,7 +8,7 @@ import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
 
 namespace Lean.Elab.Deriving.BEq
-
+open Lean.Parser.Term
 open Meta
 
 structure Header where
@@ -37,7 +37,7 @@ def mkHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) (argNames : Array Name) : TermElabM Syntax := do
   let discrs ← mkDiscrs
   let alts ← mkAlts
-  `(match $[$discrs],* with | $[$alts:matchAlt]|*)
+  `(match $[$discrs],* with $alts:matchAlt*)
 where
   mkDiscr (varName : Name) : TermElabM Syntax :=
     `(Parser.Term.matchDiscr| $(mkIdent varName):term)
@@ -57,7 +57,7 @@ where
     patterns := patterns.push (← `(_))
     patterns := patterns.push (← `(_))
     let altRhs ← `(false)
-    `(matchAltExpr| $[$patterns:term],* => $altRhs:term)
+    `(matchAltExpr| | $[$patterns:term],* => $altRhs:term)
 
   mkAlts : TermElabM (Array Syntax) := do
     let mut alts := #[]
@@ -93,7 +93,7 @@ where
               rhs ← `($rhs && $a:ident == $b:ident)
         patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs1:term*))
         patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs2:term*))
-        `(matchAltExpr| $[$patterns:term],* => $rhs:term)
+        `(matchAltExpr| | $[$patterns:term],* => $rhs:term)
       alts := alts.push alt
     alts := alts.push (← mkElseAlt)
     return alts

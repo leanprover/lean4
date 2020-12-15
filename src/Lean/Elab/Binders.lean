@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Term
+import Lean.Parser.Term
 
 namespace Lean.Elab.Term
 open Meta
+open Lean.Parser.Term
 
 /--
   Given syntax of the forms
@@ -350,10 +352,11 @@ def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (
       x s.fvars s.expectedType?
 
 /- Helper function for `expandEqnsIntoMatch` -/
-private def getMatchAltNumPatterns (matchAlts : Syntax) : Nat :=
-  let alt0 := matchAlts[1][0]
-  let pats := alt0[0].getSepArgs
-  pats.size
+private def getMatchAltsNumPatterns : Syntax → Nat
+  | alts => match alts[0][0] with
+    | `(matchAltExpr| | $pats,* => $rhs) =>
+      pats.getElems.size
+    | _ => unreachable!
 
 private def mkMatch (ref : Syntax) (discrs : Array Syntax) (matchAlts : Syntax) (matchTactic := false) : Syntax :=
   Syntax.node (if matchTactic then `Lean.Parser.Tactic.match else `Lean.Parser.Term.match)
@@ -429,10 +432,10 @@ private def expandMatchAltsIntoMatchAux (ref : Syntax) (matchAlts : Syntax) (mat
     ```
  -/
 def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (tactic := false) : MacroM Syntax :=
-  expandMatchAltsIntoMatchAux ref matchAlts tactic (getMatchAltNumPatterns matchAlts) #[]
+  expandMatchAltsIntoMatchAux ref matchAlts tactic (getMatchAltsNumPatterns matchAlts) #[]
 
 def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
-  expandMatchAltsIntoMatchAux ref matchAlts true (getMatchAltNumPatterns matchAlts) #[]
+  expandMatchAltsIntoMatchAux ref matchAlts true (getMatchAltsNumPatterns matchAlts) #[]
 
 /--
   Similar to `expandMatchAltsIntoMatch`, but supports an optional `where` clause.
@@ -477,7 +480,7 @@ def expandMatchAltsWhereDecls (ref : Syntax) (matchAltsWhereDecls : Syntax) : Ma
       let x ← `(x)
       let body ← loop n (addDiscr ref discrs x)
       `(@fun $x => $body)
-  loop (getMatchAltNumPatterns matchAlts) #[]
+  loop (getMatchAltsNumPatterns matchAlts) #[]
 
 @[builtinTermElab «fun»] def elabFun : TermElab := fun stx expectedType? => match stx with
   | `(fun $binders* => $body) => do

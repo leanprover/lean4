@@ -134,7 +134,7 @@ match n, parity n with
   | _,      _      => none
 
 -- overapplied matcher
-#check fun x => (match x with 0 => id | x+1 => id) x
+#check fun x => (match x with | 0 => id | x+1 => id) x
 
 #check fun
   | #[1, 2]    => 2

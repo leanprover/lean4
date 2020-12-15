@@ -10,6 +10,7 @@ import Lean.Syntax
 import Lean.ResolveName
 import Lean.Elab.Term
 import Lean.Elab.Quotation.Util
+import Lean.Parser.Term
 
 namespace Lean.Elab.Term.Quotation
 
@@ -343,7 +344,7 @@ private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → Li
 
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   match stx with
-  | `(match $[$discrs:term],* with $[|]? $[$[$patss],* => $rhss]|*) => do
+  | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
     -- letBindRhss ...
     if patss.all (·.all (!·.isQuot)) then
       -- no quotations => fall back to regular `match`

@@ -23,13 +23,13 @@ open Meta
   ```
 -/
 private def getAltName (alt : Syntax) : Name :=
-  getNameOfIdent' alt[0] |>.eraseMacroScopes
+  getNameOfIdent' alt[1] |>.eraseMacroScopes
 private def getAltVarNames (alt : Syntax) : Array Name :=
-  alt[1].getArgs.map getNameOfIdent'
+  alt[2].getArgs.map getNameOfIdent'
 private def getAltRHS (alt : Syntax) : Syntax :=
-  alt[3]
+  alt[4]
 private def getAltDArrow (alt : Syntax) : Syntax :=
-  alt[2]
+  alt[3]
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
 def isHoleRHS (rhs : Syntax) : Bool :=
@@ -241,7 +241,7 @@ private def generalizeVars (stx : Syntax) (targets : Array Expr) : TacticM Nat :
     pure (fvarIds.size, [mvarId'])
 
 private def getAltsOfInductionAlts (inductionAlts : Syntax) : Array Syntax :=
-  inductionAlts[2].getSepArgs
+  inductionAlts[1].getArgs
 
 private def getAltsOfOptInductionAlts (optInductionAlts : Syntax) : Array Syntax :=
   if optInductionAlts.isNone then #[] else getAltsOfInductionAlts optInductionAlts[0]

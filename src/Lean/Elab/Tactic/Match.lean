@@ -16,10 +16,10 @@ structure AuxMatchTermState where
 
 private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : StateT AuxMatchTermState MacroM Syntax := do
   let matchAlts := matchTac[4]
-  let alts      := matchAlts[1].getArgs
-  let newAlts ← alts.mapSepElemsM fun alt => do
+  let alts      := matchAlts[0].getArgs
+  let newAlts ← alts.mapM fun alt => do
     let alt    := alt.setKind ``Parser.Term.matchAlt
-    let holeOrTacticSeq := alt[2]
+    let holeOrTacticSeq := alt[3]
     if holeOrTacticSeq.isOfKind ``Parser.Term.syntheticHole then
       pure alt
     else if holeOrTacticSeq.isOfKind ``Parser.Term.hole then
@@ -28,15 +28,15 @@ private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : Sta
       let holeName := mkIdentFrom holeOrTacticSeq tag
       let newHole ← `(?$holeName:ident)
       modify fun s => { s with nextIdx := s.nextIdx + 1}
-      pure $ alt.setArg 2 newHole
+      pure $ alt.setArg 3 newHole
     else withFreshMacroScope do
       let newHole ← `(?rhs)
       let newHoleId := newHole[1]
       let newCase ← `(tactic| case $newHoleId => $holeOrTacticSeq:tacticSeq )
       modify fun s => { s with cases := s.cases.push newCase }
-      pure $ alt.setArg 2 newHole
+      pure $ alt.setArg 3 newHole
   let result  := matchTac.setKind ``Parser.Term.«match»
-  let result  := result.setArg 4 (matchAlts.setArg 1 (mkNullNode newAlts))
+  let result  := result.setArg 4 (mkNode ``Parser.Term.matchAlts #[mkNullNode newAlts])
   pure result
 
 private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM (Syntax × Array Syntax) := do

@@ -30,8 +30,6 @@ builtin_initialize
 @[inline] def syntaxParser (rbp : Nat := 0) : Parser :=
   categoryParser `stx rbp
 
--- TODO: `max` is a bad precedence name. Find a new one.
-def maxSymbol := parser! nonReservedSymbol "max" true
 def «precedence» := parser! ":" >> precedenceParser maxPrec
 def optPrecedence := optional (atomic «precedence»)
 
@@ -39,7 +37,7 @@ namespace Syntax
 @[builtinPrecParser] def numPrec := checkPrec maxPrec >> numLit
 
 @[builtinPrioParser] def numPrio  := checkPrec maxPrec >> numLit
-@[builtinPrioParser] def highPrio := parser!:maxPrec nonReservedSymbol "high" true
+@[builtinPrioParser] def highPrio := parser!:maxPrec nonReservedSymbol "high"
 
 @[builtinSyntaxParser] def paren           := parser! "(" >> many1 syntaxParser >> ")"
 @[builtinSyntaxParser] def cat             := parser! ident >> optPrecedence

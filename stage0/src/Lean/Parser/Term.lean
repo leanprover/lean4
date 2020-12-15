@@ -18,7 +18,7 @@ builtin_initialize
   registerBuiltinDynamicParserAttribute `prioParser `prio
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinAttrParamParser `attrParam (leadingIdentAsSymbol := true)
+  registerBuiltinParserAttribute `builtinAttrParamParser `attrParam
   registerBuiltinDynamicParserAttribute `attrParamParser `attrParam
 
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=
@@ -176,12 +176,11 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 @[builtinTermParser] def «let» := parser!:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let!» := parser!:leadPrec withPosition ("let! " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let*» := parser!:leadPrec withPosition ("let* " >> letDecl) >> optSemicolon termParser
-def attrArg : Parser := ident <|> strLit <|> numLit -- attrParamParser
 def «scoped» := parser! "scoped "
 def «local»  := parser! "local "
 def attrKind := parser! optional («scoped» <|> «local»)
 -- use `rawIdent` because of attribute names such as `instance`
-def attrInstance     := ppGroup $ parser! attrKind >> rawIdent >> many (ppSpace >> attrArg)
+def attrInstance     := ppGroup $ parser! attrKind >> rawIdent >> many (ppSpace >> attrParamParser maxPrec)
 
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "

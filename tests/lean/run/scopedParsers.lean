@@ -2,7 +2,7 @@ def f (x y : Nat) := x + 2*y
 
 namespace Foo
 
-scoped infix:65 [1] "+" => f
+scoped infix:65 [default+1] "+" => f
 
 theorem ex1 (x y : Nat) : x + y = f x y := rfl
 

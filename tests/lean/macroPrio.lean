@@ -12,7 +12,7 @@ macro "foo!" x:term:max : term => `($x * 2)
 #check foo! 1 -- ambiguous
 
 -- macro with higher priority
-macro [1] "foo!" x:term:max : term => `($x - 2)
+macro [high] "foo!" x:term:max : term => `($x - 2)
 
 #check foo! 2
 
@@ -20,7 +20,7 @@ theorem ex2 : foo! 2 = 0 :=
   rfl
 
 -- Define elaborator with even higher priority
-elab [2] "foo!" x:term:max : term <= expectedType =>
+elab [high+1] "foo!" x:term:max : term <= expectedType =>
   Lean.Elab.Term.elabTerm x expectedType
 
 theorem ex3 : foo! 3 = 3 :=

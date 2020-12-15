@@ -47,8 +47,8 @@ def gop {s : Group} (a b : s) : s :=
 def mop {s : Monoid} (a b : s) : s :=
   s.op a b
 
-infix:70 [1] "*" => mop
-infix:65 [1] "+" => gop
+infix:70 [high] "*" => mop
+infix:65 [high] "+" => gop
 
 unif_hint (r : Ring) (g : Group) where
   g =?= Group.ofRing r

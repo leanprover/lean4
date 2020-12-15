@@ -17,15 +17,8 @@ builtin_initialize
   registerBuiltinParserAttribute `builtinPrecParser `prec (leadingIdentAsSymbol := true)
   registerBuiltinDynamicParserAttribute `precParser `prec
 
-builtin_initialize
-  registerBuiltinParserAttribute `builtinPrioParser `prio (leadingIdentAsSymbol := true)
-  registerBuiltinDynamicParserAttribute `prioParser `prio
-
 @[inline] def precedenceParser (rbp : Nat := 0) : Parser :=
   categoryParser `prec rbp
-
-@[inline] def priorityParser (rbp : Nat := 0) : Parser :=
-  categoryParser `prio rbp
 
 @[inline] def syntaxParser (rbp : Nat := 0) : Parser :=
   categoryParser `stx rbp
@@ -35,9 +28,6 @@ def optPrecedence := optional (atomic «precedence»)
 
 namespace Syntax
 @[builtinPrecParser] def numPrec := checkPrec maxPrec >> numLit
-
-@[builtinPrioParser] def numPrio  := checkPrec maxPrec >> numLit
-@[builtinPrioParser] def highPrio := parser!:maxPrec nonReservedSymbol "high"
 
 @[builtinSyntaxParser] def paren           := parser! "(" >> many1 syntaxParser >> ")"
 @[builtinSyntaxParser] def cat             := parser! ident >> optPrecedence
@@ -57,10 +47,6 @@ namespace Term
 @[builtinTermParser] def prio.quot : Parser := parser! "`(prio|"  >> toggleInsideQuot priorityParser >> ")"
 
 end Term
-
-namespace AttrParam
-@[builtinAttrParamParser] def prio  := parser!:maxPrec "priority: " >> priorityParser maxPrec
-end AttrParam
 
 namespace Command
 

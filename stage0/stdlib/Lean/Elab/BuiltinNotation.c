@@ -237,7 +237,6 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Met
 lean_object* l_Lean_Elab_Term_elabNativeRefl___lambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_elabNativeRefl___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_quoteAutoTactic___closed__33;
 lean_object* l_Lean_Elab_Term_expandShow___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabCDot___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instQuoteProd___rarg___closed__2;
@@ -647,6 +646,7 @@ lean_object* l_Lean_Elab_Term_expandAssert___closed__2;
 lean_object* l_Lean_Elab_Term_elabSubst___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_expandCDot_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Term_quoteAutoTactic___closed__36;
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabCDot_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_expandUnreachable___closed__1;
 lean_object* l_Lean_markBorrowed(lean_object*);
@@ -9334,7 +9334,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Term_termElabAttribute;
-x_3 = l_Lean_Elab_Term_quoteAutoTactic___closed__33;
+x_3 = l_Lean_Elab_Term_quoteAutoTactic___closed__36;
 x_4 = l___regBuiltin_Lean_Elab_Term_expandEmptyC___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

@@ -109,6 +109,7 @@ extern lean_object* l_Lean_instInhabitedExpr;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkInstanceCmds___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_explicitBinder(uint8_t);
+extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_870____closed__1;
 lean_object* l_Lean_Elab_Deriving_mkContext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 lean_object* l_Lean_Elab_Deriving_mkInductArgNames___closed__1;
@@ -117,7 +118,6 @@ lean_object* l_Lean_addTrace___at___private_Lean_Elab_Term_0__Lean_Elab_Term_pos
 lean_object* l_Lean_Elab_Deriving_mkImplicitBinders___boxed__const__1;
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__1;
 extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_524____closed__4;
-extern lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_877____closed__1;
 extern lean_object* l_Lean_nullKind___closed__2;
 extern lean_object* l_Lean_myMacro____x40_Init_Notation___hyg_13380____closed__11;
 lean_object* l_Lean_Elab_Deriving_mkInstanceCmds___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1428,7 +1428,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_mkContext___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_877____closed__1;
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_870____closed__1;
 x_2 = l_Lean_Elab_Deriving_mkContext___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

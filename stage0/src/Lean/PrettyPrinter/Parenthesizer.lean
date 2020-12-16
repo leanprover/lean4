@@ -119,15 +119,13 @@ unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
 
   [parenthesizer k] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `SyntaxNodeKind` `k`.",
     valueTypeName := `Lean.PrettyPrinter.Parenthesizer,
-    evalKey := fun builtin args => do
+    evalKey := fun builtin stx => do
       let env ← getEnv
-      match attrParamSyntaxToIdentifier args with
-      | some id =>
-        -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
-        -- synthesize a parenthesizer for it immediately, so we just check for a declaration in this case
-        if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
-        else throwError! "invalid [parenthesizer] argument, unknown syntax kind '{id}'"
-      | none    => throwError "invalid [parenthesizer] argument, expected identifier"
+      let id ← Attribute.Builtin.getId stx
+      -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
+      -- synthesize a parenthesizer for it immediately, so we just check for a declaration in this case
+      if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
+      else throwError! "invalid [parenthesizer] argument, unknown syntax kind '{id}'"
   } `Lean.PrettyPrinter.parenthesizerAttribute
 @[builtinInit mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer
 
@@ -144,13 +142,11 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
   with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized,
   but still be traversed for parenthesizing nested categories.",
     valueTypeName := `Lean.PrettyPrinter.CategoryParenthesizer,
-    evalKey := fun _ args => do
+    evalKey := fun _ stx => do
       let env ← getEnv
-      match attrParamSyntaxToIdentifier args with
-      | some id =>
-        if Parser.isParserCategory env id then pure id
-        else throwError! "invalid [parenthesizer] argument, unknown parser category '{toString id}'"
-      | none    => throwError "invalid [parenthesizer] argument, expected identifier"
+      let id ← Attribute.Builtin.getId stx
+      if Parser.isParserCategory env id then pure id
+      else throwError! "invalid [parenthesizer] argument, unknown parser category '{toString id}'"
   } `Lean.PrettyPrinter.categoryParenthesizerAttribute
 @[builtinInit mkCategoryParenthesizerAttribute] constant categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer
 

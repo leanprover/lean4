@@ -3,16 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Parser.Basic
+import Lean.Parser.Attr
 import Lean.Attributes
 import Lean.MonadEnv
 import Lean.Elab.Util
 namespace Lean.Elab
 
 structure Attribute where
-  kind     : AttributeKind := AttributeKind.global
-  name     : Name
-  args     : Syntax := Syntax.missing
+  kind  : AttributeKind := AttributeKind.global
+  name  : Name
+  stx   : Syntax := Syntax.missing
 
 instance : ToFormat Attribute where
   format attr :=
@@ -20,7 +20,7 @@ instance : ToFormat Attribute where
      | AttributeKind.global => ""
      | AttributeKind.local  => "local "
      | AttributeKind.scoped => "scoped "
-   Format.bracket "@[" f!"{kindStr}{attr.name}{if attr.args.isMissing then "" else toString attr.args}" "]"
+   Format.bracket "@[" f!"{kindStr}{attr.name}{toString attr.stx}" "]"
 
 instance : Inhabited Attribute where
   default := { name := arbitrary }
@@ -43,19 +43,23 @@ def toAttributeKind [Monad m] [MonadResolveName m] [MonadError m] (attrKindStx :
 def mkAttrKindGlobal : Syntax :=
   Syntax.node `Lean.Parser.Term.attrKind #[mkNullNode]
 
-def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (stx : Syntax) : m Attribute := do
-  -- attrKind >> rawIdent >> many attrArg
-  let attrKind ← toAttributeKind stx[0]
-  let nameStx := stx[1]
-  let attrName ← match nameStx.isIdOrAtom? with
-    | none     => withRef nameStx $ throwError "identifier expected"
-    | some str => pure $ Name.mkSimple str
+def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (attrInstance : Syntax) : m Attribute := do
+  /- attrInstance     := ppGroup $ parser! attrKind >> attrParser -/
+  let attrKind ← toAttributeKind attrInstance[0]
+  let attr := attrInstance[1]
+  let attr ← liftMacroM <| expandMacros attr
+  let attrName ←
+    if attr.getKind == ``Parser.Attr.simple then
+      pure attr[0].getId.eraseMacroScopes
+    else
+      match attr.getKind with
+      | Name.str _ s _ => pure <| Name.mkSimple s
+      | _ => throwErrorAt attr  "unknown attribute"
   unless isAttribute (← getEnv) attrName do
     throwError! "unknown attribute [{attrName}]"
   /- The `AttrM` does not have sufficient information for expanding macros in `args`.
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
-  let args ← liftMacroM <| expandMacros stx[2]
-  pure { kind := attrKind, name := attrName, args := args }
+  pure { kind := attrKind, name := attrName, stx := attr }
 
 -- sepBy1 attrInstance ", "
 def elabAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] (stx : Syntax) : m (Array Attribute) := do

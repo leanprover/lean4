@@ -32,10 +32,7 @@ structure Def (γ : Type) where
   descr         : String  -- Attribute description
   valueTypeName : Name
   -- Convert `Syntax` into a `Key`, the default implementation expects an identifier.
-  evalKey       : Bool → Syntax → AttrM Key :=
-    fun builtin arg => match attrParamSyntaxToIdentifier arg with
-      | some id => pure id
-      | none    => throwError "invalid attribute argument, expected identifier"
+  evalKey       : Bool → Syntax → AttrM Key := fun builtin stx => Attribute.Builtin.getId stx
   deriving Inhabited
 
 structure OLeanEntry where
@@ -128,9 +125,9 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
     registerBuiltinAttribute {
       name  := df.builtinName,
       descr := "(builtin) " ++ df.descr,
-      add   := fun declName arg kind => do
+      add   := fun declName stx kind => do
         unless kind == AttributeKind.global do throwError! "invalid attribute '{df.builtinName}', must be global"
-        let key ← df.evalKey true arg
+        let key ← df.evalKey true stx
         let decl ← getConstInfo declName
         match decl.type with
         | Expr.const c _ _ =>
@@ -145,8 +142,8 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
   registerBuiltinAttribute {
     name            := df.name,
     descr           := df.descr,
-    add             := fun constName arg persistent => do
-      let key ← df.evalKey false arg
+    add             := fun constName stx persistent => do
+      let key ← df.evalKey false stx
       let val ← evalConstCheck γ df.valueTypeName constName
       let env ← getEnv
       setEnv <| ext.addEntry env { key := key, decl := constName, value := val },

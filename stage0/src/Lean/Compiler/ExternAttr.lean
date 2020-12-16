@@ -34,62 +34,42 @@ inductive ExternEntry where
 structure ExternAttrData where
   arity?   : Option Nat := none
   entries  : List ExternEntry
+  deriving Inhabited
 
-instance : Inhabited ExternAttrData := ⟨{ entries := [] }⟩
-
-private partial def syntaxToExternEntries (a : Array Syntax) (i : Nat) (entries : List ExternEntry) : Except String (List ExternEntry) :=
-  if i == a.size then Except.ok entries
-  else match a[i] with
-    | Syntax.ident _ _ backend _ =>
-      let i := i + 1
-      if i == a.size then Except.error "string or identifier expected"
-      else match a[i].isIdOrAtom? with
-        | some "adhoc"  => syntaxToExternEntries a (i+1) (ExternEntry.adhoc backend :: entries)
-        | some "inline" =>
-          let i := i + 1
-          match a[i].isStrLit? with
-          | some pattern => syntaxToExternEntries a (i+1) (ExternEntry.inline backend pattern :: entries)
-          | none => Except.error "string literal expected"
-        | _ => match a[i].isStrLit? with
-          | some fn => syntaxToExternEntries a (i+1) (ExternEntry.standard backend fn :: entries)
-          | none => Except.error "string literal expected"
-    | _ => Except.error "identifier expected"
-
-private def syntaxToExternAttrData (s : Syntax) : ExceptT String Id ExternAttrData :=
-  match s with
-  | Syntax.node _ args =>
-    if args.size == 0 then
-      Except.ok { entries := [ ExternEntry.adhoc `all ] }
+-- def externEntry := parser! optional ident >> optional (nonReservedSymbol "inline ") >> strLit
+-- @[builtinAttrParser] def extern     := parser! nonReservedSymbol "extern " >> optional numLit >> many externEntry
+private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
+  let arity?  := if stx[1].isNone then none else some <| stx[1][0].isNatLit?.getD 0
+  let entriesStx := stx[2].getArgs
+  if entriesStx.size == 0 && arity? == none then
+    return { entries := [ ExternEntry.adhoc `all ] }
+  let mut entries := #[]
+  for entryStx in entriesStx do
+    let backend := if entryStx[0].isNone then `all else entryStx[0][0].getId
+    let str ← match entryStx[2].isStrLit? with
+      | none     => throwErrorAt! entryStx[2] "string literal expected"
+      | some str => pure str
+    if entryStx[1].isNone then
+      entries := entries.push <| ExternEntry.standard backend str
     else
-      let (arity, i) : Option Nat × Nat := match args[0].isNatLit? with
-        | some arity => (some arity, 1)
-        | none       => (none, 0)
-      match args[i].isStrLit? with
-      | some str =>
-        if args.size == i+1 then
-          Except.ok { arity? := arity, entries := [ ExternEntry.standard `all str ] }
-        else
-          Except.error "invalid extern attribute"
-      | none => match syntaxToExternEntries args i [] with
-        | Except.ok entries => Except.ok { arity? := arity, entries := entries }
-        | Except.error msg  => Except.error msg
-  | _ => Except.error "unexpected kind of argument"
+      entries := entries.push <| ExternEntry.inline backend str
+  return { arity? := arity?, entries := entries.toList }
 
 @[extern "lean_add_extern"]
 constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
 
 builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   registerParametricAttribute {
-    name := `extern,
-    descr := "builtin and foreign functions",
-    getParam := fun _ stx => ofExcept $ syntaxToExternAttrData stx,
+    name := `extern
+    descr := "builtin and foreign functions"
+    getParam := fun _ stx => syntaxToExternAttrData stx
     afterSet := fun declName _ => do
       let mut env ← getEnv
       if env.isProjectionFn declName || env.isConstructor declName then do
         env ← ofExcept $ addExtern env declName
         setEnv env
       else
-        pure (),
+        pure ()
   }
 
 @[export lean_get_extern_attr_data]

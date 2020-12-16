@@ -33,7 +33,6 @@ lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printAxiomsOf___bo
 lean_object* l_List_forIn_loop___at___private_Lean_Elab_Print_0__Lean_Elab_Command_printInduct___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at___private_Lean_Elab_Print_0__Lean_Elab_Command_lparamsToMessageData___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printInduct___closed__1;
-lean_object* l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Print_0__Lean_Elab_Command_printInduct___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
 lean_object* l_Lean_Elab_Command_elabPrint___closed__6;
@@ -141,6 +140,7 @@ lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printAxiomLike___b
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printAxiomsOf(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printInduct___closed__3;
 lean_object* l_List_forM___at_Lean_Elab_Command_CollectAxioms_collect___spec__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getRef(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_ppGoal_ppVars___closed__3;
 lean_object* l_Lean_Elab_Command_elabPrintAxioms(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1995,7 +1995,7 @@ if (x_10 == 0)
 lean_object* x_11; lean_object* x_12; 
 lean_dec(x_1);
 x_11 = lean_box(0);
-x_12 = l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__5___lambda__1(x_9, x_11, x_2, x_3, x_7);
+x_12 = l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__4___lambda__1(x_9, x_11, x_2, x_3, x_7);
 lean_dec(x_2);
 return x_12;
 }

@@ -153,8 +153,7 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 def «scoped» := parser! "scoped "
 def «local»  := parser! "local "
 def attrKind := parser! optional («scoped» <|> «local»)
--- use `rawIdent` because of attribute names such as `instance`
-def attrInstance     := ppGroup $ parser! attrKind >> rawIdent >> many (ppSpace >> attrParamParser maxPrec)
+def attrInstance     := ppGroup $ parser! attrKind >> attrParser
 
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "

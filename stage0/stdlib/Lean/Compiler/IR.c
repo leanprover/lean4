@@ -55,13 +55,13 @@ lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__18;
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__15;
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3;
+extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_507____closed__2;
 lean_object* l_Lean_IR_explicitBoxing(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_IR_addBoxedVersionAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_checkDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__27;
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__9;
-extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_510____closed__2;
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__17;
@@ -283,7 +283,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_IR_tracePrefixOptionName;
-x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_510____closed__2;
+x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_507____closed__2;
 x_3 = l_Lean_Name_append(x_1, x_2);
 return x_3;
 }
@@ -573,7 +573,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1;
-x_5 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_510____closed__2;
+x_5 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_507____closed__2;
 lean_inc(x_1);
 x_6 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(x_4, x_5, x_1, x_2, x_3);
 x_7 = lean_ctor_get(x_6, 1);

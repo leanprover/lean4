@@ -470,10 +470,10 @@ private def applyAttributesCore
     | Except.error errMsg => throwError errMsg
     | Except.ok attrImpl  =>
       match applicationTime? with
-      | none => liftAttrM <| attrImpl.add declName attr.args attr.kind
+      | none => liftAttrM <| attrImpl.add declName attr.stx attr.kind
       | some applicationTime =>
         if applicationTime == attrImpl.applicationTime then
-          liftAttrM <| attrImpl.add declName attr.args attr.kind
+          liftAttrM <| attrImpl.add declName attr.stx attr.kind
 
 /-- Apply given attributes **at** a given application time -/
 def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : TermElabM Unit :=

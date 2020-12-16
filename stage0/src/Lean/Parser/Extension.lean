@@ -306,8 +306,8 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `runBuiltinParserAttributeHooks,
     descr := "explicitly run hooks normally activated by builtin parser attributes",
-    add   := fun decl args persistent => do
-      if args.hasArgs then throwError "invalid attribute 'runBuiltinParserAttributeHooks', unexpected argument"
+    add   := fun decl stx persistent => do
+      Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := true)
   }
 
@@ -315,8 +315,8 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `runParserAttributeHooks,
     descr := "explicitly run hooks normally activated by parser attributes",
-    add   := fun decl args persistent => do
-      if args.hasArgs then throwError "invalid attribute 'runParserAttributeHooks', unexpected argument"
+    add   := fun decl stx persistent => do
+      Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := false)
   }
 
@@ -443,8 +443,8 @@ def getParserPriority (args : Syntax) : Except String Nat :=
   | _ => throw "invalid parser attribute, no argument or numeral expected"
 
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
-    (declName : Name) (args : Syntax) (kind : AttributeKind) : AttrM Unit := do
-  let prio ← ofExcept (getParserPriority args)
+    (declName : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit := do
+  let prio ← Attribute.Builtin.getPrio stx
   unless kind == AttributeKind.global do throwError! "invalid attribute '{attrName}', must be global"
   let decl ← getConstInfo declName
   let env ← getEnv
@@ -466,12 +466,12 @@ def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (behavior 
   registerBuiltinAttribute {
    name            := attrName,
    descr           := "Builtin parser",
-   add             := fun declName args kind => liftM $ BuiltinParserAttribute.add attrName catName declName args kind,
+   add             := fun declName stx kind => liftM $ BuiltinParserAttribute.add attrName catName declName stx kind,
    applicationTime := AttributeApplicationTime.afterCompilation
   }
 
-private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (args : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
-  let prio ← ofExcept (getParserPriority args)
+private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
+  let prio ← Attribute.Builtin.getPrio stx
   let env ← getEnv
   let opts ← getOptions
   let categories := (parserExtension.getState env).categories
@@ -493,10 +493,10 @@ private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : N
   runParserAttributeHooks catName declName (builtin := false)
 
 def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl where
-  name                       := attrName
-  descr                      := "parser"
-  add declName args attrKind := ParserAttribute.add attrName catName declName args attrKind
-  applicationTime            := AttributeApplicationTime.afterCompilation
+  name                      := attrName
+  descr                     := "parser"
+  add declName stx attrKind := ParserAttribute.add attrName catName declName stx attrKind
+  applicationTime           := AttributeApplicationTime.afterCompilation
 
 /- A builtin parser attribute that can be extended by users. -/
 def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : IO Unit := do

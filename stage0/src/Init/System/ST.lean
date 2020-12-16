@@ -22,13 +22,13 @@ class STWorld (σ : outParam Type) (m : Type → Type)
 instance {σ m n} [STWorld σ m] [MonadLift m n] : STWorld σ n := ⟨⟩
 instance {ε σ} : STWorld σ (EST ε σ) := ⟨⟩
 
-@[noinline nospecialize]
+@[noinline, nospecialize]
 def runEST {ε α : Type} (x : forall (σ : Type), EST ε σ α) : Except ε α :=
   match x Unit () with
   | EStateM.Result.ok a _     => Except.ok a
   | EStateM.Result.error ex _ => Except.error ex
 
-@[noinline nospecialize]
+@[noinline, nospecialize]
 def runST {α : Type} (x : forall (σ : Type), ST σ α) : α :=
   match x Unit () with
   | EStateM.Result.ok a _     => a

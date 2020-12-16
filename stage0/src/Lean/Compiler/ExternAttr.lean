@@ -57,9 +57,9 @@ private partial def syntaxToExternEntries (a : Array Syntax) (i : Nat) (entries 
 
 private def syntaxToExternAttrData (s : Syntax) : ExceptT String Id ExternAttrData :=
   match s with
-  | Syntax.missing => Except.ok { entries := [ ExternEntry.adhoc `all ] }
   | Syntax.node _ args =>
-    if args.size == 0 then Except.error "unexpected kind of argument"
+    if args.size == 0 then
+      Except.ok { entries := [ ExternEntry.adhoc `all ] }
     else
       let (arity, i) : Option Nat × Nat := match args[0].isNatLit? with
         | some arity => (some arity, 1)

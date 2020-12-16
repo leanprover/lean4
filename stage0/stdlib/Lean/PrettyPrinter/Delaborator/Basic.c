@@ -149,7 +149,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_whenPPOption(lean_object*, lean_ob
 lean_object* l_Lean_PrettyPrinter_Delaborator_annotatePos_match__1(lean_object*);
 lean_object* l_Lean_Level_quote___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__7;
-extern lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttribute___closed__8;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_PrettyPrinter_Delaborator_delabFor___spec__5(lean_object*, lean_object*);
@@ -333,6 +332,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__9;
 extern lean_object* l_Lean_Meta_CheckAssignment_checkFVar___closed__1;
 lean_object* l_Array_findIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFnArgs_match__1(lean_object*);
+extern lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__5;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_2227____closed__3;
 lean_object* l_ReaderT_pure___at_Lean_PrettyPrinter_Delaborator_instMonadQuotationDelabM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPPBinderTypes___closed__2;
@@ -1509,7 +1509,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_getSanitizeNames___closed__2;
-x_2 = l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__1;
+x_2 = l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

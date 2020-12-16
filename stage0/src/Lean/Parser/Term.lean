@@ -3,7 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Parser.Basic
+import Lean.Parser.Attr
 import Lean.Parser.Level
 
 namespace Lean
@@ -13,22 +13,8 @@ builtin_initialize
   registerBuiltinParserAttribute `builtinTacticParser `tactic (leadingIdentAsSymbol := true)
   registerBuiltinDynamicParserAttribute `tacticParser `tactic
 
-builtin_initialize
-  registerBuiltinParserAttribute `builtinPrioParser `prio (leadingIdentAsSymbol := true)
-  registerBuiltinDynamicParserAttribute `prioParser `prio
-
-builtin_initialize
-  registerBuiltinParserAttribute `builtinAttrParamParser `attrParam
-  registerBuiltinDynamicParserAttribute `attrParamParser `attrParam
-
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=
   categoryParser `tactic rbp
-
-@[inline] def priorityParser (rbp : Nat := 0) : Parser :=
-  categoryParser `prio rbp
-
-@[inline] def attrParamParser (rbp : Nat := 0) : Parser :=
-  categoryParser `attrParam rbp
 
 namespace Tactic
 
@@ -46,18 +32,6 @@ def seq1 :=
 end Tactic
 
 def darrow : Parser := " => "
-
-namespace Priority
-@[builtinPrioParser] def numPrio  := checkPrec maxPrec >> numLit
-@[builtinPrioParser] def highPrio := parser!:maxPrec nonReservedSymbol "high"
-end Priority
-
-namespace AttrParam
-@[builtinAttrParamParser] def ident := checkPrec maxPrec >> Parser.ident
-@[builtinAttrParamParser] def str   := checkPrec maxPrec >> strLit
-@[builtinAttrParamParser] def num   := checkPrec maxPrec >> numLit
-@[builtinAttrParamParser] def prio  := parser!:maxPrec "priority: " >> priorityParser maxPrec
-end AttrParam
 
 namespace Term
 
@@ -228,6 +202,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def matchDiscr.quot : Parser := parser! "`(matchDiscr|"  >> toggleInsideQuot (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
 
 @[builtinTermParser] def attrParam.quot : Parser := parser! "`(attrParam|"  >> toggleInsideQuot attrParamParser >> ")"
+@[builtinTermParser] def attr.quot : Parser := parser! "`(attr|"  >> toggleInsideQuot attrParser >> ")"
 
 @[builtinTermParser] def panic       := parser!:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := parser!:leadPrec "unreachable!"

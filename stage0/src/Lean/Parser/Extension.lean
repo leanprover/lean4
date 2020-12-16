@@ -42,6 +42,7 @@ private def addParserCategoryCore (categories : ParserCategories) (catName : Nam
     pure $ categories.insert catName initial
 
 /-- All builtin parser categories are Pratt's parsers -/
+
 private def addBuiltinParserCategory (catName : Name) (leadingIdentAsSymbol : Bool) : IO Unit := do
   let categories ← builtinParserCategoriesRef.get
   let categories ← IO.ofExcept $ addParserCategoryCore categories catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol}

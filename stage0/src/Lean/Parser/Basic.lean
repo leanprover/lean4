@@ -1477,26 +1477,45 @@ structure PrattParsingTables where
 
 instance : Inhabited PrattParsingTables := ⟨{}⟩
 
+/-
+  The type `leadingIdentBehavior` specifies how the parsing table
+  lookup function behaves for identifiers.  The function `prattParser`
+  uses two tables `leadingTable` and `trailingTable`. They map tokens
+  to parsers.
+
+  - `LeadingIdentBehavior.default`: if the leading token
+    is an identifier, then `prattParser` just executes the parsers
+    associated with the auxiliary token "ident".
+
+  - `LeadingIdentBehavior.symbol`: if the leading token is
+    an identifier `<foo>`, and there are parsers `P` associated with
+    the toek `<foo>`, then it executes `P`. Otherwise, it executes
+    only the parsers associated with the auxiliary token "ident".
+
+  - `LeadingIdentBehavior.both`: if the leading token
+    an identifier `<foo>`, the it executes the parsers associated
+    with token `<foo>` and parsers associated with the auxiliary
+    token "ident".
+
+  We use `LeadingIdentBehavior.symbol` and `LeadingIdentBehavior.both`
+  and `nonReservedSymbol` parser to implement the `tactic` parsers.
+  The idea is to avoid creating a reserved symbol for each
+  builtin tactic (e.g., `apply`, `assumption`, etc.).  That is, users
+  may still use these symbols as identifiers (e.g., naming a
+  function).
+-/
+
+inductive LeadingIdentBehavior where
+  | default
+  | symbol
+  | both
+  deriving Inhabited, BEq
+
+
 /--
   Each parser category is implemented using a Pratt's parser.
   The system comes equipped with the following categories: `level`, `term`, `tactic`, and `command`.
   Users and plugins may define extra categories.
-
-  The field `leadingIdentAsSymbol` specifies how the parsing table
-  lookup function behaves for identifiers.  The function `prattParser`
-  uses two tables `leadingTable` and `trailingTable`. They map tokens
-  to parsers. If `leadingIdentAsSymbol == false` and the leading token
-  is an identifier, then `prattParser` just executes the parsers
-  associated with the auxiliary token "ident".  If
-  `leadingIdentAsSymbol == true` and the leading token is an
-  identifier `<foo>`, then `prattParser` combines the parsers
-  associated with the token `<foo>` with the parsers associated with
-  the auxiliary token "ident".  We use this feature and the
-  `nonReservedSymbol` parser to implement the `tactic` parsers.  We
-  use this approach to avoid creating a reserved symbol for each
-  builtin tactic (e.g., `apply`, `assumption`, etc.).  That is, users
-  may still use these symbols as identifiers (e.g., naming a
-  function).
 
   The method
   ```
@@ -1507,14 +1526,13 @@ instance : Inhabited PrattParsingTables := ⟨{}⟩
   The method `termParser prec` is equivalent to the method above.
 -/
 structure ParserCategory where
-  tables : PrattParsingTables
-  leadingIdentAsSymbol : Bool
-
-instance : Inhabited ParserCategory := ⟨{ tables := {}, leadingIdentAsSymbol := false }⟩
+  tables   : PrattParsingTables
+  behavior : LeadingIdentBehavior
+  deriving Inhabited
 
 abbrev ParserCategories := Std.PersistentHashMap Name ParserCategory
 
-def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (leadingIdentAsSymbol : Bool) : ParserState × List α :=
+def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (behavior : LeadingIdentBehavior) : ParserState × List α :=
   let (s, stx) := peekToken c s
   let find (n : Name) : ParserState × List α :=
     match map.find? n with
@@ -1523,14 +1541,18 @@ def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState
   match stx with
   | some (Syntax.atom _ sym)      => find (Name.mkSimple sym)
   | some (Syntax.ident _ _ val _) =>
-    if leadingIdentAsSymbol then
+    match behavior with
+    | LeadingIdentBehavior.default => find identKind
+    | LeadingIdentBehavior.symbol =>
+      match map.find? val with
+      | some as => (s, as)
+      | none    => find identKind
+    | LeadingIdentBehavior.both =>
       match map.find? val with
       | some as => match map.find? identKind with
         | some as' => (s, as ++ as')
         | _        => (s, as)
       | none    => find identKind
-    else
-      find identKind
   | some (Syntax.node k _)        => find k
   | _                             => (s, [])
 
@@ -1727,9 +1749,9 @@ private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
   if s.stackSize == iniSz + 1 then s
   else s.mkNode nullKind iniSz -- throw error instead?
 
-def leadingParserAux (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) : ParserFn := fun c s =>
+def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) : ParserFn := fun c s =>
   let iniSz   := s.stackSize
-  let (s, ps) := indexed tables.leadingTable c s leadingIdentAsSymbol
+  let (s, ps) := indexed tables.leadingTable c s behavior
   let ps      := tables.leadingParsers ++ ps
   if ps.isEmpty then
     s.mkError (toString kind)
@@ -1737,8 +1759,8 @@ def leadingParserAux (kind : Name) (tables : PrattParsingTables) (leadingIdentAs
     let s := longestMatchFn none ps c s
     mkResult s iniSz
 
-@[inline] def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn :=
-  withAntiquotFn antiquotParser (leadingParserAux kind tables leadingIdentAsSymbol)
+@[inline] def leadingParser (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) (antiquotParser : ParserFn) : ParserFn :=
+  withAntiquotFn antiquotParser (leadingParserAux kind tables behavior)
 
 def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List (Parser × Nat)) : ParserFn := fun c s =>
   longestMatchFn left (ps ++ tables.trailingParsers) c s
@@ -1752,8 +1774,7 @@ private def mkTrailingResult (s : ParserState) (iniSz : Nat) : ParserState :=
   s.pushSyntax result
 
 partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : ParserState) : ParserState :=
-  let identAsSymbol := false
-  let (s, ps)       := indexed tables.trailingTable c s identAsSymbol
+  let (s, ps)       := indexed tables.trailingTable c s LeadingIdentBehavior.default
   if ps.isEmpty && tables.trailingParsers.isEmpty then
     s -- no available trailing parser
   else
@@ -1788,10 +1809,10 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : 
   `antiquotParser` should be a `mkAntiquot` parser (or always fail) and is tried before all other parsers.
   It should not be added to the regular leading parsers because it would heavily
   overlap with antiquotation parsers nested inside them. -/
-@[inline] def prattParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSymbol : Bool) (antiquotParser : ParserFn) : ParserFn := fun c s =>
+@[inline] def prattParser (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) (antiquotParser : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let iniPos := s.pos
-  let s := leadingParser kind tables leadingIdentAsSymbol antiquotParser c s
+  let s := leadingParser kind tables behavior antiquotParser c s
   if s.hasError then
     s
   else

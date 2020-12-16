@@ -1638,7 +1638,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Syntax___hyg_4____closed__2;
 x_3 = l_stx___x3c_x7c_x3e_____closed__6;
-x_4 = 1;
+x_4 = 2;
 x_5 = l_Lean_Parser_registerBuiltinParserAttribute(x_2, x_3, x_4, x_1);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -1716,7 +1716,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Syntax___hyg_24____closed__2;
 x_3 = l_Lean_Parser_Syntax_addPrec___closed__14;
-x_4 = 1;
+x_4 = 2;
 x_5 = l_Lean_Parser_registerBuiltinParserAttribute(x_2, x_3, x_4, x_1);
 if (lean_obj_tag(x_5) == 0)
 {

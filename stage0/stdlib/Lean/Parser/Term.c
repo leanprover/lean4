@@ -3996,7 +3996,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Term___hyg_4____closed__2;
 x_3 = l_Lean_Parser_Tactic_orelse___closed__5;
-x_4 = 1;
+x_4 = 2;
 x_5 = l_Lean_Parser_registerBuiltinParserAttribute(x_2, x_3, x_4, x_1);
 if (lean_obj_tag(x_5) == 0)
 {

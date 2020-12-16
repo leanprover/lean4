@@ -43,9 +43,9 @@ private def addParserCategoryCore (categories : ParserCategories) (catName : Nam
 
 /-- All builtin parser categories are Pratt's parsers -/
 
-private def addBuiltinParserCategory (catName : Name) (leadingIdentAsSymbol : Bool) : IO Unit := do
+private def addBuiltinParserCategory (catName : Name) (behavior : LeadingIdentBehavior) : IO Unit := do
   let categories ← builtinParserCategoriesRef.get
-  let categories ← IO.ofExcept $ addParserCategoryCore categories catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol}
+  let categories ← IO.ofExcept $ addParserCategoryCore categories catName { tables := {}, behavior := behavior}
   builtinParserCategoriesRef.set categories
 
 namespace ParserExtension
@@ -53,21 +53,21 @@ namespace ParserExtension
 inductive OLeanEntry where
   | token     (val : Token) : OLeanEntry
   | kind      (val : SyntaxNodeKind) : OLeanEntry
-  | category  (catName : Name) (leadingIdentAsSymbol : Bool)
+  | category  (catName : Name) (behavior : LeadingIdentBehavior)
   | parser    (catName : Name) (declName : Name) (prio : Nat) : OLeanEntry
   deriving Inhabited
 
 inductive Entry where
   | token     (val : Token) : Entry
   | kind      (val : SyntaxNodeKind) : Entry
-  | category  (catName : Name) (leadingIdentAsSymbol : Bool)
+  | category  (catName : Name) (behavior : LeadingIdentBehavior)
   | parser    (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Entry
   deriving Inhabited
 
 def Entry.toOLeanEntry : Entry → OLeanEntry
   | token v             => OLeanEntry.token v
   | kind v              => OLeanEntry.kind v
-  | category c l        => OLeanEntry.category c l
+  | category c b        => OLeanEntry.category c b
   | parser c d _ _ prio => OLeanEntry.parser c d prio
 
 structure State where
@@ -166,10 +166,10 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
     | _                => unreachable!
   | Entry.kind k =>
     { s with kinds := s.kinds.insert k }
-  | Entry.category catName leadingIdentAsSymbol =>
+  | Entry.category catName behavior =>
     if s.categories.contains catName then s
     else { s with
-           categories := s.categories.insert catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol } }
+           categories := s.categories.insert catName { tables := {}, behavior := behavior } }
   | Entry.parser catName declName leading parser prio =>
     match addParser s.categories catName declName leading parser prio with
     | Except.ok categories => { s with categories := categories }
@@ -340,19 +340,16 @@ builtin_initialize parserExtension : ParserExtension ←
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
   (parserExtension.getState env).categories.contains catName
 
-def addParserCategory (env : Environment) (catName : Name) (leadingIdentAsSymbol : Bool) : Except String Environment := do
+def addParserCategory (env : Environment) (catName : Name) (behavior : LeadingIdentBehavior) : Except String Environment := do
   if isParserCategory env catName then
     throwParserCategoryAlreadyDefined catName
   else
-    return parserExtension.addEntry env <| ParserExtension.Entry.category catName leadingIdentAsSymbol
+    return parserExtension.addEntry env <| ParserExtension.Entry.category catName behavior
 
-/-
-  Return true if in the given category leading identifiers in parsers may be treated as atoms/symbols.
-  See comment at `ParserCategory`. -/
-def leadingIdentAsSymbol (env : Environment) (catName : Name) : Bool :=
+def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBehavior :=
   match getCategory (parserExtension.getState env).categories catName with
-  | none     => false
-  | some cat => cat.leadingIdentAsSymbol
+  | none     => LeadingIdentBehavior.default
+  | some cat => cat.behavior
 
 def mkCategoryAntiquotParser (kind : Name) : Parser :=
   mkAntiquot kind.toString none
@@ -366,7 +363,7 @@ def categoryParserFnImpl (catName : Name) : ParserFn := fun ctx s =>
   let categories := (parserExtension.getState ctx.env).categories
   match getCategory categories catName with
   | some cat =>
-    prattParser catName cat.tables cat.leadingIdentAsSymbol (mkCategoryAntiquotParserFn catName) ctx s
+    prattParser catName cat.tables cat.behavior (mkCategoryAntiquotParserFn catName) ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
 
 @[builtinInit] def setCategoryParserFnRef : IO Unit :=
@@ -464,8 +461,8 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
 /-
 The parsing tables for builtin parsers are "stored" in the extracted source code.
 -/
-def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (leadingIdentAsSymbol := false) : IO Unit := do
-  addBuiltinParserCategory catName leadingIdentAsSymbol
+def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (behavior := LeadingIdentBehavior.default) : IO Unit := do
+  addBuiltinParserCategory catName behavior
   registerBuiltinAttribute {
    name            := attrName,
    descr           := "Builtin parser",
@@ -511,8 +508,8 @@ def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : I
     | [DataValue.ofName attrName, DataValue.ofName catName] => pure $ mkParserAttributeImpl attrName catName
     | _ => throw "invalid parser attribute implementation builder arguments"
 
-def registerParserCategory (env : Environment) (attrName : Name) (catName : Name) (leadingIdentAsSymbol := false) : IO Environment := do
-  let env ← IO.ofExcept $ addParserCategory env catName leadingIdentAsSymbol
+def registerParserCategory (env : Environment) (attrName : Name) (catName : Name) (behavior := LeadingIdentBehavior.default) : IO Environment := do
+  let env ← IO.ofExcept $ addParserCategory env catName behavior
   registerAttributeOfBuilder env `parserAttr [DataValue.ofName attrName, DataValue.ofName catName]
 
 -- declare `termParser` here since it is used everywhere via antiquotations

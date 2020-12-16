@@ -10,7 +10,7 @@ namespace Lean
 namespace Parser
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinTacticParser `tactic (leadingIdentAsSymbol := true)
+  registerBuiltinParserAttribute `builtinTacticParser `tactic LeadingIdentBehavior.both
   registerBuiltinDynamicParserAttribute `tacticParser `tactic
 
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=

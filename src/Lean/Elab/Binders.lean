@@ -352,11 +352,10 @@ def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (
       x s.fvars s.expectedType?
 
 /- Helper function for `expandEqnsIntoMatch` -/
-private def getMatchAltsNumPatterns : Syntax → Nat
-  | alts => match alts[0][0] with
-    | `(matchAltExpr| | $pats,* => $rhs) =>
-      pats.getElems.size
-    | _ => unreachable!
+private def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
+  let alt0 := matchAlts[0][0]
+  let pats := alt0[1].getSepArgs
+  pats.size
 
 private def mkMatch (ref : Syntax) (discrs : Array Syntax) (matchAlts : Syntax) (matchTactic := false) : Syntax :=
   Syntax.node (if matchTactic then `Lean.Parser.Tactic.match else `Lean.Parser.Term.match)

@@ -47,8 +47,6 @@ macro:max x:stx ",+"   : stx => `(stx| sepBy1($x, ",", ", "))
 /- Comma-separated sequence with optional trailing comma. -/
 macro:max x:stx ",*,?" : stx => `(stx| sepBy($x, ",", ", ", allowTrailingSep))
 macro:max x:stx ",+,?" : stx => `(stx| sepBy1($x, ",", ", ", allowTrailingSep))
-/- Pipe-separated sequence, must be indentend at least as much as outer `withPosition` call. -/
-macro:max x:stx "|+"   : stx => `(stx| sepBy1($x, "|", colGe "| "))
 
 macro "!" x:stx : stx => `(stx| notFollowedBy($x))
 
@@ -233,14 +231,14 @@ syntax[«let»] "let " letDecl : tactic
 syntax[«let!»] "let! " letDecl : tactic
 syntax[letrec] withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
 
-syntax inductionAlt  := (ident <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
-syntax inductionAlts := "with " withPosition("| " inductionAlt|+)
+syntax inductionAlt  := "| " (ident <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAlts := "with " withPosition( (colGe inductionAlt)+)
 syntax[induction] "induction " term,+ (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
 syntax casesTarget := atomic(ident " : ")? term
 syntax[cases] "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 
-syntax matchAlt  := term,+ " => " (hole <|> syntheticHole <|> tacticSeq)
-syntax matchAlts := withPosition("| " matchAlt|+)
+syntax matchAlt  := "| " term,+ " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax matchAlts := withPosition((colGe matchAlt)+)
 syntax[«match»] "match " matchDiscr,+ (" : " term)? " with " matchAlts : tactic
 
 syntax[introMatch] "intro " matchAlts : tactic

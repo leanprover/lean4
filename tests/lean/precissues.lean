@@ -24,7 +24,7 @@ def f (x : Nat) (g : Nat → Nat) := g x
 #check 0 = let x := 0; x
 
 variables (p q r : Prop)
-macro_rules `(¬ $p) => `(Not $p)
+macro_rules | `(¬ $p) => `(Not $p)
 
 #check p ↔ ¬ q
 #check True = ¬ False

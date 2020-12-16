@@ -78,7 +78,6 @@ lean_object* l_Std_AssocList_contains___at_Lean_IR_Borrow_InitParamMap_visitFnBo
 uint8_t l_USize_decLt(size_t, size_t);
 extern lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__19;
 uint8_t l_Lean_IR_IRType_isObj(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12520____closed__9;
 lean_object* l_Lean_IR_Borrow_InitParamMap_visitDecls_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__3;
@@ -139,6 +138,7 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_Borrow_ApplyParamMap_visitDecls
 lean_object* l_Std_HashMapImp_insert___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_Borrow_ParamMap_beq(lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_instInhabitedFnBody;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12527____closed__9;
 lean_object* l_Lean_IR_Borrow_ownArg_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_getParamInfo_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_collectDecl(lean_object*, lean_object*, lean_object*);
@@ -1067,7 +1067,7 @@ static lean_object* _init_l_Std_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fm
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12520____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12527____closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

@@ -113,11 +113,10 @@ def compileCategoryParser {α} (ctx : Context α) (declName : Name) (builtin : B
   let kind := declName
   let attrName := if builtin then ctx.categoryAttr.defn.builtinName else ctx.categoryAttr.defn.name
   -- Create syntax node for a simple attribute of the form
-  -- `def simple := parser! ident >> optional ident >> optional priorityParser`
+  -- `def simple := parser! ident >> optional (ident <|> priorityParser)`
   let stx := Syntax.node `Lean.Parser.Attr.simple #[
     mkIdent attrName,
-    mkNullNode #[mkIdent kind],
-    mkNullNode
+    mkNullNode #[mkIdent kind]
   ]
   Attribute.add c' attrName stx
 

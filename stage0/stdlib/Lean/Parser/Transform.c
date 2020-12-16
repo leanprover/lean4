@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Syntax_manyToSepBy___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11392____closed__8;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11399____closed__8;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -909,7 +909,7 @@ x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
-x_4 = l_myMacro____x40_Init_Notation___hyg_11392____closed__8;
+x_4 = l_myMacro____x40_Init_Notation___hyg_11399____closed__8;
 x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {

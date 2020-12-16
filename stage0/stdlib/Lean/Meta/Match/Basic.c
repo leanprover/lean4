@@ -21,7 +21,6 @@ lean_object* l_Lean_Meta_Match_Pattern_toExpr_visit___boxed(lean_object*, lean_o
 lean_object* l_List_mapM___at_Lean_Meta_Match_instantiatePatternMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Pattern_toExpr_visit___closed__2;
 lean_object* l_List_mapM___at_Lean_Meta_Match_instantiatePatternMVars___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12520____closed__14;
 lean_object* l_List_map___at_Lean_Meta_Match_Example_applyFVarSubst___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Pattern_toMessageData___closed__7;
 lean_object* l_List_map___at_Lean_Meta_Match_Example_toMessageData___spec__2(lean_object*);
@@ -41,6 +40,7 @@ lean_object* l_List_map___at_Lean_Meta_Match_Example_varsToUnderscore___spec__1(
 extern lean_object* l_Lean_instToFormatArray___rarg___closed__1;
 lean_object* l_List_mapM___at_Lean_Meta_Match_instantiateAltLHSMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Meta_Match_Alt_toMessageData___spec__1(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12527____closed__14;
 lean_object* l_List_filterAux___at_Lean_Meta_Match_Alt_replaceFVarId___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Pattern_applyFVarSubst_match__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Problem_toMessageData___lambda__1___closed__4;
@@ -6478,7 +6478,7 @@ static lean_object* _init_l_Lean_Meta_Match_Example_toMessageData___closed__1() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12520____closed__14;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12527____closed__14;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

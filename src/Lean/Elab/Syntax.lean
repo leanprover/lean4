@@ -231,12 +231,12 @@ where
 
 private def elabKindPrio (stx : Syntax) (catName : Name) : CommandElabM (Option Name × Nat) := do
   if stx.isNone then
-    pure (none, 0)
+    pure (none, evalPrio! default)
   else
     let arg := stx[1]
     if arg.getKind == `Lean.Parser.Command.parserKind then
       let k := arg[0].getId
-      pure (k, 0)
+      pure (k, evalPrio! default)
     else if arg.getKind == `Lean.Parser.Command.parserPrio then
       let prio ← liftMacroM <| evalPrio arg[0]
       pure (none, prio)

@@ -55,12 +55,17 @@ end AttrParam
 namespace Attr
 
 @[builtinAttrParser] def simple     := parser! ident >> optional ident >> optional priorityParser
-/- We can't use `simple` for `class`, `instance`, and `macro` because they are  keywords. -/
-@[builtinAttrParser] def «class»    := parser! "class"
-@[builtinAttrParser] def «instance» := parser! "instance" >> optional priorityParser
+/- Remark, We can't use `simple` for `class`, `instance`, `export`, and `macro` because they are  keywords. -/
 @[builtinAttrParser] def «macro»    := parser! "macro " >> ident
+@[builtinAttrParser] def «export»   := parser! "export " >> ident
 
-def externEntry := parser! optional (nonReservedSymbol "inline ") >> optional ident >> strLit
+/- We don't use `simple` for recursor because the argument is not a priority-/
+@[builtinAttrParser] def recursor        := parser! nonReservedSymbol "recursor " >> numLit
+@[builtinAttrParser] def «class»         := parser! "class"
+@[builtinAttrParser] def «instance»      := parser! "instance" >> optional priorityParser
+@[builtinAttrParser] def defaultInstance := parser! nonReservedSymbol "defaultInstance " >> optional priorityParser
+
+def externEntry := parser! optional ident >> optional (nonReservedSymbol "inline ") >> strLit
 @[builtinAttrParser] def extern     := parser! nonReservedSymbol "extern " >> optional numLit >> many externEntry
 
 end Attr

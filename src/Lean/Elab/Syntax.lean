@@ -28,13 +28,11 @@ private def mkParserSeq (ds : Array Syntax) : TermElabM Syntax := do
     return r
 
 structure ToParserDescrContext where
-  catName              : Name
-  first                : Bool
-  leftRec              : Bool -- true iff left recursion is allowed
-  /- When `leadingIdentAsSymbol == true` we convert
-     `Lean.Parser.Syntax.atom` into `Lean.ParserDescr.nonReservedSymbol`
-     See comment at `Parser.ParserCategory`. -/
-  leadingIdentAsSymbol : Bool
+  catName  : Name
+  first    : Bool
+  leftRec  : Bool -- true iff left recursion is allowed
+  /- See comment at `Parser.ParserCategory`. -/
+  behavior : Parser.LeadingIdentBehavior
 
 abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateRefT Bool TermElabM)
 private def markAsTrailingParser : ToParserDescrM Unit := set true
@@ -144,9 +142,9 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef s
   else if kind == `Lean.Parser.Syntax.atom then
     match stx[0].isStrLit? with
     | some atom =>
-      /- For syntax categories where initialized with `leadingIdentAsSymbol` (e.g., `tactic`), we automatically mark
+      /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
          the first symbol as nonReserved. -/
-      if (← read).leadingIdentAsSymbol && (← read).first then
+      if (← read).behavior != Parser.LeadingIdentBehavior.default && (← read).first then
         `(ParserDescr.nonReservedSymbol $(quote atom) false)
       else
         `(ParserDescr.symbol $(quote atom))
@@ -167,8 +165,8 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef s
   `TrailingParserDescr` if `trailingParser == true`, and `ParserDescr` otherwise. -/
 def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) := do
   let env ← getEnv
-  let leadingIdentAsSymbol := Parser.leadingIdentAsSymbol env catName
-  (toParserDescrAux stx { catName := catName, first := true, leftRec := true, leadingIdentAsSymbol := leadingIdentAsSymbol }).run false
+  let behavior := Parser.leadingIdentBehavior env catName
+  (toParserDescrAux stx { catName := catName, first := true, leftRec := true, behavior := behavior }).run false
 
 end Term
 

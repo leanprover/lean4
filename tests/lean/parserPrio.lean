@@ -1,7 +1,7 @@
-
+--
 
 -- New notation that overlaps with existing notation
-syntax [myPair, 100] "(" term "," term ")" : term
+syntax [myPair, high] "(" term "," term ")" : term
 
 macro_rules[myPair]
 | `(($a, $b)) => `([$a, $b])

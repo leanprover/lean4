@@ -183,7 +183,7 @@ def Attribute.erase (declName : Name) (attrName : Name) : AttrM Unit := do
   We have the following ones:
   ```
   @[builtinAttrParser] def simple     := parser! ident >> optional ident >> optional priorityParser
-  /- We can't use `simple` for `class`, `instance`, and `macro` because they are  keywords. -/
+  /- We can't use `simple` for `class`, `instance`, `export` and `macro` because they are  keywords. -/
   @[builtinAttrParser] def «class»    := parser! "class"
   @[builtinAttrParser] def «instance» := parser! "instance" >> optional priorityParser
   @[builtinAttrParser] def «macro»    := parser! "macro " >> ident
@@ -204,7 +204,7 @@ def Attribute.Builtin.getId (stx : Syntax) : AttrM Name := do
   if stx.getKind == `Lean.Parser.Attr.simple && !stx[1].isNone && stx[2].isNone then
     return stx[1][0].getId
   /- We handle `macro` here because it is handled by the generic `KeyedDeclsAttribute -/
-  else if stx.getKind == `Lean.Parser.Attr.«macro» then
+  else if stx.getKind == `Lean.Parser.Attr.«macro» || stx.getKind == `Lean.Parser.Attr.«export» then
     return stx[1].getId
   else
     throwErrorAt! stx "unexpected attribute argument, identifier expected"

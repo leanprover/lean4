@@ -61,6 +61,7 @@ lean_object* l_Lean_Parser_Command_open___closed__3;
 lean_object* l_Lean_Parser_Command_printAxioms___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Command_structCtor___closed__8;
 lean_object* l_Lean_Parser_Command_structExplicitBinder_parenthesizer___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2022____closed__2;
 lean_object* l_Lean_Parser_Command_optDeriving_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_Command_optDeriving___closed__2;
 lean_object* l_Lean_Parser_Term_quot_parenthesizer___closed__4;
@@ -76,7 +77,6 @@ lean_object* l_Lean_Parser_Command_structCtor___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Command_structImplicitBinder___closed__8;
 lean_object* l_Lean_Parser_Command_structureTk___closed__2;
 lean_object* l_Lean_Parser_Command_ctor_parenthesizer___closed__8;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2234____closed__2;
 lean_object* l_Lean_Parser_Command_instance___closed__2;
 lean_object* l_Lean_Parser_Command_openHiding_formatter___closed__3;
 lean_object* l_Lean_Parser_Command_structImplicitBinder___closed__9;
@@ -325,6 +325,7 @@ lean_object* l_Lean_Parser_Command_ctor___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Command_declId___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Command_open_formatter___closed__9;
 lean_object* l___regBuiltin_Lean_Parser_Command_universe_parenthesizer(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12942____closed__13;
 lean_object* l_Lean_Parser_Command_section_formatter___closed__2;
 extern lean_object* l_term___u2218_____closed__6;
 lean_object* l_Lean_Parser_Command_declaration___elambda__1___closed__12;
@@ -2763,7 +2764,6 @@ lean_object* l_Lean_Parser_Command_docComment_formatter___closed__6;
 lean_object* l_Lean_Parser_Command_structure_formatter___closed__18;
 extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__21;
 lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13154____closed__13;
 lean_object* l_Lean_Parser_Command_declaration___closed__14;
 lean_object* l_Lean_Parser_Command_example___closed__1;
 lean_object* l_Lean_Parser_Command_protected_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2824,7 +2824,7 @@ static lean_object* _init_l_Lean_Parser_Term_quot___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_2234____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_2022____closed__2;
 x_2 = l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -8170,7 +8170,7 @@ static lean_object* _init_l_Lean_Parser_Command_inductive___elambda__1___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_13154____closed__13;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12942____closed__13;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -13676,7 +13676,7 @@ static lean_object* _init_l_Lean_Parser_Command_inductive_formatter___closed__3(
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_13154____closed__13;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12942____closed__13;
 x_2 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_symbol_formatter), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

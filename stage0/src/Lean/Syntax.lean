@@ -204,10 +204,10 @@ open Lean.Format
 
 private def formatInfo (showInfo : Bool) (info : SourceInfo) (f : Format) : Format :=
   if showInfo then
-    (match info.leading with some ss => repr ss.toString ++ ":" | _ => "") ++
+    (match info.leading with | some ss => repr ss.toString ++ ":" | _ => "") ++
     f ++
-    (match info.pos with some pos => ":" ++ toString info.pos | _ => "") ++
-    (match info.trailing with some ss => ":" ++ repr ss.toString | _ => "")
+    (match info.pos with | some pos => ":" ++ toString info.pos | _ => "") ++
+    (match info.trailing with | some ss => ":" ++ repr ss.toString | _ => "")
   else
     f
 

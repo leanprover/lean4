@@ -41,7 +41,6 @@ lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*,
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getIndicesPos_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_whnf___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_contains___at_Lean_Meta_addInstanceEntry___spec__11(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux___spec__2___lambda__1___boxed(lean_object**);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__9;
@@ -102,6 +101,7 @@ lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__3;
 lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo___closed__13;
 lean_object* l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__67(lean_object*, size_t, size_t);
 lean_object* l_Lean_throwErrorAt___at_Lean_getAttrParamOptPrio___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkRecursorInfo_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instReprBool___closed__2;
@@ -167,6 +167,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___closed__8;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2064____spec__1___closed__1;
+uint8_t l_Array_contains___at_Lean_Meta_CheckAssignment_check___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__1;
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__2;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getIndicesPos___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -192,7 +193,6 @@ lean_object* l_Array_back___at_Lean_Meta_DiscrTree_mkPathAux___spec__1(lean_obje
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__65(lean_object*, size_t, size_t);
 lean_object* l_List_toStringAux___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__2(uint8_t, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2064____spec__1___lambda__1(lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_numMinors___boxed(lean_object*);
@@ -2837,7 +2837,7 @@ size_t x_27; size_t x_28; uint8_t x_29;
 x_27 = 0;
 x_28 = lean_usize_of_nat(x_19);
 lean_dec(x_19);
-x_29 = l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__65(x_3, x_27, x_28);
+x_29 = l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__67(x_3, x_27, x_28);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 
@@ -3292,7 +3292,7 @@ else
 lean_object* x_34; uint8_t x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 lean_dec(x_25);
 x_34 = lean_array_fget(x_3, x_24);
-x_35 = l_Array_contains___at_Lean_Meta_addInstanceEntry___spec__11(x_5, x_34);
+x_35 = l_Array_contains___at_Lean_Meta_CheckAssignment_check___spec__2(x_5, x_34);
 x_36 = lean_box(x_35);
 lean_inc(x_24);
 x_37 = lean_alloc_ctor(0, 2, 0);

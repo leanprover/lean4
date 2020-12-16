@@ -15,6 +15,7 @@ extern "C" {
 #endif
 extern lean_object* l_instReprOption___rarg___closed__2;
 uint8_t l_Lean_Syntax_isQuot(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2022____closed__1;
 lean_object* l_Lean_Syntax_getQuotContent___closed__1;
 lean_object* l_Lean_Syntax_isAntiquot_match__1(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25,8 +26,8 @@ lean_object* l_Lean_Syntax_formatStxAux___closed__1;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_unescapeAntiquot(lean_object*);
 uint8_t l_Lean_Syntax_isAntiquotSuffixSplice(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2022____closed__2;
 lean_object* l_Lean_Syntax_replaceM___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2234____closed__2;
 lean_object* l_Lean_Syntax_getTailWithPos(lean_object*);
 size_t l_USize_add(size_t, size_t);
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__4;
@@ -36,7 +37,6 @@ lean_object* l_Lean_Syntax_isQuot_match__1___rarg___closed__2;
 lean_object* l_Lean_Syntax_mkAntiquotNode___closed__3;
 extern lean_object* l_String_instInhabitedString;
 lean_object* l_Lean_Syntax_isQuot_match__1___rarg___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2234____closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Syntax_getAntiquotSpliceContents___boxed(lean_object*);
 lean_object* l_Lean_Syntax_mkAntiquotNode___closed__12;
@@ -200,7 +200,6 @@ lean_object* l_Lean_Syntax_getId(lean_object*);
 extern lean_object* l_Lean_choiceKind;
 lean_object* l_Lean_Syntax_replaceM_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instBEqSyntax___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12527____closed__9;
 lean_object* l_Lean_Syntax_antiquotSuffixSplice_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_formatDataValue___closed__4;
 lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
@@ -269,6 +268,7 @@ lean_object* l_Lean_Syntax_isAntiquotSplice___boxed(lean_object*);
 lean_object* l_Lean_Syntax_instToStringSyntax___closed__1;
 lean_object* l_String_posOfAux(lean_object*, uint32_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_formatInfo_match__2___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12315____closed__9;
 lean_object* l_Lean_Syntax_mkAntiquotNode___closed__8;
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
 lean_object* l_Lean_Syntax_Traverser_down(lean_object*, lean_object*);
@@ -4166,7 +4166,7 @@ lean_dec(x_49);
 lean_dec(x_48);
 x_52 = l_String_quote(x_51);
 lean_dec(x_51);
-x_53 = l_myMacro____x40_Init_Notation___hyg_12527____closed__9;
+x_53 = l_myMacro____x40_Init_Notation___hyg_12315____closed__9;
 x_54 = lean_string_append(x_52, x_53);
 x_7 = x_54;
 goto block_45;
@@ -4213,7 +4213,7 @@ lean_dec(x_15);
 lean_dec(x_14);
 x_18 = l_String_quote(x_17);
 lean_dec(x_17);
-x_19 = l_myMacro____x40_Init_Notation___hyg_12527____closed__9;
+x_19 = l_myMacro____x40_Init_Notation___hyg_12315____closed__9;
 x_20 = lean_string_append(x_19, x_18);
 lean_dec(x_18);
 x_21 = lean_alloc_ctor(2, 1, 0);
@@ -4238,7 +4238,7 @@ x_27 = lean_string_append(x_26, x_25);
 lean_dec(x_25);
 x_28 = l_prec_x28___x29___closed__7;
 x_29 = lean_string_append(x_27, x_28);
-x_30 = l_myMacro____x40_Init_Notation___hyg_12527____closed__9;
+x_30 = l_myMacro____x40_Init_Notation___hyg_12315____closed__9;
 x_31 = lean_string_append(x_30, x_29);
 lean_dec(x_29);
 x_32 = lean_alloc_ctor(2, 1, 0);
@@ -6534,7 +6534,7 @@ else
 {
 lean_object* x_47; uint8_t x_48; 
 lean_dec(x_24);
-x_47 = l_myMacro____x40_Init_Notation___hyg_2234____closed__1;
+x_47 = l_myMacro____x40_Init_Notation___hyg_2022____closed__1;
 x_48 = lean_string_dec_eq(x_21, x_47);
 if (x_48 == 0)
 {
@@ -6669,7 +6669,7 @@ else
 {
 lean_object* x_75; uint8_t x_76; 
 lean_dec(x_24);
-x_75 = l_myMacro____x40_Init_Notation___hyg_2234____closed__1;
+x_75 = l_myMacro____x40_Init_Notation___hyg_2022____closed__1;
 x_76 = lean_string_dec_eq(x_21, x_75);
 if (x_76 == 0)
 {
@@ -6838,7 +6838,7 @@ else
 {
 lean_object* x_109; uint8_t x_110; 
 lean_dec(x_24);
-x_109 = l_myMacro____x40_Init_Notation___hyg_2234____closed__1;
+x_109 = l_myMacro____x40_Init_Notation___hyg_2022____closed__1;
 x_110 = lean_string_dec_eq(x_21, x_109);
 if (x_110 == 0)
 {
@@ -7070,7 +7070,7 @@ else
 {
 lean_object* x_153; uint8_t x_154; 
 lean_dec(x_24);
-x_153 = l_myMacro____x40_Init_Notation___hyg_2234____closed__1;
+x_153 = l_myMacro____x40_Init_Notation___hyg_2022____closed__1;
 x_154 = lean_string_dec_eq(x_21, x_153);
 if (x_154 == 0)
 {
@@ -7354,7 +7354,7 @@ else
 {
 lean_object* x_207; uint8_t x_208; 
 lean_dec(x_183);
-x_207 = l_myMacro____x40_Init_Notation___hyg_2234____closed__1;
+x_207 = l_myMacro____x40_Init_Notation___hyg_2022____closed__1;
 x_208 = lean_string_dec_eq(x_21, x_207);
 if (x_208 == 0)
 {
@@ -7777,7 +7777,7 @@ else
 {
 lean_object* x_285; uint8_t x_286; 
 lean_dec(x_259);
-x_285 = l_myMacro____x40_Init_Notation___hyg_2234____closed__1;
+x_285 = l_myMacro____x40_Init_Notation___hyg_2022____closed__1;
 x_286 = lean_string_dec_eq(x_257, x_285);
 if (x_286 == 0)
 {
@@ -8123,7 +8123,7 @@ return x_18;
 else
 {
 lean_object* x_19; uint8_t x_20; 
-x_19 = l_myMacro____x40_Init_Notation___hyg_2234____closed__1;
+x_19 = l_myMacro____x40_Init_Notation___hyg_2022____closed__1;
 x_20 = lean_string_dec_eq(x_8, x_19);
 if (x_20 == 0)
 {
@@ -8219,7 +8219,7 @@ static lean_object* _init_l_Lean_Syntax_getQuotContent___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_2234____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_2022____closed__2;
 x_2 = l_Lean_Syntax_isQuot_match__1___rarg___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -8550,7 +8550,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12527____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12315____closed__9;
 x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }

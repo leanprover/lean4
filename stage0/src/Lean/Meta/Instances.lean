@@ -11,17 +11,21 @@ namespace Lean.Meta
 structure InstanceEntry where
   keys        : Array DiscrTree.Key
   val         : Expr
+  priority    : Nat
   globalName? : Option Name := none
   deriving Inhabited
 
+instance : BEq InstanceEntry where
+  beq e₁ e₂ := e₁.val == e₂.val
+
 structure Instances where
-  discrTree       : DiscrTree Expr := DiscrTree.empty
+  discrTree       : DiscrTree InstanceEntry := DiscrTree.empty
   globalInstances : NameSet := {}
   deriving Inhabited
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances := {
   d with
-    discrTree := d.discrTree.insertCore e.keys e.val
+    discrTree := d.discrTree.insertCore e.keys e
     globalInstances := match e.globalName? with
       | some n => d.globalInstances.insert n
       | none   => d.globalInstances
@@ -40,11 +44,11 @@ private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
     let (_, _, type) ← forallMetaTelescopeReducing type
     DiscrTree.mkPath type
 
-def addInstance (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let cinfo ← getConstInfo declName
   let c := mkConst declName (cinfo.lparams.map mkLevelParam)
   let keys ← mkInstanceKey c
-  instanceExtension.add { keys := keys, val := c, globalName? := declName } attrKind
+  instanceExtension.add { keys := keys, val := c, priority := prio, globalName? := declName } attrKind
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -55,14 +59,14 @@ builtin_initialize
         | Syntax.missing => pure <| evalPrio! default -- small hack, in the elaborator we use `Syntax.missing` when creating attribute views for `instance
         | _              => getAttrParamOptPrio stx[1]
       -- TODO use prio
-      discard <| addInstance declName attrKind |>.run {} {}
+      discard <| addInstance declName attrKind prio |>.run {} {}
   }
 
 @[export lean_is_instance]
 def isGlobalInstance (env : Environment) (declName : Name) : Bool :=
   Meta.instanceExtension.getState env |>.globalInstances.contains declName
 
-def getGlobalInstancesIndex : MetaM (DiscrTree Expr) :=
+def getGlobalInstancesIndex : MetaM (DiscrTree InstanceEntry) :=
   return Meta.instanceExtension.getState (← getEnv) |>.discrTree
 
 /- Default instance support -/

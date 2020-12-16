@@ -52,4 +52,17 @@ attribute [runBuiltinParserAttributeHooks]
 
 end AttrParam
 
+namespace Attr
+
+@[builtinAttrParser] def simple     := parser! ident >> optional ident >> optional priorityParser
+/- We can't use `simple` for `class`, `instance`, and `macro` because they are  keywords. -/
+@[builtinAttrParser] def «class»    := parser! "class"
+@[builtinAttrParser] def «instance» := parser! "instance" >> optional priorityParser
+@[builtinAttrParser] def «macro»    := parser! "macro " >> ident
+
+def externEntry := parser! optional (nonReservedSymbol "inline ") >> optional ident >> strLit
+@[builtinAttrParser] def extern     := parser! nonReservedSymbol "extern " >> optional numLit >> many externEntry
+
+end Attr
+
 end Lean.Parser

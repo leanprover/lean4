@@ -199,8 +199,6 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def funBinder.quot : Parser := parser! "`(funBinder|"  >> toggleInsideQuot (evalInsideQuot ``funBinder funBinder) >> ")"
 @[builtinTermParser] def bracketedBinder.quot : Parser := parser! "`(bracketedBinder|"  >> toggleInsideQuot (evalInsideQuot ``bracketedBinder bracketedBinder) >> ")"
 @[builtinTermParser] def matchDiscr.quot : Parser := parser! "`(matchDiscr|"  >> toggleInsideQuot (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
-
-@[builtinTermParser] def attrParam.quot : Parser := parser! "`(attrParam|"  >> toggleInsideQuot attrParamParser >> ")"
 @[builtinTermParser] def attr.quot : Parser := parser! "`(attr|"  >> toggleInsideQuot attrParser >> ")"
 
 @[builtinTermParser] def panic       := parser!:leadPrec "panic! " >> termParser

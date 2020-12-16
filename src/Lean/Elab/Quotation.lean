@@ -136,6 +136,7 @@ elabStxQuot! Parser.Tactic.quot
 elabStxQuot! Parser.Tactic.quotSeq
 elabStxQuot! Parser.Term.stx.quot
 elabStxQuot! Parser.Term.prec.quot
+elabStxQuot! Parser.Term.attr.quot
 elabStxQuot! Parser.Term.prio.quot
 elabStxQuot! Parser.Term.doElem.quot
 elabStxQuot! Parser.Term.dynamicQuot

@@ -176,8 +176,11 @@ def getInstances (type : Expr) : MetaM (Array Expr) := do
     | some className =>
       let globalInstances ← getGlobalInstancesIndex
       let result ← globalInstances.getUnify type
-      let result ← result.mapM fun c => match c.val with
-        | Expr.const constName us _ => return c.val.updateConst! (← us.mapM (fun _ => mkFreshLevelMVar))
+      -- Using insertion sort because it is stable and the array `result` should be mostly sorted.
+      -- Most instances have default priority.
+      let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
+      let result ← result.mapM fun e => match e.val with
+        | Expr.const constName us _ => return e.val.updateConst! (← us.mapM (fun _ => mkFreshLevelMVar))
         | _ => panic! "global instance is not a constant"
       trace[Meta.synthInstance.globalInstances]! "{type}, {result}"
       let result := localInstances.foldl (init := result) fun (result : Array Expr) linst =>

@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Data.Array
+import Init.Data.Array.Basic
 
-def Array.insertionSort (a : Array α) (lt : α → α → Bool) : Array α :=
+@[inline] def Array.insertionSort (a : Array α) (lt : α → α → Bool) : Array α :=
   traverse a 0 a.size
 where
-  traverse (a : Array α) (i : Nat) (fuel : Nat) : Array α :=
+  @[specialize] traverse (a : Array α) (i : Nat) (fuel : Nat) : Array α :=
     match fuel with
     | 0      => a
     | fuel+1 =>
@@ -17,7 +17,7 @@ where
         traverse (swapLoop a i h) (i+1) fuel
       else
         a
-  swapLoop (a : Array α) (j : Nat) (h : j < a.size) : Array α :=
+  @[specialize] swapLoop (a : Array α) (j : Nat) (h : j < a.size) : Array α :=
     match he:j with
     | 0    => a
     | j'+1 =>

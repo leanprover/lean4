@@ -13,13 +13,12 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
   descr := "name of the Lean (probably unsafe) function that implements opaque constant",
   getParam := fun declName stx => do
     let decl ← getConstInfo declName
-    match attrParamSyntaxToIdentifier stx with
-    | some fnName =>
-      let fnName ← resolveGlobalConstNoOverload fnName
-      let fnDecl ← getConstInfo fnName
-      if decl.type == fnDecl.type then pure fnName
-      else throwError! "invalid function '{fnName}' type mismatch"
-    | _ => throwError "expected identifier",
+    let fnName ← Attribute.Builtin.getId stx
+    let fnName ← resolveGlobalConstNoOverload fnName
+    let fnDecl ← getConstInfo fnName
+    unless decl.type == fnDecl.type do
+      throwError! "invalid function '{fnName}' type mismatch"
+    return fnName
 }
 
 @[export lean_get_implemented_by]

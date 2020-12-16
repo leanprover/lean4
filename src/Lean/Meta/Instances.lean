@@ -50,8 +50,11 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `instance
     descr := "type class instance"
-    add   := fun declName args attrKind => do
-      if args.hasArgs then throwError "invalid attribute 'instance', unexpected argument"
+    add   := fun declName stx attrKind => do
+      let prio ← match stx with
+        | Syntax.missing => pure <| evalPrio! default -- small hack, in the elaborator we use `Syntax.missing` when creating attribute views for `instance
+        | _              => getAttrParamOptPrio stx[1]
+      -- TODO use prio
       discard <| addInstance declName attrKind |>.run {} {}
   }
 
@@ -105,16 +108,8 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `defaultInstance
     descr := "type class default instance"
-    add   := fun declName args kind => do
-      let prio ←
-        if args.getNumArgs == 0 then
-          pure 0
-        else if args.getNumArgs == 1 then
-          match args[0].isNatLit? with
-          | none => throwErrorAt args[0] "unexpected argument at attribute 'defaultInstance', numeral expected"
-          | some n => pure n
-        else
-          throwErrorAt args "too many arguments at attribute 'defaultInstance', numeral expected"
+    add   := fun declName stx kind => do
+      let prio ← getAttrParamOptPrio stx[1]
       unless kind == AttributeKind.global do throwError "invalid attribute 'defaultInstance', must be global"
       discard <| addDefaultInstance declName prio |>.run {} {}
   }

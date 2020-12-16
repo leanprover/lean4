@@ -79,8 +79,8 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `unificationHint
     descr := "unification hint"
-    add   := fun declName args kind => do
-      if args.hasArgs then throwError "invalid attribute 'unificationHint', unexpected argument"
+    add   := fun declName stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
       discard <| addUnificationHint declName kind |>.run
   }
 

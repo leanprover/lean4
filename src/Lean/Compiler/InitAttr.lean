@@ -31,7 +31,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
     descr := "initialization procedure for global references",
     getParam := fun declName stx => do
       let decl ← getConstInfo declName
-      match attrParamSyntaxToIdentifier stx with
+      match (← Attribute.Builtin.getId? stx) with
       | some initFnName =>
         let initFnName ← resolveGlobalConstNoOverload initFnName
         let initDecl ← getConstInfo initFnName
@@ -40,12 +40,9 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
         | some initTypeArg =>
           if decl.type == initTypeArg then pure initFnName
           else throwError! "initialization function '{initFnName}' type mismatch"
-      | _ =>
-        if stx.getNumArgs == 0 then
-          if isIOUnit decl.type then pure Name.anonymous
-          else throwError "initialization function must have type `IO Unit`"
-        else
-          throwError "unexpected kind of argument",
+      | none =>
+        if isIOUnit decl.type then pure Name.anonymous
+        else throwError "initialization function must have type `IO Unit`"
     afterImport := fun entries => do
       let ctx ← read
       when runAfterImport do

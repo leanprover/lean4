@@ -58,15 +58,13 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
 
   [formatter k] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `SyntaxNodeKind` `k`.",
     valueTypeName := `Lean.PrettyPrinter.Formatter,
-    evalKey := fun builtin args => do
+    evalKey := fun builtin stx => do
       let env ← getEnv
-      match attrParamSyntaxToIdentifier args with
-      | some id =>
-        -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
-        -- synthesize a formatter for it immediately, so we just check for a declaration in this case
-        if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
-        else throwError! "invalid [formatter] argument, unknown syntax kind '{id}'"
-      | none    => throwError "invalid [formatter] argument, expected identifier"
+      let id ← Attribute.Builtin.getId stx
+      -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
+      -- synthesize a formatter for it immediately, so we just check for a declaration in this case
+      if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
+      else throwError! "invalid [formatter] argument, unknown syntax kind '{id}'"
   } `Lean.PrettyPrinter.formatterAttribute
 @[builtinInit mkFormatterAttribute] constant formatterAttribute : KeyedDeclsAttribute Formatter
 

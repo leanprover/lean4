@@ -27,13 +27,11 @@ def registerCombinatorAttribute (name : Name) (descr : String)
   let attrImpl : AttributeImpl := {
     name  := name,
     descr := descr,
-    add   := fun decl args _ => do
+    add   := fun decl stx _ => do
       let env ← getEnv
-      match attrParamSyntaxToIdentifier args with
-      | some parserDeclName => do
-        discard <| getConstInfo parserDeclName
-        setEnv <| ext.addEntry env (parserDeclName, decl)
-      | none            => throwError! "invalid [{name}] argument, expected identifier"
+      let parserDeclName ← Attribute.Builtin.getId stx
+      discard <| getConstInfo parserDeclName
+      setEnv <| ext.addEntry env (parserDeclName, decl)
   }
   registerBuiltinAttribute attrImpl
   pure { impl := attrImpl, ext := ext }

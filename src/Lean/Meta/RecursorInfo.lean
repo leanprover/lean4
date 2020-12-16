@@ -247,16 +247,17 @@ private def mkRecursorInfoAux (cinfo : ConstantInfo) (majorPos? : Option Nat) : 
         }
     | _ => throwError! "invalid user defined recursor '{declName}', type of the major premise must be of the form (I ...), where I is a constant"
 
-private def syntaxToMajorPos (stx : Syntax) : Except String Nat :=
-  match stx with
-  | Syntax.node _ args =>
-    if args.size == 0 then Except.error "unexpected kind of argument"
-    else match args[0].isNatLit? with
-      | some idx =>
-        if idx == 0 then Except.error "major premise position must be greater than 0"
-        else pure (idx - 1)
-      | none => Except.error "unexpected kind of argument"
-  | _ => Except.error "unexpected kind of argument"
+/-
+@[builtinAttrParser] def «recursor» := parser! "recursor " >> numLit
+-/
+def Attribute.Recursor.getMajorPos (stx : Syntax) : AttrM Nat := do
+  if stx.getKind == `Lean.Parser.Attr.recursor then
+    let pos := stx[1].isNatLit?.getD 0
+    if pos == 0 then
+      throwErrorAt! stx "major premise position must be greater than zero"
+    return pos - 1
+  else
+    throwErrorAt! stx "unexpected attribute argument, numeral expected"
 
 private def mkRecursorInfoCore (declName : Name) (majorPos? : Option Nat := none) : MetaM RecursorInfo := do
   let cinfo ← getConstInfo declName
@@ -268,7 +269,7 @@ builtin_initialize recursorAttribute : ParametricAttribute Nat ←
   registerParametricAttribute {
     name := `recursor,
     descr := "user defined recursor, numerical parameter specifies position of the major premise",
-    getParam := fun _ stx => ofExcept $ syntaxToMajorPos stx,
+    getParam := fun _ stx => Attribute.Recursor.getMajorPos stx
     afterSet := fun declName majorPos => do
       discard <| mkRecursorInfoCore declName (some majorPos) |>.run'
   }

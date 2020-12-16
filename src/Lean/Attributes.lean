@@ -35,7 +35,7 @@ instance : ToString AttributeKind where
     | AttributeKind.scoped => "scoped"
 
 structure AttributeImpl extends AttributeImplCore where
-  add (decl : Name) (args : Syntax) (kind : AttributeKind) : AttrM Unit
+  add (decl : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit
   erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
   deriving Inhabited
 
@@ -170,13 +170,73 @@ def registerAttributeOfBuilder (env : Environment) (builderId : Name) (args : Li
   else
     pure $ attributeExtension.addEntry env (AttributeExtensionOLeanEntry.builder builderId args, attrImpl)
 
-def Attribute.add (declName : Name) (attrName : Name) (args : Syntax) (kind := AttributeKind.global) : AttrM Unit := do
+def Attribute.add (declName : Name) (attrName : Name) (stx : Syntax) (kind := AttributeKind.global) : AttrM Unit := do
   let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName
-  attr.add declName args kind
+  attr.add declName stx kind
 
 def Attribute.erase (declName : Name) (attrName : Name) : AttrM Unit := do
   let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName
   attr.erase declName
+
+/-
+  Helper methods for decoding the parameters of builtin attributes that are defined before `Lean.Parser`.
+  We have the following ones:
+  ```
+  @[builtinAttrParser] def simple     := parser! ident >> optional ident >> optional priorityParser
+  /- We can't use `simple` for `class`, `instance`, and `macro` because they are  keywords. -/
+  @[builtinAttrParser] def «class»    := parser! "class"
+  @[builtinAttrParser] def «instance» := parser! "instance" >> optional priorityParser
+  @[builtinAttrParser] def «macro»    := parser! "macro " >> ident
+  ```
+  Note that we need the parsers for `class`, `instance`, and `macros` because they are keywords.
+-/
+
+def Attribute.Builtin.ensureNoArgs (stx : Syntax) : AttrM Unit := do
+  if stx.getKind == `Lean.Parser.Attr.simple && stx[1].isNone && stx[2].isNone then
+    return ()
+  else if stx.getKind == `Lean.Parser.Attr.«class» then
+    return ()
+  else match stx with
+    | Syntax.missing => return () -- In the elaborator, we use `Syntax.missing` when creating attribute views for simple attributes such as `class and `inline
+    | _              => throwErrorAt! stx "unexpected attribute argument"
+
+def Attribute.Builtin.getId (stx : Syntax) : AttrM Name := do
+  if stx.getKind == `Lean.Parser.Attr.simple && !stx[1].isNone && stx[2].isNone then
+    return stx[1][0].getId
+  /- We handle `macro` here because it is handled by the generic `KeyedDeclsAttribute -/
+  else if stx.getKind == `Lean.Parser.Attr.«macro» then
+    return stx[1].getId
+  else
+    throwErrorAt! stx "unexpected attribute argument, identifier expected"
+
+def Attribute.Builtin.getId? (stx : Syntax) : AttrM (Option Name) := do
+  if stx.getKind == `Lean.Parser.Attr.simple && stx[2].isNone then
+    if stx[1].isNone then
+      return none
+    else
+      return stx[1][0].getId
+  else
+    throwErrorAt! stx "unexpected attribute argument"
+
+def getAttrParamOptPrio (optPrioStx : Syntax) : AttrM Nat :=
+  if optPrioStx.isNone then
+    return evalPrio! default
+  else match optPrioStx[0].isNatLit? with
+    | some prio => return prio
+    | none => throwErrorAt! optPrioStx "priority expected"
+
+def Attribute.Builtin.getIdPrio (stx : Syntax) : AttrM (Name × Nat) := do
+  if stx.getKind == `Lean.Parser.Attr.simple && !stx[1].isNone then
+    return (stx[1][0].getId, (← getAttrParamOptPrio stx[2]))
+  else
+    throwErrorAt! stx "unexpected attribute argument, identifier and optional priority expected"
+
+def Attribute.Builtin.getPrio (stx : Syntax) : AttrM Nat := do
+  if stx.getKind == `Lean.Parser.Attr.simple && stx[1].isNone then
+    getAttrParamOptPrio stx[2]
+  else
+    throwErrorAt! stx "unexpected attribute argument, optional priority expected"
+
 
 /--
   Tag attributes are simple and efficient. They are useful for marking declarations in the modules where
@@ -205,8 +265,8 @@ def registerTagAttribute (name : Name) (descr : String) (validate : Name → Att
   let attrImpl : AttributeImpl := {
     name  := name,
     descr := descr,
-    add   := fun decl args kind => do
-      if args.hasArgs then throwError! "invalid attribute '{name}', unexpected argument"
+    add   := fun decl stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwError! "invalid attribute '{name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
@@ -257,12 +317,12 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
   let attrImpl : AttributeImpl := {
     name  := impl.name
     descr := impl.descr
-    add   := fun decl args kind => do
+    add   := fun decl stx kind => do
       unless kind == AttributeKind.global do throwError! "invalid attribute '{impl.name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
         throwError! "invalid attribute '{impl.name}', declaration is in an imported module"
-      let val ← impl.getParam decl args
+      let val ← impl.getParam decl stx
       let env' := ext.addEntry env (decl, val)
       setEnv env'
       try impl.afterSet decl val catch _ => setEnv env
@@ -315,7 +375,8 @@ def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDesc
   let attrs := attrDescrs.map fun (name, descr, val) => {
     name            := name,
     descr           := descr,
-    add             := fun decl args kind => do
+    add             := fun decl stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwError! "invalid attribute '{name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
@@ -347,21 +408,5 @@ def setValue {α : Type} (attrs : EnumAttributes α) (env : Environment) (decl :
     Except.ok (attrs.ext.addEntry env (decl, val))
 
 end EnumAttributes
-
-/--
-  Helper function for converting a Syntax object representing attribute parameters into an identifier.
-  It returns `none` if the parameter is not a simple identifier.
-
-  Remark: in the future, attributes should define their own parsers, and we should use `match_syntax` to
-  decode the Syntax object. -/
-def attrParamSyntaxToIdentifier (s : Syntax) : Option Name :=
-  match s with
-  | Syntax.node k args =>
-    if k == nullKind && args.size == 1 then match args.get! 0 with
-      | Syntax.ident _ _ id _ => some id
-      | _ => none
-    else
-      none
-  | _ => none
 
 end Lean

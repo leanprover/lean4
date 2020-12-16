@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Array_back___at_Lean_Meta_addInstanceEntry___spec__14(lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__34;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addInstanceEntry___spec__1(lean_object*, lean_object*, lean_object*);
@@ -247,6 +246,7 @@ lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_ob
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_addInstanceEntry___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__34;
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getDefaultInstances(lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
@@ -2680,7 +2680,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__34;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__34;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

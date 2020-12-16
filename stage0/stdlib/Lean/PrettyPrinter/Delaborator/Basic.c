@@ -119,6 +119,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_instMonadQuotationDelabM___closed_
 lean_object* l_Lean_PrettyPrinter_Delaborator_failure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingDomain___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__43;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__2___closed__4;
 lean_object* l_Lean_PrettyPrinter_Delaborator_annotateCurPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -214,7 +215,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFn(lean_object*);
 lean_object* l_Lean_getPPCoercions___closed__2;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withProj(lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__43;
 lean_object* l_Lean_PrettyPrinter_Delaborator_whenNotPPOption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBody___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_quote_match__2(lean_object*);
@@ -1158,7 +1158,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_getSanitizeNames___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__43;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__43;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

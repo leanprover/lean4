@@ -44,6 +44,7 @@ lean_object* l_Lean_Elab_mkUnusedBaseName___at_Lean_Elab_Command_MkInstanceName_
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__35;
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_MkInstanceName_collect_match__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___closed__13;
@@ -201,7 +202,6 @@ lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_k
 lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___closed__15;
 lean_object* l_Lean_Elab_Command_MkInstanceName_mkFreshInstanceName___boxed(lean_object*);
 lean_object* l_Std_RBNode_ins___at___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___spec__3(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__35;
 extern lean_object* l_Lean_Elab_toAttributeKind___rarg___lambda__2___closed__2;
 lean_object* l_Lean_Elab_Command_mkDefViewOfExample_match__1(lean_object*);
 lean_object* l_Lean_Elab_instInhabitedDefView___closed__1;
@@ -5267,7 +5267,7 @@ x_10 = lean_name_eq(x_2, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__35;
+x_11 = l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__35;
 x_12 = lean_name_eq(x_2, x_11);
 if (x_12 == 0)
 {
@@ -5435,7 +5435,7 @@ x_14 = lean_name_eq(x_6, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
-x_15 = l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__35;
+x_15 = l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__35;
 x_16 = lean_name_eq(x_6, x_15);
 if (x_16 == 0)
 {

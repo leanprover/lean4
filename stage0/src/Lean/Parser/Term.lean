@@ -217,8 +217,8 @@ def macroLastArg   := macroDollarArg <|> macroArg
 
 end Term
 
-@[builtinTermParser (default+1)] def Tactic.quot    : Parser := parser! "`(tactic|" >> toggleInsideQuot tacticParser >> ")"
-@[builtinTermParser]             def Tactic.quotSeq : Parser := parser! "`(tactic|" >> toggleInsideQuot Tactic.seq1 >> ")"
+@[builtinTermParser default+1] def Tactic.quot    : Parser := parser! "`(tactic|" >> toggleInsideQuot tacticParser >> ")"
+@[builtinTermParser] def Tactic.quotSeq : Parser := parser! "`(tactic|" >> toggleInsideQuot Tactic.seq1 >> ")"
 
 @[builtinTermParser] def Level.quot  : Parser := parser! "`(level|" >> toggleInsideQuot levelParser >> ")"
 

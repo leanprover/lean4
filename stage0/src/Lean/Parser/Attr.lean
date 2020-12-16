@@ -27,11 +27,7 @@ attribute [runBuiltinParserAttributeHooks]
 
 namespace Priority
 @[builtinPrioParser] def numPrio  := checkPrec maxPrec >> numLit
-@[builtinPrioParser] def highPrio := parser!:maxPrec nonReservedSymbol "high"
-
-attribute [runBuiltinParserAttributeHooks]
-  numPrio highPrio
-
+attribute [runBuiltinParserAttributeHooks] numPrio
 end Priority
 
 namespace Attr

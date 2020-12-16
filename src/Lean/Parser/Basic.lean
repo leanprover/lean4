@@ -121,6 +121,7 @@ structure InputContext where
 /-- Input context derived from elaboration of previous commands. -/
 structure ParserModuleContext where
   env           : Environment
+  options       : Options
   -- for name lookup
   currNamespace : Name := Name.anonymous
   openDecls     : List OpenDecl := []
@@ -1704,8 +1705,8 @@ def categoryParserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
   { fn := fun c s => categoryParserOfStackFn offset { c with prec := prec } s }
 
 unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s =>
-  match ctx.env.evalConstCheck Parser {} `Lean.Parser.Parser declName <|>
-        ctx.env.evalConstCheck Parser {} `Lean.Parser.TrailingParser declName with
+  match ctx.env.evalConstCheck Parser ctx.options `Lean.Parser.Parser declName <|>
+        ctx.env.evalConstCheck Parser ctx.options `Lean.Parser.TrailingParser declName with
   | Except.ok p    => p.fn ctx s
   | Except.error e => s.mkUnexpectedError s!"error running parser {declName}: {e}"
 

@@ -407,7 +407,7 @@ def mkParserState (input : String) : ParserState :=
 
 /- convenience function for testing -/
 def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>") : Except String Syntax :=
-  let c := mkParserContext (mkInputContext input fileName) { env := env }
+  let c := mkParserContext (mkInputContext input fileName) { env := env, options := {} }
   let s := mkParserState input
   let s := whitespace c s
   let s := categoryParserFnImpl catName c s

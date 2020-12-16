@@ -236,9 +236,14 @@ def trailingNode.formatter (k : SyntaxNodeKind) (_ : Nat) (p : Formatter) : Form
     categoryParser.formatter `foo
 
 def parseToken (s : String) : FormatterM ParserState := do
-  let ctx ← read
-  let env ← getEnv
-  pure $ Parser.tokenFn { input := s, fileName := "", fileMap := FileMap.ofString "", prec := 0, env := env, tokens := ctx.table } (Parser.mkParserState s)
+  Parser.tokenFn {
+    input := s,
+    fileName := "",
+    fileMap := FileMap.ofString "",
+    prec := 0,
+    env := ← getEnv,
+    options := ← getOptions,
+    tokens := (← read).table } (Parser.mkParserState s)
 
 def pushTokenCore (tk : String) : FormatterM Unit := do
   if tk.toSubstring.dropRightWhile (fun s => s == ' ') == tk.toSubstring then

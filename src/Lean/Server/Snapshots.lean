@@ -80,7 +80,7 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
   let inputCtx := Parser.mkInputContext contents "<input>";
   let cmdState := snap.toCmdState;
   let scope := cmdState.scopes.head!
-  let pmctx := { env := cmdState.env, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
+  let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, cmdParserState, msgLog) :=
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog;
   let cmdPos := cmdStx.getHeadInfo.get!.pos.get!; -- TODO(WN): always `some`?

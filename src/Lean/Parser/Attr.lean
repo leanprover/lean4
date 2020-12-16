@@ -32,7 +32,7 @@ end Priority
 
 namespace Attr
 
-@[builtinAttrParser] def simple     := parser! ident >> optional ident >> optional priorityParser
+@[builtinAttrParser] def simple     := parser! ident >> optional (priorityParser <|> ident)
 /- Remark, We can't use `simple` for `class`, `instance`, `export`, and `macro` because they are  keywords. -/
 @[builtinAttrParser] def «macro»    := parser! "macro " >> ident
 @[builtinAttrParser] def «export»   := parser! "export " >> ident

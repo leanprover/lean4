@@ -201,8 +201,11 @@ def Attribute.Builtin.ensureNoArgs (stx : Syntax) : AttrM Unit := do
     | _              => throwErrorAt! stx "unexpected attribute argument"
 
 def Attribute.Builtin.getId (stx : Syntax) : AttrM Name := do
-  if stx.getKind == `Lean.Parser.Attr.simple && !stx[1].isNone && stx[2].isNone then
-    return stx[1][0].getId
+  if stx.getKind == `Lean.Parser.Attr.simple && !stx[1].isNone then
+    if stx[1][0].isIdent then
+      return stx[1][0].getId
+    else
+      throwErrorAt! stx "unexpected attribute argument, identifier expected"
   /- We handle `macro` here because it is handled by the generic `KeyedDeclsAttribute -/
   else if stx.getKind == `Lean.Parser.Attr.«macro» || stx.getKind == `Lean.Parser.Attr.«export» then
     return stx[1].getId
@@ -210,7 +213,7 @@ def Attribute.Builtin.getId (stx : Syntax) : AttrM Name := do
     throwErrorAt! stx "unexpected attribute argument, identifier expected"
 
 def Attribute.Builtin.getId? (stx : Syntax) : AttrM (Option Name) := do
-  if stx.getKind == `Lean.Parser.Attr.simple && stx[2].isNone then
+  if stx.getKind == `Lean.Parser.Attr.simple then
     if stx[1].isNone then
       return none
     else
@@ -225,15 +228,9 @@ def getAttrParamOptPrio (optPrioStx : Syntax) : AttrM Nat :=
     | some prio => return prio
     | none => throwErrorAt! optPrioStx "priority expected"
 
-def Attribute.Builtin.getIdPrio (stx : Syntax) : AttrM (Name × Nat) := do
-  if stx.getKind == `Lean.Parser.Attr.simple && !stx[1].isNone then
-    return (stx[1][0].getId, (← getAttrParamOptPrio stx[2]))
-  else
-    throwErrorAt! stx "unexpected attribute argument, identifier and optional priority expected"
-
 def Attribute.Builtin.getPrio (stx : Syntax) : AttrM Nat := do
-  if stx.getKind == `Lean.Parser.Attr.simple && stx[1].isNone then
-    getAttrParamOptPrio stx[2]
+  if stx.getKind == `Lean.Parser.Attr.simple then
+    getAttrParamOptPrio stx[1]
   else
     throwErrorAt! stx "unexpected attribute argument, optional priority expected"
 

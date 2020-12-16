@@ -166,10 +166,6 @@ private def expandWhereDeclsAsStructInst (whereDecls : Syntax) : MacroM Syntax :
 /-
 Recall that
 ```
-def matchAlts (optionalFirstBar := true) : Parser :=
-withPosition $ fun pos =>
-  (if optionalFirstBar then optional "| " else "| ") >>
-  sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
 def declValSimple    := parser! " :=\n" >> termParser >> optional Term.whereDecls
 def declValEqns      := parser! Term.matchAltsWhereDecls
 def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls

@@ -625,7 +625,7 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getAltNa
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = lean_unsigned_to_nat(0u);
+x_2 = lean_unsigned_to_nat(1u);
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
 x_4 = l_Lean_Elab_Tactic_getNameOfIdent_x27(x_3);
 lean_dec(x_3);
@@ -646,7 +646,7 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getAltVa
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_2 = lean_unsigned_to_nat(1u);
+x_2 = lean_unsigned_to_nat(2u);
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
 x_4 = l_Lean_Syntax_getArgs(x_3);
 lean_dec(x_3);
@@ -673,7 +673,7 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getAltRH
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = lean_unsigned_to_nat(3u);
+x_2 = lean_unsigned_to_nat(4u);
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
 return x_3;
 }
@@ -691,7 +691,7 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getAltDA
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = lean_unsigned_to_nat(2u);
+x_2 = lean_unsigned_to_nat(3u);
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
 return x_3;
 }
@@ -1148,9 +1148,9 @@ lean_object* l_Lean_Elab_Tactic_evalAlt(lean_object* x_1, lean_object* x_2, lean
 _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint8_t x_18; 
-x_13 = lean_unsigned_to_nat(2u);
+x_13 = lean_unsigned_to_nat(3u);
 x_14 = l_Lean_Syntax_getArg(x_2, x_13);
-x_15 = lean_unsigned_to_nat(3u);
+x_15 = lean_unsigned_to_nat(4u);
 x_16 = l_Lean_Syntax_getArg(x_2, x_15);
 lean_inc(x_16);
 x_17 = l_Lean_Elab_Tactic_isHoleRHS(x_16);
@@ -8389,9 +8389,9 @@ lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getAltsO
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_unsigned_to_nat(2u);
+x_2 = lean_unsigned_to_nat(1u);
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
-x_4 = l_Lean_Syntax_getSepArgs(x_3);
+x_4 = l_Lean_Syntax_getArgs(x_3);
 lean_dec(x_3);
 return x_4;
 }

@@ -82,7 +82,6 @@ lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInduc
 lean_object* l_Lean_Elab_Deriving_mkInstanceCmds(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_implicitBinder___elambda__1___closed__1;
-extern lean_object* l_Lean_Parser_antiquotNestedExpr___closed__2;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_13154____closed__18;
 lean_object* l_Lean_Elab_Deriving_mkInstImplicitBinders(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Deriving_mkLet___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -93,7 +92,6 @@ lean_object* l_Lean_Elab_Deriving_mkLet(lean_object*, lean_object*, lean_object*
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_mkContext___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
-lean_object* l_Lean_Elab_Deriving_matchAltExpr;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkInstImplicitBinders___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_Deriving_mkInstImplicitBinders___spec__2(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -128,9 +126,7 @@ lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkLocalInstanceLetDe
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_postponeElabTerm___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__42;
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5___closed__1;
-lean_object* l_Lean_Parser_Term_matchAlt(lean_object*);
 lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Deriving_matchAltExpr___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_mkInductiveApp___spec__1(size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_explicitBinderF;
@@ -201,23 +197,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Elab_Deriving_explicitBinderF___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Deriving_matchAltExpr___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_antiquotNestedExpr___closed__2;
-x_2 = l_Lean_Parser_Term_matchAlt(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_Deriving_matchAltExpr() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Deriving_matchAltExpr___closed__1;
 return x_1;
 }
 }
@@ -2894,10 +2873,6 @@ l_Lean_Elab_Deriving_explicitBinderF___closed__1 = _init_l_Lean_Elab_Deriving_ex
 lean_mark_persistent(l_Lean_Elab_Deriving_explicitBinderF___closed__1);
 l_Lean_Elab_Deriving_explicitBinderF = _init_l_Lean_Elab_Deriving_explicitBinderF();
 lean_mark_persistent(l_Lean_Elab_Deriving_explicitBinderF);
-l_Lean_Elab_Deriving_matchAltExpr___closed__1 = _init_l_Lean_Elab_Deriving_matchAltExpr___closed__1();
-lean_mark_persistent(l_Lean_Elab_Deriving_matchAltExpr___closed__1);
-l_Lean_Elab_Deriving_matchAltExpr = _init_l_Lean_Elab_Deriving_matchAltExpr();
-lean_mark_persistent(l_Lean_Elab_Deriving_matchAltExpr);
 l_Lean_Elab_Deriving_mkInductArgNames___closed__1 = _init_l_Lean_Elab_Deriving_mkInductArgNames___closed__1();
 lean_mark_persistent(l_Lean_Elab_Deriving_mkInductArgNames___closed__1);
 l_Lean_Elab_Deriving_mkImplicitBinders___boxed__const__1 = _init_l_Lean_Elab_Deriving_mkImplicitBinders___boxed__const__1();

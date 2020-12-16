@@ -358,11 +358,11 @@ def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none)
     | none      => mkNullNode
   mkNode (kind ++ `antiquot) #[mkAtom "$", nesting, term, name]
 
--- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros. Also works for antiquotation scopes.
+-- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros. Also works for antiquotation splices.
 def isEscapedAntiquot (stx : Syntax) : Bool :=
   !stx[1].getArgs.isEmpty
 
--- Also works for antiquotation scopes.
+-- Also works for antiquotation splices.
 def unescapeAntiquot (stx : Syntax) : Syntax :=
   if isAntiquot stx then
     stx.setArg 1 $ mkNullNode stx[1].getArgs.pop
@@ -384,20 +384,20 @@ def antiquotKind? : Syntax → Option SyntaxNodeKind
       some Name.anonymous
   | _                                          => none
 
--- An "antiquotation scope" is something like `$[...]?` or `$[...]*`.
-def antiquotScopeKind? : Syntax → Option SyntaxNodeKind
+-- An "antiquotation splice" is something like `$[...]?` or `$[...]*`.
+def antiquotSpliceKind? : Syntax → Option SyntaxNodeKind
   | Syntax.node (Name.str k "antiquot_scope" _) args => some k
   | _                                                => none
 
-def isAntiquotScope (stx : Syntax) : Bool :=
-  antiquotScopeKind? stx |>.isSome
+def isAntiquotSplice (stx : Syntax) : Bool :=
+  antiquotSpliceKind? stx |>.isSome
 
-def getAntiquotScopeContents (stx : Syntax) : Array Syntax :=
+def getAntiquotSpliceContents (stx : Syntax) : Array Syntax :=
   stx[3].getArgs
 
 -- `$[..],*` or `$x,*` ~> `,*`
 def getAntiquotSpliceSuffix (stx : Syntax) : Syntax :=
-  if stx.isAntiquotScope then
+  if stx.isAntiquotSplice then
     stx[5]
   else
     stx[1]

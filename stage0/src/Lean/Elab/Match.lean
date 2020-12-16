@@ -7,22 +7,15 @@ import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Match.Match
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.App
+import Lean.Parser.Term
 
 namespace Lean.Elab.Term
 open Meta
+open Lean.Parser.Term
 
 /- This modules assumes "match"-expressions use the following syntax.
 
 ```lean
-def matchAlt : Parser :=
-nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
-  sepBy1 termParser ", " >> darrow >> termParser
-
-def matchAlts (optionalFirstBar := true) : Parser :=
-group $ withPosition $ fun pos =>
-  (if optionalFirstBar then optional "| " else "| ") >>
-  sepBy1 matchAlt (checkColGe pos.column "alternatives must be indented" >> "|")
-
 def matchDiscr := parser! optional (try (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 
 def «match» := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
@@ -33,12 +26,7 @@ structure MatchAltView where
   ref      : Syntax
   patterns : Array Syntax
   rhs      : Syntax
-
-def mkMatchAltView (ref : Syntax) (matchAlt : Syntax) : MatchAltView := {
-  ref      := ref
-  patterns := matchAlt[0].getSepArgs
-  rhs      := matchAlt[2]
-}
+  deriving Inhabited
 
 private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let newStx ← `(let $lhsVar := $discr; $rhs)
@@ -122,28 +110,22 @@ private def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Sy
     let discrs ← elabDiscrsWitMatchType discrStxs matchType expectedType
     pure (discrs, matchType, matchAltViews)
 
-/-
-nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $ sepBy1 termParser ", " >> darrow >> termParser
--/
 def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array MatchAltView) := do
   matchAlts.mapM fun matchAlt => do
     let patterns ← matchAlt.patterns.mapM expandMacros
     pure { matchAlt with patterns := patterns }
 
-  /- Given `stx` a match-expression, return its alternatives. -/
-  private def getMatchAlts (stx : Syntax) : Array MatchAltView := do
-  let matchAlts  := stx[4]
-  let firstVBar  := matchAlts[0]
-  let mut ref    := firstVBar
-  let mut result := #[]
-  for arg in matchAlts[1].getArgs do
-    if ref.isNone then
-      ref := arg -- The first vertical bar is optional
-    if arg.getKind == `Lean.Parser.Term.matchAlt then
-      result := result.push (mkMatchAltView ref arg)
-    else
-      ref := arg -- current `arg` is a vertical bar
-  pure result
+/- Given `stx` a match-expression, return its alternatives. -/
+private def getMatchAlts : Syntax → Array MatchAltView
+  | `(match $discrs,* $[: $ty?]? with $alts:matchAlt*) =>
+    alts.map fun alt => match alt with
+      | `(matchAltExpr| | $patterns,* => $rhs) => {
+          ref      := alt,
+          patterns := patterns,
+          rhs      := rhs
+        }
+      | _ => unreachable!
+  | _ => unreachable!
 
 /--
   Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
@@ -473,7 +455,7 @@ partial def collect : Syntax → M Syntax
       discard <| processVar id
       let pat := stx[2]
       let pat ← collect pat
-      `(namedPattern $id $pat)
+      `(_root_.namedPattern $id $pat)
     else if k == `Lean.Parser.Term.inaccessible then
       pure stx
     else if k == strLitKind then
@@ -894,9 +876,7 @@ private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermEla
 -- parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
 @[builtinTermElab «match»] def elabMatch : TermElab := fun stx expectedType? =>
   match stx with
-  | `(match $discr:term with $y:ident => $rhs:term)           => expandSimpleMatch stx discr y rhs expectedType?
   | `(match $discr:term with | $y:ident => $rhs:term)         => expandSimpleMatch stx discr y rhs expectedType?
-  | `(match $discr:term : $type with $y:ident => $rhs:term)   => expandSimpleMatchWithType stx discr y type rhs expectedType?
   | `(match $discr:term : $type with | $y:ident => $rhs:term) => expandSimpleMatchWithType stx discr y type rhs expectedType?
   | _ => do
     match (← expandNonAtomicDiscrs? stx) with

@@ -10,13 +10,14 @@ import Lean.Syntax
 import Lean.ResolveName
 import Lean.Elab.Term
 import Lean.Elab.Quotation.Util
+import Lean.Parser.Term
 
 namespace Lean.Elab.Term.Quotation
 
 open Lean.Syntax
 open Meta
 
-/-- `C[$(e)]` ~> `let a := e; C[$a]`. Used in the implementation of antiquot scopes. -/
+/-- `C[$(e)]` ~> `let a := e; C[$a]`. Used in the implementation of antiquot splices. -/
 private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermElabM Syntax) TermElabM Syntax
   | stx@(Syntax.node k args) => do
     if isAntiquot stx && !isEscapedAntiquot stx then
@@ -50,7 +51,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
     else if isAntiquotSuffixSplice stx && !isEscapedAntiquot stx then
       -- splices must occur in a `many` node
       throwErrorAt stx "unexpected antiquotation splice"
-    else if isAntiquotScope stx && !isEscapedAntiquot stx then
+    else if isAntiquotSplice stx && !isEscapedAntiquot stx then
       throwErrorAt stx "unexpected antiquotation splice"
     else
       let empty ← `(Array.empty);
@@ -66,12 +67,12 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
           | `many     => `(Array.appendCore $args $(getAntiquotTerm antiquot))
           | `sepBy    => `(Array.appendCore $args (@SepArray.elemsAndSeps $(getSepFromSplice arg) $(getAntiquotTerm antiquot)))
           | k         => throwErrorAt! arg "invalid antiquotation suffix splice kind '{k}'"
-        else if k == nullKind && isAntiquotScope arg then
-          let k := antiquotScopeKind? arg
+        else if k == nullKind && isAntiquotSplice arg then
+          let k := antiquotSpliceKind? arg
           let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
-          let inner ← (getAntiquotScopeContents arg).mapM quoteSyntax
+          let inner ← (getAntiquotSpliceContents arg).mapM quoteSyntax
           let arr ← match (← getAntiquotationIds arg) with
-            | #[] => throwErrorAt stx "antiquotation scope must contain at least one antiquotation"
+            | #[] => throwErrorAt stx "antiquotation splice must contain at least one antiquotation"
             | #[id] => match k with
               | `optional => `(match $id:ident with
                 | some $id:ident => $(quote inner)
@@ -82,7 +83,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
                 | some $id1:ident, some $id2:ident => $(quote inner)
                 | _                                => Array.empty)
               | _ => `(Array.zipWith $id1 $id2 fun $id1 $id2 => $(inner[0]))
-            | _ => throwErrorAt stx "too many antiquotations in antiquotation scope; don't be greedy"
+            | _ => throwErrorAt stx "too many antiquotations in antiquotation splice; don't be greedy"
           let arr ←
             if k == `sepBy then
               `(mkSepArray $arr (mkAtom $(getSepFromSplice arg)))
@@ -161,7 +162,7 @@ structure BasicHeadInfo where
 
 inductive HeadInfo where
   | basic (bhi : BasicHeadInfo)
-  | antiquotScope (stx : Syntax)
+  | antiquotSplice (stx : Syntax)
 
 open HeadInfo
 
@@ -176,7 +177,7 @@ def HeadInfo.generalizes : HeadInfo → HeadInfo → Bool
   | basic { kind := some k1, argPats := some ps1, .. },
     basic { kind := some k2, argPats := some ps2, .. } => k1 == k2 && ps1.size == ps2.size
   -- roughmost approximation for now
-  | antiquotScope stx1, antiquotScope stx2             => stx1 == stx2
+  | antiquotSplice stx1, antiquotSplice stx2             => stx1 == stx2
   | _, _                                               => false
 
 partial def mkTuple : Array Syntax → TermElabM Syntax
@@ -217,7 +218,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
       if anti.isIdent then basic { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
       else unconditional fun _ => throwErrorAt! anti "match_syntax: antiquotation must be variable {anti}"
     else if isAntiquotSuffixSplice quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
-    else if isAntiquotScope quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
+    else if isAntiquotSplice quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
     else if quoted.getArgs.size == 1 && isAntiquotSuffixSplice quoted[0] then
       let anti := getAntiquotTerm (getAntiquotSuffixSpliceInner quoted[0])
       unconditional fun rhs => match antiquotSuffixSplice? quoted[0] with
@@ -226,8 +227,8 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
         | `sepBy    => `(let $anti := @SepArray.mk $(getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
         | k         => throwErrorAt! quoted "invalid antiquotation suffix splice kind '{k}'"
       -- TODO: support for more complex antiquotation splices
-    else if quoted.getArgs.size == 1 && isAntiquotScope quoted[0] then
-      antiquotScope quoted[0]
+    else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then
+      antiquotSplice quoted[0]
     else
       -- not an antiquotation or escaped antiquotation: match head shape
       let quoted  := unescapeAntiquot quoted
@@ -247,7 +248,7 @@ private def explodeHeadPat (numArgs : Nat) : HeadInfo × Alt → TermElabM Alt
         | none         => List.replicate numArgs $ Unhygienic.run `(_)
       let rhs ← info.rhsFn rhs
       pure (newPats ++ pats, rhs)
-  | (antiquotScope _, (pat::pats, rhs)) => (pats, rhs)
+  | (antiquotSplice _, (pat::pats, rhs)) => (pats, rhs)
   | _ => unreachable!
 
 private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : TermElabM Syntax := do
@@ -283,10 +284,10 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
       let no ← mkNo
       `(let discr := $discr; ite (Eq $cond true) $yes $no)
     -- terrifying match step
-    | antiquotScope scope =>
-      let k := antiquotScopeKind? scope
-      let contents := getAntiquotScopeContents scope
-      let ids ← getAntiquotationIds scope
+    | antiquotSplice splice =>
+      let k := antiquotSpliceKind? splice
+      let contents := getAntiquotSpliceContents splice
+      let ids ← getAntiquotationIds splice
       let no ← mkNo
       match k with
       | `optional =>
@@ -343,7 +344,7 @@ private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → Li
 
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   match stx with
-  | `(match $[$discrs:term],* with $[|]? $[$[$patss],* => $rhss]|*) => do
+  | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
     -- letBindRhss ...
     if patss.all (·.all (!·.isQuot)) then
       -- no quotations => fall back to regular `match`

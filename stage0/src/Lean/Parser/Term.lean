@@ -112,12 +112,14 @@ def «forall» := parser!:leadPrec unicodeSymbol "∀ " "forall" >> many1 (ppSpa
 
 def matchAlt (rhsParser : Parser := termParser) : Parser :=
   nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
-    sepBy1 termParser ", " >> darrow >> rhsParser
+    "| " >> ppIndent (sepBy1 termParser ", " >> darrow >> rhsParser)
+/--
+  Useful for syntax quotations. Note that generic patterns such as `` `(matchAltExpr| | ... => $rhs) `` should also
+  work with other `rhsParser`s (of arity 1). -/
+def matchAltExpr := matchAlt
 
-def matchAlts (rhsParser : Parser := termParser) (optionalFirstBar := true) : Parser :=
-  parser! ppDedent $ withPosition $
-    ppLine >> (if optionalFirstBar then optional "| " else group "| ") >>
-    sepBy1 (ppIndent <| matchAlt rhsParser) "|" (ppLine >> checkColGe "alternatives must be indented" >> "| ")
+def matchAlts (rhsParser : Parser := termParser) : Parser :=
+  parser! ppDedent $ withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
 
 def matchDiscr := parser! optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 
@@ -129,7 +131,7 @@ def funSimpleBinder   := atomic (lookahead (many1 binderIdent >> " : ")) >> simp
 def funBinder : Parser := funImplicitBinder <|> instBinder <|> funSimpleBinder <|> termParser maxPrec
 -- NOTE: we use `nodeWithAntiquot` to ensure that `fun $b => ...` remains a `term` antiquotation
 def basicFun : Parser := nodeWithAntiquot "basicFun" `Lean.Parser.Term.basicFun (many1 (ppSpace >> funBinder) >> darrow >> termParser)
-@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts (optionalFirstBar := false))
+@[builtinTermParser] def «fun» := parser!:maxPrec unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
 
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 @[builtinTermParser] def «parser!»  := parser!:leadPrec "parser! " >> optExprPrecedence >> termParser
@@ -144,7 +146,7 @@ def simpleBinderWithoutType := node `Lean.Parser.Term.simpleBinder (many1 binder
 def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder)) >> optType
 def letIdDecl   := node `Lean.Parser.Term.letIdDecl   $ atomic (letIdLhs >> " := ") >> termParser
 def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ atomic (termParser >> pushNone >> optType >> " := ") >> termParser
-def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts (optionalFirstBar := false)
+def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts
 -- Remark: we use `nodeWithAntiquot` here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
 def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFollowedBy (nonReservedSymbol "rec") "rec" >> (letIdDecl <|> letPatDecl <|> letEqnsDecl))
 @[builtinTermParser] def «let» := parser!:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
@@ -163,7 +165,7 @@ def «letrec» := parser!:leadPrec withPosition (group ("let " >> nonReservedSym
 @[runBuiltinParserAttributeHooks]
 def whereDecls := parser! "where " >> many1Indent (group (optional «attributes» >> letDecl >> optional ";"))
 @[runBuiltinParserAttributeHooks]
-def matchAltsWhereDecls := parser! matchAlts (optionalFirstBar := false) >> optional whereDecls
+def matchAltsWhereDecls := parser! matchAlts >> optional whereDecls
 
 @[builtinTermParser] def nativeRefl   := parser! "nativeRefl! " >> termParser maxPrec
 @[builtinTermParser] def nativeDecide := parser! "nativeDecide!"

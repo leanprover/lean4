@@ -172,6 +172,7 @@ end Term
 
 namespace Command
 open Lean.Syntax
+open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
 private def getCatSuffix (catName : Name) : String :=
@@ -329,54 +330,56 @@ def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
   Recall that syntax node kinds contain the current namespace.
 -/
 def elabMacroRulesAux (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM Syntax := do
-  let alts ← alts.mapSepElemsM fun alt => do
-    let lhs := alt[0]
-    let pat := lhs[0]
+  let alts ← alts.mapM fun alt => match alt with
+    | `(matchAltExpr| | $pats,* => $rhs) => do
+      let pat := pats.elemsAndSeps[0]
+      if !pat.isQuot then
+        throwUnsupportedSyntax
+      let quoted := getQuotContent pat
+      let k' := quoted.getKind
+      if k' == k then
+        pure alt
+      else if k' == choiceKind then
+         match quoted.getArgs.find? fun quotAlt => quotAlt.getKind == k with
+         | none        => throwErrorAt! alt "invalid macro_rules alternative, expected syntax node kind '{k}'"
+         | some quoted =>
+           let pat := pat.setArg 1 quoted
+           let pats := pats.elemsAndSeps.set! 0 pat
+           `(matchAltExpr| | $pats,* => $rhs)
+      else
+        throwErrorAt! alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
+    | _ => throwUnsupportedSyntax
+  `(@[macro $(Lean.mkIdent k)] def myMacro : Macro :=
+     fun $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
+
+def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
+  | `(matchAltExpr| | $pats,* => $rhs) => do
+    let pat := pats.elemsAndSeps[0]
     if !pat.isQuot then
       throwUnsupportedSyntax
-    let quot := pat[1]
-    let k' := quot.getKind
-    if k' == k then
-      pure alt
-    else if k' == choiceKind then
-       match quot.getArgs.find? fun quotAlt => quotAlt.getKind == k with
-       | none      => throwErrorAt! alt "invalid macro_rules alternative, expected syntax node kind '{k}'"
-       | some quot =>
-         let pat := pat.setArg 1 quot
-         let lhs := lhs.setArg 0 pat
-         pure $ alt.setArg 0 lhs
-    else
-      throwErrorAt! alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
-  `(@[macro $(Lean.mkIdent k)] def myMacro : Macro :=
-     fun | $(SepArray.mk alts):matchAlt|* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
-
-def inferMacroRulesAltKind (alt : Syntax) : CommandElabM SyntaxNodeKind := do
-  let lhs := alt[0]
-  let pat := lhs[0]
-  if !pat.isQuot then
-    throwUnsupportedSyntax
-  let quot := pat[1]
-  pure quot.getKind
+    let quoted := getQuotContent pat
+    pure quoted.getKind
+  | _ => throwUnsupportedSyntax
 
 def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
-  let k ← inferMacroRulesAltKind (alts.get! 0)
+  let k ← inferMacroRulesAltKind alts[0]
   if k == choiceKind then
     throwErrorAt! alts[0]
       "invalid macro_rules alternative, multiple interpretations for pattern (solution: specify node kind using `macro_rules [<kind>] ...`)"
   else
-    let altsK    ← alts.filterSepElemsM fun alt => do pure $ k == (← inferMacroRulesAltKind alt)
-    let altsNotK ← alts.filterSepElemsM fun alt => do pure $ k != (← inferMacroRulesAltKind alt)
+    let altsK    ← alts.filterM fun alt => do pure $ k == (← inferMacroRulesAltKind alt)
+    let altsNotK ← alts.filterM fun alt => do pure $ k != (← inferMacroRulesAltKind alt)
     let defCmd   ← elabMacroRulesAux k altsK
     if altsNotK.isEmpty then
       pure defCmd
     else
-      `($defCmd:command macro_rules $(SepArray.mk altsNotK):matchAlt|*)
+      `($defCmd:command macro_rules $altsNotK:matchAlt*)
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with
-  | `(macro_rules $[|]? $alts:matchAlt|*)         => elabNoKindMacroRulesAux alts.elemsAndSeps
-  | `(macro_rules [$kind] $[|]? $alts:matchAlt|*) => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts.elemsAndSeps
-  | _                                             => throwUnsupportedSyntax
+  | `(macro_rules $alts:matchAlt*)         => elabNoKindMacroRulesAux alts
+  | `(macro_rules [$kind] $alts:matchAlt*) => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
+  | _                                      => throwUnsupportedSyntax
 
 -- TODO: cleanup after we have support for optional syntax at `match_syntax`
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>

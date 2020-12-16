@@ -7,6 +7,7 @@ import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.Match
 import Lean.Elab.Quotation.Util
+import Lean.Parser.Do
 
 namespace Lean.Elab.Term
 open Meta
@@ -1016,15 +1017,12 @@ partial def toTerm : Code → M Syntax
   | Code.seq stx k          => do seqToTerm stx (← toTerm k)
   | Code.ite ref _ o c t e  => do mkIte ref o c (← toTerm t) (← toTerm e)
   | Code.«match» ref discrs optType alts => do
-    let mut termSepAlts := #[]
+    let mut termAlts := #[]
     for alt in alts do
-      termSepAlts := termSepAlts.push $ mkAtomFrom alt.ref "|"
       let rhs ← toTerm alt.rhs
-      let termAlt  := mkNode `Lean.Parser.Term.matchAlt #[alt.patterns, mkAtomFrom alt.ref "=>", rhs]
-      termSepAlts := termSepAlts.push termAlt
-    let firstVBar     := termSepAlts[0]
-    let termSepAlts   := mkNullNode termSepAlts[1:termSepAlts.size]
-    let termMatchAlts := mkNode `Lean.Parser.Term.matchAlts #[mkNullNode #[firstVBar], termSepAlts]
+      let termAlt := mkNode `Lean.Parser.Term.matchAlt #[mkAtomFrom alt.ref "|", alt.patterns, mkAtomFrom alt.ref "=>", rhs]
+      termAlts := termAlts.push termAlt
+    let termMatchAlts := mkNode `Lean.Parser.Term.matchAlts #[mkNullNode termAlts]
     pure $ mkNode `Lean.Parser.Term.«match» #[mkAtomFrom ref "match", discrs, optType, mkAtomFrom ref "with", termMatchAlts]
 
 def run (code : Code) (m : Syntax) (uvars : Array Name := #[]) (kind := Kind.regular) : MacroM Syntax := do
@@ -1328,22 +1326,16 @@ def doForToCode (doSeqToCode : List Syntax → M CodeBlock) (doFor : Syntax) (do
       let auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r)
       doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
 
-/--
-  Generate `CodeBlock` for `doMatch; doElems`
-  ```
-  def doMatchAlt   := sepBy1 termParser ", " >> darrow >> doSeq
-  def doMatchAlts  := parser! optional "| " >> sepBy1 doMatchAlt "|"
-  def doMatch      := parser! "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
-  ``` -/
+/-- Generate `CodeBlock` for `doMatch; doElems` -/
 def doMatchToCode (doSeqToCode : List Syntax → M CodeBlock) (doMatch : Syntax) (doElems: List Syntax) : M CodeBlock := do
   let ref       := doMatch
   let discrs    := doMatch[1]
   let optType   := doMatch[2]
-  let matchAlts := doMatch[4][1].getSepArgs -- Array of `doMatchAlt`
+  let matchAlts := doMatch[4][0].getArgs -- Array of `doMatchAlt`
   let alts ←  matchAlts.mapM fun matchAlt => do
-    let patterns := matchAlt[0]
+    let patterns := matchAlt[1]
     let vars ← getPatternsVarsEx patterns.getSepArgs
-    let rhs  := matchAlt[2]
+    let rhs  := matchAlt[3]
     let rhs ← doSeqToCode (getDoSeqElems rhs)
     pure { ref := matchAlt, vars := vars, patterns := patterns, rhs := rhs : Alt CodeBlock }
   let matchCode ← mkMatch ref discrs optType alts

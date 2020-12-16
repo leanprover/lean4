@@ -195,16 +195,15 @@ syntax[changeWith] "change " term " with " term (location)? : tactic
 syntax rwRule    := ("←" <|> "<-")? term
 syntax rwRuleSeq := "[" rwRule,+,? "]"
 
--- TODO: fix 100000 priorities
 syntax[rewrite] "rewrite " rwRule (location)? : tactic
-syntax[rewriteSeq, 100000] "rewrite " rwRuleSeq (location)? : tactic
+syntax[rewriteSeq, high] "rewrite " rwRuleSeq (location)? : tactic
 syntax[erewrite] "erewrite " rwRule (location)? : tactic
-syntax[erewriteSeq, 100000] "erewrite " rwRuleSeq (location)? : tactic
+syntax[erewriteSeq, high] "erewrite " rwRuleSeq (location)? : tactic
 
 syntax[rw] "rw " rwRule (location)? : tactic
-syntax[rwSeq, 100000] "rw " rwRuleSeq (location)? : tactic
+syntax[rwSeq, high] "rw " rwRuleSeq (location)? : tactic
 syntax[erw] "erw " rwRule (location)? : tactic
-syntax[erwSeq, 100000] "erw " rwRuleSeq (location)? : tactic
+syntax[erwSeq, high] "erw " rwRuleSeq (location)? : tactic
 
 private def withCheapRefl (tac : Syntax) : MacroM Syntax :=
   `(tactic| $tac; try (withReducible rfl))
@@ -248,8 +247,8 @@ syntax[introMatch] "intro " matchAlts : tactic
 
 syntax[existsIntro] "exists " term : tactic
 
-/- We use a priority > 0, to avoid ambiguity with the builtin `have` notation -/
-macro[100000] "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
+/- We use a priority > default, to avoid ambiguity with the builtin `have` notation -/
+macro[high] "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
 
 syntax "repeat " tacticSeq : tactic
 macro_rules

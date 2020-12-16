@@ -39,7 +39,7 @@ private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : St
 
 def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × MessageLog) := do
   let dummyEnv ← mkEmptyEnvironment
-  let ctx := mkParserContext inputCtx { env := dummyEnv }
+  let ctx := mkParserContext inputCtx { env := dummyEnv, options := {} }
   let ctx := Module.updateTokens ctx
   let s   := mkParserState ctx.input
   let s   := whitespace ctx s
@@ -107,7 +107,7 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
 
 partial def testParseModuleAux (env : Environment) (inputCtx : InputContext) (s : ModuleParserState) (msgs : MessageLog) (stxs  : Array Syntax) : IO (Array Syntax) :=
   let rec parse (state : ModuleParserState) (msgs : MessageLog) (stxs : Array Syntax) :=
-    match parseCommand inputCtx { env := env } state msgs with
+    match parseCommand inputCtx { env := env, options := {} } state msgs with
     | (stx, state, msgs) =>
       if isEOI stx then
         if msgs.isEmpty then

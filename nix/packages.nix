@@ -22,12 +22,19 @@ let
     stdenv = overrideCC llvmPackages.stdenv cc;
     inherit buildLeanPackage;
   });
-  buildLeanPackage = callPackage (import ./buildLeanPackage.nix) (args // {
+  makeOverridableLeanPackage = f:
+    let newF = origArgs: f origArgs // {
+      overrideArgs = newArgs: makeOverridableLeanPackage f (origArgs // newArgs);
+    };
+    in lib.setFunctionArgs newF (lib.getFunctionArgs f) // {
+      override = args: makeOverridableLeanPackage (f.override args);
+    };
+  buildLeanPackage = makeOverridableLeanPackage (callPackage (import ./buildLeanPackage.nix) (args // {
     inherit (lean) stdenv leanc;
     lean = lean.stage1;
     inherit lean-emacs;
     nix = nix-pinned;
-  });
+  }));
   lean4-mode = emacsPackages.melpaBuild {
     pname = "lean4-mode";
     version = "1";
@@ -75,7 +82,9 @@ let
 in {
   inherit cc lean4-mode buildLeanPackage llvmPackages;
   lean = lean.stage1;
-  stage0check-mod = lean.stage1.Lean.check-mod.override lean.stage0;
+  stage0check-mod = (lean.stage1.Lean.overrideArgs { lean-final = lean.stage0; }).check-mod;
+  HEAD-as-stage0 = (lean.stage1.Lean.overrideArgs { srcCheckTarget = "$root#stage0-from-input.stage0check-mod"; srcCheckArgs = "(--override-input lean-stage0 $root\?rev=$(git rev-parse HEAD) -- -Dinterpreter.prefer_native=false \"$@\")"; });
+  HEAD-as-stage1 = (lean.stage1.Lean.overrideArgs { srcCheckTarget = "$root\?rev=$(git rev-parse HEAD)#stage0check-mod"; });
   temci = (import temci {}).override { doCheck = false; };
   nix = nix-pinned;
   nixpkgs = pkgs;

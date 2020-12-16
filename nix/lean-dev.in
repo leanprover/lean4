@@ -41,10 +41,11 @@ done
 # fall back to current package
 [[ "$root" == / ]] && root="@srcRoot@"
 deps="$(echo -n "$input" | nix run "$root#print-lean-deps" 2> /dev/null)"
-attrPath="check-mod"
+target="$root#check-mod"
+args=(-- "$@")
 # HACK: use stage 0 instead of 1 inside Lean's own `src/`
-[[ -d "$root/src/Lean" && "$(realpath "$inputFile")" == "$root/src/"* ]] && attrPath="stage0check-mod"
+[[ -d "$root/src/Lean" && "$(realpath "$inputFile")" == "$root/src/"* ]] && target="@srcCheckTarget@" && args=@srcCheckArgs@
 for dep in $deps; do
-    attrPath="$attrPath.\"$dep\""
+    target="$target.\"$dep\""
 done
-echo -n "$input" | call nix run "$root#$attrPath" -- "$@"
+echo -n "$input" | call nix run "$target" ${args[*]}

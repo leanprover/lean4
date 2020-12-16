@@ -101,6 +101,20 @@ Not sure what you just broke? Run Lean from (e.g.) the previous commit on a file
 nix run .\?rev=$(git rev-parse @^) scratch.lean
 ```
 
+Work on two adjacent stages at the same time without the need for repeatedly updating and reverting `stage0/`:
+```bash
+# open an editor that will use only committed changes (so first commit them when changing files)
+nix run .#HEAD-as-stage1.emacs-dev&
+# open a second editor that will use those commited changes as stage 0
+# (so don't commit changes done here until you are done and ran a final `update-stage0-commit`)
+nix run .#HEAD-as-stage0.emacs-dev&
+```
+To run `nix build` on the second stage outside of the second editor, use
+```bash
+nix build .#stage0-from-input
+```
+This setup will inadvertently change your `flake.lock` file, which you can revert when you are done.
+
 ...more surely to come...
 
 # Debugging

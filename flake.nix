@@ -12,8 +12,17 @@
     url = github:leanprover/mdBook;
     flake = false;
   };
+  # used *only* by `stage0-from-input` below
+  inputs.lean-stage0 = {
+    url = github:leanprover/lean4;
+    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.flake-utils.follows = "flake-utils";
+    inputs.temci.follows = "temci";
+    inputs.nix.follows = "nix";
+    inputs.mdBook.follows = "mdBook";
+  };
 
-  outputs = { self, nixpkgs, flake-utils, temci, nix, mdBook }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, temci, nix, mdBook, lean-stage0 }: flake-utils.lib.eachDefaultSystem (system:
     let
       packages = nixpkgs.legacyPackages.${system}.callPackage (./nix/packages.nix) { inherit nix temci mdBook; };
     in {
@@ -30,6 +39,10 @@
           }).stage1;
         };
         tsandebug = tsan.override { debug = true; };
+        stage0-from-input = packages.override {
+          stage0 = lean-stage0.packages.${system}.lean;
+        };
+        inherit self;
       };
 
       defaultPackage = packages.lean;

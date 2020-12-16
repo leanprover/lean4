@@ -39,7 +39,7 @@ rec {
       mv lib/ $out/
     '';
   };
-  stage0 = buildCMake {
+  stage0 = args.stage0 or (buildCMake {
     name = "lean-stage0";
     src = ../stage0/src;
     debug = false;
@@ -51,18 +51,19 @@ rec {
       mkdir -p $out/bin
       mv bin/lean $out/bin/
     '';
-  };
+  });
   stage = { stage, prevStage, self }:
     let
       desc = "stage${toString stage}";
-      build = buildLeanPackage.override {
+      build = args: buildLeanPackage.override {
         lean = prevStage;
         # use same stage for retrieving dependencies
         lean-leanDeps = stage0;
         lean-final = self;
+      } (args // {
         inherit debug;
         leanFlags = [ "-Dinterpreter.prefer_native=false" ];
-      };
+      });
     in (all: all // all.lean) rec {
       Init = build { name = "Init"; src = ../src; deps = []; };
       Std  = build { name = "Std";  src = ../src; deps = [ Init ]; };
@@ -116,7 +117,7 @@ rec {
         git commit -m "chore: update stage0"
       '';
     };
-  stage1 = stage { stage = 1; prevStage = args.stage0 or stage0; self = stage1; };
+  stage1 = stage { stage = 1; prevStage = stage0; self = stage1; };
   stage2 = stage { stage = 2; prevStage = stage1; self = stage2; };
   stage3 = stage { stage = 3; prevStage = stage2; self = stage3; };
 }

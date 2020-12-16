@@ -619,7 +619,7 @@ x_2 = l_Lean_Parser_Tactic_orelse___closed__5;
 x_3 = l_Lean_Parser_Tactic_unknown___elambda__1___closed__1;
 x_4 = 1;
 x_5 = l_Lean_Parser_Tactic_unknown;
-x_6 = lean_unsigned_to_nat(0u);
+x_6 = lean_unsigned_to_nat(1000u);
 x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
@@ -842,7 +842,7 @@ x_2 = l_Lean_Parser_Tactic_orelse___closed__5;
 x_3 = l___regBuiltinParser_Lean_Parser_Tactic_nestedTactic___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_Tactic_nestedTactic;
-x_6 = lean_unsigned_to_nat(0u);
+x_6 = lean_unsigned_to_nat(1000u);
 x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }

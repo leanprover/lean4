@@ -61,7 +61,7 @@ lean_object* l_Lean_Elab_elabAttr___rarg___lambda__10___closed__2;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_elabAttr___rarg___lambda__9(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabAttr(lean_object*);
-extern lean_object* l_Lean_Attribute_Builtin_ensureNoArgs___closed__6;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__19;
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1(lean_object*);
 lean_object* l_Lean_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -918,7 +918,7 @@ lean_closure_set(x_8, 4, x_4);
 lean_closure_set(x_8, 5, x_5);
 lean_inc(x_6);
 x_9 = l_Lean_Syntax_getKind(x_6);
-x_10 = l_Lean_Attribute_Builtin_ensureNoArgs___closed__6;
+x_10 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__19;
 x_11 = lean_name_eq(x_9, x_10);
 if (x_11 == 0)
 {

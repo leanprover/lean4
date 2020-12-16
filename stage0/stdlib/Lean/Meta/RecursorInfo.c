@@ -260,6 +260,7 @@ lean_object* l_List_toStringAux___at_Lean_Meta_RecursorInfo_instToStringRecursor
 lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* l_Lean_Meta_casesOnSuffix___closed__1;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__17;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim_match__2___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_FindImpl_initCache;
 lean_object* l_Lean_throwErrorAt___at_Lean_Meta_Attribute_Recursor_getMajorPos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -323,7 +324,6 @@ lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_RecursorInfo_0__L
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___spec__1___lambda__1___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Attribute_Builtin_ensureNoArgs___closed__4;
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_getIdx_x3f___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -9218,7 +9218,7 @@ static lean_object* _init_l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__2
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Attribute_Builtin_ensureNoArgs___closed__4;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__17;
 x_2 = l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

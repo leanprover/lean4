@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Array_back___at_Lean_Meta_addInstanceEntry___spec__14(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__34;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addInstanceEntry___spec__1(lean_object*, lean_object*, lean_object*);
@@ -31,7 +32,6 @@ lean_object* l_Lean_throwError___at_Lean_Meta_whnf___spec__1(lean_object*, lean_
 uint8_t l_Array_contains___at_Lean_Meta_addInstanceEntry___spec__11(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Instances_discrTree___default___closed__1;
 extern lean_object* l_Array_back___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__2___rarg___closed__2;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__34;
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_179____lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -2680,7 +2680,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__34;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__34;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

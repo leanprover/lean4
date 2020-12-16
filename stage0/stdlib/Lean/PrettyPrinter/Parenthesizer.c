@@ -24,6 +24,7 @@ lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContex
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_numLitNoAntiquot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isAntiquotSuffixSplice(lean_object*);
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___closed__1;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__38;
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___lambda__1___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_11392____closed__9;
@@ -391,7 +392,6 @@ lean_object* l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed__4;
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 uint8_t l_Lean_Parser_isValidSyntaxNodeKind(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__34;
 lean_object* l_Lean_Syntax_Traverser_right(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_mkParenthesizerAttribute___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PrettyPrinter_Parenthesizer_interpolatedStr_parenthesizer___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7925,7 +7925,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__34;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__38;
 x_2 = l_myMacro____x40_Init_Notation___hyg_11392____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

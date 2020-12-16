@@ -97,6 +97,7 @@ lean_object* l___private_Lean_Class_0__Lean_consumeNLambdas_match__1___rarg(lean
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_initFn____x40_Lean_Class___hyg_47____spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_47____closed__3;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__22;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_107_(uint8_t, uint8_t);
@@ -123,7 +124,6 @@ lean_object* l_Nat_repr(lean_object*);
 extern lean_object* l_IO_instInhabitedError___closed__1;
 lean_object* l___private_Lean_Class_0__Lean_checkOutParam___closed__2;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__22;
 lean_object* l_Lean_addClass(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasAnyFVar_visit___at___private_Lean_Class_0__Lean_checkOutParam___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_47____closed__5;
@@ -3809,7 +3809,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__22;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__22;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

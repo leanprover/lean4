@@ -280,6 +280,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 extern lean_object* l_Lean_instReprFormat___closed__1;
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_540____lambda__1(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__45;
 lean_object* l_Std_PersistentArray_getAux___at_Lean_IR_UnreachableBranches_interpExpr___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_Value_beq_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_interpFnBody_match__2(lean_object*);
@@ -371,7 +372,6 @@ lean_object* l_Lean_IR_UnreachableBranches_getFunctionSummary_x3f(lean_object*, 
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentArray_getAux___rarg___closed__1;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__45;
 static lean_object* _init_l_Lean_IR_UnreachableBranches_instInhabitedValue() {
 _start:
 {
@@ -1753,7 +1753,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_format___closed__5
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_NotationExtra___hyg_3453____closed__45;
+x_1 = l_myMacro____x40_Init_NotationExtra___hyg_3489____closed__45;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

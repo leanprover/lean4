@@ -25,7 +25,7 @@ instance {α} [ToString α] : ToString (id α) :=
 instance {α} [ToString α] : ToString (Id α) :=
   inferInstanceAs (ToString α)
 
-@[defaultInstance]
+@[defaultInstance low]
 instance : ToString String :=
   ⟨fun s => s⟩
 

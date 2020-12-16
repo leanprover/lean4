@@ -25,9 +25,9 @@ macro "lead" : prec => `(1023)
 macro "(" p:prec ")" : prec => p
 
 macro "default" : prio => `(1000)
-macro "low" : prio => `(100)
+macro "low"     : prio => `(100)
+macro "high"    : prio => `(10000)
 macro "(" p:prio ")" : prio => p
-macro_rules | `(prio| high) => `(10000) -- the 'high' parser is builtin because it is used at `Prelude.lean`
 
 -- Basic notation for defining parsers
 syntax   stx "+" : stx

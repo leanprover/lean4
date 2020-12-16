@@ -15,6 +15,6 @@ import Init.Data.Nat
 class OfScientific (α : Type u) where
   ofScientific : Nat → Bool → Nat → α
 
-@[defaultInstance]
+@[defaultInstance low]
 instance : OfScientific Float where
   ofScientific m s e := Float.ofScientific m s e

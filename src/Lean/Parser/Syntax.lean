@@ -69,7 +69,7 @@ def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Par
 def parserKind     := parser! ident
 def parserPrio     := parser! priorityParser
 def parserKindPrio := parser! atomic (ident >> ", ") >> priorityParser
-def optKindPrio : Parser := optional ("[" >> (parserKindPrio <|> parserKind <|> parserPrio) >> "]")
+def optKindPrio : Parser := optional ("[" >> (parserKindPrio <|> parserPrio <|> parserKind) >> "]")
 @[builtinCommandParser] def «syntax»      := parser! Term.attrKind >> "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident

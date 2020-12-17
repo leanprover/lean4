@@ -121,7 +121,8 @@ private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : M
   let ctx ← read
   IO.toEIO (fun (ex : IO.Error) => Exception.error ctx.ref ex.toString) x
 
-instance : MonadLiftT IO CommandElabM := { monadLift := liftIO }
+instance : MonadLiftT IO CommandElabM where
+  monadLift := liftIO
 
 def getScope : CommandElabM Scope := do pure (← get).scopes.head!
 

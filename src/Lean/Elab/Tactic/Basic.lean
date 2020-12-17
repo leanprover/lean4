@@ -54,23 +54,22 @@ def BacktrackableState.restore (b : BacktrackableState) : TacticM Unit := do
   let b ← saveBacktrackableState
   try x catch ex => b.restore; h ex
 
-instance : MonadExcept Exception TacticM := {
-  throw    := throw,
+instance : MonadExcept Exception TacticM where
+  throw    := throw
   tryCatch := Tactic.tryCatch
-}
 
 @[inline] protected def orElse {α} (x y : TacticM α) : TacticM α := do
   try x catch _ => y
 
-instance {α} : OrElse (TacticM α) := ⟨Tactic.orElse⟩
+instance {α} : OrElse (TacticM α) where
+  orElse := Tactic.orElse
 
 structure SavedState where
   core   : Core.State
   meta   : Meta.State
   term   : Term.State
   tactic : State
-
-instance : Inhabited SavedState := ⟨⟨arbitrary, arbitrary, arbitrary, arbitrary⟩⟩
+  deriving Inhabited
 
 def saveAllState : TacticM SavedState := do
   pure { core := (← getThe Core.State), meta := (← getThe Meta.State), term := (← getThe Term.State), tactic := (← get) }

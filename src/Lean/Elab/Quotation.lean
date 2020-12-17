@@ -94,8 +94,8 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
           let arg ← quoteSyntax arg;
           `(Array.push $args $arg)) empty
       `(Syntax.node $(quote k) $args)
-  | Syntax.atom info val =>
-    `(Syntax.atom (SourceInfo.mk none none none) $(quote val))
+  | Syntax.atom _ val =>
+    `(Syntax.atom info $(quote val))
   | Syntax.missing => unreachable!
 
 def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
@@ -106,7 +106,9 @@ def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
      including it literally in a syntax quotation. -/
   -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
   let stx ← quoteSyntax stx.getQuotContent;
-  `(Bind.bind getCurrMacroScope (fun scp => Bind.bind getMainModule (fun mainModule => Pure.pure $stx)))
+  `(Bind.bind MonadRef.mkInfoFromRefPos (fun info =>
+      Bind.bind getCurrMacroScope (fun scp =>
+        Bind.bind getMainModule (fun mainModule => Pure.pure $stx))))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
      note that the syntax quotation above enjoys the same hygiene guarantees as

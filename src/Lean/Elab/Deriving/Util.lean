@@ -51,7 +51,7 @@ structure Context where
   auxFunNames : Array Name
   usePartial  : Bool
 
-def mkContext (typeName : Name) : TermElabM Context := do
+def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
   let indVal ← getConstInfoInduct typeName
   let mut typeInfos := #[]
   for typeName in indVal.all do
@@ -59,7 +59,7 @@ def mkContext (typeName : Name) : TermElabM Context := do
   let mut auxFunNames := #[]
   for typeName in indVal.all do
     match typeName.eraseMacroScopes with
-    | Name.str _ t _ => auxFunNames := auxFunNames.push (← mkFreshUserName <| Name.mkSimple <| "beq" ++ t)
+    | Name.str _ t _ => auxFunNames := auxFunNames.push (← mkFreshUserName <| Name.mkSimple <| fnPrefix ++ t)
     | _              => auxFunNames := auxFunNames.push (← mkFreshUserName `instFn)
   trace[Elab.Deriving.beq]! "{auxFunNames}"
   let usePartial := indVal.isNested || typeInfos.size > 1
@@ -91,7 +91,7 @@ def mkLet (letDecls : Array Syntax) (body : Syntax) : TermElabM Syntax :=
   letDecls.foldrM (init := body) fun letDecl body =>
     `(let $letDecl:letDecl; $body)
 
-def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) : TermElabM (Array Syntax) := do
+def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true) : TermElabM (Array Syntax) := do
   let mut instances := #[]
   for i in [:ctx.typeInfos.size] do
     let indVal       := ctx.typeInfos[i]
@@ -102,10 +102,47 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) :
       let binders      := binders ++ (← mkInstImplicitBinders className indVal argNames)
       let indType      ← mkInductiveApp indVal argNames
       let type         ← `($(mkIdent className) $indType)
-      let val          ← `(⟨$(mkIdent auxFunName)⟩)
+      let val          ← if useAnonCtor then `(⟨$(mkIdent auxFunName)⟩) else pure <| mkIdent auxFunName
       let instCmd ← `(instance $binders:implicitBinder* : $type := $val)
       trace[Meta.debug]! "\n{instCmd}"
       instances := instances.push instCmd
   return instances
+
+namespace Binary
+
+structure Header where
+  binders     : Array Syntax
+  argNames    : Array Name
+  target1Name : Name
+  target2Name : Name
+
+def mkHeader (ctx : Context) (className : Name) (indVal : InductiveVal) : TermElabM Header := do
+  let argNames      ← mkInductArgNames indVal
+  let binders       ← mkImplicitBinders argNames
+  let targetType    ← mkInductiveApp indVal argNames
+  let target1Name   ← mkFreshUserName `x
+  let target2Name   ← mkFreshUserName `y
+  let binders      := binders ++ (← mkInstImplicitBinders className indVal argNames)
+  let target1Binder ← `(explicitBinderF| ($(mkIdent target1Name) : $targetType))
+  let target2Binder ← `(explicitBinderF| ($(mkIdent target2Name) : $targetType))
+  let binders      := binders ++ #[target1Binder, target2Binder]
+  return {
+    binders     := binders
+    argNames    := argNames
+    target1Name := target1Name
+    target2Name := target2Name
+  }
+
+def mkDiscr (varName : Name) : TermElabM Syntax :=
+ `(Parser.Term.matchDiscr| $(mkIdent varName):term)
+
+def mkDiscrs (header : Header) (indVal : InductiveVal) : TermElabM (Array Syntax) := do
+  let mut discrs := #[]
+  -- add indices
+  for argName in header.argNames[indVal.nparams:] do
+    discrs := discrs.push (← mkDiscr argName)
+  return discrs ++ #[← mkDiscr header.target1Name, ← mkDiscr header.target2Name]
+
+end Binary
 
 end Lean.Elab.Deriving

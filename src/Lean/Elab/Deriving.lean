@@ -7,3 +7,4 @@ import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
 import Lean.Elab.Deriving.Inhabited
 import Lean.Elab.Deriving.BEq
+import Lean.Elab.Deriving.DecEq

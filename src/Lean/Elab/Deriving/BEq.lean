@@ -11,44 +11,16 @@ namespace Lean.Elab.Deriving.BEq
 open Lean.Parser.Term
 open Meta
 
-structure Header where
-  binders     : Array Syntax
-  argNames    : Array Name
-  target1Name : Name
-  target2Name : Name
+open Binary (Header mkDiscrs)
 
 def mkHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
-  let argNames      ← mkInductArgNames indVal
-  let binders       ← mkImplicitBinders argNames
-  let targetType    ← mkInductiveApp indVal argNames
-  let target1Name   ← mkFreshUserName `x
-  let target2Name   ← mkFreshUserName `y
-  let binders      := binders ++ (← mkInstImplicitBinders `BEq indVal argNames)
-  let target1Binder ← `(explicitBinderF| ($(mkIdent target1Name) : $targetType))
-  let target2Binder ← `(explicitBinderF| ($(mkIdent target2Name) : $targetType))
-  let binders      := binders ++ #[target1Binder, target2Binder]
-  return {
-    binders     := binders
-    argNames    := argNames
-    target1Name := target1Name
-    target2Name := target2Name
-  }
+  Binary.mkHeader ctx `BEq indVal
 
-def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) (argNames : Array Name) : TermElabM Syntax := do
-  let discrs ← mkDiscrs
+def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+  let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkDiscr (varName : Name) : TermElabM Syntax :=
-    `(Parser.Term.matchDiscr| $(mkIdent varName):term)
-
-  mkDiscrs : TermElabM (Array Syntax) := do
-    let mut discrs := #[]
-    -- add indices
-    for argName in argNames[indVal.nparams:] do
-      discrs := discrs.push (← mkDiscr argName)
-    return discrs ++ #[← mkDiscr header.target1Name, ← mkDiscr header.target2Name]
-
   mkElseAlt : TermElabM Syntax := do
     let mut patterns := #[]
     -- add `_` pattern for indices
@@ -102,7 +74,7 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
   let auxFunName ← ctx.auxFunNames[i]
   let indVal     ← ctx.typeInfos[i]
   let header     ← mkHeader ctx indVal
-  let mut body   ← mkMatch ctx header indVal auxFunName header.argNames
+  let mut body   ← mkMatch ctx header indVal auxFunName
   if ctx.usePartial then
     let letDecls ← mkLocalInstanceLetDecls ctx `BEq header.argNames
     body ← mkLet letDecls body
@@ -122,7 +94,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
     end)
 
 private def mkBEqInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext declNames[0]
+  let ctx ← mkContext "beq" declNames[0]
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `BEq declNames)
   trace[Elab.Deriving.beq]! "\n{cmds}"
   return cmds

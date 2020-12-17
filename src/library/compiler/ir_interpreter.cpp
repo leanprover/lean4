@@ -842,7 +842,7 @@ class interpreter {
     static object * stub_m_aux(object ** args) {
         environment env(args[0]);
         options opts(args[1]);
-        if (g_interpreter && is_eqp(g_interpreter->m_env, env)) {
+        if (g_interpreter && is_eqp(g_interpreter->m_env, env) && is_eqp(g_interpreter->m_opts, opts)) {
             return g_interpreter->stub_m(args);
         } else {
             // We changed threads or the closure was stored and called in a different context.

@@ -482,14 +482,14 @@ def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTi
 def applyAttributes (declName : Name) (attrs : Array Attribute) : TermElabM Unit :=
   applyAttributesCore declName attrs none
 
-def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (expectedType : Expr) : MessageData :=
+def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (expectedType : Expr) : TermElabM MessageData := do
   let header : MessageData := match header? with
-    | some header => m!"{header} has type"
-    | none        => m!"type mismatch{indentExpr e}\nhas type"
-  m!"{header}{indentExpr eType}\nbut is expected to have type{indentExpr expectedType}"
+    | some header => m!"{header} "
+    | none        => m!"type mismatch{indentExpr e}\n"
+  m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
 def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
-    (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=
+    (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α := do
   /-
     We ignore `extraMsg?` for now. In all our tests, it contained no useful information. It was
     always of the form:
@@ -506,7 +506,7 @@ def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) 
     | some extraMsg => Format.line ++ extraMsg;
   -/
   match f? with
-  | none   => throwError $ mkTypeMismatchError header? e eType expectedType ++ extraMsg
+  | none   => throwError <| (← mkTypeMismatchError header? e eType expectedType) ++ extraMsg
   | some f => Meta.throwAppTypeMismatch f e extraMsg
 
 @[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=

@@ -36,13 +36,94 @@ private def getFunctionDomain (f : Expr) : MetaM (Expr × BinderInfo) := do
   | Expr.forallE _ d _ c => return (d, c.binderInfo)
   | _                    => throwFunctionExpected f
 
+/-
+Given to expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true` to
+expose "implicit" differences. For example, suppose `a` and `b` are of the form
+```lean
+@HashMap Nat Nat eqInst hasInst1
+@HashMap Nat Nat eqInst hasInst2
+```
+By default, the pretty printer formats both of them as `HashMap Nat Nat`.
+So, counterintuitive error messages such as
+```lean
+error: application type mismatch
+  HashMap.insert m
+argument
+  m
+has type
+  HashMap Nat Nat
+but is expected to have type
+  HashMap Nat Nat
+```
+would be produced.
+By adding `pp.explicit := true`, we can generate the more informative error
+```lean
+error: application type mismatch
+  HashMap.insert m
+argument
+  m
+has type
+  @HashMap Nat Nat eqInst hasInst1
+but is expected to have type
+  @HashMap Nat Nat eqInst hasInst2
+```
+Remark: this method implements a simple heuristic, we should extend it as we find other counterintuitive
+error messages.
+-/
+partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
+  if (← getOptions).getBool `pp.all false || (← getOptions).getBool `pp.explicit false then
+    return (a, b)
+  else
+    visit a b
+where
+  visit (a b : Expr) : MetaM (Expr × Expr) := do
+    try
+      if !a.isApp || !b.isApp then
+        return (a, b)
+      else if a.getAppNumArgs != b.getAppNumArgs then
+        return (a, b)
+      else if not (← isDefEq a.getAppFn b.getAppFn) then
+        return (a, b)
+      else
+        let fType ← inferType a.getAppFn
+        forallBoundedTelescope fType a.getAppNumArgs fun xs _ => do
+          let mut as := a.getAppArgs
+          let mut bs := b.getAppArgs
+          if (← hasExplicitDiff xs as bs) then
+            return (a, b)
+          else
+            for i in [:as.size] do
+              let (ai, bi) ← visit as[i] bs[i]
+              as := as.set! i ai
+              bs := bs.set! i bi
+            let a := mkAppN a.getAppFn as
+            let b := mkAppN b.getAppFn bs
+            return (a.setAppPPExplicit, b.setAppPPExplicit)
+    catch _ =>
+      return (a, b)
+
+  hasExplicitDiff (xs as bs : Array Expr) : MetaM Bool := do
+    for i in [:xs.size] do
+      let localDecl ← getLocalDecl xs[i].fvarId!
+      if localDecl.binderInfo.isExplicit then
+         if not (← isDefEq as[i] bs[i]) then
+           return true
+    return false
+
+/-
+  Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
+-/
+def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := do
+  let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+  m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
+
 def throwAppTypeMismatch {α} (f a : Expr) (extraMsg : MessageData := Format.nil) : MetaM α := do
   let (expectedType, binfo) ← getFunctionDomain f
   let mut e := mkApp f a
   unless binfo.isExplicit do
     e := e.setAppPPExplicit
   let aType ← inferType a
-  throwError! "application type mismatch{indentExpr e}\nargument{indentExpr a}\nhas type{indentExpr aType}\nbut is expected to have type{indentExpr expectedType}{extraMsg}"
+  throwError! "application type mismatch{indentExpr e}\nargument{indentExpr a}\n{← mkHasTypeButIsExpectedMsg aType expectedType}"
 
 def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f

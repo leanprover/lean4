@@ -7,9 +7,9 @@ inductive1.lean:22:0: error: invalid mutually inductive types, resulting univers
   Type v
 expected type
   Type u
-inductive1.lean:31:0: error: invalid mutually inductive types, type mismatch at parameter 'x'
+inductive1.lean:31:0: error: invalid mutually inductive types, parameter 'x' has type
   Bool
-expected type
+but is expected to have type
   Nat
 inductive1.lean:40:0: error: invalid inductive type, number of parameters mismatch in mutually inductive datatypes
 inductive1.lean:49:0: error: invalid mutually inductive types, binder annotation mismatch at parameter 'x'

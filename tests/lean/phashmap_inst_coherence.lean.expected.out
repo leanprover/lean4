@@ -3,8 +3,8 @@ phashmap_inst_coherence.lean:12:6: error: application type mismatch
 argument
   m
 has type
-  PersistentHashMap Nat Nat
+  @PersistentHashMap Nat Nat instBEq instHashableNat
 but is expected to have type
-  PersistentHashMap Nat Nat
+  @PersistentHashMap Nat Nat instBEq natDiffHash
 phashmap_inst_coherence.lean:12:0: error: failed to synthesize
   Lean.Eval ?m

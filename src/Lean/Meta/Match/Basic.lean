@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Check
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.CaseArraySizes
 
@@ -177,8 +178,9 @@ def checkAndReplaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : MetaM Alt :
     let vType ← inferType v
     unless (← isDefEqGuarded fvarDecl.type vType) do
       withExistingLocalDecls alt.fvarDecls do
+        let (expectedType, givenType) ← addPPExplicitToExposeDiff vType fvarDecl.type
         throwErrorAt alt.ref $
-          m!"type mismatch during dependent match-elimination at pattern variable '{mkFVar fvarDecl.fvarId}' with type{indentExpr fvarDecl.type}\nexpected type{indentExpr vType}"
+          m!"type mismatch during dependent match-elimination at pattern variable '{mkFVar fvarDecl.fvarId}' with type{indentExpr givenType}\nexpected type{indentExpr expectedType}"
     pure $ replaceFVarId fvarId v alt
 
 end Alt

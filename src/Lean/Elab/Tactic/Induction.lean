@@ -143,7 +143,7 @@ def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId)
   let motiverInferredType ← inferType motive
   let motiveType ← inferType (mkMVar motiveArg)
   unless (← isDefEqGuarded motiverInferredType motiveType) do
-    throwError! "type mismatch when assigning motive{indentExpr motive}\nhas type{indentExpr motiverInferredType}\nexpected type{indentExpr motiveType}"
+    throwError! "type mismatch when assigning motive{indentExpr motive}\n{← mkHasTypeButIsExpectedMsg motiverInferredType motiveType}"
   assignExprMVar motiveArg motive
 
 private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM Nat := do

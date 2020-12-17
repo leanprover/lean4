@@ -365,10 +365,18 @@ public:
             flet<environment const *> fl1(interp.m_env, &env);
             flet<options const *> fl2(interp.m_opts, &opts);
             flet<bool> fl3(interp.m_prefer_native, opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE));
-            // both these caches contain data from the Environment, so we cannot reuse them when changing it
-            flet<name_map<constant_cache_entry>> fl4(interp.m_constant_cache, {});
-            flet<name_map<symbol_cache_entry>> fl5(interp.m_symbol_cache, {});
-            return f(interp);
+            if (interp.m_env) {
+                // both these caches contain data from the Environment, so we cannot reuse them when changing it
+                flet<name_map<constant_cache_entry>> fl4(interp.m_constant_cache, {});
+                flet<name_map<symbol_cache_entry>> fl5(interp.m_symbol_cache, {});
+                return f(interp);
+            } else {
+                // if there is no outer interpreter, might as well leave the caches around; maybe the next call is for
+                // the same Environment
+                interp.m_constant_cache = {};
+                interp.m_symbol_cache = {};
+                return f(interp);
+            }
         }
     }
 

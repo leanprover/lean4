@@ -298,7 +298,7 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 }
 
 class interpreter;
-LEAN_THREAD_PTR(interpreter, g_interpreter);
+static interpreter & get_interpreter();
 
 class interpreter {
     // stack of IR variable slots
@@ -314,12 +314,10 @@ class interpreter {
         frame(name const & mFn, size_t mArgBp, size_t mJpBp) : m_fn(mFn), m_arg_bp(mArgBp), m_jp_bp(mJpBp) {}
     };
     std::vector<frame> m_call_stack;
-    environment const & m_env;
-    options const & m_opts;
+    environment const * m_env;
+    options const * m_opts;
     // if `false`, use IR code where possible
     bool m_prefer_native;
-    // if we were called within the execution of a different interpreter, restore the value of `g_interpreter` in the end
-    interpreter * m_prev_interpreter;
     struct constant_cache_entry {
       bool m_is_scalar;
       value m_val;
@@ -352,6 +350,29 @@ class interpreter {
         return m_arg_stack[i];
     }
 
+public:
+    template<class T>
+    static inline T with_interpreter(environment const & env, options const & opts, std::function<T(interpreter &)> const & f) {
+        interpreter & interp = get_interpreter();
+        if (interp.m_env && is_eqp(*interp.m_env, env) && interp.m_opts && is_eqp(*interp.m_opts, opts)) {
+            return f(interp);
+        } else {
+            // We changed threads or the closure was stored and called in a different context.
+            time_task t("interpretation",
+                        message_builder(env, get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
+            abstract_type_context trace_ctx(opts);
+            scope_trace_env scope_trace(env, opts, trace_ctx);
+            flet<environment const *> fl1(interp.m_env, &env);
+            flet<options const *> fl2(interp.m_opts, &opts);
+            flet<bool> fl3(interp.m_prefer_native, opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE));
+            // both these caches contain data from the Environment, so we cannot reuse them when changing it
+            flet<name_map<constant_cache_entry>> fl4(interp.m_constant_cache, {});
+            flet<name_map<symbol_cache_entry>> fl5(interp.m_symbol_cache, {});
+            return f(interp);
+        }
+    }
+
+private:
     value eval_arg(arg const & a) {
         // an "irrelevant" argument is type- or proof-erased; we can use an arbitrary value for it
         return arg_is_irrelevant(a) ? box(0) : var(arg_var_id(a));
@@ -383,8 +404,8 @@ class interpreter {
     object * mk_stub_closure(decl const & d, unsigned n, object ** args) {
         unsigned cls_size = 3 + decl_params(d).size();
         object * cls = alloc_closure(get_stub(cls_size), cls_size, 3 + n);
-        closure_set(cls, 0, m_env.to_obj_arg());
-        closure_set(cls, 1, m_opts.to_obj_arg());
+        closure_set(cls, 0, m_env->to_obj_arg());
+        closure_set(cls, 1, m_opts->to_obj_arg());
         closure_set(cls, 2, d.to_obj_arg());
         for (unsigned i = 0; i < n ; i++)
             closure_set(cls, 3 + i, args[i]);
@@ -712,7 +733,7 @@ class interpreter {
             return *e;
         } else {
             symbol_cache_entry e_new { get_decl(fn), nullptr, false };
-            if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
+            if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(*m_env, fn)) {
                 string_ref mangled = name_mangle(fn, *g_mangle_prefix);
                 string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
                 // check for boxed version first
@@ -731,7 +752,7 @@ class interpreter {
 
     /** \brief Retrieve Lean declaration from environment. */
     decl get_decl(name const & fn) {
-        option_ref<decl> d = find_ir_decl(m_env, fn);
+        option_ref<decl> d = find_ir_decl(*m_env, fn);
         if (!d) {
             throw exception(sstream() << "unknown declaration '" << fn << "'");
         }
@@ -751,7 +772,7 @@ class interpreter {
             return *o;
         }
 
-        if (get_regular_init_fn_name_for(m_env, fn)) {
+        if (get_regular_init_fn_name_for(*m_env, fn)) {
             // We don't know whether `[init]` decls can be re-executed, so let's not.
             throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
         }
@@ -838,21 +859,13 @@ class interpreter {
         return r;
     }
 
-    // closure stub stub
+    // static closure stub
     static object * stub_m_aux(object ** args) {
         environment env(args[0]);
         options opts(args[1]);
-        if (g_interpreter && is_eqp(g_interpreter->m_env, env) && is_eqp(g_interpreter->m_opts, opts)) {
-            return g_interpreter->stub_m(args);
-        } else {
-            // We changed threads or the closure was stored and called in a different context.
-            // Create new interpreter with new stacks.
-            time_task t("interpretation",
-                        message_builder(env, get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
-            abstract_type_context trace_ctx(opts);
-            scope_trace_env scope_trace(env, opts, trace_ctx);
-            return interpreter(env, opts).stub_m(args);
-        }
+        return with_interpreter<object *>(env, opts, [&](interpreter & interp) {
+            return interp.stub_m(args);
+        });
     }
 
     // python3 -c 'for i in range(1,17): print(f"    static object * stub_{i}_aux(" + ", ".join([f"object * x_{j}" for j in range(1,i+1)]) + ") { object * args[] = { " + ", ".join([f"x_{j}" for j in range(1,i+1)]) + " }; return interpreter::stub_m_aux(args); }")'
@@ -896,20 +909,12 @@ class interpreter {
         }
     }
 public:
-    explicit interpreter(environment const & env, options const & opts) : m_env(env), m_opts(opts) {
-        m_prev_interpreter = g_interpreter;
-        g_interpreter = this;
-        m_prefer_native = opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE);
-    }
-
     ~interpreter() {
         for_each(m_constant_cache, [](name const &, constant_cache_entry const & e) {
             if (!e.m_is_scalar) {
                 dec(e.m_val.m_obj);
             }
         });
-        lean_assert(g_interpreter == this);
-        g_interpreter = m_prev_interpreter;
     }
 
     /** A variant of `call` designed for external uses.
@@ -931,7 +936,7 @@ public:
             } else {
                 // `lookup_symbol` does not prefer the boxed version for interpreted functions, so check manually.
                 decl d = e.m_decl;
-                if (option_ref<decl> d_boxed = find_ir_decl(m_env, fn + *g_boxed_suffix)) {
+                if (option_ref<decl> d_boxed = find_ir_decl(*m_env, fn + *g_boxed_suffix)) {
                     d = *d_boxed.get();
                 }
                 r = mk_stub_closure(d, 0, nullptr);
@@ -1001,30 +1006,27 @@ public:
     }
 };
 
+MK_THREAD_LOCAL_GET_DEF(interpreter, get_interpreter);
+
 object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
-    return interpreter(env, opts).call_boxed(fn, n, args);
+    return interpreter::with_interpreter<object *>(env, opts, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }
 uint32 run_main(environment const & env, options const & opts, int argv, char * argc[]) {
-    return interpreter(env, opts).run_main(argv, argc);
+    return interpreter::with_interpreter<uint32>(env, opts, [&](interpreter & interp) { return interp.run_main(argv, argc); });
 }
 
-extern "C" object * lean_eval_const(object * lenv, object * lopts, object * c) {
-    environment const & env = TO_REF(environment, lenv);
-    options const & opts = TO_REF(options, lopts);
-    time_task t("interpretation",
-                message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
-    abstract_type_context trace_ctx(opts);
-    scope_trace_env scope_trace(env, opts, trace_ctx);
-
+extern "C" object * lean_eval_const(object * env, object * opts, object * c) {
     try {
-        return mk_cnstr(1, run_boxed(env, opts, TO_REF(name, c), 0, 0)).steal();
+        return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, c), 0, 0)).steal();
     } catch (exception & ex) {
         return mk_cnstr(0, string_ref(ex.what())).steal();
     }
 }
 
 extern "C" object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
-    return interpreter(TO_REF(environment, env), TO_REF(options, opts)).run_init(TO_REF(name, decl), TO_REF(name, init_decl));
+    return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), [&](interpreter & interp) {
+        return interp.run_init(TO_REF(name, decl), TO_REF(name, init_decl));
+    });
 }
 }
 

@@ -209,6 +209,9 @@ instance : Repr String.Iterator where
 instance (n : Nat) : Repr (Fin n) where
   reprPrec f _ := repr f.val
 
+instance : Repr UInt8 where
+  reprPrec n _ := repr n.toNat
+
 instance : Repr UInt16 where
   reprPrec n _ := repr n.toNat
 

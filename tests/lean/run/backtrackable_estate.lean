@@ -2,11 +2,11 @@ import Init.System.IO
 
 
 structure MyState :=
-(bs : Nat := 0) -- backtrackable state
-(ps : Nat := 0) -- non backtrackable state
+  bs : Nat := 0 -- backtrackable state
+  ps : Nat := 0 -- non backtrackable state
 
-instance : Repr MyState :=
-⟨fun s => repr (s.bs, s.ps)⟩
+instance : Repr MyState where
+  reprPrec s _ := repr (s.bs, s.ps)
 
 instance : EStateM.Backtrackable Nat MyState :=
 { save    := fun s => s.bs,

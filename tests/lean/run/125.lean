@@ -1,5 +1,3 @@
-
-
 class HasElems (α : Type) : Type := (elems : Array α)
 def elems (α : Type) [HasElems α] : Array α := HasElems.elems
 
@@ -13,11 +11,11 @@ instance BoolElems : HasElems Bool := ⟨#[false, true]⟩
 instance FooElems  : HasElems Foo  := ⟨(elems Bool).map mk1 ++ (elems Bool).map mk2⟩
 
 def fooRepr (foo : Foo) :=
-match foo with
-| mk1 b => s!"OH {b}"
-| mk2 b => s!"DR {b}"
+  match foo with
+  | mk1 b => f!"OH {b}"
+  | mk2 b => f!"DR {b}"
 
-instance : Repr Foo := ⟨fooRepr⟩
+instance : Repr Foo := ⟨fun s _ => fooRepr s⟩
 
 #eval elems Foo
 

@@ -5,5 +5,5 @@
 0
 2
 4
-(String.Iterator.mk "αacc" 2)
+String.Iterator.mk "αacc" 2
 6

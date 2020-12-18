@@ -64,10 +64,9 @@ instance : Monad Option := {
 
 /- Remark: when using the polymorphic notation `a <|> b` is not a `[macroInline]`.
    Thus, `a <|> b` will make `Option.orelse` to behave like it was marked as `[inline]`. -/
-instance : Alternative Option := {
-  failure := none,
+instance : Alternative Option where
+  failure := none
   orElse  := Option.orElse
-}
 
 @[inline] protected def lt (r : α → α → Prop) : Option α → Option α → Prop
   | none, some x     => True
@@ -82,22 +81,8 @@ instance (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt
 
 end Option
 
-instance [DecidableEq α] : DecidableEq (Option α) := fun a b =>
-  match a, b with
-  | none,      none      => isTrue rfl
-  | none,      (some v₂) => isFalse (fun h => Option.noConfusion h)
-  | (some v₁), none      => isFalse (fun h => Option.noConfusion h)
-  | (some v₁), (some v₂) =>
-    match decEq v₁ v₂ with
-    | (isTrue e)  => isTrue (congrArg (@some α) e)
-    | (isFalse n) => isFalse (fun h => Option.noConfusion h (fun e => absurd e n))
-
-instance [BEq α] : BEq (Option α) where
-  beq
-    | none,      none      => true
-    | none,      (some v₂) => false
-    | (some v₁), none      => false
-    | (some v₁), (some v₂) => v₁ == v₂
+deriving instance DecidableEq for Option
+deriving instance BEq for Option
 
 instance [HasLess α] : HasLess (Option α) := {
   Less := Option.lt (· < ·)

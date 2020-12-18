@@ -8,6 +8,7 @@ import Init.Data.String.Basic
 import Init.Data.UInt
 import Init.Data.Nat.Div
 import Init.Data.Repr
+import Init.Data.Int.Basic
 import Init.Control.Id
 open Sum Subtype Nat
 
@@ -67,6 +68,11 @@ instance : ToString Unit :=
 instance : ToString Nat :=
   ⟨fun n => repr n⟩
 
+instance : ToString Int where
+  toString
+    | Int.ofNat m   => toString m
+    | Int.negSucc m => "-" ++ toString (succ m)
+
 instance : ToString Char :=
   ⟨fun c => c.toString⟩
 
@@ -109,3 +115,21 @@ instance {α : Type u} {β : α → Type v} [ToString α] [s : ∀ x, ToString (
 
 instance {α : Type u} {p : α → Prop} [ToString α] : ToString (Subtype p) := ⟨fun s =>
   toString (val s)⟩
+
+def String.toInt? (s : String) : Option Int :=
+  if s.get 0 = '-' then do
+    let v ← (s.toSubstring.drop 1).toNat?;
+    pure <| - Int.ofNat v
+  else
+   Int.ofNat <$> s.toNat?
+
+def String.isInt (s : String) : Bool :=
+  if s.get 0 = '-' then
+    (s.toSubstring.drop 1).isNat
+  else
+    s.isNat
+
+def String.toInt! (s : String) : Int :=
+  match s.toInt? with
+  | some v => v
+  | none   => panic "Int expected"

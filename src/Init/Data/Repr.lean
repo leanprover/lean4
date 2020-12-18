@@ -5,8 +5,9 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.String.Basic
-import Init.Data.UInt
+import Init.Data.Int.Basic
 import Init.Data.Nat.Div
+import Init.Data.UInt
 import Init.Control.Id
 open Sum Subtype Nat
 
@@ -134,6 +135,13 @@ end Nat
 
 instance : Repr Nat :=
   ⟨Nat.repr⟩
+
+protected def Int.repr : Int → String
+  | ofNat m   => Nat.repr m
+  | negSucc m => "-" ++ Nat.repr (succ m)
+
+instance : Repr Int where
+  repr := Int.repr
 
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n

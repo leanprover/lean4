@@ -163,6 +163,7 @@ lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_State_zetaFVarIds___default;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstance___at___private_Lean_Meta_Basic_0__Lean_Meta_withNewLocalInstancesImp___spec__1(lean_object*);
 lean_object* l_Lean_Meta_hasAssignableMVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -795,6 +796,7 @@ lean_object* l_Lean_mkFreshId___at_Lean_Meta_mkFreshExprMVarAt___spec__1___rarg_
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_isClassImp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getFVarLocalDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp_process___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateLambdaAux_match__1(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_throwUnknownFVar___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_findLocalDecl_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1137,6 +1139,43 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey_ma
 return x_2;
 }
 }
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+if (lean_obj_tag(x_2) == 0)
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+}
+else
+{
+if (lean_obj_tag(x_2) == 0)
+{
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_2, 0);
+x_8 = lean_nat_dec_eq(x_6, x_7);
+return x_8;
+}
+}
+}
+}
 uint8_t l_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1156,50 +1195,32 @@ return x_10;
 }
 else
 {
-if (lean_obj_tag(x_5) == 0)
-{
-if (lean_obj_tag(x_8) == 0)
-{
 uint8_t x_11; 
-x_11 = lean_expr_eqv(x_4, x_7);
-return x_11;
-}
-else
+x_11 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_5, x_8);
+if (x_11 == 0)
 {
 uint8_t x_12; 
 x_12 = 0;
 return x_12;
 }
-}
 else
-{
-if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_13; 
-x_13 = 0;
+x_13 = lean_expr_eqv(x_4, x_7);
 return x_13;
 }
-else
+}
+}
+}
+lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
 {
-lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_14 = lean_ctor_get(x_5, 0);
-x_15 = lean_ctor_get(x_8, 0);
-x_16 = lean_nat_dec_eq(x_14, x_15);
-if (x_16 == 0)
-{
-uint8_t x_17; 
-x_17 = 0;
-return x_17;
-}
-else
-{
-uint8_t x_18; 
-x_18 = lean_expr_eqv(x_4, x_7);
-return x_18;
-}
-}
-}
-}
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* l_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___boxed(lean_object* x_1, lean_object* x_2) {

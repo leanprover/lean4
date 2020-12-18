@@ -15,8 +15,8 @@ extern "C" {
 #endif
 lean_object* l_Lean_FileMap_toPosition_match__1(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16_(lean_object*, lean_object*);
 extern lean_object* l_instReprSigma___rarg___closed__2;
-lean_object* l_Lean_Position_instDecidableEqPosition_match__1(lean_object*);
 lean_object* l_Lean_FileMap_ofString_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString___closed__2;
 lean_object* l_Lean_instInhabitedPosition;
@@ -25,20 +25,22 @@ extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 extern lean_object* l_instReprSigma___rarg___closed__1;
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 extern lean_object* l_instInhabitedNat;
-lean_object* l_Lean_Position_instDecidableEqPosition_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Position_instToFormatPosition___closed__2;
 lean_object* l_prodHasDecidableLt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_formatKVMap___closed__1;
+lean_object* l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16__match__1(lean_object*);
 lean_object* l_Lean_FileMap_ofString___closed__1;
 lean_object* l_Lean_Position_instToFormatPosition___closed__1;
 lean_object* l_Lean_Position_lt(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition_toColumn(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16__match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Position_instToStringPosition_match__1(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1___boxed(lean_object*);
@@ -52,24 +54,22 @@ lean_object* l_Lean_FileMap_toPosition_loop___boxed(lean_object*, lean_object*, 
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Position_instToFormatPosition___spec__1(lean_object*);
 lean_object* l_Lean_FileMap_toPosition_toColumn___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_instDecidableEqPosition(lean_object*, lean_object*);
 lean_object* l_Lean_Position_instToStringPosition(lean_object*);
 lean_object* l_Lean_FileMap_toPosition_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 extern lean_object* l_term_x5b___x5d___closed__5;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1(lean_object*);
+lean_object* l_Lean_instDecidableEqPosition___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedFileMap___closed__1;
 lean_object* l_Lean_Position_instToFormatPosition(lean_object*);
-uint8_t l_Lean_Position_instDecidableEqPosition(lean_object*, lean_object*);
 lean_object* l_Lean_Position_lt___closed__1;
 lean_object* l_Lean_Position_instToFormatPosition_match__1(lean_object*);
-lean_object* l_Lean_Position_instDecidableEqPosition_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedPosition___closed__1;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
-lean_object* l_Lean_Position_instDecidableEqPosition___boxed(lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 lean_object* l_Lean_Position_instToStringPosition_match__1___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Position_instDecidableEqPosition_match__2(lean_object*);
 lean_object* l_Lean_Position_lt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Position_lt___closed__2;
@@ -98,49 +98,33 @@ x_1 = l_Lean_instInhabitedPosition___closed__1;
 return x_1;
 }
 }
-lean_object* l_Lean_Position_instDecidableEqPosition_match__1___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
 lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
+x_6 = lean_ctor_get(x_2, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_2, 1);
+lean_inc(x_7);
+lean_dec(x_2);
+x_8 = lean_apply_4(x_3, x_4, x_5, x_6, x_7);
+return x_8;
 }
 }
-lean_object* l_Lean_Position_instDecidableEqPosition_match__1(lean_object* x_1) {
+lean_object* l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16__match__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Position_instDecidableEqPosition_match__1___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16__match__1___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Position_instDecidableEqPosition_match__2___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Lean_Position_instDecidableEqPosition_match__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Position_instDecidableEqPosition_match__2___rarg), 2, 0);
-return x_2;
-}
-}
-uint8_t l_Lean_Position_instDecidableEqPosition(lean_object* x_1, lean_object* x_2) {
+uint8_t l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -163,11 +147,30 @@ return x_9;
 }
 }
 }
-lean_object* l_Lean_Position_instDecidableEqPosition___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Position_instDecidableEqPosition(x_1, x_2);
+x_3 = l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16_(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+uint8_t l_Lean_instDecidableEqPosition(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_16_(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_instDecidableEqPosition___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_instDecidableEqPosition(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

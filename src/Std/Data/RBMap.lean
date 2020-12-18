@@ -274,8 +274,8 @@ def depth (f : Nat → Nat → Nat) (t : RBMap α β lt) : Nat :=
     | some ⟨k, v⟩ => some (k, v)
     | none        => none
 
-instance [Repr α] [Repr β] : Repr (RBMap α β lt) :=
-  ⟨fun t => "rbmapOf " ++ repr t.toList⟩
+instance [Repr α] [Repr β] : Repr (RBMap α β lt) where
+  reprPrec m prec := Repr.addAppParen ("Std.rbmapOf " ++ repr m.toList) prec
 
 @[inline] def insert : RBMap α β lt → α → β → RBMap α β lt
   | ⟨t, w⟩, k, v => ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩

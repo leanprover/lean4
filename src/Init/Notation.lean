@@ -23,6 +23,10 @@ end Lean.Parser.Syntax
 macro "max"  : prec => `(1024)
 macro "lead" : prec => `(1023)
 macro "(" p:prec ")" : prec => p
+/-
+  `max:prec` as a term. It is equivalent to `evalPrec! max` for `evalPrec!` defined at `Meta.lean`.
+  We use `maxPrec!` to workaround bootstrapping issues. -/
+macro "maxPrec!" : term => `(1024)
 
 macro "default" : prio => `(1000)
 macro "low"     : prio => `(100)

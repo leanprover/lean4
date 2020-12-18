@@ -22,18 +22,6 @@ builtin_initialize
 def pretty' (f : Format) (o : Options := {}) : String :=
   pretty f (getWidth o)
 
-protected def repr : Format → Format
-  | nil => "Format.nil"
-  | line => "Format.line"
-  | text s => paren $ "Format.text" ++ line ++ repr s
-  | nest n f => paren $ "Format.nest" ++ line ++ repr n ++ line ++ Format.repr f
-  | append f₁ f₂ => paren $ "Format.append " ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
-  | group f FlattenBehavior.allOrNone => paren $ "Format.group" ++ line ++ Format.repr f
-  | group f FlattenBehavior.fill => paren $ "Format.fill" ++ line ++ Format.repr f
-
-instance : Repr Format where
-  repr := Format.pretty ∘ Format.repr
-
 end Format
 end Std
 

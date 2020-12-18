@@ -4,71 +4,97 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Data.String.Basic
+import Init.Data.Format.Basic
 import Init.Data.Int.Basic
 import Init.Data.Nat.Div
 import Init.Data.UInt
 import Init.Control.Id
 open Sum Subtype Nat
 
-universes u v
+open Std
 
 class Repr (α : Type u) where
-  repr : α → String
+  reprPrec : α → Nat → Format
 
-export Repr (repr)
+export Repr (reprPrec)
+
+abbrev repr [Repr α] (a : α) : Format :=
+  reprPrec a 0
+
+abbrev reprStr [Repr α] (a : α) : String :=
+  reprPrec a 0 |>.pretty
+
+abbrev reprArg [Repr α] (a : α) : Format :=
+  reprPrec a maxPrec!
 
 -- This instance is needed because `id` is not reducible
 instance [Repr α] : Repr (id α) :=
   inferInstanceAs (Repr α)
 
-instance : Repr Bool :=
-  ⟨fun b => cond b "true" "false"⟩
-
 instance [Repr α] : Repr (Id α) :=
   inferInstanceAs (Repr α)
 
-instance : Repr (Decidable p) := {
-  repr := fun h => match h with
-  | Decidable.isTrue _  => "true"
-  | Decidable.isFalse _ => "false"
-}
+instance : Repr Bool where
+  reprPrec
+    | true, _  => "true"
+    | false, _ => "false"
 
-protected def List.reprAux [Repr α] : Bool → List α → String
-  | b,     []    => ""
-  | true,  x::xs => repr x ++ List.reprAux false xs
-  | false, x::xs => ", " ++ repr x ++ List.reprAux false xs
+def Repr.addAppParen (f : Format) (prec : Nat) : Format :=
+  if prec >= maxPrec! then
+    Format.paren f
+  else
+    f
 
-protected def List.repr [Repr α] : List α → String
-  | []    => "[]"
-  | x::xs => "[" ++ List.reprAux true (x::xs) ++ "]"
+instance : Repr (Decidable p) where
+  reprPrec
+    | Decidable.isTrue _, prec  => Repr.addAppParen "isTrue _" prec
+    | Decidable.isFalse _, prec => Repr.addAppParen "isFalse _" prec
 
-instance [Repr α] : Repr (List α) :=
-  ⟨List.repr⟩
+instance [Repr α] : Repr (List α) where
+  reprPrec
+    | [], _ => "[]"
+    | as, _ => Format.bracketFill "[" (@Format.joinSep _ ⟨repr⟩ as ("," ++ Format.line)) "]"
 
-instance : Repr PUnit.{u+1} :=
-  ⟨fun u => "PUnit.unit"⟩
+instance : Repr PUnit.{u+1} where
+  reprPrec _ _ := "PUnit.unit"
 
-instance [Repr α] : Repr (ULift.{v} α) :=
-  ⟨fun v => "ULift.up (" ++ repr v.1 ++ ")"⟩
+instance [Repr α] : Repr (ULift.{v} α) where
+  reprPrec v prec :=
+    Repr.addAppParen ("ULift.up " ++ reprArg v.1) prec
 
-instance : Repr Unit :=
-  ⟨fun u => "()"⟩
+instance : Repr Unit where
+  reprPrec v _ := "()"
 
-instance [Repr α] : Repr (Option α) :=
-  ⟨fun | none => "none" | (some a) => "(some " ++ repr a ++ ")"⟩
+instance [Repr α] : Repr (Option α) where
+  reprPrec
+    | none,    _   => "none"
+    | some a, prec => Repr.addAppParen ("some " ++ reprArg a) prec
 
-instance [Repr α] [Repr β] : Repr (Sum α β) :=
-  ⟨fun | (inl a) => "(inl " ++ repr a ++ ")" | (inr b) => "(inr " ++ repr b ++ ")"⟩
+instance [Repr α] [Repr β] : Repr (Sum α β) where
+  reprPrec
+    | Sum.inl a, prec => Repr.addAppParen ("Sum.inl " ++ reprArg a) prec
+    | Sum.inr b, prec => Repr.addAppParen ("Sum.inr " ++ reprArg b) prec
 
-instance [Repr α] [Repr β] : Repr (α × β) :=
-  ⟨fun ⟨a, b⟩ => "(" ++ repr a ++ ", " ++ repr b ++ ")"⟩
+class ReprTuple (α : Type u) where
+  reprTuple : α → List Format → List Format
 
-instance {β : α → Type v} [Repr α] [s : (x : α) → Repr (β x)] : Repr (Sigma β) :=
-  ⟨fun ⟨a, b⟩ => "⟨"  ++ repr a ++ ", " ++ repr b ++ "⟩"⟩
+export ReprTuple (reprTuple)
 
-instance {p : α → Prop} [Repr α] : Repr (Subtype p) :=
-  ⟨fun s => repr (val s)⟩
+instance [Repr α] : ReprTuple α where
+  reprTuple a xs := repr a :: xs
+
+instance [Repr α] [ReprTuple β] : ReprTuple (α × β) where
+  reprTuple | (a, b), xs => reprTuple b (repr a :: xs)
+
+instance [Repr α] [ReprTuple β] : Repr (α × β) where
+  reprPrec | (a, b), _ =>
+    Format.bracketFill "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
+
+instance {β : α → Type v} [Repr α] [s : (x : α) → Repr (β x)] : Repr (Sigma β) where
+  reprPrec | ⟨a, b⟩, _ => Format.bracket "⟨" (repr a ++ ", " ++ repr b) "⟩"
+
+instance {p : α → Prop} [Repr α] : Repr (Subtype p) where
+  reprPrec s prec := reprPrec s.val prec
 
 namespace Nat
 
@@ -133,15 +159,15 @@ def toSuperscriptString (n : Nat) : String :=
 
 end Nat
 
-instance : Repr Nat :=
-  ⟨Nat.repr⟩
+instance : Repr Nat where
+  reprPrec n _ := Nat.repr n
 
-protected def Int.repr : Int → String
-  | ofNat m   => Nat.repr m
-  | negSucc m => "-" ++ Nat.repr (succ m)
+def Int.repr : Int → String
+    | ofNat m   => Nat.repr m
+    | negSucc m => "-" ++ Nat.repr (succ m)
 
 instance : Repr Int where
-  repr := Int.repr
+  reprPrec i _ := i.repr
 
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n
@@ -160,29 +186,40 @@ def Char.quoteCore (c : Char) : String :=
   else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ charToHex c
   else String.singleton c
 
-instance : Repr Char :=
-  ⟨fun c => "'" ++ Char.quoteCore c ++ "'"⟩
+def Char.quote (c : Char) : String :=
+  "'" ++ Char.quoteCore c ++ "'"
+
+instance : Repr Char where
+  reprPrec c _ := c.quote
 
 def String.quote (s : String) : String :=
   if s.isEmpty = true then "\"\""
   else s.foldl (fun s c => s ++ c.quoteCore) "\"" ++ "\""
 
-instance : Repr String :=
-  ⟨String.quote⟩
+instance : Repr String where
+  reprPrec s _ := s.quote
 
-instance : Repr Substring :=
-  ⟨fun s => String.quote s.toString ++ ".toSubstring"⟩
+instance : Repr Substring where
+  reprPrec s _ := Format.text <| String.quote s.toString ++ ".toSubstring"
 
-instance : Repr String.Iterator :=
-  ⟨fun ⟨s, pos⟩ => "(String.Iterator.mk " ++ repr s ++ " " ++ repr pos ++ ")"⟩
+instance : Repr String.Iterator where
+  reprPrec | ⟨s, pos⟩, prec =>
+    Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
 
-instance (n : Nat) : Repr (Fin n) :=
-  ⟨fun f => repr (Fin.val f)⟩
+instance (n : Nat) : Repr (Fin n) where
+  reprPrec f _ := repr f.val
 
-instance : Repr UInt16 := ⟨fun n => repr n.toNat⟩
-instance : Repr UInt32 := ⟨fun n => repr n.toNat⟩
-instance : Repr UInt64 := ⟨fun n => repr n.toNat⟩
-instance : Repr USize  := ⟨fun n => repr n.toNat⟩
+instance : Repr UInt16 where
+  reprPrec n _ := repr n.toNat
+
+instance : Repr UInt32 where
+  reprPrec n _ := repr n.toNat
+
+instance : Repr UInt64 where
+  reprPrec n _ := repr n.toNat
+
+instance : Repr USize where
+  reprPrec n _ := repr n.toNat
 
 protected def Char.repr (c : Char) : String :=
-  repr c
+  c.quote

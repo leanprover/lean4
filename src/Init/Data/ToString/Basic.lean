@@ -67,7 +67,7 @@ instance : ToString Unit :=
   ⟨fun u => "()"⟩
 
 instance : ToString Nat :=
-  ⟨fun n => repr n⟩
+  ⟨fun n => Nat.repr n⟩
 
 instance : ToString Int where
   toString
@@ -138,17 +138,12 @@ def String.toInt! (s : String) : Int :=
   | some v => v
   | none   => panic "Int expected"
 
-section
-variables {ε : Type u} {α : Type v}
+instance [ToString ε] [ToString α] : ToString (Except ε α) where
+  toString
+    | Except.error e => "error: " ++ toString e
+    | Except.ok a    => "ok: " ++ toString a
 
-protected def Except.toString [ToString ε] [ToString α] : Except ε α → String
-  | Except.error e => "(error " ++ toString e ++ ")"
-  | Except.ok a    => "(ok " ++ toString a ++ ")"
-
-protected def Except.repr [Repr ε] [Repr α] : Except ε α → String
-  | Except.error e => "(error " ++ repr e ++ ")"
-  | Except.ok a    => "(ok " ++ repr a ++ ")"
-
-instance [ToString ε] [ToString α] : ToString (Except ε α) := ⟨Except.toString⟩
-instance [Repr ε] [Repr α] : Repr (Except ε α) := ⟨Except.repr⟩
-end
+instance [Repr ε] [Repr α] : Repr (Except ε α) where
+  reprPrec
+    | Except.error e, prec => Repr.addAppParen ("Except.error " ++ reprArg e) prec
+    | Except.ok a, prec    => Repr.addAppParen ("Except.ok " ++ reprArg a) prec

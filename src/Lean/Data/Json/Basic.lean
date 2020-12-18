@@ -74,8 +74,8 @@ protected def shiftr : JsonNumber → Nat → JsonNumber
 
 instance : ToString JsonNumber := ⟨JsonNumber.toString⟩
 
-instance : Repr JsonNumber :=
-  ⟨fun ⟨m, e⟩ => "⟨" ++ m.repr ++ "," ++ e.repr ++ "⟩"⟩
+instance : Repr JsonNumber where
+  reprPrec | ⟨m, e⟩, _ => Std.Format.bracket "⟨" (repr m ++ "," ++ repr e) "⟩"
 
 end JsonNumber
 

@@ -19,9 +19,9 @@ instance [ToString ε] [ToString α] : ToString (Result ε σ α) where
     | Result.error e _ => "error: " ++ toString e
 
 instance [Repr ε] [Repr α] : Repr (Result ε σ α) where
-  repr
-    | Result.error e _ => "(error " ++ repr e ++ ")"
-    | Result.ok a _    => "(ok " ++ repr a ++ ")"
+  reprPrec
+    | Result.error e _, prec => Repr.addAppParen ("EStateM.Result.error " ++ reprArg e) prec
+    | Result.ok a _, prec    => Repr.addAppParen ("EStateM.Result.ok " ++ reprArg a) prec
 
 end EStateM
 

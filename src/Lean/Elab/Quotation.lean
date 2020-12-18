@@ -258,9 +258,7 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
   | _,             []           => throwError "non-exhaustive 'match_syntax'"
   | discr::discrs, alts         => do
     let alts := (alts.map getHeadInfo).zip alts;
-    -- Choose a most specific pattern, ie. a minimal element according to `generalizes`.
-    -- If there are multiple minimal elements, the choice does not matter.
-    let (info, alt) := alts.tail!.foldl (fun (min : HeadInfo × Alt) (alt : HeadInfo × Alt) => if min.1.generalizes alt.1 then alt else min) alts.head!;
+    let (info, alt) := alts.head!
     -- introduce pattern matches on the discriminant's children if there are any nested patterns
     let newDiscrs ← match info with
       | basic { argPats := some pats, .. } => (List.range pats.size).mapM fun i => `(Syntax.getArg discr $(quote i))

@@ -59,8 +59,8 @@ variables {α : Type u} {β : Type v} {lt : α → α → Bool}
   | some ⟨a, _⟩ => some a
   | none        => none
 
-instance [Repr α] : Repr (RBTree α lt) :=
-  ⟨fun t => "rbtreeOf " ++ repr t.toList⟩
+instance [Repr α] : Repr (RBTree α lt) where
+  reprPrec t prec := Repr.addAppParen ("Std.rbtreeOf " ++ repr t.toList) prec
 
 @[inline] def insert (t : RBTree α lt) (a : α) : RBTree α lt :=
   RBMap.insert t a ()

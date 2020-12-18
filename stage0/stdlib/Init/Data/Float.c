@@ -29,7 +29,9 @@ double lean_float_of_nat(lean_object*);
 double l_Nat_toFloat(lean_object*);
 lean_object* l_instSubFloat___closed__1;
 lean_object* l_Float_cos___boxed(lean_object*);
+lean_object* l_instReprFloat(double, lean_object*);
 extern uint8_t l_instDecidableTrue;
+lean_object* l_instReprFloat___boxed(lean_object*, lean_object*);
 double l_instOfNatFloat(lean_object*);
 uint8_t l_Float_beq(double, double);
 double sqrt(double);
@@ -39,6 +41,7 @@ lean_object* l_Float_pow___boxed(lean_object*, lean_object*);
 lean_object* l_instHasLessFloat;
 lean_object* l_Float_cbrt___boxed(lean_object*);
 lean_object* l_Float_atanh___boxed(lean_object*);
+lean_object* l_instReprAtomFloat;
 double atanh(double);
 lean_object* l_floatSpec___closed__1;
 uint8_t l_Float_decLe(double, double);
@@ -456,6 +459,35 @@ x_1 = l_instToStringFloat___closed__1;
 return x_1;
 }
 }
+lean_object* l_instReprFloat(double x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_float_to_string(x_1);
+x_4 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_4, 0, x_3);
+return x_4;
+}
+}
+lean_object* l_instReprFloat___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+double x_3; lean_object* x_4; 
+x_3 = lean_unbox_float(x_1);
+lean_dec(x_1);
+x_4 = l_instReprFloat(x_3, x_2);
+lean_dec(x_2);
+return x_4;
+}
+}
+static lean_object* _init_l_instReprAtomFloat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
 double l_Nat_toFloat(lean_object* x_1) {
 _start:
 {
@@ -787,6 +819,8 @@ l_instToStringFloat___closed__1 = _init_l_instToStringFloat___closed__1();
 lean_mark_persistent(l_instToStringFloat___closed__1);
 l_instToStringFloat = _init_l_instToStringFloat();
 lean_mark_persistent(l_instToStringFloat);
+l_instReprAtomFloat = _init_l_instReprAtomFloat();
+lean_mark_persistent(l_instReprAtomFloat);
 l_instPowFloat___closed__1 = _init_l_instPowFloat___closed__1();
 lean_mark_persistent(l_instPowFloat___closed__1);
 l_instPowFloat = _init_l_instPowFloat();

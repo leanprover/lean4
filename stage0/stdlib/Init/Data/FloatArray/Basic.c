@@ -21,7 +21,6 @@ lean_object* l_List_toFloatArray(lean_object*);
 lean_object* l_instToStringFloatArray___boxed(lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__9;
 lean_object* l_FloatArray_set_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l_FloatArray_push___boxed(lean_object*, lean_object*);
 lean_object* l_FloatArray_set_match__1(lean_object*);
 lean_object* lean_float_array_push(lean_object*, double);
@@ -41,6 +40,7 @@ lean_object* l_FloatArray_toList_loop___boxed(lean_object*, lean_object*, lean_o
 lean_object* l_List_toFloatArray_loop(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_FloatArray_set___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_instReprList___rarg___closed__1;
 lean_object* l_FloatArray_get_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_FloatArray_set_x21_match__1___rarg(lean_object*, lean_object*, double, lean_object*);
 lean_object* l_FloatArray_empty;
@@ -570,7 +570,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; 
-x_2 = l_List_repr___rarg___closed__1;
+x_2 = l_instReprList___rarg___closed__1;
 return x_2;
 }
 else

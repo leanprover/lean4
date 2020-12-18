@@ -18,7 +18,6 @@ lean_object* l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__2(l
 lean_object* l_Lean_rootNamespace;
 extern lean_object* l_term_x5b___x5d___closed__9;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l_List_beq___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -28,6 +27,7 @@ lean_object* l_List_toStringAux___at_Lean_OpenDecl_instToStringOpenDecl___spec__
 lean_object* l_Lean_rootNamespace___closed__2;
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_removeRoot(lean_object*);
+extern lean_object* l_instReprList___rarg___closed__1;
 lean_object* l_Lean_OpenDecl_instInhabitedOpenDecl;
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl_match__1(lean_object*);
 lean_object* l_Lean_OpenDecl_instToStringOpenDecl(lean_object*);
@@ -211,7 +211,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; 
-x_2 = l_List_repr___rarg___closed__1;
+x_2 = l_instReprList___rarg___closed__1;
 return x_2;
 }
 else

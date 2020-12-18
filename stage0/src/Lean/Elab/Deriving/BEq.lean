@@ -11,10 +11,8 @@ namespace Lean.Elab.Deriving.BEq
 open Lean.Parser.Term
 open Meta
 
-open Binary (Header mkDiscrs)
-
-def mkHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
-  Binary.mkHeader ctx `BEq indVal
+def mkBEqHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
+  mkHeader ctx `BEq 2 indVal
 
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
   let discrs ← mkDiscrs header indVal
@@ -73,7 +71,7 @@ where
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
   let auxFunName ← ctx.auxFunNames[i]
   let indVal     ← ctx.typeInfos[i]
-  let header     ← mkHeader ctx indVal
+  let header     ← mkBEqHeader ctx indVal
   let mut body   ← mkMatch ctx header indVal auxFunName
   if ctx.usePartial then
     let letDecls ← mkLocalInstanceLetDecls ctx `BEq header.argNames

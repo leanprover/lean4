@@ -11,10 +11,9 @@ import Lean.Elab.Deriving.Util
 namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
 open Meta
-open Binary (Header mkDiscrs)
 
-def mkHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
-  Binary.mkHeader ctx `DecidableEq indVal
+def mkDecEqHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
+  mkHeader ctx `DecidableEq 2 indVal
 
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) (argNames : Array Name) : TermElabM Syntax := do
   let discrs ← mkDiscrs header indVal
@@ -82,10 +81,10 @@ where
 def mkAuxFunction (ctx : Context) : TermElabM Syntax := do
   let auxFunName ← ctx.auxFunNames[0]
   let indVal     ← ctx.typeInfos[0]
-  let header     ← mkHeader ctx indVal
+  let header     ← mkDecEqHeader ctx indVal
   let mut body   ← mkMatch ctx header indVal auxFunName header.argNames
   let binders    := header.binders
-  let type       ← `(Decidable ($(mkIdent header.target1Name) = $(mkIdent header.target2Name)))
+  let type       ← `(Decidable ($(mkIdent header.targetNames[0]) = $(mkIdent header.targetNames[1])))
   `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : $type:term := $body:term)
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do

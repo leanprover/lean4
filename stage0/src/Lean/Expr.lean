@@ -657,9 +657,6 @@ def replaceFVars (e : Expr) (fvars : Array Expr) (vs : Array Expr) : Expr :=
 instance : ToString Expr where
   toString := Expr.dbgToString
 
--- TODO: should not use dbgToString, but constructors.
-instance : Repr Expr := ⟨Expr.dbgToString⟩
-
 def isAtomic : Expr → Bool
   | Expr.const _ _ _ => true
   | Expr.sort _ _    => true
@@ -714,7 +711,6 @@ protected def hash : ExprStructEq → USize
 instance : BEq ExprStructEq := ⟨ExprStructEq.beq⟩
 instance : Hashable ExprStructEq := ⟨ExprStructEq.hash⟩
 instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
-instance : Repr ExprStructEq := ⟨fun e => repr e.val⟩
 
 end ExprStructEq
 

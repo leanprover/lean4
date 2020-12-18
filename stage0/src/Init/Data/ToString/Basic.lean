@@ -8,10 +8,12 @@ import Init.Data.String.Basic
 import Init.Data.UInt
 import Init.Data.Nat.Div
 import Init.Data.Repr
+import Init.Data.Int.Basic
+import Init.Data.Format.Basic
 import Init.Control.Id
 open Sum Subtype Nat
 
-universes u v
+open Std
 
 class ToString (α : Type u) where
   toString : α → String
@@ -65,7 +67,12 @@ instance : ToString Unit :=
   ⟨fun u => "()"⟩
 
 instance : ToString Nat :=
-  ⟨fun n => repr n⟩
+  ⟨fun n => Nat.repr n⟩
+
+instance : ToString Int where
+  toString
+    | Int.ofNat m   => toString m
+    | Int.negSucc m => "-" ++ toString (succ m)
 
 instance : ToString Char :=
   ⟨fun c => c.toString⟩
@@ -88,6 +95,9 @@ instance : ToString UInt64 :=
 instance : ToString USize :=
   ⟨fun n => toString n.toNat⟩
 
+instance : ToString Format where
+  toString f := f.pretty
+
 def addParenHeuristic (s : String) : String :=
   if "(".isPrefixOf s || "[".isPrefixOf s || "{".isPrefixOf s || "#[".isPrefixOf s then s
   else if !s.any Char.isWhitespace then s
@@ -109,3 +119,31 @@ instance {α : Type u} {β : α → Type v} [ToString α] [s : ∀ x, ToString (
 
 instance {α : Type u} {p : α → Prop} [ToString α] : ToString (Subtype p) := ⟨fun s =>
   toString (val s)⟩
+
+def String.toInt? (s : String) : Option Int :=
+  if s.get 0 = '-' then do
+    let v ← (s.toSubstring.drop 1).toNat?;
+    pure <| - Int.ofNat v
+  else
+   Int.ofNat <$> s.toNat?
+
+def String.isInt (s : String) : Bool :=
+  if s.get 0 = '-' then
+    (s.toSubstring.drop 1).isNat
+  else
+    s.isNat
+
+def String.toInt! (s : String) : Int :=
+  match s.toInt? with
+  | some v => v
+  | none   => panic "Int expected"
+
+instance [ToString ε] [ToString α] : ToString (Except ε α) where
+  toString
+    | Except.error e => "error: " ++ toString e
+    | Except.ok a    => "ok: " ++ toString a
+
+instance [Repr ε] [Repr α] : Repr (Except ε α) where
+  reprPrec
+    | Except.error e, prec => Repr.addAppParen ("Except.error " ++ reprArg e) prec
+    | Except.ok a, prec    => Repr.addAppParen ("Except.ok " ++ reprArg a) prec

@@ -157,6 +157,7 @@ lean_object* l_Lean_Elab_mkUnusedBaseName___rarg___lambda__1(lean_object*, lean_
 extern lean_object* l_Lean_getSanitizeNames___closed__1;
 lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_getId___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Elab_getMacros___spec__3___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(lean_object*);
 lean_object* l___private_Lean_Elab_Util_0__Lean_Elab_expandMacro_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_evalSyntaxConstant(lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
@@ -165,7 +166,6 @@ lean_object* l_Lean_Syntax_getPos(lean_object*);
 lean_object* l_Lean_Elab_getBetterRef___closed__1;
 lean_object* l_Lean_Elab_getBetterRef___boxed(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Lean_MacroScopesView_review___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespacesAux_match__1(lean_object*);
 lean_object* l_Lean_Elab_getBetterRef_match__1(lean_object*);
 extern size_t l_Std_PersistentHashMap_insertAux___rarg___closed__2;
@@ -291,7 +291,7 @@ lean_dec(x_7);
 x_10 = l_Lean_Name_append(x_9, x_5);
 lean_dec(x_9);
 x_11 = l_List_foldl___at_Lean_MacroScopesView_review___spec__1(x_10, x_3);
-x_12 = l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(x_11);
+x_12 = l_Std_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(x_11);
 return x_12;
 }
 else
@@ -306,7 +306,7 @@ lean_dec(x_1);
 x_15 = l_Lean_Name_append(x_13, x_14);
 lean_dec(x_13);
 x_16 = l_List_foldl___at_Lean_MacroScopesView_review___spec__1(x_15, x_3);
-x_17 = l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(x_16);
+x_17 = l_Std_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(x_16);
 return x_17;
 }
 }
@@ -317,7 +317,7 @@ lean_dec(x_3);
 x_18 = lean_ctor_get(x_1, 0);
 lean_inc(x_18);
 lean_dec(x_1);
-x_19 = l_Lean_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(x_18);
+x_19 = l_Std_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(x_18);
 return x_19;
 }
 }

@@ -21,7 +21,6 @@ lean_object* l_Lean_LBool_instToStringLBool;
 extern lean_object* l_instReprBool___closed__1;
 lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_11__match__1(lean_object*);
 lean_object* l_Lean_LBool_toString___boxed(lean_object*);
-extern lean_object* l_instReprBool___closed__2;
 lean_object* l_Bool_toLBool_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_toLBoolM(lean_object*);
 lean_object* l_Bool_toLBool_match__1___rarg(uint8_t, lean_object*, lean_object*);
@@ -30,6 +29,7 @@ lean_object* l_Lean_LBool_neg_match__1(lean_object*);
 lean_object* l_Lean_LBool_neg_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LBool_and(uint8_t, uint8_t);
 lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_11__match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_instReprBool___closed__3;
 lean_object* l_Lean_LBool_and_match__1(lean_object*);
 lean_object* l_Lean_LBool_neg___boxed(lean_object*);
 lean_object* l_Bool_toLBool___boxed(lean_object*);
@@ -485,7 +485,7 @@ return x_2;
 case 1:
 {
 lean_object* x_3; 
-x_3 = l_instReprBool___closed__2;
+x_3 = l_instReprBool___closed__3;
 return x_3;
 }
 default: 

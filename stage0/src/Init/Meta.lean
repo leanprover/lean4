@@ -44,12 +44,16 @@ def toStringWithSep (sep : String) : Name → String
   | str anonymous s _ => s
   | num anonymous v _ => toString v
   | str n s _         => toStringWithSep sep n ++ sep ++ s
-  | num n v _         => toStringWithSep sep n ++ sep ++ repr v
+  | num n v _         => toStringWithSep sep n ++ sep ++ Nat.repr v
 
 protected def toString : Name → String :=
-toStringWithSep "."
+  toStringWithSep "."
 
-instance : ToString Name := ⟨Name.toString⟩
+instance : ToString Name where
+  toString n := n.toString
+
+instance : Repr Name where
+  reprPrec n _ := Std.Format.text "`" ++ n.toString
 
 def capitalize : Name → Name
   | Name.str p s _ => Name.mkStr p s.capitalize
@@ -285,7 +289,7 @@ def mkLit (kind : SyntaxNodeKind) (val : String) (info : SourceInfo := {}) : Syn
   Syntax.node kind #[atom]
 
 def mkStrLit (val : String) (info : SourceInfo := {}) : Syntax :=
-  mkLit strLitKind (repr val) info
+  mkLit strLitKind (String.quote val) info
 
 def mkNumLit (val : String) (info : SourceInfo := {}) : Syntax :=
   mkLit numLitKind val info

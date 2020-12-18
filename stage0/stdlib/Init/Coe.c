@@ -26,7 +26,6 @@ lean_object* l_instHDiv__1___rarg(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_coeD___rarg(lean_object*);
 lean_object* l_coeOfTCOfTail(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHMul__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2022____closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_instHOrElse__2(lean_object*, lean_object*);
 lean_object* l_instHSub__1(lean_object*, lean_object*);
@@ -102,6 +101,7 @@ lean_object* l_instCoeTail__1(lean_object*, lean_object*);
 lean_object* l_coeOfDep___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Coe___hyg_160____closed__6;
 lean_object* l_term_u2191_____closed__5;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2094____closed__4;
 lean_object* l_instHMod__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeTrans___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -460,7 +460,7 @@ x_22 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_20);
 x_23 = lean_array_push(x_19, x_22);
-x_24 = l_myMacro____x40_Init_Notation___hyg_2022____closed__4;
+x_24 = l_myMacro____x40_Init_Notation___hyg_2094____closed__4;
 x_25 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_23);
@@ -497,7 +497,7 @@ lean_object* l_unexpand____x40_Init_Coe___hyg_141_(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_myMacro____x40_Init_Notation___hyg_2022____closed__4;
+x_3 = l_myMacro____x40_Init_Notation___hyg_2094____closed__4;
 lean_inc(x_1);
 x_4 = l_Lean_Syntax_isOfKind(x_1, x_3);
 if (x_4 == 0)

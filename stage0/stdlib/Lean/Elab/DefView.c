@@ -41,7 +41,6 @@ lean_object* l_Lean_Elab_Command_mkDefViewOfInstance___lambda__1(lean_object*, l
 extern lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandOptIdent___closed__1;
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12942____closed__13;
 lean_object* l_Lean_Elab_mkUnusedBaseName___at_Lean_Elab_Command_MkInstanceName_main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
@@ -155,6 +154,7 @@ lean_object* l_Lean_Elab_Command_MkInstanceName_isFirst(lean_object*, lean_objec
 lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_type___elambda__1___closed__17;
 lean_object* l_Lean_Elab_Command_mkDefViewOfInstance_match__2(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13014____closed__13;
 lean_object* l_Lean_Elab_Command_getCurrMacroScope(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 extern lean_object* l_Lean_Elab_instInhabitedModifiers___closed__1;
@@ -4767,7 +4767,7 @@ lean_ctor_set(x_25, 0, x_22);
 lean_ctor_set(x_25, 1, x_23);
 lean_ctor_set(x_25, 2, x_21);
 lean_ctor_set(x_25, 3, x_24);
-x_26 = l_myMacro____x40_Init_Notation___hyg_12942____closed__13;
+x_26 = l_myMacro____x40_Init_Notation___hyg_13014____closed__13;
 x_27 = l_Lean_mkAtomFrom(x_2, x_26);
 x_28 = l_Lean_Syntax_mkApp___closed__1;
 x_29 = lean_array_push(x_28, x_27);

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 extern lean_object* l_term_x5b___x5d___closed__9;
-extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader_match__1(lean_object*);
 lean_object* l_Lean_Lsp_readLspMessage(lean_object*, lean_object*);
 extern lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__28;
@@ -44,6 +43,7 @@ uint8_t l_instDecidableNot___rarg(uint8_t);
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* l_Lean_Lsp_writeLspNotification___rarg___closed__2;
 extern lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__7;
+extern lean_object* l_instReprList___rarg___closed__1;
 lean_object* l_List_lookup___at___private_Lean_Data_Lsp_Communication_0__Lean_Lsp_readLspHeader___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_writeLspNotification___rarg___closed__1;
 extern lean_object* l___private_Init_Util_0__mkPanicMessage___closed__2;
@@ -703,7 +703,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; 
-x_2 = l_List_repr___rarg___closed__1;
+x_2 = l_instReprList___rarg___closed__1;
 return x_2;
 }
 else

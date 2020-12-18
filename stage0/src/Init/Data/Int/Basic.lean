@@ -6,10 +6,9 @@ Authors: Jeremy Avigad, Leonardo de Moura
 The integers, with addition, multiplication, and subtraction.
 -/
 prelude
-import Init.Data.Nat.Basic
-import Init.Data.List
-import Init.Data.Repr
-import Init.Data.ToString.Basic
+import Init.Coe
+import Init.Data.Nat.Div
+import Init.Data.List.Basic
 open Nat
 
 /- the Type, coercions, and notation -/
@@ -125,16 +124,6 @@ def natAbs (m : @& Int) : Nat :=
   | ofNat m   => m
   | negSucc m => m.succ
 
-protected def repr : Int → String
-  | ofNat m   => Nat.repr m
-  | negSucc m => "-" ++ Nat.repr (succ m)
-
-instance : Repr Int where
-  repr := Int.repr
-
-instance : ToString Int where
-  toString := Int.repr
-
 instance : OfNat Int n where
   ofNat := Int.ofNat n
 
@@ -172,25 +161,3 @@ instance : HPow Int Nat Int where
   hPow := Int.pow
 
 end Int
-
-namespace String
-
-def toInt? (s : String) : Option Int :=
-  if s.get 0 = '-' then do
-    let v ← (s.toSubstring.drop 1).toNat?;
-    pure <| - Int.ofNat v
-  else
-   Int.ofNat <$> s.toNat?
-
-def isInt (s : String) : Bool :=
-  if s.get 0 = '-' then
-    (s.toSubstring.drop 1).isNat
-  else
-    s.isNat
-
-def toInt! (s : String) : Int :=
-  match s.toInt? with
-  | some v => v
-  | none   => panic! "Int expected"
-
-end String

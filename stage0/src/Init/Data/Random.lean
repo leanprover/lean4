@@ -38,8 +38,7 @@ instance : Inhabited StdGen := ⟨{ s1 := 0, s2 := 0 }⟩
 def stdRange := (1, 2147483562)
 
 instance : Repr StdGen where
-  repr := fun ⟨s1, s2⟩ => "⟨" ++ toString s1 ++ ", " ++ toString s2 ++ "⟩"
-
+  reprPrec | ⟨s1, s2⟩, _ => Std.Format.bracket "⟨" (repr s1 ++ ", " ++ repr s2) "⟩"
 
 def stdNext : StdGen → Nat × StdGen
   | ⟨s1, s2⟩ =>

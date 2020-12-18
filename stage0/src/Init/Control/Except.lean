@@ -6,26 +6,10 @@ Authors: Jared Roesch, Sebastian Ullrich
 The Except monad transformer.
 -/
 prelude
-import Init.Data.ToString.Basic
 import Init.Control.Basic
 import Init.Control.Id
 
 universes u v w u'
-
-section
-variables {ε : Type u} {α : Type v}
-
-protected def Except.toString [ToString ε] [ToString α] : Except ε α → String
-  | Except.error e => "(error " ++ toString e ++ ")"
-  | Except.ok a    => "(ok " ++ toString a ++ ")"
-
-protected def Except.repr [Repr ε] [Repr α] : Except ε α → String
-  | Except.error e => "(error " ++ repr e ++ ")"
-  | Except.ok a    => "(ok " ++ repr a ++ ")"
-
-instance [ToString ε] [ToString α] : ToString (Except ε α) := ⟨Except.toString⟩
-instance [Repr ε] [Repr α] : Repr (Except ε α) := ⟨Except.repr⟩
-end
 
 namespace Except
 variables {ε : Type u}
@@ -135,7 +119,7 @@ variables {ε : Type u} {m : Type v → Type w}
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/
 @[inline] def orelse' [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) (useFirstEx := true) : m α :=
-  tryCatch t₁ fun e₁ => tryCatch t₂ fun e₂ => throw (if useFirstEx then e₁ else e₂)
+  tryCatch t₁ fun e₁ => tryCatch t₂ fun e₂ => throw (if useFirstEx = true then e₁ else e₂)
 
 end MonadExcept
 

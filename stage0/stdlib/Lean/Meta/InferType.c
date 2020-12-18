@@ -131,7 +131,6 @@ lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_InferType_0__Lean_M
 lean_object* l_Std_HashMapImp_expand___at_Lean_Expr_instantiateBetaRevRange_visit___spec__5(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateBetaRevRange(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_Data_Format_0__Lean_Format_be___closed__1;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
@@ -312,6 +311,7 @@ lean_object* l_Lean_Meta_isProp_match__2___rarg___boxed(lean_object*, lean_objec
 lean_object* l_Lean_Meta_isType_match__2(lean_object*);
 uint8_t l___private_Lean_Meta_InferType_0__Lean_Meta_isAlwaysZero(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_throwIncorrectNumberOfLevels___spec__1(lean_object*);
+extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__2;
 lean_object* l_Lean_Meta_isProp_match__2___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProofQuick(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1314,7 +1314,7 @@ static lean_object* _init_l_Lean_Expr_instantiateBetaRevRange_visit___closed__5(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Data_Format_0__Lean_Format_be___closed__1;
+x_1 = l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__2;
 x_2 = l_Lean_instInhabitedExpr;
 x_3 = l_instInhabited___rarg(x_1, x_2);
 return x_3;

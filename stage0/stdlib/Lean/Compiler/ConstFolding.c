@@ -18,7 +18,6 @@ lean_object* l_Lean_Compiler_unFoldFns___closed__3;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__5;
 lean_object* l_Lean_Compiler_mkNatLe(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__14;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_5846____closed__4;
 extern lean_object* l_Nat_instDivNat___closed__1;
 lean_object* l_Lean_Compiler_foldNatBinPred___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes;
@@ -35,7 +34,6 @@ lean_object* l_Lean_Compiler_foldStrictAnd_match__1___rarg(lean_object*, lean_ob
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes___closed__25;
 lean_object* l_Lean_Compiler_foldStrictAnd_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_4310____closed__7;
 lean_object* l_Lean_Compiler_uintFoldToNatFns___closed__1;
 lean_object* l_Lean_Compiler_foldUIntMod___closed__1;
 lean_object* l_Lean_Compiler_natFoldFns___closed__5;
@@ -96,7 +94,6 @@ lean_object* l_Lean_Compiler_foldNatMul___boxed(lean_object*);
 lean_object* l_Lean_Compiler_binFoldFns___closed__2;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__22;
 lean_object* l_Lean_Compiler_NumScalarTypeInfo_toNatFn___default___closed__1;
-extern lean_object* l_instReprBool___closed__2;
 lean_object* l_Lean_Compiler_uintFoldToNatFns;
 lean_object* l_Lean_Compiler_foldNatDecLe___closed__1;
 extern lean_object* l_Lean_instQuoteBool___closed__1;
@@ -162,12 +159,14 @@ lean_object* l_Lean_Compiler_numScalarTypes___closed__15;
 lean_object* l_List_lookup___at_Lean_Compiler_findUnFoldFn___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes___closed__14;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__12;
+extern lean_object* l_instReprBool___closed__3;
 lean_object* l_Lean_Compiler_boolFoldFns___closed__8;
 lean_object* l_Lean_Compiler_getBoolLit_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldUIntMod___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_getInfoFromFn(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkNatEq___closed__4;
 lean_object* l_Lean_Compiler_unFoldFns___closed__8;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_4382____closed__7;
 lean_object* l_Lean_Compiler_natFoldFns___closed__12;
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Compiler_findUnFoldFn(lean_object*);
@@ -183,6 +182,7 @@ lean_object* l_Lean_Compiler_isOfNat___boxed(lean_object*);
 lean_object* l_Lean_Compiler_mkNatLt___closed__7;
 lean_object* l_Lean_Compiler_getBoolLit(lean_object*);
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_4898____closed__7;
 lean_object* l_Lean_Compiler_mkLcProof(lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes___closed__9;
 lean_object* l_Lean_Compiler_mkUIntTypeName(lean_object*);
@@ -199,7 +199,6 @@ lean_object* l_Lean_Compiler_boolFoldFns___closed__4;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__26;
 lean_object* l_Lean_Compiler_mkUIntTypeName___closed__1;
 lean_object* l_Lean_Compiler_foldStrictOr_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_4826____closed__7;
 extern lean_object* l_Lean_Literal_type___closed__2;
 lean_object* l_Lean_Compiler_mkUIntLit___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatPow(uint8_t);
@@ -265,6 +264,7 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkNatLe___closed__1;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__2;
 lean_object* l_Lean_Compiler_mkNatLe___closed__4;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_5918____closed__4;
 lean_object* l_Lean_Compiler_foldUIntDiv___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_toDecidableExpr_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkNatLt___closed__6;
@@ -2282,7 +2282,7 @@ static lean_object* _init_l_Lean_Compiler_mkNatEq___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_5846____closed__4;
+x_1 = l_myMacro____x40_Init_Notation___hyg_5918____closed__4;
 x_2 = l_Lean_Compiler_mkNatEq___closed__1;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
@@ -2337,7 +2337,7 @@ static lean_object* _init_l_Lean_Compiler_mkNatLt___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_4826____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_4898____closed__7;
 x_2 = l_Lean_Compiler_mkNatLt___closed__1;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
@@ -2408,7 +2408,7 @@ static lean_object* _init_l_Lean_Compiler_mkNatLe___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_4310____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_4382____closed__7;
 x_2 = l_Lean_Compiler_mkNatLt___closed__1;
 x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
@@ -3258,7 +3258,7 @@ x_22 = lean_ctor_get(x_1, 1);
 lean_dec(x_22);
 x_23 = lean_ctor_get(x_1, 0);
 lean_dec(x_23);
-x_24 = l_instReprBool___closed__2;
+x_24 = l_instReprBool___closed__3;
 x_25 = lean_string_dec_eq(x_11, x_24);
 if (x_25 == 0)
 {
@@ -3309,7 +3309,7 @@ else
 {
 lean_object* x_37; uint8_t x_38; 
 lean_dec(x_1);
-x_37 = l_instReprBool___closed__2;
+x_37 = l_instReprBool___closed__3;
 x_38 = lean_string_dec_eq(x_11, x_37);
 if (x_38 == 0)
 {
@@ -3392,7 +3392,7 @@ if (lean_is_exclusive(x_1)) {
  lean_dec_ref(x_1);
  x_56 = lean_box(0);
 }
-x_57 = l_instReprBool___closed__2;
+x_57 = l_instReprBool___closed__3;
 x_58 = lean_string_dec_eq(x_11, x_57);
 if (x_58 == 0)
 {
@@ -3495,7 +3495,7 @@ if (lean_is_exclusive(x_1)) {
  lean_dec_ref(x_1);
  x_81 = lean_box(0);
 }
-x_82 = l_instReprBool___closed__2;
+x_82 = l_instReprBool___closed__3;
 x_83 = lean_string_dec_eq(x_73, x_82);
 if (x_83 == 0)
 {
@@ -3665,7 +3665,7 @@ return x_9;
 else
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_instReprBool___closed__2;
+x_10 = l_instReprBool___closed__3;
 x_11 = lean_string_dec_eq(x_5, x_10);
 if (x_11 == 0)
 {

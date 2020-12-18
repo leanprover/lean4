@@ -135,7 +135,7 @@ def concat (x : FormatterM Unit) : FormatterM Unit := do
 def indent (x : Formatter) (indent : Option Int := none) : Formatter := do
   concat x
   let ctx ← read
-  let indent := indent.getD $ Format.getIndent ctx.options
+  let indent := indent.getD $ Std.Format.getIndent ctx.options
   modify fun st => { st with stack := st.stack.pop.push (Format.nest indent st.stack.back) }
 
 def group (x : Formatter) : Formatter := do
@@ -293,7 +293,7 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
       if ws.contains '\n' then do
         -- Indentation is automatically increased when entering a category, but comments should be aligned
         -- with the actual token, so dedent
-        indent (push s!"{ss'}\n") (some ((0:Int) - Format.getIndent (← getOptions)))
+        indent (push s!"{ss'}\n") (some ((0:Int) - Std.Format.getIndent (← getOptions)))
       else
         push s!"{ss'} "
       modify fun st => { st with leadWord := "" }

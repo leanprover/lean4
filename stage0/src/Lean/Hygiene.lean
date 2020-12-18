@@ -78,7 +78,7 @@ structure NameSanitizerState where
 
 private partial def mkFreshInaccessibleUserName (userName : Name) (idx : Nat) : StateM NameSanitizerState Name := do
   let s ← get
-  let userNameNew := mkInaccessibleUserName (Format.getUnicode s.options) (Name.mkNum userName idx)
+  let userNameNew := mkInaccessibleUserName (Std.Format.getUnicode s.options) (Name.mkNum userName idx)
   if s.nameStem2Idx.contains userNameNew then
     mkFreshInaccessibleUserName userName (idx+1)
   else do

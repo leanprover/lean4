@@ -108,41 +108,34 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       instances := instances.push instCmd
   return instances
 
-namespace Binary
+def mkDiscr (varName : Name) : TermElabM Syntax :=
+ `(Parser.Term.matchDiscr| $(mkIdent varName):term)
 
 structure Header where
   binders     : Array Syntax
   argNames    : Array Name
-  target1Name : Name
-  target2Name : Name
+  targetNames : Array Name
 
-def mkHeader (ctx : Context) (className : Name) (indVal : InductiveVal) : TermElabM Header := do
+def mkHeader (ctx : Context) (className : Name) (arity : Nat) (indVal : InductiveVal) : TermElabM Header := do
   let argNames      ← mkInductArgNames indVal
   let binders       ← mkImplicitBinders argNames
   let targetType    ← mkInductiveApp indVal argNames
-  let target1Name   ← mkFreshUserName `x
-  let target2Name   ← mkFreshUserName `y
+  let mut targetNames := #[]
+  for i in [:arity] do
+    targetNames := targetNames.push (← mkFreshUserName `x)
   let binders      := binders ++ (← mkInstImplicitBinders className indVal argNames)
-  let target1Binder ← `(explicitBinderF| ($(mkIdent target1Name) : $targetType))
-  let target2Binder ← `(explicitBinderF| ($(mkIdent target2Name) : $targetType))
-  let binders      := binders ++ #[target1Binder, target2Binder]
+  let binders      := binders ++ (← targetNames.mapM fun targetName => `(explicitBinderF| ($(mkIdent targetName) : $targetType)))
   return {
     binders     := binders
     argNames    := argNames
-    target1Name := target1Name
-    target2Name := target2Name
+    targetNames := targetNames
   }
-
-def mkDiscr (varName : Name) : TermElabM Syntax :=
- `(Parser.Term.matchDiscr| $(mkIdent varName):term)
 
 def mkDiscrs (header : Header) (indVal : InductiveVal) : TermElabM (Array Syntax) := do
   let mut discrs := #[]
   -- add indices
   for argName in header.argNames[indVal.nparams:] do
     discrs := discrs.push (← mkDiscr argName)
-  return discrs ++ #[← mkDiscr header.target1Name, ← mkDiscr header.target2Name]
-
-end Binary
+  return discrs ++ (← header.targetNames.mapM mkDiscr)
 
 end Lean.Elab.Deriving

@@ -65,7 +65,7 @@ partial def render : Json → Format
 end
 
 def pretty (j : Json) (lineWidth := 80) : String :=
-  Format.prettyAux (render j) lineWidth
+  Format.pretty (render j) lineWidth
 
 partial def compress : Json → String
   | null       => "null"

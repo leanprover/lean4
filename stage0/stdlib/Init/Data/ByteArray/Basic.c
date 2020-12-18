@@ -19,7 +19,6 @@ lean_object* l_ByteArray_instAppendByteArray___closed__1;
 lean_object* l_ByteArray_instAppendByteArray;
 lean_object* l_ByteArray_toList_loop(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_term_x5b___x5d___closed__9;
-extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l_ByteArray_toList_loop___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toStringAux___at_instToStringByteArray___spec__2(uint8_t, lean_object*);
 lean_object* l_instToStringByteArray(lean_object*);
@@ -39,6 +38,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_ByteArray_get_x21_match__1(lean_object*);
 lean_object* l_ByteArray_get_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_instReprList___rarg___closed__1;
 lean_object* l_ByteArray_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_empty___closed__1;
 lean_object* l_instToStringByteArray___boxed(lean_object*);
@@ -622,7 +622,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; 
-x_2 = l_List_repr___rarg___closed__1;
+x_2 = l_instReprList___rarg___closed__1;
 return x_2;
 }
 else

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_instReprOption___rarg___closed__2;
 lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_26__match__1(lean_object*, lean_object*);
 extern lean_object* l_instReprOption___rarg___closed__1;
 lean_object* l_toLOptionM___rarg___lambda__1___boxed(lean_object*, lean_object*);
@@ -29,6 +28,7 @@ lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_L
 lean_object* l_Option_toLOption(lean_object*);
 lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_26__match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instToStringLOption___rarg(lean_object*, lean_object*);
+extern lean_object* l_instToStringOption___rarg___closed__1;
 lean_object* l_Option_toLOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_toLOptionM___rarg(lean_object*, lean_object*);
 extern lean_object* l_prec_x28___x29___closed__7;
@@ -291,7 +291,7 @@ x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 lean_dec(x_2);
 x_5 = lean_apply_1(x_1, x_4);
-x_6 = l_instReprOption___rarg___closed__2;
+x_6 = l_instToStringOption___rarg___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
 x_8 = l_prec_x28___x29___closed__7;

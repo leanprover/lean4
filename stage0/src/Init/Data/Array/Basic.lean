@@ -455,11 +455,15 @@ partial def reverse (as : Array α) : Array α :=
 def toList (as : Array α) : List α :=
   as.foldr List.cons []
 
-instance [Repr α] : Repr (Array α) :=
-  ⟨fun a => "#" ++ repr a.toList⟩
+instance {α : Type u} [Repr α] : Repr (Array α) where
+  reprPrec a _ :=
+    if a.size == 0 then
+      "#[]"
+    else
+      Std.Format.bracketFill "#[" (@Std.Format.joinSep _ ⟨repr⟩ (toList a) ("," ++ Std.Format.line)) "]"
 
-instance [ToString α] : ToString (Array α) :=
-  ⟨fun a => "#" ++ toString a.toList⟩
+instance [ToString α] : ToString (Array α) where
+  toString a := "#" ++ toString a.toList
 
 protected def append (as : Array α) (bs : Array α) : Array α :=
   bs.foldl (init := as) fun r v => r.push v

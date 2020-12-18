@@ -9,10 +9,11 @@ import Init.Data.UInt
 import Init.Data.Nat.Div
 import Init.Data.Repr
 import Init.Data.Int.Basic
+import Init.Data.Format.Basic
 import Init.Control.Id
 open Sum Subtype Nat
 
-universes u v
+open Std
 
 class ToString (α : Type u) where
   toString : α → String
@@ -94,6 +95,9 @@ instance : ToString UInt64 :=
 instance : ToString USize :=
   ⟨fun n => toString n.toNat⟩
 
+instance : ToString Format where
+  toString f := f.pretty
+
 def addParenHeuristic (s : String) : String :=
   if "(".isPrefixOf s || "[".isPrefixOf s || "{".isPrefixOf s || "#[".isPrefixOf s then s
   else if !s.any Char.isWhitespace then s
@@ -133,3 +137,18 @@ def String.toInt! (s : String) : Int :=
   match s.toInt? with
   | some v => v
   | none   => panic "Int expected"
+
+section
+variables {ε : Type u} {α : Type v}
+
+protected def Except.toString [ToString ε] [ToString α] : Except ε α → String
+  | Except.error e => "(error " ++ toString e ++ ")"
+  | Except.ok a    => "(ok " ++ toString a ++ ")"
+
+protected def Except.repr [Repr ε] [Repr α] : Except ε α → String
+  | Except.error e => "(error " ++ repr e ++ ")"
+  | Except.ok a    => "(ok " ++ repr a ++ ")"
+
+instance [ToString ε] [ToString α] : ToString (Except ε α) := ⟨Except.toString⟩
+instance [Repr ε] [Repr α] : Repr (Except ε α) := ⟨Except.repr⟩
+end

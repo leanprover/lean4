@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Control.State
 import Init.Control.Except
+import Init.Data.ToString.Basic
 universes u v
 
 namespace EStateM

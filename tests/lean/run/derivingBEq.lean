@@ -46,3 +46,21 @@ namespace Bla
 #eval node [leaf 10] == node [leaf 10, leaf 20]
 
 end Bla
+
+mutual
+inductive Tree (α : Type u) where
+  | node : TreeList α → Tree α
+  | leaf : α → Tree α
+  deriving BEq
+
+inductive TreeList (α : Type u) where
+  | nil : TreeList α
+  | cons : Tree α → TreeList α → TreeList α
+  deriving BEq
+end
+
+def ex1 [BEq α] : BEq (Tree α) :=
+  inferInstance
+
+def ex2 [BEq α] : BEq (TreeList α) :=
+  inferInstance

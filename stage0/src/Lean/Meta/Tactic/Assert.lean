@@ -27,7 +27,7 @@ def assert (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MV
   Convert the given goal `Ctx |- target` into `Ctx |- let name : type := val; target`.
   It assumes `val` has type `type` -/
 def define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId := do
-  withMVarContext mvarId $ do
+  withMVarContext mvarId do
     checkNotAssigned mvarId `define
     let tag    ← getMVarTag mvarId
     let target ← getMVarType mvarId
@@ -40,7 +40,7 @@ def define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MV
   Convert the given goal `Ctx |- target` into `Ctx |- (hName : type) -> hName = val -> target`.
   It assumes `val` has type `type` -/
 def assertExt (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) (hName : Name := `h) : MetaM MVarId := do
-  withMVarContext mvarId $ do
+  withMVarContext mvarId do
     checkNotAssigned mvarId `assert
     let tag    ← getMVarTag mvarId
     let target ← getMVarType mvarId
@@ -62,7 +62,7 @@ structure AssertAfterResult where
   It assumes `val` has type `type`, and that `type` is well-formed after `fvarId`.
   Note that `val` does not need to be well-formed after `fvarId`. That is, it may contain variables that are defined after `fvarId`. -/
 def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do
-  withMVarContext mvarId $ do
+  withMVarContext mvarId do
     checkNotAssigned mvarId `assertAfter
     let tag        ← getMVarTag mvarId
     let target     ← getMVarType mvarId

@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__11;
 lean_object* l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___closed__4;
 lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -109,7 +109,6 @@ lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedIn
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__7;
 lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstance___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__12;
 lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_addLocalInstancesForParamsAux_match__1(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -5940,7 +5939,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Derivi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' ");
+x_1 = lean_mk_string(" because of field with type");
 return x_1;
 }
 }
@@ -5957,7 +5956,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Derivi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" because of field with type");
+x_1 = lean_mk_string("(assuming parameters are inhabited)");
 return x_1;
 }
 }
@@ -5974,7 +5973,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Derivi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(assuming parameters are inhabited)");
+x_1 = lean_mk_string("checking ");
 return x_1;
 }
 }
@@ -5991,7 +5990,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Derivi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("checking ");
+x_1 = lean_mk_string(" for '");
 return x_1;
 }
 }
@@ -6000,23 +5999,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__9;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__11() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(" for '");
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__11;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -6238,7 +6220,7 @@ x_71 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lea
 x_72 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_72, 0, x_71);
 lean_ctor_set(x_72, 1, x_70);
-x_73 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__4;
+x_73 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___closed__4;
 x_74 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_74, 0, x_72);
 lean_ctor_set(x_74, 1, x_73);
@@ -6250,7 +6232,7 @@ x_76 = l_Lean_KernelException_toMessageData___closed__15;
 x_77 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_77, 0, x_74);
 lean_ctor_set(x_77, 1, x_76);
-x_78 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__6;
+x_78 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__4;
 x_79 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_79, 0, x_77);
 lean_ctor_set(x_79, 1, x_78);
@@ -6310,11 +6292,11 @@ goto block_39;
 else
 {
 lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; uint8_t x_105; 
-x_96 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__8;
+x_96 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__6;
 x_97 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_97, 0, x_74);
 lean_ctor_set(x_97, 1, x_96);
-x_98 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__6;
+x_98 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__4;
 x_99 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_99, 0, x_97);
 lean_ctor_set(x_99, 1, x_98);
@@ -6560,7 +6542,7 @@ x_159 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Le
 x_160 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_160, 0, x_159);
 lean_ctor_set(x_160, 1, x_158);
-x_161 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__4;
+x_161 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___closed__4;
 x_162 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_162, 0, x_160);
 lean_ctor_set(x_162, 1, x_161);
@@ -6572,7 +6554,7 @@ x_164 = l_Lean_KernelException_toMessageData___closed__15;
 x_165 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_165, 0, x_162);
 lean_ctor_set(x_165, 1, x_164);
-x_166 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__6;
+x_166 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__4;
 x_167 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_167, 0, x_165);
 lean_ctor_set(x_167, 1, x_166);
@@ -6632,11 +6614,11 @@ goto block_39;
 else
 {
 lean_object* x_184; lean_object* x_185; lean_object* x_186; lean_object* x_187; lean_object* x_188; lean_object* x_189; lean_object* x_190; lean_object* x_191; lean_object* x_192; uint8_t x_193; 
-x_184 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__8;
+x_184 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__6;
 x_185 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_185, 0, x_162);
 lean_ctor_set(x_185, 1, x_184);
-x_186 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__6;
+x_186 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__4;
 x_187 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_187, 0, x_185);
 lean_ctor_set(x_187, 1, x_186);
@@ -6768,11 +6750,11 @@ lean_object* x_229; lean_object* x_230; lean_object* x_231; lean_object* x_232; 
 lean_inc(x_52);
 x_229 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_229, 0, x_52);
-x_230 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__10;
+x_230 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__8;
 x_231 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_231, 0, x_230);
 lean_ctor_set(x_231, 1, x_229);
-x_232 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__12;
+x_232 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__10;
 x_233 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_233, 0, x_231);
 lean_ctor_set(x_233, 1, x_232);
@@ -7452,7 +7434,7 @@ x_73 = l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstance
 x_74 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_74, 0, x_73);
 lean_ctor_set(x_74, 1, x_72);
-x_75 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__4;
+x_75 = l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___closed__4;
 x_76 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_76, 0, x_74);
 lean_ctor_set(x_76, 1, x_75);
@@ -7488,7 +7470,7 @@ goto block_69;
 else
 {
 lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; 
-x_89 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__8;
+x_89 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__6;
 x_90 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_90, 0, x_76);
 lean_ctor_set(x_90, 1, x_89);
@@ -9449,10 +9431,6 @@ l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_
 lean_mark_persistent(l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__9);
 l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__10 = _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__10();
 lean_mark_persistent(l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__10);
-l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__11 = _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__11();
-lean_mark_persistent(l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__11);
-l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__12 = _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__12();
-lean_mark_persistent(l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__12);
 l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___lambda__1___closed__1 = _init_l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___lambda__1___closed__1();
 lean_mark_persistent(l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___lambda__1___closed__1);
 l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___lambda__1___closed__2 = _init_l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___lambda__1___closed__2();

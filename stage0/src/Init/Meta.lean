@@ -794,4 +794,5 @@ def expandInterpolatedStr (interpStr : Syntax) (type : Syntax) (toTypeFn : Synta
 def getSepArgs (stx : Syntax) : Array Syntax :=
   stx.getArgs.getSepElems
 
-end Lean.Syntax
+end Syntax
+end Lean

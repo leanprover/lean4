@@ -212,8 +212,8 @@ def applyResult (result : TermElabResult) : TermElabM Expr :=
 @[inline] def liftCoreM {α} (x : CoreM α) : TermElabM α :=
   Term.liftMetaM $ liftM x
 
-instance : MonadLiftT MetaM TermElabM :=
-  ⟨Term.liftMetaM⟩
+instance : MonadLiftT MetaM TermElabM where
+  monadLift := Term.liftMetaM
 
 def getLevelNames : TermElabM (List Name) :=
   return (← get).levelNames
@@ -223,24 +223,22 @@ def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   | some d => pure d
   | none   => unreachable!
 
-instance : AddErrorMessageContext TermElabM := {
-  add := fun ref msg => do
+instance : AddErrorMessageContext TermElabM where
+  add ref msg := do
     let ctx ← read
     let ref := getBetterRef ref ctx.macroStack
     let msg ← addMessageContext msg
     let msg ← addMacroStack msg ctx.macroStack
     pure (ref, msg)
-}
 
-instance : MonadLog TermElabM := {
-  getRef      := getRef,
-  getFileMap  := do pure (← read).fileMap,
-  getFileName := do pure (← read).fileName,
-  logMessage  := fun msg => do
+instance : MonadLog TermElabM where
+  getRef      := getRef
+  getFileMap  := return (← read).fileMap
+  getFileName := return (← read).fileName
+  logMessage msg := do
     let ctx ← readThe Core.Context
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
-}
 
 protected def getCurrMacroScope : TermElabM MacroScope := do pure (← read).currMacroScope
 protected def getMainModule     : TermElabM Name := do pure (← getEnv).mainModule
@@ -249,11 +247,10 @@ protected def getMainModule     : TermElabM Name := do pure (← getEnv).mainMod
   let fresh ← modifyGetThe Core.State (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
   withReader (fun ctx => { ctx with currMacroScope := fresh }) x
 
-instance : MonadQuotation TermElabM := {
-  getCurrMacroScope   := Term.getCurrMacroScope,
-  getMainModule       := Term.getMainModule,
+instance : MonadQuotation TermElabM where
+  getCurrMacroScope   := Term.getCurrMacroScope
+  getMainModule       := Term.getMainModule
   withFreshMacroScope := Term.withFreshMacroScope
-}
 
 unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
@@ -274,10 +271,11 @@ inductive LVal where
   | fieldName (name : String)
   | getOp     (idx : Syntax)
 
-instance : ToString LVal := ⟨fun
-  | LVal.fieldIdx i => toString i
-  | LVal.fieldName n => n
-  | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩
+instance : ToString LVal where
+  toString
+    | LVal.fieldIdx i => toString i
+    | LVal.fieldName n => n
+    | LVal.getOp idx => "[" ++ toString idx ++ "]"
 
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
 def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecsToLift
@@ -301,10 +299,10 @@ def withoutErrToSorry {α} (x : TermElabM α) : TermElabM α :=
 
 builtin_initialize
   registerOption `autoBoundImplicitLocal {
-    defValue := true,
-    group    := "",
+    defValue := true
+    group    := ""
     descr    := "Unbound local variables in declaration headers become implicit arguments if they are a lower case or greek letter. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}"
-}
+  }
 
 private def getAutoBoundImplicitLocalOption (opts : Options) : Bool :=
   opts.get `autoBoundImplicitLocal true
@@ -482,14 +480,14 @@ def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTi
 def applyAttributes (declName : Name) (attrs : Array Attribute) : TermElabM Unit :=
   applyAttributesCore declName attrs none
 
-def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (expectedType : Expr) : MessageData :=
+def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (expectedType : Expr) : TermElabM MessageData := do
   let header : MessageData := match header? with
-    | some header => m!"{header} has type"
-    | none        => m!"type mismatch{indentExpr e}\nhas type"
-  m!"{header}{indentExpr eType}\nbut is expected to have type{indentExpr expectedType}"
+    | some header => m!"{header} "
+    | none        => m!"type mismatch{indentExpr e}\n"
+  m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
 def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
-    (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α :=
+    (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α := do
   /-
     We ignore `extraMsg?` for now. In all our tests, it contained no useful information. It was
     always of the form:
@@ -506,7 +504,7 @@ def throwTypeMismatchError {α} (header? : Option String) (expectedType : Expr) 
     | some extraMsg => Format.line ++ extraMsg;
   -/
   match f? with
-  | none   => throwError $ mkTypeMismatchError header? e eType expectedType ++ extraMsg
+  | none   => throwError <| (← mkTypeMismatchError header? e eType expectedType) ++ extraMsg
   | some f => Meta.throwAppTypeMismatch f e extraMsg
 
 @[inline] def withoutMacroStackAtErr {α} (x : TermElabM α) : TermElabM α :=
@@ -893,11 +891,10 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   | some elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
   | none         => throwError! "elaboration function for '{k}' has not been implemented"
 
-instance : MonadMacroAdapter TermElabM := {
-  getCurrMacroScope := getCurrMacroScope,
-  getNextMacroScope := return (← getThe Core.State).nextMacroScope,
-  setNextMacroScope := fun next => modifyThe Core.State fun s => { s with nextMacroScope := next }
-}
+instance : MonadMacroAdapter TermElabM where
+  getCurrMacroScope := getCurrMacroScope
+  getNextMacroScope := return (← getThe Core.State).nextMacroScope
+  setNextMacroScope next := modifyThe Core.State fun s => { s with nextMacroScope := next }
 
 private def isExplicit (stx : Syntax) : Bool :=
   match stx with
@@ -1332,13 +1329,13 @@ private def mkSomeContext : Context := {
   let ((a, s), sCore, sMeta) ← (x.run ctx s).toIO ctxCore sCore ctxMeta sMeta
   pure (a, sCore, sMeta, s)
 
-instance {α} [MetaEval α] : MetaEval (TermElabM α) :=
-  ⟨fun env opts x _ =>
+instance {α} [MetaEval α] : MetaEval (TermElabM α) where
+  eval env opts x _ :=
     let x : TermElabM α := do
       try x finally
         let s ← get
         s.messages.forM fun msg => do IO.println (← msg.toString)
-    MetaEval.eval env opts (hideUnit := true) $ x.run' mkSomeContext⟩
+    MetaEval.eval env opts (hideUnit := true) $ x.run' mkSomeContext
 
 end Term
 

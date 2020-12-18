@@ -15,6 +15,7 @@ namespace Lean.Meta
 
 def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) (clearH := true) : MetaM (FVarSubst × MVarId) :=
   withMVarContext mvarId do
+    let mvarId0 := mvarId
     let tag ← getMVarTag mvarId
     checkNotAssigned mvarId `subst
     let hFVarIdOriginal := hFVarId
@@ -40,61 +41,77 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
         let a       := mkFVar aFVarId
         let hFVarId := twoVars[1]
         let h       := mkFVar hFVarId
-        withMVarContext mvarId do
-          let mvarDecl   ← getMVarDecl mvarId
-          let type   := mvarDecl.type
-          let hLocalDecl ← getLocalDecl hFVarId
-          match (← matchEq? hLocalDecl.type) with
-          | none => unreachable!
-          | some (α, lhs, rhs) => do
-            let b       := if symm then lhs else rhs
-            let mctx     ← getMCtx
-            let depElim := mctx.exprDependsOn mvarDecl.type hFVarId
-            let cont (motive : Expr) (newType : Expr) : MetaM (FVarSubst × MVarId) := do
-              let major ← if symm then pure h else mkEqSymm h
-              let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
-              let minor := newMVar
-              let newVal  ← if depElim then mkEqRec motive minor major else mkEqNDRec motive minor major
-              assignExprMVar mvarId newVal
-              let mvarId := newMVar.mvarId!
-              let mvarId ←
-                if clearH then
-                  let mvarId ← clear mvarId hFVarId
-                  clear mvarId aFVarId
+        /- Set skip to true if there is no local variable nor the target depend on the equality -/
+        let skip ←
+          if vars.size == 2 then
+            pure false
+          else
+            let mvarType ← getMVarType mvarId
+            let mctx ← getMCtx
+            pure (!mctx.exprDependsOn mvarType aFVarId && !mctx.exprDependsOn mvarType hFVarId)
+        if skip then
+          if clearH then
+            let mvarId ← clear mvarId0 hFVarId
+            let mvarId ← clear mvarId aFVarId
+            pure ({}, mvarId)
+          else
+            pure ({}, mvarId0)
+        else
+          withMVarContext mvarId do
+            let mvarDecl   ← getMVarDecl mvarId
+            let type   := mvarDecl.type
+            let hLocalDecl ← getLocalDecl hFVarId
+            match (← matchEq? hLocalDecl.type) with
+            | none => unreachable!
+            | some (α, lhs, rhs) => do
+              let b       := if symm then lhs else rhs
+              let mctx     ← getMCtx
+              let depElim := mctx.exprDependsOn mvarDecl.type hFVarId
+              let cont (motive : Expr) (newType : Expr) : MetaM (FVarSubst × MVarId) := do
+                let major ← if symm then pure h else mkEqSymm h
+                let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
+                let minor := newMVar
+                let newVal  ← if depElim then mkEqRec motive minor major else mkEqNDRec motive minor major
+                assignExprMVar mvarId newVal
+                let mvarId := newMVar.mvarId!
+                let mvarId ←
+                  if clearH then
+                    let mvarId ← clear mvarId hFVarId
+                    clear mvarId aFVarId
+                  else
+                    pure mvarId
+                let (newFVars, mvarId) ← introNP mvarId (vars.size - 2)
+                let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i (fvarSubst : FVarSubst) =>
+                    let var     := vars[i+2]
+                    let newFVar := newFVars[i]
+                    pure $ fvarSubst.insert var (mkFVar newFVar)
+                let fvarSubst := fvarSubst.insert aFVarIdOriginal (if clearH then b else mkFVar aFVarId)
+                let fvarSubst := fvarSubst.insert hFVarIdOriginal (mkFVar hFVarId)
+                pure (fvarSubst, mvarId)
+              if depElim then do
+                let newType := type.replaceFVar a b
+                let reflB ← mkEqRefl b
+                let newType := newType.replaceFVar h reflB
+                if symm then
+                  let motive ← mkLambdaFVars #[a, h] type
+                  cont motive newType
                 else
-                  pure mvarId
-              let (newFVars, mvarId) ← introNP mvarId (vars.size - 2)
-              let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i (fvarSubst : FVarSubst) =>
-                  let var     := vars[i+2]
-                  let newFVar := newFVars[i]
-                  pure $ fvarSubst.insert var (mkFVar newFVar)
-              let fvarSubst := fvarSubst.insert aFVarIdOriginal (if clearH then b else mkFVar aFVarId)
-              let fvarSubst := fvarSubst.insert hFVarIdOriginal (mkFVar hFVarId)
-              pure (fvarSubst, mvarId)
-            if depElim then do
-              let newType := type.replaceFVar a b
-              let reflB ← mkEqRefl b
-              let newType := newType.replaceFVar h reflB
-              if symm then
-                let motive ← mkLambdaFVars #[a, h] type
-                cont motive newType
+                  /- `type` depends on (h : a = b). So, we use the following trick to avoid a type incorrect motive.
+                     1- Create a new local (hAux : b = a)
+                     2- Create newType := type [hAux.symm / h]
+                        `newType` is type correct because `h` and `hAux.symm` are definitionally equal by proof irrelevance.
+                     3- Create motive by abstracting `a` and `hAux` in `newType`. -/
+                  let hAuxType ← mkEq b a
+                  let motive ← withLocalDeclD `_h hAuxType fun hAux => do
+                    let hAuxSymm ← mkEqSymm hAux
+                    /- replace h in type with hAuxSymm -/
+                    let newType := type.replaceFVar h hAuxSymm
+                    mkLambdaFVars #[a, hAux] newType
+                  cont motive newType
               else
-                /- `type` depends on (h : a = b). So, we use the following trick to avoid a type incorrect motive.
-                   1- Create a new local (hAux : b = a)
-                   2- Create newType := type [hAux.symm / h]
-                      `newType` is type correct because `h` and `hAux.symm` are definitionally equal by proof irrelevance.
-                   3- Create motive by abstracting `a` and `hAux` in `newType`. -/
-                let hAuxType ← mkEq b a
-                let motive ← withLocalDeclD `_h hAuxType fun hAux => do
-                  let hAuxSymm ← mkEqSymm hAux
-                  /- replace h in type with hAuxSymm -/
-                  let newType := type.replaceFVar h hAuxSymm
-                  mkLambdaFVars #[a, hAux] newType
+                let motive ← mkLambdaFVars #[a] type
+                let newType := type.replaceFVar a b
                 cont motive newType
-            else
-              let motive ← mkLambdaFVars #[a] type
-              let newType := type.replaceFVar a b
-              cont motive newType
       | _ =>
         let eqMsg := if symm then "(t = x)" else "(x = t)"
         throwTacticEx `subst mvarId

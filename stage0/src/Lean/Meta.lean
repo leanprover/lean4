@@ -27,3 +27,4 @@ import Lean.Meta.ForEachExpr
 import Lean.Meta.Transform
 import Lean.Meta.PPGoal
 import Lean.Meta.UnificationHint
+import Lean.Meta.Inductive

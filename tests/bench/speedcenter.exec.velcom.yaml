@@ -29,7 +29,9 @@
       echo -n 'lines: ' &&
       find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean: ' &&
-      find $(dirname $(which lean))/../lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      echo -n 'lines C: ' &&
+      find ${BUILD:-build/release}/stage2/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C++: ' &&
       find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       "
@@ -42,7 +44,7 @@
     cmd: |
       set -eu
       echo -n 'binary size: '
-      wc -c $(which lean) | cut -d' ' -f 1
+      wc -c ${BUILD:-../../build/release}/stage2/bin/lean | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:

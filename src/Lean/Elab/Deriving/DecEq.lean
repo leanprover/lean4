@@ -23,15 +23,17 @@ def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunNam
 where
   mkSameCtorRhs : List (Syntax × Syntax × Bool) → TermElabM Syntax
     | [] => `(isTrue rfl)
-    | (a, b, false) :: todo => withFreshMacroScope do
-      `(if h : $a = $b then
-         by subst h; exact $(← mkSameCtorRhs todo):term
-        else
-         isFalse (by intro n; injection n; apply h _; assumption))
-    | (a, b, true) :: todo => withFreshMacroScope do
-      `(@dite _ _ ($(mkIdent auxFunName) $a $b)
-         (fun h => by subst h; exact $(← mkSameCtorRhs todo):term)
-         (fun h => isFalse (by intro n; injection n; apply h _; assumption)))
+    | (a, b, recField) :: todo => withFreshMacroScope do
+      let rhs ←
+        `(if h : $a = $b then
+           by subst h; exact $(← mkSameCtorRhs todo):term
+          else
+           isFalse (by intro n; injection n; apply h _; assumption))
+      if recField then
+        -- add local instance for `a = b` using the function being defined `auxFunName`
+        `(let inst := $(mkIdent auxFunName) $a $b; $rhs)
+      else
+        return rhs
 
   mkAlts : TermElabM (Array Syntax) := do
     let mut alts := #[]

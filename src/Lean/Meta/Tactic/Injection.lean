@@ -57,12 +57,15 @@ private def heqToEq (mvarId : MVarId) (fvarId : FVarId) : MetaM (FVarId × MVarI
    match type.heq? with
    | none              => pure (fvarId, mvarId)
    | some (α, a, β, b) =>
-     let pr ← mkEqOfHEq (mkFVar fvarId)
-     let eq ← mkEq a b
-     let mvarId ← assert mvarId decl.userName eq pr
-     let mvarId ← clear mvarId fvarId
-     let (fvarId, mvarId) ← intro1P mvarId
-     pure (fvarId, mvarId)
+     if (← isDefEq α β) then
+       let pr ← mkEqOfHEq (mkFVar fvarId)
+       let eq ← mkEq a b
+       let mvarId ← assert mvarId decl.userName eq pr
+       let mvarId ← clear mvarId fvarId
+       let (fvarId, mvarId) ← intro1P mvarId
+       pure (fvarId, mvarId)
+     else
+       pure (fvarId, mvarId)
 
 def injectionIntro : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult
   | 0, mvarId, fvarIds, remainingNames =>
@@ -79,6 +82,8 @@ def injectionIntro : Nat → MVarId → Array FVarId → List Name → MetaM Inj
 def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) (useUnusedNames : Bool := true) : MetaM InjectionResult := do
   match (← injectionCore mvarId fvarId) with
   | InjectionResultCore.solved                => pure InjectionResult.solved
-  | InjectionResultCore.subgoal mvarId numEqs => injectionIntro numEqs mvarId #[] newNames
+  | InjectionResultCore.subgoal mvarId numEqs =>
+    trace[Meta.debug]! "before injectionIntro\n{MessageData.ofGoal mvarId}"
+    injectionIntro numEqs mvarId #[] newNames
 
 end Lean.Meta

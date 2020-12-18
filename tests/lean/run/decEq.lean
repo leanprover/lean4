@@ -7,7 +7,7 @@ inductive Vec (α : Type u) : Nat → Type u
 
 inductive Test (α : Type)
   | mk₀
-  | mk₁ : (n : Nat) → (α × α) → List α → Test α
+  | mk₁ : (n : Nat) → (α × α) → List α → Vec α n → Test α
   | mk₂ : Test α → α → Test α
   deriving DecidableEq
 

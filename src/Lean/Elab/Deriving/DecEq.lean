@@ -21,18 +21,17 @@ def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunNam
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkSameCtorRhs : List (Syntax × Syntax × Bool) → Array Syntax → TermElabM Syntax
-    | [], hs => `(decEqIsTrue! $hs:ident*)
-    | (a, b, recField) :: todo, hs => withFreshMacroScope do
-      let discr ←
-        if recField then
-          `($(mkIdent auxFunName) $a $b)
+  mkSameCtorRhs : List (Syntax × Syntax × Bool) → TermElabM Syntax
+    | [] => `(isTrue rfl)
+    | (a, b, false) :: todo => withFreshMacroScope do
+      `(if h : $a = $b then
+         by subst h; exact $(← mkSameCtorRhs todo):term
         else
-          `(decEq $a $b)
-      let h ← `(h)
-      `(match $discr:term with
-        | isTrue  h => $(← mkSameCtorRhs todo (hs.push h)):term
-        | isFalse h => decEqIsFalse! h)
+         isFalse (by intro n; injection n; apply h _; assumption))
+    | (a, b, true) :: todo => withFreshMacroScope do
+      `(@dite _ _ ($(mkIdent auxFunName) $a $b)
+         (fun h => by subst h; exact $(← mkSameCtorRhs todo):term)
+         (fun h => isFalse (by intro n; injection n; apply h _; assumption)))
 
   mkAlts : TermElabM (Array Syntax) := do
     let mut alts := #[]
@@ -69,7 +68,7 @@ where
                 todo := todo.push (a, b, recField)
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs1:term*))
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs2:term*))
-            let rhs ← mkSameCtorRhs todo.toList #[]
+            let rhs ← mkSameCtorRhs todo.toList
             `(matchAltExpr| | $[$patterns:term],* => $rhs:term)
           alts := alts.push alt
         else if (← compatibleCtors ctorName₁ ctorName₂) then

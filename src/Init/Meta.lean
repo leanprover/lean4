@@ -795,14 +795,4 @@ def getSepArgs (stx : Syntax) : Array Syntax :=
   stx.getArgs.getSepElems
 
 end Syntax
-
-/- Helper macros for builtin `deriving` -/
-macro "decEqIsFalse! " h:ident : term =>
- `(isFalse (by intro hn; injection hn; apply $h:ident _; assumption))
-
-macro "decEqIsTrue! " hs:(ident*) : term => do
-  let hs ← hs.getArgs.mapM fun h => `(tactic| subst $h:ident)
-  let hs := hs.push (← `(tactic| rfl))
-  `(isTrue (by $[$hs;]*))
-
 end Lean

@@ -27,6 +27,10 @@ abbrev reprStr [Repr α] (a : α) : String :=
 abbrev reprArg [Repr α] (a : α) : Format :=
   reprPrec a maxPrec!
 
+/- Auxiliary class for marking types that should be considered atomic by `Repr` methods.
+   We use it at `Repr (List α)` to decide whether `bracketFill` should be used or not. -/
+class ReprAtom (α : Type u)
+
 -- This instance is needed because `id` is not reducible
 instance [Repr α] : Repr (id α) :=
   inferInstanceAs (Repr α)
@@ -49,11 +53,6 @@ instance : Repr (Decidable p) where
   reprPrec
     | Decidable.isTrue _, prec  => Repr.addAppParen "isTrue _" prec
     | Decidable.isFalse _, prec => Repr.addAppParen "isFalse _" prec
-
-instance [Repr α] : Repr (List α) where
-  reprPrec
-    | [], _ => "[]"
-    | as, _ => Format.bracketFill "[" (@Format.joinSep _ ⟨repr⟩ as ("," ++ Format.line)) "]"
 
 instance : Repr PUnit.{u+1} where
   reprPrec _ _ := "PUnit.unit"
@@ -88,7 +87,7 @@ instance [Repr α] [ReprTuple β] : ReprTuple (α × β) where
 
 instance [Repr α] [ReprTuple β] : Repr (α × β) where
   reprPrec | (a, b), _ =>
-    Format.bracketFill "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
+    Format.bracket "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
 
 instance {β : α → Type v} [Repr α] [s : (x : α) → Repr (β x)] : Repr (Sigma β) where
   reprPrec | ⟨a, b⟩, _ => Format.bracket "⟨" (repr a ++ ", " ++ repr b) "⟩"
@@ -192,6 +191,9 @@ def Char.quote (c : Char) : String :=
 instance : Repr Char where
   reprPrec c _ := c.quote
 
+protected def Char.repr (c : Char) : String :=
+  c.quote
+
 def String.quote (s : String) : String :=
   if s.isEmpty = true then "\"\""
   else s.foldl (fun s c => s ++ c.quoteCore) "\"" ++ "\""
@@ -224,5 +226,23 @@ instance : Repr UInt64 where
 instance : Repr USize where
   reprPrec n _ := repr n.toNat
 
-protected def Char.repr (c : Char) : String :=
-  c.quote
+instance [Repr α] : Repr (List α) where
+  reprPrec
+    | [], _ => "[]"
+    | as, _ => Format.bracket "[" (@Format.joinSep _ ⟨repr⟩ as ("," ++ Format.line)) "]"
+
+instance [Repr α] [ReprAtom α] : Repr (List α) where
+  reprPrec
+    | [], _ => "[]"
+    | as, _ => Format.bracketFill "[" (@Format.joinSep _ ⟨repr⟩ as ("," ++ Format.line)) "]"
+
+instance : ReprAtom Bool   := ⟨⟩
+instance : ReprAtom Nat    := ⟨⟩
+instance : ReprAtom Int    := ⟨⟩
+instance : ReprAtom Char   := ⟨⟩
+instance : ReprAtom String := ⟨⟩
+instance : ReprAtom UInt8  := ⟨⟩
+instance : ReprAtom UInt16 := ⟨⟩
+instance : ReprAtom UInt32 := ⟨⟩
+instance : ReprAtom UInt64 := ⟨⟩
+instance : ReprAtom USize  := ⟨⟩

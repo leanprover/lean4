@@ -69,7 +69,13 @@ instance floatDecLe (a b : Float) : Decidable (a ≤ b) := Float.decLe a b
 
 @[extern "lean_float_to_string"] constant Float.toString : Float → String
 
-instance : ToString Float := ⟨Float.toString⟩
+instance : ToString Float where
+  toString := Float.toString
+
+instance : Repr Float where
+  reprPrec n _ := Float.toString n
+
+instance : ReprAtom Float  := ⟨⟩
 
 abbrev Nat.toFloat (n : Nat) : Float :=
   Float.ofNat n

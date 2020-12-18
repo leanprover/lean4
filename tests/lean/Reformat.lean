@@ -4,7 +4,7 @@ import Lean.PrettyPrinter
 open Lean
 open Lean.Elab
 open Lean.Elab.Term
-open Lean.Format
+open Std.Format open Std
 
 unsafe def main (args : List String) : IO Unit := do
 let (debug, f) : Bool × String := match args with

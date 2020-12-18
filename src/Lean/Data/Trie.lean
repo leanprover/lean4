@@ -82,7 +82,7 @@ partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos
 
 private partial def toStringAux {α : Type} : Trie α → List Format
   | Trie.Node val map => map.fold (fun Fs c t =>
-    format (repr c) :: (Format.group $ Format.nest 2 $ flip Format.joinSep Format.line $ toStringAux t) :: Fs) []
+   format (repr c) :: (Format.group $ Format.nest 2 $ flip Format.joinSep Format.line $ toStringAux t) :: Fs) []
 
 instance {α : Type} : ToString (Trie α) :=
   ⟨fun t => (flip Format.joinSep Format.line $ toStringAux t).pretty⟩

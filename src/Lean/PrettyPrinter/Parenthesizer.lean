@@ -164,7 +164,7 @@ unsafe def mkCombinatorParenthesizerAttribute : IO ParserCompiler.CombinatorAttr
 namespace Parenthesizer
 
 open Lean.Core
-open Lean.Format
+open Std.Format
 
 def throwBacktrack {α} : ParenthesizerM α :=
 throw $ Exception.internal backtrackExceptionId

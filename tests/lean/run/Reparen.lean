@@ -2,7 +2,7 @@
 import Lean.Parser
 
 open Lean
-open Lean.Format
+open Std.Format open Std
 
 def unparenAux (parens body : Syntax) : Syntax :=
 match parens.getHeadInfo, body.getHeadInfo, body.getTailInfo, parens.getTailInfo with

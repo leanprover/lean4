@@ -200,7 +200,7 @@ partial def reprint : Syntax → Option String
     else args.foldlM (fun r stx => do let s ← reprint stx; pure $ r ++ s) ""
   | _ => ""
 
-open Lean.Format
+open Std.Format
 
 private def formatInfo (showInfo : Bool) (info : SourceInfo) (f : Format) : Format :=
   if showInfo then

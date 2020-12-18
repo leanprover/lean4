@@ -1,10 +1,10 @@
 #lang lean4
-import Lean.Data.Format
 open Lean
-open Lean.Format
+open Std
+open Std.Format
 
 def eval (w : Nat) (f : Format) : IO Unit := do
-IO.println $ f.prettyAux w
+IO.println $ f.pretty w
 
 -- hard line breaks should re-evaluate flattening behavior within group
 #eval eval 5 $ fill (text "a" ++ line ++ text "b\nlooooooooong" ++ line ++ text "c") ++ line ++ text "d"

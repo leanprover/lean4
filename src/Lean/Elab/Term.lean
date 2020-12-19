@@ -16,6 +16,7 @@ import Lean.Util.RecDepth
 import Lean.Elab.Log
 import Lean.Elab.Level
 import Lean.Elab.Attributes
+import Lean.Elab.AutoBound
 
 namespace Lean.Elab.Term
 /-
@@ -296,16 +297,6 @@ def withLevelNames {α} (levelNames : List Name) (x : TermElabM α) : TermElabM 
 
 def withoutErrToSorry {α} (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with errToSorry := false }) x
-
-builtin_initialize
-  registerOption `autoBoundImplicitLocal {
-    defValue := true
-    group    := ""
-    descr    := "Unbound local variables in declaration headers become implicit arguments if they are a lower case or greek letter. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}"
-  }
-
-private def getAutoBoundImplicitLocalOption (opts : Options) : Bool :=
-  opts.get `autoBoundImplicitLocal true
 
 /-- Execute `x` with `autoBoundImplicit = (options.get `autoBoundImplicitLocal) && flag` -/
 def withAutoBoundImplicitLocal {α} (x : TermElabM α) (flag := true) : TermElabM α := do
@@ -1216,11 +1207,6 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
     -- TODO: better suppor for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
    let const ← mkConst constName explicitLevels
    pure $ (const, projs) :: result
-
-def isValidAutoBoundImplicitName (n : Name) : Bool :=
-  match n.eraseMacroScopes with
-  | Name.str Name.anonymous s _ => s.length == 1 && (isGreek s[0] || s[0].isLower)
-  | _ => false
 
 def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   match (← resolveLocalName n) with

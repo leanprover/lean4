@@ -16,7 +16,7 @@ def mkVec : Vec α 0 := ⟨ #[], rfl ⟩
 def Vec.map (xs : Vec α n) (f : α → β) : Vec β n :=
   ⟨ xs.val.map f, sorry ⟩
 
-/- unbound implicit locals must be greek or lower case letters -/
+/- unbound implicit locals must be greek or lower case letters followed by numerical digits -/
 def Vec.map2 (xs : Vec α size /- error: unknown identifier size -/) (f : α → β) : Vec β n :=
   ⟨ xs.val.map f, sorry ⟩
 
@@ -65,3 +65,8 @@ def findSomeRev? (as : Array α) (f : α → Option β) : Option β :=
   Id.run <| findSomeRevM? as f
 
 end Ex1
+
+def apply {α : Type u₁} {β : α → Type u₂} (f : (a : α) → β a) (a : α) : β a :=
+  f a
+
+def pair (a : α₁) := (a, a)

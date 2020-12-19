@@ -24,6 +24,7 @@ end Lean.Syntax
 #eval run $ do let a ← `(Nat.one); `(f $(id a))
 #eval run $ do let a ← `(Nat.one); `($(a).b)
 #eval run $ do let a ← `(1 + 2); match a with | `($a + $b) => `($b + $a) | _ => pure Syntax.missing
+#eval run $ do let a ← `(1 + 2); match a with | stx@`($a + $b) => `($stx + $a) | _ => pure Syntax.missing
 #eval run $ do let a ← `(def foo := 1); match a with | `($f:command) => pure f | _ => pure Syntax.missing
 #eval run $ do let a ← `(def foo := 1 def bar := 2); match a with | `($f:command $g:command) => `($g:command $f:command) | _ => pure Syntax.missing
 

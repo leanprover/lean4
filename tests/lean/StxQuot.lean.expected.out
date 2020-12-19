@@ -15,6 +15,7 @@
 "(Term.app `f._@.UnhygienicMain._hyg.1 [`Nat.one._@.UnhygienicMain._hyg.1])"
 "(Term.proj `Nat.one._@.UnhygienicMain._hyg.1 \".\" `b._@.UnhygienicMain._hyg.1)"
 "(term_+_ (numLit \"2\") \"+\" (numLit \"1\"))"
+"(term_+_ (term_+_ (numLit \"1\") \"+\" (numLit \"2\")) \"+\" (numLit \"1\"))"
 "(Command.declaration\n (Command.declModifiers [] [] [] [] [] [])\n (Command.def\n  \"def\"\n  (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n  (Command.optDeclSig [] [])\n  (Command.declValSimple \":=\" (numLit \"1\") [])))"
 "[(Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `bar._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (numLit \"2\") [])))\n (Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (numLit \"1\") [])))]"
 "0"
@@ -34,4 +35,4 @@
 "(Term.match\n \"match\"\n [(Term.matchDiscr [] `a._@.UnhygienicMain._hyg.1)]\n []\n \"with\"\n (Term.matchAlts\n  [(Term.matchAlt \"|\" [`a._@.UnhygienicMain._hyg.1] \"=>\" `b._@.UnhygienicMain._hyg.1)\n   (Term.matchAlt\n    \"|\"\n    [(term_+_ `a._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\"))]\n    \"=>\"\n    (term_+_ `b._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\")))]))"
 "(Term.match\n \"match\"\n [(Term.matchDiscr [] `a._@.UnhygienicMain._hyg.1)]\n []\n \"with\"\n (Term.matchAlts\n  [(Term.matchAlt \"|\" [`a._@.UnhygienicMain._hyg.1] \"=>\" `b._@.UnhygienicMain._hyg.1)\n   (Term.matchAlt\n    \"|\"\n    [(term_+_ `a._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\"))]\n    \"=>\"\n    (term_+_ `b._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\")))]))"
 "#[`a._@.UnhygienicMain._hyg.1, `b._@.UnhygienicMain._hyg.1]"
-StxQuot.lean:70:33: error: expected parser to return exactly one syntax object
+StxQuot.lean:71:33: error: expected parser to return exactly one syntax object

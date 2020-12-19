@@ -204,7 +204,7 @@ private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
 private def adaptRhs (fn : Syntax → TermElabM Syntax) : Alt → TermElabM Alt
   | (pats, rhs) => do (pats, ← fn rhs)
 
-private def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
+private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
   let pat := alt.fst.head!
   let unconditionally (rhsFn) := pure {
     check := unconditional,
@@ -317,8 +317,13 @@ private def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           `(ite (Eq $cond true) $(← yes newDiscrs) $(← no))
       }
   else match pat with
-    | `(_)            => unconditionally pure
-    | `($id:ident)    => unconditionally (`(let $id := discr; $(·)))
+    | `(_)              => unconditionally pure
+    | `($id:ident)      => unconditionally (`(let $id := discr; $(·)))
+    | `($id:ident@$pat) => do
+      let info ← getHeadInfo (pat::alt.1.tail!, alt.2)
+      { info with onMatch := fun taken => match info.onMatch taken with
+          | covered f exh => covered (fun alt => f alt >>= adaptRhs (`(let $id := discr; $(·)))) exh
+          | r             => r }
     | _               => throwErrorAt! pat "match_syntax: unexpected pattern kind {pat}"
 
 private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : TermElabM Syntax := do
@@ -378,7 +383,9 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   match stx with
   | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
     -- letBindRhss ...
-    if patss.all (·.all (!·.isQuot)) then
+    if !patss.any (·.any (fun
+      | `($id@$pat) => pat.isQuot
+      | pat         => pat.isQuot)) then
       -- no quotations => fall back to regular `match`
       throwUnsupportedSyntax
     let stx ← compileStxMatch discrs.toList (patss.map (·.toList) |>.zip rhss).toList

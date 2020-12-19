@@ -59,7 +59,7 @@ section
 end
 
 section
-  variable [ToJson α] 
+  variable [ToJson α]
 
   def writeLspMessage (h : FS.Stream) (msg : Message) : IO Unit := do
     -- inlined implementation instead of using jsonrpc's writeMessage

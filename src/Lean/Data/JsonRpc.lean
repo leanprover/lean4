@@ -226,7 +226,7 @@ section
 end
 
 section
-  variable [ToJson α] 
+  variable [ToJson α]
 
   def writeMessage (h : FS.Stream) (m : Message) : IO Unit :=
     h.writeJson (toJson m)

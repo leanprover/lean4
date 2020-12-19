@@ -13,7 +13,7 @@ import Lean.Elab.Quotation.Util
 import Lean.Parser.Term
 
 namespace Lean.Elab.Term.Quotation
-
+open Lean.Parser.Term
 open Lean.Syntax
 open Meta
 
@@ -147,38 +147,47 @@ elabStxQuot! Parser.Term.dynamicQuot
 -- an "alternative" of patterns plus right-hand side
 private abbrev Alt := List Syntax × Syntax
 
-/-- Information on a pattern's head that influences the compilation of a single
-    match step. -/
-structure BasicHeadInfo where
-  -- Node kind to match, if any
-  kind    : Option SyntaxNodeKind     := none
-  -- Nested patterns for each argument, if any. In a single match step, we only
-  -- check that the arity matches. The arity is usually implied by the node kind,
-  -- but not in the case of `many` nodes.
-  argPats : Option (Array Syntax)     := none
-  -- Function to apply to the right-hand side in case the match succeeds. Used to
-  -- bind pattern variables.
-  rhsFn   : Syntax → TermElabM Syntax := pure
+/--
+  In a single match step, we match the first discriminant against the "head" of the first pattern of the first
+  alternative. This datatype describes what kind of check this involves, which helps other patterns decide if
+  they are covered by the same check and don't have to be check again (see also `MatchResult`). -/
+inductive HeadCheck where
+  -- match step that always succeeds: _, x, `($x), ...
+  | unconditional
+  -- match step based on shape of discriminant
+  -- If `arity` is given, that amount of new discriminants is introduced. `covered` patterns should then introduce the
+  -- same amount of new patterns.
+  -- We actually check the arity at run time only in the case of `null` nodes since it should otherwise by implied by
+  -- the node kind.
+  -- without arity: `($x:k)
+  -- with arity: any quotation without an antiquotation head pattern
+  | shape (k : SyntaxNodeKind) (arity : Option Nat)
+  -- other, complicated match step that will probably only cover identical patterns
+  -- example: antiquotation splices `($[...]*)
+  | other (pat : Syntax)
 
-inductive HeadInfo where
-  | basic (bhi : BasicHeadInfo)
-  | antiquotSplice (stx : Syntax)
+open HeadCheck
 
-open HeadInfo
+/-- Describe whether a pattern is covered by a head check (induced by the pattern itself or a different pattern). -/
+inductive MatchResult where
+  -- Pattern agrees with head check, remove and transform remaining alternative.
+  -- If `exhaustive` is `false`, *also* include unchanged alternative in the "no" branch.
+  | covered (f : Alt → TermElabM Alt) (exhaustive : Bool)
+  -- Pattern disagrees with head check, include in "no" branch only
+  | uncovered
+  -- Pattern is not quite sure yet; include unchanged in both branches
+  | undecided
 
-instance : Inhabited HeadInfo := ⟨basic {}⟩
+open MatchResult
 
-/-- `h1.generalizes h2` iff h1 is equal to or more general than h2, i.e. it matches all nodes
-    h2 matches. This induces a partial ordering. -/
-def HeadInfo.generalizes : HeadInfo → HeadInfo → Bool
-  | basic { kind := none, .. }, _                      => true
-  | basic { kind := some k1, argPats := none, .. },
-    basic { kind := some k2, .. }                      => k1 == k2
-  | basic { kind := some k1, argPats := some ps1, .. },
-    basic { kind := some k2, argPats := some ps2, .. } => k1 == k2 && ps1.size == ps2.size
-  -- roughmost approximation for now
-  | antiquotSplice stx1, antiquotSplice stx2             => stx1 == stx2
-  | _, _                                               => false
+/-- All necessary information on a pattern head. -/
+structure HeadInfo where
+  -- check induced by the pattern
+  check : HeadCheck
+  -- compute compatibility of pattern with given head check
+  onMatch (taken : HeadCheck) : MatchResult
+  -- actually run the specified head check, with the discriminant bound to `discr`
+  doMatch (yes : (newDiscrs : List Syntax) → TermElabM Syntax) (no : TermElabM Syntax) : TermElabM Syntax
 
 partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[]  => `(Unit.unit)
@@ -187,137 +196,162 @@ partial def mkTuple : Array Syntax → TermElabM Syntax
     let stx ← mkTuple (es.eraseIdx 0)
     `(Prod.mk $(es[0]) $stx)
 
-private def getHeadInfo (alt : Alt) : HeadInfo :=
-  let pat := alt.fst.head!;
-  let unconditional (rhsFn) := basic { rhsFn := rhsFn };
-  -- variable pattern
-  if pat.isIdent then unconditional $ fun rhs => `(let $pat := discr; $rhs)
-  -- wildcard pattern
-  else if pat.isOfKind `Lean.Parser.Term.hole then unconditional pure
+/-- Adapt alternatives that do not introduce new discriminants in `doMatch`, but are covered by those that do so. -/
+private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
+  | shape k (some sz), (pats, rhs) => (List.replicate sz (Unhygienic.run `(_)) ++ pats, rhs)
+  | _,                 alt         => alt
+
+private def adaptRhs (fn : Syntax → TermElabM Syntax) : Alt → TermElabM Alt
+  | (pats, rhs) => do (pats, ← fn rhs)
+
+private def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
+  let pat := alt.fst.head!
+  let unconditionally (rhsFn) := pure {
+    check := unconditional,
+    doMatch := fun yes no => yes [],
+    onMatch := fun taken => covered (adaptRhs rhsFn ∘ noOpMatchAdaptPats taken) (match taken with | unconditional => true | _ => false)
+  }
   -- quotation pattern
-  else if isQuot pat then
+  if isQuot pat then
     let quoted := getQuotContent pat
     if quoted.isAtom then
       -- We assume that atoms are uniquely determined by the node kind and never have to be checked
-      unconditional pure
+      unconditionally pure
     else if isAntiquot quoted && !isEscapedAntiquot quoted then
       -- quotation contains a single antiquotation
-      let k := antiquotKind? quoted;
+      let k := antiquotKind? quoted |>.get!
       -- Antiquotation kinds like `$id:ident` influence the parser, but also need to be considered by
-      -- match (but not by quotation terms). For example, `($id:ident) and `($e) are not
+      -- `match` (but not by quotation terms). For example, `($id:ident) and `($e) are not
       -- distinguishable without checking the kind of the node to be captured. Note that some
       -- antiquotations like the latter one for terms do not correspond to any actual node kind
       -- (signified by `k == Name.anonymous`), so we would only check for `ident` here.
       --
       -- if stx.isOfKind `ident then
-      --   let id := stx; ...
+      --   let id := stx; let e := stx; ...
       -- else
       --   let e := stx; ...
-      let kind := if k == Name.anonymous then none else k
       let anti := getAntiquotTerm quoted
-      if anti.isIdent then basic { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
-      else unconditional fun _ => throwErrorAt! anti "match_syntax: antiquotation must be variable {anti}"
-    else if isAntiquotSuffixSplice quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
-    else if isAntiquotSplice quoted then unconditional $ fun _ => throwErrorAt quoted "unexpected antiquotation splice"
+      if anti.isIdent then
+        let rhsFn := (`(let $anti := discr; $(·)))
+        if k == Name.anonymous then unconditionally rhsFn else pure {
+          check   := shape k none,
+          onMatch := fun
+            | taken@(shape k' sz) =>
+              if k' == k then
+                covered (adaptRhs rhsFn ∘ noOpMatchAdaptPats taken) (exhaustive := sz.isNone)
+              else uncovered
+            | _ => uncovered,
+          doMatch := fun yes no => do `(if Syntax.isOfKind discr $(quote k) then $(← yes []) else $(← no)),
+        }
+      else throwErrorAt! anti "match_syntax: antiquotation must be variable {anti}"
+    else if isAntiquotSuffixSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
+    else if isAntiquotSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
     else if quoted.getArgs.size == 1 && isAntiquotSuffixSplice quoted[0] then
       let anti := getAntiquotTerm (getAntiquotSuffixSpliceInner quoted[0])
-      unconditional fun rhs => match antiquotSuffixSplice? quoted[0] with
+      unconditionally fun rhs => match antiquotSuffixSplice? quoted[0] with
         | `optional => `(let $anti := Syntax.getOptional? discr; $rhs)
         | `many     => `(let $anti := Syntax.getArgs discr; $rhs)
         | `sepBy    => `(let $anti := @SepArray.mk $(getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
         | k         => throwErrorAt! quoted "invalid antiquotation suffix splice kind '{k}'"
       -- TODO: support for more complex antiquotation splices
-    else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then
-      antiquotSplice quoted[0]
+    else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
+      check   := other pat,
+      onMatch := fun
+        | other pat' => if pat' == pat then covered pure (exhaustive := true) else undecided
+        | _          => undecided,
+      doMatch := fun yes no => do
+        let splice := quoted[0]
+        let k := antiquotSpliceKind? splice
+        let contents := getAntiquotSpliceContents splice
+        let ids ← getAntiquotationIds splice
+        let yes ← yes []
+        let no ← no
+        match k with
+        | `optional =>
+          let mut yesMatch := yes
+          for id in ids do
+            yesMatch ← `(let $id := some $id; $yesMatch)
+          let mut yesNoMatch := yes
+          for id in ids do
+            yesNoMatch ← `(let $id := none; $yesNoMatch)
+          `(if discr.isNone then $yesNoMatch
+            else match discr with
+              | `($(mkNullNode contents)) => $yesMatch
+              | _                         => $no)
+        | _ =>
+          let mut discrs ← `(Syntax.getArgs discr)
+          if k == `sepBy then
+            discrs ← `(Array.getSepElems $discrs)
+          let tuple ← mkTuple ids
+          let mut yes := yes
+          let resId ← match ids with
+            | #[id] => id
+            | _     =>
+              for i in [:ids.size] do
+                let idx := Syntax.mkLit fieldIdxKind (toString (i + 1));
+                yes ← `(let $(ids[i]) := tuples.map (·.$idx:fieldIdx); $yes)
+              `(tuples)
+          `(match ($(discrs).sequenceMap fun
+              | `($(contents[0])) => some $tuple
+              | _                 => none) with
+            | some $resId => $yes
+            | none => $no)
+    }
     else
-      -- not an antiquotation or escaped antiquotation: match head shape
+      -- not an antiquotation, or an escaped antiquotation: match head shape
       let quoted  := unescapeAntiquot quoted
+      let kind := quoted.getKind
       let argPats := quoted.getArgs.map fun arg => Unhygienic.run `(`($(arg)))
-      basic { kind := quoted.getKind, argPats := argPats }
-  else
-    unconditional $ fun _ => throwErrorAt! pat "match_syntax: unexpected pattern kind {pat}"
-
--- Assuming that the first pattern of the alternative is taken, replace it with patterns (if any) for its
--- child nodes.
--- Ex: `($a + (- $b)) => `($a), `(+), `(- $b)
--- Note: The atom pattern `(+) will be discarded in a later step
-private def explodeHeadPat (numArgs : Nat) : HeadInfo × Alt → TermElabM Alt
-  | (basic info, (pat::pats, rhs)) => do
-      let newPats := match info.argPats with
-        | some argPats => argPats.toList
-        | none         => List.replicate numArgs $ Unhygienic.run `(_)
-      let rhs ← info.rhsFn rhs
-      pure (newPats ++ pats, rhs)
-  | (antiquotSplice _, (pat::pats, rhs)) => (pats, rhs)
-  | _ => unreachable!
+      pure {
+        check := shape kind argPats.size,
+        onMatch := fun taken =>
+          if (match taken with | shape k' sz => k' == kind && sz == argPats.size | _ => false : Bool) then
+            covered (fun (pats, rhs) => (argPats.toList ++ pats, rhs)) (exhaustive := true)
+          else
+            uncovered,
+        doMatch := fun yes no => do
+          let cond ← match kind with
+          | `null => `(and (Syntax.isOfKind discr $(quote kind)) (BEq.beq (Array.size (Syntax.getArgs discr)) $(quote argPats.size)))
+          | _     => `(Syntax.isOfKind discr $(quote kind))
+          let newDiscrs ← (List.range argPats.size).mapM fun i => `(Syntax.getArg discr $(quote i))
+          `(ite (Eq $cond true) $(← yes newDiscrs) $(← no))
+      }
+  else match pat with
+    | `(_)            => unconditionally pure
+    | `($id:ident)    => unconditionally (`(let $id := discr; $(·)))
+    | _               => throwErrorAt! pat "match_syntax: unexpected pattern kind {pat}"
 
 private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : TermElabM Syntax := do
   trace[Elab.match_syntax]! "match {discrs} with {alts}"
   match discrs, alts with
   | [],            ([], rhs)::_ => pure rhs  -- nothing left to match
   | _,             []           => throwError "non-exhaustive 'match_syntax'"
-  | discr::discrs, alts         => do
-    let alts := (alts.map getHeadInfo).zip alts;
-    let (info, alt) := alts.head!
-    -- introduce pattern matches on the discriminant's children if there are any nested patterns
-    let newDiscrs ← match info with
-      | basic { argPats := some pats, .. } => (List.range pats.size).mapM fun i => `(Syntax.getArg discr $(quote i))
-      | _ => pure []
-    -- collect matching alternatives and explode them
-    let yesAlts := alts.filter fun (alt : HeadInfo × Alt) => alt.1.generalizes info
-    let yesAlts ← yesAlts.mapM $ explodeHeadPat newDiscrs.length
-    -- NOTE: use fresh macro scopes for recursive call so that different `discr`s introduced by the quotations below do not collide
-    let yes ← withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts
-    let mkNo := do
-      let noAlts := (alts.filter $ fun (alt : HeadInfo × Alt) => !info.generalizes alt.1).map (·.2)
-      withFreshMacroScope $ compileStxMatch (discr::discrs) noAlts
-    match info with
-    -- unconditional match step
-    | basic { kind := none, .. } => `(let discr := $discr; $yes)
-    -- conditional match step
-    | basic { kind := some kind, argPats := pats, .. } =>
-      let cond ← match kind, pats with
-      | `null, some pats => `(and (Syntax.isOfKind discr $(quote kind)) (BEq.beq (Array.size (Syntax.getArgs discr)) $(quote pats.size)))
-      | _,     _         => `(Syntax.isOfKind discr $(quote kind))
-      let no ← mkNo
-      `(let discr := $discr; ite (Eq $cond true) $yes $no)
-    -- terrifying match step
-    | antiquotSplice splice =>
-      let k := antiquotSpliceKind? splice
-      let contents := getAntiquotSpliceContents splice
-      let ids ← getAntiquotationIds splice
-      let no ← mkNo
-      match k with
-      | `optional =>
-        let mut yesMatch := yes
-        for id in ids do
-          yesMatch ← `(let $id := some $id; $yesMatch)
-        let mut yesNoMatch := yes
-        for id in ids do
-          yesNoMatch ← `(let $id := none; $yesNoMatch)
-        `(let discr := $discr;
-          if discr.isNone then $yesNoMatch
-          else match discr with
-            | `($(mkNullNode contents)) => $yesMatch
-            | _                         => $no)
-      | _ =>
-        let mut discrs ← `(Syntax.getArgs $discr)
-        if k == `sepBy then
-          discrs ← `(Array.getSepElems $discrs)
-        let tuple ← mkTuple ids
-        let mut yes := yes
-        let resId ← match ids with
-          | #[id] => id
-          | _     =>
-            for i in [:ids.size] do
-              let idx := Syntax.mkLit fieldIdxKind (toString (i + 1));
-              yes ← `(let $(ids[i]) := tuples.map (·.$idx:fieldIdx); $yes)
-            `(tuples)
-        `(match ($(discrs).sequenceMap fun
-            | `($(contents[0])) => some $tuple
-            | _                 => none) with
-          | some $resId => $yes
-          | none => $no)
+  | discr::discrs, alt::alts    => do
+    let info ← getHeadInfo alt
+    let pat  := alt.1.head!
+    let alts ← (alt::alts).mapM fun alt => do ((← getHeadInfo alt).onMatch info.check, alt)
+    let m ← info.doMatch
+      (yes := fun newDiscrs => do
+        let mut yesAlts ← alts.filterMapM fun
+          | (covered f _, (_::pats, rhs)) => some <$> f (pats, rhs)
+          | _                             => pure none
+        let undecidedAlts := alts.filterMap fun
+          | (undecided, alt) => some alt
+          | _                => none
+        if !undecidedAlts.isEmpty then
+          -- group undecided alternatives in a new default case `| discr2, ... => match discr, discr2, ... with ...`
+          let vars ← discrs.mapM fun _ => withFreshMacroScope `(discr)
+          let pats := List.replicate newDiscrs.length (Unhygienic.run `(_)) ++ vars
+          let alts ← undecidedAlts.toArray.mapM fun alt => `(matchAltExpr| | $(alt.1.toArray),* => $(alt.2))
+          let rhs  ← `(match discr, $[$(vars.toArray):term],* with $alts:matchAlt*)
+          yesAlts := yesAlts ++ [(pats, rhs)]
+        withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts)
+      (no := do
+        let nonExhaustiveAlts := alts.filterMap fun
+          | (covered f (exhaustive := true), alt) => none
+          | (_,                              alt) => some alt
+        withFreshMacroScope $ compileStxMatch (discr::discrs) nonExhaustiveAlts)
+    `(let discr := $discr; $m)
   | _, _ => unreachable!
 
 -- Transform alternatives by binding all right-hand sides to outside the match in order to prevent

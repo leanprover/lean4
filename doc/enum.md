@@ -57,7 +57,7 @@ It is often useful to group definitions related to a type in a namespace with th
 For example, we can put the function above into the ``Weekday`` namespace.
 We are then allowed to use the shorter name when we open the namespace.
 
-In the following example, wedefine functions from ``Weekday`` to ``Weekday`` in the namespace `Weekday`.
+In the following example, we define functions from ``Weekday`` to ``Weekday`` in the namespace `Weekday`.
 ```lean
 # inductive Weekday where
 #  | sunday    : Weekday

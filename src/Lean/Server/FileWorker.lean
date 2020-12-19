@@ -62,9 +62,7 @@ section Utils
     headerSnap : Snapshot
     /- Subsequent snapshots occur after each command. -/
     cmdSnaps   : AsyncList TaskError Snapshot
-
-  instance : Inhabited EditableDocument :=
-  ⟨⟨Inhabited.default, Inhabited.default, Inhabited.default⟩⟩
+    deriving Inhabited
 end Utils
 
 open IO

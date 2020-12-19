@@ -39,8 +39,7 @@ offsets. For diagnostics, one-based `Lean.Position`s are used internally.
 structure Position where
   line : Nat
   character : Nat
-
-instance : Inhabited Position := ⟨⟨0, 0⟩⟩
+  deriving Inhabited
 
 instance : FromJson Position := ⟨fun j => do
   let line ← j.getObjValAs? Nat "line"

@@ -65,9 +65,7 @@ structure DocumentMeta where
   uri     : Lsp.DocumentUri
   version : Nat
   text    : FileMap
-
-instance : Inhabited DocumentMeta :=
-⟨⟨Inhabited.default, Inhabited.default, Inhabited.default⟩⟩
+  deriving Inhabited
 
 def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
   let start := text.lspPosToUtf8Pos r.start

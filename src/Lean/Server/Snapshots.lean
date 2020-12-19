@@ -25,9 +25,7 @@ it was produced from the header or from a command. -/
 inductive SnapshotData where
   | headerData : Environment → MessageLog → Options → SnapshotData
   | cmdData : Command.State → SnapshotData
-
-instance : Inhabited SnapshotData :=
-  ⟨SnapshotData.headerData arbitrary arbitrary arbitrary⟩
+  deriving Inhabited
 
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot where
@@ -39,11 +37,9 @@ structure Snapshot where
   stx : Syntax
   mpState : Parser.ModuleParserState
   data : SnapshotData
+  deriving Inhabited
 
 namespace Snapshot
-
-instance : Inhabited Snapshot :=
-  ⟨⟨arbitrary, arbitrary, arbitrary, arbitrary⟩⟩
 
 def endPos (s : Snapshot) : String.Pos := s.mpState.pos
 
@@ -68,7 +64,7 @@ def compileHeader (contents : String) (opts : Options := {}) : IO Snapshot := do
   let inputCtx := Parser.mkInputContext contents "<input>"
   let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
   let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
-  pure { 
+  pure {
     beginPos := 0
     stx := headerStx
     mpState := headerParserState
@@ -89,7 +85,7 @@ def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
   let inputCtx := Parser.mkInputContext contents "<input>"
   let cmdState := snap.toCmdState
   let scope := cmdState.scopes.head!
-  let pmctx := { env := cmdState.env, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
+  let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, _, _) :=
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   cmdStx

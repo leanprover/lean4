@@ -361,7 +361,7 @@ section MainLoop
     for ⟨uri, _⟩ in fileWorkers do
       terminateFileWorker uri
     for ⟨_, fw⟩ in fileWorkers do
-      let _ ← IO.wait fw.commTask
+      discard <| IO.wait fw.commTask
 
   inductive ServerEvent where
     | WorkerEvent (fw : FileWorker) (ev : WorkerEvent)
@@ -421,7 +421,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
 def initAndRunWatchdogAux : ServerM Unit := do
   let st ← read
   try
-    let _ ← st.hIn.readLspNotificationAs "initialized" InitializedParams
+    discard $ st.hIn.readLspNotificationAs "initialized" InitializedParams
     let clientTask ← runClientTask
     mainLoop clientTask
     let Message.notification "exit" none ← st.hIn.readLspMessage

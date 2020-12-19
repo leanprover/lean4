@@ -11,17 +11,7 @@ namespace Lean
 structure JsonNumber where
   mantissa : Int
   exponent : Nat
-
-protected def JsonNumber.decEq : (a b : JsonNumber) → Decidable (a = b)
-  | ⟨m1, e1⟩, ⟨m2, e2⟩ =>
-    match decEq m1 m2 with
-    | isTrue hm =>
-      match decEq e1 e2 with
-      | isTrue he  => isTrue $ by rw [hm, he]
-      | isFalse he => isFalse (fun h => JsonNumber.noConfusion h (fun hm he2 => he he2))
-    | isFalse hm => isFalse (fun h => JsonNumber.noConfusion h (fun hm2 he => hm hm2))
-
-instance : DecidableEq JsonNumber := JsonNumber.decEq
+  deriving DecidableEq
 
 namespace JsonNumber
 
@@ -103,8 +93,8 @@ protected def toString : JsonNumber → String
     let e' := (10 : Int) ^ (e - exp.natAbs)
     let left := (m / e').repr
     let right := e' + m % e'
-      |>.repr.toSubstring.drop 1 
-      |>.dropRightWhile (fun c => c = '0') 
+      |>.repr.toSubstring.drop 1
+      |>.dropRightWhile (fun c => c = '0')
       |>.toString
     let exp := if exp = 0 then "" else "e" ++ exp.repr
     s!"{sign}{left}.{right}{exp}"

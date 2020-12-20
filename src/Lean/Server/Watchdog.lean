@@ -342,7 +342,6 @@ section MessageHandling
       let uri := fileSource parsedParams
       tryWriteMessage uri ⟨id, method, parsedParams⟩ FileWorker.writeRequest
     match method with
-    | "textDocument/waitForResponses"   => handle WaitForResponsesParam
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam
     | "textDocument/hover"              => handle HoverParams
     | _ => throwServerError $ "Got unsupported request: " ++ method ++ " params: " ++ toString params
@@ -433,7 +432,7 @@ def initAndRunWatchdogAux : ServerM Unit := do
      throw err
 
 def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
-  let workerPath ← match (← IO.getEnv "LEAN_WORKER_PATH") with
+  let workerPath ← match (←IO.getEnv "LEAN_WORKER_PATH") with
     | none   => IO.appPath
     | some p => p
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
@@ -464,14 +463,55 @@ def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
 
 namespace Test
 
-def runWatchdogWithInputFile (fn : String) (searchPath : Option String) : IO Unit := do
-  let o ← IO.getStdout
-  let e ← IO.getStderr
-  FS.withFile fn FS.Mode.read $ fun hFile => do
-    Lean.initSearchPath searchPath
-    try initAndRunWatchdog (FS.Stream.ofHandle hFile) o e
-    catch err => e.putStrLn (toString err)
+def watchdogCfg : Process.StdioConfig where
+  stdin  := Process.Stdio.piped
+  stdout := Process.Stdio.piped
+  stderr := Process.Stdio.piped
 
+abbrev WatchdogM := ReaderT (Process.Child watchdogCfg) IO
+
+variable [ToJson α]
+
+def stdin : WatchdogM FS.Stream := do
+  FS.Stream.ofHandle (←read).stdin
+
+def stdout : WatchdogM FS.Stream := do
+  FS.Stream.ofHandle (←read).stdout
+
+def writeRequest (r : Request α) : WatchdogM Unit := do
+  (←stdin).writeLspRequest r
+
+def writeNotification (n : Notification α) : WatchdogM Unit := do
+  (←stdin).writeLspNotification n
+
+def readResponseAs (expectedID : RequestID) (α) [FromJson α] : WatchdogM (Response α) := do
+  (←stdout).readLspResponseAs expectedID α
+
+partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target : DocumentUri)
+: WatchdogM (Array (Notification PublishDiagnosticsParams)) := do
+  writeRequest ⟨waitForDiagnosticsId, "textDocument/waitForDiagnostics", WaitForDiagnosticsParam.mk target⟩
+  let rec loop : WatchdogM (Array (Notification PublishDiagnosticsParams)) := do
+    let error : IO (Array (Notification PublishDiagnosticsParams)) := throw $ userError "got unexpected packet while collecting diagnostics"
+    match ←(←stdout).readLspMessage with
+    | Message.response id _ =>
+      if id = waitForDiagnosticsId then
+        #[]
+      else
+        error
+    | Message.notification "textDocument/publishDiagnostics" (some param) =>
+      match fromJson? (toJson param) with
+      | some diagnosticParam => (←loop).push ⟨"textDocument/publishDiagnostics", diagnosticParam⟩
+      | none                 => error
+    | _ => error
+  loop
+
+def runWatchdogTest (test : WatchdogM Unit) : IO Unit := do
+  let proc ← Process.spawn {
+    toStdioConfig := watchdogCfg
+    cmd           := ←IO.appPath
+    args          := #["--server"]
+  }
+  ReaderT.run test proc
 end Test
 
 @[export lean_server_watchdog_main]

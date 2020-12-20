@@ -562,6 +562,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           trace[Meta.synthInstance]! "FOUND result {result}"
           let result ← instantiateMVars result
           if (← hasAssignableMVar result) then
+            trace[Meta.synthInstance]! "Failed has assignable mvar {result.setOption `pp.all true}"
             pure none
           else
             pure (some result)
@@ -574,6 +575,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             let result ← instantiateMVars result
             pure (some result)
           else
+            trace[Meta.synthInstance]! "result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
             pure none
       if type.hasMVar then
         pure result?

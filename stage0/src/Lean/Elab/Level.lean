@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.LevelDefEq
 import Lean.Elab.Exception
 import Lean.Elab.Log
+import Lean.Elab.AutoBound
 
 namespace Lean.Elab.Level
 
@@ -33,16 +34,10 @@ instance : MonadNameGenerator LevelElabM where
 
   setNGen ngen := modify fun s => { s with ngen := ngen }
 
-
 def mkFreshLevelMVar : LevelElabM Level := do
   let mvarId ← mkFreshId
   modify fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId }
   return mkLevelMVar mvarId
-
-private def isValidAutoBoundLevelName (n : Name) : Bool :=
-  match n.eraseMacroScopes with
-  | Name.str Name.anonymous s _ => s.length == 1 && s[0].isLower
-  | _ => false
 
 partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
   let kind := stx.getKind

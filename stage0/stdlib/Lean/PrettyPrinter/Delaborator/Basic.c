@@ -124,7 +124,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__2___closed__4;
 lean_object* l_Lean_PrettyPrinter_Delaborator_annotateCurPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_Context_pos___default;
-extern lean_object* l_Lean_Meta_addPPExplicitToExposeDiff___closed__2;
 lean_object* l_Lean_Level_quote___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Level_LevelToFormat_Result_format___closed__3;
 extern lean_object* l_Lean_numLitKind;
@@ -224,6 +223,7 @@ lean_object* l_Std_AssocList_find_x3f___at_Lean_PrettyPrinter_Delaborator_delabF
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_Level_quote___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_failure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_synthInstance_x3f___lambda__2___closed__4;
 lean_object* l_Lean_getPPCoercions___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFn___rarg___closed__4;
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
@@ -1471,7 +1471,7 @@ uint8_t l_Lean_getPPAll(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; uint8_t x_4; 
-x_2 = l_Lean_Meta_addPPExplicitToExposeDiff___closed__2;
+x_2 = l_Lean_Meta_synthInstance_x3f___lambda__2___closed__4;
 x_3 = 0;
 x_4 = l_Lean_KVMap_getBool(x_1, x_2, x_3);
 return x_4;

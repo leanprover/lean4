@@ -83,7 +83,8 @@ def elseIf := atomic (group (withPosition (" else " >> checkLineEq >> " if ")))
   >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> optIdent >> termParser >> " then " >> doSeq))
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
 @[builtinDoElemParser] def doUnless := parser! "unless " >> withForbidden "do" termParser >> "do " >> doSeq
-@[builtinDoElemParser] def doFor    := parser! "for " >> termParser >> " in " >> withForbidden "do" termParser >> "do " >> doSeq
+def doForDecl := parser! termParser >> " in " >> withForbidden "do" termParser
+@[builtinDoElemParser] def doFor    := parser! "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
 
 def doMatchAlts := matchAlts (rhsParser := doSeq)
 @[builtinDoElemParser] def doMatch := parser!:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
@@ -114,7 +115,7 @@ parser is succeeding.
 
 /- macros for using `unless`, `for`, `try`, `return` as terms. They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...` -/
 @[builtinTermParser] def termUnless := parser! "unless " >> withForbidden "do" termParser >> "do " >> doSeq
-@[builtinTermParser] def termFor    := parser! "for " >> termParser >> " in " >> withForbidden "do" termParser >> "do " >> doSeq
+@[builtinTermParser] def termFor    := parser! "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
 @[builtinTermParser] def termTry    := parser! "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 @[builtinTermParser] def termReturn := parser!:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
 

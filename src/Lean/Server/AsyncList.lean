@@ -64,15 +64,28 @@ partial def unfoldAsync [Coe Error ε] (f : α → ExceptT ε IO α)
 
 /-- Waits for the entire computation to finish and returns the computed
 list. If computation was ongoing, also returns the terminating value. -/
-partial def waitAll : AsyncList ε α → List α × Option ε
+partial def getAll : AsyncList ε α → List α × Option ε
   | cons hd tl =>
-    let ⟨l, e?⟩ := tl.waitAll
+    let ⟨l, e?⟩ := tl.getAll
     ⟨hd :: l, e?⟩
   | nil => ⟨[], none⟩
   | asyncTail tl =>
     match tl.get with
-    | Except.ok tl => tl.waitAll
+    | Except.ok tl => tl.getAll
     | Except.error e => ⟨[], some e⟩
+
+/-- Waits for the entire computation to finish and returns the computed
+list. If computation was ongoing, also returns the terminating value.
+As opposed to getAll, ensures that the waiting is completed. -/
+partial def waitAll : AsyncList ε α → IO (List α × Option ε)
+  | cons hd tl => do
+    let ⟨l, e?⟩ ← tl.waitAll
+    pure ⟨hd :: l, e?⟩
+  | nil => pure ⟨[], none⟩
+  | asyncTail tl => do
+    match ←IO.wait tl with
+    | Except.ok tl => tl.waitAll
+    | Except.error e => pure ⟨[], some e⟩
 
 /-- Extends the `finishedPrefix` as far as possible. If computation was ongoing
 and has finished, also returns the terminating value. -/

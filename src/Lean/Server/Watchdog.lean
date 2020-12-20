@@ -342,7 +342,9 @@ section MessageHandling
       let uri := fileSource parsedParams
       tryWriteMessage uri ⟨id, method, parsedParams⟩ FileWorker.writeRequest
     match method with
-    | "textDocument/hover" => handle HoverParams
+    | "textDocument/waitForResponses"   => handle WaitForResponsesParam
+    | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam
+    | "textDocument/hover"              => handle HoverParams
     | _ => throwServerError $ "Got unsupported request: " ++ method ++ " params: " ++ toString params
 
   def handleNotification (method : String) (params : Json) : ServerM Unit :=
@@ -409,11 +411,11 @@ end MainLoop
 
 def mkLeanServerCapabilities : ServerCapabilities := {
   textDocumentSync? := some {
-    openClose := true
-    change := TextDocumentSyncKind.incremental
-    willSave := false
+    openClose         := true
+    change            := TextDocumentSyncKind.incremental
+    willSave          := false
     willSaveWaitUntil := false
-    save? := none
+    save?             := none
   }
   hoverProvider := true
 }

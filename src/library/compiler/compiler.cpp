@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/option_declarations.h"
+#include "util/io.h"
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "library/max_sharing.h"
@@ -34,6 +35,32 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_codegen = nullptr;
 static name * g_extract_closed = nullptr;
+
+/*
+@[export lean_mk_metavar_ctx]
+def mkMetavarContext : Unit → MetavarContext := fun _ => {}
+*/
+extern "C" lean_object* lean_mk_metavar_ctx(lean_object*);
+
+/*
+@[export lean_pp_expr]
+def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
+*/
+extern "C" object * lean_pp_expr(object * env, object * mctx, object * lctx, object * opts, object * e, object * w);
+
+/*
+@[export lean_format_pretty]
+def pretty (f : Format) (w : Nat := defWidth) : String :=
+*/
+extern "C" object * lean_format_pretty(object * f, object * w);
+
+std::string pp_expr(environment const & env, options const & opts, expr const & e) {
+    local_ctx lctx;
+    object_ref fmt = get_io_result<object_ref>(lean_pp_expr(env.to_obj_arg(), lean_mk_metavar_ctx(lean_box(0)), lctx.to_obj_arg(), opts.to_obj_arg(),
+                                                            e.to_obj_arg(), io_mk_world()));
+    string_ref str(lean_format_pretty(fmt.to_obj_arg(), lean_unsigned_to_nat(80)));
+    return str.to_std_string();
+}
 
 bool is_codegen_enabled(options const & opts) { return opts.get_bool(*g_codegen, true); }
 bool is_extract_closed_enabled(options const & opts) { return opts.get_bool(*g_extract_closed, true); }
@@ -66,9 +93,9 @@ comp_decls apply(F && f, comp_decls const & ds) {
     return map(ds, [&](comp_decl const & d) { return comp_decl(d.fst(), f(d.snd())); });
 }
 
-static void trace(comp_decls const & ds) {
+static void trace(environment const & env, options const & opts, comp_decls const & ds) {
     for (comp_decl const & d : ds) {
-        tout() << ">> " << d.fst() << "\n" << d.snd() << "\n";
+        tout() << ">> " << d.fst() << "\n" << pp_expr(env, opts, d.snd()) << "\n";
     }
 }
 
@@ -117,8 +144,6 @@ static environment cache_new_stage2(environment env, comp_decls const & ds) {
     return cache_stage2(env, ds, true);
 }
 
-#define trace_compiler(k, ds) lean_trace(k, trace(ds);)
-
 bool is_main_fn(environment const & env, name const & n) {
     if (n == "main") return true;
     if (optional<name> c = get_export_name_for(env, n)) {
@@ -160,6 +185,8 @@ static bool has_synthetic_sorry(constant_info const & cinfo) {
 }
 
 environment compile(environment const & env, options const & opts, names cs) {
+#define trace_compiler(k, ds) lean_trace(k, trace(env, opts, ds);)
+
     if (!is_codegen_enabled(opts))
         return env;
 

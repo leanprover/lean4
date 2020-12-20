@@ -71,10 +71,13 @@ partial def compress : Json → String
   | bool false => "false"
   | num s      => s.toString
   | str s      => renderString s
-  | arr elems  => "[" ++ ",".intercalate (elems.map compress).toList ++ "]"
+  | arr elems  =>
+    let f := ",".intercalate (elems.map compress).toList
+    s!"[{f}]"
   | obj kvs    =>
-    let ckvs := kvs.fold (fun acc k j => (renderString k ++ ":" ++ compress j) :: acc) [];
-    "{" ++ ",".intercalate ckvs ++ "}"
+    let ckvs := kvs.fold (fun acc k j => s!"{renderString k}:{compress j}" :: acc) []
+    let ckvs := ",".intercalate ckvs
+    s!"{ckvs}"
 
 instance : ToFormat Json := ⟨render⟩
 instance : ToString Json := ⟨pretty⟩

@@ -43,5 +43,11 @@ instance DidCloseTextDocumentParams.hasFileSource : FileSource DidCloseTextDocum
 instance HoverParams.hasFileSource : FileSource HoverParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
+instance WaitForDiagnosticsParam.hasFileSource : FileSource WaitForDiagnosticsParam :=
+  ⟨fun p => p.uri⟩
+
+instance WaitForResponsesParam.hasFileSource : FileSource WaitForResponsesParam :=
+  ⟨fun p => p.uri⟩
+
 end Lsp
 end Lean

@@ -70,6 +70,8 @@ open Std (RBMap RBMap.empty)
 open JsonRpc
 
 section ServerM
+  -- Pending requests are tracked so that requests can be cancelled by cancelling the corresponding task,
+  -- which would be cancelled by the GC if we did not track these requests.
   abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) (fun a b => Decidable.decide (a < b))
 
   structure ServerContext where
@@ -203,7 +205,7 @@ section NotificationHandling
 end NotificationHandling
 
 section RequestHandling
-  /- TODO(MH): Requests that need data from a certain command should traverse e.snapshots
+  /- TODO(MH): Requests that need data from a certain command should traverse the snapshots
      by successively getting the next task, meaning that we might need to wait for elaboration.
      Sebastian said something about a future function TaskIO.bind that ensures that the
      request task will also stop waiting when the reference to the task is released by handleDidChange.
@@ -211,7 +213,23 @@ section RequestHandling
      (this way, the server doesn't get bogged down in requests for an old state of the document).
      Requests need to manually check for whether their task has been cancelled, so that they
      can reply with a RequestCancelled error. -/
-  def handleHover (p : HoverParams) (e : EditableDocument) : IO Unit := pure ⟨⟩
+  def handleHover (id : RequestID) (p : HoverParams) : ServerM Unit := pure ⟨⟩
+
+  def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam) : ServerM Unit := do
+    let st ← read
+    let e ← st.docRef.get
+    discard $ e.cmdSnaps.waitAll
+    st.hOut.writeLspResponse ⟨id, WaitForDiagnostics.mk⟩
+
+  /- The signature of this request is somewhat special, since it is a request that performs
+     an action related to requests. Hence we need to ensure that this handler does not
+     accidentally reference itself, by passing in the `PendingRequestMap` from before
+     the request was added. -/
+  def handleWaitForResponses (id : RequestID) (pr : PendingRequestMap) : ServerM Unit := do
+    for ⟨_, task⟩ in pr do
+      discard $ IO.wait task
+    (←read).hOut.writeLspResponse ⟨id, WaitForResponses.mk⟩
+
 end RequestHandling
 
 section MessageHandling
@@ -228,18 +246,20 @@ section MessageHandling
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
     | _                        => throwServerError $ "Got unsupported notification method: " ++ method
 
-  def queueRequest (id : RequestID) (handler : α → EditableDocument → IO Unit) (params : α)
+  def queueRequest (id : RequestID) (handler : RequestID → α → ServerM Unit) (params : α)
   : ServerM Unit := do
-    let requestTask ← asTask (handler params (←(←read).docRef.get))
+    let requestTask ← asTask (handler id params (←read))
     updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
   def handleRequest (id : RequestID) (method : String) (params : Json)
   : ServerM Unit := do
     let handle := fun paramType [FromJson paramType]
-                      (handler : paramType → EditableDocument → IO Unit) =>
+                      (handler : RequestID → paramType → ServerM Unit) =>
       parseParams paramType params >>= queueRequest id handler
     match method with
-    | "textDocument/hover" => handle HoverParams handleHover
+    | "textDocument/waitForResponses"   => queueRequest id handleWaitForResponses (←(←read).pendingRequestsRef.get)
+    | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam handleWaitForDiagnostics
+    | "textDocument/hover"              => handle HoverParams handleHover
     | _ => throwServerError $ "Got unsupported request: " ++ method ++
                               " params: " ++ toString params
 end MessageHandling

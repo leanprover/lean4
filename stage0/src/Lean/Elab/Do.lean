@@ -1301,9 +1301,41 @@ def doUnlessToCode (doSeqToCode : List Syntax → M CodeBlock) (doUnless : Synta
    def doFor := parser! "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
    ``` -/
 def doForToCode (doSeqToCode : List Syntax → M CodeBlock) (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
-  let doForDecls := doFor[1].getArgs
+  let doForDecls := doFor[1].getSepArgs
   if doForDecls.size > 1 then
-    throwError! "parallel 'do' not implemented yet"
+    /-
+      Expand
+      ```
+      for x in xs, y in ys do
+        body
+      ```
+      into
+      ```
+      let s := toStream ys
+      for x in xs do
+        match Stream.next? s with
+        | none => break
+        | some (y, s') =>
+          s := s'
+          body
+      ```
+    -/
+    -- Extract second element
+    let doForDecl := doForDecls[1]
+    let y  := doForDecl[0]
+    let ys := doForDecl[2]
+    let doForDecls := doForDecls.eraseIdx 1
+    let body := doFor[3]
+    withFreshMacroScope do
+      let auxDo ←
+        `(do let mut s := toStream $ys
+             for $doForDecls:doForDecl,* do
+               match Stream.next? s with
+               | none => break
+               | some ($y, s') =>
+                 s := s'
+                 do $body)
+      doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
   else
     let ref       := doFor
     let x         := doForDecls[0][0]

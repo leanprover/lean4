@@ -142,10 +142,10 @@ lean_object* l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_627____spe
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_Class___hyg_47____spec__4(lean_object*, lean_object*);
 lean_object* l___private_Lean_Class_0__Lean_checkOutParam_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__22;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Expr_hasAnyFVar_visit___at___private_Lean_Class_0__Lean_checkOutParam___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__22;
 lean_object* l_Lean_getClassName(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
 lean_object* l_Lean_classExtension___elambda__4(lean_object*, lean_object*);
@@ -3809,7 +3809,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__22;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__22;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

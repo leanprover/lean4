@@ -84,8 +84,8 @@ extern lean_object* l_myMacro____x40_Init_Notation___hyg_12387____closed__13;
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__1___closed__8;
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__1___closed__1;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5816____closed__1;
 extern lean_object* l_Lean_Parser_Term_matchAlt___closed__1;
+extern lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5812____closed__1;
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
@@ -343,7 +343,7 @@ goto block_25;
 else
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
-x_78 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5816____closed__1;
+x_78 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5812____closed__1;
 x_79 = l_Lean_Name_appendIndexAfter(x_78, x_70);
 x_80 = l_Lean_Name_append(x_1, x_79);
 x_81 = l_Lean_mkIdentFrom(x_30, x_80);
@@ -397,7 +397,7 @@ goto block_25;
 else
 {
 lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; 
-x_97 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5816____closed__1;
+x_97 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5812____closed__1;
 x_98 = l_Lean_Name_appendIndexAfter(x_97, x_87);
 x_99 = l_Lean_Name_append(x_1, x_98);
 x_100 = l_Lean_mkIdentFrom(x_30, x_99);

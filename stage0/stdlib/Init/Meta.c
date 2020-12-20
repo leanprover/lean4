@@ -544,12 +544,12 @@ lean_object* l___private_Init_Meta_0__Lean_quoteList_match__1___rarg(lean_object
 lean_object* l_Array_filterSepElemsM___at_Array_filterSepElems___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_quoteOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_monadNameGeneratorLift___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4042_(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4161_(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4392_(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4294_(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4511_(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_3944_(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4040_(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4159_(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4388_(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4290_(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4507_(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_3942_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStr___closed__1;
 lean_object* l_Lean_Syntax_decodeQuotedChar_match__5(lean_object*);
 lean_object* l_Lean_Syntax_expandInterpolatedStr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9895,7 +9895,7 @@ return x_75;
 }
 }
 }
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_3944_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_3942_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -10022,7 +10022,7 @@ return x_38;
 }
 }
 }
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4042_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4040_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -10233,7 +10233,7 @@ x_1 = l_Lean_termEvalPrec_x21_____closed__7;
 return x_1;
 }
 }
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4161_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4159_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -10685,7 +10685,7 @@ return x_75;
 }
 }
 }
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4294_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4290_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -10812,7 +10812,7 @@ return x_38;
 }
 }
 }
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4392_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4388_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -11023,7 +11023,7 @@ x_1 = l_Lean_termEvalPrio_x21_____closed__7;
 return x_1;
 }
 }
-lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4511_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_4507_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 

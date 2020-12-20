@@ -312,13 +312,13 @@ lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Attributes_0__Lean_At
 lean_object* l_Lean_registerTagAttribute___lambda__3___closed__3;
 lean_object* l_Array_qpartition_loop___at_Lean_registerParametricAttribute___spec__5(lean_object*);
 lean_object* l_Lean_registerAttributeImplBuilder___closed__2;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__22;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_ParametricAttributeImpl_afterImport___default(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_107____boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_registerTagAttribute___lambda__6___closed__2;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__22;
 lean_object* l_Lean_registerAttributeImplBuilder___closed__1;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
@@ -6085,7 +6085,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1127____closed__17;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3477____closed__22;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__22;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

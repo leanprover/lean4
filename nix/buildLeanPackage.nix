@@ -94,7 +94,8 @@ with builtins; let
       mkdir -p $out/$(dirname ${drv.relpath})
       # make local "copy" so `drv`'s Nix store path doesn't end up in ccache's hash
       ln -s ${drv.c}/${drv.cPath} src.c
-      leanc -c -o $out/$oPath src.c $leancFlags ${if debug then "-g" else "-O3 -DNDEBUG"}
+      # on the other hand, a debug build is pretty fast anyway, so preserve the path for gdb
+      leanc -c -o $out/$oPath $leancFlags ${if debug then "${drv.c}/${drv.cPath} -g " else "src.c -O3 -DNDEBUG"}
     '';
   };
   singleton = name: value: listToAttrs [ { inherit name value; } ];

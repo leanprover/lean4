@@ -17,7 +17,7 @@ syntax "while " termBeforeDo " do " doSeq : doElem
 
 macro_rules
   | `(doElem| while $cond do $seq) =>
-    `(doElem| repeat if $cond:term then $seq else break)
+    `(doElem| repeat if $cond then $seq else break)
 
 def test1 : IO Unit := do
   let mut i := 0
@@ -32,7 +32,7 @@ syntax "repeat " doSeq " until " term : doElem
 
 macro_rules
   | `(doElem| repeat $seq until $cond) =>
-    `(doElem| repeat do $seq; if $cond:term then break)
+    `(doElem| repeat do $seq; if $cond then break)
 
 def test2 : IO Unit := do
   let mut i := 0

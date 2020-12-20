@@ -78,11 +78,13 @@ else if c_2 then
 ```
 -/
 def elseIf := atomic (group (withPosition (" else " >> checkLineEq >> " if ")))
-def doIfLet  := parser! "let " >> termParser >> " := " >> termParser
-def doIfCond := parser! optIdent >> termParser
+-- ensure `if $e then ...` still binds to `e:term`
+def doIfLet  := nodeWithAntiquot "doIfLet" `Lean.Parser.Term.doIfLet   <| "let " >> termParser >> " := " >> termParser
+def doIfProp := nodeWithAntiquot "doIfProp" `Lean.Parser.Term.doIfProp <| optIdent >> termParser
+def doIfCond := withAntiquot (mkAntiquot "doIfCond" none (anonymous := false)) <| doIfLet <|> doIfProp
 @[builtinDoElemParser] def doIf := parser! withPosition $
-  "if " >> (doIfLet <|> doIfCond) >> " then " >> doSeq
-  >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> (doIfLet <|> doIfCond) >> " then " >> doSeq))
+  "if " >> doIfCond >> " then " >> doSeq
+  >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> doIfCond >> " then " >> doSeq))
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
 @[builtinDoElemParser] def doUnless := parser! "unless " >> withForbidden "do" termParser >> "do " >> doSeq
 def doForDecl := parser! termParser >> " in " >> withForbidden "do" termParser

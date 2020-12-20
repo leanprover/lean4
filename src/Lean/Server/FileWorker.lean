@@ -220,16 +220,6 @@ section RequestHandling
     let e ← st.docRef.get
     discard $ e.cmdSnaps.waitAll
     st.hOut.writeLspResponse ⟨id, WaitForDiagnostics.mk⟩
-
-  /- The signature of this request is somewhat special, since it is a request that performs
-     an action related to requests. Hence we need to ensure that this handler does not
-     accidentally reference itself, by passing in the `PendingRequestMap` from before
-     the request was added. -/
-  def handleWaitForResponses (id : RequestID) (pr : PendingRequestMap) : ServerM Unit := do
-    for ⟨_, task⟩ in pr do
-      discard $ IO.wait task
-    (←read).hOut.writeLspResponse ⟨id, WaitForResponses.mk⟩
-
 end RequestHandling
 
 section MessageHandling
@@ -257,7 +247,6 @@ section MessageHandling
                       (handler : RequestID → paramType → ServerM Unit) =>
       parseParams paramType params >>= queueRequest id handler
     match method with
-    | "textDocument/waitForResponses"   => queueRequest id handleWaitForResponses (←(←read).pendingRequestsRef.get)
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam handleWaitForDiagnostics
     | "textDocument/hover"              => handle HoverParams handleHover
     | _ => throwServerError $ "Got unsupported request: " ++ method ++

@@ -21,6 +21,13 @@ inductive RequestID where
   | str (s : String)
   | num (n : JsonNumber)
   | null
+  deriving DecidableEq
+
+instance : ToString RequestID where
+  toString
+  | RequestID.str s => s!"\"s\""
+  | RequestID.num n => toString n
+  | RequestID.null => "null"
 
 /-- Error codes defined by JSON-RPC and LSP. -/
 inductive ErrorCode where
@@ -223,6 +230,18 @@ section
       else
         throw $ userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'")
     | _ => throw $ userError "expected notification, got other type of message"
+
+  def readResponseAs (h : FS.Stream) (nBytes : Nat) (expectedID : RequestID) (α) [FromJson α] : IO (Response α) := do
+  let m ← h.readMessage nBytes
+  match m with
+  | Message.response id result =>
+    if id = expectedID then
+      match fromJson? result with
+      | some v => pure ⟨expectedID, v⟩
+      | none   => throw $ userError s!"unexpected result '{result.compress}'"
+    else
+      throw $ userError s!"expected id {expectedID}, got id {id}"
+  | _ => throw $ userError "expected response, got other type of message"
 end
 
 section

@@ -56,6 +56,10 @@ section
   def readLspNotificationAs (h : FS.Stream) (expectedMethod : String) (α) [FromJson α] : IO (Notification α) := do
     let nBytes ← readLspHeader h
     h.readNotificationAs nBytes expectedMethod α
+
+  def readLspResponseAs (h : FS.Stream) (expectedID : RequestID) (α) [FromJson α] : IO (Response α) := do
+    let nBytes ← readLspHeader h
+    h.readResponseAs nBytes expectedID α
 end
 
 section
@@ -69,7 +73,7 @@ section
     h.putStr (header ++ j)
     h.flush
 
-  def writeLspRequest (h : FS.Stream) (r : Request α): IO Unit :=
+  def writeLspRequest (h : FS.Stream) (r : Request α) : IO Unit :=
     h.writeLspMessage r
 
   def writeLspNotification (h : FS.Stream) (n : Notification α) : IO Unit :=

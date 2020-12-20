@@ -38,8 +38,8 @@ The `do` DSL expands into the core Lean language. Let's inspect the different co
 #  IO.println "world"
 #  return 0
 
-#check IO.println
--- String -> IO Unit
+#check IO.println "hello"
+-- IO Unit
 #print main
 -- Output contains the infix operator `>>=` and `pure`
 -- The following `set_option` disables notation such as `>>=` in the output

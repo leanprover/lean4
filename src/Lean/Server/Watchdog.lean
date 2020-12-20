@@ -488,19 +488,19 @@ def readResponseAs (expectedID : RequestID) (α) [FromJson α] : WatchdogM (Resp
   (←stdout).readLspResponseAs expectedID α
 
 partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target : DocumentUri)
-: WatchdogM (Array (Notification PublishDiagnosticsParams)) := do
+: WatchdogM (List (Notification PublishDiagnosticsParams)) := do
   writeRequest ⟨waitForDiagnosticsId, "textDocument/waitForDiagnostics", WaitForDiagnosticsParam.mk target⟩
-  let rec loop : WatchdogM (Array (Notification PublishDiagnosticsParams)) := do
-    let error : IO (Array (Notification PublishDiagnosticsParams)) := throw $ userError "got unexpected packet while collecting diagnostics"
+  let rec loop : WatchdogM (List (Notification PublishDiagnosticsParams)) := do
+    let error : IO (List (Notification PublishDiagnosticsParams)) := throw $ userError "got unexpected packet while collecting diagnostics"
     match ←(←stdout).readLspMessage with
     | Message.response id _ =>
       if id = waitForDiagnosticsId then
-        #[]
+        []
       else
         error
     | Message.notification "textDocument/publishDiagnostics" (some param) =>
       match fromJson? (toJson param) with
-      | some diagnosticParam => (←loop).push ⟨"textDocument/publishDiagnostics", diagnosticParam⟩
+      | some diagnosticParam => ⟨"textDocument/publishDiagnostics", diagnosticParam⟩ :: (←loop)
       | none                 => error
     | _ => error
   loop

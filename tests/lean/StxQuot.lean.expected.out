@@ -35,4 +35,5 @@
 "(Term.match\n \"match\"\n [(Term.matchDiscr [] `a._@.UnhygienicMain._hyg.1)]\n []\n \"with\"\n (Term.matchAlts\n  [(Term.matchAlt \"|\" [`a._@.UnhygienicMain._hyg.1] \"=>\" `b._@.UnhygienicMain._hyg.1)\n   (Term.matchAlt\n    \"|\"\n    [(term_+_ `a._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\"))]\n    \"=>\"\n    (term_+_ `b._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\")))]))"
 "(Term.match\n \"match\"\n [(Term.matchDiscr [] `a._@.UnhygienicMain._hyg.1)]\n []\n \"with\"\n (Term.matchAlts\n  [(Term.matchAlt \"|\" [`a._@.UnhygienicMain._hyg.1] \"=>\" `b._@.UnhygienicMain._hyg.1)\n   (Term.matchAlt\n    \"|\"\n    [(term_+_ `a._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\"))]\n    \"=>\"\n    (term_+_ `b._@.UnhygienicMain._hyg.1 \"+\" (numLit \"1\")))]))"
 "#[`a._@.UnhygienicMain._hyg.1, `b._@.UnhygienicMain._hyg.1]"
-StxQuot.lean:71:33: error: expected parser to return exactly one syntax object
+"1"
+StxQuot.lean:77:33: error: expected parser to return exactly one syntax object

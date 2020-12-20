@@ -335,27 +335,37 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
     let info ← getHeadInfo alt
     let pat  := alt.1.head!
     let alts ← (alt::alts).mapM fun alt => do ((← getHeadInfo alt).onMatch info.check, alt)
+    let mut yesAlts           := #[]
+    let mut undecidedAlts     := #[]
+    let mut nonExhaustiveAlts := #[]
+    for alt in alts do match alt with
+      | (covered f exh, alt) =>
+        -- we can only factor out a common check if there are no undecided patterns in between;
+        -- otherwise we would change the order of alternatives
+        if undecidedAlts.isEmpty then
+          yesAlts ← yesAlts.push <$> f (alt.1.tail!, alt.2)
+          if !exh then
+            nonExhaustiveAlts := nonExhaustiveAlts.push alt
+        else
+          undecidedAlts := undecidedAlts.push alt
+          nonExhaustiveAlts := nonExhaustiveAlts.push alt
+      | (undecided, alt) =>
+        undecidedAlts := undecidedAlts.push alt
+        nonExhaustiveAlts := nonExhaustiveAlts.push alt
+      | (uncovered, alt) =>
+        nonExhaustiveAlts := nonExhaustiveAlts.push alt
     let m ← info.doMatch
       (yes := fun newDiscrs => do
-        let mut yesAlts ← alts.filterMapM fun
-          | (covered f _, (_::pats, rhs)) => some <$> f (pats, rhs)
-          | _                             => pure none
-        let undecidedAlts := alts.filterMap fun
-          | (undecided, alt) => some alt
-          | _                => none
+        let mut yesAlts := yesAlts
         if !undecidedAlts.isEmpty then
           -- group undecided alternatives in a new default case `| discr2, ... => match discr, discr2, ... with ...`
           let vars ← discrs.mapM fun _ => withFreshMacroScope `(discr)
           let pats := List.replicate newDiscrs.length (Unhygienic.run `(_)) ++ vars
-          let alts ← undecidedAlts.toArray.mapM fun alt => `(matchAltExpr| | $(alt.1.toArray),* => $(alt.2))
+          let alts ← undecidedAlts.mapM fun alt => `(matchAltExpr| | $(alt.1.toArray),* => $(alt.2))
           let rhs  ← `(match discr, $[$(vars.toArray):term],* with $alts:matchAlt*)
-          yesAlts := yesAlts ++ [(pats, rhs)]
-        withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts)
-      (no := do
-        let nonExhaustiveAlts := alts.filterMap fun
-          | (covered f (exhaustive := true), alt) => none
-          | (_,                              alt) => some alt
-        withFreshMacroScope $ compileStxMatch (discr::discrs) nonExhaustiveAlts)
+          yesAlts := yesAlts.push (pats, rhs)
+        withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts.toList)
+      (no := withFreshMacroScope $ compileStxMatch (discr::discrs) nonExhaustiveAlts.toList)
     `(let discr := $discr; $m)
   | _, _ => unreachable!
 

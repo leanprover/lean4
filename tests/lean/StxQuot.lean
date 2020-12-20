@@ -68,4 +68,10 @@ open Parser.Term
   | `(Parser.Term.structInstField| $lhs:ident := $rhs) => #[lhs, rhs]
   | _ => unreachable!
 
+#eval run do
+  match ← `({ a := a : a }) with
+  | `({ a := a : 0 })      => "0"
+  | `({ a := a $[: $a?]?}) => "1"
+  | stx                    => "2"
+
 #eval run `(sufficesDecl|x from x)

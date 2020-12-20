@@ -226,7 +226,7 @@ section MessageHandling
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : ServerM paramType :=
     match fromJson? params with
     | some parsed => pure parsed
-    | none        => throwServerError $ "Got param with wrong structure: " ++ params.compress
+    | none        => throwServerError s!"Got param with wrong structure: {params.compress}"
 
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
     let handle := fun paramType [FromJson paramType] (handler : paramType → ServerM Unit) =>
@@ -234,7 +234,7 @@ section MessageHandling
     match method with
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
-    | _                        => throwServerError $ "Got unsupported notification method: " ++ method
+    | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
   def queueRequest (id : RequestID) (handler : RequestID → α → ServerM Unit) (params : α)
   : ServerM Unit := do
@@ -249,8 +249,7 @@ section MessageHandling
     match method with
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam handleWaitForDiagnostics
     | "textDocument/hover"              => handle HoverParams handleHover
-    | _ => throwServerError $ "Got unsupported request: " ++ method ++
-                              " params: " ++ toString params
+    | _ => throwServerError s!"Got unsupported request: {method}"
 end MessageHandling
 
 section MainLoop

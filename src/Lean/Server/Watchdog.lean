@@ -164,7 +164,7 @@ section ServerM
   def findFileWorker (uri : DocumentUri) : ServerM FileWorker := do
     match (←(←read).fileWorkersRef.get).find? uri with
     | some fw => fw
-    | none    => throwServerError $ "Got unknown document URI (" ++ uri ++ ")"
+    | none    => throwServerError s!"Got unknown document URI ({uri})"
 
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
     (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
@@ -334,7 +334,7 @@ section MessageHandling
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : ServerM paramType :=
       match fromJson? params with
       | some parsed => pure parsed
-      | none        => throwServerError $ "Got param with wrong structure: " ++ params.compress
+      | none        => throwServerError s!"Got param with wrong structure: {params.compress}"
 
   def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
     let handle := fun α [FromJson α] [ToJson α] [FileSource α] => do
@@ -344,7 +344,7 @@ section MessageHandling
     match method with
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam
     | "textDocument/hover"              => handle HoverParams
-    | _ => throwServerError $ "Got unsupported request: " ++ method ++ " params: " ++ toString params
+    | _ => throwServerError s!"Got unsupported request: {method}"
 
   def handleNotification (method : String) (params : Json) : ServerM Unit :=
     let handle := (fun α [FromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler)
@@ -491,7 +491,7 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
 : WatchdogM (List (Notification PublishDiagnosticsParams)) := do
   writeRequest ⟨waitForDiagnosticsId, "textDocument/waitForDiagnostics", WaitForDiagnosticsParam.mk target⟩
   let rec loop : WatchdogM (List (Notification PublishDiagnosticsParams)) := do
-    let error : IO (List (Notification PublishDiagnosticsParams)) := throw $ userError "got unexpected packet while collecting diagnostics"
+    let error : IO (List (Notification PublishDiagnosticsParams)) := throw $ userError "Got unexpected packet while collecting diagnostics"
     match ←(←stdout).readLspMessage with
     | Message.response id _ =>
       if id = waitForDiagnosticsId then

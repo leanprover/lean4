@@ -34,7 +34,7 @@ section
       | some hf =>
         let tail ← readHeaderFields h
         pure (hf :: tail)
-      | none => throw $ userError ("Invalid header field: " ++ l)
+      | none => throw $ userError s!"Invalid header field: {l}"
 
   /-- Returns the Content-Length. -/
   private def readLspHeader (h : FS.Stream) : IO Nat := do
@@ -42,8 +42,8 @@ section
     match fields.lookup "Content-Length" with
     | some length => match length.toNat? with
       | some n => pure n
-      | none   => throw $ userError ("Content-Length header value '" ++ length ++ "' is not a Nat")
-    | none => throw $ userError ("No Content-Length header in header fields: " ++ toString fields)
+      | none   => throw $ userError s!"Content-Length header value '{length}' is not a Nat"
+    | none => throw $ userError s!"No Content-Length header in header fields: {toString fields}"
 
   def readLspMessage (h : FS.Stream) : IO Message := do
     let nBytes ← readLspHeader h
@@ -69,7 +69,7 @@ section
     -- inlined implementation instead of using jsonrpc's writeMessage
     -- to maintain the atomicity of putStr
     let j := (toJson msg).compress
-    let header := "Content-Length: " ++ toString j.utf8ByteSize ++ "\r\n\r\n"
+    let header := s!"Content-Length: {toString j.utf8ByteSize}\r\n\r\n"
     h.putStr (header ++ j)
     h.flush
 

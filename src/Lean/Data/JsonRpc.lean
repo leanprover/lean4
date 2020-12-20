@@ -197,7 +197,7 @@ section
     let j ← h.readJson nBytes
     match fromJson? j with
     | some m => pure m
-    | none   => throw $ userError ("JSON '" ++ j.compress ++ "' did not have the format of a JSON-RPC message")
+    | none   => throw $ userError s!"JSON '{j.compress}' did not have the format of a JSON-RPC message"
 
   def readRequestAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α) [FromJson α] : IO (Request α) := do
     let m ← h.readMessage nBytes
@@ -209,11 +209,11 @@ section
           let j := toJson params
           match fromJson? j with
           | some v => pure ⟨id, expectedMethod, v⟩
-          | none   => throw $ userError ("unexpected param '" ++ j.compress  ++ "' for method '" ++ expectedMethod ++ "'")
-        | none => throw $ userError ("unexpected lack of param for method '" ++ expectedMethod ++ "'")
+          | none   => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'"
+        | none => throw $ userError s!"Unexpected lack of param for method '{expectedMethod}'"
       else
-        throw $ userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'")
-    | _ => throw $ userError "expected request, got other type of message"
+        throw $ userError s!"Expected method '{expectedMethod}', got method '{method}'"
+    | _ => throw $ userError "Expected request, got other type of message"
 
   def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α) [FromJson α] : IO (Notification α) := do
     let m ← h.readMessage nBytes
@@ -225,11 +225,11 @@ section
           let j := toJson params
           match fromJson? j with
           | some v => pure ⟨expectedMethod, v⟩
-          | none   => throw $ userError ("unexpected param '" ++ j.compress  ++ "' for method '" ++ expectedMethod ++ "'")
-        | none => throw $ userError ("unexpected lack of param for method '" ++ expectedMethod ++ "'")
+          | none   => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'"
+        | none => throw $ userError s!"Unexpected lack of param for method '{expectedMethod}'"
       else
-        throw $ userError ("expected method '" ++ expectedMethod ++ "', got method '" ++ method ++ "'")
-    | _ => throw $ userError "expected notification, got other type of message"
+        throw $ userError s!"Expected method '{expectedMethod}', got method '{method}'"
+    | _ => throw $ userError "Expected notification, got other type of message"
 
   def readResponseAs (h : FS.Stream) (nBytes : Nat) (expectedID : RequestID) (α) [FromJson α] : IO (Response α) := do
   let m ← h.readMessage nBytes
@@ -238,10 +238,10 @@ section
     if id = expectedID then
       match fromJson? result with
       | some v => pure ⟨expectedID, v⟩
-      | none   => throw $ userError s!"unexpected result '{result.compress}'"
+      | none   => throw $ userError s!"Unexpected result '{result.compress}'"
     else
-      throw $ userError s!"expected id {expectedID}, got id {id}"
-  | _ => throw $ userError "expected response, got other type of message"
+      throw $ userError s!"Expected id {expectedID}, got id {id}"
+  | _ => throw $ userError "Expected response, got other type of message"
 end
 
 section

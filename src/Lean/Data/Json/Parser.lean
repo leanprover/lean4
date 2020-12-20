@@ -79,7 +79,7 @@ def expect (s : String) : Quickparse Unit := fun it =>
   if it.extract (it.forward s.length) = s then
     success (it.forward s.length) ()
   else
-    error it ("expected: " ++ s)
+    error it s!"expected: {s}"
 
 @[inline]
 def ws : Quickparse Unit := fun it =>
@@ -311,7 +311,7 @@ namespace Json
 def parse (s : String) : Except String Lean.Json :=
   match Json.Parser.any s.mkIterator with
   | Quickparse.Result.success _ res => Except.ok res
-  | Quickparse.Result.error it err  => Except.error ("offset " ++ it.i.repr ++ ": " ++ err)
+  | Quickparse.Result.error it err  => Except.error s!"offset {it.i.repr}: {err}"
 
 end Json
 

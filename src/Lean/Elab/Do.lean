@@ -625,7 +625,7 @@ def mkSingletonDoSeq (doElem : Syntax) : Syntax :=
   mkDoSeq #[doElem]
 
 /-
-  If the given syntax is a `doIf`, return an equivalente `doIf` that has an `else` but no `else if`s or `let if`s.  -/
+  If the given syntax is a `doIf`, return an equivalente `doIf` that has an `else` but no `else if`s or `if let`s.  -/
 private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx with
   | `(doElem|if $p:doIfProp then $t else $e) => pure none
   | `(doElem|if $cond:doIfCond then $t $[else if $conds:doIfCond then $ts]* $[else $e?]?) => go cond t conds ts e?
@@ -637,6 +637,7 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
       e ← if eIsSeq then e else `(doSeq|$e:doElem)
       e ← withRef cond <| match cond with
         | `(doIfCond|let $pat := $d) => `(doElem|match $d:term with | $pat:term => $t | _ => $e)
+        | `(doIfCond|let $pat ← $d) => `(doElem|match ← $d     with | $pat:term => $t | _ => $e)
         | _                          => `(doElem|if $cond:doIfCond then $t else $e)
       eIsSeq := false
     return some e

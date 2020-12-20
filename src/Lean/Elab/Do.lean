@@ -1297,34 +1297,39 @@ def doUnlessToCode (doSeqToCode : List Syntax → M CodeBlock) (doUnless : Synta
 /- Generate `CodeBlock` for `doFor; doElems`
    `doFor` is of the form
    ```
-   for " >> termParser >> " in " >> termParser >> "do " >> doSeq
+   def doForDecl := parser! termParser >> " in " >> withForbidden "do" termParser
+   def doFor := parser! "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
    ``` -/
 def doForToCode (doSeqToCode : List Syntax → M CodeBlock) (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
-  let ref       := doFor
-  let x         := doFor[1]
-  let xs        := doFor[3]
-  let forElems  := getDoSeqElems doFor[5]
-  let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
-  let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
-  let uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref))
-  if hasReturn forInBodyCodeBlock.code then
-    let forInTerm ← `($(xs).forIn (MProd.mk none $uvarsTuple) fun $x (MProd.mk _ $uvarsTuple) => $forInBody)
-    let auxDo ← `(do let r ← $forInTerm:term;
-                     $uvarsTuple:term := r.2;
-                     match r.1 with
-                     | none => Pure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit)
-                     | some a => return ensureExpectedType! "type mismatch, 'for'" a)
-    doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+  let doForDecls := doFor[1].getArgs
+  if doForDecls.size > 1 then
+    throwError! "parallel 'do' not implemented yet"
   else
-    let forInTerm ← `($(xs).forIn $uvarsTuple fun $x $uvarsTuple => $forInBody)
-    if doElems.isEmpty then
+    let ref       := doFor
+    let x         := doForDecls[0][0]
+    let xs        := doForDecls[0][2]
+    let forElems  := getDoSeqElems doFor[3]
+    let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
+    let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
+    let uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref))
+    if hasReturn forInBodyCodeBlock.code then
+      let forInTerm ← `($(xs).forIn (MProd.mk none $uvarsTuple) fun $x (MProd.mk _ $uvarsTuple) => $forInBody)
       let auxDo ← `(do let r ← $forInTerm:term;
-                       $uvarsTuple:term := r;
-                       Pure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit))
-      doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
-    else
-      let auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r)
+                       $uvarsTuple:term := r.2;
+                       match r.1 with
+                       | none => Pure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit)
+                       | some a => return ensureExpectedType! "type mismatch, 'for'" a)
       doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+    else
+      let forInTerm ← `($(xs).forIn $uvarsTuple fun $x $uvarsTuple => $forInBody)
+      if doElems.isEmpty then
+        let auxDo ← `(do let r ← $forInTerm:term;
+                         $uvarsTuple:term := r;
+                         Pure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit))
+        doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
+      else
+        let auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r)
+        doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
 
 /-- Generate `CodeBlock` for `doMatch; doElems` -/
 def doMatchToCode (doSeqToCode : List Syntax → M CodeBlock) (doMatch : Syntax) (doElems: List Syntax) : M CodeBlock := do

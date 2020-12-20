@@ -150,13 +150,13 @@ private abbrev Alt := List Syntax × Syntax
 /--
   In a single match step, we match the first discriminant against the "head" of the first pattern of the first
   alternative. This datatype describes what kind of check this involves, which helps other patterns decide if
-  they are covered by the same check and don't have to be check again (see also `MatchResult`). -/
+  they are covered by the same check and don't have to be checked again (see also `MatchResult`). -/
 inductive HeadCheck where
   -- match step that always succeeds: _, x, `($x), ...
   | unconditional
-  -- match step based on shape of discriminant
-  -- If `arity` is given, that amount of new discriminants is introduced. `covered` patterns should then introduce the
-  -- same amount of new patterns.
+  -- match step based on kind and, optionally, arity of discriminant
+  -- If `arity` is given, that number of new discriminants is introduced. `covered` patterns should then introduce the
+  -- same number of new patterns.
   -- We actually check the arity at run time only in the case of `null` nodes since it should otherwise by implied by
   -- the node kind.
   -- without arity: `($x:k)

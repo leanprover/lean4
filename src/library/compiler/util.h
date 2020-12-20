@@ -26,6 +26,9 @@ optional<expr> to_uint_type(unsigned nbytes);
 typedef pair_ref<name, expr> comp_decl;
 typedef list_ref<comp_decl> comp_decls;
 
+void trace_comp_decl(comp_decl const & d);
+void trace_comp_decls(comp_decls const & ds);
+
 unsigned get_num_nested_lambdas(expr e);
 
 bool is_lcnf_atom(expr const & e);

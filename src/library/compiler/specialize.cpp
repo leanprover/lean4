@@ -639,8 +639,8 @@ class specialize_fn {
             if (is_fvar(args[i])) {
                 lean_trace(name({"compiler", "spec_candidate"}),
                            local_decl d = m_lctx.get_local_decl(args[i]);
-                           tout() << "specialize_init_deps [" << i << "]: " << args[i] << " : " << d.get_type();
-                           if (auto v = d.get_value()) tout() << " := " << *v;
+                           tout() << "specialize_init_deps [" << i << "]: " << trace_pp_expr(args[i]) << " : " << trace_pp_expr(d.get_type());
+                           if (auto v = d.get_value()) tout() << " := " << trace_pp_expr(*v);
                            tout() << "\n";);
             }
             switch (kinds[i]) {
@@ -664,9 +664,9 @@ class specialize_fn {
         sort_fvars(ctx.m_params);
         lean_trace(name({"compiler", "spec_candidate"}),
                    tout() << "candidate: " << mk_app(fn, args) << "\nclosure:";
-                   for (expr const & p : ctx.m_vars) tout() << " " << p;
+                   for (expr const & p : ctx.m_vars) tout() << " " << trace_pp_expr(p);
                    tout() << "\nparams:";
-                   for (expr const & p : ctx.m_params) tout() << " " << p;
+                   for (expr const & p : ctx.m_params) tout() << " " << trace_pp_expr(p);
                    tout() << "\n";);
     }
 
@@ -775,12 +775,14 @@ class specialize_fn {
         lean_assert(ctx.in_mutual_decl(const_name(fn)));
         expr key = mk_cache_key(fn, mask);
         if (name const * r = ctx.m_cache.find(key)) {
+            lean_trace(name({"compiler", "specialize"}), tout() << "spec_preprocess: " << trace_pp_expr(key) << " ==> " << *r << "\n";);
             return optional<name>(*r);
         }
         optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)));
         if (!info || !info->is_definition()) return optional<name>(); // failed
         name new_name = mk_spec_name(const_name(fn));
         ctx.m_cache.insert(key, new_name);
+        lean_trace(name({"compiler", "specialize"}), tout() << "spec_preprocess update cache: " << trace_pp_expr(key) << " ===> " << new_name << "\n";);
         expr new_code = instantiate_value_lparams(*info, const_levels(fn));
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
         buffer<expr> fvars;
@@ -984,8 +986,17 @@ class specialize_fn {
         expr key;
         if (gcache_enabled) {
             key = mk_app(fn, gcache_key_args);
-            if (optional<name> it = get_cached_specialization(env(), key))
+            if (optional<name> it = get_cached_specialization(env(), key)) {
+                lean_trace(name({"compiler", "specialize"}), tout() << "get_cached_specialization [" << ctx.m_params.size() << "]: " << *it << "\n";
+                           unsigned i = 0;
+                           type_checker tc(m_st, m_lctx);
+                           for (expr const & x : ctx.m_params) {
+                               tout() << ">> [" << i << "]: " << trace_pp_expr(tc.infer(x)) << "\n";
+                               i++;
+                           }
+                           tout() << trace_pp_expr(key) << "\n";);
                 new_fn_name = *it;
+            }
         }
         if (!new_fn_name) {
             /* Cache does not contain specialization result */
@@ -996,6 +1007,14 @@ class specialize_fn {
                 mk_new_decl(pre_decl, fvars, fvar_vals, ctx);
             }
             if (gcache_enabled) {
+                lean_trace(name({"compiler", "specialize"}), tout() << "get_cached_specialization [" << ctx.m_params.size() << "] UPDATE " << *new_fn_name << "\n";
+                           unsigned i = 0;
+                           type_checker tc(m_st, m_lctx);
+                           for (expr const & x : ctx.m_params) {
+                               tout() << ">> [" << i << "]: " << trace_pp_expr(tc.infer(x)) << "\n";
+                               i++;
+                           }
+                           tout()  << trace_pp_expr(key) << "\n";);
                 m_st.env() = cache_specialization(env(), key, *new_fn_name);
             }
         }
@@ -1048,7 +1067,7 @@ public:
 
     pair<environment, comp_decls> operator()(comp_decl const & d) {
         m_base_name = d.fst();
-        lean_trace(name({"compiler", "specialize"}), tout() << "INPUT: " << d.fst() << "\n" << d.snd() << "\n";);
+        lean_trace(name({"compiler", "specialize"}), tout() << "INPUT: " << d.fst() << "\n" << trace_pp_expr(d.snd()) << "\n";);
         expr new_v = visit(d.snd());
         comp_decl new_d(d.fst(), new_v);
         return mk_pair(env(), append(comp_decls(m_new_decls), comp_decls(new_d)));

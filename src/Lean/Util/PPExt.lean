@@ -12,12 +12,16 @@ namespace Lean
 builtin_initialize
   registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "maximum depth when displaying syntax objects in messages" };
   registerOption `pp.raw { defValue := false, group := "pp", descr := "(pretty printer) print raw expression/syntax tree" }
+  registerOption `pp.raw.showInfo { defValue := false, group := "pp", descr := "(pretty printer) print `SourceInfo` metadata with raw printer" }
 
 def getSyntaxMaxDepth (opts : Options) : Nat :=
   opts.getNat `syntaxMaxDepth 2
 
 def getPPRaw (opts : Options) : Bool :=
   opts.getBool `pp.raw false
+
+def getPPRawShowInfo (opts : Options) : Bool :=
+  opts.getBool `pp.raw.showInfo false
 
 structure PPContext where
   env           : Environment
@@ -56,7 +60,7 @@ def ppExpr (ctx : PPContext) (e : Expr) : IO Format := do
 
 def ppTerm (ctx : PPContext) (stx : Syntax) : IO Format :=
   if getPPRaw ctx.opts then
-    return stx.formatStx (getSyntaxMaxDepth ctx.opts)
+    return stx.formatStx (getSyntaxMaxDepth ctx.opts) (getPPRawShowInfo ctx.opts)
   else
     try
       ppExt.getState ctx.env |>.ppTerm ctx stx

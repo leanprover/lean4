@@ -1,0 +1,31 @@
+Debugging
+=========
+
+Some notes on how to debug Lean, which may also be applicable to debugging Lean programs in general.
+
+## Tracing
+
+In `CoreM` and derived monads, we use `trace![traceCls] "msg with {interpolations}"` to fill the structured trace viewable with `set_option trace.traceCls true`.
+New trace classes have to be registered using `registerTraceClass` first.
+
+Notable trace classes:
+* `Elab.command`/`Elab.step`: command/term macro expansion/elaboration steps
+
+  Useful options modifying these traces for debugging syntax trees:
+  ```
+  set_option pp.raw true
+  set_option pp.raw.maxDepth 10
+  ```
+* `Meta.synthInstance`: typeclass resolution
+* `Meta.isDefEq`: unification
+* `interpreter`: full execution trace of the interpreter. Only available in debug builds.
+
+In pure contexts, one can instead use `dbgTrace! "msg with {interpolations}" val`, which will print the message directly to stderr before evaluating val. `dbgTraceVal val` can be used as a shorthand for `dbgTrace! "{val}" val`.
+Note that if the return value is not actually used, the trace code is silently dropped as well.
+
+## Debuggers
+
+`gdb`/`lldb` can be used to inspect stack traces of compiled Lean code, though they cannot print values of Lean variables and terms in any legible way yet.
+For example, `b lean_panic_fn` can be used to look at the stack trace of a panic.
+
+The [`rr` reverse debugger](https://github.com/rr-debugger/rr) is an amazing tool for investigating e.g. segfaults from reference counting errors, though better hope you will never need it...

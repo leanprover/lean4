@@ -55,3 +55,4 @@
   - [Nix Setup (*Experimental*)](./make/nix.md)
 - [Building This Manual](./mdbook.md)
 - [Fixing Tests](./fixing_tests.md)
+- [Debugging](./debugging.md)

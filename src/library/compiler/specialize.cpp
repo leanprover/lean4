@@ -893,7 +893,7 @@ class specialize_fn {
         // lean_trace(name("compiler", "spec_info"), tout() << "STEP 2 " << n << "\n" << code << "\n";);
         code = csimp(env(), code, m_cfg);
         code = visit(code);
-        // lean_trace(name("compiler", "spec_info"), tout() << "STEP 3 " << n << "\n" << code << "\n";);
+        // lean_trace(name("compiler", "specialize"), tout() << "new code " << n << "\n" << trace_pp_expr(code) << "\n";);
         m_new_decls.push_back(comp_decl(n, code));
     }
 
@@ -984,7 +984,13 @@ class specialize_fn {
         }
         optional<name> new_fn_name;
         expr key;
-        if (gcache_enabled) {
+        /* When `m_params.size > 1`, it is not safe to reuse cached specialization.
+           See test `tests/lean/run/specbug.lean`.
+           This is a bit hackish, but should not produce increase the generated code size too much.
+           On Dec 20 2020, before this fix, 5246 specializations were reused, but only 11 had `m_params.size > 1`.
+           This file will be deleted. So, it is not worth designing a better caching scheme.
+           TODO: when we reimplement this module in Lean, we should have a better caching heuristic. */
+        if (gcache_enabled && ctx.m_params.size() <= 1) {
             key = mk_app(fn, gcache_key_args);
             if (optional<name> it = get_cached_specialization(env(), key)) {
                 lean_trace(name({"compiler", "specialize"}), tout() << "get_cached_specialization [" << ctx.m_params.size() << "]: " << *it << "\n";
@@ -995,6 +1001,7 @@ class specialize_fn {
                                i++;
                            }
                            tout() << trace_pp_expr(key) << "\n";);
+                // std::cerr << *it << " " << ctx.m_vars.size() << " " << ctx.m_params.size() << "\n";
                 new_fn_name = *it;
             }
         }

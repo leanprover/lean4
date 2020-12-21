@@ -100,7 +100,6 @@ lean_object* l_Lean_Meta_throwAppTypeMismatch(lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwAppTypeMismatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_addPPExplicitToExposeDiff___closed__3;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l_Lean_throwError___at_Lean_Meta_throwAppTypeMismatch___spec__1(lean_object*);
@@ -111,7 +110,7 @@ lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_has
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__42;
+extern lean_object* l_Lean_Expr_setPPExplicit___closed__1;
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_getParamNames___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_getFunctionDomain(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__Lean_Meta_inferForallType___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2161,16 +2160,6 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getSanitizeNames___closed__2;
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__42;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_Lean_Meta_addPPExplicitToExposeDiff(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -2183,7 +2172,7 @@ x_11 = l_Lean_KVMap_getBool(x_8, x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
-x_12 = l_Lean_Meta_addPPExplicitToExposeDiff___closed__3;
+x_12 = l_Lean_Expr_setPPExplicit___closed__1;
 x_13 = l_Lean_KVMap_getBool(x_8, x_12, x_10);
 lean_dec(x_8);
 if (x_13 == 0)
@@ -6080,8 +6069,6 @@ l_Lean_Meta_addPPExplicitToExposeDiff___closed__1 = _init_l_Lean_Meta_addPPExpli
 lean_mark_persistent(l_Lean_Meta_addPPExplicitToExposeDiff___closed__1);
 l_Lean_Meta_addPPExplicitToExposeDiff___closed__2 = _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__2();
 lean_mark_persistent(l_Lean_Meta_addPPExplicitToExposeDiff___closed__2);
-l_Lean_Meta_addPPExplicitToExposeDiff___closed__3 = _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__3();
-lean_mark_persistent(l_Lean_Meta_addPPExplicitToExposeDiff___closed__3);
 l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1 = _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1();
 lean_mark_persistent(l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1);
 l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2 = _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__2();

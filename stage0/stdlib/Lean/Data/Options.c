@@ -78,6 +78,7 @@ lean_object* l_Lean_KVMap_setInt(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_487____closed__15;
 lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_487____closed__3;
+extern lean_object* l_Array_forInUnsafe_loop___at___private_Init_NotationExtra_0__Lean_mkHintBody___spec__1___closed__3;
 lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_487____closed__14;
 lean_object* l_Lean_setOptionFromString___closed__5;
 lean_object* l_Lean_instInhabitedOptionDecl;
@@ -117,7 +118,6 @@ lean_object* l_Lean_setOptionFromString_match__2___rarg(lean_object*, lean_objec
 lean_object* l_Lean_getOptionDescr(lean_object*, lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__3;
 lean_object* l_Lean_getNatOption___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_NotationExtra_0__Lean_mkHintBody___closed__1;
 static lean_object* _init_l_Lean_Options_empty() {
 _start:
 {
@@ -1060,7 +1060,7 @@ lean_object* l_Lean_setOptionFromString(lean_object* x_1, lean_object* x_2, lean
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l___private_Init_NotationExtra_0__Lean_mkHintBody___closed__1;
+x_4 = l_Array_forInUnsafe_loop___at___private_Init_NotationExtra_0__Lean_mkHintBody___spec__1___closed__3;
 x_5 = l_String_splitOn(x_2, x_4);
 x_6 = l_List_map___at_Lean_setOptionFromString___spec__1(x_5);
 if (lean_obj_tag(x_6) == 0)

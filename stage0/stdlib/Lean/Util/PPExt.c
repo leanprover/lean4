@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.PPExt
-// Imports: Init Lean.Environment Lean.MetavarContext Lean.Data.OpenDecl
+// Imports: Init Lean.Environment Lean.Syntax Lean.MetavarContext Lean.Data.OpenDecl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1045,6 +1045,7 @@ return x_8;
 }
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Environment(lean_object*);
+lean_object* initialize_Lean_Syntax(lean_object*);
 lean_object* initialize_Lean_MetavarContext(lean_object*);
 lean_object* initialize_Lean_Data_OpenDecl(lean_object*);
 static bool _G_initialized = false;
@@ -1056,6 +1057,9 @@ res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Environment(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Syntax(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_MetavarContext(lean_io_mk_world());

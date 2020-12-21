@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Hygiene
-// Imports: Init Lean.Syntax
+// Imports: Init Lean.Data.Name Lean.Data.Options Lean.Data.Format
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1597,7 +1597,9 @@ return x_6;
 }
 }
 lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Syntax(lean_object*);
+lean_object* initialize_Lean_Data_Name(lean_object*);
+lean_object* initialize_Lean_Data_Options(lean_object*);
+lean_object* initialize_Lean_Data_Format(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Hygiene(lean_object* w) {
 lean_object * res;
@@ -1606,7 +1608,13 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Syntax(lean_io_mk_world());
+res = initialize_Lean_Data_Name(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Options(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Format(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__1 = _init_l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__1();

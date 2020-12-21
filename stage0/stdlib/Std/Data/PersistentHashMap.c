@@ -137,6 +137,7 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Std_PersistentHashMap_contains_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_isEmpty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__22;
 lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Std_PersistentHashMap_toList___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_erase_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -243,7 +244,6 @@ lean_object* l_Std_PersistentHashMap_findAux_match__2(lean_object*, lean_object*
 lean_object* l_Std_PersistentHashMap_div2Shift___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_eraseAux_match__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_Stats_toString___closed__1;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__25;
 lean_object* l_Std_PersistentHashMap_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_eraseAux___rarg(lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Std_PersistentHashMap_eraseAux_match__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -5010,7 +5010,7 @@ lean_dec(x_1);
 x_19 = l_Nat_repr(x_18);
 x_20 = lean_string_append(x_17, x_19);
 lean_dec(x_19);
-x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__25;
+x_21 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__22;
 x_22 = lean_string_append(x_20, x_21);
 return x_22;
 }

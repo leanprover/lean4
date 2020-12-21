@@ -35,6 +35,7 @@ lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___boxed(lean_object*, lea
 lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__2;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1989____closed__2;
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go_match__1(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_Quotation_getAntiquotationIds_go___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Term_instAddErrorMessageContextTermElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -49,7 +50,6 @@ lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__4;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2094____closed__2;
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds_go___closed__1;
@@ -483,7 +483,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__2(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_2094____closed__2;
+x_1 = l_myMacro____x40_Init_Notation___hyg_1989____closed__2;
 x_2 = l_Lean_Elab_Term_Quotation_getPatternVars___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

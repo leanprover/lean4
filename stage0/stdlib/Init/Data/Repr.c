@@ -93,7 +93,6 @@ lean_object* l_Nat_digitChar___boxed(lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Char_quoteCore___closed__2;
 lean_object* l_Int_repr_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1057____closed__7;
 lean_object* l_instReprInt___boxed(lean_object*, lean_object*);
 lean_object* l_instReprSubstring___closed__1;
 lean_object* l_instReprDecidable(lean_object*);
@@ -116,6 +115,7 @@ lean_object* l_Std_Format_joinSep___at_instReprList___spec__1___rarg(lean_object
 lean_object* l_instReprInt(lean_object*, lean_object*);
 lean_object* l_repr___rarg(lean_object*, lean_object*);
 lean_object* l_instReprAtomUSize;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1054____closed__7;
 lean_object* l_instReprList___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instReprOption_match__1(lean_object*, lean_object*);
 lean_object* l_Std_Format_joinSep___at_instReprList__1___spec__1(lean_object*);
@@ -1088,7 +1088,7 @@ static lean_object* _init_l_instReprProd___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_1057____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_1054____closed__7;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

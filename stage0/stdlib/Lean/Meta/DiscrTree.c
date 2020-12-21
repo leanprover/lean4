@@ -255,6 +255,7 @@ lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_Dis
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertVal___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2511____closed__7;
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getStarResult_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instToFormatDiscrTree(lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_DiscrTree_insertCore___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -278,6 +279,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_DiscrTree_format___spec__4
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_DiscrTree_getUnify___spec__11___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_fmt___at_Lean_Meta_DiscrTree_Trie_format___spec__4(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_ctorIdx_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_fmt___at_Lean_Level_PP_Result_format___spec__1(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_format_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_pushArgs_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binInsertM___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -322,7 +324,6 @@ lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_DiscrTree_getMatch__
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_DiscrTree_insertCore___spec__2(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___closed__2;
 lean_object* l_Lean_Meta_DiscrTree_insertCore_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_ignoreArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getUnifyAux_match__6(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_DiscrTree_insertCore___spec__5(lean_object*);
@@ -390,7 +391,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_DiscrTree_format___spec__4
 lean_object* l_Lean_Meta_DiscrTree_getMatch_match__3(lean_object*);
 lean_object* l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_DiscrTree_getMatch___spec__2___rarg(lean_object*, size_t, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_2604____closed__7;
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_Meta_DiscrTree_insertCore___spec__8___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs_match__1(lean_object*);
 extern lean_object* l_stx___x2a___closed__3;
@@ -986,7 +986,7 @@ lean_object* x_2; lean_object* x_3;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 lean_dec(x_1);
-x_3 = l_Std_fmt___at_Lean_Level_LevelToFormat_toResult___spec__1(x_2);
+x_3 = l_Std_fmt___at_Lean_Level_PP_Result_format___spec__1(x_2);
 return x_3;
 }
 case 1:
@@ -1760,7 +1760,7 @@ x_9 = lean_name_eq(x_1, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_myMacro____x40_Init_Notation___hyg_2604____closed__7;
+x_10 = l_myMacro____x40_Init_Notation___hyg_2511____closed__7;
 x_11 = lean_name_eq(x_1, x_10);
 return x_11;
 }

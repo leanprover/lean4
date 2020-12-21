@@ -216,7 +216,7 @@ def hasBreakContinueReturn (c : Code) : Bool :=
     | Code.«return» _ _ => true
     | _ => false
 
-def mkAuxDeclFor {m} [Monad m] [MonadQuotation m] (e : Syntax) (mkCont : Syntax → m Code) : m Code := withFreshMacroScope do
+def mkAuxDeclFor {m} [Monad m] [MonadQuotation m] (e : Syntax) (mkCont : Syntax → m Code) : m Code := withRef e <| withFreshMacroScope do
   let y ← `(y)
   let yName := y.getId
   let doElem ← `(doElem| let y ← $e:term)

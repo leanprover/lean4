@@ -264,7 +264,6 @@ lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_trySynthPending(lean_o
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_checkMVar___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickOther___closed__3;
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_853____closed__1;
 lean_object* l_Lean_Meta_isExprDefEqAuxImpl___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateLambdaE_x21___closed__2;
 lean_object* l_Lean_Meta_commitWhen___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_tryHeuristic___spec__1___lambda__3___closed__1;
@@ -274,6 +273,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isListLevelDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_checkFVar___closed__10;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unfold(lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_823____closed__1;
 lean_object* l_Lean_Meta_isDefEqBindingDomain(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60437,7 +60437,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isExprDefEq___closed__2;
-x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_853____closed__1;
+x_2 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_823____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

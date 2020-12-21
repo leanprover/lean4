@@ -273,7 +273,7 @@ universes u v
 /-
   MonadFunctorT.{u ?M_1 v} (λ (β : Type u), m α) (λ (β : Type u), m' α) n n'
 -/
-set_option syntaxMaxDepth 100
+set_option pp.raw.maxDepth 100
 set_option trace.Elab true
 
 

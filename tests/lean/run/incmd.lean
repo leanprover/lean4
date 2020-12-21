@@ -8,7 +8,7 @@ fun x => x
 
 variables {α : Type} {β : Type} in
 variable (h : α → α) in
-set_option syntaxMaxDepth 1000 in
+set_option pp.raw.maxDepth 1000 in
 def g : α → β → α :=
 fun x _ => h x
 

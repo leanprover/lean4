@@ -10,12 +10,12 @@ import Lean.Data.OpenDecl
 namespace Lean
 
 builtin_initialize
-  registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "maximum depth when displaying syntax objects in messages" };
   registerOption `pp.raw { defValue := false, group := "pp", descr := "(pretty printer) print raw expression/syntax tree" }
   registerOption `pp.raw.showInfo { defValue := false, group := "pp", descr := "(pretty printer) print `SourceInfo` metadata with raw printer" }
+  registerOption `pp.raw.maxDepth { defValue := (2 : Nat), group := "pp", descr := "(pretty printer) maximum `Syntax` depth for raw printer" };
 
 def getSyntaxMaxDepth (opts : Options) : Nat :=
-  opts.getNat `syntaxMaxDepth 2
+  opts.getNat `pp.raw.maxDepth 2
 
 def getPPRaw (opts : Options) : Bool :=
   opts.getBool `pp.raw false

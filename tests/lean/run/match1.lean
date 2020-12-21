@@ -11,7 +11,7 @@ rfl
 #check f
 
 set_option pp.raw true
-set_option syntaxMaxDepth 10
+set_option pp.raw.maxDepth 10
 set_option trace.Elab.step true in
 def g (xs : List Nat) : List Bool :=
 xs.map <| by {

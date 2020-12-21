@@ -10,7 +10,7 @@ import Init.Data.ToString.Basic
 
 open Std
 
-@[instance low] def instToString [ToString α] : ToFormat α :=
+instance (priority := low) [ToString α] : ToFormat α :=
   ⟨Std.Format.text ∘ toString⟩
 
 def List.format [ToFormat α] : List α → Format

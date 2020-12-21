@@ -68,16 +68,16 @@ noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : ∃ x, 
   inhabitedOfNonempty (Exists.elim h (fun w hw => ⟨w⟩))
 
 /- all propositions are Decidable -/
-@[scoped instance low] noncomputable def propDecidable (a : Prop) : Decidable a :=
+noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decidable a :=
   choice <| match em a with
     | Or.inl h => ⟨isTrue h⟩
     | Or.inr h => ⟨isFalse h⟩
 
-noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) :=
-  ⟨propDecidable a⟩
+noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
+  default := inferInstance
 
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
-  fun x y => propDecidable (x = y)
+  fun x y => inferInstance
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
   match (propDecidable (Nonempty α)) with

@@ -7,7 +7,7 @@ macro_rules
 theorem ex1 : foo! 2 = 3 :=
   rfl
 
-syntax [high] "foo!" term:max : term
+syntax (priority := high) "foo!" term:max : term
 
 macro_rules
   | `(foo! $x) => `($x * 2)

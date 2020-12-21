@@ -2,7 +2,7 @@ def f (x y : Nat) := x + 2*y
 
 namespace Foo
 
-local infix:65 [high] "+" => f
+local infix:65 (priority := high) "+" => f
 
 theorem ex1 (x y : Nat) : x + y = f x y := rfl
 
@@ -21,7 +21,7 @@ theorem ex3 (x y : Nat) : x + y = HAdd.hAdd x y := rfl
 section
 def g (x y : Nat) := 3*(x+y)
 
-local infix:65 [high] "  +  " => g
+local infix:65 (priority := high) "  +  " => g
 
 theorem ex4 (x y : Nat) : x + y = g x y := rfl
 

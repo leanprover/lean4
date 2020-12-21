@@ -1,7 +1,7 @@
 --
 
 -- New notation that overlaps with existing notation
-syntax [myPair, high] "(" term "," term ")" : term
+syntax (name := myPair) (priority := high) "(" term "," term ")" : term
 
 macro_rules[myPair]
 | `(($a, $b)) => `([$a, $b])
@@ -18,7 +18,7 @@ macro_rules
 
 #eval (1, 2, 3)
 
-syntax [mySingleton] "[" term "]" : term
+syntax (name := mySingleton) "[" term "]" : term
 
 macro_rules[mySingleton]
 | `([$a]) => `(2 * $a)
@@ -26,7 +26,7 @@ macro_rules[mySingleton]
 #check [1] -- ambiguous it can be `mySingleton` or the singleton list
 
 
-syntax [100] "(" term "," term ", " term ")" : term -- priority without a kind
+syntax (priority := 100) "(" term "," term ", " term ")" : term -- priority without a kind
 
 macro_rules
 | `(($a, $b, $c)) => `([$a, $b, $c])

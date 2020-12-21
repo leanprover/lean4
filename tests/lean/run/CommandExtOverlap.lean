@@ -1,4 +1,4 @@
-syntax [mycheck] "#check" sepBy(term, ",") : command
+syntax (name := mycheck) "#check" sepBy(term, ",") : command
 
 open Lean
 

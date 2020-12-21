@@ -13,7 +13,7 @@ rfl
 
 #check f
 
-syntax [emptyS] "⟨" "⟩"  : term -- overload `⟨ ⟩` notation
+syntax (name := emptyS) "⟨" "⟩"  : term -- overload `⟨ ⟩` notation
 
 open Lean
 open Lean.Elab

@@ -68,7 +68,7 @@ syntax "⟨|" term "|⟩" : foo
 syntax term : foo
 syntax term ">>>" term : foo
 
-syntax [tst3] "FOO " foo : term
+syntax (name := tst3) "FOO " foo : term
 
 macro_rules
 | `(FOO ⟨| $t |⟩) => `($t+1)

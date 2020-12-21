@@ -14,7 +14,7 @@ open Lean
 open Lean.Elab.Term
 open Lean.Elab.Command
 
-syntax[resolveKind] "#resolve " ident : command
+syntax (name := resolveKind) "#resolve " ident : command
 
 @[commandElab resolveKind] def elabResolve : CommandElab :=
 fun stx => liftTermElabM none do

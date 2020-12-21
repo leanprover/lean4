@@ -28,7 +28,7 @@ def x : Nat := 10
 #check mul x x           -- Error: unification hint is not active
 #check mul (x, x) (x, x) -- Error: no unification hint
 
-local infix:65 [high] "*" => mul
+local infix:65 (priority := high) "*" => mul
 
 #check x*x -- Error: unification hint is not active
 

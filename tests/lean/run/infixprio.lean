@@ -2,7 +2,7 @@ def f (x y : Nat) : Nat :=
   x + 2*y
 
 -- "+" with priority higher than the builtin "+" notation
-infix:65 [high] "+" => f
+infix:65 (priority := high) "+" => f
 
 #check 1 + 2
 

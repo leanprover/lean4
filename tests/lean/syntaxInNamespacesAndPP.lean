@@ -12,7 +12,7 @@ end Foo
 
 namespace Bla
 
-syntax[bla] "bla" term : term
+syntax (name := bla) "bla" term : term
 
 macro_rules
   | `(bla $x) => x

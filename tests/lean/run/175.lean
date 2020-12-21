@@ -4,7 +4,7 @@ import Lean
 namespace Foo
 open Lean.Elab.Term
 
-syntax[fooKind] "foo!" term : term
+syntax (name := fooKind) "foo!" term : term
 
 @[termElab fooKind] def elabFoo : TermElab :=
 fun stx expectedType? => elabTerm (stx.getArg 1) expectedType?

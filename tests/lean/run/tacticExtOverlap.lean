@@ -1,6 +1,6 @@
 open Lean
 
-syntax [myintro] "intros" sepBy(ident, ",") : tactic
+syntax (name := myintro) "intros" sepBy(ident, ",") : tactic
 
 macro_rules [myintro]
 | `(tactic| intros $x,*) => pure $ Syntax.node `Lean.Parser.Tactic.intros #[Syntax.atom {} "intros", mkNullNode x]

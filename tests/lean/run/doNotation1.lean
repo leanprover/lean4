@@ -92,7 +92,7 @@ if x > 10 then pure x else pure none
 def tst6 (x : Nat) : StateT Nat IO (Option Nat) :=
 if x > 10 then g x else pure none
 
-syntax:max [doHash] "#" : term
+syntax:max (name := doHash) "#" : term
 
 partial def expandHash : Syntax → StateT Bool MacroM Syntax
 | Syntax.node k args =>

@@ -75,3 +75,16 @@ open Parser.Term
   | stx                    => "2"
 
 #eval run `(sufficesDecl|x from x)
+
+#eval run do
+  match ← `([1, 2, 3, 4]) with
+    | `([$x, $ys,*, $z]) => #[x, mkNullNode ys, z]
+    | _ => unreachable!
+
+#eval run do
+  match ← `([1, 2]) with
+    | `([$x, $y, $zs,*]) => zs.getElems
+    | `([$x, $ys,*])     => ys.getElems
+    | _ => unreachable!
+
+#check (match · with | `([1, $ys,*, 2, $zs,*, 3]) => _)

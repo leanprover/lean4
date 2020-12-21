@@ -45,10 +45,10 @@ def expandDeclNamespace? (stx : Syntax) : Option (Name × Syntax) :=
       | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 1 declId))
       | none              => none
     else if k == `Lean.Parser.Command.instance then
-      let optDeclId := decl[2]
+      let optDeclId := decl[3]
       if optDeclId.isNone then none
       else match expandDeclIdNamespace? optDeclId[0] with
-        | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 2 (optDeclId.setArg 0 declId)))
+        | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 3 (optDeclId.setArg 0 declId)))
         | none              => none
     else
       none

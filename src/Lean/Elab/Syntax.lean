@@ -230,21 +230,6 @@ where
     | Name.str _ s _ => s ++ str
     | _ => str
 
-
-def expandOptNamedPrio (stx : Syntax) : MacroM Nat :=
-  if stx.isNone then
-    return evalPrio! default
-  else match stx[0] with
-    | `(Parser.Command.namedPrio| (priority := $prio)) => evalPrio prio
-    | _ => Macro.throwUnsupported
-
-def expandOptNamedName (stx : Syntax) : MacroM (Option Name) := do
-  if stx.isNone then
-    return none
-  else match stx[0] with
-    | `(Parser.Command.namedName| (name := $name)) => return name.getId
-    | _ => Macro.throwUnsupported
-
 /- We assume a new syntax can be treated as an atom when it starts and ends with a token.
    Here are examples of atom-like syntax.
    ```

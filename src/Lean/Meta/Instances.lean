@@ -55,10 +55,7 @@ builtin_initialize
     name  := `instance
     descr := "type class instance"
     add   := fun declName stx attrKind => do
-      let prio ← match stx with
-        | Syntax.missing => pure <| evalPrio! default -- small hack, in the elaborator we use `Syntax.missing` when creating attribute views for `instance
-        | _              => getAttrParamOptPrio stx[1]
-      -- TODO use prio
+      let prio ← getAttrParamOptPrio stx[1]
       discard <| addInstance declName attrKind prio |>.run {} {}
   }
 

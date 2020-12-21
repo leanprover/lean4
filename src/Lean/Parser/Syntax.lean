@@ -50,9 +50,7 @@ end Term
 
 namespace Command
 
-def namedPrio := parser! (atomic ("(" >> nonReservedSymbol "priority") >> " := " >> priorityParser >> ")")
 def namedName := parser! (atomic ("(" >> nonReservedSymbol "name") >> " := " >> ident >> ")")
-def optNamedPrio := optional namedPrio
 def optNamedName := optional namedName
 
 def «prefix»   := parser! "prefix"

@@ -1735,13 +1735,35 @@ def reservedMacroScope := 0
 /-- First macro scope available for our frontend -/
 def firstFrontendMacroScope := hAdd reservedMacroScope 1
 
+class MonadRef (m : Type → Type) where
+  getRef      : m Syntax
+  withRef {α} : Syntax → m α → m α
+
+export MonadRef (getRef)
+
+instance (m n : Type → Type) [MonadRef m] [MonadFunctor m n] [MonadLift m n] : MonadRef n where
+  getRef  := liftM (getRef : m _)
+  withRef := fun ref x => monadMap (m := m) (MonadRef.withRef ref) x
+
+def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
+  match ref.getPos with
+  | some _ => ref
+  | _      => oldRef
+
+@[inline] def withRef {m : Type → Type} [Monad m] [MonadRef m] {α} (ref : Syntax) (x : m α) : m α :=
+  bind getRef fun oldRef =>
+  let ref := replaceRef ref oldRef
+  MonadRef.withRef ref x
+
 /-- A monad that supports syntax quotations. Syntax quotations (in term
     position) are monadic values that when executed retrieve the current "macro
     scope" from the monad and apply it to every identifier they introduce
     (independent of whether this identifier turns out to be a reference to an
     existing declaration, or an actually fresh binding during further
-    elaboration). -/
-class MonadQuotation (m : Type → Type) where
+    elaboration). We also apply the position of the result of `getRef` to each
+    introduced symbol, which results in better error positions than not applying
+    any position. -/
+class MonadQuotation (m : Type → Type) extends MonadRef m where
   -- Get the fresh scope of the current macro invocation
   getCurrMacroScope : m MacroScope
   getMainModule     : m Name
@@ -1760,7 +1782,10 @@ class MonadQuotation (m : Type → Type) where
 
 export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
-instance {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctorT m n] : MonadQuotation n where
+def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo := do
+  return { pos := (← getRef).getPos }
+
+instance {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctor m n] : MonadQuotation n where
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope
   getMainModule       := liftM (m := m) getMainModule
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope
@@ -1892,26 +1917,6 @@ def defaultMaxRecDepth := 512
 def maxRecDepthErrorMessage : String :=
   "maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)"
 
-class MonadRef (m : Type → Type) where
-  getRef      : m Syntax
-  withRef {α} : Syntax → m α → m α
-
-export MonadRef (getRef)
-
-instance (m n : Type → Type) [MonadRef m] [MonadFunctor m n] [MonadLift m n] : MonadRef n where
-  getRef  := liftM (getRef : m _)
-  withRef := fun ref x => monadMap (m := m) (MonadRef.withRef ref) x
-
-def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
-  match ref.getPos with
-  | some _ => ref
-  | _      => oldRef
-
-@[inline] def withRef {m : Type → Type} [Monad m] [MonadRef m] {α} (ref : Syntax) (x : m α) : m α :=
-  bind getRef fun oldRef =>
-  let ref := replaceRef ref oldRef
-  MonadRef.withRef ref x
-
 namespace Macro
 
 /- References -/
@@ -2011,6 +2016,8 @@ abbrev Unexpander := Syntax → UnexpandM Syntax
 
 -- unexpanders should not need to introduce new names
 instance : MonadQuotation UnexpandM where
+  getRef              := pure Syntax.missing
+  withRef             := fun _ => id
   getCurrMacroScope   := pure 0
   getMainModule       := pure `_fakeMod
   withFreshMacroScope := id

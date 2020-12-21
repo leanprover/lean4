@@ -8,6 +8,10 @@ import Lean.Syntax
 namespace Lean
 /- Remark: `MonadQuotation` class is part of the `Init` package and loaded by default since it is used in the builtin command `macro`. -/
 
+structure Unhygienic.Context where
+  ref   : Syntax
+  scope : MacroScope
+
 /-- Simplistic MonadQuotation that does not guarantee globally fresh names, that
     is, between different runs of this or other MonadQuotation implementations.
     It is only safe if the syntax quotations do not introduce bindings around
@@ -21,16 +25,18 @@ namespace Lean
     processing of a file). It uses the state monad to query and allocate the
     next macro scope, and uses the reader monad to store the stack of scopes
     corresponding to `withFreshMacroScope` calls. -/
-abbrev Unhygienic := ReaderT MacroScope $ StateM MacroScope
+abbrev Unhygienic := ReaderT Lean.Unhygienic.Context $ StateM MacroScope
 namespace Unhygienic
 instance : MonadQuotation Unhygienic := {
-  getCurrMacroScope   := read,
+  getRef              := do (← read).ref,
+  withRef             := fun ref => withReader ({ · with ref := ref }),
+  getCurrMacroScope   := do (← read).scope,
   getMainModule       := pure `UnhygienicMain,
   withFreshMacroScope := fun x => do
     let fresh ← modifyGet fun n => (n, n + 1)
-    withReader (fun _ => fresh) x
+    withReader ({ · with scope := fresh}) x
 }
-protected def run {α : Type} (x : Unhygienic α) : α := (x firstFrontendMacroScope).run' (firstFrontendMacroScope+1)
+protected def run {α : Type} (x : Unhygienic α) : α := (x ⟨Syntax.missing, firstFrontendMacroScope⟩).run' (firstFrontendMacroScope+1)
 end Unhygienic
 
 private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat) : Name :=

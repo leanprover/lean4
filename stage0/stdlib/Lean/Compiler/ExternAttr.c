@@ -132,6 +132,7 @@ extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
 lean_object* l_Lean_isExtern___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_getExternConstArity___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
+extern lean_object* l_Lean_Unhygienic_run___rarg___closed__2;
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__3___closed__3;
@@ -202,7 +203,6 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__3;
 extern lean_object* l_Lean_Core_State_ngen___default___closed__1;
 lean_object* l_String_Iterator_remainingBytes(lean_object*);
-extern lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
 lean_object* l_Lean_expandExternPatternAux_match__2(lean_object*);
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
 lean_object* l_Lean_getExternConstArity_match__2(lean_object*);
@@ -4701,7 +4701,7 @@ lean_object* lean_get_extern_const_arity(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_4 = l_Lean_Unhygienic_run___rarg___closed__1;
+x_4 = l_Lean_Unhygienic_run___rarg___closed__2;
 x_5 = l_Lean_Core_State_ngen___default___closed__1;
 x_6 = l_Lean_resetTraceState___rarg___lambda__1___closed__1;
 x_7 = lean_alloc_ctor(0, 4, 0);

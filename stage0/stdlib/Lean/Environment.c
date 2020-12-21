@@ -19,6 +19,7 @@ extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l___private_Lean_Environment_0__Lean_Environment_throwUnexpectedType___rarg___closed__2;
 lean_object* l_Lean_Environment_hasUnsafe___boxed(lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__8;
 lean_object* l_Lean_instInhabitedPersistentEnvExtension___lambda__2(lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_Environment_isNamespaceName___boxed(lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -587,7 +588,6 @@ lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, le
 lean_object* l_Std_PersistentHashMap_contains___at_Lean_Environment_contains___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Environment_addAux___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_Environment___hyg_2528____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__5;
 lean_object* l_Lean_importModules_match__4(lean_object*);
 lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Environment_find_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension___lambda__3(lean_object*);
@@ -2969,7 +2969,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Id_instMonadId___closed__4;
-x_2 = l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__5;
+x_2 = l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__8;
 x_3 = l_Lean_instInhabitedEnvExtensionInterface___closed__2;
 x_4 = l_Id_instMonadId___closed__5;
 x_5 = l_Lean_instInhabitedEnvExtensionInterface___closed__1;

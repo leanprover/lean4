@@ -94,8 +94,8 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
           let arg ← quoteSyntax arg;
           `(Array.push $args $arg)) empty
       `(Syntax.node $(quote k) $args)
-  | Syntax.atom info val =>
-    `(Syntax.atom (SourceInfo.mk none none none) $(quote val))
+  | Syntax.atom _ val =>
+    `(Syntax.atom info $(quote val))
   | Syntax.missing => unreachable!
 
 def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
@@ -106,7 +106,9 @@ def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
      including it literally in a syntax quotation. -/
   -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
   let stx ← quoteSyntax stx.getQuotContent;
-  `(Bind.bind getCurrMacroScope (fun scp => Bind.bind getMainModule (fun mainModule => Pure.pure $stx)))
+  `(Bind.bind MonadRef.mkInfoFromRefPos (fun info =>
+      Bind.bind getCurrMacroScope (fun scp =>
+        Bind.bind getMainModule (fun mainModule => Pure.pure $stx))))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
      note that the syntax quotation above enjoys the same hygiene guarantees as
@@ -162,6 +164,10 @@ inductive HeadCheck where
   -- without arity: `($x:k)
   -- with arity: any quotation without an antiquotation head pattern
   | shape (k : SyntaxNodeKind) (arity : Option Nat)
+  -- Match step that succeeds on `null` nodes of arity at least `numPrefix + numSuffix`, introducing discriminants
+  -- for the first `numPrefix` children, one `null` node for those in between, and for the `numSuffix` last children.
+  -- example: `([$x, $xs,*, $y]) is `slice 2 2`
+  | slice (numPrefix numSuffix : Nat)
   -- other, complicated match step that will probably only cover identical patterns
   -- example: antiquotation splices `($[...]*)
   | other (pat : Syntax)
@@ -199,6 +205,7 @@ partial def mkTuple : Array Syntax → TermElabM Syntax
 /-- Adapt alternatives that do not introduce new discriminants in `doMatch`, but are covered by those that do so. -/
 private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
   | shape k (some sz), (pats, rhs) => (List.replicate sz (Unhygienic.run `(_)) ++ pats, rhs)
+  | slice p s,         (pats, rhs) => (List.replicate (p + 1 + s) (Unhygienic.run `(_)) ++ pats, rhs)
   | _,                 alt         => alt
 
 private def adaptRhs (fn : Syntax → TermElabM Syntax) : Alt → TermElabM Alt
@@ -253,7 +260,6 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
         | `many     => `(let $anti := Syntax.getArgs discr; $rhs)
         | `sepBy    => `(let $anti := @SepArray.mk $(getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
         | k         => throwErrorAt! quoted "invalid antiquotation suffix splice kind '{k}'"
-      -- TODO: support for more complex antiquotation splices
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
       check   := other pat,
       onMatch := fun
@@ -297,6 +303,36 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             | some $resId => $yes
             | none => $no)
     }
+    else if let some idx := quoted.getArgs.findIdx? (fun arg => isAntiquotSuffixSplice arg || isAntiquotSplice arg) then do
+      /-
+        pattern of the form `match discr, ... with | `(pat_0 ... pat_(idx-1) $[...]* pat_(idx+1) ...), ...`
+        transform to
+        ```
+        if discr.getNumArgs >= $quoted.getNumArgs - 1 then
+          match discr[0], ..., discr[idx-1], mkNullNode (discr.getArgs.extract idx (discr.getNumArgs - $numSuffix))), ..., discr[quoted.getNumArgs - 1] with
+            | `(pat_0), ... `(pat_(idx-1)), `($[...])*, `(pat_(idx+1)), ...
+        ``` -/
+      let numSuffix := quoted.getNumArgs - 1 - idx
+      pure {
+        check    := slice idx numSuffix
+        onMatch  := fun
+          | slice p s =>
+            if p == idx && s == numSuffix then
+              let argPats := quoted.getArgs.mapIdx fun i arg =>
+                let arg := if (i : Nat) == idx then mkNullNode #[arg] else arg
+                Unhygienic.run `(`($(arg)))
+              covered (fun (pats, rhs) => (argPats.toList ++ pats, rhs)) (exhaustive := true)
+            else uncovered
+          | _ => uncovered
+        doMatch := fun yes no => do
+          let prefixDiscrs ← (List.range idx).mapM (`(Syntax.getArg discr $(quote ·)))
+          let sliceDiscr ← `(mkNullNode (discr.getArgs.extract $(quote idx) (discr.getNumArgs - $(quote numSuffix))))
+          let suffixDiscrs ← (List.range numSuffix).mapM fun i =>
+            `(Syntax.getArg discr (discr.getNumArgs - $(quote (numSuffix - i))))
+          `(ite (GreaterEq discr.getNumArgs $(quote (quoted.getNumArgs - 1)))
+              $(← yes (prefixDiscrs ++ sliceDiscr :: suffixDiscrs))
+              $(← no))
+      }
     else
       -- not an antiquotation, or an escaped antiquotation: match head shape
       let quoted  := unescapeAntiquot quoted

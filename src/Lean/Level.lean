@@ -7,11 +7,12 @@ import Std.Data.HashMap
 import Std.Data.HashSet
 import Std.Data.PersistentHashMap
 import Std.Data.PersistentHashSet
+import Lean.Hygiene
 import Lean.Data.Name
 import Lean.Data.Format
 
 def Nat.imax (n m : Nat) : Nat :=
-if m = 0 then 0 else Nat.max n m
+  if m = 0 then 0 else Nat.max n m
 
 namespace Lean
 
@@ -356,10 +357,10 @@ def dec : Level → Option Level
   | imax l₁ l₂ _ => mkLevelMax <$> dec l₁ <*> dec l₂
 
 
-/- Level to Format -/
-namespace LevelToFormat
+/- Level to Format/Syntax -/
+namespace PP
 inductive Result where
-  | leaf      : Format → Result
+  | leaf      : Name → Result
   | num       : Nat → Result
   | offset    : Result → Nat → Result
   | maxNode   : List Result → Result
@@ -378,41 +379,63 @@ def Result.imax : Result → Result → Result
   | f, Result.imaxNode Fs => Result.imaxNode (f::Fs)
   | f₁, f₂                => Result.imaxNode [f₁, f₂]
 
-def parenIfFalse : Format → Bool → Format
-  | f, true  => f
-  | f, false => f.paren
-
-@[specialize] private def formatLst (fmt : Result → Format) : List Result → Format
-  | []    => Format.nil
-  | r::rs => Format.line ++ fmt r ++ formatLst fmt rs
-
-partial def Result.format : Result → Bool → Format
-  | Result.leaf f,         _ => f
-  | Result.num k,          _ => toString k
-  | Result.offset f 0,     r => format f r
-  | Result.offset f (k+1), r =>
-    let f' := format f false;
-    parenIfFalse (f' ++ "+" ++ fmt (k+1)) r
-  | Result.maxNode fs,    r => parenIfFalse (Format.group $ "max"  ++ formatLst (fun r => format r false) fs) r
-  | Result.imaxNode fs,   r => parenIfFalse (Format.group $ "imax" ++ formatLst (fun r => format r false) fs) r
-
 def toResult : Level → Result
   | zero _       => Result.num 0
   | succ l _     => Result.succ (toResult l)
   | max l₁ l₂ _  => Result.max (toResult l₁) (toResult l₂)
   | imax l₁ l₂ _ => Result.imax (toResult l₁) (toResult l₂)
-  | param n _    => Result.leaf (fmt n)
+  | param n _    => Result.leaf n
   | mvar n _     =>
-    let n := n.replacePrefix `_uniq `u;
-    Result.leaf ("?" ++ fmt n)
+    let n := n.replacePrefix `_uniq (Name.mkSimple "?u");
+    Result.leaf n
 
-end LevelToFormat
+private def parenIfFalse : Format → Bool → Format
+  | f, true  => f
+  | f, false => f.paren
 
-protected def format (l : Level) : Format :=
-  (LevelToFormat.toResult l).format true
+mutual
+  private partial def Result.formatLst : List Result → Format
+    | []    => Format.nil
+    | r::rs => Format.line ++ format r false ++ formatLst rs
 
-instance : ToFormat Level := ⟨Level.format⟩
-instance : ToString Level := ⟨Format.pretty ∘ Level.format⟩
+  partial def Result.format : Result → Bool → Format
+    | Result.leaf n,         _ => fmt n
+    | Result.num k,          _ => toString k
+    | Result.offset f 0,     r => format f r
+    | Result.offset f (k+1), r =>
+      let f' := format f false;
+      parenIfFalse (f' ++ "+" ++ fmt (k+1)) r
+    | Result.maxNode fs,    r => parenIfFalse (Format.group $ "max"  ++ formatLst fs) r
+    | Result.imaxNode fs,   r => parenIfFalse (Format.group $ "imax" ++ formatLst fs) r
+end
+
+protected partial def Result.quote (r : Result) (prec : Nat) : Syntax :=
+  let addParen (s : Syntax) :=
+    if prec > 0 then Unhygienic.run `(level| ( $s )) else s
+  match r with
+  | Result.leaf n         => Unhygienic.run `(level| $(mkIdent n):ident)
+  | Result.num  k         => Unhygienic.run `(level| $(quote k):numLit)
+  | Result.offset r 0     => Result.quote r prec
+  | Result.offset r (k+1) => addParen <| Unhygienic.run `(level| $(Result.quote r 65) + $(quote (k+1)):numLit)
+  | Result.maxNode rs     => addParen <| Unhygienic.run `(level| max $(rs.toArray.map (Result.quote · maxPrec!))*)
+  | Result.imaxNode rs    => addParen <| Unhygienic.run `(level| imax $(rs.toArray.map (Result.quote · maxPrec!))*)
+
+end PP
+
+protected def format (u : Level) : Format :=
+  (PP.toResult u).format true
+
+instance : ToFormat Level where
+  format u := Level.format u
+
+instance : ToString Level where
+  toString u := Format.pretty (Level.format u)
+
+protected def quote (u : Level) (prec : Nat := 0) : Syntax :=
+  (PP.toResult u).quote prec
+
+instance : Quote Level where
+  quote u := Level.quote u
 
 end Level
 

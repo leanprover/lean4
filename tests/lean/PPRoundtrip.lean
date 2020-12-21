@@ -34,9 +34,9 @@ set_option format.width 20
 #eval checkM `(Type)
 #eval checkM `(Type 0)
 #eval checkM `(Type 1)
--- can't add a new universe variable inside a term...
-#eval checkM `(Type _)
-#eval checkM `(Type (_ + 2))
+-- TODO: we need support for parsing `?u` to roundtrip the terms containing universe metavariables. Just pretty printing them as `_` is bad for error and trace messages
+-- #eval checkM `(Type _)
+-- #eval checkM `(Type (_ + 2))
 
 #eval checkM `(Nat)
 #eval checkM `(List Nat)

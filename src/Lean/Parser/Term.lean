@@ -140,13 +140,14 @@ def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 @[builtinTermParser] def quotedName := parser! nameLit
 @[builtinTermParser] def doubleQuotedName := parser! "`" >> checkNoWsBefore >> nameLit
 
-def simpleBinderWithoutType := node `Lean.Parser.Term.simpleBinder (many1 binderIdent >> pushNone)
+def simpleBinderWithoutType := nodeWithAntiquot "simpleBinder" `Lean.Parser.Term.simpleBinder (anonymous := true)
+  (many1 binderIdent >> pushNone)
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser := ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder)) >> optType
-def letIdDecl   := node `Lean.Parser.Term.letIdDecl   $ atomic (letIdLhs >> " := ") >> termParser
-def letPatDecl  := node `Lean.Parser.Term.letPatDecl  $ atomic (termParser >> pushNone >> optType >> " := ") >> termParser
-def letEqnsDecl := node `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts
+def letIdDecl   := nodeWithAntiquot "letIdDecl"   `Lean.Parser.Term.letIdDecl   $ atomic (letIdLhs >> " := ") >> termParser
+def letPatDecl  := nodeWithAntiquot "letPatDecl"  `Lean.Parser.Term.letPatDecl  $ atomic (termParser >> pushNone >> optType >> " := ") >> termParser
+def letEqnsDecl := nodeWithAntiquot "letEqnsDecl" `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts
 -- Remark: we use `nodeWithAntiquot` here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
 def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFollowedBy (nonReservedSymbol "rec") "rec" >> (letIdDecl <|> letPatDecl <|> letEqnsDecl))
 @[builtinTermParser] def «let» := parser!:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
@@ -158,12 +159,13 @@ def attrKind := parser! optional («scoped» <|> «local»)
 def attrInstance     := ppGroup $ parser! attrKind >> attrParser
 
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
-def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "
+def letRecDecl       := parser! optional «attributes» >> letDecl
+def letRecDecls      := sepBy1 letRecDecl ", "
 @[builtinTermParser]
 def «letrec» := parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 
 @[runBuiltinParserAttributeHooks]
-def whereDecls := parser! "where " >> many1Indent (group (optional «attributes» >> letDecl >> optional ";"))
+def whereDecls := parser! "where " >> many1Indent (group (letRecDecl >> optional ";"))
 @[runBuiltinParserAttributeHooks]
 def matchAltsWhereDecls := parser! matchAlts >> optional whereDecls
 

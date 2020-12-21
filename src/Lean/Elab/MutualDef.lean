@@ -8,8 +8,10 @@ import Lean.Meta.Check
 import Lean.Elab.Command
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition
+import Lean.Parser.Term
 
 namespace Lean.Elab
+open Lean.Parser.Term
 
 /- DefView after elaborating the header. -/
 structure DefViewElabHeader where
@@ -125,43 +127,24 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
       k fvars
   loop 0 #[]
 
-private def expandWhereDeclsAsStructInst (whereDecls : Syntax) : MacroM Syntax := do
-  /- def whereDecls := parser! "where " >> many1Indent (group (optional «attributes» >> letDecl >> optional ";")) -/
-  let letDecls ← whereDecls[1].getArgs.mapM fun stx => do
-    unless stx[0].isNone do
-      Macro.throwErrorAt stx "attributes are 'where' elements are currently not supported here"
-    let mut letDecl := stx[1]
-    if letDecl[0].isOfKind `Lean.Parser.Term.letPatDecl then
-      Macro.throwErrorAt stx "patterns are not allowed here"
-    if letDecl[0].getKind == `Lean.Parser.Term.letEqnsDecl then
-      letDecl := letDecl.setArg 0 (← expandLetEqnsDecl letDecl[0])
-    pure letDecl
-  let structInstFields ← letDecls.mapM fun letDecl => do
-    let letIdDecl := letDecl[0]
-    let fieldId   := letIdDecl[0]
-    let mut val   := letIdDecl[4]
-    let optType   := letIdDecl[2]
-    let binders   := letIdDecl[1]
-    unless optType.isNone do
-      let type := optType[0][1]
-      val ← `(($val : $type))
-    unless binders.isNone do
-      let binders := binders.getArgs
-      val ← `(fun $binders* => $val:term)
-      val := val.copyInfo letIdDecl
-    return Syntax.node `Lean.Parser.Term.structInstField #[
-      Syntax.node ``Parser.Term.structInstLVal #[fieldId, mkNullNode], mkAtomFrom fieldId ":=", val
-    ]
-  let ref := whereDecls
-  let structInst := Syntax.node `Lean.Parser.Term.structInst #[
-      mkAtomFrom ref "{",
-      mkNullNode,
-      mkNullNode <| structInstFields.map fun field => mkNullNode #[field, mkNullNode],
-      mkNullNode,
-      mkNullNode,
-      mkAtomFrom ref "}"
-    ]
-  return structInst
+private def expandWhereDeclsAsStructInst : Macro
+  | `(whereDecls|where $[$decls:letRecDecl$[;]?]*) => do
+    let letIdDecls ← decls.mapM fun stx => match stx with
+      | `(letRecDecl|$attrs:attributes $decl:letDecl) => Macro.throwErrorAt stx "attributes are 'where' elements are currently not supported here"
+      | `(letRecDecl|$decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
+      | `(letRecDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
+      | `(letRecDecl|$decl:letIdDecl)   => pure decl
+      | _                               => unreachable!
+    let structInstFields ← letIdDecls.mapM fun
+      | stx@`(letIdDecl|$id:ident $[$binders]* $[: $ty?]? := $val) => withRef stx do
+        let mut val := val
+        if let some ty := ty? then
+          val ← `(($val : $ty))
+        val ← `(fun $[$binders]* => $val:term)
+        `(structInstField|$id:ident := $val)
+      | _ => unreachable!
+    `({ $[$structInstFields,]* })
+  | _ => unreachable!
 
 /-
 Recall that
@@ -171,11 +154,11 @@ def declValEqns      := parser! Term.matchAltsWhereDecls
 def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 ```
 -/
-private def declValToTerm (declVal : Syntax) : MacroM Syntax :=
+private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal do
   if declVal.isOfKind `Lean.Parser.Command.declValSimple then
-    return expandWhereDeclsOpt declVal declVal[2] declVal[1]
+    expandWhereDeclsOpt declVal[2] declVal[1]
   else if declVal.isOfKind `Lean.Parser.Command.declValEqns then
-    expandMatchAltsWhereDecls declVal declVal[0]
+    expandMatchAltsWhereDecls declVal[0]
   else if declVal.isOfKind `Lean.Parser.Term.whereDecls then
     expandWhereDeclsAsStructInst declVal
   else

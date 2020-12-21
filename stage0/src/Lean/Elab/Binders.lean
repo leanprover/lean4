@@ -357,52 +357,27 @@ private def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
   let pats := alt0[1].getSepArgs
   pats.size
 
-private def mkMatch (ref : Syntax) (discrs : Array Syntax) (matchAlts : Syntax) (matchTactic := false) : Syntax :=
-  Syntax.node (if matchTactic then `Lean.Parser.Tactic.match else `Lean.Parser.Term.match)
-    #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", matchAlts]
+def expandWhereDecls (whereDecls : Syntax) (body : Syntax) : MacroM Syntax :=
+  match whereDecls with
+  | `(whereDecls|where $[$decls:letRecDecl $[;]?]*) => `(let rec $decls:letRecDecl,*; $body)
+  | _ => unreachable!
 
-private def addDiscr (ref : Syntax) (discrs : Array Syntax) (discrTerm : Syntax) : Array Syntax :=
-  let discrs := if discrs.isEmpty then discrs else discrs.push $ mkAtomFrom ref ", "
-  discrs.push <| Syntax.node `Lean.Parser.Term.matchDiscr #[mkNullNode, discrTerm]
-
-/-
-Recall that
-```
-def letRecDecls      := sepBy1 (group (optional «attributes» >> letDecl)) ", "
-def «letrec» := parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
-```
-
-The argument `letRecDecls` is an array of syntax terms of the form `(group (optional «attributes» >> letDecl))`
--/
-def mkLetRec (ref : Syntax) (letRecDecls : Array Syntax) (body : Syntax) : Syntax :=
-  Syntax.node `Lean.Parser.Term.letrec #[
-    mkNullNode #[mkAtomFrom ref "let ", mkAtomFrom ref "rec "],
-    Syntax.mkSep letRecDecls (mkAtomFrom ref ","),
-    mkNullNode, -- optional ";"
-    body
-  ]
-
-/- Recall that
-   ```
-   whereDecls := parser! "where " >> many1Indent (group (optional «attributes» >> letDecl >> optional ";"))
-   ``` -/
-def expandWhereDecls (ref : Syntax) (whereDecls : Syntax) (body : Syntax) : Syntax :=
-  let letRecDecls := whereDecls[1].getArgs.map fun stx => mkNullNode #[stx[0], stx[1]] -- drop (optional ";")
-  return mkLetRec ref letRecDecls body
-
-def expandWhereDeclsOpt (ref : Syntax) (whereDeclsOpt : Syntax) (body : Syntax) : Syntax :=
+def expandWhereDeclsOpt (whereDeclsOpt : Syntax) (body : Syntax) : MacroM Syntax :=
   if whereDeclsOpt.isNone then
     body
   else
-    expandWhereDecls ref whereDeclsOpt[0] body
+    expandWhereDecls whereDeclsOpt[0] body
 
 /- Helper function for `expandMatchAltsIntoMatch` -/
-private def expandMatchAltsIntoMatchAux (ref : Syntax) (matchAlts : Syntax) (matchTactic : Bool) : Nat → Array Syntax → MacroM Syntax
-  | 0,   discrs =>
-    return mkMatch ref discrs matchAlts matchTactic
+private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (matchTactic : Bool) : Nat → Array Syntax → MacroM Syntax
+  | 0,   discrs => do
+    if matchTactic then
+      `(tactic|match $[$discrs:term],* with $matchAlts:matchAlts)
+    else
+      `(match $[$discrs:term],* with $matchAlts:matchAlts)
   | n+1, discrs => withFreshMacroScope do
     let x ← `(x)
-    let body ← expandMatchAltsIntoMatchAux ref matchAlts matchTactic n (addDiscr ref discrs x)
+    let body ← expandMatchAltsIntoMatchAux matchAlts matchTactic n (discrs.push x)
     if matchTactic then
       `(tactic| intro $x:term; $body:tactic)
     else
@@ -431,10 +406,10 @@ private def expandMatchAltsIntoMatchAux (ref : Syntax) (matchAlts : Syntax) (mat
     ```
  -/
 def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (tactic := false) : MacroM Syntax :=
-  expandMatchAltsIntoMatchAux ref matchAlts tactic (getMatchAltsNumPatterns matchAlts) #[]
+  withRef ref <| expandMatchAltsIntoMatchAux matchAlts tactic (getMatchAltsNumPatterns matchAlts) #[]
 
 def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
-  expandMatchAltsIntoMatchAux ref matchAlts true (getMatchAltsNumPatterns matchAlts) #[]
+  withRef ref <| expandMatchAltsIntoMatchAux matchAlts true (getMatchAltsNumPatterns matchAlts) #[]
 
 /--
   Similar to `expandMatchAltsIntoMatch`, but supports an optional `where` clause.
@@ -464,20 +439,20 @@ def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM 
       | i, _    => ... f i + g i ...
     ```
 -/
-def expandMatchAltsWhereDecls (ref : Syntax) (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
+def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
   let matchAlts     := matchAltsWhereDecls[0]
   let whereDeclsOpt := matchAltsWhereDecls[1]
   let rec loop (i : Nat) (discrs : Array Syntax) : MacroM Syntax :=
     match i with
-    | 0   =>
-      let matchStx := mkMatch ref discrs matchAlts
+    | 0   => do
+      let matchStx ← `(match $[$discrs:term],* with $matchAlts:matchAlts)
       if whereDeclsOpt.isNone then
         return matchStx
       else
-        expandWhereDeclsOpt ref whereDeclsOpt matchStx
+        expandWhereDeclsOpt whereDeclsOpt matchStx
     | n+1 => withFreshMacroScope do
       let x ← `(x)
-      let body ← loop n (addDiscr ref discrs x)
+      let body ← loop n (discrs.push x)
       `(@fun $x => $body)
   loop (getMatchAltsNumPatterns matchAlts) #[]
 

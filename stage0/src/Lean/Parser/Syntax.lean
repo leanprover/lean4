@@ -50,7 +50,10 @@ end Term
 
 namespace Command
 
-def optPrio   := optional ("[" >> priorityParser >> "]")
+def namedPrio := parser! (atomic ("(" >> nonReservedSymbol "priority") >> " := " >> priorityParser >> ")")
+def namedName := parser! (atomic ("(" >> nonReservedSymbol "name") >> " := " >> ident >> ")")
+def optNamedPrio := optional namedPrio
+def optNamedName := optional namedName
 
 def «prefix»   := parser! "prefix"
 def «infix»    := parser! "infix"
@@ -58,19 +61,17 @@ def «infixl»   := parser! "infixl"
 def «infixr»   := parser! "infixr"
 def «postfix»  := parser! "postfix"
 def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
-@[builtinCommandParser] def «mixfix»   := parser! Term.attrKind >> mixfixKind >> optPrecedence >> optPrio >> ppSpace >> strLit >> darrow >> termParser
+@[builtinCommandParser] def «mixfix»   := parser! Term.attrKind >> mixfixKind >> optPrecedence >> optNamedName >> optNamedPrio >> ppSpace >> strLit >> darrow >> termParser
 -- NOTE: We use `suppressInsideQuot` in the following parsers because quotations inside them are evaluated in the same stage and
 -- thus should be ignored when we use `checkInsideQuot` to prepare the next stage for a builtin syntax change
 def identPrec  := parser! ident >> optPrecedence
+
 def optKind : Parser := optional ("[" >> ident >> "]")
+
 def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> identPrec)
-@[builtinCommandParser] def «notation»    := parser! Term.attrKind >> "notation" >> optPrecedence >> optPrio >> many notationItem >> darrow >> termParser
-@[builtinCommandParser] def «macro_rules» := suppressInsideQuot (parser! "macro_rules" >> optKind >> Term.matchAlts)
-def parserKind     := parser! ident
-def parserPrio     := parser! priorityParser
-def parserKindPrio := parser! atomic (ident >> ", ") >> priorityParser
-def optKindPrio : Parser := optional ("[" >> (parserKindPrio <|> parserPrio <|> parserKind) >> "]")
-@[builtinCommandParser] def «syntax»      := parser! Term.attrKind >> "syntax " >> optPrecedence >> optKindPrio >> many1 syntaxParser >> " : " >> ident
+@[builtinCommandParser] def «notation»    := parser! Term.attrKind >> "notation" >> optPrecedence >> optNamedName >> optNamedPrio >> many notationItem >> darrow >> termParser
+@[builtinCommandParser] def «macro_rules» := suppressInsideQuot (parser! "macro_rules" >>  optKind >> Term.matchAlts)
+@[builtinCommandParser] def «syntax»      := parser! Term.attrKind >> "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
 def macroArgSimple := parser! ident >> checkNoWsBefore "no space before ':'" >> ":" >> syntaxParser maxPrec
@@ -80,13 +81,13 @@ def macroTailTactic   : Parser := atomic (" : " >> identEq "tactic") >> darrow >
 def macroTailCommand  : Parser := atomic (" : " >> identEq "command") >> darrow >> ("`(" >> toggleInsideQuot (many1Unbox commandParser) >> ")" <|> termParser)
 def macroTailDefault  : Parser := atomic (" : " >> ident) >> darrow >> (("`(" >> toggleInsideQuot (categoryParserOfStack 2) >> ")") <|> termParser)
 def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
-@[builtinCommandParser] def «macro»       := parser! suppressInsideQuot ("macro " >> optPrecedence >> optPrio >> macroHead >> many macroArg >> macroTail)
+@[builtinCommandParser] def «macro»       := parser! suppressInsideQuot ("macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail)
 
 @[builtinCommandParser] def «elab_rules» := parser! suppressInsideQuot ("elab_rules" >> optKind >> optional (" : " >> ident) >> Term.matchAlts)
 def elabHead := macroHead
 def elabArg  := macroArg
 def elabTail := atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
-@[builtinCommandParser] def «elab»       := parser! suppressInsideQuot ("elab " >> optPrecedence >> optPrio >> elabHead >> many elabArg >> elabTail)
+@[builtinCommandParser] def «elab»       := parser! suppressInsideQuot ("elab " >> optPrecedence >> optNamedName >> optNamedPrio >> elabHead >> many elabArg >> elabTail)
 
 end Command
 

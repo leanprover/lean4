@@ -810,7 +810,7 @@ return x_26;
 else
 {
 lean_object* x_27; lean_object* x_28; uint8_t x_29; 
-x_27 = lean_unsigned_to_nat(2u);
+x_27 = lean_unsigned_to_nat(3u);
 x_28 = l_Lean_Syntax_getArg(x_6, x_27);
 x_29 = l_Lean_Syntax_isNone(x_28);
 if (x_29 == 0)

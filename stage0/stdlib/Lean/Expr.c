@@ -401,13 +401,13 @@ lean_object* l_Lean_Expr_isCharLit___closed__3;
 lean_object* l_Lean_instHasLessLiteral;
 lean_object* l_Lean_Literal_type___closed__4;
 lean_object* l_Lean_mkDecIsTrue___closed__4;
+extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_488____closed__3;
 lean_object* lean_expr_mk_lit(lean_object*);
 lean_object* l_Lean_Expr_updateMData_x21(lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_Data_hasLevelMVar(uint64_t);
 lean_object* lean_expr_dbg_to_string(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_487____closed__3;
 lean_object* l_Lean_Level_instantiateParams___at_Lean_Expr_instantiateLevelParams___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateConst_x21___closed__1;
 lean_object* l_Lean_Expr_constName_x3f_match__1(lean_object*);
@@ -16020,7 +16020,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_Lean_KVMap_empty;
-x_4 = l_Lean_initFn____x40_Lean_Data_Options___hyg_487____closed__3;
+x_4 = l_Lean_initFn____x40_Lean_Data_Options___hyg_488____closed__3;
 x_5 = l_Lean_KVMap_insertCore(x_3, x_1, x_4);
 x_6 = l_Lean_mkMData(x_5, x_2);
 return x_6;

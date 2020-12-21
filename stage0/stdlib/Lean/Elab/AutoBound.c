@@ -32,7 +32,7 @@ lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_3____closed__1;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_3____closed__2;
 lean_object* l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral___closed__1;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_487____closed__3;
+extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_488____closed__3;
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral(lean_object*);
 lean_object* l_Lean_Elab_isValidAutoBoundImplicitName_match__1(lean_object*);
@@ -79,7 +79,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_3_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_initFn____x40_Lean_Data_Options___hyg_487____closed__3;
+x_1 = l_Lean_initFn____x40_Lean_Data_Options___hyg_488____closed__3;
 x_2 = l_Lean_instInhabitedParserDescr___closed__1;
 x_3 = l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_3____closed__3;
 x_4 = lean_alloc_ctor(0, 3, 0);

@@ -138,18 +138,20 @@ def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   }
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
-  -- parser! attrKind >> "instance " >> optional declId >> declSig >> declVal
+  -- parser! Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
   let attrKind        ← toAttributeKind stx[0]
-  let (binders, type) := expandDeclSig stx[3]
-  let modifiers       := modifiers.addAttribute { kind := attrKind, name := `instance }
-  let declId ← match stx[2].getOptional? with
+  let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
+  let attrStx         ← `(attr| instance $(quote prio):numLit)
+  let (binders, type) := expandDeclSig stx[4]
+  let modifiers       := modifiers.addAttribute { kind := attrKind, name := `instance, stx := attrStx }
+  let declId ← match stx[3].getOptional? with
     | some declId => pure declId
     | none        =>
       let id ← MkInstanceName.main type
       pure <| Syntax.node ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
   return {
     ref := stx, kind := DefKind.def, modifiers := modifiers,
-    declId := declId, binders := binders, type? := type, value := stx[4]
+    declId := declId, binders := binders, type? := type, value := stx[5]
   }
 
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=

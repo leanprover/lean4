@@ -37,6 +37,7 @@ lean_object* l_Std_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 lean_object* l_Lean_Meta_getFunInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -106,7 +107,6 @@ lean_object* l_Std_PersistentHashMap_find_x3f___at___private_Lean_Meta_FunInfo_0
 lean_object* l_Std_PersistentHashMap_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___spec__4(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Position_lt___closed__2;
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getFVarLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -183,7 +183,7 @@ goto _start;
 else
 {
 uint8_t x_20; 
-x_20 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_12, x_15);
+x_20 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_12, x_15);
 lean_dec(x_15);
 if (x_20 == 0)
 {
@@ -273,7 +273,7 @@ return x_20;
 else
 {
 uint8_t x_21; 
-x_21 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_15, x_18);
+x_21 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_15, x_18);
 lean_dec(x_18);
 if (x_21 == 0)
 {
@@ -517,7 +517,7 @@ goto _start;
 else
 {
 uint8_t x_28; 
-x_28 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_20, x_23);
+x_28 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_20, x_23);
 lean_dec(x_23);
 lean_dec(x_20);
 if (x_28 == 0)
@@ -658,7 +658,7 @@ return x_1;
 else
 {
 uint8_t x_31; 
-x_31 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_23, x_26);
+x_31 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_23, x_26);
 lean_dec(x_26);
 lean_dec(x_23);
 if (x_31 == 0)
@@ -745,7 +745,7 @@ return x_1;
 else
 {
 uint8_t x_52; 
-x_52 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_44, x_47);
+x_52 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_44, x_47);
 lean_dec(x_47);
 lean_dec(x_44);
 if (x_52 == 0)
@@ -920,7 +920,7 @@ return x_101;
 else
 {
 uint8_t x_102; 
-x_102 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_649____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_93, x_96);
+x_102 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Meta_InfoCacheKey_instBEqInfoCacheKey___spec__1(x_93, x_96);
 lean_dec(x_96);
 lean_dec(x_93);
 if (x_102 == 0)

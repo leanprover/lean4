@@ -18,6 +18,10 @@ namespace Parser
 @[builtinTermParser] def Term.quot := parser! "`(" >> toggleInsideQuot (termParser <|> many1Unbox commandParser) >> ")"
 
 namespace Command
+
+def namedPrio := parser! (atomic ("(" >> nonReservedSymbol "priority") >> " := " >> priorityParser >> ")")
+def optNamedPrio := optional namedPrio
+
 def commentBody : Parser :=
 { fn := rawFn (finishCommentBlock 1) true }
 
@@ -42,7 +46,7 @@ def «abbrev»         := parser! "abbrev " >> declId >> optDeclSig >> declVal
 def «def»            := parser! "def " >> declId >> optDeclSig >> declVal
 def «theorem»        := parser! "theorem " >> declId >> declSig >> declVal
 def «constant»       := parser! "constant " >> declId >> declSig >> optional declValSimple
-def «instance»       := parser! Term.attrKind >> "instance " >> optional declId >> declSig >> declVal
+def «instance»       := parser! Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
 def «axiom»          := parser! "axiom " >> declId >> declSig
 def «example»        := parser! "example " >> declSig >> declVal
 def inferMod         := parser! atomic (symbol "{" >> "}")

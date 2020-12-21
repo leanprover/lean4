@@ -101,6 +101,7 @@ extern lean_object* l_Lean_registerTagAttribute___closed__5;
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_addInstanceEntry___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedInstances___closed__1;
 lean_object* l_Lean_getAttrParamOptPrio(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__33;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_Meta_addDefaultInstanceEntry___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
@@ -231,7 +232,6 @@ lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance_
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Instances_0__Lean_Meta_mkInstanceKey_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__2___closed__6;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__34;
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getDefaultInstances___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_ScopedEnvExtension_getState___rarg___closed__3;
@@ -2709,7 +2709,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__34;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__33;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

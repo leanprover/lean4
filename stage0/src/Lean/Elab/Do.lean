@@ -10,6 +10,7 @@ import Lean.Elab.Quotation.Util
 import Lean.Parser.Do
 
 namespace Lean.Elab.Term
+open Lean.Parser.Term
 open Meta
 
 private def getDoSeqElems (doSeq : Syntax) : List Syntax :=
@@ -624,42 +625,22 @@ def mkSingletonDoSeq (doElem : Syntax) : Syntax :=
   mkDoSeq #[doElem]
 
 /-
-  Recall that the `doIf` syntax is of the form
-  ```
-  "if " >> optIdent >> termParser >> " then " >> doSeq
-  >> many (group (" else " >> " if ") >> optIdent >> termParser >> " then " >> doSeq)
-  >> optional (" else " >> doSeq)
-  ```
-  If the given syntax is a `doIf`, return an equivalente `doIf` that has no `else if`s and the `else` is not none.  -/
-private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := do
-  if stx.getKind != `Lean.Parser.Term.doIf then pure none else
-  let doIf      := stx
-  let ref       := stx
-  let doElseIfs := doIf[5].getArgs
-  let doElse    := doIf[6]
-  if doElseIfs.isEmpty && !doElse.isNone then
-    pure none
-  else
-    let doElse ←
-      if doElse.isNone then
-        let pureUnit ← mkPureUnit ref
-        pure $ mkNullNode #[
-          mkAtomFrom ref "else",
-          mkSingletonDoSeq (mkNode `Lean.Parser.Term.doExpr #[pureUnit])
-        ]
-      else
-        pure doElse
-    let doElse := doElseIfs.foldr
-      (fun doElseIf doElse =>
-        let ifAtom := doElseIf[0][1]
-        let doIfArgs := (doElseIf.getArgs).set! 0 ifAtom
-        let doIfArgs := doIfArgs.push mkNullNode
-        let doIfArgs := doIfArgs.push doElse
-        mkNullNode #[mkAtomFrom doElseIf "else",
-                     mkSingletonDoSeq $ mkNode `Lean.Parser.Term.doIf doIfArgs])
-      doElse
-    let doIf := doIf.setArg 6 doElse
-    pure $ some $ doIf.setArg 5 mkNullNode -- remove else-ifs
+  If the given syntax is a `doIf`, return an equivalente `doIf` that has an `else` but no `else if`s or `if let`s.  -/
+private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx with
+  | `(doElem|if $p:doIfProp then $t else $e) => pure none
+  | `(doElem|if $cond:doIfCond then $t $[else if $conds:doIfCond then $ts]* $[else $e?]?) => go cond t conds ts e?
+  | _ => pure none
+  where go cond t conds ts e? := withRef stx do
+    let mut e      := e?.getD (← `(doSeq|pure PUnit.unit))
+    let mut eIsSeq := true
+    for (cond, t) in (conds.reverse.push cond).zip (ts.reverse.push t) do
+      e ← if eIsSeq then e else `(doSeq|$e:doElem)
+      e ← withRef cond <| match cond with
+        | `(doIfCond|let $pat := $d) => `(doElem|match $d:term with | $pat:term => $t | _ => $e)
+        | `(doIfCond|let $pat ← $d) => `(doElem|match ← $d     with | $pat:term => $t | _ => $e)
+        | _                          => `(doElem|if $cond:doIfCond then $t else $e)
+      eIsSeq := false
+    return some e
 
 structure DoIfView where
   ref        : Syntax
@@ -672,10 +653,10 @@ structure DoIfView where
 private def mkDoIfView (doIf : Syntax) : MacroM DoIfView := do
   pure {
     ref        := doIf,
-    optIdent   := doIf[1],
-    cond       := doIf[2],
-    thenBranch := doIf[4],
-    elseBranch := doIf[6][1]
+    optIdent   := doIf[1][0],
+    cond       := doIf[1][1],
+    thenBranch := doIf[3],
+    elseBranch := doIf[5][1]
   }
 
 /-

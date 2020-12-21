@@ -106,6 +106,9 @@ macro "if" h:ident " : " c:term " then " t:term " else " e:term : term =>
 macro "if" c:term " then " t:term " else " e:term : term =>
   `(ite $c $t $e)
 
+macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
+  `(match $d:term with | $pat:term => $t | _ => $e)
+
 syntax:0 term "<|" term:0 : term
 
 macro_rules

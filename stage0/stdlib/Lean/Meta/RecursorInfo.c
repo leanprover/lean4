@@ -29,7 +29,6 @@ uint8_t l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_get
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2064____closed__4;
 lean_object* l_Array_binSearchAux___at_Lean_Meta_getMajorPos_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__26;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 extern lean_object* l_instReprOption___rarg___closed__1;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -344,6 +343,7 @@ lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo(lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2064____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo___closed__7;
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__25;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_getIdx_x3f___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__1(lean_object*, lean_object*);
@@ -1536,7 +1536,7 @@ x_82 = lean_string_append(x_80, x_81);
 x_83 = lean_string_append(x_82, x_40);
 lean_dec(x_40);
 x_84 = lean_string_append(x_83, x_7);
-x_85 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__26;
+x_85 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__25;
 x_86 = lean_string_append(x_84, x_85);
 return x_86;
 }

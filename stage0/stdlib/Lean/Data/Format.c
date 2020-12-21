@@ -24,7 +24,6 @@ extern lean_object* l_instReprSigma___rarg___closed__1;
 lean_object* l_Lean_instToFormatKVMap;
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_sbracket___closed__4;
-extern lean_object* l_Lean_Parser_Tactic_tacticHave_____x3a_x3d_____closed__5;
 lean_object* l_Std_Format_getIndent___closed__1;
 lean_object* l_Std_Format_getIndent___boxed(lean_object*);
 extern lean_object* l_instReprBool___closed__2;
@@ -77,6 +76,7 @@ lean_object* l_Std_Format_initFn____x40_Lean_Data_Format___hyg_24____closed__2;
 lean_object* l_Std_Format_getWidth___boxed(lean_object*);
 lean_object* l_Lean_instToFormatProdNameDataValue(lean_object*);
 lean_object* l_Std_Format_getWidth___closed__3;
+extern lean_object* l_termIfLet___x3a_x3d__Then__Else_____closed__9;
 lean_object* l_Std_Format_initFn____x40_Lean_Data_Format___hyg_24____closed__4;
 static lean_object* _init_l_Std_Format_getWidth___closed__1() {
 _start:
@@ -613,7 +613,7 @@ static lean_object* _init_l_Lean_instToFormatProdNameDataValue___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_tacticHave_____x3a_x3d_____closed__5;
+x_1 = l_termIfLet___x3a_x3d__Then__Else_____closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

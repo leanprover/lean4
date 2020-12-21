@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Elab_Command_State_scopes___default___closed__1;
 lean_object* l_Lean_Elab_Command_elabVariable(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12721____closed__16;
 lean_object* l_Lean_Elab_Command_instMonadQuotationCommandElabM___closed__4;
 lean_object* l_Lean_resolveNamespace___at_Lean_Elab_Command_elabExport___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
@@ -516,7 +517,6 @@ lean_object* l_Lean_Elab_Command_modifyScope___closed__1;
 lean_object* l_Lean_Elab_Command_instMonadResolveNameCommandElabM___closed__6;
 lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftCoreM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12387____closed__22;
 lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at_Lean_Elab_Command_expandDeclId___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Command_elabEval___closed__1;
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
@@ -23231,7 +23231,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_12387____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12721____closed__16;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -23285,7 +23285,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Command_expandInCmd___closed__7;
-x_2 = l_myMacro____x40_Init_Notation___hyg_12387____closed__22;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12721____closed__16;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

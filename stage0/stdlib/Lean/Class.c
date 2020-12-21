@@ -145,7 +145,6 @@ lean_object* l_Lean_mkFVar(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Expr_hasAnyFVar_visit___at___private_Lean_Class_0__Lean_checkOutParam___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__22;
 lean_object* l_Lean_getClassName(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
 lean_object* l_Lean_classExtension___elambda__4(lean_object*, lean_object*);
@@ -222,6 +221,7 @@ lean_object* l_Lean_addClass___closed__3;
 uint8_t lean_has_out_params(lean_object*, lean_object*);
 lean_object* l_Lean_hasOutParams___boxed(lean_object*, lean_object*);
 uint8_t lean_is_class(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__21;
 lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_ClassState_addEntry___spec__5(lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t l_Std_HashMapImp_contains___at_Lean_isClass___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_classExtension___elambda__1(lean_object*);
@@ -3809,7 +3809,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__22;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3476____closed__21;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

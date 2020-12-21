@@ -52,7 +52,6 @@ lean_object* l_Lean_Meta_Closure_State_nextLevelIdx___default;
 lean_object* l_Lean_Meta_Closure_State_nextExprIdx___default;
 uint8_t l_Lean_Level_hasParam(lean_object*);
 lean_object* l_Std_HashMapImp_insert___at_Lean_Meta_Closure_visitExpr___spec__3(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_tacticHave_____x3a_x3d_____closed__5;
 lean_object* l_Lean_Meta_Closure_State_levelArgs___default;
 lean_object* l_Std_AssocList_contains___at_Lean_Meta_Closure_visitLevel___spec__4___boxed(lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
@@ -253,6 +252,7 @@ lean_object* l_Lean_Meta_Closure_pushToProcess(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Meta_Closure_mkLambda___boxed(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_replace___at_Lean_Meta_Closure_visitLevel___spec__8(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_mkValueTypeClosure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_termIfLet___x3a_x3d__Then__Else_____closed__9;
 lean_object* l_Lean_Meta_Closure_mkValueTypeClosure___closed__1;
 lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedLevel;
@@ -13867,7 +13867,7 @@ static lean_object* _init_l_Lean_Meta_mkAuxDefinition___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_tacticHave_____x3a_x3d_____closed__5;
+x_1 = l_termIfLet___x3a_x3d__Then__Else_____closed__9;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/option_declarations.h"
+#include "util/io.h"
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "library/max_sharing.h"
@@ -66,9 +67,13 @@ comp_decls apply(F && f, comp_decls const & ds) {
     return map(ds, [&](comp_decl const & d) { return comp_decl(d.fst(), f(d.snd())); });
 }
 
-static void trace(comp_decls const & ds) {
+void trace_comp_decl(comp_decl const & d) {
+    tout() << ">> " << d.fst() << "\n" << trace_pp_expr(d.snd()) << "\n";
+}
+
+void trace_comp_decls(comp_decls const & ds) {
     for (comp_decl const & d : ds) {
-        tout() << ">> " << d.fst() << "\n" << d.snd() << "\n";
+        trace_comp_decl(d);
     }
 }
 
@@ -117,8 +122,6 @@ static environment cache_new_stage2(environment env, comp_decls const & ds) {
     return cache_stage2(env, ds, true);
 }
 
-#define trace_compiler(k, ds) lean_trace(k, trace(ds);)
-
 bool is_main_fn(environment const & env, name const & n) {
     if (n == "main") return true;
     if (optional<name> c = get_export_name_for(env, n)) {
@@ -158,6 +161,8 @@ bool is_main_fn_type(expr const & type) {
 static bool has_synthetic_sorry(constant_info const & cinfo) {
     return cinfo.is_definition() && has_synthetic_sorry(cinfo.get_value());
 }
+
+#define trace_compiler(k, ds) lean_trace(k, trace_comp_decls(ds););
 
 environment compile(environment const & env, options const & opts, names cs) {
     if (!is_codegen_enabled(opts))

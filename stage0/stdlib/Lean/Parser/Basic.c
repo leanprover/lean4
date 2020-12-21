@@ -666,6 +666,7 @@ lean_object* l_Lean_Parser_quotedCharFn___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_sepBy1(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Parser_sepBy1Fn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_longestMatchFnAux_parse_match__1___rarg(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12721____closed__9;
 lean_object* l_Lean_Parser_checkTailNoWs_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_noFirstTokenInfo___elambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_indexed_match__7___rarg(lean_object*, lean_object*);
@@ -1016,7 +1017,6 @@ lean_object* l_Lean_Parser_mkAntiquot___boxed(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Parser_error(lean_object*);
 lean_object* l_List_toStringAux___at_Lean_Parser_FirstTokens_toStr___spec__2(uint8_t, lean_object*);
 lean_object* l_Lean_Parser_longestMatchStep_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12387____closed__9;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_foldArgs___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 lean_object* l_Char_isDigit___boxed(lean_object*);
@@ -28286,7 +28286,7 @@ static lean_object* _init_l_Lean_Parser_mkAntiquot___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12387____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12721____closed__9;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

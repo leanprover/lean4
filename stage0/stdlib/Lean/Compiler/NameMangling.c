@@ -24,7 +24,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux_match__1(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12387____closed__14;
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_mkModuleInitializationFunctionName___closed__1;
 uint32_t l_Nat_digitChar(lean_object*);
@@ -46,6 +45,7 @@ lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux_match
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11811____closed__19;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_String_mangleAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
@@ -363,7 +363,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(x_3);
-x_7 = l_myMacro____x40_Init_Notation___hyg_12387____closed__14;
+x_7 = l_myMacro____x40_Init_Notation___hyg_11811____closed__19;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = lean_string_append(x_8, x_5);
 lean_dec(x_5);
@@ -379,7 +379,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_dec(x_1);
 x_12 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(x_10);
-x_13 = l_myMacro____x40_Init_Notation___hyg_12387____closed__14;
+x_13 = l_myMacro____x40_Init_Notation___hyg_11811____closed__19;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Nat_repr(x_11);
 x_16 = lean_string_append(x_14, x_15);

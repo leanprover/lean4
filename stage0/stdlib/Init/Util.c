@@ -48,6 +48,7 @@ lean_object* l_withPtrEqDecEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddrUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddrUnsafe(lean_object*, lean_object*);
 lean_object* lean_dbg_trace_if_shared(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12721____closed__9;
 size_t lean_ptr_addr(lean_object*);
 lean_object* l_withPtrEqUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos(lean_object*);
@@ -61,7 +62,6 @@ lean_object* l_withPtrAddrUnsafe___rarg(lean_object*, lean_object*, lean_object*
 lean_object* l_ptrAddrUnsafe___boxed(lean_object*, lean_object*);
 lean_object* l_dbgTraceVal(lean_object*);
 extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12387____closed__9;
 lean_object* l_dbgTrace___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -130,7 +130,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_5 = l___private_Init_Util_0__mkPanicMessage___closed__1;
 x_6 = lean_string_append(x_5, x_1);
-x_7 = l_myMacro____x40_Init_Notation___hyg_12387____closed__9;
+x_7 = l_myMacro____x40_Init_Notation___hyg_12721____closed__9;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Nat_repr(x_2);
 x_10 = lean_string_append(x_8, x_9);
@@ -191,7 +191,7 @@ x_7 = lean_string_append(x_6, x_2);
 x_8 = l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
 x_9 = lean_string_append(x_7, x_8);
 x_10 = lean_string_append(x_9, x_1);
-x_11 = l_myMacro____x40_Init_Notation___hyg_12387____closed__9;
+x_11 = l_myMacro____x40_Init_Notation___hyg_12721____closed__9;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l_Nat_repr(x_3);
 x_14 = lean_string_append(x_12, x_13);

@@ -195,7 +195,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def explicitUniv : TrailingParser := tparser! checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '.{'" >> ".{" >> sepBy1 levelParser ", " >> "}"
 @[builtinTermParser] def namedPattern : TrailingParser := tparser! checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> "@" >> termParser maxPrec
 
-@[builtinTermParser] def pipeProj   := tparser!:0 " |>. " >> (fieldIdx <|> ident)
+@[builtinTermParser] def pipeProj   := tparser!:10 " |>. " >> (fieldIdx <|> ident)
 
 @[builtinTermParser] def subst := tparser!:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "
 
@@ -211,7 +211,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def assert      := parser!:leadPrec withPosition ("assert! " >> termParser) >> optSemicolon termParser
 
 def macroArg       := termParser maxPrec
-def macroDollarArg := parser! "$" >> termParser 0
+def macroDollarArg := parser! "$" >> termParser 10
 def macroLastArg   := macroDollarArg <|> macroArg
 
 -- Macro for avoiding exponentially big terms when using `STWorld`

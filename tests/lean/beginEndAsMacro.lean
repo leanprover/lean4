@@ -1,10 +1,9 @@
 /- ANCHOR: doc -/
 open Lean in
-macro "begin " ts:tactic,*,? "end" : term => do
-  let stx ← `(by { $[$ts:tactic]* })
+macro "begin " ts:tactic,*,? "end"%i : term => do
   -- preserve position of the last token, which is used
   -- as the error position in case of an unfinished proof
-  stx.copyTailInfo (← getRef)
+  `(by { $[$ts:tactic]* }%$i)
 
 theorem ex1 (x : Nat) : x + 0 = 0 + x :=
   begin

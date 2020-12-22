@@ -479,14 +479,12 @@ private def expandNotationAux (ref : Syntax)
     | _ => throwUnsupportedSyntax
 
 /- Convert `macro` argument into a `syntax` command item -/
-def expandMacroArgIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
-  let k := stx.getKind
-  if k == `Lean.Parser.Command.macroArgSimple then
-    pure stx[2]
-  else if k == strLitKind then
-    pure $ Syntax.node `Lean.Parser.Syntax.atom #[stx]
-  else
-    Macro.throwUnsupported
+def expandMacroArgIntoSyntaxItem : Macro
+  | `(macroArg|$id:ident:$stx)    => stx
+  -- can't match against `$s:strLit%$id` because the latter part would be interpreted as an antiquotation on the token
+  -- `strLit`.
+  | `(macroArg|$s:macroArgSymbol) => `(stx|$(s[0]):strLit)
+  | _                             => Macro.throwUnsupported
 
 /- Convert `macro` arg into a pattern element -/
 def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax := do
@@ -502,7 +500,9 @@ def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax := do
   | `(macroArg|$id:ident:sepBy1($stx, $sep:strLit $[, $stxsep]? $[, allowTrailingSep]?)) =>
     mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
   | `(macroArg|$id:ident:$stx) => mkAntiquotNode id
-  | `(macroArg|$s:strLit)      => strLitToPattern s
+  | `(macroArg|$s:strLit) => strLitToPattern s
+  -- `"tk"%id` ~> `"tk"%$id`
+  | `(macroArg|$s:macroArgSymbol) => mkNode `token_antiquot #[← strLitToPattern s[0], mkAtom "%", mkAtom "$", s[1][1]]
   | _                          => Macro.throwUnsupported
   where mkSplicePat kind id suffix :=
     mkNullNode #[mkAntiquotSuffixSpliceNode kind (mkAntiquotNode id) suffix]

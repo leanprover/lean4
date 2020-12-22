@@ -23,7 +23,7 @@ end Lean.Parser.Syntax
 macro "max"  : prec => `(1024) -- maximum precedence used in term parsers
 macro "lead" : prec => `(1023)
 macro "(" p:prec ")" : prec => p
-macro "min"  : prec => `(10)   -- minimum precedence used in term parsers but `<|>`
+macro "min"  : prec => `(10)   -- minimum precedence used in term parsers
 macro "min1" : prec => `(11)   -- `(min+1) we can only `min+1` after `Meta.lean`
 /-
   `max:prec` as a term. It is equivalent to `evalPrec! max` for `evalPrec!` defined at `Meta.lean`.
@@ -94,7 +94,7 @@ notation:max "!" b:40 => not b
 infixl:65 " ++ " => HAppend.hAppend
 infixr:67 " :: " => List.cons
 
-infixr:2   " <|> " => HOrElse.hOrElse
+infixr:20  " <|> " => HOrElse.hOrElse
 infixr:60  " >> "  => HAndThen.hAndThen
 infixl:55  " >>= " => Bind.bind
 infixl:60  " <*> " => Seq.seq

@@ -23,7 +23,7 @@ def tacticSeq1Indented : Parser :=
 def tacticSeqBracketed : Parser :=
   parser! "{" >> many (group (ppLine >> tacticParser >> optional ";")) >> ppDedent (ppLine >> "}")
 def tacticSeq :=
-  nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.tacticSeq $ tacticSeqBracketed <|> tacticSeq1Indented
+  nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.tacticSeq (tacticSeqBracketed <|> tacticSeq1Indented)
 
 /- Raw sequence for quotation and grouping -/
 def seq1 :=
@@ -195,7 +195,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def explicitUniv : TrailingParser := tparser! checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '.{'" >> ".{" >> sepBy1 levelParser ", " >> "}"
 @[builtinTermParser] def namedPattern : TrailingParser := tparser! checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> "@" >> termParser maxPrec
 
-@[builtinTermParser] def pipeProj   := tparser!:10 " |>. " >> (fieldIdx <|> ident)
+@[builtinTermParser] def pipeProj   := tparser!:minPrec " |>. " >> (fieldIdx <|> ident)
 
 @[builtinTermParser] def subst := tparser!:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "
 

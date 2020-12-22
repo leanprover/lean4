@@ -88,6 +88,7 @@ def getNext (input : String) (pos : Nat) : Char :=
    discourage them from doing it. -/
 def maxPrec  : Nat := evalPrec! max
 def leadPrec : Nat := evalPrec! lead
+def minPrec  : Nat := evalPrec! min
 
 abbrev Token := String
 

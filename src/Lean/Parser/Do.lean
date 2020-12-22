@@ -16,7 +16,7 @@ builtin_initialize registerBuiltinDynamicParserAttribute `doElemParser `doElem
 
 namespace Term
 def leftArrow : Parser := unicodeSymbol " ← " " <- "
-@[builtinTermParser] def liftMethod := parser!:0 leftArrow >> termParser
+@[builtinTermParser] def liftMethod := parser!:minPrec leftArrow >> termParser
 
 def doSeqItem      := parser! ppLine >> doElemParser >> optional "; "
 def doSeqIndent    := parser! many1Indent doSeqItem

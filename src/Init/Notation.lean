@@ -20,9 +20,11 @@ syntax:65 (name := subPrio) prio " - " prio:66 : prio
 
 end Lean.Parser.Syntax
 
-macro "max"  : prec => `(1024)
+macro "max"  : prec => `(1024) -- maximum precedence used in term parsers
 macro "lead" : prec => `(1023)
 macro "(" p:prec ")" : prec => p
+macro "min"  : prec => `(10)   -- minimum precedence used in term parsers but `<|>`
+macro "min1" : prec => `(11)   -- `(min+1) we can only `min+1` after `Meta.lean`
 /-
   `max:prec` as a term. It is equivalent to `evalPrec! max` for `evalPrec!` defined at `Meta.lean`.
   We use `maxPrec!` to workaround bootstrapping issues. -/
@@ -109,13 +111,13 @@ macro "if" c:term " then " t:term " else " e:term : term =>
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
   `(match $d:term with | $pat:term => $t | _ => $e)
 
-syntax:0 term "<|" term:0 : term
+syntax:min term "<|" term:min : term
 
 macro_rules
   | `($f $args* <| $a) => let args := args.push a; `($f $args*)
   | `($f <| $a) => `($f $a)
 
-syntax:0 term "|>" term:1 : term
+syntax:min term "|>" term:min1 : term
 
 macro_rules
   | `($a |> $f $args*) => let args := args.push a; `($f $args*)
@@ -123,7 +125,7 @@ macro_rules
 
 -- Haskell-like pipe <|
 -- Note that we have a whitespace after `$` to avoid an ambiguity with the antiquotations.
-syntax:0 term atomic("$" ws) term:0 : term
+syntax:min term atomic("$" ws) term:min : term
 
 macro_rules
   | `($f $args* $ $a) => let args := args.push a; `($f $args*)

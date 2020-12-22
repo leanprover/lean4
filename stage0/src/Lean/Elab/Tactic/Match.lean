@@ -50,4 +50,7 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
   let stxNew := mkNullNode (#[refineMatchTerm] ++ cases)
   withMacroExpansion stx stxNew $ evalTactic stxNew
 
+@[builtinTactic Lean.Parser.Tactic.matchTemp] def evalMatchTemp : Tactic :=
+  evalMatch
+
 end Lean.Elab.Tactic

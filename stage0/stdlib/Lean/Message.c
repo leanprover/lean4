@@ -188,6 +188,7 @@ lean_object* l_Lean_instToMessageDataOptionExpr___closed__1;
 lean_object* l_Lean_MessageData_isNest_match__1(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__14;
 lean_object* l_Lean_KernelException_toMessageData___closed__28;
+extern lean_object* l_instToFormat___rarg___closed__1;
 lean_object* l_Lean_Message_toString___closed__1;
 lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftLeft(size_t, size_t);
@@ -212,7 +213,6 @@ lean_object* l_Lean_KernelException_toMessageData___closed__15;
 uint8_t l_Std_PersistentArray_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_addMessageContextPartial___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instToMessageDataMessageData;
-extern lean_object* l_instToString___rarg___closed__1;
 lean_object* l_Std_PersistentArray_foldlM___at_Lean_MessageLog_toList___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MessageLog_toList___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString_match__1(lean_object*);
@@ -2727,7 +2727,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_MessageData_instCoeStringMessageData___closed__1;
-x_2 = l_instToString___rarg___closed__1;
+x_2 = l_instToFormat___rarg___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Function_comp___rarg), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);

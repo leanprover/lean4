@@ -19,7 +19,6 @@ lean_object* l_String_toFormat(lean_object*);
 lean_object* l_List_format_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instReprProd___rarg___closed__2;
 lean_object* l_Option_format(lean_object*);
-lean_object* l_instToString___rarg(lean_object*);
 lean_object* l_Std_Format_joinSep___at_String_toFormat___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_List_format_match__1(lean_object*, lean_object*);
 lean_object* l_Option_format_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -29,23 +28,23 @@ lean_object* l_String_splitOn(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_paren___closed__2;
 extern lean_object* l_instReprProd___rarg___closed__1;
 lean_object* l_instToFormatProd___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_instToFormat(lean_object*);
+lean_object* l_instToFormat___rarg___lambda__1(lean_object*);
 lean_object* l_List_format___rarg(lean_object*, lean_object*);
 lean_object* l_instToFormatOption_match__1(lean_object*, lean_object*);
 lean_object* l_instToFormatList___rarg(lean_object*);
+lean_object* l_instToFormat___rarg___closed__1;
 lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_paren___closed__4;
-lean_object* l_instToString___rarg___closed__1;
 lean_object* l_Std_Format_joinSep___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instReprList___rarg___closed__2;
 lean_object* l_Std_fmt___at_instToFormatArray___spec__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_sbracket___closed__3;
-lean_object* l_instToString(lean_object*);
 lean_object* l_Option_format___rarg(lean_object*, lean_object*);
 extern lean_object* l_Array_instToStringArray___rarg___closed__1;
 lean_object* l_instToFormatProd(lean_object*, lean_object*);
 lean_object* l_Std_Format_joinSep___at_String_toFormat___spec__1(lean_object*, lean_object*);
-lean_object* l_instToString___rarg___lambda__1(lean_object*);
 lean_object* l_Option_format_match__1(lean_object*, lean_object*);
 lean_object* l_instToFormatOption(lean_object*);
 lean_object* l_instToFormatArray___rarg(lean_object*, lean_object*);
@@ -56,11 +55,12 @@ lean_object* l_instToFormatArray(lean_object*);
 extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_pushNewline___closed__1;
 lean_object* l_Std_fmt___at_instToFormatArray___spec__1(lean_object*);
 extern lean_object* l_instReprOption___rarg___closed__4;
+lean_object* l_instToFormat___rarg(lean_object*);
 lean_object* l_instToFormatArray___rarg___closed__1;
 lean_object* l_List_format(lean_object*);
 extern lean_object* l_Std_Format_paren___closed__3;
 lean_object* l_instToFormatList(lean_object*);
-lean_object* l_instToString___rarg___lambda__1(lean_object* x_1) {
+lean_object* l_instToFormat___rarg___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -69,30 +69,30 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instToString___rarg___closed__1() {
+static lean_object* _init_l_instToFormat___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToString___rarg___lambda__1), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instToFormat___rarg___lambda__1), 1, 0);
 return x_1;
 }
 }
-lean_object* l_instToString___rarg(lean_object* x_1) {
+lean_object* l_instToFormat___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_instToString___rarg___closed__1;
+x_2 = l_instToFormat___rarg___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Function_comp___rarg), 3, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l_instToString(lean_object* x_1) {
+lean_object* l_instToFormat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instToString___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_instToFormat___rarg), 1, 0);
 return x_2;
 }
 }
@@ -511,8 +511,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instToString___rarg___closed__1 = _init_l_instToString___rarg___closed__1();
-lean_mark_persistent(l_instToString___rarg___closed__1);
+l_instToFormat___rarg___closed__1 = _init_l_instToFormat___rarg___closed__1();
+lean_mark_persistent(l_instToFormat___rarg___closed__1);
 l_instToFormatArray___rarg___closed__1 = _init_l_instToFormatArray___rarg___closed__1();
 lean_mark_persistent(l_instToFormatArray___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

@@ -13,10 +13,10 @@ namespace Lean
 builtin_initialize
   registerOption `pp.raw { defValue := false, group := "pp", descr := "(pretty printer) print raw expression/syntax tree" }
   registerOption `pp.raw.showInfo { defValue := false, group := "pp", descr := "(pretty printer) print `SourceInfo` metadata with raw printer" }
-  registerOption `pp.raw.maxDepth { defValue := (2 : Nat), group := "pp", descr := "(pretty printer) maximum `Syntax` depth for raw printer" };
+  registerOption `pp.raw.maxDepth { defValue := (32 : Nat), group := "pp", descr := "(pretty printer) maximum `Syntax` depth for raw printer" };
 
 def getSyntaxMaxDepth (opts : Options) : Nat :=
-  opts.getNat `pp.raw.maxDepth 2
+  opts.getNat `pp.raw.maxDepth 32
 
 def getPPRaw (opts : Options) : Bool :=
   opts.getBool `pp.raw false

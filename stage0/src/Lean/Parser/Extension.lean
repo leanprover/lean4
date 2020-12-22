@@ -369,11 +369,11 @@ def categoryParserFnImpl (catName : Name) : ParserFn := fun ctx s =>
 @[builtinInit] def setCategoryParserFnRef : IO Unit :=
   categoryParserFnRef.set categoryParserFnImpl
 
-def addToken (env : Environment) (tk : Token) : Except String Environment := do
+def addToken (tk : Token) (kind : AttributeKind) : AttrM Unit := do
   -- Recall that `ParserExtension.addEntry` is pure, and assumes `addTokenConfig` does not fail.
   -- So, we must run it here to handle exception.
-  discard <| addTokenConfig (parserExtension.getState env).tokens tk
-  return parserExtension.addEntry env <| ParserExtension.Entry.token tk
+  discard <| ofExcept <| addTokenConfig (parserExtension.getState (← getEnv)).tokens tk
+  parserExtension.add (ParserExtension.Entry.token tk) kind
 
 def addSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Environment :=
   parserExtension.addEntry env <| ParserExtension.Entry.kind k
@@ -480,10 +480,11 @@ private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : N
   let parser     := p.2
   let tokens     := parser.info.collectTokens []
   tokens.forM fun token => do
-    let env ← getEnv
-    match addToken env token with
-      | Except.ok env    => setEnv env
-      | Except.error msg => throwError! "invalid parser '{declName}', {msg}"
+    try
+      addToken token attrKind
+    catch
+      | Exception.error ref msg => throwError! "invalid parser '{declName}', {msg}"
+      | ex => throw ex
   let kinds := parser.info.collectKinds {}
   kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind
   let entry := ParserExtension.Entry.parser catName declName leading parser prio

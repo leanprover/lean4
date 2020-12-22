@@ -20,10 +20,10 @@ def elim0.{u} {α : Sort u} : Fin 0 → α
 
 variable {n : Nat}
 
-def ofNat {n : Nat} (a : Nat) : Fin (succ n) :=
+protected def ofNat {n : Nat} (a : Nat) : Fin (succ n) :=
   ⟨a % succ n, Nat.modLt _ (Nat.zeroLtSucc _)⟩
 
-def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
+protected def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
   ⟨a % n, Nat.modLt _ h⟩
 
 private theorem mlt {b : Nat} : {a : Nat} → a < n → b % n < n
@@ -62,12 +62,26 @@ def land : Fin n → Fin n → Fin n
 def lor : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.lor a b) % n, mlt h⟩
 
-instance : Add (Fin n)         := ⟨Fin.add⟩
-instance : Sub (Fin n)         := ⟨Fin.sub⟩
-instance : Mul (Fin n)         := ⟨Fin.mul⟩
-instance : Mod (Fin n)         := ⟨Fin.mod⟩
-instance : Div (Fin n)         := ⟨Fin.div⟩
-instance : HMod (Fin n) Nat (Fin n) := ⟨Fin.modn⟩
+instance : Add (Fin n) where
+  add := Fin.add
+
+instance : Sub (Fin n) where
+  sub := Fin.sub
+
+instance : Mul (Fin n) where
+  mul := Fin.mul
+
+instance : Mod (Fin n) where
+  mod := Fin.mod
+
+instance : Div (Fin n) where
+  div := Fin.div
+
+instance : HMod (Fin n) Nat (Fin n) where
+  hMod := Fin.modn
+
+instance : OfNat (Fin (n+1)) i where
+  ofNat := Fin.ofNat i
 
 theorem vneOfNe {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eqOfVeq h') h

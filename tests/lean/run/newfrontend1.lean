@@ -113,7 +113,10 @@ focus
   refine! Eq.trans ?pre ?post
   first
     | exact h1
-    | exact y; exact h3; assumption
+      assumption
+    | exact y
+      exact h3
+      assumption
 
 theorem simple9b (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intros h1 _ h3

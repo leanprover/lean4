@@ -456,6 +456,17 @@ private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) :
   | `(tactic| $tac1 <or> $tac2) => evalTactic tac1 <|> evalTactic tac2
   | _                           => throwUnsupportedSyntax
 
+@[builtinTactic «first»] partial def evalFirst : Tactic := fun stx => do
+  let tacs := stx[2].getSepArgs
+  if tacs.isEmpty then throwUnsupportedSyntax
+  loop tacs 0
+where
+  loop (tacs : Array Syntax) (i : Nat) :=
+    if i == tacs.size - 1 then
+      evalTactic tacs[i]
+    else
+      evalTactic tacs[i] <|> loop tacs (i+1)
+
 builtin_initialize registerTraceClass `Elab.tactic
 
 @[inline] def TacticM.run {α} (x : TacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=

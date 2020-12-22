@@ -182,6 +182,8 @@ syntax (name := generalize) "generalize " atomic(ident " : ")? term:51 " = " ide
 syntax (name := paren) "(" tacticSeq ")" : tactic
 syntax (name := withReducible) "withReducible " tacticSeq : tactic
 syntax (name := withReducibleAndInstances) "withReducibleAndInstances " tacticSeq : tactic
+syntax (name := first) "first " "|"? sepBy1(tacticSeq, "|") : tactic
+
 syntax:2 (name := orelse) tactic "<or>" tactic:1 : tactic
 macro "try " t:tacticSeq : tactic => `($t <or> skip)
 macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; allGoals $y:tactic))

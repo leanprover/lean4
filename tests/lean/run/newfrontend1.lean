@@ -111,7 +111,10 @@ intros h1 _ h3
 traceState
 focus
   refine! Eq.trans ?pre ?post
-  (exact h1) <or> (exact y; exact h3; assumption)
+  first
+    | exact h1
+    | exact y; exact h3; assumption
+  done
 
 namespace Foo
   def Prod.mk := 1

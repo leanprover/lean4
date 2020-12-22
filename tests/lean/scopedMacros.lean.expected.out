@@ -1,0 +1,6 @@
+10 + 1 : Nat
+scopedMacros.lean:11:7: error: unknown identifier 'foo!'
+10 + 1 : Nat
+scopedMacros.lean:19:0: error: scoped attributes must be used inside namespaces
+scopedMacros.lean:19:0: error: invalid syntax node kind 'termBla!_'
+scopedMacros.lean:29:7: error: unknown identifier 'bla!'

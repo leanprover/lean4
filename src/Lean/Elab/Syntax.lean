@@ -510,6 +510,7 @@ def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax := do
 
 /- «macro» := parser! suppressInsideQuot (Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail) -/
 def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
+  let attrKind := stx[0]
   let prec := stx[2].getOptional?
   let name? ← liftMacroM <| expandOptNamedName stx[3]
   let prio  ← liftMacroM <| expandOptNamedPrio stx[4]
@@ -533,14 +534,15 @@ def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := d
   if stx.getArgs.size == 11 then
     -- `stx` is of the form `macro $head $args* : $cat => term`
     let rhs := stx[10]
-    -- NOTE: can't use `$stxParts*` here because it would interpret as a single antiquotation with the `stx` star postfix operator
-    `(syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat
-      macro_rules | `($pat) => $rhs)
+    let stxCmd ← `(Parser.Command.syntax| $attrKind:attrKind syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat)
+    let macroRulesCmd ← `(macro_rules | `($pat) => $rhs)
+    return mkNullNode #[stxCmd, macroRulesCmd]
   else
     -- `stx` is of the form `macro $head $args* : $cat => `( $body )`
     let rhsBody := stx[11]
-    `(syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat
-      macro_rules | `($pat) => `($rhsBody))
+    let stxCmd ← `(Parser.Command.syntax| $attrKind:attrKind syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat)
+    let macroRulesCmd ← `(macro_rules | `($pat) => `($rhsBody))
+    return mkNullNode #[stxCmd, macroRulesCmd]
 
 @[builtinCommandElab «macro»] def elabMacro : CommandElab :=
   adaptExpander fun stx => do
@@ -561,7 +563,8 @@ def «elab» := parser! suppressInsideQuot (Term.attrKind >> "elab " >> optPrece
 -/
 def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   let ref := stx
-  let prec    := stx[2].getOptional?
+  let attrKind := stx[0]
+  let prec     := stx[2].getOptional?
   let name?   ← liftMacroM <| expandOptNamedName stx[3]
   let prio    ← liftMacroM <| expandOptNamedPrio stx[4]
   let head    := stx[5]
@@ -582,38 +585,38 @@ def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   let patHead ← liftMacroM <| expandMacroArgIntoPattern head
   let patArgs ← liftMacroM <| args.mapM expandMacroArgIntoPattern
   let pat := Syntax.node (currNamespace ++ name) (#[patHead] ++ patArgs)
-  if expectedTypeSpec.hasArgs then
-    if catName == `term then
-      let expId := expectedTypeSpec[1]
-      `(syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat
-        @[termElab $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Term.TermElab :=
-        fun stx expectedType? => match stx with
-          | `($pat) => Lean.Elab.Command.withExpectedType expectedType? fun $expId => $rhs
+  let stxCmd ← `(Parser.Command.syntax|
+    $attrKind:attrKind syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat)
+  let elabCmd ←
+    if expectedTypeSpec.hasArgs then
+      if catName == `term then
+        let expId := expectedTypeSpec[1]
+        `(@[termElab $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Term.TermElab :=
+          fun stx expectedType? => match stx with
+            | `($pat) => Lean.Elab.Command.withExpectedType expectedType? fun $expId => $rhs
+            | _ => throwUnsupportedSyntax)
+      else
+        throwErrorAt! expectedTypeSpec "syntax category '{catName}' does not support expected type specification"
+    else if catName == `term then
+      `(@[termElab $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Term.TermElab :=
+        fun stx _ => match stx with
+          | `($pat) => $rhs
+          | _ => throwUnsupportedSyntax)
+    else if catName == `command then
+      `(@[commandElab $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Command.CommandElab :=
+        fun
+          | `($pat) => $rhs
+          | _ => throwUnsupportedSyntax)
+    else if catName == `tactic then
+      `(@[tactic $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Tactic.Tactic :=
+        fun
+          | `(tactic|$pat) => $rhs
           | _ => throwUnsupportedSyntax)
     else
-      throwErrorAt! expectedTypeSpec "syntax category '{catName}' does not support expected type specification"
-  else if catName == `term then
-    `(syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat
-      @[termElab $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Term.TermElab :=
-      fun stx _ => match stx with
-        | `($pat) => $rhs
-        | _ => throwUnsupportedSyntax)
-  else if catName == `command then
-    `(syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat
-      @[commandElab $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Command.CommandElab :=
-      fun
-        | `($pat) => $rhs
-        | _ => throwUnsupportedSyntax)
-  else if catName == `tactic then
-    `(syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat
-      @[tactic $(mkIdentFrom stx name):ident] def elabFn : Lean.Elab.Tactic.Tactic :=
-      fun
-        | `(tactic|$pat) => $rhs
-        | _ => throwUnsupportedSyntax)
-  else
-    -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
-    -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.
-    throwError! "unsupported syntax category '{catName}'"
+      -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
+      -- If users want this feature, they add their own `elab` macro that uses this one as a fallback.
+      throwError! "unsupported syntax category '{catName}'"
+  return mkNullNode #[stxCmd, elabCmd]
 
 @[builtinCommandElab «elab»] def elabElab : CommandElab :=
   adaptExpander fun stx => do

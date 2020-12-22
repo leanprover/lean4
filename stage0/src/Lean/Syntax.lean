@@ -369,8 +369,9 @@ def unescapeAntiquot (stx : Syntax) : Syntax :=
   else
     stx
 
+-- Also works for token antiquotations.
 def getAntiquotTerm (stx : Syntax) : Syntax :=
-  let e := stx[2]
+  let e := if stx.isAntiquot then stx[2] else stx[3]
   if e.isIdent then e
   else
     -- `e` is from `"(" >> termParser >> ")"`
@@ -420,6 +421,9 @@ def getAntiquotSuffixSpliceInner (stx : Syntax) : Syntax :=
 
 def mkAntiquotSuffixSpliceNode (kind : SyntaxNodeKind) (inner : Syntax) (suffix : String) : Syntax :=
   mkNode (kind ++ `antiquot_suffix_splice) #[inner, mkAtom suffix]
+
+def isTokenAntiquot (stx : Syntax) : Bool :=
+  stx.isOfKind `token_antiquot
 
 end Syntax
 end Lean

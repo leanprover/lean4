@@ -1077,10 +1077,15 @@ def symbolInfo (sym : String) : ParserInfo := {
 @[inline] def symbolFn (sym : String) : ParserFn :=
   symbolFnAux sym ("'" ++ sym ++ "'")
 
-@[inline] def symbol (sym : String) : Parser :=
+@[inline] def symbolNoAntiquot (sym : String) : Parser :=
   let sym := sym.trim
   { info := symbolInfo sym,
     fn   := symbolFn sym }
+
+def checkTailNoWs (prev : Syntax) : Bool :=
+  match prev.getTailInfo with
+  | some { trailing := some trailing, .. } => trailing.stopPos == trailing.startPos
+  | _                                      => false
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
@@ -1116,7 +1121,7 @@ def nonReservedSymbolInfo (sym : String) (includeIdent : Bool) : ParserInfo := {
       FirstTokens.tokens [ sym ]
 }
 
-@[inline] def nonReservedSymbol (sym : String) (includeIdent := false) : Parser :=
+@[inline] def nonReservedSymbolNoAntiquot (sym : String) (includeIdent := false) : Parser :=
   let sym := sym.trim
   { info := nonReservedSymbolInfo sym includeIdent,
     fn   := nonReservedSymbolFn sym }
@@ -1145,11 +1150,6 @@ def checkWsBefore (errorMsg : String := "space before") : Parser := {
   fn   := checkWsBeforeFn errorMsg
 }
 
-def checkTailNoWs (prev : Syntax) : Bool :=
-  match prev.getTailInfo with
-  | some { trailing := some trailing, .. } => trailing.stopPos == trailing.startPos
-  | _                                      => false
-
 private def pickNonNone (stack : Array Syntax) : Syntax :=
   match stack.findRev? $ fun stx => !stx.isNone with
   | none => Syntax.missing
@@ -1175,7 +1175,7 @@ def unicodeSymbolInfo (sym asciiSym : String) : ParserInfo := {
 @[inline] def unicodeSymbolFn (sym asciiSym : String) : ParserFn :=
   unicodeSymbolFnAux sym asciiSym ["'" ++ sym ++ "', '" ++ asciiSym ++ "'"]
 
-@[inline] def unicodeSymbol (sym asciiSym : String) : Parser :=
+@[inline] def unicodeSymbolNoAntiquot (sym asciiSym : String) : Parser :=
   let sym := sym.trim
   let asciiSym := asciiSym.trim
   { info := unicodeSymbolInfo sym asciiSym,
@@ -1263,8 +1263,6 @@ def identEqFn (id : Name) : ParserFn := fun c s =>
   fn   := identEqFn id,
   info := mkAtomicInfo "ident"
 }
-
-instance : Coe String Parser := ⟨fun s => symbol s ⟩
 
 namespace ParserState
 
@@ -1606,8 +1604,34 @@ def pushNone : Parser :=
   { fn := fun c s => s.pushSyntax mkNullNode }
 
 -- We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
-def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbol "(" >> toggleInsideQuot termParser >> ")")
+def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbolNoAntiquot "(" >> toggleInsideQuot termParser >> symbolNoAntiquot ")")
 def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
+
+@[inline] def tokenWithAntiquotFn (p : ParserFn) : ParserFn := fun c s => do
+  let s := p c s
+  if s.hasError then
+    return s
+  let iniSz  := s.stackSize
+  let iniPos := s.pos
+  let s      := (checkNoWsBefore >> symbolNoAntiquot "%" >> symbolNoAntiquot "$" >> checkNoWsBefore >> antiquotExpr).fn c s
+  if s.hasError then
+    return s.restore iniSz iniPos
+  s.mkNode (`token_antiquot) (iniSz - 1)
+
+@[inline] def tokenWithAntiquot (p : Parser) : Parser where
+  fn   := tokenWithAntiquotFn p.fn
+  info := p.info
+
+@[inline] def symbol (sym : String) : Parser :=
+  tokenWithAntiquot (symbolNoAntiquot sym)
+
+instance : Coe String Parser := ⟨fun s => symbol s ⟩
+
+@[inline] def nonReservedSymbol (sym : String) (includeIdent := false) : Parser :=
+  tokenWithAntiquot (nonReservedSymbolNoAntiquot sym includeIdent)
+
+@[inline] def unicodeSymbol (sym asciiSym : String) : Parser :=
+  tokenWithAntiquot (unicodeSymbolNoAntiquot sym asciiSym)
 
 /--
   Define parser for `$e` (if anonymous == true) and `$e:name`. Both

@@ -285,6 +285,15 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx =>
   focus $ evalTactic stx[1]
 
+@[builtinTactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
+  let gs ← getUnsolvedGoals
+  let mut gsNew := []
+  for g in gs do
+    setGoals [g]
+    focus <| evalTactic stx[1]
+    gsNew := gsNew ++ (← getUnsolvedGoals)
+  setGoals gsNew
+
 @[builtinTactic tacticSeq] def evalTacticSeq : Tactic := fun stx =>
   evalTactic stx[0]
 
@@ -308,7 +317,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
     throwError "tactic succeeded"
 
 @[builtinTactic traceState] def evalTraceState : Tactic := fun stx => do
-  let gs ← getUnsolvedGoals;
+  let gs ← getUnsolvedGoals
   logInfo (goalsToMessageData gs)
 
 @[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun stx =>

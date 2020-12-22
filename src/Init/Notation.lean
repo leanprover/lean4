@@ -244,12 +244,6 @@ syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizin
 syntax casesTarget := atomic(ident " : ")? term
 syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 
-syntax matchAlt  := "| " term,+ " => " (hole <|> syntheticHole <|> tacticSeq)
-syntax matchAlts := withPosition((colGe matchAlt)+)
-syntax (name := «match») "match " matchDiscr,+ (" : " term)? " with " matchAlts : tactic
-
-syntax (name := introMatch) "intro " matchAlts : tactic
-
 syntax (name := existsIntro) "exists " term : tactic
 
 /- We use a priority > default, to avoid ambiguity with the builtin `have` notation -/

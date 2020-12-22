@@ -326,7 +326,7 @@ private def introStep (n : Name) : TacticM Unit :=
   | `(tactic| intro _)         => introStep `_
   | `(tactic| intro $pat:term) => do
     let m ← `(match h with | $pat:term => _)
-    let m := m.setKind ``Lean.Parser.Tactic.match
+    let m := m.setKind ``Lean.Parser.Tactic.matchTemp
     let stxNew ← `(tactic| intro h; $m; clear h)
     withMacroExpansion stx stxNew $ evalTactic stxNew
   | `(tactic| intro $hs:term*) => do
@@ -336,10 +336,12 @@ private def introStep (n : Name) : TacticM Unit :=
     withMacroExpansion stx stxNew $ evalTactic stxNew
   | _ => throwUnsupportedSyntax
 
+/-
 @[builtinTactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]
   let stxNew ← liftMacroM $ Term.expandMatchAltsIntoMatchTactic stx matchAlts
   withMacroExpansion stx stxNew $ evalTactic stxNew
+-/
 
 private def getIntrosSize : Expr → Nat
   | Expr.forallE _ _ b _ => getIntrosSize b + 1

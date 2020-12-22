@@ -43,7 +43,8 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
   let (matchTerm, s) ← mkAuxiliaryMatchTermAux parentTag matchTac |>.run {}
   pure (matchTerm, s.cases)
 
-@[builtinTactic Lean.Parser.Tactic.match] def evalMatch : Tactic := fun stx => do
+-- @[builtinTactic Lean.Parser.Tactic.match]
+def evalMatch : Tactic := fun stx => do
   let tag ← getMainTag
   let (matchTerm, cases) ← liftMacroM $ mkAuxiliaryMatchTerm tag stx
   let refineMatchTerm ← `(tactic| refine $matchTerm)

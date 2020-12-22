@@ -430,7 +430,7 @@ private def generalizeTerm (term : Expr) : TacticM Expr := do
       let (fvarId, mvarId) ← Meta.intro1 mvarId
       pure (mkFVar fvarId, [mvarId])
 
-@[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focusAux do
+@[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
   let targets ← stx[1].getSepArgs.mapM fun target => do
     let target ← withMainMVarContext $ elabTerm target none
     generalizeTerm target
@@ -548,7 +548,7 @@ def evalCasesUsing (elimId : Syntax) (targetRef : Syntax) (targets : Array Expr)
       assignExprMVar mvarId result.elimApp
       ElimApp.evalAlts elimInfo result.alts (getAltsOfOptInductionAlts optInductionAlts) (numEqs := targets.size)
 
-@[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focusAux do
+@[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focus do
   -- parser! nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
   let targets ← elabTargets stx[1].getSepArgs
   let optInductionAlts := stx[3]

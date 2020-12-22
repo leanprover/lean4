@@ -114,7 +114,38 @@ focus
   first
     | exact h1
     | exact y; exact h3; assumption
-  done
+
+theorem simple9b (x y z : Nat) : y = z → x = x → x = y → x = z := by
+intros h1 _ h3
+traceState
+focus
+  refine! Eq.trans ?pre ?post
+  first
+    | exact h1
+    | exact y; exact h3
+  assumption
+
+theorem simple9c (x y z : Nat) : y = z → x = x → x = y → x = z := by
+  intros h1 _ h3
+  solve
+    | exact h1
+    | refine! Eq.trans ?pre ?post; exact y; exact h3; assumption
+    | exact h3
+
+theorem simple9d (x y z : Nat) : y = z → x = x → x = y → x = z := by
+  intros h1 _ h3
+  refine! Eq.trans ?pre ?post
+  solve
+    | exact h1
+    | exact y
+    | exact h3
+  solve
+    | exact h1
+    | exact h3
+  solve
+    | exact h1
+    | assumption
+
 
 namespace Foo
   def Prod.mk := 1

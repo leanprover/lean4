@@ -59,87 +59,131 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   else
     pure false
 
-partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef stx do
-  let kind := stx.getKind
-  if kind == nullKind then
+/--
+  Given a `stx` of category `syntax`, return a pair `(newStx, trailingParser)`,
+  where `newStx` is of category `term`. After elaboration, `newStx` should have type
+  `TrailingParserDescr` if `trailingParser == true`, and `ParserDescr` otherwise. -/
+partial def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) := do
+  let env ← getEnv
+  let behavior := Parser.leadingIdentBehavior env catName
+  (process stx { catName := catName, first := true, leftRec := true, behavior := behavior }).run false
+where
+  process (stx : Syntax) : ToParserDescrM Syntax := withRef stx do
+    let kind := stx.getKind
+    if kind == nullKind then
+      processSeq stx
+    else if kind == choiceKind then
+      process stx[0]
+    else if kind == `Lean.Parser.Syntax.paren then
+      process stx[1]
+    else if kind == `Lean.Parser.Syntax.cat then
+      processNullaryOrCat stx
+    else if kind == `Lean.Parser.Syntax.unary then
+      processUnary stx
+    else if kind == `Lean.Parser.Syntax.binary then
+      processBinary stx
+    else if kind == `Lean.Parser.Syntax.sepBy then
+      processSepBy stx
+    else if kind == `Lean.Parser.Syntax.sepBy1 then
+      processSepBy1 stx
+    else if kind == `Lean.Parser.Syntax.atom then
+      processAtom stx
+    else if kind == `Lean.Parser.Syntax.nonReserved then
+      processNonReserved stx
+    else
+      let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
+      match stxNew? with
+      | some stxNew => process stxNew
+      | none => throwErrorAt! stx "unexpected syntax kind of category `syntax`: {kind}"
+
+  /- Sequence (aka NullNode) -/
+  processSeq (stx : Syntax) := do
     let args := stx.getArgs
     if (← checkLeftRec stx[0]) then
       if args.size == 1 then throwErrorAt stx "invalid atomic left recursive syntax"
       let args := args.eraseIdx 0
-      let args ← args.mapM fun arg => withNestedParser $ toParserDescrAux arg
+      let args ← args.mapM fun arg => withNestedParser do process arg
       mkParserSeq args
     else
-      let args ← args.mapIdxM fun i arg => withReader (fun ctx => { ctx with first := ctx.first && i.val == 0 }) $ toParserDescrAux arg
+      let args ← args.mapIdxM fun i arg => withReader (fun ctx => { ctx with first := ctx.first && i.val == 0 }) do process arg
       mkParserSeq args
-  else if kind == choiceKind then
-    toParserDescrAux stx[0]
-  else if kind == `Lean.Parser.Syntax.paren then
-    toParserDescrAux stx[1]
-  else if kind == `Lean.Parser.Syntax.unary then
+
+  /- Resolve the given parser name and return a list of candidates.
+     Each candidate is a pair `(resolvedParserName, isDescr)`.
+     `isDescr == true` if the type of `resolvedParserName` is a `ParserDescr`. -/
+  resolveParserName (parserName : Name) : ToParserDescrM (List (Name × Bool)) := do
+    try
+      let candidates ← resolveGlobalConst parserName
+      /- Convert `candidates` in a list of pairs `(c, isDescr)`, where `c` is the parser name,
+         and `isDescr` is true iff `c` has type `Lean.ParserDescr` or `Lean.TrailingParser` -/
+      candidates.filterMap fun c =>
+         match (← getEnv).find? c with
+         | none      => none
+         | some info =>
+           match info.type with
+          | Expr.const `Lean.Parser.TrailingParser _ _ => (c, false)
+          | Expr.const `Lean.Parser.Parser _ _         => (c, false)
+          | Expr.const `Lean.ParserDescr _ _           => (c, true)
+          | Expr.const `Lean.TrailingParserDescr _ _   => (c, true)
+          | _                                          => none
+    catch _ => return []
+
+  ensureNoPrec (stx : Syntax) :=
+    unless stx[1].isNone do
+      throwErrorAt! stx[1] "unexpected precedence"
+
+  processParserCategory (stx : Syntax) := do
+    let catName := stx[0].getId.eraseMacroScopes
+    if (← read).first && catName == (← read).catName then
+      throwErrorAt stx "invalid atomic left recursive syntax"
+    let prec? ← liftMacroM <| expandOptPrecedence stx[1]
+    let prec := prec?.getD 0
+    `(ParserDescr.cat $(quote catName) $(quote prec))
+
+  processNullaryOrCat (stx : Syntax) := do
+    let id := stx[0].getId.eraseMacroScopes
+    match (← resolveParserName id) with
+    | [(c, true)]      => ensureNoPrec stx; return mkIdentFrom stx c
+    | [(c, false)]     => ensureNoPrec stx; `(ParserDescr.parser $(quote c))
+    | cs@(_ :: _ :: _) => throwError! "ambiguous parser declaration {cs.map (·.1)}"
+    | [] =>
+      if Parser.isParserCategory (← getEnv) id then
+        processParserCategory stx
+      else if (← Parser.isParserAlias id) then
+        ensureNoPrec stx
+        Parser.ensureConstantParserAlias id
+        `(ParserDescr.const $(quote id))
+      else
+        throwError! "unknown parser declaration/category/alias '{id}'"
+
+  processUnary (stx : Syntax) := do
     let aliasName := (stx[0].getId).eraseMacroScopes
     Parser.ensureUnaryParserAlias aliasName
-    let d ← withNestedParser $ toParserDescrAux stx[2]
+    let d ← withNestedParser do process stx[2]
     `(ParserDescr.unary $(quote aliasName) $d)
-  else if kind == `Lean.Parser.Syntax.binary then
+
+  processBinary (stx : Syntax) := do
     let aliasName := (stx[0].getId).eraseMacroScopes
     Parser.ensureBinaryParserAlias aliasName
-    let d₁ ← withNestedParser $ toParserDescrAux stx[2]
-    let d₂ ← withNestedParser $ toParserDescrAux stx[4]
+    let d₁ ← withNestedParser do process stx[2]
+    let d₂ ← withNestedParser do process stx[4]
     `(ParserDescr.binary $(quote aliasName) $d₁ $d₂)
-  else if kind == `Lean.Parser.Syntax.sepBy then
-    let p ← withNestedParser $ toParserDescrAux stx[1]
+
+  processSepBy (stx : Syntax) := do
+    let p ← withNestedParser $ process stx[1]
     let sep := stx[3]
-    let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else toParserDescrAux stx[4][1]
+    let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else process stx[4][1]
     let allowTrailingSep := !stx[5].isNone
     `(ParserDescr.sepBy $p $sep $psep $(quote allowTrailingSep))
-  else if kind == `Lean.Parser.Syntax.sepBy1 then
-    let p ← withNestedParser $ toParserDescrAux stx[1]
+
+  processSepBy1 (stx : Syntax) := do
+    let p ← withNestedParser do process stx[1]
     let sep := stx[3]
-    let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else toParserDescrAux stx[4][1]
+    let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else process stx[4][1]
     let allowTrailingSep := !stx[5].isNone
     `(ParserDescr.sepBy1 $p $sep $psep $(quote allowTrailingSep))
-  else if kind == `Lean.Parser.Syntax.cat then
-    let cat   := stx[0].getId.eraseMacroScopes
-    let prec? ← liftMacroM <| expandOptPrecedence stx[1]
-    if (← Parser.isParserAlias cat) then
-      Parser.ensureConstantParserAlias cat
-      if prec?.isSome then
-        throwErrorAt! stx[1] "unexpected precedence in atomic parser"
-      `(ParserDescr.const $(quote cat))
-    else
-      let ctx ← read
-      if ctx.first && cat == ctx.catName then
-        throwErrorAt stx "invalid atomic left recursive syntax"
-      else
-        let env ← getEnv
-        if Parser.isParserCategory env cat then
-          let prec := prec?.getD 0
-          `(ParserDescr.cat $(quote cat) $(quote prec))
-        else
-          -- `cat` is not a valid category name. Thus, we test whether it is a valid constant
-          let candidates ← resolveGlobalConst cat
-          /- Convert `candidates` in a list of pairs `(c, isDescr)`, where `c` is the parser name,
-             and `isDescr` is true iff `c` has type `Lean.ParserDescr` or `Lean.TrailingParser` -/
-          let candidates := candidates.filterMap fun c =>
-              match env.find? c with
-              | none      => none
-              | some info =>
-                match info.type with
-                | Expr.const `Lean.Parser.TrailingParser _ _ => (c, false)
-                | Expr.const `Lean.Parser.Parser _ _         => (c, false)
-                | Expr.const `Lean.ParserDescr _ _           => (c, true)
-                | Expr.const `Lean.TrailingParserDescr _ _   => (c, true)
-                | _                                          => none
-           match candidates with
-           | []  => throwErrorAt! stx[3] "unknown category '{cat}' or parser declaration"
-           | [(c, isDescr)] =>
-             unless prec?.isNone do throwErrorAt stx[3] "unexpected precedence"
-             if isDescr then
-               mkIdentFrom stx c
-             else
-               `(ParserDescr.parser $(quote c))
-           | cs  => throwErrorAt! stx[3] "ambiguous parser declaration {cs}"
-  else if kind == `Lean.Parser.Syntax.atom then
+
+  processAtom (stx : Syntax) := do
     match stx[0].isStrLit? with
     | some atom =>
       /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
@@ -149,24 +193,12 @@ partial def toParserDescrAux (stx : Syntax) : ToParserDescrM Syntax := withRef s
       else
         `(ParserDescr.symbol $(quote atom))
     | none => throwUnsupportedSyntax
-  else if kind == `Lean.Parser.Syntax.nonReserved then
+
+  processNonReserved (stx : Syntax) := do
     match stx[1].isStrLit? with
     | some atom => `(ParserDescr.nonReservedSymbol $(quote atom) false)
     | none      => throwUnsupportedSyntax
-  else
-    let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
-    match stxNew? with
-    | some stxNew => toParserDescrAux stxNew
-    | none => throwErrorAt! stx "unexpected syntax kind of category `syntax`: {kind}"
 
-/--
-  Given a `stx` of category `syntax`, return a pair `(newStx, trailingParser)`,
-  where `newStx` is of category `term`. After elaboration, `newStx` should have type
-  `TrailingParserDescr` if `trailingParser == true`, and `ParserDescr` otherwise. -/
-def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) := do
-  let env ← getEnv
-  let behavior := Parser.leadingIdentBehavior env catName
-  (toParserDescrAux stx { catName := catName, first := true, leftRec := true, behavior := behavior }).run false
 
 end Term
 
@@ -243,7 +275,7 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
   if kind == nullKind then
     isAtomLikeSyntax stx[0] && isAtomLikeSyntax stx[stx.getNumArgs - 1]
   else if kind == choiceKind then
-    isAtomLikeSyntax stx[0] -- see toParserDescrAux
+    isAtomLikeSyntax stx[0] -- see toParserDescr
   else if kind == `Lean.Parser.Syntax.paren then
     isAtomLikeSyntax stx[1]
   else

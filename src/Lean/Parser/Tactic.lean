@@ -20,8 +20,6 @@ def matchAlts := Term.matchAlts (rhsParser := matchRhs)
 @[builtinTacticParser] def «match» := parser!:leadPrec "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
 @[builtinTacticParser] def introMatch := parser! nonReservedSymbol "intro " >> matchAlts
 
-@[builtinTacticParser high] def «matchTemp» := parser!:leadPrec "match " >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> matchAlts
-
 end Tactic
 end Parser
 end Lean

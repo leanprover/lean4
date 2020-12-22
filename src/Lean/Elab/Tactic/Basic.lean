@@ -213,7 +213,7 @@ def done : TacticM Unit := do
 
 @[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ => done
 
-def focusAux {α} (tactic : TacticM α) : TacticM α := do
+def focus {α} (tactic : TacticM α) : TacticM α := do
   let (g, gs) ← getMainGoal
   setGoals [g]
   let a ← tactic
@@ -221,8 +221,8 @@ def focusAux {α} (tactic : TacticM α) : TacticM α := do
   setGoals (gs' ++ gs)
   pure a
 
-def focus {α} (tactic : TacticM α) : TacticM α :=
-  focusAux do let a ← tactic; done; pure a
+def focusAndDone {α} (tactic : TacticM α) : TacticM α :=
+  focus do let a ← tactic; done; pure a
 
 /- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
 def closeUsingOrAdmit (tac : Syntax) : TacticM Unit := do
@@ -280,7 +280,7 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
   stx[0].forArgsM fun seqElem => evalTactic seqElem[0]
 
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx =>
-  withRef stx[2] $ focus $ stx[1].forArgsM fun seqElem => evalTactic seqElem[0]
+  withRef stx[2] $ focusAndDone $ stx[1].forArgsM fun seqElem => evalTactic seqElem[0]
 
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx =>
   focus $ evalTactic stx[1]
@@ -290,7 +290,7 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
   let mut gsNew := []
   for g in gs do
     setGoals [g]
-    focus <| evalTactic stx[1]
+    evalTactic stx[1]
     gsNew := gsNew ++ (← getUnsolvedGoals)
   setGoals gsNew
 

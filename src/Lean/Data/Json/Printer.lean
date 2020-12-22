@@ -77,7 +77,7 @@ partial def compress : Json → String
   | obj kvs    =>
     let ckvs := kvs.fold (fun acc k j => s!"{renderString k}:{compress j}" :: acc) []
     let ckvs := ",".intercalate ckvs
-    s!"{ckvs}"
+    s!"\{{ckvs}}"
 
 instance : ToFormat Json := ⟨render⟩
 instance : ToString Json := ⟨pretty⟩

@@ -159,6 +159,10 @@ macro_rules
       `(%[ $elems,* | List.nil ])
 
 namespace Parser.Tactic
+/- The precedence 3 will "terminate" terms by
+   '<|>' (precedence 2) and '>>' (precedence 1). It should be used for any (potentially)
+   trailing expression parameters in the tactic DSL. -/
+def tacTerm : ParserDescr := ParserDescr.cat `term 3
 
 syntax (name := intro) "intro " notFollowedBy("|") (colGt term:max)* : tactic
 syntax (name := intros) "intros " (colGt (ident <|> "_"))* : tactic
@@ -166,10 +170,10 @@ syntax (name := revert) "revert " (colGt ident)+ : tactic
 syntax (name := clear) "clear " (colGt ident)+ : tactic
 syntax (name := subst) "subst " (colGt ident)+ : tactic
 syntax (name := assumption) "assumption" : tactic
-syntax (name := apply) "apply " term : tactic
-syntax (name := exact) "exact " term : tactic
-syntax (name := refine) "refine " term : tactic
-syntax (name := refine!) "refine! " term : tactic
+syntax (name := apply) "apply " tacTerm : tactic
+syntax (name := exact) "exact " tacTerm : tactic
+syntax (name := refine) "refine " tacTerm : tactic
+syntax (name := refine!) "refine! " tacTerm : tactic
 syntax (name := case) "case " ident " => " tacticSeq : tactic
 syntax (name := allGoals) "allGoals " tacticSeq : tactic
 syntax (name := focus) "focus " tacticSeq : tactic
@@ -184,6 +188,7 @@ syntax (name := withReducibleAndInstances) "withReducibleAndInstances " tacticSe
 syntax:2 (name := orelse) tactic "<|>" tactic:1 : tactic
 macro "try " t:tacticSeq : tactic => `(($t) <|> skip)
 
+macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; allGoals $y:tactic))
 
 macro "rfl" : tactic => `(exact rfl)
 macro "decide!" : tactic => `(exact decide!)
@@ -194,10 +199,10 @@ syntax locationTarget   := "⊢" <|> "|-"
 syntax locationHyp      := (colGt ident)+
 syntax location         := withPosition("at " locationWildcard <|> locationTarget <|> locationHyp)
 
-syntax (name := change) "change " term (location)? : tactic
-syntax (name := changeWith) "change " term " with " term (location)? : tactic
+syntax (name := change) "change " tacTerm (location)? : tactic
+syntax (name := changeWith) "change " term " with " tacTerm (location)? : tactic
 
-syntax rwRule    := ("←" <|> "<-")? term
+syntax rwRule    := ("←" <|> "<-")? tacTerm
 syntax rwRuleSeq := "[" rwRule,+,? "]"
 
 syntax (name := rewrite) "rewrite " rwRule (location)? : tactic
@@ -229,25 +234,25 @@ def expandERw : Macro :=
 def expandERwSeq : Macro :=
   fun stx => withCheapRefl (stx.setKind `Lean.Parser.Tactic.erewriteSeq |>.setArg 0 (mkAtomFrom stx "erewrite"))
 
-syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
+syntax (name := injection) "injection " tacTerm (" with " (colGt (ident <|> "_"))+)? : tactic
 
 syntax (name := «have») "have " haveDecl : tactic
 syntax (name := «suffices») "suffices " sufficesDecl : tactic
-syntax (name := «show») "show " term : tactic
+syntax (name := «show») "show " tacTerm : tactic
 syntax (name := «let») "let " letDecl : tactic
 syntax (name := «let!») "let! " letDecl : tactic
 syntax (name := letrec) withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
 
 syntax inductionAlt  := "| " (ident <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " withPosition( (colGe inductionAlt)+)
-syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
-syntax casesTarget := atomic(ident " : ")? term
+syntax (name := induction) "induction " tacTerm,+ (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
+syntax casesTarget := atomic(ident " : ")? tacTerm
 syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 
-syntax (name := existsIntro) "exists " term : tactic
+syntax (name := existsIntro) "exists " tacTerm : tactic
 
 /- We use a priority > default, to avoid ambiguity with the builtin `have` notation -/
-macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
+macro (priority := high) "have" x:ident " := " p:tacTerm : tactic => `(have $x:ident : _ := $p)
 
 syntax "repeat " tacticSeq : tactic
 macro_rules

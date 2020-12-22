@@ -453,8 +453,19 @@ private def findTag? (gs : List MVarId) (tag : Name) : TacticM (Option MVarId) :
 
 @[builtinTactic «orelse»] def evalOrelse : Tactic := fun stx =>
   match stx with
-  | `(tactic| $tac1 <|> $tac2) => evalTactic tac1 <|> evalTactic tac2
-  | _                          => throwUnsupportedSyntax
+  | `(tactic| $tac1 <or> $tac2) => evalTactic tac1 <|> evalTactic tac2
+  | _                           => throwUnsupportedSyntax
+
+@[builtinTactic «first»] partial def evalFirst : Tactic := fun stx => do
+  let tacs := stx[2].getSepArgs
+  if tacs.isEmpty then throwUnsupportedSyntax
+  loop tacs 0
+where
+  loop (tacs : Array Syntax) (i : Nat) :=
+    if i == tacs.size - 1 then
+      evalTactic tacs[i]
+    else
+      evalTactic tacs[i] <|> loop tacs (i+1)
 
 builtin_initialize registerTraceClass `Elab.tactic
 

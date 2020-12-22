@@ -62,8 +62,10 @@ lean_object* l_Lean_Expr_withAppAux___rarg(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_Expr_updateForall_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsFalse___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_2137____closed__3;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_etaExpandedAux_match__1(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12048____closed__14;
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Expr_replaceFVarId___boxed(lean_object*, lean_object*, lean_object*);
@@ -303,8 +305,6 @@ lean_object* l_Lean_Expr_appArg_x21_match__1___rarg(lean_object*, lean_object*, 
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
 lean_object* l_Lean_Expr_hasLevelParam___boxed(lean_object*);
 lean_object* l_Lean_Expr_isConst_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11900____closed__14;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1989____closed__3;
 lean_object* l_Lean_Expr_ctorName_match__1(lean_object*);
 lean_object* l_Lean_Expr_isAppOf_match__1(lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21_match__1(lean_object*);
@@ -3356,7 +3356,7 @@ return x_6;
 case 5:
 {
 lean_object* x_7; 
-x_7 = l_myMacro____x40_Init_Notation___hyg_1989____closed__3;
+x_7 = l_myMacro____x40_Init_Notation___hyg_2137____closed__3;
 return x_7;
 }
 case 6:
@@ -5538,7 +5538,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_11900____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12048____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

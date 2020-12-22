@@ -106,7 +106,6 @@ lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_Meta_subst___spec__3(l
 lean_object* l_Lean_Meta_substCore___lambda__14___closed__9;
 lean_object* l_Lean_Meta_substCore___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_subst___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_changeWith___closed__4;
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqNDRecImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqRecImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_revert(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -181,6 +180,7 @@ lean_object* l_Lean_Meta_substCore___lambda__13(lean_object*, lean_object*, lean
 lean_object* l_Lean_Meta_substCore___lambda__13___closed__2;
 lean_object* l_Lean_Meta_substCore_match__4(lean_object*);
 lean_object* l_Lean_Meta_substCore___lambda__14___closed__24;
+extern lean_object* l_Lean_Parser_Tactic_changeWith___closed__3;
 extern lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__1;
 lean_object* l_Std_PersistentArray_findSomeM_x3f___at_Lean_Meta_subst___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
@@ -3573,7 +3573,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__14___closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_changeWith___closed__4;
+x_1 = l_Lean_Parser_Tactic_changeWith___closed__3;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

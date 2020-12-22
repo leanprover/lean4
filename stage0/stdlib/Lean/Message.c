@@ -180,6 +180,7 @@ lean_object* l_Lean_KernelException_toMessageData___closed__5;
 lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_1529____closed__10;
 extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 uint8_t l_Lean_instInhabitedMessageSeverity;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12965____closed__9;
 lean_object* lean_format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_instToMessageDataOptionExpr___boxed(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__33;
@@ -254,7 +255,6 @@ lean_object* l_Std_fmt___rarg(lean_object*, lean_object*);
 lean_object* l_Std_fmt___at_Lean_Level_PP_Result_format___spec__1(lean_object*);
 lean_object* l_Lean_instToMessageDataList(lean_object*);
 lean_object* l_Lean_instToMessageDataOption___rarg___closed__3;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12817____closed__9;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextPartial___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -384,7 +384,7 @@ lean_object* l_Lean_mkErrorStringWithPos(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_5 = l_myMacro____x40_Init_Notation___hyg_12817____closed__9;
+x_5 = l_myMacro____x40_Init_Notation___hyg_12965____closed__9;
 x_6 = lean_string_append(x_1, x_5);
 x_7 = l_Nat_repr(x_2);
 x_8 = lean_string_append(x_6, x_7);

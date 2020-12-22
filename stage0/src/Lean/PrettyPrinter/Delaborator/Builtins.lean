@@ -121,7 +121,7 @@ def delabAppImplicit : Delab := whenNotPPOption getPPExplicit do
     (do
       let fn ← getExpr
       let stx ← if fn.isConst then delabConst else delab
-      let paramKinds ← liftM $ getParamKinds fn <|> pure #[]
+      let paramKinds ← liftM (getParamKinds fn <|> pure #[])
       pure (stx, paramKinds.toList, #[]))
     (fun (fnStx, paramKinds, argStxs) => do
       let arg ← getExpr;

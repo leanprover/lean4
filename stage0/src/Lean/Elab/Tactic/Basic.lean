@@ -325,9 +325,7 @@ private def introStep (n : Name) : TacticM Unit :=
   | `(tactic| intro $h:ident)  => introStep h.getId
   | `(tactic| intro _)         => introStep `_
   | `(tactic| intro $pat:term) => do
-    let m ← `(match h with | $pat:term => _)
-    let m := m.setKind ``Lean.Parser.Tactic.match
-    let stxNew ← `(tactic| intro h; $m; clear h)
+    let stxNew ← `(tactic| intro h; match h with | $pat:term => _; clear h)
     withMacroExpansion stx stxNew $ evalTactic stxNew
   | `(tactic| intro $hs:term*) => do
     let h0 := hs.get! 0

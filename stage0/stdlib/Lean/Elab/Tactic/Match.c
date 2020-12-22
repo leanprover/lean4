@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_11900____closed__2;
-lean_object* l___regBuiltin_Lean_Elab_Tactic_evalMatch(lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -68,13 +67,11 @@ lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 lean_object* l_Lean_Elab_Term_getCurrMacroScope(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTerm___closed__1;
-lean_object* l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalMatchTemp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 lean_object* l_Lean_Elab_Tactic_AuxMatchTermState_nextIdx___default;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Tactic_match___closed__1;
 extern lean_object* l_Lean_Parser_Tactic_refine___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalMatch_match__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_refine___closed__2;
@@ -1472,25 +1469,6 @@ lean_dec(x_1);
 return x_9;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalMatch), 10, 0);
-return x_1;
-}
-}
-lean_object* l___regBuiltin_Lean_Elab_Tactic_evalMatch(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Elab_Tactic_tacticElabAttribute;
-x_3 = l_Lean_Parser_Tactic_match___closed__1;
-x_4 = l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__1;
-x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
-return x_5;
-}
-}
 lean_object* l_Lean_Elab_Tactic_evalMatchTemp(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -1559,11 +1537,6 @@ l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux__
 lean_mark_persistent(l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___boxed__const__1);
 l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTerm___closed__1 = _init_l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTerm___closed__1();
 lean_mark_persistent(l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTerm___closed__1);
-l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__1);
-res = l___regBuiltin_Lean_Elab_Tactic_evalMatch(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 l___regBuiltin_Lean_Elab_Tactic_evalMatchTemp___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_evalMatchTemp___closed__1();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalMatchTemp___closed__1);
 res = l___regBuiltin_Lean_Elab_Tactic_evalMatchTemp(lean_io_mk_world());

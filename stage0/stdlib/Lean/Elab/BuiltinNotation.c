@@ -218,6 +218,7 @@ lean_object* l_Lean_Elab_Term_elabNativeRefl___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_Elab_Term_expandEmptyC___closed__3;
 lean_object* l_Lean_Meta_kabstract___at_Lean_Elab_Term_elabSubst___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabStateRefT___lambda__2___closed__6;
+extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16359____closed__2;
 lean_object* l_Lean_Elab_Term_expandEmptyC___closed__5;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_expandHave___closed__1;
@@ -284,7 +285,6 @@ extern lean_object* l_Lean_instQuoteBool___closed__3;
 lean_object* l___regBuiltin_Lean_Elab_Term_elabAnonymousCtor(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Elab_Term_elabPanic___closed__7;
-extern lean_object* l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16512____closed__2;
 lean_object* l_Lean_Elab_Term_expandSuffices_match__6(lean_object*);
 lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabCDot(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqSymm___at_Lean_Elab_Term_elabSubst___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1934,7 +1934,7 @@ x_27 = l_Lean_Syntax_isOfKind(x_25, x_26);
 if (x_27 == 0)
 {
 lean_object* x_28; uint8_t x_29; 
-x_28 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16512____closed__2;
+x_28 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16359____closed__2;
 lean_inc(x_25);
 x_29 = l_Lean_Syntax_isOfKind(x_25, x_28);
 if (x_29 == 0)
@@ -3008,7 +3008,7 @@ x_523 = l_Lean_Syntax_isOfKind(x_521, x_522);
 if (x_523 == 0)
 {
 lean_object* x_524; uint8_t x_525; 
-x_524 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16512____closed__2;
+x_524 = l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hyg_16359____closed__2;
 lean_inc(x_521);
 x_525 = l_Lean_Syntax_isOfKind(x_521, x_524);
 if (x_525 == 0)

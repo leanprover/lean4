@@ -30,7 +30,7 @@ When ``β`` doesn't depend on ``a``, ``(a : α) → β`` is no different from th
 Indeed, in dependent type theory (and in Lean), ``α → β`` is just notation for ``(a : α) → β`` when ``β`` does not depend on ``a``.
 
 Returning to the example of lists, we can use the command `#check` to inspect the type of the following `List` functions
-We will explain the ``@`` symbol and the difference between the round and curly brackets momentarily.
+We will explain the ``@`` symbol and the difference between the round and curly braces momentarily.
 
 ```lean
 #check @List.cons    -- {α : Type u_1} → α → List α → List α
@@ -40,7 +40,7 @@ We will explain the ``@`` symbol and the difference between the round and curly 
 ```
 
 Just as dependent function types ``(a : α) → β a`` generalize the notion of a function type ``α → β`` by allowing ``β`` to depend on ``α``,
-dependent cartesian product types ``(a : α) × β a`` generalize the cartesian product ``α × β`` in the same way. Dependent products are also
+dependent Cartesian product types ``(a : α) × β a`` generalize the Cartesian product ``α × β`` in the same way. Dependent products are also
 called *sigma* types, and you can also write them as `Σ a : α, β a`. You can use `⟨a, b⟩` or `Sigma.mk a b` to create a dependent pair.
 
 ```lean

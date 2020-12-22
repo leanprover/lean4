@@ -10,16 +10,19 @@ rather than the details of programming.
 
 ```lean
 -- Defines a function that takes a name and produces a greeting.
-def getGreeting (name : String) := "Hello, {name}! Isn't Lean great?"
+def getGreeting (name : String) := s!"Hello, {name}! Isn't Lean great?"
 
 -- The `main` function is the entry point of your program.
--- Its type is `IO Unit` because it can perform `IO` operations.
+-- Its type is `IO Unit` because it can perform `IO` operations (side effects).
 def main : IO Unit :=
-  -- Defines a list of names
+  -- Define a list of names
   let names := ["Sebastian", "Leo", "Daniel"]
 
-  -- Print the list of greetings `names.map getGreeting`
-  for greeting in names.map getGreeting do
+  -- Map each name to a greeting
+  let greetings := names.map getGreeting
+
+  -- Print the list of greetings
+  for greeting in greetings do
     IO.println greeting
 ```
 
@@ -34,5 +37,5 @@ Lean has numerous features, including:
 - Hygienic macros
 - Dependent types
 - Metaprogramming framework
-- Async programming
-- Verification, you can prove properties of your functions using Lean itself
+- Multithreading
+- Verification: you can prove properties of your functions using Lean itself

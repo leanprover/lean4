@@ -79,7 +79,7 @@ The list is indefinite, so that there is a ``Type n`` for every natural number `
 #check Type 0
 ```
 
-There is also another type, ``Prop``, which has special properties.
+There is also another type universe, ``Prop``, which has special properties.
 
 ```lean
 #check Prop -- Type
@@ -94,7 +94,7 @@ make sense for any type ``α``, no matter which type universe ``α`` lives in. T
 #check List    -- Type u_1 → Type u_1
 ```
 
-Here ``u_1`` is a variable ranging over type levels. The output of the ``#check`` command means that whenever ``α`` has type ``Type n``, ``list α`` also has type ``Type n``. The function ``Prod`` is similarly polymorphic:
+Here ``u_1`` is a variable ranging over type levels. The output of the ``#check`` command means that whenever ``α`` has type ``Type n``, ``List α`` also has type ``Type n``. The function ``Prod`` is similarly polymorphic:
 
 ```lean
 #check Prod    -- Type u_1 → Type u_2 → Type (max u_1 u_2)

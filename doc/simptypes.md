@@ -2,19 +2,19 @@
 
 "Type theory" gets its name from the fact that every expression has an associated *type*.
 For example, in a given context, ``x + 0`` may denote a natural number and ``f`` may denote a function on the natural numbers.
-For those that don't like math, a Lean natural number is an arbitrary precision unsigned integer.
+For those that don't like math, a Lean natural number is an arbitrary-precision unsigned integer.
 
 Here are some examples of how we can declare objects in Lean and check their types.
 
 ```lean
-/- declare some constants -/
+/- Declare some constants. -/
 
 constant m  : Nat   -- m is a natural number
 constant n  : Nat
 constant b1 : Bool  -- b1 is a Boolean
 constant b2 : Bool
 
-/- check their types -/
+/- Check their types. -/
 
 #check m            -- output: Nat
 #check n
@@ -26,22 +26,22 @@ constant b2 : Bool
 #check true         -- Boolean "true"
 ```
 
-Any text between the ``/-`` and ``-/`` constitutes a comment that is ignored by Lean.
-Similarly, two dashes indicate that the rest of the line contains a comment that is also ignored.
+Any text between ``/-`` and ``-/`` constitutes a comment block that is ignored by Lean.
+Similarly, two dashes `--` indicate that the rest of the line contains a comment that is also ignored.
 Comment blocks can be nested, making it possible to "comment out" chunks of code, just as in many programming languages.
 
 The ``constant`` command introduce new constant symbols into the working environment.
-The ``#check`` command asks Lean to report their types; in Lean, commands that query the system for
+The ``#check`` command asks Lean to report their types; in Lean, auxiliary commands that query the system for
 information typically begin with the hash symbol. You should try declaring some constants and type checking
 some expressions on your own. Declaring new objects in this way is a good way to experiment with the system.
 
 What makes simple type theory powerful is that one can build new types out of others.
 For example, if ``a`` and ``b`` are types, ``a -> b`` denotes the type of functions from ``a`` to ``b``,
 and ``a × b`` denotes the type of pairs consisting of an element of ``a``
-paired with an element of ``b``, it is also known as the *cartesian product*.
-Note that, `×` is an Unicode symbol. We believe that judicious use of Unicode improves legibility,
-and all moderns editors have great support for it. In the Lean standard library, we often use
-greek letters to denote types, and the Unicode symbol `→` as a more compact version of `->`.
+paired with an element of ``b``, also known as the *Cartesian product*.
+Note that `×` is a Unicode symbol. We believe that judicious use of Unicode improves legibility,
+and all modern editors have great support for it. In the Lean standard library, we often use
+Greek letters to denote types, and the Unicode symbol `→` as a more compact version of `->`.
 
 ```lean
 constant m : Nat
@@ -71,17 +71,17 @@ constant F  : (Nat → Nat) → Nat -- a "functional"
 Once again, you should try some examples on your own.
 
 Let us dispense with some basic syntax. You can enter the unicode arrow ``→`` by typing ``\to`` or ``\r``.
-You can also use the ASCII alternative ``->``, so that the expression ``Nat -> Nat`` and ``Nat → Nat`` mean the same thing.
+You can also use the ASCII alternative ``->``, so the expressions ``Nat -> Nat`` and ``Nat → Nat`` mean the same thing.
 Both expressions denote the type of functions that take a natural number as input and return a natural number as output.
-The unicode symbol ``×`` for the cartesian product is entered ``\times``.
-We will generally use lower-case greek letters like ``α``, ``β``, and ``γ`` to range over types.
+The unicode symbol ``×`` for the Cartesian product is entered as ``\times``.
+We will generally use lower-case Greek letters like ``α``, ``β``, and ``γ`` to range over types.
 You can enter these particular ones with ``\a``, ``\b``, and ``\g``.
 
 There are a few more things to notice here. First, the application of a function ``f`` to a value ``x`` is denoted ``f x``.
 Second, when writing type expressions, arrows associate to the *right*; for example, the type of ``g`` is ``Nat → (Nat → Nat)``.
 Thus we can view ``g`` as a function that takes natural numbers and returns another function that takes a natural number and
 returns a natural number.
-In type theory, this is generally more convenient than writing ``g`` as a function that takes a pair of natural numbers as input,
+In type theory, this is generally more convenient than writing ``g`` as a function that takes a pair of natural numbers as input
 and returns a natural number as output. For example, it allows us to "partially apply" the function ``g``.
 The example above shows that ``g m`` has type ``Nat → Nat``, that is, the function that "waits" for a second argument, ``n``,
 and then returns ``g m n``. Taking a function ``h`` of type ``Nat × Nat → Nat`` and "redefining" it to look like ``g`` is a process

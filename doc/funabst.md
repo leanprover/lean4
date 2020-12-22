@@ -14,7 +14,7 @@ The companion to application is a process known as "lambda abstraction."
 Suppose that giving a variable ``x : α`` we can construct an expression ``t : β``.
 Then the expression ``fun (x : α) => t``, or, equivalently, ``λ (x : α) => t``, is an object of type ``α → β``.
 Think of this as the function from ``α`` to ``β`` which maps any value ``x`` to the value ``t``,
-which depends on ``x``.
+which may depend on ``x``.
 
 ```lean
 #check fun (x : Nat) => x + 5
@@ -53,7 +53,7 @@ constant b : Bool
 Think about what these expressions mean. The expression ``fun x : Nat => x`` denotes the identity function on ``Nat``,
 the expression ``fun x : α => b`` denotes the constant function that always returns ``b``,
 and ``fun x : Nat => g (f x)``, denotes the composition of ``f`` and ``g``.
-We can, in general, leave off the type annotations on the variable and let Lean infer it for us.
+We can, in general, leave off the type annotation on a variable and let Lean infer it for us.
 So, for example, we can write ``fun x => g (f x)`` instead of ``fun x : Nat => g (f x)``.
 
 We can abstract over the constants `f` and `g` in the previous definitions:

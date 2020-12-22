@@ -508,14 +508,14 @@ def expandMacroArgIntoPattern (stx : Syntax) : MacroM Syntax := do
     mkNullNode #[mkAntiquotSuffixSpliceNode kind (mkAntiquotNode id) suffix]
 
 
-/- «macro» := parser! suppressInsideQuot ("macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail) -/
+/- «macro» := parser! suppressInsideQuot (Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> macroHead >> many macroArg >> macroTail) -/
 def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
-  let prec := stx[1].getOptional?
-  let name? ← liftMacroM <| expandOptNamedName stx[2]
-  let prio  ← liftMacroM <| expandOptNamedPrio stx[3]
-  let head := stx[4]
-  let args := stx[5].getArgs
-  let cat  := stx[7]
+  let prec := stx[2].getOptional?
+  let name? ← liftMacroM <| expandOptNamedName stx[3]
+  let prio  ← liftMacroM <| expandOptNamedPrio stx[4]
+  let head := stx[5]
+  let args := stx[6].getArgs
+  let cat  := stx[8]
   -- build parser
   let stxPart  ← liftMacroM <| expandMacroArgIntoSyntaxItem head
   let stxParts ← liftMacroM <| args.mapM expandMacroArgIntoSyntaxItem
@@ -530,15 +530,15 @@ def expandMacro (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := d
   /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
   let pat := Syntax.node (currNamespace ++ name) (#[patHead] ++ patArgs)
-  if stx.getArgs.size == 10 then
+  if stx.getArgs.size == 11 then
     -- `stx` is of the form `macro $head $args* : $cat => term`
-    let rhs := stx[9]
+    let rhs := stx[10]
     -- NOTE: can't use `$stxParts*` here because it would interpret as a single antiquotation with the `stx` star postfix operator
     `(syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat
       macro_rules | `($pat) => $rhs)
   else
     -- `stx` is of the form `macro $head $args* : $cat => `( $body )`
-    let rhsBody := stx[10]
+    let rhsBody := stx[11]
     `(syntax $(prec)? (name := $(mkIdentFrom stx name):ident) (priority := $(quote prio):numLit) $[$stxParts]* : $cat
       macro_rules | `($pat) => `($rhsBody))
 
@@ -557,18 +557,18 @@ builtin_initialize
 
 /-
 def elabTail := try (" : " >> ident) >> darrow >> termParser
-def «elab» := parser! suppressInsideQuot ("elab " >> optPrecedence >> optNamedName >> optNamedPrio >> elabHead >> many elabArg >> elabTail)
+def «elab» := parser! suppressInsideQuot (Term.attrKind >> "elab " >> optPrecedence >> optNamedName >> optNamedPrio >> elabHead >> many elabArg >> elabTail)
 -/
 def expandElab (currNamespace : Name) (stx : Syntax) : CommandElabM Syntax := do
   let ref := stx
-  let prec    := stx[1].getOptional?
-  let name?   ← liftMacroM <| expandOptNamedName stx[2]
-  let prio    ← liftMacroM <| expandOptNamedPrio stx[3]
-  let head    := stx[4]
-  let args    := stx[5].getArgs
-  let cat     := stx[7]
-  let expectedTypeSpec := stx[8]
-  let rhs     := stx[10]
+  let prec    := stx[2].getOptional?
+  let name?   ← liftMacroM <| expandOptNamedName stx[3]
+  let prio    ← liftMacroM <| expandOptNamedPrio stx[4]
+  let head    := stx[5]
+  let args    := stx[6].getArgs
+  let cat     := stx[8]
+  let expectedTypeSpec := stx[9]
+  let rhs     := stx[11]
   let catName := cat.getId
   -- build parser
   let stxPart  ← liftMacroM <| expandMacroArgIntoSyntaxItem head

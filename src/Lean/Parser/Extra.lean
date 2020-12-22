@@ -15,6 +15,7 @@ namespace Parser
 -- (because `Parser.Extension` depends on them)
 attribute [runBuiltinParserAttributeHooks]
   leadingNode termParser commandParser mkAntiquot nodeWithAntiquot sepBy sepBy1
+  unicodeSymbol nonReservedSymbol
 
 @[runBuiltinParserAttributeHooks] def optional (p : Parser) : Parser :=
   optionalNoAntiquot (withAntiquotSpliceAndSuffix `optional p (symbol "?"))

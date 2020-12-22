@@ -88,3 +88,8 @@ open Parser.Term
     | _ => unreachable!
 
 #check (match · with | `([1, $ys,*, 2, $zs,*, 3]) => _)
+
+#eval run do
+  match Syntax.setHeadInfo (← `(fun x =>%$({pos := some 2}) x)) { pos := some 1 } with
+  | `(fun%$i1 $x =>%$i2 $y) => pure #[i1.pos, i2.pos]
+  | _ => unreachable!

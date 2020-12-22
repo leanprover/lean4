@@ -12,7 +12,7 @@ partial def getAntiquotationIds : Syntax → TermElabM (Array Syntax) :=
   go #[]
   where go (ids : Array Syntax) : Syntax → TermElabM (Array Syntax)
     | stx@(Syntax.node k args) =>
-      if isAntiquot stx && !isEscapedAntiquot stx then
+      if (isAntiquot stx || isTokenAntiquot stx) && !isEscapedAntiquot stx then
         let anti := getAntiquotTerm stx
         if anti.isIdent then ids.push anti
         else throwErrorAt stx "complex antiquotation not allowed here"

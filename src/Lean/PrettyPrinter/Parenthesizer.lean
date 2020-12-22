@@ -287,6 +287,13 @@ def withAntiquotSuffixSplice.parenthesizer (k : SyntaxNodeKind) (p suffix : Pare
   else
     p
 
+@[combinatorParenthesizer Lean.Parser.tokenWithAntiquot]
+def tokenWithAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+  if (← getCur).isTokenAntiquot then
+    visitArgs p
+  else
+    p
+
 def parenthesizeCategoryCore (cat : Name) (prec : Nat) : Parenthesizer :=
   withReader (fun ctx => { ctx with cat := cat }) do
     let stx ← getCur
@@ -404,13 +411,13 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesi
     categoryParser.parenthesizer ctx.cat 0
 
 
-@[combinatorParenthesizer Lean.Parser.symbol] def symbol.parenthesizer (sym : String) := visitToken
-@[combinatorParenthesizer Lean.Parser.unicodeSymbol] def unicodeSymbol.parenthesizer (sym asciiSym : String) := visitToken
+@[combinatorParenthesizer Lean.Parser.symbolNoAntiquot] def symbolNoAntiquot.parenthesizer (sym : String) := visitToken
+@[combinatorParenthesizer Lean.Parser.unicodeSymbolNoAntiquot] def unicodeSymbolNoAntiquot.parenthesizer (sym asciiSym : String) := visitToken
 
 @[combinatorParenthesizer Lean.Parser.identNoAntiquot] def identNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.rawIdentNoAntiquot] def rawIdentNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.identEq] def identEq.parenthesizer (id : Name) := visitToken
-@[combinatorParenthesizer Lean.Parser.nonReservedSymbol] def nonReservedSymbol.parenthesizer (sym : String) (includeIdent : Bool) := visitToken
+@[combinatorParenthesizer Lean.Parser.nonReservedSymbolNoAntiquot] def nonReservedSymbolNoAntiquot.parenthesizer (sym : String) (includeIdent : Bool) := visitToken
 
 @[combinatorParenthesizer Lean.Parser.charLitNoAntiquot] def charLitNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.strLitNoAntiquot] def strLitNoAntiquot.parenthesizer := visitToken

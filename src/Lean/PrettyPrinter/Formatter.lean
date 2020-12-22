@@ -177,6 +177,13 @@ def withAntiquotSuffixSplice.formatter (k : SyntaxNodeKind) (p suffix : Formatte
   else
     p
 
+@[combinatorFormatter Lean.Parser.tokenWithAntiquot]
+def tokenWithAntiquot.formatter (p : Formatter) : Formatter := do
+  if (← getCur).isTokenAntiquot then
+    visitArgs p
+  else
+    p
+
 @[combinatorFormatter Lean.Parser.categoryParser]
 def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
   let stx ← getCur
@@ -299,8 +306,8 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
       modify fun st => { st with leadWord := "" }
   | none    => pure ()
 
-@[combinatorFormatter Lean.Parser.symbol]
-def symbol.formatter (sym : String) : Formatter := do
+@[combinatorFormatter Lean.Parser.symbolNoAntiquot]
+def symbolNoAntiquot.formatter (sym : String) : Formatter := do
   let stx ← getCur
   if stx.isToken sym then do
     let (Syntax.atom info _) ← pure stx | unreachable!
@@ -310,10 +317,10 @@ def symbol.formatter (sym : String) : Formatter := do
     trace[PrettyPrinter.format.backtrack]! "unexpected syntax '{fmt stx}', expected symbol '{sym}'"
     throwBacktrack
 
-@[combinatorFormatter Lean.Parser.nonReservedSymbol] def nonReservedSymbol.formatter := symbol.formatter
+@[combinatorFormatter Lean.Parser.nonReservedSymbolNoAntiquot] def nonReservedSymbolNoAntiquot.formatter := symbolNoAntiquot.formatter
 
-@[combinatorFormatter Lean.Parser.unicodeSymbol]
-def unicodeSymbol.formatter (sym asciiSym : String) : Formatter := do
+@[combinatorFormatter Lean.Parser.unicodeSymbolNoAntiquot]
+def unicodeSymbolNoAntiquot.formatter (sym asciiSym : String) : Formatter := do
   let Syntax.atom info val ← getCur
     | throwError m!"not an atom: {← getCur}"
   if val == sym.trim then

@@ -1,0 +1,6 @@
+structDefault.lean:11:11: error: type mismatch
+  true
+has type
+  Bool
+but is expected to have type
+  Nat

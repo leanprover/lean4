@@ -130,7 +130,6 @@ lean_object* l_Lean_Elab_Deriving_mkContext(lean_object*, lean_object*, lean_obj
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 lean_object* l_Lean_Elab_Deriving_mkInductArgNames___closed__1;
 size_t lean_usize_of_nat(lean_object*);
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_528____closed__4;
 lean_object* l_Lean_addTrace___at___private_Lean_Elab_Term_0__Lean_Elab_Term_postponeElabTerm___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkImplicitBinders___boxed__const__1;
 extern lean_object* l_Lean_nullKind___closed__2;
@@ -173,6 +172,7 @@ lean_object* l_Lean_Elab_Deriving_mkImplicitBinders(lean_object*, lean_object*, 
 extern lean_object* l_Lean_instInhabitedName;
 lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_mkContext___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1097____closed__2;
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_548____closed__4;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkHeader___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Deriving_mkInductiveApp___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_prec_x28___x29___closed__7;
@@ -2803,7 +2803,7 @@ lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; 
 x_103 = lean_ctor_get(x_97, 1);
 lean_inc(x_103);
 lean_dec(x_97);
-x_104 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_528____closed__4;
+x_104 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_548____closed__4;
 x_105 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Elab_Deriving_mkInstanceCmds___spec__3(x_104, x_9, x_10, x_11, x_12, x_13, x_14, x_103);
 x_106 = lean_ctor_get(x_105, 0);
 lean_inc(x_106);
@@ -2848,7 +2848,7 @@ x_84 = l_Lean_KernelException_toMessageData___closed__15;
 x_85 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_85, 0, x_83);
 lean_ctor_set(x_85, 1, x_84);
-x_86 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_528____closed__4;
+x_86 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_548____closed__4;
 x_87 = l_Lean_addTrace___at_Lean_Elab_Deriving_mkInstanceCmds___spec__2(x_86, x_85, x_9, x_10, x_11, x_12, x_13, x_14, x_77);
 x_88 = !lean_is_exclusive(x_87);
 if (x_88 == 0)

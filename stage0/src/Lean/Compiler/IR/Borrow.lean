@@ -38,13 +38,7 @@ namespace ParamMap
 inductive Key where
   | decl (name : FunId)
   | jp   (name : FunId) (jpid : JoinPointId)
-
-def beq : Key → Key → Bool
-  | Key.decl n₁,   Key.decl n₂   => n₁ == n₂
-  | Key.jp n₁ id₁, Key.jp n₂ id₂ => n₁ == n₂ && id₁ == id₂
-  | _,         _                 => false
-
-instance : BEq Key := ⟨beq⟩
+  deriving BEq
 
 def getHash : Key → USize
   | Key.decl n  => hash n

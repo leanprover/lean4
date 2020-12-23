@@ -155,3 +155,11 @@ macro_rules
     `(class $name:ident $params* extends $[$parents:term],*
       instance $auxBinders:explicitBinder* : @ $name:ident $typeArgs* :=
         @ $ctor:ident $ctorArgs*)
+
+/-
+  Similar to `first`, but succeeds only if one the given tactics solves the curretn goal.
+-/
+syntax "solve " "|"? sepBy1(tacticSeq, "|") : tactic
+
+macro_rules
+  | `(tactic| solve $[|]? $ts:tacticSeq|*) => `(tactic| focus first $[($ts); done]|*)

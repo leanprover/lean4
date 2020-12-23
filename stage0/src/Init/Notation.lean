@@ -183,9 +183,7 @@ syntax (name := paren) "(" tacticSeq ")" : tactic
 syntax (name := withReducible) "withReducible " tacticSeq : tactic
 syntax (name := withReducibleAndInstances) "withReducibleAndInstances " tacticSeq : tactic
 syntax (name := first) "first " "|"? sepBy1(tacticSeq, "|") : tactic
-
-syntax:2 (name := orelse) tactic "<or>" tactic:1 : tactic
-macro "try " t:tacticSeq : tactic => `($t <or> skip)
+macro "try " t:tacticSeq : tactic => `(first $t | skip)
 macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; allGoals $y:tactic))
 
 macro "rfl" : tactic => `(exact rfl)
@@ -254,7 +252,7 @@ macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:iden
 
 syntax "repeat " tacticSeq : tactic
 macro_rules
-  | `(tactic| repeat $seq) => `(tactic| (($seq); repeat $seq) <or> skip)
+  | `(tactic| repeat $seq) => `(tactic| first ($seq); repeat $seq | skip)
 
 end Parser.Tactic
 end Lean

@@ -7,18 +7,9 @@ namespace Lean.Meta
 
 inductive TransparencyMode where
   | all | default | reducible | instances
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 namespace TransparencyMode
-
-def beq : TransparencyMode → TransparencyMode → Bool
-  | all,       all       => true
-  | default,   default   => true
-  | reducible, reducible => true
-  | instances, instances => true
-  | _,         _         => false
-
-instance : BEq TransparencyMode := ⟨beq⟩
 
 def hash : TransparencyMode → USize
   | all       => 7

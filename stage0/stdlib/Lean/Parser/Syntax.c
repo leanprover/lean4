@@ -367,7 +367,6 @@ lean_object* l_Lean_Parser_leadingNode_formatter___boxed(lean_object*, lean_obje
 lean_object* l_Lean_Parser_Syntax_sepBy___elambda__1___closed__18;
 lean_object* l_Lean_Parser_Syntax_sepBy_parenthesizer___closed__11;
 lean_object* l_Lean_Parser_Syntax_paren___closed__3;
-extern lean_object* l_Lean_Parser_Tactic_orelse___closed__5;
 lean_object* l_Lean_Parser_Syntax_unary___elambda__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Attr_simple___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Command_namedName___closed__1;
@@ -1257,6 +1256,7 @@ lean_object* l_Lean_Parser_Syntax_binary___closed__2;
 lean_object* l_Lean_Parser_Command_postfix___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Command_macroArg___elambda__1(lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Parser_Command_macro__rules_parenthesizer(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__6;
 lean_object* l___regBuiltin_Lean_Parser_Syntax_cat_parenthesizer(lean_object*);
 lean_object* l_Lean_Parser_Command_notation_parenthesizer___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Command_elab_formatter___closed__1;
@@ -13471,7 +13471,7 @@ static lean_object* _init_l_Lean_Parser_Command_macroTailTactic___elambda__1___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_orelse___closed__5;
+x_1 = l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__6;
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_identEqFn), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

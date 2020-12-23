@@ -138,7 +138,7 @@ def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
 def structExplicitBinder := parser! atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
 def structImplicitBinder := parser! atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
 def structInstBinder     := parser! atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
-def structSimpleBinder   := parser! atomic (declModifiers true >> many1 ident) >> optional inferMod >> optDeclSig >> optional Term.binderDefault
+def structSimpleBinder   := parser! atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional Term.binderDefault
 def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
@@ -148,7 +148,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
     let mut fieldBinder := fieldBinder
     if fieldBinder.getKind == ``Parser.Command.structSimpleBinder then
       fieldBinder := Syntax.node ``Parser.Command.structExplicitBinder
-        #[ fieldBinder[0], mkAtomFrom fieldBinder "(", fieldBinder[1], fieldBinder[2], fieldBinder[3], fieldBinder[4], mkAtomFrom fieldBinder ")" ]
+        #[ fieldBinder[0], mkAtomFrom fieldBinder "(", mkNullNode #[ fieldBinder[1] ], fieldBinder[2], fieldBinder[3], fieldBinder[4], mkAtomFrom fieldBinder ")" ]
     let k := fieldBinder.getKind
     let binfo ←
       if k == ``Parser.Command.structExplicitBinder then pure BinderInfo.default
@@ -300,12 +300,16 @@ private partial def withFields
         match view.value? with
         | none       => throwError! "field '{view.name}' has been declared in parent structure"
         | some valStx => do
-          if !view.binders.getArgs.isEmpty || view.type?.isSome then
-            throwErrorAt! view.type?.get! "omit field '{view.name}' type to set default value"
-          let fvarType ← inferType info.fvar
-          let value ← Term.elabTermEnsuringType valStx fvarType
-          let infos := infos.push { info with value? := value }
-          withFields views (i+1) infos k
+          if let some type := view.type? then
+            throwErrorAt! type "omit field '{view.name}' type to set default value"
+          else
+            let mut valStx := valStx
+            if view.binders.getArgs.size > 0 then
+              valStx ← `(fun $(view.binders.getArgs)* => $valStx:term)
+            let fvarType ← inferType info.fvar
+            let value ← Term.elabTermEnsuringType valStx fvarType
+            let infos := infos.push { info with value? := value }
+            withFields views (i+1) infos k
       | StructFieldKind.subobject => unreachable!
   else
     k infos
@@ -421,13 +425,13 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   pure { name := view.ctor.declName, type := type }
 
 @[extern "lean_mk_projections"]
-private constant mkProjections (env : Environment) (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : Except String Environment
+private constant mkProjections (env : Environment) (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : Except KernelException Environment
 
 private def addProjections (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : TermElabM Unit := do
   let env ← getEnv
   match mkProjections env structName projs isClass with
-  | Except.ok env    => setEnv env
-  | Except.error msg => throwError msg
+  | Except.ok env   => setEnv env
+  | Except.error ex => throwKernelException ex
 
 private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let env ← getEnv
@@ -448,6 +452,9 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
       setReducibleAttribute declName
 
 private def elabStructureView (view : StructView) : TermElabM Unit := do
+  view.fields.forM fun field => do
+    if field.declName == view.ctor.declName then
+      throwErrorAt! field.ref "invalid field name '{field.name}', it is equal to structure constructor name"
   let numExplicitParams := view.params.size
   let type ← Term.elabType view.type
   unless validStructType type do throwErrorAt view.type "expected Type"

@@ -6947,7 +6947,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n, but it is expected to have type");
+x_1 = lean_mk_string("\nbut it is expected to have type");
 return x_1;
 }
 }

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <lean/sstream.h>
+#include "kernel/kernel_exception.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive.h"
@@ -121,12 +122,7 @@ extern "C" object * lean_mk_projections(object * env, object * struct_name, obje
         bool infer_mod = cnstr_get_uint8(p.raw(), sizeof(object*));
         infer_kinds.push_back(infer_mod ? implicit_infer_kind::Implicit : implicit_infer_kind::RelaxedImplicit);
     }
-    try {
-        new_env = mk_projections(new_env, n, proj_names, infer_kinds, inst_implicit != 0);
-        return mk_except_ok(new_env);
-    } catch (exception & ex) {
-        return mk_except_error(string_ref(ex.what()));
-    }
+    return catch_kernel_exceptions<environment>([&]() { return mk_projections(new_env, n, proj_names, infer_kinds, inst_implicit != 0); });
 }
 
 void initialize_def_projection() {

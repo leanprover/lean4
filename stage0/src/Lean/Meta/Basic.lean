@@ -73,13 +73,11 @@ structure InfoCacheKey where
   transparency : TransparencyMode
   expr         : Expr
   nargs?       : Option Nat
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 namespace InfoCacheKey
 instance : Hashable InfoCacheKey :=
   ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) $ mixHash (hash expr) (hash nargs)⟩
-instance : BEq InfoCacheKey :=
-  ⟨fun ⟨t₁, e₁, n₁⟩ ⟨t₂, e₂, n₂⟩ => t₁ == t₂ && n₁ == n₂ && e₁ == e₂⟩
 end InfoCacheKey
 
 open Std (PersistentArray PersistentHashMap)

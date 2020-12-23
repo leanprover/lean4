@@ -14,24 +14,24 @@
 extern "C" {
 #endif
 size_t l_Lean_Meta_TransparencyMode_hash(uint8_t);
-lean_object* l_Lean_Meta_TransparencyMode_beq_match__1(lean_object*);
-lean_object* l_Lean_Meta_TransparencyMode_beq_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_TransparencyMode_beq_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11_(uint8_t, uint8_t);
+lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11__match__1(lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1;
 uint8_t l_Lean_Meta_instInhabitedTransparencyMode;
 lean_object* l_Lean_Meta_TransparencyMode_instHashableTransparencyMode;
 lean_object* l_Lean_Meta_TransparencyMode_hash_match__1(lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object*, lean_object*);
-uint8_t l_Lean_Meta_TransparencyMode_beq(uint8_t, uint8_t);
-lean_object* l_Lean_Meta_TransparencyMode_instBEqTransparencyMode;
-lean_object* l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1;
+lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11__match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instBEqTransparencyMode___closed__1;
+lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11____boxed(lean_object*, lean_object*);
+lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11__match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_hash_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_TransparencyMode_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_lt_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_TransparencyMode_hash_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_lt_match__1(lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object*);
+lean_object* l_Lean_Meta_instBEqTransparencyMode;
 lean_object* l_Lean_Meta_TransparencyMode_lt_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t _init_l_Lean_Meta_instInhabitedTransparencyMode() {
 _start:
@@ -41,7 +41,7 @@ x_1 = 0;
 return x_1;
 }
 }
-lean_object* l_Lean_Meta_TransparencyMode_beq_match__1___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11__match__1___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 switch (x_1) {
@@ -152,15 +152,15 @@ return x_31;
 }
 }
 }
-lean_object* l_Lean_Meta_TransparencyMode_beq_match__1(lean_object* x_1) {
+lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11__match__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_TransparencyMode_beq_match__1___rarg___boxed), 7, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11__match__1___rarg___boxed), 7, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Meta_TransparencyMode_beq_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11__match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
@@ -168,11 +168,11 @@ x_8 = lean_unbox(x_1);
 lean_dec(x_1);
 x_9 = lean_unbox(x_2);
 lean_dec(x_2);
-x_10 = l_Lean_Meta_TransparencyMode_beq_match__1___rarg(x_8, x_9, x_3, x_4, x_5, x_6, x_7);
+x_10 = l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11__match__1___rarg(x_8, x_9, x_3, x_4, x_5, x_6, x_7);
 return x_10;
 }
 }
-uint8_t l_Lean_Meta_TransparencyMode_beq(uint8_t x_1, uint8_t x_2) {
+uint8_t l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 switch (x_1) {
@@ -251,7 +251,7 @@ return x_14;
 }
 }
 }
-lean_object* l_Lean_Meta_TransparencyMode_beq___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -259,24 +259,24 @@ x_3 = lean_unbox(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_5 = l_Lean_Meta_TransparencyMode_beq(x_3, x_4);
+x_5 = l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1() {
+static lean_object* _init_l_Lean_Meta_instBEqTransparencyMode___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_TransparencyMode_beq___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_11____boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_TransparencyMode_instBEqTransparencyMode() {
+static lean_object* _init_l_Lean_Meta_instBEqTransparencyMode() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1;
+x_1 = l_Lean_Meta_instBEqTransparencyMode___closed__1;
 return x_1;
 }
 }
@@ -677,10 +677,10 @@ res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_instInhabitedTransparencyMode = _init_l_Lean_Meta_instInhabitedTransparencyMode();
-l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1 = _init_l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1();
-lean_mark_persistent(l_Lean_Meta_TransparencyMode_instBEqTransparencyMode___closed__1);
-l_Lean_Meta_TransparencyMode_instBEqTransparencyMode = _init_l_Lean_Meta_TransparencyMode_instBEqTransparencyMode();
-lean_mark_persistent(l_Lean_Meta_TransparencyMode_instBEqTransparencyMode);
+l_Lean_Meta_instBEqTransparencyMode___closed__1 = _init_l_Lean_Meta_instBEqTransparencyMode___closed__1();
+lean_mark_persistent(l_Lean_Meta_instBEqTransparencyMode___closed__1);
+l_Lean_Meta_instBEqTransparencyMode = _init_l_Lean_Meta_instBEqTransparencyMode();
+lean_mark_persistent(l_Lean_Meta_instBEqTransparencyMode);
 l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1 = _init_l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1();
 lean_mark_persistent(l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1);
 l_Lean_Meta_TransparencyMode_instHashableTransparencyMode = _init_l_Lean_Meta_TransparencyMode_instHashableTransparencyMode();

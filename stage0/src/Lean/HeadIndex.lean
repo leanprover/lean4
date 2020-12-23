@@ -16,7 +16,7 @@ inductive HeadIndex where
   | sort
   | lam
   | forallE
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 namespace HeadIndex
 
@@ -31,19 +31,6 @@ protected def HeadIndex.hash : HeadIndex → USize
   | forallE             => 37
 
 instance : Hashable HeadIndex := ⟨HeadIndex.hash⟩
-
-protected def HeadIndex.beq : HeadIndex → HeadIndex → Bool
-  | fvar id₁,   fvar id₂   => id₁ == id₂
-  | mvar id₁,   mvar id₂   => id₁ == id₂
-  | const id₁,  const id₂  => id₁ == id₂
-  | proj s₁ i₁, proj s₂ i₂ => s₁ == s₂ && i₁ == i₂
-  | lit v₁,     lit v₂     => v₁ == v₂
-  | sort,       sort       => true
-  | lam,        lam        => true
-  | forallE,    forallE    => true
-  | _,          _          => false
-
-instance : BEq HeadIndex := ⟨HeadIndex.beq⟩
 
 end HeadIndex
 

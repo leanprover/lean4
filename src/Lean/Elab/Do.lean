@@ -292,9 +292,9 @@ def mkSimpleJmp (ref : Syntax) (rs : NameSet) (c : Code) : StateRefT (Array JPDe
   let jp ← addFreshJP (xs.map fun x => (x, true)) c
   if xs.isEmpty then
     let unit ← `(Unit.unit)
-    pure $ Code.jmp ref jp #[unit]
+    return Code.jmp ref jp #[unit]
   else
-    pure $ Code.jmp ref jp (xs.map $ mkIdentFrom ref)
+    return Code.jmp ref jp (xs.map $ mkIdentFrom ref)
 
 /- Create a new joinpoint that takes `rs` and `val` as arguments. `val` must be syntax representing a pure value.
    The body of the joinpoint is created using `mkJPBody yFresh`, where `yFresh`
@@ -1175,8 +1175,8 @@ def doReturnToCode (doReturn : Syntax) (doElems: List Syntax) : M CodeBlock := d
   let ref := doReturn
   ensureEOS doElems
   let argOpt := doReturn[1]
-  let arg ← if argOpt.isNone then liftMacroM $ mkUnit ref else pure argOpt[0]
-  pure $ mkReturn ref arg
+  let arg ← if argOpt.isNone then liftMacroM <| mkUnit ref else pure argOpt[0]
+  return mkReturn ref arg
 
 structure Catch where
   x         : Syntax
@@ -1206,7 +1206,7 @@ mutual
     | nextDoElem :: _  => do
       let k ← doSeqToCode doElems
       let ref := nextDoElem
-      liftM $ concat c ref none k
+      concat c ref none k
 
   /- Generate `CodeBlock` for `doLetArrow; doElems`
      `doLetArrow` is of the form
@@ -1232,7 +1232,7 @@ mutual
         let c ← doSeqToCode [doElem]
         match doElems with
         | []       => pure c
-        | kRef::_  => liftM $ concat c kRef y k
+        | kRef::_  => concat c kRef y k
     else if decl.getKind == `Lean.Parser.Term.doPatDecl then
       let pattern := decl[0]
       let doElem  := decl[2]
@@ -1243,14 +1243,14 @@ mutual
             `(do let discr ← $doElem; let mut $pattern:term := discr)
           else
             `(do let discr ← $doElem; let $pattern:term := discr)
-        doSeqToCode $ getDoSeqElems (getDoSeq auxDo) ++ doElems
+        doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         if isMutableLet doLetArrow then
           throwError! "'mut' is currently not supported in let-decls with 'else' case"
         let contSeq := mkDoSeq doElems.toArray
         let elseSeq := mkSingletonDoSeq optElse[1]
         let auxDo ← `(do let discr ← $doElem; match discr with | $pattern:term => $contSeq | _ => $elseSeq)
-        doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
+        doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
     else
       throwError "unexpected kind of 'do' declaration"
 
@@ -1267,14 +1267,14 @@ mutual
       let doElem := decl[3]
       let y      := decl[0]
       let auxDo ← `(do let r ← $doElem; $y:ident := r)
-      doSeqToCode $ getDoSeqElems (getDoSeq auxDo) ++ doElems
+      doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
     else if decl.getKind == `Lean.Parser.Term.doPatDecl then
       let pattern := decl[0]
       let doElem  := decl[2]
       let optElse := decl[3]
       if optElse.isNone then withFreshMacroScope do
         let auxDo ← `(do let discr ← $doElem; $pattern:term := discr)
-        doSeqToCode $ getDoSeqElems (getDoSeq auxDo) ++ doElems
+        doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         throwError "reassignment with `|` (i.e., \"else clause\") is not currently supported"
     else
@@ -1304,7 +1304,7 @@ mutual
     let cond  := doUnless[1]
     let doSeq := doUnless[3]
     let body ← doSeqToCode (getDoSeqElems doSeq)
-    let unlessCode ← liftMacroM $ mkUnless ref cond body
+    let unlessCode ← liftMacroM <| mkUnless ref cond body
     concatWith unlessCode doElems
 
   /- Generate `CodeBlock` for `doFor; doElems`
@@ -1371,10 +1371,10 @@ mutual
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;
                            Pure.pure (ensureExpectedType! "type mismatch, 'for'" PUnit.unit))
-          doSeqToCode $ getDoSeqElems (getDoSeq auxDo)
+          doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
         else
           let auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r)
-          doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+          doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
 
   /-- Generate `CodeBlock` for `doMatch; doElems` -/
   partial def doMatchToCode (doMatch : Syntax) (doElems: List Syntax) : M CodeBlock := do
@@ -1446,21 +1446,21 @@ mutual
           throwError "'finally' currently does not support reassignments"
         if hasBreakContinueReturn finallyCode.code then
           throwError "'finally' currently does 'return', 'break', nor 'continue'"
-        let finallyTerm ← liftMacroM $ ToTerm.run finallyCode.code ctx.m {} ToTerm.Kind.regular
+        let finallyTerm ← liftMacroM <| ToTerm.run finallyCode.code ctx.m {} ToTerm.Kind.regular
         `(tryFinally $term $finallyTerm)
-    let doElemsNew ← liftMacroM $ ToTerm.matchNestedTermResult ref term uvars a r bc
+    let doElemsNew ← liftMacroM <| ToTerm.matchNestedTermResult ref term uvars a r bc
     doSeqToCode (doElemsNew ++ doElems)
 
   partial def doSeqToCode : List Syntax → M CodeBlock
-    | [] => do let ctx ← read; liftMacroM $ mkPureUnitAction ctx.ref
+    | [] => do liftMacroM <| mkPureUnitAction (← read).ref
     | doElem::doElems => withRef doElem do
-      match (← liftMacroM $ expandMacro? doElem) with
+      match (← liftMacroM <| expandMacro? doElem) with
       | some doElem => doSeqToCode (doElem::doElems)
       | none =>
-      match (← liftMacroM $ expandDoIf? doElem) with
+      match (← liftMacroM <| expandDoIf? doElem) with
       | some doElem => doSeqToCode (doElem::doElems)
       | none =>
-        let (liftedDoElems, doElem) ← liftM (liftMacroM $ expandLiftMethod doElem : TermElabM _)
+        let (liftedDoElems, doElem) ← liftM (liftMacroM <| expandLiftMethod doElem : TermElabM _)
         if !liftedDoElems.isEmpty then
           doSeqToCode (liftedDoElems ++ [doElem] ++ doElems)
         else
@@ -1477,7 +1477,7 @@ mutual
             let vars ← getDoLetRecVars doElem
             mkVarDeclCore vars doElem <$> (doSeqToCode doElems)
           else if k == `Lean.Parser.Term.doReassign then
-            let vars ← liftM $ getDoReassignVars doElem
+            let vars ← getDoReassignVars doElem
             checkReassignable vars
             let k ← doSeqToCode doElems
             mkReassignCore vars doElem k
@@ -1498,32 +1498,32 @@ mutual
           else if k == `Lean.Parser.Term.doBreak then
             ensureInsideFor
             ensureEOS doElems
-            pure $ mkBreak ref
+            return mkBreak ref
           else if k == `Lean.Parser.Term.doContinue then
             ensureInsideFor
             ensureEOS doElems
-            pure $ mkContinue ref
+            return mkContinue ref
           else if k == `Lean.Parser.Term.doReturn then
             doReturnToCode doElem doElems
           else if k == `Lean.Parser.Term.doDbgTrace then
-            mkSeq doElem <$> doSeqToCode doElems
+            return mkSeq doElem (← doSeqToCode doElems)
           else if k == `Lean.Parser.Term.doAssert then
-            mkSeq doElem <$> doSeqToCode doElems
+            return mkSeq doElem (← doSeqToCode doElems)
           else if k == `Lean.Parser.Term.doNested then
             let nestedDoSeq := doElem[1]
             doSeqToCode (getDoSeqElems nestedDoSeq ++ doElems)
           else if k == `Lean.Parser.Term.doExpr then
             let term := doElem[0]
             if doElems.isEmpty then
-              pure $ mkTerminalAction term
+              return mkTerminalAction term
             else
-              mkSeq term <$> doSeqToCode doElems
+              return mkSeq term (← doSeqToCode doElems)
           else
             throwError! "unexpected do-element\n{doElem}"
 end
 
 def run (doStx : Syntax) (m : Syntax) : TermElabM CodeBlock :=
-  (doSeqToCode $ getDoSeqElems $ getDoSeq doStx).run { ref := doStx, m := m }
+  (doSeqToCode <| getDoSeqElems <| getDoSeq doStx).run { ref := doStx, m := m }
 
 end ToCodeBlock
 

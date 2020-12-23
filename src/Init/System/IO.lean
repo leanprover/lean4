@@ -166,6 +166,7 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
   mode ++ bin
 
 @[extern "lean_io_prim_handle_mk"] constant Handle.mk (s : @& String) (mode : @& String) : IO Handle
+@[extern "lean_io_prim_handle_size"] constant Handle.size (h : @& Handle) : IO Nat
 @[extern "lean_io_prim_handle_is_eof"] constant Handle.isEof (h : @& Handle) : IO Bool
 @[extern "lean_io_prim_handle_flush"] constant Handle.flush (h : @& Handle) : IO Unit
 @[extern "lean_io_prim_handle_read"] constant Handle.read  (h : @& Handle) (bytes : USize) : IO ByteArray
@@ -193,6 +194,8 @@ def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
 def withFile (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
   Handle.mk fn mode >>= f
 
+/-- Returns the size of the underlying file. -/
+def Handle.size : Handle → m Nat := liftM ∘ Prim.Handle.size
 /-- returns whether the end of the file has been reached while reading a file.
 `h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
 Once `h.isEof` is true, the reading `h` raises `IO.Error.eof`.
@@ -210,14 +213,25 @@ def Handle.putStr (h : Handle) (s : String) : m Unit :=
 def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
   h.putStr (s.push '\n')
 
--- TODO: support for binary files
-partial def Handle.readToEnd (h : Handle) : m String :=
+partial def Handle.readBinToEnd (h : Handle) : m ByteArray := do
+  let rec loop (left : Nat) : m ByteArray := do
+    if left == 0 then ByteArray.empty
+    else
+      let buf ← h.read left
+      let left := left - buf.size
+      pure $ buf ++ (←loop left)
+  loop (←h.size)
+
+partial def Handle.readToEnd (h : Handle) : m String := do
   let rec read (s : String) := do
     let line ← h.getLine
     if line.length == 0 then pure s else read (s ++ line)
   read ""
 
--- TODO: support for binary files
+def readBinFile (fname : String) : m ByteArray := do
+  let h ← Handle.mk fname Mode.read true
+  h.readBinToEnd
+
 def readFile (fname : String) : m String := do
   let h ← Handle.mk fname Mode.read false
   h.readToEnd

@@ -448,6 +448,9 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
       setReducibleAttribute declName
 
 private def elabStructureView (view : StructView) : TermElabM Unit := do
+  view.fields.forM fun field => do
+    if field.declName == view.ctor.declName then
+      throwErrorAt! field.ref "invalid field name '{field.name}', it is equal to structure constructor name"
   let numExplicitParams := view.params.size
   let type ← Term.elabType view.type
   unless validStructType type do throwErrorAt view.type "expected Type"

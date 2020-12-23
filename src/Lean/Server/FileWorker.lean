@@ -213,13 +213,13 @@ section RequestHandling
      (this way, the server doesn't get bogged down in requests for an old state of the document).
      Requests need to manually check for whether their task has been cancelled, so that they
      can reply with a RequestCancelled error. -/
-  def handleHover (id : RequestID) (p : HoverParams) : ServerM Unit := pure ⟨⟩
+  def handleHover (id : RequestID) (p : HoverParams) : ServerM (Option Hover) := pure none
 
-  def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam) : ServerM Unit := do
+  def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam) : ServerM WaitForDiagnostics := do
     let st ← read
     let e ← st.docRef.get
     discard $ e.cmdSnaps.waitAll
-    st.hOut.writeLspResponse ⟨id, WaitForDiagnostics.mk⟩
+    WaitForDiagnostics.mk
 end RequestHandling
 
 section MessageHandling
@@ -236,19 +236,22 @@ section MessageHandling
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
-  def queueRequest (id : RequestID) (handler : RequestID → α → ServerM Unit) (params : α)
+  def queueRequest (id : RequestID) (handleAct : ServerM Unit)
   : ServerM Unit := do
-    let requestTask ← asTask (handler id params (←read))
+    let requestTask ← asTask (handleAct (←read))
     updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
   def handleRequest (id : RequestID) (method : String) (params : Json)
   : ServerM Unit := do
-    let handle := fun paramType [FromJson paramType]
-                      (handler : RequestID → paramType → ServerM Unit) =>
-      parseParams paramType params >>= queueRequest id handler
+    let handle := fun paramType [FromJson paramType] respType [ToJson respType]
+                      (handler : RequestID → paramType → ServerM respType) =>
+      queueRequest id do
+        let p ← parseParams paramType params
+        let resp ← handler id p
+        (←read).hOut.writeLspResponse ⟨id, resp⟩
     match method with
-    | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam handleWaitForDiagnostics
-    | "textDocument/hover"              => handle HoverParams handleHover
+    | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam WaitForDiagnostics handleWaitForDiagnostics
+    | "textDocument/hover"              => handle HoverParams (Option Hover) handleHover
     | _ => throwServerError s!"Got unsupported request: {method}"
 end MessageHandling
 
@@ -294,18 +297,6 @@ def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
     pendingRequestsRef := ←IO.mkRef (RBMap.empty : PendingRequestMap)
   }
   ReaderT.run (do handleDidOpen param; mainLoop) ctx
-
-namespace Test
-
-def runWorkerWithInputFile (fn : String) (searchPath : Option String) : IO Unit := do
-  let o ← IO.getStdout
-  let e ← IO.getStderr
-  FS.withFile fn FS.Mode.read $ fun hFile => do
-    Lean.initSearchPath searchPath
-    try initAndRunWorker (FS.Stream.ofHandle hFile) o e
-    catch err => e.putStrLn (toString err)
-
-end Test
 
 @[export lean_server_worker_main]
 def workerMain : IO UInt32 := do

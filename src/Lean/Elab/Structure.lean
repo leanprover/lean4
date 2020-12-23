@@ -138,7 +138,7 @@ def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
 def structExplicitBinder := parser! atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
 def structImplicitBinder := parser! atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
 def structInstBinder     := parser! atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
-def structSimpleBinder   := parser! atomic (declModifiers true >> many1 ident) >> optional inferMod >> optDeclSig >> optional Term.binderDefault
+def structSimpleBinder   := parser! atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional Term.binderDefault
 def structFields         := parser! many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
@@ -148,7 +148,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
     let mut fieldBinder := fieldBinder
     if fieldBinder.getKind == ``Parser.Command.structSimpleBinder then
       fieldBinder := Syntax.node ``Parser.Command.structExplicitBinder
-        #[ fieldBinder[0], mkAtomFrom fieldBinder "(", fieldBinder[1], fieldBinder[2], fieldBinder[3], fieldBinder[4], mkAtomFrom fieldBinder ")" ]
+        #[ fieldBinder[0], mkAtomFrom fieldBinder "(", mkNullNode #[ fieldBinder[1] ], fieldBinder[2], fieldBinder[3], fieldBinder[4], mkAtomFrom fieldBinder ")" ]
     let k := fieldBinder.getKind
     let binfo ←
       if k == ``Parser.Command.structExplicitBinder then pure BinderInfo.default

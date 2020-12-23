@@ -814,7 +814,7 @@ return x_1;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
@@ -827,15 +827,19 @@ lean_dec(x_2);
 x_7 = l_Std_RBNode_fold___at_Lean_Json_compress___spec__2(x_1, x_3);
 x_8 = l_Lean_Json_renderString(x_4);
 lean_dec(x_4);
-x_9 = l_myMacro____x40_Init_Notation___hyg_12965____closed__9;
-x_10 = lean_string_append(x_8, x_9);
-x_11 = l_Lean_Json_compress(x_5);
+x_9 = l_Lean_instInhabitedParserDescr___closed__1;
+x_10 = lean_string_append(x_9, x_8);
+lean_dec(x_8);
+x_11 = l_myMacro____x40_Init_Notation___hyg_12965____closed__9;
 x_12 = lean_string_append(x_10, x_11);
-lean_dec(x_11);
-x_13 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_7);
-x_1 = x_13;
+x_13 = l_Lean_Json_compress(x_5);
+x_14 = lean_string_append(x_12, x_13);
+lean_dec(x_13);
+x_15 = lean_string_append(x_14, x_9);
+x_16 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_7);
+x_1 = x_16;
 x_2 = x_6;
 goto _start;
 }

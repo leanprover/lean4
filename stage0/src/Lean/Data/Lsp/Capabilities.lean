@@ -23,14 +23,23 @@ inductive ClientCapabilities where
 instance : FromJson ClientCapabilities :=
   ⟨fun j => ClientCapabilities.mk⟩
 
+instance ClientCapabilities.hasToJson : ToJson ClientCapabilities :=
+  ⟨fun o => mkObj []⟩
+
 -- TODO largely unimplemented
 structure ServerCapabilities where
   textDocumentSync? : Option TextDocumentSyncOptions := none
   hoverProvider : Bool := false
 
+instance : FromJson ServerCapabilities :=
+  ⟨fun j => do
+    let textDocumentSync? := j.getObjValAs? TextDocumentSyncOptions "textDocumentSync"
+    let hoverProvider ← j.getObjValAs? Bool "hoverProvider"
+    pure ⟨textDocumentSync?, hoverProvider⟩⟩
+
 instance : ToJson ServerCapabilities := ⟨fun o => mkObj $
   opt "textDocumentSync" o.textDocumentSync? ++
-  [⟨"hoverProvider", o.hoverProvider⟩]⟩
+    [⟨"hoverProvider", o.hoverProvider⟩]⟩
 
 end Lsp
 end Lean

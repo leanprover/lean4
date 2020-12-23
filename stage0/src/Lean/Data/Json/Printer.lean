@@ -38,15 +38,13 @@ private def escapeAux (c : Char) (acc : String) : String :=
       Nat.digitChar (n % 16) ].asString ++
     acc
 
-def escape (s : String) : String :=
+def escape (s : String) : String := do
   s.foldr escapeAux ""
 
 def renderString (s : String) : String :=
   "\"" ++ escape s ++ "\""
 
 section
-variables {α : Type}
-
 @[specialize]
 partial def render : Json → Format
   | null       => "null"
@@ -73,10 +71,13 @@ partial def compress : Json → String
   | bool false => "false"
   | num s      => s.toString
   | str s      => renderString s
-  | arr elems  => "[" ++ ",".intercalate (elems.map compress).toList ++ "]"
+  | arr elems  =>
+    let f := ",".intercalate (elems.map compress).toList
+    s!"[{f}]"
   | obj kvs    =>
-    let ckvs := kvs.fold (fun acc k j => (renderString k ++ ":" ++ compress j) :: acc) [];
-    "{" ++ ",".intercalate ckvs ++ "}"
+    let ckvs := kvs.fold (fun acc k j => s!"{renderString k}:{compress j}" :: acc) []
+    let ckvs := ",".intercalate ckvs
+    s!"\{{ckvs}}"
 
 instance : ToFormat Json := ⟨render⟩
 instance : ToString Json := ⟨pretty⟩

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Log
-// Imports: Init Lean.Elab.Util Lean.Elab.Exception
+// Imports: Init Lean.Elab.Util Lean.Util.Sorry Lean.Elab.Exception
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -32,6 +32,7 @@ lean_object* l_Lean_Elab_logException___rarg___lambda__1___closed__2;
 lean_object* l_Lean_Elab_logDbgTrace___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logInfoAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_39_(uint8_t, uint8_t);
 lean_object* l_Lean_Elab_logException___rarg___lambda__1___closed__1;
 lean_object* l_Lean_Elab_logException(lean_object*);
 lean_object* l_Lean_Elab_instMonadLog___rarg(lean_object*, lean_object*);
@@ -60,6 +61,7 @@ lean_object* l_Lean_Elab_getRefPosition___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___rarg___lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 extern lean_object* l_Lean_KernelException_toMessageData___closed__15;
+uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
 lean_object* l_Lean_Elab_logErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_log___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Elab_logWarning___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -417,23 +419,66 @@ return x_18;
 lean_object* l_Lean_Elab_logAt___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
+lean_object* x_7; uint8_t x_14; uint8_t x_15; 
+x_14 = 2;
+x_15 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_39_(x_6, x_14);
+if (x_15 == 0)
+{
+lean_object* x_16; 
+x_16 = lean_box(0);
+x_7 = x_16;
+goto block_13;
+}
+else
+{
+uint8_t x_17; 
+x_17 = l_Lean_MessageData_hasSyntheticSorry(x_5);
+if (x_17 == 0)
+{
+lean_object* x_18; 
+x_18 = lean_box(0);
+x_7 = x_18;
+goto block_13;
+}
+else
+{
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_19 = lean_ctor_get(x_1, 0);
+lean_inc(x_19);
 lean_dec(x_1);
-x_8 = lean_ctor_get(x_2, 0);
+x_20 = lean_ctor_get(x_19, 1);
+lean_inc(x_20);
+lean_dec(x_19);
+x_21 = lean_box(0);
+x_22 = lean_apply_2(x_20, lean_box(0), x_21);
+return x_22;
+}
+}
+block_13:
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_dec(x_7);
+x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
-x_9 = lean_box(x_6);
-lean_inc(x_7);
-x_10 = lean_alloc_closure((void*)(l_Lean_Elab_logAt___rarg___lambda__7___boxed), 7, 6);
-lean_closure_set(x_10, 0, x_4);
-lean_closure_set(x_10, 1, x_2);
-lean_closure_set(x_10, 2, x_3);
-lean_closure_set(x_10, 3, x_5);
-lean_closure_set(x_10, 4, x_9);
-lean_closure_set(x_10, 5, x_7);
-x_11 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_10);
-return x_11;
+lean_dec(x_1);
+x_9 = lean_ctor_get(x_2, 0);
+lean_inc(x_9);
+x_10 = lean_box(x_6);
+lean_inc(x_8);
+x_11 = lean_alloc_closure((void*)(l_Lean_Elab_logAt___rarg___lambda__7___boxed), 7, 6);
+lean_closure_set(x_11, 0, x_4);
+lean_closure_set(x_11, 1, x_2);
+lean_closure_set(x_11, 2, x_3);
+lean_closure_set(x_11, 3, x_5);
+lean_closure_set(x_11, 4, x_10);
+lean_closure_set(x_11, 5, x_8);
+x_12 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_9, x_11);
+return x_12;
+}
 }
 }
 lean_object* l_Lean_Elab_logAt(lean_object* x_1) {
@@ -988,6 +1033,7 @@ return x_7;
 }
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Elab_Util(lean_object*);
+lean_object* initialize_Lean_Util_Sorry(lean_object*);
 lean_object* initialize_Lean_Elab_Exception(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Elab_Log(lean_object* w) {
@@ -998,6 +1044,9 @@ res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Util(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Util_Sorry(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Exception(lean_io_mk_world());

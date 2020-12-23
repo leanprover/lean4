@@ -25,6 +25,9 @@ instance : FromJson ClientInfo := ⟨fun j => do
   let version? := j.getObjValAs? String "version"
   pure ⟨name, version?⟩⟩
 
+instance ClientInfo.hasToJson : ToJson ClientInfo :=
+  ⟨fun o => mkObj $ ⟨"name", o.name⟩ :: opt "version" o.version?⟩
+
 inductive Trace where
   | off
   | messages
@@ -36,6 +39,12 @@ instance : FromJson Trace := ⟨fun j =>
   | some "messages" => Trace.messages
   | some "verbose"  => Trace.verbose
   | _               => none⟩
+
+instance Trace.hasToJson : ToJson Trace :=
+⟨fun
+  | Trace.off => "off"
+  | Trace.messages => "messages"
+  | Trace.verbose => "verbose"⟩
 
 structure InitializeParams where
   processId? : Option Int := none
@@ -66,15 +75,34 @@ instance : FromJson InitializeParams := ⟨fun j => do
   let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"
   pure ⟨processId?, clientInfo?, rootUri?, initializationOptions?, capabilities, trace, workspaceFolders?⟩⟩
 
+instance InitializeParams.hasToJson : ToJson InitializeParams :=
+⟨fun o => mkObj $
+  opt "processId" o.processId? ++
+  opt "clientInfo" o.clientInfo? ++
+  opt "rootUri" o.rootUri? ++
+  opt "initializationOptions" o.initializationOptions? ++
+  [⟨"capabilities", toJson o.capabilities⟩] ++
+  [⟨"trace", toJson o.trace⟩] ++
+  opt "workspaceFolders" o.workspaceFolders?⟩
+
 inductive InitializedParams where
   | mk
 
 instance : FromJson InitializedParams :=
-  ⟨fun j => InitializedParams.mk⟩
+  ⟨fun _ => InitializedParams.mk⟩
+
+instance : ToJson InitializedParams :=
+  ⟨fun _ => Json.null⟩
 
 structure ServerInfo where
   name : String
   version? : Option String := none
+
+instance : FromJson ServerInfo :=
+  ⟨fun j => do
+    let name ← j.getObjValAs? String "name"
+    let version? := j.getObjValAs? String "version"
+    pure ⟨name, version?⟩⟩
 
 instance : ToJson ServerInfo := ⟨fun o => mkObj $
   ⟨"name", o.name⟩ ::
@@ -83,6 +111,12 @@ instance : ToJson ServerInfo := ⟨fun o => mkObj $
 structure InitializeResult where
   capabilities : ServerCapabilities
   serverInfo? : Option ServerInfo := none
+
+instance : FromJson InitializeResult :=
+  ⟨fun j => do
+    let capabilities ← j.getObjValAs? ServerCapabilities "capabilities"
+    let serverInfo? := j.getObjValAs? ServerInfo "serverInfo"
+    pure ⟨capabilities, serverInfo?⟩⟩
 
 instance : ToJson InitializeResult := ⟨fun o =>
   mkObj $

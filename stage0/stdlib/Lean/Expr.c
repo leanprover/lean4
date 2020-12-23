@@ -486,6 +486,7 @@ lean_object* l_Lean_Expr_looseBVarRange(lean_object*);
 lean_object* l_Lean_Expr_bvarIdx_x21(lean_object*);
 lean_object* l_Lean_Expr_updateProj_x21___closed__2;
 lean_object* l_Lean_Expr_constName_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2638____closed__17;
 lean_object* l_Lean_Expr_consumeMData_match__1(lean_object*);
 lean_object* l_Lean_Expr_bindingBody_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_setAppPPExplicit(lean_object*);
@@ -776,7 +777,6 @@ uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_isLet___boxed(lean_object*);
 lean_object* l_Lean_Expr_bindingInfo_x21___closed__2;
 lean_object* l_Lean_ExprStructEq_hash___boxed(lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2501____closed__17;
 lean_object* l_Lean_Expr_isCharLit___closed__1;
 lean_object* l_Lean_Expr_isCharLit___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -5517,7 +5517,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_2501____closed__17;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_2638____closed__17;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

@@ -19,7 +19,7 @@ def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : S
 
 inductive MessageSeverity where
   | information | warning | error
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure MessageDataContext where
   env : Environment

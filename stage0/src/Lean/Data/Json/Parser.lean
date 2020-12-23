@@ -25,7 +25,7 @@ open Result
 
 partial def skipWs (it : String.Iterator) : String.Iterator :=
   if it.hasNext then
-    let c := it.curr;
+    let c := it.curr
     if c = '\u0009' ∨ c = '\u000a' ∨ c = '\u000d' ∨ c = '\u0020' then
       skipWs it.next
     else
@@ -34,7 +34,7 @@ partial def skipWs (it : String.Iterator) : String.Iterator :=
    it
 
 @[inline]
-protected def pure {α : Type} (a : α) : Quickparse α := fun it =>
+protected def pure (a : α) : Quickparse α := fun it =>
   success it a
 
 @[inline]
@@ -44,7 +44,7 @@ protected def bind {α β : Type} (f : Quickparse α) (g : α → Quickparse β)
   | error pos msg => error pos msg
 
 @[inline]
-def fail {α : Type} (msg : String) : Quickparse α := fun it =>
+def fail (msg : String) : Quickparse α := fun it =>
   error it msg
 
 @[inline]
@@ -63,7 +63,7 @@ def peek? : Quickparse (Option Char) := fun it =>
 @[inline]
 def peek! : Quickparse Char := do
   let some c ← peek? | fail unexpectedEndOfInput
-  pure c
+  c
 
 @[inline]
 def skip : Quickparse Unit := fun it =>
@@ -73,13 +73,13 @@ def skip : Quickparse Unit := fun it =>
 def next : Quickparse Char := do
   let c ← peek!
   skip
-  pure c
+  c
 
 def expect (s : String) : Quickparse Unit := fun it =>
   if it.extract (it.forward s.length) = s then
     success (it.forward s.length) ()
   else
-    error it ("expected: " ++ s)
+    error it s!"expected: {s}"
 
 @[inline]
 def ws : Quickparse Unit := fun it =>
@@ -115,25 +115,25 @@ def hexChar : Quickparse Nat := do
 def escapedChar : Quickparse Char := do
   let c ← next
   match c with
-  | '\\' => pure '\\'
-  | '"'  => pure '"'
-  | '/'  => pure '/'
-  | 'b'  => pure '\x08'
-  | 'f'  => pure '\x0c'
-  | 'n'  => pure '\n'
-  | 'r'  => pure '\x0d'
-  | 't'  => pure '\t'
-  | 'u'  => do
-    let u1 ← hexChar; let u2 ← hexChar; let u3 ← hexChar; let u4 ← hexChar;
-    pure $ Char.ofNat $ 4096*u1 + 256*u2 + 16*u3 + u4
+  | '\\' => '\\'
+  | '"'  => '"'
+  | '/'  => '/'
+  | 'b'  => '\x08'
+  | 'f'  => '\x0c'
+  | 'n'  => '\n'
+  | 'r'  => '\x0d'
+  | 't'  => '\t'
+  | 'u'  =>
+    let u1 ← hexChar; let u2 ← hexChar; let u3 ← hexChar; let u4 ← hexChar
+    Char.ofNat $ 4096*u1 + 256*u2 + 16*u3 + u4
   | _ => fail "illegal \\u escape"
 
 partial def strCore (acc : String) : Quickparse String := do
   let c ← peek!
-  if c = '"' then do -- "
-    skip;
-    pure acc
-  else do
+  if c = '"' then -- "
+    skip
+    acc
+  else
     let c ← next
     let ec ←
       if c = '\\' then
@@ -142,27 +142,27 @@ partial def strCore (acc : String) : Quickparse String := do
       -- the JSON standard is not definite: both directly printing the character
       -- and encoding it with multiple \u is allowed. we choose the former.
       else if 0x0020 ≤ c.val ∧ c.val ≤ 0x10ffff then
-        pure c
+        c
       else
-        fail "unexpected character in string";
+        fail "unexpected character in string"
     strCore (acc.push ec)
 
 def str : Quickparse String := strCore ""
 
 partial def natCore (acc digits : Nat) : Quickparse (Nat × Nat) := do
-  let some c ← peek? | pure (acc, digits);
-  if '0' ≤ c ∧ c ≤ '9' then do
-    skip;
-    let acc' := 10*acc + (c.val.toNat - '0'.val.toNat);
+  let some c ← peek? | (acc, digits)
+  if '0' ≤ c ∧ c ≤ '9' then
+    skip
+    let acc' := 10*acc + (c.val.toNat - '0'.val.toNat)
     natCore acc' (digits+1)
   else
-    pure (acc, digits)
+    (acc, digits)
 
 @[inline]
 def lookahead (p : Char → Prop) (desc : String) [DecidablePred p] : Quickparse Unit := do
   let c ← peek!
   if p c then
-    pure ()
+    ()
   else
     fail $ "expected " ++ desc
 
@@ -170,7 +170,7 @@ def lookahead (p : Char → Prop) (desc : String) [DecidablePred p] : Quickparse
 def natNonZero : Quickparse Nat := do
   lookahead (fun c => '1' ≤ c ∧ c ≤ '9') "1-9"
   let (n, _) ← natCore 0 0
-  pure n
+  n
 
 @[inline]
 def natNumDigits : Quickparse (Nat × Nat) := do
@@ -180,35 +180,35 @@ def natNumDigits : Quickparse (Nat × Nat) := do
 @[inline]
 def natMaybeZero : Quickparse Nat := do
   let (n, _) ← natNumDigits
-  pure n
+  n
 
 def num : Quickparse JsonNumber := do
   let c ← peek!
-  let sign ←
-    if c = '-' then do
+  let sign : Int ←
+    if c = '-' then
       skip
-      pure (0 - 1 : Int)
+      pure (-1 : Int)
     else
       pure 1
   let c ← peek!
   let res ←
-    if c = '0' then do
+    if c = '0' then
       skip
       pure 0
     else
       natNonZero
   let res := JsonNumber.fromInt (sign * res)
   let c? ← peek?
-  let res ←
+  let res : JsonNumber ←
     if c? = some '.' then
       skip
       let (n, d) ← natNumDigits
       if d > USize.size then fail "too many decimals"
       let mantissa' := res.mantissa * (10^d : Nat) + n
       let exponent' := res.exponent + d
-      pure $ JsonNumber.mk mantissa' exponent'
+      JsonNumber.mk mantissa' exponent'
     else
-      pure res
+      res
   let c? ← peek?
   if c? = some 'e' ∨ c? = some 'E' then
     skip
@@ -216,14 +216,14 @@ def num : Quickparse JsonNumber := do
     if c = '-' then
       skip
       let n ← natMaybeZero
-      pure (res.shiftr n)
-    else do
+      res.shiftr n
+    else
       if c = '+' then skip
       let n ← natMaybeZero
       if n > USize.size then fail "exp too large"
-      pure (res.shiftl n)
+      res.shiftl n
   else
-    pure res
+    res
 
 partial def arrayCore (anyCore : Unit → Quickparse Json) (acc : Array Json) : Quickparse (Array Json) := do
   let hd ← anyCore ()
@@ -231,7 +231,7 @@ partial def arrayCore (anyCore : Unit → Quickparse Json) (acc : Array Json) : 
   let c ← next
   if c = ']' then
     ws
-    pure acc'
+    acc'
   else if c = ',' then
     ws
     arrayCore anyCore acc'
@@ -244,13 +244,13 @@ partial def objectCore (anyCore : Unit → Quickparse Json) : Quickparse (RBNode
   lookahead (fun c => c = ':') ":"; skip; ws
   let v ← anyCore ()
   let c ← next
-  if c = '}' then do
+  if c = '}' then
     ws
-    pure (RBNode.singleton k v)
-  else if c = ',' then do
+    RBNode.singleton k v
+  else if c = ',' then
     ws
     let kvs ← objectCore anyCore
-    pure (kvs.insert strLt k v)
+    kvs.insert strLt k v
   else
     fail "unexpected character in object"
 
@@ -263,37 +263,37 @@ partial def anyCore (u : Unit) : Quickparse Json := do
     let c ← peek!
     if c = ']' then
       skip; ws
-      pure (Json.arr (Array.mkEmpty 0))
+      Json.arr (Array.mkEmpty 0)
     else
       let a ← arrayCore anyCore (Array.mkEmpty 4)
-      pure (Json.arr a)
+      Json.arr a
   else if c = '{' then
     skip; ws
     let c ← peek!
     if c = '}' then
       skip; ws
-      pure (Json.obj (RBNode.leaf))
+      Json.obj (RBNode.leaf)
     else
       let kvs ← objectCore anyCore
-      pure (Json.obj kvs)
+      Json.obj kvs
   else if c = '\"' then
     skip
     let s ← strCore ""
     ws
-    pure (Json.str s)
+    Json.str s
   else if c = 'f' then
     expect "false"; ws
-    pure (Json.bool false)
+    Json.bool false
   else if c = 't' then
     expect "true"; ws
-    pure (Json.bool true)
+    Json.bool true
   else if c = 'n' then
     expect "null"; ws
-    pure Json.null
+    Json.null
   else if c = '-' ∨ ('0' ≤ c ∧ c ≤ '9') then
-    let n ← num;
+    let n ← num
     ws
-    pure (Json.num n)
+    Json.num n
   else
     fail "unexpected input"
 
@@ -302,7 +302,7 @@ def any : Quickparse Json := do
   ws
   let res ← anyCore ()
   eoi
-  pure res
+  res
 
 end Json.Parser
 
@@ -311,7 +311,7 @@ namespace Json
 def parse (s : String) : Except String Lean.Json :=
   match Json.Parser.any s.mkIterator with
   | Quickparse.Result.success _ res => Except.ok res
-  | Quickparse.Result.error it err  => Except.error ("offset " ++ it.i.repr ++ ": " ++ err)
+  | Quickparse.Result.error it err  => Except.error s!"offset {it.i.repr}: {err}"
 
 end Json
 

@@ -9,72 +9,84 @@ import Lean.Data.JsonRpc
 
 /-! Reading/writing LSP messages from/to IO handles. -/
 
-namespace Lean
-namespace Lsp
+namespace IO.FS.Stream
 
-open IO
-open JsonRpc
+open Lean
+open Lean.JsonRpc
 
-private def parseHeaderField (s : String) : Option (String × String) :=
-  if s = "" ∨ s.takeRight 2 ≠ "\r\n" then
-    none
-  else
-    let xs := (s.dropRight 2).splitOn ": ";
+section
+  private def parseHeaderField (s : String) : Option (String × String) := do
+    guard $ s ≠ "" ∧ s.takeRight 2 = "\r\n"
+    let xs := (s.dropRight 2).splitOn ": "
     match xs with
     | []  => none
     | [_] => none
     | name :: value :: rest =>
-      let value := ": ".intercalate (value :: rest);
+      let value := ": ".intercalate (value :: rest)
       some ⟨name, value⟩
 
-private partial def readHeaderFields (h : FS.Stream) : IO (List (String × String)) := do
-  let l ← h.getLine
-  if l = "\r\n" then
-    pure []
-  else
-    match parseHeaderField l with
-    | some hf =>
-      let tail ← readHeaderFields h
-      pure (hf :: tail)
-    | none => throw (userError $ "invalid header field: " ++ l)
+  private partial def readHeaderFields (h : FS.Stream) : IO (List (String × String)) := do
+    let l ← h.getLine
+    if l = "\r\n" then
+      pure []
+    else
+      match parseHeaderField l with
+      | some hf =>
+        let tail ← readHeaderFields h
+        pure (hf :: tail)
+      | none => throw $ userError s!"Invalid header field: {l}"
 
-/-- Returns the Content-Length. -/
-private def readLspHeader (h : FS.Stream) : IO Nat := do
-  let fields ← readHeaderFields h
-  match fields.lookup "Content-Length" with
-  | some length => match length.toNat? with
-    | some n => pure n
-    | none   => throw (userError ("Content-Length header value '" ++ length ++ "' is not a Nat"))
-  | none => throw (userError ("no Content-Length header in header fields: " ++ toString fields))
+  /-- Returns the Content-Length. -/
+  private def readLspHeader (h : FS.Stream) : IO Nat := do
+    let fields ← readHeaderFields h
+    match fields.lookup "Content-Length" with
+    | some length => match length.toNat? with
+      | some n => pure n
+      | none   => throw $ userError s!"Content-Length header value '{length}' is not a Nat"
+    | none => throw $ userError s!"No Content-Length header in header fields: {toString fields}"
 
-def readLspMessage (h : FS.Stream) : IO Message := do
-  let nBytes ← readLspHeader h
-  h.readMessage nBytes
+  def readLspMessage (h : FS.Stream) : IO Message := do
+    let nBytes ← readLspHeader h
+    h.readMessage nBytes
 
-def readLspRequestAs (h : FS.Stream) (expectedMethod : String) (α : Type) [FromJson α] : IO (Request α) := do
-  let nBytes ← readLspHeader h
-  h.readRequestAs nBytes expectedMethod α
+  def readLspRequestAs (h : FS.Stream) (expectedMethod : String) (α) [FromJson α] : IO (Request α) := do
+    let nBytes ← readLspHeader h
+    h.readRequestAs nBytes expectedMethod α
 
-def readLspNotificationAs (h : FS.Stream) (expectedMethod : String) (α : Type) [FromJson α] : IO α := do
-  let nBytes ← readLspHeader h
-  h.readNotificationAs nBytes expectedMethod α
+  def readLspNotificationAs (h : FS.Stream) (expectedMethod : String) (α) [FromJson α] : IO (Notification α) := do
+    let nBytes ← readLspHeader h
+    h.readNotificationAs nBytes expectedMethod α
 
-def writeLspMessage (h : FS.Stream) (m : Message) : IO Unit := do
-  -- inlined implementation instead of using jsonrpc's writeMessage
-  -- to maintain the atomicity of putStr
-  let j := (toJson m).compress
-  let header := "Content-Length: " ++ toString j.utf8ByteSize ++ "\r\n\r\n"
-  h.putStr (header ++ j)
-  h.flush
+  def readLspResponseAs (h : FS.Stream) (expectedID : RequestID) (α) [FromJson α] : IO (Response α) := do
+    let nBytes ← readLspHeader h
+    h.readResponseAs nBytes expectedID α
+end
 
-def writeLspResponse {α : Type} [ToJson α] (h : FS.Stream) (id : RequestID) (r : α) : IO Unit :=
-  writeLspMessage h (Message.response id (toJson r))
+section
+  variable [ToJson α]
 
-def writeLspNotification {α : Type} [ToJson α] (h : FS.Stream) (method : String) (r : α) : IO Unit :=
-  match toJson r with
-  | Json.obj o => writeLspMessage h (Message.notification method o)
-  | Json.arr a => writeLspMessage h (Message.notification method a)
-  | _          => throw (userError "internal server error in Lean.Lsp.writeLspNotification: tried to write LSP notification that is neither a JSON object nor a JSON array")
+  def writeLspMessage (h : FS.Stream) (msg : Message) : IO Unit := do
+    -- inlined implementation instead of using jsonrpc's writeMessage
+    -- to maintain the atomicity of putStr
+    let j := (toJson msg).compress
+    let header := s!"Content-Length: {toString j.utf8ByteSize}\r\n\r\n"
+    h.putStr (header ++ j)
+    h.flush
 
-end Lsp
-end Lean
+  def writeLspRequest (h : FS.Stream) (r : Request α) : IO Unit :=
+    h.writeLspMessage r
+
+  def writeLspNotification (h : FS.Stream) (n : Notification α) : IO Unit :=
+    h.writeLspMessage n
+
+  def writeLspResponse (h : FS.Stream) (r : Response α) : IO Unit :=
+    h.writeLspMessage r
+
+  def writeLspResponseError (h : FS.Stream) (e : ResponseError Unit) : IO Unit :=
+    h.writeLspMessage (Message.responseError e.id e.code e.message none)
+
+  def writeLspResponseErrorWithData (h : FS.Stream) (e : ResponseError α) : IO Unit :=
+    h.writeLspMessage e
+end
+
+end IO.FS.Stream

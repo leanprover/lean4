@@ -20,8 +20,8 @@ lean_object* l_Lean_Lsp_instFromJsonWorkspaceFolder___boxed(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonWorkspaceFolder___boxed(lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
 extern lean_object* l_Lean_Lsp_instFromJsonLocation___closed__1;
-lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonCommand___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instToJsonWorkspaceFolder(lean_object*);
+lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__2(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1() {
 _start:
 {
@@ -49,7 +49,7 @@ x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = l_Lean_Lsp_instFromJsonWorkspaceFolder___closed__1;
-x_7 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonCommand___spec__1(x_1, x_6);
+x_7 = l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__2(x_1, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; 

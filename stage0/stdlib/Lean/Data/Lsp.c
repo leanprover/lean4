@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp
-// Imports: Init Lean.Data.Lsp.Basic Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Communication Lean.Data.Lsp.Diagnostics Lean.Data.Lsp.Hover Lean.Data.Lsp.InitShutdown Lean.Data.Lsp.TextSync Lean.Data.Lsp.Utf16 Lean.Data.Lsp.Workspace
+// Imports: Init Lean.Data.Lsp.Basic Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Communication Lean.Data.Lsp.Diagnostics Lean.Data.Lsp.Extra Lean.Data.Lsp.Hover Lean.Data.Lsp.InitShutdown Lean.Data.Lsp.TextSync Lean.Data.Lsp.Utf16 Lean.Data.Lsp.Workspace Lean.Data.Lsp.Ipc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,11 +18,13 @@ lean_object* initialize_Lean_Data_Lsp_Basic(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Capabilities(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Communication(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Diagnostics(lean_object*);
+lean_object* initialize_Lean_Data_Lsp_Extra(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Hover(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_InitShutdown(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_TextSync(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Utf16(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Workspace(lean_object*);
+lean_object* initialize_Lean_Data_Lsp_Ipc(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Data_Lsp(lean_object* w) {
 lean_object * res;
@@ -43,6 +45,9 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Diagnostics(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Data_Lsp_Extra(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Hover(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -56,6 +61,9 @@ res = initialize_Lean_Data_Lsp_Utf16(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Workspace(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Lsp_Ipc(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

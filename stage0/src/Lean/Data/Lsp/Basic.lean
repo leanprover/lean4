@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Json
+import Lean.Data.JsonRpc
 
 /-! Defines most of the 'Basic Structures' in the LSP specification
 (https://microsoft.github.io/language-server-protocol/specifications/specification-current/),
@@ -17,6 +18,18 @@ namespace Lsp
 
 open Json
 
+structure CancelParams where
+  id : JsonRpc.RequestID
+
+instance CancelParams.hasFromJson : FromJson CancelParams :=
+  ⟨fun j => do
+    let id ← j.getObjValAs? JsonRpc.RequestID "id"
+    pure ⟨id⟩⟩
+
+instance CancelParams.hasToJson : ToJson CancelParams :=
+  ⟨fun o => mkObj $
+    ⟨"id", toJson o.id⟩ :: []⟩
+
 abbrev DocumentUri := String
 
 /-- We adopt the convention that zero-based UTF-16 positions as sent by LSP clients
@@ -26,8 +39,7 @@ offsets. For diagnostics, one-based `Lean.Position`s are used internally.
 structure Position where
   line : Nat
   character : Nat
-
-instance : Inhabited Position := ⟨⟨0, 0⟩⟩
+  deriving Inhabited
 
 instance : FromJson Position := ⟨fun j => do
   let line ← j.getObjValAs? Nat "line"
@@ -251,14 +263,12 @@ instance : ToJson TextDocumentRegistrationOptions :=
 inductive MarkupKind where
   | plaintext | markdown
 
-instance : FromJson MarkupKind := ⟨fun j =>
-  match j with
+instance : FromJson MarkupKind := ⟨fun
   | str "plaintext" => some MarkupKind.plaintext
   | str "markdown"  => some MarkupKind.markdown
   | _               => none⟩
 
-instance : ToJson MarkupKind := ⟨fun k =>
-  match k with
+instance : ToJson MarkupKind := ⟨fun
   | MarkupKind.plaintext => str "plaintext"
   | MarkupKind.markdown  => str "markdown"⟩
 
@@ -276,12 +286,49 @@ instance : ToJson MarkupContent := ⟨fun o =>
     ⟨"kind", toJson o.kind⟩,
     ⟨"value", o.value⟩]⟩
 
+structure ProgressParams (α : Type) where
+  token : String  -- do we need `integer`?
+  value : α
+
+instance [ToJson α] : ToJson (ProgressParams α) := ⟨fun o =>
+  mkObj [
+    ⟨"token", o.token⟩,
+    ⟨"value", toJson o.value⟩]⟩
+
+structure WorkDoneProgressReport where
+  kind := "report"
+  message? : Option String := none
+  cancellable := false
+  percentage? : Option Nat := none
+
+instance : ToJson WorkDoneProgressReport := ⟨fun o =>
+  mkObj [
+    ⟨"kind", o.kind⟩,
+    ⟨"message", toJson o.message?⟩,
+    ⟨"cancellable", o.cancellable⟩,
+    ⟨"percentage", toJson o.percentage?⟩]⟩
+
+structure WorkDoneProgressBegin extends WorkDoneProgressReport where
+  kind := "begin"
+  title : String
+
+instance : ToJson WorkDoneProgressBegin := ⟨fun o =>
+  mkObj [
+    ⟨"kind", o.kind⟩,
+    ⟨"title", o.title⟩,
+    ⟨"message", toJson o.message?⟩]⟩
+
+structure WorkDoneProgressEnd where
+  kind := "end"
+  message? : Option String := none
+
+instance : ToJson WorkDoneProgressEnd := ⟨fun o =>
+  mkObj [
+    ⟨"kind", o.kind⟩,
+    ⟨"message", toJson o.message?⟩]⟩
+
 -- TODO(Marc): missing:
--- WorkDoneProgressBegin, WorkDoneProgressReport,
--- WorkDoneProgressEnd, WorkDoneProgressParams,
 -- WorkDoneProgressOptions, PartialResultParams
--- Progress can be implemented
--- later when the basic functionality stands.
 
 end Lsp
 end Lean

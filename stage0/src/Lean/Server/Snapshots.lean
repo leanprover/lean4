@@ -25,6 +25,7 @@ it was produced from the header or from a command. -/
 inductive SnapshotData where
   | headerData : Environment → MessageLog → Options → SnapshotData
   | cmdData : Command.State → SnapshotData
+  deriving Inhabited
 
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot where
@@ -33,24 +34,26 @@ structure Snapshot where
   since inputs outside the grammar advance the parser but do not produce
   snapshots. -/
   beginPos : String.Pos
+  stx : Syntax
   mpState : Parser.ModuleParserState
   data : SnapshotData
+  deriving Inhabited
 
 namespace Snapshot
 
 def endPos (s : Snapshot) : String.Pos := s.mpState.pos
 
 def env : Snapshot → Environment
-  | ⟨_, _, SnapshotData.headerData env_ _ _⟩ => env_
-  | ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState.env
+  | ⟨_, _, _, SnapshotData.headerData env_ _ _⟩ => env_
+  | ⟨_, _, _, SnapshotData.cmdData cmdState⟩ => cmdState.env
 
 def msgLog : Snapshot → MessageLog
-  | ⟨_, _, SnapshotData.headerData _ msgLog_ _⟩ => msgLog_
-  | ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState.messages
+  | ⟨_, _, _, SnapshotData.headerData _ msgLog_ _⟩ => msgLog_
+  | ⟨_, _, _, SnapshotData.cmdData cmdState⟩ => cmdState.messages
 
 def toCmdState : Snapshot → Command.State
-  | ⟨_, _, SnapshotData.headerData env msgLog opts⟩ => Command.mkState env msgLog opts
-  | ⟨_, _, SnapshotData.cmdData cmdState⟩ => cmdState
+  | ⟨_, _, _, SnapshotData.headerData env msgLog opts⟩ => Command.mkState env msgLog opts
+  | ⟨_, _, _, SnapshotData.cmdData cmdState⟩ => cmdState
 
 end Snapshot
 
@@ -61,14 +64,31 @@ def compileHeader (contents : String) (opts : Options := {}) : IO Snapshot := do
   let inputCtx := Parser.mkInputContext contents "<input>"
   let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
   let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
-  pure { beginPos := 0,
-         mpState := headerParserState,
-         data := SnapshotData.headerData headerEnv msgLog opts
-       }
+  pure {
+    beginPos := 0
+    stx := headerStx
+    mpState := headerParserState
+    data := SnapshotData.headerData headerEnv msgLog opts
+  }
+
+def reparseHeader (contents : String) (header : Snapshot) (opts : Options := {}) : IO Snapshot := do
+  let inputCtx := Parser.mkInputContext contents "<input>"
+  let (_, newHeaderParserState, _) ← Parser.parseHeader inputCtx
+  pure { header with mpState := newHeaderParserState }
 
 private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
   nomatch ex
 
+/-- Parses the next command occurring after the given snapshot
+without elaborating it. -/
+def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
+  let inputCtx := Parser.mkInputContext contents "<input>"
+  let cmdState := snap.toCmdState
+  let scope := cmdState.scopes.head!
+  let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
+  let (cmdStx, _, _) :=
+    Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
+  cmdStx
 
 /-- Compiles the next command occurring after the given snapshot.
 If there is no next command (file ended), returns messages produced
@@ -77,21 +97,21 @@ through the file. -/
 -- over "store snapshots"/"don't store snapshots" would likely result in confusing
 -- isServer? conditionals and not be worth it due to how short it is.
 def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot MessageLog) := do
-  let inputCtx := Parser.mkInputContext contents "<input>";
-  let cmdState := snap.toCmdState;
+  let inputCtx := Parser.mkInputContext contents "<input>"
+  let cmdState := snap.toCmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, cmdParserState, msgLog) :=
-    Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog;
-  let cmdPos := cmdStx.getHeadInfo.get!.pos.get!; -- TODO(WN): always `some`?
+    Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
+  let cmdPos := cmdStx.getHeadInfo.get!.pos.get! -- TODO(WN): always `some`?
   if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-    pure $ Sum.inr msgLog
+    Sum.inr msgLog
   else
     let cmdStateRef ← IO.mkRef { snap.toCmdState with messages := msgLog }
     let cmdCtx : Elab.Command.Context := {
-        cmdPos := snap.endPos,
-        fileName := inputCtx.fileName,
-        fileMap := inputCtx.fileMap
+        cmdPos   := snap.endPos
+        fileName := inputCtx.fileName
+        fileMap  := inputCtx.fileMap
       }
     EIO.toIO ioErrorFromEmpty $
       Elab.Command.catchExceptions
@@ -99,21 +119,22 @@ def compileNextCmd (contents : String) (snap : Snapshot) : IO (Sum Snapshot Mess
         cmdCtx cmdStateRef
     let postCmdState ← cmdStateRef.get
     let postCmdSnap : Snapshot := {
-        beginPos := cmdPos,
-        mpState := cmdParserState,
+        beginPos := cmdPos
+        stx := cmdStx
+        mpState := cmdParserState
         data := SnapshotData.cmdData postCmdState
       }
-    pure $ Sum.inl postCmdSnap
+    Sum.inl postCmdSnap
 
 /-- Compiles all commands after the given snapshot. Returns them as a list, together with
 the final message log. -/
 partial def compileCmdsAfter (contents : String) (snap : Snapshot) : IO (List Snapshot × MessageLog) := do
   let cmdOut ← compileNextCmd contents snap
   match cmdOut with
-  | Sum.inl snap => do
+  | Sum.inl snap =>
     let (snaps, msgLog) ← compileCmdsAfter contents snap
-    pure $ (snap :: snaps, msgLog)
-  | Sum.inr msgLog => pure ([], msgLog)
+    (snap :: snaps, msgLog)
+  | Sum.inr msgLog => ([], msgLog)
 
 end Snapshots
 end Server

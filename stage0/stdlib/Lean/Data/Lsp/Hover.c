@@ -39,9 +39,9 @@ lean_object* l_Lean_Lsp_instFromJsonHover___closed__1;
 extern lean_object* l_Lean_Lsp_instFromJsonLocation___closed__1;
 extern lean_object* l_Lean_Lsp_instFromJsonLocation___closed__2;
 lean_object* l_Lean_Lsp_instFromJsonHover___boxed(lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonCommand___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_instFromJsonTextDocumentEdit___closed__1;
+lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__2(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Lsp_Hover_range_x3f___default() {
 _start:
 {
@@ -83,7 +83,7 @@ x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 lean_dec(x_7);
 x_10 = l_Lean_Lsp_instFromJsonMarkupContent___closed__2;
-x_11 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonCommand___spec__1(x_5, x_10);
+x_11 = l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__2(x_5, x_10);
 lean_dec(x_5);
 if (lean_obj_tag(x_11) == 0)
 {

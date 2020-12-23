@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
+lean_object* l_System_FilePath_exeSuffix___closed__1;
 lean_object* lean_string_push(lean_object*, uint32_t);
 extern uint8_t l_System_Platform_isWindows;
 lean_object* l_System_FilePath_dirName_match__1(lean_object*);
@@ -52,6 +53,7 @@ uint8_t l_System_FilePath_isCaseInsensitive___closed__1;
 lean_object* l_String_split___at_System_FilePath_splitSearchPath___spec__2(lean_object*);
 uint32_t l_System_FilePath_searchPathSeparator___closed__1;
 lean_object* l_System_FilePath_searchPathSeparators;
+lean_object* l_System_FilePath_exeSuffix___closed__2;
 lean_object* l_String_split___at_System_FilePath_splitSearchPath___spec__2___boxed(lean_object*);
 lean_object* l_String_mapAux___at_System_FilePath_normalizePath___spec__2(lean_object*, lean_object*);
 uint32_t l_System_FilePath_extSeparator;
@@ -69,6 +71,7 @@ lean_object* l_System_FilePath_pathSeparators___closed__1;
 uint8_t l_List_foldr___at_System_FilePath_normalizePath___spec__1(uint32_t, uint8_t, lean_object*);
 lean_object* l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
 lean_object* l_System_FilePath_dirName___closed__1;
+lean_object* l_System_FilePath_exeSuffix;
 lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 static uint32_t _init_l_System_FilePath_pathSeparator___closed__1() {
@@ -438,6 +441,41 @@ _start:
 {
 uint32_t x_1; 
 x_1 = 46;
+return x_1;
+}
+}
+static lean_object* _init_l_System_FilePath_exeSuffix___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string(".exe");
+return x_1;
+}
+}
+static lean_object* _init_l_System_FilePath_exeSuffix___closed__2() {
+_start:
+{
+uint8_t x_1; 
+x_1 = l_System_Platform_isWindows;
+if (x_1 == 0)
+{
+lean_object* x_2; 
+x_2 = l_Lean_instInhabitedParserDescr___closed__1;
+return x_2;
+}
+else
+{
+lean_object* x_3; 
+x_3 = l_System_FilePath_exeSuffix___closed__1;
+return x_3;
+}
+}
+}
+static lean_object* _init_l_System_FilePath_exeSuffix() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_System_FilePath_exeSuffix___closed__2;
 return x_1;
 }
 }
@@ -818,6 +856,12 @@ lean_mark_persistent(l_System_FilePath_searchPathSeparators___closed__3);
 l_System_FilePath_searchPathSeparators = _init_l_System_FilePath_searchPathSeparators();
 lean_mark_persistent(l_System_FilePath_searchPathSeparators);
 l_System_FilePath_extSeparator = _init_l_System_FilePath_extSeparator();
+l_System_FilePath_exeSuffix___closed__1 = _init_l_System_FilePath_exeSuffix___closed__1();
+lean_mark_persistent(l_System_FilePath_exeSuffix___closed__1);
+l_System_FilePath_exeSuffix___closed__2 = _init_l_System_FilePath_exeSuffix___closed__2();
+lean_mark_persistent(l_System_FilePath_exeSuffix___closed__2);
+l_System_FilePath_exeSuffix = _init_l_System_FilePath_exeSuffix();
+lean_mark_persistent(l_System_FilePath_exeSuffix);
 l_System_FilePath_isCaseInsensitive___closed__1 = _init_l_System_FilePath_isCaseInsensitive___closed__1();
 l_System_FilePath_isCaseInsensitive = _init_l_System_FilePath_isCaseInsensitive();
 l_System_FilePath_normalizePath___closed__1 = _init_l_System_FilePath_normalizePath___closed__1();

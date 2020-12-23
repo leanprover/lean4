@@ -33,6 +33,9 @@ def splitSearchPath (s : String) : List String :=
 /-- File extension character -/
 def extSeparator : Char := '.'
 
+def exeSuffix : String :=
+if isWindows then ".exe" else ""
+
 /-- Case-insensitive file system -/
 def isCaseInsensitive : Bool := isWindows || isOSX
 

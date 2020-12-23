@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Util
+import Lean.Util.Sorry
 import Lean.Elab.Exception
 
 namespace Lean.Elab
@@ -33,12 +34,13 @@ def getRefPosition : m Position := do
   let fileMap ← getFileMap
   return fileMap.toPosition (← getRefPos)
 
-def logAt (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error): m Unit := do
-  let ref  := replaceRef ref (← MonadLog.getRef)
-  let pos  := ref.getPos.getD 0
-  let fileMap ← getFileMap
-  let msgData ← addMessageContext msgData
-  logMessage { fileName := (← getFileName), pos := fileMap.toPosition pos, data := msgData, severity := severity }
+def logAt (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error): m Unit :=
+  unless severity == MessageSeverity.error && msgData.hasSyntheticSorry do
+    let ref  := replaceRef ref (← MonadLog.getRef)
+    let pos  := ref.getPos.getD 0
+    let fileMap ← getFileMap
+    let msgData ← addMessageContext msgData
+    logMessage { fileName := (← getFileName), pos := fileMap.toPosition pos, data := msgData, severity := severity }
 
 def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=
   logAt ref msgData MessageSeverity.error

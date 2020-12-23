@@ -62,8 +62,8 @@ partial def unfoldAsync [Coe Error ε] (f : α → ExceptT ε IO α)
   let tInit ← coeErr <$> asTask (step init)
   asyncTail tInit
 
-/-- Waits for the entire computation to finish and returns the computed
-list. If computation was ongoing, also returns the terminating value. -/
+/-- The computed, synchronous list. If an async tail was present, returns also
+its terminating value. -/
 partial def getAll : AsyncList ε α → List α × Option ε
   | cons hd tl =>
     let ⟨l, e?⟩ := tl.getAll
@@ -74,9 +74,9 @@ partial def getAll : AsyncList ε α → List α × Option ε
     | Except.ok tl => tl.getAll
     | Except.error e => ⟨[], some e⟩
 
-/-- Waits for the entire computation to finish and returns the computed
-list. If computation was ongoing, also returns the terminating value.
-As opposed to getAll, ensures that the waiting is completed. -/
+/-- An IO action which ensures that the async tail, if it exists,
+is fully executed. This is useful if the computation has side effects.
+Returns the same values as `getAll`. -/
 partial def waitAll : AsyncList ε α → IO (List α × Option ε)
   | cons hd tl => do
     let ⟨l, e?⟩ ← tl.waitAll
@@ -106,7 +106,7 @@ private partial def finishedPrefixAux : List α → AsyncList ε α → List α
   | acc, nil          => acc
   | acc, asyncTail tl => acc
 
-/-- The longest already-computed prefix of the stream. -/
+/-- The longest already-computed prefix of the list. -/
 def finishedPrefix : AsyncList ε α → List α :=
   List.reverse ∘ (finishedPrefixAux [])
 

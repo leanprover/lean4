@@ -301,7 +301,7 @@ private partial def withFields
         | none       => throwError! "field '{view.name}' has been declared in parent structure"
         | some valStx => do
           if !view.binders.getArgs.isEmpty || view.type?.isSome then
-            throwErrorAt! view.type?.get! "omit field '{view.name}' type to set default value"
+            throwErrorAt! view.ref "omit field '{view.name}' type to set default value"
           let fvarType ← inferType info.fvar
           let value ← Term.elabTermEnsuringType valStx fvarType
           let infos := infos.push { info with value? := value }

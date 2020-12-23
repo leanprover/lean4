@@ -1,5 +1,5 @@
 { debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, buildLeanPackage, writeShellScriptBin,
+  stdenv, lib, cmake, gmp, buildLeanPackage, writeShellScriptBin, runCommand,
   ... } @ args:
 rec {
   inherit stdenv;
@@ -39,7 +39,11 @@ rec {
       mv lib/ $out/
     '';
   };
-  stage0 = args.stage0 or (buildCMake {
+  # rename derivation so `nix run` uses the right executable name but we still see the stage in the build log
+  wrapStage = stage: runCommand "lean" {} ''
+    ln -s ${stage} $out
+  '';
+  stage0 = wrapStage (args.stage0 or (buildCMake {
     name = "lean-stage0";
     src = ../stage0/src;
     debug = false;
@@ -51,7 +55,7 @@ rec {
       mkdir -p $out/bin
       mv bin/lean $out/bin/
     '';
-  });
+  }));
   stage = { stage, prevStage, self }:
     let
       desc = "stage${toString stage}";
@@ -70,9 +74,8 @@ rec {
       Lean = build { name = "Lean"; src = ../src; deps = [ Init Std ]; };
       inherit (Lean) emacs-dev emacs-package;
       mods = Init.mods // Std.mods // Lean.mods;
-      lean = stdenv.mkDerivation {
-        # can't use `${desc}` here without breaking `nix run`...
-        name = "lean";
+      lean = wrapStage(stdenv.mkDerivation {
+        name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
           ln -sf ${leancpp}/lib/lean/* ${Init.staticLib}/* ${Init.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* $out/lib/lean/
@@ -80,7 +83,7 @@ rec {
           ln -s ${leanc}/bin/leanc $out/bin/
           ln -s ${leanc}/include $out/
         '';
-      };
+      });
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];

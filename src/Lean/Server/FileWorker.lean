@@ -75,7 +75,8 @@ section ServerM
   abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) (fun a b => Decidable.decide (a < b))
 
   structure ServerContext where
-    hIn hOut           : FS.Stream
+    hIn                : FS.Stream
+    hOut               : FS.Stream
     docRef             : IO.Ref EditableDocument
     pendingRequestsRef : IO.Ref PendingRequestMap
 

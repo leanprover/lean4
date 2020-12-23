@@ -79,7 +79,8 @@ abbrev DocumentMap :=
   RBMap DocumentUri EditableDocument (fun a b => Decidable.decide (a < b))
 
 structure ServerContext where
-  hIn hOut : FS.Stream
+  hIn  : FS.Stream
+  hOut : FS.Stream
   openDocumentsRef : IO.Ref DocumentMap
   -- TODO (requestsInFlight : IO.Ref (Array (Task (Σ α, Response α))))
 

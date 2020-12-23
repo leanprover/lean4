@@ -93,8 +93,9 @@ def minPrec  : Nat := evalPrec! min
 abbrev Token := String
 
 structure TokenCacheEntry where
-  startPos stopPos : String.Pos := 0
-  token : Syntax := Syntax.missing
+  startPos : String.Pos := 0
+  stopPos  : String.Pos := 0
+  token    : Syntax := Syntax.missing
 
 structure ParserCache where
   tokenCache : TokenCacheEntry

@@ -43,6 +43,11 @@ instance [FromJson α] : FromJson (Array α) := ⟨fun
 instance [ToJson α] : ToJson (Array α) :=
   ⟨fun a => Json.arr (a.map toJson)⟩
 
+instance [ToJson α] : ToJson (Option α) :=
+  ⟨fun
+    | none   => Json.null
+    | some a => toJson a⟩
+
 namespace Json
 
 instance : FromJson Structured := ⟨fun
@@ -60,9 +65,8 @@ def toStructured? [ToJson α] (v : α) : Option Structured :=
 def getObjValAs? (j : Json) (α : Type u) [FromJson α] (k : String) : Option α :=
   (j.getObjVal? k).bind fromJson?
 
-def opt [ToJson α] (k : String) : Option α → List (String × Json)
-  | some o => [⟨k, toJson o⟩]
-  | none   => []
+def opt [ToJson α] (k : String) (o : Option α) : List (String × Json) :=
+  [⟨k, toJson o⟩]
 
 end Json
 end Lean

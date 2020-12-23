@@ -85,6 +85,11 @@ instance DidChangeTextDocumentParams.hasToJson : ToJson DidChangeTextDocumentPar
 structure SaveOptions where
   includeText : Bool
 
+instance : FromJson SaveOptions :=
+  ⟨fun j => do
+    let includeText ← j.getObjValAs? Bool "includeText"
+    pure ⟨includeText⟩⟩
+
 instance : ToJson SaveOptions := ⟨fun o =>
   mkObj $ [⟨"includeText", o.includeText⟩]⟩
 
@@ -106,6 +111,15 @@ structure TextDocumentSyncOptions where
   willSave : Bool
   willSaveWaitUntil : Bool
   save? : Option SaveOptions := none
+
+instance : FromJson TextDocumentSyncOptions :=
+  ⟨fun j => do
+    let openClose ← j.getObjValAs? Bool "openClose"
+    let change ← j.getObjValAs? TextDocumentSyncKind "change"
+    let willSave ← j.getObjValAs? Bool "willSave"
+    let willSaveUntil ← j.getObjValAs? Bool "willSaveWaitUntil"
+    let save? := j.getObjValAs? SaveOptions "save"
+    pure ⟨openClose, change, willSave, willSaveUntil, save?⟩⟩
 
 instance : ToJson TextDocumentSyncOptions := ⟨fun o =>
   mkObj $

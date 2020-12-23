@@ -461,59 +461,6 @@ def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
     : ServerContext
   }
 
-namespace Test
-
-def watchdogCfg : Process.StdioConfig where
-  stdin  := Process.Stdio.piped
-  stdout := Process.Stdio.piped
-  stderr := Process.Stdio.piped
-
-abbrev WatchdogM := ReaderT (Process.Child watchdogCfg) IO
-
-variable [ToJson α]
-
-def stdin : WatchdogM FS.Stream := do
-  FS.Stream.ofHandle (←read).stdin
-
-def stdout : WatchdogM FS.Stream := do
-  FS.Stream.ofHandle (←read).stdout
-
-def writeRequest (r : Request α) : WatchdogM Unit := do
-  (←stdin).writeLspRequest r
-
-def writeNotification (n : Notification α) : WatchdogM Unit := do
-  (←stdin).writeLspNotification n
-
-def readResponseAs (expectedID : RequestID) (α) [FromJson α] : WatchdogM (Response α) := do
-  (←stdout).readLspResponseAs expectedID α
-
-partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target : DocumentUri)
-: WatchdogM (List (Notification PublishDiagnosticsParams)) := do
-  writeRequest ⟨waitForDiagnosticsId, "textDocument/waitForDiagnostics", WaitForDiagnosticsParam.mk target⟩
-  let rec loop : WatchdogM (List (Notification PublishDiagnosticsParams)) := do
-    let error : IO (List (Notification PublishDiagnosticsParams)) := throw $ userError "Got unexpected packet while collecting diagnostics"
-    match ←(←stdout).readLspMessage with
-    | Message.response id _ =>
-      if id = waitForDiagnosticsId then
-        []
-      else
-        error
-    | Message.notification "textDocument/publishDiagnostics" (some param) =>
-      match fromJson? (toJson param) with
-      | some diagnosticParam => ⟨"textDocument/publishDiagnostics", diagnosticParam⟩ :: (←loop)
-      | none                 => error
-    | _ => error
-  loop
-
-def runWatchdogTest (test : WatchdogM Unit) : IO Unit := do
-  let proc ← Process.spawn {
-    toStdioConfig := watchdogCfg
-    cmd           := ←IO.appPath
-    args          := #["--server"]
-  }
-  ReaderT.run test proc
-end Test
-
 @[export lean_server_watchdog_main]
 def watchdogMain : IO UInt32 := do
   let i ← IO.getStdin

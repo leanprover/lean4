@@ -274,7 +274,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{constName}'"
   | declTypeMismatch env decl givenType =>
     let process (n : Name) (expectedType : Expr) : MessageData :=
-      m!"(kernel) declaration type mismatch, '{n}' has type{indentExpr givenType}\n, but it is expected to have type{indentExpr expectedType}";
+      m!"(kernel) declaration type mismatch, '{n}' has type{indentExpr givenType}\nbut it is expected to have type{indentExpr expectedType}";
     match decl with
     | Declaration.defnDecl { name := n, type := type, .. } => process n type
     | Declaration.thmDecl { name := n, type := type, .. }  => process n type

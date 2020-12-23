@@ -25,7 +25,9 @@ def Prod.str : Nat × Nat → String :=
   fun (a, b) => "(" ++ toString a ++ ", " ++ toString b ++ ")"
 
 structure Point where
-  x y z : Nat
+  x : Nat
+  y : Nat
+  z : Nat
 
 def Point.addX : Point → Point → Nat :=
   fun { x := a, .. } { x := b, .. } =>  a+b

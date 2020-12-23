@@ -1,0 +1,3 @@
+Content-Length: 141
+
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///empty","languageId":"lean","version":1,"text":""}}}

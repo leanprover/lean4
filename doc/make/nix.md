@@ -70,6 +70,8 @@ Starting a known-good (pinned) version of Emacs from the Lean shell with `lean4-
 ```bash
 nix run .#emacs-dev
 ```
+After adding `src/` as an LSP workspace using `lsp-workspace-folder-add`, it should automatically fall back to using stage 0 in there.
+
 If you've already installed lean4-mode manually, you might need to first deactivate that. `elan` can be left as is on the other hand.
 
 Arguments can be passed as well:

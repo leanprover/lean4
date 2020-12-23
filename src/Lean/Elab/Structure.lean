@@ -421,13 +421,13 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   pure { name := view.ctor.declName, type := type }
 
 @[extern "lean_mk_projections"]
-private constant mkProjections (env : Environment) (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : Except String Environment
+private constant mkProjections (env : Environment) (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : Except KernelException Environment
 
 private def addProjections (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : TermElabM Unit := do
   let env ← getEnv
   match mkProjections env structName projs isClass with
-  | Except.ok env    => setEnv env
-  | Except.error msg => throwError msg
+  | Except.ok env   => setEnv env
+  | Except.error ex => throwKernelException ex
 
 private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let env ← getEnv

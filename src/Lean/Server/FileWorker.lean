@@ -127,9 +127,7 @@ section ServerM
   def compileDocument (m : DocumentMeta) : ServerM Unit := do
     let headerSnap@⟨_, _, _, SnapshotData.headerData env msgLog opts⟩ ← Snapshots.compileHeader m.text.source
       | throwServerError "Internal server error: invalid header snapshot"
-    -- TODO(WN): Remove the hardcoded option once the server is linked against stage0
-    let opts' := opts.setBool `interpreter.prefer_native false
-    let headerSnap' := { headerSnap with data := SnapshotData.headerData env msgLog opts' }
+    let headerSnap' := { headerSnap with data := SnapshotData.headerData env msgLog opts }
     let cmdSnaps ← unfoldCmdSnaps m headerSnap
     (←read).docRef.set ⟨m, headerSnap, cmdSnaps⟩
 

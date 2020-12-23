@@ -20,32 +20,52 @@ call() {
 json=0
 input=
 inputFile=
+server=0
+worker=0
+dir="$PWD"
+deps=
+args=(-- "$@")
 for p in "$@"; do
     case "$p" in
         --json) json=1;;
         --stdin) input="$(< /dev/stdin)";;
+        --server)
+            server=1
+            export LEAN_WORKER_PATH="$0"
+            ;;
+        --worker) worker=1;;
         -*) ;;
-        *) inputFile="$p";;
+        *)
+            if [[ $worker == 1 ]]; then
+                deps="$deps $p"
+            else
+                inputFile="$p"
+                input="$(< "$inputFile")"
+                dir="$(dirname "$inputFile")"
+            fi
+            ;;
     esac
 done
-if [[ -z "$input" && -f "$inputFile" ]]; then
-    input="$(< "$inputFile")"
-fi
 
-# find package root of input file
-root="$(dirname "${inputFile:-/}")"
+root="$dir"
+# find package root
 while [[ "$root" != / ]]; do
     [ -f "$root/flake.nix" ] && break
     root="$(realpath "$root/..")"
 done
 # fall back to current package
 [[ "$root" == / ]] && root="@srcRoot@"
-deps="$(echo -n "$input" | nix run "$root#print-lean-deps" 2> /dev/null)"
+if [[ -n "$input" || -n "$inputFile" ]]; then
+    deps="$(echo -n "$input" | nix run "$root#print-lean-deps" 2> /dev/null)"
+fi
 target="$root#check-mod"
-args=(-- "$@")
 # HACK: use stage 0 instead of 1 inside Lean's own `src/`
-[[ -d "$root/src/Lean" && "$(realpath "$inputFile")" == "$root/src/"* ]] && target="@srcCheckTarget@" && args=@srcCheckArgs@
+[[ -d "$root/src/Lean" && "$dir" == "$root/src"* ]] && target="@srcCheckTarget@" && args=@srcCheckArgs@
 for dep in $deps; do
     target="$target.\"$dep\""
 done
-echo -n "$input" | call nix run "$target" ${args[*]}
+if [[ -z "$input" ]]; then
+    call nix run "$target" ${args[*]}
+else
+    echo -n "$input" | call nix run "$target" ${args[*]}
+fi

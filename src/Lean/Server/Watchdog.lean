@@ -208,7 +208,8 @@ section ServerM
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
       cmd           := st.workerPath
-      args          := #["--worker"]
+      -- append file and imports for Nix support; ignored otherwise
+      args          := #["--worker"] ++ (Lean.Elab.headerToImports headerAst).toArray.map (toString ·.module)
     }
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     -- The task will never access itself, so this is fine

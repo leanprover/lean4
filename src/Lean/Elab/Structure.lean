@@ -300,12 +300,16 @@ private partial def withFields
         match view.value? with
         | none       => throwError! "field '{view.name}' has been declared in parent structure"
         | some valStx => do
-          if !view.binders.getArgs.isEmpty || view.type?.isSome then
-            throwErrorAt! view.ref "omit field '{view.name}' type to set default value"
-          let fvarType ← inferType info.fvar
-          let value ← Term.elabTermEnsuringType valStx fvarType
-          let infos := infos.push { info with value? := value }
-          withFields views (i+1) infos k
+          if let some type := view.type? then
+            throwErrorAt! type "omit field '{view.name}' type to set default value"
+          else
+            let mut valStx := valStx
+            if view.binders.getArgs.size > 0 then
+              valStx ← `(fun $(view.binders.getArgs)* => $valStx:term)
+            let fvarType ← inferType info.fvar
+            let value ← Term.elabTermEnsuringType valStx fvarType
+            let infos := infos.push { info with value? := value }
+            withFields views (i+1) infos k
       | StructFieldKind.subobject => unreachable!
   else
     k infos

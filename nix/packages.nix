@@ -39,14 +39,13 @@ let
     pname = "lean4-mode";
     version = "1";
     src = ../lean4-mode;
-    packageRequires = with pkgs.emacsPackages.melpaPackages; [ dash dash-functional f flycheck s ];
+    packageRequires = with pkgs.emacsPackages.melpaPackages; [ dash dash-functional f flycheck lsp-mode s ];
     recipe = pkgs.writeText "recipe" ''
       (lean4-mode :repo "leanprover/lean4" :fetcher github :files ("*.el"))
     '';
     fileSpecs = [ "*.el" ];
   };
-  lean-emacs = emacsWithPackages (epkgs:
-    with epkgs; [ dash dash-functional f flycheck s ] ++ [ lean4-mode ]);
+  lean-emacs = emacsWithPackages [ lean4-mode ];
   lean-mdbook = mdbook.overrideAttrs (drv: rec {
     name = "lean-${mdbook.name}";
     src = mdBook;

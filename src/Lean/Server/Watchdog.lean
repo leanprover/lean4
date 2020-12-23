@@ -150,7 +150,9 @@ section ServerM
   abbrev FileWorkerMap := RBMap DocumentUri FileWorker (fun a b => Decidable.decide (a < b))
 
   structure ServerContext where
-    hIn hOut hLog  : FS.Stream
+    hIn            : FS.Stream
+    hOut           : FS.Stream
+    hLog           : FS.Stream
     fileWorkersRef : IO.Ref FileWorkerMap
     -- We store these to pass them to workers.
     initParams     : InitializeParams

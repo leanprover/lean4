@@ -204,13 +204,10 @@ section
     match m with
     | Message.request id method params? =>
       if method = expectedMethod then
-        match params? with
-        | some params =>
-          let j := toJson params
-          match fromJson? j with
-          | some v => pure ⟨id, expectedMethod, v⟩
-          | none   => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'"
-        | none => throw $ userError s!"Unexpected lack of param for method '{expectedMethod}'"
+        let j := toJson params?
+        match fromJson? j with
+        | some v => pure ⟨id, expectedMethod, v⟩
+        | none   => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'"
       else
         throw $ userError s!"Expected method '{expectedMethod}', got method '{method}'"
     | _ => throw $ userError "Expected request, got other type of message"
@@ -220,13 +217,10 @@ section
     match m with
     | Message.notification method params? =>
       if method = expectedMethod then
-        match params? with
-        | some params =>
-          let j := toJson params
-          match fromJson? j with
-          | some v => pure ⟨expectedMethod, v⟩
-          | none   => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'"
-        | none => throw $ userError s!"Unexpected lack of param for method '{expectedMethod}'"
+        let j := toJson params?
+        match fromJson? j with
+        | some v => pure ⟨expectedMethod, v⟩
+        | none   => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'"
       else
         throw $ userError s!"Expected method '{expectedMethod}', got method '{method}'"
     | _ => throw $ userError "Expected notification, got other type of message"

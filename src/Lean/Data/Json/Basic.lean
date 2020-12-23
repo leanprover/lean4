@@ -147,6 +147,10 @@ instance : Coe Int Json := ⟨fun n => Json.num n⟩
 instance : Coe String Json := ⟨Json.str⟩
 instance : Coe Bool Json := ⟨Json.bool⟩
 
+def isNull : Json -> Bool
+  | null => true
+  | _    => false
+
 def getObj? : Json → Option (RBNode String (fun _ => Json))
   | obj kvs => kvs
   | _       => none

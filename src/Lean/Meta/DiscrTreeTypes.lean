@@ -17,7 +17,7 @@ inductive Key where
   | lit   : Literal → Key
   | star  : Key
   | other : Key
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 protected def Key.hash : Key → USize
   | Key.const n a => mixHash 5237 $ mixHash (hash n) (hash a)
@@ -27,16 +27,6 @@ protected def Key.hash : Key → USize
   | Key.other     => 2411
 
 instance : Hashable Key := ⟨Key.hash⟩
-
-protected def Key.beq : Key → Key → Bool
-  | Key.const c₁ a₁, Key.const c₂ a₂ => c₁ == c₂ && a₁ == a₂
-  | Key.fvar c₁ a₁,  Key.fvar c₂ a₂  => c₁ == c₂ && a₁ == a₂
-  | Key.lit v₁,      Key.lit v₂      => v₁ == v₂
-  | Key.star,        Key.star        => true
-  | Key.other,       Key.other       => true
-  | _,                _              => false
-
-instance : BEq Key := ⟨Key.beq⟩
 
 inductive Trie (α : Type) where
   | node (vs : Array α) (children : Array (Key × Trie α)) : Trie α

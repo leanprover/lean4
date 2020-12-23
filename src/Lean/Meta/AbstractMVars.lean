@@ -11,12 +11,7 @@ structure AbstractMVarsResult where
   paramNames : Array Name
   numMVars   : Nat
   expr       : Expr
-  deriving Inhabited
-
-def AbstractMVarsResult.beq (r₁ r₂ : AbstractMVarsResult) : Bool :=
-  r₁.paramNames == r₂.paramNames && r₁.numMVars == r₂.numMVars && r₁.expr == r₂.expr
-
-instance : BEq AbstractMVarsResult := ⟨AbstractMVarsResult.beq⟩
+  deriving Inhabited, BEq
 
 namespace AbstractMVars
 

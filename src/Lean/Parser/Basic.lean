@@ -141,7 +141,7 @@ def ParserContext.resolveName (ctx : ParserContext) (id : Name) : List (Name × 
 structure Error where
   unexpected : String := ""
   expected : List String := []
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 namespace Error
 
@@ -160,11 +160,6 @@ protected def toString (e : Error) : String :=
   "; ".intercalate $ unexpected ++ expected
 
 instance : ToString Error := ⟨Error.toString⟩
-
-protected def beq (e₁ e₂ :  Error) : Bool :=
-  e₁.unexpected == e₂.unexpected && e₁.expected == e₂.expected
-
-instance : BEq Error := ⟨Error.beq⟩
 
 def merge (e₁ e₂ : Error) : Error :=
   match e₂ with

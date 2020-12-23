@@ -10,18 +10,7 @@ namespace Lean.Compiler
 
 inductive SpecializeAttributeKind where
   | specialize | nospecialize
-  deriving Inhabited
-
-namespace SpecializeAttributeKind
-
-protected def beq : SpecializeAttributeKind → SpecializeAttributeKind → Bool
-  | specialize, specialize => true
-  | nospecialize, nospecialize => true
-  | _, _ => false
-
-instance : BEq SpecializeAttributeKind := ⟨SpecializeAttributeKind.beq⟩
-
-end SpecializeAttributeKind
+  deriving Inhabited, BEq
 
 builtin_initialize specializeAttrs : EnumAttributes SpecializeAttributeKind ←
   registerEnumAttributes `specializeAttrs

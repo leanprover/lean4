@@ -7,10 +7,7 @@ namespace Lean
 
 structure InternalExceptionId where
   idx : Nat := 0
-  deriving Inhabited
-
-instance : BEq InternalExceptionId where
-  beq id₁ id₂ := id₁.idx == id₂.idx
+  deriving Inhabited, BEq
 
 builtin_initialize internalExceptionsRef : IO.Ref (Array Name) ← IO.mkRef #[]
 

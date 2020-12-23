@@ -1,5 +1,0 @@
-Content-Length: 221
-
-{"result":{"serverInfo":{"version":"0.0.1","name":"Lean 4 server"},"capabilities":{"textDocumentSync":{"willSaveWaitUntil":false,"willSave":false,"openClose":true,"change":2},"hoverProvider":true}},"jsonrpc":"2.0","id":0}Content-Length: 38
-
-{"result":null,"jsonrpc":"2.0","id":1}

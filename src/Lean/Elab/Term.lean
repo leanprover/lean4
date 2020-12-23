@@ -797,8 +797,7 @@ private def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : Te
   let u ← getLevel expectedType
   -- TODO: should be `(sorryAx.{$u} $expectedType true) when we support antiquotations at that place
   let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
-  unless ex.hasSyntheticSorry do
-    logException ex
+  logException ex
   pure syntheticSorry
 
 /-- If `mayPostpone == true`, throw `Expection.postpone`. -/

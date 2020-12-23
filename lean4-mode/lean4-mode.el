@@ -221,15 +221,53 @@ Invokes `lean4-mode-hook'.
     (add-hook hook fn nil 'local))
   (lean4-mode-setup))
 
+(define-derived-mode lean4-lsp-mode prog-mode "Lean 4 LSP"
+  "Major mode for Lean
+\\{lean4-mode-map}
+"
+  :syntax-table lean4-syntax-table
+  :abbrev-table lean4-abbrev-table
+  :group 'lean
+  (set (make-local-variable 'comment-start) "--")
+  (set (make-local-variable 'comment-start-skip) "[-/]-[ \t]*")
+  (set (make-local-variable 'comment-end) "")
+  (set (make-local-variable 'comment-end-skip) "[ \t]*\\(-/\\|\\s>\\)")
+  (set (make-local-variable 'comment-padding) 1)
+  (set (make-local-variable 'comment-use-syntax) t)
+  (set (make-local-variable 'font-lock-defaults) lean4-font-lock-defaults)
+  (set (make-local-variable 'indent-tabs-mode) nil)
+  (set 'compilation-mode-font-lock-keywords '())
+  (set-input-method "Lean")
+  (set (make-local-variable 'lisp-indent-function)
+       'common-lisp-indent-function)
+  (lean4-set-keys)
+  (if (fboundp 'electric-indent-local-mode)
+      (electric-indent-local-mode -1)))
+
 ;; Automatically use lean4-mode for .lean files.
 ;;;###autoload
-(push '("\\.lean$" . lean4-mode) auto-mode-alist)
-(push '("\\.hlean$" . lean4-mode) auto-mode-alist)
+(push '("\\.lean$" . lean4-lsp-mode) auto-mode-alist)
 
 ;; Use utf-8 encoding
 ;;;### autoload
 (modify-coding-system-alist 'file "\\.lean\\'" 'utf-8)
-(modify-coding-system-alist 'file "\\.hlean\\'" 'utf-8)
+
+;; LSP init
+(require 'lsp-mode)
+;; Ref: https://emacs-lsp.github.io/lsp-mode/page/adding-new-language/
+(add-to-list 'lsp-language-id-configuration
+             '(lean4-lsp-mode . "lean4"))
+
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection `(,(lean4-get-executable lean4-executable-name) "--server"))
+                  :major-modes '(lean4-lsp-mode)
+                  :environment-fn (lambda ()
+                                    '(;; Set to dump LSP communications
+                                      ;("LEAN_SERVER_LOG_DIR" . "my/log/dir")
+                                      ))
+                  :server-id 'lean4-lsp))
+
+(add-hook 'lean4-lsp-mode-hook #'lsp)
 
 ;; Flycheck init
 (eval-after-load 'flycheck

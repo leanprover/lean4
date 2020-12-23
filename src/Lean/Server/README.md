@@ -4,11 +4,9 @@ The server gets built together with the main `lean` binary.
 
 ## Connecting clients
 
-### Emacs with lsp-mode
+### Emacs with lean4-mode
 
-You need to have both [lsp-mode](https://github.com/emacs-lsp/lsp-mode) and [lean4-mode](https://github.com/leanprover/lean4/tree/master/lean4-mode) installed.
-Then in the file `lean4-lsp.el`, replace `$LEAN4_HOME` with `/path/to/lean4`.
-Then running `eval-buffer` on the file should make `lean4-lsp-mode` available.
+Works out of the box. The old, language server-less major mode can still be accessed by running `lean4-mode`.
 
 ### VSCode with lsp-sample
 

@@ -286,12 +286,49 @@ instance : ToJson MarkupContent := ⟨fun o =>
     ⟨"kind", toJson o.kind⟩,
     ⟨"value", o.value⟩]⟩
 
+structure ProgressParams (α : Type) where
+  token : String  -- do we need `integer`?
+  value : α
+
+instance [ToJson α] : ToJson (ProgressParams α) := ⟨fun o =>
+  mkObj [
+    ⟨"token", o.token⟩,
+    ⟨"value", toJson o.value⟩]⟩
+
+structure WorkDoneProgressReport where
+  kind := "report"
+  message? : Option String := none
+  cancellable := false
+  percentage? : Option Nat := none
+
+instance : ToJson WorkDoneProgressReport := ⟨fun o =>
+  mkObj [
+    ⟨"kind", o.kind⟩,
+    ⟨"message", toJson o.message?⟩,
+    ⟨"cancellable", o.cancellable⟩,
+    ⟨"percentage", toJson o.percentage?⟩]⟩
+
+structure WorkDoneProgressBegin extends WorkDoneProgressReport where
+  kind := "begin"
+  title : String
+
+instance : ToJson WorkDoneProgressBegin := ⟨fun o =>
+  mkObj [
+    ⟨"kind", o.kind⟩,
+    ⟨"title", o.title⟩,
+    ⟨"message", toJson o.message?⟩]⟩
+
+structure WorkDoneProgressEnd where
+  kind := "end"
+  message? : Option String := none
+
+instance : ToJson WorkDoneProgressEnd := ⟨fun o =>
+  mkObj [
+    ⟨"kind", o.kind⟩,
+    ⟨"message", toJson o.message?⟩]⟩
+
 -- TODO(Marc): missing:
--- WorkDoneProgressBegin, WorkDoneProgressReport,
--- WorkDoneProgressEnd, WorkDoneProgressParams,
 -- WorkDoneProgressOptions, PartialResultParams
--- Progress can be implemented
--- later when the basic functionality stands.
 
 end Lsp
 end Lean

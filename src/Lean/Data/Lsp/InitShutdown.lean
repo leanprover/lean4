@@ -89,11 +89,20 @@ inductive InitializedParams where
   | mk
 
 instance : FromJson InitializedParams :=
-  ⟨fun j => InitializedParams.mk⟩
+  ⟨fun _ => InitializedParams.mk⟩
+
+instance : ToJson InitializedParams :=
+  ⟨fun _ => Json.null⟩
 
 structure ServerInfo where
   name : String
   version? : Option String := none
+
+instance : FromJson ServerInfo :=
+  ⟨fun j => do
+    let name ← j.getObjValAs? String "name"
+    let version? := j.getObjValAs? String "version"
+    pure ⟨name, version?⟩⟩
 
 instance : ToJson ServerInfo := ⟨fun o => mkObj $
   ⟨"name", o.name⟩ ::
@@ -102,6 +111,12 @@ instance : ToJson ServerInfo := ⟨fun o => mkObj $
 structure InitializeResult where
   capabilities : ServerCapabilities
   serverInfo? : Option ServerInfo := none
+
+instance : FromJson InitializeResult :=
+  ⟨fun j => do
+    let capabilities ← j.getObjValAs? ServerCapabilities "capabilities"
+    let serverInfo? := j.getObjValAs? ServerInfo "serverInfo"
+    pure ⟨capabilities, serverInfo?⟩⟩
 
 instance : ToJson InitializeResult := ⟨fun o =>
   mkObj $

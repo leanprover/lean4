@@ -102,24 +102,14 @@ infixl:60  " <* "  => SeqLeft.seqLeft
 infixr:60  " *> "  => SeqRight.seqRight
 infixr:100 " <$> " => Functor.map
 
-syntax (name := «termIf__:_Then_Else_») ppGroup(ppDedent("if " ident " : " term " then" ppLine term ppDedent(ppLine "else") ppLine term)) : term
-
-macro_rules
-  | `(if $h:ident : $c then $t:term else $e:term) => `(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
-
 syntax (name := termDepIfThenElse) (priority := high) ppGroup(ppDedent("if " ident " : " term " then" ppLine term ppDedent(ppLine "else") ppLine term)) : term
 
-macro_rules[termDepIfThenElse]
-  | `(if $h:ident : $c then $t:term else $e:term) => `(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
-
-syntax (name := termIf_Then_Else_) ppGroup(ppDedent("if " term " then" ppLine term ppDedent(ppLine "else") ppLine term)) : term
-
 macro_rules
-  | `(if $c then $t:term else $e:term) => `(ite $c $t $e)
+  | `(if $h:ident : $c then $t:term else $e:term) => `(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
 
 syntax (name := termIfThenElse) (priority := high) ppGroup(ppDedent("if " term " then" ppLine term ppDedent(ppLine "else") ppLine term)) : term
 
-macro_rules[termIfThenElse]
+macro_rules
   | `(if $c then $t:term else $e:term) => `(ite $c $t $e)
 
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>

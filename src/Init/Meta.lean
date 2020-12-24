@@ -121,6 +121,12 @@ partial def getTailInfo : Syntax → Option SourceInfo
   | node _ args   => args.findSomeRev? getTailInfo
   | _             => none
 
+partial def getTailPos : Syntax → Option String.Pos
+  | atom { pos := some pos, .. }  val    => some (pos + val.bsize)
+  | ident { pos := some pos, .. } val .. => some (pos + val.toString.bsize)
+  | node _ args                          => args.findSomeRev? getTailPos
+  | _                                    => none
+
 @[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if i == 0 then
     none
@@ -182,7 +188,7 @@ partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
   | node k args => node k <| args.map (replaceInfo info)
   | stx         => setInfo info stx
 
-def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
+def copyHeadInfo (s : Syntax) (source : Syntax) : Syntax :=
   match source.getHeadInfo with
   | none      => s
   | some info => s.setHeadInfo info
@@ -191,6 +197,10 @@ def copyTailInfo (s : Syntax) (source : Syntax) : Syntax :=
   match source.getTailInfo with
   | none      => s
   | some info => s.setTailInfo info
+
+def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
+ let s := s.copyHeadInfo source
+ s.copyTailInfo source
 
 end Syntax
 

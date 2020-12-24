@@ -228,16 +228,20 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
 
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   traceCtx `Meta.isDefEq.assign.checkTypes do
-    -- must check whether types are definitionally equal or not, before assigning and returning true
-    let mvarType ← inferType mvar
-    let vType ← inferType v
-    if (← withTransparency TransparencyMode.default $ Meta.isExprDefEqAux mvarType vType) then
-      trace[Meta.isDefEq.assign.final]! "{mvar} := {v}"
-      assignExprMVar mvar.mvarId! v
-      pure true
+    if !mvar.isMVar then
+      trace[Meta.isDefEq.assign.final]! "metavariable expected at {mvar} := {v}"
+      return false
     else
-      trace[Meta.isDefEq.assign.typeMismatch]! "{mvar} : {mvarType} := {v} : {vType}"
-      pure false
+      -- must check whether types are definitionally equal or not, before assigning and returning true
+      let mvarType ← inferType mvar
+      let vType ← inferType v
+      if (← withTransparency TransparencyMode.default $ Meta.isExprDefEqAux mvarType vType) then
+        trace[Meta.isDefEq.assign.final]! "{mvar} := {v}"
+        assignExprMVar mvar.mvarId! v
+        pure true
+      else
+        trace[Meta.isDefEq.assign.typeMismatch]! "{mvar} : {mvarType} := {v} : {vType}"
+        pure false
 
 /--
   Auxiliary method for solving constraints of the form `?m xs := v`.
@@ -673,7 +677,7 @@ partial def check (e : Expr) : CheckAssignmentM Expr := do
           let args ← args.mapM (visit check)
           pure $ mkAppN f args)
         (fun ex => do
-          if (← isDelayedAssigned f.mvarId!) then
+          if (← f.isMVar <&&> isDelayedAssigned f.mvarId!) then
             throw ex
           else
             let eType ← inferType e

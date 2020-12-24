@@ -36,11 +36,12 @@ def getRefPosition : m Position := do
 
 def logAt (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error): m Unit :=
   unless severity == MessageSeverity.error && msgData.hasSyntheticSorry do
-    let ref  := replaceRef ref (← MonadLog.getRef)
-    let pos  := ref.getPos.getD 0
+    let ref    := replaceRef ref (← MonadLog.getRef)
+    let pos    := ref.getPos.getD 0
+    let endPos := ref.getTailPos.getD pos
     let fileMap ← getFileMap
     let msgData ← addMessageContext msgData
-    logMessage { fileName := (← getFileName), pos := fileMap.toPosition pos, data := msgData, severity := severity }
+    logMessage { fileName := (← getFileName), pos := fileMap.toPosition pos, endPos := fileMap.toPosition endPos, data := msgData, severity := severity }
 
 def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=
   logAt ref msgData MessageSeverity.error

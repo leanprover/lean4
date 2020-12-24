@@ -118,6 +118,7 @@ lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_preprocess___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_collectExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_Meta_Closure_visitExpr___spec__7(lean_object*, lean_object*);
+extern lean_object* l_termIfLet___x3a_x3d__Then__Else_____closed__7;
 lean_object* l_Std_HashMapImp_expand___at_Lean_Meta_Closure_visitExpr___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_mkNextUserName(lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
@@ -134,6 +135,7 @@ lean_object* l_Lean_mkLambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_pickNextToProcess_x3f_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_mkValueTypeClosure(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_State_exprMVarArgs___default;
+extern lean_object* l_termIf_____x3a__Then__Else_____closed__11;
 lean_object* l_Lean_Meta_Closure_mkBinding___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_visitExpr_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_preprocess___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -240,7 +242,6 @@ uint8_t lean_level_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_State_newLetDecls___default;
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Lean_Meta_Closure_process_match__1(lean_object*);
-extern lean_object* l_termIf_____x3a__Then__Else_____closed__7;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Closure_mkBinding___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateForallE_x21___closed__2;
@@ -253,7 +254,6 @@ lean_object* l_Lean_Meta_Closure_pushToProcess(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Meta_Closure_mkLambda___boxed(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_replace___at_Lean_Meta_Closure_visitLevel___spec__8(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Closure_mkValueTypeClosure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_termIfLet___x3a_x3d__Then__Else_____closed__9;
 lean_object* l_Lean_Meta_Closure_mkValueTypeClosure___closed__1;
 lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedLevel;
@@ -13877,7 +13877,7 @@ static lean_object* _init_l_Lean_Meta_mkAuxDefinition___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termIf_____x3a__Then__Else_____closed__7;
+x_1 = l_termIf_____x3a__Then__Else_____closed__11;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -13886,7 +13886,7 @@ static lean_object* _init_l_Lean_Meta_mkAuxDefinition___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termIfLet___x3a_x3d__Then__Else_____closed__9;
+x_1 = l_termIfLet___x3a_x3d__Then__Else_____closed__7;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

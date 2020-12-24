@@ -37,6 +37,7 @@ lean_object* l_Array_filterMapM___rarg___boxed(lean_object*, lean_object*, lean_
 lean_object* l_Array_back_x3f(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_forM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_termIf_____x3a__Then__Else_____closed__14;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 extern lean_object* l_addParenHeuristic___closed__2;
 lean_object* l_Array_reverse_rev___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -506,7 +507,6 @@ lean_object* l_Array_zipWithAux_match__1___rarg(lean_object*, lean_object*, lean
 lean_object* l_Array_modify___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findIdx_x3f(lean_object*);
 lean_object* l_Array_erase_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_termIf_____x3a__Then__Else_____closed__10;
 lean_object* l_Array_forInUnsafe_loop___at_Array_findSomeM_x3f___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_insertAt___rarg___closed__3;
 lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3428____closed__7;
@@ -7674,7 +7674,7 @@ static lean_object* _init_l_term_x23_x5b___x2c_x5d___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_1 = l_termIf_____x3a__Then__Else_____closed__10;
+x_1 = l_termIf_____x3a__Then__Else_____closed__14;
 x_2 = l_term_x5b___x5d___closed__5;
 x_3 = l_term_x5b___x5d___closed__6;
 x_4 = 0;

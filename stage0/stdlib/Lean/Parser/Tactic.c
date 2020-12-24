@@ -91,7 +91,6 @@ lean_object* l_Lean_Parser_Tactic_unknown_formatter___closed__3;
 lean_object* l_Lean_PrettyPrinter_Formatter_errorAtSavedPos_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_structInst_formatter___closed__2;
 lean_object* l_Lean_Parser_Tactic_match___elambda__1___closed__6;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12048____closed__1;
 lean_object* l_Lean_Parser_Tactic_matchAlts_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Tactic_unknown___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Tactic_introMatch___closed__5;
@@ -109,6 +108,7 @@ extern lean_object* l_Lean_Parser_Term_byTactic_formatter___closed__3;
 lean_object* l_Lean_Parser_Tactic_match_parenthesizer___closed__7;
 lean_object* l_Lean_Parser_Tactic_introMatch___closed__1;
 lean_object* l___regBuiltin_Lean_Parser_Tactic_introMatch_formatter___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12789____closed__1;
 lean_object* l_Lean_Parser_Tactic_introMatch___closed__2;
 lean_object* l_Lean_Parser_Tactic_match___elambda__1___closed__3;
 extern lean_object* l_Lean_Parser_Term_syntheticHole___closed__6;
@@ -1148,7 +1148,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Tactic_intro___closed__2;
-x_2 = l_myMacro____x40_Init_Notation___hyg_12048____closed__1;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12789____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1167,7 +1167,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_match___elambda__1___closed__3() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12048____closed__1;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12789____closed__1;
 x_2 = l_Lean_Parser_Tactic_match___elambda__1___closed__2;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -1427,7 +1427,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_match_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_12048____closed__1;
+x_1 = l_myMacro____x40_Init_Notation___hyg_12789____closed__1;
 x_2 = l_Lean_Parser_Tactic_match___elambda__1___closed__2;
 x_3 = 1;
 x_4 = lean_box(x_3);

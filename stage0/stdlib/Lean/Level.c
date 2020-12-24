@@ -330,6 +330,7 @@ lean_object* l_Lean_Level_isZero_match__1(lean_object*);
 uint8_t l_Lean_Level_isExplicit(lean_object*);
 lean_object* l_Lean_Level_instantiateParams_match__2(lean_object*);
 lean_object* l_Lean_Level_updateSucc_x21___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11546____closed__7;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 uint64_t l_UInt64_shiftRight(uint64_t, uint64_t);
 lean_object* l_Lean_Level_instBEqLevel___closed__1;
@@ -340,7 +341,6 @@ lean_object* l_Lean_Level_updateMax_x21_match__1(lean_object*);
 lean_object* l_Lean_levelOne;
 uint8_t lean_level_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Level_beq___boxed(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11518____closed__7;
 lean_object* l_Lean_Level_mkData___closed__5;
 lean_object* l_Lean_Level_isMax_match__1(lean_object*);
 lean_object* l_Lean_Level_PP_Result_quote___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6001,7 +6001,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1097____closed__32;
-x_2 = l_myMacro____x40_Init_Notation___hyg_11518____closed__7;
+x_2 = l_myMacro____x40_Init_Notation___hyg_11546____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

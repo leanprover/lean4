@@ -1433,6 +1433,7 @@ lean_object* l_Lean_Parser_Command_elab__rules___elambda__1___closed__14;
 lean_object* l_Lean_Parser_Syntax_atom___closed__2;
 lean_object* l_Lean_Parser_precedence___closed__2;
 lean_object* l_Lean_Parser_Syntax_sepBy_formatter___closed__2;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_11546____closed__7;
 lean_object* l_Lean_Parser_Command_macroArgSimple___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_prio_quot___closed__5;
 lean_object* l_Lean_Parser_Command_optKind___closed__3;
@@ -1477,7 +1478,6 @@ lean_object* l_Lean_PrettyPrinter_Formatter_suppressInsideQuot_formatter(lean_ob
 lean_object* l_Lean_Parser_Command_syntax___closed__2;
 lean_object* l___regBuiltinParser_Lean_Parser_Syntax_atom(lean_object*);
 lean_object* l_Lean_Parser_Command_elabTail___elambda__1___closed__2;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_11518____closed__7;
 lean_object* l_Lean_Parser_Command_elabTail___closed__5;
 lean_object* l___regBuiltin_Lean_Parser_Syntax_cat_formatter___closed__1;
 lean_object* l_Lean_Parser_Command_optNamedName___closed__1;
@@ -2175,7 +2175,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__6;
-x_2 = l_myMacro____x40_Init_Notation___hyg_11518____closed__7;
+x_2 = l_myMacro____x40_Init_Notation___hyg_11546____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2194,7 +2194,7 @@ static lean_object* _init_l_Lean_Parser_Syntax_paren___elambda__1___closed__3() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_11518____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_11546____closed__7;
 x_2 = l_Lean_Parser_Syntax_paren___elambda__1___closed__2;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -2408,7 +2408,7 @@ static lean_object* _init_l_Lean_Parser_Syntax_paren_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_11518____closed__7;
+x_1 = l_myMacro____x40_Init_Notation___hyg_11546____closed__7;
 x_2 = l_Lean_Parser_Syntax_paren___elambda__1___closed__2;
 x_3 = 1;
 x_4 = lean_box(x_3);

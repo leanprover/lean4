@@ -25,6 +25,7 @@ lean_object* l_Std_fmt___at_Lean_MessageData_formatAux___spec__1(lean_object*);
 lean_object* l_Lean_MessageData_instCoeOptionExprMessageData_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_splitAux___at_Lean_stringToMessageData___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextPartial___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13706____closed__9;
 lean_object* l_Lean_addMessageContextFull___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 uint8_t l_Lean_MessageData_isNest(lean_object*);
@@ -180,7 +181,6 @@ lean_object* l_Lean_Message_toString___closed__4;
 lean_object* l_Lean_KernelException_toMessageData___closed__5;
 extern lean_object* l_Lean_instInhabitedSourceInfo___closed__1;
 uint8_t l_Lean_instInhabitedMessageSeverity;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12965____closed__9;
 lean_object* lean_format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_instToMessageDataOptionExpr___boxed(lean_object*);
 lean_object* l_Lean_KernelException_toMessageData___closed__33;
@@ -391,7 +391,7 @@ lean_object* l_Lean_mkErrorStringWithPos(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_5 = l_myMacro____x40_Init_Notation___hyg_12965____closed__9;
+x_5 = l_myMacro____x40_Init_Notation___hyg_13706____closed__9;
 x_6 = lean_string_append(x_1, x_5);
 x_7 = l_Nat_repr(x_2);
 x_8 = lean_string_append(x_6, x_7);

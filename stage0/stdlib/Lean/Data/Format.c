@@ -41,6 +41,7 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_formatKVMap(lean_object*);
 lean_object* l_Lean_instToFormatDataValue_match__1(lean_object*);
+extern lean_object* l_termIfLet___x3a_x3d__Then__Else_____closed__7;
 lean_object* l_Std_Format_initFn____x40_Lean_Data_Format___hyg_24____closed__6;
 lean_object* l_Std_Format_pretty_x27___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_instToFormatKVMap___closed__1;
@@ -76,7 +77,6 @@ lean_object* l_Std_Format_initFn____x40_Lean_Data_Format___hyg_24____closed__2;
 lean_object* l_Std_Format_getWidth___boxed(lean_object*);
 lean_object* l_Lean_instToFormatProdNameDataValue(lean_object*);
 lean_object* l_Std_Format_getWidth___closed__3;
-extern lean_object* l_termIfLet___x3a_x3d__Then__Else_____closed__9;
 lean_object* l_Std_Format_initFn____x40_Lean_Data_Format___hyg_24____closed__4;
 static lean_object* _init_l_Std_Format_getWidth___closed__1() {
 _start:
@@ -613,7 +613,7 @@ static lean_object* _init_l_Lean_instToFormatProdNameDataValue___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termIfLet___x3a_x3d__Then__Else_____closed__9;
+x_1 = l_termIfLet___x3a_x3d__Then__Else_____closed__7;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

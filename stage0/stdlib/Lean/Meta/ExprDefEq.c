@@ -395,6 +395,7 @@ lean_object* l_Lean_MetavarContext_assignExpr(lean_object*, lean_object*, lean_o
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_initFn____x40_Lean_Meta_ExprDefEq___hyg_2292____closed__2;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDepsAux_match__2___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_termIfLet___x3a_x3d__Then__Else_____closed__7;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_addLetDeps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgs_processOtherArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqBinding___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -428,6 +429,7 @@ lean_object* l_Lean_mkLambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whenUndefDo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unfoldReducibeDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_CheckAssignment_check___spec__54___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_termIf_____x3a__Then__Else_____closed__11;
 extern lean_object* l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__11;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqLeftRight(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkAssignment(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -719,7 +721,6 @@ uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgs___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_CheckAssignment_check___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_CheckAssignment_check___spec__37___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_termIf_____x3a__Then__Else_____closed__7;
 lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__47___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignmentQuick_check_visit___spec__1(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_getConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -757,7 +758,6 @@ lean_object* l_Lean_Meta_CheckAssignment_checkFVar___closed__4;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_check___spec__26(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_commitWhen___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickMVarMVar___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqLeft___closed__4;
-extern lean_object* l_termIfLet___x3a_x3d__Then__Else_____closed__9;
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqProj_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instMonadRef___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuick_match__1(lean_object*);
@@ -5427,7 +5427,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkType
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termIf_____x3a__Then__Else_____closed__7;
+x_1 = l_termIf_____x3a__Then__Else_____closed__11;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -5436,7 +5436,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkType
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_termIfLet___x3a_x3d__Then__Else_____closed__9;
+x_1 = l_termIfLet___x3a_x3d__Then__Else_____closed__7;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }

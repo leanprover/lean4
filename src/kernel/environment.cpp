@@ -152,6 +152,7 @@ environment environment::add_definition(declaration const & d, bool check) const
         if (check) {
             bool safe_only = false;
             type_checker checker(new_env, safe_only);
+            check_no_metavar_no_fvar(new_env, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))
                 throw definition_type_mismatch_exception(new_env, d, val_type);
@@ -161,6 +162,7 @@ environment environment::add_definition(declaration const & d, bool check) const
         if (check) {
             type_checker checker(*this);
             check_constant_val(*this, v.to_constant_val(), checker);
+            check_no_metavar_no_fvar(*this, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))
                 throw definition_type_mismatch_exception(*this, d, val_type);
@@ -175,6 +177,7 @@ environment environment::add_theorem(declaration const & d, bool check) const {
         // TODO(Leo): we must add support for handling tasks here
         type_checker checker(*this);
         check_constant_val(*this, v.to_constant_val(), checker);
+        check_no_metavar_no_fvar(*this, v.get_name(), v.get_value());
         expr val_type = checker.check(v.get_value(), v.get_lparams());
         if (!checker.is_def_eq(val_type, v.get_type()))
             throw definition_type_mismatch_exception(*this, d, val_type);
@@ -216,6 +219,7 @@ environment environment::add_mutual(declaration const & d, bool check) const {
         bool safe_only = false;
         type_checker checker(new_env, safe_only);
         for (definition_val const & v : vs) {
+            check_no_metavar_no_fvar(new_env, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))
                 throw definition_type_mismatch_exception(new_env, d, val_type);

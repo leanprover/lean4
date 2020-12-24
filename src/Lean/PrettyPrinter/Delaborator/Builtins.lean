@@ -498,6 +498,30 @@ def delabListToArray : Delab := whenPPOption getPPNotation do
   | `([$xs,*]) => `(#[$xs,*])
   | _         => failure
 
+@[builtinDelab app.ite]
+def delabIte : Delab := whenPPOption getPPNotation do
+  guard $ (← getExpr).getAppNumArgs == 5
+  let c ← withAppFn $ withAppFn $ withAppFn $ withAppArg delab
+  let t ← withAppFn $ withAppArg delab
+  let e ← withAppArg delab
+  `(if $c then $t else $e)
+
+@[builtinDelab app.dite]
+def delabDIte : Delab := whenPPOption getPPNotation do
+  guard $ (← getExpr).getAppNumArgs == 5
+  let c ← withAppFn $ withAppFn $ withAppFn $ withAppArg delab
+  let (t, h) ← withAppFn $ withAppArg $ delabBranch none
+  let (e, _) ← withAppArg $ delabBranch h
+  `(if $(mkIdent h):ident : $c then $t else $e)
+where
+  delabBranch (h? : Option Name) : DelabM (Syntax × Name) := do
+    let e ← getExpr
+    guard e.isLambda
+    let h ← match h? with
+      | some h => return (← withBindingBody h delab, h)
+      | none   => withBindingBodyUnusedName fun h => do
+        return (← delab, h.getId)
+
 @[builtinDelab app.namedPattern]
 def delabNamedPattern : Delab := do
   guard $ (← getExpr).getAppNumArgs == 3

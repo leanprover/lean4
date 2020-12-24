@@ -102,12 +102,12 @@ infixl:60  " <* "  => SeqLeft.seqLeft
 infixr:60  " *> "  => SeqRight.seqRight
 infixr:100 " <$> " => Functor.map
 
-syntax (name := termDepIfThenElse) (priority := high) ppGroup(ppDedent("if " ident " : " term " then" ppLine term ppDedent(ppLine "else") ppLine term)) : term
+syntax (name := termDepIfThenElse) ppGroup(ppDedent("if " ident " : " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
 
 macro_rules
   | `(if $h:ident : $c then $t:term else $e:term) => `(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
 
-syntax (name := termIfThenElse) (priority := high) ppGroup(ppDedent("if " term " then" ppLine term ppDedent(ppLine "else") ppLine term)) : term
+syntax (name := termIfThenElse) ppGroup(ppDedent("if " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
 
 macro_rules
   | `(if $c then $t:term else $e:term) => `(ite $c $t $e)

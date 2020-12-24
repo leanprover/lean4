@@ -254,7 +254,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
                 covered (adaptRhs rhsFn ∘ noOpMatchAdaptPats taken) (exhaustive := sz.isNone)
               else uncovered
             | _ => uncovered,
-          doMatch := fun yes no => do `(if Syntax.isOfKind discr $(quote k) then $(← yes []) else $(← no)),
+          doMatch := fun yes no => do `(cond (Syntax.isOfKind discr $(quote k)) $(← yes []) $(← no)),
         }
       else throwErrorAt! anti "match_syntax: antiquotation must be variable {anti}"
     else if isAntiquotSuffixSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"

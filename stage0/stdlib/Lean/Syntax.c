@@ -31,7 +31,6 @@ extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__4;
 uint8_t l_Lean_Syntax_isTokenAntiquot(lean_object*);
 lean_object* l_Lean_Syntax_mkAntiquotSpliceNode___closed__4;
 lean_object* l_Lean_SyntaxNode_modifyArgs_match__1(lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_13706____closed__9;
 lean_object* l_Lean_Syntax_isQuot_match__1___rarg___closed__2;
 lean_object* l_Lean_Syntax_mkAntiquotNode___closed__3;
 extern lean_object* l_String_instInhabitedString;
@@ -203,6 +202,7 @@ lean_object* lean_format_pretty(lean_object*, lean_object*);
 extern lean_object* l_Lean_choiceKind;
 lean_object* l_Lean_Syntax_replaceM_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instBEqSyntax___closed__1;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_13073____closed__9;
 lean_object* l_Lean_Syntax_antiquotSuffixSplice_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Syntax_0__Lean_Syntax_reprintLeaf(lean_object*, lean_object*);
@@ -4133,7 +4133,7 @@ static lean_object* _init_l___private_Lean_Syntax_0__Lean_Syntax_formatInfo___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_13706____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_13073____closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -4258,7 +4258,7 @@ x_26 = lean_string_append(x_25, x_24);
 lean_dec(x_24);
 x_27 = l_prec_x28___x29___closed__7;
 x_28 = lean_string_append(x_26, x_27);
-x_29 = l_myMacro____x40_Init_Notation___hyg_13706____closed__9;
+x_29 = l_myMacro____x40_Init_Notation___hyg_13073____closed__9;
 x_30 = lean_string_append(x_29, x_28);
 lean_dec(x_28);
 x_31 = lean_alloc_ctor(2, 1, 0);
@@ -8540,7 +8540,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_13706____closed__9;
+x_1 = l_myMacro____x40_Init_Notation___hyg_13073____closed__9;
 x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }

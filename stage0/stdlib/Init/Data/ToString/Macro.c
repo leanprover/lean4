@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__10;
-extern lean_object* l_termIf_____x3a__Then__Else_____closed__14;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23_(lean_object*, lean_object*, lean_object*);
 lean_object* l_termS_x21_____closed__7;
@@ -36,6 +35,7 @@ lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__9;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__2;
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__10;
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__1;
+extern lean_object* l_termDepIfThenElse___closed__14;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Data_ToString_Macro___hyg_23____closed__13;
 lean_object* l_termS_x21_____closed__9;
@@ -108,7 +108,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_termS_x21_____closed__6;
-x_2 = l_termIf_____x3a__Then__Else_____closed__14;
+x_2 = l_termDepIfThenElse___closed__14;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

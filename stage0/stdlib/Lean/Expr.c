@@ -219,7 +219,6 @@ lean_object* l_Lean_Expr_mkDataForBinder___boxed(lean_object*, lean_object*, lea
 lean_object* l_Lean_BinderInfo_hash___boxed(lean_object*);
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_mkAppRev___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_containsFVar___boxed(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_12789____closed__14;
 lean_object* l_Lean_Expr_ctorName___boxed(lean_object*);
 lean_object* lean_expr_mk_forall(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_expr_instantiate(lean_object*, lean_object*);
@@ -379,6 +378,7 @@ lean_object* lean_expr_mk_bvar(lean_object*);
 lean_object* l_Lean_Expr_updateApp_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_instHashableExpr;
 lean_object* l_Lean_mkDecIsTrue___closed__2;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_12156____closed__14;
 size_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21___closed__3;
 lean_object* l_Lean_Literal_type___boxed(lean_object*);
@@ -5538,7 +5538,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_Notation___hyg_12789____closed__14;
+x_2 = l_myMacro____x40_Init_Notation___hyg_12156____closed__14;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

@@ -155,9 +155,9 @@ private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceVi
       tryPostponeIfMVar srcType
       match srcType.getAppFn with
       | Expr.const constName _ _ => pure constName
-      | _ => throwError! "invalid \{...} notation, source type is not of the form (C ...){indentExpr srcType}"
-    | _, some expectedType => throwError! "invalid \{...} notation, expected type is not of the form (C ...){indentExpr expectedType}"
-    | _, none              => throwError! "invalid \{...} notation, expected type must be known"
+      | _ => throwUnexpectedExpectedType srcType "source"
+    | _, some expectedType => throwUnexpectedExpectedType expectedType
+    | _, none              => throwUnknownExpectedType
   match expectedType? with
   | none => useSource ()
   | some expectedType =>
@@ -165,6 +165,15 @@ private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceVi
     match expectedType.getAppFn with
     | Expr.const constName _ _ => pure constName
     | _                        => useSource ()
+where
+  throwUnknownExpectedType :=
+    throwError! "invalid \{...} notation, expected type is not known"
+  throwUnexpectedExpectedType type (kind := "expected") := do
+    let type ← instantiateMVars type
+    if type.getAppFn.isMVar then
+      throwUnknownExpectedType
+    else
+      throwError! "invalid \{...} notation, {kind} type is not of the form (C ...){indentExpr type}"
 
 inductive FieldLHS where
   | fieldName  (ref : Syntax) (name : Name)

@@ -1,0 +1,2 @@
+structInstError.lean:5:7: error: invalid {...} notation, expected type is not known
+{ x := 10, b := true } : Foo

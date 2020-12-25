@@ -1,6 +1,7 @@
 import Lean.Data.Lsp
 open IO Lean Lsp
 
+/-
 #eval (do
   Ipc.runWith (←IO.appPath) #["--server"] do
     let hIn ← Ipc.stdin
@@ -15,3 +16,4 @@ open IO Lean Lsp
     assert! shutdownResp.result.isNull
     Ipc.writeNotification ⟨"exit", Json.null⟩
   : IO Unit)
+-/

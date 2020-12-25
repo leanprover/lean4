@@ -1,16 +1,4 @@
 defaultInstance.lean:20:20: error: failed to synthesize instance
   Foo Bool (?m x)
-defaultInstance.lean:20:20: error: don't know how to synthesize implicit argument
-  @f Bool (?m x) ?m x
-context:
-x : Bool
-⊢ Type
-defaultInstance.lean:20:17: error: failed to infer definition type
 defaultInstance.lean:22:35: error: failed to create type class instance for 
   Foo Bool (?m x)
-defaultInstance.lean:22:35: error: don't know how to synthesize implicit argument
-  @f Bool (?m x) (?m x) x
-context:
-x : Bool
-⊢ Type
-defaultInstance.lean:22:32: error: failed to infer definition type

@@ -364,7 +364,7 @@ def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) 
   This kind of error is thrown, for example, at `Match.lean` where elaboration
   cannot continue if there are metavariables in patterns.
   We only want to log it if we haven't logged any error so far. -/
-def throwMVarError! {α} (m : MessageData) : TermElabM α := do
+def throwMVarError {α} (m : MessageData) : TermElabM α := do
   if (← get).messages.hasErrors then
     throwAbortTerm
   else

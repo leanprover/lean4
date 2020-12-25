@@ -1,4 +1,4 @@
 defaultInstance.lean:20:20: error: failed to synthesize instance
   Foo Bool (?m x)
-defaultInstance.lean:22:35: error: failed to create type class instance for 
+defaultInstance.lean:22:35: error: typeclass instance problem contains metavariables
   Foo Bool (?m x)

@@ -1340,8 +1340,10 @@ mutual
       let doForDecls := doForDecls.eraseIdx 1
       let body := doFor[3]
       withFreshMacroScope do
+        let toStreamFn ← `(toStream)
+        let toStreamFn := toStreamFn.copyInfo ys
         let auxDo ←
-          `(do let mut s := toStream $ys
+          `(do let mut s := $toStreamFn:ident $ys
                for $doForDecls:doForDecl,* do
                  match Stream.next? s with
                  | none => break

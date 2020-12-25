@@ -122,10 +122,10 @@ section FileWorker
 
   def readMessage (fw : FileWorker) : IO JsonRpc.Message := do
     let msg ← fw.stdout.readLspMessage
-    match msg with
-    | Message.request id method params? =>
+    if let Message.response id _ := msg then
       fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.erase id)
-    | _ => ()
+    if let Message.responseError id _ _ _ := msg then
+      fw.pendingRequestsRef.modify (fun pendingRequests => pendingRequests.erase id)
     return msg
 
   def writeMessage (fw : FileWorker) (msg : JsonRpc.Message) : IO Unit :=
@@ -179,8 +179,8 @@ section ServerM
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
-    let o := (←read).hOut
-    let rec loop : IO WorkerEvent := do
+    let rec loop : ServerM WorkerEvent := do
+      let o := (←read).hOut
       try
         let msg ← fw.readMessage
         -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
@@ -192,14 +192,16 @@ section ServerM
         let exitCode ← fw.proc.wait
         if exitCode = 0 then
           -- Worker was terminated
-          fw.errorPendingRequests o ErrorCode.contentModified "File header changed or file was closed"
+          fw.errorPendingRequests o ErrorCode.contentModified
+            ("The file worker has been terminated. Either the header has changed,"
+            ++ " or the file was closed, or the server is shutting down.")
           return WorkerEvent.terminated
         else
           -- Worker crashed
           fw.errorPendingRequests o ErrorCode.internalError
             "Server process of file crashed, likely due to a stack overflow in user code"
           return WorkerEvent.crashed err
-    let task ← IO.asTask loop Task.Priority.dedicated
+    let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
     task.map $ fun
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.crashed e
@@ -373,8 +375,12 @@ section MainLoop
     | ClientError (e : IO.Error)
 
   def runClientTask : ServerM (Task ServerEvent) := do
-    let readMsg : IO ServerEvent := ServerEvent.ClientMsg (←(←read).hIn.readLspMessage)
-    let clientTask ← (←IO.asTask readMsg).map $ fun
+    let st ← read
+    let readMsgAction : IO ServerEvent := do
+      /- Runs asynchronously. -/
+      let msg ← st.hIn.readLspMessage
+      ServerEvent.ClientMsg msg
+    let clientTask := (←IO.asTask readMsgAction).map $ fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.ClientError e
     return clientTask
@@ -430,9 +436,9 @@ def initAndRunWatchdogAux : ServerM Unit := do
     mainLoop clientTask
     let Message.notification "exit" none ← st.hIn.readLspMessage
       | throwServerError "Expected an exit notification"
-   catch err =>
-     shutdown
-     throw err
+  catch err =>
+    shutdown
+    throw err
 
 def initAndRunWatchdog (i o e : FS.Stream) : IO Unit := do
   let workerPath ← match (←IO.getEnv "LEAN_WORKER_PATH") with
@@ -473,7 +479,7 @@ def watchdogMain : IO UInt32 := do
     initAndRunWatchdog i o e
     return 0
   catch err =>
-    e.putStrLn (toString err)
+    e.putStrLn s!"Watchdog error: {err}"
     return 1
 
 end Lean.Server.Watchdog

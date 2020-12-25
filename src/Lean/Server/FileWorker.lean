@@ -128,7 +128,6 @@ section ServerM
   def compileDocument (m : DocumentMeta) : ServerM Unit := do
     let headerSnap@⟨_, _, _, SnapshotData.headerData env msgLog opts⟩ ← Snapshots.compileHeader m.text.source
       | throwServerError "Internal server error: invalid header snapshot"
-    let headerSnap' := { headerSnap with data := SnapshotData.headerData env msgLog opts }
     let cmdSnaps ← unfoldCmdSnaps m headerSnap
     (←read).docRef.set ⟨m, headerSnap, cmdSnaps⟩
 
@@ -306,7 +305,7 @@ def workerMain : IO UInt32 := do
     initAndRunWorker i o e
     return 0
   catch err =>
-    e.putStrLn (toString err)
+    e.putStrLn s!"Worker error: {err}"
     return 1
 
 end Lean.Server.FileWorker

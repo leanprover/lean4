@@ -22,7 +22,7 @@ private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermEl
   | stx@(Syntax.node k args) => do
     if isAntiquot stx && !isEscapedAntiquot stx then
       let e := getAntiquotTerm stx
-      if !e.isIdent then
+      if !e.isIdent || !e.getId.isAtomic then
         return ← withFreshMacroScope do
           let a ← `(a)
           modify (fun cont stx => (`(let $a:ident := $e; $stx) : TermElabM _))

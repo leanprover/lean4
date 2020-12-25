@@ -54,7 +54,7 @@ def f' (stx : Syntax) : Unhygienic Syntax := match stx with
 
 #eval run do
   match ← `(match a with | a => b | a + 1 => b + 1) with
-  | `(match a with $[| $pats => $rhss]*) => `(match a with $[| $pats => $rhss]*)
+  | `(match a with $[| $pats =>%$arr $rhss]*) => `(match a with $[| $pats =>%$arr $rhss]*)
   | _ => unreachable!
 
 #eval run do

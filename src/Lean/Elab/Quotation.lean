@@ -34,6 +34,13 @@ private def getSepFromSplice (splice : Syntax) : Syntax := do
   let Syntax.atom _ sep ← getAntiquotSpliceSuffix splice | unreachable!
   Syntax.mkStrLit (sep.dropRight 1)
 
+partial def mkTuple : Array Syntax → TermElabM Syntax
+  | #[]  => `(Unit.unit)
+  | #[e] => e
+  | es   => do
+    let stx ← mkTuple (es.eraseIdx 0)
+    `(Prod.mk $(es[0]) $stx)
+
 -- Elaborate the content of a syntax quotation term
 private partial def quoteSyntax : Syntax → TermElabM Syntax
   | Syntax.ident info rawVal val preresolved => do
@@ -75,19 +82,16 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
           let k := antiquotSpliceKind? arg
           let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
           let inner ← (getAntiquotSpliceContents arg).mapM quoteSyntax
-          let arr ← match (← getAntiquotationIds arg) with
-            | #[] => throwErrorAt stx "antiquotation splice must contain at least one antiquotation"
-            | #[id] => match k with
-              | `optional => `(match $id:ident with
-                | some $id:ident => $(quote inner)
-                | none           => Array.empty)
-              | _ => `(Array.map (fun $id => $(inner[0])) $id)
-            | #[id1, id2] => match k with
-              | `optional => `(match $id1:ident, $id2:ident with
-                | some $id1:ident, some $id2:ident => $(quote inner)
-                | _                                => Array.empty)
-              | _ => `(Array.zipWith $id1 $id2 fun $id1 $id2 => $(inner[0]))
-            | _ => throwErrorAt stx "too many antiquotations in antiquotation splice; don't be greedy"
+          let ids ← getAntiquotationIds arg
+          if ids.isEmpty then
+            throwErrorAt stx "antiquotation splice must contain at least one antiquotation"
+          let arr ← match k with
+            | `optional => `(match $[$ids:ident],* with
+                | $[some $ids:ident],* => $(quote inner)
+                | none                 => Array.empty)
+            | _ =>
+              let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id $arr)) ids.back
+              `(Array.map (fun $(← mkTuple ids) => $(inner[0])) $arr)
           let arr ←
             if k == `sepBy then
               `(mkSepArray $arr (mkAtom $(getSepFromSplice arg)))
@@ -199,13 +203,6 @@ structure HeadInfo where
   -- actually run the specified head check, with the discriminant bound to `discr`
   doMatch (yes : (newDiscrs : List Syntax) → TermElabM Syntax) (no : TermElabM Syntax) : TermElabM Syntax
 
-partial def mkTuple : Array Syntax → TermElabM Syntax
-  | #[]  => `(Unit.unit)
-  | #[e] => e
-  | es   => do
-    let stx ← mkTuple (es.eraseIdx 0)
-    `(Prod.mk $(es[0]) $stx)
-
 /-- Adapt alternatives that do not introduce new discriminants in `doMatch`, but are covered by those that do so. -/
 private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
   | shape k (some sz), (pats, rhs) => (List.replicate sz (Unhygienic.run `(_)) ++ pats, rhs)
@@ -295,9 +292,8 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           let resId ← match ids with
             | #[id] => id
             | _     =>
-              for i in [:ids.size] do
-                let idx := Syntax.mkLit fieldIdxKind (toString (i + 1));
-                yes ← `(let $(ids[i]) := tuples.map (·.$idx:fieldIdx); $yes)
+              for id in ids do
+                yes ← `(let $id := tuples.map (fun $tuple => $id); $yes)
               `(tuples)
           `(match ($(discrs).sequenceMap fun
               | `($(contents[0])) => some $tuple

@@ -10,7 +10,8 @@ namespace Lean.Elab
 
 builtin_initialize postponeExceptionId : InternalExceptionId ← registerInternalExceptionId `postpone
 builtin_initialize unsupportedSyntaxExceptionId : InternalExceptionId ← registerInternalExceptionId `unsupportedSyntax
-builtin_initialize abortExceptionId : InternalExceptionId ← registerInternalExceptionId `abortElab
+builtin_initialize abortCommandExceptionId : InternalExceptionId ← registerInternalExceptionId `abortCommandElab
+builtin_initialize abortTermExceptionId : InternalExceptionId ← registerInternalExceptionId `abortTermElab
 builtin_initialize autoBoundImplicitExceptionId : InternalExceptionId ← registerInternalExceptionId `autoBoundImplicit
 
 def throwPostpone [MonadExceptOf Exception m] : m α :=
@@ -37,9 +38,16 @@ def isAutoBoundImplicitLocalException? (ex : Exception) : Option Name :=
 def throwAlreadyDeclaredUniverseLevel [Monad m] [MonadError m] (u : Name) : m α :=
   throwError! "a universe level named '{u}' has already been declared"
 
--- Throw exception to abort elaboration without producing any error message
-def throwAbort {α m} [MonadExcept Exception m] : m α :=
-  throw $ Exception.internal abortExceptionId
+-- Throw exception to abort elaboration of the current command without producing any error message
+def throwAbortCommand {α m} [MonadExcept Exception m] : m α :=
+  throw <| Exception.internal abortCommandExceptionId
+
+-- Throw exception to abort elaboration of the current term without producing any error message
+def throwAbortTerm {α m} [MonadExcept Exception m] : m α :=
+  throw <| Exception.internal abortTermExceptionId
+
+def isAbortExceptionId (id : InternalExceptionId) : Bool :=
+  id == abortCommandExceptionId || id == abortTermExceptionId
 
 def mkMessageCore (fileName : String) (fileMap : FileMap) (msgData : MessageData) (severity : MessageSeverity) (pos : String.Pos) : Message :=
   let pos := fileMap.toPosition pos

@@ -199,7 +199,7 @@ instance : MonadRecDepth CommandElabM where
   catch ex => match ex with
     | Exception.error _ _     => logException ex
     | Exception.internal id _ =>
-      if id == abortExceptionId then
+      if isAbortExceptionId id then
         pure ()
       else
         let idName ← liftIO $ id.getName;

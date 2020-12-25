@@ -69,7 +69,7 @@ def logException [MonadLiftT IO m] (ex : Exception) : m Unit := do
   match ex with
   | Exception.error ref msg => logErrorAt ref msg
   | Exception.internal id _ =>
-    unless id == abortExceptionId do
+    unless isAbortExceptionId id do
       let name ← id.getName
       logError m!"internal exception: {name}"
 

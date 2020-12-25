@@ -750,11 +750,11 @@ private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltVi
       for d in altLHS.fvarDecls do
         if d.hasExprMVar then
           withExistingLocalDecls altLHS.fvarDecls do
-            throwError! "invalid match-expression, type of pattern variable '{d.toExpr}' contains metavariables{indentExpr d.type}"
+            throwMVarError! "invalid match-expression, type of pattern variable '{d.toExpr}' contains metavariables{indentExpr d.type}"
       for p in altLHS.patterns do
         if p.hasExprMVar then
           withExistingLocalDecls altLHS.fvarDecls do
-            throwError! "invalid match-expression, pattern contains metavariables{indentExpr (← p.toExpr)}"
+            throwMVarError! "invalid match-expression, pattern contains metavariables{indentExpr (← p.toExpr)}"
       pure altLHS
   let numDiscrs := discrs.size
   let matcherName ← mkAuxName `match

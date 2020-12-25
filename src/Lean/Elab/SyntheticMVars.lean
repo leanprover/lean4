@@ -203,7 +203,8 @@ private def reportStuckSyntheticMVars : TermElabM Unit := do
     | SyntheticMVarKind.typeClass =>
       withMVarContext mvarSyntheticDecl.mvarId do
         let mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId
-        logError $ "failed to create type class instance for " ++ indentExpr mvarDecl.type
+        unless (← get).messages.hasErrors do
+          logError <| "typeclass instance problem contains metavariables" ++ indentExpr mvarDecl.type
     | SyntheticMVarKind.coe header expectedType eType e f? =>
       withMVarContext mvarSyntheticDecl.mvarId do
         let mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId

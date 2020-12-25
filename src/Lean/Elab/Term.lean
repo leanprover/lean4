@@ -359,6 +359,17 @@ def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) 
   | Expr.mvar mvarId _ => registerMVarErrorCustomInfo mvarId ref msgData
   | _ => pure ()
 
+/-
+  Auxiliary method for reporting errors of the form "... contains metavariables ...".
+  This kind of error is thrown, for example, at `Match.lean` where elaboration
+  cannot continue if there are metavariables in patterns.
+  We only want to log it if we haven't logged any error so far. -/
+def throwMVarError! {α} (m : MessageData) : TermElabM α := do
+  if (← get).messages.hasErrors then
+    throwAbortTerm
+  else
+    throwError! m
+
 def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := do
   match mvarErrorInfo.kind with
   | MVarErrorKind.implicitArg app => do
@@ -408,7 +419,7 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) : TermElabM Boo
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
   let pendingMVarIds ← getMVarsAtDecl decl
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
-    throwAbort
+    throwAbortCommand
 
 /-
   Execute `x` without allowing it to postpone elaboration tasks.
@@ -854,7 +865,9 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
         else
           throw ex
       | Exception.internal id _ =>
-        if id == unsupportedSyntaxExceptionId then
+        if (← read).errToSorry && id == abortTermExceptionId then
+          exceptionToSorry ex expectedType?
+        else if id == unsupportedSyntaxExceptionId then
           s.restore
           elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
         else if catchExPostpone && id == postponeExceptionId then

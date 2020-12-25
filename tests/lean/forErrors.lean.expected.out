@@ -1,0 +1,4 @@
+forErrors.lean:3:29: error: failed to synthesize instance
+  ToStream α ?m
+forErrors.lean:5:15: error: failed to synthesize instance
+  ToString α

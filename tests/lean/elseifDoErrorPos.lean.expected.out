@@ -1,0 +1,8 @@
+elseifDoErrorPos.lean:4:7: error: application type mismatch
+  ite x
+argument
+  x
+has type
+  Nat
+but is expected to have type
+  Prop

@@ -2938,6 +2938,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 x_36 = l_Lean_Elab_Term_synthesizeAppInstMVars(x_35, x_5, x_6, x_7, x_8, x_9, x_10, x_34);
+lean_dec(x_6);
 lean_dec(x_35);
 if (lean_obj_tag(x_36) == 0)
 {

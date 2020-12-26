@@ -359,6 +359,17 @@ def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) 
   | Expr.mvar mvarId _ => registerMVarErrorCustomInfo mvarId ref msgData
   | _ => pure ()
 
+/-
+  Auxiliary method for reporting errors of the form "... contains metavariables ...".
+  This kind of error is thrown, for example, at `Match.lean` where elaboration
+  cannot continue if there are metavariables in patterns.
+  We only want to log it if we haven't logged any error so far. -/
+def throwMVarError {α} (m : MessageData) : TermElabM α := do
+  if (← get).messages.hasErrors then
+    throwAbortTerm
+  else
+    throwError! m
+
 def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := do
   match mvarErrorInfo.kind with
   | MVarErrorKind.implicitArg app => do
@@ -373,36 +384,42 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit := d
   | MVarErrorKind.custom msgData =>
     logErrorAt mvarErrorInfo.ref msgData
 
+
 /--
   Try to log errors for the unassigned metavariables `pendingMVarIds`.
-  Return `true` if at least one error was logged.
-  Remark: This method only succeeds if we have information for at least one given metavariable
-  at `mvarErrorInfos`. -/
+
+  Return `true` if there were "unfilled holes", and we should "abort" declaration.
+  TODO: try to fill "all" holes using synthetic "sorry's"
+
+  Remark: We only log the "unfilled holes" as new errors if no error has been logged so far. -/
 def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) : TermElabM Bool := do
   let s ← get
-  let errorInfos := s.mvarErrorInfos
-  let (foundErrors, _) ← errorInfos.foldlM (init := (false, {})) fun (foundErrors, (alreadyVisited : NameSet)) mvarErrorInfo => do
-    let mvarId := mvarErrorInfo.mvarId;
-    if alreadyVisited.contains mvarId then
-      pure (foundErrors, alreadyVisited)
-    else withMVarContext mvarId do
-      let alreadyVisited := alreadyVisited.insert mvarId
-      /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
-         delayed assigned to another metavariable that is unassigned. -/
-      let mvarDeps ← getMVars (mkMVar mvarId)
-      if mvarDeps.any pendingMVarIds.contains then do
-        mvarErrorInfo.logError;
-        pure (true, alreadyVisited)
-      else
-        pure (foundErrors, alreadyVisited)
-  pure foundErrors
+  let hasOtherErrors := s.messages.hasErrors
+  let mut hasNewErrors := false
+  let mut alreadyVisited : NameSet := {}
+  for mvarErrorInfo in s.mvarErrorInfos do
+    let mvarId := mvarErrorInfo.mvarId
+    unless alreadyVisited.contains mvarId do
+      alreadyVisited := alreadyVisited.insert mvarId
+      let foundError ← withMVarContext mvarId do
+        /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
+           delayed assigned to another metavariable that is unassigned. -/
+        let mvarDeps ← getMVars (mkMVar mvarId)
+        if mvarDeps.any pendingMVarIds.contains then do
+          unless hasOtherErrors do
+            mvarErrorInfo.logError
+          pure true
+        else
+          pure false
+      if foundError then
+        hasNewErrors := true
+  return hasNewErrors
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
   let pendingMVarIds ← getMVarsAtDecl decl
-  let foundError ← logUnassignedUsingErrorInfos pendingMVarIds
-  if foundError then
-    throwAbort
+  if (← logUnassignedUsingErrorInfos pendingMVarIds) then
+    throwAbortCommand
 
 /-
   Execute `x` without allowing it to postpone elaboration tasks.
@@ -794,9 +811,7 @@ private def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : Te
   let expectedType ← match expectedType? with
     | none              => mkFreshTypeMVar
     | some expectedType => pure expectedType
-  let u ← getLevel expectedType
-  -- TODO: should be `(sorryAx.{$u} $expectedType true) when we support antiquotations at that place
-  let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
+  let syntheticSorry ← mkSyntheticSorry expectedType
   logException ex
   pure syntheticSorry
 
@@ -850,7 +865,9 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
         else
           throw ex
       | Exception.internal id _ =>
-        if id == unsupportedSyntaxExceptionId then
+        if (← read).errToSorry && id == abortTermExceptionId then
+          exceptionToSorry ex expectedType?
+        else if id == unsupportedSyntaxExceptionId then
           s.restore
           elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
         else if catchExPostpone && id == postponeExceptionId then

@@ -85,10 +85,6 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
          let value ← elabTermEnsuringType view.valStx type
          mkLambdaFVars xs value
 
-private def abortIfContainsSyntheticSorry (e : Expr) : TermElabM Unit := do
-  let e ← instantiateMVars e
-  if e.hasSyntheticSorry then throwAbort
-
 private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array Expr) (values : Array Expr) : TermElabM Unit := do
   let letRecsToLiftCurr := (← get).letRecsToLift
   for view in views do

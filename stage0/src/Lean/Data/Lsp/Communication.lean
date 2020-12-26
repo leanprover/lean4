@@ -27,6 +27,8 @@ section
 
   private partial def readHeaderFields (h : FS.Stream) : IO (List (String × String)) := do
     let l ← h.getLine
+    if (←h.isEof) then
+      throw $ userError "Stream was closed"
     if l = "\r\n" then
       pure []
     else
@@ -42,24 +44,36 @@ section
     match fields.lookup "Content-Length" with
     | some length => match length.toNat? with
       | some n => pure n
-      | none   => throw $ userError s!"Content-Length header value '{length}' is not a Nat"
-    | none => throw $ userError s!"No Content-Length header in header fields: {toString fields}"
+      | none   => throw $ userError s!"Content-Length header field value '{length}' is not a Nat"
+    | none => throw $ userError s!"No Content-Length field in header: {fields}"
 
   def readLspMessage (h : FS.Stream) : IO Message := do
-    let nBytes ← readLspHeader h
-    h.readMessage nBytes
+    try
+      let nBytes ← readLspHeader h
+      h.readMessage nBytes
+    catch e =>
+      throw $ userError s!"Cannot read LSP message: {e}"
 
   def readLspRequestAs (h : FS.Stream) (expectedMethod : String) (α) [FromJson α] : IO (Request α) := do
-    let nBytes ← readLspHeader h
-    h.readRequestAs nBytes expectedMethod α
+    try
+      let nBytes ← readLspHeader h
+      h.readRequestAs nBytes expectedMethod α
+    catch e =>
+      throw $ userError s!"Cannot read LSP request: {e}"
 
   def readLspNotificationAs (h : FS.Stream) (expectedMethod : String) (α) [FromJson α] : IO (Notification α) := do
-    let nBytes ← readLspHeader h
-    h.readNotificationAs nBytes expectedMethod α
+    try
+      let nBytes ← readLspHeader h
+      h.readNotificationAs nBytes expectedMethod α
+    catch e =>
+      throw $ userError s!"Cannot read LSP notification: {e}"
 
   def readLspResponseAs (h : FS.Stream) (expectedID : RequestID) (α) [FromJson α] : IO (Response α) := do
-    let nBytes ← readLspHeader h
-    h.readResponseAs nBytes expectedID α
+    try
+      let nBytes ← readLspHeader h
+      h.readResponseAs nBytes expectedID α
+    catch e =>
+      throw $ userError s!"Cannot read LSP response: {e}"
 end
 
 section

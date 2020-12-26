@@ -33,18 +33,18 @@ import Lean.Elab.Term
 
 namespace Lean
 
-def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types true
-def getPPCoercions (o : Options) : Bool := o.get `pp.coercions true
-def getPPExplicit (o : Options) : Bool := o.get `pp.explicit false
-def getPPNotation (o : Options) : Bool := o.get `pp.notation true
-def getPPStructureProjections (o : Options) : Bool := o.get `pp.structure_projections true
-def getPPStructureInstances (o : Options) : Bool := o.get `pp.structure_instances true
-def getPPStructureInstanceType (o : Options) : Bool := o.get `pp.structure_instance_type false
-def getPPUniverses (o : Options) : Bool := o.get `pp.universes false
-def getPPFullNames (o : Options) : Bool := o.get `pp.full_names false
-def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names false
-def getPPUnicode (o : Options) : Bool := o.get `pp.unicode true
 def getPPAll (o : Options) : Bool := o.get `pp.all false
+def getPPBinderTypes (o : Options) : Bool := o.get `pp.binder_types (!getPPAll o)
+def getPPCoercions (o : Options) : Bool := o.get `pp.coercions (!getPPAll o)
+def getPPExplicit (o : Options) : Bool := o.get `pp.explicit (getPPAll o)
+def getPPNotation (o : Options) : Bool := o.get `pp.notation (!getPPAll o)
+def getPPStructureProjections (o : Options) : Bool := o.get `pp.structure_projections (!getPPAll o)
+def getPPStructureInstances (o : Options) : Bool := o.get `pp.structure_instances (!getPPAll o)
+def getPPStructureInstanceType (o : Options) : Bool := o.get `pp.structure_instance_type (getPPAll o)
+def getPPUniverses (o : Options) : Bool := o.get `pp.universes (getPPAll o)
+def getPPFullNames (o : Options) : Bool := o.get `pp.full_names (getPPAll o)
+def getPPPrivateNames (o : Options) : Bool := o.get `pp.private_names (getPPAll o)
+def getPPUnicode (o : Options) : Bool := o.get `pp.unicode (!getPPAll o)
 
 builtin_initialize
   registerOption `pp.explicit { defValue := false, group := "pp", descr := "(pretty printer) display implicit arguments" }
@@ -143,7 +143,6 @@ def getExprKind : DelabM Name := do
 /-- Evaluate option accessor, using subterm-specific options if set. Default to `true` if `pp.all` is set. -/
 def getPPOption (opt : Options → Bool) : DelabM Bool := do
   let ctx ← read
-  let opt := fun opts => opt opts || getPPAll opts
   let val := opt ctx.defaultOptions
   match ctx.optionsPerPos.find? ctx.pos with
   | some opts => pure $ opt opts

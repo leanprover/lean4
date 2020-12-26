@@ -428,6 +428,10 @@ def mkLe (a b : Expr) : m Expr :=
 def mkArbitrary (α : Expr) : m Expr :=
   mkAppOptM `arbitrary #[α, none]
 
+/-- Return `sorryAx type` -/
+def mkSyntheticSorry (type : Expr) : MetaM Expr :=
+  return mkApp2 (mkConst `sorryAx [← getLevel type]) type (mkConst `Bool.true)
+
 builtin_initialize registerTraceClass `Meta.appBuilder
 
 end Lean.Meta

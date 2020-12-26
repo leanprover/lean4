@@ -15,16 +15,8 @@ open Json
 structure WorkspaceFolder where
   uri : DocumentUri
   name : String
+  deriving ToJson, FromJson
 
-instance : FromJson WorkspaceFolder := ⟨fun j => do
-  let uri ← j.getObjValAs? DocumentUri "uri"
-  let name ← j.getObjValAs? String "name"
-  pure ⟨uri, name⟩⟩
-
-instance : ToJson WorkspaceFolder := ⟨fun o =>
-  mkObj [
-    ⟨"uri", toJson o.uri⟩,
-    ⟨"name", toJson o.name⟩]⟩
 -- TODO(WN):
 -- WorkspaceFoldersServerCapabilities,
 -- DidChangeWorkspaceFoldersParams,

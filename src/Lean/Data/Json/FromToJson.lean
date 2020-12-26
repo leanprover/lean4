@@ -43,6 +43,11 @@ instance [FromJson α] : FromJson (Array α) := ⟨fun
 instance [ToJson α] : ToJson (Array α) :=
   ⟨fun a => Json.arr (a.map toJson)⟩
 
+instance [FromJson α] : FromJson (Option α) :=
+  ⟨fun
+    | Json.null => some none
+    | j         => some <$> fromJson? j⟩
+
 instance [ToJson α] : ToJson (Option α) :=
   ⟨fun
     | none   => Json.null
@@ -63,7 +68,7 @@ def toStructured? [ToJson α] (v : α) : Option Structured :=
   fromJson? (toJson v)
 
 def getObjValAs? (j : Json) (α : Type u) [FromJson α] (k : String) : Option α :=
-  (j.getObjVal? k).bind fromJson?
+  fromJson? <| j.getObjValD k
 
 def opt [ToJson α] (k : String) (o : Option α) : List (String × Json) :=
   [⟨k, toJson o⟩]

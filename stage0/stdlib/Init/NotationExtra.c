@@ -272,6 +272,7 @@ lean_object* l_myMacro____x40_Init_NotationExtra___hyg_2262____closed__1;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_2262____boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_term_u2203___x2c_____closed__5;
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__10;
+extern lean_object* l_term___xd7_____closed__5;
 extern lean_object* l_Lean_Parser_Tactic_first___closed__7;
 extern lean_object* l_termDepIfThenElse___closed__14;
 lean_object* l_myMacro____x40_Init_NotationExtra___hyg_2600____closed__1;
@@ -4171,7 +4172,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__10;
 x_2 = l_term___xd7____1___closed__5;
-x_3 = l_termDepIfThenElse___closed__14;
+x_3 = l_term___xd7_____closed__5;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -4184,7 +4185,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_term___xd7____1___closed__2;
-x_2 = lean_unsigned_to_nat(25u);
+x_2 = lean_unsigned_to_nat(35u);
 x_3 = l_term___xd7____1___closed__6;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -4297,7 +4298,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__10;
 x_2 = l_term___xd7_x27_____closed__5;
-x_3 = l_termDepIfThenElse___closed__14;
+x_3 = l_term___xd7_____closed__5;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -4310,7 +4311,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_term___xd7_x27_____closed__2;
-x_2 = lean_unsigned_to_nat(25u);
+x_2 = lean_unsigned_to_nat(35u);
 x_3 = l_term___xd7_x27_____closed__6;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

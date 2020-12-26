@@ -45,6 +45,7 @@ lean_object* l_Substring_extract_match__1___rarg(lean_object*, lean_object*, lea
 lean_object* l_String_Iterator_nextn_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_anyAux_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_trimRight___boxed(lean_object*);
+lean_object* l_String_takeRightWhile___boxed(lean_object*, lean_object*);
 lean_object* l_Substring_isEmpty___boxed(lean_object*);
 lean_object* l_List_map___at_String_intercalate___spec__1(lean_object*);
 lean_object* l_Substring_atEnd_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -238,6 +239,7 @@ lean_object* l_String_Iterator_next_match__1(lean_object*);
 lean_object* l_String_dropRight(lean_object*, lean_object*);
 lean_object* l_String_offsetOfPos___boxed(lean_object*, lean_object*);
 lean_object* l_String_splitAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_takeRightWhile(lean_object*, lean_object*);
 uint8_t l_String_Iterator_hasNext(lean_object*);
 lean_object* l_String_Iterator_toEnd_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_String_all___lambda__1___boxed(lean_object*, lean_object*);
@@ -387,7 +389,9 @@ lean_object* l_Substring_prevn_match__1___rarg___boxed(lean_object*, lean_object
 lean_object* lean_string_mk(lean_object*);
 lean_object* l_String_Iterator_hasNext_match__1(lean_object*);
 lean_object* l_Substring_prev(lean_object*, lean_object*);
+lean_object* l_String_dropRightWhile(lean_object*, lean_object*);
 lean_object* l_String_instAppendString___closed__1;
+lean_object* l_String_dropRightWhile___boxed(lean_object*, lean_object*);
 lean_object* l_String_offsetOfPos(lean_object*, lean_object*);
 lean_object* l_Substring_prevn___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
@@ -5680,6 +5684,50 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_String_dropWhile(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_String_takeRightWhile(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_string_utf8_byte_size(x_1);
+x_4 = lean_unsigned_to_nat(0u);
+lean_inc(x_3);
+x_5 = l_Substring_takeRightWhileAux(x_1, x_4, x_2, x_3);
+x_6 = lean_string_utf8_extract(x_1, x_5, x_3);
+lean_dec(x_3);
+lean_dec(x_5);
+return x_6;
+}
+}
+lean_object* l_String_takeRightWhile___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_takeRightWhile(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_String_dropRightWhile(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_string_utf8_byte_size(x_1);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l_Substring_takeRightWhileAux(x_1, x_4, x_2, x_3);
+x_6 = lean_string_utf8_extract(x_1, x_4, x_5);
+lean_dec(x_5);
+return x_6;
+}
+}
+lean_object* l_String_dropRightWhile___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_dropRightWhile(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

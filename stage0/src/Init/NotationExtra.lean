@@ -83,8 +83,8 @@ macro "∃" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Exis
 macro "exists" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Exists xs b
 macro "Σ" xs:explicitBinders ", " b:term : term => expandExplicitBinders `Sigma xs b
 macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders `PSigma xs b
-macro:25 xs:bracketedExplicitBinders "×" b:term : term => expandBrackedBinders `Sigma xs b
-macro:25 xs:bracketedExplicitBinders "×'" b:term : term => expandBrackedBinders `PSigma xs b
+macro:35 xs:bracketedExplicitBinders "×" b:term:35  : term => expandBrackedBinders `Sigma xs b
+macro:35 xs:bracketedExplicitBinders "×'" b:term:35 : term => expandBrackedBinders `PSigma xs b
 
 syntax "funext " (colGt term:max)+ : tactic
 

@@ -9,3 +9,4 @@ import Lean.Elab.Deriving.Inhabited
 import Lean.Elab.Deriving.BEq
 import Lean.Elab.Deriving.DecEq
 import Lean.Elab.Deriving.Repr
+import Lean.Elab.Deriving.FromToJson

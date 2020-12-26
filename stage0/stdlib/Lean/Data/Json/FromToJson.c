@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_instToJsonJson;
 lean_object* l_Lean_instToJsonArray(lean_object*);
+lean_object* l_Lean_instFromJsonOption___rarg___closed__1;
 lean_object* l_Lean_instToJsonBool___boxed(lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_instToJsonOption___rarg(lean_object*, lean_object*);
@@ -36,12 +37,14 @@ lean_object* l_Lean_instFromJsonBool___closed__1;
 lean_object* l_Lean_Json_instToJsonStructured_match__1(lean_object*);
 extern lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 lean_object* l_Lean_instFromJsonArray_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instFromJsonOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_instToJsonArray___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_instToJsonNat(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_instFromJsonArray___spec__1(lean_object*);
 lean_object* l_Lean_instFromJsonJsonNumber___closed__1;
+lean_object* l_Lean_instFromJsonOption___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_instFromJsonNat___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_instFromJsonArray___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_instToJsonInt(lean_object*);
@@ -53,8 +56,11 @@ lean_object* l_Lean_Json_getNat_x3f___boxed(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Json_instToJsonStructured(lean_object*);
 lean_object* l_Lean_instToJsonOption_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instFromJsonOption_match__1(lean_object*);
 lean_object* l_Lean_Json_opt___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
+lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
+lean_object* l_Lean_instFromJsonOption(lean_object*);
 lean_object* l_Lean_instToJsonString(lean_object*);
 lean_object* l_Lean_Json_getBool_x3f___boxed(lean_object*);
 lean_object* l_Lean_instToJsonJsonNumber(lean_object*);
@@ -71,7 +77,6 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_instToJsonArray___spec__1(lean_obj
 lean_object* l_Array_mapMUnsafe_map___at_Lean_instToJsonArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instFromJsonArray_match__1(lean_object*);
-lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instToJsonOption(lean_object*);
 lean_object* l_Lean_Json_instFromJsonStructured(lean_object*);
@@ -442,6 +447,99 @@ x_7 = l_Array_mapMUnsafe_map___at_Lean_instToJsonArray___spec__1___rarg(x_1, x_5
 return x_7;
 }
 }
+lean_object* l_Lean_instFromJsonOption_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_3);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; 
+lean_dec(x_2);
+x_6 = lean_apply_1(x_3, x_1);
+return x_6;
+}
+}
+}
+lean_object* l_Lean_instFromJsonOption_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_instFromJsonOption_match__1___rarg), 3, 0);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_instFromJsonOption___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_instFromJsonOption___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_3; 
+lean_dec(x_1);
+x_3 = l_Lean_instFromJsonOption___rarg___closed__1;
+return x_3;
+}
+else
+{
+lean_object* x_4; 
+x_4 = lean_apply_1(x_1, x_2);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; 
+x_5 = lean_box(0);
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_4);
+if (x_6 == 0)
+{
+lean_object* x_7; 
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_4);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_4, 0);
+lean_inc(x_8);
+lean_dec(x_4);
+x_9 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_9, 0, x_8);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
+}
+}
+}
+}
+}
+lean_object* l_Lean_instFromJsonOption(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_instFromJsonOption___rarg), 2, 0);
+return x_2;
+}
+}
 lean_object* l_Lean_instToJsonOption_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -707,24 +805,10 @@ return x_2;
 lean_object* l_Lean_Json_getObjValAs_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Lean_Json_getObjVal_x3f(x_1, x_4);
-if (lean_obj_tag(x_5) == 0)
-{
-lean_object* x_6; 
-lean_dec(x_3);
-x_6 = lean_box(0);
+lean_object* x_5; lean_object* x_6; 
+x_5 = l_Lean_Json_getObjValD(x_1, x_4);
+x_6 = lean_apply_1(x_3, x_5);
 return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_ctor_get(x_5, 0);
-lean_inc(x_7);
-lean_dec(x_5);
-x_8 = lean_apply_1(x_3, x_7);
-return x_8;
-}
 }
 }
 lean_object* l_Lean_Json_getObjValAs_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -815,6 +899,8 @@ l_Lean_instFromJsonString___closed__1 = _init_l_Lean_instFromJsonString___closed
 lean_mark_persistent(l_Lean_instFromJsonString___closed__1);
 l_Lean_instFromJsonString = _init_l_Lean_instFromJsonString();
 lean_mark_persistent(l_Lean_instFromJsonString);
+l_Lean_instFromJsonOption___rarg___closed__1 = _init_l_Lean_instFromJsonOption___rarg___closed__1();
+lean_mark_persistent(l_Lean_instFromJsonOption___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

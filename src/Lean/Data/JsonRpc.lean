@@ -21,7 +21,7 @@ inductive RequestID where
   | str (s : String)
   | num (n : JsonNumber)
   | null
-  deriving DecidableEq
+  deriving Inhabited, BEq
 
 instance : ToString RequestID where
   toString
@@ -43,6 +43,7 @@ inductive ErrorCode where
   -- LSP-specific codes below.
   | requestCancelled
   | contentModified
+  deriving Inhabited, BEq
 
 instance : FromJson ErrorCode := ⟨fun
   | num (-32700 : Int) => ErrorCode.parseError
@@ -83,36 +84,40 @@ def Batch := Array Message
 
 -- Compound type with simplified APIs for passing around
 -- jsonrpc data
-structure Request (α) where
+structure Request (α : Type u) where
   id     : RequestID
   method : String
   param  : α
+  deriving Inhabited, BEq
 
 instance [ToJson α] : Coe (Request α) Message :=
-⟨fun r => Message.request r.id r.method (toStructured? r.param)⟩
+  ⟨fun r => Message.request r.id r.method (toStructured? r.param)⟩
 
-structure Notification (α) where
+structure Notification (α : Type u) where
   method : String
   param  : α
+  deriving Inhabited, BEq
 
 instance [ToJson α] : Coe (Notification α) Message :=
-⟨fun r => Message.notification r.method (toStructured? r.param)⟩
+  ⟨fun r => Message.notification r.method (toStructured? r.param)⟩
 
-structure Response (α) where
+structure Response (α : Type u) where
   id     : RequestID
   result : α
+  deriving Inhabited, BEq
 
 instance [ToJson α] : Coe (Response α) Message :=
-⟨fun r => Message.response r.id (toJson r.result)⟩
+  ⟨fun r => Message.response r.id (toJson r.result)⟩
 
-structure ResponseError (α) where
+structure ResponseError (α : Type u) where
   id      : RequestID
   code    : ErrorCode
   message : String
   data?   : Option α := none
+  deriving Inhabited, BEq
 
 instance [ToJson α] : Coe (ResponseError α) Message :=
-⟨fun r => Message.responseError r.id r.code r.message (r.data?.map toJson)⟩
+  ⟨fun r => Message.responseError r.id r.code r.message (r.data?.map toJson)⟩
 
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
@@ -185,6 +190,16 @@ instance : FromJson Message := ⟨fun j => do
       let data? := err.getObjVal? "data"
       pure (Message.responseError id code message data?))⟩
 
+-- TODO(WN): temporary until we have deriving FromJson
+instance [FromJson α] : FromJson (Notification α) :=
+  ⟨fun j => do
+    let msg : Message ← fromJson? j
+    if let Message.notification method params? := msg then
+      let params ← params?
+      let param : α ← fromJson? (toJson params)
+      pure $ ⟨method, param⟩
+    else none⟩
+
 end Lean.JsonRpc
 
 namespace IO.FS.Stream
@@ -210,7 +225,7 @@ section
         | none   => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'"
       else
         throw $ userError s!"Expected method '{expectedMethod}', got method '{method}'"
-    | _ => throw $ userError "Expected request, got other type of message"
+    | _ => throw $ userError s!"Expected JSON-RPC request, got: '{(toJson m).compress}'"
 
   def readNotificationAs (h : FS.Stream) (nBytes : Nat) (expectedMethod : String) (α) [FromJson α] : IO (Notification α) := do
     let m ← h.readMessage nBytes
@@ -223,19 +238,19 @@ section
         | none   => throw $ userError s!"Unexpected param '{j.compress}' for method '{expectedMethod}'"
       else
         throw $ userError s!"Expected method '{expectedMethod}', got method '{method}'"
-    | _ => throw $ userError "Expected notification, got other type of message"
+    | _ => throw $ userError s!"Expected JSON-RPC notification, got: '{(toJson m).compress}'"
 
   def readResponseAs (h : FS.Stream) (nBytes : Nat) (expectedID : RequestID) (α) [FromJson α] : IO (Response α) := do
   let m ← h.readMessage nBytes
   match m with
   | Message.response id result =>
-    if id = expectedID then
+    if id == expectedID then
       match fromJson? result with
       | some v => pure ⟨expectedID, v⟩
       | none   => throw $ userError s!"Unexpected result '{result.compress}'"
     else
       throw $ userError s!"Expected id {expectedID}, got id {id}"
-  | _ => throw $ userError "Expected response, got other type of message"
+  | _ => throw $ userError s!"Expected JSON-RPC response, got: '{(toJson m).compress}'"
 end
 
 section

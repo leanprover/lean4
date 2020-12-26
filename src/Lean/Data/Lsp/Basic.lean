@@ -20,6 +20,7 @@ open Json
 
 structure CancelParams where
   id : JsonRpc.RequestID
+  deriving Inhabited, BEq
 
 instance CancelParams.hasFromJson : FromJson CancelParams :=
   ⟨fun j => do
@@ -39,7 +40,7 @@ offsets. For diagnostics, one-based `Lean.Position`s are used internally.
 structure Position where
   line : Nat
   character : Nat
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 instance : FromJson Position := ⟨fun j => do
   let line ← j.getObjValAs? Nat "line"
@@ -57,6 +58,7 @@ instance : ToString Position := ⟨fun p =>
 structure Range where
   start : Position
   «end» : Position
+  deriving Inhabited, BEq
 
 instance : FromJson Range := ⟨fun j => do
   let start ← j.getObjValAs? Position "start"
@@ -71,6 +73,7 @@ instance : ToJson Range := ⟨fun o =>
 structure Location where
   uri : DocumentUri
   range : Range
+  deriving Inhabited, BEq
 
 instance : FromJson Location := ⟨fun j => do
   let uri ← j.getObjValAs? DocumentUri "uri"

@@ -21,7 +21,7 @@ open JsonRpc
 def ipcStdioConfig : Process.StdioConfig where
   stdin  := Process.Stdio.piped
   stdout := Process.Stdio.piped
-  stderr := Process.Stdio.piped
+  stderr := Process.Stdio.inherit
 
 abbrev IpcM := ReaderT (Process.Child ipcStdioConfig) IO
 
@@ -32,9 +32,6 @@ def stdin : IpcM FS.Stream := do
 
 def stdout : IpcM FS.Stream := do
   FS.Stream.ofHandle (←read).stdout
-
-def stderr : IpcM FS.Stream := do
-  FS.Stream.ofHandle (←read).stderr
 
 def writeRequest (r : Request α) : IpcM Unit := do
   (←stdin).writeLspRequest r
@@ -48,6 +45,9 @@ def readMessage : IpcM JsonRpc.Message := do
 def readResponseAs (expectedID : RequestID) (α) [FromJson α] : IpcM (Response α) := do
   (←stdout).readLspResponseAs expectedID α
 
+def waitForExit : IpcM UInt32 := do
+  (←read).wait
+
 /-- Waits for the worker to emit all diagnostics for the current document version
 and returns them as a list. -/
 partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target : DocumentUri)
@@ -56,7 +56,7 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
   let rec loop : IpcM (List (Notification PublishDiagnosticsParams)) := do
     match ←readMessage with
     | Message.response id _ =>
-      if id = waitForDiagnosticsId then
+      if id == waitForDiagnosticsId then
         []
       else
         loop

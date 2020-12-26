@@ -20,6 +20,7 @@ open Json
 
 inductive DiagnosticSeverity where
   | error | warning | information | hint
+  deriving Inhabited, BEq
 
 instance : FromJson DiagnosticSeverity := ⟨fun j =>
   match j.getNat? with
@@ -38,6 +39,7 @@ instance : ToJson DiagnosticSeverity := ⟨fun
 inductive DiagnosticCode where
   | int (i : Int)
   | string (s : String)
+  deriving Inhabited, BEq
 
 instance : FromJson DiagnosticCode := ⟨fun
   | num (i : Int) => DiagnosticCode.int i
@@ -51,6 +53,7 @@ instance : ToJson DiagnosticCode := ⟨fun
 inductive DiagnosticTag where
   | unnecessary
   | deprecated
+  deriving Inhabited, BEq
 
 instance : FromJson DiagnosticTag := ⟨fun j =>
   match j.getNat? with
@@ -65,6 +68,7 @@ instance : ToJson DiagnosticTag := ⟨fun
 structure DiagnosticRelatedInformation where
   location : Location
   message : String
+  deriving Inhabited, BEq
 
 instance : FromJson DiagnosticRelatedInformation := ⟨fun j => do
   let location ← j.getObjValAs? Location "location"
@@ -84,6 +88,7 @@ structure Diagnostic where
   message : String
   tags? : Option (Array DiagnosticTag) := none
   relatedInformation? : Option (Array DiagnosticRelatedInformation) := none
+  deriving Inhabited, BEq
 
 instance : FromJson Diagnostic := ⟨fun j => do
   let range ← j.getObjValAs? Range "range"
@@ -108,6 +113,7 @@ structure PublishDiagnosticsParams where
   uri : DocumentUri
   version? : Option Int := none
   diagnostics: Array Diagnostic
+  deriving Inhabited, BEq
 
 instance : FromJson PublishDiagnosticsParams := ⟨fun j => do
   let uri ← j.getObjValAs? DocumentUri "uri"

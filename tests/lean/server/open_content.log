@@ -1,0 +1,3 @@
+Content-Length: 457
+
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///test.lean","languageId":"lean","version":1,"text":"import Init.System.IO\n\ndef n : Nat := 1234\n\n#check n\n\ndef s : String := \"abcd\"\n\n#check s\n\ndef hello : IO Unit := IO.println \"Hello world!\"\n\n#eval hello\n\ndef αβγ /- 😉😉😉😉 -/: Nat := \"NotANat\"\n\nnamespace MyNs\n\ndef u : Unit := ()\n\nend MyNs\n\n#check MyNs.u\n\n#print MyNs.u\n"}}}

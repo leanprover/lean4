@@ -1,7 +1,0 @@
-Content-Length: 221
-
-{"result":{"serverInfo":{"version":"0.0.1","name":"Lean 4 server"},"capabilities":{"textDocumentSync":{"willSaveWaitUntil":false,"willSave":false,"openClose":true,"change":2},"hoverProvider":true}},"jsonrpc":"2.0","id":0}Content-Length: 955
-
-{"params":{"version":1,"uri":"file:///home/wojtek/Programming/C%2B%2B/lean4/src/Lean/Server/testDiags.txt","diagnostics":[{"source":"Lean 4 server","severity":3,"range":{"start":{"line":4,"character":0},"end":{"line":4,"character":0}},"message":"n : Nat"},{"source":"Lean 4 server","severity":3,"range":{"start":{"line":8,"character":0},"end":{"line":8,"character":0}},"message":"s : String"},{"source":"Lean 4 server","severity":3,"range":{"start":{"line":12,"character":0},"end":{"line":12,"character":0}},"message":"Hello world!\n"},{"source":"Lean 4 server","severity":1,"range":{"start":{"line":14,"character":31},"end":{"line":14,"character":31}},"message":"type mismatch\n  \"NotANat\"\nhas type\n  String\nbut is expected to have type\n  Nat"},{"source":"Lean 4 server","severity":3,"range":{"start":{"line":22,"character":0},"end":{"line":22,"character":0}},"message":"MyNs.u : Unit"}]},"method":"textDocument/publishDiagnostics","jsonrpc":"2.0"}Content-Length: 38
-
-{"result":null,"jsonrpc":"2.0","id":1}

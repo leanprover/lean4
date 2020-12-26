@@ -60,10 +60,10 @@ private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
 
 private def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
   match expectedType? with
-  | none => throwError "invalid do notation, expected type is not available"
+  | none => throwError "invalid 'do' notation, expected type is not available"
   | some expectedType =>
     let type ← withReducible $ whnf expectedType
-    if  type.getAppFn.isMVar then throwError "invalid do notation, expected type is not available"
+    if  type.getAppFn.isMVar then throwError "invalid 'do' notation, expected type is not available"
     match type with
     | Expr.app m α _ =>
       try

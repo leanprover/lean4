@@ -500,6 +500,12 @@ def takeWhile (s : String) (p : Char → Bool) : String :=
 def dropWhile (s : String) (p : Char → Bool) : String :=
   (s.toSubstring.dropWhile p).toString
 
+def takeRightWhile (s : String) (p : Char → Bool) : String :=
+  (s.toSubstring.takeRightWhile p).toString
+
+def dropRightWhile (s : String) (p : Char → Bool) : String :=
+  (s.toSubstring.dropRightWhile p).toString
+
 def trimRight (s : String) : String :=
   s.toSubstring.trimRight.toString
 

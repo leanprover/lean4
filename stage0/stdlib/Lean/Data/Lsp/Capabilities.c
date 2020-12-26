@@ -33,6 +33,7 @@ lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonTextDocumentC
 lean_object* l_Lean_Lsp_ServerCapabilities_textDocumentSync_x3f___default;
 lean_object* l_Lean_Lsp_instFromJsonServerCapabilities___closed__1;
 lean_object* l_Lean_Lsp_instFromJsonServerCapabilities___boxed(lean_object*);
+lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonSaveOptions___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt___at_Lean_Lsp_instToJsonTextDocumentSyncOptions___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
@@ -45,7 +46,6 @@ extern lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__2;
 lean_object* l_Lean_Lsp_instFromJsonServerCapabilities___closed__2;
 lean_object* l_Lean_Lsp_instFromJsonClientCapabilities___closed__1;
 lean_object* l_Lean_Lsp_instFromJsonClientCapabilities___boxed(lean_object*);
-lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Lsp_instFromJsonClientCapabilities___closed__1() {
 _start:
 {
@@ -118,135 +118,122 @@ return x_1;
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonServerCapabilities___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lean_Json_getObjVal_x3f(x_1, x_2);
-if (lean_obj_tag(x_3) == 0)
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = l_Lean_Json_getObjValD(x_1, x_2);
+x_4 = l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__1;
+x_5 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonSaveOptions___spec__1(x_3, x_4);
+if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_4; 
-x_4 = lean_box(0);
-return x_4;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
+lean_object* x_6; 
 lean_dec(x_3);
-x_6 = l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__1;
-x_7 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonSaveOptions___spec__1(x_5, x_6);
-if (lean_obj_tag(x_7) == 0)
-{
-lean_object* x_8; 
-lean_dec(x_5);
-x_8 = lean_box(0);
-return x_8;
+x_6 = lean_box(0);
+return x_6;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_5, 0);
+lean_inc(x_7);
+lean_dec(x_5);
+x_8 = l_Lean_Parser_Tactic_change___closed__1;
+x_9 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions___spec__1(x_3, x_8);
+if (lean_obj_tag(x_9) == 0)
+{
+lean_object* x_10; 
 lean_dec(x_7);
-x_10 = l_Lean_Parser_Tactic_change___closed__1;
-x_11 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions___spec__1(x_5, x_10);
-if (lean_obj_tag(x_11) == 0)
-{
-lean_object* x_12; 
-lean_dec(x_9);
-lean_dec(x_5);
-x_12 = lean_box(0);
-return x_12;
+lean_dec(x_3);
+x_10 = lean_box(0);
+return x_10;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_11, 0);
-lean_inc(x_13);
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = lean_ctor_get(x_9, 0);
+lean_inc(x_11);
+lean_dec(x_9);
+x_12 = l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__2;
+x_13 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonSaveOptions___spec__1(x_3, x_12);
+if (lean_obj_tag(x_13) == 0)
+{
+lean_object* x_14; 
 lean_dec(x_11);
-x_14 = l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__2;
-x_15 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonSaveOptions___spec__1(x_5, x_14);
-if (lean_obj_tag(x_15) == 0)
-{
-lean_object* x_16; 
-lean_dec(x_13);
-lean_dec(x_9);
-lean_dec(x_5);
-x_16 = lean_box(0);
-return x_16;
+lean_dec(x_7);
+lean_dec(x_3);
+x_14 = lean_box(0);
+return x_14;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_17 = lean_ctor_get(x_15, 0);
-lean_inc(x_17);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_ctor_get(x_13, 0);
+lean_inc(x_15);
+lean_dec(x_13);
+x_16 = l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__3;
+x_17 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonSaveOptions___spec__1(x_3, x_16);
+if (lean_obj_tag(x_17) == 0)
+{
+lean_object* x_18; 
 lean_dec(x_15);
-x_18 = l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__3;
-x_19 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonSaveOptions___spec__1(x_5, x_18);
-if (lean_obj_tag(x_19) == 0)
-{
-lean_object* x_20; 
-lean_dec(x_17);
-lean_dec(x_13);
-lean_dec(x_9);
-lean_dec(x_5);
-x_20 = lean_box(0);
-return x_20;
+lean_dec(x_11);
+lean_dec(x_7);
+lean_dec(x_3);
+x_18 = lean_box(0);
+return x_18;
 }
 else
 {
-uint8_t x_21; 
-x_21 = !lean_is_exclusive(x_19);
-if (x_21 == 0)
+uint8_t x_19; 
+x_19 = !lean_is_exclusive(x_17);
+if (x_19 == 0)
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; 
-x_22 = lean_ctor_get(x_19, 0);
-x_23 = l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__4;
-x_24 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonTextDocumentSyncOptions___spec__1(x_5, x_23);
-lean_dec(x_5);
-x_25 = lean_alloc_ctor(0, 1, 4);
-lean_ctor_set(x_25, 0, x_24);
-x_26 = lean_unbox(x_9);
-lean_dec(x_9);
-lean_ctor_set_uint8(x_25, sizeof(void*)*1, x_26);
-x_27 = lean_unbox(x_13);
-lean_dec(x_13);
-lean_ctor_set_uint8(x_25, sizeof(void*)*1 + 1, x_27);
-x_28 = lean_unbox(x_17);
-lean_dec(x_17);
-lean_ctor_set_uint8(x_25, sizeof(void*)*1 + 2, x_28);
-x_29 = lean_unbox(x_22);
-lean_dec(x_22);
-lean_ctor_set_uint8(x_25, sizeof(void*)*1 + 3, x_29);
-lean_ctor_set(x_19, 0, x_25);
-return x_19;
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; 
+x_20 = lean_ctor_get(x_17, 0);
+x_21 = l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__4;
+x_22 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonTextDocumentSyncOptions___spec__1(x_3, x_21);
+lean_dec(x_3);
+x_23 = lean_alloc_ctor(0, 1, 4);
+lean_ctor_set(x_23, 0, x_22);
+x_24 = lean_unbox(x_7);
+lean_dec(x_7);
+lean_ctor_set_uint8(x_23, sizeof(void*)*1, x_24);
+x_25 = lean_unbox(x_11);
+lean_dec(x_11);
+lean_ctor_set_uint8(x_23, sizeof(void*)*1 + 1, x_25);
+x_26 = lean_unbox(x_15);
+lean_dec(x_15);
+lean_ctor_set_uint8(x_23, sizeof(void*)*1 + 2, x_26);
+x_27 = lean_unbox(x_20);
+lean_dec(x_20);
+lean_ctor_set_uint8(x_23, sizeof(void*)*1 + 3, x_27);
+lean_ctor_set(x_17, 0, x_23);
+return x_17;
 }
 else
 {
-lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; 
-x_30 = lean_ctor_get(x_19, 0);
-lean_inc(x_30);
-lean_dec(x_19);
-x_31 = l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__4;
-x_32 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonTextDocumentSyncOptions___spec__1(x_5, x_31);
-lean_dec(x_5);
-x_33 = lean_alloc_ctor(0, 1, 4);
-lean_ctor_set(x_33, 0, x_32);
-x_34 = lean_unbox(x_9);
-lean_dec(x_9);
-lean_ctor_set_uint8(x_33, sizeof(void*)*1, x_34);
-x_35 = lean_unbox(x_13);
-lean_dec(x_13);
-lean_ctor_set_uint8(x_33, sizeof(void*)*1 + 1, x_35);
-x_36 = lean_unbox(x_17);
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; uint8_t x_33; uint8_t x_34; uint8_t x_35; lean_object* x_36; 
+x_28 = lean_ctor_get(x_17, 0);
+lean_inc(x_28);
 lean_dec(x_17);
-lean_ctor_set_uint8(x_33, sizeof(void*)*1 + 2, x_36);
-x_37 = lean_unbox(x_30);
-lean_dec(x_30);
-lean_ctor_set_uint8(x_33, sizeof(void*)*1 + 3, x_37);
-x_38 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_38, 0, x_33);
-return x_38;
-}
+x_29 = l_Lean_Lsp_instFromJsonTextDocumentSyncOptions___closed__4;
+x_30 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonTextDocumentSyncOptions___spec__1(x_3, x_29);
+lean_dec(x_3);
+x_31 = lean_alloc_ctor(0, 1, 4);
+lean_ctor_set(x_31, 0, x_30);
+x_32 = lean_unbox(x_7);
+lean_dec(x_7);
+lean_ctor_set_uint8(x_31, sizeof(void*)*1, x_32);
+x_33 = lean_unbox(x_11);
+lean_dec(x_11);
+lean_ctor_set_uint8(x_31, sizeof(void*)*1 + 1, x_33);
+x_34 = lean_unbox(x_15);
+lean_dec(x_15);
+lean_ctor_set_uint8(x_31, sizeof(void*)*1 + 2, x_34);
+x_35 = lean_unbox(x_28);
+lean_dec(x_28);
+lean_ctor_set_uint8(x_31, sizeof(void*)*1 + 3, x_35);
+x_36 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_36, 0, x_31);
+return x_36;
 }
 }
 }

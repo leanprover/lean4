@@ -19,15 +19,7 @@ structure Hover where
   but they are deprecated, so maybe can get away without. -/
   contents : MarkupContent
   range? : Option Range := none
-
-instance : FromJson Hover := ⟨fun j => do
-  let contents ← j.getObjValAs? MarkupContent "contents"
-  let range? := j.getObjValAs? Range "range"
-  pure ⟨contents, range?⟩⟩
-
-instance : ToJson Hover := ⟨fun o => mkObj $
-  ⟨"contents", toJson o.contents⟩ ::
-  opt "range" o.range?⟩
+  deriving ToJson, FromJson
 
 structure HoverParams extends TextDocumentPositionParams
 

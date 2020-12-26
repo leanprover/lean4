@@ -20,16 +20,7 @@ open Json
 
 structure CancelParams where
   id : JsonRpc.RequestID
-  deriving Inhabited, BEq
-
-instance CancelParams.hasFromJson : FromJson CancelParams :=
-  ⟨fun j => do
-    let id ← j.getObjValAs? JsonRpc.RequestID "id"
-    pure ⟨id⟩⟩
-
-instance CancelParams.hasToJson : ToJson CancelParams :=
-  ⟨fun o => mkObj $
-    ⟨"id", toJson o.id⟩ :: []⟩
+  deriving Inhabited, BEq, ToJson, FromJson
 
 abbrev DocumentUri := String
 
@@ -40,17 +31,7 @@ offsets. For diagnostics, one-based `Lean.Position`s are used internally.
 structure Position where
   line : Nat
   character : Nat
-  deriving Inhabited, BEq
-
-instance : FromJson Position := ⟨fun j => do
-  let line ← j.getObjValAs? Nat "line"
-  let character ← j.getObjValAs? Nat "character"
-  pure ⟨line, character⟩⟩
-
-instance : ToJson Position := ⟨fun o =>
-  mkObj [
-    ⟨"line", o.line⟩,
-    ⟨"character", o.character⟩]⟩
+  deriving Inhabited, BEq, ToJson, FromJson
 
 instance : ToString Position := ⟨fun p =>
   "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
@@ -58,51 +39,19 @@ instance : ToString Position := ⟨fun p =>
 structure Range where
   start : Position
   «end» : Position
-  deriving Inhabited, BEq
-
-instance : FromJson Range := ⟨fun j => do
-  let start ← j.getObjValAs? Position "start"
-  let «end» ← j.getObjValAs? Position "end"
-  pure ⟨start, «end»⟩⟩
-
-instance : ToJson Range := ⟨fun o =>
-  mkObj [
-    ⟨"start", toJson o.start⟩,
-    ⟨"end", toJson o.«end»⟩]⟩
+  deriving Inhabited, BEq, ToJson, FromJson
 
 structure Location where
   uri : DocumentUri
   range : Range
-  deriving Inhabited, BEq
-
-instance : FromJson Location := ⟨fun j => do
-  let uri ← j.getObjValAs? DocumentUri "uri"
-  let range ← j.getObjValAs? Range "range"
-  pure ⟨uri, range⟩⟩
-
-instance : ToJson Location := ⟨fun o =>
-  mkObj [
-    ⟨"uri", toJson o.uri⟩,
-    ⟨"range", toJson o.range⟩]⟩
+  deriving Inhabited, BEq, ToJson, FromJson
 
 structure LocationLink where
   originSelectionRange? : Option Range
   targetUri : DocumentUri
   targetRange : Range
   targetSelectionRange : Range
-
-instance : FromJson LocationLink := ⟨fun j => do
-  let originSelectionRange? := j.getObjValAs? Range "originSelectionRange"
-  let targetUri ← j.getObjValAs? DocumentUri "targetUri"
-  let targetRange ← j.getObjValAs? Range "targetRange"
-  let targetSelectionRange ← j.getObjValAs? Range "targetSelectionRange"
-  pure ⟨originSelectionRange?, targetUri, targetRange, targetSelectionRange⟩⟩
-
-instance : ToJson LocationLink := ⟨fun o => mkObj $
-  opt "originSelectionRange" o.originSelectionRange? ++ [
-    ⟨"targetUri", toJson o.targetUri⟩,
-    ⟨"targetRange", toJson o.targetRange⟩,
-    ⟨"targetSelectionRange", toJson o.targetSelectionRange⟩]⟩
+  deriving ToJson, FromJson
 
 -- NOTE: Diagnostic defined in Diagnostics.lean
 
@@ -112,31 +61,12 @@ structure Command where
   title : String
   command : String
   arguments? : Option (Array Json) := none
-
-instance : FromJson Command := ⟨fun j => do
-  let title ← j.getObjValAs? String "title"
-  let command ← j.getObjValAs? String "command"
-  let arguments? := j.getObjValAs? (Array Json) "arguments"
-  pure ⟨title, command, arguments?⟩⟩
-
-instance : ToJson Command := ⟨fun o => mkObj $
-  opt "arguments" o.arguments? ++ [
-    ⟨"title", o.title⟩,
-    ⟨"command", o.command⟩]⟩
+  deriving ToJson, FromJson
 
 structure TextEdit where
   range : Range
   newText : String
-
-instance : FromJson TextEdit := ⟨fun j => do
-  let range ← j.getObjValAs? Range "range"
-  let newText ← j.getObjValAs? String "newText"
-  pure ⟨range, newText⟩⟩
-
-instance : ToJson TextEdit := ⟨fun o =>
-  mkObj [
-    ⟨"range", toJson o.range⟩,
-    ⟨"newText", o.newText⟩]⟩
+  deriving ToJson, FromJson
 
 def TextEditBatch := Array TextEdit
 
@@ -148,39 +78,17 @@ instance  : ToJson TextEditBatch :=
 
 structure TextDocumentIdentifier where
   uri : DocumentUri
-
-instance : FromJson TextDocumentIdentifier := ⟨fun j =>
-  TextDocumentIdentifier.mk <$> j.getObjValAs? DocumentUri "uri"⟩
-
-instance : ToJson TextDocumentIdentifier :=
-  ⟨fun o => mkObj [⟨"uri", o.uri⟩]⟩
+  deriving ToJson, FromJson
 
 structure VersionedTextDocumentIdentifier where
   uri : DocumentUri
   version? : Option Nat := none
-
-instance : FromJson VersionedTextDocumentIdentifier := ⟨fun j => do
-  let uri ← j.getObjValAs? DocumentUri "uri"
-  let version? := j.getObjValAs? Nat "version"
-  pure ⟨uri, version?⟩⟩
-
-instance : ToJson VersionedTextDocumentIdentifier := ⟨fun o => mkObj $
-  opt "version" o.version? ++
-  [⟨"uri", o.uri⟩]⟩
+  deriving ToJson, FromJson
 
 structure TextDocumentEdit where
   textDocument : VersionedTextDocumentIdentifier
   edits : TextEditBatch
-
-instance : FromJson TextDocumentEdit := ⟨fun j => do
-  let textDocument ← j.getObjValAs? VersionedTextDocumentIdentifier "textDocument"
-  let edits ← j.getObjValAs? TextEditBatch "edits"
-  pure ⟨textDocument, edits⟩⟩
-
-instance : ToJson TextDocumentEdit := ⟨fun o =>
-  mkObj [
-    ⟨"textDocument", toJson o.textDocument⟩,
-    ⟨"edits", toJson o.edits⟩]⟩
+  deriving ToJson, FromJson
 
 -- TODO(Marc): missing:
 -- File Resource Changes, WorkspaceEdit
@@ -192,50 +100,18 @@ structure TextDocumentItem where
   languageId : String
   version : Nat
   text : String
-
-instance : FromJson TextDocumentItem := ⟨fun j => do
-  let uri ← j.getObjValAs? DocumentUri "uri"
-  let languageId ← j.getObjValAs? String "languageId"
-  let version ← j.getObjValAs? Nat "version"
-  let text ← j.getObjValAs? String "text"
-  pure ⟨uri, languageId, version, text⟩⟩
-
-instance : ToJson TextDocumentItem := ⟨fun o =>
-  mkObj [
-    ⟨"uri", o.uri⟩,
-    ⟨"languageId", o.languageId⟩,
-    ⟨"version", o.version⟩,
-    ⟨"text", o.text⟩]⟩
+  deriving ToJson, FromJson
 
 structure TextDocumentPositionParams where
   textDocument : TextDocumentIdentifier
   position : Position
-
-instance : FromJson TextDocumentPositionParams := ⟨fun j => do
-  let textDocument ← j.getObjValAs? TextDocumentIdentifier "textDocument"
-  let position ← j.getObjValAs? Position "position"
-  pure ⟨textDocument, position⟩⟩
-
-instance : ToJson TextDocumentPositionParams := ⟨fun o =>
-  mkObj [
-    ⟨"textDocument", toJson o.textDocument⟩,
-    ⟨"position", toJson o.position⟩]⟩
+  deriving ToJson, FromJson
 
 structure DocumentFilter where
   language? : Option String := none
   scheme? : Option String := none
   pattern? : Option String := none
-
-instance : FromJson DocumentFilter := ⟨fun j => do
-  let language? := j.getObjValAs? String "language"
-  let scheme? := j.getObjValAs? String "scheme"
-  let pattern? := j.getObjValAs? String "pattern"
-  pure ⟨language?, scheme?, pattern?⟩⟩
-
-instance : ToJson DocumentFilter := ⟨fun o => mkObj $
-  opt "language" o.language? ++
-  opt "scheme" o.scheme? ++
-  opt "pattern" o.pattern?⟩
+  deriving ToJson, FromJson
 
 def DocumentSelector := Array DocumentFilter
 
@@ -247,21 +123,11 @@ instance : ToJson DocumentSelector :=
 
 structure StaticRegistrationOptions where
   id? : Option String := none
-
-instance : FromJson StaticRegistrationOptions :=
-  ⟨fun j => some ⟨j.getObjValAs? String "id"⟩⟩
-
-instance : ToJson StaticRegistrationOptions :=
-  ⟨fun o => mkObj $ opt "id" o.id?⟩
+  deriving ToJson, FromJson
 
 structure TextDocumentRegistrationOptions where
   documentSelector? : Option DocumentSelector := none
-
-instance : FromJson TextDocumentRegistrationOptions :=
-  ⟨fun j => some ⟨j.getObjValAs? DocumentSelector "documentSelector"⟩⟩
-
-instance : ToJson TextDocumentRegistrationOptions :=
-  ⟨fun o => mkObj $ opt "documentSelector" o.documentSelector?⟩
+  deriving ToJson, FromJson
 
 inductive MarkupKind where
   | plaintext | markdown
@@ -278,57 +144,29 @@ instance : ToJson MarkupKind := ⟨fun
 structure MarkupContent where
   kind : MarkupKind
   value : String
-
-instance : FromJson MarkupContent := ⟨fun j => do
-  let kind ← j.getObjValAs? MarkupKind "kind"
-  let value ← j.getObjValAs? String "value"
-  pure ⟨kind, value⟩⟩
-
-instance : ToJson MarkupContent := ⟨fun o =>
-  mkObj [
-    ⟨"kind", toJson o.kind⟩,
-    ⟨"value", o.value⟩]⟩
+  deriving ToJson, FromJson
 
 structure ProgressParams (α : Type) where
   token : String  -- do we need `integer`?
   value : α
-
-instance [ToJson α] : ToJson (ProgressParams α) := ⟨fun o =>
-  mkObj [
-    ⟨"token", o.token⟩,
-    ⟨"value", toJson o.value⟩]⟩
+  deriving ToJson
 
 structure WorkDoneProgressReport where
   kind := "report"
   message? : Option String := none
   cancellable := false
   percentage? : Option Nat := none
-
-instance : ToJson WorkDoneProgressReport := ⟨fun o =>
-  mkObj [
-    ⟨"kind", o.kind⟩,
-    ⟨"message", toJson o.message?⟩,
-    ⟨"cancellable", o.cancellable⟩,
-    ⟨"percentage", toJson o.percentage?⟩]⟩
+  deriving ToJson
 
 structure WorkDoneProgressBegin extends WorkDoneProgressReport where
   kind := "begin"
   title : String
-
-instance : ToJson WorkDoneProgressBegin := ⟨fun o =>
-  mkObj [
-    ⟨"kind", o.kind⟩,
-    ⟨"title", o.title⟩,
-    ⟨"message", toJson o.message?⟩]⟩
+  deriving ToJson
 
 structure WorkDoneProgressEnd where
   kind := "end"
   message? : Option String := none
-
-instance : ToJson WorkDoneProgressEnd := ⟨fun o =>
-  mkObj [
-    ⟨"kind", o.kind⟩,
-    ⟨"message", toJson o.message?⟩]⟩
+  deriving ToJson
 
 -- TODO(Marc): missing:
 -- WorkDoneProgressOptions, PartialResultParams

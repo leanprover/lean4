@@ -19,14 +19,7 @@ open Json
 structure ClientInfo where
   name : String
   version? : Option String := none
-
-instance : FromJson ClientInfo := ⟨fun j => do
-  let name ← j.getObjValAs? String "name"
-  let version? := j.getObjValAs? String "version"
-  pure ⟨name, version?⟩⟩
-
-instance ClientInfo.hasToJson : ToJson ClientInfo :=
-  ⟨fun o => mkObj $ ⟨"name", o.name⟩ :: opt "version" o.version?⟩
+  deriving ToJson, FromJson
 
 inductive Trace where
   | off
@@ -57,6 +50,7 @@ structure InitializeParams where
   /- If omitted, we default to off. -/
   trace : Trace := Trace.off
   workspaceFolders? : Option (Array WorkspaceFolder) := none
+  deriving ToJson
 
 instance : FromJson InitializeParams := ⟨fun j => do
   /- Many of these params can be null instead of not present.
@@ -75,16 +69,6 @@ instance : FromJson InitializeParams := ⟨fun j => do
   let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"
   pure ⟨processId?, clientInfo?, rootUri?, initializationOptions?, capabilities, trace, workspaceFolders?⟩⟩
 
-instance InitializeParams.hasToJson : ToJson InitializeParams :=
-⟨fun o => mkObj $
-  opt "processId" o.processId? ++
-  opt "clientInfo" o.clientInfo? ++
-  opt "rootUri" o.rootUri? ++
-  opt "initializationOptions" o.initializationOptions? ++
-  [⟨"capabilities", toJson o.capabilities⟩] ++
-  [⟨"trace", toJson o.trace⟩] ++
-  opt "workspaceFolders" o.workspaceFolders?⟩
-
 inductive InitializedParams where
   | mk
 
@@ -97,31 +81,12 @@ instance : ToJson InitializedParams :=
 structure ServerInfo where
   name : String
   version? : Option String := none
-
-instance : FromJson ServerInfo :=
-  ⟨fun j => do
-    let name ← j.getObjValAs? String "name"
-    let version? := j.getObjValAs? String "version"
-    pure ⟨name, version?⟩⟩
-
-instance : ToJson ServerInfo := ⟨fun o => mkObj $
-  ⟨"name", o.name⟩ ::
-  opt "version" o.version?⟩
+  deriving ToJson, FromJson
 
 structure InitializeResult where
   capabilities : ServerCapabilities
   serverInfo? : Option ServerInfo := none
-
-instance : FromJson InitializeResult :=
-  ⟨fun j => do
-    let capabilities ← j.getObjValAs? ServerCapabilities "capabilities"
-    let serverInfo? := j.getObjValAs? ServerInfo "serverInfo"
-    pure ⟨capabilities, serverInfo?⟩⟩
-
-instance : ToJson InitializeResult := ⟨fun o =>
-  mkObj $
-     ⟨"capabilities", toJson o.capabilities⟩ ::
-     opt "serverInfo" o.serverInfo?⟩
+  deriving ToJson, FromJson
 
 end Lsp
 end Lean

@@ -12,13 +12,11 @@ open IO Lean Lsp
     hIn.write (←FS.readBinFile "open_content.log")
     hIn.flush
     let diags ← Ipc.collectDiagnostics 1 "file:///test.lean"
-    if h: diags.isEmpty then
+    if diags.isEmpty then
       throw $ userError "Test failed, no diagnostics received."
     else
-      let diag := diags.getLast (by
-        intro hEq
-        rw hEq at h
-        exact h rfl)
+      let diag := diags.getLast!
+      FS.writeFile "content_diag.json.produced" (toString <| toJson (diag : JsonRpc.Message))
 
       if let some (refDiag : JsonRpc.Notification PublishDiagnosticsParams) :=
         (Json.parse $ ←FS.readFile "content_diag.json").toOption >>= fromJson?

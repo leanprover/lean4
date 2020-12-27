@@ -250,6 +250,13 @@ partial def lines (fname : String) : m (Array String) := do
       pure <| lines.push line
   read #[]
 
+def writeBinFile (fname : String) (content : ByteArray) : m Unit := do
+  let h ← Handle.mk fname Mode.write true
+  h.write content
+
+def writeFile (fname : String) (content : String) : m Unit := do
+  let h ← Handle.mk fname Mode.write false
+  h.putStr content
 
 namespace Stream
 

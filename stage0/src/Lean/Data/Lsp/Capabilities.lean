@@ -30,16 +30,7 @@ instance ClientCapabilities.hasToJson : ToJson ClientCapabilities :=
 structure ServerCapabilities where
   textDocumentSync? : Option TextDocumentSyncOptions := none
   hoverProvider : Bool := false
-
-instance : FromJson ServerCapabilities :=
-  ⟨fun j => do
-    let textDocumentSync? := j.getObjValAs? TextDocumentSyncOptions "textDocumentSync"
-    let hoverProvider ← j.getObjValAs? Bool "hoverProvider"
-    pure ⟨textDocumentSync?, hoverProvider⟩⟩
-
-instance : ToJson ServerCapabilities := ⟨fun o => mkObj $
-  opt "textDocumentSync" o.textDocumentSync? ++
-    [⟨"hoverProvider", o.hoverProvider⟩]⟩
+  deriving ToJson, FromJson
 
 end Lsp
 end Lean

@@ -57,7 +57,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
       getAntiquotTerm stx
     else if isTokenAntiquot stx && !isEscapedAntiquot stx then
       match stx[0] with
-      | Syntax.atom _ val => `(Syntax.atom $(getAntiquotTerm stx) $(quote val))
+      | Syntax.atom _ val => `(Syntax.atom (Option.getD (getHeadInfo $(getAntiquotTerm stx)) info) $(quote val))
       | _                 => throwErrorAt stx "expected token"
     else if isAntiquotSuffixSplice stx && !isEscapedAntiquot stx then
       -- splices must occur in a `many` node
@@ -226,7 +226,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       -- We assume that atoms are uniquely determined by the node kind and never have to be checked
       unconditionally pure
     else if quoted.isTokenAntiquot then
-      unconditionally (`(let $(quoted.getAntiquotTerm) := discr.getHeadInfo.get!; $(·)))
+      unconditionally (`(let $(quoted.getAntiquotTerm) := discr; $(·)))
     else if isAntiquot quoted && !isEscapedAntiquot quoted then
       -- quotation contains a single antiquotation
       let k := antiquotKind? quoted |>.get!

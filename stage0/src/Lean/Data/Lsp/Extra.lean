@@ -22,14 +22,7 @@ open Json
 
 structure WaitForDiagnosticsParam where
   uri : DocumentUri
-
-instance : FromJson WaitForDiagnosticsParam :=
-  ⟨fun j => do
-    let id ← j.getObjValAs? DocumentUri "uri"
-    pure ⟨id⟩⟩
-
-instance : ToJson WaitForDiagnosticsParam :=
-  ⟨fun o => mkObj [⟨"uri", toJson o.uri⟩]⟩
+  deriving ToJson, FromJson
 
 structure WaitForDiagnostics
 

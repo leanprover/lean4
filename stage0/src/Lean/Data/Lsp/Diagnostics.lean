@@ -68,17 +68,7 @@ instance : ToJson DiagnosticTag := ⟨fun
 structure DiagnosticRelatedInformation where
   location : Location
   message : String
-  deriving Inhabited, BEq
-
-instance : FromJson DiagnosticRelatedInformation := ⟨fun j => do
-  let location ← j.getObjValAs? Location "location"
-  let message ← j.getObjValAs? String "message"
-  pure ⟨location, message⟩⟩
-
-instance : ToJson DiagnosticRelatedInformation := ⟨fun o =>
-  mkObj [
-    ⟨"location", toJson o.location⟩,
-    ⟨"message", o.message⟩]⟩
+  deriving Inhabited, BEq, ToJson, FromJson
 
 structure Diagnostic where
   range : Range
@@ -88,43 +78,13 @@ structure Diagnostic where
   message : String
   tags? : Option (Array DiagnosticTag) := none
   relatedInformation? : Option (Array DiagnosticRelatedInformation) := none
-  deriving Inhabited, BEq
-
-instance : FromJson Diagnostic := ⟨fun j => do
-  let range ← j.getObjValAs? Range "range"
-  let severity? := j.getObjValAs? DiagnosticSeverity "severity"
-  let code? := j.getObjValAs? DiagnosticCode "code"
-  let source? := j.getObjValAs? String "source"
-  let message ← j.getObjValAs? String "message"
-  let tags? := j.getObjValAs? (Array DiagnosticTag) "tags"
-  let relatedInformation? := j.getObjValAs? (Array DiagnosticRelatedInformation) "relatedInformation"
-  pure ⟨range, severity?, code?, source?, message, tags?, relatedInformation?⟩⟩
-
-instance : ToJson Diagnostic := ⟨fun o => mkObj $
-  opt "severity" o.severity? ++
-  opt "code" o.code? ++
-  opt "source" o.source? ++
-  opt "tags" o.tags? ++
-  opt "relatedInformation" o.relatedInformation? ++ [
-    ⟨"range", toJson o.range⟩,
-    ⟨"message", o.message⟩]⟩
+  deriving Inhabited, BEq, ToJson, FromJson
 
 structure PublishDiagnosticsParams where
   uri : DocumentUri
   version? : Option Int := none
   diagnostics: Array Diagnostic
-  deriving Inhabited, BEq
-
-instance : FromJson PublishDiagnosticsParams := ⟨fun j => do
-  let uri ← j.getObjValAs? DocumentUri "uri"
-  let version? := j.getObjValAs? Int "version"
-  let diagnostics ← j.getObjValAs? (Array Diagnostic) "diagnostics"
-  pure ⟨uri, version?, diagnostics⟩⟩
-
-instance : ToJson PublishDiagnosticsParams := ⟨fun o => mkObj $
-  opt "version" o.version? ++ [
-    ⟨"uri", toJson o.uri⟩,
-    ⟨"diagnostics", toJson o.diagnostics⟩]⟩
+  deriving Inhabited, BEq, ToJson, FromJson
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
 def msgToDiagnostic (text : FileMap) (m : Message) : IO Diagnostic := do

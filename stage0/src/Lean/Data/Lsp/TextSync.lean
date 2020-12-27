@@ -33,21 +33,12 @@ instance : ToJson TextDocumentSyncKind := ⟨fun
 
 structure DidOpenTextDocumentParams where
   textDocument : TextDocumentItem
-
-instance : FromJson DidOpenTextDocumentParams := ⟨fun j =>
-  DidOpenTextDocumentParams.mk <$> j.getObjValAs? TextDocumentItem "textDocument"⟩
-
-instance : ToJson DidOpenTextDocumentParams := ⟨fun o =>
-  mkObj $ [⟨"textDocument", toJson o.textDocument⟩]⟩
+  deriving ToJson, FromJson
 
 structure TextDocumentChangeRegistrationOptions where
   documentSelector? : Option DocumentSelector := none
   syncKind : TextDocumentSyncKind
-
-instance : FromJson TextDocumentChangeRegistrationOptions := ⟨fun j => do
-  let documentSelector? := j.getObjValAs? DocumentSelector "documentSelector"
-  let syncKind ← j.getObjValAs? TextDocumentSyncKind "syncKind"
-  pure ⟨documentSelector?, syncKind⟩⟩
+  deriving FromJson
 
 inductive TextDocumentContentChangeEvent where
   -- omitted: deprecated rangeLength
@@ -69,14 +60,7 @@ instance TextDocumentContentChangeEvent.hasToJson : ToJson TextDocumentContentCh
 structure DidChangeTextDocumentParams where
   textDocument : VersionedTextDocumentIdentifier
   contentChanges : Array TextDocumentContentChangeEvent
-
-instance : FromJson DidChangeTextDocumentParams := ⟨fun j => do
-  let textDocument ← j.getObjValAs? VersionedTextDocumentIdentifier "textDocument"
-  let contentChanges ← j.getObjValAs? (Array TextDocumentContentChangeEvent) "contentChanges"
-  pure ⟨textDocument, contentChanges⟩⟩
-
-instance DidChangeTextDocumentParams.hasToJson : ToJson DidChangeTextDocumentParams :=
-  ⟨fun o => mkObj $ [⟨"textDocument", toJson o.textDocument⟩, ⟨"contentChanges", toJson o.contentChanges⟩]⟩
+  deriving ToJson, FromJson
 
 -- TODO: missing:
 -- WillSaveTextDocumentParams, TextDocumentSaveReason,
@@ -84,23 +68,11 @@ instance DidChangeTextDocumentParams.hasToJson : ToJson DidChangeTextDocumentPar
 
 structure SaveOptions where
   includeText : Bool
-
-instance : FromJson SaveOptions :=
-  ⟨fun j => do
-    let includeText ← j.getObjValAs? Bool "includeText"
-    pure ⟨includeText⟩⟩
-
-instance : ToJson SaveOptions := ⟨fun o =>
-  mkObj $ [⟨"includeText", o.includeText⟩]⟩
+  deriving ToJson, FromJson
 
 structure DidCloseTextDocumentParams where
   textDocument : TextDocumentIdentifier
-
-instance : FromJson DidCloseTextDocumentParams := ⟨fun j =>
-  DidCloseTextDocumentParams.mk <$> j.getObjValAs? TextDocumentIdentifier "textDocument"⟩
-
-instance DidCloseTextDocumentParams.hasToJson : ToJson DidCloseTextDocumentParams :=
-  ⟨fun o => mkObj $ [⟨"textDocument", toJson o.textDocument⟩]⟩
+  deriving ToJson, FromJson
 
 -- TODO: TextDocumentSyncClientCapabilities
 
@@ -111,23 +83,7 @@ structure TextDocumentSyncOptions where
   willSave : Bool
   willSaveWaitUntil : Bool
   save? : Option SaveOptions := none
-
-instance : FromJson TextDocumentSyncOptions :=
-  ⟨fun j => do
-    let openClose ← j.getObjValAs? Bool "openClose"
-    let change ← j.getObjValAs? TextDocumentSyncKind "change"
-    let willSave ← j.getObjValAs? Bool "willSave"
-    let willSaveUntil ← j.getObjValAs? Bool "willSaveWaitUntil"
-    let save? := j.getObjValAs? SaveOptions "save"
-    pure ⟨openClose, change, willSave, willSaveUntil, save?⟩⟩
-
-instance : ToJson TextDocumentSyncOptions := ⟨fun o =>
-  mkObj $
-    opt "save" o.save? ++ [
-      ⟨"openClose", toJson o.openClose⟩,
-      ⟨"change", toJson o.change⟩,
-      ⟨"willSave", toJson o.willSave⟩,
-      ⟨"willSaveWaitUntil", toJson o.willSaveWaitUntil⟩]⟩
+  deriving ToJson, FromJson
 
 end Lsp
 end Lean

@@ -526,26 +526,26 @@ def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit := do
 
 open Meta
 
-@[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab := fun stx => do
-  let term := stx[1]
-  withoutModifyingEnv $ runTermElabM (some `_check) fun _ => do
+@[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab
+  | `(#check%$tk $term) => withoutModifyingEnv $ runTermElabM (some `_check) fun _ => do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
     let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
     let type ← inferType e
     unless e.isSyntheticSorry do
-      logInfo m!"{e} : {type}"
+      logInfoAt tk m!"{e} : {type}"
+  | _ => throwUnsupportedSyntax
 
-@[builtinCommandElab Lean.Parser.Command.reduce] def elabReduce : CommandElab := fun stx => do
-  let term := stx[1]
-  withoutModifyingEnv $ runTermElabM (some `_check) fun _ => do
+@[builtinCommandElab Lean.Parser.Command.reduce] def elabReduce : CommandElab
+  | `(#reduce%$tk $term) => withoutModifyingEnv $ runTermElabM (some `_check) fun _ => do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
     let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
     -- TODO: add options or notation for setting the following parameters
     withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
       let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := false) (skipTypes := false)
-      logInfo e
+      logInfoAt tk e
+  | _ => throwUnsupportedSyntax
 
 def hasNoErrorMessages : CommandElabM Bool := do
   return !(← get).messages.hasErrors
@@ -574,51 +574,51 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 @[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab := fun stx =>
   failIfSucceeds <| elabCheck stx
 
-unsafe def elabEvalUnsafe : CommandElab := fun stx => do
-  let ref  := stx
-  let term := stx[1]
-  let n := `_eval
-  let ctx ← read
-  let addAndCompile (value : Expr) : TermElabM Unit := do
-    let type ← inferType value
-    let decl := Declaration.defnDecl {
-      name := n, lparams := [], type := type,
-      value := value, hints := ReducibilityHints.opaque, isUnsafe := true }
-    Term.ensureNoUnassignedMVars decl
-    addAndCompile decl
-  let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
-    let e ← Term.elabTerm term none
-    Term.synthesizeSyntheticMVarsNoPostponing
-    let e ← withLocalDeclD `env (mkConst ``Lean.Environment) fun env =>
-        withLocalDeclD `opts (mkConst ``Lean.Options) fun opts => do
-          let e ← mkAppM ``Lean.runMetaEval #[env, opts, e];
-          mkLambdaFVars #[env, opts] e
-    let env ← getEnv
-    let opts ← getOptions
-    let act ← try addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n finally setEnv env
-    let (out, res) ← act env opts -- we execute `act` using the environment
-    logInfo out
-    match res with
-    | Except.error e => throwError e.toString
-    | Except.ok env  => do setEnv env; pure ()
-  let elabEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
-    -- fall back to non-meta eval if MetaEval hasn't been defined yet
-    -- modify e to `runEval e`
-    let e ← Term.elabTerm term none
-    let e := mkSimpleThunk e
-    Term.synthesizeSyntheticMVarsNoPostponing
-    let e ← mkAppM ``Lean.runEval #[e]
-    let env ← getEnv
-    let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) n finally setEnv env
-    let (out, res) ← liftM (m := IO) act
-    logInfo out
-    match res with
-    | Except.error e => throwError e.toString
-    | Except.ok _    => pure ()
-  if (← getEnv).contains ``Lean.MetaEval then do
-    elabMetaEval
-  else
-    elabEval
+unsafe def elabEvalUnsafe : CommandElab
+  | `(#eval%$tk $term) => do
+    let n := `_eval
+    let ctx ← read
+    let addAndCompile (value : Expr) : TermElabM Unit := do
+      let type ← inferType value
+      let decl := Declaration.defnDecl {
+        name := n, lparams := [], type := type,
+        value := value, hints := ReducibilityHints.opaque, isUnsafe := true }
+      Term.ensureNoUnassignedMVars decl
+      addAndCompile decl
+    let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
+      let e ← Term.elabTerm term none
+      Term.synthesizeSyntheticMVarsNoPostponing
+      let e ← withLocalDeclD `env (mkConst ``Lean.Environment) fun env =>
+          withLocalDeclD `opts (mkConst ``Lean.Options) fun opts => do
+            let e ← mkAppM ``Lean.runMetaEval #[env, opts, e];
+            mkLambdaFVars #[env, opts] e
+      let env ← getEnv
+      let opts ← getOptions
+      let act ← try addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n finally setEnv env
+      let (out, res) ← act env opts -- we execute `act` using the environment
+      logInfoAt tk out
+      match res with
+      | Except.error e => throwError e.toString
+      | Except.ok env  => do setEnv env; pure ()
+    let elabEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
+      -- fall back to non-meta eval if MetaEval hasn't been defined yet
+      -- modify e to `runEval e`
+      let e ← Term.elabTerm term none
+      let e := mkSimpleThunk e
+      Term.synthesizeSyntheticMVarsNoPostponing
+      let e ← mkAppM ``Lean.runEval #[e]
+      let env ← getEnv
+      let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) n finally setEnv env
+      let (out, res) ← liftM (m := IO) act
+      logInfoAt tk out
+      match res with
+      | Except.error e => throwError e.toString
+      | Except.ok _    => pure ()
+    if (← getEnv).contains ``Lean.MetaEval then do
+      elabMetaEval
+    else
+      elabEval
+  | _ => throwUnsupportedSyntax
 
 @[builtinCommandElab «eval», implementedBy elabEvalUnsafe]
 constant elabEval : CommandElab

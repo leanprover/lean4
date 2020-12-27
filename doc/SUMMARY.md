@@ -35,9 +35,10 @@
   - [Thunk](./thunk.md)
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
-- [The `do` Notation](./do.md)
 - [Tactics](./tactics.md)
-- [String interpolation](./stringinterp.md)
+- [Syntax Extensions](./syntax.md)
+  - [The `do` Notation](./do.md)
+  - [String Interpolation](./stringinterp.md)
 
 # Other
 

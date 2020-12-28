@@ -486,7 +486,6 @@ lean_object* l_Lean_Expr_looseBVarRange(lean_object*);
 lean_object* l_Lean_Expr_bvarIdx_x21(lean_object*);
 lean_object* l_Lean_Expr_updateProj_x21___closed__2;
 lean_object* l_Lean_Expr_constName_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2638____closed__17;
 lean_object* l_Lean_Expr_consumeMData_match__1(lean_object*);
 lean_object* l_Lean_Expr_bindingBody_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_setAppPPExplicit(lean_object*);
@@ -615,6 +614,7 @@ lean_object* l_Lean_Expr_inferImplicit___boxed(lean_object*, lean_object*, lean_
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Expr_setAppPPExplicit___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Lean_BinderInfo_isAuxDecl___boxed(lean_object*);
 lean_object* l_List_foldl___at_Lean_mkConst___spec__1___boxed(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_System_IO___hyg_2694____closed__17;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_mkAppRevRangeAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_etaExpandedAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Literal_lt_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5517,7 +5517,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_System_IO___hyg_2638____closed__17;
+x_2 = l_myMacro____x40_Init_System_IO___hyg_2694____closed__17;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }

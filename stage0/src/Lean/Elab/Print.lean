@@ -66,17 +66,10 @@ private def printId (id : Name) : CommandElabM Unit := do
   let cs ← resolveGlobalConst id
   cs.forM printIdCore
 
-@[builtinCommandElab «print»] def elabPrint : CommandElab := fun stx =>
-  let numArgs := stx.getNumArgs
-  if numArgs == 2 then
-    let arg := stx[1]
-    if arg.isIdent then
-      printId arg.getId
-    else match arg.isStrLit? with
-      | some val => logInfo val
-      | none     => throwError "WIP"
-  else
-    throwError "invalid #print command"
+@[builtinCommandElab «print»] def elabPrint : CommandElab
+  | `(#print%$tk $id:ident) => withRef tk <| printId id.getId
+  | `(#print%$tk $s:strLit) => logInfoAt tk s.isStrLit?.get!
+  | _                       => throwError "invalid #print command"
 
 namespace CollectAxioms
 
@@ -113,9 +106,10 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   else
     logInfo m!"'{constName}' depends on axioms: {s.axioms.toList}"
 
-@[builtinCommandElab «printAxioms»] def elabPrintAxioms : CommandElab := fun stx => do
-  let id := stx[2].getId
-  let cs ← resolveGlobalConst id
-  cs.forM printAxiomsOf
+@[builtinCommandElab «printAxioms»] def elabPrintAxioms : CommandElab
+  | `(#print%$tk axioms $id) => withRef tk do
+    let cs ← resolveGlobalConst id.getId
+    cs.forM printAxiomsOf
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

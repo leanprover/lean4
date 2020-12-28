@@ -393,7 +393,6 @@ def elabNoKindMacroRulesAux (alts : Array Syntax) : CommandElabM Syntax := do
   | `(macro_rules [$kind] $alts:matchAlt*) => do elabMacroRulesAux ((← getCurrNamespace) ++ kind.getId) alts
   | _                                      => throwUnsupportedSyntax
 
--- TODO: cleanup after we have support for optional syntax at `match_syntax`
 @[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
   withAttrKindGlobal stx fun stx => do
     match stx with

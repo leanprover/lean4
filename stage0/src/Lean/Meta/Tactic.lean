@@ -17,3 +17,4 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.ElimInfo
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.Constructor
+import Lean.Meta.Tactic.Simp

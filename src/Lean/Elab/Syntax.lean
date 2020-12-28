@@ -214,9 +214,11 @@ private def getCatSuffix (catName : Name) : String :=
 
 private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := do
   let quotSymbol := "`(" ++ getCatSuffix catName ++ "|"
-  let kind := catName ++ `quot
+  let name := catName ++ `quot
+  -- TODO(Sebastian): this might confuse the pretty printer, but it lets us reuse the elaborator
+  let kind := ``Lean.Parser.Term.quot
   let cmd ← `(
-    @[termParser] def $(mkIdent kind) : Lean.ParserDescr :=
+    @[termParser] def $(mkIdent name) : Lean.ParserDescr :=
       Lean.ParserDescr.node $(quote kind) $(quote Lean.Parser.maxPrec)
         (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
           (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.cat $(quote catName) 0) (Lean.ParserDescr.symbol ")"))))

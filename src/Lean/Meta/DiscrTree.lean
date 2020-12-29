@@ -8,7 +8,6 @@ import Lean.Meta.FunInfo
 import Lean.Meta.InferType
 
 namespace Lean.Meta.DiscrTree
-
 /-
   (Imperfect) discrimination trees.
   We use a hybrid representation.
@@ -84,6 +83,22 @@ instance {α} : Inhabited (Trie α) := ⟨Trie.node #[] #[]⟩
 
 def empty {α} : DiscrTree α := { root := {} }
 
+partial def Trie.format {α} [ToFormat α] : Trie α → Format
+  | Trie.node vs cs => Format.group $ Format.paren $
+    "node" ++ (if vs.isEmpty then Format.nil else " " ++ fmt vs)
+    ++ Format.join (cs.toList.map $ fun ⟨k, c⟩ => Format.line ++ Format.paren (fmt k ++ " => " ++ format c))
+
+instance {α} [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
+
+partial def format {α} [ToFormat α] (d : DiscrTree α) : Format :=
+  let (_, r) := d.root.foldl
+    (fun (p : Bool × Format) k c =>
+      (false, p.2 ++ (if p.1 then Format.nil else Format.line) ++ Format.paren (fmt k ++ " => " ++ fmt c)))
+    (true, Format.nil)
+  Format.group r
+
+instance {α} [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
+
 /- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
 private def tmpMVarId : MVarId := `_discr_tree_tmp
@@ -151,9 +166,14 @@ private partial def whnfEta (e : Expr) : MetaM Expr := do
 /-
   TODO: add a parameter (wildcardConsts : NameSet) to `DiscrTree.insert`.
   Then, `DiscrTree` users may control which symbols should be treated as wildcards.
-  Different `DiscrTree` users may populate this set using, for example, attributes. -/
+  Different `DiscrTree` users may populate this set using, for example, attributes.
+
+  Remark: we currently tag `Nat.zero` and `Nat.succ` to avoid having to add special
+  support for `Expr.lit`. Example, suppose the discrimination tree contains the entry
+  `Nat.succ ?m |-> v`, and we are trying to retrieve the matches for `Expr.lit (Literal.natVal 1) _`.
+  In this scenario, we want to retrieve `Nat.succ ?m |-> v` -/
 private def shouldAddAsStar (constName : Name) : Bool :=
-  constName == `Nat.zero || constName == `Nat.succ || constName == `Nat.add || constName == `Add.add || constName == `HAdd.hAdd
+  constName == `Nat.zero || constName == `Nat.succ
 
 private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
   let e ← whnfEta e
@@ -194,7 +214,7 @@ partial def mkPathAux (todo : Array Expr) (keys : Array Key) : MetaM (Array Key)
 
 private def initCapacity := 8
 
-def mkPath (e : Expr) : MetaM (Array Key) :=
+def mkPath (e : Expr) : MetaM (Array Key) := do
   withReducible do
     let todo : Array Expr := Array.mkEmpty initCapacity
     let keys : Array Key  := Array.mkEmpty initCapacity
@@ -238,23 +258,7 @@ def insertCore {α} [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : Di
 
 def insert {α} [BEq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) := do
   let keys ← mkPath e
-  pure $ d.insertCore keys v
-
-partial def Trie.format {α} [ToFormat α] : Trie α → Format
-  | Trie.node vs cs => Format.group $ Format.paren $
-    "node" ++ (if vs.isEmpty then Format.nil else " " ++ fmt vs)
-    ++ Format.join (cs.toList.map $ fun ⟨k, c⟩ => Format.line ++ Format.paren (fmt k ++ " => " ++ format c))
-
-instance {α} [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
-
-partial def format {α} [ToFormat α] (d : DiscrTree α) : Format :=
-  let (_, r) := d.root.foldl
-    (fun (p : Bool × Format) k c =>
-      (false, p.2 ++ (if p.1 then Format.nil else Format.line) ++ Format.paren (fmt k ++ " => " ++ fmt c)))
-    (true, Format.nil)
-  Format.group r
-
-instance {α} [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
+  return d.insertCore keys v
 
 private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) := do
   let e ← whnfEta e
@@ -299,36 +303,13 @@ private abbrev getMatchKeyArgs (e : Expr) : MetaM (Key × Array Expr) :=
 private abbrev getUnifyKeyArgs (e : Expr) : MetaM (Key × Array Expr) :=
   getKeyArgs e false
 
-private partial def getMatchAux {α} : Array Expr → Trie α → Array α → MetaM (Array α)
-  | todo, Trie.node vs cs, result =>
-    if todo.isEmpty then pure $ result ++ vs
-    else if cs.isEmpty then pure result
-    else do
-      let e     := todo.back
-      let todo  := todo.pop
-      let first := cs[0] /- Recall that `Key.star` is the minimal key -/
-      let (k, args) ← getMatchKeyArgs e
-      /- We must always visit `Key.star` edges since they are wildcards.
-         Thus, `todo` is not used linearly when there is `Key.star` edge
-         and there is an edge for `k` and `k != Key.star`. -/
-      let visitStarChild (result : Array α) : MetaM (Array α) :=
-        if first.1 == Key.star then getMatchAux todo first.2 result else pure result
-      match k with
-      | Key.star => visitStarChild result
-      | _ =>
-        match cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1) with
-        | none   => visitStarChild result
-        | some c =>
-          let result ← visitStarChild result
-          getMatchAux (todo ++ args) c.2 result
-
 private def getStarResult {α} (d : DiscrTree α) : Array α :=
   let result : Array α := Array.mkEmpty initCapacity
   match d.root.find? Key.star with
   | none                  => result
   | some (Trie.node vs _) => result ++ vs
 
-def getMatch {α} (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
+partial def getMatch {α} (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
     let result := getStarResult d
     let (k, args) ← getMatchKeyArgs e
@@ -337,40 +318,75 @@ def getMatch {α} (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
     | _        =>
       match d.root.find? k with
       | none   => pure result
-      | some c => getMatchAux args c result
-
-private partial def getUnifyAux {α} : Nat → Array Expr → Trie α → (Array α) → MetaM (Array α)
-  | skip+1, todo, Trie.node vs cs, result =>
-    if cs.isEmpty then pure result
-    else cs.foldlM (fun result ⟨k, c⟩ => getUnifyAux (skip + k.arity) todo c result) result
-  | 0, todo, Trie.node vs cs, result => do
-    if todo.isEmpty then pure (result ++ vs)
-    else if cs.isEmpty then pure result
-    else
-      let e     := todo.back
-      let todo  := todo.pop
-      let (k, args) ← getUnifyKeyArgs e
-      match k with
-      | Key.star => cs.foldlM (fun result ⟨k, c⟩ => getUnifyAux k.arity todo c result) result
-      | _ =>
-        let first := cs[0]
+      | some c => process args c result
+where
+  process (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
+    match c with
+    | Trie.node vs cs =>
+      if todo.isEmpty then
+        return result ++ vs
+      else if cs.isEmpty then
+        return result
+      else
+        let e     := todo.back
+        let todo  := todo.pop
+        let first := cs[0] /- Recall that `Key.star` is the minimal key -/
+        let (k, args) ← getMatchKeyArgs e
+        /- We must always visit `Key.star` edges since they are wildcards.
+           Thus, `todo` is not used linearly when there is `Key.star` edge
+           and there is an edge for `k` and `k != Key.star`. -/
         let visitStarChild (result : Array α) : MetaM (Array α) :=
-          if first.1 == Key.star then getUnifyAux 0 todo first.2 result else pure result
-        match cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1) with
-        | none   => visitStarChild result
-        | some c =>
-          let result ← visitStarChild result
-          getUnifyAux 0 (todo ++ args) c.2 result
+          if first.1 == Key.star then
+            process todo first.2 result
+          else
+            return result
+        match k with
+        | Key.star => visitStarChild result
+        | _ =>
+          match cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1) with
+          | none   => visitStarChild result
+          | some c =>
+            let result ← visitStarChild result
+            process (todo ++ args) c.2 result
 
-def getUnify {α} (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
+partial def getUnify {α} (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
     let (k, args) ← getUnifyKeyArgs e
     match k with
-    | Key.star => d.root.foldlM (fun result k c => getUnifyAux k.arity #[] c result) #[]
+    | Key.star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
       let result := getStarResult d
       match d.root.find? k with
-      | none   => pure result
-      | some c => getUnifyAux 0 args c result
+      | none   => return result
+      | some c => process 0 args c result
+where
+  process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
+    match skip, c with
+    | skip+1, Trie.node vs cs =>
+      if cs.isEmpty then
+        return result
+      else
+        cs.foldlM (init := result) fun result ⟨k, c⟩ => process (skip + k.arity) todo c result
+    | 0, Trie.node vs cs => do
+      if todo.isEmpty then
+        return result ++ vs
+      else if cs.isEmpty then
+        return result
+      else
+        let e     := todo.back
+        let todo  := todo.pop
+        let (k, args) ← getUnifyKeyArgs e
+        match k with
+        | Key.star => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
+        | _ =>
+          let first := cs[0]
+          let visitStarChild (result : Array α) : MetaM (Array α) :=
+            if first.1 == Key.star then
+              process 0 todo first.2 result
+            else
+              return result
+          match cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1) with
+          | none   => visitStarChild result
+          | some c => process 0 (todo ++ args) c.2 (← visitStarChild result)
 
 end Lean.Meta.DiscrTree

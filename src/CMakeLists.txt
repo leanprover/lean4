@@ -373,7 +373,7 @@ endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
 # Version
-configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
+configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/include/lean/version.h")
 if (${STAGE} EQUAL 0)
   set(LEAN_IS_STAGE0 "#define LEAN_IS_STAGE0 1")
 else()

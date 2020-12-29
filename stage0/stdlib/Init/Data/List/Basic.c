@@ -2077,7 +2077,7 @@ if (x_1 == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 lean_dec(x_2);
-x_4 = lean_box(x_1);
+x_4 = lean_box(0);
 x_5 = lean_apply_1(x_3, x_4);
 return x_5;
 }

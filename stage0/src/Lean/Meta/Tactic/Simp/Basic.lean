@@ -17,6 +17,11 @@ structure SimpLemma where
   globalName? : Option Name := none
   deriving Inhabited
 
+instance : ToFormat SimpLemma where
+  format s := match s.globalName? with
+    | some n => fmt n
+    | none   => "<local>"
+
 instance : BEq SimpLemma where
   beq e₁ e₂ := e₁.val == e₂.val
 
@@ -37,15 +42,22 @@ builtin_initialize simpExtension : SimpleScopedEnvExtension SimpLemma SimpLemmas
 private def mkSimpLemmaKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
   let type ← inferType e
   unless (← isProp type) do
-    throwError! "invalid 'simp', proposition expected"
+    throwError! "invalid 'simp', proposition expected{indentExpr type}"
   withNewMCtxDepth do
-    let (_, _, type) ← forallMetaTelescopeReducing type
+    let (xs, _, type) ← forallMetaTelescopeReducing type
     match type.eq? with
     | some (_, lhs, _) => DiscrTree.mkPath lhs
     | none =>
     match type.iff? with
     | some (lhs, _) => DiscrTree.mkPath lhs
-    | none => DiscrTree.mkPath type
+    | none =>
+      if type.isConstOf `False then
+        if xs.size == 0 then
+          throwError! "invalid 'simp', unexpected type{indentExpr type}"
+        else
+          DiscrTree.mkPath (← inferType xs.back)
+      else
+        DiscrTree.mkPath type
 
 def addSimpLemma (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let cinfo ← getConstInfo declName

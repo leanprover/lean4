@@ -19,6 +19,9 @@ structure UnificationHints where
   discrTree       : DiscrTree Name := DiscrTree.empty
   deriving Inhabited
 
+instance : ToFormat UnificationHints where
+  format h := fmt h.discrTree
+
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
   { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
 
@@ -62,18 +65,20 @@ private partial def validateHint (declName : Name) (hint : UnificationHint) : Me
   unless (← isDefEq hint.pattern.lhs hint.pattern.rhs) do
     throwError! "invalid unification hint, failed to unify pattern left-hand-side{indentExpr hint.pattern.lhs}\nwith right-hand-side{indentExpr hint.pattern.rhs}"
 
-def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit := do
-  let info ← getConstInfo declName
-  match info.value? with
-  | none => throwError! "invalid unification hint, it must be a definition"
-  | some val =>
-    let (_, _, body) ← lambdaMetaTelescope val
-    match decodeUnificationHint body with
-    | Except.error msg => throwError msg
-    | Except.ok hint =>
-      validateHint declName hint
-      let keys ← DiscrTree.mkPath hint.pattern.lhs
-      unificationHintExtension.add { keys := keys, val := declName } kind
+def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
+  withNewMCtxDepth do
+    let info ← getConstInfo declName
+    match info.value? with
+    | none => throwError! "invalid unification hint, it must be a definition"
+    | some val =>
+      let (_, _, body) ← lambdaMetaTelescope val
+      match decodeUnificationHint body with
+      | Except.error msg => throwError msg
+      | Except.ok hint =>
+        let keys ← DiscrTree.mkPath hint.pattern.lhs
+        validateHint declName hint
+        unificationHintExtension.add { keys := keys, val := declName } kind
+        trace[Meta.debug]! "addUnificationHint: {unificationHintExtension.getState (← getEnv)}"
 
 builtin_initialize
   registerBuiltinAttribute {

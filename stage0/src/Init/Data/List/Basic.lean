@@ -131,7 +131,7 @@ def replace [BEq α] : List α → α → α → List α
   | [],    _, _ => []
   | a::as, b, c => match a == b with
     | true  => c::as
-    | flase => a :: (replace as b c)
+    | false => a :: (replace as b c)
 
 def elem [BEq α] (a : α) : List α → Bool
   | []    => false

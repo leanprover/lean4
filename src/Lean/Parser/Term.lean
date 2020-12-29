@@ -175,6 +175,8 @@ def matchAltsWhereDecls := parser! matchAlts >> optional whereDecls
 
 @[builtinTermParser] def noindex := parser! "noindex!" >> termParser maxPrec
 
+@[builtinTermParser] def binrel  := parser! "binrel!" >> ident >> termParser maxPrec >> termParser maxPrec
+
 @[builtinTermParser] def typeOf             := parser! "typeOf! " >> termParser maxPrec
 @[builtinTermParser] def ensureTypeOf       := parser! "ensureTypeOf! " >> termParser maxPrec >> strLit >> termParser
 @[builtinTermParser] def ensureExpectedType := parser! "ensureExpectedType! " >> strLit >> termParser maxPrec

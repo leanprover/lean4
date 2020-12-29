@@ -7,6 +7,7 @@ LEANMAKE_OPTS=\
 	OUT="${LIB}"\
 	LIB_OUT="${LIB}/lean"\
 	OLEAN_OUT="${LIB}/lean"\
+	BIN_OUT="${CMAKE_BINARY_DIR}/bin"\
 	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS} -Dinterpreter.prefer_native=false"\
 	LEANC_OPTS+="${LEANC_OPTS}"\
 	MORE_DEPS+="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
@@ -17,3 +18,4 @@ stdlib:
 	+"${LEAN_BIN}/leanmake" lib PKG=Init $(LEANMAKE_OPTS)
 	+"${LEAN_BIN}/leanmake" lib PKG=Std $(LEANMAKE_OPTS)
 	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS)
+	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg $(LEANMAKE_OPTS) LINK_OPTS="${CMAKE_EXE_LINKER_FLAGS}"

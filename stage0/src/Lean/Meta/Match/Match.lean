@@ -498,6 +498,21 @@ def isCurrVarInductive (p : Problem) : MetaM Bool := do
     let val? ← getInductiveVal? x
     pure val?.isSome
 
+private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
+  match p.vars with
+  | []   => return ()
+  | x::_ => withGoalOf p do
+    for alt in p.alts do
+      withRef alt.ref do
+        match alt.patterns with
+        | []   => pure ()
+        | p::_ =>
+          let e ← p.toExpr
+          let xType ← inferType x
+          let eType ← inferType e
+          unless (← isDefEq xType eType) do
+            throwError! "pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
+
 private partial def process (p : Problem) : StateRefT State MetaM Unit := withIncRecDepth do
   traceState p
   let isInductive ← liftM $ isCurrVarInductive p
@@ -528,7 +543,8 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := withIn
     let ps ← processArrayLit p
     ps.forM process
   else
-    liftM $ throwNonSupported p
+    checkNextPatternTypes p
+    throwNonSupported p
 
 private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (Option Nat) :=
   if uElim == levelZero then

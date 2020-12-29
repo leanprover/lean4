@@ -1,5 +1,5 @@
 { debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin,
+  stdenv, lib, cmake, gmp, gnumake, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin,
   ... } @ args:
 rec {
   inherit stdenv;
@@ -25,6 +25,17 @@ rec {
       mkdir -p $out/bin
       mv include/ $out/
       mv bin/leanc $out/bin/
+    '';
+  };
+  leanmake = buildCMake {
+    name = "leanmake";
+    src = ../src;
+    dontBuild = true;
+    installPhase = ''
+      mkdir -p $out/bin
+      mv bin/leanmake $out/bin/
+      mv share/ $out/
+      substituteInPlace $out/bin/leanmake --replace "make" "${gnumake}/bin/make"
     '';
   };
   leancpp = buildCMake {
@@ -79,19 +90,17 @@ rec {
       leanc = writeShellScriptBin "leanc" ''
         ${leanc-unwrapped}/bin/leanc -L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean "$@"
       '';
-      lean = wrapStage(stdenv.mkDerivation {
+      leanBin = wrapStage(stdenv.mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
           ln -sf ${leancpp}/lib/lean/* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
           ${leanc}/bin/leanc -x none -rdynamic -o $out/bin/lean
           ${leanc}/bin/leanc -x none -rdynamic ${Leanpkg.staticLib}/* -o $out/bin/leanpkg
-          ln -s ${leanc}/bin/leanc $out/bin/
-          ln -s ${leanc}/include $out/
         '';
       });
-      leanpkg = Leanpkg.executable "leanpkg";
-      # lean = symlinkJoin { name = "lean"; paths = [ leanWithoutLeanpkg leanpkg ]; };
+      # leanpkg = Leanpkg.executable "leanpkg";
+      lean = symlinkJoin { name = "lean"; paths = [ leanBin leanc leanmake ]; };
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];
@@ -100,7 +109,7 @@ rec {
         '';
         postConfigure = ''
           patchShebangs ../../tests
-          rm -r bin lib include
+          rm -r bin lib include share
           ln -sf ${lean}/* .
         '';
         buildPhase = ''

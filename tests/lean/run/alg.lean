@@ -73,4 +73,4 @@ theorem mul_inv_rev [Group α] (a b : α) : (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
   rw [mul_assoc, ← mul_assoc b, mul_right_inv, one_mul, mul_right_inv]
 
 theorem mul_inv [CommGroup α] (a b : α) : (a * b)⁻¹ = a⁻¹ * b⁻¹ := by
-  rw [mul_inv_rev, mul_comm]; rfl
+  rw [mul_inv_rev, mul_comm]

@@ -40,7 +40,7 @@ open Algebra -- activate unification hints
 
 section Sec1
 
-set_option trace.Meta.debug true
+-- set_option trace.Meta.debug true
 -- This hint is only active in this section
 local unif_hint (s : Magma) (m : Magma) (n : Magma) (β : Type u) (δ : Type v) where
   m.α =?= β

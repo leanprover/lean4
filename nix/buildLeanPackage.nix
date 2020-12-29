@@ -99,15 +99,16 @@ with builtins; let
     '';
   };
   singleton = name: value: listToAttrs [ { inherit name value; } ];
+  externalModMap = lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues allDeps);
   # Recursively build `mod` and its dependencies. `modMap` maps module names to
   # `{ deps, drv }` pairs of a derivation and its transitive dependencies (as a nested
   # mapping from module names to derivations). It is passed linearly through the
   # recursion to memoize common dependencies.
-  buildModAndDeps = mod: modMap: if modMap ? ${mod} then modMap else
+  buildModAndDeps = mod: modMap: if modMap ? ${mod} || externalModMap ? ${mod} then modMap else
     let
       deps = filter (p: p != "") (lib.splitString "\n" (readFile (leanDeps mod)));
       modMap' = lib.foldr buildModAndDeps modMap deps;
-    in modMap' // { ${mod} = buildMod mod (map (dep: modMap'.${dep}) deps); };
+    in modMap' // { ${mod} = buildMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
   makeEmacsWrapper = name: lean: writeShellScriptBin name ''
     ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" $@
   '';
@@ -117,7 +118,7 @@ with builtins; let
   makeCheckModFor = deps: mods: checkMod deps // mapAttrs (_: mod: makeCheckModFor (deps ++ [mod]) mods) mods;
 in rec {
   inherit name lean deps allDeps print-lean-deps;
-  mods      = buildModAndDeps name (lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues allDeps));
+  mods      = buildModAndDeps name {};
   modRoot   = depRoot name [ mods.${name} ];
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   objects   = mapAttrs compileMod mods;
@@ -136,7 +137,7 @@ in rec {
   '';
   emacs-package = makeEmacsWrapper "emacs-package" lean-package;
 
-  check-mod = makeCheckModFor [] mods;
+  check-mod = makeCheckModFor [] (mods // externalModMap);
   lean-dev = substituteAll {
     name = "lean";
     dir = "bin";

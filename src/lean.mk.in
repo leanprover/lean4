@@ -34,7 +34,7 @@ SHELL = /usr/bin/env bash -eo pipefail
 
 all: $(OBJS)
 
-bin: $(BIN_OUT)/$(PKG)
+bin: $(BIN_OUT)/$(BIN_NAME)
 
 lib: $(LIB_OUT)/$(STATIC_LIB_NAME)
 

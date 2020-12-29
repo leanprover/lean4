@@ -126,6 +126,10 @@ in rec {
     mkdir $out
     ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))}
   '';
+  executable = name: runCommand name {} ''
+    mkdir -p $out/bin
+    ${leanc}/bin/leanc -x none -L${staticLib} -o $out/bin/${name}
+  '';
 
   lean-package = writeShellScriptBin "lean" ''
     LEAN_PATH=${modRoot}:$LEAN_PATH ${lean-final}/bin/lean $@

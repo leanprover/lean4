@@ -137,7 +137,7 @@ Development Setup
 -----------------
 
 After building a stage, you can invoke `make -C stageN test` (or, even better,
-`make -C stageN ARGS=-j` to make `ctest` parallel) to run the Lean test suite.
+`make -C stageN test ARGS=-jN` to make `ctest` parallel) to run the Lean test suite.
 `make test` without `-C` defaults to stage1. While the Lean tests will
 automatically use that stage's corresponding Lean executables, for running tests
 or compiling Lean programs manually, you need to put them into your `PATH`

@@ -18,6 +18,11 @@ structure InstanceEntry where
 instance : BEq InstanceEntry where
   beq e₁ e₂ := e₁.val == e₂.val
 
+instance : ToFormat InstanceEntry where
+  format e := match e.globalName? with
+    | some n => fmt n
+    | _      => "<local>"
+
 structure Instances where
   discrTree       : DiscrTree InstanceEntry := DiscrTree.empty
   globalInstances : NameSet := {}

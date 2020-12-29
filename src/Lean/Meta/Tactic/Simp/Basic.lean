@@ -17,6 +17,11 @@ structure SimpLemma where
   globalName? : Option Name := none
   deriving Inhabited
 
+instance : ToFormat SimpLemma where
+  format s := match s.globalName? with
+    | some n => fmt n
+    | none   => "<local>"
+
 instance : BEq SimpLemma where
   beq e₁ e₂ := e₁.val == e₂.val
 

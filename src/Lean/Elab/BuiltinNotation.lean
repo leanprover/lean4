@@ -250,21 +250,21 @@ def expandCDot? (stx : Syntax) : MacroM (Option Syntax) := do
   - `(· + ·)`
   - `(f · a b)` -/
 private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-  match (← liftMacroM $ expandCDot? stx) with
+  match (← liftMacroM <| expandCDot? stx) with
   | some stx' => withMacroExpansion stx stx' (elabTerm stx' expectedType?)
   | none      => elabTerm stx expectedType?
 
-@[builtinTermElab paren] def elabParen : TermElab := fun stx expectedType? =>
+@[builtinTermElab paren] def elabParen : TermElab := fun stx expectedType? => do
   match stx with
-  | `(())           => pure $ Lean.mkConst `Unit.unit
-  | `(($e : $type)) => do
+  | `(())           => return Lean.mkConst `Unit.unit
+  | `(($e : $type)) =>
     let type ← withSynthesize (mayPostpone := true) $ elabType type
     let e ← elabCDot e type
     ensureHasType type e
   | `(($e))         => elabCDot e expectedType?
-  | `(($e, $es,*))  => do
-    let pairs ← liftMacroM $ mkPairs (#[e] ++ es)
-    withMacroExpansion stx pairs (elabTerm pairs expectedType?)
+  | `(($e, $es,*))  =>
+    let pairs ← liftMacroM <| mkPairs (#[e] ++ es)
+    withMacroExpansion stx pairs (elabCDot pairs expectedType?)
   | _ => throwError "unexpected parentheses notation"
 
 @[builtinTermElab subst] def elabSubst : TermElab := fun stx expectedType? => do

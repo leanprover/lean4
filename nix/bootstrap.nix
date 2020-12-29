@@ -1,5 +1,5 @@
 { debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, buildLeanPackage, writeShellScriptBin, runCommand,
+  stdenv, lib, cmake, gmp, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin,
   ... } @ args:
 rec {
   inherit stdenv;
@@ -17,7 +17,7 @@ rec {
   } // args // {
     src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
   });
-  leanc = buildCMake {
+  leanc-unwrapped = buildCMake {
     name = "leanc";
     src = ../src;
     dontBuild = true;
@@ -61,6 +61,7 @@ rec {
       desc = "stage${toString stage}";
       build = args: buildLeanPackage.override {
         lean = prevStage;
+        leanc = leanc-unwrapped;
         # use same stage for retrieving dependencies
         lean-leanDeps = stage0;
         lean-final = self;
@@ -72,18 +73,25 @@ rec {
       Init = build { name = "Init"; src = ../src; deps = []; };
       Std  = build { name = "Std";  src = ../src; deps = [ Init ]; };
       Lean = build { name = "Lean"; src = ../src; deps = [ Init Std ]; };
+      Leanpkg = build { name = "Leanpkg"; src = ../src; deps = [ Init Std Lean ]; };
       inherit (Lean) emacs-dev emacs-package;
       mods = Init.mods // Std.mods // Lean.mods;
+      leanc = writeShellScriptBin "leanc" ''
+        ${leanc-unwrapped}/bin/leanc -L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean "$@"
+      '';
       lean = wrapStage(stdenv.mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -sf ${leancpp}/lib/lean/* ${Init.staticLib}/* ${Init.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* $out/lib/lean/
-          ${leanc}/bin/leanc -x none -rdynamic -L${gmp}/lib -L$out/lib/lean -L${leancpp}/lib/lean -o $out/bin/lean
+          ln -sf ${leancpp}/lib/lean/* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
+          ${leanc}/bin/leanc -x none -rdynamic -o $out/bin/lean
+          ${leanc}/bin/leanc -x none -rdynamic ${Leanpkg.staticLib}/* -o $out/bin/leanpkg
           ln -s ${leanc}/bin/leanc $out/bin/
           ln -s ${leanc}/include $out/
         '';
       });
+      leanpkg = Leanpkg.executable "leanpkg";
+      # lean = symlinkJoin { name = "lean"; paths = [ leanWithoutLeanpkg leanpkg ]; };
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];

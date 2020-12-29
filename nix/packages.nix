@@ -81,7 +81,7 @@ let
 in {
   inherit cc lean4-mode buildLeanPackage llvmPackages;
   lean = lean.stage1;
-  stage0check-mod = (lean.stage1.Lean.overrideArgs { lean-final = lean.stage0; }).check-mod;
+  stage0check-mod = (lean.stage1.Leanpkg.overrideArgs { lean-final = lean.stage0; }).check-mod;
   HEAD-as-stage0 = (lean.stage1.Lean.overrideArgs { srcCheckTarget = "$root#stage0-from-input.stage0check-mod"; srcCheckArgs = "(--override-input lean-stage0 $root\?rev=$(git rev-parse HEAD) -- -Dinterpreter.prefer_native=false \"$@\")"; });
   HEAD-as-stage1 = (lean.stage1.Lean.overrideArgs { srcCheckTarget = "$root\?rev=$(git rev-parse HEAD)#stage0check-mod"; });
   temci = (import temci {}).override { doCheck = false; };

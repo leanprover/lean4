@@ -318,4 +318,8 @@ private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
   discard <| mkInstMVar stWorld
   mkAppM `StateRefT' #[ω, σ, m]
 
+@[builtinTermElab noindex] def elabNoindex : TermElab := fun stx expectedType? => do
+  let e ← elabTerm stx[1] expectedType?
+  return DiscrTree.mkNoindexAnnotation e
+
 end Lean.Elab.Term

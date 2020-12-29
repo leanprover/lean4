@@ -175,33 +175,43 @@ private partial def whnfEta (e : Expr) : MetaM Expr := do
 private def shouldAddAsStar (constName : Name) : Bool :=
   constName == `Nat.zero || constName == `Nat.succ
 
+def mkNoindexAnnotation (e : Expr) : Expr :=
+  mkAnnotation `noindex e
+
+def hasNoindexAnnotation (e : Expr) : Bool :=
+  annotation? `noindex e |>.isSome
+
 private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
-  let e ← whnfEta e
-  let fn := e.getAppFn
-  let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do
-    let info ← getFunInfoNArgs fn nargs
-    let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
-    pure (k, todo)
-  match fn with
-  | Expr.lit v _       => pure (Key.lit v, todo)
-  | Expr.const c _ _   =>
-    if shouldAddAsStar c then
-      pure (Key.star, todo)
-    else
+  if hasNoindexAnnotation e then
+    return (Key.star, todo)
+  else
+    let e ← whnfEta e
+    let fn := e.getAppFn
+    let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do
+      let info ← getFunInfoNArgs fn nargs
+      let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
+      return (k, todo)
+    match fn with
+    | Expr.lit v _       => return (Key.lit v, todo)
+    | Expr.const c _ _   =>
+      if shouldAddAsStar c then
+        return (Key.star, todo)
+      else
+        let nargs := e.getAppNumArgs
+        push (Key.const c nargs) nargs
+    | Expr.fvar fvarId _ =>
       let nargs := e.getAppNumArgs
-      push (Key.const c nargs) nargs
-  | Expr.fvar fvarId _ =>
-    let nargs := e.getAppNumArgs
-    push (Key.fvar fvarId nargs) nargs
-  | Expr.mvar mvarId _ =>
-    if mvarId == tmpMVarId then
-      -- We use `tmp to mark implicit arguments and proofs
-      pure (Key.star, todo)
-    else if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
-      pure (Key.other, todo)
-    else
-      pure (Key.star, todo)
-  | _ => pure (Key.other, todo)
+      push (Key.fvar fvarId nargs) nargs
+    | Expr.mvar mvarId _ =>
+      if mvarId == tmpMVarId then
+        -- We use `tmp to mark implicit arguments and proofs
+        return (Key.star, todo)
+      else if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
+        return (Key.other, todo)
+      else
+        return (Key.star, todo)
+    | _ =>
+      return (Key.other, todo)
 
 partial def mkPathAux (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
   if todo.isEmpty then

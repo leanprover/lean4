@@ -15,6 +15,12 @@ import Lean
 @[simp] theorem ex4 (xs : List α) : ¬(x :: xs = []) :=
   sorry
 
+@[simp] theorem ex6 (p q : Prop) : p ∨ q ↔ q ∨ p:=
+  sorry
+
+@[simp] theorem ex7 [Add α] (a b : α) : a + b = b + a :=
+  sorry
+
 axiom aux {α} (f : List α → List α) (xs ys : List α) : f (xs ++ ys) ++ [] = f (xs ++ ys)
 
 open Lean

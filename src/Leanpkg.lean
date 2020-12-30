@@ -37,11 +37,14 @@ def build (leanArgs : List String) : IO Unit := do
   let manifest ← readManifest
   let path ← configure
   let leanArgs := (match manifest.timeout with | some t => ["-T", toString t] | none => []) ++ leanArgs
-  execCmd {
+  let mut spawnArgs := {
     cmd := "leanmake"
     cwd := manifest.effectivePath
     args := #[s!"LEAN_OPTS={" ".intercalate leanArgs}", s!"LEAN_PATH={path}"]
   }
+  if System.Platform.isWindows then
+    spawnArgs := { spawnArgs with cmd := "sh", args := #[s!"{← IO.appDir}\\{spawnArgs.cmd}"] ++ spawnArgs.args }
+  execCmd spawnArgs
 
 def initGitignoreContents :=
   "/build

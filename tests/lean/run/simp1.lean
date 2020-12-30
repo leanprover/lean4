@@ -18,7 +18,10 @@ import Lean
 @[simp] theorem ex6 (p q : Prop) : p ∨ q ↔ q ∨ p:=
   sorry
 
-@[simp] theorem ex7 [Add α] (a b : α) : a + b = b + a :=
+@[simp high] theorem ex7 [Add α] (a b : α) : a + b = b + a :=
+  sorry
+
+@[simp↓] theorem ex8 [Add α] (p q : Prop) : (¬ (p ∧ q)) = (¬p ∨ ¬q) :=
   sorry
 
 axiom aux {α} (f : List α → List α) (xs ys : List α) : f (xs ++ ys) ++ [] = f (xs ++ ys)
@@ -27,8 +30,9 @@ open Lean
 open Lean.Meta
 
 def tst1 : MetaM Unit := do
-  let s ← Meta.getSimpLemmas
-  trace[Meta.debug]! "{fmt s}"
+  let pre  ← Meta.getPreSimpLemmas
+  let post ← Meta.getPostSimpLemmas
+  trace[Meta.debug]! "{fmt pre}\n-----\n{fmt post}"
 
 set_option trace.Meta.debug true in
 #eval tst1
@@ -40,7 +44,7 @@ def tst2 : MetaM Unit := do
     | none => throwError! "unexpected"
     | some (_, lhs, _) =>
       trace[Meta.debug]! "lhs: {lhs}"
-      let s ← Meta.getSimpLemmas
+      let s ← Meta.getPostSimpLemmas
       let m ← s.getMatch lhs
       assert! m.size == 1
       trace[Meta.debug]! "resullt: {m}"

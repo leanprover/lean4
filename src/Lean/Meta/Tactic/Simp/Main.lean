@@ -7,5 +7,10 @@ import Lean.Meta.Tactic.Simp.Types
 
 namespace Lean.Meta.Simp
 
+def main (e : Expr) : M σ Result :=
+  return { expr := e }
+
+def simp (e : Expr) (s : σ) (config : Config := {}) (methods : Methods σ := {}) (simpLemmas : SimpLemmas := {}) : MetaM Result :=
+  main e methods { config := config, simpLemmas := simpLemmas } |>.run' { user := s }
 
 end Lean.Meta.Simp

@@ -60,6 +60,7 @@ lean_object* l_Lean_Meta_addDefaultInstanceEntry_match__1(lean_object*);
 lean_object* l_Lean_Meta_isGlobalInstance___boxed(lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3357____closed__27;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_addInstanceEntry___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_646____lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,7 +92,6 @@ lean_object* l_Lean_Meta_defaultInstanceExtension___elambda__3(lean_object*, lea
 lean_object* l_Lean_Meta_addDefaultInstance___lambda__2___closed__4;
 lean_object* l_Lean_Meta_addInstance___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_646____closed__4;
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3356____closed__27;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_104____closed__3;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_646____lambda__2___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -121,8 +121,8 @@ extern lean_object* l_Lean_Meta_DiscrTree_insertCore___rarg___closed__5;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Std_PersistentHashMap_insertAux___rarg___closed__3;
 lean_object* l_Lean_ScopedEnvExtension_addLocalEntry___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2532____closed__4;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2531____closed__4;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_391____lambda__1___boxed(lean_object*);
 lean_object* l_Lean_Meta_addInstanceEntry_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___rarg(lean_object*, lean_object*, lean_object*);
@@ -2737,7 +2737,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3356____closed__27;
+x_2 = l_myMacro____x40_Init_NotationExtra___hyg_3357____closed__27;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -5987,7 +5987,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_391____closed__2;
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_391____closed__3;
 x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_391____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2531____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2532____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

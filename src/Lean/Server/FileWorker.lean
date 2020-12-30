@@ -163,7 +163,6 @@ section ServerM
     -- need to reparse the header so that the offsets are correct.
     let st ← read
     let oldDoc ← st.docRef.get
-    oldDoc.cancelTk.set
     let newHeaderSnap ← reparseHeader newMeta.text.source oldDoc.headerSnap
     if newHeaderSnap.stx != oldDoc.headerSnap.stx then
       throwServerError "Internal server error: header changed but worker wasn't restarted."
@@ -175,6 +174,7 @@ section ServerM
       throwServerError "Internal server error: elab task was aborted while still in use."
     | some (TaskError.ioError ioError) => throw ioError
     | _ => -- No error or EOF
+      oldDoc.cancelTk.set
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
       -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)

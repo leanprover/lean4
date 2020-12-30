@@ -131,7 +131,12 @@ section ServerM
         the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
         because we cannot guarantee that no further diagnostics are emitted after clearing
         them. -/
-      sendDiagnostics snap.msgLog
+      sendDiagnostics <| snap.msgLog.add {
+        fileName := "<ignored>"
+        pos      := m.text.toPosition snap.endPos
+        severity := MessageSeverity.information
+        data     := "processing..."
+      }
       snap
     | Sum.inr msgLog =>
       sendDiagnostics msgLog

@@ -8,7 +8,7 @@ rec {
     buildInputs = [ gmp ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
-    cmakeFlags = [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" ] ++ extraCMakeFlags ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
+    cmakeFlags = [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ] ++ extraCMakeFlags ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
     dontStrip = (args.debug or debug);
 
     postConfigure = ''
@@ -17,24 +17,17 @@ rec {
   } // args // {
     src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
   });
-  leanc-unwrapped = buildCMake {
-    name = "leanc";
-    src = ../src;
-    dontBuild = true;
-    installPhase = ''
-      mkdir -p $out/bin
-      mv include/ $out/
-      mv bin/leanc $out/bin/
+  lean-bin-tools-unwrapped = buildCMake {
+    name = "lean-bin-tools";
+    realSrc = lib.sourceByRegex ../src [ "CMakeLists\.txt" "bin.*" "include.*" ".*\.in" ];
+    preConfigure = ''
+      touch empty.cpp
+      sed -i 's/find_package.*//;s/add_subdirectory.*//;s/set(LEAN_OBJS.*/set(LEAN_OBJS empty.cpp)/' CMakeLists.txt
     '';
-  };
-  leanmake = buildCMake {
-    name = "leanmake";
-    src = ../src;
     dontBuild = true;
     installPhase = ''
-      mkdir -p $out/bin
-      mv bin/leanmake $out/bin/
-      mv share/ $out/
+      mkdir $out
+      mv bin/ include/ share/ $out/
       substituteInPlace $out/bin/leanmake --replace "make" "${gnumake}/bin/make"
     '';
   };
@@ -72,7 +65,7 @@ rec {
       desc = "stage${toString stage}";
       build = args: buildLeanPackage.override {
         lean = prevStage;
-        leanc = leanc-unwrapped;
+        leanc = lean-bin-tools-unwrapped;
         # use same stage for retrieving dependencies
         lean-leanDeps = stage0;
         lean-final = self;
@@ -88,7 +81,7 @@ rec {
       inherit (Lean) emacs-dev emacs-package;
       mods = Init.mods // Std.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''
-        ${leanc-unwrapped}/bin/leanc -L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean "$@"
+        ${lean-bin-tools-unwrapped}/bin/leanc -L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean "$@"
       '';
       leanBin = wrapStage(stdenv.mkDerivation {
         name = "lean-${desc}";
@@ -100,7 +93,7 @@ rec {
         '';
       });
       # leanpkg = Leanpkg.executable "leanpkg";
-      lean = symlinkJoin { name = "lean"; paths = [ leanBin leanc leanmake ]; };
+      lean = symlinkJoin { name = "lean"; paths = [ leanBin lean-bin-tools-unwrapped leanc ]; };
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];

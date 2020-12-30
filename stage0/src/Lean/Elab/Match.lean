@@ -210,21 +210,6 @@ private def getNumExplicitCtorParams (ctorVal : ConstructorVal) : TermElabM Nat 
         result := result+1
     pure result
 
-private def throwAmbiguous {α} (fs : List Expr) : M α :=
-  throwError! "ambiguous pattern, use fully qualified name, possible interpretations {fs}"
-
-def resolveId? (stx : Syntax) : M (Option Expr) :=
-  match stx with
-  | Syntax.ident _ _ val preresolved => do
-    let rs ← try resolveName val preresolved [] catch _ => pure []
-    let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty
-    let fs := rs.map fun (f, _) => f
-    match fs with
-    | []  => pure none
-    | [f] => pure (some f)
-    | _   => throwAmbiguous fs
-  | _ => throwError "identifier expected"
-
 private def throwInvalidPattern {α} : M α :=
   throwError "invalid pattern"
 
@@ -330,7 +315,7 @@ def processCtorApp (collect : Syntax → M Syntax) (f : Syntax) (namedArgs : Arr
     | `($fId:ident)  => pure (fId, false)
     | `(@$fId:ident) => pure (fId, true)
     | _              => throwError "identifier expected"
-  let some (Expr.const fName _ _) ← resolveId? fId | throwCtorExpected
+  let some (Expr.const fName _ _) ← resolveId? fId "pattern" | throwCtorExpected
   let fInfo ← getConstInfo fName
   forallTelescopeReducing fInfo.type fun xs _ => do
     let paramDecls ← xs.mapM (getFVarLocalDecl ·)
@@ -368,7 +353,7 @@ private def processVar (idStx : Syntax) : M Syntax := do
 /- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
 private def processId (collect : Syntax → M Syntax) (stx : Syntax) : M Syntax := do
   let env ← getEnv
-  match (← resolveId? stx) with
+  match (← resolveId? stx "pattern") with
   | none   => processVar stx
   | some f => match f with
     | Expr.const fName _ _ =>

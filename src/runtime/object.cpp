@@ -626,7 +626,6 @@ static lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive)
     imp->m_prio        = prio;
     imp->m_canceled    = false;
     imp->m_keep_alive  = keep_alive;
-    imp->m_kept_alive  = false;
     imp->m_deleted     = false;
     return imp;
 }
@@ -759,16 +758,13 @@ class task_manager {
             t->m_imp->m_closure = nullptr;
             lock.unlock();
             v = lean_apply_1(c, box(0));
+            // If deactivation was delayed by `m_keep_alive`, deactivate after the final execution (`v != nulltpr`)
+            if (v != nullptr && t->m_imp->m_keep_alive) {
+                lean_dec_ref((lean_object*)t);
+            }
             lock.lock();
         }
         lean_assert(t->m_imp);
-        // If deactivation was delayed by `m_keep_alive`, deactivate after the final execution (`v != nulltpr`)
-        if (v != nullptr && t->m_imp->m_kept_alive) {
-            lean_assert(!lean_nonzero_rc((lean_object *)t));
-            deactivate_task_core(lock, t);
-        }
-        // Note: if deactivation was not delayed yet, `m_keep_alive` will be discarded below when
-        // `m_imp` is freed
         if (t->m_imp->m_deleted) {
             lock.unlock();
             if (v) lean_dec(v);
@@ -884,12 +880,7 @@ public:
             return;
         } else {
             lean_assert(t->m_imp);
-            if (t->m_imp->m_keep_alive) {
-                t->m_imp->m_canceled = true;
-                t->m_imp->m_kept_alive = true;
-            } else {
-                deactivate_task_core(lock, t);
-            }
+            deactivate_task_core(lock, t);
         }
     }
 
@@ -962,6 +953,8 @@ static lean_task_object * alloc_task(obj_arg c, unsigned prio, bool keep_alive) 
     lean_set_task_header((lean_object*)o);
     o->m_value = nullptr;
     o->m_imp   = alloc_task_imp(c, prio, keep_alive);
+    if (keep_alive)
+        lean_inc_ref((lean_object*)o);
     return o;
 }
 
@@ -1034,6 +1027,7 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
     obj_res c = mk_closure_2_1(task_bind_fn2, new_task);
     mark_mt(c);
+    std::cerr << "reviving " << g_current_task_object << std::endl;
     g_current_task_object->m_imp->m_closure = c;
     return nullptr; /* notify queue that task did not finish yet. */
 }

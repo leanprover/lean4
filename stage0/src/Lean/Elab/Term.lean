@@ -1243,6 +1243,18 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
     else
       process preresolved
 
+def resolveId? (stx : Syntax) (kind := "term") : TermElabM (Option Expr) :=
+  match stx with
+  | Syntax.ident _ _ val preresolved => do
+    let rs ← try resolveName val preresolved [] catch _ => pure []
+    let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty
+    let fs := rs.map fun (f, _) => f
+    match fs with
+    | []  => pure none
+    | [f] => pure (some f)
+    | _   =>   throwError! "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
+  | _ => throwError "identifier expected"
+
 @[builtinTermElab cdot] def elabBadCDot : TermElab := fun stx _ =>
   throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 

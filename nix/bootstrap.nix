@@ -119,13 +119,15 @@ rec {
           touch $out
         '';
       };
-      update-stage0 = writeShellScriptBin "update-stage0" ''
+      update-stage0 =
+        let cTree = symlinkJoin { name = "cs"; paths = [ Init.cTree Std.cTree Lean.cTree Leanpkg.cTree ]; }; in
+        writeShellScriptBin "update-stage0" ''
         set -euo pipefail
         rm -r stage0 || true
         mkdir -p stage0/
-        cp -r --dereference --no-preserve=all ${Lean.cTree} stage0/stdlib
+        cp -r --dereference --no-preserve=all ${cTree} stage0/stdlib
         # ensure deterministic ordering
-        c_files="$(cd ${Lean.cTree}; find . -type l | LC_ALL=C sort | tr '\n' ' ')"
+        c_files="$(cd ${cTree}; find . -type l | LC_ALL=C sort | tr '\n' ' ')"
         echo "add_library (stage0 OBJECT $c_files)" > stage0/stdlib/CMakeLists.txt
         # don't copy untracked crap
         git ls-files -z src | xargs -0 -I '{}' bash -c 'mkdir -p `dirname stage0/{}` && cp {} stage0/{}'

@@ -784,6 +784,11 @@ class task_manager {
             free_task_imp(t->m_imp);
             t->m_imp   = nullptr;
             m_task_finished_cv.notify_all();
+        } else {
+            // `bind` task has not finished yet, re-add as dependency of nested task
+            lock.unlock();
+            add_dep(lean_to_task(closure_arg_cptr(t->m_imp->m_closure)[0]), t);
+            lock.lock();
         }
     }
 
@@ -1030,7 +1035,6 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     obj_res c = mk_closure_2_1(task_bind_fn2, new_task);
     mark_mt(c);
     g_current_task_object->m_imp->m_closure = c;
-    g_task_manager->add_dep(lean_to_task(new_task), g_current_task_object);
     return nullptr; /* notify queue that task did not finish yet. */
 }
 

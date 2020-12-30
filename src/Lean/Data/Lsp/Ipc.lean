@@ -56,10 +56,12 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
   let rec loop : IpcM (List (Notification PublishDiagnosticsParams)) := do
     match ←readMessage with
     | Message.response id _ =>
+      if id == waitForDiagnosticsId then []
+      else loop
+    | Message.responseError id code msg _ =>
       if id == waitForDiagnosticsId then
-        []
-      else
-        loop
+        throw $ userError s!"Waiting for diagnostics failed: {msg}"
+      else loop
     | Message.notification "textDocument/publishDiagnostics" (some param) =>
       match fromJson? (toJson param) with
       | some diagnosticParam => ⟨"textDocument/publishDiagnostics", diagnosticParam⟩ :: (←loop)

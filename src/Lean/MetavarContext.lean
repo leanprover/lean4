@@ -861,74 +861,69 @@ mutual
       let e ← elim xs e
       pure (e.abstractRange i xs)
 
+  private partial def elimMVar (xs : Array Expr) (mvarId : MVarId) (args : Array Expr) : M (Expr × Array Expr) := do
+    let mctx ← getMCtx
+    let mvarDecl  := mctx.getDecl mvarId
+    let mvarLCtx  := mvarDecl.lctx
+    let toRevert  := getInScope mvarLCtx xs
+    if toRevert.size == 0 then
+      let args ← args.mapM (visit xs)
+      return (mkAppN (mkMVar mvarId) args, #[])
+    else
+      let newMVarKind := if !mctx.isExprAssignable mvarId then MetavarKind.syntheticOpaque else mvarDecl.kind
+      /- If `mvarId` is the lhs of a delayed assignment `?m #[x_1, ... x_n] := val`,
+         then `nestedFVars` is `#[x_1, ..., x_n]`.
+         In this case, we produce a new `syntheticOpaque` metavariable `?n` and a delayed assignment
+         ```
+         ?n #[y_1, ..., y_m, x_1, ... x_n] := ?m x_1 ... x_n
+         ```
+         where `#[y_1, ..., y_m]` is `toRevert` after `collectDeps`.
+
+         Remark: `newMVarKind != MetavarKind.syntheticOpaque ==> nestedFVars == #[]`
+      -/
+      let rec cont (nestedFVars : Array Expr) : M (Expr × Array Expr) := do
+        let args ← args.mapM (visit xs)
+        let preserve ← preserveOrder
+        match collectDeps mctx mvarLCtx toRevert preserve with
+        | Except.error ex    => throw ex
+        | Except.ok toRevert =>
+          let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
+          let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
+          -- Remark: we must reset the before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
+          let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
+          let newMVarId ← get >>= fun s => pure s.ngen.curr
+          let newMVar      := mkMVar newMVarId
+          let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
+          let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs
+          modify fun s => { s with
+              mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
+              ngen := s.ngen.next
+            }
+          match newMVarKind with
+          | MetavarKind.syntheticOpaque =>
+            modify fun s => { s with mctx := assignDelayed s.mctx newMVarId mvarLCtx (toRevert ++ nestedFVars) (mkAppN (mkMVar mvarId) nestedFVars) }
+          | _                           =>
+            modify fun s => { s with mctx := assignExpr s.mctx mvarId result }
+          return (mkAppN result args, toRevert)
+      if !mvarDecl.kind.isSyntheticOpaque then
+        cont #[]
+      else match mctx.getDelayedAssignment? mvarId with
+      | none                        => cont #[]
+      | some { fvars := fvars, .. } => cont fvars
+
   private partial def elimApp (xs : Array Expr) (f : Expr) (args : Array Expr) : M Expr := do
     match f with
     | Expr.mvar mvarId _ =>
       match (← getMCtx).getExprAssignment? mvarId with
-      | some val => processMVarAssignment val
-      | none => processMVarApp mvarId
-    | _ =>
-      processDefault (← visit xs f)
-    where
-      processDefault (f : Expr) : M Expr := do
-        let args ← args.mapM (visit xs)
-        pure (mkAppN f args)
-
-      processMVarAssignment (newF : Expr) : M Expr := do
+      | some newF =>
         if newF.isLambda then
           let args ← args.mapM (visit xs)
           elim xs <| newF.betaRev args.reverse
         else
           elimApp xs newF args
-
-      processMVarApp (mvarId : MVarId) : M Expr := do
-        let mctx ← getMCtx
-        let mvarDecl  := mctx.getDecl mvarId
-        let mvarLCtx  := mvarDecl.lctx
-        let toRevert  := getInScope mvarLCtx xs
-        if toRevert.size == 0 then
-          processDefault f
-        else
-          let newMVarKind := if !mctx.isExprAssignable mvarId then MetavarKind.syntheticOpaque else mvarDecl.kind
-          /- If `mvarId` is the lhs of a delayed assignment `?m #[x_1, ... x_n] := val`,
-             then `nestedFVars` is `#[x_1, ..., x_n]`.
-             In this case, we produce a new `syntheticOpaque` metavariable `?n` and a delayed assignment
-             ```
-             ?n #[y_1, ..., y_m, x_1, ... x_n] := ?m x_1 ... x_n
-             ```
-             where `#[y_1, ..., y_m]` is `toRevert` after `collectDeps`.
-
-             Remark: `newMVarKind != MetavarKind.syntheticOpaque ==> nestedFVars == #[]`
-          -/
-          let rec cont (nestedFVars : Array Expr) : M Expr := do
-            let args ← args.mapM (visit xs)
-            let preserve ← preserveOrder
-            match collectDeps mctx mvarLCtx toRevert preserve with
-            | Except.error ex    => throw ex
-            | Except.ok toRevert =>
-              let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
-              let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
-              -- Remark: we must reset the before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
-              let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
-              let newMVarId ← get >>= fun s => pure s.ngen.curr
-              let newMVar      := mkMVar newMVarId
-              let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
-              let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs
-              modify fun s => { s with
-                  mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
-                  ngen := s.ngen.next
-                }
-              match newMVarKind with
-              | MetavarKind.syntheticOpaque =>
-                modify fun s => { s with mctx := assignDelayed s.mctx newMVarId mvarLCtx (toRevert ++ nestedFVars) (mkAppN f nestedFVars) }
-              | _                           =>
-                modify fun s => { s with mctx := assignExpr s.mctx mvarId result }
-              pure (mkAppN result args)
-          if !mvarDecl.kind.isSyntheticOpaque then
-            cont #[]
-          else match mctx.getDelayedAssignment? mvarId with
-          | none                        => cont #[]
-          | some { fvars := fvars, .. } => cont fvars
+      | none => return (← elimMVar xs mvarId args).1
+    | _ =>
+      return mkAppN (← visit xs f) (← args.mapM (visit xs))
 
 end
 
@@ -938,6 +933,10 @@ partial def elimMVarDeps (xs : Array Expr) (e : Expr) : M Expr :=
   else
     withFreshCache do
       elim xs e
+
+partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) :=
+  withFreshCache do
+    elimMVar xs mvarId #[]
 
 /--
   Similar to `Expr.abstractRange`, but handles metavariables correctly.
@@ -984,6 +983,9 @@ abbrev MkBindingM := ReaderT LocalContext MkBinding.MCore
 
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun _ =>
   MkBinding.elimMVarDeps xs e preserveOrder
+
+def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun _ =>
+  MkBinding.revert xs mvarId preserveOrder
 
 def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : MkBindingM (Expr × Nat) := fun lctx =>
   MkBinding.mkBinding isLambda lctx xs e usedOnly false

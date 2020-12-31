@@ -360,8 +360,7 @@ def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl := do
     let val ← instantiateMVars val
     return LocalDecl.ldecl idx id n type val nonDep
 
-@[inline]
-private def liftMkBindingM {α} (x : MetavarContext.MkBindingM α) : MetaM α := do
+@[inline] def liftMkBindingM {α} (x : MetavarContext.MkBindingM α) : MetaM α := do
   match x (← getLCtx) { mctx := (← getMCtx), ngen := (← getNGen) } with
   | EStateM.Result.ok e newS => do
     setNGen newS.ngen;

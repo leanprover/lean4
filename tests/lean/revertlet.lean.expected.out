@@ -1,0 +1,10 @@
+n : Nat
+h : n = 0
+m : Nat := n + 1
+v : Nat := m + 1
+this : v = n + 2
+⊢ 0 + n = 0
+m : Nat := 0 + 1
+v : Nat := m + 1
+this : v = 0 + 2
+⊢ 0 + 0 = 0

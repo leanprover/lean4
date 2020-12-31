@@ -7,8 +7,6 @@ Authors: Wojciech Nawrocki
 import Lean.Data.Json
 import Lean.Data.Lsp.Basic
 
-/-! Handling of mouse hover requests. -/
-
 namespace Lean
 namespace Lsp
 

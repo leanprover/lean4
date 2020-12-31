@@ -90,6 +90,6 @@ def preDefault (e : Expr) (discharge? : Expr → SimpM σ (Option Expr)) : SimpM
 
 def postDefault (e : Expr) (discharge? : Expr → SimpM σ (Option Expr)) : SimpM σ Step := do
   let lemmas ← (← read).simpLemmas
-  return Step.done (← rewrite e lemmas.post discharge?)
+  return Step.visit (← rewrite e lemmas.post discharge?)
 
 end Lean.Meta.Simp

@@ -21,6 +21,9 @@ def simpTarget (simpLemmas : SimpLemmas) : TacticM Unit := do
     | some proof => setGoals ((← replaceTargetEq g r.expr proof) :: gs)
     | none => setGoals ((← replaceTargetDefEq g r.expr) :: gs)
 
+-- TODO: improve simpLocalDecl and simpAll
+-- TODO: issues: self simplification
+
 def simpLocalDeclFVarId (simpLemmas : SimpLemmas) (fvarId : FVarId) : TacticM Unit := do
   let (g, gs) ← getMainGoal
   withMVarContext g do
@@ -46,6 +49,15 @@ def simpAll (simpLemmas : SimpLemmas) : TacticM Unit := do
       let (mvarId, _) ← getMainGoal
       throwTacticEx `simp mvarId "failed to simplify"
 
+def tryExactTrivial : TacticM Unit := do
+  let (g, gs) ← getMainGoal
+  let gType ← getMVarType g
+  if gType.isConstOf ``True then
+    assignExprMVar g (mkConst ``True.intro)
+    setGoals gs
+  else
+    pure ()
+
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
   let lemmas ← mkSimpLemmas stx[1]
   let loc  := expandOptLocation stx[2]
@@ -53,6 +65,7 @@ def simpAll (simpLemmas : SimpLemmas) : TacticM Unit := do
   | Location.target => simpTarget lemmas
   | Location.localDecls userNames => userNames.forM (simpLocalDecl lemmas)
   | Location.wildcard => simpAll lemmas
+  tryExactTrivial
 where
   mkSimpLemmas (stx : Syntax) := do
     let lemmas ← getSimpLemmas

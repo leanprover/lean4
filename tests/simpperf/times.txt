@@ -1,0 +1,31 @@
+Lean 3
+
+- pre500  : 0.87s
+- pre1000 : 0.99s
+- pre1500 : 1.15s
+- pre2000 : 1.30s
+- pre2500 : 1.46s
+- pre3000 : 1.60s
+
+- simp500  : 1.76s   (0.89s simp time)
+- simp1000 : 3.96s   (2.97s simp time)
+- simp1500 : 7.82s   (6.67s simp time)
+- simp2000 : 13.16s  (11.86s simp time)
+- simp2500 : 19.71s  (18.25s simp time)
+- simp3000 : 28.50s  (26.90s simp time)
+
+Lean 4 (using `-DmaxRecDepth=100000`)
+
+- pre500  : 0.32s
+- pre1000 : 0.56s
+- pre1500 : 0.79s
+- pre2000 : 1.05s
+- pre2500 : 1.35s
+- pre3000 : 1.60s
+
+- simp500  : 0.50s   (0.18s simp time)
+- simp1000 : 0.95s   (0.39s simp time)
+- simp1500 : 1.40s   (0.61s simp time)
+- simp2000 : 1.76s   (0.71s simp time)
+- simp2500 : 2.28s   (0.93s simp time)
+- simp3000 : 2.75s   (1.15s simp time)

@@ -131,6 +131,7 @@ inductive Json where
   -- and thus currently cannot be used to define a type that
   -- is recursive in one of its parameters
   | obj (kvPairs : RBNode String (fun _ => Json))
+  deriving Inhabited
 
 namespace Json
 

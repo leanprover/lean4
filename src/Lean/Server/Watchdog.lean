@@ -352,6 +352,7 @@ section MessageHandling
     match method with
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam
     | "textDocument/hover"              => handle HoverParams
+    | "textDocument/documentSymbol"     => handle DocumentSymbolParams
     | _ => throwServerError s!"Got unsupported request: {method}"
 
   def handleNotification (method : String) (params : Json) : ServerM Unit :=
@@ -429,6 +430,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     save?             := none
   }
   --hoverProvider := true
+  documentSymbolProvider := true
 }
 
 def initAndRunWatchdogAux : ServerM Unit := do

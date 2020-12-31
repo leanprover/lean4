@@ -44,6 +44,7 @@ namespace Lean.Server.FileWorker
 open Lsp
 open IO
 open Snapshots
+open Lean.Parser.Command
 
 section Utils
   private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
@@ -246,10 +247,8 @@ section RequestHandling
   -- TODO(WN): the type is too complicated
   abbrev RequestM α := ServerM $ Task $ Except IO.Error $ Except RequestError α
 
-  /- TODO(MH): Requests that need data from a certain command should traverse the snapshots
+  /- Requests that need data from a certain command should traverse the snapshots
      by successively getting the next task, meaning that we might need to wait for elaboration.
-     Sebastian said something about a future function TaskIO.bind that ensures that the
-     request task will also stop waiting when the reference to the task is released by handleDidChange.
      When that happens, the request should send a "content changed" error to the user
      (this way, the server doesn't get bogged down in requests for an old state of the document).
      Requests need to manually check for whether their task has been cancelled, so that they
@@ -286,6 +285,62 @@ section RequestHandling
     let e ← st.docRef.get
     let t ← e.cmdSnaps.waitAll
     t.map fun _ => Except.ok $ Except.ok WaitForDiagnostics.mk
+
+  def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
+    ⟨text.utf8PosToLspPos <| stx.getHeadInfo.get!.pos.get!,
+     text.utf8PosToLspPos <| stx.getTailPos.get!⟩
+
+  partial def handleDocumentSymbol (id : RequestID) (p : DocumentSymbolParams) :
+    ServerM (Task (Except IO.Error (Except RequestError DocumentSymbolResult))) := do
+    let st ← read
+    asTask do
+      let doc ← st.docRef.get
+      let ⟨cmdSnaps, end?⟩ ← doc.cmdSnaps.updateFinishedPrefix
+      let mut stxs := cmdSnaps.finishedPrefix.map (·.stx)
+      if end?.isNone then
+        if let some lastSnap := cmdSnaps.finishedPrefix.getLast? then
+          stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
+      let (syms, _) := toDocumentSymbols doc.meta.text stxs
+      return Except.ok { syms := syms.toArray }
+    where
+      toDocumentSymbols (text : FileMap)
+      | [] => ([], [])
+      | stx::stxs => match stx with
+        | `(namespace $id) => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
+        | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
+        | `(end $(id)?) => ([], stx::stxs)
+        | _ =>
+          let (syms, stxs') := toDocumentSymbols text stxs
+          if stx.isOfKind ``Lean.Parser.Command.declaration then
+            let (name, selection) := match stx with
+              | `($dm:declModifiers $ak:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $val) =>
+                ((·.getId.toString) <$> id |>.getD s!"instance {sig.reprint.getD ""}", id.getD sig)
+              | _ => match stx[1][1] with
+                | `(declId|$id:ident$[.{$ls,*}]?) => (id.getId.toString, id)
+                | _                               => (stx[1][0].isIdOrAtom?.getD "<unknown>", stx[1][0])
+            (DocumentSymbol.mk {
+              name := name
+              kind := SymbolKind.method
+              range := rangeOfSyntax text stx
+              selectionRange := rangeOfSyntax text selection
+            } :: syms, stxs')
+          else
+            (syms, stxs')
+      sectionLikeToDocumentSymbols (text : FileMap) (stx : Syntax) (stxs : List Syntax) (name : String) (kind : SymbolKind) (selection : Syntax) :=
+          let (syms, stxs') := toDocumentSymbols text stxs
+          -- discard `end`
+          let (syms', stxs'') := toDocumentSymbols text (stxs'.drop 1)
+          let endStx := match stxs' with
+            | endStx::_ => endStx
+            | []        => (stx::stxs').getLast!
+          (DocumentSymbol.mk {
+            name := name
+            kind := kind
+            range := ⟨(rangeOfSyntax text stx).start, (rangeOfSyntax text endStx).«end»⟩
+            selectionRange := rangeOfSyntax text selection
+            children? := syms.toArray
+          } :: syms', stxs'')
+
 end RequestHandling
 
 section MessageHandling
@@ -324,6 +379,7 @@ section MessageHandling
     match method with
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam WaitForDiagnostics handleWaitForDiagnostics
     | "textDocument/hover"              => handle HoverParams (Option Hover) handleHover
+    | "textDocument/documentSymbol"     => handle DocumentSymbolParams DocumentSymbolResult handleDocumentSymbol
     | _ => throwServerError s!"Got unsupported request: {method}"
 end MessageHandling
 

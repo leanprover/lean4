@@ -46,5 +46,8 @@ instance HoverParams.hasFileSource : FileSource HoverParams :=
 instance WaitForDiagnosticsParam.hasFileSource : FileSource WaitForDiagnosticsParam :=
   ⟨fun p => p.uri⟩
 
+instance DocumentSymbolParams.hasFileSource : FileSource DocumentSymbolParams :=
+  ⟨fun p => fileSource p.textDocument⟩
+
 end Lsp
 end Lean

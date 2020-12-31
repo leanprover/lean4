@@ -30,6 +30,7 @@ instance ClientCapabilities.hasToJson : ToJson ClientCapabilities :=
 structure ServerCapabilities where
   textDocumentSync? : Option TextDocumentSyncOptions := none
   hoverProvider : Bool := false
+  documentSymbolProvider : Bool := false
   deriving ToJson, FromJson
 
 end Lsp

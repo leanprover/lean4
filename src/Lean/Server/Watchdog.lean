@@ -179,8 +179,8 @@ section ServerM
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
+    let o := (←read).hOut
     let rec loop : ServerM WorkerEvent := do
-      let o := (←read).hOut
       try
         let msg ← fw.readMessage
         -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
@@ -199,7 +199,7 @@ section ServerM
         else
           -- Worker crashed
           fw.errorPendingRequests o ErrorCode.internalError
-            "Server process of file crashed, likely due to a stack overflow in user code"
+            s!"Server process for {fw.doc.meta.uri} crashed, likely due to a stack overflow in user code."
           return WorkerEvent.crashed err
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
     task.map $ fun
@@ -331,8 +331,11 @@ section NotificationHandling
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
-    for ⟨uri, _⟩ in fileWorkers do
-      tryWriteMessage uri ⟨"$/cancelRequest", p⟩ FileWorker.writeNotification (queueFailedMessage := false)
+    for ⟨uri, fw⟩ in fileWorkers do
+      let req? ← fw.pendingRequestsRef.modifyGet (fun pendingRequests =>
+        (pendingRequests.find? p.id, pendingRequests.erase p.id))
+      if let some req := req? then
+        tryWriteMessage uri ⟨"$/cancelRequest", p⟩ FileWorker.writeNotification (queueFailedMessage := false)
 end NotificationHandling
 
 section MessageHandling

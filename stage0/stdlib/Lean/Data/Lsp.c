@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp
-// Imports: Init Lean.Data.Lsp.Basic Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Communication Lean.Data.Lsp.Diagnostics Lean.Data.Lsp.Extra Lean.Data.Lsp.Hover Lean.Data.Lsp.InitShutdown Lean.Data.Lsp.TextSync Lean.Data.Lsp.Utf16 Lean.Data.Lsp.Workspace Lean.Data.Lsp.Ipc
+// Imports: Init Lean.Data.Lsp.Basic Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Communication Lean.Data.Lsp.Diagnostics Lean.Data.Lsp.Extra Lean.Data.Lsp.InitShutdown Lean.Data.Lsp.LanguageFeatures Lean.Data.Lsp.TextSync Lean.Data.Lsp.Utf16 Lean.Data.Lsp.Workspace Lean.Data.Lsp.Ipc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,8 +19,8 @@ lean_object* initialize_Lean_Data_Lsp_Capabilities(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Communication(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Diagnostics(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Extra(lean_object*);
-lean_object* initialize_Lean_Data_Lsp_Hover(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_InitShutdown(lean_object*);
+lean_object* initialize_Lean_Data_Lsp_LanguageFeatures(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_TextSync(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Utf16(lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Workspace(lean_object*);
@@ -48,10 +48,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Extra(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Hover(lean_io_mk_world());
+res = initialize_Lean_Data_Lsp_InitShutdown(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_InitShutdown(lean_io_mk_world());
+res = initialize_Lean_Data_Lsp_LanguageFeatures(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_TextSync(lean_io_mk_world());

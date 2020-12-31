@@ -56,7 +56,6 @@ lean_object* l_Std_PersistentHashMap_findAux___at_Lean_Meta_UnificationHints_add
 lean_object* l_Std_fmt___at_Lean_Meta_instToFormatUnificationHints___spec__1___boxed(lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* l_Lean_Meta_UnificationHints_discrTree___default;
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__21;
 extern lean_object* l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__3;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_Meta_UnificationHints_add___spec__12___boxed(lean_object*);
@@ -159,6 +158,7 @@ lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_tryUnificationHints___spec_
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_Meta_instToFormatUnificationHints___spec__11___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__3___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__19;
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decodeConstraint(lean_object*);
 lean_object* l_Lean_Meta_addUnificationHint_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addUnificationHint___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -191,6 +191,7 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decode___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Format_sbracket___closed__3;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_549____closed__3;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__34;
 lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
 lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at_Lean_Meta_UnificationHints_add___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_unificationHintExtension___closed__2;
@@ -267,7 +268,6 @@ lean_object* l_Lean_Meta_addUnificationHint___lambda__1___closed__1;
 lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isLevelDefEqAux___closed__5;
 lean_object* l_Lean_Meta_mkFreshLevelMVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__36;
 lean_object* l_Lean_Meta_instToFormatUnificationHints(lean_object*);
 extern lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__4___closed__2;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_549____closed__2;
@@ -4051,7 +4051,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__21;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__19;
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_549____closed__1;
 x_3 = 0;
 x_4 = lean_alloc_ctor(0, 2, 1);
@@ -6066,7 +6066,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_isExprDefEq___closed__2;
-x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__36;
+x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__34;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

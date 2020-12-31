@@ -29,7 +29,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
       match a with
       | Expr.fvar aFVarId _ => do
         let aFVarIdOriginal := aFVarId
-        trace[Meta.Tactic.subst]! "substituting {a} (id: {aFVarId} with {b}"
+        trace[Meta.Tactic.subst]! "substituting {a} (id: {aFVarId}) with {b}"
         let mctx ← getMCtx
         if mctx.exprDependsOn b aFVarId then
           throwTacticEx `subst mvarId m!"'{a}' occurs at{indentExpr b}"

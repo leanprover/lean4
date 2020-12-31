@@ -98,7 +98,6 @@ lean_object* l_Lean_Level_isSucc___boxed(lean_object*);
 lean_object* l_Lean_Level_updateIMax_x21___closed__1;
 uint8_t l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap(lean_object*);
 lean_object* l_Lean_Level_mvarId_x21(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__32;
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Level_instToFormatLevel(lean_object*);
 lean_object* l_Lean_levelZero;
@@ -338,6 +337,7 @@ lean_object* l_Lean_Level_isMVar_match__1___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* l_Lean_Level_PP_Result_succ_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_updateMax_x21_match__1(lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__30;
 lean_object* l_Lean_levelOne;
 uint8_t lean_level_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Level_beq___boxed(lean_object*, lean_object*);
@@ -5960,7 +5960,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__3___closed__2()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__32;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__30;
 x_2 = l_Lean_Level_PP_Result_quote___lambda__3___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -6000,7 +6000,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__4___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__32;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__30;
 x_2 = l_myMacro____x40_Init_Notation___hyg_12458____closed__7;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -6037,7 +6037,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__5___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__32;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__30;
 x_2 = l_precMax___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -6085,7 +6085,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__6___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__32;
+x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__30;
 x_2 = l_Lean_Level_PP_Result_format___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

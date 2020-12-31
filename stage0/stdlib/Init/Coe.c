@@ -101,7 +101,6 @@ lean_object* l_coeDecidableEq___boxed(lean_object*);
 lean_object* l_instCoeTail__1(lean_object*, lean_object*);
 lean_object* l_coeOfDep___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Coe___hyg_160____closed__6;
-lean_object* l_term_u2191_____closed__5;
 lean_object* l_instHMod__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeTrans___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -128,14 +127,15 @@ lean_object* l_coeOfHeafOfTCOfTail___rarg(lean_object*, lean_object*, lean_objec
 lean_object* l_coe___rarg___boxed(lean_object*);
 lean_object* l_boolToProp;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l_term_u2191_____closed__6;
 lean_object* l_coeHead___rarg(lean_object*, lean_object*);
 lean_object* l_coeId___rarg(lean_object*);
 lean_object* l_myMacro____x40_Init_Coe___hyg_160____closed__3;
 lean_object* l_coeId___rarg___boxed(lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_simpPost___closed__3;
 lean_object* l_instHAndThen__1(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_2137____closed__4;
 lean_object* l_instCoeTail(lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Tactic_simpPost___closed__4;
 lean_object* l_coeD___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHAdd__2(lean_object*, lean_object*);
 lean_object* l_instHDiv__2(lean_object*, lean_object*);
@@ -297,27 +297,9 @@ return x_3;
 static lean_object* _init_l_term_u2191_____closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("↑");
-return x_1;
-}
-}
-static lean_object* _init_l_term_u2191_____closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_term_u2191_____closed__3;
-x_2 = lean_alloc_ctor(5, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_term_u2191_____closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__10;
-x_2 = l_term_u2191_____closed__4;
+x_2 = l_Lean_Parser_Tactic_simpPost___closed__4;
 x_3 = l_Lean_Parser_Tactic_intro___closed__12;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -326,13 +308,13 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_term_u2191_____closed__6() {
+static lean_object* _init_l_term_u2191_____closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_term_u2191_____closed__2;
 x_2 = lean_unsigned_to_nat(1024u);
-x_3 = l_term_u2191_____closed__5;
+x_3 = l_term_u2191_____closed__3;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -344,7 +326,7 @@ static lean_object* _init_l_term_u2191__() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_term_u2191_____closed__6;
+x_1 = l_term_u2191_____closed__4;
 return x_1;
 }
 }
@@ -581,7 +563,7 @@ if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_22 = lean_ctor_get(x_20, 0);
-x_23 = l_term_u2191_____closed__3;
+x_23 = l_Lean_Parser_Tactic_simpPost___closed__3;
 x_24 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
@@ -603,7 +585,7 @@ x_31 = lean_ctor_get(x_20, 1);
 lean_inc(x_31);
 lean_inc(x_30);
 lean_dec(x_20);
-x_32 = l_term_u2191_____closed__3;
+x_32 = l_Lean_Parser_Tactic_simpPost___closed__3;
 x_33 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_33, 0, x_30);
 lean_ctor_set(x_33, 1, x_32);
@@ -1365,10 +1347,6 @@ l_term_u2191_____closed__3 = _init_l_term_u2191_____closed__3();
 lean_mark_persistent(l_term_u2191_____closed__3);
 l_term_u2191_____closed__4 = _init_l_term_u2191_____closed__4();
 lean_mark_persistent(l_term_u2191_____closed__4);
-l_term_u2191_____closed__5 = _init_l_term_u2191_____closed__5();
-lean_mark_persistent(l_term_u2191_____closed__5);
-l_term_u2191_____closed__6 = _init_l_term_u2191_____closed__6();
-lean_mark_persistent(l_term_u2191_____closed__6);
 l_term_u2191__ = _init_l_term_u2191__();
 lean_mark_persistent(l_term_u2191__);
 l_myMacro____x40_Init_Coe___hyg_160____closed__1 = _init_l_myMacro____x40_Init_Coe___hyg_160____closed__1();

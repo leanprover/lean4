@@ -250,6 +250,11 @@ def expandERwSeq : Macro :=
 
 syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
 
+syntax simpPre := "↓"
+syntax simpPost := "↑"
+syntax simpLemma := (simpPre <|> simpPost)? term
+syntax (name := simp) "simp " ("[" simpLemma,* "]")? (location)? : tactic
+
 syntax (name := «have») "have " haveDecl : tactic
 syntax (name := «suffices») "suffices " sufficesDecl : tactic
 syntax (name := «show») "show " term : tactic
@@ -272,5 +277,12 @@ syntax "repeat " tacticSeq : tactic
 macro_rules
   | `(tactic| repeat $seq) => `(tactic| first ($seq); repeat $seq | skip)
 
-end Parser.Tactic
+end Tactic
+
+namespace Attr
+-- simp attribute syntax
+syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (prio)? : attr
+end Attr
+
+end Parser
 end Lean

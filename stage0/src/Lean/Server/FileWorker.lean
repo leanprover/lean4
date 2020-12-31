@@ -8,10 +8,13 @@ import Init.System.IO
 import Std.Data.RBMap
 
 import Lean.Environment
-import Lean.Server.Snapshots
-import Lean.Server.Utils
+import Lean.PrettyPrinter
+
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
+
+import Lean.Server.Snapshots
+import Lean.Server.Utils
 import Lean.Server.AsyncList
 
 /-!
@@ -41,6 +44,7 @@ namespace Lean.Server.FileWorker
 open Lsp
 open IO
 open Snapshots
+open Lean.Parser.Command
 
 section Utils
   private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
@@ -203,6 +207,8 @@ section ServerM
         st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩
 end ServerM
 
+/- Notifications are handled in the main thread. They may change global worker state
+such as the current file contents. -/
 section NotificationHandling
   def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit :=
     let doc := p.textDocument
@@ -224,27 +230,117 @@ section NotificationHandling
     if ¬ changes.isEmpty then
       let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText⟩ minStartOff
+    -- TODO(WN): cancel pending requests?
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 end NotificationHandling
 
+/- Request handlers are given by `Task`s executed asynchronously. They may be cancelled at any time,
+so they should check the cancellation token when possible to handle this cooperatively. Any exceptions
+thrown in a handler will be reported to the client as LSP error responses. -/
 section RequestHandling
-  /- TODO(MH): Requests that need data from a certain command should traverse the snapshots
+  structure RequestError where
+    code    : ErrorCode
+    message : String
+
+  -- TODO(WN): the type is too complicated
+  abbrev RequestM α := ServerM $ Task $ Except IO.Error $ Except RequestError α
+
+  /- Requests that need data from a certain command should traverse the snapshots
      by successively getting the next task, meaning that we might need to wait for elaboration.
-     Sebastian said something about a future function TaskIO.bind that ensures that the
-     request task will also stop waiting when the reference to the task is released by handleDidChange.
      When that happens, the request should send a "content changed" error to the user
      (this way, the server doesn't get bogged down in requests for an old state of the document).
      Requests need to manually check for whether their task has been cancelled, so that they
      can reply with a RequestCancelled error. -/
-  def handleHover (id : RequestID) (p : HoverParams) : ServerM (Option Hover) := pure none
+  partial def handleHover (id : RequestID) (p : HoverParams)
+    : ServerM (Task (Except IO.Error (Except RequestError (Option Hover)))) := do
+    let doc ← (←read).docRef.get
+    let text := doc.meta.text
+    let hoverPos := text.lspPosToUtf8Pos p.position
+    let findTask ← doc.cmdSnaps.waitFind? (fun s => s.endPos > hoverPos)
+    (IO.mapTask · findTask) fun
+      | Except.error TaskError.aborted =>
+        pure $ Except.error { code := ErrorCode.contentModified, message := "File changed." }
+      | Except.error (TaskError.ioError e) =>
+        throwThe IO.Error e
+      | Except.error TaskError.eof =>
+        pure $ Except.ok none
+      | Except.ok snap? => do
+        let snap? := snap?.filter (fun s => s.beginPos ≤ hoverPos)
+        if let some snap := snap? then
+          if snap.stx.getKind == ``Lean.Parser.Command.declaration then
+            -- TODO(WN): 1. get at the right subexpression
+            --           2. reply with delaborated type
+            return Except.ok $ some
+              { contents := { kind := MarkupKind.plaintext
+                              value := s!"Declaration." }
+                range? := some { start := text.utf8PosToLspPos snap.beginPos
+                                 «end» := text.utf8PosToLspPos snap.endPos } }
+        return Except.ok none
 
-  def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam) : ServerM WaitForDiagnostics := do
+  def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam)
+    : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
     let st ← read
     let e ← st.docRef.get
-    discard $ e.cmdSnaps.waitAll
-    WaitForDiagnostics.mk
+    let t ← e.cmdSnaps.waitAll
+    t.map fun _ => Except.ok $ Except.ok WaitForDiagnostics.mk
+
+  def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
+    ⟨text.utf8PosToLspPos <| stx.getHeadInfo.get!.pos.get!,
+     text.utf8PosToLspPos <| stx.getTailPos.get!⟩
+
+  partial def handleDocumentSymbol (id : RequestID) (p : DocumentSymbolParams) :
+    ServerM (Task (Except IO.Error (Except RequestError DocumentSymbolResult))) := do
+    let st ← read
+    asTask do
+      let doc ← st.docRef.get
+      let ⟨cmdSnaps, end?⟩ ← doc.cmdSnaps.updateFinishedPrefix
+      let mut stxs := cmdSnaps.finishedPrefix.map (·.stx)
+      if end?.isNone then
+        if let some lastSnap := cmdSnaps.finishedPrefix.getLast? then
+          stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
+      let (syms, _) := toDocumentSymbols doc.meta.text stxs
+      return Except.ok { syms := syms.toArray }
+    where
+      toDocumentSymbols (text : FileMap)
+      | [] => ([], [])
+      | stx::stxs => match stx with
+        | `(namespace $id) => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
+        | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
+        | `(end $(id)?) => ([], stx::stxs)
+        | _ =>
+          let (syms, stxs') := toDocumentSymbols text stxs
+          if stx.isOfKind ``Lean.Parser.Command.declaration then
+            let (name, selection) := match stx with
+              | `($dm:declModifiers $ak:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $val) =>
+                ((·.getId.toString) <$> id |>.getD s!"instance {sig.reprint.getD ""}", id.getD sig)
+              | _ => match stx[1][1] with
+                | `(declId|$id:ident$[.{$ls,*}]?) => (id.getId.toString, id)
+                | _                               => (stx[1][0].isIdOrAtom?.getD "<unknown>", stx[1][0])
+            (DocumentSymbol.mk {
+              name := name
+              kind := SymbolKind.method
+              range := rangeOfSyntax text stx
+              selectionRange := rangeOfSyntax text selection
+            } :: syms, stxs')
+          else
+            (syms, stxs')
+      sectionLikeToDocumentSymbols (text : FileMap) (stx : Syntax) (stxs : List Syntax) (name : String) (kind : SymbolKind) (selection : Syntax) :=
+          let (syms, stxs') := toDocumentSymbols text stxs
+          -- discard `end`
+          let (syms', stxs'') := toDocumentSymbols text (stxs'.drop 1)
+          let endStx := match stxs' with
+            | endStx::_ => endStx
+            | []        => (stx::stxs').getLast!
+          (DocumentSymbol.mk {
+            name := name
+            kind := kind
+            range := ⟨(rangeOfSyntax text stx).start, (rangeOfSyntax text endStx).«end»⟩
+            selectionRange := rangeOfSyntax text selection
+            children? := syms.toArray
+          } :: syms', stxs'')
+
 end RequestHandling
 
 section MessageHandling
@@ -261,22 +357,29 @@ section MessageHandling
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
-  def queueRequest (id : RequestID) (handleAct : ServerM Unit)
+  def queueRequest (id : RequestID) (requestTask : Task (Except IO.Error Unit))
   : ServerM Unit := do
-    let requestTask ← asTask (handleAct (←read))
     updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
   def handleRequest (id : RequestID) (method : String) (params : Json)
   : ServerM Unit := do
     let handle := fun paramType [FromJson paramType] respType [ToJson respType]
-                      (handler : RequestID → paramType → ServerM respType) =>
-      queueRequest id do
-        let p ← parseParams paramType params
-        let resp ← handler id p
-        (←read).hOut.writeLspResponse ⟨id, resp⟩
+                      (handler : RequestID → paramType → RequestM respType) => do
+      let st ← read
+      let p ← parseParams paramType params
+      let t ← handler id p
+      let t₁ ← (IO.mapTask · t) fun
+        | Except.ok (Except.ok resp) =>
+          st.hOut.writeLspResponse ⟨id, resp⟩
+        | Except.ok (Except.error e) =>
+          st.hOut.writeLspResponseError { id := id, code := e.code, message := e.message }
+        | Except.error e =>
+          st.hOut.writeLspResponseError { id := id, code := ErrorCode.internalError, message := toString e }
+      queueRequest id t₁
     match method with
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam WaitForDiagnostics handleWaitForDiagnostics
     | "textDocument/hover"              => handle HoverParams (Option Hover) handleHover
+    | "textDocument/documentSymbol"     => handle DocumentSymbolParams DocumentSymbolResult handleDocumentSymbol
     | _ => throwServerError s!"Got unsupported request: {method}"
 end MessageHandling
 
@@ -285,9 +388,14 @@ section MainLoop
     let st ← read
     let msg ← st.hIn.readLspMessage
     let pendingRequests ← st.pendingRequestsRef.get
-    let filterFinishedTasks : PendingRequestMap → RequestID → Task (Except IO.Error Unit)
-    → ServerM PendingRequestMap := fun acc id task => do
-      if (←hasFinished task) then acc.erase id
+    let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
+      : ServerM PendingRequestMap := do
+      if (←hasFinished task) then
+        /- Handler tasks are constructed so that the only possible errors here
+        are failures of writing a response into the stream. -/
+        if let Except.error e := task.get then
+          throwServerError s!"Failed responding to request {id}: {e}"
+        acc.erase id
       else acc
     let pendingRequests ← pendingRequests.foldM filterFinishedTasks pendingRequests
     st.pendingRequestsRef.set pendingRequests

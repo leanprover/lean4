@@ -54,6 +54,7 @@ lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotiveResultTy
 lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_getConstInfoInduct___rarg___lambda__1___closed__2;
+extern lean_object* l_Lean_Parser_Attr_simp___closed__2;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux_match__2(lean_object*);
 lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__2___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
@@ -364,7 +365,6 @@ extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_pushNewline
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2064____spec__1___lambda__1___boxed(lean_object*);
 uint8_t lean_level_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__7;
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__15;
 lean_object* l_List_toString___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__1(lean_object*);
 lean_object* l_Lean_throwErrorAt___at_Lean_Meta_Attribute_Recursor_getMajorPos___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___lambda__1___closed__1;
@@ -9218,7 +9218,7 @@ static lean_object* _init_l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__2
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__15;
+x_1 = l_Lean_Parser_Attr_simp___closed__2;
 x_2 = l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

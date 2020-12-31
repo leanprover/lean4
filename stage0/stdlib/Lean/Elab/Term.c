@@ -694,7 +694,6 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabSort(lean_object*);
 lean_object* l_Lean_Elab_Term_tryCoeThunk_x3f_match__1___rarg___closed__1;
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__29;
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_tryLiftAndCoe___closed__2;
 lean_object* l_Lean_Elab_Term_tryPostponeIfHasMVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_resolveLocalName_loop_match__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -955,6 +954,7 @@ lean_object* l_Lean_Elab_Term_liftCoreM(lean_object*);
 lean_object* l_Lean_Elab_Term_getMainModule___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_isMonad_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_resolveId_x3f___closed__1;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__27;
 lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_isMonad_x3f___closed__1;
 lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Term_elabStrLit___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_instMonadLogTermElabM___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30595,7 +30595,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_Term_termElabAttribute;
-x_3 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__29;
+x_3 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__27;
 x_4 = l___regBuiltin_Lean_Elab_Term_elabSort___closed__1;
 x_5 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_1);
 return x_5;

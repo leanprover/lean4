@@ -13,3 +13,4 @@ import Lean.Elab.Tactic.Match
 import Lean.Elab.Tactic.Binders
 import Lean.Elab.Tactic.Rewrite
 import Lean.Elab.Tactic.Location
+import Lean.Elab.Tactic.Simp

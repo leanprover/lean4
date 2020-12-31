@@ -65,6 +65,7 @@ lean_object* l_Lean_Meta_isTypeCorrect(lean_object*, lean_object*, lean_object*,
 lean_object* l_Lean_throwError___at_Lean_Elab_Deriving_mkContext___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Deriving_mkContext___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoInduct___at_Lean_Elab_Deriving_mkContext___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__32;
 lean_object* l_Lean_Elab_Term_getMainModule___rarg(lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Core_mkFreshUserName___at_Lean_Elab_Deriving_mkInductArgNames___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -130,7 +131,6 @@ lean_object* l_Lean_Elab_Deriving_mkContext(lean_object*, lean_object*, lean_obj
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 lean_object* l_Lean_Elab_Deriving_mkInductArgNames___closed__1;
 size_t lean_usize_of_nat(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__34;
 lean_object* l_Lean_addTrace___at___private_Lean_Elab_Term_0__Lean_Elab_Term_postponeElabTerm___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_13068____closed__4;
 lean_object* l_Lean_Elab_Deriving_mkImplicitBinders___boxed__const__1;
@@ -2758,7 +2758,7 @@ x_62 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_62, 0, x_50);
 lean_ctor_set(x_62, 1, x_61);
 x_63 = lean_array_push(x_48, x_62);
-x_64 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__34;
+x_64 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__32;
 x_65 = lean_name_mk_string(x_25, x_64);
 x_66 = l_myMacro____x40_Init_Notation___hyg_14562____closed__11;
 x_67 = lean_alloc_ctor(2, 2, 0);

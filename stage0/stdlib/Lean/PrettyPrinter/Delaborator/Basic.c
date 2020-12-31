@@ -24,6 +24,7 @@ lean_object* l_Std_PersistentHashMap_findAux___at_Lean_PrettyPrinter_Delaborator
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabFor_match__1(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_162____closed__2;
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__26;
 lean_object* lean_local_ctx_get_unused_name(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFn___rarg___closed__2;
@@ -277,7 +278,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_liftMetaM(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__9;
 lean_object* l_Array_findIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFnArgs_match__1(lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__28;
 lean_object* l_ReaderT_pure___at_Lean_PrettyPrinter_Delaborator_instMonadQuotationDelabM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPPBinderTypes___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppArg___rarg___closed__2;
@@ -2041,7 +2041,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__28;
+x_2 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__26;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

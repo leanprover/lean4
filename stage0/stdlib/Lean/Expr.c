@@ -40,6 +40,7 @@ lean_object* l_Lean_mkFreshMVarId___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateFn_match__1(lean_object*);
 lean_object* l_Lean_BinderInfo_isAuxDecl_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_replaceFVar___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__26;
 lean_object* l_Lean_Expr_updateLambda___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs___boxed(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -708,7 +709,6 @@ lean_object* l_Lean_Expr_updateForall_x21_match__1(lean_object*);
 lean_object* l_Lean_Expr_etaExpandedStrict_x3f(lean_object*);
 lean_object* l_Lean_Expr_updateLambdaE_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasLooseBVar___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__28;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Expr_setAppPPExplicit___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvarIdx_x21_match__1(lean_object*);
@@ -3344,7 +3344,7 @@ return x_4;
 case 3:
 {
 lean_object* x_5; 
-x_5 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__28;
+x_5 = l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__26;
 return x_5;
 }
 case 4:

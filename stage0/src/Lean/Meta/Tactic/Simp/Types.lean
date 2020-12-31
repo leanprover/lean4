@@ -43,6 +43,10 @@ inductive Step where
   | visit : Result → Step
   | done  : Result → Step
 
+def Step.result : Step → Result
+  | Step.visit r => r
+  | Step.done r => r
+
 structure Methods (σ : Type) where
   pre        : Expr → SimpM σ Step          := fun e => return Step.visit { expr := e }
   post       : Expr → SimpM σ Step          := fun e => return Step.done { expr := e }
@@ -50,6 +54,15 @@ structure Methods (σ : Type) where
 
 /- Internal monad -/
 abbrev M (σ : Type) := ReaderT (Methods σ) $ SimpM σ
+
+def pre (e : Expr) : M σ Step := do
+  (← read).pre e
+
+def post (e : Expr) : M σ Step := do
+  (← read).post e
+
+def discharge? (e : Expr) : M σ (Option Expr) := do
+  (← read).discharge? e
 
 end Simp
 

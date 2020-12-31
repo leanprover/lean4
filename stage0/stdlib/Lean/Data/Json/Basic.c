@@ -73,6 +73,7 @@ lean_object* l_Lean_Json_instCoeBoolJson(uint8_t);
 lean_object* l_Lean_Json_getObj_x3f(lean_object*);
 lean_object* l_Lean_Json_getInt_x3f(lean_object*);
 lean_object* l_Lean_JsonNumber_lt_match__2(lean_object*);
+lean_object* l_Lean_instInhabitedJson;
 lean_object* l_Nat_repr(lean_object*);
 extern lean_object* l_instReprSigma___rarg___closed__5;
 lean_object* l_Lean_JsonNumber_normalize___closed__2;
@@ -3434,6 +3435,14 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+static lean_object* _init_l_Lean_instInhabitedJson() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
 }
 }
 lean_object* l_Lean_Json_mkObj_match__1___rarg(lean_object* x_1, lean_object* x_2) {
@@ -6853,6 +6862,8 @@ l_Lean_JsonNumber_instToStringJsonNumber___closed__1 = _init_l_Lean_JsonNumber_i
 lean_mark_persistent(l_Lean_JsonNumber_instToStringJsonNumber___closed__1);
 l_Lean_JsonNumber_instToStringJsonNumber = _init_l_Lean_JsonNumber_instToStringJsonNumber();
 lean_mark_persistent(l_Lean_JsonNumber_instToStringJsonNumber);
+l_Lean_instInhabitedJson = _init_l_Lean_instInhabitedJson();
+lean_mark_persistent(l_Lean_instInhabitedJson);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

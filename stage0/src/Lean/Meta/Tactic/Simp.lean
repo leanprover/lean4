@@ -6,3 +6,10 @@ Authors: Leonardo de Moura
 import Lean.Meta.Tactic.Simp.SimpLemmas
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Main
+import Lean.Meta.Tactic.Simp.Rewrite
+
+namespace Lean
+
+builtin_initialize registerTraceClass `Meta.Tactic.simp
+
+end Lean

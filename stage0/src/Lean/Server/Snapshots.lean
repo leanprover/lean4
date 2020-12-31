@@ -90,6 +90,23 @@ def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   cmdStx
 
+/--
+  Parse remaining file without elaboration. NOTE that doing so can lead to parse errors or even wrong syntax objects,
+  so it should only be done for reporting preliminary results! -/
+partial def parseAhead (contents : String) (snap : Snapshot) : IO (Array Syntax) := do
+  let inputCtx := Parser.mkInputContext contents "<input>"
+  let cmdState := snap.toCmdState
+  let scope := cmdState.scopes.head!
+  let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
+  go inputCtx pmctx snap.mpState #[]
+  where
+    go inputCtx pmctx cmdParserState stxs := do
+      let (cmdStx, cmdParserState, _) := Parser.parseCommand inputCtx pmctx cmdParserState snap.msgLog
+      if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
+        stxs.push cmdStx
+      else
+        go inputCtx pmctx cmdParserState (stxs.push cmdStx)
+
 /-- Compiles the next command occurring after the given snapshot.
 If there is no next command (file ended), returns messages produced
 through the file. -/

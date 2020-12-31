@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Lsp_DocumentSymbolParams_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_TextDocumentIdentifier_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_DidCloseTextDocumentParams_hasFileSource(lean_object*);
 lean_object* l_Lean_Lsp_DidChangeTextDocumentParams_hasFileSource(lean_object*);
@@ -34,6 +35,7 @@ lean_object* l_Lean_Lsp_Location_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_TextDocumentItem_hasFileSource(lean_object*);
 lean_object* l_Lean_Lsp_DidCloseTextDocumentParams_hasFileSource___boxed(lean_object*);
 lean_object* l_Lean_Lsp_VersionedTextDocumentIdentifier_hasFileSource___boxed(lean_object*);
+lean_object* l_Lean_Lsp_DocumentSymbolParams_hasFileSource(lean_object*);
 lean_object* l_Lean_Lsp_VersionedTextDocumentIdentifier_hasFileSource(lean_object*);
 lean_object* l_Lean_Lsp_Location_hasFileSource(lean_object* x_1) {
 _start:
@@ -225,6 +227,22 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Lsp_WaitForDiagnosticsParam_hasFileSource(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Lsp_DocumentSymbolParams_hasFileSource(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_Lean_Lsp_DocumentSymbolParams_hasFileSource___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Lsp_DocumentSymbolParams_hasFileSource(x_1);
 lean_dec(x_1);
 return x_2;
 }

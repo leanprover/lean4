@@ -10,6 +10,10 @@ import Lean.Meta.DiscrTree
 
 namespace Lean.Meta
 
+inductive SimpLemmaKind where
+  | eq | iff | pos | neg
+  deriving Inhabited, BEq
+
 structure SimpLemma where
   keys     : Array DiscrTree.Key
   val      : Expr
@@ -17,6 +21,7 @@ structure SimpLemma where
   post     : Bool
   perm     : Bool -- true is lhs and rhs are identical modulo permutation of variables
   name?    : Option Name := none -- for debugging and tracing purposes
+  kind     : SimpLemmaKind
   deriving Inhabited
 
 instance : ToFormat SimpLemma where
@@ -28,6 +33,9 @@ instance : ToFormat SimpLemma where
       | none   => "<unknown>"
     let prio := f!":{s.priority}"
     name ++ prio ++ perm
+
+instance : ToMessageData SimpLemma where
+  toMessageData s := fmt s
 
 instance : BEq SimpLemma where
   beq e₁ e₂ := e₁.val == e₂.val
@@ -68,25 +76,26 @@ def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : 
     throwError! "invalid 'simp', proposition expected{indentExpr type}"
   withNewMCtxDepth do
     let (xs, _, type) ← forallMetaTelescopeReducing type
-    let (keys, perm) ←
+    let (keys, perm, kind) ←
       match type.eq? with
-      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)
+      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs, SimpLemmaKind.eq)
       | none =>
       match type.iff? with
-      | some (lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)
+      | some (lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs, SimpLemmaKind.iff)
       | none =>
         if type.isConstOf `False then
           if xs.size == 0 then
             throwError! "invalid 'simp', unexpected type{indentExpr type}"
           else
-            pure (← DiscrTree.mkPath (← inferType xs.back), false)
+            pure (← DiscrTree.mkPath (← inferType xs.back), false, SimpLemmaKind.neg)
         else
-          pure (← DiscrTree.mkPath type, false)
-    return { keys := keys, perm := perm, post := post, val := val, name? := name?, priority := prio }
+          pure (← DiscrTree.mkPath type, false, SimpLemmaKind.pos)
+    return { keys := keys, perm := perm, kind := kind, post := post, val := val, name? := name?, priority := prio }
 
 def addSimpLemma (declName : Name) (post : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let cinfo ← getConstInfo declName
-  /- The `simp` tactic uses fresh universe metavariables when using a global simp lemma. -/
+  /- The `simp` tactic uses fresh universe metavariables when using a global simp lemma.
+     See `SimpLemma.getValue` -/
   let lemma ← mkSimpLemmaCore (mkConst declName (cinfo.lparams.map mkLevelParam)) (mkConst declName) post prio declName
   simpExtension.add lemma attrKind
   pure ()
@@ -102,11 +111,8 @@ builtin_initialize
       discard <| addSimpLemma declName post attrKind prio |>.run {} {}
   }
 
-def getPreSimpLemmas : MetaM (DiscrTree SimpLemma) :=
-  return simpExtension.getState (← getEnv) |>.pre
-
-def getPostSimpLemmas : MetaM (DiscrTree SimpLemma) :=
-  return simpExtension.getState (← getEnv) |>.post
+def getSimpLemmas : MetaM SimpLemmas :=
+  return simpExtension.getState (← getEnv)
 
 /- Auxiliary method for creating a local simp lemma. -/
 def mkSimpLemma (e : Expr) (post : Bool := true) (prio : Nat := evalPrio! default) (name? : Option Name := none) : MetaM SimpLemma := do
@@ -116,5 +122,15 @@ def mkSimpLemma (e : Expr) (post : Bool := true) (prio : Nat := evalPrio! defaul
 def SimpLemmas.add (s : SimpLemmas) (e : Expr) (post : Bool := true) (prio : Nat := evalPrio! default) (name? : Option Name := none) : MetaM SimpLemmas := do
   let lemma ← mkSimpLemma e post prio name?
   return addSimpLemmaEntry s lemma
+
+def SimpLemma.getValue (lemma : SimpLemma) : MetaM Expr := do
+  match lemma.val with
+  | Expr.const declName [] _ =>
+    let info ← getConstInfo declName
+    if info.lparams.isEmpty then
+      return lemma.val
+    else
+      return lemma.val.updateConst! (← info.lparams.mapM (fun _ => mkFreshLevelMVar))
+  | _ => return lemma.val
 
 end Lean.Meta

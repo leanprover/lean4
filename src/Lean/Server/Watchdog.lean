@@ -428,7 +428,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     willSaveWaitUntil := false
     save?             := none
   }
-  hoverProvider := true
+  --hoverProvider := true
 }
 
 def initAndRunWatchdogAux : ServerM Unit := do

@@ -26,7 +26,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__2;
 lean_object* l_Lean_Meta_caseValueAux___lambda__2___closed__3;
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__4;
-lean_object* l_List_map___at_Lean_Meta_substCore___spec__12(lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -110,6 +109,7 @@ lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__5;
 lean_object* l_Lean_Meta_caseValueAux_match__2___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Meta_caseValueAux_match__2(lean_object*);
+lean_object* l_List_map___at_Lean_Meta_substCore___spec__14(lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__2___closed__4;
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__1;
@@ -247,7 +247,7 @@ else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_11 = l_Lean_Meta_FVarSubst_domain(x_1);
-x_12 = l_List_map___at_Lean_Meta_substCore___spec__12(x_11);
+x_12 = l_List_map___at_Lean_Meta_substCore___spec__14(x_11);
 x_13 = l_Lean_MessageData_ofList(x_12);
 lean_dec(x_12);
 x_14 = l_Lean_Meta_caseValueAux___lambda__1___closed__2;

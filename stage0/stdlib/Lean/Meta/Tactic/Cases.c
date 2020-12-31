@@ -168,6 +168,7 @@ lean_object* l_Lean_Meta_generalizeTargets(lean_object*, lean_object*, lean_obje
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_isLevelDefEqAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__14(lean_object*, lean_object*, lean_object*, size_t, size_t);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_substCore___spec__9___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_toCasesSubgoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__45(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_withNewEqs_loop___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -330,7 +331,6 @@ lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, l
 lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_mkCasesContext_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_anyMAux___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__19___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generalizeIndices___lambda__1___closed__1;
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_substCore___spec__7___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkNoConfusionImp___closed__3;
 lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__30(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2288,7 +2288,7 @@ lean_closure_set(x_16, 3, x_4);
 lean_closure_set(x_16, 4, x_5);
 lean_closure_set(x_16, 5, x_6);
 x_17 = 0;
-x_18 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_substCore___spec__7___rarg(x_15, x_17, x_14, x_16, x_9, x_10, x_11, x_12, x_13);
+x_18 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_substCore___spec__9___rarg(x_15, x_17, x_14, x_16, x_9, x_10, x_11, x_12, x_13);
 return x_18;
 }
 }

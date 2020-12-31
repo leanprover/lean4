@@ -15,9 +15,13 @@ def revert (mvarId : MVarId) (fvars : Array FVarId) (preserveOrder : Bool := fal
     checkNotAssigned mvarId `revert
     -- Set metavariable kind to natural to make sure `elimMVarDeps` will assign it.
     setMVarKind mvarId MetavarKind.natural
-    let e ← try elimMVarDeps (fvars.map mkFVar) (mkMVar mvarId) preserveOrder finally setMVarKind mvarId MetavarKind.syntheticOpaque
-    e.withApp fun mvar args => do
-      setMVarTag mvar.mvarId! tag
-      pure (args.map Expr.fvarId!, mvar.mvarId!)
+    let (e, toRevert) ←
+      try
+        liftMkBindingM <| MetavarContext.revert (fvars.map mkFVar) mvarId preserveOrder
+      finally
+        setMVarKind mvarId MetavarKind.syntheticOpaque
+    let mvar := e.getAppFn
+    setMVarTag mvar.mvarId! tag
+    return (toRevert.map Expr.fvarId!, mvar.mvarId!)
 
 end Lean.Meta

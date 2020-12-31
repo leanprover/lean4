@@ -156,7 +156,6 @@ lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 extern lean_object* l_Array_foldlMUnsafe_fold___at_Lean_withNestedTraces___spec__5___closed__1;
 lean_object* l_Lean_Meta_Match_Alt_toMessageData(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_Meta_Match_Alt_replaceFVarId___spec__3(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_foldl___at_Lean_Meta_Match_Example_toMessageData___spec__1___closed__1;
 lean_object* l_List_map___at_Lean_Meta_Match_Alt_applyFVarSubst___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Problem_toMessageData(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Pattern_applyFVarSubst(lean_object*, lean_object*);
@@ -210,6 +209,7 @@ lean_object* l_Lean_Meta_Match_Problem_toMessageData___lambda__1___closed__1;
 lean_object* l_Lean_Meta_Match_Alt_checkAndReplaceFVarId_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Pattern_applyFVarSubst_match__2(lean_object*);
 lean_object* l_List_map___at_Lean_Meta_Match_Alt_replaceFVarId___spec__2(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_substCore___lambda__1___closed__3;
 lean_object* l_Lean_Meta_Match_Problem_toMessageData___lambda__1___closed__6;
 lean_object* l_Lean_Meta_Match_Alt_checkAndReplaceFVarId_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
@@ -226,7 +226,6 @@ lean_object* l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__3;
 lean_object* l_List_map___at_Lean_Meta_Match_Example_replaceFVarId___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instToFormatArray___rarg___closed__1;
 lean_object* l_Lean_LocalDecl_applyFVarSubst(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
 lean_object* l_Lean_Meta_Match_Alt_toMessageData___closed__3;
 lean_object* l_Lean_Meta_Match_Pattern_toExpr(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_Example_replaceFVarId_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6442,15 +6441,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Match_Example_toMessageData_match__
 return x_2;
 }
 }
-static lean_object* _init_l_List_foldl___at_Lean_Meta_Match_Example_toMessageData___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
 lean_object* l_List_foldl___at_Lean_Meta_Match_Example_toMessageData___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -6471,7 +6461,7 @@ lean_inc(x_1);
 x_6 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
-x_7 = l_List_foldl___at_Lean_Meta_Match_Example_toMessageData___spec__1___closed__1;
+x_7 = l_Lean_Meta_substCore___lambda__1___closed__3;
 x_8 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
@@ -7596,8 +7586,6 @@ l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__2 = _init_l_Lean_Meta_Matc
 lean_mark_persistent(l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__2);
 l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__3 = _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__3();
 lean_mark_persistent(l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__3);
-l_List_foldl___at_Lean_Meta_Match_Example_toMessageData___spec__1___closed__1 = _init_l_List_foldl___at_Lean_Meta_Match_Example_toMessageData___spec__1___closed__1();
-lean_mark_persistent(l_List_foldl___at_Lean_Meta_Match_Example_toMessageData___spec__1___closed__1);
 l_Lean_Meta_Match_Example_toMessageData___closed__1 = _init_l_Lean_Meta_Match_Example_toMessageData___closed__1();
 lean_mark_persistent(l_Lean_Meta_Match_Example_toMessageData___closed__1);
 l_Lean_Meta_Match_Example_toMessageData___closed__2 = _init_l_Lean_Meta_Match_Example_toMessageData___closed__2();

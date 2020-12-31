@@ -35,7 +35,9 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
           throwTacticEx `subst mvarId m!"'{a}' occurs at{indentExpr b}"
         let aLocalDecl ← getLocalDecl aFVarId
         let (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true
+        trace[Meta.Tactic.subst]! "after revert {MessageData.ofGoal mvarId}"
         let (twoVars, mvarId) ← introNP mvarId 2
+        trace[Meta.Tactic.subst]! "after intro2 {MessageData.ofGoal mvarId}"
         trace[Meta.Tactic.subst]! "reverted variables {vars}"
         let aFVarId := twoVars[0]
         let a       := mkFVar aFVarId
@@ -81,6 +83,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
                   else
                     pure mvarId
                 let (newFVars, mvarId) ← introNP mvarId (vars.size - 2)
+                trace[Meta.Tactic.subst]! "after intro rest {vars.size - 2} {MessageData.ofGoal mvarId}"
                 let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i (fvarSubst : FVarSubst) =>
                     let var     := vars[i+2]
                     let newFVar := newFVars[i]
@@ -124,11 +127,11 @@ def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
     | some (α, lhs, rhs) =>
       let rhs ← whnf rhs
       if rhs.isFVar then
-        (·.2) <$> substCore mvarId hFVarId true
+        return (← substCore mvarId hFVarId true).2
       else do
         let lhs ← whnf lhs
         if lhs.isFVar then
-          (·.2) <$> substCore mvarId hFVarId
+          return (← substCore mvarId hFVarId).2
         else do
           throwTacticEx `subst mvarId m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr hLocalDecl.type}"
     | none =>
@@ -136,19 +139,19 @@ def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
       let lctx ← getLCtx
       let some (fvarId, symm) ← lctx.findDeclM? fun localDecl => do
          if localDecl.isAuxDecl then
-           pure none
+           return none
          else
            match (← matchEq? localDecl.type) with
            | some (α, lhs, rhs) =>
              if rhs.isFVar && rhs.fvarId! == hFVarId && !mctx.exprDependsOn lhs hFVarId then
-               pure $ some (localDecl.fvarId, true)
+               return some (localDecl.fvarId, true)
              else if lhs.isFVar && lhs.fvarId! == hFVarId && !mctx.exprDependsOn rhs hFVarId then
-               pure $ some (localDecl.fvarId, false)
+               return some (localDecl.fvarId, false)
              else
-               pure none
-           | _ => pure none
+               return none
+           | _ => return none
         | throwTacticEx `subst mvarId m!"did not find equation for eliminating '{mkFVar hFVarId}'"
-      (·.2) <$> substCore mvarId fvarId symm
+      return (← substCore mvarId fvarId symm).2
 
 builtin_initialize registerTraceClass `Meta.Tactic.subst
 

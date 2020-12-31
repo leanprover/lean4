@@ -122,6 +122,7 @@ lean_object* l_Lean_Meta_getArrayArgType___lambda__1(lean_object*, lean_object*,
 lean_object* l_Lean_Meta_caseArraySizes_match__1(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_caseArraySizes___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___spec__2(lean_object*);
+lean_object* l_Lean_Meta_mkEqSymm___at_Lean_Meta_substCore___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_mkNatLit(lean_object*);
@@ -129,7 +130,6 @@ lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_objec
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapIdxM_map___at_Lean_Meta_caseArraySizes___spec__3___boxed(lean_object**);
 lean_object* l_Lean_indentExpr(lean_object*);
-lean_object* l_Lean_Meta_mkEqSymm___at_Lean_Meta_substCore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseArraySizes_match__4(lean_object*);
 lean_object* l_Lean_Meta_caseArraySizes(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2060,7 +2060,7 @@ lean_inc(x_62);
 lean_dec(x_60);
 lean_inc(x_27);
 x_63 = l_Lean_mkFVar(x_27);
-x_64 = lean_alloc_closure((void*)(l_Lean_Meta_mkEqSymm___at_Lean_Meta_substCore___spec__3), 6, 1);
+x_64 = lean_alloc_closure((void*)(l_Lean_Meta_mkEqSymm___at_Lean_Meta_substCore___spec__5), 6, 1);
 lean_closure_set(x_64, 0, x_63);
 lean_inc(x_2);
 lean_inc(x_3);

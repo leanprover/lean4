@@ -35,6 +35,11 @@ def ofList : List α → AsyncList ε α :=
 
 instance : Coe (List α) (AsyncList ε α) := ⟨ofList⟩
 
+private def coeErr {β} [Coe Error ε] (t : Task $ Except Error $ Except ε β) : Task (Except ε β) :=
+  t.map $ fun
+    | Except.ok v              => v
+    | Except.error (e : Error) => Except.error (e : ε)
+
 /-- Given a step computation `f` which takes the accumulator and either produces
 another value or stops with a terminating value, produces an async stream of its
 iterated applications. The initial value is *not* included. The computation can
@@ -46,11 +51,6 @@ An alternative for cooperative concurrency is to check this in `f`. -/
 partial def unfoldAsync [Coe Error ε] (f : α → ExceptT ε IO α)
   (init : α) (onCanceled : Option (α → IO ε) := none)
 : IO (AsyncList ε α) := do
-  let coeErr (t : Task $ Except Error $ Except ε $ AsyncList ε α) : Task (Except ε $ AsyncList ε α) :=
-    t.map $ fun
-      | Except.ok v              => v
-      | Except.error (e : Error) => Except.error (e : ε)
-
   let rec step (a : α) : ExceptT ε IO (AsyncList ε α) := do
     if onCanceled.isSome ∧ (← checkCanceled) then
       throw (← onCanceled.get! a)
@@ -74,18 +74,35 @@ partial def getAll : AsyncList ε α → List α × Option ε
     | Except.ok tl => tl.getAll
     | Except.error e => ⟨[], some e⟩
 
-/-- An IO action which ensures that the async tail, if it exists,
+/-- Spawns a `Task` waiting on which ensures that the async tail, if it exists,
 is fully executed. This is useful if the computation has side effects.
-Returns the same values as `getAll`. -/
-partial def waitAll : AsyncList ε α → IO (List α × Option ε)
+The task returns the same values as `getAll`. -/
+partial def waitAll [Coe Error ε] : AsyncList ε α → IO (Task (List α × Option ε))
   | cons hd tl => do
-    let ⟨l, e?⟩ ← tl.waitAll
-    pure ⟨hd :: l, e?⟩
-  | nil => pure ⟨[], none⟩
+    let t ← tl.waitAll
+    t.map fun ⟨l, e?⟩ => ⟨hd :: l, e?⟩
+  | nil => return Task.pure ⟨[], none⟩
   | asyncTail tl => do
-    match ←IO.wait tl with
-    | Except.ok tl => tl.waitAll
-    | Except.error e => pure ⟨[], some e⟩
+    let t : Task (Except IO.Error (List α × Option ε)) ← IO.bindTask tl fun
+      | Except.ok tl => Task.map Except.ok <$> tl.waitAll
+      | Except.error e => return Task.pure <| Except.ok ⟨[], some e⟩
+    t.map fun
+      | Except.error e => ⟨[], some e⟩
+      | Except.ok v => v
+
+/-- Spawns a `Task` acting like `List.find?` but which will wait for tail evalution
+when necessary to traverse the list. If the tail terminates before a matching element
+is found, the task throws the terminating value. -/
+partial def waitFind? (p : α → Bool) [Coe Error ε] : AsyncList ε α → IO (Task $ Except ε $ Option α)
+  | nil => return Task.pure <| Except.ok none
+  | cons hd tl => do
+    if p hd then return Task.pure <| Except.ok <| some hd
+    else tl.waitFind? p
+  | asyncTail tl => do
+    let t ← IO.bindTask tl fun
+      | Except.ok tl => Task.map Except.ok <$> tl.waitFind? p
+      | Except.error e => return Task.pure <| Except.ok <| Except.error e
+    coeErr t
 
 /-- Extends the `finishedPrefix` as far as possible. If computation was ongoing
 and has finished, also returns the terminating value. -/

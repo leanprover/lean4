@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Init.Data.ToString
 import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.KAbstract
+import Lean.Meta.Transform
 import Lean.Elab.Term
 import Lean.Elab.SyntheticMVars
 
@@ -135,7 +136,9 @@ private def getPropToDecide (expectedType? : Option Expr) : TermElabM Expr := do
   | none => throwError "invalid macro, expected type is not available"
   | some expectedType =>
     synthesizeSyntheticMVars
-    let expectedType ← instantiateMVars expectedType
+    let mut expectedType ← instantiateMVars expectedType
+    if expectedType.hasFVar then
+      expectedType ← zetaReduce expectedType
     if expectedType.hasFVar || expectedType.hasMVar then
       throwError! "expected type must not contain free or meta variables{indentExpr expectedType}"
     pure expectedType
@@ -150,6 +153,7 @@ private def getPropToDecide (expectedType? : Option Expr) : TermElabM Expr := do
 
 @[builtinTermElab Lean.Parser.Term.decide] def elabDecide : TermElab := fun stx expectedType? => do
   let p ← getPropToDecide expectedType?
+  trace[Meta.debug]! "elabDecide: {p}"
   let d ← mkDecide p
   let d ← instantiateMVars d
   let s := d.appArg! -- get instance from `d`

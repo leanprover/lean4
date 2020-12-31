@@ -107,5 +107,20 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | _                  => visitPost e
   visit input |>.run
 
+def zetaReduce (e : Expr) : MetaM Expr := do
+  let lctx ← getLCtx
+  let pre (e : Expr) : CoreM TransformStep := do
+    match e with
+    | Expr.fvar fvarId _ =>
+      match lctx.find? fvarId with
+      | none => return TransformStep.done e
+      | some localDecl =>
+        if let some value := localDecl.value? then
+          return TransformStep.visit value
+        else
+          return TransformStep.done e
+    | e => if e.hasFVar then return TransformStep.visit e else return TransformStep.done e
+  liftM (m := CoreM) <| Core.transform e (pre := pre)
+
 end Meta
 end Lean

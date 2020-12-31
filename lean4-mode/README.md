@@ -26,13 +26,21 @@ Trying It Out
 =============
 
 If things are working correctly, you should see the word ``Lean 4`` in the
-Emacs mode line when you open a file with extension `.lean`. If you type
+Emacs mode line when you open a file with extension `.lean`. Emacs will ask you
+to identify the "project" this file belongs to. If you then type
 ```lean
 #check id
 ```
 the word ``#check`` will be underlined, and hovering over it will show
 you the type of ``id``. The mode line will show ``FlyC:0/1``, indicating
 that there are no errors and one piece of information displayed.
+
+Settings
+========
+
+Set these with e.g. `M-x customize-variable`.
+
+* `lsp-headerline-breadcrumb-enable`: show a "breadcrumb bar" of namespaces and sections surrounding the current location (default: off)
 
 Key Bindings and Commands
 =========================
@@ -45,6 +53,9 @@ Key Bindings and Commands
 | <kbd>C-c ! n</kbd> | flycheck: go to next error                                                      |
 | <kbd>C-c ! p</kbd> | flycheck: go to previous error                                                  |
 | <kbd>C-c ! l</kbd> | flycheck: show list of errors                                                   |
+
+For `lsp-mode` bindings, see https://emacs-lsp.github.io/lsp-mode/page/keybindings/ (not all capabilities are supported currently).
+Of note is `s-l s r` for restarting the server, which can be used to make Lean reload changed imports.
 
 In the default configuration, the Flycheck annotation `FlyC:n/n` indicates the
 number of errors / responses from Lean; clicking on `FlyC` opens the Flycheck menu.

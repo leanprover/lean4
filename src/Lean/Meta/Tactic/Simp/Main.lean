@@ -16,6 +16,27 @@ private def join (p₁? p₂? : Option Expr) : MetaM (Option Expr) :=
     | none    => return p₁?
     | some p₂ => return some (← mkEqTrans p₁ p₂)
 
+private def mkEqTrans (r₁ r₂ : Result) : MetaM Result := do
+  match r₁.proof? with
+  | none => return r₂
+  | some p₁ => match r₂.proof? with
+    | none    => return { r₂ with proof? := r₁.proof? }
+    | some p₂ => return { r₂ with proof? := (← Meta.mkEqTrans p₁ p₂) }
+
+private def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
+  match r.proof? with
+  | none   => return { expr := mkApp r.expr a, proof? := none }
+  | some h => return { expr := mkApp r.expr a, proof? := (← Meta.mkCongrFun h a) }
+
+private def mkCongr (r₁ r₂ : Result) : MetaM Result :=
+  let e := mkApp r₁.expr r₂.expr
+  match r₁.proof?, r₂.proof? with
+  | none,     none   => return { expr := e, proof? := none }
+  | some h,  none    => return { expr := e, proof? := (← Meta.mkCongrFun h r₂.expr) }
+  | none,    some h  => return { expr := e, proof? := (← Meta.mkCongrArg r₁.expr h) }
+  | some h₁, some h₂ => return { expr := e, proof? := (← Meta.mkCongr h₁ h₂) }
+
+
 mutual
   partial def dsimp (e : Expr) : M σ Expr :=
     return e -- TODO
@@ -32,49 +53,40 @@ mutual
        throwError! "simp failed, maximum number of steps exceeded"
     modify fun s => { s with numSteps := s.numSteps + 1 }
     match (← pre e) with
-    | Step.done r => cacheResult cfg r
-    | Step.visit { expr := e, proof? := p } =>
-      let { expr := e, proof? := p' } ←
-        match e with
-        | Expr.mdata _ e _ => simp e
-        | Expr.proj ..     => simpProj e
-        | Expr.app ..      => simpApp e
-        | Expr.lam ..      => simpLambda e
-        | Expr.forallE ..  => simpForall e
-        | Expr.letE ..     => simpLet e
-        | Expr.const ..    => simpConst e
-        | Expr.bvar ..     => unreachable!
-        | Expr.sort ..     => pure { expr := e }
-        | Expr.lit ..      => pure { expr := e }
-        | Expr.mvar ..     => simpMVar e
-        | Expr.fvar ..     => simpFVar e
-      let p ← join p p'
-      match (← post e) with
-      | Step.done { expr := e, proof? := p' } => cacheResult cfg { expr := e, proof? := (← join p p') }
-      | Step.visit { expr := e', proof? := p' } =>
-        let p ← join p p'
-        if cfg.singlePass || e == e' then
-          cacheResult cfg { expr := e', proof? := p }
-        else
-          let { expr := e', proof? := p' } ← simp e'
-          cacheResult cfg { expr := e', proof? := (← join p p') }
+    | Step.done r  => cacheResult cfg r
+    | Step.visit r => simpLoop r
 
   where
+    simpLoop (r : Result) : M σ Result := do
+      let r ← mkEqTrans r (← simpStep r.expr)
+      let cfg ← getConfig
+      let e := r.expr
+      match (← post e) with
+      | Step.done r'  => cacheResult cfg (← mkEqTrans r r')
+      | Step.visit r' =>
+        let r ← mkEqTrans r r'
+        if cfg.singlePass || e == r.expr then
+          cacheResult cfg r
+        else
+          simpLoop r
+
+    simpStep (e : Expr) : M σ Result := do
+      match e with
+      | Expr.mdata _ e _ => simp e
+      | Expr.proj ..     => simpProj e
+      | Expr.app ..      => simpApp e
+      | Expr.lam ..      => simpLambda e
+      | Expr.forallE ..  => simpForall e
+      | Expr.letE ..     => simpLet e
+      | Expr.const ..    => simpConst e
+      | Expr.bvar ..     => unreachable!
+      | Expr.sort ..     => pure { expr := e }
+      | Expr.lit ..      => pure { expr := e }
+      | Expr.mvar ..     => simpMVar e
+      | Expr.fvar ..     => simpFVar e
+
     simpProj (e : Expr) : M σ Result :=
       return { expr := e } -- TODO
-
-    mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
-      match r.proof? with
-      | none   => return { expr := mkApp r.expr a, proof? := none }
-      | some h => return { expr := mkApp r.expr a, proof? := (← Meta.mkCongrFun h a) }
-
-    mkCongr (r₁ r₂ : Result) : MetaM Result :=
-      let e := mkApp r₁.expr r₂.expr
-      match r₁.proof?, r₂.proof? with
-      | none,     none   => return { expr := e, proof? := none }
-      | some h,  none    => return { expr := e, proof? := (← Meta.mkCongrFun h r₂.expr) }
-      | none,    some h  => return { expr := e, proof? := (← Meta.mkCongrArg r₁.expr h) }
-      | some h₁, some h₂ => return { expr := e, proof? := (← Meta.mkCongr h₁ h₂) }
 
     simpApp (e : Expr) : M σ Result := do
       let e ← reduce e

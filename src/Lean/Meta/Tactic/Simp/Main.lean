@@ -140,9 +140,23 @@ where
           i := i + 1
         return r
 
+  withNewLemmas (xs : Array Expr) (f : M σ Result) : M σ Result := do
+    if (← getConfig).contextual then
+      let mut s ← getSimpLemmas
+      let mut updated := false
+      for x in xs do
+        if (← isProof x) then
+          s ← s.add x
+          updated := true
+      if updated then
+        withSimpLemmas s f
+      else
+        f
+    else
+      f
+
   simpLambda (e : Expr) : M σ Result :=
-    lambdaTelescope e fun xs e => do
-      -- TODO: cfg.contextual
+    lambdaTelescope e fun xs e => withNewLemmas xs do
       let r ← simp e
       match r.proof? with
       | none   => return { expr := (← mkLambdaFVars xs r.expr) }

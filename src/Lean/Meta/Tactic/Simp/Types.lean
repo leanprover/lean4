@@ -59,6 +59,16 @@ def getConfig : M σ Config :=
 @[inline] def withParent (parent : Expr) (f : M σ α) : M σ α :=
   withTheReader Context (fun ctx => { ctx with parent? := parent }) f
 
+def getSimpLemmas : M σ SimpLemmas :=
+  return (← readThe Context).simpLemmas
+
+@[inline] def withSimpLemmas (s : SimpLemmas) (x : M σ α) : M σ α := do
+  let cacheSaved := (← get).cache
+  try
+    withTheReader Context (fun ctx => { ctx with simpLemmas := s }) x
+  finally
+    modify fun s => { s with cache := cacheSaved }
+
 end Simp
 
 export Simp (SimpM)

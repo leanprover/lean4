@@ -31,8 +31,10 @@ theorem ex5
     : f (g (g x)) (f x x) = x :=
   by simp [h₁, h₂]
 
-theorem ex6 (x y z : Nat) (h : (x, z).1 = (fun x => x) y) : f x = f y := by
-  simp { beta := false } at h
-  traceState
-  simp at h
-  simp [h]
+@[simp] axiom ax6 (x : Nat) : x + 0 = x
+
+theorem ex6
+  (f : Nat → Nat)
+  (x y : Nat)
+  : (fun (h : y = 0) => y + x) = (fun _ => x + 0) := by
+ simp { contextual := true }

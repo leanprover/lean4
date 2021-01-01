@@ -391,6 +391,10 @@ def mkArbitrary (α : Expr) : MetaM Expr :=
 def mkSyntheticSorry (type : Expr) : MetaM Expr :=
   return mkApp2 (mkConst `sorryAx [← getLevel type]) type (mkConst `Bool.true)
 
+/-- Return `funext h` -/
+def mkFunExt (h : Expr) : MetaM Expr :=
+  mkAppM `funext #[h]
+
 builtin_initialize registerTraceClass `Meta.appBuilder
 
 end Lean.Meta

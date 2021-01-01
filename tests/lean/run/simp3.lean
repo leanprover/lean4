@@ -10,3 +10,11 @@ constant g (x : Nat) : Nat
 @[simp] theorem add1 (x : Nat) : x + 1 = x.succ := rfl
 
 theorem ex3 (x : Nat) : g (x + 1) = 2 := by simp
+
+theorem ex4 (x : Nat) : (fun x => x + 1) = (fun x => x.succ) := by simp
+
+@[simp] theorem comm (x y : Nat) : x + y = y + x := Nat.addComm ..
+@[simp] theorem addZ (x : Nat) : x + 0 = x := rfl
+@[simp] theorem zAdd (x : Nat) : 0 + x = x := Nat.zeroAdd ..
+
+theorem ex5 (x y : Nat) : (fun x y : Nat => x + 0 + y) = (fun x y : Nat => y + x + 0) := by simp

@@ -141,7 +141,15 @@ where
         return r
 
   simpLambda (e : Expr) : M σ Result :=
-    return { expr := e } -- TODO
+    lambdaTelescope e fun xs e => do
+      -- TODO: cfg.contextual
+      let r ← simp e
+      match r.proof? with
+      | none   => return { expr := (← mkLambdaFVars xs r.expr) }
+      | some h =>
+        let p ← xs.foldrM (init := h) fun x h => do
+          mkFunExt (← mkLambdaFVars #[x] h)
+        return { expr := (← mkLambdaFVars xs r.expr), proof? := p }
 
   simpForall (e : Expr) : M σ Result :=
     return { expr := e } -- TODO

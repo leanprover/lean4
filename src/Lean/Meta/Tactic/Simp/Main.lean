@@ -92,18 +92,18 @@ where
     if (← get).numSteps > cfg.maxSteps then
       throwError! "simp failed, maximum number of steps exceeded"
     else
+      let init := r.expr
       modify fun s => { s with numSteps := s.numSteps + 1 }
       match (← pre r.expr) with
       | Step.done r   => cacheResult cfg r
       | Step.visit r' =>
         let r ← mkEqTrans r r'
         let r ← mkEqTrans r (← simpStep r.expr)
-        let e := r.expr
-        match (← post e) with
+        match (← post r.expr) with
         | Step.done r'  => cacheResult cfg (← mkEqTrans r r')
         | Step.visit r' =>
           let r ← mkEqTrans r r'
-          if cfg.singlePass || e == r.expr then
+          if cfg.singlePass || init == r.expr then
             cacheResult cfg r
           else
             simpLoop r
@@ -168,8 +168,14 @@ where
   simpForall (e : Expr) : M σ Result :=
     return { expr := e } -- TODO
 
-  simpLet (e : Expr) : M σ Result :=
-    return { expr := e } -- TODO
+  simpLet (e : Expr) : M σ Result := do
+    if (← getConfig).zeta then
+      match e with
+      | Expr.letE _ _ v b _ => return { expr := b.instantiate1 v }
+      | _ => unreachable!
+    else
+      -- TODO: simplify nondependent let-decls
+      return { expr := (← dsimp e) }
 
   cacheResult (cfg : Config) (r : Result) : M σ Result := do
     if cfg.memoize then

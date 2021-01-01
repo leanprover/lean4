@@ -38,3 +38,6 @@ theorem ex6
   (x y : Nat)
   : (fun (h : y = 0) => y + x) = (fun _ => x + 0) := by
  simp { contextual := true }
+
+theorem ex7 (x : Nat) : (let y := x + 0; y + y) = x + x := by
+  simp

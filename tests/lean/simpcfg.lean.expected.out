@@ -1,0 +1,8 @@
+f : Nat → Nat
+x y z : Nat
+h : x = (fun (x_1 : Nat) => x_1) y
+⊢ f x = f y
+f : Nat → Nat
+x y z : Nat
+h : x = y
+⊢ f x = f y

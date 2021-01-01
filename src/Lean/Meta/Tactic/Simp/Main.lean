@@ -168,10 +168,10 @@ def main (e : Expr) (s : σ) (config : Config := {}) (methods : Methods σ := {}
 
 end Simp
 
-def simp (e : Expr) (simpLemmas : SimpLemmas := {}) : MetaM Simp.Result := do
+def simp (e : Expr) (config : Simp.Config := {}) (simpLemmas : SimpLemmas := {}) : MetaM Simp.Result := do
   let discharge? (e : Expr) : SimpM Unit (Option Expr) := return none -- TODO: use simp, and add config option
   let pre  := (Simp.preDefault · discharge?)
   let post := (Simp.postDefault · discharge?)
-  Simp.main e () (methods := { pre := pre, post := post, discharge? := discharge? }) (simpLemmas := simpLemmas)
+  Simp.main e () (config := config) (methods := { pre := pre, post := post, discharge? := discharge? }) (simpLemmas := simpLemmas)
 
 end Lean.Meta

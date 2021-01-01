@@ -30,3 +30,9 @@ theorem ex5
     (h₂ : ∀ x, g (g x) = x)
     : f (g (g x)) (f x x) = x :=
   by simp [h₁, h₂]
+
+theorem ex6 (x y z : Nat) (h : (x, z).1 = (fun x => x) y) : f x = f y := by
+  simp { beta := false } at h
+  traceState
+  simp at h
+  simp [h]

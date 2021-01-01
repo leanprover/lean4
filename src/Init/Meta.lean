@@ -843,4 +843,24 @@ def getSepArgs (stx : Syntax) : Array Syntax :=
   stx.getArgs.getSepElems
 
 end Syntax
+
+namespace Meta.Simp
+
+def defaultMaxSteps := 100000
+
+structure Config where
+  maxSteps   : Nat  := defaultMaxSteps
+  contextual : Bool := false
+  memoize    : Bool := true
+  singlePass : Bool := false
+  zeta       : Bool := true
+  beta       : Bool := true
+  eta        : Bool := true
+  iota       : Bool := true
+  proj       : Bool := true
+  ctorEq     : Bool := true
+  deriving Inhabited, BEq, Repr
+
+end Meta.Simp
+
 end Lean

@@ -9,26 +9,12 @@ import Lean.Meta.Tactic.Simp.SimpLemmas
 namespace Lean.Meta
 namespace Simp
 
-def defaultMaxSteps := 100000
-
 structure Result where
   expr   : Expr
   proof? : Option Expr := none -- If none, proof is assumed to be `refl`
   deriving Inhabited
 
 abbrev Cache := ExprMap Result
-
-structure Config where
-  maxSteps   : Nat  := defaultMaxSteps
-  contextual : Bool := false
-  memoize    : Bool := true
-  singlePass : Bool := false
-  zeta       : Bool := true
-  beta       : Bool := true
-  eta        : Bool := true
-  iota       : Bool := true
-  proj       : Bool := true
-  ctorEq     : Bool := true
 
 structure Context where
   config     : Config

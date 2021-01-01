@@ -84,25 +84,29 @@ partial def simp {σ} (e : Expr) : M σ Result := withIncRecDepth do
   if cfg.memoize then
     if let some result := (← get).cache.find? e then
       return result
-  if (← get).numSteps > cfg.maxSteps then
-     throwError! "simp failed, maximum number of steps exceeded"
-  modify fun s => { s with numSteps := s.numSteps + 1 }
-  match (← pre e) with
-  | Step.done r  => cacheResult cfg r
-  | Step.visit r => simpLoop r
+  simpLoop { expr := e }
+
 where
   simpLoop (r : Result) : M σ Result := do
-    let r ← mkEqTrans r (← simpStep r.expr)
     let cfg ← getConfig
-    let e := r.expr
-    match (← post e) with
-    | Step.done r'  => cacheResult cfg (← mkEqTrans r r')
-    | Step.visit r' =>
-      let r ← mkEqTrans r r'
-      if cfg.singlePass || e == r.expr then
-        cacheResult cfg r
-      else
-        simpLoop r
+    if (← get).numSteps > cfg.maxSteps then
+      throwError! "simp failed, maximum number of steps exceeded"
+    else
+      modify fun s => { s with numSteps := s.numSteps + 1 }
+      match (← pre r.expr) with
+      | Step.done r   => cacheResult cfg r
+      | Step.visit r' =>
+        let r ← mkEqTrans r r'
+        let r ← mkEqTrans r (← simpStep r.expr)
+        let e := r.expr
+        match (← post e) with
+        | Step.done r'  => cacheResult cfg (← mkEqTrans r r')
+        | Step.visit r' =>
+          let r ← mkEqTrans r r'
+          if cfg.singlePass || e == r.expr then
+            cacheResult cfg r
+          else
+            simpLoop r
 
   simpStep (e : Expr) : M σ Result := do
     match e with

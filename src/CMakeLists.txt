@@ -488,6 +488,9 @@ file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 install(FILES ${LEAN_SOURCE_DIR}/bin/leanmake
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+install(FILES "${CMAKE_BINARY_DIR}/bin/leanpkg${CMAKE_EXECUTABLE_SUFFIX}"
+  DESTINATION bin
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 # shared library deactivated until we figure out the leancpp/Init story
 # # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).

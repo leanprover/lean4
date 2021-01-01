@@ -36,106 +36,123 @@ private def mkCongr (r₁ r₂ : Result) : MetaM Result :=
   | none,    some h  => return { expr := e, proof? := (← Meta.mkCongrArg r₁.expr h) }
   | some h₁, some h₂ => return { expr := e, proof? := (← Meta.mkCongr h₁ h₂) }
 
+private def reduceProj (e : Expr) : MetaM Expr := do
+  match (← reduceProj? e) with
+  | some e => return e
+  | _      => return e
 
-mutual
-  partial def dsimp (e : Expr) : M σ Expr :=
-    return e -- TODO
+private def reduceProjFn? (e : Expr) : MetaM (Option Expr) := do
+  matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do
+    if !(← isProjectionFn cinfo.name) then
+      return none
+    else match (← unfoldDefinition? e) with
+      | none   => pure none
+      | some e =>
+        match (← reduceProj? e.getAppFn) with
+        | some f => return some (mkAppN f e.getAppArgs)
+        | none   => return none
 
-  partial def reduce (e : Expr) : M σ Expr :=
-    return e -- TODO
+private def reduceFVar (cfg : Config) (e : Expr) : MetaM Expr := do
+  if cfg.zeta then
+    match (← getFVarLocalDecl e).value? with
+    | some v => return v
+    | none   => return e
+  else
+    return e
 
-  partial def simp {σ} (e : Expr) : M σ Result := withIncRecDepth do
+private partial def reduce (cfg : Config) (e : Expr) : MetaM Expr := withIncRecDepth do
+  if cfg.beta then
+    let e' := e.headBeta
+    if e' != e then
+      return (← reduce cfg e')
+  -- TODO: eta reduction
+  if cfg.proj then
+    match (← reduceProjFn? e) with
+    | some e => return (← reduce cfg e)
+    | none   => pure ()
+  if cfg.iota then
+    match (← reduceRecMatcher? e) with
+    | some e => return (← reduce cfg e)
+    | none   => pure ()
+  return e
+
+private partial def dsimp (e : Expr) : M σ Expr := do
+  return e -- TODO
+
+partial def simp {σ} (e : Expr) : M σ Result := withIncRecDepth do
+  let cfg ← getConfig
+  if cfg.memoize then
+    if let some result := (← get).cache.find? e then
+      return result
+  if (← get).numSteps > cfg.maxSteps then
+     throwError! "simp failed, maximum number of steps exceeded"
+  modify fun s => { s with numSteps := s.numSteps + 1 }
+  match (← pre e) with
+  | Step.done r  => cacheResult cfg r
+  | Step.visit r => simpLoop r
+where
+  simpLoop (r : Result) : M σ Result := do
+    let r ← mkEqTrans r (← simpStep r.expr)
     let cfg ← getConfig
+    let e := r.expr
+    match (← post e) with
+    | Step.done r'  => cacheResult cfg (← mkEqTrans r r')
+    | Step.visit r' =>
+      let r ← mkEqTrans r r'
+      if cfg.singlePass || e == r.expr then
+        cacheResult cfg r
+      else
+        simpLoop r
+
+  simpStep (e : Expr) : M σ Result := do
+    match e with
+    | Expr.mdata _ e _ => simp e
+    | Expr.proj ..     => pure { expr := (← reduceProj e) }
+    | Expr.app ..      => simpApp e
+    | Expr.lam ..      => simpLambda e
+    | Expr.forallE ..  => simpForall e
+    | Expr.letE ..     => simpLet e
+    | Expr.const ..    => pure { expr := e }
+    | Expr.bvar ..     => unreachable!
+    | Expr.sort ..     => pure { expr := e }
+    | Expr.lit ..      => pure { expr := e }
+    | Expr.mvar ..     => pure { expr := (← instantiateMVars e) }
+    | Expr.fvar ..     => pure { expr := (← reduceFVar (← getConfig) e) }
+
+  simpApp (e : Expr) : M σ Result := do
+    let e ← reduce (← getConfig) e
+    if !e.isApp then
+      simp e
+    else
+      withParent e <| e.withApp fun f args => do
+        let infos := (← getFunInfoNArgs f args.size).paramInfo
+        let mut r ← simp f
+        let mut i := 0
+        for arg in args do
+          if i < infos.size && !infos[i].hasFwdDeps then
+            r ← mkCongr r (← simp arg)
+          else
+            r ← mkCongrFun r (← dsimp arg)
+          i := i + 1
+        return r
+
+  simpLambda (e : Expr) : M σ Result :=
+    return { expr := e } -- TODO
+
+  simpForall (e : Expr) : M σ Result :=
+    return { expr := e } -- TODO
+
+  simpLet (e : Expr) : M σ Result :=
+    return { expr := e } -- TODO
+
+  cacheResult (cfg : Config) (r : Result) : M σ Result := do
     if cfg.memoize then
-      if let some result := (← get).cache.find? e then
-        return result
-    if (← get).numSteps > cfg.maxSteps then
-       throwError! "simp failed, maximum number of steps exceeded"
-    modify fun s => { s with numSteps := s.numSteps + 1 }
-    match (← pre e) with
-    | Step.done r  => cacheResult cfg r
-    | Step.visit r => simpLoop r
-
-  where
-    simpLoop (r : Result) : M σ Result := do
-      let r ← mkEqTrans r (← simpStep r.expr)
-      let cfg ← getConfig
-      let e := r.expr
-      match (← post e) with
-      | Step.done r'  => cacheResult cfg (← mkEqTrans r r')
-      | Step.visit r' =>
-        let r ← mkEqTrans r r'
-        if cfg.singlePass || e == r.expr then
-          cacheResult cfg r
-        else
-          simpLoop r
-
-    simpStep (e : Expr) : M σ Result := do
-      match e with
-      | Expr.mdata _ e _ => simp e
-      | Expr.proj ..     => simpProj e
-      | Expr.app ..      => simpApp e
-      | Expr.lam ..      => simpLambda e
-      | Expr.forallE ..  => simpForall e
-      | Expr.letE ..     => simpLet e
-      | Expr.const ..    => simpConst e
-      | Expr.bvar ..     => unreachable!
-      | Expr.sort ..     => pure { expr := e }
-      | Expr.lit ..      => pure { expr := e }
-      | Expr.mvar ..     => simpMVar e
-      | Expr.fvar ..     => simpFVar e
-
-    simpProj (e : Expr) : M σ Result :=
-      return { expr := e } -- TODO
-
-    simpApp (e : Expr) : M σ Result := do
-      let e ← reduce e
-      if !e.isApp then
-        simp e
-      else
-        withParent e <| e.withApp fun f args => do
-          let infos := (← getFunInfoNArgs f args.size).paramInfo
-          let mut r ← simp f
-          let mut i := 0
-          for arg in args do
-            if i < infos.size && !infos[i].hasFwdDeps then
-              r ← mkCongr r (← simp arg)
-            else
-              r ← mkCongrFun r arg
-            i := i + 1
-          return r
-
-    simpLambda (e : Expr) : M σ Result :=
-      return { expr := e } -- TODO
-
-    simpForall (e : Expr) : M σ Result :=
-      return { expr := e } -- TODO
-
-    simpLet (e : Expr) : M σ Result :=
-      return { expr := e } -- TODO
-
-    simpConst (e : Expr) : M σ Result :=
-      return { expr := e } -- TODO
-
-    simpMVar (e : Expr) : M σ Result :=
-      return { expr := e } -- TODO
-
-    simpFVar (e : Expr) : M σ Result := do
-      if (← getConfig).zeta then
-        match (← getFVarLocalDecl e).value? with
-        | some v => simp v
-        | none   => return { expr := e }
-      else
-        return { expr := e }
-
-    cacheResult (cfg : Config) (r : Result) : M σ Result := do
-      if cfg.memoize then
-        modify fun s => { s with cache := s.cache.insert e r }
-      return r
-end
+      modify fun s => { s with cache := s.cache.insert e r }
+    return r
 
 def main (e : Expr) (s : σ) (config : Config := {}) (methods : Methods σ := {}) (simpLemmas : SimpLemmas := {}) : MetaM Result := do
-  simp e methods { config := config, simpLemmas := simpLemmas } |>.run' { user := s }
+  withReducible do
+    simp e methods { config := config, simpLemmas := simpLemmas } |>.run' { user := s }
 
 end Simp
 

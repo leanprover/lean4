@@ -26,6 +26,7 @@ structure Config where
   zeta       : Bool := true
   beta       : Bool := true
   eta        : Bool := true
+  iota       : Bool := true
   proj       : Bool := true
   ctorEq     : Bool := true
 

@@ -684,7 +684,7 @@ partial def reduce (structNames : Array Name) : Expr → MetaM Expr
   | e@(Expr.forallE _ _ _ _) => forallTelescope e fun xs b => do mkForallFVars xs (← reduce structNames b)
   | e@(Expr.letE _ _ _ _ _)  => lambdaLetTelescope e fun xs b => do mkLetFVars xs (← reduce structNames b)
   | e@(Expr.proj _ i b _)    => do
-    match (← Meta.reduceProj? b i) with
+    match (← Meta.project? b i) with
     | some r => reduce structNames r
     | none   => return e.updateProj! (← reduce structNames b)
   | e@(Expr.app f _ _) => do

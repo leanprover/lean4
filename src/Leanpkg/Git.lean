@@ -8,10 +8,7 @@ import Leanpkg.LeanVersion
 namespace Leanpkg
 
 def upstreamGitBranch :=
-  if Lean.version.isRelease then
-    "Lean-" ++ leanVersionStringCore
-  else
-    "master"
+  "master"
 
 def gitdefaultRevision : Option String → String
   | none => upstreamGitBranch

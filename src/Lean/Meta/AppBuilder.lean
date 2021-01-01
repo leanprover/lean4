@@ -395,6 +395,18 @@ def mkSyntheticSorry (type : Expr) : MetaM Expr :=
 def mkFunExt (h : Expr) : MetaM Expr :=
   mkAppM ``funext #[h]
 
+/-- Return `propext h` -/
+def mkPropExt (h : Expr) : MetaM Expr :=
+  mkAppM ``propext #[h]
+
+/-- Return `eqTrue h` -/
+def mkEqTrue (h : Expr) : MetaM Expr :=
+  mkAppM ``eqTrue #[h]
+
+/-- Return `eqFalse h` -/
+def mkEqFalse (h : Expr) : MetaM Expr :=
+  mkAppM ``eqFalse #[h]
+
 builtin_initialize registerTraceClass `Meta.appBuilder
 
 end Lean.Meta

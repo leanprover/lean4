@@ -82,7 +82,7 @@ def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (checkD
           throwTacticEx `changeHypothesis mvarId m!"given type{indentExpr typeNew}\nis not definitionally equal to{indentExpr typeOld}"
     let finalize (targetNew : Expr) : MetaM MVarId := do
       let mvarId ← replaceTargetDefEq mvarId targetNew
-      let (_, mvarId) ← introNP mvarId (numReverted-1)
+      let (_, mvarId) ← introNP mvarId numReverted
       pure mvarId
     match target with
     | Expr.forallE n d b c => do check d; finalize (mkForall n c.binderInfo typeNew b)

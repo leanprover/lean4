@@ -12,3 +12,21 @@ theorem ex1 (x : Nat) (h : q x) : q x ∧ q (f x) := by
 
 theorem ex2 (x : Nat) : q (f x) ∨ r (f x) := by
   simp
+
+@[simp] axiom ax5 (x : Nat) : 0 + x = x
+
+theorem ex3 (h : 0 + x = y) : f x = f y := by
+  simp at h
+  simp [h]
+
+theorem ex4 (x y z : Nat) (h : (x, z).1 = y) : f x = f y := by
+  simp at h
+  simp [h]
+
+theorem ex5
+    (f  : Nat → Nat → Nat)
+    (g  : Nat → Nat)
+    (h₁ : ∀ x, f x x = x)
+    (h₂ : ∀ x, g (g x) = x)
+    : f (g (g x)) (f x x) = x :=
+  by simp [h₁, h₂]

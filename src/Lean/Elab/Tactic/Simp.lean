@@ -30,7 +30,8 @@ def simpLocalDeclFVarId (simpLemmas : SimpLemmas) (fvarId : FVarId) : TacticM Un
     let localDecl ← getLocalDecl fvarId
     let r ← simp localDecl.type simpLemmas
     match r.proof? with
-    | some proof => setGoals ((← replaceLocalDecl g fvarId r.expr proof).mvarId :: gs)
+    | some proof =>
+      setGoals ((← replaceLocalDecl g fvarId r.expr proof).mvarId :: gs)
     | none => setGoals ((← changeLocalDecl g fvarId r.expr (checkDefEq := false)) :: gs)
 
 def simpLocalDecl (simpLemmas : SimpLemmas) (userName : Name) : TacticM Unit :=
@@ -80,7 +81,7 @@ where
       let (g, _) ← getMainGoal
       withMVarContext g do
         let mut lemmas := lemmas
-        for simpLemma in stx[1].getArgs do
+        for simpLemma in stx[1].getSepArgs do
           let post :=
             if simpLemma[0].isNone then
               true

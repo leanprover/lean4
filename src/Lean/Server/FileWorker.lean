@@ -299,17 +299,8 @@ section RequestHandling
       let ⟨cmdSnaps, end?⟩ ← doc.cmdSnaps.updateFinishedPrefix
       let mut stxs := cmdSnaps.finishedPrefix.map (·.stx)
       if end?.isNone then
-        let mut lastSnap? := cmdSnaps.finishedPrefix.getLast?
-        if lastSnap?.isNone then
-          -- wait at least for header snapshot so we can use imported parsers
-          match cmdSnaps with
-          | AsyncList.asyncTail tl =>
-            discard <| IO.wait tl
-            let ⟨cmdSnaps, _⟩ ← cmdSnaps.updateFinishedPrefix
-            lastSnap? := cmdSnaps.finishedPrefix.getLast?
-          | _ => ()
-        if let some lastSnap := lastSnap? then
-          stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
+        let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
+        stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
       let (syms, _) := toDocumentSymbols doc.meta.text stxs
       return Except.ok { syms := syms.toArray }
     where

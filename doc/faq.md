@@ -41,8 +41,7 @@ make sure that Lean attends all your needs. You should not expect we will fix bu
 
 * Are there IDEs for Lean?
 
-We currently have a very simple [Emacs mode](https://github.com/leanprover/lean4/tree/master/lean4-mode) for Lean 4.
-Lean 3 supports many IDEs, the two main ones are for [Emacs](https://github.com/leanprover/lean-mode) and [VS Code](https://github.com/leanprover/vscode-lean).
+Yes, see [Setting Up Lean](./setup.md).
 
 * Is Lean sound? How big is the kernel? Should I trust it?
 

@@ -103,11 +103,12 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM U
                                isUnsafe := preDef.modifiers.isUnsafe }
     | DefKind.«abbrev»  =>
       Declaration.defnDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
-                             hints := ReducibilityHints.«abbrev», isUnsafe := preDef.modifiers.isUnsafe }
+                             hints := ReducibilityHints.«abbrev»,
+                             safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
     | DefKind.«def»  =>
       Declaration.defnDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
                              hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
-                             isUnsafe := preDef.modifiers.isUnsafe }
+                             safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
   addDecl decl
   applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
   if compile && !preDef.kind.isTheorem then
@@ -121,13 +122,13 @@ def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
 def addNonRec (preDef : PreDefinition) : TermElabM Unit := do
   addNonRecAux preDef false
 
-def addAndCompileUnsafe (preDefs : Array PreDefinition) : TermElabM Unit := do
+def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit := do
   let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDef => {
       name     := preDef.declName,
       lparams  := preDef.lparams,
       type     := preDef.type,
       value    := preDef.value,
-      isUnsafe := true,
+      safety   := safety,
       hints    := ReducibilityHints.opaque
     }
   addDecl decl
@@ -136,8 +137,8 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) : TermElabM Unit := do
   applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
   pure ()
 
-def addAndCompileUnsafeRec (preDefs : Array PreDefinition) : TermElabM Unit := do
-  addAndCompileUnsafe $ preDefs.map fun preDef =>
+def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := do
+  addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
     { preDef with
       declName  := Compiler.mkUnsafeRecName preDef.declName,
       value     := preDef.value.replace fun e => match e with

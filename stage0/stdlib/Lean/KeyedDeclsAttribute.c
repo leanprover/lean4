@@ -3939,7 +3939,7 @@ lean_ctor_set(x_23, 0, x_8);
 lean_ctor_set(x_23, 1, x_9);
 lean_ctor_set(x_23, 2, x_22);
 x_24 = lean_box(0);
-x_25 = 0;
+x_25 = 1;
 x_26 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_26, 0, x_23);
 lean_ctor_set(x_26, 1, x_21);

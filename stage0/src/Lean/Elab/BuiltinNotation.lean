@@ -95,7 +95,8 @@ private def mkNativeReflAuxDecl (type val : Expr) : TermElabM Name := do
   let decl := Declaration.defnDecl {
     name := auxName, lparams := [], type := type, value := val,
     hints := ReducibilityHints.abbrev,
-    isUnsafe := false }
+    safety := DefinitionSafety.safe
+  }
   addDecl decl
   compileDecl decl
   pure auxName

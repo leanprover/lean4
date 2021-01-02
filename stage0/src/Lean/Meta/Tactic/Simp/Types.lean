@@ -3,29 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Simp.SimpLemmas
 
 namespace Lean.Meta
 namespace Simp
 
-def defaultMaxSteps := 100000
-
 structure Result where
   expr   : Expr
   proof? : Option Expr := none -- If none, proof is assumed to be `refl`
+  deriving Inhabited
 
 abbrev Cache := ExprMap Result
-
-structure Config where
-  maxSteps   : Nat  := defaultMaxSteps
-  contextual : Bool := false
-  memoize    : Bool := true
-  singlePass : Bool := false
-  zeta       : Bool := true
-  beta       : Bool := true
-  eta        : Bool := true
-  proj       : Bool := true
-  ctorEq     : Bool := true
 
 structure Context where
   config     : Config
@@ -63,6 +52,23 @@ def post (e : Expr) : M σ Step := do
 
 def discharge? (e : Expr) : M σ (Option Expr) := do
   (← read).discharge? e
+
+def getConfig : M σ Config :=
+  return (← readThe Context).config
+
+@[inline] def withParent (parent : Expr) (f : M σ α) : M σ α :=
+  withTheReader Context (fun ctx => { ctx with parent? := parent }) f
+
+def getSimpLemmas : M σ SimpLemmas :=
+  return (← readThe Context).simpLemmas
+
+@[inline] def withSimpLemmas (s : SimpLemmas) (x : M σ α) : M σ α := do
+  let cacheSaved := (← get).cache
+  modify fun s => { s with cache := {} }
+  try
+    withTheReader Context (fun ctx => { ctx with simpLemmas := s }) x
+  finally
+    modify fun s => { s with cache := cacheSaved }
 
 end Simp
 

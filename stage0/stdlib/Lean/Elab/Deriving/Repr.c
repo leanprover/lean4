@@ -225,6 +225,7 @@ lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAl
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForStruct___spec__4___boxed(lean_object**);
 lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForStruct___spec__4___closed__1;
+lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInductArgNames___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_head_x21___at_Lean_Elab_Deriving_Repr_mkBodyForStruct___spec__1___boxed(lean_object*);
 extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_2885____closed__6;
 extern lean_object* l_prec_x28___x29___closed__7;
@@ -257,7 +258,6 @@ uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_Repr_mkBodyForStruct___rarg___lambda__2___closed__2;
 lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts___spec__3___lambda__1___closed__16;
 lean_object* l_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts_match__2___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInductArgNames___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__5;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_13985____closed__9;
@@ -2335,7 +2335,7 @@ x_30 = lean_alloc_closure((void*)(l_Lean_Elab_Deriving_Repr_mkBodyForStruct___ra
 lean_closure_set(x_30, 0, x_21);
 lean_closure_set(x_30, 1, x_22);
 lean_closure_set(x_30, 2, x_27);
-x_31 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInductArgNames___spec__3___rarg(x_29, x_30, x_3, x_4, x_5, x_6, x_7, x_8, x_17);
+x_31 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInductArgNames___spec__2___rarg(x_29, x_30, x_3, x_4, x_5, x_6, x_7, x_8, x_17);
 return x_31;
 }
 else
@@ -4480,7 +4480,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_22 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInductArgNames___spec__3___rarg(x_20, x_21, x_6, x_7, x_8, x_9, x_10, x_11, x_18);
+x_22 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInductArgNames___spec__2___rarg(x_20, x_21, x_6, x_7, x_8, x_9, x_10, x_11, x_18);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 

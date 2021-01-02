@@ -195,6 +195,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_failure___boxed(lean_object*, lean
 extern lean_object* l_Lean_Meta_synthInstance_x3f___lambda__2___closed__4;
 lean_object* l_Lean_getPPCoercions___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFn___rarg___closed__4;
+extern lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_5890____closed__20;
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttribute___closed__4;
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___closed__11;
@@ -215,7 +216,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_instAlternativeDelabM___closed__3;
 extern lean_object* l_Lean_Parser_Command_notation___elambda__1___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_getPPOption___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingName_x21(lean_object*);
-extern lean_object* l_Lean_Expr_ctorName___closed__10;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppArg(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_instInhabitedDelabM___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFnArgs___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2111,7 +2111,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Expr_ctorName___closed__10;
+x_2 = l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_Init_Meta___hyg_5890____closed__20;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

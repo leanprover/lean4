@@ -92,13 +92,15 @@ public:
     bool is_unsafe() const;
 };
 
+enum class definition_safety { unsafe, safe, partial };
+
 /*
 structure definition_val extends constant_val :=
 (value : expr) (hints : reducibility_hints) (is_unsafe : bool)
 */
 class definition_val : public object_ref {
 public:
-    definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_unsafe);
+    definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, definition_safety safety);
     definition_val(definition_val const & other):object_ref(other) {}
     definition_val(definition_val && other):object_ref(other) {}
     definition_val & operator=(definition_val const & other) { object_ref::operator=(other); return *this; }
@@ -109,7 +111,8 @@ public:
     expr const & get_type() const { return to_constant_val().get_type(); }
     expr const & get_value() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
     reducibility_hints const & get_hints() const { return static_cast<reducibility_hints const &>(cnstr_get_ref(*this, 2)); }
-    bool is_unsafe() const;
+    definition_safety get_safety() const;
+    bool is_unsafe() const { return get_safety() == definition_safety::unsafe; }
 };
 typedef list_ref<definition_val> definition_vals;
 
@@ -232,11 +235,11 @@ inline optional<declaration> none_declaration() { return optional<declaration>()
 inline optional<declaration> some_declaration(declaration const & o) { return optional<declaration>(o); }
 inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
 
-definition_val mk_definition_val(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v, bool unsafe);
+definition_val mk_definition_val(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v, definition_safety safety);
 declaration mk_definition(name const & n, names const & lparams, expr const & t, expr const & v,
-                          reducibility_hints const & hints, bool unsafe = false);
+                          reducibility_hints const & hints, definition_safety safety = definition_safety::safe);
 declaration mk_definition(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v,
-                          bool unsafe = false);
+                          definition_safety safety = definition_safety::safe);
 declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
 declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
 declaration mk_opaque(name const & n, names const & lparams, expr const & t, expr const & v, bool unsafe);

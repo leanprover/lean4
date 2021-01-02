@@ -16,8 +16,8 @@ extern "C" {
 lean_object* l_Lean_Meta_caseValues_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
+lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_appendTagSuffix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -44,6 +44,7 @@ lean_object* l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg(l
 lean_object* l_Lean_Meta_caseValueAux_match__1(lean_object*);
 lean_object* l_Lean_Meta_caseValue___closed__1;
 lean_object* l_Lean_Meta_instInhabitedCaseValueSubgoal;
+lean_object* l_Lean_Meta_mkAppOptM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValues_loop_match__4(lean_object*);
@@ -66,7 +67,6 @@ lean_object* l_Lean_Meta_caseValue___closed__2;
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedCaseValuesSubgoal;
-lean_object* l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_548____closed__2;
 lean_object* l_Lean_Meta_caseValueAux_match__1___rarg(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -82,7 +82,6 @@ lean_object* l_Lean_Meta_caseValues_loop_match__1___rarg(lean_object*, lean_obje
 lean_object* l_Lean_Meta_caseValue___closed__5;
 lean_object* l_Lean_mkFVar(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-lean_object* l_Lean_Meta_mkAppOptM___at_Lean_Meta_mkDecideProof___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValues_loop_match__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
@@ -102,6 +101,7 @@ lean_object* l_Lean_Meta_caseValueAux___lambda__2___closed__2;
 lean_object* l_Lean_Meta_caseValue___closed__3;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12458____closed__4;
 lean_object* l_Lean_Meta_caseValues_loop_match__2___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_map___at_Lean_Meta_substCore___spec__8(lean_object*);
 lean_object* l_Lean_Meta_caseValues(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValues_loop_match__2(lean_object*);
@@ -109,9 +109,9 @@ lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__5;
 lean_object* l_Lean_Meta_caseValueAux_match__2___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Meta_caseValueAux_match__2(lean_object*);
-lean_object* l_List_map___at_Lean_Meta_substCore___spec__14(lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__2___closed__4;
+lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValueAux___lambda__3___closed__1;
 lean_object* l_Lean_Meta_getMVarTag___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -247,7 +247,7 @@ else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_11 = l_Lean_Meta_FVarSubst_domain(x_1);
-x_12 = l_List_map___at_Lean_Meta_substCore___spec__14(x_11);
+x_12 = l_List_map___at_Lean_Meta_substCore___spec__8(x_11);
 x_13 = l_Lean_MessageData_ofList(x_12);
 lean_dec(x_12);
 x_14 = l_Lean_Meta_caseValueAux___lambda__1___closed__2;
@@ -582,7 +582,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
-x_19 = l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkEqImp(x_18, x_3, x_7, x_8, x_9, x_10, x_17);
+x_19 = l_Lean_Meta_mkEq(x_18, x_3, x_7, x_8, x_9, x_10, x_17);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
@@ -634,7 +634,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
-x_43 = l_Lean_Meta_mkAppOptM___at_Lean_Meta_mkDecideProof___spec__2(x_42, x_41, x_7, x_8, x_9, x_10, x_32);
+x_43 = l_Lean_Meta_mkAppOptM(x_42, x_41, x_7, x_8, x_9, x_10, x_32);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; lean_object* x_50; 
@@ -733,7 +733,7 @@ x_74 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMet
 lean_closure_set(x_74, 0, x_72);
 lean_closure_set(x_74, 1, x_73);
 lean_inc(x_68);
-x_75 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(x_68, x_74, x_7, x_8, x_9, x_10, x_65);
+x_75 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__1___rarg(x_68, x_74, x_7, x_8, x_9, x_10, x_65);
 if (lean_obj_tag(x_75) == 0)
 {
 uint8_t x_76; 
@@ -831,7 +831,7 @@ x_97 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMet
 lean_closure_set(x_97, 0, x_95);
 lean_closure_set(x_97, 1, x_96);
 lean_inc(x_91);
-x_98 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(x_91, x_97, x_7, x_8, x_9, x_10, x_65);
+x_98 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__1___rarg(x_91, x_97, x_7, x_8, x_9, x_10, x_65);
 if (lean_obj_tag(x_98) == 0)
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; 
@@ -1128,7 +1128,7 @@ lean_closure_set(x_12, 4, x_5);
 x_13 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_instMonadLCtxMetaM___spec__2___rarg), 7, 2);
 lean_closure_set(x_13, 0, x_11);
 lean_closure_set(x_13, 1, x_12);
-x_14 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__2___rarg(x_1, x_13, x_6, x_7, x_8, x_9, x_10);
+x_14 = l_Lean_Meta_withMVarContext___at_Lean_Meta_admit___spec__1___rarg(x_1, x_13, x_6, x_7, x_8, x_9, x_10);
 return x_14;
 }
 }

@@ -30,7 +30,7 @@ private def useSmartUnfolding (opts : Options) : Bool :=
 /- ===========================
    Helper methods
    =========================== -/
-def isAuxDef? (constName : Name) : MetaM Bool := do
+def isAuxDef (constName : Name) : MetaM Bool := do
   let env ← getEnv
   pure (isAuxRecursor env constName || isNoConfusion env constName)
 
@@ -283,6 +283,22 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
         return ReduceMatcherResult.stuck auxApp
   | _ => pure ReduceMatcherResult.notMatcher
 
+/- Given an expression `e`, compute its WHNF and if the result is a constructor, return field #i. -/
+def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
+  let e ← whnf e
+  matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
+    let numArgs := e.getAppNumArgs
+    let idx := ctorVal.nparams + i
+    if idx < numArgs then
+      pure (some (e.getArg! idx))
+    else
+      pure none
+
+def reduceProj? (e : Expr) : MetaM (Option Expr) := do
+  match e with
+  | Expr.proj _ i c _ => project? c i
+  | _ => return none
+
 /--
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
   expand let-expressions, expand assigned meta-variables. -/
@@ -290,9 +306,9 @@ partial def whnfCore (e : Expr) : MetaM Expr :=
   whnfEasyCases e fun e => do
     trace[Meta.whnf]! e
     match e with
-    | e@(Expr.const _ _ _)    => pure e
-    | e@(Expr.letE _ _ v b _) => whnfCore $ b.instantiate1 v
-    | e@(Expr.app f _ _)      =>
+    | Expr.const ..  => pure e
+    | Expr.letE _ _ v b _ => whnfCore $ b.instantiate1 v
+    | Expr.app f ..       =>
       let f := f.getAppFn
       let f' ← whnfCore f
       if f'.isLambda then
@@ -310,23 +326,14 @@ partial def whnfCore (e : Expr) : MetaM Expr :=
             | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs done whnfCore
             | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs done whnfCore
             | c@(ConstantInfo.defnInfo _) => do
-              let unfold? ← isAuxDef? c.name
-              if unfold? then
+              if (← isAuxDef c.name) then
                 deltaBetaDefinition c lvls e.getAppRevArgs done whnfCore
               else
                 done ()
             | _ => done ()
-    | e@(Expr.proj _ i c _) =>
-      let c   ← whnf c
-      matchConstAux c.getAppFn (fun _ => pure e) fun cinfo lvls =>
-        match cinfo with
-        | ConstantInfo.ctorInfo ctorVal =>
-          let argIdx := ctorVal.nparams + i
-          if argIdx < c.getAppNumArgs then
-            whnfCore <| c.getArg! argIdx
-          else
-            pure e
-        | _ => pure e
+    | Expr.proj .. => match (← reduceProj? e) with
+      | some e => whnfCore e
+      | none => return e
     | _ => unreachable!
 
 mutual
@@ -395,6 +402,23 @@ def whnfUntil (e : Expr) (declName : Name) : MetaM (Option Expr) := do
   let e ← whnfHeadPred e (fun e => pure $ !e.isAppOf declName)
   if e.isAppOf declName then pure e
   else pure none
+
+/-- Try to reduce matcher/recursor/quot applications. We say they are all "morally" recursor applications. -/
+def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
+  if !e.isApp then
+    return none
+  else match (← reduceMatcher? e) with
+    | ReduceMatcherResult.reduced e => return e
+    | _ => matchConstAux e.getAppFn (fun _ => pure none) fun cinfo lvls =>
+      match cinfo with
+      | ConstantInfo.recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => pure (some e))
+      | ConstantInfo.quotInfo «rec» => reduceQuotRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => pure (some e))
+      | c@(ConstantInfo.defnInfo _) => do
+        if (← isAuxDef c.name) then
+          deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
+        else
+          pure none
+      | _ => pure none
 
 unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := evalConstCheck Bool `Bool constName
 unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstCheck Nat `Nat constName
@@ -503,17 +527,6 @@ partial def whnfImp (e : Expr) : MetaM Expr :=
 
 @[builtinInit] def setWHNFRef : IO Unit :=
   whnfRef.set whnfImp
-
-/- Given an expression `e`, compute its WHNF and if the result is a constructor, return field #i. -/
-def reduceProj? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
-  let e ← whnf e
-  matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
-    let numArgs := e.getAppNumArgs
-    let idx := ctorVal.nparams + i
-    if idx < numArgs then
-      pure (some (e.getArg! idx))
-    else
-      pure none
 
 builtin_initialize
   registerTraceClass `Meta.whnf

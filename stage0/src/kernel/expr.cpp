@@ -432,6 +432,8 @@ static bool has_loose_bvars_in_domain(expr const & b, unsigned vidx, bool strict
 }
 
 bool has_loose_bvar(expr const & e, unsigned i) {
+    if (!has_loose_bvars(e))
+        return false;
     bool found = false;
     for_each(e, [&](expr const & e, unsigned offset) {
             if (found)

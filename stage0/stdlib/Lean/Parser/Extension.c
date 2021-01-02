@@ -10759,7 +10759,7 @@ lean_ctor_set(x_22, 0, x_8);
 lean_ctor_set(x_22, 1, x_9);
 lean_ctor_set(x_22, 2, x_21);
 x_23 = lean_box(0);
-x_24 = 0;
+x_24 = 1;
 x_25 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_25, 0, x_22);
 lean_ctor_set(x_25, 1, x_20);

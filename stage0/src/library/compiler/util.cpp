@@ -545,7 +545,7 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
 }
 
 environment register_stage1_decl(environment const & env, name const & n, names const & ls, expr const & t, expr const & v) {
-    declaration aux_decl = mk_definition(mk_cstage1_name(n), ls, t, v, reducibility_hints::mk_opaque(), true);
+    declaration aux_decl = mk_definition(mk_cstage1_name(n), ls, t, v, reducibility_hints::mk_opaque(), definition_safety::unsafe);
     return env.add(aux_decl, false);
 }
 
@@ -555,7 +555,7 @@ bool is_stage2_decl(environment const & env, name const & n) {
 
 environment register_stage2_decl(environment const & env, name const & n, expr const & t, expr const & v) {
     declaration aux_decl = mk_definition(mk_cstage2_name(n), names(), t,
-                                         v, reducibility_hints::mk_opaque(), true);
+                                         v, reducibility_hints::mk_opaque(), definition_safety::unsafe);
     return env.add(aux_decl, false);
 }
 

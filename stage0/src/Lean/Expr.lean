@@ -574,6 +574,12 @@ def consumeMData : Expr → Expr
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
 
+/- Remark: the following function assumes `e` does not have loose bound variables. -/
+def isArrow (e : Expr) : Bool :=
+  match e with
+  | forallE _ _ b _ => !b.hasLooseBVars
+  | _ => false
+
 @[extern "lean_expr_has_loose_bvar"]
 constant hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool
 

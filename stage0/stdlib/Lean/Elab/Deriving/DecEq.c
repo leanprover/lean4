@@ -204,6 +204,7 @@ lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction(lean_object*, lean_object*
 lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__14;
 lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__18;
 extern lean_object* l_IO_Prim_fopenFlags___closed__4;
+lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInductArgNames___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_2885____closed__6;
 extern lean_object* l_prec_x28___x29___closed__7;
 extern lean_object* l_Lean_Parser_Tactic_exact___closed__2;
@@ -222,7 +223,6 @@ lean_object* l_Lean_throwError___at_Lean_Elab_Deriving_DecEq_mkDecEqInstanceHand
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_2137____closed__4;
 lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__16;
 lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___closed__7;
-lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInductArgNames___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_myMacro____x40_Init_NotationExtra___hyg_1098____closed__5;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_13985____closed__9;
@@ -4747,7 +4747,7 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
-x_192 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInductArgNames___spec__3___rarg(x_190, x_191, x_8, x_9, x_10, x_11, x_12, x_13, x_30);
+x_192 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Deriving_mkInductArgNames___spec__2___rarg(x_190, x_191, x_8, x_9, x_10, x_11, x_12, x_13, x_30);
 if (lean_obj_tag(x_192) == 0)
 {
 lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; 

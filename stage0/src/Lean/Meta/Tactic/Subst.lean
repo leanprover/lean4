@@ -7,6 +7,7 @@ import Lean.Meta.AppBuilder
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Revert
+import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.FVarSubst
@@ -25,7 +26,6 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
     | some (α, lhs, rhs) => do
       let a := if symm then rhs else lhs
       let b := if symm then lhs else rhs
-      let a ← whnf a
       match a with
       | Expr.fvar aFVarId _ => do
         let aFVarIdOriginal := aFVarId
@@ -125,16 +125,29 @@ def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
     let hLocalDecl ← getLocalDecl hFVarId
     match (← matchEq? hLocalDecl.type) with
     | some (α, lhs, rhs) =>
-      let rhs ← whnf rhs
-      if rhs.isFVar then
-        return (← substCore mvarId hFVarId true).2
+      let substReduced (newType : Expr) (symm : Bool) : MetaM MVarId := do
+        let mvarId ← assert mvarId hLocalDecl.userName newType (mkFVar hFVarId)
+        let (hFVarId', mvarId) ← intro1P mvarId
+        let mvarId ← clear mvarId hFVarId
+        return (← substCore mvarId hFVarId' symm).2
+      let rhs' ← whnf rhs
+      if rhs'.isFVar then
+        if rhs != rhs' then
+          substReduced (← mkEq lhs rhs') true
+        else
+          return (← substCore mvarId hFVarId true).2
       else do
-        let lhs ← whnf lhs
-        if lhs.isFVar then
-          return (← substCore mvarId hFVarId).2
+        let lhs' ← whnf lhs
+        if lhs'.isFVar then
+          if lhs != lhs' then
+            substReduced (← mkEq lhs' rhs) false
+          else
+            return (← substCore mvarId hFVarId).2
         else do
           throwTacticEx `subst mvarId m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr hLocalDecl.type}"
     | none =>
+      if hLocalDecl.isLet then
+        throwTacticEx `subst mvarId m!"variable '{mkFVar hFVarId}' is a let-declaration"
       let mctx ← getMCtx
       let lctx ← getLCtx
       let some (fvarId, symm) ← lctx.findDeclM? fun localDecl => do

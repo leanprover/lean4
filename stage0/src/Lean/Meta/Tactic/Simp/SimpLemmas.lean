@@ -75,7 +75,7 @@ def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : 
   unless (← isProp type) do
     throwError! "invalid 'simp', proposition expected{indentExpr type}"
   withNewMCtxDepth do
-    let (xs, _, type) ← forallMetaTelescopeReducing type
+    let (xs, _, type) ← withReducible <| forallMetaTelescopeReducing type
     let (keys, perm, kind) ←
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs, SimpLemmaKind.eq)
@@ -83,13 +83,9 @@ def mkSimpLemmaCore (e : Expr) (val : Expr) (post : Bool) (prio : Nat) (name? : 
       match type.iff? with
       | some (lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs, SimpLemmaKind.iff)
       | none =>
-        if type.isConstOf `False then
-          if xs.size == 0 then
-            throwError! "invalid 'simp', unexpected type{indentExpr type}"
-          else
-            pure (← DiscrTree.mkPath (← inferType xs.back), false, SimpLemmaKind.neg)
-        else
-          pure (← DiscrTree.mkPath type, false, SimpLemmaKind.pos)
+      match type.not? with
+      | some lhs => pure (← DiscrTree.mkPath lhs, false, SimpLemmaKind.neg)
+      | none     => pure (← DiscrTree.mkPath type, false, SimpLemmaKind.pos)
     return { keys := keys, perm := perm, kind := kind, post := post, val := val, name? := name?, priority := prio }
 
 def addSimpLemma (declName : Name) (post : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do

@@ -23,6 +23,7 @@ def simpTarget (config : Meta.Simp.Config) (simpLemmas : SimpLemmas) : TacticM U
 
 -- TODO: improve simpLocalDecl and simpAll
 -- TODO: issues: self simplification
+-- TODO: add new assertion with simplified result and clear old ones after simplifying all locals
 
 def simpLocalDeclFVarId (config : Meta.Simp.Config) (simpLemmas : SimpLemmas) (fvarId : FVarId) : TacticM Unit := do
   let (g, gs) ← getMainGoal

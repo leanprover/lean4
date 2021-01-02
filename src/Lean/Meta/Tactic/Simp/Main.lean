@@ -195,8 +195,16 @@ where
     trace[Meta.Tactic.simp]! "forall {e}"
     if e.isArrow then
       simpArrow e
+    else if (← isProp e) then
+      withLocalDecl e.bindingName! e.bindingInfo! e.bindingDomain! fun x => withNewLemmas #[x] do
+        let b := e.bindingBody!.instantiate1 x
+        let rb ← simp b
+        let eNew ← mkForallFVars #[x] rb.expr
+        match rb.proof? with
+        | none   => return { expr := eNew }
+        | some h => return { expr := eNew, proof? := (← mkForallCongr (← mkLambdaFVars #[x] h)) }
     else
-      return { expr := e } -- TODO
+      return { expr := (← dsimp e) }
 
   simpLet (e : Expr) : M σ Result := do
     if (← getConfig).zeta then

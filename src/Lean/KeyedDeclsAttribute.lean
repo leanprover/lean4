@@ -102,7 +102,8 @@ def declareBuiltin {γ} (df : Def γ) (attrDeclName : Name) (env : Environment) 
   let name := `_regBuiltin ++ declName
   let type := mkApp (mkConst `IO) (mkConst `Unit)
   let val  := mkAppN (mkConst `Lean.KeyedDeclsAttribute.addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, mkConst declName]
-  let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false }
+  let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque,
+                                     safety := DefinitionSafety.safe }
   match env.addAndCompile {} decl with
   -- TODO: pretty print error
   | Except.error e => do

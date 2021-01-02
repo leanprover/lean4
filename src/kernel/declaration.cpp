@@ -62,15 +62,15 @@ axiom_val::axiom_val(name const & n, names const & lparams, expr const & type, b
 
 bool axiom_val::is_unsafe() const { return lean_axiom_val_is_unsafe(to_obj_arg()); }
 
-extern "C" object * lean_mk_definition_val(object * n, object * lparams, object * type, object * value, object * hints, uint8 is_unsafe);
-extern "C" uint8 lean_definition_val_is_unsafe(object * v);
+extern "C" object * lean_mk_definition_val(object * n, object * lparams, object * type, object * value, object * hints, uint8 safety);
+extern "C" uint8 lean_definition_val_get_safety(object * v);
 
-definition_val::definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_unsafe):
+definition_val::definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, definition_safety safety):
     object_ref(lean_mk_definition_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), val.to_obj_arg(),
-                                      hints.to_obj_arg(), is_unsafe)) {
+                                      hints.to_obj_arg(), static_cast<uint8>(safety))) {
 }
 
-bool definition_val::is_unsafe() const { return lean_definition_val_is_unsafe(to_obj_arg()); }
+definition_safety definition_val::get_safety() const { return static_cast<definition_safety>(lean_definition_val_get_safety(to_obj_arg())); }
 
 theorem_val::theorem_val(name const & n, names const & lparams, expr const & type, expr const & val):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
@@ -147,7 +147,7 @@ bool recursor_val::is_unsafe() const { return lean_recursor_is_unsafe(to_obj_arg
 
 bool declaration::is_unsafe() const {
     switch (kind()) {
-    case declaration_kind::Definition:       return to_definition_val().is_unsafe();
+    case declaration_kind::Definition:       return to_definition_val().get_safety() == definition_safety::unsafe;
     case declaration_kind::Axiom:            return to_axiom_val().is_unsafe();
     case declaration_kind::Theorem:          return false;
     case declaration_kind::Opaque:           return to_opaque_val().is_unsafe();
@@ -191,19 +191,19 @@ static unsigned get_max_height(environment const & env, expr const & v) {
     return h;
 }
 
-definition_val mk_definition_val(environment const & env, name const & n, names const & params, expr const & t, expr const & v, bool unsafe) {
+definition_val mk_definition_val(environment const & env, name const & n, names const & params, expr const & t, expr const & v, definition_safety s) {
     unsigned h = get_max_height(env, v);
-    return definition_val(n, params, t, v, reducibility_hints::mk_regular(h+1), unsafe);
+    return definition_val(n, params, t, v, reducibility_hints::mk_regular(h+1), s);
 }
 
 declaration mk_definition(name const & n, names const & params, expr const & t, expr const & v,
-                          reducibility_hints const & h, bool unsafe) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), definition_val(n, params, t, v, h, unsafe)));
+                          reducibility_hints const & h, definition_safety safety) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), definition_val(n, params, t, v, h, safety)));
 }
 
 declaration mk_definition(environment const & env, name const & n, names const & params, expr const & t,
-                          expr const & v, bool unsafe) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, unsafe)));
+                          expr const & v, definition_safety safety) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, safety)));
 }
 
 declaration mk_theorem(name const & n, names const & params, expr const & t, expr const & v) {
@@ -218,17 +218,21 @@ declaration mk_axiom(name const & n, names const & params, expr const & t, bool 
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Axiom), axiom_val(n, params, t, unsafe)));
 }
 
+static definition_safety to_safety(bool unsafe) {
+    return unsafe ? definition_safety::unsafe : definition_safety::safe;
+}
+
 declaration mk_definition_inferring_unsafe(environment const & env, name const & n, names const & params,
                                             expr const & t, expr const & v, reducibility_hints const & hints) {
     bool unsafe = use_unsafe(env, t) || use_unsafe(env, v);
-    return mk_definition(n, params, t, v, hints, unsafe);
+    return mk_definition(n, params, t, v, hints, to_safety(unsafe));
 }
 
 declaration mk_definition_inferring_unsafe(environment const & env, name const & n, names const & params,
                                          expr const & t, expr const & v) {
     bool unsafe  = use_unsafe(env, t) && use_unsafe(env, v);
     unsigned h = get_max_height(env, v);
-    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1), unsafe);
+    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1), to_safety(unsafe));
 }
 
 declaration mk_axiom_inferring_unsafe(environment const & env, name const & n,
@@ -301,7 +305,7 @@ reducibility_hints const & constant_info::get_hints() const {
 bool constant_info::is_unsafe() const {
     switch (kind()) {
     case constant_info_kind::Axiom:       return to_axiom_val().is_unsafe();
-    case constant_info_kind::Definition:  return to_definition_val().is_unsafe();
+    case constant_info_kind::Definition:  return to_definition_val().get_safety() == definition_safety::unsafe;
     case constant_info_kind::Theorem:     return false;
     case constant_info_kind::Opaque:      return to_opaque_val().is_unsafe();
     case constant_info_kind::Quot:        return false;

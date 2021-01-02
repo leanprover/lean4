@@ -20,7 +20,7 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Uni
         kind  := DefKind.«opaque»,
         value := inh
       }
-  addAndCompileUnsafeRec preDefs
+  addAndCompilePartialRec preDefs
 
 private def isNonRecursive (preDef : PreDefinition) : Bool :=
   Option.isNone $ preDef.value.find? fun

@@ -582,7 +582,9 @@ unsafe def elabEvalUnsafe : CommandElab
       let type ← inferType value
       let decl := Declaration.defnDecl {
         name := n, lparams := [], type := type,
-        value := value, hints := ReducibilityHints.opaque, isUnsafe := true }
+        value := value, hints := ReducibilityHints.opaque,
+        safety := DefinitionSafety.unsafe
+      }
       Term.ensureNoUnassignedMVars decl
       addAndCompile decl
     let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do

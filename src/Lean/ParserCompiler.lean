@@ -83,7 +83,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
             pure $ mkForall `_ BinderInfo.default paramTy ty
         let decl := Declaration.defnDecl {
           name := c', lparams := [],
-          type := ty, value := value, hints := ReducibilityHints.opaque, isUnsafe := false }
+          type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe }
         let env ← getEnv
         let env ← match env.addAndCompile {} decl with
           | Except.ok    env => pure env

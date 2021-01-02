@@ -433,7 +433,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
   else do
     let (preDefNonRec, state) ← run $ elimRecursion preDefs[0]
     mapError (addNonRec preDefNonRec) (fun msg => m!"structural recursion failed, produced type incorrect term{indentD msg}")
-    addAndCompileUnsafeRec preDefs
+    addAndCompilePartialRec preDefs
     addSmartUnfoldingDef preDefs[0] state
 
 builtin_initialize

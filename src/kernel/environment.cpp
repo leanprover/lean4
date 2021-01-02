@@ -199,13 +199,18 @@ environment environment::add_opaque(declaration const & d, bool check) const {
 
 environment environment::add_mutual(declaration const & d, bool check) const {
     definition_vals const & vs = d.to_definition_vals();
+    if (empty(vs))
+        throw kernel_exception(*this, "invalid empty mutual definition");
+    definition_safety safety = head(vs).get_safety();
+    if (safety == definition_safety::safe)
+        throw kernel_exception(*this, "invalid mutual definition, declaration is not tagged as unsafe/partial");
+    bool safe_only = safety == definition_safety::partial;
     /* Check declarations header */
     if (check) {
-        bool safe_only = false;
         type_checker checker(*this, safe_only);
         for (definition_val const & v : vs) {
-            if (!v.is_unsafe())
-                throw kernel_exception(*this, "invalid mutual definition, declaration is not tagged as meta");
+            if (v.get_safety() != safety)
+                throw kernel_exception(*this, "invalid mutual definition, declarations must have the same safety annotation");
             check_constant_val(*this, v.to_constant_val(), checker);
         }
     }
@@ -216,7 +221,6 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     }
     /* Check actual definitions */
     if (check) {
-        bool safe_only = false;
         type_checker checker(new_env, safe_only);
         for (definition_val const & v : vs) {
             check_no_metavar_no_fvar(new_env, v.get_name(), v.get_value());

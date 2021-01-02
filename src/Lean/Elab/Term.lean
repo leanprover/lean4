@@ -1361,7 +1361,7 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     let decl := Declaration.defnDecl {
        name := name, lparams := [], type := type,
        value := value, hints := ReducibilityHints.opaque,
-       isUnsafe := true
+       safety := DefinitionSafety.unsafe
     }
     ensureNoUnassignedMVars decl
     addAndCompile decl

@@ -356,7 +356,7 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := f
     type     := result.type,
     value    := result.value,
     hints    := ReducibilityHints.regular (getMaxHeight env result.value + 1),
-    isUnsafe := env.hasUnsafe result.type || env.hasUnsafe result.value
+    safety   := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
   }
   trace[Meta.debug]! "{name} : {result.type} := {result.value}"
   addDecl decl

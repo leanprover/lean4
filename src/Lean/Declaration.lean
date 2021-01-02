@@ -78,23 +78,28 @@ def mkAxiomValEx (name : Name) (lparams : List Name) (type : Expr) (isUnsafe : B
 @[export lean_axiom_val_is_unsafe] def AxiomVal.isUnsafeEx (v : AxiomVal) : Bool :=
   v.isUnsafe
 
+inductive DefinitionSafety where
+  | «unsafe» | safe | «partial»
+  deriving Inhabited, BEq, Repr
+
 structure DefinitionVal extends ConstantVal where
-  value : Expr
-  hints : ReducibilityHints
-  isUnsafe : Bool
+  value  : Expr
+  hints  : ReducibilityHints
+  safety : DefinitionSafety
+  deriving Inhabited
 
 @[export lean_mk_definition_val]
-def mkDefinitionValEx (name : Name) (lparams : List Name) (type : Expr) (val : Expr) (hints : ReducibilityHints) (isUnsafe : Bool) : DefinitionVal := {
+def mkDefinitionValEx (name : Name) (lparams : List Name) (type : Expr) (val : Expr) (hints : ReducibilityHints) (safety : DefinitionSafety) : DefinitionVal := {
   name := name,
   lparams := lparams,
   type := type,
   value := val,
   hints := hints,
-  isUnsafe := isUnsafe
+  safety := safety
 }
 
-@[export lean_definition_val_is_unsafe] def DefinitionVal.isUnsafeEx (v : DefinitionVal) : Bool :=
-  v.isUnsafe
+@[export lean_definition_val_get_safety] def DefinitionVal.getSafetyEx (v : DefinitionVal) : DefinitionSafety :=
+  v.safety
 
 structure TheoremVal extends ConstantVal where
   value : Expr
@@ -132,7 +137,7 @@ inductive Declaration where
   | thmDecl         (val : TheoremVal)
   | opaqueDecl      (val : OpaqueVal)
   | quotDecl
-  | mutualDefnDecl  (defns : List DefinitionVal) -- All definitions must be marked as `unsafe`
+  | mutualDefnDecl  (defns : List DefinitionVal) -- All definitions must be marked as `unsafe` or `partial`
   | inductDecl      (lparams : List Name) (nparams : Nat) (types : List InductiveType) (isUnsafe : Bool)
   deriving Inhabited
 
@@ -301,7 +306,7 @@ def toConstantVal : ConstantInfo → ConstantVal
   | recInfo      {toConstantVal := d, ..} => d
 
 def isUnsafe : ConstantInfo → Bool
-  | defnInfo   v => v.isUnsafe
+  | defnInfo   v => v.safety == DefinitionSafety.unsafe
   | axiomInfo  v => v.isUnsafe
   | thmInfo    v => false
   | opaqueInfo v => v.isUnsafe

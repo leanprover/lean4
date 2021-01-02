@@ -1,3 +1,5 @@
+# used for `nix-shell https://github.com/leanprover/lean4/archive/master.tar.gz -A nix`
+{ nix = (import ./shell.nix {}).nix; } //
 (import (
   fetchTarball {
     url = "https://github.com/edolstra/flake-compat/archive/c75e76f80c57784a6734356315b306140646ee84.tar.gz";

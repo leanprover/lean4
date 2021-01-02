@@ -225,9 +225,10 @@ section NotificationHandling
     let oldDoc ← (←read).docRef.get
     let some newVersion ← pure docId.version?
       | throwServerError "Expected version number"
-    if newVersion <= oldDoc.meta.version then
-      throwServerError "Got outdated version number"
-    if ¬ changes.isEmpty then
+    if newVersion ≤ oldDoc.meta.version then
+      -- TODO(WN): This happens on restart sometimes.
+      IO.eprintln s!"Got outdated version number: {newVersion} ≤ {oldDoc.meta.version}"
+    else if ¬ changes.isEmpty then
       let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText⟩ minStartOff
     -- TODO(WN): cancel pending requests?

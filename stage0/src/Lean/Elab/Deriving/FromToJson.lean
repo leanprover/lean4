@@ -13,10 +13,10 @@ namespace Lean.Elab.Deriving.FromToJson
 open Lean.Elab.Command
 open Lean.Json
 
-def mkJsonField (n : Name) : Syntax :=
-  let s := n.toString
-  let s := s.dropRightWhile (· == '?')
-  Syntax.mkStrLit s
+def mkJsonField (n : Name) : Bool × Syntax :=
+  let s  := n.toString
+  let s₁ := s.dropRightWhile (· == '?')
+  (s != s₁, Syntax.mkStrLit s₁)
 
 def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if declNames.size == 1 && (← isStructure (← getEnv) declNames[0]) then
@@ -24,9 +24,12 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
       let ctx ← mkContext "toJson" declNames[0]
       let header ← mkHeader ctx ``ToJson 1 ctx.typeInfos[0]
       let fields := getStructureFieldsFlattened (← getEnv) declNames[0]
-      let fields ← fields.mapM fun field => `(($(mkJsonField field), toJson $(mkIdent <| header.targetNames[0] ++ field)))
+      let fields : Array Syntax ← fields.mapM fun field => do
+        let (isOptField, nm) ← mkJsonField field
+        if isOptField then `(opt $nm $(mkIdent <| header.targetNames[0] ++ field))
+        else `([($nm, toJson $(mkIdent <| header.targetNames[0] ++ field))])
       let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* :=
-        mkObj [$fields,*])
+        mkObj <| List.join [$fields,*])
       return #[cmd] ++ (← mkInstanceCmds ctx ``ToJson declNames)
     cmds.forM elabCommand
     return true
@@ -39,10 +42,11 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
       let ctx ← mkContext "fromJson" declNames[0]
       let header ← mkHeader ctx ``FromJson 0 ctx.typeInfos[0]
       let fields := getStructureFieldsFlattened (← getEnv) declNames[0]
-      let jsonFields := fields.map mkJsonField
+      let jsonFields := fields.map (Prod.snd ∘ mkJsonField)
       let fields := fields.map mkIdent
-      let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (o : Json) : Option $(← mkInductiveApp ctx.typeInfos[0] header.argNames) := do
-        $[let $fields:ident ← getObjValAs? o _ $jsonFields]*
+      let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (j : Json)
+        : Option $(← mkInductiveApp ctx.typeInfos[0] header.argNames) := do
+        $[let $fields:ident ← getObjValAs? j _ $jsonFields]*
         return { $[$fields:ident := $(id fields)]* })
       return #[cmd] ++ (← mkInstanceCmds ctx ``FromJson declNames)
     cmds.forM elabCommand

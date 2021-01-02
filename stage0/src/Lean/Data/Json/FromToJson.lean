@@ -70,8 +70,9 @@ def toStructured? [ToJson α] (v : α) : Option Structured :=
 def getObjValAs? (j : Json) (α : Type u) [FromJson α] (k : String) : Option α :=
   fromJson? <| j.getObjValD k
 
-def opt [ToJson α] (k : String) (o : Option α) : List (String × Json) :=
-  [⟨k, toJson o⟩]
+def opt [ToJson α] (k : String) : Option α → List (String × Json)
+  | none   => []
+  | some o => [⟨k, toJson o⟩]
 
 end Json
 end Lean

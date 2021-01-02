@@ -353,16 +353,20 @@ section MessageHandling
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam
     | "textDocument/hover"              => handle HoverParams
     | "textDocument/documentSymbol"     => handle DocumentSymbolParams
-    | _ => throwServerError s!"Got unsupported request: {method}"
+    | _                                 =>
+      (←read).hOut.writeLspResponseError
+        { id      := id
+          code    := ErrorCode.methodNotFound
+          message := s!"Unsupported request method: {method}" }
 
-  def handleNotification (method : String) (params : Json) : ServerM Unit :=
+  def handleNotification (method : String) (params : Json) : ServerM Unit := do
     let handle := (fun α [FromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler)
     match method with
     | "textDocument/didOpen"   => handle DidOpenTextDocumentParams handleDidOpen
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
     | "textDocument/didClose"  => handle DidCloseTextDocumentParams handleDidClose
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
-    | _                        => throwServerError "Got unsupported notification method"
+    | _                        => (←read).hLog.putStrLn s!"Got unsupported notification: {method}"
 end MessageHandling
 
 section MainLoop

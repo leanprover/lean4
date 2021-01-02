@@ -305,6 +305,7 @@ section RequestHandling
           match cmdSnaps with
           | AsyncList.asyncTail tl =>
             discard <| IO.wait tl
+            let ⟨cmdSnaps, _⟩ ← cmdSnaps.updateFinishedPrefix
             lastSnap? := cmdSnaps.finishedPrefix.getLast?
           | _ => ()
         if let some lastSnap := lastSnap? then

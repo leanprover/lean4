@@ -652,17 +652,6 @@ end Setoid
 
 axiom propext {a b : Prop} : (a ↔ b) → a = b
 
-@[simp] theorem eqSelf (a : α) : (a = a) = True :=
-  propext <| Iff.intro (fun _ => trivial) (fun _ => rfl)
-
-/- Auxiliary lemma for `simp` tactic -/
-theorem eqTrue (h : p) : p = True :=
-  propext <| Iff.intro (fun _ => trivial) (fun _ => h)
-
-/- Auxiliary lemma for `simp` tactic -/
-theorem eqFalse (h : ¬ p) : p = False :=
-  propext <| Iff.intro (fun h' => absurd h' h) (fun h' => False.elim h')
-
 /- Quotients -/
 
 -- Iff can now be used to do substitutions in a calculation

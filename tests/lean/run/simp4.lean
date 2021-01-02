@@ -41,3 +41,20 @@ theorem ex6
 
 theorem ex7 (x : Nat) : (let y := x + 0; y + y) = x + x := by
   simp
+
+@[simp] theorem impTrue (p : Prop) : (p → True) = True :=
+  propext <| Iff.intro (fun _ => trivial) (fun _ _ => trivial)
+
+theorem ex8 (y x : Nat) : y = 0 → x + y = 0 → x = 0 := by
+  simp { contextual := true }
+
+theorem ex9 (y x : Nat) : y = 0 → x + y = 0 → x = 0 := by
+  simp
+  intro h₁ h₂
+  simp [h₁] at h₂
+  simp [h₂]
+
+theorem ex10 (y x : Nat) : y = 0 → x + 0 = 0 → x = 0 := by
+  simp
+  intro h₁ h₂
+  simp [h₂]

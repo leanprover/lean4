@@ -64,6 +64,7 @@ def getSimpLemmas : M σ SimpLemmas :=
 
 @[inline] def withSimpLemmas (s : SimpLemmas) (x : M σ α) : M σ α := do
   let cacheSaved := (← get).cache
+  modify fun s => { s with cache := {} }
   try
     withTheReader Context (fun ctx => { ctx with simpLemmas := s }) x
   finally

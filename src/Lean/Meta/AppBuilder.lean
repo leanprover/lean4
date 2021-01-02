@@ -407,6 +407,15 @@ def mkEqTrue (h : Expr) : MetaM Expr :=
 def mkEqFalse (h : Expr) : MetaM Expr :=
   mkAppM ``eqFalse #[h]
 
+def mkImpCongr (h₁ h₂ : Expr) : MetaM Expr :=
+  mkAppM ``impCongr #[h₁, h₂]
+
+def mkImpCongrCtx (h₁ h₂ : Expr) : MetaM Expr :=
+  mkAppM ``impCongrCtx #[h₁, h₂]
+
+def mkForallCongr (h : Expr) : MetaM Expr :=
+  mkAppM ``forallCongr #[h]
+
 builtin_initialize registerTraceClass `Meta.appBuilder
 
 end Lean.Meta

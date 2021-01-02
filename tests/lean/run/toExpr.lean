@@ -11,7 +11,7 @@ let decl := Declaration.defnDecl {
   value    := toExpr a,
   type     := toTypeExpr α,
   hints    := ReducibilityHints.abbrev,
-  isUnsafe := false
+  safety   := DefinitionSafety.safe
 };
 IO.println (toExpr a);
 (match env.addAndCompile {} decl with

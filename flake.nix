@@ -24,30 +24,35 @@
 
   outputs = { self, nixpkgs, flake-utils, temci, nix, mdBook, lean-stage0 }: flake-utils.lib.eachDefaultSystem (system:
     let
-      packages = nixpkgs.legacyPackages.${system}.callPackage (./nix/packages.nix) { inherit nix temci mdBook; };
+      pkgs = import nixpkgs {
+        inherit system;
+        # for `vscode-with-extensions`
+        config.allowUnfree = true;
+      };
+      lean-packages = pkgs.callPackage (./nix/packages.nix) { inherit nix temci mdBook; };
     in {
-      packages = packages // rec {
-        debug = packages.override { debug = true; };
-        sanitized = packages.override { extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined" "-DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined" "-DSMALL_ALLOCATOR=OFF" ]; };
+      packages = lean-packages // rec {
+        debug = lean-packages.override { debug = true; };
+        sanitized = lean-packages.override { extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined" "-DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined" "-DSMALL_ALLOCATOR=OFF" ]; };
         sandebug = sanitized.override { debug = true; };
-        tsan = packages.override {
+        tsan = lean-packages.override {
           extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=thread" "-DLEANC_EXTRA_FLAGS=-fsanitize=thread" "-DCOMPRESSED_OBJECT_HEADER=OFF" ];
-          stage0 = (packages.override {
+          stage0 = (lean-packages.override {
             # Compressed headers currently trigger data race reports in tsan.
             # Turn them off for stage 0 as well so stage 1 can read its own stdlib.
             extraCMakeFlags = [ "-DCOMPRESSED_OBJECT_HEADER=OFF" ];
           }).stage1;
         };
         tsandebug = tsan.override { debug = true; };
-        stage0-from-input = packages.override {
+        stage0-from-input = lean-packages.override {
           stage0 = lean-stage0.packages.${system}.lean;
         };
         inherit self;
       };
 
-      defaultPackage = packages.lean;
+      defaultPackage = lean-packages.lean;
 
-      checks.lean = packages.test;
+      checks.lean = lean-packages.test;
     }) // rec {
       templates.pkg = {
         path = ./nix/templates/pkg;

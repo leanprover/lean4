@@ -63,6 +63,7 @@ $ nix build  # build package and all dependencies
 $ nix build .#executable  # compile `main` definition into executable
 $ nix run .#emacs-dev  # open a pinned version of Emacs with lean4-mode fully set up
 $ nix run .#emacs-dev MyPackage.lean  # arguments can be passed as well, e.g. the file to open
+$ nix run .#vscode-dev MyPackage.lean  # ditto, using VS Code
 ```
 Note that if you rename `MyPackage.lean`, you also have to adjust the `name` attribute in `flake.nix` accordingly.
 

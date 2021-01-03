@@ -1,5 +1,5 @@
 { lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
-  stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
+  stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
   ... }:
 let lean-final' = lean-final; in
 { name, src, deps ? [ lean.Lean ],
@@ -112,6 +112,9 @@ with builtins; let
   makeEmacsWrapper = name: lean: writeShellScriptBin name ''
     ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" $@
   '';
+  makeVSCodeWrapper = name: lean: writeShellScriptBin name ''
+    PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code $@
+  '';
   checkMod = deps: writeShellScriptBin "check-mod" ''
     LEAN_PATH=${depRoot "check-mod" deps} ${lean-final}/bin/lean "$@"
   '';
@@ -136,6 +139,7 @@ in rec {
     LEAN_PATH=${modRoot}:$LEAN_PATH ${lean-final}/bin/lean $@
   '';
   emacs-package = makeEmacsWrapper "emacs-package" lean-package;
+  vscode-package = makeVSCodeWrapper "vscode-package" lean-package;
 
   check-mod = makeCheckModFor [] (mods // externalModMap);
   lean-dev = substituteAll {
@@ -146,4 +150,5 @@ in rec {
     inherit lean bash nix srcRoot srcCheckTarget srcCheckArgs;
   };
   emacs-dev = makeEmacsWrapper "emacs-dev" lean-dev;
+  vscode-dev = makeVSCodeWrapper "vscode-dev" lean-dev;
 }

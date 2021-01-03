@@ -32,7 +32,7 @@ let
   buildLeanPackage = makeOverridableLeanPackage (callPackage (import ./buildLeanPackage.nix) (args // {
     inherit (lean) stdenv leanc;
     lean = lean.stage1;
-    inherit lean-emacs;
+    inherit lean-emacs lean-vscode;
     nix = nix-pinned;
   }));
   lean4-mode = emacsPackages.melpaBuild {
@@ -46,6 +46,16 @@ let
     fileSpecs = [ "*.el" ];
   };
   lean-emacs = emacsWithPackages [ lean4-mode ];
+  # updating might be nicer by building from source from a flake input, but this is good enough for now
+  vscode-lean4 = vscode-utils.extensionFromVscodeMarketplace {
+      name = "lean4";
+      publisher = "mhuisi";
+      version = "0.0.3";
+      sha256 = "sha256-jbsSp/GU3BihcmrfwUHlTHSo9T5ASm9O45i0McyjFs8=";
+  };
+  lean-vscode = vscode-with-extensions.override {
+    vscodeExtensions = [ vscode-lean4 ];
+  };
   lean-mdbook = mdbook.overrideAttrs (drv: rec {
     name = "lean-${mdbook.name}";
     src = mdBook;

@@ -45,12 +45,12 @@ This is actually a general property of Nix flakes, and has the benefit of making
 * Only files reachable from `src/Lean.lean` are compiled.
 This is because modules are discovered not from a directory listing anymore but by recursively compiling all dependencies of that top module.
 
-# Emacs Integration
+# Editor Integration
 
 As in the standard Nix setup.
 After adding `src/` as an LSP workspace using `lsp-workspace-folder-add`, it should automatically fall back to using stage 0 in there.
 
-Note that the UX of `emacs-dev` is quite different from the Make-based setup regarding the compilation of dependencies:
+Note that the UX of `emacs/vscode-dev` is quite different from the Make-based setup regarding the compilation of dependencies:
 there is no mutable directory incrementally filled by the build that we could point the editor at for .olean files.
 Instead, `emacs-dev` will gather the individual dependency outputs from the Nix store when checking a file -- and build them on the fly when necessary.
 However, it will only ever load changes saved to disk, not ones opened in other buffers.

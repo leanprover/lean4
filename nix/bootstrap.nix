@@ -78,7 +78,7 @@ rec {
       Std  = build { name = "Std";  src = ../src; deps = [ Init ]; };
       Lean = build { name = "Lean"; src = ../src; deps = [ Init Std ]; };
       Leanpkg = build { name = "Leanpkg"; src = ../src; deps = [ Init Std Lean ]; };
-      inherit (Lean) emacs-dev emacs-package;
+      inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
       mods = Init.mods // Std.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''
         ${lean-bin-tools-unwrapped}/bin/leanc -L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean "$@"

@@ -24,6 +24,9 @@ It has been tested on Windows by installing these tools using [MSYS2](https://ww
 
 Lean implements the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) that can be used for interactive development in [Emacs](https://github.com/leanprover/lean4/tree/master/lean4-mode/README.md), [VS Code](https://github.com/mhuisi/vscode-lean4), and possibly other editors.
 
+There is no integration of `leanpkg` and the language server at the moment, so the `LEAN_PATH`, which is the last line returned by `leanpkg configure`, must be set explicitly before starting the editor.
+Changes must be saved and compiled with `leanpkg build` to be visible in other files, which must then be invalidated using an editor command (see links above).
+
 ## Nix Setup
 
 The alternative setup based on Nix provides a perfectly reproducible development environment for your project from the Lean version down to the editor and Lean extension. Howeover, it is still experimental and subject to change; in particular, it is heavily based on an unreleased version of Nix enabling [Nix Flakes](https://www.tweag.io/blog/2020-05-25-flakes/). The setup has been tested on NixOS, other Linux distributions, and macOS.
@@ -66,6 +69,9 @@ $ nix run .#emacs-dev MyPackage.lean  # arguments can be passed as well, e.g. th
 $ nix run .#vscode-dev MyPackage.lean  # ditto, using VS Code
 ```
 Note that if you rename `MyPackage.lean`, you also have to adjust the `name` attribute in `flake.nix` accordingly.
+
+There is preliminary integration of the Nix-based build system into editors started as above, which automatically builds dependencies when opening or invalidating a file.
+There is no progress report yet, and build errors from dependencies will crash the language server; see the stderr logs for the build error in that case.
 
 Package dependencies can be added as further input flakes and passed to the `deps` list of `buildLeanPackage`. Example: <https://github.com/Kha/testpkg2/blob/master/flake.nix#L5>
 

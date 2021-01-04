@@ -49,11 +49,11 @@
     "mdBook": {
       "flake": false,
       "locked": {
-        "lastModified": 1604075551,
-        "narHash": "sha256-+8jZBoGd8Rts0U1gNgN2tngRbf+amgLyJG5pSniGpZk=",
+        "lastModified": 1609794365,
+        "narHash": "sha256-Pgyqio1nHMtIPsf+WpHDdRROTGW0TJhFq84r6CTuQhU=",
         "owner": "leanprover",
         "repo": "mdBook",
-        "rev": "2320d15253555b971166c500d6414bb2e5fed072",
+        "rev": "b8c62e63014bf51ab78c04fcd272e872157623ff",
         "type": "github"
       },
       "original": {

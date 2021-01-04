@@ -1,6 +1,7 @@
 import Lean.Data.Lsp
 open IO Lean Lsp
 
+#exit
 #eval (do
   Ipc.runWith (←IO.appPath) #["--server"] do
     let hIn ← Ipc.stdin

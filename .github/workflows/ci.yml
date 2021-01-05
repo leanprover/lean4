@@ -93,7 +93,7 @@ jobs:
           cd build
           OPTIONS=
           if [[ $GITHUB_EVENT_NAME == 'schedule' && -n '${{ matrix.release }}' && -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
-            git remote add nightly https://foo:${{ secrets.PUSH_NIGHTLY_TOKEN }}@github.com/${{ github.repository_owner }}/lean4-nightly.git
+            git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
             git fetch nightly --tags
             LEAN_VERSION_STRING="nightly-$(date -u +%F)"
             # do nothing if commit is already tagged

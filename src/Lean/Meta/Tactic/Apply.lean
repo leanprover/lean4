@@ -16,7 +16,7 @@ namespace Lean.Meta
   (?m ...) where ?m is an unassigned metavariable.
 -/
 private def getExpectedNumArgsAux (e : Expr) : MetaM (Nat × Bool) :=
-  withReducible $ forallTelescopeReducing e fun xs body =>
+  withDefault <| forallTelescopeReducing e fun xs body =>
     pure (xs.size, body.getAppFn.isMVar)
 
 private def getExpectedNumArgs (e : Expr) : MetaM Nat := do

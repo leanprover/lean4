@@ -28,7 +28,7 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
             if !explicitOnly || info.isExplicit then
               args ← args.modifyM i visit
           else
-              args ← args.modifyM i visit
+            args ← args.modifyM i visit
         pure (mkAppN f args)
       | Expr.lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
       | Expr.forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)

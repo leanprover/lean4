@@ -80,10 +80,10 @@ private partial def reduce (cfg : Config) (e : Expr) : MetaM Expr := withIncRecD
     | none   => pure ()
   return e
 
-private partial def dsimp (e : Expr) : M σ Expr := do
+private partial def dsimp (e : Expr) : M Expr := do
   return e -- TODO
 
-partial def simp {σ} (e : Expr) : M σ Result := withIncRecDepth do
+partial def simp (e : Expr) : M Result := withIncRecDepth do
   let cfg ← getConfig
   if cfg.memoize then
     if let some result := (← get).cache.find? e then
@@ -91,7 +91,7 @@ partial def simp {σ} (e : Expr) : M σ Result := withIncRecDepth do
   simpLoop { expr := e }
 
 where
-  simpLoop (r : Result) : M σ Result := do
+  simpLoop (r : Result) : M Result := do
     let cfg ← getConfig
     if (← get).numSteps > cfg.maxSteps then
       throwError! "simp failed, maximum number of steps exceeded"
@@ -112,7 +112,7 @@ where
           else
             simpLoop r
 
-  simpStep (e : Expr) : M σ Result := do
+  simpStep (e : Expr) : M Result := do
     match e with
     | Expr.mdata _ e _ => simp e
     | Expr.proj ..     => pure { expr := (← reduceProj e) }
@@ -127,7 +127,7 @@ where
     | Expr.mvar ..     => pure { expr := (← instantiateMVars e) }
     | Expr.fvar ..     => pure { expr := (← reduceFVar (← getConfig) e) }
 
-  simpApp (e : Expr) : M σ Result := do
+  simpApp (e : Expr) : M Result := do
     let e ← reduce (← getConfig) e
     if !e.isApp then
       simp e
@@ -145,7 +145,7 @@ where
           i := i + 1
         return r
 
-  withNewLemmas (xs : Array Expr) (f : M σ Result) : M σ Result := do
+  withNewLemmas (xs : Array Expr) (f : M Result) : M Result := do
     if (← getConfig).contextual then
       let mut s ← getSimpLemmas
       let mut updated := false
@@ -160,17 +160,18 @@ where
     else
       f
 
-  simpLambda (e : Expr) : M σ Result :=
-    withParent e <| lambdaTelescope e fun xs e => withNewLemmas xs do
+  simpLambda (e : Expr) : M Result :=
+    withParent e $ lambdaTelescope e fun xs e => withNewLemmas xs do
       let r ← simp e
+      let eNew ← mkLambdaFVars xs r.expr
       match r.proof? with
-      | none   => return { expr := (← mkLambdaFVars xs r.expr) }
+      | none   => return { expr := eNew }
       | some h =>
         let p ← xs.foldrM (init := h) fun x h => do
           mkFunExt (← mkLambdaFVars #[x] h)
-        return { expr := (← mkLambdaFVars xs r.expr), proof? := p }
+        return { expr := eNew, proof? := p }
 
-  simpArrow (e : Expr) : M σ Result := do
+  simpArrow (e : Expr) : M Result := do
     trace[Meta.Tactic.simp]! "arrow {e}"
     let p := e.bindingDomain!
     let q := e.bindingBody!
@@ -191,7 +192,7 @@ where
     else
       mkImpCongr rp (← simp q)
 
-  simpForall (e : Expr) : M σ Result := withParent e do
+  simpForall (e : Expr) : M Result := withParent e do
     trace[Meta.Tactic.simp]! "forall {e}"
     if e.isArrow then
       simpArrow e
@@ -206,7 +207,7 @@ where
     else
       return { expr := (← dsimp e) }
 
-  simpLet (e : Expr) : M σ Result := do
+  simpLet (e : Expr) : M Result := do
     if (← getConfig).zeta then
       match e with
       | Expr.letE _ _ v b _ => return { expr := b.instantiate1 v }
@@ -215,21 +216,21 @@ where
       -- TODO: simplify nondependent let-decls
       return { expr := (← dsimp e) }
 
-  cacheResult (cfg : Config) (r : Result) : M σ Result := do
+  cacheResult (cfg : Config) (r : Result) : M Result := do
     if cfg.memoize then
       modify fun s => { s with cache := s.cache.insert e r }
     return r
 
-def main (e : Expr) (s : σ) (config : Config := {}) (methods : Methods σ := {}) (simpLemmas : SimpLemmas := {}) : MetaM Result := do
+def main (e : Expr) (config : Config := {}) (methods : Methods := {}) (simpLemmas : SimpLemmas := {}) : MetaM Result := do
   withReducible do
-    simp e methods { config := config, simpLemmas := simpLemmas } |>.run' { user := s }
+    simp e methods { config := config, simpLemmas := simpLemmas } |>.run' {}
 
 end Simp
 
 def simp (e : Expr) (config : Simp.Config := {}) (simpLemmas : SimpLemmas := {}) : MetaM Simp.Result := do
-  let discharge? (e : Expr) : SimpM Unit (Option Expr) := return none -- TODO: use simp, and add config option
+  let discharge? (e : Expr) : SimpM (Option Expr) := return none -- TODO: use simp, and add config option
   let pre  := (Simp.preDefault · discharge?)
   let post := (Simp.postDefault · discharge?)
-  Simp.main e () (config := config) (methods := { pre := pre, post := post, discharge? := discharge? }) (simpLemmas := simpLemmas)
+  Simp.main e (config := config) (methods := { pre := pre, post := post, discharge? := discharge? }) (simpLemmas := simpLemmas)
 
 end Lean.Meta

@@ -11,7 +11,7 @@ namespace Lean.Meta.Simp
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
-def rewrite (e : Expr) (s : DiscrTree SimpLemma) (discharge? : Expr → SimpM σ (Option Expr)) (tag : String) : SimpM σ Result := do
+def rewrite (e : Expr) (s : DiscrTree SimpLemma) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
   let lemmas ← s.getMatch e
   if lemmas.isEmpty then
     trace[Meta.Tactic.simp]! "no lemmas found for {tag}-rewriting {e}"
@@ -37,7 +37,7 @@ where
     | SimpLemmaKind.eq  => return type.appArg!
     | SimpLemmaKind.iff => return type.appArg!
 
-  synthesizeArgs (lemma : SimpLemma) (xs : Array Expr) (bis : Array BinderInfo) : SimpM σ Bool := do
+  synthesizeArgs (lemma : SimpLemma) (xs : Array Expr) (bis : Array BinderInfo) : SimpM Bool := do
     for x in xs, bi in bis do
       let type ← inferType x
       if bi.isInstImplicit then
@@ -67,7 +67,7 @@ where
     | SimpLemmaKind.pos => mkEqTrue proof
     | SimpLemmaKind.neg => mkEqFalse proof
 
-  tryLemma? (lemma : SimpLemma) : SimpM σ (Option Result) :=
+  tryLemma? (lemma : SimpLemma) : SimpM (Option Result) :=
     withNewMCtxDepth do
       let val  ← lemma.getValue
       let type ← inferType val
@@ -90,11 +90,11 @@ where
         trace[Meta.Tactic.simp.unify]! "{lemma}, failed to unify {lhs} with {e}"
         return none
 
-def preDefault (e : Expr) (discharge? : Expr → SimpM σ (Option Expr)) : SimpM σ Step := do
+def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let lemmas ← (← read).simpLemmas
   return Step.visit (← rewrite e lemmas.pre discharge? (tag := "pre"))
 
-def postDefault (e : Expr) (discharge? : Expr → SimpM σ (Option Expr)) : SimpM σ Step := do
+def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let lemmas ← (← read).simpLemmas
   return Step.visit (← rewrite e lemmas.post discharge? (tag := "post"))
 

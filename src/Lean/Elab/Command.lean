@@ -33,13 +33,6 @@ structure State where
   ngen           : NameGenerator := {}
   deriving Inhabited
 
-def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
-  env := env
-  messages := messages
-  scopes := [{ header := "", opts := opts }]
-  maxRecDepth := getMaxRecDepth opts
-}
-
 structure Context where
   fileName       : String
   fileMap        : FileMap
@@ -53,6 +46,13 @@ abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 abbrev Linter := Syntax → CommandElabM Unit
+
+def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
+  env := env
+  messages := messages
+  scopes := [{ header := "", opts := opts }]
+  maxRecDepth := getMaxRecDepth opts
+}
 
 /- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the
     environment (which only contains `import`ed objects). -/

@@ -323,25 +323,19 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 @[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun stx =>
   liftMetaTactic fun mvarId => do Meta.assumption mvarId; pure []
 
-private def introStep (n : Name) : TacticM Unit :=
-  liftMetaTactic fun mvarId => do
-    let (_, mvarId) ← Meta.intro mvarId n
-    pure [mvarId]
-
-@[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with
-  | `(tactic| intro)           => liftMetaTactic fun mvarId => do let (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
-  | `(tactic| intro $h:ident)  => introStep h.getId
-  | `(tactic| intro _)         => introStep `_
-  | `(tactic| intro $pat:term) => do
-    let stxNew ← `(tactic| intro h; match h with | $pat:term => _; clear h)
-    withMacroExpansion stx stxNew $ evalTactic stxNew
-  | `(tactic| intro $hs:term*) => do
-    let h0 := hs.get! 0
-    let hs := hs.extract 1 hs.size
-    let stxNew ← `(tactic| intro $h0:term; intro $hs:term*)
-    withMacroExpansion stx stxNew $ evalTactic stxNew
+  | `(tactic| intro)                   => introStep `_
+  | `(tactic| intro $h:ident)          => introStep h.getId
+  | `(tactic| intro _)                 => introStep `_
+  | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match h with | $pat:term => _; clear h))
+  | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
+where
+  introStep (n : Name) : TacticM Unit :=
+    liftMetaTactic fun mvarId => do
+      let (_, mvarId) ← Meta.intro mvarId n
+      pure [mvarId]
 
 @[builtinTactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]

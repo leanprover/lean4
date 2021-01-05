@@ -3,7 +3,8 @@
   ... }:
 let lean-final' = lean-final; in
 { name, src, deps ? [ lean.Lean ],
-  debug ? false, leanFlags ? [], leancFlags ? [], srcCheckTarget ? "$root#stage0check-mod", srcCheckArgs ? "(\${args[*]})", lean-final ? lean-final' }:
+  debug ? false, leanFlags ? [], leancFlags ? [], executableName ? lib.toLower name,
+  srcCheckTarget ? "$root#stage0check-mod", srcCheckArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
@@ -130,9 +131,9 @@ in rec {
     mkdir $out
     ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))}
   '';
-  executable = name: runCommand name {} ''
+  executable = runCommand executableName {} ''
     mkdir -p $out/bin
-    ${leanc}/bin/leanc -x none -L${staticLib} -o $out/bin/${name}
+    ${leanc}/bin/leanc -x none -L${staticLib} -o $out/bin/${executableName}
   '';
 
   lean-package = writeShellScriptBin "lean" ''

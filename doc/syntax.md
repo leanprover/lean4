@@ -49,11 +49,12 @@ notation:max "(" e ")" => e
 notation:10 Γ " ⊢ " e " : " τ => Typing Γ e τ
 ```
 Placeholders without precedence default to `0`, i.e. they accept notations of any precedence in their place.
-If two notations overlap, we again apply the longest parse rule: given an additional notation
+If two notations overlap, we again apply the longest parse rule:
 ```lean
-notation:65 a " + " b " + " c:66 => (a + b) + c
+notation:65 a " + " b:66 " + " c:66 => a + b - c
+#eval 1 + 2 + 3  -- 0
 ```
-the input `1 + 2 + 3` will be resolved as this notation in preference to the binary notation since the latter, before chaining, would stop parsing after `1 + 2`.
+The new notation is preferred to the binary notation since the latter, before chaining, would stop parsing after `1 + 2`.
 If there are multiple notations accepting the same longest parse, the choice will be delayed until elaboration, which will fail unless exactly one overload is type correct.
 
 ## Syntax and Macros

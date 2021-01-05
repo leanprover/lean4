@@ -10,9 +10,10 @@ There are currently two ways to set up a Lean 4 development environment:
 Release builds for all supported platforms are available at <https://github.com/leanprover/lean4/releases>.
 Instead of downloading these and setting up the paths manually, however, it is recommended to use the Lean version manager [`elan`](https://github.com/Kha/elan) instead:
 ```sh
-# download & activate latest Lean 4 release
+$ elan self update  # in case you haven't updated elan in a while
+# download & activate latest Lean 4 release (https://github.com/leanprover/lean4/releases)
 $ elan default leanprover/lean4:stable
-# alternatively, use the latest nightly build
+# alternatively, use the latest nightly build (https://github.com/leanprover/lean4-nightly/releases)
 $ elan default leanprover/lean4:nightly
 # alternatively, activate Lean 4 in current directory only
 $ elan override leanprover/lean4:stable

@@ -10,10 +10,10 @@ namespace Lean.Meta
 
 partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : MetaM Expr :=
   let rec visit (e : Expr) := do
-    if (← (pure skipTypes <&&> isType e)) then
-      pure e
-    else if (← (pure skipProofs <&&> isProof e)) then
-      pure e
+    if (← (skipTypes <&&> isType e)) then
+      return e
+    else if (← (skipProofs <&&> isProof e)) then
+      return e
     else
       let e ← whnf e
       match e with
@@ -32,7 +32,7 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
         pure (mkAppN f args)
       | Expr.lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
       | Expr.forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
-      | _               => pure e
+      | _               => return e
   visit e
 
 end Lean.Meta

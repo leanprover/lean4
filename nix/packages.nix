@@ -30,8 +30,9 @@ let
       override = args: makeOverridableLeanPackage (f.override args);
     };
   buildLeanPackage = makeOverridableLeanPackage (callPackage (import ./buildLeanPackage.nix) (args // {
-    inherit (lean) stdenv leanc;
+    inherit (lean) stdenv;
     lean = lean.stage1;
+    inherit (lean.stage1) leanc;
     inherit lean-emacs lean-vscode;
     nix = nix-pinned;
   }));

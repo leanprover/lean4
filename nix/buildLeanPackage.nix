@@ -133,7 +133,7 @@ in rec {
   '';
   executable = runCommand executableName {} ''
     mkdir -p $out/bin
-    ${leanc}/bin/leanc -x none -L${staticLib} -o $out/bin/${executableName}
+    ${leanc}/bin/leanc -x none ${staticLib}/* -o $out/bin/${executableName}
   '';
 
   lean-package = writeShellScriptBin "lean" ''

@@ -43,13 +43,7 @@ public:
     reducibility_hints_kind kind() const { return static_cast<reducibility_hints_kind>(obj_tag(raw())); }
     bool is_regular() const { return kind() == reducibility_hints_kind::Regular; }
     unsigned get_height() const;
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static reducibility_hints deserialize(deserializer & d) { return reducibility_hints(d.read_object(), true); }
 };
-
-inline serializer & operator<<(serializer & s, reducibility_hints const & l) { l.serialize(s); return s; }
-inline reducibility_hints read_reducibility_hints(deserializer & d) { return reducibility_hints::deserialize(d); }
-inline deserializer & operator>>(deserializer & d, reducibility_hints & l) { l = read_reducibility_hints(d); return d; }
 
 /** Given h1 and h2 the hints for definitions f1 and f2, then
     result is
@@ -222,34 +216,19 @@ public:
     theorem_val const & to_theorem_val() const { lean_assert(is_theorem()); return static_cast<theorem_val const &>(cnstr_get_ref(raw(), 0)); }
     opaque_val const & to_opaque_val() const { lean_assert(is_opaque()); return static_cast<opaque_val const &>(cnstr_get_ref(raw(), 0)); }
     definition_vals const & to_definition_vals() const { lean_assert(is_mutual()); return static_cast<definition_vals const &>(cnstr_get_ref(raw(), 0)); }
-
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static declaration deserialize(deserializer & d) { object * o = d.read_object(); inc(o); return declaration(o); }
 };
-
-inline serializer & operator<<(serializer & s, declaration const & l) { l.serialize(s); return s; }
-inline declaration read_declaration(deserializer & d) { return declaration::deserialize(d); }
-inline deserializer & operator>>(deserializer & d, declaration & l) { l = read_declaration(d); return d; }
 
 inline optional<declaration> none_declaration() { return optional<declaration>(); }
 inline optional<declaration> some_declaration(declaration const & o) { return optional<declaration>(o); }
 inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
 
-definition_val mk_definition_val(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v, definition_safety safety);
 declaration mk_definition(name const & n, names const & lparams, expr const & t, expr const & v,
                           reducibility_hints const & hints, definition_safety safety = definition_safety::safe);
 declaration mk_definition(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v,
                           definition_safety safety = definition_safety::safe);
-declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
-declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
 declaration mk_opaque(name const & n, names const & lparams, expr const & t, expr const & v, bool unsafe);
 declaration mk_axiom(name const & n, names const & lparams, expr const & t, bool unsafe = false);
-declaration mk_mutual_definitions(definition_vals const & ds);
 declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe);
-declaration mk_quot_decl();
-
-/** \brief Return true iff \c e depends on unsafe-declarations */
-bool use_unsafe(environment const & env, expr const & e);
 
 /** \brief Similar to mk_definition but infer the value of unsafe flag.
     That is, set it to true if \c t or \c v contains a unsafe declaration. */

@@ -27,7 +27,7 @@ we may be busy, etc. If you really need this new feature or bug fix, we suggest 
 
 * Where is the documentation?
 
-This is the Lean 4 manual. It is working progress, but it will eventually cover the whole language.
+This is the Lean 4 manual. It is a work in progress, but it will eventually cover the whole language.
 A public and very active chat room dedicated to Lean is open on [Zulip](https://leanprover.zulipchat.com).
 It is a good place to interact with other Lean users.
 

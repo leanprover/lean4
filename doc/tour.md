@@ -3,7 +3,7 @@
 The best way to learn about Lean is to read and write Lean code.
 This article will act as a tour through some of the key features of the Lean
 language and give you some code snippets that you can execute on your machine.
-To learn about setting up a development environment, check out [Getting Started](./gettingStarted.md).
+To learn about setting up a development environment, check out [Setting Up Lean](./setup.md).
 
 There are two primary concepts in Lean: functions and types.
 This tour will emphasize features of the language which fall into

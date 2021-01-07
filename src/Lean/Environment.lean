@@ -47,7 +47,7 @@ structure EnvironmentHeader where
   mainModule   : Name         := arbitrary
   imports      : Array Import := #[] -- direct imports
   regions      : Array CompactedRegion := #[] -- compacted regions of all imported modules
-  moduleNames  : NameSet      := {}  -- names of all imported modules
+  moduleNames  : Array Name   := #[] -- names of all imported modules
   deriving Inhabited
 
 open Std (HashMap)
@@ -75,7 +75,7 @@ def contains (env : Environment) (n : Name) : Bool :=
 def imports (env : Environment) : Array Import :=
   env.header.imports
 
-def allImportedModuleNames (env : Environment) : NameSet :=
+def allImportedModuleNames (env : Environment) : Array Name :=
   env.header.moduleNames
 
 @[export lean_environment_set_main_module]
@@ -476,22 +476,6 @@ def mkModuleData (env : Environment) : IO ModuleData := do
 def writeModule (env : Environment) (fname : String) : IO Unit := do
   let modData ← mkModuleData env; saveModuleData fname modData
 
-partial def importModulesAux : List Import → (NameSet × Array ModuleData × Array CompactedRegion) → IO (NameSet × Array ModuleData × Array CompactedRegion)
-  | [],    r         => pure r
-  | i::is, (s, mods, regions) =>
-    if i.runtimeOnly || s.contains i.module then
-      importModulesAux is (s, mods, regions)
-    else do
-      let s := s.insert i.module
-      let mFile ← findOLean i.module
-      unless (← IO.fileExists mFile) do
-        throw $ IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
-      let (mod, region) ← readModuleData mFile
-      let (s, mods, regions) ← importModulesAux mod.imports.toList (s, mods, regions)
-      let mods := mods.push mod
-      let regions := regions.push region
-      importModulesAux is (s, mods, regions)
-
 private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : Array EnvExtensionEntry :=
   if i < mod.entries.size then
     let curr := mod.entries.get! i;
@@ -517,13 +501,20 @@ private def finalizePersistentExtensions (env : Environment) (opts : Options) : 
     env ← extDescr.toEnvExtension.setState env { s with state := newState }
   return env
 
+structure ImportState where
+  moduleNameSet : NameSet := {}
+  moduleNames   : Array Name := #[]
+  moduleData    : Array ModuleData := #[]
+  regions       : Array CompactedRegion := #[]
+
 @[export lean_import_modules]
-def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" ⟨0, 0⟩ do
-  let (moduleNames, mods, regions) ← importModulesAux imports ({}, #[], #[])
+partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" ⟨0, 0⟩ do
+  let (_, s) ← importMods imports |>.run {}
+  -- (moduleNames, mods, regions)
   let mut modIdx : Nat := 0
   let mut const2ModIdx : HashMap Name ModuleIdx := {}
   let mut constants : ConstMap := SMap.empty
-  for mod in mods do
+  for mod in s.moduleData do
     for cinfo in mod.constants do
       const2ModIdx := const2ModIdx.insert cinfo.name modIdx
       if constants.contains cinfo.name then throw (IO.userError s!"import failed, environment already contains '{cinfo.name}'")
@@ -539,14 +530,32 @@ def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 
       quotInit     := !imports.isEmpty, -- We assume `core.lean` initializes quotient module
       trustLevel   := trustLevel,
       imports      := imports.toArray,
-      regions      := regions,
-      moduleNames  := moduleNames
+      regions      := s.regions,
+      moduleNames  := s.moduleNames
     }
   }
-  let env ← setImportedEntries env mods
+  let env ← setImportedEntries env s.moduleData
   let env ← finalizePersistentExtensions env opts
   pure env
-
+where
+  importMods : List Import → StateRefT ImportState IO Unit
+  | []    => pure ()
+  | i::is => do
+    if i.runtimeOnly || (← get).moduleNameSet.contains i.module then
+      importMods is
+    else do
+      modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
+      let mFile ← findOLean i.module
+      unless (← IO.fileExists mFile) do
+        throw $ IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
+      let (mod, region) ← readModuleData mFile
+      importMods mod.imports.toList
+      modify fun s => { s with
+        moduleData  := s.moduleData.push mod
+        regions     := s.regions.push region
+        moduleNames := s.moduleNames.push i.module
+      }
+      importMods is
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the
   environment object or imported objects may exist after `act` finishes. -/

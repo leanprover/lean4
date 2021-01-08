@@ -17,6 +17,7 @@ import Lean.Elab.Log
 import Lean.Elab.Level
 import Lean.Elab.Attributes
 import Lean.Elab.AutoBound
+import Lean.Elab.InfoTree
 
 namespace Lean.Elab.Term
 /-
@@ -55,6 +56,7 @@ namespace Lean.Elab.Term
   ?m := fun σ' => StateT σ id σ
   ?m := fun σ' => StateT σ' id σ
   ?m := fun σ' => StateT σ id σ'
+  ```
 
   We need the quasi-pattern approximation for elaborating recursor-like expressions (e.g., dependent `match with` expressions).
 
@@ -140,6 +142,7 @@ structure State where
   mvarErrorInfos    : List MVarErrorInfo := []
   messages          : MessageLog := {}
   letRecsToLift     : List LetRecToLift := []
+  infoState         : InfoState := {}
   deriving Inhabited
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
@@ -252,6 +255,10 @@ instance : MonadQuotation TermElabM where
   getCurrMacroScope   := Term.getCurrMacroScope
   getMainModule       := Term.getMainModule
   withFreshMacroScope := Term.withFreshMacroScope
+
+instance : MonadInfoTree TermElabM where
+  getInfoState      := (·.infoState) <$> get
+  modifyInfoState f := modify (fun s => { s with infoState := f s.infoState })
 
 unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
@@ -993,7 +1000,16 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
-  withRef stx $ elabTermAux expectedType? catchExPostpone true stx
+  withRef stx do
+    let e ← elabTermAux expectedType? catchExPostpone true stx
+    -- HACK(WN)
+    let eType ← inferType e
+    if !eType.hasExprMVar then
+      pushInfoTree <| InfoTree.ofTermInfo {
+        e := eType -- NOTE(WN): just e here is better, we can infer the type on demand in the server
+        stx := stx
+      }
+    e
 
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   let e ← elabTerm stx expectedType? catchExPostpone

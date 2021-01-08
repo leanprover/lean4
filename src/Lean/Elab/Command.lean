@@ -11,6 +11,7 @@ import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.DeclModifiers
+import Lean.Elab.InfoTree
 
 namespace Lean.Elab.Command
 
@@ -31,6 +32,7 @@ structure State where
   maxRecDepth    : Nat
   nextInstIdx    : Nat := 1 -- for generating anonymous instance names
   ngen           : NameGenerator := {}
+  infoState      : InfoState := {}
   deriving Inhabited
 
 structure Context where
@@ -269,16 +271,16 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   let scope := s.scopes.head!
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
-  let messages         := s.messages
   let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := {}, levelNames := scope.levelNames }
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
   let (((ea, termS), _), coreS) ← liftEIO x
   modify fun s => { s with
     env            := coreS.env
-    messages       := addTraceAsMessages ctx (messages ++ termS.messages) coreS.traceState
+    messages       := addTraceAsMessages ctx (s.messages ++ termS.messages) coreS.traceState
     nextMacroScope := coreS.nextMacroScope
     ngen           := coreS.ngen
+    infoState      := { s.infoState with trees := s.infoState.trees.append termS.infoState.trees }
   }
   match ea with
   | Except.ok a     => pure a

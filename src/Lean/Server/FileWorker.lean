@@ -260,6 +260,11 @@ section RequestHandling
     let text := doc.meta.text
     let hoverPos := text.lspPosToUtf8Pos p.position
     let findTask ← doc.cmdSnaps.waitFind? (fun s => s.endPos > hoverPos)
+    let mkHover (s : String) (f : String.Pos) (t : String.Pos) : Hover :=
+      { contents := { kind := MarkupKind.plaintext
+                      value := s }
+        range? := some { start := text.utf8PosToLspPos f
+                         «end» := text.utf8PosToLspPos t } }
     (IO.mapTask · findTask) fun
       | Except.error TaskError.aborted =>
         pure $ Except.error { code := ErrorCode.contentModified, message := "File changed." }
@@ -267,18 +272,24 @@ section RequestHandling
         throwThe IO.Error e
       | Except.error TaskError.eof =>
         pure $ Except.ok none
-      | Except.ok snap? => do
-        let snap? := snap?.filter (fun s => s.beginPos ≤ hoverPos)
-        if let some snap := snap? then
-          if snap.stx.getKind == ``Lean.Parser.Command.declaration then
-            -- TODO(WN): 1. get at the right subexpression
-            --           2. reply with delaborated type
-            return Except.ok $ some
-              { contents := { kind := MarkupKind.plaintext
-                              value := s!"Declaration." }
-                range? := some { start := text.utf8PosToLspPos snap.beginPos
-                                 «end» := text.utf8PosToLspPos snap.endPos } }
+      | Except.ok (some snap) => do
+        let mut infoRanges := #[]
+        for t in snap.toCmdState.infoState.trees do
+          if let Elab.InfoTree.ofTermInfo i := t then
+            match i.stx.getPos, i.stx.getTailPos with
+            | some pos, some endPos =>
+              if pos ≤ hoverPos ∧ hoverPos ≤ endPos then
+                infoRanges := infoRanges.push (endPos - pos, pos, endPos, i.e)
+            | _, _ => pure ()
+        match infoRanges.getMax? fun a b => a.1 > b.1 with
+        | some (_, pos, endPos, e) =>
+          --st.hLog.putStrLn s!"Picked from {infoRanges.size}"
+          return (Except.ok $ some $ mkHover (toString e) pos endPos
+                    -- Type inference fails
+                    : Except RequestError _)
+        | none => pure ()
         return Except.ok none
+      | Except.ok none => return Except.ok none
 
   def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam)
     : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do

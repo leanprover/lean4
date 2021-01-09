@@ -24,13 +24,7 @@ for arg in "$@"; do
     [[ $arg == "-print-ldflags" ]] && echo "${ldflags_ext[@]} ${ldflags[@]}" && exit
 done
 
-# Check C++ compiler
-for cxx in $LEAN_CXX @CMAKE_CXX_COMPILER@ g++; do
-    if [ -f $cxx ] || command -v $cxx; then
-        export LEAN_CXX=$cxx && break
-    fi
-done
-[ -f $LEAN_CXX ] || command -v $LEAN_CXX || error "no suitable C++ compiler found!"
+[ -n "$LEAN_CXX" ] || LEAN_CXX=c++
 
 # Note the `-x c` for treating all input as C code
-@CMAKE_CXX_COMPILER_LAUNCHER@ $LEAN_CXX -D LEAN_MULTI_THREAD "${cflags[@]}" -x c "$@" -x none "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument
+$LEAN_CXX -D LEAN_MULTI_THREAD "${cflags[@]}" -x c "$@" -x none "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument

@@ -19,7 +19,7 @@
     "attributes" "raw" "have" "show" "suffices" "by" "in" "at" "do" "let" "for" "unless" "break" "continue"
     "try" "catch" "finally" "where" "rec" "mut" "forall" "fun"
     "exists" "if" "then" "else" "from" "init_quot" "return"
-    "mutual" "def" "run_cmd" "declare_syntax_cat" "syntax" "macro_rules" "macro" "scoped"
+    "mutual" "def" "run_cmd" "declare_syntax_cat" "syntax" "macro_rules" "macro" "scoped" "elab"
     "initialize" "builtin_initialize" "induction" "cases" "generalizing" "unif_hint" "deriving")
   "lean keywords ending with 'word' (not symbol)")
 (defconst lean4-keywords1-regexp

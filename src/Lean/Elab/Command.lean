@@ -64,6 +64,10 @@ def addLinter (l : Linter) : IO Unit := do
   let ls ← lintersRef.get
   lintersRef.set (ls.push l)
 
+instance : MonadInfoTree CommandElabM where
+  getInfoState      := return (← get).infoState
+  modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
+
 instance : MonadEnv CommandElabM where
   getEnv := do pure (← get).env
   modifyEnv f := modify fun s => { s with env := f s.env }
@@ -257,6 +261,12 @@ private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) 
     currMacroScope := ctx.currMacroScope
     declName?      := declName? }
 
+private def mkTermState (scope : Scope) (s : State) : Term.State := {
+  messages          := {}
+  levelNames        := scope.levelNames
+  infoState.enabled := s.infoState.enabled
+}
+
 private def addTraceAsMessages (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
   traceState.traces.foldl
     (fun (log : MessageLog) traceElem =>
@@ -271,16 +281,19 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   let scope := s.scopes.head!
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
-  let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { messages := {}, levelNames := scope.levelNames }
+  let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) (mkTermState scope s)
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
-  let (((ea, termS), _), coreS) ← liftEIO x
+  let (((ea, termS), metaS), coreS) ← liftEIO x
+  let infoTrees        := termS.infoState.trees.map fun tree =>
+    let tree := tree.substitute termS.infoState.assignment
+    InfoTree.context { env := coreS.env, mctx := metaS.mctx, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts } tree
   modify fun s => { s with
-    env            := coreS.env
-    messages       := addTraceAsMessages ctx (s.messages ++ termS.messages) coreS.traceState
-    nextMacroScope := coreS.nextMacroScope
-    ngen           := coreS.ngen
-    infoState      := { s.infoState with trees := s.infoState.trees.append termS.infoState.trees }
+    env             := coreS.env
+    messages        := addTraceAsMessages ctx (s.messages ++ termS.messages) coreS.traceState
+    nextMacroScope  := coreS.nextMacroScope
+    ngen            := coreS.ngen
+    infoState.trees := s.infoState.trees.append infoTrees
   }
   match ea with
   | Except.ok a     => pure a

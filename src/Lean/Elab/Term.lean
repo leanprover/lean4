@@ -257,8 +257,8 @@ instance : MonadQuotation TermElabM where
   withFreshMacroScope := Term.withFreshMacroScope
 
 instance : MonadInfoTree TermElabM where
-  getInfoState      := (·.infoState) <$> get
-  modifyInfoState f := modify (fun s => { s with infoState := f s.infoState })
+  getInfoState      := return (← get).infoState
+  modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
@@ -341,7 +341,8 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+  withMacroExpansionInfo beforeStx afterStx do
+    withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 /-
   Add the given metavariable to the list of pending synthetic metavariables.
@@ -986,6 +987,20 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
       | some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
       | none              => elabUsingElabFns stx expectedType? catchExPostpone
 
+def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
+  let isHole? : TermElabM (Option MVarId) := do
+    match e with
+    | Expr.mvar mvarId _ =>
+      let isHole := (← get).syntheticMVars.any fun d => match d.kind with
+        | SyntheticMVarKind.tactic ..    => true
+        | SyntheticMVarKind.postponed .. => true
+        | _ => false
+      if isHole then pure mvarId else pure none
+    | _ => pure none
+  match (← isHole?) with
+  | none        => return Sum.inl <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx := stx }
+  | some mvarId => return Sum.inr mvarId
+
 /--
   Main function for elaborating terms.
   It extracts the elaboration methods from the environment using the node kind.
@@ -1000,16 +1015,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
-  withRef stx do
-    let e ← elabTermAux expectedType? catchExPostpone true stx
-    -- HACK(WN)
-    let eType ← inferType e
-    if !eType.hasExprMVar then
-      pushInfoTree <| InfoTree.ofTermInfo {
-        e := eType -- NOTE(WN): just e here is better, we can infer the type on demand in the server
-        stx := stx
-      }
-    e
+  withInfoContext' (withRef stx <| elabTermAux expectedType? catchExPostpone true stx) (mkTermInfo stx)
 
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   let e ← elabTerm stx expectedType? catchExPostpone

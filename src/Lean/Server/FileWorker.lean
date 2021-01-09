@@ -273,14 +273,18 @@ section RequestHandling
       | Except.error TaskError.eof =>
         pure $ Except.ok none
       | Except.ok (some snap) => do
-        let mut infoRanges := #[]
+        /- TODO: FIX -/
+        let mut infoRanges : Array (Nat × String.Pos × String.Pos × Expr) := #[]
         for t in snap.toCmdState.infoState.trees do
+          /-
           if let Elab.InfoTree.ofTermInfo i := t then
             match i.stx.getPos, i.stx.getTailPos with
             | some pos, some endPos =>
               if pos ≤ hoverPos ∧ hoverPos ≤ endPos then
                 infoRanges := infoRanges.push (endPos - pos, pos, endPos, i.e)
             | _, _ => pure ()
+          -/
+          pure ()
         match infoRanges.getMax? fun a b => a.1 > b.1 with
         | some (_, pos, endPos, e) =>
           --st.hLog.putStrLn s!"Picked from {infoRanges.size}"

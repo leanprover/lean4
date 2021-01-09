@@ -26,7 +26,7 @@ def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
      We store the `by` because in the future we want to save the initial state information at the `by` position. -/
   let code := tacticCode[1]
   modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
-  let remainingGoals ← liftTacticElabM mvarId do evalTactic code; getUnsolvedGoals
+  let remainingGoals ← withInfoHole mvarId do liftTacticElabM mvarId do evalTactic code; getUnsolvedGoals
   unless remainingGoals.isEmpty do reportUnsolvedGoals remainingGoals
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
@@ -46,12 +46,13 @@ private def resumePostponed (macroStack : MacroStack) (declName? : Option Name) 
       withReader (fun ctx => { ctx with macroStack := macroStack, declName? := declName? }) do
         let mvarDecl     ← getMVarDecl mvarId
         let expectedType ← instantiateMVars mvarDecl.type
-        let result       ← resumeElabTerm stx expectedType (!postponeOnError)
-        /- We must ensure `result` has the expected type because it is the one expected by the method that postponed stx.
-           That is, the method does not have an opportunity to check whether `result` has the expected type or not. -/
-        let result ← withRef stx $ ensureHasType expectedType result
-        assignExprMVar mvarId result
-        pure true
+        withInfoHole mvarId do
+          let result ← resumeElabTerm stx expectedType (!postponeOnError)
+          /- We must ensure `result` has the expected type because it is the one expected by the method that postponed stx.
+            That is, the method does not have an opportunity to check whether `result` has the expected type or not. -/
+          let result ← withRef stx $ ensureHasType expectedType result
+          assignExprMVar mvarId result
+          pure true
     catch
      | ex@(Exception.internal id _) =>
        if id == postponeExceptionId then

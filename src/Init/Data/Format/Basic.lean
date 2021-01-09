@@ -174,6 +174,12 @@ def defIndent  := 2
 def defUnicode := true
 def defWidth   := 120
 
+def nestD (f : Format) : Format :=
+  nest defIndent f
+
+def indentD (f : Format) : Format :=
+  nestD (Format.line ++ f)
+
 @[export lean_format_pretty]
 def pretty (f : Format) (w : Nat := defWidth) : String :=
   let (_, st) := be w [{ flb := FlattenBehavior.allOrNone, flatten := false, items := [{ f := f, indent := 0 }] }] {};
@@ -209,6 +215,3 @@ def Format.joinSuffix {α : Type u} [ToFormat α] : List α → Format → Forma
   | a::as, suffix => format a ++ suffix ++ joinSuffix as suffix
 
 end Std
-
-open Std
-open Std.Format

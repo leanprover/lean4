@@ -87,7 +87,7 @@ with builtins; let
   };
   compileMod = mod: drv: mkDerivation {
     name = "${mod}-cc";
-    buildInputs = [ leanc ];
+    buildInputs = [ leanc stdenv.cc ];
     hardeningDisable = [ "all" ];
     oPath = drv.relpath + ".o";
     inherit leancFlags;

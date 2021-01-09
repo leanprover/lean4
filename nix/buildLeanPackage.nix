@@ -131,7 +131,7 @@ in rec {
     mkdir $out
     ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))}
   '';
-  executable = runCommand executableName {} ''
+  executable = runCommand executableName { buildInputs = [ stdenv.cc ]; } ''
     mkdir -p $out/bin
     ${leanc}/bin/leanc -x none ${staticLib}/* -o $out/bin/${executableName}
   '';

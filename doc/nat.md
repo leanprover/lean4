@@ -60,7 +60,7 @@ theorem ex
 ```
 The sharp-eyed reader will notice that GMP is part of the Lean kernel trusted code base.
 We believe this is not a problem because you can use external type checkers to double-check your developments,
-and we consider GMP very thrustworthy.
+and we consider GMP very trustworthy.
 Existing external type checkers for Lean 3 (e.g., [Trepplein](https://github.com/gebner/trepplein) and [TC](https://github.com/leanprover/tc))
 can be easily adapted to Lean 4.
 If you are still concerned after checking your development with multiple different external checkers because

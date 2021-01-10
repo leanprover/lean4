@@ -32,8 +32,6 @@ option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(CCACHE             "use ccache"         ON)
 option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
-# When OFF we disable JSON support to support older compilers
-option(JSON               "JSON"               ON)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
 option(COMPRESSED_OBJECT_HEADER "Use compressed object headers in 64-bit machines, this option is ignored in 32-bit machines, and assumes the 64-bit OS can only address 2^48 bytes" ON)
@@ -156,12 +154,6 @@ endif()
 if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
   set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
 endif ()
-
-if(JSON)
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_JSON")
-else()
-  message(WARNING "Disabling JSON support, compile server will not be available")
-endif()
 
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")

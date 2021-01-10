@@ -2,22 +2,6 @@
 set -euo pipefail
 PATH=@nix@/bin:$PATH
 
-call() {
-    if [[ $json == 1 ]]; then
-        $@ 2>&1 | awk '
-/{/ { print $0; next }
-# Hide some Nix warnings. You will still see them with `nix build` etc., but they are pretty annoying in the editor.
-/warning: ignoring/ { next }
-{
-  gsub(/"/, "\\\"", $0);
-  gsub(/\n/, "\\n", $0);
-  printf "{\"severity\": \"error\", \"pos_line\": 0, \"pos_col\": 0, \"file_name\": \"<stdin>\", \"text\": \"%s\"}\n", $0 }'
-    else
-        $@
-    fi
-}
-
-json=0
 input=
 inputFile=
 server=0
@@ -27,7 +11,6 @@ deps=
 args=(-- "$@")
 for p in "$@"; do
     case "$p" in
-        --json) json=1;;
         --stdin) input="$(< /dev/stdin)";;
         --server)
             server=1
@@ -65,7 +48,7 @@ for dep in $deps; do
     target="$target.\"$dep\""
 done
 if [[ -z "$input" ]]; then
-    call nix run "$target" ${args[*]}
+    nix run "$target" ${args[*]}
 else
-    echo -n "$input" | call nix run "$target" ${args[*]}
+    echo -n "$input" | nix run "$target" ${args[*]}
 fi

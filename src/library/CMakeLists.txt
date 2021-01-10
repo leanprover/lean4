@@ -7,5 +7,5 @@ add_library(library OBJECT expr_lt.cpp io_state.cpp
   aux_recursors.cpp trace.cpp
   messages.cpp message_builder.cpp
   profiling.cpp time_task.cpp
-  formatter.cpp json.cpp
+  formatter.cpp
   abstract_type_context.cpp)

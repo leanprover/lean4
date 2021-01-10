@@ -34,7 +34,6 @@ Author: Leonardo de Moura
 #include "library/time_task.h"
 #include "library/compiler/ir.h"
 #include "library/trace.h"
-#include "library/json.h"
 #include "library/print.h"
 #include "initialize/init.h"
 #include "library/compiler/ir_interpreter.h"
@@ -162,8 +161,6 @@ int getopt_long(int argc, char *in_argv[], const char *optstring, const option *
 
 using namespace lean; // NOLINT
 
-// object * lean_process_file(object * filename, object * contents, uint8 json, object * env, object * world);
-
 #ifndef LEAN_SERVER_DEFAULT_MAX_MEMORY
 #define LEAN_SERVER_DEFAULT_MAX_MEMORY 1024
 #endif
@@ -203,14 +200,11 @@ static void display_help(std::ostream & out) {
 #if defined(LEAN_MULTI_THREAD)
     std::cout << "  --threads=num -j   number of threads used to process lean files\n";
     std::cout << "  --tstack=num -s    thread stack size in Kb\n";
-#endif
-    std::cout << "  --plugin=file      load and initialize shared library for registering linters etc.\n";
-    std::cout << "  --deps             just print dependencies of a Lean input\n";
-#if defined(LEAN_JSON)
-    std::cout << "  --json             print JSON-formatted structured error messages\n";
     std::cout << "  --server           start lean in server mode\n";
     std::cout << "  --worker           start lean in server-worker mode\n";
 #endif
+    std::cout << "  --plugin=file      load and initialize shared library for registering linters etc.\n";
+    std::cout << "  --deps             just print dependencies of a Lean input\n";
     std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
     std::cout << "  --stats            display environment statistics\n";
     DEBUG_CODE(
@@ -231,19 +225,16 @@ static struct option g_long_options[] = {
     {"trust",        required_argument, 0, 't'},
     {"profile",      no_argument,       0, 'P'},
     {"stats",        no_argument,       0, 'a'},
-    {"threads",      required_argument, 0, 'j'},
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
     {"timeout",      optional_argument, 0, 'T'},
     {"c",            optional_argument, 0, 'c'},
     {"exitOnPanic",  no_argument,       0, 'e'},
-#if defined(LEAN_JSON)
-    {"json",         no_argument,       0, 'J'},
+#if defined(LEAN_MULTI_THREAD)
+    {"threads",      required_argument, 0, 'j'},
+    {"tstack",       required_argument, 0, 's'},
     {"server",       no_argument,       0, 'S'},
     {"worker",       no_argument,       0, 'W'},
-#endif
-#if defined(LEAN_MULTI_THREAD)
-    {"tstack",       required_argument, 0, 's'},
 #endif
     {"plugin",       required_argument, 0, 'p'},
 #ifdef LEAN_DEBUG
@@ -333,11 +324,9 @@ public:
 };
 
 namespace lean {
-typedef list_ref<object_ref> messages;
-typedef object_ref module_stx;
 extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, object * w);
-pair_ref<environment, pair_ref<messages, module_stx>> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name) {
-    return get_io_result<pair_ref<environment, pair_ref<messages, module_stx>>>(
+pair_ref<environment, object_ref> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name) {
+    return get_io_result<pair_ref<environment, object_ref>>(
         lean_run_frontend(mk_string(input), opts.to_obj_arg(), mk_string(file_name), main_module_name.to_obj_arg(), io_mk_world()));
 }
 
@@ -455,9 +444,6 @@ int main(int argc, char ** argv) {
 #if defined(LEAN_MULTI_THREAD)
     num_threads = hardware_concurrency();
 #endif
-#if defined(LEAN_JSON)
-    bool json_output = false;
-#endif
 #if defined(LEAN_LLVM)
     // Initialize LLVM backends for native code generation.
     llvm::InitializeNativeTarget();
@@ -545,18 +531,12 @@ int main(int argc, char ** argv) {
                     return 1;
                 }
                 break;
-#if defined(LEAN_JSON)
-            case 'J':
-                opts = opts.update(lean::name{"trace", "as_messages"}, true);
-                json_output = true;
-                break;
             case 'S':
                 run_server = 1;
                 break;
             case 'W':
                 run_server = 2;
                 break;
-#endif
             case 'P':
                 opts = opts.update("profiler", true);
                 break;
@@ -652,33 +632,11 @@ int main(int argc, char ** argv) {
             contents.erase(0, end_line_pos);
         }
 
-        bool ok = true;
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<environment, pair_ref<messages, module_stx>> r = run_new_frontend(contents, opts, mod_fn, *main_module_name);
+        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name);
         env = r.fst();
-        buffer<message> cpp_msgs;
-        // HACK: convert Lean Message into C++ message
-        for (auto msg : r.snd().fst()) {
-            pos_info pos = get_message_pos(msg);
-            message_severity sev = get_message_severity(msg);
-            if (sev == message_severity::ERROR)
-                ok = false;
-            std::string str = get_message_string(msg);
-            cpp_msgs.push_back(message(mod_fn, pos, sev, str));
-        }
-#if defined(LEAN_JSON)
-        if (json_output) {
-            for (auto msg : cpp_msgs) {
-                print_json(std::cout, msg);
-            }
-        } else
-#endif
-        {
-            for (auto msg : cpp_msgs) {
-                std::cout << msg;
-            }
-        }
+        bool ok = unbox(r.snd().raw());
 
         if (stats) {
             env.display_stats();
@@ -709,10 +667,7 @@ int main(int argc, char ** argv) {
             out.close();
         }
 
-#ifdef LEAN_JSON
-        if (!json_output)
-#endif
-            display_cumulative_profiling_times(std::cerr);
+        display_cumulative_profiling_times(std::cerr);
 
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {

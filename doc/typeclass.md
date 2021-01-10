@@ -214,7 +214,7 @@ instance [Inhabited a] [Inhabited b] : Inhabited (a × b) where
 -- (0, true)
 # end Ex
 ```
-Similarly, we can inhabit tyhe function with suitable constant functions:
+Similarly, we can inhabit type function with suitable constant functions:
 ```lean
 instance [Inhabited b] : Inhabited (a -> b) where
   default := fun _ => arbitrary
@@ -309,7 +309,7 @@ contain missing parts. The following command produces the error
 #check_failure (inferInstance : Inhabited (Nat × _))
 ```
 You can view the parameter of the type class `Inhabited` as an *input* value for the type class synthesizer.
-When a type class have multiple parameters, you can mark some of them as output parameters.
+When a type class has multiple parameters, you can mark some of them as output parameters.
 Lean will start type class synthesizer even when these parameters have missing parts.
 In the following example, we use output parameters to define a *heterogeneous* polymorphic
 multiplication.

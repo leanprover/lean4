@@ -1,0 +1,17 @@
+"Foo structure is just a test "
+"main name "
+"documentation for the second field "
+"documenting test axiom "
+doc string for 'Boo' is not available
+"Boo constructor has a custom name "
+"Boo.x docString "
+doc string for 'Boo.y' is not available
+"inductive datatype Tree documentation "
+"Tree.node documentation "
+"Tree.leaf stores the values "
+"documenting definition in namespace "
+"We can document 'where' functions too "
+doc string for 'f' is not available
+"let rec documentation at f "
+doc string for 'g' is not available
+"let rec documentation at g "

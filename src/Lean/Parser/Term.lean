@@ -9,6 +9,16 @@ import Lean.Parser.Level
 namespace Lean
 namespace Parser
 
+namespace Command
+def commentBody : Parser :=
+{ fn := rawFn (finishCommentBlock 1) true }
+
+@[combinatorParenthesizer Lean.Parser.Command.commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+@[combinatorFormatter Lean.Parser.Command.commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
+
+def docComment       := parser! ppDedent $ "/--" >> commentBody >> ppLine
+end Command
+
 builtin_initialize
   registerBuiltinParserAttribute `builtinTacticParser `tactic LeadingIdentBehavior.both
   registerBuiltinDynamicParserAttribute `tacticParser `tactic
@@ -159,7 +169,7 @@ def attrKind := parser! optional («scoped» <|> «local»)
 def attrInstance     := ppGroup $ parser! attrKind >> attrParser
 
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
-def letRecDecl       := parser! optional «attributes» >> letDecl
+def letRecDecl       := parser! optional Command.docComment >> optional «attributes» >> letDecl
 def letRecDecls      := sepBy1 letRecDecl ", "
 @[builtinTermParser]
 def «letrec» := parser!:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser

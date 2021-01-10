@@ -119,6 +119,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let name := ctor[1].getId
       let declName := structDeclName ++ name
       let declName ← applyVisibility ctorModifiers.visibility declName
+      addDocString' declName ctorModifiers.docString?
       pure { ref := ctor, name := name, modifiers := ctorModifiers, inferMod := inferMod, declName := declName }
 
 def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
@@ -183,6 +184,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         throwError! "invalid field name '{name}', identifiers starting with '_' are reserved to the system"
       let declName := structDeclName ++ name
       let declName ← applyVisibility fieldModifiers.visibility declName
+      addDocString' declName fieldModifiers.docString?
       return views.push {
         ref        := ident,
         modifiers  := fieldModifiers,

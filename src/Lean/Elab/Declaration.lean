@@ -104,6 +104,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     let ctorName ← withRef ctor[2] $ applyVisibility ctorModifiers.visibility ctorName
     let inferMod := !ctor[3].isNone
     let (binders, type?) := expandOptDeclSig ctor[4]
+    addDocString' ctorName ctorModifiers.docString?
     pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
   let classes ← getOptDerivingClasses decl[5]
   pure {

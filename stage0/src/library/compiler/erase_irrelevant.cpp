@@ -206,9 +206,8 @@ class erase_irrelevant_fn {
         expr minor       = visit_minor(args[3]);
         lean_assert(is_lambda(minor));
         return
-            ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_array_sz_name()), mk_enf_neutral(), major),
             ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_array_data_name()), mk_enf_neutral(), major),
-                           binding_body(binding_body(minor))));
+                           binding_body(minor));
     }
 
     expr decidable_to_bool_cases(buffer<expr> const & args) {

@@ -14,6 +14,8 @@
 extern "C" {
 #endif
 lean_object* l_Lean_matchConstStruct_match__2___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_getModuleOf___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_getModuleOf___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstRec_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_getConstInfoRec_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -33,6 +35,7 @@ lean_object* l_Lean_evalConst___rarg___lambda__1___boxed(lean_object*, lean_obje
 lean_object* l_Lean_getConstInfoCtor_match__1(lean_object*);
 lean_object* l_Lean_getConstInfo___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_getModuleOf_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoRec(lean_object*);
 lean_object* l_Lean_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,6 +74,7 @@ lean_object* l_Lean_matchConstStruct___rarg(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_addAndCompile___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstStruct_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoInduct(lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Lean_addDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -90,6 +94,7 @@ lean_object* l_Lean_withoutModifyingEnv___rarg(lean_object*, lean_object*, lean_
 extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__1;
 lean_object* l_Lean_ofExcept___at_Lean_evalConst___spec__1(lean_object*);
+lean_object* l_Lean_getModuleOf___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConstCheck(lean_object*);
 lean_object* l_Lean_isInductive___rarg(lean_object*, lean_object*, lean_object*);
@@ -106,15 +111,21 @@ lean_object* l_Lean_mkAuxName___rarg(lean_object*, lean_object*, lean_object*, l
 lean_object* l_Lean_evalConstCheck___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstRec(lean_object*, lean_object*);
 lean_object* l_Lean_throwKernelException___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_getModuleOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConst___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_evalConstCheck___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withoutModifyingEnv___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo_match__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedName;
+lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2;
+lean_object* l_Lean_getModuleOf___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConstInduct___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoInduct_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Environment_allImportedModuleNames(lean_object*);
+lean_object* l_Lean_getModuleOf___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoCtor_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_mkAuxNameAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoRec___rarg___lambda__1___closed__1;
@@ -122,6 +133,7 @@ lean_object* l_Lean_ofExcept___at_Lean_evalConstCheck___spec__1(lean_object*);
 lean_object* l_Lean_matchConstStruct(lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoRec___rarg___lambda__1___closed__2;
 lean_object* l_Lean_getConstInfoRec___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_getModuleOf(lean_object*);
 lean_object* lean_compile_decl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConst___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDecl_match__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -129,8 +141,10 @@ lean_object* l_Lean_getConstInfoCtor(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_tryFinally___rarg___closed__1;
 lean_object* l_Lean_matchConstCtor(lean_object*, lean_object*);
+lean_object* l_Lean_getModuleOf_match__1(lean_object*);
 lean_object* l_Lean_matchConstCtor___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoRec___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_getModuleOf___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfoInduct___rarg___lambda__1___closed__1;
 lean_object* l_Lean_evalConst___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_add_decl(lean_object*, lean_object*);
@@ -2115,6 +2129,168 @@ lean_object* x_7;
 x_7 = l_Lean_evalConstCheck___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
 return x_7;
+}
+}
+lean_object* l_Lean_getModuleOf_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_3);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
+x_7 = lean_apply_1(x_3, x_6);
+return x_7;
+}
+}
+}
+lean_object* l_Lean_getModuleOf_match__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_getModuleOf_match__1___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_getModuleOf___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = l_Lean_Environment_allImportedModuleNames(x_3);
+x_6 = l_Lean_instInhabitedName;
+x_7 = lean_array_get(x_6, x_5, x_2);
+lean_dec(x_5);
+x_8 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_8, 0, x_7);
+x_9 = lean_apply_2(x_4, lean_box(0), x_8);
+return x_9;
+}
+}
+lean_object* l_Lean_getModuleOf___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Environment_getModuleIdxFor_x3f(x_5, x_1);
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_7 = lean_ctor_get(x_2, 1);
+lean_inc(x_7);
+lean_dec(x_2);
+x_8 = lean_box(0);
+x_9 = lean_apply_2(x_7, lean_box(0), x_8);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_10 = lean_ctor_get(x_6, 0);
+lean_inc(x_10);
+lean_dec(x_6);
+x_11 = lean_alloc_closure((void*)(l_Lean_getModuleOf___rarg___lambda__1___boxed), 3, 2);
+lean_closure_set(x_11, 0, x_2);
+lean_closure_set(x_11, 1, x_10);
+x_12 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_11);
+return x_12;
+}
+}
+}
+lean_object* l_Lean_getModuleOf___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
+lean_inc(x_6);
+lean_inc(x_4);
+x_7 = lean_alloc_closure((void*)(l_Lean_getModuleOf___rarg___lambda__2___boxed), 5, 4);
+lean_closure_set(x_7, 0, x_2);
+lean_closure_set(x_7, 1, x_3);
+lean_closure_set(x_7, 2, x_4);
+lean_closure_set(x_7, 3, x_6);
+x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_7);
+return x_8;
+}
+}
+lean_object* l_Lean_getModuleOf___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_inc(x_4);
+lean_inc(x_2);
+x_8 = l_Lean_getConstInfo___rarg(x_1, x_2, x_3, x_4);
+x_9 = lean_ctor_get(x_7, 1);
+lean_inc(x_9);
+lean_dec(x_7);
+x_10 = lean_box(0);
+x_11 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_8);
+lean_inc(x_5);
+x_12 = lean_alloc_closure((void*)(l_Lean_getModuleOf___rarg___lambda__3___boxed), 5, 4);
+lean_closure_set(x_12, 0, x_2);
+lean_closure_set(x_12, 1, x_4);
+lean_closure_set(x_12, 2, x_6);
+lean_closure_set(x_12, 3, x_5);
+x_13 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_11, x_12);
+return x_13;
+}
+}
+lean_object* l_Lean_getModuleOf(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_getModuleOf___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_getModuleOf___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_getModuleOf___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
+lean_object* l_Lean_getModuleOf___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_getModuleOf___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_1);
+return x_6;
+}
+}
+lean_object* l_Lean_getModuleOf___rarg___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_getModuleOf___rarg___lambda__3(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+return x_6;
 }
 }
 lean_object* initialize_Init(lean_object*);

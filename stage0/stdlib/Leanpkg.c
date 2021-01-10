@@ -1704,7 +1704,7 @@ static lean_object* _init_l_Leanpkg_usage___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n\nUsage: leanpkg <command>\n\nconfigure              download dependencies\nbuild [-- <Lean-args>] download dependencies and build *.olean files\ninit <name>            create a Lean package in the current directory\n\nSee `leanpkg help <command>` for more information on a specific command.");
+x_1 = lean_mk_string("\n\nUsage: leanpkg <command>\n\nconfigure              download and build dependencies and print resulting LEAN_PATH\nbuild [-- <Lean-args>] configure and build *.olean files\ninit <name>            create a Lean package in the current directory\n\nSee `leanpkg help <command>` for more information on a specific command.");
 return x_1;
 }
 }
@@ -2608,74 +2608,59 @@ lean_object* x_63;
 x_63 = l_Leanpkg_configure(x_4);
 if (lean_obj_tag(x_63) == 0)
 {
-uint8_t x_64; 
-x_64 = !lean_is_exclusive(x_63);
-if (x_64 == 0)
-{
-lean_object* x_65; lean_object* x_66; 
-x_65 = lean_ctor_get(x_63, 0);
-lean_dec(x_65);
-x_66 = lean_box(0);
-lean_ctor_set(x_63, 0, x_66);
-return x_63;
-}
-else
-{
-lean_object* x_67; lean_object* x_68; lean_object* x_69; 
-x_67 = lean_ctor_get(x_63, 1);
-lean_inc(x_67);
+lean_object* x_64; lean_object* x_65; lean_object* x_66; 
+x_64 = lean_ctor_get(x_63, 0);
+lean_inc(x_64);
+x_65 = lean_ctor_get(x_63, 1);
+lean_inc(x_65);
 lean_dec(x_63);
-x_68 = lean_box(0);
-x_69 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_69, 0, x_68);
-lean_ctor_set(x_69, 1, x_67);
-return x_69;
-}
+x_66 = l_IO_println___at_Lean_instEval___spec__1(x_64, x_65);
+return x_66;
 }
 else
 {
-uint8_t x_70; 
-x_70 = !lean_is_exclusive(x_63);
-if (x_70 == 0)
+uint8_t x_67; 
+x_67 = !lean_is_exclusive(x_63);
+if (x_67 == 0)
 {
 return x_63;
 }
 else
 {
-lean_object* x_71; lean_object* x_72; lean_object* x_73; 
-x_71 = lean_ctor_get(x_63, 0);
-x_72 = lean_ctor_get(x_63, 1);
-lean_inc(x_72);
-lean_inc(x_71);
+lean_object* x_68; lean_object* x_69; lean_object* x_70; 
+x_68 = lean_ctor_get(x_63, 0);
+x_69 = lean_ctor_get(x_63, 1);
+lean_inc(x_69);
+lean_inc(x_68);
 lean_dec(x_63);
-x_73 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_73, 0, x_71);
-lean_ctor_set(x_73, 1, x_72);
-return x_73;
+x_70 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_70, 0, x_68);
+lean_ctor_set(x_70, 1, x_69);
+return x_70;
 }
 }
 }
 else
 {
-lean_object* x_74; lean_object* x_75; 
+lean_object* x_71; lean_object* x_72; 
 lean_dec(x_3);
-x_74 = l_Leanpkg_main___closed__1;
-x_75 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_75, 0, x_74);
-lean_ctor_set(x_75, 1, x_4);
-return x_75;
+x_71 = l_Leanpkg_main___closed__1;
+x_72 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_72, 0, x_71);
+lean_ctor_set(x_72, 1, x_4);
+return x_72;
 }
 }
 else
 {
-lean_object* x_76; lean_object* x_77; 
+lean_object* x_73; lean_object* x_74; 
 lean_dec(x_3);
 lean_dec(x_2);
-x_76 = l_Leanpkg_main___closed__1;
-x_77 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_77, 0, x_76);
-lean_ctor_set(x_77, 1, x_4);
-return x_77;
+x_73 = l_Leanpkg_main___closed__1;
+x_74 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_74, 0, x_73);
+lean_ctor_set(x_74, 1, x_4);
+return x_74;
 }
 }
 }

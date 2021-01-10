@@ -22,13 +22,6 @@ namespace Command
 def namedPrio := parser! (atomic ("(" >> nonReservedSymbol "priority") >> " := " >> priorityParser >> ")")
 def optNamedPrio := optional namedPrio
 
-def commentBody : Parser :=
-{ fn := rawFn (finishCommentBlock 1) true }
-
-@[combinatorParenthesizer Lean.Parser.Command.commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
-@[combinatorFormatter Lean.Parser.Command.commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
-
-def docComment       := parser! ppDedent $ "/--" >> commentBody >> ppLine
 def «private»        := parser! "private "
 def «protected»      := parser! "protected "
 def visibility       := «private» <|> «protected»

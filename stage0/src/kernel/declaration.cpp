@@ -206,10 +206,6 @@ declaration mk_definition(environment const & env, name const & n, names const &
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, safety)));
 }
 
-declaration mk_theorem(name const & n, names const & params, expr const & t, expr const & v) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), theorem_val(n, params, t, v)));
-}
-
 declaration mk_opaque(name const & n, names const & params, expr const & t, expr const & v, bool is_unsafe) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Opaque), opaque_val(n, params, t, v, is_unsafe)));
 }
@@ -233,22 +229,6 @@ declaration mk_definition_inferring_unsafe(environment const & env, name const &
     bool unsafe  = use_unsafe(env, t) && use_unsafe(env, v);
     unsigned h = get_max_height(env, v);
     return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1), to_safety(unsafe));
-}
-
-declaration mk_axiom_inferring_unsafe(environment const & env, name const & n,
-                                    names const & params, expr const & t) {
-    return mk_axiom(n, params, t, use_unsafe(env, t));
-}
-
-declaration mk_mutual_definitions(definition_vals const & ds) {
-    if (length(ds) == 1)
-        return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), head(ds)));
-    else
-        return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::MutualDefinition), ds));
-}
-
-declaration mk_quot_decl() {
-    return declaration(box(static_cast<unsigned>(declaration_kind::Quot)));
 }
 
 inductive_type::inductive_type(name const & id, expr const & type, constructors const & cnstrs):

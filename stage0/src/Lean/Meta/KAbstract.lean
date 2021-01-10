@@ -9,7 +9,7 @@ import Lean.Meta.ExprDefEq
 
 namespace Lean.Meta
 
-def kabstract {m} [MonadLiftT MetaM m] (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : m Expr := liftMetaM do
+def kabstract (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : MetaM Expr := do
   let e ← instantiateMVars e
   if p.isFVar && occs == Occurrences.all then
     return e.abstract #[p] -- Easy case
@@ -39,6 +39,6 @@ def kabstract {m} [MonadLiftT MetaM m] (e : Expr) (p : Expr) (occs : Occurrences
           visitChildren ()
       else
         visitChildren ()
-    (visit e 0).run' 1
+    visit e 0 |>.run' 1
 
 end Lean.Meta

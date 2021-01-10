@@ -70,7 +70,6 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Elab_Term_getMainModule___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_addLocalInstancesForParamsAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith___spec__6___closed__4;
-lean_object* l_ReaderT_bind___at_Lean_Elab_Command_instMonadEnvCommandElabM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___closed__8;
 lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_instBinderF;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -219,6 +218,7 @@ lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedIn
 extern lean_object* l_prec_x28___x29___closed__7;
 lean_object* l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__5(lean_object*);
 extern lean_object* l_prec_x28___x29___closed__3;
+lean_object* l_ReaderT_bind___at_Lean_Elab_Command_instMonadInfoTreeCommandElabM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 lean_object* l_Std_RBTree_toList___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__2___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_match__2___rarg(lean_object*, lean_object*);
@@ -8296,7 +8296,7 @@ x_14 = lean_alloc_closure((void*)(l_List_forIn_loop___at___private_Lean_Elab_Der
 lean_closure_set(x_14, 0, x_2);
 lean_inc(x_6);
 lean_inc(x_5);
-x_15 = l_ReaderT_bind___at_Lean_Elab_Command_instMonadEnvCommandElabM___spec__1___rarg(x_13, x_14, x_5, x_6, x_7);
+x_15 = l_ReaderT_bind___at_Lean_Elab_Command_instMonadInfoTreeCommandElabM___spec__1___rarg(x_13, x_14, x_5, x_6, x_7);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; 

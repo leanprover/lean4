@@ -583,7 +583,7 @@ def getDoHaveVar (doHave : Syntax) : Name :=
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Name) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
   let letRecDecls := doLetRec[1].getSepArgs
-  let letDecls := letRecDecls.map fun p => p[1]
+  let letDecls := letRecDecls.map fun p => p[2]
   let mut allVars := #[]
   for letDecl in letDecls do
     let vars ← getLetDeclVars letDecl

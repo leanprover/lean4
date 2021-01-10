@@ -20,7 +20,6 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Leanpkg_gitParseRevision(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_gitParseRevision___closed__6;
 lean_object* l_Leanpkg_gitdefaultRevision_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Leanpkg_upstreamGitBranch___closed__2;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Leanpkg_gitParseRevision___closed__2;
 extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
@@ -35,67 +34,26 @@ lean_object* l_Leanpkg_gitLatestOriginRevision___closed__1;
 lean_object* l_Leanpkg_gitRevisionExists___closed__1;
 lean_object* l_Leanpkg_gitParseOriginRevision___closed__1;
 lean_object* l_Leanpkg_gitParseRevision___closed__7;
-lean_object* l_Leanpkg_upstreamGitBranch___closed__1;
 lean_object* l_Leanpkg_gitParseOriginRevision___closed__3;
 lean_object* l_Leanpkg_gitRevisionExists(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Leanpkg_leanVersionString___closed__3;
 lean_object* l_Leanpkg_gitParseRevision___closed__8;
 lean_object* l_IO_Process_run(lean_object*, lean_object*);
 lean_object* l_Leanpkg_gitParseRevision___closed__4;
-extern uint8_t l_Lean_version_isRelease;
 lean_object* l_Leanpkg_gitParseOriginRevision___closed__2;
-lean_object* l_Leanpkg_upstreamGitBranch___closed__3;
 lean_object* l_Leanpkg_gitHeadRevision(lean_object*, lean_object*);
 lean_object* l_Leanpkg_gitLatestOriginRevision(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Leanpkg_leanVersionStringCore;
 lean_object* l_String_trim(lean_object*);
 lean_object* l_Leanpkg_gitdefaultRevision(lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Leanpkg_gitHeadRevision___closed__1;
 lean_object* l_Leanpkg_gitParseRevision___closed__9;
 lean_object* l_Leanpkg_upstreamGitBranch;
-static lean_object* _init_l_Leanpkg_upstreamGitBranch___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean-");
-return x_1;
-}
-}
-static lean_object* _init_l_Leanpkg_upstreamGitBranch___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Leanpkg_upstreamGitBranch___closed__1;
-x_2 = l_Leanpkg_leanVersionStringCore;
-x_3 = lean_string_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Leanpkg_upstreamGitBranch___closed__3() {
-_start:
-{
-uint8_t x_1; 
-x_1 = l_Lean_version_isRelease;
-if (x_1 == 0)
-{
-lean_object* x_2; 
-x_2 = l_Leanpkg_leanVersionString___closed__3;
-return x_2;
-}
-else
-{
-lean_object* x_3; 
-x_3 = l_Leanpkg_upstreamGitBranch___closed__2;
-return x_3;
-}
-}
-}
 static lean_object* _init_l_Leanpkg_upstreamGitBranch() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Leanpkg_upstreamGitBranch___closed__3;
+x_1 = l_Leanpkg_leanVersionString___closed__3;
 return x_1;
 }
 }
@@ -582,12 +540,6 @@ lean_dec_ref(res);
 res = initialize_Leanpkg_LeanVersion(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Leanpkg_upstreamGitBranch___closed__1 = _init_l_Leanpkg_upstreamGitBranch___closed__1();
-lean_mark_persistent(l_Leanpkg_upstreamGitBranch___closed__1);
-l_Leanpkg_upstreamGitBranch___closed__2 = _init_l_Leanpkg_upstreamGitBranch___closed__2();
-lean_mark_persistent(l_Leanpkg_upstreamGitBranch___closed__2);
-l_Leanpkg_upstreamGitBranch___closed__3 = _init_l_Leanpkg_upstreamGitBranch___closed__3();
-lean_mark_persistent(l_Leanpkg_upstreamGitBranch___closed__3);
 l_Leanpkg_upstreamGitBranch = _init_l_Leanpkg_upstreamGitBranch();
 lean_mark_persistent(l_Leanpkg_upstreamGitBranch);
 l_Leanpkg_gitParseRevision___closed__1 = _init_l_Leanpkg_gitParseRevision___closed__1();

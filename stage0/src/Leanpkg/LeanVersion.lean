@@ -10,7 +10,7 @@ def leanVersionStringCore :=
 
 def leanVersionString :=
   if Lean.version.isRelease then
-      s!"leanprover/lean:{leanVersionStringCore}"
+      s!"leanprover/lean4:{leanVersionStringCore}"
   else if Lean.version.specialDesc ≠ "" then
       Lean.version.specialDesc
   else

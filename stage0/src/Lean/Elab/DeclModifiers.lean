@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Modifiers
+import Lean.DocString
 import Lean.Elab.Attributes
 import Lean.Elab.Exception
 import Lean.Elab.DeclUtil
@@ -34,7 +35,7 @@ instance : ToString Visibility := ⟨fun
   | Visibility.«protected» => "protected"⟩
 
 structure Modifiers where
-  docString       : Option String := none
+  docString?      : Option String := none
   visibility      : Visibility := Visibility.regular
   isNoncomputable : Bool := false
   isPartial       : Bool := false
@@ -55,7 +56,7 @@ def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifier
 
 instance : ToFormat Modifiers := ⟨fun m =>
   let components : List Format :=
-    (match m.docString with
+    (match m.docString? with
      | some str => [f!"/--{str}-/"]
      | none     => [])
     ++ (match m.visibility with
@@ -70,6 +71,13 @@ instance : ToFormat Modifiers := ⟨fun m =>
 
 instance : ToString Modifiers := ⟨toString ∘ format⟩
 
+def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (Option String) :=
+  match optDocComment.getOptional? with
+  | none   => pure none
+  | some s => match s[1] with
+    | Syntax.atom _ val => pure (some (val.extract 0 (val.bsize - 2)))
+    | _                 => throwErrorAt! s "unexpected doc string {s[1]}"
+
 section Methods
 
 variables [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m]
@@ -81,7 +89,7 @@ def elabModifiers (stx : Syntax) : m Modifiers := do
   let noncompStx    := stx[3]
   let unsafeStx     := stx[4]
   let partialStx    := stx[5]
-  let docString ← match docCommentStx.getOptional? with
+  let docString? ← match docCommentStx.getOptional? with
     | none   => pure none
     | some s => match s[1] with
       | Syntax.atom _ val => pure (some (val.extract 0 (val.bsize - 2)))
@@ -97,7 +105,7 @@ def elabModifiers (stx : Syntax) : m Modifiers := do
     | none       => pure #[]
     | some attrs => elabDeclAttrs attrs
   pure {
-    docString       := docString,
+    docString?      := docString?,
     visibility      := visibility,
     isPartial       := !partialStx.isNone,
     isUnsafe        := !unsafeStx.isNone,
@@ -172,6 +180,7 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
             pure (id :: levelNames))
         currLevelNames
   let (declName, shortName) ← withRef declId $ mkDeclName currNamespace modifiers shortName
+  addDocString' declName modifiers.docString?
   pure { shortName := shortName, declName := declName, levelNames := levelNames }
 
 end Methods

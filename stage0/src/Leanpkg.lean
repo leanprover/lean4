@@ -75,14 +75,14 @@ def usage :=
 
 Usage: leanpkg <command>
 
-configure              download dependencies
-build [-- <Lean-args>] download dependencies and build *.olean files
+configure              download and build dependencies and print resulting LEAN_PATH
+build [-- <Lean-args>] configure and build *.olean files
 init <name>            create a Lean package in the current directory
 
 See `leanpkg help <command>` for more information on a specific command."
 
 def main : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
-  | "configure", [],     []        => discard <| configure
+  | "configure", [],     []        => configure >>= IO.println
   | "build",     _,      leanArgs  => build leanArgs
   | "init",      [Name], []        => init Name
   | "help",      ["configure"], [] => IO.println "Download dependencies

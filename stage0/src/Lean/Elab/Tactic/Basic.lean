@@ -110,57 +110,72 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List Tact
           throw ex
   loop tactics
 
-/- Elaborate `x` with `stx` on the macro stack -/
-@[inline]
-def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TacticM α) : TacticM α :=
-  withTheReader Term.Context (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+def getGoals : TacticM (List MVarId) := do pure (← get).goals
 
 mutual
 
-partial def expandTacticMacroFns (stx : Syntax) (macros : List Macro) : TacticM Unit :=
-  let rec loop : List Macro → TacticM Unit
-    | []    => throwErrorAt! stx "tactic '{stx.getKind}' has not been implemented"
-    | m::ms => do
-      let scp ← getCurrMacroScope
-      try
-        let stx' ← adaptMacro m stx
-        evalTactic stx'
-      catch ex =>
-        if ms.isEmpty then throw ex
-        loop ms
-  loop macros
+  partial def expandTacticMacroFns (stx : Syntax) (macros : List Macro) : TacticM Unit :=
+    let rec loop : List Macro → TacticM Unit
+      | []    => throwErrorAt! stx "tactic '{stx.getKind}' has not been implemented"
+      | m::ms => do
+        let scp ← getCurrMacroScope
+        try
+          let stx' ← adaptMacro m stx
+          evalTactic stx'
+        catch ex =>
+          if ms.isEmpty then throw ex
+          loop ms
+    loop macros
 
-partial def expandTacticMacro (stx : Syntax) : TacticM Unit := do
-  let k        := stx.getKind
-  let table    := (macroAttribute.ext.getState (← getEnv)).table
-  let macroFns := (table.find? k).getD []
-  expandTacticMacroFns stx macroFns
+  partial def expandTacticMacro (stx : Syntax) : TacticM Unit := do
+    let k        := stx.getKind
+    let table    := (macroAttribute.ext.getState (← getEnv)).table
+    let macroFns := (table.find? k).getD []
+    expandTacticMacroFns stx macroFns
 
-partial def evalTactic : Syntax → TacticM Unit
-  | stx => withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
-    | Syntax.node k args =>
-      if k == nullKind then
-        -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
-        stx.getArgs.forM evalTactic
-      else do
-        trace `Elab.step fun _ => stx
-        let env ← getEnv
-        let s ← saveAllState
-        let table := (tacticElabAttribute.ext.getState env).table
-        let k := stx.getKind
-        match table.find? k with
-        | some evalFns => evalTacticUsing s stx evalFns
-        | none         => expandTacticMacro stx
-    | _ => throwError "unexpected command"
+  partial def evalTacticAux (stx : Syntax) : TacticM Unit :=
+    withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
+      | Syntax.node k args =>
+        if k == nullKind then
+          -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
+          stx.getArgs.forM evalTactic
+        else do
+          trace `Elab.step fun _ => stx
+          let env ← getEnv
+          let s ← saveAllState
+          let table := (tacticElabAttribute.ext.getState env).table
+          let k := stx.getKind
+          match table.find? k with
+          | some evalFns => evalTacticUsing s stx evalFns
+          | none         => expandTacticMacro stx
+      | _ => throwError "unexpected command"
+
+  partial def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
+    return Info.ofTacticInfo {
+      mctxBefore    := mctxBefore
+      goalsBefore   := goalsBefore
+      stx           := stx
+      mctxAfter     := (← getMCtx)
+      goalsAfter    := (← getGoals)
+    }
+
+  partial def evalTactic (stx : Syntax) : TacticM Unit := do
+    let mctxBefore  ← getMCtx
+    let goalsBefore ← getGoals
+    withInfoContext (evalTacticAux stx) (mkTacticInfo mctxBefore goalsBefore stx)
 
 end
+
+/- Elaborate `x` with `stx` on the macro stack -/
+@[inline]
+def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TacticM α) : TacticM α :=
+  withMacroExpansionInfo beforeStx afterStx do
+    withTheReader Term.Context (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 /-- Adapt a syntax transformation to a regular tactic evaluator. -/
 def adaptExpander (exp : Syntax → TacticM Syntax) : Tactic := fun stx => do
   let stx' ← exp stx
   withMacroExpansion stx stx' $ evalTactic stx'
-
-def getGoals : TacticM (List MVarId) := do pure (← get).goals
 
 def setGoals (gs : List MVarId) : TacticM Unit := modify $ fun s => { s with goals := gs }
 
@@ -323,25 +338,19 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 @[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun stx =>
   liftMetaTactic fun mvarId => do Meta.assumption mvarId; pure []
 
-private def introStep (n : Name) : TacticM Unit :=
-  liftMetaTactic fun mvarId => do
-    let (_, mvarId) ← Meta.intro mvarId n
-    pure [mvarId]
-
-@[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with
-  | `(tactic| intro)           => liftMetaTactic fun mvarId => do let (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
-  | `(tactic| intro $h:ident)  => introStep h.getId
-  | `(tactic| intro _)         => introStep `_
-  | `(tactic| intro $pat:term) => do
-    let stxNew ← `(tactic| intro h; match h with | $pat:term => _; clear h)
-    withMacroExpansion stx stxNew $ evalTactic stxNew
-  | `(tactic| intro $hs:term*) => do
-    let h0 := hs.get! 0
-    let hs := hs.extract 1 hs.size
-    let stxNew ← `(tactic| intro $h0:term; intro $hs:term*)
-    withMacroExpansion stx stxNew $ evalTactic stxNew
+  | `(tactic| intro)                   => introStep `_
+  | `(tactic| intro $h:ident)          => introStep h.getId
+  | `(tactic| intro _)                 => introStep `_
+  | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match h with | $pat:term => _; clear h))
+  | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
+where
+  introStep (n : Name) : TacticM Unit :=
+    liftMetaTactic fun mvarId => do
+      let (_, mvarId) ← Meta.intro mvarId n
+      pure [mvarId]
 
 @[builtinTactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]

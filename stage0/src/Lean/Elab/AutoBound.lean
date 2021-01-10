@@ -22,13 +22,27 @@ def getAutoBoundImplicitLocalOption (opts : Options) : Bool :=
 private def allNumeral (s : Substring) : Bool :=
   s.all fun c => c.isDigit || isNumericSubscript c
 
+/-
+Remark: Issue #255 exposed a nasty interaction between macro scopes and auto-bound-implicit names.
+```
+local notation "A" => id x
+theorem test : A = A := sorry
+```
+We used to use `n.eraseMacroScopes` at `isValidAutoBoundImplicitName` and `isValidAutoBoundLevelName`.
+Thus, in the example above, when `A` is expanded, a `x` with a fresh macro scope is created.
+`x`+macros-scope is not in scope and is a valid auto-bound implicit name after macro scopes are erased.
+So, an auto-bound exception would be thrown, and `x`+macro-scope would be added as a new implicit.
+When, we try again, a `x` with a new macro scope is created and this process keeps repeating.
+Therefore, we do consider identifier with macro scopes anymore.
+-/
+
 def isValidAutoBoundImplicitName (n : Name) : Bool :=
-  match n.eraseMacroScopes with
+  match n with
   | Name.str Name.anonymous s _ => s.length > 0 && (isGreek s[0] || s[0].isLower) && allNumeral (s.toSubstring.drop 1)
   | _ => false
 
 def isValidAutoBoundLevelName (n : Name) : Bool :=
-  match n.eraseMacroScopes with
+  match n with
   | Name.str Name.anonymous s _ => s.length > 0 && s[0].isLower && allNumeral (s.toSubstring.drop 1)
   | _ => false
 

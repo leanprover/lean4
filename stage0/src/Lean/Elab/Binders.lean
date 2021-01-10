@@ -530,17 +530,6 @@ def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
   let value   := letIdDecl[4]
   { id := id, binders := binders, type := type, value := value }
 
-private def expandLetEqnsDeclVal (ref : Syntax) (alts : Syntax) : Nat → Array Syntax → MacroM Syntax
-  | 0,   discrs =>
-    pure $ Syntax.node `Lean.Parser.Term.match
-      #[mkAtomFrom ref "match ", mkNullNode discrs, mkNullNode, mkAtomFrom ref " with ", alts]
-  | n+1, discrs => withFreshMacroScope do
-    let x ← `(x)
-    let discrs := if discrs.isEmpty then discrs else discrs.push $ mkAtomFrom ref ", "
-    let discrs := discrs.push $ Syntax.node `Lean.Parser.Term.matchDiscr #[mkNullNode, x]
-    let body ← expandLetEqnsDeclVal ref alts n discrs
-    `(fun $x => $body)
-
 def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
   let ref       := letDecl
   let matchAlts := letDecl[3]

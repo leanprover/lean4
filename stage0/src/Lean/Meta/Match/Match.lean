@@ -372,7 +372,16 @@ private def processNonVariable (p : Problem) : MetaM Problem :=
         | _       => unreachable!
       let xFields := xArgs.extract ctorVal.nparams xArgs.size
       pure { p with alts := alts, vars := xFields.toList ++ xs }
-    | none => throwError! "failed to compile pattern matching, constructor expected{indentExpr x}"
+    | none =>
+      let alts ← p.alts.filterMapM fun alt => match alt.patterns with
+        | Pattern.inaccessible e :: ps => do
+          if (← isDefEq x e) then
+            pure $ some { alt with patterns := ps }
+          else
+            pure none
+        | p :: _ => throwError! "failed to compile pattern matching, unexpected pattern{indentD p.toMessageData}\ndiscriminant{indentExpr x}"
+        | _      => unreachable!
+      pure { p with alts := alts, vars := xs }
 
 private def collectValues (p : Problem) : Array Expr :=
   p.alts.foldl (init := #[]) fun values alt =>

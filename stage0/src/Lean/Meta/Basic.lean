@@ -399,6 +399,9 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withTransparency {α} (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withConfig (fun config => { config with transparency := mode })
 
+@[inline] def withDefault {α} (x : n α) : n α :=
+  withTransparency TransparencyMode.default x
+
 @[inline] def withReducible {α} (x : n α) : n α :=
   withTransparency TransparencyMode.reducible x
 

@@ -195,7 +195,7 @@ static lean_object* _init_l_Leanpkg_leanVersionString___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("leanprover/lean:");
+x_1 = lean_mk_string("leanprover/lean4:");
 return x_1;
 }
 }

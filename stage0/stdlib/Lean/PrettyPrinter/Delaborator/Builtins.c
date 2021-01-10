@@ -599,7 +599,6 @@ extern lean_object* l_Array_forInUnsafe_loop___at___private_Init_NotationExtra_0
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabLetE___closed__2;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_getParamKinds___spec__1___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabLit_match__2(lean_object*);
-lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabIte___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfNat_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -633,6 +632,7 @@ lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyP
 lean_object* l_Lean_PrettyPrinter_Delaborator_AppMatchState_params___default;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppExplicit_match__3(lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_JsonNumber_toString___closed__2;
 lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabStructureInstance(lean_object*);
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabLam_match__1(lean_object*);
@@ -17189,14 +17189,6 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delabOfScientific___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("e");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string("0.");
 return x_1;
 }
@@ -17230,7 +17222,7 @@ else
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; 
 lean_dec(x_2);
-x_50 = l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__2;
+x_50 = l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__1;
 x_51 = lean_string_append(x_50, x_10);
 lean_dec(x_10);
 x_52 = l_Lean_scientificLitKind;
@@ -17248,7 +17240,7 @@ lean_dec(x_11);
 if (x_3 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_12 = l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__1;
+x_12 = l_Lean_JsonNumber_toString___closed__2;
 x_13 = lean_string_append(x_10, x_12);
 x_14 = l_Nat_repr(x_2);
 x_15 = l_Lean_instInhabitedParserDescr___closed__1;
@@ -17272,7 +17264,7 @@ if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 lean_dec(x_22);
-x_24 = l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__1;
+x_24 = l_Lean_JsonNumber_toString___closed__2;
 x_25 = lean_string_append(x_10, x_24);
 x_26 = l_Nat_repr(x_2);
 x_27 = l_term_x2d_____closed__3;
@@ -24779,8 +24771,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__1 = _init_l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__1);
-l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__2 = _init_l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__2();
-lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1___closed__2);
 l_Lean_PrettyPrinter_Delaborator_delabOfScientific___closed__1 = _init_l_Lean_PrettyPrinter_Delaborator_delabOfScientific___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_delabOfScientific___closed__1);
 l_Lean_PrettyPrinter_Delaborator_delabOfScientific___closed__2 = _init_l_Lean_PrettyPrinter_Delaborator_delabOfScientific___closed__2();

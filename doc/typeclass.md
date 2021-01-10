@@ -214,7 +214,7 @@ instance [Inhabited a] [Inhabited b] : Inhabited (a × b) where
 -- (0, true)
 # end Ex
 ```
-Similarly, we can inhabit tyhe function with suitable constant functions:
+Similarly, we can inhabit type function with suitable constant functions:
 ```lean
 instance [Inhabited b] : Inhabited (a -> b) where
   default := fun _ => arbitrary

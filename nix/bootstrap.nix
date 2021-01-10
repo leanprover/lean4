@@ -34,10 +34,14 @@ rec {
   leancpp = buildCMake {
     name = "leancpp";
     src = ../src;
+    # `lean.cpp` is usually linked directly into the executable, but we want to do that step outside of CMake
     preConfigure = ''
-      echo "target_sources(leancpp PRIVATE shell/lean.cpp)" >> CMakeLists.txt
+      echo 'add_library(leancppmain shell/lean.cpp)
+        set_target_properties(leancppmain PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY ''${CMAKE_BINARY_DIR}/lib/lean
+        OUTPUT_NAME leancppmain)' >> CMakeLists.txt
     '';
-    buildFlags = [ "leancpp" ];
+    buildFlags = [ "leancpp" "leancppmain" ];
     installPhase = ''
       mkdir -p $out
       mv lib/ $out/
@@ -87,8 +91,8 @@ rec {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -sf ${leancpp}/lib/lean/* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
-          ${leanc}/bin/leanc -x none -rdynamic -o $out/bin/lean
+          ln -sf ${leancpp}/lib/lean/libleancpp.* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
+          ${leanc}/bin/leanc -x none -rdynamic ${leancpp}/lib/lean/libleancppmain.* -o $out/bin/lean
           ${leanc}/bin/leanc -x none -rdynamic ${Leanpkg.staticLib}/* -o $out/bin/leanpkg
         '';
       });

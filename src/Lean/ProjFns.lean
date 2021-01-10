@@ -24,33 +24,20 @@ def mkProjectionInfoEx (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : 
 instance : Inhabited ProjectionFunctionInfo :=
   ⟨{ ctorName := arbitrary, nparams := arbitrary, i := 0, fromClass := false }⟩
 
-builtin_initialize projectionFnInfoExt : SimplePersistentEnvExtension (Name × ProjectionFunctionInfo) (NameMap ProjectionFunctionInfo) ←
-  registerSimplePersistentEnvExtension {
-    name          := `projinfo,
-    addImportedFn := fun as => {},
-    addEntryFn    := fun s p => s.insert p.1 p.2,
-    toArrayFn     := fun es => es.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
-  }
+builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ← mkMapDeclarationExtension `projinfo
 
 @[export lean_add_projection_info]
 def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : Bool) : Environment :=
-  projectionFnInfoExt.addEntry env (projName, { ctorName := ctorName, nparams := nparams, i := i, fromClass := fromClass })
+  projectionFnInfoExt.insert env projName { ctorName := ctorName, nparams := nparams, i := i, fromClass := fromClass }
 
 namespace Environment
 
 @[export lean_get_projection_info]
 def getProjectionFnInfo? (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
-  match env.getModuleIdxFor? projName with
-  | some modIdx =>
-    match (projectionFnInfoExt.getModuleEntries env modIdx).binSearch (projName, arbitrary) (fun a b => Name.quickLt a.1 b.1) with
-    | some e => some e.2
-    | none   => none
-  | none        => (projectionFnInfoExt.getState env).find? projName
+  projectionFnInfoExt.find? env projName
 
-def isProjectionFn (env : Environment) (n : Name) : Bool :=
-  match env.getModuleIdxFor? n with
-  | some modIdx => (projectionFnInfoExt.getModuleEntries env modIdx).binSearchContains (n, arbitrary) (fun a b => Name.quickLt a.1 b.1)
-  | none        => (projectionFnInfoExt.getState env).contains n
+def isProjectionFn (env : Environment) (declName : Name) : Bool :=
+  projectionFnInfoExt.contains env declName
 
 /-- If `projName` is the name of a projection function, return the associated structure name -/
 def getProjectionStructureName? (env : Environment) (projName : Name) : Option Name :=

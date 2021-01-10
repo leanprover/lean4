@@ -15,3 +15,6 @@ doc string for 'f' is not available
 "let rec documentation at f "
 doc string for 'g' is not available
 "let rec documentation at g "
+"Gadget for optional parameter support. "
+"Auxiliary Declaration used to implement the named patterns `x@p` "
+"Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,\n  it reduces `A` and continues bulding the telescope if it is a `forall`. "

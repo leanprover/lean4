@@ -31,19 +31,6 @@ public:
     ~scope_trace_env();
 };
 
-class scope_traces_as_messages {
-    std::string                            m_stream_name;
-    pos_info                               m_pos;
-    std::unique_ptr<io_state>              m_redirected_ios;
-    std::unique_ptr<scope_global_ios>      m_scoped_ios;
-    std::shared_ptr<string_output_channel> m_buffer;
-
-public:
-    scope_traces_as_messages(std::string const & stream_name, pos_info const & pos);
-    ~scope_traces_as_messages();
-    bool enabled() const { return static_cast<bool>(m_scoped_ios); }
-};
-
 class scope_traces_as_string {
     std::unique_ptr<io_state>              m_redirected_ios;
     std::unique_ptr<scope_global_ios>      m_scoped_ios;
@@ -54,66 +41,14 @@ public:
     std::string get_string() const { return m_buffer->str(); }
 };
 
-class scope_trace_inc_depth {
-    bool m_active{false};
-public:
-    ~scope_trace_inc_depth();
-    void activate();
-};
-
-#define LEAN_MERGE_(a, b)  a##b
-#define LEAN_LABEL_(a) LEAN_MERGE_(unique_name_, a)
-#define LEAN_UNIQUE_NAME LEAN_LABEL_(__LINE__)
-
-#define lean_trace_inc_depth(CName)                                     \
-scope_trace_inc_depth LEAN_UNIQUE_NAME;                                 \
-if (::lean::is_trace_enabled() && ::lean::is_trace_class_enabled(name(CName))) \
-    LEAN_UNIQUE_NAME.activate();
-
-/* Temporarily set an option if it is not already set in the trace environment. */
-class scope_trace_init_bool_option {
-    bool                      m_initialized{false};
-    options                   m_opts;
-    options *                 m_old_opts;
-public:
-    ~scope_trace_init_bool_option();
-    void init(name const & opt, bool val);
-};
-
-#define lean_trace_init_bool(CName, Opt, Val)           \
-    scope_trace_init_bool_option LEAN_UNIQUE_NAME;      \
-if (lean_is_trace_enabled(CName)) {                     \
-    LEAN_UNIQUE_NAME.init(Opt, Val);                    \
-}
-
-/* Helper object for temporarily silencing trace messages */
-class scope_trace_silent {
-    bool m_old_value;
-public:
-    scope_trace_silent(bool flag);
-    ~scope_trace_silent();
-};
-
-struct tdepth {};
 struct tclass { name m_cls; tclass(name const & c):m_cls(c) {} };
 
-io_state_stream tout();
-io_state_stream const & operator<<(io_state_stream const & ios, tdepth const &);
-io_state_stream const & operator<<(io_state_stream const & ios, tclass const &);
-
-#define lean_trace_plain(CName, CODE) {         \
-if (lean_is_trace_enabled(CName)) {             \
-    CODE                                        \
-}}
+std::ostream & tout();
+std::ostream & operator<<(std::ostream & ios, tclass const &);
 
 #define lean_trace(CName, CODE) {               \
 if (lean_is_trace_enabled(CName)) {             \
     tout() << tclass(CName); CODE               \
-}}
-
-#define lean_trace_d(CName, CODE) {               \
-if (lean_is_trace_enabled(CName)) {               \
-    tout() << tdepth() << tclass(CName); CODE     \
 }}
 
 void trace_expr(environment const & env, options const & opts, expr const & e);

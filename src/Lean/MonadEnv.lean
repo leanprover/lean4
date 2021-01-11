@@ -114,7 +114,7 @@ unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α)
 unsafe def evalConstCheck [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (typeName : Name) (constName : Name) : m α := do
   ofExcept <| (← getEnv).evalConstCheck α (← getOptions) typeName constName
 
-def getModuleOf [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (Option Name) := do
+def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (Option Name) := do
   discard <| getConstInfo declName -- ensure declaration exists
   match (← getEnv).getModuleIdxFor? declName with
   | none        => return none

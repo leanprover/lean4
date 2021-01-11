@@ -7,6 +7,7 @@ import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
 import Lean.Meta.DiscrTree
 import Lean.Meta.LevelDefEq
+import Lean.Meta.SynthInstance
 
 namespace Lean.Meta
 
@@ -109,10 +110,10 @@ where
     traceCtx `Meta.isDefEq.hint <| commitWhen do
       trace[Meta.isDefEq.hint]! "trying hint {candidate} at {t} =?= {s}"
       let cinfo ← getConstInfo candidate
+      let us ← cinfo.lparams.mapM fun _ => mkFreshLevelMVar
+      let val := cinfo.instantiateValueLevelParams us
+      let (xs, bis, body) ← lambdaMetaTelescope val
       let hint? ← withConfig (fun cfg => { cfg with unificationHints := false }) do
-        let us ← cinfo.lparams.mapM fun _ => mkFreshLevelMVar
-        let val := cinfo.instantiateValueLevelParams us
-        let (_, _, body) ← lambdaMetaTelescope val
         match decodeUnificationHint body with
         | Except.error _ => return none
         | Except.ok hint =>
@@ -127,6 +128,11 @@ where
         for c in hint.constraints do
           unless (← Meta.isExprDefEqAux c.lhs c.rhs) do
             return false
+        for x in xs, bi in bis do
+          if bi == BinderInfo.instImplicit then
+            match (← trySynthInstance (← inferType x)) with
+            | LOption.some val => unless (← isDefEq x val) do return false
+            | _                => return false
         return true
 
 builtin_initialize

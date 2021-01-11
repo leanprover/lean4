@@ -905,6 +905,27 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
               checkTypesAndAssign mvar v
     process 0 mvarApp.getAppArgs v
 
+/--
+  Similar to processAssignment, but if it fails, compute v's whnf and try again.
+  This helps to solve constraints such as `?m =?= { α := ?m, ... }.α`
+  Note this is not perfect solution since we still fail occurs check for constraints such as
+  ```lean
+    ?m =?= List { α := ?m, β := Nat }.β
+  ```
+-/
+private def processAssignment' (mvarApp : Expr) (v : Expr) : MetaM Bool := do
+  if (← processAssignment mvarApp v) then
+    return true
+  else
+    let vNew ← whnf v
+    if vNew != v then
+      if mvarApp == vNew then
+        return true
+      else
+        processAssignment mvarApp vNew
+    else
+      return false
+
 private def isDeltaCandidate? (t : Expr) : MetaM (Option ConstantInfo) :=
   match t.getAppFn with
   | Expr.const c _ _ => getConst? c
@@ -1218,11 +1239,10 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       let sAssign? ← isAssignable sFn
       let assignableMsg (b : Bool) := if b then "[assignable]" else "[nonassignable]"
       trace[Meta.isDefEq]! "{t} {assignableMsg tAssign?} =?= {s} {assignableMsg sAssign?}"
-      let assign (t s : Expr) : MetaM LBool := toLBoolM $ processAssignment t s
       if tAssign? && !sAssign? then
-        toLBoolM $ processAssignment t s
+        toLBoolM <| processAssignment' t s
       else if !tAssign? && sAssign? then
-        toLBoolM $ processAssignment s t
+        toLBoolM <| processAssignment' s t
       else if !tAssign? && !sAssign? then
         if tFn.isMVar || sFn.isMVar then
           let ctx ← read

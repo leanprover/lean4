@@ -43,7 +43,6 @@ extern lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandOptIde
 lean_object* l_Lean_Elab_Command_mkDefViewOfConstant___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Term_type___elambda__1___closed__2;
-lean_object* l_Std_RBNode_find___at_Lean_getDocString_x3f___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3357____closed__27;
 lean_object* l_Lean_Elab_mkUnusedBaseName___at_Lean_Elab_Command_MkInstanceName_main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,6 +114,7 @@ uint8_t l_Char_isLower(uint32_t);
 lean_object* l_Lean_Elab_Command_isDefLike___boxed(lean_object*);
 lean_object* l_Std_RBNode_insert___at___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBMap_ofList___at___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___spec__1(lean_object*);
+lean_object* l_Std_RBNode_find___at_Lean_findDocString_x3f___spec__2(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Elab_Command_MkInstanceName_collect_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -3760,7 +3760,7 @@ x_11 = lean_ctor_get(x_8, 1);
 lean_inc(x_11);
 lean_dec(x_8);
 x_12 = l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements;
-x_13 = l_Std_RBNode_find___at_Lean_getDocString_x3f___spec__1(x_12, x_6);
+x_13 = l_Std_RBNode_find___at_Lean_findDocString_x3f___spec__2(x_12, x_6);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; 

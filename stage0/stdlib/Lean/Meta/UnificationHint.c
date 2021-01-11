@@ -235,6 +235,7 @@ lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_tryUnificationHints_tryCandid
 lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_UnificationHints_add___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_commitWhen___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate_match__2___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_550____closed__4;
 extern lean_object* l_Lean_Meta_DiscrTree_format___rarg___closed__1;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addUnificationHint___lambda__1___closed__4;
@@ -251,7 +252,6 @@ extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_instToFormatUnificationHints___spec__12(lean_object*, size_t, size_t, lean_object*);
 extern size_t l_Std_PersistentHashMap_insertAux___rarg___closed__2;
 extern lean_object* l_List_map___at_Lean_Meta_DiscrTree_Trie_format___spec__2___rarg___closed__1;
-extern lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_548____closed__4;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_getMatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate_match__3(lean_object*);
@@ -3726,7 +3726,7 @@ lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint
 x_48 = lean_ctor_get(x_38, 1);
 lean_inc(x_48);
 lean_dec(x_38);
-x_49 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_548____closed__4;
+x_49 = l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_550____closed__4;
 x_50 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___spec__2(x_49, x_4, x_5, x_6, x_7, x_48);
 x_51 = lean_ctor_get(x_50, 0);
 lean_inc(x_51);

@@ -175,7 +175,11 @@ mutual
   partial def getStuckMVar? : Expr → MetaM (Option MVarId)
     | Expr.mdata _ e _       => getStuckMVar? e
     | Expr.proj _ _ e _      => do getStuckMVar? (← whnf e)
-    | e@(Expr.mvar mvarId _) => pure (some mvarId)
+    | e@(Expr.mvar ..) => do
+      let e ← instantiateMVars e
+      match e with
+      | Expr.mvar mvarId _ => pure (some mvarId)
+      | _ => getStuckMVar? e
     | e@(Expr.app f _ _) =>
       let f := f.getAppFn
       match f with

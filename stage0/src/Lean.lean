@@ -28,3 +28,4 @@ import Lean.InternalExceptionId
 import Lean.Server
 import Lean.ScopedEnvExtension
 import Lean.DocString
+import Lean.DeclarationRange

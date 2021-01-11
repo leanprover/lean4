@@ -37,6 +37,7 @@ lean_object* l___private_Lean_Class_0__Lean_checkOutParam_match__1(lean_object*)
 lean_object* l_Lean_hasOutParams_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_Class___hyg_47____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Lean_ClassState_addEntry___spec__10(lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2699____closed__4;
 lean_object* l_Lean_addClass___closed__4;
 lean_object* l_Lean_ClassState_addEntry(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
@@ -186,7 +187,6 @@ lean_object* l_Lean_addClass_match__1(lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_ClassState_hasOutParam___default___spec__1;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 uint8_t l_Std_PersistentHashMap_containsAux___at_Lean_isClass___spec__4(lean_object*, size_t, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2509____closed__4;
 lean_object* l_Lean_initFn____x40_Lean_Class___hyg_47____lambda__1___boxed(lean_object*);
 uint8_t l_Std_AssocList_contains___at_Lean_ClassState_addEntry___spec__7(lean_object*, lean_object*);
 lean_object* l_Lean_ClassState_hasOutParam___default;
@@ -1761,7 +1761,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_initFn____x40_Lean_Class___hyg_47____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_Class___hyg_47____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_Class___hyg_47____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2509____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2699____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

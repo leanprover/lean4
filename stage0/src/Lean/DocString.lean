@@ -7,29 +7,17 @@ import Lean.MonadEnv
 
 namespace Lean
 
-builtin_initialize docStringExt : SimplePersistentEnvExtension (Name × String) (NameMap String) ←
-  registerSimplePersistentEnvExtension {
-    name          := `docstring,
-    addImportedFn := fun as => {},
-    addEntryFn    := fun s p => s.insert p.1 p.2,
-    toArrayFn     := fun es => es.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
-  }
+builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension `docstring
 
 def addDocString [MonadEnv m] (declName : Name) (docString : String) : m Unit :=
-  modifyEnv fun env => docStringExt.addEntry env (declName, docString)
+  modifyEnv fun env => docStringExt.insert env declName docString
 
 def addDocString' [Monad m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=
   match docString? with
   | some docString => addDocString declName docString
   | none => return ()
 
-def getDocString? [Monad m] [MonadEnv m] (declName : Name) : m (Option String) := do
-  let env ← getEnv
-  match env.getModuleIdxFor? declName with
-  | some modIdx =>
-    match (docStringExt.getModuleEntries env modIdx).binSearch (declName, arbitrary) (fun a b => Name.quickLt a.1 b.1) with
-    | some e => return some e.2
-    | none   => return none
-  | none => return (docStringExt.getState env).find? declName
+def findDocString? [Monad m] [MonadEnv m] (declName : Name) : m (Option String) :=
+  return docStringExt.find? (← getEnv) declName
 
 end Lean

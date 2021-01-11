@@ -9,6 +9,7 @@ import Lean.Elab.Command
 import Lean.Elab.DeclModifiers
 import Lean.Elab.DeclUtil
 import Lean.Elab.Inductive
+import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab.Command
 
@@ -97,9 +98,11 @@ The structure constructor syntax is
 parser! try (declModifiers >> ident >> optional inferMod >> " :: ")
 ```
 -/
-private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM StructCtorView :=
-  let useDefault :=
-    pure { ref := structStx, modifiers := {}, inferMod := false, name := defaultCtorName, declName := structDeclName ++ defaultCtorName }
+private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM StructCtorView := do
+  let useDefault := do
+    let declName := structDeclName ++ defaultCtorName
+    addAuxDeclarationRanges declName structStx[2] structStx[2]
+    pure { ref := structStx, modifiers := {}, inferMod := false, name := defaultCtorName, declName := declName }
   if structStx[5].isNone then
     useDefault
   else
@@ -120,6 +123,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let declName := structDeclName ++ name
       let declName ← applyVisibility ctorModifiers.visibility declName
       addDocString' declName ctorModifiers.docString?
+      addAuxDeclarationRanges declName ctor[1] ctor[1]
       pure { ref := ctor, name := name, modifiers := ctorModifiers, inferMod := inferMod, declName := declName }
 
 def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
@@ -457,6 +461,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
   view.fields.forM fun field => do
     if field.declName == view.ctor.declName then
       throwErrorAt! field.ref "invalid field name '{field.name}', it is equal to structure constructor name"
+    addAuxDeclarationRanges field.declName field.ref field.ref
   let numExplicitParams := view.params.size
   let type ← Term.elabType view.type
   unless validStructType type do throwErrorAt view.type "expected Type"
@@ -541,6 +546,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
     runTermElabM none fun scopeVars => do
       let scopeLevelNames ← Term.getLevelNames
       let ⟨name, declName, allUserLevelNames⟩ ← Elab.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
+      addDeclarationRanges declName stx
       Term.withDeclName declName do
         let ctor ← expandCtor stx modifiers declName
         let fields ← expandFields stx modifiers declName

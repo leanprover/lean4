@@ -42,6 +42,7 @@ lean_object* l_Lean_Meta_getGlobalInstancesIndex(lean_object*, lean_object*, lea
 lean_object* l_Lean_Meta_addInstanceEntry(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_defaultInstanceExtension___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addDefaultInstance_match__1(lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2699____closed__4;
 lean_object* l_Std_RBNode_find___at_Lean_Meta_addDefaultInstanceEntry___spec__3___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getDefaultInstancesPriorities(lean_object*);
@@ -235,7 +236,6 @@ lean_object* l_Lean_Meta_addDefaultInstance___lambda__2___closed__6;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_646____closed__2;
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_391____lambda__1(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2509____closed__4;
 lean_object* l_Lean_Meta_getDefaultInstances___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_ScopedEnvExtension_getState___rarg___closed__3;
 lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addInstanceEntry___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5987,7 +5987,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_391____closed__2;
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_391____closed__3;
 x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_391____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2509____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2699____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

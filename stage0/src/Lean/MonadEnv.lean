@@ -16,6 +16,11 @@ def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   | some (ConstantInfo.inductInfo ..) => return true
   | _ => return false
 
+def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
+  match (← getEnv).find? declName with
+  | some (ConstantInfo.recInfo ..) => return true
+  | _ => return false
+
 @[inline] def withoutModifyingEnv [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m α := do
   let env ← getEnv
   try x finally setEnv env
@@ -109,7 +114,7 @@ unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α)
 unsafe def evalConstCheck [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (typeName : Name) (constName : Name) : m α := do
   ofExcept <| (← getEnv).evalConstCheck α (← getOptions) typeName constName
 
-def getModuleOf [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (Option Name) := do
+def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (Option Name) := do
   discard <| getConstInfo declName -- ensure declaration exists
   match (← getEnv).getModuleIdxFor? declName with
   | none        => return none

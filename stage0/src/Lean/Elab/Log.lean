@@ -9,20 +9,24 @@ import Lean.Elab.Exception
 
 namespace Lean.Elab
 
-class MonadLog (m : Type → Type) where
+class MonadFileMap (m : Type → Type) where
+  getFileMap  : m FileMap
+
+export MonadFileMap (getFileMap)
+
+class MonadLog (m : Type → Type) extends MonadFileMap m where
   getRef       : m Syntax
-  getFileMap   : m FileMap
   getFileName  : m String
   logMessage   : Message → m Unit
 
+export MonadLog (getFileName logMessage)
+
 instance (m n) [MonadLog m] [MonadLift m n] : MonadLog n := {
   getRef      := liftM (MonadLog.getRef : m _),
-  getFileMap  := liftM (MonadLog.getFileMap : m _),
-  getFileName := liftM (MonadLog.getFileName : m _),
-  logMessage  := fun msg => liftM (MonadLog.logMessage msg : m _ )
+  getFileMap  := liftM (getFileMap : m _),
+  getFileName := liftM (getFileName : m _),
+  logMessage  := fun msg => liftM (logMessage msg : m _ )
 }
-
-export MonadLog (getFileMap getFileName logMessage)
 
 variables {m : Type → Type} [Monad m] [MonadLog m] [AddMessageContext m]
 

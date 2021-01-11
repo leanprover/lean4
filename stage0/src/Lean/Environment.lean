@@ -420,6 +420,41 @@ def isTagged (ext : TagDeclarationExtension) (env : Environment) (n : Name) : Bo
 
 end TagDeclarationExtension
 
+/-- Environment extension for mapping declarations to values. -/
+
+def MapDeclarationExtension (α : Type) := SimplePersistentEnvExtension (Name × α) (NameMap α)
+
+def mkMapDeclarationExtension [Inhabited α] (name : Name) : IO (MapDeclarationExtension α) :=
+  registerSimplePersistentEnvExtension {
+    name          := name,
+    addImportedFn := fun as => {},
+    addEntryFn    := fun s n => s.insert n.1 n.2 ,
+    toArrayFn     := fun es => es.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
+  }
+
+namespace MapDeclarationExtension
+
+instance : Inhabited (MapDeclarationExtension α) :=
+  inferInstanceAs (Inhabited (SimplePersistentEnvExtension ..))
+
+def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
+  ext.addEntry env (declName, val)
+
+def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=
+  match env.getModuleIdxFor? declName with
+  | some modIdx =>
+    match (ext.getModuleEntries env modIdx).binSearch (declName, arbitrary) (fun a b => Name.quickLt a.1 b.1) with
+    | some e => some e.2
+    | none   => none
+  | none => (ext.getState env).find? declName
+
+def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
+  match env.getModuleIdxFor? declName with
+  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, arbitrary) (fun a b => Name.quickLt a.1 b.1)
+  | none        => (ext.getState env).contains declName
+
+end MapDeclarationExtension
+
 /- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData where

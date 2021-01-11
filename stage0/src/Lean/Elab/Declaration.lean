@@ -9,6 +9,7 @@ import Lean.Elab.DefView
 import Lean.Elab.Inductive
 import Lean.Elab.Structure
 import Lean.Elab.MutualDef
+import Lean.Elab.DeclarationRange
 namespace Lean.Elab.Command
 
 open Meta
@@ -59,6 +60,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let (binders, typeStx) := expandDeclSig stx[2]
   let scopeLevelNames ← getLevelNames
   let ⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
+  addDeclarationRanges declName stx
   runTermElabM declName fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders binders.getArgs fun xs => do
     Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
     let type ← Term.elabType typeStx
@@ -91,6 +93,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
   let ⟨name, declName, levelNames⟩ ← expandDeclId declId modifiers
+  addDeclarationRanges declName decl
   let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
     -- def ctor := parser! " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
     let ctorModifiers ← elabModifiers ctor[1]
@@ -105,6 +108,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     let inferMod := !ctor[3].isNone
     let (binders, type?) := expandOptDeclSig ctor[4]
     addDocString' ctorName ctorModifiers.docString?
+    addAuxDeclarationRanges ctorName ctor ctor[2]
     pure { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
   let classes ← getOptDerivingClasses decl[5]
   pure {

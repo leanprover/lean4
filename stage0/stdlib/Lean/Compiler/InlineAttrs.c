@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___closed__1;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_instInhabitedInlineAttributeKind;
@@ -149,6 +148,7 @@ lean_object* l_Array_binSearchAux___at___private_Lean_Compiler_InlineAttrs_0__Le
 lean_object* l_Array_qsort_sort___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____spec__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____closed__27;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____closed__20;
+extern lean_object* l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg___closed__1;
 lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____closed__9;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____spec__4(lean_object*, lean_object*, lean_object*);
@@ -587,7 +587,7 @@ if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; 
 lean_dec(x_16);
-x_27 = l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___closed__1;
+x_27 = l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg___closed__1;
 lean_inc_n(x_2, 2);
 x_28 = l_Array_qpartition_loop___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____spec__5(x_27, x_3, x_19, x_17, x_2, x_2);
 x_4 = x_28;
@@ -600,7 +600,7 @@ lean_dec(x_19);
 x_29 = lean_array_swap(x_17, x_16, x_3);
 lean_dec(x_16);
 x_30 = lean_array_get(x_18, x_29, x_3);
-x_31 = l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___closed__1;
+x_31 = l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg___closed__1;
 lean_inc_n(x_2, 2);
 x_32 = l_Array_qpartition_loop___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____spec__5(x_31, x_3, x_30, x_29, x_2, x_2);
 x_4 = x_32;
@@ -627,7 +627,7 @@ if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; 
 lean_dec(x_16);
-x_39 = l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___closed__1;
+x_39 = l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg___closed__1;
 lean_inc_n(x_2, 2);
 x_40 = l_Array_qpartition_loop___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____spec__5(x_39, x_3, x_35, x_33, x_2, x_2);
 x_4 = x_40;
@@ -640,7 +640,7 @@ lean_dec(x_35);
 x_41 = lean_array_swap(x_33, x_16, x_3);
 lean_dec(x_16);
 x_42 = lean_array_get(x_18, x_41, x_3);
-x_43 = l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___closed__1;
+x_43 = l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg___closed__1;
 lean_inc_n(x_2, 2);
 x_44 = l_Array_qpartition_loop___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_57____spec__5(x_43, x_3, x_42, x_41, x_2, x_2);
 x_4 = x_44;

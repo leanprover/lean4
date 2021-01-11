@@ -47,7 +47,6 @@ lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsAux_match__1__
 lean_object* l_Lean_getProjFnForField_x3f(lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_findField_x3f___spec__2(lean_object*, lean_object*, size_t, size_t);
-uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_isSubobjectFieldAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -71,6 +70,7 @@ lean_object* l_Lean_isStructureLike_match__1(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_getStructureCtor_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_findField_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+extern lean_object* l_Lean_projectionFnInfoExt;
 lean_object* l___private_Lean_Structure_0__Lean_hasProjFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___at_Lean_findField_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStructureCtor___closed__6;
@@ -99,6 +99,7 @@ lean_object* l_Lean_deinternalizeFieldName(lean_object*);
 lean_object* l_Lean_findField_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPathToBaseStructureAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_MapDeclarationExtension_contains___at_Lean_Environment_isProjectionFn___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendBefore(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
@@ -1711,33 +1712,34 @@ lean_dec(x_5);
 x_8 = lean_nat_dec_lt(x_4, x_3);
 if (x_8 == 0)
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 lean_dec(x_7);
 lean_dec(x_4);
 x_9 = l_Lean_deinternalizeFieldName(x_6);
 x_10 = l_Lean_Name_append(x_2, x_9);
-x_11 = l_Lean_Environment_isProjectionFn(x_1, x_10);
-return x_11;
+x_11 = l_Lean_projectionFnInfoExt;
+x_12 = l_Lean_MapDeclarationExtension_contains___at_Lean_Environment_isProjectionFn___spec__1(x_11, x_1, x_10);
+return x_12;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; 
+lean_object* x_13; lean_object* x_14; 
 lean_dec(x_6);
-x_12 = lean_unsigned_to_nat(1u);
-x_13 = lean_nat_add(x_4, x_12);
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
-x_4 = x_13;
+x_4 = x_14;
 x_5 = x_7;
 goto _start;
 }
 }
 else
 {
-uint8_t x_15; 
+uint8_t x_16; 
 lean_dec(x_5);
 lean_dec(x_4);
-x_15 = 0;
-return x_15;
+x_16 = 0;
+return x_16;
 }
 }
 }

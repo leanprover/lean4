@@ -7,6 +7,7 @@ import Lean.Elab.Attributes
 import Lean.Elab.Binders
 import Lean.Elab.DeclModifiers
 import Lean.Elab.SyntheticMVars
+import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab.Term
 open Meta
@@ -41,6 +42,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
       addDocString' declName docStr?
+      addAuxDeclarationRanges declName decl decl[0]
       let binders := decl[1].getArgs
       let typeStx := expandOptType decl decl[2]
       let (type, numParams) ← elabBinders binders fun xs => do

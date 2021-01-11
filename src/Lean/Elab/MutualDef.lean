@@ -96,7 +96,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
     let newHeader ← withRef view.ref do
       let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
-      withAutoBoundImplicitLocal <| withLevelNames levelNames <|
+      withDeclName declName <| withAutoBoundImplicitLocal <| withLevelNames levelNames <|
         elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun xs => do
           let refForElabFunType := view.value
           elabFunType refForElabFunType xs view fun xs type => do

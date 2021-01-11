@@ -357,8 +357,7 @@ public:
             return f(*g_interpreter);
         } else {
             // We changed threads or the closure was stored and called in a different context.
-            time_task t("interpretation",
-                        message_builder(env, get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
+            time_task t("interpretation", opts);
             abstract_type_context trace_ctx(opts);
             scope_trace_env scope_trace(env, opts, trace_ctx);
             // the caches contain data from the Environment, so we cannot reuse them when changing it

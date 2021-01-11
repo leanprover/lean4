@@ -52,7 +52,7 @@ def processCommand : FrontendM Bool := do
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let pos := ictx.fileMap.toPosition pstate.pos
-  match profileit "parsing" pos fun _ => Parser.parseCommand ictx pmctx pstate cmdState.messages with
+  match profileit "parsing" scope.opts pos fun _ => Parser.parseCommand ictx pmctx pstate cmdState.messages with
   | (cmd, ps, messages) =>
     modify fun s => { s with commands := s.commands.push cmd }
     setParserState ps
@@ -60,7 +60,7 @@ def processCommand : FrontendM Bool := do
     if Parser.isEOI cmd || Parser.isExitCommand cmd then
       pure true -- Done
     else
-      profileitM IO.Error "elaboration" pos $ elabCommandAtFrontend cmd
+      profileitM IO.Error "elaboration" scope.opts pos $ elabCommandAtFrontend cmd
       pure false
 
 partial def processCommands : FrontendM Unit := do

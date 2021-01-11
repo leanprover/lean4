@@ -648,9 +648,7 @@ int main(int argc, char ** argv) {
             return ret;
         }
         if (olean_fn && ok) {
-            time_task t(".olean serialization",
-                        message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
-                                        message_severity::INFORMATION));
+            time_task t(".olean serialization", opts);
             write_module(env, *olean_fn);
         }
 
@@ -660,9 +658,7 @@ int main(int argc, char ** argv) {
                 std::cerr << "failed to create '" << *c_output << "'\n";
                 return 1;
             }
-            time_task _("C code generation",
-                        message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
-                                        message_severity::INFORMATION));
+            time_task _("C code generation", opts);
             out << lean::ir::emit_c(env, *main_module_name).data();
             out.close();
         }

@@ -38,9 +38,8 @@ void finalize_time_task() {
     delete g_cum_times_mutex;
 }
 
-time_task::time_task(std::string const & category, message_builder builder, name decl) :
+time_task::time_task(std::string const & category, options const & opts, pos_info pos, name decl) :
         m_category(category) {
-    auto const & opts = builder.get_text_stream().get_options();
     if (get_profiler(opts)) {
         m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
             tout() << m_category;
@@ -64,13 +63,12 @@ time_task::~time_task() {
     }
 }
 
-/* profileit {α : Type} (category : String) (pos : Position) (fn : Unit → α) : α */
-extern "C" obj_res lean_profileit(b_obj_arg category, b_obj_arg pos, obj_arg fn) {
+/* profileit {α : Type} (category : String) (opts : Options) (pos : Position) (fn : Unit → α) : α */
+extern "C" obj_res lean_profileit(b_obj_arg category, b_obj_arg opts, b_obj_arg pos, obj_arg fn) {
     time_task t(string_to_std(category),
-                message_builder(environment(), get_global_ios(), "foo",
-                        pos_info(nat(cnstr_get(pos, 0), true).get_small_value(),
-                                 nat(cnstr_get(pos, 1), true).get_small_value()),
-                        message_severity::INFORMATION));
+                TO_REF(options, opts),
+                pos_info(nat(cnstr_get(pos, 0), true).get_small_value(),
+                         nat(cnstr_get(pos, 1), true).get_small_value()));
     return apply_1(fn, box(0));
 }
 }

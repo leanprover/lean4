@@ -31,15 +31,11 @@ def parseImports (input : String) (fileName : Option String := none) : IO (List 
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   pure (headerToImports header, inputCtx.fileMap.toPosition parserState.pos, messages)
 
-@[export lean_parse_imports]
-def parseImportsExport (input : String) (fileName : Option String) : IO (List Import × Position × List Message) := do
-  let (imports, pos, log) ← parseImports input fileName
-  pure (imports, pos, log.toList)
-
-@[export lean_print_deps]
-def printDeps (deps : List Import) : IO Unit := do
+@[export lean_print_imports]
+def printImports (input : String) (fileName : Option String) : IO Unit := do
+  let (deps, pos, log) ← parseImports input fileName
   for dep in deps do
-    let fname ← findOLean dep.module;
+    let fname ← findOLean dep.module
     IO.println fname
 
 end Lean.Elab

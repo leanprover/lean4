@@ -541,7 +541,7 @@ private def getMaxSize (opts : Options) : Nat :=
   Remark: we use a different option for controlling the maximum result size for coercions.
 -/
 
-def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := profileitM Exception "typeclass inference" ⟨0, 0⟩ do
+def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) ⟨0, 0⟩ do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (getMaxSize opts)
   let inputConfig ← getConfig

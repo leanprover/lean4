@@ -193,8 +193,7 @@ environment compile(environment const & env, options const & opts, names cs) {
         if (has_synthetic_sorry(cinfo)) return env;
     }
 
-    time_task t("compilation",
-                message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
+    time_task t("compilation", opts);
     abstract_type_context trace_ctx(opts);
     scope_trace_env scope_trace(env, opts, trace_ctx);
 

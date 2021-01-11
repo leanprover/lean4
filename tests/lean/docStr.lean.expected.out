@@ -18,3 +18,69 @@ doc string for 'g' is not available
 "Gadget for optional parameter support. "
 "Auxiliary Declaration used to implement the named patterns `x@p` "
 "Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,\n  it reduces `A` and continues bulding the telescope if it is a `forall`. "
+Foo :=
+  { range := { pos := { line := 4, column := 0 }, endPos := { line := 6, column := 58 } },
+    selectionRange := { pos := { line := 4, column := 10 }, endPos := { line := 4, column := 13 } } }
+Foo.name :=
+  { range := { pos := { line := 5, column := 19 }, endPos := { line := 5, column := 23 } },
+    selectionRange := { pos := { line := 5, column := 19 }, endPos := { line := 5, column := 23 } } }
+Foo.val :=
+  { range := { pos := { line := 6, column := 44 }, endPos := { line := 6, column := 47 } },
+    selectionRange := { pos := { line := 6, column := 44 }, endPos := { line := 6, column := 47 } } }
+myAxiom :=
+  { range := { pos := { line := 9, column := 0 }, endPos := { line := 9, column := 19 } },
+    selectionRange := { pos := { line := 9, column := 6 }, endPos := { line := 9, column := 13 } } }
+Boo :=
+  { range := { pos := { line := 11, column := 0 }, endPos := { line := 15, column := 12 } },
+    selectionRange := { pos := { line := 11, column := 10 }, endPos := { line := 11, column := 13 } } }
+Boo.makeBoo :=
+  { range := { pos := { line := 13, column := 2 }, endPos := { line := 13, column := 9 } },
+    selectionRange := { pos := { line := 13, column := 2 }, endPos := { line := 13, column := 9 } } }
+Boo.x :=
+  { range := { pos := { line := 14, column := 27 }, endPos := { line := 14, column := 28 } },
+    selectionRange := { pos := { line := 14, column := 27 }, endPos := { line := 14, column := 28 } } }
+Boo.y :=
+  { range := { pos := { line := 15, column := 4 }, endPos := { line := 15, column := 5 } },
+    selectionRange := { pos := { line := 15, column := 4 }, endPos := { line := 15, column := 5 } } }
+Tree :=
+  { range := { pos := { line := 18, column := 0 }, endPos := { line := 20, column := 56 } },
+    selectionRange := { pos := { line := 18, column := 10 }, endPos := { line := 18, column := 14 } } }
+Tree.rec :=
+  { range := { pos := { line := 18, column := 0 }, endPos := { line := 20, column := 56 } },
+    selectionRange := { pos := { line := 18, column := 10 }, endPos := { line := 18, column := 14 } } }
+Tree.casesOn :=
+  { range := { pos := { line := 18, column := 0 }, endPos := { line := 20, column := 56 } },
+    selectionRange := { pos := { line := 18, column := 10 }, endPos := { line := 18, column := 14 } } }
+Tree.node :=
+  { range := { pos := { line := 19, column := 2 }, endPos := { line := 19, column := 64 } },
+    selectionRange := { pos := { line := 19, column := 35 }, endPos := { line := 19, column := 39 } } }
+Tree.leaf :=
+  { range := { pos := { line := 20, column := 2 }, endPos := { line := 20, column := 56 } },
+    selectionRange := { pos := { line := 20, column := 39 }, endPos := { line := 20, column := 43 } } }
+Bla.test :=
+  { range := { pos := { line := 25, column := 0 }, endPos := { line := 29, column := 16 } },
+    selectionRange := { pos := { line := 25, column := 4 }, endPos := { line := 25, column := 8 } } }
+Bla.test.aux :=
+  { range := { pos := { line := 29, column := 2 }, endPos := { line := 29, column := 16 } },
+    selectionRange := { pos := { line := 29, column := 2 }, endPos := { line := 29, column := 5 } } }
+f :=
+  { range := { pos := { line := 33, column := 0 }, endPos := { line := 37, column := 14 } },
+    selectionRange := { pos := { line := 33, column := 4 }, endPos := { line := 33, column := 5 } } }
+f.foo :=
+  { range := { pos := { line := 34, column := 44 }, endPos := { line := 36, column := 22 } },
+    selectionRange := { pos := { line := 34, column := 44 }, endPos := { line := 34, column := 47 } } }
+g :=
+  { range := { pos := { line := 39, column := 0 }, endPos := { line := 43, column := 7 } },
+    selectionRange := { pos := { line := 39, column := 4 }, endPos := { line := 39, column := 5 } } }
+g.foo :=
+  { range := { pos := { line := 40, column := 44 }, endPos := { line := 42, column := 22 } },
+    selectionRange := { pos := { line := 40, column := 44 }, endPos := { line := 40, column := 47 } } }
+optParam :=
+  { range := { pos := { line := 157, column := 13 }, endPos := { line := 157, column := 66 } },
+    selectionRange := { pos := { line := 157, column := 17 }, endPos := { line := 157, column := 25 } } }
+namedPattern :=
+  { range := { pos := { line := 166, column := 13 }, endPos := { line := 166, column := 61 } },
+    selectionRange := { pos := { line := 166, column := 17 }, endPos := { line := 166, column := 29 } } }
+Lean.Meta.forallTelescopeReducing :=
+  { range := { pos := { line := 662, column := 0 }, endPos := { line := 663, column := 58 } },
+    selectionRange := { pos := { line := 662, column := 4 }, endPos := { line := 662, column := 27 } } }

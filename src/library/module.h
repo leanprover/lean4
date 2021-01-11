@@ -11,7 +11,6 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include <vector>
 #include <lean/serializer.h>
 #include <lean/optional.h>
-#include "library/io_state.h"
 #include "kernel/environment.h"
 
 namespace lean {

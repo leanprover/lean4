@@ -296,17 +296,6 @@ struct print_expr_fn {
     }
 };
 
-formatter_factory mk_print_formatter_factory() {
-    return [](environment const &, options const & o, abstract_type_context &) { // NOLINT
-        return formatter(o, [=](expr const & e, options const &) {
-                std::ostringstream s;
-                print_expr_fn pr(s);
-                pr(e);
-                return format(s.str());
-            });
-    };
-}
-
 void init_default_print_fn() {
     set_print_fn([](std::ostream & out, expr const & e) {
             print_expr_fn pr(out);

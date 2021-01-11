@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/environment.h"
 #include "library/expr_pair.h"
-#include "library/abstract_type_context.h"
 
 namespace lean {
 /* If \c n is not in \c env, then return \c. Otherwise, find the first j >= idx s.t.
@@ -25,11 +24,6 @@ unsigned get_arity(expr type);
 optional<expr> is_optional_param(expr const & e);
 
 optional<expr_pair> is_auto_param(expr const & e);
-
-/** \brief Return the universe level of the type of \c A.
-    Throws an exception if the (relaxed) whnf of the type
-    of A is not a sort. */
-level get_level(abstract_type_context & ctx, expr const & A);
 
 /** brief Return a name that does not appear in `lp_names`. */
 name mk_fresh_lp_name(names const & lp_names);
@@ -130,12 +124,6 @@ unsigned get_constructor_idx(environment const & env, name const & n);
     \pre inductive::is_intro_rule(env, ctor_name) */
 name get_constructor_inductive_type(environment const & env, name const & ctor_name);
 
-/** \brief Given an expression \c e, return the number of arguments expected arguments.
-
-    \remark This function counts the number of nested Pi's in \c e. Weak-head-normal-forms are computed for the type of \c e.
-    \remark The type and whnf are computed using \c tc. */
-unsigned get_expect_num_args(abstract_type_context & ctx, expr e);
-
 /** \brief Return the universe where inductive datatype resides
     \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt> */
 level get_datatype_level(expr const & ind_type);
@@ -161,27 +149,14 @@ expr mk_true_intro();
 bool is_and(expr const & e, expr & arg1, expr & arg2);
 bool is_and(expr const & e);
 expr mk_and(expr const & a, expr const & b);
-expr mk_and_intro(abstract_type_context & ctx, expr const & Ha, expr const & Hb);
-expr mk_and_elim_left(abstract_type_context & ctx, expr const & H);
-expr mk_and_elim_right(abstract_type_context & ctx, expr const & H);
 
 expr mk_unit(level const & l);
 expr mk_unit_mk(level const & l);
 expr mk_unit();
 expr mk_unit_mk();
 
-expr mk_pprod(abstract_type_context & ctx, expr const & A, expr const & B);
-expr mk_pprod_mk(abstract_type_context & ctx, expr const & a, expr const & b);
-expr mk_pprod_fst(abstract_type_context & ctx, expr const & p);
-expr mk_pprod_snd(abstract_type_context & ctx, expr const & p);
-
 expr mk_unit(level const & l, bool prop);
 expr mk_unit_mk(level const & l, bool prop);
-
-expr mk_pprod(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
-expr mk_pprod_mk(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
-expr mk_pprod_fst(abstract_type_context & ctx, expr const & p, bool prop);
-expr mk_pprod_snd(abstract_type_context & ctx, expr const & p, bool prop);
 
 expr mk_nat_type();
 bool is_nat_type(expr const & e);
@@ -206,19 +181,6 @@ expr mk_iff_refl(expr const & a);
 
 expr mk_propext(expr const & lhs, expr const & rhs, expr const & iff_pr);
 
-expr mk_eq(abstract_type_context & ctx, expr const & lhs, expr const & rhs);
-expr mk_eq_refl(abstract_type_context & ctx, expr const & a);
-expr mk_eq_symm(abstract_type_context & ctx, expr const & H);
-expr mk_eq_trans(abstract_type_context & ctx, expr const & H1, expr const & H2);
-expr mk_eq_subst(abstract_type_context & ctx, expr const & motive,
-                 expr const & x, expr const & y, expr const & xeqy, expr const & h);
-expr mk_eq_subst(abstract_type_context & ctx, expr const & motive, expr const & xeqy, expr const & h);
-
-expr mk_congr_arg(abstract_type_context & ctx, expr const & f, expr const & H);
-
-/** \brief Create an proof for x = y using subsingleton.elim (in standard mode) */
-expr mk_subsingleton_elim(abstract_type_context & ctx, expr const & h, expr const & x, expr const & y);
-
 /** \brief Return true iff \c e is a term of the form (eq.rec ....) */
 bool is_eq_rec_core(expr const & e);
 /** \brief Return true iff \c e is a term of the form (eq.rec ....) */
@@ -231,23 +193,16 @@ bool is_eq(expr const & e, expr & lhs, expr & rhs);
 bool is_eq(expr const & e, expr & A, expr & lhs, expr & rhs);
 /** \brief Return true iff \c e is of the form (eq A a a) */
 bool is_eq_a_a(expr const & e);
-/** \brief Return true iff \c e is of the form (eq A a a') where \c a and \c a' are definitionally equal */
-bool is_eq_a_a(abstract_type_context & ctx, expr const & e);
 
-expr mk_heq(abstract_type_context & ctx, expr const & lhs, expr const & rhs);
 bool is_heq(expr const & e);
 bool is_heq(expr const & e, expr & lhs, expr & rhs);
 bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs);
-
-expr mk_cast(abstract_type_context & ctx, expr const & H, expr const & e);
 
 expr mk_false();
 expr mk_empty();
 
 bool is_false(expr const & e);
 bool is_empty(expr const & e);
-/** \brief Return an element of type t given an element \c f : false */
-expr mk_false_rec(abstract_type_context & ctx, expr const & f, expr const & t);
 
 bool is_or(expr const & e);
 bool is_or(expr const & e, expr & A, expr & B);
@@ -259,9 +214,6 @@ inline bool is_not(expr const & e) { expr a; return is_not(e, a); }
 /** \brief Extends is_not to handle (lhs ≠ rhs). In the new case, it stores (lhs = rhs) in \c a. */
 bool is_not_or_ne(expr const & e, expr & a);
 expr mk_not(expr const & e);
-
-/** \brief Create the term <tt>absurd e not_e : t</tt>. */
-expr mk_absurd(abstract_type_context & ctx, expr const & t, expr const & e, expr const & not_e);
 
 /** \brief Returns none if \c e is not an application with at least two arguments.
     Otherwise it returns <tt>app_fn(app_fn(e))</tt>. */

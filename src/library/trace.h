@@ -7,7 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include <string>
-#include "library/io_state_stream.h"
+#include "kernel/environment.h"
+#include "util/options.h"
+#include "util/message_definitions.h"
 
 namespace lean {
 void register_trace_class(name const & n);
@@ -22,23 +24,10 @@ class scope_trace_env {
     unsigned                m_disable_sz;
     environment const *     m_old_env;
     options     const *     m_old_opts;
-    abstract_type_context * m_old_ctx;
-    void init(environment * env, options * opts, abstract_type_context * ctx);
+    void init(environment * env, options * opts);
 public:
-    scope_trace_env(environment const & env, options const & opts, abstract_type_context & ctx);
-    scope_trace_env(environment const & env, abstract_type_context & ctx);
-    scope_trace_env(options const & opts);
+    scope_trace_env(environment const & env, options const & opts);
     ~scope_trace_env();
-};
-
-class scope_traces_as_string {
-    std::unique_ptr<io_state>              m_redirected_ios;
-    std::unique_ptr<scope_global_ios>      m_scoped_ios;
-    std::shared_ptr<string_output_channel> m_buffer;
-public:
-    scope_traces_as_string();
-    ~scope_traces_as_string();
-    std::string get_string() const { return m_buffer->str(); }
 };
 
 struct tclass { name m_cls; tclass(name const & c):m_cls(c) {} };

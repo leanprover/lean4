@@ -272,7 +272,7 @@ value unbox_t(object * o, type t) {
 }
 
 /** \pre Very simple debug output of arbitrary values, should be extended. */
-void print_value(io_state_stream const & ios, value const & v, type t) {
+void print_value(std::ostream & ios, value const & v, type t) {
     if (t == type::Float) {
         ios << v.m_float;
     } else if (type_is_scalar(t)) {
@@ -284,7 +284,7 @@ void print_value(io_state_stream const & ios, value const & v, type t) {
             ios << "0x0"; // confusingly printed as "0" by the default operator<<
         } else {
             // merely following the trace of object addresses is surprisingly helpful for debugging
-            ios.get_stream() << v.m_obj;
+            ios << v.m_obj;
         }
     }
 }
@@ -358,8 +358,7 @@ public:
         } else {
             // We changed threads or the closure was stored and called in a different context.
             time_task t("interpretation", opts);
-            abstract_type_context trace_ctx(opts);
-            scope_trace_env scope_trace(env, opts, trace_ctx);
+            scope_trace_env scope_trace(env, opts);
             // the caches contain data from the Environment, so we cannot reuse them when changing it
             interpreter interp(env, opts);
             flet<interpreter *> fl(g_interpreter, &interp);

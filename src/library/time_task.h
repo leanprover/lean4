@@ -6,9 +6,9 @@ Author: Sebastian Ullrich
 */
 #pragma once
 #include <string>
-#include "library/message_builder.h"
 #include "library/profiling.h"
 #include "util/timeit.h"
+#include "util/message_definitions.h"
 
 namespace lean {
 void report_profiling_time(std::string const & category, second_duration time);

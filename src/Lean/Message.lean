@@ -162,13 +162,6 @@ protected def toString (msg : Message) : IO String := do
     str := str ++ "\n"
   return str
 
-@[export lean_message_pos] def getPostEx (msg : Message) : Position := msg.pos
-@[export lean_message_severity] def getSeverityEx (msg : Message) : MessageSeverity := msg.severity
-@[export lean_message_string] unsafe def getMessageStringEx (msg : Message) : String :=
-  match unsafeIO (msg.data.toString) with -- hack: this is going to be deleted
-  | Except.ok msg  => msg
-  | Except.error e => "error formatting message: " ++ toString e
-
 end Message
 
 structure MessageLog where

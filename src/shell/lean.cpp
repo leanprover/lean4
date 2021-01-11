@@ -29,8 +29,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "library/formatter.h"
 #include "library/module.h"
-#include "library/io_state_stream.h"
-#include "library/message_builder.h"
 #include "library/time_task.h"
 #include "library/compiler/ir.h"
 #include "library/trace.h"
@@ -361,40 +359,15 @@ optional<name> module_name_of_file(std::string const & fname, optional<std::stri
     }
 }
 
-/* def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) */
-extern "C" object* lean_parse_imports(object* input, object* file_name, object* w);
-std::tuple<object_ref, position, message_log> parse_imports(std::string const & input, std::string const & fname) {
-    auto r = get_io_result<object_ref>(lean_parse_imports(mk_string(input), mk_option_some(mk_string(fname)), io_mk_world()));
-    return std::make_tuple(cnstr_get_ref(r, 0), cnstr_get_ref_t<position>(cnstr_get_ref(r, 1), 0),
-                           message_log(cnstr_get_ref_t<list_ref<message>>(cnstr_get_ref(r, 1), 1)));
-}
-
-extern "C" object* lean_print_deps(object* deps, object* w);
-void print_deps(object_ref const & deps) {
-    consume_io_result(lean_print_deps(deps.to_obj_arg(), io_mk_world()));
+/* def printImports (input : String) (fileName : Option String := none) : IO Unit */
+extern "C" object* lean_print_imports(object* input, object* file_name, object* w);
+void print_imports(std::string const & input, std::string const & fname) {
+    consume_io_result(lean_print_imports(mk_string(input), mk_option_some(mk_string(fname)), io_mk_world()));
 }
 
 extern "C" object* lean_environment_free_regions(object * env, object * w);
 void environment_free_regions(environment && env) {
     consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
-}
-
-extern "C" object * lean_message_pos(object * msg);
-extern "C" uint8 lean_message_severity(object * msg);
-extern "C" object * lean_message_string(object * msg);
-
-pos_info get_message_pos(object_ref const & msg) {
-    auto p = pair_ref<nat, nat>(lean_message_pos(msg.to_obj_arg()));
-    return pos_info(p.fst().get_small_value(), p.snd().get_small_value());
-}
-
-message_severity get_message_severity(object_ref const & msg) {
-    return static_cast<message_severity>(lean_message_severity(msg.to_obj_arg()));
-}
-
-std::string get_message_string(object_ref const & msg) {
-    string_ref r(lean_message_string(msg.to_obj_arg()));
-    return r.to_std_string();
 }
 }
 
@@ -577,9 +550,6 @@ int main(int argc, char ** argv) {
     scoped_task_manager scope_task_man(num_threads);
     optional<name> main_module_name;
 
-    io_state ios(opts, mk_print_formatter_factory());
-    scope_global_ios scoped_ios(ios);
-
     std::string mod_fn = "<unknown>";
     std::string contents;
 
@@ -610,9 +580,7 @@ int main(int argc, char ** argv) {
         }
 
         if (only_deps) {
-            object_ref imports; position pos(0, 0); message_log import_log;
-            std::tie(imports, pos, import_log) = parse_imports(contents, mod_fn);
-            print_deps(imports);
+            print_imports(contents, mod_fn);
             return 0;
         }
 

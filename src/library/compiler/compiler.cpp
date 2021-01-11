@@ -194,8 +194,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     }
 
     time_task t("compilation", opts);
-    abstract_type_context trace_ctx(opts);
-    scope_trace_env scope_trace(env, opts, trace_ctx);
+    scope_trace_env scope_trace(env, opts);
 
     comp_decls ds = to_comp_decls(env, cs);
     csimp_cfg cfg(opts);

@@ -50,12 +50,12 @@ section Utils
   private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
     IO.eprintln s!"[{s.beginPos}, {s.endPos}]: `{text.source.extract s.beginPos (s.endPos-1)}`"
 
-  inductive TaskError where
+  inductive ElabTaskError where
     | aborted
     | eof
     | ioError (e : IO.Error)
 
-  instance : Coe IO.Error TaskError := ⟨TaskError.ioError⟩
+  instance : Coe IO.Error ElabTaskError := ⟨ElabTaskError.ioError⟩
 
   structure CancelToken where
     ref : IO.Ref Bool
@@ -65,10 +65,10 @@ section Utils
     def new : IO CancelToken :=
       CancelToken.mk <$> IO.mkRef false
 
-    def check [MonadExceptOf TaskError m] [MonadLiftT (ST RealWorld) m] [Monad m] (tk : CancelToken) : m Unit := do
+    def check [MonadExceptOf ElabTaskError m] [MonadLiftT (ST RealWorld) m] [Monad m] (tk : CancelToken) : m Unit := do
       let c ← tk.ref.get
       if c = true then
-        throw TaskError.aborted
+        throw ElabTaskError.aborted
 
     def set (tk : CancelToken) : IO Unit :=
       tk.ref.set true
@@ -82,7 +82,7 @@ section Utils
     /- The first snapshot is that after the header. -/
     headerSnap : Snapshot
     /- Subsequent snapshots occur after each command. -/
-    cmdSnaps   : AsyncList TaskError Snapshot
+    cmdSnaps   : AsyncList ElabTaskError Snapshot
     cancelTk   : CancelToken
     deriving Inhabited
 end Utils
@@ -107,10 +107,11 @@ section ServerM
     (←read).pendingRequestsRef.modify map
 
   /-- Elaborates the next command after `parentSnap` and emits diagnostics. -/
-  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) : ExceptT TaskError ServerM Snapshot := do
+  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) : ExceptT ElabTaskError ServerM Snapshot := do
     cancelTk.check
     let st ← read
     let maybeSnap ← compileNextCmd m.text.source parentSnap
+    -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
     let sendDiagnostics (msgLog : MessageLog) : IO Unit := do
       let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
@@ -143,12 +144,11 @@ section ServerM
       snap
     | Sum.inr msgLog =>
       sendDiagnostics msgLog
-      throw TaskError.eof
+      throw ElabTaskError.eof
 
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) : ServerM (AsyncList TaskError Snapshot) := do
-    -- TODO(MH): check for interrupt with increased precision
-    AsyncList.unfoldAsync (nextCmdSnap m .  cancelTk (←read)) initSnap (some fun _ => pure TaskError.aborted)
+  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) : ServerM (AsyncList ElabTaskError Snapshot) := do
+    AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (←read)) initSnap
 
   /-- Compiles the contents of a Lean file. -/
   def compileDocument (m : DocumentMeta) : ServerM Unit := do
@@ -173,9 +173,9 @@ section ServerM
     match e? with
     -- This case should not be possible. only the main task aborts tasks and ensures that aborted tasks
     -- do not show up in `snapshots` of an EditableDocument.
-    | some TaskError.aborted =>
+    | some ElabTaskError.aborted =>
       throwServerError "Internal server error: elab task was aborted while still in use."
-    | some (TaskError.ioError ioError) => throw ioError
+    | some (ElabTaskError.ioError ioError) => throw ioError
     | _ => -- No error or EOF
       oldDoc.cancelTk.set
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
@@ -230,7 +230,6 @@ section NotificationHandling
     else if ¬ changes.isEmpty then
       let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText⟩ minStartOff
-    -- TODO(WN): cancel pending requests?
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
@@ -243,6 +242,14 @@ section RequestHandling
   structure RequestError where
     code    : ErrorCode
     message : String
+
+  namespace RequestError
+
+  def fileChanged : RequestError :=
+    { code := ErrorCode.contentModified
+      message := "File changed." }
+
+  end RequestError
 
   -- TODO(WN): the type is too complicated
   abbrev RequestM α := ServerM $ Task $ Except IO.Error $ Except RequestError α
@@ -265,11 +272,11 @@ section RequestHandling
         range? := some { start := text.utf8PosToLspPos f
                          «end» := text.utf8PosToLspPos t } }
     (IO.mapTask · findTask) fun
-      | Except.error TaskError.aborted =>
-        pure $ Except.error { code := ErrorCode.contentModified, message := "File changed." }
-      | Except.error (TaskError.ioError e) =>
+      | Except.error ElabTaskError.aborted =>
+        pure $ Except.error RequestError.fileChanged
+      | Except.error (ElabTaskError.ioError e) =>
         throwThe IO.Error e
-      | Except.error TaskError.eof =>
+      | Except.error ElabTaskError.eof =>
         pure $ Except.ok none
       | Except.ok (some snap) => do
         /- TODO: FIX -/
@@ -297,8 +304,8 @@ section RequestHandling
   def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam)
     : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
     let st ← read
-    let e ← st.docRef.get
-    let t ← e.cmdSnaps.waitAll
+    let doc ← st.docRef.get
+    let t ← doc.cmdSnaps.waitAll
     t.map fun _ => Except.ok $ Except.ok WaitForDiagnostics.mk
 
   def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
@@ -310,9 +317,13 @@ section RequestHandling
     let st ← read
     asTask do
       let doc ← st.docRef.get
-      let ⟨cmdSnaps, end?⟩ ← doc.cmdSnaps.updateFinishedPrefix
-      let mut stxs := cmdSnaps.finishedPrefix.map (·.stx)
-      if end?.isNone then
+      let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix
+      let mut stxs := cmdSnaps.finishedPrefix.map Snapshot.stx
+      match e? with
+      | some ElabTaskError.aborted =>
+        return Except.error RequestError.fileChanged
+      | some _ => pure () -- TODO(WN): what to do on ioError?
+      | none =>
         let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
         stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
       let (syms, _) := toDocumentSymbols doc.meta.text stxs
@@ -419,10 +430,9 @@ section MainLoop
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      -- should be sufficient to shut down the file worker.
-      -- references are lost => tasks are marked as cancelled
-      -- => all tasks eventually quit
-      ()
+      let doc ← st.docRef.get
+      doc.cancelTk.set
+      return ()
     | Message.notification method (some params) =>
       handleNotification method (toJson params)
       mainLoop

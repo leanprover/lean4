@@ -46,18 +46,14 @@ iterated applications. The initial value is *not* included. The computation can
 throw IO exceptions, so to handle this the terminating value type must include
 `IO.Error`.
 
-Optionally, a specified computation can be ran on task cancellation.
-An alternative for cooperative concurrency is to check this in `f`. -/
-partial def unfoldAsync [Coe Error ε] (f : α → ExceptT ε IO α)
-  (init : α) (onCanceled : Option (α → IO ε) := none)
+For cooperatively cancelling an ongoing computation, we recommend referencing
+a cancellation token in `f` and checking it when appropriate. -/
+partial def unfoldAsync [Coe Error ε] (f : α → ExceptT ε IO α) (init : α)
 : IO (AsyncList ε α) := do
   let rec step (a : α) : ExceptT ε IO (AsyncList ε α) := do
-    if onCanceled.isSome ∧ (← checkCanceled) then
-      throw (← onCanceled.get! a)
-    else
-      let aNext ← f a
-      let tNext ← coeErr <$> asTask (step aNext)
-      return cons aNext $ asyncTail tNext
+    let aNext ← f a
+    let tNext ← coeErr <$> asTask (step aNext)
+    return cons aNext $ asyncTail tNext
 
   let tInit ← coeErr <$> asTask (step init)
   asyncTail tInit

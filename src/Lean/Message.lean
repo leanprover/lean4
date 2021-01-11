@@ -150,13 +150,17 @@ def mkMessageEx (fileName : String) (pos : Position) (endPos : Option Position) 
 namespace Message
 
 protected def toString (msg : Message) : IO String := do
-  let str ← msg.data.toString
-  pure $ mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column
-   ((match msg.severity with
+  let mut str ← msg.data.toString
+  str :=
+   (match msg.severity with
      | MessageSeverity.information => ""
-     | MessageSeverity.warning => "warning: "
-     | MessageSeverity.error => "error: ") ++
-    (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ str)
+     | MessageSeverity.warning     => mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column "warning: "
+     | MessageSeverity.error       => mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column "error: ") ++
+    (if msg.caption == "" then "" else msg.caption ++ ":\n") ++
+    str
+  if str.isEmpty || str.back != '\n' then
+    str := str ++ "\n"
+  return str
 
 @[export lean_message_pos] def getPostEx (msg : Message) : Position := msg.pos
 @[export lean_message_severity] def getSeverityEx (msg : Message) : MessageSeverity := msg.severity

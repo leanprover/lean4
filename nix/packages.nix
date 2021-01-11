@@ -15,6 +15,14 @@ let
       export CCACHE_DIR=/nix/var/cache/ccache
       export CCACHE_UMASK=007
       export CCACHE_BASE_DIR=$NIX_BUILD_TOP
+      # https://github.com/NixOS/nixpkgs/issues/109033
+      args=("$@")
+      for ((i=0; i<"''${#args[@]}"; i++)); do
+        case ''${args[i]} in
+          -frandom-seed=*) unset args[i]; break;;
+        esac
+      done
+      set -- "''${args[@]}"
       [ -d $CCACHE_DIR ] || exec ${cc}/bin/$(basename "$0") "$@"
     '';
   };

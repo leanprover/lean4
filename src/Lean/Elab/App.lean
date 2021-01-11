@@ -844,8 +844,7 @@ private def toMessageData (ex : Exception) : TermElabM MessageData := do
     if pos == exPos then
       pure ex.toMessageData
     else
-      let fileMap ← MonadLog.getFileMap -- Remove `MonadLog.` it is a workaround for old frontend
-      let exPosition := fileMap.toPosition exPos
+      let exPosition := (← getFileMap).toPosition exPos
       pure m!"{exPosition.line}:{exPosition.column} {ex.toMessageData}"
 
 private def toMessageList (msgs : Array MessageData) : MessageData :=

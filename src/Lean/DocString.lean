@@ -17,7 +17,7 @@ def addDocString' [Monad m] [MonadEnv m] (declName : Name) (docString? : Option 
   | some docString => addDocString declName docString
   | none => return ()
 
-def getDocString? [Monad m] [MonadEnv m] (declName : Name) : m (Option String) :=
+def findDocString? [Monad m] [MonadEnv m] (declName : Name) : m (Option String) :=
   return docStringExt.find? (← getEnv) declName
 
 end Lean

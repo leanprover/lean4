@@ -11,12 +11,12 @@ namespace Lean
 structure DeclarationRange where
   pos    : Position
   endPos : Position
-  deriving Inhabited, DecidableEq
+  deriving Inhabited, DecidableEq, Repr
 
 structure DeclarationRanges where
   range          : DeclarationRange
   selectionRange : DeclarationRange
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 builtin_initialize declRangeExt : MapDeclarationExtension DeclarationRanges ← mkMapDeclarationExtension `declranges
 
@@ -28,7 +28,7 @@ def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Opt
 
 def findDeclarationRanges? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) := do
   let env ← getEnv
-  if isAuxRecursor env declName || isNoConfusion env declName then
+  if isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName)  then
     findDeclarationRangesCore? declName.getPrefix
   else
     findDeclarationRangesCore? declName

@@ -3,12 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Parser.Term
 import Lean.Meta.Closure
 import Lean.Meta.Check
 import Lean.Elab.Command
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition
-import Lean.Parser.Term
+import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab
 open Lean.Parser.Term
@@ -95,6 +96,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
   for view in views do
     let newHeader ← withRef view.ref do
       let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+      addDeclarationRanges declName view.ref
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
       withDeclName declName <| withAutoBoundImplicitLocal <| withLevelNames levelNames <|
         elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun xs => do

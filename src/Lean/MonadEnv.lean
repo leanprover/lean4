@@ -16,6 +16,11 @@ def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   | some (ConstantInfo.inductInfo ..) => return true
   | _ => return false
 
+def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
+  match (← getEnv).find? declName with
+  | some (ConstantInfo.recInfo ..) => return true
+  | _ => return false
+
 @[inline] def withoutModifyingEnv [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m α := do
   let env ← getEnv
   try x finally setEnv env

@@ -45,11 +45,11 @@ def g (x : Nat) : Nat :=
 open Lean
 
 def printDocString (declName : Name) : MetaM Unit := do
-  match (← getDocString? declName) with
+  match (← findDocString? declName) with
   | some docStr => IO.println (repr docStr)
   | none => IO.println s!"doc string for '{declName}' is not available"
 
-def printDocStrings : MetaM Unit := do
+def printDocStringTest : MetaM Unit := do
   printDocString `Foo
   printDocString `Foo.name
   printDocString `Foo.val
@@ -71,4 +71,35 @@ def printDocStrings : MetaM Unit := do
   printDocString `namedPattern
   printDocString `Lean.Meta.forallTelescopeReducing
 
-#eval printDocStrings
+#eval printDocStringTest
+
+def printRanges (declName : Name) : MetaM Unit := do
+  match (← findDeclarationRanges? declName) with
+  | some range => IO.println f!"{declName} :={Std.Format.indentD <| repr range}"
+  | none => IO.println s!"range for '{declName}' is not available"
+
+def printRangesTest : MetaM Unit := do
+  printRanges `Foo
+  printRanges `Foo.name
+  printRanges `Foo.val
+  printRanges `myAxiom
+  printRanges `Boo
+  printRanges `Boo.makeBoo
+  printRanges `Boo.x
+  printRanges `Boo.y
+  printRanges `Tree
+  printRanges `Tree.rec
+  printRanges `Tree.casesOn
+  printRanges `Tree.node
+  printRanges `Tree.leaf
+  printRanges `Bla.test
+  printRanges `Bla.test.aux
+  printRanges `f
+  printRanges `f.foo
+  printRanges `g
+  printRanges `g.foo
+  printRanges `optParam
+  printRanges `namedPattern
+  printRanges `Lean.Meta.forallTelescopeReducing
+
+#eval printRangesTest

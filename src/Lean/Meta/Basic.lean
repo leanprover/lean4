@@ -63,7 +63,7 @@ structure ParamInfo where
   deriving Inhabited
 
 def ParamInfo.isExplicit (p : ParamInfo) : Bool :=
-  !p.implicit && p.instImplicit
+  !p.implicit && !p.instImplicit
 
 structure FunInfo where
   paramInfo  : Array ParamInfo := #[]

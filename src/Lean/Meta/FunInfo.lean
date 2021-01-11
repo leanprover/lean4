@@ -64,7 +64,8 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
           pinfo := pinfo.push {
             backDeps     := backDeps,
             implicit     := decl.binderInfo == BinderInfo.implicit,
-            instImplicit := decl.binderInfo == BinderInfo.instImplicit }
+            instImplicit := decl.binderInfo == BinderInfo.instImplicit
+          }
         let resultDeps := collectDeps fvars type
         let pinfo      := updateHasFwdDeps pinfo resultDeps
         pure { resultDeps := resultDeps, paramInfo := pinfo }

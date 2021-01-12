@@ -222,7 +222,7 @@ Invokes `lean4-mode-hook'.
              '(lean4-mode . "lean4"))
 
 (lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection `(,(lean4-get-executable lean4-executable-name) "--server"))
+ (make-lsp-client :new-connection (lsp-stdio-connection (lambda () `(,(lean4-get-executable lean4-executable-name) "--server")))
                   :major-modes '(lean4-mode)
                   :server-id 'lean4-lsp))
 

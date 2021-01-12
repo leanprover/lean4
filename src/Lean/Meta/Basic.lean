@@ -620,6 +620,7 @@ mutual
   private partial def isClassExpensive? : Expr → MetaM (Option Name)
     | type => withReducible <| -- when testing whether a type is a type class, we only unfold reducible constants.
       forallTelescopeReducingAux type none fun xs type => do
+        let type ← whnf type -- make sure abbreviations are unfolded
         match type.getAppFn with
         | Expr.const c _ _ => do
           let env ← getEnv

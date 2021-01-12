@@ -111,10 +111,10 @@ with builtins; let
       modMap' = lib.foldr buildModAndDeps modMap deps;
     in modMap' // { ${mod} = buildMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
   makeEmacsWrapper = name: lean: writeShellScriptBin name ''
-    ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" $@
+    ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\") (require 'lean4-mode))" "$@"
   '';
   makeVSCodeWrapper = name: lean: writeShellScriptBin name ''
-    PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code $@
+    PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
   '';
   checkMod = deps: writeShellScriptBin "check-mod" ''
     LEAN_PATH=${depRoot "check-mod" deps} ${lean-final}/bin/lean "$@"
@@ -137,7 +137,7 @@ in rec {
   '';
 
   lean-package = writeShellScriptBin "lean" ''
-    LEAN_PATH=${modRoot}:$LEAN_PATH ${lean-final}/bin/lean $@
+    LEAN_PATH=${modRoot}:$LEAN_PATH ${lean-final}/bin/lean "$@"
   '';
   emacs-package = makeEmacsWrapper "emacs-package" lean-package;
   vscode-package = makeVSCodeWrapper "vscode-package" lean-package;

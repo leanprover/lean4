@@ -1,9 +1,20 @@
-We are currently developing Lean 4. The [Lean 4 manual](https://leanprover.github.io/lean4/doc/) (work in progress) will give you an overview of the language.
+This is the repository for **Lean 4**, which is currently being released as milestone releases towards a first stable release.
+[Lean 3](https://github.com/leanprover/lean) is still the latest stable release.
 
-[Lean 3](https://github.com/leanprover/lean) is still the latest official release.
-This repository contains work in progress.
+# About
 
-**Important**. Unless you are one of our collaborators
-- We strongly suggest you use Lean 3.
-- Pull requests are not welcome.
-- New issues are not welcome, and will be closed without any feedback.
+- [Homepage](https://leanprover.github.io)
+- [Manual](https://leanprover.github.io/lean4/doc/)
+- [FAQ](https://leanprover.github.io/lean4/doc/faq.html)
+
+# Installation
+
+See [Setting Up Lean](https://leanprover.github.io/lean4/doc/setup.html).
+
+# Contributing
+
+Please read our [Contribution Guidelines](CONTRIBUTING.md) first.
+
+# Building from Source
+
+See [Building Lean](https://leanprover.github.io/lean4/doc/make/index.html).

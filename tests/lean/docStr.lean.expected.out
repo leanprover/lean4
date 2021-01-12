@@ -82,5 +82,5 @@ namedPattern :=
   { range := { pos := { line := 166, column := 13 }, endPos := { line := 166, column := 61 } },
     selectionRange := { pos := { line := 166, column := 17 }, endPos := { line := 166, column := 29 } } }
 Lean.Meta.forallTelescopeReducing :=
-  { range := { pos := { line := 662, column := 0 }, endPos := { line := 663, column := 58 } },
-    selectionRange := { pos := { line := 662, column := 4 }, endPos := { line := 662, column := 27 } } }
+  { range := { pos := { line := 663, column := 0 }, endPos := { line := 664, column := 58 } },
+    selectionRange := { pos := { line := 663, column := 4 }, endPos := { line := 663, column := 27 } } }

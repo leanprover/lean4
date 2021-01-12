@@ -7,7 +7,7 @@ elab "enableInfo!" : command  => enableInfoTree
 elab "showInfoTrees!" : command => do
   let trees ← getInfoTrees
   trees.forM fun tree => do
-    IO.println f!"{← tree.format}"
+    logInfo f!"{← tree.format}"
 
 structure A where
   val : Nat → Nat

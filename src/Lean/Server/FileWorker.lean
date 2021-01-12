@@ -16,6 +16,7 @@ import Lean.Data.Json.FromToJson
 import Lean.Server.Snapshots
 import Lean.Server.Utils
 import Lean.Server.AsyncList
+import Lean.Server.InfoUtils
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -155,7 +156,9 @@ section ServerM
   def compileDocument (m : DocumentMeta) : ServerM Unit := do
     let headerSnap@{ data := SnapshotData.headerData cmdState, .. } ← Snapshots.compileHeader m.text.source
       | throwServerError "Internal server error: invalid header snapshot"
-    let cmdState := { cmdState with infoState.enabled := true }
+    let opts : Options := {}
+    let opts := opts.setBool `interpreter.prefer_native false
+    let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
     let headerSnap := { headerSnap with data := SnapshotData.headerData cmdState }
     let cancelTk ← CancelToken.new
     let cmdSnaps ← unfoldCmdSnaps m headerSnap cancelTk
@@ -272,7 +275,7 @@ section RequestHandling
     let hoverPos := text.lspPosToUtf8Pos p.position
     let findTask ← doc.cmdSnaps.waitFind? (fun s => s.endPos > hoverPos)
     let mkHover (s : String) (f : String.Pos) (t : String.Pos) : Hover :=
-      { contents := { kind := MarkupKind.plaintext
+      { contents := { kind := MarkupKind.markdown
                       value := s }
         range? := some { start := text.utf8PosToLspPos f
                          «end» := text.utf8PosToLspPos t } }
@@ -284,6 +287,57 @@ section RequestHandling
       | Except.error ElabTaskError.eof =>
         pure $ Except.ok none
       | Except.ok (some snap) => do
+        for t in snap.toCmdState.infoState.trees do
+          let ts := t.smallestNodes fun
+            | Info.ofTermInfo i =>
+              match i.pos?, i.endPos? with
+              | some pos, some endPos =>
+                /- TODO(WN): We search for the syntax in the original command because some macro expansions
+                introduce phantom terms which actually contain position info but do not correspond
+                to anything in the source. Example: `ForInStep.yield { .. }` in `for .. in .. do` -/
+                if pos ≤ hoverPos ∧ hoverPos ≤ endPos ∧ (snap.stx.find? fun s => s == i.stx).isSome then
+                  if let Syntax.node `Lean.Parser.Term.app args := i.stx then
+                    let hd := args.get! 0
+                    match hd.getPos, hd.getTailPos with
+                    | some pos, some endPos => pos ≤ hoverPos ∧ hoverPos ≤ endPos
+                    | _, _ => false
+                  else
+                    /- TODO(WN): Currently only these kinds are displayed. This misses a lot of cases that we
+                    want to display but which will need to be tweaked to display correctly. -/
+                    #[`ident,
+                      `Lean.Parser.Term.proj
+                      ].contains i.stx.getKind
+                else false
+              | _, _ => false
+            | _ => false
+          let mut nds : Array (Nat × ContextInfo × TermInfo) := #[]
+          for t in ts do
+            if let InfoTree.context ci (InfoTree.node (Info.ofTermInfo i) _) := t then
+              let diff := i.endPos?.get! - i.pos?.get!
+              nds := nds.push (diff, ci, i)
+
+          if let some (_, ci, i) := nds.getMax? (fun a b => a.1 > b.1) then
+            let (stx, expr, pos, endPos) : (Syntax × Expr × String.Pos × String.Pos) :=
+             (if let Syntax.node `Lean.Parser.Term.app args := i.stx then
+               let hd := args.get! 0
+               let (pos, endPos) := (hd.getPos.get!, hd.getTailPos.get!)
+               (hd, i.expr.getAppFn, pos, endPos)
+             else
+               (i.stx, i.expr, i.pos?.get!, i.endPos?.get!))
+
+            let tFmt ← ci.runMetaM i.lctx do
+              return f!"{← Meta.ppExpr (← Meta.inferType expr)}"
+              --return f!"{stx.getKind} --> {← Meta.ppExpr expr} <{pos}->{endPos}> : {← Meta.ppExpr (← Meta.inferType expr)}"
+            let mut hoverStr := s!"`{tFmt}`"
+            if let Expr.const n .. := expr then
+              if let some doc ← ci.runMetaM i.lctx <| findDocString? n then
+                hoverStr := s!"{hoverStr}\n***\n{doc}"
+
+            return (Except.ok $ some $ mkHover hoverStr pos endPos
+                      -- Type inference fails
+                      : Except RequestError _)
+          pure ()
+
         return Except.ok none
       | Except.ok none => return Except.ok none
 

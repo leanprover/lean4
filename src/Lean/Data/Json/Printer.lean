@@ -9,16 +9,16 @@ import Lean.Data.Json.Basic
 namespace Lean
 namespace Json
 
-private def escapeAux (c : Char) (acc : String) : String :=
+private def escapeAux (acc : String) (c : Char) : String :=
   -- escape ", \, \n and \r, keep all other characters ≥ 0x20 and render characters < 0x20 with \u
   if c = '"' then -- hack to prevent emacs from regarding the rest of the file as a string: "
-    "\\\"" ++ acc
+    acc ++ "\\\""
   else if c = '\\' then
-    "\\\\" ++ acc
+    acc ++ "\\\\"
   else if c = '\n' then
-    "\\n" ++ acc
+    acc ++ "\\n"
   else if c = '\x0d' then
-    "\\r" ++ acc
+    acc ++ "\\r"
   -- the c.val ≤ 0x10ffff check is technically redundant,
   -- since Lean chars are unicode scalar values ≤ 0x10ffff.
   -- as to whether c.val > 0xffff should be split up and encoded with multiple \u,
@@ -26,20 +26,19 @@ private def escapeAux (c : Char) (acc : String) : String :=
   -- and encoding it with multiple \u is allowed, and it is up to parsers to make the
   -- decision.
   else if 0x0020 ≤ c.val ∧ c.val ≤ 0x10ffff then
-    String.singleton c ++ acc
+    acc ++ String.singleton c
   else
     let n := c.toNat;
     -- since c.val < 0x20 in this case, this conversion is more involved than necessary
     -- (but we keep it for completeness)
-    "\\u" ++
+    acc ++ "\\u" ++
     [ Nat.digitChar (n / 4096),
       Nat.digitChar ((n % 4096) / 256),
       Nat.digitChar ((n % 256) / 16),
-      Nat.digitChar (n % 16) ].asString ++
-    acc
+      Nat.digitChar (n % 16) ].asString
 
 def escape (s : String) : String := do
-  s.foldr escapeAux ""
+  s.foldl escapeAux ""
 
 def renderString (s : String) : String :=
   "\"" ++ escape s ++ "\""

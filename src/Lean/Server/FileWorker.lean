@@ -92,8 +92,7 @@ open Std (RBMap RBMap.empty)
 open JsonRpc
 
 section ServerM
-  -- Pending requests are tracked so that requests can be cancelled by cancelling the corresponding task,
-  -- which would be cancelled by the GC if we did not track these requests.
+  -- Pending requests are tracked so they can be cancelled
   abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) (fun a b => Decidable.decide (a < b))
 
   structure ServerContext where

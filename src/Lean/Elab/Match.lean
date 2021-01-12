@@ -862,12 +862,29 @@ private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermEla
   let matchOptType := getMatchOptType stx
   elabMatchAux discrStxs altViews matchOptType expectedType
 
+private def isPatternVar (stx : Syntax) : TermElabM Bool := do
+  match (← resolveId? stx "pattern") with
+  | none   => isAtomicIdent stx
+  | some f => match f with
+    | Expr.const fName _ _ =>
+      match (← getEnv).find? fName with
+      | some (ConstantInfo.ctorInfo _) => return false
+      | _ => isAtomicIdent stx
+    | _ => isAtomicIdent stx
+where
+  isAtomicIdent (stx : Syntax) : Bool :=
+    stx.isIdent && stx.getId.eraseMacroScopes.isAtomic
+
 -- parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
-@[builtinTermElab «match»] def elabMatch : TermElab := fun stx expectedType? =>
+@[builtinTermElab «match»] def elabMatch : TermElab := fun stx expectedType? => do
   match stx with
-  | `(match $discr:term with | $y:ident => $rhs:term)         => expandSimpleMatch stx discr y rhs expectedType?
-  | `(match $discr:term : $type with | $y:ident => $rhs:term) => expandSimpleMatchWithType stx discr y type rhs expectedType?
-  | _ => do
+  | `(match $discr:term with | $y:ident => $rhs:term) =>
+     if (← isPatternVar y) then expandSimpleMatch stx discr y rhs expectedType? else elabMatchDefault stx expectedType?
+  | `(match $discr:term : $type with | $y:ident => $rhs:term) =>
+     if (← isPatternVar y) then expandSimpleMatchWithType stx discr y type rhs expectedType? else elabMatchDefault stx expectedType?
+  | _ => elabMatchDefault stx expectedType?
+where
+  elabMatchDefault (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
     match (← expandNonAtomicDiscrs? stx) with
     | some stxNew => withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
     | none =>

@@ -23,8 +23,10 @@ open Elab
 /-- The data associated with a snapshot is different depending on whether
 it was produced from the header or from a command. -/
 inductive SnapshotData where
-  | headerData : Environment → MessageLog → Options → SnapshotData
+  | headerData : Command.State → SnapshotData
   | cmdData : Command.State → SnapshotData
+  -- NOTE(WN): these carry the same dat but we leave open the future
+  -- possibility of more snapshot variants. For example, within tactic blocks.
   deriving Inhabited
 
 /-- What Lean knows about the world after the header and each command. -/
@@ -43,22 +45,17 @@ namespace Snapshot
 
 def endPos (s : Snapshot) : String.Pos := s.mpState.pos
 
-def env : Snapshot → Environment
-  | ⟨_, _, _, SnapshotData.headerData env_ _ _⟩ => env_
-  | ⟨_, _, _, SnapshotData.cmdData cmdState⟩ => cmdState.env
-
-def msgLog : Snapshot → MessageLog
-  | ⟨_, _, _, SnapshotData.headerData _ msgLog_ _⟩ => msgLog_
-  | ⟨_, _, _, SnapshotData.cmdData cmdState⟩ => cmdState.messages
-
 def toCmdState : Snapshot → Command.State
-  | ⟨_, _, _, SnapshotData.headerData env msgLog opts⟩ => Command.mkState env msgLog opts
-  | ⟨_, _, _, SnapshotData.cmdData cmdState⟩ => cmdState
+  | { data := SnapshotData.headerData cmdState, .. } => cmdState
+  | { data := SnapshotData.cmdData cmdState, .. } => cmdState
+
+def env (s : Snapshot) : Environment :=
+  s.toCmdState.env
+
+def msgLog (s : Snapshot) : MessageLog :=
+  s.toCmdState.messages
 
 end Snapshot
-
--- TODO(WN): fns here should probably take inputCtx and live
--- in some SnapshotsM := ReaderT Context (EIO Empty)
 
 def compileHeader (contents : String) (opts : Options := {}) : IO Snapshot := do
   let inputCtx := Parser.mkInputContext contents "<input>"
@@ -68,7 +65,7 @@ def compileHeader (contents : String) (opts : Options := {}) : IO Snapshot := do
     beginPos := 0
     stx := headerStx
     mpState := headerParserState
-    data := SnapshotData.headerData headerEnv msgLog opts
+    data := SnapshotData.headerData <| Command.mkState headerEnv msgLog opts
   }
 
 def reparseHeader (contents : String) (header : Snapshot) (opts : Options := {}) : IO Snapshot := do

@@ -260,13 +260,15 @@ section ServerM
       Messages that couldn't be sent can be queued up via the queueFailedMessage flag and
       will be discharged after the FileWorker is restarted. -/
   def tryWriteMessage [Coe α JsonRpc.Message] (uri : DocumentUri) (msg : α) (writeAction : FileWorker → α → IO Unit)
-  (queueFailedMessage := true) : ServerM Unit := do
+  (queueFailedMessage := true) (restartCrashedWorker := false) : ServerM Unit := do
     let fw ← findFileWorker uri
     match fw.state with
     | WorkerState.crashed queuedMsgs =>
       let mut queuedMsgs := queuedMsgs
       if queueFailedMessage then
         queuedMsgs := queuedMsgs.push msg
+      if !restartCrashedWorker then
+        return
       -- restart the crashed FileWorker
       eraseFileWorker uri
       startFileWorker fw.doc.meta
@@ -325,7 +327,7 @@ section NotificationHandling
     else
       let newDoc : OpenDocument := ⟨newMeta, oldDoc.headerAst⟩
       updateFileWorkers { fw with doc := newDoc }
-      tryWriteMessage doc.uri ⟨"textDocument/didChange", p⟩ FileWorker.writeNotification
+      tryWriteMessage doc.uri ⟨"textDocument/didChange", p⟩ FileWorker.writeNotification (restartCrashedWorker := true)
 
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri

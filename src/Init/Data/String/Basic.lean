@@ -523,6 +523,12 @@ def trim (s : String) : String :=
 @[inline] def nextUntil (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   nextWhile s (fun c => !p c) i
 
+def toUpper (s : String) : String :=
+  s.map Char.toUpper
+
+def toLower (s : String) : String :=
+  s.map Char.toLower
+
 def capitalize (s : String) :=
   s.set 0 <| s.get 0 |>.toUpper
 

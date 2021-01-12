@@ -152,14 +152,46 @@ section ServerM
   def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) : ServerM (AsyncList ElabTaskError Snapshot) := do
     AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (←read)) initSnap
 
+  /-- Use `leanpkg print-path` to compile dependencies on the fly and add them to LEAN_PATH. -/
+  def leanpkgSetupSearchPath (imports : Array Import) : ServerM Unit := do
+    let leanpkgProc ← Process.spawn {
+      stdin  := Process.Stdio.null
+      stdout := Process.Stdio.piped
+      stderr := Process.Stdio.piped
+      cmd    := s!"{← appDir}/leanpkg"
+      args   := #["print-path"] ++ imports.map (toString ·.module)
+    }
+    let stderr ← IO.asTask leanpkgProc.stderr.readToEnd Task.Priority.dedicated
+    let stdout ← leanpkgProc.stdout.readToEnd
+    let stderr ← IO.ofExcept stderr.get
+    -- use last non-empty line as LEAN_PATH
+    let stdout := stdout.split (· == '\n') |>.filter (· != "") |>.toArray
+    let leanPath ← match stdout.back? with
+      | some s => s
+      | none   => throw <| IO.userError stderr
+    if (← leanpkgProc.wait) == 0 then
+      searchPathRef.set (← parseSearchPath leanPath (← getBuiltinSearchPath))
+    else
+      throw <| IO.userError stderr
+
   /-- Compiles the contents of a Lean file. -/
   def compileDocument (m : DocumentMeta) : ServerM Unit := do
-    let headerSnap@{ data := SnapshotData.headerData cmdState, .. } ← Snapshots.compileHeader m.text.source
-      | throwServerError "Internal server error: invalid header snapshot"
-    let opts : Options := {}
+    let opts := {}  -- TODO
+    let inputCtx := Parser.mkInputContext m.text.source "<input>"
+    let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
+    -- NOTE: leanpkg does not exist in stage 0 (yet?)
+    if (← fileExists "leanpkg.toml") && (← fileExists s!"{← appDir}/leanpkg") then
+      leanpkgSetupSearchPath (Lean.Elab.headerToImports headerStx).toArray
+    let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
+    let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let opts := opts.setBool `interpreter.prefer_native false
     let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
-    let headerSnap := { headerSnap with data := SnapshotData.headerData cmdState }
+    let headerSnap := {
+      beginPos := 0
+      stx := headerStx
+      mpState := headerParserState
+      data := SnapshotData.headerData cmdState
+    }
     let cancelTk ← CancelToken.new
     let cmdSnaps ← unfoldCmdSnaps m headerSnap cancelTk
     (←read).docRef.set ⟨m, headerSnap, cmdSnaps, cancelTk⟩
@@ -512,7 +544,7 @@ def workerMain : IO UInt32 := do
     initAndRunWorker i o e
   catch err =>
     e.putStrLn s!"worker initialization error: {err}"
-    return 1
+    return (1 : UInt32)
 
 end Lean.Server.FileWorker
 

@@ -1,5 +1,5 @@
 { debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin,
+  stdenv, lib, cmake, gmp, gnumake, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir,
   ... } @ args:
 rec {
   inherit stdenv;
@@ -87,17 +87,19 @@ rec {
       leanc = writeShellScriptBin "leanc" ''
         ${lean-bin-tools-unwrapped}/bin/leanc -L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean "$@"
       '';
-      leanBin = wrapStage(stdenv.mkDerivation {
+      lean = wrapStage(stdenv.mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
           ln -sf ${leancpp}/lib/lean/libleancpp.* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
           ${leanc}/bin/leanc -x none -rdynamic ${leancpp}/lib/lean/libleancppmain.* -o $out/bin/lean
           ${leanc}/bin/leanc -x none -rdynamic ${Leanpkg.staticLib}/* -o $out/bin/leanpkg
+          # put everything in a single final derivation so `IO.appDir` references work
+          for i in ${lean-bin-tools-unwrapped} ${leanc}; do
+            ${lndir}/bin/lndir -silent $i $out
+          done
         '';
       });
-      # leanpkg = Leanpkg.executable "leanpkg";
-      lean = symlinkJoin { name = "lean"; paths = [ leanBin lean-bin-tools-unwrapped leanc ]; };
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];

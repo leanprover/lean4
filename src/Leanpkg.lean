@@ -67,7 +67,7 @@ version = \"0.1\"
       execCmd {cmd := "git", args := #["init", "-q"]}
       unless upstreamGitBranch = "master" do
         execCmd {cmd := "git", args := #["checkout", "-B", upstreamGitBranch]}
-    ) <|> IO.println "WARNING: failed to initialize git repository"
+    ) <|> IO.eprintln "WARNING: failed to initialize git repository"
 
 def init (n : String) := initPkg n false
 

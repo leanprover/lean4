@@ -179,6 +179,7 @@ private def synthesizeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
           let syntheticMVarsNew := mvarDecls.reverse ++ syntheticMVarsNew
           modify fun s => { s with syntheticMVars := syntheticMVarsNew }
           return true
+      | _ => visit mvarDecls (mvarDecl :: syntheticMVarsNew)
   /- Recall that s.syntheticMVars is essentially a stack. The first metavariable was the last one created.
      We want to apply the default instance in reverse creation order. Otherwise,
      `toString 0` will produce a `OfNat String _` cannot be synthesized error. -/

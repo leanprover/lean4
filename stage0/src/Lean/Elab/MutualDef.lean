@@ -102,9 +102,14 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
         elabBinders (catchAutoBoundImplicit := true) view.binders.getArgs fun xs => do
           let refForElabFunType := view.value
           elabFunType refForElabFunType xs view fun xs type => do
-            let type ← mkForallFVars (← read).autoBoundImplicits.toArray type
+            let mut type ← mkForallFVars (← read).autoBoundImplicits.toArray type
             let xs ← addAutoBoundImplicits xs
             let levelNames ← getLevelNames
+            if view.type?.isSome then
+              Term.synthesizeSyntheticMVarsNoPostponing
+              type ← instantiateMVars type
+              let pendingMVarIds ← getMVars type
+              discard <| logUnassignedUsingErrorInfos pendingMVarIds
             let newHeader := {
               ref           := view.ref,
               modifiers     := view.modifiers,

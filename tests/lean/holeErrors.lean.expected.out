@@ -3,10 +3,6 @@ holeErrors.lean:3:10: error: don't know how to synthesize implicit argument
 context:
 ⊢ Sort u_1
 holeErrors.lean:3:7: error: failed to infer definition type
-holeErrors.lean:5:14: error: don't know how to synthesize implicit argument
-  @id ?m
-context:
-⊢ Sort u_1
 holeErrors.lean:5:9: error: failed to infer definition type
 holeErrors.lean:8:9: error: don't know how to synthesize implicit argument
   @id ?m

@@ -21,7 +21,7 @@ def check : Tree → UInt32
 
 def minN := 4
 
-def out (s) (n : Nat) (t : UInt32) : IO Unit :=
+def out (s : String) (n : Nat) (t : UInt32) : IO Unit :=
 IO.println (s ++ " of depth " ++ toString n ++ "\t check: " ++ toString t)
 
 -- allocate and check lots of trees

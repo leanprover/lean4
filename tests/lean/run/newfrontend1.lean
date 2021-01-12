@@ -419,5 +419,5 @@ def f3 x y :=
 theorem f3eq x y : f3 x y = x + y + 1 :=
   rfl
 
-def f4 x y : String :=
+def f4 (x y : Nat) : String :=
   if x > y + 1 then "hello" else "world"

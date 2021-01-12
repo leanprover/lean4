@@ -1,0 +1,6 @@
+theoremType.lean:1:22: error: don't know how to synthesize placeholder
+context:
+⊢ Nat
+theoremType.lean:4:18: error: don't know how to synthesize placeholder
+context:
+⊢ Nat

@@ -98,6 +98,7 @@ section ServerM
   structure ServerContext where
     hIn                : FS.Stream
     hOut               : FS.Stream
+    hLog               : FS.Stream
     docRef             : IO.Ref EditableDocument
     pendingRequestsRef : IO.Ref PendingRequestMap
 
@@ -152,8 +153,10 @@ section ServerM
 
   /-- Compiles the contents of a Lean file. -/
   def compileDocument (m : DocumentMeta) : ServerM Unit := do
-    let headerSnap@⟨_, _, _, SnapshotData.headerData env msgLog opts⟩ ← Snapshots.compileHeader m.text.source
+    let headerSnap@{ data := SnapshotData.headerData cmdState, .. } ← Snapshots.compileHeader m.text.source
       | throwServerError "Internal server error: invalid header snapshot"
+    let cmdState := { cmdState with infoState.enabled := true }
+    let headerSnap := { headerSnap with data := SnapshotData.headerData cmdState }
     let cancelTk ← CancelToken.new
     let cmdSnaps ← unfoldCmdSnaps m headerSnap cancelTk
     (←read).docRef.set ⟨m, headerSnap, cmdSnaps, cancelTk⟩
@@ -260,9 +263,11 @@ section RequestHandling
      (this way, the server doesn't get bogged down in requests for an old state of the document).
      Requests need to manually check for whether their task has been cancelled, so that they
      can reply with a RequestCancelled error. -/
+  open Elab in
   partial def handleHover (id : RequestID) (p : HoverParams)
     : ServerM (Task (Except IO.Error (Except RequestError (Option Hover)))) := do
-    let doc ← (←read).docRef.get
+    let st ← read
+    let doc ← st.docRef.get
     let text := doc.meta.text
     let hoverPos := text.lspPosToUtf8Pos p.position
     let findTask ← doc.cmdSnaps.waitFind? (fun s => s.endPos > hoverPos)
@@ -279,25 +284,6 @@ section RequestHandling
       | Except.error ElabTaskError.eof =>
         pure $ Except.ok none
       | Except.ok (some snap) => do
-        /- TODO: FIX -/
-        let mut infoRanges : Array (Nat × String.Pos × String.Pos × Expr) := #[]
-        for t in snap.toCmdState.infoState.trees do
-          /-
-          if let Elab.InfoTree.ofTermInfo i := t then
-            match i.stx.getPos, i.stx.getTailPos with
-            | some pos, some endPos =>
-              if pos ≤ hoverPos ∧ hoverPos ≤ endPos then
-                infoRanges := infoRanges.push (endPos - pos, pos, endPos, i.e)
-            | _, _ => pure ()
-          -/
-          pure ()
-        match infoRanges.getMax? fun a b => a.1 > b.1 with
-        | some (_, pos, endPos, e) =>
-          --st.hLog.putStrLn s!"Picked from {infoRanges.size}"
-          return (Except.ok $ some $ mkHover (toString e) pos endPos
-                    -- Type inference fails
-                    : Except RequestError _)
-        | none => pure ()
         return Except.ok none
       | Except.ok none => return Except.ok none
 
@@ -450,6 +436,7 @@ def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
   let ctx : ServerContext := {
     hIn                := i
     hOut               := o
+    hLog               := e
     -- `openDocument` will not access `docRef`, but set it
     docRef             := ←IO.mkRef arbitrary
     pendingRequestsRef := ←IO.mkRef (RBMap.empty : PendingRequestMap)

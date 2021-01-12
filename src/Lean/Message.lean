@@ -151,13 +151,12 @@ namespace Message
 
 protected def toString (msg : Message) : IO String := do
   let mut str ← msg.data.toString
-  str :=
-   (match msg.severity with
-     | MessageSeverity.information => ""
-     | MessageSeverity.warning     => mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column "warning: "
-     | MessageSeverity.error       => mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column "error: ") ++
-    (if msg.caption == "" then "" else msg.caption ++ ":\n") ++
-    str
+  unless msg.caption == "" do
+    str := msg.caption ++ ":\n" ++ str
+  match msg.severity with
+  | MessageSeverity.information => pure ()
+  | MessageSeverity.warning     => str := mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column "warning: " ++ str
+  | MessageSeverity.error       => str := mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column "error: " ++ str
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str

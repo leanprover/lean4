@@ -34,18 +34,22 @@ def configure : IO String := do
       }
   System.FilePath.searchPathSeparator.toString.intercalate <| paths.map (· ++ "/build")
 
-def build (leanArgs : List String) : IO Unit := do
+def buildImports (imports : List String) (leanArgs : List String) : IO String := do
   let manifest ← readManifest
+  let imports := imports.map (·.toName)
+  -- TODO: shoddy check
+  let localImports := imports.filter fun i => i.getRoot.toString.toLower == manifest.name.toLower
   let path ← configure
-  let leanArgs := (match manifest.timeout with | some t => ["-T", toString t] | none => []) ++ leanArgs
-  let mut spawnArgs := {
-    cmd := "leanmake"
-    cwd := manifest.effectivePath
-    args := #[s!"LEAN_OPTS={" ".intercalate leanArgs}", s!"LEAN_PATH={path}"]
-  }
-  if System.Platform.isWindows then
-    spawnArgs := { spawnArgs with cmd := "sh", args := #[s!"{← IO.appDir}\\{spawnArgs.cmd}"] ++ spawnArgs.args }
-  execCmd spawnArgs
+  if localImports != [] then
+    let leanArgs := (match manifest.timeout with | some t => ["-T", toString t] | none => []) ++ leanArgs
+    let oleans := localImports.map fun i => s!"\"build{Lean.modPathToFilePath i}.olean\""
+    let mut spawnArgs := {
+      cmd := "sh"
+      cwd := manifest.effectivePath
+      args := #["-c", s!"\"{← IO.appDir}/leanmake\" LEAN_OPTS=\"{" ".intercalate leanArgs}\" LEAN_PATH=\"{path}\" {" ".intercalate oleans} >&2"]
+    }
+    execCmd spawnArgs
+  return path
 
 def initGitignoreContents :=
   "/build
@@ -83,8 +87,9 @@ init <name>            create a Lean package in the current directory
 See `leanpkg help <command>` for more information on a specific command."
 
 def main : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
-  | "configure", [],     []        => configure >>= IO.println
-  | "build",     _,      leanArgs  => build leanArgs
+  | "configure", [],     []        => discard <| configure
+  | "print-path", leanpkgArgs, leanArgs => buildImports leanpkgArgs leanArgs >>= IO.println
+  | "build",     _,      leanArgs  => discard <| buildImports [] leanArgs
   | "init",      [Name], []        => init Name
   | "help",      ["configure"], [] => IO.println "Download dependencies
 

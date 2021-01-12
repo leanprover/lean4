@@ -45,20 +45,20 @@ def materialize (relpath : String) (dep : Dependency) : Solver Unit :=
   match dep.src with
   | Source.path dir => do
     let depdir := resolveDir dir relpath
-    IO.println s!"{dep.name}: using local path {depdir}"
+    IO.eprintln s!"{dep.name}: using local path {depdir}"
     modify (·.insert dep.name depdir)
   | Source.git url rev branch => do
     let depdir := "build/deps/" ++ dep.name
     let alreadyThere ← IO.isDir depdir
     if alreadyThere then
-      IO.print s!"{dep.name}: trying to update {depdir} to revision {rev}"
-      IO.println (match branch with | none => "" | some branch => "@" ++ branch)
+      IO.eprint s!"{dep.name}: trying to update {depdir} to revision {rev}"
+      IO.eprintln (match branch with | none => "" | some branch => "@" ++ branch)
       let hash ← gitParseOriginRevision depdir rev
       let revEx ← gitRevisionExists depdir hash
       unless revEx do
         execCmd {cmd := "git", args := #["fetch"], cwd := depdir}
     else
-      IO.println s!"{dep.name}: cloning {url} to {depdir}"
+      IO.eprintln s!"{dep.name}: cloning {url} to {depdir}"
       execCmd {cmd := "git", args := #["clone", url, depdir]}
     let hash ← gitParseOriginRevision depdir rev
     execCmd {cmd := "git", args := #["checkout", "--detach", hash], cwd := depdir}

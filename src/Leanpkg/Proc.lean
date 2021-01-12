@@ -8,7 +8,7 @@ namespace Leanpkg
 def execCmd (args : IO.Process.SpawnArgs) : IO Unit := do
   let envstr := String.join <| args.env.toList.map fun (k, v) => s!"{k}={v.getD ""} "
   let cmdstr := " ".intercalate (args.cmd :: args.args.toList)
-  IO.println <| "> " ++ envstr ++
+  IO.eprintln <| "> " ++ envstr ++
     match args.cwd with
     | some cwd => cmdstr ++ "    # in directory " ++ cwd
     | none     => cmdstr

@@ -328,7 +328,9 @@ section RequestHandling
             let tFmt ← ci.runMetaM i.lctx do
               return f!"{← Meta.ppExpr (← Meta.inferType expr)}"
               --return f!"{stx.getKind} --> {← Meta.ppExpr expr} <{pos}->{endPos}> : {← Meta.ppExpr (← Meta.inferType expr)}"
-            let mut hoverStr := s!"`{tFmt}`"
+            let mut hoverStr := s!"```lean
+{tFmt}
+```"
             if let Expr.const n .. := expr then
               if let some doc ← ci.runMetaM i.lctx <| findDocString? n then
                 hoverStr := s!"{hoverStr}\n***\n{doc}"

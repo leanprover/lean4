@@ -189,8 +189,10 @@ private def getPropToDecide (expectedType? : Option Expr) : TermElabM Expr := do
   else
     `(dbgTrace (toString $arg) fun _ => $body)
 
-@[builtinMacro Lean.Parser.Term.«sorry»]  def expandSorry : Macro := fun _ =>
-  `(sorryAx _ false)
+@[builtinTermElab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
+  logWarning "declaration uses 'sorry'"
+  let stxNew ← `(sorryAx _ false)
+  withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
 
 @[builtinTermElab emptyC] def expandEmptyC : TermElab := fun stx expectedType? => do
   let stxNew ← `(EmptyCollection.emptyCollection)

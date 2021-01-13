@@ -26,5 +26,11 @@ y : Nat
 inductionErrors.lean:50:2: error: alternative 'cons' is not needed
 inductionErrors.lean:53:2: error: alternative for 'Vec.cons' is not needed
 inductionErrors.lean:60:2: error: invalid alternative name 'upper2'
+inductionErrors.lean:66:23: warning: declaration uses 'sorry'
+inductionErrors.lean:65:29: warning: declaration uses 'sorry'
+inductionErrors.lean:72:29: warning: declaration uses 'sorry'
+inductionErrors.lean:71:29: warning: declaration uses 'sorry'
 inductionErrors.lean:74:2: error: unused alternative
+inductionErrors.lean:79:29: warning: declaration uses 'sorry'
+inductionErrors.lean:78:29: warning: declaration uses 'sorry'
 inductionErrors.lean:80:2: error: unused alternative

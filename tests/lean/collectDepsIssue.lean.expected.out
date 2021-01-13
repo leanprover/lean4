@@ -3,3 +3,6 @@ context:
 α : Type
 a : α
 ⊢ List α
+collectDepsIssue.lean:9:13: warning: declaration uses 'sorry'
+collectDepsIssue.lean:12:8: warning: declaration uses 'sorry'
+collectDepsIssue.lean:13:8: warning: declaration uses 'sorry'

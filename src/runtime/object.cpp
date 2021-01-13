@@ -25,8 +25,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 extern "C" void lean_panic(char const * msg) {
-    std::cerr << msg << "\n";
-    lean_unreachable();
+    std::cerr << "INTERNAL PANIC: " << msg << "\n";
     std::exit(1);
 }
 
@@ -59,7 +58,7 @@ extern "C" object * lean_panic_fn(object * default_val, object * msg) {
 }
 
 extern "C" object * lean_sorry(uint8) {
-    lean_panic("executing sorry");
+    lean_panic("executed 'sorry'");
 }
 
 extern "C" size_t lean_object_byte_size(lean_object * o) {

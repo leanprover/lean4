@@ -68,7 +68,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
       addAndCompileUnsafe preDefs
     else if preDefs.any (·.modifiers.isPartial) then
       addAndCompilePartial preDefs
-    else
+    else withRef (preDefs[0].ref) do
       mapError
         (orelseMergeErrors
           (structuralRecursion preDefs)

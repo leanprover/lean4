@@ -153,7 +153,7 @@ section ServerM
     AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (←read)) initSnap
 
   /-- Use `leanpkg print-path` to compile dependencies on the fly and add them to LEAN_PATH. -/
-  def leanpkgSetupSearchPath (imports : Array Import) : ServerM Unit := do
+  partial def leanpkgSetupSearchPath (m : DocumentMeta) (imports : Array Import) : ServerM Unit := do
     let leanpkgProc ← Process.spawn {
       stdin  := Process.Stdio.null
       stdout := Process.Stdio.piped
@@ -161,14 +161,26 @@ section ServerM
       cmd    := s!"{← appDir}/leanpkg"
       args   := #["print-path"] ++ imports.map (toString ·.module)
     }
-    let stderr ← IO.asTask leanpkgProc.stderr.readToEnd Task.Priority.dedicated
-    let stdout ← leanpkgProc.stdout.readToEnd
+    let hOut := (← read).hOut
+    -- progress notification: report latest stderr line
+    let rec processStderr (acc : String) : IO String := do
+      let line ← leanpkgProc.stderr.getLine
+      if line == "" then
+        return acc
+      else
+        hOut.writeLspNotification {
+          method := "textDocument/publishDiagnostics"
+          param  := {
+            uri         := m.uri
+            version?    := m.version
+            diagnostics := #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.information, message := line }]
+            : PublishDiagnosticsParams
+          }
+        }
+        processStderr (acc ++ line)
+    let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
+    let leanPath := String.trim (← leanpkgProc.stdout.readToEnd)
     let stderr ← IO.ofExcept stderr.get
-    -- use last non-empty line as LEAN_PATH
-    let stdout := stdout.split (· == '\n') |>.filter (· != "") |>.toArray
-    let leanPath ← match stdout.back? with
-      | some s => s
-      | none   => throw <| IO.userError stderr
     if (← leanpkgProc.wait) == 0 then
       searchPathRef.set (← parseSearchPath leanPath (← getBuiltinSearchPath))
     else
@@ -181,7 +193,7 @@ section ServerM
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
     -- NOTE: leanpkg does not exist in stage 0 (yet?)
     if (← fileExists "leanpkg.toml") && (← fileExists s!"{← appDir}/leanpkg") then
-      leanpkgSetupSearchPath (Lean.Elab.headerToImports headerStx).toArray
+      leanpkgSetupSearchPath m (Lean.Elab.headerToImports headerStx).toArray
     let (headerEnv, msgLog) ← Elab.processHeader headerStx opts msgLog inputCtx
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let opts := opts.setBool `interpreter.prefer_native false

@@ -52,7 +52,7 @@ def processCommand : FrontendM Bool := do
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let pos := ictx.fileMap.toPosition pstate.pos
-  match profileit "parsing" pos fun _ => Parser.parseCommand ictx pmctx pstate cmdState.messages with
+  match profileit "parsing" scope.opts pos fun _ => Parser.parseCommand ictx pmctx pstate cmdState.messages with
   | (cmd, ps, messages) =>
     modify fun s => { s with commands := s.commands.push cmd }
     setParserState ps
@@ -60,7 +60,7 @@ def processCommand : FrontendM Bool := do
     if Parser.isEOI cmd || Parser.isExitCommand cmd then
       pure true -- Done
     else
-      profileitM IO.Error "elaboration" pos $ elabCommandAtFrontend cmd
+      profileitM IO.Error "elaboration" scope.opts pos $ elabCommandAtFrontend cmd
       pure false
 
 partial def processCommands : FrontendM Unit := do
@@ -82,18 +82,15 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
   let s ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
   pure (s.commandState.env, s.commandState.messages)
 
-@[export lean_process_input]
-def processExport (env : Environment) (input : String) (opts : Options) (fileName : String) : IO (Environment × List Message) := do
-  let (env, messages) ← process input env opts fileName
-  pure (env, messages.toList)
-
 @[export lean_run_frontend]
-def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) : IO (Environment × List Message × Module) := do
+def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   let (env, messages) ← processHeader header opts messages inputCtx
   let env := env.setMainModule mainModuleName
   let s ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
-  pure (s.commandState.env, s.commandState.messages.toList, { header := header, commands := s.commands })
+  for msg in s.commandState.messages.toList do
+    IO.print (← msg.toString)
+  pure (s.commandState.env, !s.commandState.messages.hasErrors)
 
 end Lean.Elab

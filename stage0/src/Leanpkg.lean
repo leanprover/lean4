@@ -25,9 +25,10 @@ def configure : IO String := do
   let paths ← constructPath assg
   for path in paths do
     unless path == "./." do
+      -- build recursively
       -- TODO: share build of common dependencies
       execCmd {
-        cmd := "leanpkg"
+        cmd := (← IO.appPath)
         cwd := path
         args := #["build"]
       }

@@ -59,7 +59,7 @@ lean_object* lean_mk_unsafe_rec_name(lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_match__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_visitFVar___closed__2;
-lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_checkIsDefinition(lean_object*, lean_object*);
 lean_object* l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object*);
 lean_object* l_Lean_Compiler_voidType___closed__1;
@@ -1251,84 +1251,113 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_7 = lean_ctor_get(x_1, 0);
+lean_inc(x_7);
+lean_dec(x_1);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get_uint8(x_7, sizeof(void*)*1);
+lean_dec(x_7);
+x_10 = lean_ctor_get(x_8, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_8, 1);
+lean_inc(x_11);
+x_12 = lean_ctor_get(x_8, 2);
+lean_inc(x_12);
+lean_dec(x_8);
+x_13 = lean_box(x_9);
+x_14 = lean_apply_4(x_5, x_10, x_11, x_12, x_13);
+return x_14;
+}
 case 1:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
+x_15 = lean_ctor_get(x_1, 0);
+lean_inc(x_15);
 lean_dec(x_1);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_6, 1);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_6, 2);
-lean_inc(x_9);
-x_10 = lean_ctor_get_uint8(x_6, sizeof(void*)*3);
-lean_dec(x_6);
-x_11 = lean_ctor_get(x_7, 0);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_7, 1);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_7, 2);
-lean_inc(x_13);
-lean_dec(x_7);
-x_14 = lean_box(x_10);
-x_15 = lean_apply_6(x_2, x_11, x_12, x_13, x_8, x_9, x_14);
-return x_15;
+x_16 = lean_ctor_get(x_15, 0);
+lean_inc(x_16);
+x_17 = lean_ctor_get(x_15, 1);
+lean_inc(x_17);
+x_18 = lean_ctor_get(x_15, 2);
+lean_inc(x_18);
+x_19 = lean_ctor_get_uint8(x_15, sizeof(void*)*3);
+lean_dec(x_15);
+x_20 = lean_ctor_get(x_16, 0);
+lean_inc(x_20);
+x_21 = lean_ctor_get(x_16, 1);
+lean_inc(x_21);
+x_22 = lean_ctor_get(x_16, 2);
+lean_inc(x_22);
+lean_dec(x_16);
+x_23 = lean_box(x_19);
+x_24 = lean_apply_6(x_2, x_20, x_21, x_22, x_17, x_18, x_23);
+return x_24;
 }
 case 3:
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
-lean_dec(x_2);
-x_16 = lean_ctor_get(x_1, 0);
-lean_inc(x_16);
-lean_dec(x_1);
-x_17 = lean_ctor_get(x_16, 0);
-lean_inc(x_17);
-x_18 = lean_ctor_get(x_16, 1);
-lean_inc(x_18);
-x_19 = lean_ctor_get_uint8(x_16, sizeof(void*)*2);
-lean_dec(x_16);
-x_20 = lean_ctor_get(x_17, 0);
-lean_inc(x_20);
-x_21 = lean_ctor_get(x_17, 1);
-lean_inc(x_21);
-x_22 = lean_ctor_get(x_17, 2);
-lean_inc(x_22);
-lean_dec(x_17);
-x_23 = lean_box(x_19);
-x_24 = lean_apply_5(x_4, x_20, x_21, x_22, x_18, x_23);
-return x_24;
-}
-case 5:
-{
-lean_object* x_25; lean_object* x_26; 
-lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_2);
 x_25 = lean_ctor_get(x_1, 0);
 lean_inc(x_25);
 lean_dec(x_1);
-x_26 = lean_apply_1(x_3, x_25);
-return x_26;
+x_26 = lean_ctor_get(x_25, 0);
+lean_inc(x_26);
+x_27 = lean_ctor_get(x_25, 1);
+lean_inc(x_27);
+x_28 = lean_ctor_get_uint8(x_25, sizeof(void*)*2);
+lean_dec(x_25);
+x_29 = lean_ctor_get(x_26, 0);
+lean_inc(x_29);
+x_30 = lean_ctor_get(x_26, 1);
+lean_inc(x_30);
+x_31 = lean_ctor_get(x_26, 2);
+lean_inc(x_31);
+lean_dec(x_26);
+x_32 = lean_box(x_28);
+x_33 = lean_apply_5(x_4, x_29, x_30, x_31, x_27, x_32);
+return x_33;
+}
+case 5:
+{
+lean_object* x_34; lean_object* x_35; 
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+x_34 = lean_ctor_get(x_1, 0);
+lean_inc(x_34);
+lean_dec(x_1);
+x_35 = lean_apply_1(x_3, x_34);
+return x_35;
 }
 default: 
 {
-lean_object* x_27; 
+lean_object* x_36; 
+lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_27 = lean_apply_1(x_5, x_1);
-return x_27;
+x_36 = lean_apply_1(x_6, x_1);
+return x_36;
 }
 }
 }
@@ -1337,7 +1366,7 @@ lean_object* l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCode
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen_match__1___rarg), 5, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen_match__1___rarg), 6, 0);
 return x_2;
 }
 }
@@ -1395,25 +1424,36 @@ lean_object* lean_get_decl_names_for_code_gen(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
-case 1:
+case 2:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
+lean_object* x_2; 
 lean_dec(x_1);
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-lean_dec(x_2);
-x_4 = lean_ctor_get(x_3, 0);
+x_2 = lean_box(0);
+return x_2;
+}
+case 4:
+{
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
+}
+case 5:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_3);
-x_5 = lean_box(0);
-x_6 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_6, 0, x_4);
-lean_ctor_set(x_6, 1, x_5);
+lean_dec(x_1);
+x_5 = l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_4);
+return x_5;
+}
+case 6:
+{
+lean_object* x_6; 
+lean_dec(x_1);
+x_6 = lean_box(0);
 return x_6;
 }
-case 3:
+default: 
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_ctor_get(x_1, 0);
@@ -1430,22 +1470,6 @@ x_11 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 return x_11;
-}
-case 5:
-{
-lean_object* x_12; lean_object* x_13; 
-x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
-lean_dec(x_1);
-x_13 = l_List_map___at___private_Lean_Compiler_Util_0__Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_12);
-return x_13;
-}
-default: 
-{
-lean_object* x_14; 
-lean_dec(x_1);
-x_14 = lean_box(0);
-return x_14;
 }
 }
 }

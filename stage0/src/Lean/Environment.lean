@@ -543,7 +543,7 @@ structure ImportState where
   regions       : Array CompactedRegion := #[]
 
 @[export lean_import_modules]
-partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" ⟨0, 0⟩ do
+partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts ⟨0, 0⟩ do
   let (_, s) ← importMods imports |>.run {}
   -- (moduleNames, mods, regions)
   let mut modIdx : Nat := 0

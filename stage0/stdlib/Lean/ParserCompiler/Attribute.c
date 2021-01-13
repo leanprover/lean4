@@ -22,7 +22,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__3;
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2699____closed__4;
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2700____closed__4;
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerInternalExceptionId___closed__2;
 lean_object* l_Lean_ofExcept___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -642,7 +642,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = l_Lean_mkMapDeclarationExtension___rarg___closed__1;
 x_5 = l_Lean_ParserCompiler_registerCombinatorAttribute___closed__1;
-x_6 = l_Lean_initFn____x40_Lean_Environment___hyg_2699____closed__4;
+x_6 = l_Lean_initFn____x40_Lean_Environment___hyg_2700____closed__4;
 lean_inc(x_1);
 x_7 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_7, 0, x_1);

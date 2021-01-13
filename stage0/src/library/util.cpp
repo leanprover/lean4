@@ -65,13 +65,6 @@ optional<expr_pair> is_auto_param(expr const & e) {
     }
 }
 
-level get_level(abstract_type_context & ctx, expr const & A) {
-    expr S = ctx.relaxed_whnf(ctx.infer(A));
-    if (!is_sort(S))
-        throw exception("invalid expression, sort expected");
-    return sort_level(S);
-}
-
 name mk_fresh_lp_name(names const & lp_names) {
     name l("l");
     int i = 1;
@@ -324,20 +317,6 @@ expr instantiate_lparam(expr const & e, name const & p, level const & l) {
     return instantiate_lparams(e, names(p), levels(l));
 }
 
-unsigned get_expect_num_args(abstract_type_context & ctx, expr e) {
-    push_local_fn push_local(ctx);
-    unsigned r = 0;
-    while (true) {
-        e = ctx.whnf(e);
-        if (!is_pi(e))
-            return r;
-        // TODO(Leo): try to avoid the following instantiate.
-        expr local = push_local(binding_name(e), binding_domain(e), binding_info(e));
-        e = instantiate(binding_body(e), local);
-        r++;
-    }
-}
-
 expr to_telescope(bool pi, local_ctx & lctx, name_generator & ngen, expr e, buffer<expr> & telescope, optional<binder_info> const & binfo) {
     while ((pi && is_pi(e)) || (!pi && is_lambda(e))) {
         expr local;
@@ -413,20 +392,6 @@ expr mk_and(expr const & a, expr const & b) {
     return mk_app(*g_and, a, b);
 }
 
-expr mk_and_intro(abstract_type_context & ctx, expr const & Ha, expr const & Hb) {
-    return mk_app(*g_and_intro, ctx.infer(Ha), ctx.infer(Hb), Ha, Hb);
-}
-
-expr mk_and_left(abstract_type_context & ctx, expr const & H) {
-    expr a_and_b = ctx.whnf(ctx.infer(H));
-    return mk_app(*g_and_left, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
-}
-
-expr mk_and_right(abstract_type_context & ctx, expr const & H) {
-    expr a_and_b = ctx.whnf(ctx.infer(H));
-    return mk_app(*g_and_right, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
-}
-
 expr mk_unit(level const & l) {
     return mk_constant(get_punit_name(), {l});
 }
@@ -444,34 +409,6 @@ expr mk_unit() {
 
 expr mk_unit_mk() {
     return *g_unit_mk;
-}
-
-expr mk_pprod(abstract_type_context & ctx, expr const & A, expr const & B) {
-    level l1 = get_level(ctx, A);
-    level l2 = get_level(ctx, B);
-    return mk_app(mk_constant(get_pprod_name(), {l1, l2}), A, B);
-}
-
-expr mk_pprod_mk(abstract_type_context & ctx, expr const & a, expr const & b) {
-    expr A = ctx.infer(a);
-    expr B = ctx.infer(b);
-    level l1 = get_level(ctx, A);
-    level l2 = get_level(ctx, B);
-    return mk_app(mk_constant(get_pprod_mk_name(), {l1, l2}), A, B, a, b);
-}
-
-expr mk_pprod_fst(abstract_type_context & ctx, expr const & p) {
-    expr AxB = ctx.whnf(ctx.infer(p));
-    expr const & A = app_arg(app_fn(AxB));
-    expr const & B = app_arg(AxB);
-    return mk_app(mk_constant(get_pprod_fst_name(), const_levels(get_app_fn(AxB))), A, B, p);
-}
-
-expr mk_pprod_snd(abstract_type_context & ctx, expr const & p) {
-    expr AxB = ctx.whnf(ctx.infer(p));
-    expr const & A = app_arg(app_fn(AxB));
-    expr const & B = app_arg(AxB);
-    return mk_app(mk_constant(get_pprod_snd_name(), const_levels(get_app_fn(AxB))), A, B, p);
 }
 
 static expr * g_nat         = nullptr;
@@ -543,19 +480,6 @@ static void finalize_char() {
 expr mk_unit(level const & l, bool prop) { return prop ? mk_true() : mk_unit(l); }
 expr mk_unit_mk(level const & l, bool prop) { return prop ? mk_true_intro() : mk_unit_mk(l); }
 
-expr mk_pprod(abstract_type_context & ctx, expr const & a, expr const & b, bool prop) {
-    return prop ? mk_and(a, b) : mk_pprod(ctx, a, b);
-}
-expr mk_pprod_mk(abstract_type_context & ctx, expr const & a, expr const & b, bool prop) {
-    return prop ? mk_and_intro(ctx, a, b) : mk_pprod_mk(ctx, a, b);
-}
-expr mk_pprod_fst(abstract_type_context & ctx, expr const & p, bool prop) {
-    return prop ? mk_and_left(ctx, p) : mk_pprod_fst(ctx, p);
-}
-expr mk_pprod_snd(abstract_type_context & ctx, expr const & p, bool prop) {
-    return prop ? mk_and_right(ctx, p) : mk_pprod_snd(ctx, p);
-}
-
 bool is_ite(expr const & e) {
     return is_app_of(e, get_ite_name(), 5);
 }
@@ -591,85 +515,6 @@ expr mk_iff_refl(expr const & a) {
 }
 expr mk_propext(expr const & lhs, expr const & rhs, expr const & iff_pr) {
     return mk_app(mk_constant(get_propext_name()), lhs, rhs, iff_pr);
-}
-
-expr mk_eq(abstract_type_context & ctx, expr const & lhs, expr const & rhs) {
-    expr A    = ctx.whnf(ctx.infer(lhs));
-    level lvl = get_level(ctx, A);
-    return mk_app(mk_constant(get_eq_name(), {lvl}), A, lhs, rhs);
-}
-
-expr mk_eq_refl(abstract_type_context & ctx, expr const & a) {
-    expr A    = ctx.whnf(ctx.infer(a));
-    level lvl = get_level(ctx, A);
-    return mk_app(mk_constant(get_eq_refl_name(), {lvl}), A, a);
-}
-
-expr mk_eq_symm(abstract_type_context & ctx, expr const & H) {
-    if (is_app_of(H, get_eq_refl_name()))
-        return H;
-    expr p    = ctx.whnf(ctx.infer(H));
-    lean_assert(is_eq(p));
-    expr lhs  = app_arg(app_fn(p));
-    expr rhs  = app_arg(p);
-    expr A    = ctx.infer(lhs);
-    level lvl = get_level(ctx, A);
-    return mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, lhs, rhs, H);
-}
-
-expr mk_eq_trans(abstract_type_context & ctx, expr const & H1, expr const & H2) {
-    if (is_app_of(H1, get_eq_refl_name()))
-        return H2;
-    if (is_app_of(H2, get_eq_refl_name()))
-        return H1;
-    expr p1    = ctx.whnf(ctx.infer(H1));
-    expr p2    = ctx.whnf(ctx.infer(H2));
-    lean_assert(is_eq(p1) && is_eq(p2));
-    expr lhs1  = app_arg(app_fn(p1));
-    expr rhs1  = app_arg(p1);
-    expr rhs2  = app_arg(p2);
-    expr A     = ctx.infer(lhs1);
-    level lvl  = get_level(ctx, A);
-    return mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, lhs1, rhs1, rhs2, H1, H2});
-}
-
-expr mk_eq_subst(abstract_type_context & ctx, expr const & motive,
-                 expr const & x, expr const & y, expr const & xeqy, expr const & h) {
-    expr A    = ctx.infer(x);
-    level l1  = get_level(ctx, A);
-    expr r    = mk_constant(get_eq_subst_name(), {l1});
-    return mk_app({r, A, x, y, motive, xeqy, h});
-}
-
-expr mk_eq_subst(abstract_type_context & ctx, expr const & motive, expr const & xeqy, expr const & h) {
-    expr xeqy_type = ctx.whnf(ctx.infer(xeqy));
-    return mk_eq_subst(ctx, motive, app_arg(app_fn(xeqy_type)), app_arg(xeqy_type), xeqy, h);
-}
-
-expr mk_congr_arg(abstract_type_context & ctx, expr const & f, expr const & H) {
-    expr eq = ctx.relaxed_whnf(ctx.infer(H));
-    expr pi = ctx.relaxed_whnf(ctx.infer(f));
-    expr A, B, lhs, rhs;
-    lean_verify(is_eq(eq, A, lhs, rhs));
-    lean_assert(is_arrow(pi));
-    B = binding_body(pi);
-    level lvl_1  = get_level(ctx, A);
-    level lvl_2  = get_level(ctx, B);
-    return ::lean::mk_app({mk_constant(get_congr_arg_name(), {lvl_1, lvl_2}), A, B, lhs, rhs, f, H});
-}
-
-expr mk_subsingleton_elim(abstract_type_context & ctx, expr const & h, expr const & x, expr const & y) {
-    expr A  = ctx.infer(x);
-    level l = get_level(ctx, A);
-    expr r  = mk_constant(get_subsingleton_elim_name(), {l});
-    return mk_app({r, A, h, x, y});
-}
-
-expr mk_heq(abstract_type_context & ctx, expr const & lhs, expr const & rhs) {
-    expr A    = ctx.whnf(ctx.infer(lhs));
-    expr B    = ctx.whnf(ctx.infer(rhs));
-    level lvl = get_level(ctx, A);
-    return mk_app(mk_constant(get_heq_name(), {lvl}), A, lhs, B, rhs);
 }
 
 bool is_eq_ndrec_core(expr const & e) {
@@ -720,14 +565,6 @@ bool is_eq_a_a(expr const & e) {
     return lhs == rhs;
 }
 
-bool is_eq_a_a(abstract_type_context & ctx, expr const & e) {
-    if (!is_eq(e))
-        return false;
-    expr lhs = app_arg(app_fn(e));
-    expr rhs = app_arg(e);
-    return ctx.is_def_eq(lhs, rhs);
-}
-
 bool is_heq(expr const & e) {
     return is_app_of(e, get_heq_name(), 4);
 }
@@ -749,15 +586,6 @@ bool is_heq(expr const & e, expr & lhs, expr & rhs) {
     return is_heq(e, A, lhs, B, rhs);
 }
 
-expr mk_cast(abstract_type_context & ctx, expr const & H, expr const & e) {
-    expr type = ctx.relaxed_whnf(ctx.infer(H));
-    expr A, B;
-    if (!is_eq(type, A, B))
-        throw exception("cast failed, equality proof expected");
-    level lvl = get_level(ctx, A);
-    return mk_app(mk_constant(get_cast_name(), {lvl}), A, B, H, e);
-}
-
 expr mk_false() {
     return mk_constant(get_false_name());
 }
@@ -772,11 +600,6 @@ bool is_false(expr const & e) {
 
 bool is_empty(expr const & e) {
     return is_constant(e) && const_name(e) == get_empty_name();
-}
-
-expr mk_false_rec(abstract_type_context & ctx, expr const & f, expr const & t) {
-    level t_lvl = get_level(ctx, t);
-    return mk_app(mk_constant(get_false_rec_name(), {t_lvl}), t, f);
 }
 
 bool is_or(expr const & e) {
@@ -821,12 +644,6 @@ bool is_not_or_ne(expr const & e, expr & a) {
 
 expr mk_not(expr const & e) {
     return mk_app(mk_constant(get_not_name()), e);
-}
-
-expr mk_absurd(abstract_type_context & ctx, expr const & t, expr const & e, expr const & not_e) {
-    level t_lvl  = get_level(ctx, t);
-    expr  e_type = ctx.infer(e);
-    return mk_app(mk_constant(get_absurd_name(), {t_lvl}), e_type, t, e, not_e);
 }
 
 bool is_exists(expr const & e, expr & A, expr & p) {

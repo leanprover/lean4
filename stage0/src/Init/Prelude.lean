@@ -166,6 +166,7 @@ structure Subtype {α : Sort u} (p : α → Prop) where
 @[reducible] def namedPattern {α : Sort u} (x a : α) : α := a
 
 /- Auxiliary axiom used to implement `sorry`. -/
+@[extern "lean_sorry", neverExtract]
 axiom sorryAx (α : Sort u) (synthetic := true) : α
 
 theorem eqFalseOfNeTrue : {b : Bool} → Not (Eq b true) → Eq b false

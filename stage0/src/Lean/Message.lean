@@ -150,20 +150,16 @@ def mkMessageEx (fileName : String) (pos : Position) (endPos : Option Position) 
 namespace Message
 
 protected def toString (msg : Message) : IO String := do
-  let str ← msg.data.toString
-  pure $ mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column
-   ((match msg.severity with
-     | MessageSeverity.information => ""
-     | MessageSeverity.warning => "warning: "
-     | MessageSeverity.error => "error: ") ++
-    (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ str)
-
-@[export lean_message_pos] def getPostEx (msg : Message) : Position := msg.pos
-@[export lean_message_severity] def getSeverityEx (msg : Message) : MessageSeverity := msg.severity
-@[export lean_message_string] unsafe def getMessageStringEx (msg : Message) : String :=
-  match unsafeIO (msg.data.toString) with -- hack: this is going to be deleted
-  | Except.ok msg  => msg
-  | Except.error e => "error formatting message: " ++ toString e
+  let mut str ← msg.data.toString
+  unless msg.caption == "" do
+    str := msg.caption ++ ":\n" ++ str
+  match msg.severity with
+  | MessageSeverity.information => pure ()
+  | MessageSeverity.warning     => str := mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column "warning: " ++ str
+  | MessageSeverity.error       => str := mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column "error: " ++ str
+  if str.isEmpty || str.back != '\n' then
+    str := str ++ "\n"
+  return str
 
 end Message
 

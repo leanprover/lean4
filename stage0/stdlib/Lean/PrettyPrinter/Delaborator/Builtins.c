@@ -313,7 +313,6 @@ extern lean_object* l_Lean_myMacro____x40_Init_Notation___hyg_14788____closed__4
 lean_object* l_Lean_PrettyPrinter_Delaborator_whenPPOption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lambda__2___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDIte_match__1___rarg(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3428____closed__4;
 extern lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__7;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfScientific___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -325,6 +324,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_delabCoe___lambda__1(lean_object*,
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabBVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabConst___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
+extern lean_object* l_myMacro____x40_Init_Data_Array_Basic___hyg_3424____closed__4;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabListToArray___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instReprBool___closed__3;
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabTuple___lambda__1___closed__1;
@@ -22147,7 +22147,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNil___closed__1;
-x_2 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3428____closed__4;
+x_2 = l_myMacro____x40_Init_Data_Array_Basic___hyg_3424____closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

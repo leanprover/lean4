@@ -18,6 +18,7 @@ A (potentially recursive) definition.
 The elaborator converts it into Kernel definitions using many different strategies.
 -/
 structure PreDefinition where
+  ref       : Syntax
   kind      : DefKind
   lparams   : List Name
   modifiers : Modifiers
@@ -25,9 +26,6 @@ structure PreDefinition where
   type      : Expr
   value     : Expr
   deriving Inhabited
-
-instance : Inhabited PreDefinition :=
-  ⟨⟨DefKind.«def», [], {}, arbitrary, arbitrary, arbitrary⟩⟩
 
 def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
@@ -88,33 +86,34 @@ def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition :=
 
 /- Auxiliary method for (temporarily) adding pre definition as an axiom -/
 def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
-  addDecl $ Declaration.axiomDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
+  withRef preDef.ref do
+    addDecl <| Declaration.axiomDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit := do
-  let preDef ← abstractNestedProofs preDef
-  let env ← getEnv
-  let decl :=
-    match preDef.kind with
-    | DefKind.«example» => unreachable!
-    | DefKind.«theorem» =>
-      Declaration.thmDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value }
-    | DefKind.«opaque»  =>
-      Declaration.opaqueDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
-                               isUnsafe := preDef.modifiers.isUnsafe }
-    | DefKind.«abbrev»  =>
-      Declaration.defnDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
-                             hints := ReducibilityHints.«abbrev»,
-                             safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
-    | DefKind.«def»  =>
-      Declaration.defnDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
-                             hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
-                             safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
-  addDecl decl
-  applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
-  if compile && !preDef.kind.isTheorem then
-    compileDecl decl
-  applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
-  pure ()
+private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit :=
+  withRef preDef.ref do
+    let preDef ← abstractNestedProofs preDef
+    let env ← getEnv
+    let decl :=
+      match preDef.kind with
+      | DefKind.«example» => unreachable!
+      | DefKind.«theorem» =>
+        Declaration.thmDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value }
+      | DefKind.«opaque»  =>
+        Declaration.opaqueDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
+                                 isUnsafe := preDef.modifiers.isUnsafe }
+      | DefKind.«abbrev»  =>
+        Declaration.defnDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
+                               hints := ReducibilityHints.«abbrev»,
+                               safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
+      | DefKind.«def»  =>
+        Declaration.defnDecl { name := preDef.declName, lparams := preDef.lparams, type := preDef.type, value := preDef.value,
+                               hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
+                               safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
+    addDecl decl
+    applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
+    if compile && !preDef.kind.isTheorem then
+      compileDecl decl
+    applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
   addNonRecAux preDef true
@@ -122,20 +121,21 @@ def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
 def addNonRec (preDef : PreDefinition) : TermElabM Unit := do
   addNonRecAux preDef false
 
-def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit := do
-  let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDef => {
-      name     := preDef.declName,
-      lparams  := preDef.lparams,
-      type     := preDef.type,
-      value    := preDef.value,
-      safety   := safety,
-      hints    := ReducibilityHints.opaque
-    }
-  addDecl decl
-  applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
-  compileDecl decl
-  applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
-  pure ()
+def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit :=
+  withRef preDefs[0].ref do
+    let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDef => {
+        name     := preDef.declName,
+        lparams  := preDef.lparams,
+        type     := preDef.type,
+        value    := preDef.value,
+        safety   := safety,
+        hints    := ReducibilityHints.opaque
+      }
+    addDecl decl
+    applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
+    compileDecl decl
+    applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
+    pure ()
 
 def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := do
   addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>

@@ -74,6 +74,7 @@ private def getDeclNamesForCodeGen : Declaration → List Name
   | Declaration.defnDecl { name := n, .. }   => [n]
   | Declaration.mutualDefnDecl defs          => defs.map fun d => d.name
   | Declaration.opaqueDecl { name := n, .. } => [n]
+  | Declaration.axiomDecl { name := n, .. }  => [n] -- axiom may be tagged with `@[extern ...]`
   | _                                        => []
 
 def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=

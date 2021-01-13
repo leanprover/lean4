@@ -18,7 +18,6 @@ lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_Leanpkg_init(lean_object*, lean_object*);
 lean_object* l_Leanpkg_initPkg(lean_object*, uint8_t, lean_object*);
 lean_object* l_Leanpkg_writeManifest(lean_object*, lean_object*, lean_object*);
-lean_object* l_Leanpkg_readManifest___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__3;
 extern lean_object* l_String_instInhabitedString;
 extern lean_object* l_Leanpkg_gitParseRevision___closed__5;
@@ -64,6 +63,7 @@ lean_object* l_IO_eprintln___at___private_Init_System_IO_0__IO_eprintlnAux___spe
 lean_object* l_IO_FS_Handle_mk___at_Lean_Parser_testParseFile___spec__2(lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* l_Leanpkg_initPkg___closed__2;
 lean_object* l_IO_FS_Handle_putStr___at_Leanpkg_writeManifest___spec__2(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_503____closed__1;
 lean_object* l_String_capitalize(lean_object*);
 lean_object* l_Leanpkg_readManifest___closed__1;
 extern lean_object* l_Leanpkg_uiLeanVersionString;
@@ -73,10 +73,8 @@ lean_object* l_Leanpkg_solveDeps(lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_putStr___at_Leanpkg_writeManifest___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Leanpkg_initPkg___closed__6;
-extern lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_507____closed__1;
 lean_object* l_Leanpkg_initGitignoreContents;
 extern lean_object* l_Leanpkg_leanpkgTomlFn;
-lean_object* l_Leanpkg_readManifest___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_readManifest___closed__2;
 extern lean_object* l_Leanpkg_leanVersionString___closed__3;
@@ -88,7 +86,9 @@ lean_object* l_Leanpkg_Manifest_fromFile(lean_object*, lean_object*);
 lean_object* l___private_Leanpkg_0__Leanpkg_splitCmdlineArgsCore_match__2(lean_object*);
 lean_object* l_Leanpkg_build___closed__4;
 extern lean_object* l_Leanpkg_materialize___lambda__1___closed__2;
+lean_object* l_Leanpkg_configure_match__1___boxed(lean_object*, lean_object*);
 lean_object* lean_init_search_path(lean_object*, lean_object*);
+lean_object* l_Leanpkg_configure_match__1___rarg(lean_object*);
 lean_object* l___private_Leanpkg_0__Leanpkg_splitCmdlineArgsCore___closed__1;
 lean_object* l_main_match__1(lean_object*);
 lean_object* l_Leanpkg_splitCmdlineArgs_match__1(lean_object*);
@@ -130,29 +130,20 @@ lean_object* l_List_forIn_loop___at_Leanpkg_configure___spec__1___boxed(lean_obj
 lean_object* l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__2;
 uint8_t l_Leanpkg_initPkg___closed__10;
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
+lean_object* lean_io_app_dir(lean_object*);
 lean_object* l_Leanpkg_Manifest_effectivePath(lean_object*);
 extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_pushNewline___closed__1;
 lean_object* l_Leanpkg_main_match__1___rarg___closed__2;
-lean_object* l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__4;
 lean_object* l_Leanpkg_main_match__1___rarg___closed__1;
 extern lean_object* l_Leanpkg_gitParseRevision___closed__9;
 lean_object* l_IO_FS_writeFile___at_Leanpkg_writeManifest___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Leanpkg_configure_match__1(lean_object*, lean_object*);
 extern lean_object* l_Leanpkg_upstreamGitBranch;
 lean_object* l_Leanpkg_splitCmdlineArgs_match__2(lean_object*);
 lean_object* l_Leanpkg_main___closed__4;
 lean_object* l_Lean_Syntax_reprint(lean_object*);
 extern lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* l_Leanpkg_readManifest___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_3);
-return x_4;
-}
-}
 static lean_object* _init_l_Leanpkg_readManifest___closed__1() {
 _start:
 {
@@ -378,15 +369,6 @@ return x_46;
 }
 }
 }
-lean_object* l_Leanpkg_readManifest___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Leanpkg_readManifest___lambda__1(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
 lean_object* l_IO_FS_Handle_putStr___at_Leanpkg_writeManifest___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -494,6 +476,32 @@ lean_dec(x_2);
 return x_4;
 }
 }
+lean_object* l_Leanpkg_configure_match__1___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = lean_apply_1(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Leanpkg_configure_match__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Leanpkg_configure_match__1___rarg), 1, 0);
+return x_3;
+}
+}
+lean_object* l_Leanpkg_configure_match__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Leanpkg_configure_match__1(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__1() {
 _start:
 {
@@ -520,14 +528,6 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("leanpkg");
-return x_1;
-}
-}
 lean_object* l_List_forIn_loop___at_Leanpkg_configure___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -549,62 +549,93 @@ x_7 = l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__1;
 x_8 = lean_string_dec_eq(x_5, x_7);
 if (x_8 == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_inc(x_5);
-x_9 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_9, 0, x_5);
-x_10 = l_Leanpkg_gitParseRevision___closed__1;
-x_11 = l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__4;
-x_12 = l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__3;
-x_13 = l_Array_empty___closed__1;
-x_14 = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(x_14, 0, x_10);
-lean_ctor_set(x_14, 1, x_11);
-lean_ctor_set(x_14, 2, x_12);
-lean_ctor_set(x_14, 3, x_9);
-lean_ctor_set(x_14, 4, x_13);
-x_15 = l_Leanpkg_execCmd(x_14, x_3);
-if (lean_obj_tag(x_15) == 0)
+lean_object* x_9; 
+x_9 = lean_io_app_dir(x_3);
+if (lean_obj_tag(x_9) == 0)
 {
-lean_object* x_16; lean_object* x_17; 
-x_16 = lean_ctor_get(x_15, 1);
-lean_inc(x_16);
-lean_dec(x_15);
-x_17 = lean_box(0);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_10 = lean_ctor_get(x_9, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_9, 1);
+lean_inc(x_11);
+lean_dec(x_9);
+lean_inc(x_5);
+x_12 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_12, 0, x_5);
+x_13 = l_Leanpkg_gitParseRevision___closed__1;
+x_14 = l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__3;
+x_15 = l_Array_empty___closed__1;
+x_16 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_16, 0, x_13);
+lean_ctor_set(x_16, 1, x_10);
+lean_ctor_set(x_16, 2, x_14);
+lean_ctor_set(x_16, 3, x_12);
+lean_ctor_set(x_16, 4, x_15);
+x_17 = l_Leanpkg_execCmd(x_16, x_11);
+if (lean_obj_tag(x_17) == 0)
+{
+lean_object* x_18; lean_object* x_19; 
+x_18 = lean_ctor_get(x_17, 1);
+lean_inc(x_18);
+lean_dec(x_17);
+x_19 = lean_box(0);
 x_1 = x_6;
-x_2 = x_17;
-x_3 = x_16;
+x_2 = x_19;
+x_3 = x_18;
 goto _start;
 }
 else
 {
-uint8_t x_19; 
-x_19 = !lean_is_exclusive(x_15);
-if (x_19 == 0)
+uint8_t x_21; 
+x_21 = !lean_is_exclusive(x_17);
+if (x_21 == 0)
 {
-return x_15;
+return x_17;
 }
 else
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_20 = lean_ctor_get(x_15, 0);
-x_21 = lean_ctor_get(x_15, 1);
-lean_inc(x_21);
-lean_inc(x_20);
-lean_dec(x_15);
-x_22 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_22, 0, x_20);
-lean_ctor_set(x_22, 1, x_21);
-return x_22;
+lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_22 = lean_ctor_get(x_17, 0);
+x_23 = lean_ctor_get(x_17, 1);
+lean_inc(x_23);
+lean_inc(x_22);
+lean_dec(x_17);
+x_24 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_24, 0, x_22);
+lean_ctor_set(x_24, 1, x_23);
+return x_24;
 }
 }
 }
 else
 {
-lean_object* x_23; 
-x_23 = lean_box(0);
+uint8_t x_25; 
+x_25 = !lean_is_exclusive(x_9);
+if (x_25 == 0)
+{
+return x_9;
+}
+else
+{
+lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_26 = lean_ctor_get(x_9, 0);
+x_27 = lean_ctor_get(x_9, 1);
+lean_inc(x_27);
+lean_inc(x_26);
+lean_dec(x_9);
+x_28 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_28, 0, x_26);
+lean_ctor_set(x_28, 1, x_27);
+return x_28;
+}
+}
+}
+else
+{
+lean_object* x_29; 
+x_29 = lean_box(0);
 x_1 = x_6;
-x_2 = x_23;
+x_2 = x_29;
 goto _start;
 }
 }
@@ -1263,7 +1294,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Syntax_mkApp___closed__1;
-x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_507____closed__1;
+x_2 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_503____closed__1;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
@@ -1758,7 +1789,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; uint8_t x_17; 
 lean_dec(x_5);
-x_16 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_507____closed__1;
+x_16 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_503____closed__1;
 x_17 = lean_string_dec_eq(x_1, x_16);
 if (x_17 == 0)
 {
@@ -2316,7 +2347,7 @@ x_8 = lean_string_dec_eq(x_1, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_507____closed__1;
+x_9 = l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_503____closed__1;
 x_10 = lean_string_dec_eq(x_1, x_9);
 if (x_10 == 0)
 {
@@ -3132,8 +3163,6 @@ l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__2 = _init_l_List_fo
 lean_mark_persistent(l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__2);
 l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__3 = _init_l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__3();
 lean_mark_persistent(l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__3);
-l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__4 = _init_l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__4();
-lean_mark_persistent(l_List_forIn_loop___at_Leanpkg_configure___spec__1___closed__4);
 l_List_map___at_Leanpkg_configure___spec__2___closed__1 = _init_l_List_map___at_Leanpkg_configure___spec__2___closed__1();
 lean_mark_persistent(l_List_map___at_Leanpkg_configure___spec__2___closed__1);
 l_Leanpkg_configure___closed__1 = _init_l_Leanpkg_configure___closed__1();

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "kernel/expr.h"
 #include "library/formatter.h"
 
 namespace lean {
@@ -20,12 +21,6 @@ name pick_unused_name(expr const & t, name const & s);
 */
 pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type = false);
 pair<expr, expr> let_body_fresh(expr const & b, bool preserve_type = false);
-
-/** \brief Create a simple formatter object based on operator for "print" procedure.
-
-    \remark The print procedure is only used for debugging purposes.
-*/
-formatter_factory mk_print_formatter_factory();
 
 /** \brief Use simple formatter as the default print function */
 void init_default_print_fn();

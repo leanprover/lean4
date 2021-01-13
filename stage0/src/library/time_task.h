@@ -6,9 +6,9 @@ Author: Sebastian Ullrich
 */
 #pragma once
 #include <string>
-#include "library/message_builder.h"
 #include "library/profiling.h"
 #include "util/timeit.h"
+#include "util/message_definitions.h"
 
 namespace lean {
 void report_profiling_time(std::string const & category, second_duration time);
@@ -20,7 +20,7 @@ class time_task {
     optional<xtimeit> m_timeit;
     time_task *     m_parent_task;
 public:
-    time_task(std::string const & category, message_builder builder, name decl = name());
+    time_task(std::string const & category, options const & opts, pos_info pos = pos_info(), name decl = name());
     ~time_task();
 };
 

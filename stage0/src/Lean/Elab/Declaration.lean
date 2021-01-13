@@ -82,6 +82,8 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
       Term.ensureNoUnassignedMVars decl
       addDecl decl
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
+      if isExtern (← getEnv) declName then
+        compileDecl decl
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-

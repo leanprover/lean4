@@ -15,22 +15,19 @@ def getDeclarationRange [Monad m] [MonadFileMap m] (stx : Syntax) : m Declaratio
   return { pos := fileMap.toPosition pos, endPos := fileMap.toPosition endPos }
 
 /--
-  For most declarations, the selection range is just its name, which is stored in the second position.
+  For most builtin declarations, the selection range is just its name, which is stored in the second position.
   Example:
   ```
   "def " >> declId >> optDeclSig >> declVal
-  ``` -/
-def getDeclarationSelectionRangeDefault [Monad m] [MonadFileMap m] (stx : Syntax) : m DeclarationRange :=
-  getDeclarationRange stx[1]
-
-
-/--
-  For instances, we use the whole declaration header as the selection range since the name is optional.
   ```
-  Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
-  ``` -/
-def getInstanceSelectionRange [Monad m] [MonadFileMap m] (stx : Syntax) : m DeclarationRange :=
-  getDeclarationRange <| stx.setArg 5 mkNullNode
+  For instances, we use the whole header since the name is optional.
+  This function converts the given `Syntax` into one that represents its "selection range".
+-/
+def getDeclarationSelectionRef (stx : Syntax) : Syntax :=
+  if stx.getKind == ``Parser.Command.«instance» then
+    stx.setArg 5 mkNullNode
+  else
+    stx[1]
 
 /--
   Store the `range` and `selectionRange` for `declName` where `stx` is the whole syntax object decribing `declName`.
@@ -40,14 +37,9 @@ def addDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Nam
   if stx.getKind == ``Parser.Command.«example» then
     return ()
   else
-    let selRange ←
-      if stx.getKind == ``Parser.Command.«instance» then
-        getInstanceSelectionRange stx
-      else
-        getDeclarationSelectionRangeDefault stx
     Lean.addDeclarationRanges declName {
       range          := (← getDeclarationRange stx)
-      selectionRange := selRange
+      selectionRange := (← getDeclarationRange (getDeclarationSelectionRef stx))
     }
 
 /-- Auxiliary method for recording ranges for auxiliary declarations (e.g., fields, nested declarations, etc. -/

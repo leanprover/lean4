@@ -475,6 +475,7 @@ private partial def mkClosureFor (freeVars : Array FVarId) (localDecls : Array L
   }
 
 structure LetRecClosure where
+  ref        : Syntax
   localDecls : Array LocalDecl
   closed     : Expr -- expression used to replace occurrences of the let-rec FVarId
   toLift     : LetRecToLift
@@ -490,7 +491,12 @@ private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId)
     let val  := Closure.mkLambda s.localDecls $ Closure.mkLambda s.newLetDecls val
     let c    := mkAppN (Lean.mkConst toLift.declName) s.exprArgs
     assignExprMVar toLift.mvarId c
-    pure ⟨s.newLocalDecls, c, { toLift with val := val, type := type }⟩
+    return {
+      ref        := toLift.ref
+      localDecls := s.newLocalDecls
+      closed     := c
+      toLift     := { toLift with val := val, type := type }
+    }
 
 private def mkLetRecClosures (letRecsToLift : List LetRecToLift) (freeVarMap : FreeVarMap) : TermElabM (List LetRecClosure) :=
   letRecsToLift.mapM fun toLift => mkLetRecClosureFor toLift (freeVarMap.find? toLift.fvarId).get!
@@ -520,12 +526,13 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
     let header := mainHeaders[i]
     let val  ← mkLambdaFVars sectionVars mainVals[i]
     let type ← mkForallFVars sectionVars header.type
-    pure $ preDefs.push {
-      kind      := header.kind,
-      declName  := header.declName,
+    return preDefs.push {
+      ref       := getDeclarationSelectionRef header.ref
+      kind      := header.kind
+      declName  := header.declName
       lparams   := [], -- we set it later
-      modifiers := header.modifiers,
-      type      := type,
+      modifiers := header.modifiers
+      type      := type
       value     := val
     }
 
@@ -534,11 +541,12 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
     let type := Closure.mkForall c.localDecls c.toLift.type
     let val  := Closure.mkLambda c.localDecls c.toLift.val
     preDefs.push {
-      kind      := kind,
-      declName  := c.toLift.declName,
-      lparams   := [], -- we set it later
-      modifiers := { modifiers with attrs := c.toLift.attrs },
-      type      := type,
+      ref       := c.ref
+      kind      := kind
+      declName  := c.toLift.declName
+      lparams   := [] -- we set it later
+      modifiers := { modifiers with attrs := c.toLift.attrs }
+      type      := type
       value     := val
     }
 

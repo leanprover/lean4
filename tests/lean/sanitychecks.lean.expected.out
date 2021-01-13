@@ -9,5 +9,5 @@ sanitychecks.lean:7:7: error: 'unsafe' theorems are not allowed
 sanitychecks.lean:10:0: error: failed to synthesize instance
   Inhabited False
 sanitychecks.lean:18:0: error: failed to compile partial definition 'unsound3', failed to show that type is inhabited
-sanitychecks.lean:20:0: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'
-sanitychecks.lean:23:0: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'
+sanitychecks.lean:20:12: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'
+sanitychecks.lean:23:12: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'

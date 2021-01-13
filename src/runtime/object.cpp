@@ -58,6 +58,10 @@ extern "C" object * lean_panic_fn(object * default_val, object * msg) {
     return default_val;
 }
 
+extern "C" object * lean_sorry(uint8) {
+    lean_panic("executing sorry");
+}
+
 extern "C" size_t lean_object_byte_size(lean_object * o) {
     if (lean_is_mt(o) || lean_is_st(o) || lean_is_persistent(o)) {
         /* Recall that multi-threaded, single-threaded and persistent objects are stored in the heap.

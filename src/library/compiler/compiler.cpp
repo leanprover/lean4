@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "library/max_sharing.h"
 #include "library/trace.h"
-#include "library/sorry.h"
 #include "library/time_task.h"
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
@@ -158,10 +157,6 @@ bool is_main_fn_type(expr const & type) {
     }
 }
 
-static bool has_synthetic_sorry(constant_info const & cinfo) {
-    return cinfo.is_definition() && has_synthetic_sorry(cinfo.get_value());
-}
-
 #define trace_compiler(k, ds) lean_trace(k, trace_comp_decls(ds););
 
 environment compile(environment const & env, options const & opts, names cs) {
@@ -190,7 +185,6 @@ environment compile(environment const & env, options const & opts, names cs) {
         lean_assert(!is_extern_constant(env, get_real_name(c)));
         constant_info cinfo = env.get(c);
         if (!cinfo.is_definition() && !cinfo.is_opaque()) return env;
-        if (has_synthetic_sorry(cinfo)) return env;
     }
 
     time_task t("compilation", opts);

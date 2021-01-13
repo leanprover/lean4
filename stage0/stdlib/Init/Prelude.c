@@ -332,6 +332,7 @@ lean_object* l___private_Init_Prelude_0__Lean_extractImported_match__1___rarg___
 lean_object* l_instMonadWithReaderOfReaderT___rarg(lean_object*, lean_object*, lean_object*);
 uint32_t l_Char_utf8Size___closed__2;
 lean_object* l_Lean_replaceRef_match__1(lean_object*);
+lean_object* l_sorryAx___boxed(lean_object*, lean_object*);
 lean_object* l_modify(lean_object*, lean_object*);
 lean_object* l_UInt8_val___boxed(lean_object*);
 lean_object* l_Lean_Macro_addMacroScope(lean_object*, lean_object*, lean_object*);
@@ -690,6 +691,7 @@ lean_object* l_instDecidableOr_match__3(lean_object*, lean_object*);
 lean_object* l_cast(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHDiv___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_instMonadQuotationMacroM___closed__1;
+lean_object* lean_sorry(uint8_t);
 lean_object* l_liftM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadExceptOfReaderT___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -1228,6 +1230,16 @@ lean_object* x_3;
 x_3 = l_namedPattern(x_1, x_2);
 lean_dec(x_2);
 return x_3;
+}
+}
+lean_object* l_sorryAx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_unbox(x_2);
+lean_dec(x_2);
+x_4 = lean_sorry(x_3);
+return x_4;
 }
 }
 lean_object* l_arbitrary___rarg(lean_object* x_1) {

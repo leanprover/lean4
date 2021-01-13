@@ -35,6 +35,7 @@ instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 @[extern c inline "#1 - #2"]  constant Float.sub : Float → Float → Float
 @[extern c inline "#1 * #2"]  constant Float.mul : Float → Float → Float
 @[extern c inline "#1 / #2"]  constant Float.div : Float → Float → Float
+@[extern c inline "(- #1)"]   constant Float.neg : Float → Float
 
 set_option bootstrap.gen_matcher_code false
 def Float.lt  : Float → Float → Prop := fun a b =>
@@ -49,6 +50,7 @@ instance : Add Float       := ⟨Float.add⟩
 instance : Sub Float       := ⟨Float.sub⟩
 instance : Mul Float       := ⟨Float.mul⟩
 instance : Div Float       := ⟨Float.div⟩
+instance : Neg Float       := ⟨Float.neg⟩
 instance : HasLess Float   := ⟨Float.lt⟩
 instance : HasLessEq Float := ⟨Float.le⟩
 
@@ -68,6 +70,12 @@ instance floatDecLt (a b : Float) : Decidable (a < b) := Float.decLt a b
 instance floatDecLe (a b : Float) : Decidable (a ≤ b) := Float.decLe a b
 
 @[extern "lean_float_to_string"] constant Float.toString : Float → String
+
+@[extern c inline "(uint8_t)#1"] constant Float.toUInt8 : Float → UInt8
+@[extern c inline "(uint16_t)#1"] constant Float.toUInt16 : Float → UInt16
+@[extern c inline "(uint32_t)#1"] constant Float.toUInt32 : Float → UInt32
+@[extern c inline "(uint64_t)#1"] constant Float.toUInt64 : Float → UInt64
+@[extern c inline "(size_t)#1"] constant Float.toUSize : Float → USize
 
 instance : ToString Float where
   toString := Float.toString

@@ -1,4 +1,4 @@
-sanitychecks.lean:1:0: error: fail to show termination for
+sanitychecks.lean:1:8: error: fail to show termination for
   unsound
 with errors
 structural recursion cannot be used

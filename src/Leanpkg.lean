@@ -18,6 +18,28 @@ def readManifest : IO Manifest := do
 def writeManifest (manifest : Lean.Syntax) (fn : String) : IO Unit := do
   IO.FS.writeFile fn manifest.reprint.get!
 
+def lockFileName := ".leanpkg-lock"
+
+partial def withLockFile (x : IO α) : IO α := do
+  acquire
+  try
+    x
+  finally
+    IO.removeFile lockFileName
+  where
+    acquire (firstTime := true) :=
+      try
+        -- x: fail if already exists (not part of POSIX, but supported on all our platforms)
+        discard <| IO.Prim.Handle.mk lockFileName "wx"
+        -- TODO: should ideally contain PID
+      catch
+        | IO.Error.alreadyExists _ _ => do
+          if firstTime then
+            IO.eprintln s!"Waiting for prior leanpkg invocation to finish... (remove '{lockFileName}' if stuck)"
+          IO.sleep (ms := 300)
+          acquire (firstTime := false)
+        | e => throw e
+
 def configure : IO String := do
   let d ← readManifest
   IO.eprintln $ "configuring " ++ d.name ++ " " ++ d.version
@@ -34,22 +56,29 @@ def configure : IO String := do
       }
   System.FilePath.searchPathSeparator.toString.intercalate <| paths.map (· ++ "/build")
 
+def execMake (makeArgs leanArgs : List String) (leanPath : String) : IO Unit := withLockFile do
+  let manifest ← readManifest
+  let leanArgs := (match manifest.timeout with | some t => ["-T", toString t] | none => []) ++ leanArgs
+  let mut spawnArgs := {
+    cmd := "sh"
+    cwd := manifest.effectivePath
+    args := #["-c", s!"\"{← IO.appDir}/leanmake\" LEAN_OPTS=\"{" ".intercalate leanArgs}\" LEAN_PATH=\"{leanPath}\" {" ".intercalate makeArgs} >&2"]
+  }
+  execCmd spawnArgs
+
 def buildImports (imports : List String) (leanArgs : List String) : IO String := do
   let manifest ← readManifest
+  let leanPath ← configure
   let imports := imports.map (·.toName)
   -- TODO: shoddy check
   let localImports := imports.filter fun i => i.getRoot.toString.toLower == manifest.name.toLower
-  let path ← configure
   if localImports != [] then
-    let leanArgs := (match manifest.timeout with | some t => ["-T", toString t] | none => []) ++ leanArgs
     let oleans := localImports.map fun i => s!"\"build{Lean.modPathToFilePath i}.olean\""
-    let mut spawnArgs := {
-      cmd := "sh"
-      cwd := manifest.effectivePath
-      args := #["-c", s!"\"{← IO.appDir}/leanmake\" LEAN_OPTS=\"{" ".intercalate leanArgs}\" LEAN_PATH=\"{path}\" {" ".intercalate oleans} >&2"]
-    }
-    execCmd spawnArgs
-  return path
+    execMake oleans leanArgs leanPath
+  return leanPath
+
+def build (leanArgs : List String) : IO Unit := do
+  execMake [] leanArgs (← configure)
 
 def initGitignoreContents :=
   "/build
@@ -89,7 +118,7 @@ See `leanpkg help <command>` for more information on a specific command."
 def main : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
   | "configure", [],     []        => discard <| configure
   | "print-path", leanpkgArgs, leanArgs => buildImports leanpkgArgs leanArgs >>= IO.println
-  | "build",     _,      leanArgs  => discard <| buildImports [] leanArgs
+  | "build",     _,      leanArgs  => build leanArgs
   | "init",      [Name], []        => init Name
   | "help",      ["configure"], [] => IO.println "Download dependencies
 

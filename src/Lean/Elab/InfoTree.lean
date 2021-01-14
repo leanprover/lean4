@@ -20,6 +20,7 @@ open Std (PersistentArray PersistentArray.empty PersistentHashMap)
    assignments are stored at `mctx`. -/
 structure ContextInfo where
   env           : Environment
+  fileMap       : FileMap
   mctx          : MetavarContext := {}
   options       : Options        := {}
   currNamespace : Name           := Name.anonymous
@@ -101,7 +102,9 @@ def ContextInfo.ppSyntax (info : ContextInfo) (lctx : LocalContext) (stx : Synta
 
 def TermInfo.format (cinfo : ContextInfo) (info : TermInfo) : IO Format := do
   cinfo.runMetaM info.lctx do
-    return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)}"
+    let pos    := info.stx.getPos.getD 0
+    let endPos := info.stx.getTailPos.getD pos
+    return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {cinfo.fileMap.toPosition pos}-{cinfo.fileMap.toPosition endPos}"
 
 def ContextInfo.ppGoals (cinfo : ContextInfo) (goals : List MVarId) : IO Format :=
   if goals.isEmpty then

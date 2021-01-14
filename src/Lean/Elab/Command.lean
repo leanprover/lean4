@@ -287,7 +287,9 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   let (((ea, termS), metaS), coreS) ← liftEIO x
   let infoTrees        := termS.infoState.trees.map fun tree =>
     let tree := tree.substitute termS.infoState.assignment
-    InfoTree.context { env := coreS.env, mctx := metaS.mctx, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts } tree
+    InfoTree.context {
+      env := coreS.env, fileMap := ctx.fileMap, mctx := metaS.mctx, currNamespace := scope.currNamespace, openDecls := scope.openDecls, options := scope.opts
+    } tree
   modify fun s => { s with
     env             := coreS.env
     messages        := addTraceAsMessages ctx (s.messages ++ termS.messages) coreS.traceState

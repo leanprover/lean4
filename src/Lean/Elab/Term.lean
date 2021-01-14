@@ -279,6 +279,11 @@ inductive LVal where
   | fieldName (ref : Syntax) (name : String)
   | getOp     (ref : Syntax) (idx : Syntax)
 
+def LVal.getRef : LVal → Syntax
+  | LVal.fieldIdx ref _  => ref
+  | LVal.fieldName ref _ => ref
+  | LVal.getOp ref _     => ref
+
 instance : ToString LVal where
   toString
     | LVal.fieldIdx _ i => toString i
@@ -986,6 +991,10 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
       match implicit? with
       | some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
       | none              => elabUsingElabFns stx expectedType? catchExPostpone
+
+def addTermInfo (stx : Syntax) (e : Expr) : TermElabM Unit := do
+  if (← getInfoState).enabled then
+    pushInfoTree <| InfoTree.node (children := {}) <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx := stx }
 
 def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
   let isHole? : TermElabM (Option MVarId) := do

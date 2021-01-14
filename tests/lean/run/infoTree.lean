@@ -26,4 +26,7 @@ def f2 : (x y : Nat) → (b : Bool) → Nat :=
     let z1 := z + w
     z + z1
 
+def f3 (s : Nat × Array (Array Nat)) : Array Nat :=
+  s.2[1].push s.1
+
 showInfoTrees!

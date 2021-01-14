@@ -551,6 +551,11 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := withIn
   else if isArrayLitTransition p then
     let ps ← processArrayLit p
     ps.forM process
+  else if hasNatValPattern p then
+    -- This branch is reachable when `p`, for example, is just values without an else-alternative.
+    -- We added it just to get better error messages.
+    traceStep ("nat value to constructor")
+    process (expandNatValuePattern p)
   else
     checkNextPatternTypes p
     throwNonSupported p

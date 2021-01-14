@@ -1,0 +1,2 @@
+matchErrorMsg.lean:2:1: error: missing cases:
+(Prod.mk Nat.zero (Nat.succ _))

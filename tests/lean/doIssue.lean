@@ -19,5 +19,5 @@ def h (xs : Array Nat) : IO Unit := do
   IO.println xs
 
 def h' (xs : Array Nat) : IO Unit := do
-  discard <| pure (xs.set! 0 1) -- Error
+  discard <| pure (xs.set! 0 1)
   IO.println xs

@@ -1,16 +1,12 @@
-pureCoeIssue.lean:6:2: error: application type mismatch
-  bind f1
-argument
+pureCoeIssue.lean:6:2: error: type mismatch
   f1
 has type
   Nat → IO Unit
 but is expected to have type
-  IO PUnit
-pureCoeIssue.lean:14:2: error: application type mismatch
-  bind (f2 10)
-argument
+  EIO IO.Error PUnit
+pureCoeIssue.lean:14:2: error: type mismatch
   f2 10
 has type
   Nat → IO Unit
 but is expected to have type
-  IO PUnit
+  EIO IO.Error PUnit

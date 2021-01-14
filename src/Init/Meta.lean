@@ -253,7 +253,20 @@ def copyRangePos (s : Syntax) (source : Syntax) : Syntax :=
       | _, _ => s
     | _ => s
 
+/-- Return the first atom/identifier that has position information -/
+partial def getHead? : Syntax → Option Syntax
+  | stx@(atom { pos := some _, .. } ..)  => some stx
+  | stx@(ident { pos := some _, .. } ..) => some stx
+  | node _ args      => args.findSome? getHead?
+  | _                => none
+
 end Syntax
+
+/-- Use the head atom/identifier of the current `ref` as the `ref` -/
+@[inline] def withHeadRefOnly {m : Type → Type} [Monad m] [MonadRef m] {α} (x : m α) : m α := do
+  match (← getRef).getHead? with
+  | none => x
+  | some ref => withRef ref x
 
 def mkAtom (val : String) : Syntax :=
   Syntax.atom {} val

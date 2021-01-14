@@ -696,7 +696,7 @@ def ignoreUnusedAlts (opts : Options) : Bool :=
 
 def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) : TermElabM Unit := do
   unless result.counterExamples.isEmpty do
-    throwError! "missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
+    withHeadRefOnly <| throwError! "missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
   unless ignoreUnusedAlts (← getOptions) || result.unusedAltIdxs.isEmpty do
     let mut i := 0
     for alt in altLHSS do

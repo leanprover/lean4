@@ -50,6 +50,8 @@ jobs:
       fail-fast: false
     name: ${{ matrix.name }}
     env:
+      # must be inside workspace
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_COMPRESS: true
       # current cache limit
       CCACHE_MAXSIZE: 200M
@@ -73,7 +75,7 @@ jobs:
       - name: Cache
         uses: actions/cache@v2
         with:
-          path: ~/.ccache
+          path: .ccache
           key: ${{ matrix.name }}-build-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |

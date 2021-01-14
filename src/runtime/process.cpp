@@ -130,7 +130,12 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     // we might need to revisit escaping here.
     for (auto arg : args) {
         command += " \"";
-        command += arg.data();
+        for (char const * c = arg.data(); *c != 0; c++) {
+            if (*c == '"') {
+                command += '\\';
+            }
+            command += *c;
+        }
         command += "\"";
     }
 

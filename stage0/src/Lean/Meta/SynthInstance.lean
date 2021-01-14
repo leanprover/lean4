@@ -17,11 +17,11 @@ namespace SynthInstance
 
 open Std (HashMap)
 
-builtin_initialize inferTCGoalsLRAttr : TagAttribute ←
-  registerTagAttribute `inferTCGoalsLR "instruct type class resolution procedure to solve goals from left to right for this instance"
+builtin_initialize inferTCGoalsRLAttr : TagAttribute ←
+  registerTagAttribute `inferTCGoalsRL "instruct type class resolution procedure to solve goals from right to left for this instance"
 
-def hasInferTCGoalsLRAttribute (env : Environment) (constName : Name) : Bool :=
-  inferTCGoalsLRAttr.hasTag env constName
+def hasInferTCGoalsRLAttribute (env : Environment) (constName : Name) : Bool :=
+  inferTCGoalsRLAttr.hasTag env constName
 
 structure GeneratorNode where
   mvar            : Expr
@@ -287,10 +287,10 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
   match inst.getAppFn with
   | Expr.const constName _ _ =>
     let env ← getEnv
-    if hasInferTCGoalsLRAttribute env constName then
-      pure { result with subgoals := result.subgoals.reverse }
-    else
+    if hasInferTCGoalsRLAttribute env constName then
       pure result
+    else
+      pure { result with subgoals := result.subgoals.reverse }
   | _ => pure result
 
 def tryResolveCore (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) := do

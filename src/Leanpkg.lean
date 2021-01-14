@@ -29,9 +29,16 @@ partial def withLockFile (x : IO α) : IO α := do
   where
     acquire (firstTime := true) :=
       try
-        -- x: fail if already exists (not part of POSIX, but supported on all our platforms)
-        discard <| IO.Prim.Handle.mk lockFileName "wx"
-        -- TODO: should ideally contain PID
+        -- TODO: lock file should ideally contain PID
+        if !System.Platform.isWindows then
+          discard <| IO.Prim.Handle.mk lockFileName "wx"
+        else
+          -- `x` mode doesn't seem to work on Windows even though it's listed at
+          -- https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-wfopen?view=msvc-160
+          -- ...? Let's use the slightly racy approach then.
+          if ← IO.fileExists lockFileName then
+            throw <| IO.Error.alreadyExists 0 ""
+          discard <| IO.Prim.Handle.mk lockFileName "w"
       catch
         | IO.Error.alreadyExists _ _ => do
           if firstTime then

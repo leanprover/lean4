@@ -12,6 +12,9 @@ IO.println ((2 : Float) == 2);
 IO.println (decide ((3 : Float) ≤ 2));
 IO.println (decide ((3 : Float) ≤ 3));
 IO.println (decide ((3 : Float) ≤ 4));
+IO.println (Float.ofInt 0)
+IO.println (Float.ofInt 42)
+IO.println (Float.ofInt (-42))
 pure ()
 
 structure Foo :=

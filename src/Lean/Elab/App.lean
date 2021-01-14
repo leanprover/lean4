@@ -532,7 +532,7 @@ private partial def findMethod? (env : Environment) (structName fieldName : Name
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
   match eType.getAppFn, lval with
-  | Expr.const structName _ _, LVal.fieldIdx idx =>
+  | Expr.const structName _ _, LVal.fieldIdx _ idx =>
     if idx == 0 then
       throwError "invalid projection, index must be greater than 0"
     let env ← getEnv
@@ -548,7 +548,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
         pure $ LValResolution.projIdx structName (idx - 1)
     else
       throwLValError e eType m!"invalid projection, structure has only {fieldNames.size} field(s)"
-  | Expr.const structName _ _, LVal.fieldName fieldName =>
+  | Expr.const structName _ _, LVal.fieldName _ fieldName =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
       match findMethod? env structName (Name.mkSimple fieldName) with
@@ -576,13 +576,13 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       | none                => searchCtx ()
     else
       searchCtx ()
-  | Expr.const structName _ _, LVal.getOp idx =>
+  | Expr.const structName _ _, LVal.getOp _ idx =>
     let env ← getEnv
     let fullName := Name.mkStr structName "getOp"
     match env.find? fullName with
     | some _ => pure $ LValResolution.getOp fullName idx
     | none   => throwLValError e eType m!"invalid [..] notation because environment does not contain '{fullName}'"
-  | _, LVal.getOp idx =>
+  | _, LVal.getOp _ idx =>
     throwLValError e eType "invalid [..] notation, type is not of the form (C ...) where C is a constant"
   | _, _ =>
     throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
@@ -770,7 +770,7 @@ private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) 
     -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
     withReader (fun ctx => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) do
       funLVals.foldlM (init := acc) fun acc ⟨f, fields⟩ => do
-        let lvals' := fields.map LVal.fieldName
+        let lvals' := fields.map (LVal.fieldName fIdent)
         let s ← observing do
           let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
           if overloaded then ensureHasType expectedType? e else pure e
@@ -786,15 +786,15 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
   else match f with
   | `($(e).$idx:fieldIdx) =>
     let idx := idx.isFieldIdx?.get!
-    elabAppFn e (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
+    elabAppFn e (LVal.fieldIdx f idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
   | `($e |>. $field) => do
      let f ← `($(e).$field)
      elabAppFn f lvals namedArgs args expectedType? explicit ellipsis overloaded acc
   | `($(e).$field:ident) =>
-    let newLVals := field.getId.eraseMacroScopes.components.map (fun n => LVal.fieldName (toString n))
+    let newLVals := field.getId.eraseMacroScopes.components.map (fun n => LVal.fieldName f (toString n))
     elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
   | `($e[$idx]) =>
-    elabAppFn e (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
+    elabAppFn e (LVal.getOp f idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
   | `($id:ident@$t:term) =>
     throwError "unexpected occurrence of named pattern"
   | `($id:ident) => do

@@ -86,7 +86,7 @@ class MonadControlT (m : Type u → Type v) (n : Type u → Type w) where
 
 export MonadControlT (stM liftWith restoreM)
 
-instance (m n o) [MonadControlT m n] [MonadControl n o] : MonadControlT m o where
+instance (m n o) [MonadControl n o] [MonadControlT m n] : MonadControlT m o where
   stM α := stM m n (MonadControl.stM n o α)
   liftWith f := MonadControl.liftWith fun x₂ => liftWith fun x₁ => f (x₁ ∘ x₂)
   restoreM := MonadControl.restoreM ∘ restoreM

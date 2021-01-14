@@ -19,7 +19,7 @@ instance (σ : Type) : Monad (ST σ) := inferInstanceAs (Monad (EST _ _))
 -- Auxiliary class for inferring the "state" of `EST` and `ST` monads
 class STWorld (σ : outParam Type) (m : Type → Type)
 
-instance {σ m n} [STWorld σ m] [MonadLift m n] : STWorld σ n := ⟨⟩
+instance {σ m n} [MonadLift m n] [STWorld σ m] : STWorld σ n := ⟨⟩
 instance {ε σ} : STWorld σ (EST ε σ) := ⟨⟩
 
 @[noinline, nospecialize]

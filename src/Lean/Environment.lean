@@ -703,9 +703,8 @@ class MonadEnv (m : Type → Type) where
 
 export MonadEnv (getEnv modifyEnv)
 
-instance (m n) [MonadEnv m] [MonadLift m n] : MonadEnv n := {
-  getEnv    := liftM (getEnv : m Environment),
+instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
+  getEnv    := liftM (getEnv : m Environment)
   modifyEnv := fun f => liftM (modifyEnv f : m Unit)
-}
 
 end Lean

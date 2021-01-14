@@ -290,7 +290,7 @@ class MonadMCtx (m : Type → Type) where
 
 export MonadMCtx (getMCtx modifyMCtx)
 
-instance (m n) [MonadMCtx m] [MonadLift m n] : MonadMCtx n where
+instance (m n) [MonadLift m n] [MonadMCtx m] : MonadMCtx n where
   getMCtx    := liftM (getMCtx : m _)
   modifyMCtx := fun f => liftM (modifyMCtx f : m _)
 

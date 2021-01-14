@@ -21,12 +21,11 @@ class MonadLog (m : Type → Type) extends MonadFileMap m where
 
 export MonadLog (getFileName logMessage)
 
-instance (m n) [MonadLog m] [MonadLift m n] : MonadLog n := {
-  getRef      := liftM (MonadLog.getRef : m _),
-  getFileMap  := liftM (getFileMap : m _),
-  getFileName := liftM (getFileName : m _),
+instance (m n) [MonadLift m n] [MonadLog m] : MonadLog n where
+  getRef      := liftM (MonadLog.getRef : m _)
+  getFileMap  := liftM (getFileMap : m _)
+  getFileName := liftM (getFileName : m _)
   logMessage  := fun msg => liftM (logMessage msg : m _ )
-}
 
 variables {m : Type → Type} [Monad m] [MonadLog m] [AddMessageContext m]
 

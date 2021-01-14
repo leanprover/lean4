@@ -151,7 +151,7 @@ class MonadResolveName (m : Type → Type) where
 
 export MonadResolveName (getCurrNamespace getOpenDecls)
 
-instance (m n) [MonadResolveName m] [MonadLift m n] : MonadResolveName n where
+instance (m n) [MonadLift m n] [MonadResolveName m] : MonadResolveName n where
   getCurrNamespace := liftM (m:=m) getCurrNamespace
   getOpenDecls     := liftM (m:=m) getOpenDecls
 

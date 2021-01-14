@@ -229,6 +229,30 @@ def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
  let s := s.copyHeadInfo source
  s.copyTailInfo source
 
+/--
+  Copy head and tail position information from `source` to `s`.
+  `leading` and `trailing` information is not preserved. -/
+def copyRangePos (s : Syntax) (source : Syntax) : Syntax :=
+  match source.getPos with
+  | none     => s
+  | some pos =>
+    let s := s.setHeadInfo { pos := pos }
+    match source.getTailInfo with
+    | some { pos := some pos, .. } =>
+      let s := s.setTailInfo { pos := pos }
+      /- The trailing token at `s` may be different from `source`.
+         So, we retrieve the tail positions and adjust `pos` to make sure the `s.getTailPos == source.getTailPos`. -/
+      match source.getTailPos, s.getTailPos with
+      | some pos₁, some pos₂ =>
+        if pos₁ < pos₂ then
+          s.setTailInfo { pos := some ((pos : Nat) - (pos₂ - pos₁) : Nat) }
+        else if pos₁ > pos₂ then
+          s.setTailInfo { pos := some ((pos : Nat) + (pos₁ - pos₂) : Nat) }
+        else
+          s
+      | _, _ => s
+    | _ => s
+
 end Syntax
 
 def mkAtom (val : String) : Syntax :=

@@ -862,7 +862,7 @@ def actionTerminalToTerm (action : Syntax) : M Syntax := do
   let r ← actionTerminalToTermCore action
   pure $ r.copyInfo ref
 
-def seqToTermCore (action : Syntax) (k : Syntax) : MacroM Syntax := withFreshMacroScope do
+def seqToTermCore (action : Syntax) (k : Syntax) : M Syntax := withFreshMacroScope do
   if action.getKind == `Lean.Parser.Term.doDbgTrace then
     let msg := action[1]
     `(dbgTrace! $msg; $k)
@@ -870,9 +870,10 @@ def seqToTermCore (action : Syntax) (k : Syntax) : MacroM Syntax := withFreshMac
     let cond := action[1]
     `(assert! $cond; $k)
   else
+    let action := Syntax.copyRangePos (← `(($action : $((←read).m) PUnit))) action
     `(Bind.bind $action (fun (_ : PUnit) => $k))
 
-def seqToTerm (action : Syntax) (k : Syntax) : MacroM Syntax := do
+def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := do
   let r ← seqToTermCore action k
   return r.copyInfo action
 
@@ -894,7 +895,9 @@ def declToTermCore (decl : Syntax) (k : Syntax) : M Syntax := withFreshMacroScop
       let doElem := arg[3]
       -- `doElem` must be a `doExpr action`. See `doLetArrowToCode`
       match isDoExpr? doElem with
-      | some action => `(Bind.bind $action (fun ($id:ident : $type) => $k))
+      | some action =>
+        let action := Syntax.copyRangePos (← `(($action : $((← read).m) $type))) action
+        `(Bind.bind $action (fun ($id:ident : $type) => $k))
       | none        => Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
     else
       Macro.throwErrorAt decl "unexpected kind of 'do' declaration"

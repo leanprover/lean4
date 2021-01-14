@@ -11179,7 +11179,7 @@ lean_object* l_Lean_instMonadLCtx___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_apply_2(x_2, lean_box(0), x_1);
+x_3 = lean_apply_2(x_1, lean_box(0), x_2);
 return x_3;
 }
 }

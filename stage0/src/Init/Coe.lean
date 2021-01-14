@@ -63,19 +63,19 @@ abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a 
 abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α β] : β :=
   CoeSort.coe a
 
-instance coeTrans {α : Sort u} {β : Sort v} {δ : Sort w} [CoeTC α β] [Coe β δ] : CoeTC α δ where
+instance coeTrans {α : Sort u} {β : Sort v} {δ : Sort w} [Coe β δ] [CoeTC α β] : CoeTC α δ where
   coe a := coeB (coeTC a : β)
 
 instance coeBase {α : Sort u} {β : Sort v} [Coe α β] : CoeTC α β where
   coe a := coeB a
 
-instance coeOfHeafOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} {γ : Sort w'} (a : α) [CoeTC β δ] [CoeTail δ γ] [CoeHead α β] : CoeT α a γ where
+instance coeOfHeafOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} {γ : Sort w'} (a : α) [CoeHead α β] [CoeTail δ γ] [CoeTC β δ] : CoeT α a γ where
   coe := coeTail (coeTC (coeHead a : β) : δ)
 
-instance coeOfHeadOfTC {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeTC β δ] [CoeHead α β] : CoeT α a δ  where
+instance coeOfHeadOfTC {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeHead α β] [CoeTC β δ] : CoeT α a δ  where
   coe := coeTC (coeHead a : β)
 
-instance coeOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeTC α β] [CoeTail β δ] : CoeT α a δ where
+instance coeOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} (a : α) [CoeTail β δ] [CoeTC α β] : CoeT α a δ where
   coe := coeTail (coeTC a : β)
 
 instance coeOfHead {α : Sort u} {β : Sort v} (a : α) [CoeHead α β] : CoeT α a β where
@@ -116,7 +116,7 @@ instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α wh
   Remark: one may question why we use `OfNat α` instead of `Coe Nat α`.
   Reason: `OfNat` is for implementing polymorphic numeric literals, and we may
   want to have numberic literals for a type α and **no** coercion from `Nat` to `α`. -/
-instance hasOfNatOfCoe [OfNat α n] [Coe α β] : OfNat β n where
+instance hasOfNatOfCoe [Coe α β] [OfNat α n] : OfNat β n where
   ofNat := coe (OfNat.ofNat n : α)
 
 @[inline] def liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do

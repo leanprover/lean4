@@ -117,7 +117,6 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_annotatePos_match__2___rarg(lean_o
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_isLevelDefEqAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_instMonadQuotationDelabM___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_instMonadQuotationParenthesizerM___closed__6;
 lean_object* l_Lean_getPPUnicode___boxed(lean_object*);
 lean_object* l_Lean_getPPUnicode___closed__1;
 extern lean_object* l_Lean_Parser_Syntax_addPrec___closed__3;
@@ -186,6 +185,7 @@ extern lean_object* l_Lean_KernelException_toMessageData___closed__3;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withProj(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_whenNotPPOption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBody___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_PrettyPrinter_Parenthesizer_instMonadQuotationParenthesizerM___closed__1;
 lean_object* l_Lean_getPPCoercions___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_setPPExplicit___closed__1;
@@ -267,6 +267,7 @@ extern lean_object* l_Lean_Expr_ctorName___closed__6;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withAppFn_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_1583_(lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
+extern lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__2;
 lean_object* l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttribute___closed__1;
 lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBody(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_109____closed__3;
@@ -311,7 +312,6 @@ lean_object* l_Lean_getPPStructureProjections___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_failure___rarg(lean_object*);
 lean_object* l_Std_RBNode_find___at_Lean_PrettyPrinter_Delaborator_getPPOption___spec__1___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__6;
 lean_object* l_Lean_PrettyPrinter_Delaborator_getPPOption_match__1(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_liftMetaM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPPBinderTypes___closed__1;
@@ -1290,7 +1290,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_instAlternativeDelabM
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__8;
+x_1 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__2;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = l_Lean_PrettyPrinter_Delaborator_instAlternativeDelabM___closed__1;
@@ -1369,9 +1369,9 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_instMonadQuotationDel
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__4;
-x_2 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__6;
-x_3 = l_Lean_PrettyPrinter_Parenthesizer_instMonadQuotationParenthesizerM___closed__6;
+x_1 = l_Lean_PrettyPrinter_Parenthesizer_instMonadQuotationParenthesizerM___closed__1;
+x_2 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__4;
+x_3 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__8;
 x_4 = l_Lean_instMonadRef___rarg(x_1, x_2, x_3);
 return x_4;
 }

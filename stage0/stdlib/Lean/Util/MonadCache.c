@@ -746,7 +746,7 @@ lean_closure_set(x_3, 0, lean_box(0));
 lean_closure_set(x_3, 1, lean_box(0));
 lean_closure_set(x_3, 2, x_1);
 x_4 = l_StateRefT_x27_instMonadLiftStateRefT_x27___closed__1;
-x_5 = l_Lean_instMonadRef___rarg(x_2, x_3, x_4);
+x_5 = l_Lean_instMonadRef___rarg(x_4, x_3, x_2);
 return x_5;
 }
 }
@@ -1015,13 +1015,13 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 lean_inc(x_1);
-x_3 = lean_alloc_closure((void*)(l_StateT_instMonadFunctorStateT___boxed), 4, 3);
-lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, lean_box(0));
-lean_closure_set(x_3, 2, x_1);
-x_4 = lean_alloc_closure((void*)(l_StateT_lift___rarg), 4, 1);
-lean_closure_set(x_4, 0, x_1);
-x_5 = l_Lean_instMonadRef___rarg(x_2, x_3, x_4);
+x_3 = lean_alloc_closure((void*)(l_StateT_lift___rarg), 4, 1);
+lean_closure_set(x_3, 0, x_1);
+x_4 = lean_alloc_closure((void*)(l_StateT_instMonadFunctorStateT___boxed), 4, 3);
+lean_closure_set(x_4, 0, lean_box(0));
+lean_closure_set(x_4, 1, lean_box(0));
+lean_closure_set(x_4, 2, x_1);
+x_5 = l_Lean_instMonadRef___rarg(x_3, x_4, x_2);
 return x_5;
 }
 }

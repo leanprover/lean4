@@ -715,6 +715,7 @@ lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_na
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_CtorApp_finalize___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_CtorApp_pushNewArg___closed__2;
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_CtorApp_pushNewArg___closed__1;
+extern lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__1;
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_CollectPatternVars_CtorApp_pushNewArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshTypeMVar(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
@@ -757,7 +758,6 @@ extern lean_object* l_rawNatLit___closed__5;
 extern lean_object* l_Lean_expandExplicitBindersAux_loop___closed__4;
 lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_withPatternVars_loop_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Match___hyg_5535____closed__3;
-extern lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__5;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_Elab_Term_ToDepElimPattern_main___lambda__1___boxed__const__1;
@@ -1942,7 +1942,7 @@ x_13 = lean_array_get_size(x_1);
 x_14 = lean_usize_of_nat(x_13);
 lean_dec(x_13);
 x_15 = 0;
-x_16 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__5;
+x_16 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__1;
 lean_inc(x_1);
 x_17 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabDiscrsWitMatchType___spec__1(x_1, x_16, x_1, x_14, x_15, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_17) == 0)

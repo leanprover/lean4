@@ -75,10 +75,10 @@ lean_object* l_Lean_Meta_isLevelDefEqAux___closed__4;
 lean_object* l_Lean_Meta_getPostponed___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSelfMax___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_commitWhenSome_x3f___rarg___closed__2;
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_strictOccursMax___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_forIn___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_commitWhenSome_x3f___rarg___closed__1;
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_processPostponedStep___closed__3;
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -22088,7 +22088,7 @@ static lean_object* _init_l_Lean_Meta_withoutPostponingUniverseConstraintsImp___
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__1;
+x_1 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__2;
 x_2 = lean_alloc_closure((void*)(l_ReaderT_instMonadFunctorReaderT___boxed), 4, 3);
 lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, lean_box(0));
@@ -22099,19 +22099,8 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__10() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Core_instMonadRefCoreM;
-x_2 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__9;
-x_3 = l_StateRefT_x27_instMonadLiftStateRefT_x27___closed__1;
-x_4 = l_Lean_instMonadRef___rarg(x_1, x_2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__11() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__2;
+x_1 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__1;
 x_2 = lean_alloc_closure((void*)(l_ReaderT_instMonadFunctorReaderT___boxed), 4, 3);
 lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, lean_box(0));
@@ -22119,13 +22108,24 @@ lean_closure_set(x_2, 2, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_StateRefT_x27_instMonadLiftStateRefT_x27___closed__1;
+x_2 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__10;
+x_3 = l_Lean_Core_instMonadRefCoreM;
+x_4 = l_Lean_instMonadRef___rarg(x_1, x_2, x_3);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__10;
-x_2 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__11;
-x_3 = l_Lean_Meta_commitWhenSome_x3f___rarg___closed__2;
+x_1 = l_Lean_Meta_commitWhenSome_x3f___rarg___closed__1;
+x_2 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__9;
+x_3 = l_Lean_Meta_withoutPostponingUniverseConstraintsImp___rarg___closed__11;
 x_4 = l_Lean_instMonadRef___rarg(x_1, x_2, x_3);
 return x_4;
 }

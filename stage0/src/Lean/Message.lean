@@ -215,8 +215,8 @@ class AddMessageContext (m : Type → Type) where
 
 export AddMessageContext (addMessageContext)
 
-instance (m n) [AddMessageContext m] [MonadLift m n] : AddMessageContext n :=
-  { addMessageContext := fun msg => liftM (addMessageContext msg : m _) }
+instance (m n) [MonadLift m n] [AddMessageContext m] : AddMessageContext n where
+  addMessageContext := fun msg => liftM (addMessageContext msg : m _)
 
 def addMessageContextPartial {m} [Monad m] [MonadEnv m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
   let env ← getEnv

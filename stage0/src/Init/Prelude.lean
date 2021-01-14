@@ -1176,7 +1176,7 @@ export MonadLiftT (monadLift)
 
 abbrev liftM := @monadLift
 
-instance (m n o) [MonadLiftT m n] [MonadLift n o] : MonadLiftT m o where
+instance (m n o) [MonadLift n o] [MonadLiftT m n] : MonadLiftT m o where
   monadLift x := MonadLift.monadLift (m := n) (monadLift x)
 
 instance (m) : MonadLiftT m m where
@@ -1196,7 +1196,7 @@ class MonadFunctorT (m : Type u → Type v) (n : Type u → Type w) where
 
 export MonadFunctorT (monadMap)
 
-instance (m n o) [MonadFunctorT m n] [MonadFunctor n o] : MonadFunctorT m o where
+instance (m n o) [MonadFunctor n o] [MonadFunctorT m n] : MonadFunctorT m o where
   monadMap f := MonadFunctor.monadMap (m := n) (monadMap (m := m) f)
 
 instance monadFunctorRefl (m) : MonadFunctorT m m where
@@ -1324,7 +1324,7 @@ export MonadReader (read)
 instance (ρ : Type u) (m : Type u → Type v) [MonadReaderOf ρ m] : MonadReader ρ m where
   read := readThe ρ
 
-instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadReaderOf ρ m] [MonadLift m n] : MonadReaderOf ρ n where
+instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadLift m n] [MonadReaderOf ρ m] : MonadReaderOf ρ n where
   read := liftM (m := m) read
 
 instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (ReaderT ρ m) where
@@ -1344,7 +1344,7 @@ export MonadWithReader (withReader)
 instance (ρ : Type u) (m : Type u → Type v) [MonadWithReaderOf ρ m] : MonadWithReader ρ m where
   withReader := withTheReader ρ
 
-instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type v} [MonadWithReaderOf ρ m] [MonadFunctor m n] : MonadWithReaderOf ρ n where
+instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type v} [MonadFunctor m n] [MonadWithReaderOf ρ m] : MonadWithReaderOf ρ n where
   withReader f := monadMap (m := m) (withTheReader ρ f)
 
 instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadWithReaderOf ρ (ReaderT ρ m) where
@@ -1396,7 +1396,7 @@ instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState 
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first
-instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadStateOf σ m] [MonadLift m n] : MonadStateOf σ n where
+instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadLift m n] [MonadStateOf σ m] : MonadStateOf σ n where
   get       := liftM (m := m) MonadStateOf.get
   set       := fun s => liftM (m := m) (MonadStateOf.set s)
   modifyGet := fun f => monadLift (m := m) (MonadState.modifyGet f)
@@ -1742,7 +1742,7 @@ class MonadRef (m : Type → Type) where
 
 export MonadRef (getRef)
 
-instance (m n : Type → Type) [MonadRef m] [MonadFunctor m n] [MonadLift m n] : MonadRef n where
+instance (m n : Type → Type) [MonadLift m n] [MonadFunctor m n] [MonadRef m] : MonadRef n where
   getRef  := liftM (getRef : m _)
   withRef := fun ref x => monadMap (m := m) (MonadRef.withRef ref) x
 
@@ -1786,7 +1786,7 @@ export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo := do
   return { pos := (← getRef).getPos }
 
-instance {m n : Type → Type} [MonadQuotation m] [MonadLift m n] [MonadFunctor m n] : MonadQuotation n where
+instance {m n : Type → Type} [MonadFunctor m n] [MonadLift m n] [MonadQuotation m] : MonadQuotation n where
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope
   getMainModule       := liftM (m := m) getMainModule
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope

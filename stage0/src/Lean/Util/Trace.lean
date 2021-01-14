@@ -38,9 +38,9 @@ class MonadTrace (m : Type → Type) where
 
 export MonadTrace (getTraceState modifyTraceState)
 
-instance (m n) [MonadTrace m] [MonadLift m n] : MonadTrace n :=
-  { modifyTraceState := fun f => liftM (modifyTraceState f : m _),
-    getTraceState    := liftM (getTraceState : m _) }
+instance (m n) [MonadLift m n] [MonadTrace m] : MonadTrace n where
+  modifyTraceState := fun f => liftM (modifyTraceState f : m _)
+  getTraceState    := liftM (getTraceState : m _)
 
 variables {α : Type} {m : Type → Type} [Monad m] [MonadTrace m]
 

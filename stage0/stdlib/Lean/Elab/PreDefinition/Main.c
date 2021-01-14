@@ -166,6 +166,7 @@ uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_addPreDefinitions___spec__4(lean_o
 extern lean_object* l_Lean_Expr_FoldConstsImpl_initCache;
 lean_object* l_Lean_Elab_WFRecursion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
+extern lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__1;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__9___lambda__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_CollectMVars_instInhabitedState___closed__1;
@@ -177,7 +178,6 @@ lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_getMVarsAtPre
 lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_addAndCompilePartial___spec__1___lambda__3(lean_object*, size_t, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__8___lambda__3___closed__1;
 lean_object* l_List_forM___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__19(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__5;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_isNonRecursive___boxed(lean_object*);
 lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -630,7 +630,7 @@ x_9 = lean_array_get_size(x_1);
 x_10 = lean_usize_of_nat(x_9);
 lean_dec(x_9);
 x_11 = 0;
-x_12 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__5;
+x_12 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__1;
 x_13 = l_Lean_Elab_Term_quoteAutoTactic___closed__4;
 x_14 = lean_box(0);
 lean_inc(x_7);
@@ -4343,7 +4343,7 @@ x_17 = l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs(x_
 x_18 = lean_array_get_size(x_17);
 x_19 = lean_usize_of_nat(x_18);
 lean_dec(x_18);
-x_20 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__5;
+x_20 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__1;
 x_21 = l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__8(x_20, x_11, x_17, x_19, x_11, x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_16);
 if (lean_obj_tag(x_21) == 0)
 {

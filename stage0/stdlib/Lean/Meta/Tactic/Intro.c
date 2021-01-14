@@ -55,8 +55,8 @@ lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___ra
 lean_object* l_Lean_Meta_intro_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp(lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___closed__1;
-extern lean_object* l_Lean_Meta_commitWhenSome_x3f___rarg___closed__2;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Intro___hyg_539_(lean_object*);
+extern lean_object* l_Lean_Meta_commitWhenSome_x3f___rarg___closed__1;
 lean_object* l_Lean_Meta_intro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -464,8 +464,8 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introN
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Core_instMonadNameGeneratorCoreM;
-x_2 = l_StateRefT_x27_instMonadLiftStateRefT_x27___closed__1;
+x_1 = l_StateRefT_x27_instMonadLiftStateRefT_x27___closed__1;
+x_2 = l_Lean_Core_instMonadNameGeneratorCoreM;
 x_3 = l_Lean_monadNameGeneratorLift___rarg(x_1, x_2);
 return x_3;
 }
@@ -474,8 +474,8 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introN
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___closed__2;
-x_2 = l_Lean_Meta_commitWhenSome_x3f___rarg___closed__2;
+x_1 = l_Lean_Meta_commitWhenSome_x3f___rarg___closed__1;
+x_2 = l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___closed__2;
 x_3 = l_Lean_monadNameGeneratorLift___rarg(x_1, x_2);
 return x_3;
 }

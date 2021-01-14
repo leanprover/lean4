@@ -1841,14 +1841,14 @@ lean_object* l_instMonadControlT___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-lean_inc(x_1);
 lean_inc(x_2);
+lean_inc(x_1);
 x_3 = lean_alloc_closure((void*)(l_instMonadControlT___rarg___lambda__4), 4, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
 x_4 = lean_alloc_closure((void*)(l_instMonadControlT___rarg___lambda__5), 4, 2);
-lean_closure_set(x_4, 0, x_2);
-lean_closure_set(x_4, 1, x_1);
+lean_closure_set(x_4, 0, x_1);
+lean_closure_set(x_4, 1, x_2);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_3);
 lean_ctor_set(x_5, 1, x_4);

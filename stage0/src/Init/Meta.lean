@@ -135,7 +135,7 @@ def mkFreshId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m Name := d
   setNGen ngen.next
   pure r
 
-instance monadNameGeneratorLift (m n : Type → Type) [MonadNameGenerator m] [MonadLift m n] : MonadNameGenerator n := {
+instance monadNameGeneratorLift (m n : Type → Type) [MonadLift m n] [MonadNameGenerator m] : MonadNameGenerator n := {
   getNGen := liftM (getNGen : m _),
   setNGen := fun ngen => liftM (setNGen ngen : m _)
 }

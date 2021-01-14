@@ -102,8 +102,8 @@ class MonadOptions (m : Type → Type) where
 
 export MonadOptions (getOptions)
 
-instance (m n) [MonadOptions m] [MonadLift m n] : MonadOptions n :=
-  { getOptions := liftM (getOptions : m _) }
+instance (m n) [MonadLift m n] [MonadOptions m] : MonadOptions n where
+  getOptions := liftM (getOptions : m _)
 
 variables {m} [Monad m] [MonadOptions m]
 

@@ -383,7 +383,7 @@ class MonadLCtx (m : Type → Type) where
 
 export MonadLCtx (getLCtx)
 
-instance (m n) [MonadLCtx m] [MonadLift m n] : MonadLCtx n where
+instance (m n) [MonadLift m n] [MonadLCtx m] : MonadLCtx n where
   getLCtx := liftM (getLCtx : m _)
 
 def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=

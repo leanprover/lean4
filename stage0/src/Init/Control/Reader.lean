@@ -18,7 +18,7 @@ namespace ReaderT
 @[inline] protected def failure [Alternative m] : ReaderT ρ m α :=
   fun s => failure
 
-instance [Monad m] [Alternative m] : Alternative (ReaderT ρ m) where
+instance [Alternative m] [Monad m] : Alternative (ReaderT ρ m) where
   failure := ReaderT.failure
   orElse  := ReaderT.orElse
 

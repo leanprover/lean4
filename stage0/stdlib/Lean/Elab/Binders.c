@@ -55,7 +55,6 @@ extern lean_object* l_Lean_Parser_Term_letEqnsDecl___closed__2;
 lean_object* l_Lean_Elab_Term_elabArrow___closed__1;
 extern lean_object* l_myMacro____x40_Init_Notation___hyg_12458____closed__7;
 lean_object* lean_array_uget(lean_object*, size_t);
-extern lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__8;
 lean_object* l_Lean_Elab_Term_declareTacticSyntax___closed__5;
 lean_object* l_Lean_Elab_Term_elabLetDeclAux_match__1(lean_object*);
 lean_object* l___regBuiltin_Lean_Elab_Term_elabDepArrow___closed__1;
@@ -451,6 +450,7 @@ lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 lean_object* l_Lean_Elab_Term_quoteAutoTactic___closed__17;
 lean_object* l_Lean_Elab_Term_elabLetDeclAux___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_prec_x28___x29___closed__3;
+extern lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__2;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Elab_Term_declareTacticSyntax___closed__4;
@@ -1438,7 +1438,7 @@ static lean_object* _init_l_Lean_Elab_Term_quoteAutoTactic___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__8;
+x_1 = l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__2;
 x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
 return x_2;
 }

@@ -74,7 +74,7 @@ class MonadInfoTree (m : Type → Type)  where
 
 export MonadInfoTree (getInfoState modifyInfoState)
 
-instance (m n) [MonadInfoTree m] [MonadLift m n] : MonadInfoTree n where
+instance (m n) [MonadLift m n] [MonadInfoTree m] : MonadInfoTree n where
   getInfoState      := liftM (getInfoState : m _)
   modifyInfoState f := liftM (modifyInfoState f : m _)
 

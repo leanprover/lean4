@@ -26680,21 +26680,21 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_commitWhenSome_x3f___rarg___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Core_instMonadEnvCoreM;
-x_2 = l_StateRefT_x27_instMonadLiftStateRefT_x27___closed__1;
-x_3 = l_Lean_instMonadEnv___rarg(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_commitWhenSome_x3f___rarg___closed__2() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadLiftReaderT), 3, 2);
 lean_closure_set(x_1, 0, lean_box(0));
 lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_commitWhenSome_x3f___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_StateRefT_x27_instMonadLiftStateRefT_x27___closed__1;
+x_2 = l_Lean_Core_instMonadEnvCoreM;
+x_3 = l_Lean_instMonadEnv___rarg(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Meta_commitWhenSome_x3f___rarg___closed__3() {

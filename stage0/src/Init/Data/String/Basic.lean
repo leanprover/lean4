@@ -9,12 +9,6 @@ import Init.Data.Char.Basic
 import Init.Data.Option.Basic
 universes u
 
-/-- A byte position in a `String`. Internally, `String`s are UTF-8 encoded.
-Codepoint positions (counting the Unicode codepoints rather than bytes)
-are represented by plain `Nat`s instead.
-Indexing a `String` by a byte position is constant-time, while codepoint
-positions need to be translated internally to byte positions in linear-time. -/
-
 def List.asString (s : List Char) : String :=
   ⟨s⟩
 
@@ -30,19 +24,19 @@ instance decLt (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
 def length : (@& String) → Nat
   | ⟨s⟩ => s.length
 
-/- The internal implementation uses dynamic arrays and will perform destructive updates
+/-- The internal implementation uses dynamic arrays and will perform destructive updates
    if the String is not shared. -/
 @[extern "lean_string_push"]
 def push : String → Char → String
   | ⟨s⟩, c => ⟨s ++ [c]⟩
 
-/- The internal implementation uses dynamic arrays and will perform destructive updates
+/-- The internal implementation uses dynamic arrays and will perform destructive updates
    if the String is not shared. -/
 @[extern "lean_string_append"]
 def append : String → (@& String) → String
   | ⟨a⟩, ⟨b⟩ => ⟨a ++ b⟩
 
-/- O(n) in the runtime, where n is the length of the String -/
+/-- O(n) in the runtime, where n is the length of the String -/
 def toList (s : String) : List Char :=
   s.data
 
@@ -230,7 +224,7 @@ def forward : Iterator → Nat → Iterator
 def remainingToString : Iterator → String
   | ⟨s, i⟩ => s.extract i s.bsize
 
-/- (isPrefixOfRemaining it₁ it₂) is `true` Iff `it₁.remainingToString` is a prefix
+/-- `(isPrefixOfRemaining it₁ it₂)` is `true` iff `it₁.remainingToString` is a prefix
    of `it₂.remainingToString`. -/
 def isPrefixOfRemaining : Iterator → Iterator → Bool
   | ⟨s₁, i₁⟩, ⟨s₂, i₂⟩ => s₁.extract i₁ s₁.bsize = s₂.extract i₂ (i₂ + (s₁.bsize - i₁))
@@ -306,7 +300,7 @@ def toNat? (s : String) : Option Nat :=
   else
     none
 
-/- Return true iff `p` is a prefix of `s` -/
+/-- Return true iff `p` is a prefix of `s` -/
 partial def isPrefixOf (p : String) (s : String) : Bool :=
   let rec loop (i : Pos) :=
     if p.atEnd i then true
@@ -332,44 +326,52 @@ namespace Substring
 @[inline] def toIterator : Substring → String.Iterator
   | ⟨s, b, _⟩ => ⟨s, b⟩
 
+/-- Return the codepoint at the given offset into the substring. -/
 @[inline] def get : Substring → String.Pos → Char
   | ⟨s, b, _⟩, p => s.get (b+p)
 
-@[inline] def next : Substring → String.Pos → String.Pos
+/-- Given an offset of a codepoint into the substring,
+return the offset there of the next codepoint. -/
+@[inline] private def next : Substring → String.Pos → String.Pos
   | ⟨s, b, e⟩, p =>
-    let p := s.next (b+p)
-    if p > e then e - b else p - b
+    let absP := b+p
+    if absP = e then p else s.next absP - b
 
-@[inline] def prev : Substring → String.Pos → String.Pos
+/-- Given an offset of a codepoint into the substring,
+return the offset there of the previous codepoint. -/
+@[inline] private def prev : Substring → String.Pos → String.Pos
   | ⟨s, b, _⟩, p =>
-    if p = b then p else s.prev (b+p) - b
+    let absP := b+p
+    if absP = b then p else s.prev absP - b
 
-def nextn : Substring → Nat → String.Pos → String.Pos
+private def nextn : Substring → Nat → String.Pos → String.Pos
   | ss, 0,   p => p
   | ss, i+1, p => ss.nextn i (ss.next p)
 
-def prevn : Substring → String.Pos → Nat → String.Pos
+private def prevn : Substring → String.Pos → Nat → String.Pos
   | ss, 0,   p => p
   | ss, i+1, p => ss.prevn i (ss.prev p)
 
 @[inline] def front (s : Substring) : Char :=
   s.get 0
 
+/-- Return the offset into `s` of the first occurence of `c` in `s`,
+or `s.bsize` if `c` doesn't occur. -/
 @[inline] def posOf (s : Substring) (c : Char) : String.Pos :=
   match s with
   | ⟨s, b, e⟩ => (String.posOfAux s c e b) - b
 
 @[inline] def drop : Substring → Nat → Substring
-  | ss@⟨s, b, e⟩, n => ⟨s, ss.nextn n b, e⟩
+  | ss@⟨s, b, e⟩, n => ⟨s, b + ss.nextn n 0, e⟩
 
 @[inline] def dropRight : Substring → Nat → Substring
-  | ss@⟨s, b, e⟩, n => ⟨s, b, ss.prevn n e⟩
+  | ss@⟨s, b, e⟩, n => ⟨s, b, b + ss.prevn n ss.bsize⟩
 
 @[inline] def take : Substring → Nat → Substring
-  | ss@⟨s, b, e⟩, n => ⟨s, b, ss.nextn n b⟩
+  | ss@⟨s, b, e⟩, n => ⟨s, b, b + ss.nextn n 0⟩
 
 @[inline] def takeRight : Substring → Nat → Substring
-  | ss@⟨s, b, e⟩, n => ⟨s, ss.prevn n e, e⟩
+  | ss@⟨s, b, e⟩, n => ⟨s, b + ss.prevn n ss.bsize, e⟩
 
 @[inline] def atEnd : Substring → String.Pos → Bool
   | ⟨s, b, e⟩, p => b + p == e
@@ -419,7 +421,7 @@ partial def splitOn (s : Substring) (sep : String := " ") : List Substring :=
 def contains (s : Substring) (c : Char) : Bool :=
   s.any (fun a => a == c)
 
-@[specialize] partial def takeWhileAux (s : String) (stopPos : String.Pos) (p : Char → Bool) (i : String.Pos) : String.Pos :=
+@[specialize] private partial def takeWhileAux (s : String) (stopPos : String.Pos) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   if i == stopPos then i
   else if p (s.get i) then takeWhileAux s stopPos p (s.next i)
   else i
@@ -434,7 +436,7 @@ def contains (s : Substring) (c : Char) : Bool :=
     let b := takeWhileAux s e p b;
     ⟨s, b, e⟩
 
-@[specialize] partial def takeRightWhileAux (s : String) (begPos : String.Pos) (p : Char → Bool) (i : String.Pos) : String.Pos :=
+@[specialize] private partial def takeRightWhileAux (s : String) (begPos : String.Pos) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   if i == begPos then i
   else
     let i' := s.prev i

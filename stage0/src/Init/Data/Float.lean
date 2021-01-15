@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Core
+import Init.Data.Int.Basic
 import Init.Data.ToString.Basic
 
 structure FloatSpec where
@@ -36,6 +37,10 @@ instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 @[extern c inline "#1 * #2"]  constant Float.mul : Float → Float → Float
 @[extern c inline "#1 / #2"]  constant Float.div : Float → Float → Float
 @[extern c inline "(- #1)"]   constant Float.neg : Float → Float
+
+def Float.ofInt : Int → Float
+  | Int.ofNat n => Float.ofNat n
+  | Int.negSucc n => Float.neg (Float.ofNat (Nat.succ n))
 
 set_option bootstrap.gen_matcher_code false
 def Float.lt  : Float → Float → Prop := fun a b =>

@@ -27,7 +27,6 @@ lean_object* l_Lean_Elab_Tactic_evalGeneralizeAux___lambda__1___boxed(lean_objec
 lean_object* l_Lean_Meta_getMVarTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_BacktrackableState_restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_lift_loose_bvars(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_6051____closed__4;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_getVarName___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralizeFallback___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -79,6 +78,7 @@ lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGen
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_getVarName(lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_evalGeneralizeWithEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_5971____closed__4;
 lean_object* l___private_Lean_Elab_Tactic_Generalize_0__Lean_Elab_Tactic_getAuxHypothesisName(lean_object* x_1) {
 _start:
 {
@@ -590,7 +590,7 @@ x_49 = lean_box(0);
 x_50 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_50, 0, x_47);
 lean_ctor_set(x_50, 1, x_49);
-x_51 = l_myMacro____x40_Init_Notation___hyg_6051____closed__4;
+x_51 = l_myMacro____x40_Init_Notation___hyg_5971____closed__4;
 x_52 = l_Lean_mkConst(x_51, x_50);
 x_53 = l_Lean_Meta_assertExt___lambda__1___closed__1;
 lean_inc(x_2);
@@ -991,7 +991,7 @@ x_23 = lean_box(0);
 x_24 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_24, 0, x_18);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_myMacro____x40_Init_Notation___hyg_6051____closed__4;
+x_25 = l_myMacro____x40_Init_Notation___hyg_5971____closed__4;
 x_26 = l_Lean_mkConst(x_25, x_24);
 x_27 = l_Lean_Meta_assertExt___lambda__1___closed__1;
 lean_inc(x_1);

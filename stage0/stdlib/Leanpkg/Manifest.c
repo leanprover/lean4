@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Toml_parse(lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_528____closed__6;
 lean_object* l_Leanpkg_Source_fromToml___closed__3;
 lean_object* l_Leanpkg_Manifest_fromToml_match__4___rarg(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml_match__1(lean_object*);
@@ -41,7 +42,6 @@ lean_object* l_Toml_Value_lookup(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Source_fromToml___boxed(lean_object*);
 lean_object* l_Leanpkg_Manifest_effectivePath___boxed(lean_object*);
 lean_object* l_Leanpkg_Source_fromToml___closed__1;
-extern lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_866____closed__15;
 lean_object* l_Leanpkg_Manifest_fromFile_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml_match__6(lean_object*);
 lean_object* l_Leanpkg_Source_toToml(lean_object*);
@@ -54,6 +54,7 @@ lean_object* l_Leanpkg_Manifest_timeout___default;
 lean_object* l_Leanpkg_Manifest_fromFile___boxed(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__1___closed__1;
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_938____closed__15;
 lean_object* l_Leanpkg_Manifest_fromFile(lean_object*, lean_object*);
 lean_object* l_Leanpkg_Source_fromToml(lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,7 +74,6 @@ lean_object* l_Leanpkg_Manifest_fromToml_match__2___rarg(lean_object*, lean_obje
 lean_object* l_Leanpkg_Source_fromToml_match__2(lean_object*);
 lean_object* l_Leanpkg_leanpkgTomlFn___closed__1;
 lean_object* l_Leanpkg_Manifest_effectivePath(lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_488____closed__6;
 lean_object* l_Leanpkg_Source_toToml___boxed(lean_object*);
 lean_object* l_Leanpkg_Manifest_fromToml_match__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_Manifest_path___default;
@@ -1801,7 +1801,7 @@ lean_object* l_Leanpkg_Manifest_fromToml___lambda__3(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Lean_initFn____x40_Lean_Data_Options___hyg_488____closed__6;
+x_6 = l_Lean_initFn____x40_Lean_Data_Options___hyg_528____closed__6;
 x_7 = l_Toml_Value_lookup(x_4, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -1913,7 +1913,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 lean_dec(x_3);
-x_6 = l_Lean_initFn____x40_Lean_Parser_Extra___hyg_866____closed__15;
+x_6 = l_Lean_initFn____x40_Lean_Parser_Extra___hyg_938____closed__15;
 x_7 = l_Toml_Value_lookup(x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {

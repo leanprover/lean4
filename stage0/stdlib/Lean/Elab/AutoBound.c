@@ -22,17 +22,18 @@ extern lean_object* l_Lean_instInhabitedParserDescr___closed__1;
 lean_object* l_Lean_Elab_isValidAutoBoundLevelName_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Elab_isValidAutoBoundImplicitName_match__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_String_Basic_0__Substring_nextn(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_3____closed__3;
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral___lambda__1___boxed(lean_object*);
 uint8_t l_Lean_isNumericSubscript(uint32_t);
 uint8_t l_Char_isLower(uint32_t);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_3____closed__1;
+extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_528____closed__3;
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_3____closed__2;
 lean_object* l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral___closed__1;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_488____closed__3;
-lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral(lean_object*);
 lean_object* l_Lean_Elab_isValidAutoBoundImplicitName_match__1(lean_object*);
 lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_3____closed__4;
@@ -78,7 +79,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_3_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_initFn____x40_Lean_Data_Options___hyg_488____closed__3;
+x_1 = l_Lean_initFn____x40_Lean_Data_Options___hyg_528____closed__3;
 x_2 = l_Lean_instInhabitedParserDescr___closed__1;
 x_3 = l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_3____closed__3;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -289,7 +290,7 @@ return x_11;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_12 = lean_string_utf8_byte_size(x_3);
 lean_inc(x_12);
 lean_inc(x_3);
@@ -298,52 +299,56 @@ lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_5);
 lean_ctor_set(x_13, 2, x_12);
 x_14 = lean_unsigned_to_nat(1u);
-x_15 = l_Substring_nextn(x_13, x_14, x_5);
+x_15 = l___private_Init_Data_String_Basic_0__Substring_nextn(x_13, x_14, x_5);
 lean_dec(x_13);
+x_16 = lean_nat_add(x_5, x_15);
+lean_dec(x_15);
 lean_inc(x_3);
-x_16 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_16, 0, x_3);
-lean_ctor_set(x_16, 1, x_15);
-lean_ctor_set(x_16, 2, x_12);
-x_17 = l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral(x_16);
-return x_17;
+x_17 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_17, 0, x_3);
+lean_ctor_set(x_17, 1, x_16);
+lean_ctor_set(x_17, 2, x_12);
+x_18 = l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral(x_17);
+return x_18;
 }
 }
 else
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
-x_18 = lean_string_utf8_byte_size(x_3);
-lean_inc(x_18);
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
+x_19 = lean_string_utf8_byte_size(x_3);
+lean_inc(x_19);
 lean_inc(x_3);
-x_19 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_19, 0, x_3);
-lean_ctor_set(x_19, 1, x_5);
-lean_ctor_set(x_19, 2, x_18);
-x_20 = lean_unsigned_to_nat(1u);
-x_21 = l_Substring_nextn(x_19, x_20, x_5);
-lean_dec(x_19);
+x_20 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_20, 0, x_3);
+lean_ctor_set(x_20, 1, x_5);
+lean_ctor_set(x_20, 2, x_19);
+x_21 = lean_unsigned_to_nat(1u);
+x_22 = l___private_Init_Data_String_Basic_0__Substring_nextn(x_20, x_21, x_5);
+lean_dec(x_20);
+x_23 = lean_nat_add(x_5, x_22);
+lean_dec(x_22);
 lean_inc(x_3);
-x_22 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_22, 0, x_3);
-lean_ctor_set(x_22, 1, x_21);
-lean_ctor_set(x_22, 2, x_18);
-x_23 = l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral(x_22);
-return x_23;
-}
-}
-}
-else
-{
-uint8_t x_24; 
-x_24 = 0;
-return x_24;
-}
-}
-else
-{
-uint8_t x_25; 
-x_25 = 0;
+x_24 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_24, 0, x_3);
+lean_ctor_set(x_24, 1, x_23);
+lean_ctor_set(x_24, 2, x_19);
+x_25 = l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral(x_24);
 return x_25;
+}
+}
+}
+else
+{
+uint8_t x_26; 
+x_26 = 0;
+return x_26;
+}
+}
+else
+{
+uint8_t x_27; 
+x_27 = 0;
+return x_27;
 }
 }
 }
@@ -437,7 +442,7 @@ return x_10;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_11 = lean_string_utf8_byte_size(x_3);
 lean_inc(x_11);
 lean_inc(x_3);
@@ -446,23 +451,18 @@ lean_ctor_set(x_12, 0, x_3);
 lean_ctor_set(x_12, 1, x_5);
 lean_ctor_set(x_12, 2, x_11);
 x_13 = lean_unsigned_to_nat(1u);
-x_14 = l_Substring_nextn(x_12, x_13, x_5);
+x_14 = l___private_Init_Data_String_Basic_0__Substring_nextn(x_12, x_13, x_5);
 lean_dec(x_12);
+x_15 = lean_nat_add(x_5, x_14);
+lean_dec(x_14);
 lean_inc(x_3);
-x_15 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_15, 0, x_3);
-lean_ctor_set(x_15, 1, x_14);
-lean_ctor_set(x_15, 2, x_11);
-x_16 = l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral(x_15);
-return x_16;
-}
-}
-}
-else
-{
-uint8_t x_17; 
-x_17 = 0;
+x_16 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_16, 0, x_3);
+lean_ctor_set(x_16, 1, x_15);
+lean_ctor_set(x_16, 2, x_11);
+x_17 = l___private_Lean_Elab_AutoBound_0__Lean_Elab_allNumeral(x_16);
 return x_17;
+}
 }
 }
 else
@@ -470,6 +470,13 @@ else
 uint8_t x_18; 
 x_18 = 0;
 return x_18;
+}
+}
+else
+{
+uint8_t x_19; 
+x_19 = 0;
+return x_19;
 }
 }
 }

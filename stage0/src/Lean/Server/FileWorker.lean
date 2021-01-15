@@ -16,6 +16,7 @@ import Lean.Data.Json.FromToJson
 import Lean.Server.Snapshots
 import Lean.Server.Utils
 import Lean.Server.AsyncList
+import Lean.Server.InfoUtils
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -50,12 +51,12 @@ section Utils
   private def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
     IO.eprintln s!"[{s.beginPos}, {s.endPos}]: `{text.source.extract s.beginPos (s.endPos-1)}`"
 
-  inductive TaskError where
+  inductive ElabTaskError where
     | aborted
     | eof
     | ioError (e : IO.Error)
 
-  instance : Coe IO.Error TaskError := ⟨TaskError.ioError⟩
+  instance : Coe IO.Error ElabTaskError := ⟨ElabTaskError.ioError⟩
 
   structure CancelToken where
     ref : IO.Ref Bool
@@ -65,10 +66,10 @@ section Utils
     def new : IO CancelToken :=
       CancelToken.mk <$> IO.mkRef false
 
-    def check [MonadExceptOf TaskError m] [MonadLiftT (ST RealWorld) m] [Monad m] (tk : CancelToken) : m Unit := do
+    def check [MonadExceptOf ElabTaskError m] [MonadLiftT (ST RealWorld) m] [Monad m] (tk : CancelToken) : m Unit := do
       let c ← tk.ref.get
       if c = true then
-        throw TaskError.aborted
+        throw ElabTaskError.aborted
 
     def set (tk : CancelToken) : IO Unit :=
       tk.ref.set true
@@ -82,7 +83,7 @@ section Utils
     /- The first snapshot is that after the header. -/
     headerSnap : Snapshot
     /- Subsequent snapshots occur after each command. -/
-    cmdSnaps   : AsyncList TaskError Snapshot
+    cmdSnaps   : AsyncList ElabTaskError Snapshot
     cancelTk   : CancelToken
     deriving Inhabited
 end Utils
@@ -98,6 +99,7 @@ section ServerM
   structure ServerContext where
     hIn                : FS.Stream
     hOut               : FS.Stream
+    hLog               : FS.Stream
     docRef             : IO.Ref EditableDocument
     pendingRequestsRef : IO.Ref PendingRequestMap
 
@@ -107,10 +109,11 @@ section ServerM
     (←read).pendingRequestsRef.modify map
 
   /-- Elaborates the next command after `parentSnap` and emits diagnostics. -/
-  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) : ExceptT TaskError ServerM Snapshot := do
+  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) : ExceptT ElabTaskError ServerM Snapshot := do
     cancelTk.check
     let st ← read
     let maybeSnap ← compileNextCmd m.text.source parentSnap
+    -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
     let sendDiagnostics (msgLog : MessageLog) : IO Unit := do
       let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
@@ -143,17 +146,20 @@ section ServerM
       snap
     | Sum.inr msgLog =>
       sendDiagnostics msgLog
-      throw TaskError.eof
+      throw ElabTaskError.eof
 
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) : ServerM (AsyncList TaskError Snapshot) := do
-    -- TODO(MH): check for interrupt with increased precision
-    AsyncList.unfoldAsync (nextCmdSnap m .  cancelTk (←read)) initSnap (some fun _ => pure TaskError.aborted)
+  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) : ServerM (AsyncList ElabTaskError Snapshot) := do
+    AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (←read)) initSnap
 
   /-- Compiles the contents of a Lean file. -/
   def compileDocument (m : DocumentMeta) : ServerM Unit := do
-    let headerSnap@⟨_, _, _, SnapshotData.headerData env msgLog opts⟩ ← Snapshots.compileHeader m.text.source
+    let headerSnap@{ data := SnapshotData.headerData cmdState, .. } ← Snapshots.compileHeader m.text.source
       | throwServerError "Internal server error: invalid header snapshot"
+    let opts : Options := {}
+    let opts := opts.setBool `interpreter.prefer_native false
+    let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
+    let headerSnap := { headerSnap with data := SnapshotData.headerData cmdState }
     let cancelTk ← CancelToken.new
     let cmdSnaps ← unfoldCmdSnaps m headerSnap cancelTk
     (←read).docRef.set ⟨m, headerSnap, cmdSnaps, cancelTk⟩
@@ -173,9 +179,9 @@ section ServerM
     match e? with
     -- This case should not be possible. only the main task aborts tasks and ensures that aborted tasks
     -- do not show up in `snapshots` of an EditableDocument.
-    | some TaskError.aborted =>
+    | some ElabTaskError.aborted =>
       throwServerError "Internal server error: elab task was aborted while still in use."
-    | some (TaskError.ioError ioError) => throw ioError
+    | some (ElabTaskError.ioError ioError) => throw ioError
     | _ => -- No error or EOF
       oldDoc.cancelTk.set
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
@@ -230,7 +236,6 @@ section NotificationHandling
     else if ¬ changes.isEmpty then
       let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText⟩ minStartOff
-    -- TODO(WN): cancel pending requests?
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
@@ -244,8 +249,19 @@ section RequestHandling
     code    : ErrorCode
     message : String
 
+  namespace RequestError
+
+  def fileChanged : RequestError :=
+    { code := ErrorCode.contentModified
+      message := "File changed." }
+
+  end RequestError
+
   -- TODO(WN): the type is too complicated
   abbrev RequestM α := ServerM $ Task $ Except IO.Error $ Except RequestError α
+
+  def mapTask (t : Task α) (f : α → ExceptT RequestError ServerM β) : RequestM β := fun st =>
+    (IO.mapTask · t) fun a => f a st
 
   /- Requests that need data from a certain command should traverse the snapshots
      by successively getting the next task, meaning that we might need to wait for elaboration.
@@ -253,52 +269,75 @@ section RequestHandling
      (this way, the server doesn't get bogged down in requests for an old state of the document).
      Requests need to manually check for whether their task has been cancelled, so that they
      can reply with a RequestCancelled error. -/
+  open Elab in
   partial def handleHover (id : RequestID) (p : HoverParams)
     : ServerM (Task (Except IO.Error (Except RequestError (Option Hover)))) := do
-    let doc ← (←read).docRef.get
+    let st ← read
+    let doc ← st.docRef.get
     let text := doc.meta.text
     let hoverPos := text.lspPosToUtf8Pos p.position
     let findTask ← doc.cmdSnaps.waitFind? (fun s => s.endPos > hoverPos)
     let mkHover (s : String) (f : String.Pos) (t : String.Pos) : Hover :=
-      { contents := { kind := MarkupKind.plaintext
+      { contents := { kind := MarkupKind.markdown
                       value := s }
         range? := some { start := text.utf8PosToLspPos f
                          «end» := text.utf8PosToLspPos t } }
-    (IO.mapTask · findTask) fun
-      | Except.error TaskError.aborted =>
-        pure $ Except.error { code := ErrorCode.contentModified, message := "File changed." }
-      | Except.error (TaskError.ioError e) =>
+    mapTask findTask fun
+      | Except.error ElabTaskError.aborted =>
+        throwThe RequestError RequestError.fileChanged
+      | Except.error (ElabTaskError.ioError e) =>
         throwThe IO.Error e
-      | Except.error TaskError.eof =>
-        pure $ Except.ok none
+      | Except.error ElabTaskError.eof =>
+        return none
       | Except.ok (some snap) => do
-        /- TODO: FIX -/
-        let mut infoRanges : Array (Nat × String.Pos × String.Pos × Expr) := #[]
         for t in snap.toCmdState.infoState.trees do
-          /-
-          if let Elab.InfoTree.ofTermInfo i := t then
-            match i.stx.getPos, i.stx.getTailPos with
-            | some pos, some endPos =>
-              if pos ≤ hoverPos ∧ hoverPos ≤ endPos then
-                infoRanges := infoRanges.push (endPos - pos, pos, endPos, i.e)
-            | _, _ => pure ()
-          -/
+          let ts := t.smallestNodes fun
+            | Info.ofTermInfo i =>
+              match i.pos?, i.tailPos? with
+              | some pos, some tailPos =>
+                /- TODO(WN): when we have a way to do so,
+                check for synthetic syntax and allow arbitrary syntax kinds. -/
+                if pos ≤ hoverPos ∧ hoverPos < tailPos then
+                  #[identKind,
+                    strLitKind,
+                    charLitKind,
+                    numLitKind,
+                    scientificLitKind,
+                    nameLitKind,
+                    fieldIdxKind,
+                    interpolatedStrLitKind,
+                    interpolatedStrKind
+                  ].contains i.stx.getKind
+                else false
+              | _, _ => false
+            | _ => false
+          let mut nds : Array (Nat × ContextInfo × TermInfo) := #[]
+          for t in ts do
+            if let InfoTree.context ci (InfoTree.node (Info.ofTermInfo i) _) := t then
+              let diff := i.tailPos?.get! - i.pos?.get!
+              nds := nds.push (diff, ci, i)
+
+          if let some (_, ci, i) := nds.getMax? (fun a b => a.1 > b.1) then
+            let tFmt ← ci.runMetaM i.lctx do
+              return f!"{← Meta.ppExpr i.expr} : {← Meta.ppExpr (← Meta.inferType i.expr)}"
+            let mut hoverFmt := f!"```lean
+{tFmt}
+```"
+            if let Expr.const n .. := i.expr then
+              if let some doc ← ci.runMetaM i.lctx <| findDocString? n then
+                hoverFmt := f!"{hoverFmt}\n***\n{doc}"
+
+            return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
           pure ()
-        match infoRanges.getMax? fun a b => a.1 > b.1 with
-        | some (_, pos, endPos, e) =>
-          --st.hLog.putStrLn s!"Picked from {infoRanges.size}"
-          return (Except.ok $ some $ mkHover (toString e) pos endPos
-                    -- Type inference fails
-                    : Except RequestError _)
-        | none => pure ()
-        return Except.ok none
-      | Except.ok none => return Except.ok none
+
+        return none
+      | Except.ok none => return none
 
   def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam)
     : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
     let st ← read
-    let e ← st.docRef.get
-    let t ← e.cmdSnaps.waitAll
+    let doc ← st.docRef.get
+    let t ← doc.cmdSnaps.waitAll
     t.map fun _ => Except.ok $ Except.ok WaitForDiagnostics.mk
 
   def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
@@ -310,9 +349,13 @@ section RequestHandling
     let st ← read
     asTask do
       let doc ← st.docRef.get
-      let ⟨cmdSnaps, end?⟩ ← doc.cmdSnaps.updateFinishedPrefix
-      let mut stxs := cmdSnaps.finishedPrefix.map (·.stx)
-      if end?.isNone then
+      let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix
+      let mut stxs := cmdSnaps.finishedPrefix.map Snapshot.stx
+      match e? with
+      | some ElabTaskError.aborted =>
+        return Except.error RequestError.fileChanged
+      | some _ => pure () -- TODO(WN): what to do on ioError?
+      | none =>
         let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
         stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
       let (syms, _) := toDocumentSymbols doc.meta.text stxs
@@ -419,10 +462,9 @@ section MainLoop
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      -- should be sufficient to shut down the file worker.
-      -- references are lost => tasks are marked as cancelled
-      -- => all tasks eventually quit
-      ()
+      let doc ← st.docRef.get
+      doc.cancelTk.set
+      return ()
     | Message.notification method (some params) =>
       handleNotification method (toJson params)
       mainLoop
@@ -440,6 +482,7 @@ def initAndRunWorker (i o e : FS.Stream) : IO Unit := do
   let ctx : ServerContext := {
     hIn                := i
     hOut               := o
+    hLog               := e
     -- `openDocument` will not access `docRef`, but set it
     docRef             := ←IO.mkRef arbitrary
     pendingRequestsRef := ←IO.mkRef (RBMap.empty : PendingRequestMap)
@@ -459,3 +502,4 @@ def workerMain : IO UInt32 := do
     return 1
 
 end Lean.Server.FileWorker
+

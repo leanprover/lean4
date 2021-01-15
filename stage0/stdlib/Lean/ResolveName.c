@@ -43,7 +43,6 @@ lean_object* l_Lean_addAliasEntry_match__1___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_aliasExtension___closed__5;
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_getRevAliases___spec__12___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_addAliasEntry___spec__8(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2700____closed__4;
 lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_getRevAliases___spec__11(lean_object*);
 extern lean_object* l_Lean_LocalContext_fvarIdToDecl___default___closed__1;
 lean_object* l_Lean_resolveGlobalConstNoOverload___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,6 +225,7 @@ lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_initFn____x40_Lean_Reso
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_initFn____x40_Lean_ResolveName___hyg_53____spec__2___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2880____closed__4;
 extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;
 lean_object* l_Lean_resolveGlobalConst_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_resolveNamespace___rarg___lambda__1___closed__1;
@@ -2062,7 +2062,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__2;
 x_2 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_ResolveName___hyg_53____closed__4;
-x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2700____closed__4;
+x_4 = l_Lean_initFn____x40_Lean_Environment___hyg_2880____closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

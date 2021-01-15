@@ -15,6 +15,9 @@ private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) 
   else
     k eNew
 
+/--
+  Evaluate simple `Nat` expressions.
+  Remark: this method assumes the given expression has type `Nat`. -/
 partial def evalNat : Expr → OptionT MetaM Nat
   | Expr.lit (Literal.natVal n) _ => return n
   | Expr.mdata _ e _              => evalNat e
@@ -132,8 +135,14 @@ private def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
     return mkAppB (mkConst `Nat.add) e (mkNatLit offset)
 
 def isDefEqOffset (s t : Expr) : MetaM LBool := do
+  let ifNatExpr (x : MetaM LBool) : MetaM LBool := do
+    let type ← inferType s
+    if (← Meta.isExprDefEqAux type (mkConst `Nat)) then
+      x
+    else
+      return LBool.undef
   let isDefEq (s t) : MetaM LBool :=
-    toLBoolM <| Meta.isExprDefEqAux s t
+    ifNatExpr <| toLBoolM <| Meta.isExprDefEqAux s t
   match (← isOffset s) with
   | some (s, k₁) =>
     match (← isOffset t) with
@@ -150,7 +159,7 @@ def isDefEqOffset (s t : Expr) : MetaM LBool := do
         if v₂ ≥ k₁ then
           isDefEq s (mkNatLit $ v₂ - k₁)
         else
-          return LBool.false
+          ifNatExpr <| return LBool.false
       | none =>
         return LBool.undef
   | none =>
@@ -161,10 +170,10 @@ def isDefEqOffset (s t : Expr) : MetaM LBool := do
         if v₁ ≥ k₂ then
           isDefEq (mkNatLit $ v₁ - k₂) t
         else
-          return LBool.false
+          ifNatExpr <| return LBool.false
       | none =>
         match (← evalNat t) with
-        | some v₂ => return (v₁ == v₂).toLBool -- v₁ =?= v₂
+        | some v₂ => ifNatExpr <| return (v₁ == v₂).toLBool -- v₁ =?= v₂
         | none    => return LBool.undef
     | none => return LBool.undef
 

@@ -82,6 +82,12 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
   let s ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
   pure (s.commandState.env, s.commandState.messages)
 
+builtin_initialize
+  registerOption `printMessageEndPos { defValue := false, descr := "print end position of each message in addition to start position" }
+
+def getPrintMessageEndPos (opts : Options) : Bool :=
+  opts.getBool `printMessageEndPos false
+
 @[export lean_run_frontend]
 def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
@@ -90,7 +96,7 @@ def runFrontend (input : String) (opts : Options) (fileName : String) (mainModul
   let env := env.setMainModule mainModuleName
   let s ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
   for msg in s.commandState.messages.toList do
-    IO.print (← msg.toString)
+    IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
   pure (s.commandState.env, !s.commandState.messages.hasErrors)
 
 end Lean.Elab

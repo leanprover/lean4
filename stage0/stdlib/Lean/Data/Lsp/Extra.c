@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_513____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instToJsonWaitForDiagnosticsParam___closed__1;
+lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_533____spec__1(lean_object*, lean_object*);
 lean_object* l_List_join___rarg(lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonWaitForDiagnostics(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonWaitForDiagnosticsParam;
@@ -23,7 +23,7 @@ lean_object* l_Lean_Lsp_instFromJsonWaitForDiagnostics___closed__1;
 lean_object* l_Lean_Lsp_instFromJsonWaitForDiagnosticsParam;
 lean_object* l_Lean_Lsp_instFromJsonWaitForDiagnostics___boxed(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonWaitForDiagnostics___closed__1;
-extern lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_479____closed__1;
+extern lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_499____closed__1;
 lean_object* l_Lean_Lsp_instToJsonWaitForDiagnostics(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonWaitForDiagnosticsParam____x40_Lean_Data_Lsp_Extra___hyg_7_(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonWaitForDiagnostics___boxed(lean_object*);
@@ -36,7 +36,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
-x_3 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_479____closed__1;
+x_3 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_499____closed__1;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -72,8 +72,8 @@ lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonWaitForDiagnost
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_479____closed__1;
-x_3 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_513____spec__1(x_1, x_2);
+x_2 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_499____closed__1;
+x_3 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonLocation____x40_Lean_Data_Lsp_Basic___hyg_533____spec__1(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; 

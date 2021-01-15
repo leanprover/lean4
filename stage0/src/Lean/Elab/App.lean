@@ -768,21 +768,19 @@ false, no elaboration function executed by `x` will reset it to
 private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals : List LVal)
     (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array TermElabResult)
     : TermElabM (Array TermElabResult) := do
-  match fIdent with
-  | Syntax.ident _ _ n preresolved =>
-    let funLVals ← withRef fIdent $ resolveName n preresolved fExplicitUnivs
-    let overloaded := overloaded || funLVals.length > 1
-    -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
-    withReader (fun ctx => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) do
-      funLVals.foldlM (init := acc) fun acc ⟨f, fields⟩ => do
-        unless lvals.isEmpty && args.isEmpty && namedArgs.isEmpty do
-          addTermInfo fIdent f
-        let lvals' := fields.map (LVal.fieldName fIdent)
-        let s ← observing do
-          let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
-          if overloaded then ensureHasType expectedType? e else pure e
-        pure $ acc.push s
-  | _ => throwUnsupportedSyntax
+  let funLVals ← withRef fIdent <| resolveName' fIdent fExplicitUnivs
+  let overloaded := overloaded || funLVals.length > 1
+  -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
+  withReader (fun ctx => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) do
+    funLVals.foldlM (init := acc) fun acc (f, fIdent, fields) => do
+      unless lvals.isEmpty && args.isEmpty && namedArgs.isEmpty && fields.isEmpty do
+        addTermInfo fIdent f
+      let lvals' := fields.map fun field => LVal.fieldName field field.getId.toString
+      let s ← observing do
+        let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
+        if overloaded then ensureHasType expectedType? e else pure e
+      pure $ acc.push s
+
 
 private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array TermElabResult) : TermElabM (Array TermElabResult) :=

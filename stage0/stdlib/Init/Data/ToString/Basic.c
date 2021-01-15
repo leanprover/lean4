@@ -49,6 +49,7 @@ lean_object* l_String_toInt_x21_match__1___rarg(lean_object*, lean_object*, lean
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_instToStringSubstring(lean_object*);
 lean_object* l_String_toInt_x21(lean_object*);
+lean_object* l___private_Init_Data_String_Basic_0__Substring_nextn(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_List_toStringAux___rarg(lean_object*, uint8_t, lean_object*);
 lean_object* l_instToStringFormat(lean_object*);
@@ -92,7 +93,6 @@ lean_object* l_instToStringSigma(lean_object*, lean_object*);
 lean_object* l_String_toInt_x21_match__1(lean_object*);
 lean_object* l_instToStringSum___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instToStringSum___rarg___closed__1;
-lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toString_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Char_isWhitespace___boxed(lean_object*);
 lean_object* l_instToStringExcept___rarg___closed__2;
@@ -1351,7 +1351,7 @@ return x_13;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_14 = lean_string_utf8_byte_size(x_1);
 lean_inc(x_14);
 lean_inc(x_1);
@@ -1360,45 +1360,47 @@ lean_ctor_set(x_15, 0, x_1);
 lean_ctor_set(x_15, 1, x_2);
 lean_ctor_set(x_15, 2, x_14);
 x_16 = lean_unsigned_to_nat(1u);
-x_17 = l_Substring_nextn(x_15, x_16, x_2);
+x_17 = l___private_Init_Data_String_Basic_0__Substring_nextn(x_15, x_16, x_2);
 lean_dec(x_15);
-x_18 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_18, 0, x_1);
-lean_ctor_set(x_18, 1, x_17);
-lean_ctor_set(x_18, 2, x_14);
-x_19 = l_Substring_toNat_x3f(x_18);
-if (lean_obj_tag(x_19) == 0)
+x_18 = lean_nat_add(x_2, x_17);
+lean_dec(x_17);
+x_19 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_19, 0, x_1);
+lean_ctor_set(x_19, 1, x_18);
+lean_ctor_set(x_19, 2, x_14);
+x_20 = l_Substring_toNat_x3f(x_19);
+if (lean_obj_tag(x_20) == 0)
 {
-lean_object* x_20; 
-x_20 = lean_box(0);
+lean_object* x_21; 
+x_21 = lean_box(0);
+return x_21;
+}
+else
+{
+uint8_t x_22; 
+x_22 = !lean_is_exclusive(x_20);
+if (x_22 == 0)
+{
+lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_23 = lean_ctor_get(x_20, 0);
+x_24 = lean_nat_to_int(x_23);
+x_25 = lean_int_neg(x_24);
+lean_dec(x_24);
+lean_ctor_set(x_20, 0, x_25);
 return x_20;
 }
 else
 {
-uint8_t x_21; 
-x_21 = !lean_is_exclusive(x_19);
-if (x_21 == 0)
-{
-lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = lean_ctor_get(x_19, 0);
-x_23 = lean_nat_to_int(x_22);
-x_24 = lean_int_neg(x_23);
-lean_dec(x_23);
-lean_ctor_set(x_19, 0, x_24);
-return x_19;
-}
-else
-{
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_25 = lean_ctor_get(x_19, 0);
-lean_inc(x_25);
-lean_dec(x_19);
-x_26 = lean_nat_to_int(x_25);
-x_27 = lean_int_neg(x_26);
-lean_dec(x_26);
-x_28 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_28, 0, x_27);
-return x_28;
+lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+x_26 = lean_ctor_get(x_20, 0);
+lean_inc(x_26);
+lean_dec(x_20);
+x_27 = lean_nat_to_int(x_26);
+x_28 = lean_int_neg(x_27);
+lean_dec(x_27);
+x_29 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_29, 0, x_28);
+return x_29;
 }
 }
 }
@@ -1421,7 +1423,7 @@ return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_7 = lean_string_utf8_byte_size(x_1);
 lean_inc(x_7);
 lean_inc(x_1);
@@ -1430,14 +1432,16 @@ lean_ctor_set(x_8, 0, x_1);
 lean_ctor_set(x_8, 1, x_2);
 lean_ctor_set(x_8, 2, x_7);
 x_9 = lean_unsigned_to_nat(1u);
-x_10 = l_Substring_nextn(x_8, x_9, x_2);
+x_10 = l___private_Init_Data_String_Basic_0__Substring_nextn(x_8, x_9, x_2);
 lean_dec(x_8);
-x_11 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_11, 0, x_1);
-lean_ctor_set(x_11, 1, x_10);
-lean_ctor_set(x_11, 2, x_7);
-x_12 = l_Substring_isNat(x_11);
-return x_12;
+x_11 = lean_nat_add(x_2, x_10);
+lean_dec(x_10);
+x_12 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_12, 0, x_1);
+lean_ctor_set(x_12, 1, x_11);
+lean_ctor_set(x_12, 2, x_7);
+x_13 = l_Substring_isNat(x_12);
+return x_13;
 }
 }
 }

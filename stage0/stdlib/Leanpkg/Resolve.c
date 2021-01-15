@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
+extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3377____closed__35;
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Leanpkg_gitParseOriginRevision(lean_object*, lean_object*, lean_object*);
 lean_object* l_Leanpkg_resolveDir___boxed(lean_object*, lean_object*);
@@ -24,7 +25,6 @@ extern lean_object* l_String_instInhabitedString;
 lean_object* l_Leanpkg_solveDepsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Leanpkg_Assignment_contains(lean_object*, lean_object*);
 lean_object* l_Leanpkg_materialize_match__2___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_NotationExtra___hyg_3357____closed__35;
 lean_object* l_Leanpkg_resolveDir___closed__1;
 lean_object* l_List_lookup___at_Leanpkg_Assignment_contains___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_io_is_dir(lean_object*, lean_object*);
@@ -1127,7 +1127,7 @@ lean_object* x_122; lean_object* x_123; lean_object* x_124;
 x_122 = lean_ctor_get(x_32, 0);
 lean_inc(x_122);
 lean_dec(x_32);
-x_123 = l_myMacro____x40_Init_NotationExtra___hyg_3357____closed__35;
+x_123 = l_myMacro____x40_Init_NotationExtra___hyg_3377____closed__35;
 x_124 = lean_string_append(x_123, x_122);
 lean_dec(x_122);
 x_86 = x_124;

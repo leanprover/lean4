@@ -67,7 +67,6 @@ extern lean_object* l_instInhabitedNat;
 lean_object* l_Toml_bareKey___closed__1;
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Toml_ofSyntax_match__2___rarg(lean_object*, lean_object*);
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1202____closed__6;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 extern lean_object* l_Array_getEvenElems___rarg___closed__1;
@@ -92,8 +91,10 @@ lean_object* l_Toml_parse___closed__1;
 uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_651____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_SepArray_ofElems(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_986____closed__4;
 lean_object* l_Toml_inlineTable___closed__3;
 lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Parser_isParserCategory___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_938____closed__8;
 lean_object* l_Toml_keyCat_quot;
 lean_object* l_Array_zipWithAux___at_Toml_ofSyntax_toTable___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Toml_ofSyntax_match__1___rarg(lean_object*, lean_object*);
@@ -118,7 +119,6 @@ lean_object* l_ReaderT_bind___at_Lean_Unhygienic_instMonadQuotationUnhygienic___
 lean_object* l_Toml_key___closed__2;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Toml_table;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_990____closed__4;
 lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__10___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__5(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -134,7 +134,6 @@ lean_object* l_Toml_ofSyntax_toKey(lean_object*);
 lean_object* l_Toml_key_x27;
 lean_object* l_Toml_fileCat_quot___closed__1;
 lean_object* l_Lean_Syntax_getId(lean_object*);
-extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__22;
 lean_object* l_Array_zipWithAux___at_Toml_ofSyntax_toTable___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_ParserState_mkEOIError___closed__1;
@@ -144,7 +143,9 @@ lean_object* l_Toml_ofSyntax_match__2(lean_object*);
 lean_object* l_Toml_val____1___closed__1;
 lean_object* l_Toml_keyCat_quot___closed__1;
 lean_object* l_Toml_val_____closed__4;
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1190____closed__7;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_265____closed__22;
 lean_object* l_Lean_Parser_whitespace(lean_object*, lean_object*);
 lean_object* l_Toml_val____1___closed__2;
 lean_object* l_Toml_ofSyntax_match__5___rarg(lean_object*, lean_object*);
@@ -161,7 +162,6 @@ lean_object* l_Toml_table___closed__7;
 extern lean_object* l_rawNatLit___closed__7;
 extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_Toml_valFalse___closed__4;
-extern lean_object* l_myMacro____x40_Init_Notation___hyg_1202____closed__7;
 lean_object* l_Lean_Parser_compileParserDescr_visit(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Toml_val_____closed__2;
 lean_object* lean_import_modules(lean_object*, lean_object*, uint32_t, lean_object*);
@@ -202,6 +202,7 @@ lean_object* l_Toml_ofSyntax_match__5(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__9(size_t, size_t, lean_object*);
 lean_object* l_Toml_valTrue___closed__6;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+extern lean_object* l_myMacro____x40_Init_Notation___hyg_1190____closed__6;
 lean_object* l_Array_mapMUnsafe_map___at_Toml_ofSyntax___spec__8___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_toErrorMsg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -239,7 +240,6 @@ extern lean_object* l_addParenHeuristic___closed__1;
 lean_object* l_Toml_keyCat_quot___closed__4;
 lean_object* l_Toml_val_quot___closed__1;
 lean_object* l_Toml_ofSyntax___closed__6;
-extern lean_object* l_Lean_initFn____x40_Lean_Parser_Extra___hyg_866____closed__8;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Toml_keyCat_quot___closed__8;
 lean_object* l_Toml_key___closed__4;
@@ -618,7 +618,7 @@ static lean_object* _init_l_Toml_val_____closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_initFn____x40_Lean_Parser_Extra___hyg_866____closed__8;
+x_1 = l_Lean_initFn____x40_Lean_Parser_Extra___hyg_938____closed__8;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -748,7 +748,7 @@ static lean_object* _init_l_Toml_key___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_1202____closed__6;
+x_1 = l_myMacro____x40_Init_Notation___hyg_1190____closed__6;
 x_2 = l_Toml_bareKey;
 x_3 = l_Toml_val_____closed__3;
 x_4 = lean_alloc_ctor(2, 3, 0);
@@ -1004,7 +1004,7 @@ static lean_object* _init_l_Toml_table___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_990____closed__4;
+x_1 = l_myMacro____x40_Init_Notation___hyg_986____closed__4;
 x_2 = l_Toml_keyVal;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1081,7 +1081,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = l_Toml_keyVal;
-x_2 = l_myMacro____x40_Init_Notation___hyg_1202____closed__7;
+x_2 = l_myMacro____x40_Init_Notation___hyg_1190____closed__7;
 x_3 = l_term_x5b___x5d___closed__6;
 x_4 = 0;
 x_5 = lean_alloc_ctor(10, 3, 1);
@@ -1110,7 +1110,7 @@ static lean_object* _init_l_Toml_inlineTable___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__22;
+x_1 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_265____closed__22;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1214,7 +1214,7 @@ static lean_object* _init_l_Toml_file___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_myMacro____x40_Init_Notation___hyg_990____closed__4;
+x_1 = l_myMacro____x40_Init_Notation___hyg_986____closed__4;
 x_2 = l_Toml_table;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1798,7 +1798,7 @@ x_11 = x_2 + x_10;
 x_12 = lean_ctor_get(x_9, 1);
 lean_inc(x_12);
 lean_dec(x_9);
-x_13 = l_myMacro____x40_Init_Notation___hyg_1202____closed__7;
+x_13 = l_myMacro____x40_Init_Notation___hyg_1190____closed__7;
 x_14 = l_Lean_Syntax_SepArray_ofElems(x_13, x_12);
 lean_dec(x_12);
 x_15 = x_14;
@@ -1859,7 +1859,7 @@ x_15 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_13);
 x_16 = lean_array_push(x_12, x_15);
-x_17 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_261____closed__22;
+x_17 = l_Std_Range_myMacro____x40_Init_Data_Range___hyg_265____closed__22;
 x_18 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_18, 0, x_4);
 lean_ctor_set(x_18, 1, x_17);
@@ -2786,6 +2786,7 @@ if (x_28 == 0)
 lean_object* x_29; lean_object* x_30; 
 lean_dec(x_1);
 x_29 = l_Lean_Parser_ParserState_toErrorMsg(x_21, x_25);
+lean_dec(x_21);
 x_30 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 lean_ctor_set_tag(x_14, 1);
@@ -2806,6 +2807,7 @@ lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36;
 x_33 = l_Lean_Parser_ParserState_mkEOIError___closed__1;
 x_34 = l_Lean_Parser_ParserState_mkError(x_25, x_33);
 x_35 = l_Lean_Parser_ParserState_toErrorMsg(x_21, x_34);
+lean_dec(x_21);
 x_36 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set_tag(x_14, 1);
@@ -2862,6 +2864,7 @@ if (x_53 == 0)
 lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 lean_dec(x_1);
 x_54 = l_Lean_Parser_ParserState_toErrorMsg(x_46, x_50);
+lean_dec(x_46);
 x_55 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_55, 0, x_54);
 x_56 = lean_alloc_ctor(1, 2, 0);
@@ -2883,6 +2886,7 @@ lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean
 x_59 = l_Lean_Parser_ParserState_mkEOIError___closed__1;
 x_60 = l_Lean_Parser_ParserState_mkError(x_50, x_59);
 x_61 = l_Lean_Parser_ParserState_toErrorMsg(x_46, x_60);
+lean_dec(x_46);
 x_62 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_62, 0, x_61);
 x_63 = lean_alloc_ctor(1, 2, 0);

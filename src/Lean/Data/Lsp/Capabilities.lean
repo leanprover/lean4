@@ -31,6 +31,9 @@ structure ServerCapabilities where
   textDocumentSync? : Option TextDocumentSyncOptions := none
   hoverProvider : Bool := false
   documentSymbolProvider : Bool := false
+  definitionProvider : Bool := false
+  declarationProvider : Bool := false
+  typeDefinitionProvider : Bool := false
   deriving ToJson, FromJson
 
 end Lsp

@@ -211,24 +211,6 @@ def setInfo (info : SourceInfo) : Syntax → Syntax
   | ident _ rawVal val pre => ident info rawVal val pre
   | stx                    => stx
 
-partial def replaceInfo (info : SourceInfo) : Syntax → Syntax
-  | node k args => node k <| args.map (replaceInfo info)
-  | stx         => setInfo info stx
-
-def copyHeadInfo (s : Syntax) (source : Syntax) : Syntax :=
-  match source.getHeadInfo with
-  | none      => s
-  | some info => s.setHeadInfo info
-
-def copyTailInfo (s : Syntax) (source : Syntax) : Syntax :=
-  match source.getTailInfo with
-  | none      => s
-  | some info => s.setTailInfo info
-
-def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
- let s := s.copyHeadInfo source
- s.copyTailInfo source
-
 /--
   Copy head and tail position information from `source` to `s`.
   `leading` and `trailing` information is not preserved. -/
@@ -298,6 +280,9 @@ def mkIdentFrom (src : Syntax) (val : Name) : Syntax :=
   let pos := src.getPos
   Syntax.ident { pos := pos } (toString val).toSubstring val []
 
+def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m Syntax := do
+  return mkIdentFrom (← getRef) val
+
 /--
   Create an identifier referring to a constant `c` copying the position from `src`.
   This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
@@ -307,6 +292,9 @@ def mkCIdentFrom (src : Syntax) (c : Name) : Syntax :=
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
   Syntax.ident { pos := pos } (toString id).toSubstring id [(c, [])]
+
+def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) : m Syntax := do
+  return mkCIdentFrom (← getRef) c
 
 def mkCIdent (c : Name) : Syntax :=
   mkCIdentFrom Syntax.missing c

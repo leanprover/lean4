@@ -487,21 +487,18 @@ def mkIte (ref : Syntax) (optIdent : Syntax) (cond : Syntax) (thenBranch : CodeB
     uvars := thenBranch.uvars,
   }
 
-private def mkUnit (ref : Syntax) : MacroM Syntax := do
-  let unit ← `(PUnit.unit)
-  pure $ unit.copyInfo ref
+private def mkUnit : MacroM Syntax :=
+  `(PUnit.unit)
 
-private def mkPureUnit (ref : Syntax) : MacroM Syntax := do
-  let unit ← mkUnit ref
-  let pureUnit ← `(Pure.pure $(unit.copyInfo ref))
-  pure $ pureUnit.copyInfo ref
+private def mkPureUnit : MacroM Syntax :=
+  `(pure PUnit.unit)
 
-def mkPureUnitAction (ref : Syntax) : MacroM CodeBlock := do
-  mkTerminalAction (← mkPureUnit ref)
+def mkPureUnitAction : MacroM CodeBlock := do
+  mkTerminalAction (← mkPureUnit)
 
-def mkUnless (ref : Syntax) (cond : Syntax) (c : CodeBlock) : MacroM CodeBlock := do
-  let thenBranch ← mkPureUnitAction ref
-  pure { c with code := Code.ite ref none mkNullNode cond thenBranch.code c.code }
+def mkUnless (cond : Syntax) (c : CodeBlock) : MacroM CodeBlock := do
+  let thenBranch ← mkPureUnitAction
+  pure { c with code := Code.ite (← getRef) none mkNullNode cond thenBranch.code c.code }
 
 def mkMatch (ref : Syntax) (discrs : Syntax) (optType : Syntax) (alts : Array (Alt CodeBlock)) : TermElabM CodeBlock := do
   -- nary version of homogenize
@@ -668,16 +665,14 @@ Note that we are not restricting the macro power since the
 `Bind.bind` combinator already forces values computed by monadic
 actions to be in the same universe.
 -/
-private def mkTuple (ref : Syntax) (elems : Array Syntax) : MacroM Syntax := do
+private def mkTuple (elems : Array Syntax) : MacroM Syntax := do
   if elems.size == 0 then
-    mkUnit ref
+    mkUnit
   else if elems.size == 1 then
     pure elems[0]
   else
     (elems.extract 0 (elems.size - 1)).foldrM
-      (fun elem tuple => do
-        let tuple ← `(MProd.mk $elem $tuple)
-        pure $ tuple.copyInfo ref)
+      (fun elem tuple => `(MProd.mk $elem $tuple))
       (elems.back)
 
 /- Return `some action` if `doElem` is a `doExpr <action>`-/
@@ -792,14 +787,14 @@ structure Context where
 
 abbrev M := ReaderT Context MacroM
 
-def mkUVarTuple (ref : Syntax) : M Syntax := do
+def mkUVarTuple : M Syntax := do
   let ctx ← read
-  let uvarIdents := ctx.uvars.map fun x => mkIdentFrom ref x
-  mkTuple ref uvarIdents
+  let uvarIdents ← ctx.uvars.mapM mkIdentFromRef
+  mkTuple uvarIdents
 
-def returnToTermCore (ref : Syntax) (val : Syntax) : M Syntax := do
+def returnToTerm (val : Syntax) : M Syntax := do
   let ctx ← read
-  let u ← mkUVarTuple ref
+  let u ← mkUVarTuple
   match ctx.kind with
   | Kind.regular         => if ctx.uvars.isEmpty then `(Pure.pure $val) else `(Pure.pure (MProd.mk $val $u))
   | Kind.forIn           => `(Pure.pure (ForInStep.done $u))
@@ -809,13 +804,9 @@ def returnToTermCore (ref : Syntax) (val : Syntax) : M Syntax := do
   | Kind.nestedSBC       => `(Pure.pure (DoResultSBC.«pureReturn» $val $u))
   | Kind.nestedPRBC      => `(Pure.pure (DoResultPRBC.«return» $val $u))
 
-def returnToTerm (ref : Syntax) (val : Syntax) : M Syntax := do
-  let r ← returnToTermCore ref val
-  pure $ r.copyInfo ref
-
-def continueToTermCore (ref : Syntax) : M Syntax := do
+def continueToTerm : M Syntax := do
   let ctx ← read
-  let u ← mkUVarTuple ref
+  let u ← mkUVarTuple
   match ctx.kind with
   | Kind.regular         => unreachable!
   | Kind.forIn           => `(Pure.pure (ForInStep.yield $u))
@@ -825,13 +816,9 @@ def continueToTermCore (ref : Syntax) : M Syntax := do
   | Kind.nestedSBC       => `(Pure.pure (DoResultSBC.«continue» $u))
   | Kind.nestedPRBC      => `(Pure.pure (DoResultPRBC.«continue» $u))
 
-def continueToTerm (ref : Syntax) : M Syntax := do
-  let r ← continueToTermCore ref
-  pure $ r.copyInfo ref
-
-def breakToTermCore (ref : Syntax) : M Syntax := do
+def breakToTerm : M Syntax := do
   let ctx ← read
-  let u ← mkUVarTuple ref
+  let u ← mkUVarTuple
   match ctx.kind with
   | Kind.regular         => unreachable!
   | Kind.forIn           => `(Pure.pure (ForInStep.done $u))
@@ -841,14 +828,9 @@ def breakToTermCore (ref : Syntax) : M Syntax := do
   | Kind.nestedSBC       => `(Pure.pure (DoResultSBC.«break» $u))
   | Kind.nestedPRBC      => `(Pure.pure (DoResultPRBC.«break» $u))
 
-def breakToTerm (ref : Syntax) : M Syntax := do
-  let r ← breakToTermCore ref
-  pure $ r.copyInfo ref
-
-def actionTerminalToTermCore (action : Syntax) : M Syntax := withFreshMacroScope do
-  let ref := action
+def actionTerminalToTerm (action : Syntax) : M Syntax := withRef action <| withFreshMacroScope do
   let ctx ← read
-  let u ← mkUVarTuple ref
+  let u ← mkUVarTuple
   match ctx.kind with
   | Kind.regular         => if ctx.uvars.isEmpty then pure action else `(Bind.bind $action fun y => Pure.pure (MProd.mk y $u))
   | Kind.forIn           => `(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield $u))
@@ -858,12 +840,7 @@ def actionTerminalToTermCore (action : Syntax) : M Syntax := withFreshMacroScope
   | Kind.nestedSBC       => `(Bind.bind $action fun y => (Pure.pure (DoResultSBC.«pureReturn» y $u)))
   | Kind.nestedPRBC      => `(Bind.bind $action fun y => (Pure.pure (DoResultPRBC.«pure» y $u)))
 
-def actionTerminalToTerm (action : Syntax) : M Syntax := do
-  let ref := action
-  let r ← actionTerminalToTermCore action
-  pure $ r.copyInfo ref
-
-def seqToTermCore (action : Syntax) (k : Syntax) : M Syntax := withFreshMacroScope do
+def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := withRef action <| withFreshMacroScope do
   if action.getKind == `Lean.Parser.Term.doDbgTrace then
     let msg := action[1]
     `(dbgTrace! $msg; $k)
@@ -874,11 +851,7 @@ def seqToTermCore (action : Syntax) (k : Syntax) : M Syntax := withFreshMacroSco
     let action := Syntax.copyRangePos (← `(($action : $((←read).m) PUnit))) action
     `(Bind.bind $action (fun (_ : PUnit) => $k))
 
-def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := do
-  let r ← seqToTermCore action k
-  return r.copyInfo action
-
-def declToTermCore (decl : Syntax) (k : Syntax) : M Syntax := withFreshMacroScope do
+def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFreshMacroScope do
   let kind := decl.getKind
   if kind == `Lean.Parser.Term.doLet then
     let letDecl := decl[2]
@@ -910,11 +883,7 @@ def declToTermCore (decl : Syntax) (k : Syntax) : M Syntax := withFreshMacroScop
   else
     Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
 
-def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := do
-  let r ← declToTermCore decl k
-  pure $ r.copyInfo decl
-
-def reassignToTermCore (reassign : Syntax) (k : Syntax) : MacroM Syntax := withFreshMacroScope do
+def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := withRef reassign <| withFreshMacroScope do
   let kind := reassign.getKind
   if kind == `Lean.Parser.Term.doReassign then
     -- doReassign := parser! (letIdDecl <|> letPatDecl)
@@ -935,27 +904,16 @@ def reassignToTermCore (reassign : Syntax) (k : Syntax) : MacroM Syntax := withF
     -- Note that `doReassignArrow` is expanded by `doReassignArrowToCode
     Macro.throwErrorAt reassign "unexpected kind of 'do' reassignment"
 
-def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := do
-  let r ← reassignToTermCore reassign k
-  pure $ r.copyInfo reassign
+def mkIte (optIdent : Syntax) (cond : Syntax) (thenBranch : Syntax) (elseBranch : Syntax) : MacroM Syntax := do
+  if optIdent.isNone then
+    `(ite $cond $thenBranch $elseBranch)
+  else
+    let h := optIdent[0]
+    `(dite $cond (fun $h => $thenBranch) (fun $h => $elseBranch))
 
-def mkIte (ref : Syntax) (optIdent : Syntax) (cond : Syntax) (thenBranch : Syntax) (elseBranch : Syntax) : MacroM Syntax := do
-  let r ←
-    if optIdent.isNone then
-      `(ite $cond $thenBranch $elseBranch)
-    else
-      let h := optIdent[0]
-      `(dite $cond (fun $h => $thenBranch) (fun $h => $elseBranch))
-  return r.copyInfo ref
-
-def mkJoinPointCore (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Syntax) : M Syntax := withFreshMacroScope do
-  let ref := body
-  let binders ← ps.mapM fun ⟨id, useTypeOf⟩ => do
-    let type ← if useTypeOf then `(typeOf! $(mkIdentFrom ref id)) else `(_)
-    let binderType := mkNullNode #[mkAtomFrom ref ":", type]
-    pure $ mkNode `Lean.Parser.Term.explicitBinder #[mkAtomFrom ref "(", mkNullNode #[mkIdentFrom ref id], binderType, mkNullNode, mkAtomFrom ref ")"]
-  let m := (← read).m
-  let type ← `($m _)
+def mkJoinPoint (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Syntax) : M Syntax := withRef body <| withFreshMacroScope do
+  let pTypes ← ps.mapM fun ⟨id, useTypeOf⟩ => do if useTypeOf then `(typeOf! $(← mkIdentFromRef id)) else `(_)
+  let ps     ← ps.mapM fun ⟨id, useTypeOf⟩ => mkIdentFromRef id
   /-
   We use `let*` instead of `let` for joinpoints to make sure `$k` is elaborated before `$body`.
   By elaborating `$k` first, we "learn" more about `$body`'s type.
@@ -980,26 +938,22 @@ def mkJoinPointCore (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : 
   If we use the regular `let` instead of `let*`, the joinpoint `jp` will be elaborated and its type will be inferred to be `Unit → IO (IO.Ref Bool)`.
   Then, we get a typing error at `jp ()`. By using `let*`, we first elaborate `if x > 0 ...` and learn that `jp` has type `Unit → IO Unit`.
   Then, we get the expected type mismatch error at `IO.mkRef true`. -/
-  `(let* $(mkIdentFrom ref j):ident $binders:explicitBinder* : $type := $body; $k)
-
-def mkJoinPoint (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Syntax) : M Syntax := do
-  let r ← mkJoinPointCore j ps body k
-  pure $ r.copyInfo body
+  `(let* $(← mkIdentFromRef j):ident $[($ps : $pTypes)]* : $((← read).m) _ := $body; $k)
 
 def mkJmp (ref : Syntax) (j : Name) (args : Array Syntax) : Syntax :=
   Syntax.mkApp (mkIdentFrom ref j) args
 
 partial def toTerm : Code → M Syntax
-  | Code.«return» ref val   => returnToTerm ref val
-  | Code.«continue» ref     => continueToTerm ref
-  | Code.«break» ref        => breakToTerm ref
+  | Code.«return» ref val   => withRef ref <| returnToTerm val
+  | Code.«continue» ref     => withRef ref continueToTerm
+  | Code.«break» ref        => withRef ref breakToTerm
   | Code.action e           => actionTerminalToTerm e
   | Code.joinpoint j ps b k => do mkJoinPoint j ps (← toTerm b) (← toTerm k)
   | Code.jmp ref j args     => pure $ mkJmp ref j args
   | Code.decl _ stx k       => do declToTerm stx (← toTerm k)
   | Code.reassign _ stx k   => do reassignToTerm stx (← toTerm k)
   | Code.seq stx k          => do seqToTerm stx (← toTerm k)
-  | Code.ite ref _ o c t e  => do mkIte ref o c (← toTerm t) (← toTerm e)
+  | Code.ite ref _ o c t e  => withRef ref <| do mkIte o c (← toTerm t) (← toTerm e)
   | Code.«match» ref discrs optType alts => do
     let mut termAlts := #[]
     for alt in alts do
@@ -1041,9 +995,9 @@ def mkNestedTerm (code : Code) (m : Syntax) (uvars : Array Name) (a r bc : Bool)
    - `bc` is true if the code block has a `Code.break _` or `Code.continue _` exit point
 
    The result is a sequence of `doElem` -/
-def matchNestedTermResult (ref : Syntax) (term : Syntax) (uvars : Array Name) (a r bc : Bool) : MacroM (List Syntax) := do
+def matchNestedTermResult (term : Syntax) (uvars : Array Name) (a r bc : Bool) : MacroM (List Syntax) := do
   let toDoElems (auxDo : Syntax) : List Syntax := getDoSeqElems (getDoSeq auxDo)
-  let u ← mkTuple ref (uvars.map (mkIdentFrom ref))
+  let u ← mkTuple (← uvars.mapM mkIdentFromRef)
   match a, r, bc with
   | true, false, false =>
     if uvars.isEmpty then
@@ -1175,12 +1129,11 @@ def checkLetArrowRHS (doElem : Syntax) : M Unit := do
    "return " >> optional termParser
    ```
    `doElems` is only used for sanity checking. -/
-def doReturnToCode (doReturn : Syntax) (doElems: List Syntax) : M CodeBlock := do
-  let ref := doReturn
+def doReturnToCode (doReturn : Syntax) (doElems: List Syntax) : M CodeBlock := withRef doReturn do
   ensureEOS doElems
   let argOpt := doReturn[1]
-  let arg ← if argOpt.isNone then liftMacroM <| mkUnit ref else pure argOpt[0]
-  return mkReturn ref arg
+  let arg ← if argOpt.isNone then liftMacroM mkUnit else pure argOpt[0]
+  return mkReturn (← getRef) arg
 
 structure Catch where
   x         : Syntax
@@ -1305,12 +1258,12 @@ mutual
      ```
      "unless " >> termParser >> "do " >> doSeq
      ```  -/
-  partial def doUnlessToCode (doUnless : Syntax) (doElems : List Syntax) : M CodeBlock := do
+  partial def doUnlessToCode (doUnless : Syntax) (doElems : List Syntax) : M CodeBlock := withRef doUnless do
     let ref   := doUnless
     let cond  := doUnless[1]
     let doSeq := doUnless[3]
     let body ← doSeqToCode (getDoSeqElems doSeq)
-    let unlessCode ← liftMacroM <| mkUnless ref cond body
+    let unlessCode ← liftMacroM <| mkUnless cond body
     concatWith unlessCode doElems
 
   /- Generate `CodeBlock` for `doFor; doElems`
@@ -1347,8 +1300,7 @@ mutual
       let doForDecls := doForDecls.eraseIdx 1
       let body := doFor[3]
       withFreshMacroScope do
-        let toStreamFn ← `(toStream)
-        let toStreamFn := toStreamFn.copyInfo ys
+        let toStreamFn ← withRef ys `(toStream)
         let auxDo ←
           `(do let mut s := $toStreamFn:ident $ys
                for $doForDecls:doForDecl,* do
@@ -1358,14 +1310,13 @@ mutual
                    s := s'
                    do $body)
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
-    else
-      let ref       := doFor
+    else withRef doFor do
       let x         := doForDecls[0][0]
       let xs        := doForDecls[0][2]
       let forElems  := getDoSeqElems doFor[3]
       let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
       let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
-      let uvarsTuple ← liftMacroM $ mkTuple ref (uvars.map (mkIdentFrom ref))
+      let uvarsTuple ← liftMacroM do mkTuple (← uvars.mapM mkIdentFromRef)
       if hasReturn forInBodyCodeBlock.code then
         let forInTerm ← `($(xs).forIn (MProd.mk none $uvarsTuple) fun $x (MProd.mk _ $uvarsTuple) => $forInBody)
         let auxDo ← `(do let r ← $forInTerm:term;
@@ -1458,11 +1409,11 @@ mutual
           throwError "'finally' currently does 'return', 'break', nor 'continue'"
         let finallyTerm ← liftMacroM <| ToTerm.run finallyCode.code ctx.m {} ToTerm.Kind.regular
         `(tryFinally $term $finallyTerm)
-    let doElemsNew ← liftMacroM <| ToTerm.matchNestedTermResult ref term uvars a r bc
+    let doElemsNew ← liftMacroM <| ToTerm.matchNestedTermResult term uvars a r bc
     doSeqToCode (doElemsNew ++ doElems)
 
   partial def doSeqToCode : List Syntax → M CodeBlock
-    | [] => do liftMacroM <| mkPureUnitAction (← read).ref
+    | [] => do liftMacroM mkPureUnitAction
     | doElem::doElems => withRef doElem do
       match (← liftMacroM <| expandMacro? doElem) with
       | some doElem => doSeqToCode (doElem::doElems)
@@ -1562,8 +1513,7 @@ builtin_initialize registerTraceClass `Elab.do
 
 private def toDoElem (newKind : SyntaxNodeKind) : Macro := fun stx => do
   let stx := stx.setKind newKind
-  let stxNew ← `(do $stx:doElem)
-  return stxNew.copyInfo stx
+  withRef stx `(do $stx:doElem)
 
 @[builtinMacro Lean.Parser.Term.termFor]
 def expandTermFor : Macro := toDoElem `Lean.Parser.Term.doFor

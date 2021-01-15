@@ -28,7 +28,7 @@ def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type
         | true,  some type => `($combinator fun $ident:ident : $type => $acc)
         | false, none      => `($combinator fun _ => $acc)
         | false, some type => `($combinator fun _ : $type => $acc)
-      loop i (acc.copyInfo (← getRef))
+      loop i acc
   loop idents.size body
 
 def expandBrackedBindersAux (combinator : Syntax) (binders : Array Syntax) (body : Syntax) : MacroM Syntax :=

@@ -38,8 +38,7 @@ instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 @[extern c inline "#1 / #2"]  constant Float.div : Float → Float → Float
 @[extern c inline "(- #1)"]   constant Float.neg : Float → Float
 
-def Float.ofInt (n : Int) : Float :=
-  match n with
+def Float.ofInt : Int → Float
   | Int.ofNat n => Float.ofNat n
   | Int.negSucc n => Float.neg (Float.ofNat (Nat.succ n))
 

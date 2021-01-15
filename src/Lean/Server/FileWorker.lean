@@ -408,12 +408,10 @@ section RequestHandling
         return none
       | Except.ok none => return none
 
-  def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam)
-    : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
-    let st ← read
-    let doc ← st.docRef.get
-    let t ← doc.cmdSnaps.waitAll
-    t.map fun _ => Except.ok $ Except.ok WaitForDiagnostics.mk
+  open Elab in
+  partial def handleDefinition (id : RequestID) (p : TextDocumentPositionParams)
+    : ServerM (Task (Except IO.Error (Except RequestError (Array LocationLink)))) := do
+    return Task.pure <| Except.ok <| Except.ok #[]
 
   def rangeOfSyntax (text : FileMap) (stx : Syntax) : Range :=
     ⟨text.utf8PosToLspPos <| stx.getHeadInfo.get!.pos.get!,
@@ -474,6 +472,13 @@ section RequestHandling
             children? := syms.toArray
           } :: syms', stxs'')
 
+  def handleWaitForDiagnostics (id : RequestID) (p : WaitForDiagnosticsParam)
+    : ServerM (Task (Except IO.Error (Except RequestError WaitForDiagnostics))) := do
+    let st ← read
+    let doc ← st.docRef.get
+    let t ← doc.cmdSnaps.waitAll
+    t.map fun _ => Except.ok $ Except.ok WaitForDiagnostics.mk
+
 end RequestHandling
 
 section MessageHandling
@@ -512,6 +517,9 @@ section MessageHandling
     match method with
     | "textDocument/waitForDiagnostics" => handle WaitForDiagnosticsParam WaitForDiagnostics handleWaitForDiagnostics
     | "textDocument/hover"              => handle HoverParams (Option Hover) handleHover
+    | "textDocument/declaration"        => handle TextDocumentPositionParams (Array LocationLink) handleDefinition
+    | "textDocument/definition"         => handle TextDocumentPositionParams (Array LocationLink) handleDefinition
+    | "textDocument/typeDefinition"     => handle TextDocumentPositionParams (Array LocationLink) handleDefinition
     | "textDocument/documentSymbol"     => handle DocumentSymbolParams DocumentSymbolResult handleDocumentSymbol
     | _ => throwServerError s!"Got unsupported request: {method}"
 end MessageHandling

@@ -275,15 +275,20 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
   `[LVal.fieldName "foo", LVal.getOp i, LVal.fieldIdx 1]`.
   Recall that the notation `a[i]` is not just for accessing arrays in Lean. -/
 inductive LVal where
-  | fieldIdx  (i : Nat)
-  | fieldName (name : String)
-  | getOp     (idx : Syntax)
+  | fieldIdx  (ref : Syntax) (i : Nat)
+  | fieldName (ref : Syntax) (name : String)
+  | getOp     (ref : Syntax) (idx : Syntax)
+
+def LVal.getRef : LVal → Syntax
+  | LVal.fieldIdx ref _  => ref
+  | LVal.fieldName ref _ => ref
+  | LVal.getOp ref _     => ref
 
 instance : ToString LVal where
   toString
-    | LVal.fieldIdx i => toString i
-    | LVal.fieldName n => n
-    | LVal.getOp idx => "[" ++ toString idx ++ "]"
+    | LVal.fieldIdx _ i => toString i
+    | LVal.fieldName _ n => n
+    | LVal.getOp _ idx => "[" ++ toString idx ++ "]"
 
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
 def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecsToLift
@@ -986,6 +991,10 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
       match implicit? with
       | some expectedType => elabImplicitLambda stx catchExPostpone expectedType #[]
       | none              => elabUsingElabFns stx expectedType? catchExPostpone
+
+def addTermInfo (stx : Syntax) (e : Expr) : TermElabM Unit := do
+  if (← getInfoState).enabled then
+    pushInfoTree <| InfoTree.node (children := {}) <| Info.ofTermInfo { lctx := (← getLCtx), expr := e, stx := stx }
 
 def mkTermInfo (stx : Syntax) (e : Expr) : TermElabM (Sum Info MVarId) := do
   let isHole? : TermElabM (Option MVarId) := do

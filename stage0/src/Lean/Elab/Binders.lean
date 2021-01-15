@@ -144,6 +144,13 @@ private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
 private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
   registerCustomErrorIfMVar type ref "failed to infer binder type"
 
+private def addLocalVarInfoCore (lctx : LocalContext) (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
+  if (← getInfoState).enabled then
+    pushInfoTree <| InfoTree.node (children := {}) <| Info.ofTermInfo { lctx := lctx, expr := fvar, stx := stx }
+
+private def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
+  addLocalVarInfoCore (← getLCtx) stx fvar
+
 private partial def elabBinderViews {α} (binderViews : Array BinderView) (catchAutoBoundImplicit : Bool) (fvars : Array Expr) (k : Array Expr → TermElabM α)
     : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α := do
@@ -152,12 +159,14 @@ private partial def elabBinderViews {α} (binderViews : Array BinderView) (catch
       if catchAutoBoundImplicit then
         elabTypeWithAutoBoundImplicit binderView.type fun type => do
           registerFailedToInferBinderTypeInfo type binderView.type
-          withLocalDecl binderView.id.getId binderView.bi type fun fvar =>
+          withLocalDecl binderView.id.getId binderView.bi type fun fvar => do
+            addLocalVarInfo binderView.id fvar
             loop (i+1) (fvars.push fvar)
       else
         let type ← elabType binderView.type
         registerFailedToInferBinderTypeInfo type binderView.type
-        withLocalDecl binderView.id.getId binderView.bi type fun fvar =>
+        withLocalDecl binderView.id.getId binderView.bi type fun fvar => do
+          addLocalVarInfo binderView.id fvar
           loop (i+1) (fvars.push fvar)
      else
       k fvars
@@ -321,6 +330,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
         We do not believe this is an useful feature, and it would complicate the logic here.
       -/
       let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi
+      addLocalVarInfoCore lctx binderView.id fvar
       let s ← withRef binderView.id $ propagateExpectedType fvar type s
       let s := { s with lctx := lctx }
       match (← isClass? type) with
@@ -480,7 +490,7 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
 
    The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
    If `elabBodyFirst == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`. -/
-def elabLetDeclAux (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
+def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
     (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) : TermElabM Expr := do
   let (type, val, arity) ← elabBinders binders fun xs => do
     let type ← elabType typeStx
@@ -494,15 +504,17 @@ def elabLetDeclAux (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valSt
       let type ← mkForallFVars xs type
       let val  ← mkLambdaFVars xs val
       pure (type, val, xs.size)
-  trace[Elab.let.decl]! "{n} : {type} := {val}"
+  trace[Elab.let.decl]! "{id.getId} : {type} := {val}"
   let result ←
     if useLetExpr then
-      withLetDecl n type val fun x => do
+      withLetDecl id.getId type val fun x => do
+        addLocalVarInfo id x
         let body ← elabTerm body expectedType?
         let body ← instantiateMVars body
         mkLetFVars #[x] body
     else
-      let f ← withLocalDecl n BinderInfo.default type fun x => do
+      let f ← withLocalDecl id.getId BinderInfo.default type fun x => do
+        addLocalVarInfo id x
         let body ← elabTerm body expectedType?
         let body ← instantiateMVars body
         mkLambdaFVars #[x] body
@@ -516,14 +528,14 @@ def elabLetDeclAux (n : Name) (binders : Array Syntax) (typeStx : Syntax) (valSt
   pure result
 
 structure LetIdDeclView where
-  id      : Name
+  id      : Syntax
   binders : Array Syntax
   type    : Syntax
   value   : Syntax
 
 def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
   -- `letIdDecl` is of the form `ident >> many bracketedBinder >> optType >> " := " >> termParser
-  let id      := letIdDecl[0].getId
+  let id      := letIdDecl[0]
   let binders := letIdDecl[1].getArgs
   let optType := letIdDecl[2]
   let type    := expandOptType letIdDecl optType

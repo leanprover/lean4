@@ -43,6 +43,11 @@ instance : Div UInt8       := ⟨UInt8.div⟩
 instance : HasLess UInt8   := ⟨UInt8.lt⟩
 instance : HasLessEq UInt8 := ⟨UInt8.le⟩
 
+@[extern c inline "#1 << #2"]
+constant UInt8.shiftLeft (a b : UInt8) : UInt8
+@[extern c inline "#1 >> #2"]
+constant UInt8.shiftRight (a b : UInt8) : UInt8
+
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 < #2"]
 def UInt8.decLt (a b : UInt8) : Decidable (a < b) :=
@@ -92,6 +97,11 @@ instance : HMod UInt16 Nat UInt16 := ⟨UInt16.modn⟩
 instance : Div UInt16       := ⟨UInt16.div⟩
 instance : HasLess UInt16   := ⟨UInt16.lt⟩
 instance : HasLessEq UInt16 := ⟨UInt16.le⟩
+
+@[extern c inline "#1 << #2"]
+constant UInt16.shiftLeft (a b : UInt16) : UInt16
+@[extern c inline "#1 >> #2"]
+constant UInt16.shiftRight (a b : UInt16) : UInt16
 
 set_option bootstrap.gen_matcher_code false in
 @[extern c inline "#1 < #2"]

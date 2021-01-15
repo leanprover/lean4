@@ -229,7 +229,44 @@ def copyInfo (s : Syntax) (source : Syntax) : Syntax :=
  let s := s.copyHeadInfo source
  s.copyTailInfo source
 
+/--
+  Copy head and tail position information from `source` to `s`.
+  `leading` and `trailing` information is not preserved. -/
+def copyRangePos (s : Syntax) (source : Syntax) : Syntax :=
+  match source.getPos with
+  | none     => s
+  | some pos =>
+    let s := s.setHeadInfo { pos := pos }
+    match source.getTailInfo with
+    | some { pos := some pos, .. } =>
+      let s := s.setTailInfo { pos := pos }
+      /- The trailing token at `s` may be different from `source`.
+         So, we retrieve the tail positions and adjust `pos` to make sure the `s.getTailPos == source.getTailPos`. -/
+      match source.getTailPos, s.getTailPos with
+      | some pos₁, some pos₂ =>
+        if pos₁ < pos₂ then
+          s.setTailInfo { pos := some ((pos : Nat) - (pos₂ - pos₁) : Nat) }
+        else if pos₁ > pos₂ then
+          s.setTailInfo { pos := some ((pos : Nat) + (pos₁ - pos₂) : Nat) }
+        else
+          s
+      | _, _ => s
+    | _ => s
+
+/-- Return the first atom/identifier that has position information -/
+partial def getHead? : Syntax → Option Syntax
+  | stx@(atom { pos := some _, .. } ..)  => some stx
+  | stx@(ident { pos := some _, .. } ..) => some stx
+  | node _ args      => args.findSome? getHead?
+  | _                => none
+
 end Syntax
+
+/-- Use the head atom/identifier of the current `ref` as the `ref` -/
+@[inline] def withHeadRefOnly {m : Type → Type} [Monad m] [MonadRef m] {α} (x : m α) : m α := do
+  match (← getRef).getHead? with
+  | none => x
+  | some ref => withRef ref x
 
 def mkAtom (val : String) : Syntax :=
   Syntax.atom {} val

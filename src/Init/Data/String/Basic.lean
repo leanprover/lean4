@@ -24,19 +24,19 @@ instance decLt (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
 def length : (@& String) → Nat
   | ⟨s⟩ => s.length
 
-/- The internal implementation uses dynamic arrays and will perform destructive updates
+/-- The internal implementation uses dynamic arrays and will perform destructive updates
    if the String is not shared. -/
 @[extern "lean_string_push"]
 def push : String → Char → String
   | ⟨s⟩, c => ⟨s ++ [c]⟩
 
-/- The internal implementation uses dynamic arrays and will perform destructive updates
+/-- The internal implementation uses dynamic arrays and will perform destructive updates
    if the String is not shared. -/
 @[extern "lean_string_append"]
 def append : String → (@& String) → String
   | ⟨a⟩, ⟨b⟩ => ⟨a ++ b⟩
 
-/- O(n) in the runtime, where n is the length of the String -/
+/-- O(n) in the runtime, where n is the length of the String -/
 def toList (s : String) : List Char :=
   s.data
 
@@ -224,7 +224,7 @@ def forward : Iterator → Nat → Iterator
 def remainingToString : Iterator → String
   | ⟨s, i⟩ => s.extract i s.bsize
 
-/- (isPrefixOfRemaining it₁ it₂) is `true` Iff `it₁.remainingToString` is a prefix
+/-- `(isPrefixOfRemaining it₁ it₂)` is `true` iff `it₁.remainingToString` is a prefix
    of `it₂.remainingToString`. -/
 def isPrefixOfRemaining : Iterator → Iterator → Bool
   | ⟨s₁, i₁⟩, ⟨s₂, i₂⟩ => s₁.extract i₁ s₁.bsize = s₂.extract i₂ (i₂ + (s₁.bsize - i₁))
@@ -300,7 +300,7 @@ def toNat? (s : String) : Option Nat :=
   else
     none
 
-/- Return true iff `p` is a prefix of `s` -/
+/-- Return true iff `p` is a prefix of `s` -/
 partial def isPrefixOf (p : String) (s : String) : Bool :=
   let rec loop (i : Pos) :=
     if p.atEnd i then true
@@ -326,19 +326,19 @@ namespace Substring
 @[inline] def toIterator : Substring → String.Iterator
   | ⟨s, b, _⟩ => ⟨s, b⟩
 
-/-- Returns the codepoint at the given offset into the substring. -/
+/-- Return the codepoint at the given offset into the substring. -/
 @[inline] def get : Substring → String.Pos → Char
   | ⟨s, b, _⟩, p => s.get (b+p)
 
 /-- Given an offset of a codepoint into the substring,
-returns the offset there of the next codepoint. -/
+return the offset there of the next codepoint. -/
 @[inline] private def next : Substring → String.Pos → String.Pos
   | ⟨s, b, e⟩, p =>
     let absP := b+p
     if absP = e then p else s.next absP - b
 
 /-- Given an offset of a codepoint into the substring,
-returns the offset there of the previous codepoint. -/
+return the offset there of the previous codepoint. -/
 @[inline] private def prev : Substring → String.Pos → String.Pos
   | ⟨s, b, _⟩, p =>
     let absP := b+p
@@ -355,7 +355,7 @@ private def prevn : Substring → String.Pos → Nat → String.Pos
 @[inline] def front (s : Substring) : Char :=
   s.get 0
 
-/-- Returns the offset into `s` of the first occurence of `c` in `s`,
+/-- Return the offset into `s` of the first occurence of `c` in `s`,
 or `s.bsize` if `c` doesn't occur. -/
 @[inline] def posOf (s : Substring) (c : Char) : String.Pos :=
   match s with

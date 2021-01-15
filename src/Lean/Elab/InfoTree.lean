@@ -33,6 +33,13 @@ structure TermInfo where
   stx  : Syntax
   deriving Inhabited
 
+structure FieldInfo where
+  name : Name
+  lctx : LocalContext
+  val  : Expr
+  stx  : Syntax
+  deriving Inhabited
+
 /- We store the list of goals before and after the execution of a tactic.
    We also store the metavariable context at each time since, we want to unassigned metavariables
    at tactic execution time to be displayed as `?m...`. -/
@@ -54,6 +61,7 @@ inductive Info where
   | ofTacticInfo (i : TacticInfo)
   | ofTermInfo (i : TermInfo)
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
+  | ofFieldInfo (i : FieldInfo)
   deriving Inhabited
 
 inductive InfoTree where
@@ -106,6 +114,12 @@ def TermInfo.format (cinfo : ContextInfo) (info : TermInfo) : IO Format := do
     let endPos := info.stx.getTailPos.getD pos
     return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {cinfo.fileMap.toPosition pos}-{cinfo.fileMap.toPosition endPos}"
 
+def FieldInfo.format (cinfo : ContextInfo) (info : FieldInfo) : IO Format := do
+  cinfo.runMetaM info.lctx do
+    let pos    := info.stx.getPos.getD 0
+    let endPos := info.stx.getTailPos.getD pos
+    return f!"{info.name} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {cinfo.fileMap.toPosition pos}-{cinfo.fileMap.toPosition endPos}"
+
 def ContextInfo.ppGoals (cinfo : ContextInfo) (goals : List MVarId) : IO Format :=
   if goals.isEmpty then
     return "no goals"
@@ -128,6 +142,7 @@ def Info.format (cinfo : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format cinfo
   | ofTermInfo i           => i.format cinfo
   | ofMacroExpansionInfo i => i.format cinfo
+  | ofFieldInfo i          => i.format cinfo
 
 partial def InfoTree.format (tree : InfoTree) (cinfo? : Option ContextInfo := none) : IO Format := do
   match tree with

@@ -258,8 +258,8 @@ Recall that `structInstField` elements have the form
    def structInstField  := parser! structInstLVal >> " := " >> termParser
    def structInstLVal   := parser! (ident <|> numLit <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
    def structInstArrayRef := parser! "[" >> termParser >>"]"
+```
 -/
-
 -- Remark: this code relies on the fact that `expandStruct` only transforms `fieldLHS.fieldName`
 def FieldLHS.toSyntax (first : Bool) : FieldLHS → Syntax
   | FieldLHS.modifyOp   stx _    => stx
@@ -548,6 +548,7 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
       match type with
       | Expr.forallE _ d b c =>
         let cont (val : Expr) (field : Field Struct) : TermElabM (Expr × Expr × Fields) := do
+          pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo { lctx := (← getLCtx), val := val, name := fieldName, stx := ref }
           let e     := mkApp e val
           let type  := b.instantiate1 val
           let field := { field with expr? := some val }
@@ -570,7 +571,7 @@ structure Context where
   -- We must search for default values overriden in derived structures
   structs : Array Struct := #[]
   allStructNames : Array Name := #[]
-  /-
+  /--
   Consider the following example:
   ```
   structure A where

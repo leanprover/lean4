@@ -38,4 +38,8 @@ def f3 (s : Nat × Array (Array Nat)) : Array Nat :=
 def f4 (arg : B) : Nat :=
   arg.pair.fst.val 0
 
+def f5 (x : Nat) : B := {
+  pair := ({ val := id }, { val := id })
+}
+
 showInfoTrees!

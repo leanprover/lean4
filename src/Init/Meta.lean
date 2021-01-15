@@ -292,29 +292,24 @@ partial def expandMacros : Syntax → MacroM Syntax
 /- Helper functions for processing Syntax programmatically -/
 
 /--
-  Create an identifier using `SourceInfo` from `src`.
+  Create an identifier copying the position from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
 def mkIdentFrom (src : Syntax) (val : Name) : Syntax :=
-  let info := src.getHeadInfo.getD {}
-  Syntax.ident info (toString val).toSubstring val []
+  let pos := src.getPos
+  Syntax.ident { pos := pos } (toString val).toSubstring val []
 
 /--
-  Create an identifier referring to a constant `c` using `SourceInfo` from `src`.
+  Create an identifier referring to a constant `c` copying the position from `src`.
   This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
   be captured. -/
 def mkCIdentFrom (src : Syntax) (c : Name) : Syntax :=
-  let info := src.getHeadInfo.getD {}
+  let pos := src.getPos
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
-  Syntax.ident info (toString id).toSubstring id [(c, [])]
+  Syntax.ident { pos := pos } (toString id).toSubstring id [(c, [])]
 
 def mkCIdent (c : Name) : Syntax :=
   mkCIdentFrom Syntax.missing c
-
-def Syntax.identToAtom (stx : Syntax) : Syntax :=
-  match stx with
-  | Syntax.ident info _ val _ => Syntax.atom info (toString val.eraseMacroScopes)
-  | _                         => stx
 
 @[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Syntax :=
@@ -623,18 +618,6 @@ def isNameLit? (stx : Syntax) : Option Name :=
 def hasArgs : Syntax → Bool
   | Syntax.node _ args => args.size > 0
   | _                  => false
-
-def identToStrLit (stx : Syntax) : Syntax :=
-  match stx with
-  | Syntax.ident info _ val _ => mkStrLit (toString val) info
-  | _                         => stx
-
-def strLitToAtom (stx : Syntax) : Syntax :=
-  match stx.isStrLit? with
-  | none     => stx
-  | some val => match stx.getHeadInfo with
-    | some info => Syntax.atom info val
-    | none => unreachable!
 
 def isAtom : Syntax → Bool
   | atom _ _ => true

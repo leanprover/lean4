@@ -49,3 +49,8 @@ it₁.remainingToString ++ "-" ++ it₂.remainingToString
 #eval "abc" == "abd"
 #eval "αβγ".drop 1
 #eval "αβγ".takeRight 1
+
+def ss : Substring := "0123abcdαβγδ".toSubstring
+#eval ss.drop 4 |>.takeRight 4
+#eval ss.drop 4 |>.take 4
+#eval ss.dropRight 4 |>.takeRight 4

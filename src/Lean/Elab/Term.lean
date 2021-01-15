@@ -1050,7 +1050,8 @@ def mkInstMVar (type : Expr) : TermElabM Expr := do
   ```
   class CoeSort (α : Sort u) (β : outParam (Sort v))
   abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α β] : β
-  ``` -/
+  ```
+  -/
 private def tryCoeSort (α : Expr) (a : Expr) : TermElabM Expr := do
   let β ← mkFreshTypeMVar
   let u ← getLevel α
@@ -1281,21 +1282,21 @@ def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitL
 def resolveName' (ident : Syntax) (explicitLevels : List Level) : TermElabM (List (Expr × Syntax × List Syntax)) := do
   match ident with
   | Syntax.ident { pos := pos?, .. } rawStr n preresolved =>
-    let rawStr := rawStr.toString
     let r ← resolveName n preresolved explicitLevels
     r.mapM fun (c, fields) => do
-      let fieldsSize := fields.foldl (init := 0) fun s field => s + field.length + 1
-      let idStr := rawStr.take <| rawStr.length - fieldsSize
-      let id := mkIdentFrom ident idStr
+      let (cSstr, fields) := fields.foldr (init := (rawStr, [])) fun field (restSstr, fs) =>
+        let fieldSstr := restSstr.takeRightWhile (· ≠ '.')
+        ({ restSstr with stopPos := restSstr.stopPos - (fieldSstr.bsize + 1) }, (field, fieldSstr) :: fs)
+      let id := mkIdentFrom ident cSstr.toString
       match pos? with
       | none =>
-        return (c, id, fields.map fun field => mkIdentFrom ident (Name.mkSimple field))
+        return (c, id, fields.map fun (field, _) => mkIdentFrom ident (Name.mkSimple field))
       | some pos =>
-        let mut pos := pos + idStr.length + 1
+        let mut pos := pos + cSstr.bsize + 1
         let mut newFields := #[]
-        for field in fields do
-          newFields := newFields.push <| Syntax.ident { pos := some pos } field.toSubstring (Name.mkSimple field) []
-          pos := pos + field.length + 1
+        for (field, fieldSstr) in fields do
+          newFields := newFields.push <| Syntax.ident { pos := some pos } fieldSstr (Name.mkSimple field) []
+          pos := pos + fieldSstr.bsize + 1
         return (c, id, newFields.toList)
   | _ => throwError! "identifier expected"
 

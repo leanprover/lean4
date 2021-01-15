@@ -582,7 +582,8 @@ def tryCoeThunk? (expectedType : Expr) (eType : Expr) (e : Expr) : TermElabM (Op
   ```
   class CoeT (α : Sort u) (a : α) (β : Sort v)
   abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
-  ``` -/
+  ```
+-/
 private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
   if (← isDefEq expectedType eType) then
     pure e

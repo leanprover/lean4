@@ -87,7 +87,8 @@ private def getStructSource (stx : Syntax) : TermElabM Source :=
   We say a `{ ... }` notation is a `modifyOp` if it contains only one
   ```
   def structInstArrayRef := parser! "[" >> termParser >>"]"
-  ``` -/
+  ```
+-/
 private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
   let s? ← stx[2].getArgs.foldlM (init := none) fun s? p =>
     /- p is of the form `(group (structInstField >> optional ", "))` -/
@@ -96,7 +97,8 @@ private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
        ```
        def structInstLVal   := parser! (ident <|> numLit <|> structInstArrayRef) >> many (group ("." >> (ident <|> numLit)) <|> structInstArrayRef)
        def structInstField  := parser! structInstLVal >> " := " >> termParser
-       ``` -/
+       ```
+    -/
     let lval := arg[0]
     let k    := lval[0].getKind
     if k == `Lean.Parser.Term.structInstArrayRef then
@@ -296,7 +298,8 @@ private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : 
                  >> optional ".."
                  >> optional (" : " >> termParser)
                  >> " }"
-     ``` -/
+     ```
+  -/
   let fieldsStx := stx[2].getArgs.map (·[0])
   let fields ← fieldsStx.toList.mapM fun fieldStx => do
     let val   := fieldStx[2]
@@ -353,7 +356,8 @@ private def expandNumLitFields (s : Struct) : TermElabM Struct :=
    is expanded into
    ```
    { toB.toA.x := 0, toB.y := 0, z := true : C }
-   ``` -/
+   ```
+-/
 private def expandParentFields (s : Struct) : TermElabM Struct := do
   let env ← getEnv
   s.modifyFieldsM fun fields => fields.mapM fun field => match field with

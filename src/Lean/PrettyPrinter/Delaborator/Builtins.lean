@@ -187,7 +187,8 @@ private def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) :
   List.map.match_1 : {α : Type _} →
     (motive : List α → Sort _) →
       (x : List α) → (Unit → motive List.nil) → ((a : α) → (as : List α) → motive (a :: as)) → motive x
-  ``` -/
+  ```
+-/
 @[builtinDelab app]
 def delabAppMatch : Delab := whenPPOption getPPNotation do
   -- incrementally fill `AppMatchState` from arguments

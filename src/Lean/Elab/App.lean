@@ -61,7 +61,8 @@ private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermEl
   ```
   class CoeFun (α : Sort u) (γ : α → outParam (Sort v))
   abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
-  ``` -/
+  ```
+-/
 private def tryCoeFun? (α : Expr) (a : Expr) : TermElabM (Option Expr) := do
   let v ← mkFreshLevelMVar
   let type ← mkArrow α (mkSort v)

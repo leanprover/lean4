@@ -232,7 +232,8 @@ def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
    def f (x y : obj) :=
    let z := ctor_1 x y;
    ret z
-   ``` -/
+   ```
+-/
 def ownArgsIfParam (xs : Array Arg) : M Unit := do
   let ctx ← read
   xs.forM fun x => do

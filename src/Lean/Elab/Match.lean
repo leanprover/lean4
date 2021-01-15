@@ -392,7 +392,8 @@ partial def collect : Syntax → M Syntax
                   >> optional ".."
                   >> optional (" : " >> termParser)
                   >> " }"
-      ``` -/
+      ```
+      -/
       let withMod := args[1]
       unless withMod.isNone do
         throwErrorAt withMod "invalid struct instance pattern, 'with' is not allowed in patterns"

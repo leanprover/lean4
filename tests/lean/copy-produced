@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+root="$(realpath $(dirname $0))"
+cd ${1:-$PWD}
+for f in *.produced.out; do
+    cp $f "$root/${f/produced/expected}"
+done
